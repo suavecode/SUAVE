@@ -345,14 +345,20 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
         cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
-        
-        axes.plot( time , cdp , 'ko-', label='CD parasite' )
-        axes.plot( time , cdi , line_color, label='CD induced' )
-        axes.plot( time , cdc , 'go-', label='CD compressibility' )
-        axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
-        axes.plot( time , cd  , 'ro-', label='CD total'   )            
+                  
         if i == 0: 
+            axes.plot( time , cdp , 'ko-', label='CD parasite' )
+            axes.plot( time , cdi , 'bo-', label='CD induced' )
+            axes.plot( time , cdc , 'go-', label='CD compressibility' )
+            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
+            axes.plot( time , cd  , 'ro-', label='CD total'   )  
             axes.legend(loc='upper center')   
+        else:
+            axes.plot( time , cdp , 'ko-' )
+            axes.plot( time , cdi , 'bo-')
+            axes.plot( time , cdc , 'go-') 
+            axes.plot( time , cdm , 'yo-')
+            axes.plot( time , cd  , 'ro-')  
             
     axes.set_xlabel('Time (min)',axis_font)
     axes.set_ylabel('CD',axis_font)
@@ -368,8 +374,8 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 #   Electronic Conditions
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Electronic_Conditions", file_type = ".png"):
-    """This plots the electronic conditions of the network
+def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'bs--', save_figure = False, save_filename = "Battery_Pack_Conditions", file_type = ".png"):
+    """This plots the battery pack conditions of the network
 
     Assumptions:
     None
@@ -392,50 +398,162 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
     N/A	
     """	  
     
-    axis_font = {'size':'14'} 
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)
+    axis_font = {'size':'14'}  
     
+    fig = plt.figure(save_filename) 
+    fig.set_size_inches(12, 10)   
+    fig.suptitle('Battery Pack Conditions')  
     for i in range(len(results.segments)):     
-        time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        power          = results.segments[i].conditions.propulsion.battery_draw[:,0] 
-        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
-        volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]     
-        current        = results.segments[i].conditions.propulsion.battery_current[:,0]      
-        battery_amp_hr = (energy/ Units.Wh )/volts  
-        C_rating       = current/battery_amp_hr
+        time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        pack_power          = results.segments[i].conditions.propulsion.battery_power_draw[:,0] 
+        pack_energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
+        pack_volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
+        pack_volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]     
+        pack_current        = results.segments[i].conditions.propulsion.battery_current[:,0]   
+        pack_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
+        pack_temp           = results.segments[i].conditions.propulsion.battery_pack_temperature[:,0]      
+        pack_charge         = results.segments[i].conditions.propulsion.battery_charge_throughput[:,0]
         
-        axes = plt.subplot(2,2,1)
-        axes.plot(time, -power, line_color)
-        axes.set_ylabel('Battery Power (Watts)',axis_font)
+        pack_battery_amp_hr = (pack_energy/ Units.Wh )/pack_volts  
+        pack_C_rating       = pack_current/pack_battery_amp_hr
+        
+        axes = plt.subplot(2,3,1)
+        axes.plot(time, -pack_power, line_color)
+        axes.set_ylabel('Power (Watts)',axis_font)
         set_axes(axes)       
     
-        axes = plt.subplot(2,2,2)
-        axes.plot(time, energy/ Units.Wh, line_color)
-        axes.set_ylabel('Battery Energy (W-hr)',axis_font)
+        axes = plt.subplot(2,3,2)
+        axes.plot(time, pack_SOC , line_color)
+        axes.set_ylabel('SOC',axis_font)
         set_axes(axes)  
     
-        axes = plt.subplot(2,2,3)
-        axes.plot(time, volts, 'bo-',label='Under Load')
-        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
+        axes = plt.subplot(2,3,3)
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
+        axes.set_ylabel('Voltage (Volts)',axis_font) 
         set_axes(axes) 
         if i == 0:
-            axes.legend(loc='upper right')  
+            axes.plot(time, pack_volts, line_color,label='Under Load')
+            axes.plot(time,pack_volts_oc, line_color2,label='Open Circuit')
+        else:
+            axes.plot(time, pack_volts, line_color)
+            axes.plot(time,pack_volts_oc,line_color2) 
+        axes.legend(loc='upper right')  
         
-        axes = plt.subplot(2,2,4)
-        axes.plot(time, C_rating, line_color)
+        axes = plt.subplot(2,3,4)
+        axes.plot(time, pack_C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rate (C)',axis_font)  
-        set_axes(axes)
+        set_axes(axes)  
+
+        axes = plt.subplot(2,3,5)
+        axes.plot(time, pack_temp, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Temperature (K)',axis_font)  
+        set_axes(axes) 
+         
+        axes = plt.subplot(2,3,6)
+        axes.plot(time, pack_charge, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Charge Throughput(Ah)',axis_font)  
+        set_axes(axes) 
+        
  
     if save_figure:
-        plt.savefig(save_filename + file_type)       
+        fig.savefig(save_filename + file_type)        
         
     return
 
+# ------------------------------------------------------------------
+#   Electronic Conditions
+# ------------------------------------------------------------------
+## @ingroup Plots
+def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'bs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png"):
+    """This plots the battery pack conditions of the network
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.propulsion
+         battery_draw 
+         battery_energy    
+         voltage_under_load    
+         voltage_open_circuit    
+         current        
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	  
+    
+    axis_font = {'size':'14'}   
+    
+    fig  = plt.figure(save_filename)
+    fig.set_size_inches(12, 10)   
+    fig.suptitle('Battery Cell Conditions')
+    for i in range(len(results.segments)):
+        time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        cell_power          = results.segments[i].conditions.propulsion.battery_cell_power_draw[:,0] 
+        cell_energy         = results.segments[i].conditions.propulsion.battery_cell_energy[:,0] 
+        cell_volts          = results.segments[i].conditions.propulsion.battery_cell_voltage_under_load[:,0] 
+        cell_volts_oc       = results.segments[i].conditions.propulsion.battery_cell_voltage_open_circuit[:,0]     
+        cell_current        = results.segments[i].conditions.propulsion.battery_cell_current[:,0]  
+        cell_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
+        cell_temp           = results.segments[i].conditions.propulsion.battery_cell_temperature[:,0]      
+        cell_charge         = results.segments[i].conditions.propulsion.battery_cell_charge_throughput[:,0]
+        
+        cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts  
+        cell_C_rating       = cell_current/cell_battery_amp_hr        
+        
+        
+        axes = plt.subplot(2,3,1)
+        axes.plot(time, -cell_power, line_color)
+        axes.set_ylabel('Power (Watts)',axis_font)
+        set_axes(axes)       
+    
+        axes = plt.subplot(2,3,2)
+        axes.plot(time, cell_SOC, line_color)
+        axes.set_ylabel('SOC',axis_font)
+        set_axes(axes)  
+    
+        axes = plt.subplot(2,3,3) 
+        axes.set_xlabel('Time (mins)',axis_font) 
+        set_axes(axes)  
+        if i == 0:
+            axes.plot(time, cell_volts, line_color,label='Under Load')
+            axes.plot(time,cell_volts_oc, line_color2,label='Open Circuit')
+            axes.legend(loc='upper right')  
+        else:
+            axes.plot(time, cell_volts, line_color)
+            axes.plot(time,cell_volts_oc, line_color2) 
+            
+        axes = plt.subplot(2,3,4)
+        axes.plot(time, cell_C_rating, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('C-Rate (C)',axis_font)  
+        set_axes(axes)      
+
+        axes = plt.subplot(2,3,5)
+        axes.plot(time, cell_temp, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Temperature (K)',axis_font)  
+        set_axes(axes) 
+         
+        axes = plt.subplot(2,3,6)
+        axes.plot(time, cell_charge, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Charge Throughput (Ah)',axis_font)  
+        set_axes(axes) 
+  
+    if save_figure:    
+        fig.savefig(save_filename + file_type) 
+        
+    return
 
 # ------------------------------------------------------------------
 #   Flight Conditions
@@ -615,8 +733,8 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
     fig.set_size_inches(12, 10)  
     for segment in results.segments.values():
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        effp   = segment.conditions.propulsion.etap[:,0]
-        effm   = segment.conditions.propulsion.etam[:,0]
+        effp   = segment.conditions.propulsion.propeller_efficiency[:,0]
+        effm   = segment.conditions.propulsion.propeller_motor_efficiency[:,0]
         
         axes = plt.subplot(1,2,1)
         axes.plot(time, effp, line_color )
@@ -763,7 +881,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
 #   Lift-Cruise Network
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, save_filename = "Lift_Cruise_Network", file_type = ".png"):
+def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'bs--', save_figure = False, save_filename = "Lift_Cruise_Network", file_type = ".png"):
     """This plots the electronic and propulsor performance of a vehicle with a lift cruise network
 
     Assumptions:
@@ -804,13 +922,16 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
                     
 
         axes = plt.subplot(2,2,1)
-        axes.plot(time, eta, 'bo-',label='Propeller Motor')
-        axes.plot(time, eta_l, 'r^-',label='Lift Rotor Motor')
         axes.set_ylabel('Throttle',axis_font)
         set_axes(axes)     
         plt.ylim((0,1))
         if i == 0:
-            axes.legend(loc='upper center')         
+            axes.plot(time, eta, line_color,label='Propeller Motor')
+            axes.plot(time, eta_l, line_color2,label='Lift Rotor Motor')
+            axes.legend(loc='upper center')    
+        else:
+            axes.plot(time, eta, line_color)
+            axes.plot(time, eta_l, line_color2)
     
         axes = plt.subplot(2,2,2)
         axes.plot(time, energy, 'bo-')
@@ -818,13 +939,16 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         set_axes(axes)
     
         axes = plt.subplot(2,2,3)
-        axes.plot(time, volts, 'bo-',label='Under Load')
-        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
         set_axes(axes) 
         if i == 0:
-            axes.legend(loc='upper center')                
+            axes.plot(time, volts, line_color,label='Under Load')
+            axes.plot(time,volts_oc, line_color2,label='Open Circuit')
+            axes.legend(loc='upper center')   
+        else:
+            axes.plot(time, volts, line_color)
+            axes.plot(time,volts_oc,line_color2)        
         
         axes = plt.subplot(2,2,4)
         axes.plot(time, specific_power, 'bo-') 
@@ -1016,12 +1140,15 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         ptm  = results.segments[i].conditions.propulsion.propeller_tip_mach[:,0] 
         
         axes = plt.subplot(1,1,1)
-        axes.plot(time, ptm, 'bo-',label='Propeller')
-        axes.plot(time, rtm, 'r^-',label='Lift Rotor')
         axes.set_ylabel('Mach',axis_font)
         set_axes(axes)   
         if i == 0:
-            axes.legend(loc='upper center')     
+            axes.plot(time, ptm, line_color,label='Propeller')
+            axes.plot(time, rtm, line_color2,label='Lift Rotor')
+            axes.legend(loc='upper center')  
+        else:
+            axes.plot(time, ptm, line_color )
+            axes.plot(time, rtm, line_color2 )
     
     if save_figure:
         plt.savefig("Tip_Mach" + file_type) 

@@ -76,6 +76,12 @@ def LiFePO4_charge(battery,numerics):
     I                 = numerics.time.integrate
     D                 = numerics.time.differentiate      
      
+
+    # ---------------------------------------------------------------------------------
+    # Compute battery electrical properties 
+    # --------------------------------------------------------------------------------- 
+    n_parallel        = battery.pack_config.parallel  
+    
     # Update battery capacitance (energy) with aging factor
     E_max = E_max*E_growth_factor
     
@@ -107,13 +113,7 @@ def LiFePO4_charge(battery,numerics):
     T_current = T_current[0] + np.dot(I,dT_dt)
     
     E_bat = np.dot(I,P)
-    E_bat = np.reshape(E_bat,np.shape(E_current)) #make sure it's consistent
-    
-    # Add this to the current state
-    if np.isnan(E_bat).any():
-        E_bat=np.ones_like(E_bat)*np.max(E_bat)
-        if np.isnan(E_bat.any()): #all nans; handle this instance
-            E_bat=np.zeros_like(E_bat)
+    E_bat = np.reshape(E_bat,np.shape(E_current)) #make sure it's consistent 
             
     E_current = E_bat + E_current[0]
     
@@ -123,8 +123,7 @@ def LiFePO4_charge(battery,numerics):
     DOD_new = 1 - SOC_new
       
     # Determine new charge throughput (the amount of charge gone through the battery)
-    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(abs(I_bat)[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
-    Q_segment  = np.atleast_2d(np.hstack(( np.zeros_like(Q_prior[0]) , cumtrapz(abs(I_bat)[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T      
+    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(abs(I_bat)[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T   
             
     # A voltage model from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting
     # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511
@@ -142,8 +141,8 @@ def LiFePO4_charge(battery,numerics):
     battery.load_power                         = V_ul*I_bat
     battery.state_of_charge                    = SOC_new 
     battery.depth_of_discharge                 = DOD_new
-    battery.cumulative_cell_charge_throughput  = Q_total 
-    battery.cell_charge_throughput             = Q_segment 
+    battery.charge_throughput                  = Q_total 
+    battery.cell_charge_throughput             = Q_total/n_parallel  
     battery.voltage_open_circuit               = V_oc
     battery.voltage_under_load                 = V_ul
     battery.current                            = I_bat 

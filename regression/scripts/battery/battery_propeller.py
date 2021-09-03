@@ -25,74 +25,53 @@ from X57_Maxwell_Mod2    import vehicle_setup, configs_setup
 #   Main
 # ----------------------------------------------------------------------
 
-def main():                
-    configs, analyses = full_setup()
-
-    simple_sizing(configs)
-
-    configs.finalize()
-    analyses.finalize()  
+def main():    
     
-    # evaluate the weight of an electric general aviation aircraft using eVTOL weight build-up
-    evtol_breakdown = empty(configs.base,contingency_factor=1.1)
-    print(evtol_breakdown)    
+    battery_chemistry =  ['LFP','NCA','NMC']
+    line_style_new    =  ['bo-','rs-','kP-']
+    line_style_saved  =  ['bo--','rs--','kP--']
     
-    # check weights
-    empty_r       = 1004.473514153519
-    structural_r  = 293.21228559410815
-    total_r       = 1285.4735141535189
-    lift_rotors_r = 0.
-    propellers_r  = 4.097659513422731
-    prop_motors_r = 20.
-    rot_motors_r  = 0.
-    
-    weights_error = Data()
-    weights_error.empty       = abs(empty_r - evtol_breakdown.empty)/empty_r
-    weights_error.structural  = abs(structural_r - evtol_breakdown.structural)/structural_r
-    weights_error.total       = abs(total_r - evtol_breakdown.total)/total_r
-    weights_error.lift_rotors = abs(lift_rotors_r - evtol_breakdown.lift_rotors)/lift_rotors_r if lift_rotors_r!=0 else 0 
-    weights_error.propellers  = abs(propellers_r - evtol_breakdown.propellers)/propellers_r if propellers_r!=0 else 0 
-    weights_error.prop_motors = abs(prop_motors_r - evtol_breakdown.propeller_motors)/prop_motors_r if prop_motors_r!=0 else 0 
-    weights_error.rot_motors  = abs(rot_motors_r - evtol_breakdown.lift_rotor_motors)/rot_motors_r if rot_motors_r!=0 else 0
-    
-    for k, v in weights_error.items():
-        assert (np.abs(v) < 1E-6)    
+    RPM_true              = [887.1356296331286,887.1356296331286,887.1356296331286]
+    lift_coefficient_true = [887.1356296331286,887.1356296331286,887.1356296331286]
         
+    for i in range(len(battery_chemistry)):
+        print(battery_chemistry[i] + ' cell powered aircraft')
+        configs, analyses = full_setup(battery_chemistry[i])
+        
+        simple_sizing(configs)
+    
+        configs.finalize()
+        analyses.finalize()   
+         
+        # mission analysis
+        mission = analyses.missions.base
+        results = mission.evaluate() 
+        
+        # save results 
+        # This should be always left uncommented to test the SUAVE's Input/Output archive functions
+        save_results(results)
+        
+        # plot the results
+        plot_results(results,line_style_new[i]) 
+          
+        # load and plot old results  
+        old_results = load_results(battery_chemistry[i])
+        plot_results(old_results,line_style_saved[i])  
+        
+        # RPM of rotor check during hover
+        RPM        = results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0]  
+        diff_RPM   = np.abs(RPM - RPM_true[i])
+        print('RPM difference')
+        print(diff_RPM)
+        assert np.abs((RPM - RPM_true[i])/RPM_true[i]) < 1e-3  
+        
+        # lift Coefficient Check During Cruise
+        lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
+        diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true[i]) 
+        print('CL difference')
+        print(diff_CL)
+        assert np.abs((lift_coefficient  - lift_coefficient_true[i])/lift_coefficient_true[i]) < 1e-3   
             
-     
-    # mission analysis
-    mission = analyses.missions.base
-    results = mission.evaluate() 
-    
-    # save results 
-    # This should be always left uncommented to test the SUAVE's Input/Output archive functions
-    save_results(results)
-    
-    # plot the results
-    plot_results(results) 
-      
-    # load and plot old results  
-    old_results = load_results()
-    plot_results(old_results)  
-    
-    # RPM of rotor check during hover
-    RPM        = results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0]
-    RPM_true   = 887.1356296331286
-    print(RPM) 
-    diff_RPM   = np.abs(RPM - RPM_true)
-    print('RPM difference')
-    print(diff_RPM)
-    assert np.abs((RPM - RPM_true)/RPM_true) < 1e-3  
-    
-    # lift Coefficient Check During Cruise
-    lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0]
-    lift_coefficient_true   =0.40171393102909314
-    print(lift_coefficient)
-    diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
-    print('CL difference')
-    print(diff_CL)
-    assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-3   
-        
     return
 
 
@@ -100,10 +79,19 @@ def main():
 #   Analysis Setup
 # ---------------------------------------------------------------------- 
 
-def full_setup():
+def full_setup(battery_chemistry):
 
     # vehicle data
     vehicle  = vehicle_setup()
+    
+    # Modify vehicle
+    if battery_chemistry == 'LFP':
+        pass 
+    elif battery_chemistry == 'NCA':
+        pass # change 
+        
+    elif battery_chemistry == 'NMC':
+        pass # change  
     
     # Set up configs
     configs  = configs_setup(vehicle)
@@ -234,6 +222,7 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 4
+    base_segment.battery_discharge                           = True 
 
     
     # ------------------------------------------------------------------
@@ -324,17 +313,18 @@ def plot_results(results,line_style = 'bo-'):
     plot_eMotor_Prop_efficiencies(results, line_style)
     
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results, line_style)   
-     
+    plot_disc_power_loading(results, line_style)  
      
     return
 
 
-def load_results():
-    return SUAVE.Input_Output.SUAVE.load('electric_aircraft.res')
+def load_results(battery_chemistry):
+    filename = 'electric_aircraft' + battery_chemistry +  '.res'
+    return SUAVE.Input_Output.SUAVE.load(filename)
 
-def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'electric_aircraft.res')
+def save_results(results,battery_chemistry):
+    filename = 'electric_aircraft' + battery_chemistry +  '.res'
+    SUAVE.Input_Output.SUAVE.archive(results,filename)
     
     return  
 if __name__ == '__main__': 

@@ -39,7 +39,7 @@ class Lithium_Ion_LiNCA_18650(Battery):
         specific heat capacity, Cp
         Yang, Shuting, et al. "A Review of Lithium-Ion Battery Thermal Management 
         System Strategies and the Evaluate Criteria." Int. J. Electrochem. Sci 14
-        (2019): 6077-6107.
+        (2019): 6077-6107. 
         
         Inputs:
         None
@@ -79,13 +79,15 @@ class Lithium_Ion_LiNCA_18650(Battery):
         self.resistance                                   = 0.025   # [Ohms]
                                                           
         self.specific_heat_capacity                       = 837.4   # [J/kgK] 
-        self.cell.specific_heat_capacity                  = 837.4   # [J/kgK] 
-        self.heat_transfer_coefficient                    = 75.     # [W/m^2K] 
+        self.cell.specific_heat_capacity                  = 837.4   # [J/kgK]  
+        self.heat_transfer_coefficient                    = 35      # [W/m^2K]       
         self.heat_transfer_efficiency                     = 1.0 
         self.cell.thermal_conductivity                    = 32.2    # [J/kgK]   
                                                          
         self.pack_config.series                           = 1
         self.pack_config.parallel                         = 1   
+        self.pack_config.total                            = 1   
+        self.module_config.total                          = 1  
         self.module_config.normal_count                   = 1    # number of cells normal to flow
         self.module_config.parallel_count                 = 1    # number of cells parallel to flow      
         self.module_config.normal_spacing                 = 0.02
@@ -95,8 +97,8 @@ class Lithium_Ion_LiNCA_18650(Battery):
         self.cooling_fluid.tag                             = 'air'
         self.cooling_fluid.thermal_conductivity            = 0.0253 # W/mK
         self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK
-        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.05   
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.05     
+        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.01   
+        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.01     
            
         self.discharge_model                               = LiNCA_discharge 
         self.charge_model                                  = LiNCA_charge 

@@ -89,7 +89,7 @@ class Battery_Cell_Cycler(Network):
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
-        battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput     
+        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
         discharge_flag              = conditions.propulsion.battery_discharge    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
@@ -102,6 +102,7 @@ class Battery_Cell_Cycler(Network):
     
         # update ambient temperature based on altitude
         battery.ambient_temperature                   = conditions.freestream.temperature   
+        battery.ambient_pressure                      = conditions.freestream.pressure
         battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
         battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity
         battery.cooling_fluid.density                 = conditions.freestream.density 
@@ -114,36 +115,35 @@ class Battery_Cell_Cycler(Network):
             battery.battery_thevenin_voltage = 0             
             battery.temperature              = conditions.propulsion.battery_pack_temperature 
             
-        elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            SOC        = state.unknowns.battery_state_of_charge 
-            T_cell     = state.unknowns.battery_cell_temperature 
-            V_Th       = state.unknowns.battery_thevenin_voltage/n_series 
+        elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:     
+            SOC       = state.unknowns.battery_state_of_charge
+            T_cell    = state.unknowns.battery_cell_temperature
+            V_Th_cell = state.unknowns.battery_thevenin_voltage/n_series
             
             # link temperature 
             battery.cell_temperature = T_cell   
             
-            # look up tables  
-            V_oc = np.zeros_like(SOC)
-            R_Th = np.zeros_like(SOC)  
-            C_Th = np.zeros_like(SOC)  
-            R_0  = np.zeros_like(SOC)
+             # look up tables  
+            V_oc_cell = np.zeros_like(SOC)
+            R_Th_cell = np.zeros_like(SOC)
+            C_Th_cell = np.zeros_like(SOC)
+            R_0_cell  = np.zeros_like(SOC)
             SOC[SOC<0.] = 0.
             SOC[SOC>1.] = 1.
             for i in range(len(SOC)): 
-                V_oc[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
-                C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
-                R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
-                R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC[i])[0]  
+                V_oc_cell[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
+                C_Th_cell[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
+                R_Th_cell[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
+                R_0_cell[i]  = battery_data.R_0_interp(T_cell[i], SOC[i])[0]  
                 
-            dV_TH_dt =  np.dot(D,V_Th)
-            Icell    = V_Th/(R_Th * battery.R_growth_factor)  + C_Th*dV_TH_dt  
-            R_0      = R_0 * battery.R_growth_factor 
+            dV_TH_dt =  np.dot(D,V_Th_cell)
+            I_cell   = V_Th_cell/(R_Th_cell * battery.R_growth_factor)  + C_Th_cell*dV_TH_dt
+            R_0_cell = R_0_cell * battery.R_growth_factor
              
             # Voltage under load:
-            volts = n_series*(V_oc - V_Th - (Icell * R_0))  
+            volts =  n_series*(V_oc_cell - V_Th_cell - (I_cell  * R_0_cell)) 
             
-        elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
-
+        elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650: 
             SOC        = state.unknowns.battery_state_of_charge 
             T_cell     = state.unknowns.battery_cell_temperature
             I_cell     = state.unknowns.battery_current/n_parallel 
@@ -165,9 +165,9 @@ class Battery_Cell_Cycler(Network):
             I_cell[I_cell>8.0]       = 8.0    
             
             # create vector of conditions for battery data sheet response surface for OCV
-            pts   = np.hstack((np.hstack((I_cell, T_cell)),DOD  )) # amps, temp, SOC   
-            V_ul  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T  
-            volts = n_series*V_ul 
+            pts        = np.hstack((np.hstack((I_cell, T_cell)),DOD  )) # amps, temp, SOC   
+            V_ul_cell  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T  
+            volts      = n_series*V_ul_cell 
  
         #-------------------------------------------------------------------------------
         # Discharge
@@ -186,11 +186,9 @@ class Battery_Cell_Cycler(Network):
             battery.energy_discharge(numerics)          
             
         else: 
-            
-            # link 
             battery.inputs.current  = -battery.charging_current * np.ones_like(volts)
-            battery.inputs.power_in =  battery.charging_current * battery.charging_voltage * np.ones_like(volts)
-            battery.inputs.voltage  =  battery.charging_voltage #  volts 
+            battery.inputs.voltage  =  battery.charging_voltage * np.ones_like(volts) 
+            battery.inputs.power_in =  -battery.inputs.current * battery.inputs.voltage * np.ones_like(volts)
             battery.energy_charge(numerics)        
         
         # Pack the conditions for outputs     
@@ -198,7 +196,7 @@ class Battery_Cell_Cycler(Network):
         conditions.propulsion.battery_current                      = abs( battery.current )
         conditions.propulsion.battery_power_draw                   = battery.inputs.power_in 
         conditions.propulsion.battery_energy                       = battery.current_energy  
-        conditions.propulsion.battery_cumulative_charge_throughput = battery.cumulative_cell_charge_throughput 
+        conditions.propulsion.battery_charge_throughput            = battery.charge_throughput 
         conditions.propulsion.battery_state_of_charge              = battery.state_of_charge
         conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
         conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load  
@@ -207,7 +205,7 @@ class Battery_Cell_Cycler(Network):
         conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
         conditions.propulsion.battery_max_aged_energy              = battery.max_energy  
         conditions.propulsion.battery_charge_throughput            = battery.cell_charge_throughput    
-        conditions.propulsion.battery_specfic_power                = -(battery.inputs.power_in /1000)/battery.mass_properties.mass   
+        conditions.propulsion.battery_specfic_power                = -battery.inputs.power_in/battery.mass_properties.mass   
         
         conditions.propulsion.battery_cell_power_draw              = -conditions.propulsion.battery_power_draw/n_series
         conditions.propulsion.battery_cell_energy                  = battery.current_energy/n_total   

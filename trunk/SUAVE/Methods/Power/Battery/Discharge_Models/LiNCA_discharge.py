@@ -75,9 +75,10 @@ def LiNCA_discharge(battery,numerics):
     As_cell                  = battery.cell.surface_area 
     D_cell                   = battery.cell.diameter                     
     H_cell                   = battery.cell.height    
+    P_ambient                = battery.ambient_pressure
     T_ambient                = battery.ambient_temperature 
     T_current                = battery.pack_temperature      
-    T_cell                   = battery.cell_temperature     
+    T_cell                   = battery.cell_temperature  
     E_max                    = battery.max_energy
     R_growth_factor          = battery.R_growth_factor 
     E_current                = battery.current_energy 
@@ -94,7 +95,7 @@ def LiNCA_discharge(battery,numerics):
     # Calculate the current going into one cell  
     n_series          = battery.pack_config.series  
     n_parallel        = battery.pack_config.parallel
-    n_total           = n_series * n_parallel 
+    n_total           = battery.pack_config.total
     Nn                = battery.module_config.normal_count            
     Np                = battery.module_config.parallel_count          
     n_total_module    = Nn*Np    
@@ -140,30 +141,31 @@ def LiNCA_discharge(battery,numerics):
         coolant.V       = battery.cooling_fluid.discharge_air_cooling_flowspeed
         coolant.rho     = battery.cooling_fluid.density 
         coolant.nu      = battery.cooling_fluid.kinematic_viscosity    
-        coolant.Pr      = coolant.compute_prandlt_number(T_ambient)
-        coolant.Pr_wall = coolant.compute_prandlt_number(T)  
 
         S_D = np.sqrt(S_T**2+S_L**2)
         if 2*(S_D-D_cell) < (S_T-D_cell):
-            V_max    = coolant.V_air*(S_T/(2*(S_D-D_cell)))
+            V_max = coolant.V*(S_T/(2*(S_D-D_cell)))
         else:
-            V_max   = coolant.V_air*(S_T/(S_T-D_cell))
+            V_max = coolant.V*(S_T/(S_T-D_cell))
 
         T        = (T_ambient+T_current)/2   
-        Re_max   = V_max*D_cell/coolant.nu_air   
+        Re_max   = V_max*D_cell/coolant.nu    
         if all(Re_max) > 10E2: 
-            C        = 0.35*((S_T/S_L)**0.2) 
-            m        = 0.6 
+            C = 0.35*((S_T/S_L)**0.2) 
+            m = 0.6 
         else:
             C = 0.51
             m = 0.5 
-        Nu       = C*(Re_max**m)*(coolant.Pr**0.36)*((coolant.Pr/coolant.Pr_wall)**0.25)           
-        h        = Nu*coolant.K/D_cell
-        Tw_Ti    = (T - T_ambient)
-        Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(coolant.rho*coolant.V*Nn*S_T*coolant.Cp))
-        dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-        Q_convec = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
-        P_net    = Q_heat_gen*n_total_module - Q_convec 
+            
+        coolant.Pr      = coolant.compute_prandlt_number(T_ambient,P_ambient)
+        coolant.Pr_wall = coolant.compute_prandlt_number(T,P_ambient)
+        Nu              = C*(Re_max**m)*(coolant.Pr**0.36)*((coolant.Pr/coolant.Pr_wall)**0.25)           
+        h               = Nu*coolant.K/D_cell
+        Tw_Ti           = (T - T_ambient)
+        Tw_To           = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(coolant.rho*coolant.V*Nn*S_T*coolant.Cp))
+        dT_lm           = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
+        Q_convec        = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
+        P_net           = Q_heat_gen*n_total_module - Q_convec 
 
     dT_dt     = P_net/(cell_mass*n_total_module*Cp)
     T_current = T_current[0] + np.dot(I,dT_dt)  
@@ -208,13 +210,7 @@ def LiNCA_discharge(battery,numerics):
     # ---------------------------------------------------------------------------------   
     
     # Determine actual power going into the battery accounting for resistance losses
-    E_bat = np.dot(I,P)
-    
-    # Add this to the current state
-    if np.isnan(E_bat).any():
-        E_bat=np.ones_like(E_bat)*np.max(E_bat)
-        if np.isnan(E_bat.any()): #all nans; handle this instance
-            E_bat = np.zeros_like(E_bat)
+    E_bat = np.dot(I,P) 
             
     # Determine current energy state of battery (from all previous segments)          
     E_current = E_bat + E_current[0]
@@ -229,8 +225,7 @@ def LiNCA_discharge(battery,numerics):
     V_ul   = V_oc - V_Th - (I_cell * R_0_aged)
      
     # Determine new charge throughput (the amount of charge gone through the battery)
-    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
-    Q_segment  = np.atleast_2d(np.hstack(( np.zeros_like(Q_prior[0]) , cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
+    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T   
   
     # If SOC is negative, voltage under load goes to zero 
     V_ul[SOC_new < 0.] = 0.
@@ -244,8 +239,8 @@ def LiNCA_discharge(battery,numerics):
     battery.current                             = I_bat 
     battery.voltage_open_circuit                = V_oc*n_series
     battery.thevenin_voltage                    = V_Th*n_series
-    battery.cumulative_cell_charge_throughput   = Q_total 
-    battery.cell_charge_throughput              = Q_segment
+    battery.charge_throughput                   = Q_total*n_parallel  
+    battery.cell_charge_throughput              = Q_total
     battery.internal_resistance                 = R_0*n_series 
     battery.state_of_charge                     = SOC_new
     battery.depth_of_discharge                  = DOD_new

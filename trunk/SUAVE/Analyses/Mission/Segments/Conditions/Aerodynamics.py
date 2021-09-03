@@ -126,7 +126,7 @@ class Aerodynamics(Basic):
         self.propulsion.voltage_open_circuit                 = ones_1col * 0 
         self.propulsion.battery_pack_temperature             = ones_1col * 0
         self.propulsion.battery_cell_temperature             = ones_1col * 0 
-        self.propulsion.battery_cumulative_charge_throughput = ones_1col * 0    
+        self.propulsion.battery_charge_throughput            = ones_1col * 0    
         self.propulsion.battery_age_in_days                  = 0.
         self.propulsion.battery_resistance_growth_factor     = 1.
         self.propulsion.battery_capacity_fade_factor         = 1.

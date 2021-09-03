@@ -382,13 +382,10 @@ def vehicle_setup():
 
 
     # Component 3 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4()
-    bat.mass_properties.mass = 500. * Units.kg
-    bat.specific_energy      = 350. * Units.Wh/Units.kg
-    bat.resistance           = 0.006
-    bat.max_voltage          = 500.
-
-    initialize_from_mass(bat,bat.mass_properties.mass)
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()
+    bat.mass_properties.mass = 500. * Units.kg  
+    bat.max_voltage          = 500. 
+    initialize_from_mass(bat)
     net.battery              = bat
     net.voltage              = bat.max_voltage
 

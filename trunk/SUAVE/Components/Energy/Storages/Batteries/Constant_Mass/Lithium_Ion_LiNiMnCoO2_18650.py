@@ -84,13 +84,15 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
                                                                      #
         self.specific_heat_capacity                        = 1108    # [J/kgK]  
         self.cell.specific_heat_capacity                   = 1108    # [J/kgK]  
-        self.heat_transfer_coefficient                     = 75      # [W/m^2K]  
+        self.heat_transfer_coefficient                     = 35      # [W/m^2K]   
         self.heat_transfer_efficiency                      = 1.0
         self.cell.thermal_conductivity                     = 3.91    # [J/kgK] 
                                                            
                                                            
         self.pack_config.series                            = 1
-        self.pack_config.parallel                          = 1   
+        self.pack_config.parallel                          = 1  
+        self.pack_config.total                             = 1   
+        self.module_config.total                           = 1       
         self.module_config.normal_count                    = 1       # number of cells normal to flow
         self.module_config.parallel_count                  = 1       # number of cells parallel to flow      
         self.module_config.normal_spacing                  = 0.02
@@ -99,8 +101,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.cooling_fluid.tag                             = 'air'
         self.cooling_fluid.thermal_conductivity            = 0.0253 # W/mK
         self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK
-        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.05   
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.05    
+        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.01   
+        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.01    
                                                            
         self.discharge_model                               = LiNiMnCoO2_discharge
         self.charge_model                                  = LiNiMnCoO2_charge 

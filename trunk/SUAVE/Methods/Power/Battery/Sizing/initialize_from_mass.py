@@ -14,7 +14,7 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Power-Battery-Sizing
-def initialize_from_mass(battery, mass ,SOC_start = 1, SOC_cutoff = 0.15 ):
+def initialize_from_mass(battery, SOC_start = 1, SOC_cutoff = 0.15 ):
     """
     Calculate the max energy and power based of the mass
     Assumptions:
@@ -35,8 +35,14 @@ def initialize_from_mass(battery, mass ,SOC_start = 1, SOC_cutoff = 0.15 ):
 
 
     """    
-    battery.mass_properties.mass = mass
+    mass                         = battery.mass_properties.mass 
+    n_cells                      = int(mass/battery.cell.mass)
+    n_series                     = int(battery.max_voltage/battery.cell.max_voltage)
+    n_parallel                   = int(n_cells/n_series)
     battery.max_energy           = mass*battery.specific_energy* SOC_start 
     battery.min_energy           = mass*battery.specific_energy* SOC_cutoff
     battery.max_power            = mass*battery.specific_power
     battery.initial_max_energy   = battery.max_energy    
+    battery.pack_config.series   = n_series
+    battery.pack_config.parallel = n_parallel      
+    battery.pack_config.total    = n_cells

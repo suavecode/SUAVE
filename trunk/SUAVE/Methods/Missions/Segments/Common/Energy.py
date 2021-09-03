@@ -40,16 +40,16 @@ def initialize_battery(segment):
 
     if 'battery_energy' in segment:
         if 'ambient_temperature' not in segment: 
-            segment.ambient_temperature  = segment.conditions.freestream.temperature # TO DO !!  include segment.temperature_deviation
+            segment.ambient_temperature  = segment.conditions.freestream.temperature[0,0] # TO DO !!  include segment.temperature_deviation
             
         if 'battery_cell_temperature' not in segment:          
-            segment.battery_cell_temperature = segment.conditions.freestream.temperature
+            segment.battery_cell_temperature = segment.conditions.freestream.temperature[0,0]
             
         if 'battery_pack_temperature' not in segment:     
-            segment.battery_pack_temperature = segment.conditions.freestream.temperature
+            segment.battery_pack_temperature = segment.conditions.freestream.temperature[0,0]
             
-        if 'battery_cumulative_charge_throughput' not in segment:
-            segment.battery_cumulative_charge_throughput = 0
+        if 'battery_charge_throughput' not in segment:
+            segment.battery_charge_throughput = 0
        
         if 'battery_resistance_growth_factor' not in segment:
             segment.battery_resistance_growth_factor     = 1	 
@@ -58,11 +58,11 @@ def initialize_battery(segment):
             segment.battery_capacity_fade_factor         = 1           
             
         intial_segment_energy                = segment.battery_energy
-        battery_max_aged_energy              = segment.max_energy          
+        battery_max_aged_energy              = segment.battery_energy # segment.max_energy          
         initial_mission_energy               = segment.battery_energy 
         pack_temperature                     = segment.battery_pack_temperature
         battery_age_in_days                  = 0
-        battery_cumulative_charge_throughput = segment.battery_cumulative_charge_throughput
+        battery_charge_throughput            = segment.battery_charge_throughput
         battery_discharge                    = segment.battery_discharge   
         ambient_temperature                  = segment.ambient_temperature
         battery_resistance_growth_factor     = segment.battery_resistance_growth_factor
@@ -74,7 +74,7 @@ def initialize_battery(segment):
         battery_max_aged_energy              = segment.state.initials.conditions.propulsion.battery_max_aged_energy         
         intial_segment_energy                = segment.state.initials.conditions.propulsion.battery_energy[-1,0]
         pack_temperature                     = segment.state.initials.conditions.propulsion.battery_pack_temperature[-1,0]
-        battery_cumulative_charge_throughput = segment.state.initials.conditions.propulsion.battery_cumulative_charge_throughput[-1,0]  
+        battery_charge_throughput            = segment.state.initials.conditions.propulsion.battery_charge_throughput[-1,0]  
         battery_age_in_days                  = segment.battery_age_in_days
         battery_discharge                    = segment.battery_discharge
         ambient_temperature                  = segment.state.initials.conditions.propulsion.ambient_temperature
@@ -88,7 +88,7 @@ def initialize_battery(segment):
         pack_temperature                     = 292.65
         ambient_temperature                  = 292.65
         battery_age_in_days                  = 1
-        battery_cumulative_charge_throughput = 0.0 
+        battery_charge_throughput            = 0.0 
         battery_resistance_growth_factor     = 1.0
         battery_capacity_fade_factor         = 1.0  
         battery_initial_thevenin_voltage     = 0
@@ -102,13 +102,12 @@ def initialize_battery(segment):
     segment.state.conditions.propulsion.battery_max_aged_energy                    = battery_max_aged_energy    
     segment.state.conditions.propulsion.battery_pack_temperature[:,0]              = pack_temperature
     segment.state.conditions.propulsion.battery_age_in_days                        = battery_age_in_days
-    segment.state.conditions.propulsion.battery_cumulative_charge_throughput[:,0]  = battery_cumulative_charge_throughput 
+    segment.state.conditions.propulsion.battery_charge_throughput[:,0]             = battery_charge_throughput 
     segment.state.conditions.propulsion.battery_discharge                          = battery_discharge
     segment.state.conditions.propulsion.ambient_temperature                        = ambient_temperature
     segment.state.conditions.propulsion.battery_resistance_growth_factor           = battery_resistance_growth_factor 
     segment.state.conditions.propulsion.battery_initial_thevenin_voltage           = battery_initial_thevenin_voltage 
-    segment.state.conditions.propulsion.battery_capacity_fade_factor               = battery_capacity_fade_factor        
-    segment.state.conditions.propulsion.battery_configuration                      = segment.battery_configuration 
+    segment.state.conditions.propulsion.battery_capacity_fade_factor               = battery_capacity_fade_factor      
     return
 
 # ----------------------------------------------------------------------
@@ -180,7 +179,7 @@ def update_battery_age(segment):
             t (battery age in days)                                                [days]   
             battery_cell_temperature                                               [Degrees Celcius] 
             battery_voltage_open_circuit                                           [Volts] 
-            battery_cumulative_charge_throughput                                   [Amp-hrs] 
+            battery_charge_throughput                                   [Amp-hrs] 
             battery_state_of_charge                                                [unitless] 
        
        Outputs:
@@ -189,12 +188,15 @@ def update_battery_age(segment):
             battery_resistance_growth_factor (capactance (energy) growth factor)   [unitless]  
             
     """
-   
-    n_series   = segment.conditions.propulsion.battery_configuration.series  
+    
+    
+    for network in segment.analyses.energy.network: 
+        n_series = network.battery.pack_config.series 
+    
     SOC        = segment.conditions.propulsion.battery_state_of_charge
     V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
     t          = segment.conditions.propulsion.battery_age_in_days 
-    Q_prior    = segment.conditions.propulsion.battery_cumulative_charge_throughput[-1,0] 
+    Q_prior    = segment.conditions.propulsion.battery_charge_throughput[-1,0] 
     Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) 
     
     # aging model  

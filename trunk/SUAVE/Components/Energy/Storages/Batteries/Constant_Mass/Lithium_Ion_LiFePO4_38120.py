@@ -58,9 +58,9 @@ class Lithium_Ion_LiFePO4_38120(Battery):
         self.cell.density                                 = self.cell.diameter/self.cell.volume  # [kg/m^3] 
         self.cell.electrode_area                          = 0.07    # [m^2] 
      
-        self.cell.max_voltage                             = 3.6 # [V]
+        self.cell.max_voltage                             = 3.8 # [V]
         self.cell.nominal_capacity                        = 8.0 # [Amp-Hrs]
-        self.cell.nominal_voltage                         = 4.2 # [V]
+        self.cell.nominal_voltage                         = 3.3 # [V]
         self.cell.charging_SOC_cutoff                     = 1.         
         self.cell.charging_voltage                        = self.cell.nominal_voltage   # [V]  
         self.cell.charging_current                        = 3.0    
@@ -80,7 +80,9 @@ class Lithium_Ion_LiFePO4_38120(Battery):
         self.cell.thermal_conductivity                    = 32.2    # [J/kgK]   
     
         self.pack_config.series                           = 1
-        self.pack_config.parallel                         = 1   
+        self.pack_config.parallel                         = 1 
+        self.pack_config.total                            = 1   
+        self.module_config.total                          = 1  
         self.module_config.normal_count                   = 1    # number of cells normal to flow
         self.module_config.parallel_count                 = 1    # number of cells parallel to flow      
         self.module_config.normal_spacing                 = 0.02

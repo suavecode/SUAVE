@@ -78,7 +78,13 @@ def LiFePO4_discharge(battery,numerics):
     R_growth_factor   = battery.R_growth_factor
     E_growth_factor   = battery.E_growth_factor 
     I                 = numerics.time.integrate
-    D                 = numerics.time.differentiate      
+    D                 = numerics.time.differentiate  
+
+
+    # ---------------------------------------------------------------------------------
+    # Compute battery electrical properties 
+    # --------------------------------------------------------------------------------- 
+    n_parallel        = battery.pack_config.parallel  
      
     # Update battery capacitance (energy) with aging factor
     E_max = E_max*E_growth_factor
@@ -126,8 +132,7 @@ def LiFePO4_discharge(battery,numerics):
     DOD_new = 1 - SOC_new
       
     # Determine new charge throughput (the amount of charge gone through the battery)
-    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(abs(I_bat)[:,0], x   = numerics.time.control_points[:,0])/Units.hr ))).T  
-    Q_segment  = np.atleast_2d(np.hstack(( np.zeros_like(Q_prior[0]) , cumtrapz(abs(I_bat)[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T      
+    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(abs(I_bat)[:,0], x   = numerics.time.control_points[:,0])/Units.hr ))).T      
             
     # A voltage model from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting
     # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511
@@ -145,8 +150,8 @@ def LiFePO4_discharge(battery,numerics):
     battery.load_power                         = V_ul*I_bat
     battery.state_of_charge                    = SOC_new 
     battery.depth_of_discharge                 = DOD_new
-    battery.cumulative_cell_charge_throughput  = Q_total 
-    battery.cell_charge_throughput             = Q_segment 
+    battery.charge_throughput                  = Q_total 
+    battery.cell_charge_throughput             = Q_total/n_parallel  
     battery.voltage_open_circuit               = V_oc
     battery.voltage_under_load                 = V_ul
     battery.current                            = I_bat 
