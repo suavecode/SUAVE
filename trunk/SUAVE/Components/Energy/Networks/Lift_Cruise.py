@@ -220,7 +220,12 @@ class Lift_Cruise(Network):
             conditions.propulsion.propeller_motor_efficiency[:,ii] = etam_prop[:,0]
             
             
-            conditions.noise.sources.propellers[prop.tag]       = outputs_forward            
+            if n_evals==1:
+                # Append outputs to each identical propeller
+                for i,p in enumerate(propellers):
+                    conditions.noise.sources.propellers[p.tag]      = outputs_forward
+            else:
+                conditions.noise.sources.propellers[prop.tag]      = outputs_forward            
             
         
         # link
@@ -320,7 +325,13 @@ class Lift_Cruise(Network):
             conditions.propulsion.lift_rotor_efficiency[:,ii]       = etap_lift[:,0]
             conditions.propulsion.lift_rotor_motor_efficiency[:,ii] = etam_lift_rotor[:,0]
             
-            conditions.noise.sources.lift_rotors[lift_rotor.tag]    = outputs_forward                    
+            if n_evals==1:
+                # Append outputs to each identical propeller
+                for i,p in enumerate(lift_rotors):
+                    conditions.noise.sources.lift_rotors[p.tag]      = outputs_lift
+            else:
+                conditions.noise.sources.lift_rotors[prop.tag]      = outputs_lift            
+            
             
         # link
         lift_rotor_esc.inputs.currentout =  lift_rotor_motor.outputs.current     
