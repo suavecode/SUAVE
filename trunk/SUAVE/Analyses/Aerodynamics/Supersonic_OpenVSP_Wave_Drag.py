@@ -81,7 +81,6 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         
         compute.lift = Process()
         compute.lift.inviscid_wings                = Vortex_Lattice()
-        compute.lift.vortex                        = Methods.Lift.vortex_lift
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
@@ -131,7 +130,17 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         except:
             pass
         
-        self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize()
+        use_surrogate             = self.settings.use_surrogate
+        propeller_wake_model      = self.settings.propeller_wake_model 
+        use_bemt_wake_model       = self.settings.use_bemt_wake_model
+        n_sw                      = self.settings.number_spanwise_vortices
+        n_cw                      = self.settings.number_chordwise_vortices
+        ito                       = self.settings.initial_timestep_offset
+        wdt                       = self.settings.wake_development_time
+        nwts                      = self.settings.number_of_wake_timesteps
+        mf                        = self.settings.model_fuselage
+    
+        self.process.compute.lift.inviscid_wings.geometry = self.geometry 
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf )
         
     finalize = initialize        
