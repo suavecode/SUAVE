@@ -39,9 +39,9 @@ def save_evaluation_points_vtk(points,filename):
         #---------------------
         # Write header
         #---------------------
-        header = ["# vtk DataFile Version 4.0"              , # File version and identifier
-                  "\nEvaluation points " , # Title
-                  "\nASCII"                                 , # Data type
+        header = ["# vtk DataFile Version 4.0" ,     # File version and identifier
+                  "\nEvaluation points " ,           # Title
+                  "\nASCII"              ,           # Data type
                   "\nDATASET POLYDATA"             ] # Dataset structure / topology
         f.writelines(header)   
         
@@ -55,27 +55,9 @@ def save_evaluation_points_vtk(points,filename):
         for i in range(len(xp)):       
             new_point = "\n"+str(xp[i])+" "+str(yp[i])+" "+str(zp[i])
             f.write(new_point)                
-        ##---------------------    
-        ## Write Cells:
-        ##---------------------
         
-        #cell_header     = "\n\nCELLS "+str(n_pts)+" "+str(n_pts)
-        #f.write(cell_header)
-        
-        #for i in range(len(xp)):
-            #new_cell = "\n1 "+str(i)
-            #f.write(new_cell)
-        
-        ##---------------------        
-        ## Write Cell Types:
-        ##---------------------
-        #cell_type_header  = "\n\nCELL_TYPES "+str(n_pts)
-        #f.write(cell_type_header)        
-        #for i in range(n_pts):
-            #f.write("\n1")    
-            
         #--------------------------        
-        # Write Scalar Cell Data:
+        # Write Scalar Point Data:
         #--------------------------
         cell_data_header  = "\n\nPOINT_DATA "+str(n_pts)
         f.write(cell_data_header)      
