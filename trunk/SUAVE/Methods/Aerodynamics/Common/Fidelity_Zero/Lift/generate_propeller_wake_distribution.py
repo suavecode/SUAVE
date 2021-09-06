@@ -174,31 +174,31 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         zte_rotor = xte_twisted*np.sin(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])
         
         
-        #x0_pts = np.tile(np.atleast_2d(xte_rotor), (B,1))
-        x_pts  = np.repeat(np.repeat(xte_rotor[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
+        x0 = 0
+        y0 = r*azi_y
+        z0 = r*azi_z
+        
+        x_pts0 = x0 + xte_rotor
+        y_pts0 = y0 + yte_rotor
+        z_pts0 = z0 + zte_rotor
+        
+        # shape: (m,number_time_steps,blades,radial_stations) = (1,250,4,50)
+        x_pts  = np.repeat(np.repeat(x_pts0[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
         X_pts0 = x_pts + sx_inf
 
-        # compute wake contraction  
+        # compute wake contraction, apply to y-z plane
         wake_contraction = compute_wake_contraction_matrix(i,propi,Nr,m,number_of_wake_timesteps,X_pts0,propi_outputs)          
-
-        y0_pts = np.tile(np.atleast_2d(r),(B,1)) 
-        y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)
-        Y_pts0 = (y_pts*wake_contraction)*azi_y  + sy_inf  +yte_rotor*wake_contraction
-
-        z0_pts = np.tile(np.atleast_2d(r),(B,1)) 
-        z_pts  = np.repeat(np.repeat(z0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)  
-        Z_pts0 = (z_pts*wake_contraction)*azi_z + sz_inf   +zte_rotor*wake_contraction
+        Y_pts0           = y_pts0*wake_contraction + sy_inf
+        Z_pts0           = z_pts0*wake_contraction + sz_inf
  
         # Rotate wake by thrust angle
         rot_mat = propi.prop_vel_to_body()
-        
         
         # append propeller wake to each of its repeated origins  
         X_pts   = propi.origin[0][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]   
         Y_pts   = propi.origin[0][1] + Y_pts0*rot_mat[1,1]                       
         Z_pts   = propi.origin[0][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2] 
         
-       
 
         # Store points  
         # ( control point,  prop ,  time step , blade number , location on blade )
