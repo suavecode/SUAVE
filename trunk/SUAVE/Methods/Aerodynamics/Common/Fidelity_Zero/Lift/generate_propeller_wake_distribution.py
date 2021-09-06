@@ -149,9 +149,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         azi_y   = np.sin(blade_angle_loc + total_angle_offset)  
         azi_z   = np.cos(blade_angle_loc + total_angle_offset)
         
-        
-        
-        
+
         # extract airfoil trailing edge coordinates for initial location of vortex wake
         a_sec        = propi.airfoil_geometry   
         a_secl       = propi.airfoil_polar_stations
@@ -170,8 +168,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         
         # transform coordinates from airfoil frame to rotor frame
         xte_rotor = np.tile(np.atleast_2d(yte_twisted), (B,1))
-        yte_rotor = -xte_twisted*np.cos(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])
-        zte_rotor = xte_twisted*np.sin(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])
+        yte_rotor = -xte_twisted*np.cos(blade_angle_loc+total_angle_offset)
+        zte_rotor = xte_twisted*np.sin(blade_angle_loc+total_angle_offset)
         
         
         x0 = 0
@@ -182,7 +180,6 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         y_pts0 = y0 + yte_rotor
         z_pts0 = z0 + zte_rotor
         
-        # shape: (m,number_time_steps,blades,radial_stations) = (1,250,4,50)
         x_pts  = np.repeat(np.repeat(x_pts0[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
         X_pts0 = x_pts + sx_inf
 
