@@ -14,6 +14,7 @@
 import numpy as np
 from SUAVE.Core import Data 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contraction_matrix import compute_wake_contraction_matrix
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry   
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
 def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
@@ -101,7 +102,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         
         t0                = dt*init_timestep_offset
         start_angle       = omega[0]*t0 
-        propi.start_angle = start_angle
+        propi.start_angle = start_angle[0]
 
         # define points ( control point, time step , blade number , location on blade )
         # compute lambda and mu 
@@ -147,29 +148,57 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
 
         azi_y   = np.sin(blade_angle_loc + total_angle_offset)  
         azi_z   = np.cos(blade_angle_loc + total_angle_offset)
-
-        x0_pts = np.tile(np.atleast_2d(MCA+c/4),(B,1))  
-        x_pts  = np.repeat(np.repeat(x0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
-        X_pts0 = x_pts + sx_inf   
+        
+        
+        
+        
+        # extract airfoil trailing edge coordinates for initial location of vortex wake
+        a_sec        = propi.airfoil_geometry   
+        a_secl       = propi.airfoil_polar_stations
+        airfoil_data = import_airfoil_geometry(a_sec,npoints=20)  
+       
+        # trailing edge points in airfoil coordinates
+        xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)   
+        yupper         = np.take(airfoil_data.y_upper_surface,a_secl,axis=0)   
+        xte_airfoils = xupper[:,-1]*c
+        yte_airfoils = yupper[:,-1]*c
+        
+        # apply blade twist rotation along rotor radius
+        beta = propi.twist_distribution
+        xte_twisted = np.cos(beta)*xte_airfoils - np.sin(beta)*yte_airfoils        
+        yte_twisted = np.sin(beta)*xte_airfoils + np.cos(beta)*yte_airfoils       
+        
+        # transform coordinates from airfoil frame to rotor frame
+        xte_rotor = np.tile(np.atleast_2d(yte_twisted), (B,1))
+        yte_rotor = -xte_twisted*np.cos(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])
+        zte_rotor = xte_twisted*np.sin(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])
+        
+        
+        #x0_pts = np.tile(np.atleast_2d(xte_rotor), (B,1))
+        x_pts  = np.repeat(np.repeat(xte_rotor[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
+        X_pts0 = x_pts + sx_inf
 
         # compute wake contraction  
         wake_contraction = compute_wake_contraction_matrix(i,propi,Nr,m,number_of_wake_timesteps,X_pts0,propi_outputs)          
 
-        y0_pts = np.tile(np.atleast_2d(r),(B,1))
-        y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
-        Y_pts0 = (y_pts*wake_contraction)*azi_y  + sy_inf    
+        y0_pts = np.tile(np.atleast_2d(r),(B,1)) 
+        y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)
+        Y_pts0 = (y_pts*wake_contraction)*azi_y  + sy_inf  +yte_rotor*wake_contraction
 
-        z0_pts = np.tile(np.atleast_2d(r),(B,1))
-        z_pts  = np.repeat(np.repeat(z0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)
-        Z_pts0 = (z_pts*wake_contraction)*azi_z + sz_inf     
+        z0_pts = np.tile(np.atleast_2d(r),(B,1)) 
+        z_pts  = np.repeat(np.repeat(z0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)  
+        Z_pts0 = (z_pts*wake_contraction)*azi_z + sz_inf   +zte_rotor*wake_contraction
  
         # Rotate wake by thrust angle
         rot_mat = propi.prop_vel_to_body()
-
+        
+        
         # append propeller wake to each of its repeated origins  
-        X_pts   = propi.origin[0][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]
-        Y_pts   = propi.origin[0][1] + Y_pts0*rot_mat[1,1]
-        Z_pts   = propi.origin[0][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2]
+        X_pts   = propi.origin[0][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]   
+        Y_pts   = propi.origin[0][1] + Y_pts0*rot_mat[1,1]                       
+        Z_pts   = propi.origin[0][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2] 
+        
+       
 
         # Store points  
         # ( control point,  prop ,  time step , blade number , location on blade )
@@ -230,9 +259,9 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         propi.Wake_VD.YB2   = VD.Wake.YB2[i,:,0:B,:]
         propi.Wake_VD.ZB2   = VD.Wake.ZB2[i,:,0:B,:]
         propi.Wake_VD.GAMMA = Wmid.WD_GAMMA[:,i,:,0:B,:]
-        propi.Wake_VD.Xblades = X_pts[0,0,:,:]
-        propi.Wake_VD.Yblades = Y_pts[0,0,:,:]
-        propi.Wake_VD.Zblades = Z_pts[0,0,:,:]
+        propi.Wake_VD.Xblades = X_pts[0,0,:,:] # same as xte_rotor #
+        propi.Wake_VD.Yblades = Y_pts[0,0,:,:] #zte_rotor #
+        propi.Wake_VD.Zblades = Z_pts[0,0,:,:] #yte_rotor #
         
 
     # Compress Data into 1D Arrays  
