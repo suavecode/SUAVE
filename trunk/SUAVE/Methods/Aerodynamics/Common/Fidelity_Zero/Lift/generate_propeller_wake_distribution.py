@@ -17,7 +17,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contracti
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry   
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
+def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions, include_lifting_line=False ): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 
@@ -71,8 +71,15 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         Bmax = int(max(B_list))
         nmax = int(max(Nr_list)-1)
         
+    
+    # Add additional time step to include lifting line panel on rotor
+    if include_lifting_line:
+        nts = number_of_wake_timesteps
+    else:
+        nts  = number_of_wake_timesteps-1    
+        
     # Initialize empty arrays with required sizes
-    VD, WD, Wmid = initialize_distributions(nmax, Bmax, number_of_wake_timesteps, num_prop, m,VD)
+    VD, WD, Wmid = initialize_distributions(nmax, Bmax, nts, num_prop, m,VD)
     
     # for each propeller, unpack and compute 
     for i, propi in enumerate(props):
@@ -121,7 +128,9 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
 
 
         num       = int(Na/B)  
-        time_idx  = np.arange(number_of_wake_timesteps)#-1) 
+
+        
+        time_idx  = np.arange(nts)
         t_idx     = np.atleast_2d(time_idx).T 
         B_idx     = np.arange(B) 
         B_loc     = (B_idx*num + t_idx)%Na  
@@ -166,8 +175,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         
         x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4
         y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4
-        x_3c_4_airfoils = 3*(xle_airfoils - xte_airfoils)/4
-        y_3c_4_airfoils = 3*(yle_airfoils - yte_airfoils)/4
+        x_cp_airfoils = 5*(xle_airfoils - xte_airfoils)/8
+        y_cp_airfoils = 5*(yle_airfoils - yte_airfoils)/8
         
         # apply blade twist rotation along rotor radius
         beta = propi.twist_distribution
@@ -176,8 +185,9 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         
         x_c_4_twisted = np.cos(beta)*x_c_4_airfoils - np.sin(beta)*y_c_4_airfoils 
         y_c_4_twisted = np.sin(beta)*x_c_4_airfoils + np.cos(beta)*y_c_4_airfoils  
-        x_3c_4_twisted = np.cos(beta)*x_3c_4_airfoils - np.sin(beta)*y_3c_4_airfoils 
-        y_3c_4_twisted = np.sin(beta)*x_3c_4_airfoils + np.cos(beta)*y_3c_4_airfoils  
+        
+        x_cp_twisted = np.cos(beta)*x_cp_airfoils - np.sin(beta)*y_cp_airfoils 
+        y_cp_twisted = np.sin(beta)*x_cp_airfoils + np.cos(beta)*y_cp_airfoils  
         
         # transform coordinates from airfoil frame to rotor frame
         xte_rotor = np.tile(np.atleast_2d(yte_twisted), (B,1))
@@ -196,9 +206,9 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         x_c_4_rotor = x0 - np.tile(np.atleast_2d(y_c_4_twisted), (B,1))
         y_c_4_rotor = y0[0,0,:,:] + x_c_4_twisted*np.cos(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])
         z_c_4_rotor = z0[0,0,:,:] - x_c_4_twisted*np.sin(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])   
-        x_3c_4_rotor = x0 - np.tile(np.atleast_2d(y_3c_4_twisted), (B,1))
-        y_3c_4_rotor = y0[0,0,:,:] + x_3c_4_twisted*np.cos(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])
-        z_3c_4_rotor = z0[0,0,:,:] - x_3c_4_twisted*np.sin(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])        
+        x_cp_rotor = x0 - np.tile(np.atleast_2d(y_cp_twisted), (B,1))
+        y_cp_rotor = y0[0,0,:,:] + x_cp_twisted*np.cos(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])
+        z_cp_rotor = z0[0,0,:,:] - x_cp_twisted*np.sin(blade_angle_loc[0,0,:,:]+total_angle_offset[0,0,:,:])        
         
         x_pts  = np.repeat(np.repeat(x_pts0[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
         X_pts0 = x_pts + sx_inf
@@ -216,14 +226,15 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         Y_pts   = propi.origin[0][1] + Y_pts0*rot_mat[1,1]                       
         Z_pts   = propi.origin[0][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2] 
         
-        # prepend points at quarter chord to account for rotor lifting line
-        x_c_4 = np.repeat(x_c_4_rotor[None,:,:], m,axis=0)
-        y_c_4 = np.repeat(y_c_4_rotor[None,:,:], m,axis=0)
-        z_c_4 = np.repeat(z_c_4_rotor[None,:,:], m,axis=0)
-        
-        X_pts = np.append(x_c_4[:,None,:,:], X_pts, axis=1)
-        Y_pts = np.append(y_c_4[:,None,:,:], Y_pts, axis=1)
-        Z_pts = np.append(z_c_4[:,None,:,:], Z_pts, axis=1)
+        if include_lifting_line:
+            # prepend points at quarter chord to account for rotor lifting line
+            x_c_4 = np.repeat(x_c_4_rotor[None,:,:], m,axis=0)
+            y_c_4 = np.repeat(y_c_4_rotor[None,:,:], m,axis=0)
+            z_c_4 = np.repeat(z_c_4_rotor[None,:,:], m,axis=0)
+            
+            X_pts = np.append(x_c_4[:,None,:,:], X_pts, axis=1)
+            Y_pts = np.append(y_c_4[:,None,:,:], Y_pts, axis=1)
+            Z_pts = np.append(z_c_4[:,None,:,:], Z_pts, axis=1)
         
 
         # Store points  
@@ -293,19 +304,19 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
 
         # append quarter chord lifting line point locations        
         propi.Wake_VD.Xblades_c_4 = x_c_4_rotor 
-        propi.Wake_VD.Yblades_c_4 = y_c_4_rotor#[0,0,:,:] 
-        propi.Wake_VD.Zblades_c_4 = z_c_4_rotor#[0,0,:,:]  
+        propi.Wake_VD.Yblades_c_4 = y_c_4_rotor
+        propi.Wake_VD.Zblades_c_4 = z_c_4_rotor
         
         # append three-quarter chord evaluation point locations        
-        propi.Wake_VD.Xblades_cp = x_3c_4_rotor  
-        propi.Wake_VD.Yblades_cp = y_3c_4_rotor#[0,0,:,:] 
-        propi.Wake_VD.Zblades_cp = z_3c_4_rotor#[0,0,:,:]         
+        propi.Wake_VD.Xblades_cp = x_cp_rotor  
+        propi.Wake_VD.Yblades_cp = y_cp_rotor
+        propi.Wake_VD.Zblades_cp = z_cp_rotor      
         
 
     # Compress Data into 1D Arrays  
-    mat4_size = (m,num_prop,(number_of_wake_timesteps),Bmax*nmax)
-    mat5_size = (m,num_prop,(number_of_wake_timesteps)*Bmax*nmax)
-    mat6_size = (m,num_prop*(number_of_wake_timesteps)*Bmax*nmax) 
+    mat4_size = (m,num_prop,(nts),Bmax*nmax)
+    mat5_size = (m,num_prop,(nts)*Bmax*nmax)
+    mat6_size = (m,num_prop*(nts)*Bmax*nmax) 
 
     WD.XA1    =  np.reshape(np.reshape(np.reshape(Wmid.WD_XA1,mat4_size),mat5_size),mat6_size)
     WD.YA1    =  np.reshape(np.reshape(np.reshape(Wmid.WD_YA1,mat4_size),mat5_size),mat6_size)
@@ -343,7 +354,7 @@ def initialize_distributions(nmax, Bmax, n_wts, n_props, m,VD):
     Wmid.WD_GAMMA  = np.zeros(mat1_size)     
 
     WD        = Data()
-    mat2_size = (m,n_props*(n_wts-1)*Bmax*nmax)
+    mat2_size = (m,n_props*(n_wts)*Bmax*nmax)
     WD.XA1    = np.zeros(mat2_size)
     WD.YA1    = np.zeros(mat2_size)
     WD.ZA1    = np.zeros(mat2_size)

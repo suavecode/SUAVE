@@ -25,7 +25,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_v
 # package imports
 import numpy as np
 import scipy as sp
-
+import pylab as plt
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------    
@@ -436,7 +436,6 @@ class Rotor(Energy_Component):
             # compute induced velocities at blade by wake,
             from copy import deepcopy
             bemt_outputs = deepcopy(self.outputs)
-            import pylab as plt
             fig=plt.figure()
             plt.plot(np.linspace(0,1,Nr), bemt_outputs.disc_axial_induced_velocity[0,0,:],"r-",label="BEMT")
             plt.show()
@@ -447,8 +446,7 @@ class Rotor(Energy_Component):
             while(diff>tol):
                 va, vt = compute_HFW_blade_velocities(self, self.outputs)
                 
-                # plot bemt vs. hfw va and vt
-                #import pylab as plt
+                ## plot bemt vs. hfw va and vt
                 #fig=plt.figure()
                 #plt.plot(np.linspace(0,1,Nr), bemt_outputs.disc_axial_induced_velocity[0,0,:],"r-",label="BEMT")                
                 #plt.plot(np.linspace(0,1,Nr), va[0,0,:],"k-",label="HFW")
@@ -490,9 +488,8 @@ class Rotor(Energy_Component):
                 
             
             
-                print(diff)
+                print(np.sqrt(np.sum(Rsquiggly**2)))
                 # plot difference in blade and wake circulation
-                import pylab as plt
                 fig = plt.figure()
                 plt.plot(np.linspace(0,1,Nr),Gamma[0,1,:],'r-',label="$\\Gamma_{Wake}$")
                 plt.plot(np.linspace(0,1,Nr),(0.5*W*c*Cl)[0,1,:],'k-',label="$\\Gamma_{Blade}$")
@@ -507,7 +504,10 @@ class Rotor(Energy_Component):
                 
                 
                 # reset HFW circulation:
-                self.outputs.disc_circulation = 0.5*W*c*Cl
+                self.outputs.disc_circulation = 0.5*W*c*Cl + Rsquiggly
+                #self.outputs.disc_circulation = Gamma# 0.5*W*c*Cl
+                self.outputs.disc_axial_induced_velocity = va
+                self.outputs.disc_tangential_induced_velocity = vt
             
                 # omega = 0, do not run BEMT convergence loop 
                 if all(omega[:,0]) == 0. :              
@@ -930,9 +930,9 @@ def compute_HFW_blade_velocities(prop, bemt_outputs ):
                             [np.sin(offset_angle), np.cos(offset_angle)]])
         
         # set the evaluation points in the vortex distribution
-        Yb   = prop.Wake_VD.Yblades[0,:]  #y
-        Zb   = prop.Wake_VD.Zblades[0,:]  #z
-        Xb   = prop.Wake_VD.Xblades[0,:]  #prop.origin[0][0]*np.ones_like(VD.YC)
+        Yb   = prop.Wake_VD.Yblades_cp[0,:]  #y
+        Zb   = prop.Wake_VD.Zblades_cp[0,:]  #z
+        Xb   = prop.Wake_VD.Xblades_cp[0,:]  #prop.origin[0][0]*np.ones_like(VD.YC)
         
         VD.YC = Yb*rot_mat[0,0] + Zb*rot_mat[0,1]
         VD.ZC = Yb*rot_mat[1,0] + Zb*rot_mat[1,1]
