@@ -241,10 +241,9 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                    = 0.5 * ones_row(1) 
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip      
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
-                                                                                         initial_power_coefficient = 0.03)
     
-        
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
+                                                                                       initial_power_coefficient = 0.03)
     
     # add to misison
     mission.append_segment(segment)     

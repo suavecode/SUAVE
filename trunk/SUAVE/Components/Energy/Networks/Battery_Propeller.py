@@ -170,7 +170,7 @@ class Battery_Propeller(Network):
             # Run the motor for current
             motor.current(conditions)
             
-            # Conditions specific to this instantation of motor and propellers
+            # Conditions specific to this instantiation of motor and propellers
             R                   = prop.tip_radius
             rpm                 = motor.outputs.omega / Units.rpm
             F_mag               = np.atleast_2d(np.linalg.norm(F, axis=1)).T
