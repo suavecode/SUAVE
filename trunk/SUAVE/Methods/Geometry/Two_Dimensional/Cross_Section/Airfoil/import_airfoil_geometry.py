@@ -10,6 +10,7 @@
 #           May 2021, E. Botero
 #           May 2021, R. Erhard
 #           Jun 2021, E. Botero
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +20,7 @@ import numpy as np
 import scipy.interpolate as interp
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
+def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_interpolation = 'cubic'):
     """This imports an airfoil geometry from a text file  and stores
     the coordinates of upper and lower surfaces as well as the mean
     camberline
@@ -32,6 +33,9 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
 
     Inputs:
     airfoil_geometry_files   <list of strings>
+    surface_interpolation   - type of interpolation used in the SciPy function. Preferable options are linear, quardratic and cubic. 
+    Full list of options can be found here : 
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
 
     Outputs:
     airfoil_data.
@@ -66,7 +70,8 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
     airfoil_data.x_lower_surface    = []
     airfoil_data.y_upper_surface    = []
     airfoil_data.y_lower_surface    = []
-    
+
+    n_pts       = npoints//2
     for i in range(num_airfoils):  
         # Open file and read column names and data block
         f = open(airfoil_geometry_files[i]) 
@@ -172,23 +177,23 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
 
         # determine the thickness to chord ratio - note that the upper and lower surface
         # may be of different lenghts so initial interpolation is required 
-        # x coordinates
+        # x coordinates 
         x_up_surf_old = np.array(x_up_surf)   
-        arrx_up_interp= interp.interp1d(np.arange(x_up_surf_old.size),x_up_surf_old)
-        x_up_surf_new = arrx_up_interp(np.linspace(0,x_up_surf_old.size-1,npoints))    
+        arrx_up_interp= interp.interp1d(np.arange(x_up_surf_old.size),x_up_surf_old, kind=surface_interpolation)
+        x_up_surf_new = arrx_up_interp(np.linspace(0,x_up_surf_old.size-1,n_pts))    
         
         x_lo_surf_old = np.array(x_lo_surf) 
-        arrx_lo_interp= interp.interp1d(np.arange(x_lo_surf_old.size),x_lo_surf_old)
-        x_lo_surf_new = arrx_lo_interp(np.linspace(0,x_lo_surf_old.size-1,npoints)) 
+        arrx_lo_interp= interp.interp1d(np.arange(x_lo_surf_old.size),x_lo_surf_old, kind=surface_interpolation )
+        x_lo_surf_new = arrx_lo_interp(np.linspace(0,x_lo_surf_old.size-1,n_pts)) 
         
         # y coordinates 
         y_up_surf_old = np.array(y_up_surf)   
-        arry_up_interp= interp.interp1d(np.arange(y_up_surf_old.size),y_up_surf_old)
-        y_up_surf_new = arry_up_interp(np.linspace(0,y_up_surf_old.size-1,npoints))    
+        arry_up_interp= interp.interp1d(np.arange(y_up_surf_old.size),y_up_surf_old, kind=surface_interpolation)
+        y_up_surf_new = arry_up_interp(np.linspace(0,y_up_surf_old.size-1,n_pts))    
         
         y_lo_surf_old = np.array(y_lo_surf) 
-        arry_lo_interp= interp.interp1d(np.arange(y_lo_surf_old.size),y_lo_surf_old)
-        y_lo_surf_new = arry_lo_interp(np.linspace(0,y_lo_surf_old.size-1,npoints)) 
+        arry_lo_interp= interp.interp1d(np.arange(y_lo_surf_old.size),y_lo_surf_old, kind=surface_interpolation)
+        y_lo_surf_new = arry_lo_interp(np.linspace(0,y_lo_surf_old.size-1,n_pts)) 
          
         # compute thickness, camber and concatenate coodinates 
         thickness     = y_up_surf_new - y_lo_surf_new

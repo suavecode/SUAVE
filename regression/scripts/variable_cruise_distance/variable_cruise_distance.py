@@ -45,7 +45,7 @@ def main():
     
     plot_results(results)
     
-    distance_regression = 3811746.9839227926
+    distance_regression = 3797681.9970437484
     distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc = ', distance_calc)
     error_distance      = abs((distance_regression - distance_calc )/distance_regression)
