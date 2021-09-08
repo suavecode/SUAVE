@@ -72,7 +72,7 @@ def main():
     AoA_vals             = np.atleast_2d(np.array([2,2,2,2,2,2])*Units.degrees).T       
     airfoil_stations     = [0,1,0,1,0,1] 
     airfoils             = [rel_path + 'NACA_4412.txt',rel_path +'Clark_y.txt']             
-    airfoil_geometry     = import_airfoil_geometry(airfoils, npoints = (npanel + 2), surface_interpolation = 'cubic')    
+    airfoil_geometry     = import_airfoil_geometry(airfoils, npoints = (npanel + 2))    
     airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals, npanel, batch_analysis = False, airfoil_stations = airfoil_stations)    
        
     True_Cls  = np.array([[0.68788905],[0.60906619],[0.68788905],[0.60906619],[0.68788905],[0.60906619]])

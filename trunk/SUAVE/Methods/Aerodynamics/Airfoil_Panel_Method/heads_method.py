@@ -18,12 +18,12 @@ def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE
     """ Computes the boundary layer characteristics in turbulent
     flow pressure gradients
 
-    Assumptions:
+    Source:
     Head, M. R., and P. Bandyopadhyay. "New aspects of turbulent boundary-layer structure."
     Journal of fluid mechanics 107 (1981): 297-338.
 
-    Source:
-    None
+    Assumptions:
+    None  
 
     Inputs: 
     nalpha         - number of angle of attacks                                                    [unitless]
@@ -32,12 +32,11 @@ def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE
     DEL_0          - intital bounday layer thickness                                               [m]
     DELTA_STAR_0   - initial displacement thickness                                                [m]
     THETA_0        - initial momentum thickness                                                    [m]
-    L              - normalized length of surface                                                  [unitless]
+    TURBULENT_SURF - normalized length of surface                                                  [unitless]
     RE_L           - Reynolds number                                                               [unitless]
-    X_I            - x coordinate on surface of airfoil                                            [unitless] 
+    TURBULENT_COORD- x coordinate on surface of airfoil                                            [unitless] 
     VE_I           - boundary layer velocity at transition location                                [m/s-m] 
-    DVE_I          - intial derivative value of boundary layer velocity at transition location     [unitless]
-    x_tr           - transition location on surface                                                [unitless]
+    DVE_I          - intial derivative value of boundary layer velocity at transition location     [unitless] 
     npanel         - number of points on surface                                                   [unitless]
     tol            - boundary layer error correction tolerance                                     [unitless]
 

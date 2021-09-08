@@ -19,9 +19,12 @@ def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THET
     """ Computes the boundary layer characteristics in laminar 
     flow pressure gradients
     
-    Assumptions:
+    Source:
     Thwaites, Bryan. "Approximate calculation of the laminar boundary layer." 
     Aeronautical Quarterly 1.3 (1949): 245-280.
+    
+    Assumptions:
+    None  
 
     Inputs:  
     npanel         - number of points on surface                                                 [unitless]

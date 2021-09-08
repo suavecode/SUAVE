@@ -17,7 +17,7 @@ from .heads_method    import heads_method
 from .aero_coeff      import aero_coeff 
 
 # ----------------------------------------------------------------------
-# panel_geometry.py
+# airfoil_analysis.py
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
@@ -67,7 +67,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis =
         H              - shape factor                                                      [unitless]
         Cf             - local skin friction coefficient                                   [unitless]
         Re_theta_t     - Reynolds Number as a function of theta transition location        [unitless]
-        tr_crit        - critical transition criteria	                                   [unitless]
+        tr_crit        - critical transition criteria                                      [unitless]
                         
     Properties Used:
     N/A

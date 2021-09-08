@@ -44,16 +44,19 @@ def aero_coeff(x,y,cp,al,npanel):
     dy      = y[1:]-y[:-1]
     xa      = 0.5*(x[1:] +x[:-1])-0.25
     ya      = 0.5*(y[1:] +y[:-1])
-    dcl     = cp[:-1]*dx
-    dcd     = -cp[:-1]*dy
-    cl_val  = np.sum(dcl,axis=0)
-    cd_val  = np.sum(dcd,axis=0)
-    cm_val  = np.sum((-dcl*xa + dcd*ya),axis=0) 
+    dcn     = cp[:-1]*dx
+    dca     = -cp[:-1]*dy
     
-    cl      = cl_val*np.cos(al) - cd_val*np.sin(al) 
-    cd      = cl_val*np.sin(al) + cd_val*np.cos(al)
-    cm      = cm_val 
+    # compute differential forces
+    cn      = np.sum(dcn,axis=0)
+    ca      = np.sum(dca,axis=0)
+    cm      = np.sum((-dcn*xa + dca*ya),axis=0) 
     
+    # orient normal and axial forces 
+    cl      = cn*np.cos(al) - ca*np.sin(al) 
+    cd      = cn*np.sin(al) + ca*np.cos(al) 
+    
+    # pack results
     AERO_RES = Data(
         Cl = cl,
         Cd = cd,
