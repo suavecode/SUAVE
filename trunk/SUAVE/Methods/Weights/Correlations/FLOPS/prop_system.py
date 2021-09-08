@@ -85,7 +85,7 @@ def nacelle_FLOPS(prop,nacelle):
             Aircraft Design: A Conceptual Approach
 
         Inputs:
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+            prop    - data dictionary for the specific network that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
                 -.engine_lenght: total length of engine                                  [m]
                 -.sealevel_static_thrust: sealevel static thrust of engine               [N]
@@ -117,7 +117,7 @@ def thrust_reverser_FLOPS(prop):
             The Flight Optimization System Weight Estimation Method
 
         Inputs:
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+            prop    - data dictionary for the specific network that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
                 -.sealevel_static_thrust: sealevel static thrust of engine  [N]
 
@@ -145,7 +145,7 @@ def misc_engine_FLOPS(vehicle,prop,nacelle):
         Inputs:
             vehicle - data dictionary with vehicle properties                            [dimensionless]
                  -.design_mach_number: design mach number
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+            prop    - data dictionary for the specific network that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
                 -.sealevel_static_thrust: sealevel static thrust of engine               [N]
             nacelle              
@@ -208,7 +208,7 @@ def engine_FLOPS(vehicle, prop):
                 -.systems.accessories: type of aircraft (short-range, commuter
                                                         medium-range, long-range,
                                                         sst, cargo)
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+            prop    - data dictionary for the specific network that is being estimated [dimensionless]
                 -.sealevel_static_thrust: sealevel static thrust of engine  [N]
 
         Outputs:

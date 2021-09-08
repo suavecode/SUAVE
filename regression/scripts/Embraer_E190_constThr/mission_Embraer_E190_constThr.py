@@ -27,7 +27,6 @@ sys.path.append('../Vehicles')
 # the analysis functions
 
 from Embraer_190 import vehicle_setup, configs_setup
-from SUAVE.Methods.Performance  import payload_range
 
 
 
@@ -173,7 +172,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy Analysis
     energy  = SUAVE.Analyses.Energy.Energy()
-    energy.network=vehicle.propulsors
+    energy.network=vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------

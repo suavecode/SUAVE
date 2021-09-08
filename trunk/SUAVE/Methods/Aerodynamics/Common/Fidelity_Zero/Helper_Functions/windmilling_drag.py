@@ -33,8 +33,12 @@ def windmilling_drag(geometry,state):
       max_mach_operational        [Unitless]
       reference_area              [m^2]
       wings.sref                  [m^2]
+<<<<<<< HEAD
       nacelles.
         diameter                  [m^2] 
+=======
+      networks. 
+>>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
         areas.wetted              [m^2]
         length                    [m^2]
 
@@ -68,11 +72,12 @@ def windmilling_drag(geometry,state):
                 break
 
     # getting geometric data from engine (estimating when not available)
-    for idx,propulsor in enumerate(vehicle.propulsors):
+    for idx,network in enumerate(vehicle.networks):
         try:
-            swet_nac = propulsor.areas.wetted
+            swet_nac = network.areas.wetted
         except:
             try:
+<<<<<<< HEAD
                 l_nac = 0
                 for idx2,nacelle in enumerate(vehicle.nacelles):
                     D_nac = nacelle.diameter
@@ -85,6 +90,18 @@ def windmilling_drag(geometry,state):
                             MMO = 0.84
                         D_nac_in = D_nac / Units.inches
                         l_nac += (2.36 * D_nac_in - 0.01*(D_nac_in*MMO)**2) * Units.inches
+=======
+                D_nac = network.nacelle_diameter
+                if network.engine_length != 0.:
+                    l_nac = network.engine_length
+                else:
+                    try:
+                        MMO = vehicle.max_mach_operational
+                    except:
+                        MMO = 0.84
+                    D_nac_in = D_nac / Units.inches
+                    l_nac = (2.36 * D_nac_in - 0.01*(D_nac_in*MMO)**2) * Units.inches
+>>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
             except AttributeError:
                 print('Error calculating windmilling drag. Engine dimensions missing.')
             swet_nac = 5.62 * D_nac * l_nac

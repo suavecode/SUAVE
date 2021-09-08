@@ -33,13 +33,13 @@ def set_origin_non_dimensional(vehicle):
               .fuselages.fuselage.lengths.total
               .wings.*.origin
               .wings.main_wing.lengths.total
-              .propulsors.*.origin
+              .networks.*.origin
 
         Outputs:
         vehicle    [SUAVE Vehicle]
               .fuselages.*.non_dimensional_origin
               .wings.*.non_dimensional_origin
-              .propulsors.*.non_dimensional_origin
+              .networks.*.non_dimensional_origin
 
         Properties Used:
         None
@@ -66,7 +66,7 @@ def set_origin_non_dimensional(vehicle):
         
         fuse.non_dimensional_origin = non_dim.tolist()  
 
-    for prop in vehicle.propulsors:
+    for prop in vehicle.networks:
         origins  = prop.origin
         prop.non_dimensional_origin.clear()
         for eng in range(int(prop.number_of_engines)):
@@ -120,11 +120,11 @@ def set_origin_dimensional(vehicle):
         
         fuse.origin = origin.tolist()
                 
-    for prop in vehicle.propulsors:
-        n = int(prop.number_of_engines)
-        non_dims  = prop.non_dimensional_origin
+    for net in vehicle.networks:
+        n = int(net.number_of_engines)
+        non_dims  = net.non_dimensional_origin
         
-        prop.origin.clear()
+        net.origin.clear()
         
         origin = np.zeros((n,3))
     

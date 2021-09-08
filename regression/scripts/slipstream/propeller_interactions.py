@@ -37,7 +37,7 @@ def main():
     
     # set the basic propeller geometry
     vehicle = vehicle_setup()
-    prop    = vehicle.propulsors.prop_net.propeller
+    prop    = vehicle.networks.prop_net.propeller
     
     # set the atmospheric conditions
     conditions = simulation_conditions(prop)
@@ -54,26 +54,27 @@ def main():
     
     # run the BEMT for upstream isolated propeller
     T_iso, Q_iso, P_iso, Cp_iso, outputs_iso , etap_iso = prop.spin(conditions)
-    prop.outputs = outputs_iso
+    
+    conditions.noise.sources.propellers[prop.tag] = outputs_iso
     
     # compute the induced velocities from upstream propeller at the grid points on the downstream propeller
-    propeller_wake = compute_propeller_wake_velocities(prop, grid_settings, grid_points, plot_velocities=plot_flag)
+    propeller_wake = compute_propeller_wake_velocities(prop, grid_settings, grid_points, conditions, plot_velocities=plot_flag)
     
     # run the downstream propeller in the presence of this nonuniform flow
     T, Q, P, Cp, outputs , etap = run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=plot_flag)
     
     # compare regression results:
-    T_iso_true, Q_iso_true, P_iso_true, Cp_iso_true, etap_iso_true = 3.37954649, 0.0749168, 50.99424705, 0.04762865, 0.59253447
+    T_iso_true, Q_iso_true, P_iso_true, Cp_iso_true, etap_iso_true = 3.281295202686675, 0.07269631, 49.48280528, 0.04621697, 0.59288078
     
-    assert(abs(T_iso-T_iso_true)<1e-6)
+    assert(abs(np.linalg.norm(T_iso)-T_iso_true)<1e-6)
     assert(abs(Q_iso-Q_iso_true)<1e-6)
     assert(abs(P_iso-P_iso_true)<1e-6)
     assert(abs(Cp_iso-Cp_iso_true)<1e-6)
     assert(abs(etap_iso-etap_iso_true)<1e-6)
     
-    T_true, Q_true, P_true, Cp_true, etap_true = 3.37504629,0.074902,50.98417632,0.04761925,0.59186234
-    
-    assert(abs(T-T_true)<1e-6)
+    T_true, Q_true, P_true, Cp_true, etap_true = 3.2849888860951233,0.07270277,49.4872045,0.04622107,0.59349541
+
+    assert(abs(np.linalg.norm(T)-T_true)<1e-6)
     assert(abs(Q-Q_true)<1e-6)
     assert(abs(P-P_true)<1e-6)
     assert(abs(Cp-Cp_true)<1e-6)
@@ -101,21 +102,23 @@ def run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=
         
     return T, Q, P, Cp, outputs , etap
 
-def compute_propeller_wake_velocities(prop,grid_settings,grid_points, plot_velocities=True):
+def compute_propeller_wake_velocities(prop,grid_settings,grid_points, conditions, plot_velocities=True):
     
     x_plane = prop.origin[1,0] #second propeller, x-location
     
     # generate the propeller wake distribution for the upstream propeller
-    prop_copy = copy.deepcopy(prop)
-    prop_copy.origin = np.array([prop.origin[0]])
-    prop_copy.rotation = [prop.rotation[0]]
+    prop_copy                = copy.deepcopy(prop)
     VD                       = Data()
     cpts                     = 1 # only testing one condition
     number_of_wake_timesteps = 100
     init_timestep_offset     = 0
     time                     = 10
     
-    WD, dt, ts, B, Nr  = generate_propeller_wake_distribution(prop_copy,cpts,VD,init_timestep_offset, time, number_of_wake_timesteps )
+    props = SUAVE.Core.Container()
+    props.append(prop_copy)
+    
+    identical_props = True
+    WD, dt, ts, B, Nr  = generate_propeller_wake_distribution(props,identical_props,cpts,VD,init_timestep_offset, time, number_of_wake_timesteps, conditions )
     prop.start_angle = prop_copy.start_angle
     
     # compute the wake induced velocities:
@@ -185,8 +188,8 @@ def simulation_settings(vehicle):
     
     # grid conditions for downstream propeller
     grid_settings            = Data()
-    grid_settings.radius     = vehicle.propulsors.prop_net.propeller.tip_radius
-    grid_settings.hub_radius = vehicle.propulsors.prop_net.propeller.hub_radius
+    grid_settings.radius     = vehicle.networks.prop_net.propeller.tip_radius
+    grid_settings.hub_radius = vehicle.networks.prop_net.propeller.hub_radius
     grid_settings.Nr         = 70
     grid_settings.Na         = 40
     
@@ -218,7 +221,7 @@ def vehicle_setup():
     # Propulsion Properties:
     net                   = SUAVE.Components.Energy.Networks.Battery_Propeller()
     net.tag               = 'prop_net'
-    net.number_of_engines = 2
+    net.number_of_propeller_engines = 2
 
     prop = SUAVE.Components.Energy.Converters.Propeller()
     prop = propeller_geometry() 

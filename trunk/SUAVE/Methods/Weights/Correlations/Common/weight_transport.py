@@ -53,7 +53,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
             RAYMER method: Aircraft Design A Conceptual Approach
        Inputs:
             vehicle - data dictionary with vehicle properties               [dimensionless]
-                -.propulsors: data dictionary with all the propulsor elements and properties
+                -.networks: data dictionary with all the network elements and properties
                     -.total_weight: total weight of the propulsion system   [kg] 
                       (optional, calculated if not included)
                 -.fuselages: data dictionary with the fuselage properties of the vehicle
@@ -168,7 +168,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     # Prop weight (propulsion pod weight is calculated separately)
     wt_prop_total   = 0
     wt_prop_data    = None
-    for prop in vehicle.propulsors:
+    for prop in vehicle.networks:
         if isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super) or isinstance(prop,
                                                                                                   Nets.Propulsor_Surrogate):
             
@@ -231,9 +231,9 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     # Prop pod weight
     WPOD = 0.0
     if method_type == 'FLOPS Complex':
-        propulsor_name  = list(vehicle.propulsors.keys())[0]
-        propulsors      = vehicle.propulsors[propulsor_name]
-        NENG            = propulsors.number_of_engines
+        network_name  = list(vehicle.networks.keys())[0]
+        networks      = vehicle.networks[network_name]
+        NENG            = networks.number_of_engines
         WTNFA = wt_prop_data.wt_eng + wt_prop_data.wt_thrust_reverser + wt_prop_data.wt_starter \
                 + 0.25 * wt_prop_data.wt_engine_controls + 0.11 * wt_sys.wt_instruments + 0.13 * wt_sys.wt_elec \
                 + 0.13 * wt_sys.wt_hyd_pnu + 0.25 * wt_prop_data.fuel_system

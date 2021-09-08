@@ -46,7 +46,11 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     analyses.configs.cruise.aerodynamics.settings    Used in called functions:
       compute.parasite.wings.wing(state,settings,wing)                (for all wings)
       compute.parasite.fuselages.fuselage(state,settings,fuselage)    (for all fuselages)
+<<<<<<< HEAD
       compute.parasite.nacelles.nacelle(state,settings,nacelle) (for all nacelles)
+=======
+      compute.parasite.networks.network(state,settings,network) (for all networks)
+>>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
       compute.parasite.pylons(state,settings,vehicle) 
       compute.miscellaneous(state,settings,vehicle)
       compute.parasite.total(state,settings,vehicle)
@@ -122,8 +126,13 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     for fuselage in vehicle.fuselages:
         compute.parasite.fuselages.fuselage(state,settings,fuselage)    
         
+<<<<<<< HEAD
     for nacelle in vehicle.nacelles:
         compute.parasite.nacelles.nacelle(state,settings,nacelle) 
+=======
+    for network in vehicle.networks:
+        compute.parasite.propulsors.propulsor(state,settings,network) 
+>>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
       
     compute.parasite.pylons(state,settings,vehicle) 
     compute.miscellaneous(state,settings,vehicle)
@@ -172,11 +181,19 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
         swet_tot += drag_breakdown[fuselage.tag].wetted_area
         CD_p     += drag_breakdown[fuselage.tag].parasite_drag_coefficient
 
+<<<<<<< HEAD
     for nacelle in vehicle.nacelles:
         drag_breakdown[nacelle.tag].tag = nacelle.tag[0:25] + '  (EACH)'
         CD_p     += drag_breakdown[nacelle.tag].parasite_drag_coefficient
         drag_breakdown[nacelle.tag].parasite_drag_coefficient /= len(nacelle.origin)
         swet_tot += drag_breakdown[nacelle.tag].wetted_area * len(nacelle.origin)
+=======
+    for network in vehicle.networks:
+        drag_breakdown[network.tag].tag = network.tag[0:25] + '  (EACH)'
+        CD_p     += drag_breakdown[network.tag].parasite_drag_coefficient
+        drag_breakdown[network.tag].parasite_drag_coefficient /= network.number_of_engines
+        swet_tot += drag_breakdown[network.tag].wetted_area * network.number_of_engines
+>>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
 
     drag_breakdown['pylon'].tag = 'Pylon (TOTAL)'
     CD_p     += drag_breakdown['pylon'].parasite_drag_coefficient

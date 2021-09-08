@@ -4,7 +4,8 @@
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
 #           Mar 2020, M. Clarke 
-#           Apr 20211, M. Clarke
+#           Apr 2021, M. Clarke
+#           Jun 2021, A. Blaufox
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -108,6 +109,20 @@ class Aerodynamics(Basic):
         self.stability         = Conditions()        
         self.stability.static  = Conditions()
         self.stability.dynamic = Conditions()
+        self.stability.dynamic.pitch_rate   = ones_1col * 0
+        self.stability.dynamic.roll_rate    = ones_1col * 0
+        self.stability.dynamic.yaw_rate     = ones_1col * 0     
+        
+        # aerodynamic derivative conditions
+        self.aero_derivatives = Conditions()
+        self.aero_derivatives.dCL_dAlpha = ones_1col * 0
+        self.aero_derivatives.dCD_dAlpha = ones_1col * 0
+        self.aero_derivatives.dCL_dBeta = ones_1col * 0
+        self.aero_derivatives.dCD_dBeta = ones_1col * 0
+        self.aero_derivatives.dCL_dV = ones_1col * 0
+        self.aero_derivatives.dCD_dV = ones_1col * 0
+        self.aero_derivatives.dCL_dThrottle = ones_1col * 0
+        self.aero_derivatives.dCD_dThrottle = ones_1col * 0
 
         # propulsion conditions
         self.propulsion = Conditions()
@@ -130,3 +145,5 @@ class Aerodynamics(Basic):
         self.noise                             = Conditions()
         self.noise.total                       = Conditions()
         self.noise.sources                     = Conditions()
+        self.noise.sources.propellers          = Conditions()
+        self.noise.sources.lift_rotors         = Conditions()

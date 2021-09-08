@@ -9,17 +9,13 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
 from copy import deepcopy
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 from SUAVE.Core import Data
-import sklearn
 from sklearn import gaussian_process
 from sklearn.gaussian_process.kernels import RationalQuadratic, ConstantKernel, RBF, Matern
 from sklearn import neighbors
@@ -30,7 +26,7 @@ from sklearn import svm, linear_model
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Propulsor_Surrogate(Propulsor):
+class Propulsor_Surrogate(Network):
     """ This is a way for you to load engine data from a source.
         A .csv file is read in, a surrogate made, that surrogate is used during the mission analysis.
         

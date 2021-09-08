@@ -3,6 +3,7 @@
 # 
 # Created:  Dec 2020, E. Botero
 # Modified: May 2021, E. Botero  
+#           Jun 2021, E. Botero  
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,11 +13,14 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity(VD,mach):
+def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
     Assumptions: 
     Trailing vortex legs infinity are alligned to freestream
+    
+    Outside of a call to the VLM() function itself, EW does not need to be computed, as C_mn 
+    provides the same information in the body-frame. 
 
     Source:  
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
@@ -41,8 +45,8 @@ def compute_wing_induced_velocity(VD,mach):
     """
     # unpack  
     LE_ind       = VD.leading_edge_indices
-    n_cp         = VD.n_cp
     TE_ind       = VD.trailing_edge_indices
+    n_cp         = VD.n_cp
     n_mach       = len(mach)
     mach         = np.array(mach,dtype=np.float32)
 
@@ -70,6 +74,13 @@ def compute_wing_induced_velocity(VD,mach):
     ZC    = np.array(np.atleast_2d(VD.ZC*1.),dtype=np.float32)
     XA_TE = np.array(np.atleast_2d(VD.XA_TE*1.),dtype=np.float32)
     XB_TE = np.array(np.atleast_2d(VD.XB_TE*1.),dtype=np.float32)
+    
+    
+    # Panel Dihedral Angle, using AH and BH location
+    D      = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
+    COS_DL = (YBH-YAH)/D    
+    DL     = np.arccos(COS_DL)
+    DL[DL>np.pi/2] = DL[DL>np.pi/2] - np.pi # This flips the dihedral angle for the other side of the wing
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -170,7 +181,7 @@ def compute_wing_induced_velocity(VD,mach):
         U[sub], V[sub], W[sub] = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)   
 
     
-    # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX
+    # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX. some values computed in a preprocessing section in VLM
     sup         = (B2>=0)[:,0,0]
     B2_sup      = B2[sup,:,:]
     RO1_sup     = B2[sup,:,:]*RTV1
@@ -187,8 +198,23 @@ def compute_wing_induced_velocity(VD,mach):
     
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = np.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
+    
+    
+    if compute_EW == True:
+        # Calculate the W velocity in the VORLAX frame for later calcs
+        # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
+        COS1   = np.cos(DL.T - DL)
+        SIN1   = np.sin(DL.T - DL) 
+        WEIGHT = 1
+        
+        EW = (W*COS1-V*SIN1)*WEIGHT
+    else:
+        # Assume and warn that this function is being used outside of VLM, EW is not needed
+        print('NOTE: EW is not computed outside of VLM() unless specified.')
+        EW = np.nan
+        
 
-    return C_mn, s, RFLAG
+    return C_mn, s, RFLAG, EW
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     """  This computes the induced velocities at each control point 

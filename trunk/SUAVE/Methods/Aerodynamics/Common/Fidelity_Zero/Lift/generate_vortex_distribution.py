@@ -13,6 +13,7 @@
 import numpy as np
 
 from SUAVE.Core import  Data
+from SUAVE.Components.Wings import All_Moving_Surface 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
@@ -63,6 +64,7 @@ def generate_vortex_distribution(geometry,settings):
 
     Inputs:
     geometry.wings                                [Unitless]  
+    settings.floating_point_precision             [np.dtype]
     
     Of the following settings, the user should define either the number_ atrributes or the wing_ and fuse_ attributes.
     settings.number_spanwise_vortices             - a base number of vortices to be applied to both wings and fuselages
@@ -70,7 +72,7 @@ def generate_vortex_distribution(geometry,settings):
     settings.wing_spanwise_vortices               - the number of vortices to be applied to only the wings
     settings.wing_chordwise_vortices              - the number of vortices to be applied to only the wings
     settings.fuselage_spanwise_vortices           - the number of vortices to be applied to only the fuslages
-    settings.fuselage_chordwise_vortices          - the number of vortices to be applied to only the fuselages    
+    settings.fuselage_chordwise_vortices          - the number of vortices to be applied to only the fuselages 
        
     Outputs:                                   
     VD - vehicle vortex distribution              [Unitless] 
@@ -85,6 +87,7 @@ def generate_vortex_distribution(geometry,settings):
     #unpack other settings----------------------------------------------------
     spc            = settings.spanwise_cosine_spacing
     model_fuselage = settings.model_fuselage
+    precision      = settings.floating_point_precision
     
     show_prints    = settings.verbose if ('verbose' in settings.keys()) else False
     
@@ -127,70 +130,70 @@ def generate_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------
     VD = Data()
 
-    VD.XAH    = np.empty(shape=[0,1])
-    VD.YAH    = np.empty(shape=[0,1])
-    VD.ZAH    = np.empty(shape=[0,1])
-    VD.XBH    = np.empty(shape=[0,1])
-    VD.YBH    = np.empty(shape=[0,1])
-    VD.ZBH    = np.empty(shape=[0,1])
-    VD.XCH    = np.empty(shape=[0,1])
-    VD.YCH    = np.empty(shape=[0,1])
-    VD.ZCH    = np.empty(shape=[0,1])     
-    VD.XA1    = np.empty(shape=[0,1])
-    VD.YA1    = np.empty(shape=[0,1])  
-    VD.ZA1    = np.empty(shape=[0,1])
-    VD.XA2    = np.empty(shape=[0,1])
-    VD.YA2    = np.empty(shape=[0,1])    
-    VD.ZA2    = np.empty(shape=[0,1])    
-    VD.XB1    = np.empty(shape=[0,1])
-    VD.YB1    = np.empty(shape=[0,1])  
-    VD.ZB1    = np.empty(shape=[0,1])
-    VD.XB2    = np.empty(shape=[0,1])
-    VD.YB2    = np.empty(shape=[0,1])    
-    VD.ZB2    = np.empty(shape=[0,1])     
-    VD.XAC    = np.empty(shape=[0,1])
-    VD.YAC    = np.empty(shape=[0,1])
-    VD.ZAC    = np.empty(shape=[0,1]) 
-    VD.XBC    = np.empty(shape=[0,1])
-    VD.YBC    = np.empty(shape=[0,1])
-    VD.ZBC    = np.empty(shape=[0,1]) 
-    VD.XC_TE  = np.empty(shape=[0,1])
-    VD.YC_TE  = np.empty(shape=[0,1])
-    VD.ZC_TE  = np.empty(shape=[0,1])     
-    VD.XA_TE  = np.empty(shape=[0,1])
-    VD.YA_TE  = np.empty(shape=[0,1])
-    VD.ZA_TE  = np.empty(shape=[0,1]) 
-    VD.XB_TE  = np.empty(shape=[0,1])
-    VD.YB_TE  = np.empty(shape=[0,1])
-    VD.ZB_TE  = np.empty(shape=[0,1])  
-    VD.XC     = np.empty(shape=[0,1])
-    VD.YC     = np.empty(shape=[0,1])
-    VD.ZC     = np.empty(shape=[0,1])    
-    VD.FUS_XC = np.empty(shape=[0,1])
-    VD.FUS_YC = np.empty(shape=[0,1])
-    VD.FUS_ZC = np.empty(shape=[0,1])      
-    VD.CS     = np.empty(shape=[0,1]) 
-    VD.X      = np.empty(shape=[0,1])
-    VD.Y      = np.empty(shape=[0,1])
-    VD.Z      = np.empty(shape=[0,1])
-    VD.Y_SW   = np.empty(shape=[0,1])
-    VD.DY     = np.empty(shape=[0,1]) 
+    VD.XAH    = np.empty(shape=[0,1], dtype=precision)
+    VD.YAH    = np.empty(shape=[0,1], dtype=precision)
+    VD.ZAH    = np.empty(shape=[0,1], dtype=precision)
+    VD.XBH    = np.empty(shape=[0,1], dtype=precision)
+    VD.YBH    = np.empty(shape=[0,1], dtype=precision)
+    VD.ZBH    = np.empty(shape=[0,1], dtype=precision)
+    VD.XCH    = np.empty(shape=[0,1], dtype=precision)
+    VD.YCH    = np.empty(shape=[0,1], dtype=precision)
+    VD.ZCH    = np.empty(shape=[0,1], dtype=precision)     
+    VD.XA1    = np.empty(shape=[0,1], dtype=precision)
+    VD.YA1    = np.empty(shape=[0,1], dtype=precision)  
+    VD.ZA1    = np.empty(shape=[0,1], dtype=precision)
+    VD.XA2    = np.empty(shape=[0,1], dtype=precision)
+    VD.YA2    = np.empty(shape=[0,1], dtype=precision)    
+    VD.ZA2    = np.empty(shape=[0,1], dtype=precision)    
+    VD.XB1    = np.empty(shape=[0,1], dtype=precision)
+    VD.YB1    = np.empty(shape=[0,1], dtype=precision)  
+    VD.ZB1    = np.empty(shape=[0,1], dtype=precision)
+    VD.XB2    = np.empty(shape=[0,1], dtype=precision)
+    VD.YB2    = np.empty(shape=[0,1], dtype=precision)    
+    VD.ZB2    = np.empty(shape=[0,1], dtype=precision)     
+    VD.XAC    = np.empty(shape=[0,1], dtype=precision)
+    VD.YAC    = np.empty(shape=[0,1], dtype=precision)
+    VD.ZAC    = np.empty(shape=[0,1], dtype=precision) 
+    VD.XBC    = np.empty(shape=[0,1], dtype=precision)
+    VD.YBC    = np.empty(shape=[0,1], dtype=precision)
+    VD.ZBC    = np.empty(shape=[0,1], dtype=precision) 
+    VD.XC_TE  = np.empty(shape=[0,1], dtype=precision)
+    VD.YC_TE  = np.empty(shape=[0,1], dtype=precision)
+    VD.ZC_TE  = np.empty(shape=[0,1], dtype=precision)     
+    VD.XA_TE  = np.empty(shape=[0,1], dtype=precision)
+    VD.YA_TE  = np.empty(shape=[0,1], dtype=precision)
+    VD.ZA_TE  = np.empty(shape=[0,1], dtype=precision) 
+    VD.XB_TE  = np.empty(shape=[0,1], dtype=precision)
+    VD.YB_TE  = np.empty(shape=[0,1], dtype=precision)
+    VD.ZB_TE  = np.empty(shape=[0,1], dtype=precision)  
+    VD.XC     = np.empty(shape=[0,1], dtype=precision)
+    VD.YC     = np.empty(shape=[0,1], dtype=precision)
+    VD.ZC     = np.empty(shape=[0,1], dtype=precision)    
+    VD.FUS_XC = np.empty(shape=[0,1], dtype=precision)
+    VD.FUS_YC = np.empty(shape=[0,1], dtype=precision)
+    VD.FUS_ZC = np.empty(shape=[0,1], dtype=precision)      
+    VD.CS     = np.empty(shape=[0,1], dtype=precision) 
+    VD.X      = np.empty(shape=[0,1], dtype=precision)
+    VD.Y      = np.empty(shape=[0,1], dtype=precision)
+    VD.Z      = np.empty(shape=[0,1], dtype=precision)
+    VD.Y_SW   = np.empty(shape=[0,1], dtype=precision)
+    VD.DY     = np.empty(shape=[0,1], dtype=precision) 
 
     # empty vectors necessary for arbitrary discretization dimensions
-    VD.n_w         = 0                                # number of wings counter (refers to wings, fuselages or other structures)  
-    VD.n_cp        = 0                                # number of bound vortices (panels) counter 
-    VD.n_sw        = np.array([],dtype=np.int16)      # array of the number of spanwise  strips in each wing
-    VD.n_cw        = np.array([],dtype=np.int16)      # array of the number of chordwise panels per strip in each wing
-    VD.chordwise_breaks = np.array([],dtype=np.int32) # indices of the first panel in every strip      (given a list of all panels)
-    VD.spanwise_breaks  = np.array([],dtype=np.int32) # indices of the first strip of panels in a wing (given chordwise_breaks)    
+    VD.n_w              = 0                            # number of wings counter (refers to wings, fuselages or other structures)  
+    VD.n_cp             = 0                            # number of bound vortices (panels) counter 
+    VD.n_sw             = np.array([], dtype=np.int16) # array of the number of spanwise  strips in each wing
+    VD.n_cw             = np.array([], dtype=np.int16) # array of the number of chordwise panels per strip in each wing
+    VD.chordwise_breaks = np.array([], dtype=np.int32) # indices of the first panel in every strip      (given a list of all panels)
+    VD.spanwise_breaks  = np.array([], dtype=np.int32) # indices of the first strip of panels in a wing (given chordwise_breaks)    
     
-    VD.leading_edge_indices      = np.array([],dtype=bool)     # bool array of leading  edge indices (all false except for panels at leading  edge)
-    VD.trailing_edge_indices     = np.array([],dtype=bool)     # bool array of trailing edge indices (all false except for panels at trailing edge)    
-    VD.panels_per_strip          = np.array([],dtype=np.int16) # array of the number of panels per strip (RNMAX); this is assigned for all panels  
-    VD.chordwise_panel_number    = np.array([],dtype=np.int16) # array of panels' numbers in their strips.     
-    VD.chord_lengths             = np.array([])                # Chord length, this is assigned for all panels.
-    VD.tangent_incidence_angle   = np.array([])                # Tangent Incidence Angles of the chordwise strip. LE to TE, ZETA
-    VD.exposed_leading_edge_flag = np.array([])                # 0 or 1 per strip. 0 turns off leading edge suction for non-slat control surfaces
+    VD.leading_edge_indices      = np.array([], dtype=bool)      # bool array of leading  edge indices (all false except for panels at leading  edge)
+    VD.trailing_edge_indices     = np.array([], dtype=bool)      # bool array of trailing edge indices (all false except for panels at trailing edge)    
+    VD.panels_per_strip          = np.array([], dtype=np.int16)  # array of the number of panels per strip (RNMAX); this is assigned for all panels  
+    VD.chordwise_panel_number    = np.array([], dtype=np.int16)  # array of panels' numbers in their strips.     
+    VD.chord_lengths             = np.array([], dtype=precision) # Chord length, this is assigned for all panels.
+    VD.tangent_incidence_angle   = np.array([], dtype=precision) # Tangent Incidence Angles of the chordwise strip. LE to TE, ZETA
+    VD.exposed_leading_edge_flag = np.array([], dtype=np.int16)  # 0 or 1 per strip. 0 turns off leading edge suction for non-slat control surfaces
     
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
@@ -206,35 +209,53 @@ def generate_vortex_distribution(geometry,settings):
     for wing in VD.VLM_wings:
         if not wing.is_a_control_surface:
             if show_prints: print('discretizing ' + wing.tag) 
-            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc)    
+            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)    
                     
     for wing in VD.VLM_wings:
         if wing.is_a_control_surface:
             if show_prints:print('discretizing ' + wing.tag)
-            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc)     
+            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)     
                     
     # ---------------------------------------------------------------------------------------
-    # STEP 8.1: Unpack aircraft fuselage geometry
+    # STEP 8: Unpack aircraft fuselage geometry
     # ---------------------------------------------------------------------------------------      
-    VD.wing_areas = np.array(VD.wing_areas)   
+    VD.wing_areas = np.array(VD.wing_areas, dtype=precision)   
     VD.n_fus      = 0
     for fus in geometry.fuselages:   
         if show_prints: print('discretizing ' + fus.tag)
-        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,model_fuselage)       
+        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,precision,model_fuselage)       
 
+    # ---------------------------------------------------------------------------------------
+    # STEP 9: Postprocess VD information
+    # ---------------------------------------------------------------------------------------      
 
-    # Compute Panel Areas 
-    VD.panel_areas = compute_panel_area(VD)
+    LE_ind = VD.leading_edge_indices
+
+    # Compute Panel Areas and Normals
+    VD.panel_areas = np.array(compute_panel_area(VD) , dtype=precision)
+    VD.normals     = np.array(compute_unit_normal(VD), dtype=precision)  
     
-    # Compute Panel Normals
-    VD.normals = compute_unit_normal(VD)  
-    
-    # pack VD into geometry
+    # Reshape chord_lengths
     VD.chord_lengths = np.atleast_2d(VD.chord_lengths) #need to be 2D for later calculations
     
+    # Compute variables used in VORLAX
+    X1c   = (VD.XA1+VD.XB1)/2
+    X2c   = (VD.XA2+VD.XB2)/2
+    Z1c   = (VD.ZA1+VD.ZB1)/2
+    Z2c   = (VD.ZA2+VD.ZB2)/2
+    SLOPE = (Z2c - Z1c)/(X2c - X1c)
+    SLE   = SLOPE[LE_ind]    
+    D    = np.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
+    
+    # Pack VORLAX variables
+    VD.SLOPE = SLOPE
+    VD.SLE   = SLE
+    VD.D     = D
+    
+    # pack VD into geometry
     geometry.vortex_distribution = VD
     
-    if show_prints: print('finish discretization')
+    if show_prints: print('finish discretization')            
     
     return VD 
 
@@ -242,7 +263,7 @@ def generate_vortex_distribution(geometry,settings):
 #  Discretize Wings
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
+def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     """ This generates vortex distribution points for the given wing 
 
     Assumptions: 
@@ -250,6 +271,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     
     For control surfaces, "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
     symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
+    
+    The hinge_vector will only ever be calcualted on the first strip of any control/all-moving surface. It is assumed that all control
+    surfaces are trapezoids, thus needing only one hinge, and that all all-moving surfaces have exactly one point of rotation.
 
     Source:   
     None
@@ -357,9 +381,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
         section_LE_cut[i_break] = span_breaks[i_break].cuts[0,1]
         section_TE_cut[i_break] = span_breaks[i_break].cuts[1,1]
 
-    VD.wing_areas.append(np.sum(section_area[:]))
+    VD.wing_areas.append(np.sum(section_area[:], dtype=precision))
     if sym_para is True :
-        VD.wing_areas.append(np.sum(section_area[:]))            
+        VD.wing_areas.append(np.sum(section_area[:], dtype=precision))            
 
     #Shift spanwise vortices onto section breaks  
     if len(y_coordinates) < n_breaks:
@@ -406,8 +430,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     # -------------------------------------------------------------------------------------------------------------
     # Run the strip contruction loop again if wing is symmetric. 
     # Reflection plane = x-y plane for vertical wings. Otherwise, reflection plane = x-z plane
-    signs = np.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
-    for sym_sign in signs[[True,sym_para]]:
+    signs         = np.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
+    symmetry_mask = [True,sym_para]
+    for sym_sign_ind, sym_sign in enumerate(signs[symmetry_mask]):
         # create empty vectors for coordinates 
         xah   = np.zeros(n_cw*n_sw)
         yah   = np.zeros(n_cw*n_sw)
@@ -610,21 +635,59 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             # Deflect control surfaces-----------------------------------------------------------------------------
             # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
             # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
-            if wing.is_a_control_surface:
-                # get rotation point and deflection angle: slat vs non-slat vs aileron
-                if wing.is_slat: #rotate from trailing edge
-                    ib_hinge_point   = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])
-                    ob_hinge_point   = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])
-                    deflection_angle = -wing.deflection *sym_sign 
-                else:            #rotate from leading edge, 
-                    ib_hinge_point   = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
-                    ob_hinge_point   = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])
-                    deflection_angle =  wing.deflection *sym_sign if (not wing.is_aileron) else wing.deflection
+            wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
+            if wing.is_a_control_surface or wing_is_all_moving:
+                
+                #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
+                #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
+                is_first_strip = (idx_y == 0)
+                if is_first_strip:
+                    # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
+                    ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
+                    ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
+                    
+                    interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
+                    interp_domains     = np.array([0.,1., 2.,3., 4.,5.])
+                    interp_ranges_ib   = np.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
+                    ib_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ib)
+                    
+                    
+                    #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
+                    if wing.is_a_control_surface:
+                        need_to_compute_hinge_vector = True
+                    else: #wing is an all-moving surface
+                        hinge_vector                 = wing.hinge_vector
+                        hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
+                                                        not (hinge_vector==np.array([0.,0.,0.])).all()
+                        need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
+                        
+                    if need_to_compute_hinge_vector:
+                        ob_le_strip_corner = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
+                        ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
+                        interp_ranges_ob   = np.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
+                        ob_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ob)
+                    
+                        use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
+                        if use_root_chord_in_plane_normal: ob_hinge_point[0] = ib_hinge_point[0]
+                    
+                        hinge_vector       = ob_hinge_point - ib_hinge_point
+                        hinge_vector       = hinge_vector / np.linalg.norm(hinge_vector)   
+                    elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
+                        hinge_vector[1], hinge_vector[2] = hinge_vector[2], hinge_vector[1] 
+                        
+                    #store hinge root point and direction vector
+                    wing.hinge_root_point = ib_hinge_point
+                    wing.hinge_vector     = hinge_vector
+                    #END first strip calculations
+                
+                # get deflection angle
+                deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
+                symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
+                symmetry_multiplier  *= -1                   if vertical_wing      else 1
+                deflection_angle      = deflection_base_angle * symmetry_multiplier
                     
                 # make quaternion rotation matrix
-                hinge_vector = ob_hinge_point - ib_hinge_point
-                hinge_vector = hinge_vector / np.linalg.norm(hinge_vector)                   
-                quaternion   = make_hinge_quaternion(ib_hinge_point, hinge_vector, deflection_angle)
+                quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
                 
                 # rotate strips
                 xi_prime_a1, y_prime_a1, zeta_prime_a1 = rotate_points_with_quaternion(quaternion, [xi_prime_a1,y_prime_a1,zeta_prime_a1])
@@ -716,11 +779,13 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             TE_Z           = (zeta_prime_a2[-1] + zeta_prime_b2[-1])/2           
             chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
             tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax
+            chord_adjusted = np.array(chord_adjusted, dtype=precision)
+            tan_incidence  = np.array(tan_incidence , dtype=precision)            
                         
             is_a_slat         = wing.is_a_control_surface and wing.is_slat
             strip_has_no_slat = (not wing.is_a_control_surface) and (span_breaks[i_break].cs_IDs[0,1] == -1) # wing's le, outboard control surface ID
             
-            exposed_leading_edge_flag  = 1 if is_a_slat or strip_has_no_slat else 0   
+            exposed_leading_edge_flag  = np.int16(1) if is_a_slat or strip_has_no_slat else np.int16(0)   
             
             VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , LE_inds                  ) 
             VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , TE_inds                  )            
@@ -822,52 +887,52 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
-        # ---------------------------------------------------------------------------------------       
-        VD.XAH    = np.append(VD.XAH,xah)
-        VD.YAH    = np.append(VD.YAH,yah)
-        VD.ZAH    = np.append(VD.ZAH,zah)
-        VD.XBH    = np.append(VD.XBH,xbh)
-        VD.YBH    = np.append(VD.YBH,ybh)
-        VD.ZBH    = np.append(VD.ZBH,zbh)
-        VD.XCH    = np.append(VD.XCH,xch)
-        VD.YCH    = np.append(VD.YCH,ych)
-        VD.ZCH    = np.append(VD.ZCH,zch)            
-        VD.XA1    = np.append(VD.XA1,xa1)
-        VD.YA1    = np.append(VD.YA1,ya1)
-        VD.ZA1    = np.append(VD.ZA1,za1)
-        VD.XA2    = np.append(VD.XA2,xa2)
-        VD.YA2    = np.append(VD.YA2,ya2)
-        VD.ZA2    = np.append(VD.ZA2,za2)        
-        VD.XB1    = np.append(VD.XB1,xb1)
-        VD.YB1    = np.append(VD.YB1,yb1)
-        VD.ZB1    = np.append(VD.ZB1,zb1)
-        VD.XB2    = np.append(VD.XB2,xb2)                
-        VD.YB2    = np.append(VD.YB2,yb2)        
-        VD.ZB2    = np.append(VD.ZB2,zb2)    
-        VD.XC_TE  = np.append(VD.XC_TE,xc_te)
-        VD.YC_TE  = np.append(VD.YC_TE,yc_te) 
-        VD.ZC_TE  = np.append(VD.ZC_TE,zc_te)          
-        VD.XA_TE  = np.append(VD.XA_TE,xa_te)
-        VD.YA_TE  = np.append(VD.YA_TE,ya_te) 
-        VD.ZA_TE  = np.append(VD.ZA_TE,za_te) 
-        VD.XB_TE  = np.append(VD.XB_TE,xb_te)
-        VD.YB_TE  = np.append(VD.YB_TE,yb_te) 
-        VD.ZB_TE  = np.append(VD.ZB_TE,zb_te)  
-        VD.XAC    = np.append(VD.XAC,xac)
-        VD.YAC    = np.append(VD.YAC,yac) 
-        VD.ZAC    = np.append(VD.ZAC,zac) 
-        VD.XBC    = np.append(VD.XBC,xbc)
-        VD.YBC    = np.append(VD.YBC,ybc) 
-        VD.ZBC    = np.append(VD.ZBC,zbc)  
-        VD.XC     = np.append(VD.XC ,xc)
-        VD.YC     = np.append(VD.YC ,yc)
-        VD.ZC     = np.append(VD.ZC ,zc)  
-        VD.X      = np.append(VD.X ,x)
-        VD.Y_SW   = np.append(VD.Y_SW ,y_sw)
-        VD.Y      = np.append(VD.Y ,y)
-        VD.Z      = np.append(VD.Z ,z)         
-        VD.CS     = np.append(VD.CS,cs_w) 
-        VD.DY     = np.append(VD.DY ,del_y)      
+        # --------------------------------------------------------------------------------------- 
+        VD.XAH    = np.append(VD.XAH  , np.array(xah  , dtype=precision))
+        VD.YAH    = np.append(VD.YAH  , np.array(yah  , dtype=precision))
+        VD.ZAH    = np.append(VD.ZAH  , np.array(zah  , dtype=precision))
+        VD.XBH    = np.append(VD.XBH  , np.array(xbh  , dtype=precision))
+        VD.YBH    = np.append(VD.YBH  , np.array(ybh  , dtype=precision))
+        VD.ZBH    = np.append(VD.ZBH  , np.array(zbh  , dtype=precision))
+        VD.XCH    = np.append(VD.XCH  , np.array(xch  , dtype=precision))
+        VD.YCH    = np.append(VD.YCH  , np.array(ych  , dtype=precision))
+        VD.ZCH    = np.append(VD.ZCH  , np.array(zch  , dtype=precision))            
+        VD.XA1    = np.append(VD.XA1  , np.array(xa1  , dtype=precision))
+        VD.YA1    = np.append(VD.YA1  , np.array(ya1  , dtype=precision))
+        VD.ZA1    = np.append(VD.ZA1  , np.array(za1  , dtype=precision))
+        VD.XA2    = np.append(VD.XA2  , np.array(xa2  , dtype=precision))
+        VD.YA2    = np.append(VD.YA2  , np.array(ya2  , dtype=precision))
+        VD.ZA2    = np.append(VD.ZA2  , np.array(za2  , dtype=precision))        
+        VD.XB1    = np.append(VD.XB1  , np.array(xb1  , dtype=precision))
+        VD.YB1    = np.append(VD.YB1  , np.array(yb1  , dtype=precision))
+        VD.ZB1    = np.append(VD.ZB1  , np.array(zb1  , dtype=precision))
+        VD.XB2    = np.append(VD.XB2  , np.array(xb2  , dtype=precision))                
+        VD.YB2    = np.append(VD.YB2  , np.array(yb2  , dtype=precision))        
+        VD.ZB2    = np.append(VD.ZB2  , np.array(zb2  , dtype=precision))    
+        VD.XC_TE  = np.append(VD.XC_TE, np.array(xc_te, dtype=precision))
+        VD.YC_TE  = np.append(VD.YC_TE, np.array(yc_te, dtype=precision)) 
+        VD.ZC_TE  = np.append(VD.ZC_TE, np.array(zc_te, dtype=precision))          
+        VD.XA_TE  = np.append(VD.XA_TE, np.array(xa_te, dtype=precision))
+        VD.YA_TE  = np.append(VD.YA_TE, np.array(ya_te, dtype=precision)) 
+        VD.ZA_TE  = np.append(VD.ZA_TE, np.array(za_te, dtype=precision)) 
+        VD.XB_TE  = np.append(VD.XB_TE, np.array(xb_te, dtype=precision))
+        VD.YB_TE  = np.append(VD.YB_TE, np.array(yb_te, dtype=precision)) 
+        VD.ZB_TE  = np.append(VD.ZB_TE, np.array(zb_te, dtype=precision))  
+        VD.XAC    = np.append(VD.XAC  , np.array(xac  , dtype=precision))
+        VD.YAC    = np.append(VD.YAC  , np.array(yac  , dtype=precision)) 
+        VD.ZAC    = np.append(VD.ZAC  , np.array(zac  , dtype=precision)) 
+        VD.XBC    = np.append(VD.XBC  , np.array(xbc  , dtype=precision))
+        VD.YBC    = np.append(VD.YBC  , np.array(ybc  , dtype=precision)) 
+        VD.ZBC    = np.append(VD.ZBC  , np.array(zbc  , dtype=precision))  
+        VD.XC     = np.append(VD.XC   , np.array(xc   , dtype=precision))
+        VD.YC     = np.append(VD.YC   , np.array(yc   , dtype=precision))
+        VD.ZC     = np.append(VD.ZC   , np.array(zc   , dtype=precision))  
+        VD.X      = np.append(VD.X    , np.array(x    , dtype=precision))
+        VD.Y_SW   = np.append(VD.Y_SW , np.array(y_sw , dtype=precision))
+        VD.Y      = np.append(VD.Y    , np.array(y    , dtype=precision))
+        VD.Z      = np.append(VD.Z    , np.array(z    , dtype=precision))         
+        VD.CS     = np.append(VD.CS   , np.array(cs_w , dtype=precision)) 
+        VD.DY     = np.append(VD.DY   , np.array(del_y, dtype=precision))      
     #End symmetry loop
     
     return VD
@@ -877,7 +942,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
 #  Discretize Fuselage
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False):
+def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,precision,model_fuselage=False):
     """ This generates the vortex distribution points on the fuselage 
 
     Assumptions: 
@@ -940,8 +1005,8 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
     trailing_edge_indices   = np.array([],dtype=bool)    
     panels_per_strip        = np.array([],dtype=np.int16)
     chordwise_panel_number  = np.array([],dtype=np.int16)
-    chord_lengths           = np.array([])               
-    tangent_incidence_angle = np.array([])               
+    chord_lengths           = np.array([],dtype=precision)               
+    tangent_incidence_angle = np.array([],dtype=precision)               
 
     # geometry values
     semispan_h = fus.width * 0.5  
@@ -1108,6 +1173,8 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         TE_Z           = (fhs_za2[i_TE] + fhs_zb2[i_TE])/2           
         chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
         tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax      
+        chord_adjusted = np.array(chord_adjusted, dtype=precision)
+        tan_incidence  = np.array(tan_incidence , dtype=precision)
         
         leading_edge_indices    = np.append(leading_edge_indices   , LE_inds       ) 
         trailing_edge_indices   = np.append(trailing_edge_indices  , TE_inds       )            
@@ -1160,8 +1227,8 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
 
     # Horizontal Fuselage Sections 
     wing_areas = []
-    wing_areas.append(fus_h_area)
-    wing_areas.append(fus_h_area)
+    wing_areas.append(np.array(fus_h_area, dtype=precision))
+    wing_areas.append(np.array(fus_h_area, dtype=precision))
     
     # store points of horizontal section of fuselage 
     fhs_cs  = np.concatenate([fhs_cs, fhs_cs])
@@ -1214,61 +1281,61 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         
         VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
         VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
-        VD.n_sw             = np.append(VD.n_sw, np.int16([n_sw, n_sw]))
-        VD.n_cw             = np.append(VD.n_cw, np.int16([n_cw, n_cw]))
+        VD.n_sw             = np.append(VD.n_sw            , np.int16([n_sw, n_sw])    )
+        VD.n_cw             = np.append(VD.n_cw            , np.int16([n_cw, n_cw])    )
         
-        VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , np.tile(leading_edge_indices   , 2) )
-        VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , np.tile(trailing_edge_indices  , 2) )           
-        VD.panels_per_strip          = np.append(VD.panels_per_strip         , np.tile(panels_per_strip       , 2) )
-        VD.chordwise_panel_number    = np.append(VD.chordwise_panel_number   , np.tile(chordwise_panel_number , 2) ) 
-        VD.chord_lengths             = np.append(VD.chord_lengths            , np.tile(chord_lengths          , 2) )
-        VD.tangent_incidence_angle   = np.append(VD.tangent_incidence_angle  , np.tile(tangent_incidence_angle, 2) ) 
-        VD.exposed_leading_edge_flag = np.append(VD.exposed_leading_edge_flag, np.tile(np.ones(n_sw)          , 2) )
+        VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , np.tile(leading_edge_indices        , 2) )
+        VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , np.tile(trailing_edge_indices       , 2) )           
+        VD.panels_per_strip          = np.append(VD.panels_per_strip         , np.tile(panels_per_strip            , 2) )
+        VD.chordwise_panel_number    = np.append(VD.chordwise_panel_number   , np.tile(chordwise_panel_number      , 2) ) 
+        VD.chord_lengths             = np.append(VD.chord_lengths            , np.tile(chord_lengths               , 2) )
+        VD.tangent_incidence_angle   = np.append(VD.tangent_incidence_angle  , np.tile(tangent_incidence_angle     , 2) ) 
+        VD.exposed_leading_edge_flag = np.append(VD.exposed_leading_edge_flag, np.tile(np.ones(n_sw,dtype=np.int16), 2) )
     
         # Store fus in vehicle vector  
-        VD.XAH  = np.append(VD.XAH,fhs_xah)
-        VD.YAH  = np.append(VD.YAH,fhs_yah)
-        VD.ZAH  = np.append(VD.ZAH,fhs_zah)
-        VD.XBH  = np.append(VD.XBH,fhs_xbh)
-        VD.YBH  = np.append(VD.YBH,fhs_ybh)
-        VD.ZBH  = np.append(VD.ZBH,fhs_zbh)
-        VD.XCH  = np.append(VD.XCH,fhs_xch)
-        VD.YCH  = np.append(VD.YCH,fhs_ych)
-        VD.ZCH  = np.append(VD.ZCH,fhs_zch)     
-        VD.XA1  = np.append(VD.XA1,fhs_xa1)
-        VD.YA1  = np.append(VD.YA1,fhs_ya1)
-        VD.ZA1  = np.append(VD.ZA1,fhs_za1)
-        VD.XA2  = np.append(VD.XA2,fhs_xa2)
-        VD.YA2  = np.append(VD.YA2,fhs_ya2)
-        VD.ZA2  = np.append(VD.ZA2,fhs_za2)    
-        VD.XB1  = np.append(VD.XB1,fhs_xb1)
-        VD.YB1  = np.append(VD.YB1,fhs_yb1)
-        VD.ZB1  = np.append(VD.ZB1,fhs_zb1)
-        VD.XB2  = np.append(VD.XB2,fhs_xb2)                
-        VD.YB2  = np.append(VD.YB2,fhs_yb2)        
-        VD.ZB2  = np.append(VD.ZB2,fhs_zb2)  
-        VD.XC_TE  = np.append(VD.XC_TE,fhs_xc_te)
-        VD.YC_TE  = np.append(VD.YC_TE,fhs_yc_te) 
-        VD.ZC_TE  = np.append(VD.ZC_TE,fhs_zc_te)          
-        VD.XA_TE  = np.append(VD.XA_TE,fhs_xa_te)
-        VD.YA_TE  = np.append(VD.YA_TE,fhs_ya_te) 
-        VD.ZA_TE  = np.append(VD.ZA_TE,fhs_za_te) 
-        VD.XB_TE  = np.append(VD.XB_TE,fhs_xb_te)
-        VD.YB_TE  = np.append(VD.YB_TE,fhs_yb_te) 
-        VD.ZB_TE  = np.append(VD.ZB_TE,fhs_zb_te)      
-        VD.XAC  = np.append(VD.XAC,fhs_xac)
-        VD.YAC  = np.append(VD.YAC,fhs_yac) 
-        VD.ZAC  = np.append(VD.ZAC,fhs_zac) 
-        VD.XBC  = np.append(VD.XBC,fhs_xbc)
-        VD.YBC  = np.append(VD.YBC,fhs_ybc) 
-        VD.ZBC  = np.append(VD.ZBC,fhs_zbc)  
-        VD.XC   = np.append(VD.XC ,fhs_xc)
-        VD.YC   = np.append(VD.YC ,fhs_yc)
-        VD.ZC   = np.append(VD.ZC ,fhs_zc)  
-        VD.CS   = np.append(VD.CS ,fhs_cs) 
-        VD.X    = np.append(VD.X  ,fhs_x )  
-        VD.Y    = np.append(VD.Y  ,fhs_y )  
-        VD.Z    = np.append(VD.Z  ,fhs_z )
+        VD.XAH    = np.append(VD.XAH  , np.array(fhs_xah  , dtype=precision))
+        VD.YAH    = np.append(VD.YAH  , np.array(fhs_yah  , dtype=precision))
+        VD.ZAH    = np.append(VD.ZAH  , np.array(fhs_zah  , dtype=precision))
+        VD.XBH    = np.append(VD.XBH  , np.array(fhs_xbh  , dtype=precision))
+        VD.YBH    = np.append(VD.YBH  , np.array(fhs_ybh  , dtype=precision))
+        VD.ZBH    = np.append(VD.ZBH  , np.array(fhs_zbh  , dtype=precision))
+        VD.XCH    = np.append(VD.XCH  , np.array(fhs_xch  , dtype=precision))
+        VD.YCH    = np.append(VD.YCH  , np.array(fhs_ych  , dtype=precision))
+        VD.ZCH    = np.append(VD.ZCH  , np.array(fhs_zch  , dtype=precision))     
+        VD.XA1    = np.append(VD.XA1  , np.array(fhs_xa1  , dtype=precision))
+        VD.YA1    = np.append(VD.YA1  , np.array(fhs_ya1  , dtype=precision))
+        VD.ZA1    = np.append(VD.ZA1  , np.array(fhs_za1  , dtype=precision))
+        VD.XA2    = np.append(VD.XA2  , np.array(fhs_xa2  , dtype=precision))
+        VD.YA2    = np.append(VD.YA2  , np.array(fhs_ya2  , dtype=precision))
+        VD.ZA2    = np.append(VD.ZA2  , np.array(fhs_za2  , dtype=precision))    
+        VD.XB1    = np.append(VD.XB1  , np.array(fhs_xb1  , dtype=precision))
+        VD.YB1    = np.append(VD.YB1  , np.array(fhs_yb1  , dtype=precision))
+        VD.ZB1    = np.append(VD.ZB1  , np.array(fhs_zb1  , dtype=precision))
+        VD.XB2    = np.append(VD.XB2  , np.array(fhs_xb2  , dtype=precision))                
+        VD.YB2    = np.append(VD.YB2  , np.array(fhs_yb2  , dtype=precision))        
+        VD.ZB2    = np.append(VD.ZB2  , np.array(fhs_zb2  , dtype=precision))  
+        VD.XC_TE  = np.append(VD.XC_TE, np.array(fhs_xc_te, dtype=precision))
+        VD.YC_TE  = np.append(VD.YC_TE, np.array(fhs_yc_te, dtype=precision)) 
+        VD.ZC_TE  = np.append(VD.ZC_TE, np.array(fhs_zc_te, dtype=precision))          
+        VD.XA_TE  = np.append(VD.XA_TE, np.array(fhs_xa_te, dtype=precision))
+        VD.YA_TE  = np.append(VD.YA_TE, np.array(fhs_ya_te, dtype=precision)) 
+        VD.ZA_TE  = np.append(VD.ZA_TE, np.array(fhs_za_te, dtype=precision)) 
+        VD.XB_TE  = np.append(VD.XB_TE, np.array(fhs_xb_te, dtype=precision))
+        VD.YB_TE  = np.append(VD.YB_TE, np.array(fhs_yb_te, dtype=precision)) 
+        VD.ZB_TE  = np.append(VD.ZB_TE, np.array(fhs_zb_te, dtype=precision))      
+        VD.XAC    = np.append(VD.XAC  , np.array(fhs_xac  , dtype=precision))
+        VD.YAC    = np.append(VD.YAC  , np.array(fhs_yac  , dtype=precision)) 
+        VD.ZAC    = np.append(VD.ZAC  , np.array(fhs_zac  , dtype=precision)) 
+        VD.XBC    = np.append(VD.XBC  , np.array(fhs_xbc  , dtype=precision))
+        VD.YBC    = np.append(VD.YBC  , np.array(fhs_ybc  , dtype=precision)) 
+        VD.ZBC    = np.append(VD.ZBC  , np.array(fhs_zbc  , dtype=precision))  
+        VD.XC     = np.append(VD.XC   , np.array(fhs_xc   , dtype=precision))
+        VD.YC     = np.append(VD.YC   , np.array(fhs_yc   , dtype=precision))
+        VD.ZC     = np.append(VD.ZC   , np.array(fhs_zc   , dtype=precision))  
+        VD.CS     = np.append(VD.CS   , np.array(fhs_cs   , dtype=precision)) 
+        VD.X      = np.append(VD.X    , np.array(fhs_x    , dtype=precision))  
+        VD.Y      = np.append(VD.Y    , np.array(fhs_y    , dtype=precision))  
+        VD.Z      = np.append(VD.Z    , np.array(fhs_z    , dtype=precision))
         
         VD.wing_areas = np.append(VD.wing_areas, wing_areas)
         

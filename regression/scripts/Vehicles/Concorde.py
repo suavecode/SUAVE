@@ -524,7 +524,7 @@ def vehicle_setup():
     #total design thrust (includes all the engines)
     thrust.total_design             = 40000. * Units.lbf
  
-    # Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
+    # Note: Sizing builds the network. It does not actually set the size of the turbojet
     #design sizing conditions
     altitude      = 60000.0*Units.ft
     mach_number   = 2.02
@@ -579,7 +579,7 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'climb'
     
-    config.propulsors.turbojet.afterburner_active = True
+    config.networks.turbojet.afterburner_active = True
     
     configs.append(config)    
     
@@ -594,7 +594,7 @@ def configs_setup(vehicle):
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.
     
-    config.propulsors.turbojet.afterburner_active = True
+    config.networks.turbojet.afterburner_active = True
     
     configs.append(config)
     

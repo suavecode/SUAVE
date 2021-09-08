@@ -36,7 +36,12 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     if they are specified in the vehicle setup file.
     
     Assumptions:
+<<<<<<< HEAD
     Vehicle is composed of conventional shape fuselages, wings, nacelles and propulsors. 
+=======
+    Vehicle is composed of conventional shape fuselages, wings, and networks. Any network
+    that should be created is tagged as 'turbofan'.
+>>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
 
     Source:
     N/A
@@ -62,7 +67,11 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
           dihedral_outboard                     [radians]
           sweeps.quarter_chord                  [radians]
           thickness_to_chord                    [-]
+<<<<<<< HEAD
       propulsors.*. (optional) 
+=======
+      networks.turbofan. (optional)
+>>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
         number_of_engines                       [-]
         nacelle                                 [data structure] 
         origin                                  [m] in all three dimension, should have as many origins as engines
@@ -129,10 +138,23 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     # -------------
     ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
     ## This was a place to start and may not still be functional    
+<<<<<<< HEAD
     for nacelle in vehicle.nacelles: 
         if verbose:
             print('Writing '+ nacelle.tag+' to OpenVSP Model')  
         write_vsp_nacelle(nacelle, OML_set_ind)  
+=======
+    
+    if 'turbofan' in vehicle.networks:
+        if verbose:
+            print('Writing '+vehicle.networks.turbofan.tag+' to OpenVSP Model')
+        turbofan  = vehicle.networks.turbofan
+        write_vsp_turbofan(turbofan, OML_set_ind)
+        
+    if 'turbojet' in vehicle.networks:
+        turbofan  = vehicle.networks.turbojet
+        write_vsp_turbofan(turbofan, OML_set_ind)    
+>>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
     
     # -------------
     # Fuselage

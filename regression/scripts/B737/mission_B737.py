@@ -6,6 +6,7 @@
 #           Mar 2020, M. Clarke
 #           Apr 2020, M. Clarke
 #           Apr 2020, E. Botero
+#           Aug 2021, R. Erhard
 
 """ setup file for a mission with a 737
 """
@@ -162,8 +163,8 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy = SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -350,6 +351,9 @@ def mission_setup(analyses):
     segment.distance  = (3933.65 + 770 - 92.6) * Units.km
     
     segment.state.numerics.number_control_points = 10
+    
+    # post-process aerodynamic derivatives in cruise
+    segment.process.finalize.post_process.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Static_Stability.compute_aero_derivatives
 
     # add to mission
     mission.append_segment(segment)
@@ -514,6 +518,8 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.stability.static.Cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
+        'segments.cruise.conditions.aero_derivatives.dCL_dAlpha',
+        'segments.cruise.conditions.aero_derivatives.dCn_dBeta'
     ]
 
     # do the check

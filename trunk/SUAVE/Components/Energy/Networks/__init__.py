@@ -14,7 +14,6 @@ from .Battery_Ducted_Fan                      import Battery_Ducted_Fan
 from .Internal_Combustion_Propeller           import Internal_Combustion_Propeller
 from .Lift_Cruise                             import Lift_Cruise
 from .Serial_Hybrid_Ducted_Fan                import Serial_Hybrid_Ducted_Fan
-from .Vectored_Thrust                         import Vectored_Thrust
 from .Propulsor_Surrogate                     import Propulsor_Surrogate
 from .Battery_Propeller                       import Battery_Propeller
 from .Ramjet                                  import Ramjet
@@ -22,3 +21,4 @@ from .Scramjet                                import Scramjet
 from .Liquid_Rocket                           import Liquid_Rocket
 from .Internal_Combustion_Propeller_Constant_Speed import Internal_Combustion_Propeller_Constant_Speed
 from .PyCycle                                 import PyCycle
+from .Network                                 import Network

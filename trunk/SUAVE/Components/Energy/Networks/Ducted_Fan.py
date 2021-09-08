@@ -9,22 +9,19 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
 
 from SUAVE.Core import Data
-from SUAVE.Components.Propulsors.Propulsor      import Propulsor
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Ducted_Fan Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Ducted_Fan(Propulsor):
+class Ducted_Fan(Network):
     """ A ducted fan 
     
         Assumptions:
