@@ -74,25 +74,25 @@ def main():
             print(val)
     
     # Truth values
-    climb_throttle_1_truth   = 1.1093772327978073
-    climb_throttle_2_truth   = 1.1188359380035913
-    climb_throttle_3_truth   = 0.7103460796960279
-    climb_throttle_4_truth   = 1.1750608538490428
-    climb_throttle_5_truth   = 1.2293776462498607
-    climb_throttle_6_truth   = 0.8260100222855524
-    climb_throttle_7_truth   = 1.0072346293181267
-    climb_throttle_8_truth   = 1.2341452930611976
-    climb_throttle_9_truth   = 1.3489599870394249
-    climb_throttle_10_truth  = 1.0
-    cruise_CL_1_truth        = 0.6944177786549713
-    cruise_CL_2_truth        = 0.6948214443030984
-    cruise_CL_3_truth        = 0.7208340218296697
-    descent_throttle_1_truth = 0.1323016657443305
-    descent_throttle_2_truth = 0.2700319944999939
-    single_pt_CL_1_truth     = 0.24978026388514002
-    single_pt_CL_2_truth     = 0.2497580510030479
-    loiter_CL_truth          = 0.5086973073127333
-    descent_throttle_3_truth = 0.20787737511817211
+    climb_throttle_1_truth   = 1.1108300175827464
+    climb_throttle_2_truth   = 1.1205450825509016
+    climb_throttle_3_truth   = 0.7123591383362659
+    climb_throttle_4_truth   = 1.1775597639864896
+    climb_throttle_5_truth   = 1.2322132456951311
+    climb_throttle_6_truth   = 0.8293748692604306
+    climb_throttle_7_truth   = 1.0107682412524164
+    climb_throttle_8_truth   = 1.2376094319643145
+    climb_throttle_9_truth   = 1.3526592006564513
+    climb_throttle_10_truth  = 0.9999999999999862
+    cruise_CL_1_truth        = 0.6942474710399329
+    cruise_CL_2_truth        = 0.6946546672428512
+    cruise_CL_3_truth        = 0.7184212856719823
+    descent_throttle_1_truth = 0.13444097257108026
+    descent_throttle_2_truth = 0.27123042373331235
+    single_pt_CL_1_truth     = 0.24970074200908066
+    single_pt_CL_2_truth     = 0.24967865522079494
+    loiter_CL_truth          = 0.5085349399766463
+    descent_throttle_3_truth = 0.20899477883865394
     
     # Store errors 
     error = Data()

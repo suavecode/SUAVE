@@ -18,7 +18,7 @@ from SUAVE.Core import Data
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 def parasite_drag_pylon(state,settings,geometry):
-    """Computes the parasite drag due to pylons as a proportion of the propulsor drag
+    """Computes the parasite drag due to pylons as a proportion of the network drag
 
     Assumptions:
     Basic fit
@@ -27,7 +27,7 @@ def parasite_drag_pylon(state,settings,geometry):
     adg.stanford.edu (Stanford AA241 A/B Course Notes)
 
     Inputs:
-    conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].
+    conditions.aerodynamics.drag_breakdown.parasite[network.tag].
       form_factor                                                   [Unitless]
       compressibility_factor                                        [Unitless]
       skin_friction_coefficient                                     [Unitless]
@@ -39,7 +39,7 @@ def parasite_drag_pylon(state,settings,geometry):
       diameter                                                      [m] 
 
     Outputs:
-    propulsor_parasite_drag                                         [Unitless]
+    network_parasite_drag                                           [Unitless]
 
     Properties Used:
     N/A

@@ -29,7 +29,7 @@ def total_prop_Raymer(vehicle, prop):
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+            prop    - data dictionary for the specific network that is being estimated [dimensionless]
 
         Outputs:
             output - data dictionary with weights                               [kilograms]
@@ -71,17 +71,16 @@ def nacelle_Raymer(vehicle, nacelle, WENG):
             Aircraft Design: A Conceptual Approach (2nd edition)
 
         Inputs:
-            vehicle - data dictionary with vehicle properties                        [dimensionless]
+            vehicle - data dictionary with vehicle properties                           [dimensionless]
                 -.ultimate_load: ultimate load factor of aircraft
-            nacelle 
-                - data dictionary for the specific propulsor that is being estimated [dimensionless] 
-                -.lenght: total length of engine                                     [m]
-                -.ndiameter: diameter of nacelle                                     [m]
-            WENG    - dry engine weight                                              [kg]
+            nacelle  - data dictionary for the specific nacelle that is being estimated [dimensionless]
+                -lenght: total length of engine                                         [m]
+                -diameter: diameter of nacelle                                          [m]
+            WENG    - dry engine weight                                                 [kg]
 
 
         Outputs:
-            WNAC: nacelle weight                                            [kg]
+            WNAC: nacelle weight                                                        [kg]
 
         Properties Used:
             N/A
@@ -108,7 +107,7 @@ def misc_engine_Raymer(vehicle, prop, WENG):
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
                 -.fuselages['fuselage'].lengths.total: length of fuselage   [m]
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+            prop    - data dictionary for the specific network that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
 
         Outputs:

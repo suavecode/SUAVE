@@ -152,18 +152,10 @@ def set_sources(geometry):
         comp_dict[wing.tag] = wing
     for fuselage in geometry.fuselages:
         comp_type_dict[fuselage.tag] = 'fuselage'
-<<<<<<< HEAD
         comp_dict[fuselage.tag] = fuselage 
     for nacelle in geometry.nacelles:
         comp_type_dict[nacelle.tag] = 'nacelle'
         comp_dict[nacelle.tag] = nacelle
-=======
-        comp_dict[fuselage.tag] = fuselage
-    # network sources have not been implemented
-    #for network in geometry.networks:
-        #comp_type_dict[network.tag] = 'turbojet'
-        #comp_dict[network.tag] = network
->>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
         
     components = vsp.FindGeoms()
     
@@ -274,9 +266,8 @@ def set_sources(geometry):
             vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
             uloc = 1.0
             vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
-            pass 
-        
-<<<<<<< HEAD
+            pass
+
         elif comp_type == 'nacelle':
             nacelle = comp_dict[comp_name[0:8]]
             if nacelle.has_key('vsp_mesh'):
@@ -290,27 +281,7 @@ def set_sources(geometry):
             vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
             uloc = 1.0
             vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
-            pass        
-=======
-        # This is a stub for the nacelle implementation. It will create sources
-        # as is but they will not be appropriate for the nacelle shape.
-        
-        #elif comp_type == 'turbofan':
-            #network = comp_dict[comp_name[0:8]]
-            #if network.has_key('vsp_mesh'):
-                #len1 = network.vsp_mesh.length
-                #rad1 = network.vsp_mesh.radius
-            #else:
-                #len1 = 0.1 * 0.5 # not sure where VSP is getting this value
-                #rad1 = 0.2 * network.engine_length
-            #uloc = 0.0
-            #wloc = 0.0
-            #vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
-            #uloc = 1.0
-            #vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
-            #pass        
->>>>>>> 273dfd367091bcda743b0e393d3ffbe3f9f265f9
-    
+            pass
         
 ## @ingroup Input_Output-OpenVSP
 def add_segment_sources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,seg):

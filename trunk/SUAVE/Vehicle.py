@@ -11,7 +11,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Container, DataOrdered
+from SUAVE.Core import Data, DataOrdered
 from SUAVE import Components
 from SUAVE.Components import Physical_Component
 import numpy as np
@@ -58,9 +58,8 @@ class Vehicle(Data):
         self.tag = 'vehicle'
         self.fuselages              = Components.Fuselages.Fuselage.Container()
         self.wings                  = Components.Wings.Wing.Container()
-        self.propulsors             = Components.Propulsors.Propulsor.Container()
+        self.networks               = Components.Energy.Networks.Network.Container()
         self.nacelles               = Components.Nacelles.Nacelle.Container()
-        self.energy                 = Components.Energy.Energy()
         self.systems                = Components.Systems.System.Container()
         self.mass_properties        = Vehicle_Mass_Container()
         self.payload                = Components.Payloads.Payload.Container()
@@ -98,13 +97,11 @@ class Vehicle(Data):
             Components.Fuselages.Fuselage              : self['fuselages']        ,
             Components.Wings.Wing                      : self['wings']            ,
             Components.Systems.System                  : self['systems']          ,
-            Components.Propulsors.Propulsor            : self['propulsors']       ,
+            Components.Energy.Networks.Network         : self['networks']         ,
             Components.Nacelles.Nacelle                : self['nacelles']         ,
             Components.Envelope                        : self['envelope']         ,
             Components.Landing_Gear.Landing_Gear       : self['landing_gear']     ,
             Vehicle_Mass_Properties                    : self['mass_properties']  ,
-
-        
         }
         
         self.append_component(Vehicle_Mass_Properties())

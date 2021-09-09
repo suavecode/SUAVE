@@ -34,7 +34,7 @@ def systems_FLOPS(vehicle):
 
    Inputs:
         vehicle - data dictionary with vehicle properties                   [dimensionless]
-            -.propulsors: data dictionary containing all propulsion properties
+            -.networks: data dictionary containing all propulsion properties
                 -.number_of_engines: number of engines
                 -.sealevel_static_thrust: thrust at sea level               [N]
             -.fuselages['fuselage'].lengths.total: fuselage total length    [meters]
@@ -65,9 +65,9 @@ def systems_FLOPS(vehicle):
     Properties Used:
         N/A
     """
-    propulsor_name  = list(vehicle.propulsors.keys())[0]
-    propulsors      = vehicle.propulsors[propulsor_name]
-    NENG            = propulsors.number_of_engines
+    network_name    = list(vehicle.networks.keys())[0]
+    networks        = vehicle.networks[network_name]
+    NENG            = networks.number_of_engines
     VMAX            = vehicle.design_mach_number
     SFLAP           = vehicle.wings['main_wing'].areas.reference * vehicle.wings['main_wing'].flap_ratio / Units.ft ** 2
     DG              = vehicle.mass_properties.max_takeoff / Units.lbs
@@ -84,13 +84,13 @@ def systems_FLOPS(vehicle):
     else:
         NFLCR = 2
 
-    FNEW    = sum(propulsors.wing_mounted) 
+    FNEW    = sum(networks.wing_mounted)
     if 'nacelle' in vehicle.keys() : 
         FNAC    = vehicle.nacelle.diameter / Units.ft
     else:
         FNAC    = 0 
         
-    FNEF    = len(propulsors.wing_mounted) - FNEW
+    FNEF    = len(networks.wing_mounted) - FNEW
     WIN     = 0.48 * FPAREA ** 0.57 * VMAX ** 0.5 * (10 + 2.5 * NFLCR + FNEW + 1.5 * FNEF)  # instrumentation weight
 
     SW      = vehicle.reference_area / Units.ft ** 2
