@@ -13,6 +13,7 @@
 import SUAVE
 from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage import vsp_read_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_read_wing import vsp_read_wing
+from SUAVE.Input_Output.OpenVSP.vsp_read_nacelle import vsp_read_nacelle
 
 import vsp as vsp
 
@@ -107,7 +108,12 @@ def vsp_read(tag, units_type='SI'):
 			rotation[X,Y,Z]                            [radians]
 			tip_radius                                 [m]
 		        hub_radius                                 [m]
-			thrust_angle                               [radians]
+			thrust_angle                               [radians] 
+	        Nacelles. Nacelle.
+			location[X,Y,Z]                            [radians]
+			rotation[X,Y,Z]                            [radians] 
+			# ADD MORE VARIABLES
+			
 	
 	Properties Used:
 	N/A
@@ -119,6 +125,7 @@ def vsp_read(tag, units_type='SI'):
 	vsp_fuselages = []
 	vsp_wings     = []	
 	vsp_props     = []
+	vsp_nacelles  = []
 	
 	vsp_geoms     = vsp.FindGeoms()
 	geom_names    = []
@@ -158,6 +165,8 @@ def vsp_read(tag, units_type='SI'):
 			vsp_wings.append(geom)
 		if geom_name == 'Propeller':
 			vsp_props.append(geom)
+		if geom_name == 'Nacelle':
+			vsp_nacelles.append(geom)
 	
 	#Read VSP geoms and store in SUAVE components
 	
@@ -167,6 +176,11 @@ def vsp_read(tag, units_type='SI'):
 	
 	for wing_id in vsp_wings:
 		wing = vsp_read_wing(wing_id, units_type)
-		vehicle.append_component(wing)		
+		vehicle.append_component(wing)	
+	
+	
+	for nacelle_id in vsp_nacelles:
+		nacelle = vsp_read_nacelle(nacelle_id, units_type)
+		vehicle.append_component(nacelle)		
 	
 	return vehicle

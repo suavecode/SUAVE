@@ -52,7 +52,8 @@ class Nacelle(Lofted_Body):
         self.areas.side_projected    = 0.0
         self.areas.wetted            = 0.0
            
-        self.diameter                = 0.0 
+        self.diameter                = 0.0
+        self.inlet_diameter          = 0.0
         self.lengths                 = 0.0  
           
         self.x_rotation              = 0.0

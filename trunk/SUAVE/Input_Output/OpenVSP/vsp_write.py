@@ -36,8 +36,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     if they are specified in the vehicle setup file.
     
     Assumptions:
-    Vehicle is composed of conventional shape fuselages, wings, nacelles and networks. Any network
-    that should be created is tagged as 'turbofan'.
+    Vehicle is composed of conventional shape fuselages, wings, nacelles and networks. 
 
     Source:
     N/A
@@ -448,8 +447,15 @@ def write_vsp_wing(wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 def write_vsp_nacelle(nacelle, OML_set_ind):
     """This converts nacelles into OpenVSP format.
     
-    Assumptions:
-    None
+    Assumptions: 
+    1. If nacelle segments are defined, geometry written to OpenVSP is of type "StackGeom". 
+       1.a  This type of nacelle can be either set as flow through or not flow through.
+       1.b  Segments are defined in a similar manner to fuselage segments. See geometric 
+            documentation in SUAVE-Components-Nacelles-Nacelle
+    
+    2. If nacelle segments are not defined, geometry written to OpenVSP is of type "BodyofRevolution".
+       2.a This type of nacelle can be either set as flow through or not flow through.
+       2.b BodyofRevolution can be either be a 4 digit airfoil (type string) or super ellipse (default)
 
     Source:
     N/A
@@ -481,10 +487,10 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
     num_nac     = len(nacelle.origin)
     ft_flag     = nacelle.flow_through            
     length      = nacelle.length
-    width       = nacelle.width
+    diameter    = nacelle.diameter
     origins     = nacelle.origin
     inlet_width = nacelle.inlet_diameter
-    prop_tag    = nacelle.tag    
+    nac_tag     = nacelle.tag    
     
     import operator # import here since engines are not always needed
     # sort engines per left to right convention
@@ -499,10 +505,10 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
         nac_y_rotation = nacelle.y_rotation
         nac_z_rotation = nacelle.z_rotation   
         
-        num_segs = len(nacelle.segments)
+        num_segs = len(nacelle.Segments)
         if  num_segs > 0: 
             nac_id = vsp.AddGeom( "STACK")
-            vsp.SetGeomName(nac_id, nacelle.tag)  
+            vsp.SetGeomName(nac_id, nacelle.tag + '_'+ str(ii))  
                 
             # set nacelle relative location and rotation
             vsp.SetParmVal( nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
@@ -585,8 +591,8 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
                 vsp.Update()              
                 
         else: 
-            nac_id = vsp.AddGeom( "BODYOFREVOLUTION")
-            vsp.SetGeomName(nac_id, prop_tag+'_'+str(ii+1))
+            nac_id = vsp.AddGeom( "BODYOFREVOLUTION") 
+            vsp.SetGeomName(nac_id, nacelle.tag+ '_'+ str(ii))            
     
             # Origin 
             vsp.SetParmVal( nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
@@ -604,12 +610,12 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
             else:
                 vsp.SetParmVal(nac_id,"Mode","Design",1.0)
              
-            if len(nacelle.naca_4_series_airfoil) != None:
+            if nacelle.naca_4_series_airfoil != None:
                 if isinstance(nacelle.naca_4_series_airfoil, str) and len(nacelle.naca_4_series_airfoil) != 4:
                     raise AssertionError('Nacelle Cowling airfoil must be of type < string > and length < 4 >')
                 else: 
                     angle        = nacelle.cowling_airfoil_angle
-                    camber       = float(nacelle.naca_4_series_airfoil[0])/100
+                    camber       = float(nacelle.naca_4_series_airfoil[0])/10
                     camber_loc   = float(nacelle.naca_4_series_airfoil[1])/10
                     thickness    = float(nacelle.naca_4_series_airfoil[2:])/100
                     
@@ -625,7 +631,7 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
                 vsp.ChangeBORXSecShape(nac_id ,vsp.XS_SUPER_ELLIPSE)
                 vsp.Update()
                 vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
-                vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", (width-inlet_width)/2)
+                vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", (diameter-inlet_width)/2)
                 vsp.SetParmVal(nac_id, "Super_Width", "XSecCurve", length)
                 vsp.SetParmVal(nac_id, "Super_MaxWidthLoc", "XSecCurve", -1.)
                 vsp.SetParmVal(nac_id, "Super_M", "XSecCurve", 2.)
