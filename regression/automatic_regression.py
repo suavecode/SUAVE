@@ -48,6 +48,7 @@ modules = [
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
     'scripts/B737/mission_B737.py', 
+    'scripts/battery/aircraft_discharge_comparisons.py',
     'scripts/battery/battery_cell_comparisons.py',
     'scripts/cmalpha/cmalpha.py',
     'scripts/cnbeta/cnbeta.py',

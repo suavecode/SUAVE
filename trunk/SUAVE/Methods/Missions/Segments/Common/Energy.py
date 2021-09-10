@@ -83,17 +83,6 @@ def initialize_battery(segment):
         battery_resistance_growth_factor     = segment.state.initials.conditions.propulsion.battery_resistance_growth_factor
         battery_initial_thevenin_voltage     = segment.state.initials.conditions.propulsion.battery_thevenin_voltage[-1,0]  
         battery_capacity_fade_factor         = segment.state.initials.conditions.propulsion.battery_capacity_fade_factor
-                  
-    else:
-        initial_mission_energy               = 0.0
-        initial_segment_energy               = 0.0
-        initial_pack_temperature             = 283.65 
-        battery_age_in_days                  = 1
-        battery_charge_throughput            = 0.0 
-        battery_resistance_growth_factor     = 1.0
-        battery_capacity_fade_factor         = 1.0  
-        battery_initial_thevenin_voltage     = 0
-        battery_discharge                    = True  
         
     if segment.battery_discharge == False: 
         battery_max_aged_energy  = initial_mission_energy*battery_capacity_fade_factor    

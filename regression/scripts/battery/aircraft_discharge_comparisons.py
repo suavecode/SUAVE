@@ -548,7 +548,7 @@ def plot_results(results,line_style,line_style2):
     
     # Plot Aircraft Electronics
     plot_battery_pack_conditions(results, line_style,line_style2) 
-    plot_battery_pack_conditions(results, line_style,line_style2)
+    plot_battery_cell_conditions(results, line_style,line_style2)
     
     # Plot Propeller Conditions 
     plot_propeller_conditions(results, line_style) 

@@ -22,70 +22,64 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    ## size the battery
-    #Mission_total = SUAVE.Analyses.Mission.Sequential_Segments()
-    #Ereq          = 4000*Units.Wh # required energy for the mission in Joules 
-    #Preq          = 3000. # maximum power requirements for mission in W
+    # size the battery
+    Mission_total = SUAVE.Analyses.Mission.Sequential_Segments()
+    Ereq          = 4000*Units.Wh # required energy for the mission in Joules 
+    Preq          = 3000. # maximum power requirements for mission in W
     
-    #numerics                      = Data()
-    #battery_inputs                = Data() #create inputs data structure for inputs for testing discharge model
-    #specific_energy_guess         = 500*Units.Wh/Units.kg
-    #battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
-    #battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()
-    #battery_li_air.discharge_model= LiFePO4_discharge           #default discharge model, but assign anyway
-    #battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4()
-    #battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
-    #li_ion_mass                   = 10*Units.kg
+    numerics                      = Data()
+    battery_inputs                = Data() #create inputs data structure for inputs for testing discharge model
+    specific_energy_guess         = 500*Units.Wh/Units.kg
+    battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
+    battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()
+    battery_li_air.discharge_model= LiFePO4_discharge           #default discharge model, but assign anyway
+    battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()
+    battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
+    li_ion_mass                   = 10*Units.kg
     
-    ## build numerics
-    #numerics.time                 = Data()
-    #numerics.time.integrate       = np.array([[0, 0],[0, 10]])
-    #numerics.time.differentiate   = np.array([[0, 0],[0, 1]])
-    #numerics.time.control_points  = np.array([[0], [1]])
+    # build numerics
+    numerics.time                 = Data()
+    numerics.time.integrate       = np.array([[0, 0],[0, 10]])
+    numerics.time.differentiate   = np.array([[0, 0],[0, 1]])
+    numerics.time.control_points  = np.array([[0], [1]])
     
-    ## build battery_inputs(i.e. current it's run at, power, normally done from energy network
-    #battery_inputs.current        = np.array([[90],[90]])*Units.amps
-    #battery_inputs.power_in       = np.array([[Preq/2.] ,[ Preq]])
-    #print('battery_inputs=', battery_inputs)
-    #battery_li_ion.inputs         = battery_inputs
+    # build battery_inputs(i.e. current it's run at, power, normally done from energy network
+    battery_inputs.current        = np.array([[90],[90]])*Units.amps
+    battery_inputs.power_in       = np.array([[Preq/2.] ,[ Preq]])
+    print('battery_inputs=', battery_inputs)
+    battery_li_ion.inputs         = battery_inputs
+    battery_li_ion.max_voltage    = battery_li_ion.cell.max_voltage
     
-    ## run tests on functionality
-    #test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)
-    #test_mass_gain(battery_al_air, Preq)
-    #test_find_ragone_properties(specific_energy_guess,battery_li_s, Ereq,Preq)
-    #test_find_ragone_optimum(battery_li_ion,Ereq,Preq)
+    # run tests on functionality
+    test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)
+    test_mass_gain(battery_al_air, Preq)
+    test_find_ragone_properties(specific_energy_guess,battery_li_s, Ereq,Preq)
+    test_find_ragone_optimum(battery_li_ion,Ereq,Preq)
    
-    #test_initialize_from_mass(battery_li_ion,li_ion_mass)
+    test_initialize_from_mass(battery_li_ion,li_ion_mass)
     
-    ## make sure battery starts fully charged
-    #battery_li_ion.current_energy    = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
+    # make sure battery starts fully charged
+    battery_li_ion.current_energy    = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
+    battery_li_ion.pack_temperature  = np.array([[20],[20]])
+    battery_li_ion.charge_throughput = np.array([[0],[0]])
+    battery_li_ion.R_growth_factor   = 1
+    battery_li_ion.E_growth_factor   = 1 
     
-    #battery_li_ion.temperature       = np.array([[20],[20]])
-    #battery_li_ion.charge_throughput = np.array([[0],[0]])
-    #battery_li_ion.R_growth_factor   = 1
-    #battery_li_ion.E_growth_factor   = 1 
-    
-    ## run discharge model
-    #battery_li_ion.energy_discharge(numerics)
-    #print(battery_li_ion)
-    #plot_ragone(battery_li_ion, 'lithium ion')
-    #plot_ragone(battery_li_s,   'lithium sulfur')
+    # run discharge model
+    battery_li_ion.energy_discharge(numerics)
+    print(battery_li_ion)
+    plot_ragone(battery_li_ion, 'lithium ion')
+    plot_ragone(battery_li_s,   'lithium sulfur') 
      
-     
-
-    days                  = 1
+ 
     battery_chemistry     =  ['LFP','NCA','NMC']
     curr                  = [1.5, 3, 6, 9 ] 
     mAh                   = np.array([ 3300 , 3300  , 3300 , 3300]) 
     temperature           = [ 300 ,300  , 300 ,300  ]
-    temp_guess            = [301 , 303  , 312  , 318 ]        
+    temp_guess            = [301 , 303  , 312  , 318 ]  
  
-
-    lp = 35  
     plt.rcParams.update({'font.size': 12})
-    fig1 = plt.figure('Cell Comparison')
-     
-    
+    fig1 = plt.figure('Cell Comparison') 
     fig1.set_size_inches(12,7)   
     axes11 = fig1.add_subplot(2,4,1)
     axes12 = fig1.add_subplot(2,4,2)    
@@ -98,7 +92,7 @@ def main():
     
     for j in range(len(curr)):      
         for i in range(len(battery_chemistry)):   
-            configs, analyses = full_setup(curr[j],temperature[j],battery_chemistry[i],temp_guess[j],days,mAh[j] )
+            configs, analyses = full_setup(curr[j],temperature[j],battery_chemistry[i],temp_guess[j],mAh[j] )
             analyses.finalize()     
             mission = analyses.missions.base
             results = mission.evaluate()  
@@ -149,9 +143,8 @@ def main():
     
     return 
 
-def plot_results(results,i,j,bat_chem, axes11, axes12, axes13, axes14, axes15, axes16, axes17, axes18) :
-     
-    curr   = ['1.5' ,'3' ,'6', '9'] 
+def plot_results(results,i,j,bat_chem, axes11, axes12, axes13, axes14, axes15, axes16, axes17, axes18): 
+    
     C_rat  = [0.5,1,2,3]     
     mark_1 = ['s' ,'s' ,'s' ,'s','s']
     mark_2 = ['o' ,'o' ,'o' ,'o','o']
@@ -234,7 +227,7 @@ def plot_results(results,i,j,bat_chem, axes11, axes12, axes13, axes14, axes15, a
 # ----------------------------------------------------------------------
 #   Analysis Setup
 # ----------------------------------------------------------------------
-def full_setup(current,temperature,battery_chemistry,temp_guess,days,mAh ):
+def full_setup(current,temperature,battery_chemistry,temp_guess,mAh ):
 
     # vehicle data
     vehicle  = vehicle_setup(current,temperature,battery_chemistry,mAh)
@@ -244,7 +237,7 @@ def full_setup(current,temperature,battery_chemistry,temp_guess,days,mAh ):
     configs_analyses = analyses_setup(configs)
 
     # mission analyses
-    mission  = mission_setup(configs_analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh )
+    mission  = mission_setup(configs_analyses,vehicle,battery_chemistry,current,temp_guess,mAh )
     missions_analyses = missions_setup(mission)
 
     analyses = SUAVE.Analyses.Analysis.Container()
@@ -342,7 +335,7 @@ def configs_setup(vehicle):
     configs.append(base_config)   
     return configs
 
-def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh  ):
+def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
 
     # ------------------------------------------------------------------
     #   Initialize the Mission
@@ -384,8 +377,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
         segment.time                                        = discharge_time
         segment.battery_discharge                           = True  
         segment.battery_pack_temperature                    = 300  
-        segment.ambient_temperature                         = 300  
-        segment.battery_age_in_days                         = days 
+        segment.ambient_temperature                         = 300   
         segment.initial_battery_charge_throughput           = 0
         segment.battery_energy                              = bat.max_energy * 1.
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)    
@@ -395,8 +387,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'LFP_Charge'  
         segment.analyses.extend(analyses.base)       
-        segment.battery_discharge                           = False
-        segment.battery_age_in_days                         = days  
+        segment.battery_discharge                           = False 
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)      
         mission.append_segment(segment) 
         
@@ -408,8 +399,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
         segment.time                                        = discharge_time
         segment.battery_discharge                           = True  
         segment.battery_pack_temperature                    = 300  
-        segment.ambient_temperature                         = 300  
-        segment.battery_age_in_days                         = days 
+        segment.ambient_temperature                         = 300   
         segment.initial_battery_charge_throughput           = 0
         segment.battery_energy                              = bat.max_energy * 1.
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
@@ -419,8 +409,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'NCA_Charge'  
         segment.analyses.extend(analyses.base)                
-        segment.battery_discharge                           = False
-        segment.battery_age_in_days                         = days  
+        segment.battery_discharge                           = False 
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment) 
         
@@ -432,8 +421,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
         segment.time                                        = discharge_time
         segment.battery_discharge                           = True  
         segment.battery_pack_temperature                    = 300  
-        segment.ambient_temperature                         = 300  
-        segment.battery_age_in_days                         = days  
+        segment.ambient_temperature                         = 300   
         segment.initial_battery_charge_throughput           = 0
         segment.battery_energy                              = bat.max_energy * 1.
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
@@ -443,8 +431,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'NMC_Charge'  
         segment.analyses.extend(analyses.base)           
-        segment.battery_discharge                           = False
-        segment.battery_age_in_days                         = days  
+        segment.battery_discharge                           = False 
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment) 
         
@@ -464,12 +451,6 @@ def missions_setup(base_mission):
     # done!
     return missions  
 
-
-if __name__ == '__main__': 
-    main()    
-    plt.show()
-    
-    
 def test_mass_gain(battery,power):
     print(battery)
     mass_gain       =find_total_mass_gain(battery)
