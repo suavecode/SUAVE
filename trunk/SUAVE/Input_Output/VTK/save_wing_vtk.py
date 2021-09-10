@@ -48,7 +48,7 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         half_l = int(len(VD.XA1)/2)
         
         # number panels per half span
-        n_cp   = int(n_cp/2)
+        n_cp   = n_cp//2
         n_cw   = n_cw
         n_sw   = n_sw
         
@@ -57,30 +57,30 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Lwing = Data()
         
         Rwing.XA1 = VD.XA1[0:half_l]
-        Rwing.XA2 = VD.XA1[0:half_l]
+        Rwing.XA2 = VD.XA2[0:half_l]
         Rwing.XB1 = VD.XB1[0:half_l]
-        Rwing.XB2 = VD.XB1[0:half_l]
+        Rwing.XB2 = VD.XB2[0:half_l]
         Rwing.YA1 = VD.YA1[0:half_l]
-        Rwing.YA2 = VD.YA1[0:half_l]
+        Rwing.YA2 = VD.YA2[0:half_l]
         Rwing.YB1 = VD.YB1[0:half_l]
-        Rwing.YB2 = VD.YB1[0:half_l]
+        Rwing.YB2 = VD.YB2[0:half_l]
         Rwing.ZA1 = VD.ZA1[0:half_l]
-        Rwing.ZA2 = VD.ZA1[0:half_l]
+        Rwing.ZA2 = VD.ZA2[0:half_l]
         Rwing.ZB1 = VD.ZB1[0:half_l]
-        Rwing.ZB2 = VD.ZB1[0:half_l]        
+        Rwing.ZB2 = VD.ZB2[0:half_l]        
         
         Lwing.XA1 = VD.XA1[half_l:]
-        Lwing.XA2 = VD.XA1[half_l:]
+        Lwing.XA2 = VD.XA2[half_l:]
         Lwing.XB1 = VD.XB1[half_l:]
-        Lwing.XB2 = VD.XB1[half_l:]  
+        Lwing.XB2 = VD.XB2[half_l:]  
         Lwing.YA1 = VD.YA1[half_l:]
-        Lwing.YA2 = VD.YA1[half_l:]
+        Lwing.YA2 = VD.YA2[half_l:]
         Lwing.YB1 = VD.YB1[half_l:]
-        Lwing.YB2 = VD.YB1[half_l:]   
+        Lwing.YB2 = VD.YB2[half_l:]   
         Lwing.ZA1 = VD.ZA1[half_l:]
-        Lwing.ZA2 = VD.ZA1[half_l:]
+        Lwing.ZA2 = VD.ZA2[half_l:]
         Lwing.ZB1 = VD.ZB1[half_l:]
-        Lwing.ZB2 = VD.ZB1[half_l:]       
+        Lwing.ZB2 = VD.ZB2[half_l:]       
         
         sep  = filename.find('.')
         
@@ -141,19 +141,20 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
                 yp = round(wing.YA1[i],4)
                 zp = round(wing.ZA1[i],4)            
                 
-            elif i==cw_laps + n_cw*(cw_laps+1): #i%n_cw==0:
+            elif i//(n_cw+cw_laps*(n_cw+1))==1:#i==cw_laps + n_cw*(cw_laps+1): #
                 # Last chordwise station for this spanwise location; use A2 to get left TE node
                 cw_laps = cw_laps +1
                 xp = round(wing.XA2[i-cw_laps],4)
                 yp = round(wing.YA2[i-cw_laps],4)
                 zp = round(wing.ZA2[i-cw_laps],4)  
                 
+                
             else:
                 # print the point index (Left LE --> Left TE --> Right LE --> Right TE)
                 xp = round(wing.XA1[i-cw_laps],4)
                 yp = round(wing.YA1[i-cw_laps],4)
                 zp = round(wing.ZA1[i-cw_laps],4)
-            
+        
             new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
             f.write(new_point)
     
