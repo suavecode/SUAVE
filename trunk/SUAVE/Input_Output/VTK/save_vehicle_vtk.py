@@ -15,10 +15,11 @@ from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
 from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
 from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
 from SUAVE.Input_Output.VTK.save_fuselage_vtk import save_fuselage_vtk
+from SUAVE.Input_Output.VTK.save_vortex_distribution_vtk import save_vortex_distribution_vtk
 
 
 def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
-                     wake_filename="prop_wake.vtk", wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
+                     wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
 
@@ -151,12 +152,15 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
     for i in range(n_wings):
         if save_loc ==None:
             filename = wing_filename
+            filename2 = wing_vlm_filename
         else:
             filename = save_loc + wing_filename
+            filename2 = save_loc + wing_vlm_filename
         sep  = filename.find('.')
         file = filename[0:sep]+str(wing_names[i])+filename[sep:]
+        file2 = filename2[0:sep]+str(wing_names[i])+filename2[sep:]
         save_wing_vtk(vehicle, vehicle.wings[wing_names[i]], settings, file, Results,time_step)
-
+        save_vortex_distribution_vtk(vehicle,VD,vehicle.wings[wing_names[i]], file2, time_step)
 
     #------------------------------
     # Save fuselage results to vtk
