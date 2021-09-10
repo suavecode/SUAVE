@@ -512,18 +512,18 @@ class Lift_Cruise(Network):
             N/A
     
             Inputs:
-            state.unknowns.lift_rotor_power_coefficient[None]
-            state.unknowns.propeller_power_coefficient [None]
-            state.unknowns.battery_voltage_under_load  [volts]
-            state.unknowns.throttle_lift               [0-1]
-            state.unknowns.throttle                    [0-1]
+            state.unknowns.lift_rotor_power_coefficient [None]
+            state.unknowns.propeller_power_coefficient  [None]
+            state.unknowns.battery_voltage_under_load   [volts]
+            state.unknowns.throttle_lift                [0-1]
+            state.unknowns.throttle                     [0-1]
     
             Outputs:
             state.conditions.propulsion.lift_rotor_power_coefficient [None]
-            state.conditions.propulsion.propeller_power_coefficient [None]
-            state.conditions.propulsion.battery_voltage_under_load  [volts]
-            state.conditions.propulsion.throttle_lift              [0-1]
-            state.conditions.propulsion.throttle                    [0-1]
+            state.conditions.propulsion.propeller_power_coefficient  [None]
+            state.conditions.propulsion.battery_voltage_under_load   [volts]
+            state.conditions.propulsion.throttle_lift                [0-1]
+            state.conditions.propulsion.throttle                     [0-1]
     
             Properties Used:
             N/A
@@ -571,13 +571,13 @@ class Lift_Cruise(Network):
             Inputs:
             state.unknowns.propeller_power_coefficient [None]
             state.unknowns.battery_voltage_under_load  [volts]
-            state.unknowns.throttle_lift              [0-1]
+            state.unknowns.throttle_lift               [0-1]
             state.unknowns.throttle                    [0-1]
     
             Outputs:
             state.conditions.propulsion.propeller_power_coefficient [None]
             state.conditions.propulsion.battery_voltage_under_load  [volts]
-            state.conditions.propulsion.throttle_lift              [0-1]
+            state.conditions.propulsion.throttle_lift               [0-1]
             state.conditions.propulsion.throttle                    [0-1]
     
             Properties Used:
@@ -680,9 +680,9 @@ class Lift_Cruise(Network):
             Inputs:
             state.conditions.propulsion:
                 propeller_motor_torque                [N-m]
-                lift_rotor_motor_torque                    [N-m]
+                lift_rotor_motor_torque               [N-m]
                 propeller_torque                      [N-m]
-                lift_rotor_torque                          [N-m]
+                lift_rotor_torque                     [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
     
@@ -755,9 +755,9 @@ class Lift_Cruise(Network):
             Inputs:
             state.conditions.propulsion:
                 propeller_motor_torque                [N-m]
-                lift_rotor_motor_torque                    [N-m]
+                lift_rotor_motor_torque               [N-m]
                 propeller_torque                      [N-m]
-                lift_rotor_torque                          [N-m]
+                lift_rotor_torque                     [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
             
@@ -826,9 +826,9 @@ class Lift_Cruise(Network):
             Inputs:
             state.conditions.propulsion:
                 propeller_motor_torque                [N-m]
-                lift_rotor_motor_torque                    [N-m]
+                lift_rotor_motor_torque               [N-m]
                 propeller_torque                      [N-m]
-                lift_rotor_torque                          [N-m]
+                lift_rotor_torque                     [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
     
