@@ -154,12 +154,10 @@ def energy_network():
     hybrid_ducted_fan.avionics     = avionics
 
     # Create the battery and add to the network
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4()
-    bat.specific_energy             = 300. * Units.Wh/Units.kg
-    bat.resistance                  = 0.006
-    bat.max_voltage                 = 400.
-    bat.mass_properties.mass        = 1000. * Units.kg 
-    initialize_from_mass(bat, bat.mass_properties.mass)
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()
+    bat.mass_properties.mass = 1000. * Units.kg  
+    bat.max_voltage          = 400.
+    initialize_from_mass(bat) 
     hybrid_ducted_fan.battery      = bat
     
     # Create the generator and add to the network
@@ -216,8 +214,8 @@ def energy_network():
     conditions.q                                       = 0.5 * conditions.freestream.density * conditions.freestream.velocity**2
     # numerics conditions
     numerics.time.integrate                            = np.array([[0, 0],[0, 1]])
-    numerics.time.differentiate                        = np.array([[0, 0],[0, 1]])
-  
+    numerics.time.differentiate                        = np.array([[0, 0],[0, 1]]) 
+    numerics.time.control_points                       = np.array([[0, 0],[0, 1]])   
     
     # propulsion conditions
     conditions.propulsion.throttle                     = np.array([[1.0],[1.0]])

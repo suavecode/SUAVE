@@ -7,7 +7,8 @@
 #           Apr 2021, M. Clarke
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
-#           Aug 2021, M. Clarke 
+#           Aug 2021, M. Clarke
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -16,10 +17,7 @@
 import SUAVE
 import numpy as np
 from .Network import Network
-from SUAVE.Components.Physical_Component import Container
-from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiNCA_18650      
-from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiNiMnCoO2_18650   
-from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiFePO4_38120  
+from SUAVE.Components.Physical_Component import Container 
 from SUAVE.Core import Data , Units
 
 # ----------------------------------------------------------------------
@@ -137,10 +135,8 @@ class Battery_Propeller(Network):
         battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
         battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity
         battery.cooling_fluid.density                 = conditions.freestream.density  
-        battery.ambient_pressure                      = conditions.freestream.pressure 
-        
-        # Unpack conditions
-        a = conditions.freestream.speed_of_sound
+        battery.ambient_pressure                      = conditions.freestream.pressure  
+        a                                             = conditions.freestream.speed_of_sound
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
@@ -152,7 +148,7 @@ class Battery_Propeller(Network):
         if type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
             volts                            = state.unknowns.battery_voltage_under_load
             battery.battery_thevenin_voltage = 0             
-            battery.temperature              = conditions.propulsion.battery_pack_temperature
+            battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
             
         elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:  
             SOC       = state.unknowns.battery_state_of_charge
@@ -318,14 +314,14 @@ class Battery_Propeller(Network):
             battery.energy_charge(numerics)        
             
             total_thrust = np.zeros((len(volts),3)) 
-            
+            P            = battery.inputs.power_in
             
         # Pack the conditions for outputs
+        battery_draw = battery.inputs.power_in    
         conditions.propulsion.battery_current                      = esc.outputs.currentin 
         conditions.propulsion.battery_energy                       = battery.current_energy
         conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
-        conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load
-        conditions.propulsion.battery_specfic_power                = -battery.inputs.power_in/battery.mass_properties.mass # Wh/kg 
+        conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load 
         conditions.propulsion.battery_power_draw                   = battery.inputs.power_in 
         conditions.propulsion.battery_max_aged_energy              = battery.max_energy 
         conditions.propulsion.battery_charge_throughput            = battery.charge_throughput 
@@ -334,6 +330,10 @@ class Battery_Propeller(Network):
         conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
         conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage           
         conditions.propulsion.battery_age_in_days                  = battery.age_in_days  
+        conditions.propulsion.battery_efficiency                   = (battery_draw+battery.resistive_losses)/battery_draw
+        conditions.propulsion.payload_efficiency                   = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
+        conditions.propulsion.battery_specfic_power                = -battery_draw/battery.mass_properties.mass    # kWh/kg  
+        conditions.propulsion.electronics_efficiency               = -(P)/battery_draw   
 
         conditions.propulsion.battery_cell_power_draw              = battery.inputs.power_in /n_series
         conditions.propulsion.battery_cell_energy                  = battery.current_energy/n_total   
@@ -478,7 +478,7 @@ class Battery_Propeller(Network):
         return     
 
     def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, initial_power_coefficient = 0.02,
-                                              initial_battery_cell_temperature = 300. , initial_battery_state_of_charge = 0.5,
+                                              initial_battery_cell_temperature = 283. , initial_battery_state_of_charge = 0.5,
                                               initial_battery_cell_current = 5. ,initial_battery_cell_thevenin_voltage= 0.1):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     

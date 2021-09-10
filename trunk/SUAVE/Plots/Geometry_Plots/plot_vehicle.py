@@ -336,11 +336,10 @@ def plot_propeller_geometry(axes,prop,network,network_name):
     MCA    = prop.mid_chord_alignment
     t      = prop.max_thickness_distribution
     origin = prop.origin
-
-    n_points  = 10
-    af_pts    = (2*n_points)-1
+ 
+    n_points  = 20
+    af_pts    = n_points-1
     dim       = len(b)
-    dim2      = 2*n_points
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]
 
     # create empty data structure for storing geometry
@@ -352,10 +351,10 @@ def plot_propeller_geometry(axes,prop,network,network_name):
     flip_1 = (np.pi/2)
     flip_2 = (np.pi/2)
 
-    MCA_2d = np.repeat(np.atleast_2d(MCA).T,dim2,axis=1)
-    b_2d   = np.repeat(np.atleast_2d(b).T  ,dim2,axis=1)
-    t_2d   = np.repeat(np.atleast_2d(t).T  ,dim2,axis=1)
-    r_2d   = np.repeat(np.atleast_2d(r).T  ,dim2,axis=1)
+    MCA_2d = np.repeat(np.atleast_2d(MCA).T,n_points,axis=1)
+    b_2d   = np.repeat(np.atleast_2d(b).T  ,n_points,axis=1)
+    t_2d   = np.repeat(np.atleast_2d(t).T  ,n_points,axis=1)
+    r_2d   = np.repeat(np.atleast_2d(r).T  ,n_points,axis=1)
 
     for i in range(num_B):
         # get airfoil coordinate geometry
@@ -369,19 +368,19 @@ def plot_propeller_geometry(axes,prop,network,network_name):
             camber       = 0.02
             camber_loc   = 0.4
             thickness    = 0.10
-            airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points*2 - 2))
+            airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
             xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
             zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
             max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
 
         # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
-        max_t2d = np.repeat(np.atleast_2d(max_t).T ,dim2,axis=1)
+        max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
 
         xp      = rot*(- MCA_2d + xpts*b_2d)  # x coord of airfoil
         yp      = r_2d*np.ones_like(xp)       # radial location
         zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord
 
-        matrix = np.zeros((len(zp),dim2,3)) # radial location, airfoil pts (same y)
+        matrix = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
         matrix[:,:,0] = xp
         matrix[:,:,1] = yp
         matrix[:,:,2] = zp
@@ -406,7 +405,7 @@ def plot_propeller_geometry(axes,prop,network,network_name):
         trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0)
 
         trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
-        rot_mat   = np.repeat(trans[:, np.newaxis,:,:],dim2,axis=1)
+        rot_mat   = np.repeat(trans[:, np.newaxis,:,:],n_points,axis=1)
 
         # ---------------------------------------------------------------------------------------------
         # ROTATE POINTS

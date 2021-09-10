@@ -76,14 +76,13 @@ def main():
     net.avionics        = avionics      
 
     # Component 8 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4()
-    bat.mass_properties.mass = 5.0  * Units.kg
-    bat.specific_energy      = 250. *Units.Wh/Units.kg
-    bat.resistance           = 0.003
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()
+    bat.mass_properties.mass = 5.0 * Units.kg  
+    bat.max_voltage          = 400.
     bat.iters                = 0
-    initialize_from_mass(bat,bat.mass_properties.mass)
+    initialize_from_mass(bat)   
     net.battery              = bat
-
+    
     #Component 9 the system logic controller and MPPT
     logic = SUAVE.Components.Energy.Distributors.Solar_Logic()
     logic.system_voltage  = 18.5
@@ -118,6 +117,7 @@ def main():
     conditions.frames.inertial.time           = np.array([[0.0],[1.0]])
     numerics.time.integrate                   = np.array([[0, 0],[0, 1]])
     numerics.time.differentiate               = np.array([[0, 0],[0, 1]])
+    numerics.time.control_points              = np.array([[0, 0],[0, 1]]) 
     conditions.frames.planet.start_time       = time.strptime("Sat, Jun 21 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",) 
     conditions.frames.planet.latitude         = np.array([[0.0],[0.0]])
     conditions.frames.planet.longitude        = np.array([[0.0],[0.0]])
@@ -133,10 +133,10 @@ def main():
     F       = results.thrust_force_vector
     
     # Truth results
-    truth_F   = [[ 68.78277813   ], [ 68.78277813     ]]
-    truth_i   = [[ 5.75011436    ], [ 5.75011436      ]]
-    truth_rpm = [[ 14390.30435183], [ 14390.30435183  ]]
-    truth_bat = [[ 4500000.      ], [ 4499883.5041616 ]]
+    truth_F   = [[68.78277813       ], [ 68.78277813     ]]
+    truth_i   = [[ 5.75011436       ], [ 5.75011436      ]]
+    truth_rpm = [[ 14390.30435183   ], [ 14390.30435183  ]]
+    truth_bat = [[ 1418507.46268657 ], [ 1418390.9509598 ]]
     
     error = Data()
     error.Thrust = np.max(np.abs(F[:,0]-truth_F))

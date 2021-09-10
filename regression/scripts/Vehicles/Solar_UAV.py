@@ -205,13 +205,12 @@ def vehicle_setup():
     net.avionics        = avionics      
 
     # Component 8 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4()
-    bat.mass_properties.mass = 90.0 * Units.kg
-    bat.specific_energy      = 600. * Units.Wh/Units.kg
-    bat.resistance           = 0.05
+
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()
+    bat.mass_properties.mass = 90. * Units.kg  
     bat.max_voltage          = 45.0
-    initialize_from_mass(bat,bat.mass_properties.mass)
-    net.battery              = bat
+    initialize_from_mass(bat)
+    net.battery              = bat   
    
     #Component 9 the system logic controller and MPPT
     logic                 = SUAVE.Components.Energy.Distributors.Solar_Logic()

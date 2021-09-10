@@ -1,5 +1,7 @@
 ## @ingroup Methods-Missions-Segments-Ground
 # Battery_Charge_Discharge.py
+#
+# Created: Aug. 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

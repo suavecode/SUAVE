@@ -178,14 +178,12 @@ def vehicle_setup():
                                                 
     #------------------------------------------------------------------
     # Design Battery
-    #------------------------------------------------------------------
-    bat                                                 = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4()
-    bat.specific_energy                                 = 350. * Units.Wh/Units.kg
-    bat.resistance                                      = 0.005
-    bat.max_voltage                                     = net.voltage     
-    bat.mass_properties.mass                            = 300. * Units.kg
-    initialize_from_mass(bat, bat.mass_properties.mass)
-    net.battery                                         = bat
+    #------------------------------------------------------------------ 
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
+    bat.mass_properties.mass = 300. * Units.kg  
+    bat.max_voltage          = net.voltage  
+    initialize_from_mass(bat)
+    net.battery              = bat  
 
     #------------------------------------------------------------------
     # Design Rotors  

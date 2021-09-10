@@ -1,7 +1,7 @@
 ## @ingroup Components-Energy-Networks
 # Battery_Cell_Cycler.py
 # 
-# Created: M. Clarke Aug 2021
+# Created: Apr 2021, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------

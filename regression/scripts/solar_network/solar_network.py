@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 105.97750757826377
-    truth_rpm = 218.8454586151948
-    truth_i   = 130.93354507592824
-    truth_bat = 184724099.1875254
+    truth_F   = 105.97750757826769
+    truth_rpm = 218.8454586152008
+    truth_i   = 130.93354507593722
+    truth_bat = 516164441.0539019
     
     print('battery energy')
     print(energy)
@@ -186,6 +186,7 @@ def mission_setup(analyses,vehicle):
     # base segment
     base_segment = Segments.Segment()
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.battery_discharge                           = True 
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude

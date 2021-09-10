@@ -4,6 +4,7 @@
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonaldb
 #           Apr 2019, C. McMillan
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -99,7 +100,11 @@ class Serial_Hybrid_Ducted_Fan(Network):
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
-
+        battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
+        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
+        battery.age_in_days         = conditions.propulsion.battery_age_in_days  
+        battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor  
         # Calculate ducted fan power
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = np.reshape(results.power, (-1,1))

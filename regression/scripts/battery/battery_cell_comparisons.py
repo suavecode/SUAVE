@@ -168,7 +168,7 @@ def plot_results(results,i,j,bat_chem, axes11, axes12, axes13, axes14, axes15, a
         time          = segment.conditions.frames.inertial.time[:,0]/60 
         volts         = segment.conditions.propulsion.battery_voltage_under_load[:,0]   
         cell_temp     = segment.conditions.propulsion.battery_cell_temperature[:,0]   
-        Amp_Hrs       = segment.conditions.propulsion.battery_cumulative_charge_throughput[:,0]    
+        Amp_Hrs       = segment.conditions.propulsion.battery_charge_throughput[:,0]    
         
         use_amp_hrs = True
         
@@ -372,8 +372,8 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
     base_segment.charging_SOC_cutoff                         = bat.cell.charging_SOC_cutoff 
     base_segment.charging_current                            = bat.charging_current
     base_segment.charging_voltage                            = bat.charging_voltage 
-    base_segment.battery_resistance_growth_factor            = 1
-    base_segment.battery_capacity_fade_factor                = 1            
+    base_segment.initial_battery_resistance_growth_factor    = 1
+    base_segment.initial_battery_capacity_fade_factor        = 1            
     base_segment.temperature_deviation                       = 15
     discharge_time                                           = 0.9 * (mAh/1000)/current * Units.hrs
     
@@ -382,12 +382,11 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
         segment.tag                                         = "LFP_Discharge" 
         segment.analyses.extend(analyses.base)       
         segment.time                                        = discharge_time
-        segment.battery_discharge                           = True 
-        segment.battery_cell_temperature                    = 300  
+        segment.battery_discharge                           = True  
         segment.battery_pack_temperature                    = 300  
         segment.ambient_temperature                         = 300  
         segment.battery_age_in_days                         = days 
-        segment.battery_charge_throughput                   = 0
+        segment.initial_battery_charge_throughput           = 0
         segment.battery_energy                              = bat.max_energy * 1.
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)    
         mission.append_segment(segment)         
@@ -407,12 +406,11 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
         segment.tag                                         = "NCA_Discharge" 
         segment.analyses.extend(analyses.base)               
         segment.time                                        = discharge_time
-        segment.battery_discharge                           = True 
-        segment.battery_cell_temperature                    = 300 
+        segment.battery_discharge                           = True  
         segment.battery_pack_temperature                    = 300  
         segment.ambient_temperature                         = 300  
         segment.battery_age_in_days                         = days 
-        segment.battery_charge_throughput                   = 0
+        segment.initial_battery_charge_throughput           = 0
         segment.battery_energy                              = bat.max_energy * 1.
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment)         
@@ -432,12 +430,11 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,days,mAh
         segment.tag                                         = "NMC_Discharge" 
         segment.analyses.extend(analyses.base)       
         segment.time                                        = discharge_time
-        segment.battery_discharge                           = True 
-        segment.battery_cell_temperature                    = 300 
+        segment.battery_discharge                           = True  
         segment.battery_pack_temperature                    = 300  
         segment.ambient_temperature                         = 300  
         segment.battery_age_in_days                         = days  
-        segment.battery_charge_throughput                   = 0
+        segment.initial_battery_charge_throughput           = 0
         segment.battery_energy                              = bat.max_energy * 1.
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment)          

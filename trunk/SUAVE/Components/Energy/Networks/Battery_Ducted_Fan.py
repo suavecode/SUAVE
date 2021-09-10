@@ -96,9 +96,15 @@ class Battery_Ducted_Fan(Network):
         battery    = self.battery
 
         # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy
-
-        # Calculate ducted fan power
+        battery.current_energy      = conditions.propulsion.battery_energy
+        battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
+        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
+        battery.age_in_days         = conditions.propulsion.battery_age_in_days  
+        battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
+        battery.max_energy          = conditions.propulsion.battery_max_aged_energy 
+        
+        # Calculate ducted fan power 
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = np.reshape(results.power, (-1,1))
         motor_power         = propulsive_power/self.motor_efficiency 

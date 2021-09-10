@@ -4,6 +4,7 @@
 # Created:  Jun 2014, E. Botero
 # Modified: Feb 2016, T. MacDonald
 #           Mar 2020, M. Clarke
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -106,7 +107,12 @@ class Solar_Low_Fidelity(Network):
         num_engines = self.number_of_engines
         
         # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy
+        battery.current_energy      = conditions.propulsion.battery_energy
+        battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
+        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
+        battery.age_in_days         = conditions.propulsion.battery_age_in_days  
+        battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor  
         
         # step 1
         solar_flux.solar_radiation(conditions)

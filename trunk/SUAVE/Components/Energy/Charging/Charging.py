@@ -1,7 +1,7 @@
 ## @ingroup Components-Energy-Charging
 # Charging.py
 # 
-# Created:   
+# Created: Aug. 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

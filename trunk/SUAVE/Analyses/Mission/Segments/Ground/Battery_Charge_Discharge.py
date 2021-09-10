@@ -1,7 +1,7 @@
 ## @ingroup Analyses-Mission-Segments-Ground
 # Battery_Charge_Discharge.py
 #
-# Created:   
+# Created: Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

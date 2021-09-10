@@ -1,7 +1,7 @@
 ## @ingroup Methods-Power-Battery-Sizing
 # initialize_from_module_packaging
 # 
-# Created: Mar 2020, M. Clarke 
+# Created: Mar 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -6,6 +6,7 @@
 #           Apr 2021, M. Clarke
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -133,246 +134,371 @@ class Lift_Cruise(Network):
         battery           = self.battery
         num_lift          = self.number_of_lift_rotor_engines
         num_forward       = self.number_of_propeller_engines
-        
-        # Unpack conditions
-        a = conditions.freestream.speed_of_sound        
+        D                 = numerics.time.differentiate      
+        battery_data      = battery.discharge_performance_map   
         
         #-----------------------------------------------------------------
         # SETUP BATTERIES AND ESC's
         #-----------------------------------------------------------------
+        # Set battery energy
+        battery.current_energy      = conditions.propulsion.battery_energy
+        battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
+        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
+        battery.age_in_days         = conditions.propulsion.battery_age_in_days 
+        discharge_flag              = conditions.propulsion.battery_discharge    
+        battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
+        battery.max_energy          = conditions.propulsion.battery_max_aged_energy
+        V_th0                       = conditions.propulsion.battery_initial_thevenin_voltage
+        n_series                    = battery.pack_config.series  
+        n_parallel                  = battery.pack_config.parallel
+        n_total                     = n_series*n_parallel
+        
+        # update ambient temperature based on altitude
+        battery.ambient_temperature                   = conditions.freestream.temperature   
+        battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
+        battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity
+        battery.cooling_fluid.density                 = conditions.freestream.density  
+        battery.ambient_pressure                      = conditions.freestream.pressure  
+        a                                             = conditions.freestream.speed_of_sound
         
         # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy    
-        
-        volts = state.unknowns.battery_voltage_under_load * 1. 
-        volts[volts>self.voltage] = self.voltage 
-        
-        # ESC Voltage
-        lift_rotor_esc.inputs.voltagein = volts      
-        propeller_esc.inputs.voltagein  = volts 
-        
-        #---------------------------------------------------------------
-        # EVALUATE THRUST FROM FORWARD PROPULSORS 
-        #---------------------------------------------------------------
-        # Throttle the voltage
-        propeller_esc.voltageout(conditions) 
-        
-        # How many evaluations to do
-        if self.identical_propellers:
-            n_evals = 1
-            factor  = num_forward*1
-        else:
-            n_evals = int(num_forward)
-            factor  = 1.
-        
-        # Setup numbers for iteration
-        total_prop_motor_current = 0.
-        total_prop_thrust        = 0. * state.ones_row(3)
-        total_prop_power         = 0.
-        
-        # Iterate over motor/props
-        for ii in range(n_evals):    
+        battery.current_energy = conditions.propulsion.battery_energy  
+
+
+        # --------------------------------------------------------------------------------
+        # Predict Voltage and Battery Properties Depending on Battery Chemistry
+        # --------------------------------------------------------------------------------  
+        if type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+            volts                            = state.unknowns.battery_voltage_under_load
+            battery.battery_thevenin_voltage = 0             
+            battery.temperature              = conditions.propulsion.battery_pack_temperature
             
-            # Unpack the motor and props
-            motor_key = list(propeller_motors.keys())[ii]
-            prop_key  = list(propellers.keys())[ii]
-            motor     = self.propeller_motors[motor_key]
-            prop      = self.propellers[prop_key]            
-        
-            # link
-            motor.inputs.voltage = propeller_esc.outputs.voltageout
-            motor.inputs.propeller_CP = np.atleast_2d(conditions.propulsion.propeller_power_coefficient[:,ii]).T
+        elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:  
+            SOC       = state.unknowns.battery_state_of_charge
+            T_cell    = state.unknowns.battery_cell_temperature
+            V_Th_cell = state.unknowns.battery_thevenin_voltage/n_series
             
-            # Run the motor
-            motor.omega(conditions)
+            # link temperature 
+            battery.cell_temperature = T_cell     
             
-            # link
-            prop.inputs.omega         = motor.outputs.omega
-            prop.inputs.pitch_command = self.propeller_pitch_command 
-            
-            # Run the propeller
-            F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = prop.spin(conditions)
+            # look up tables  
+            V_oc_cell = np.zeros_like(SOC)
+            R_Th_cell = np.zeros_like(SOC)
+            C_Th_cell = np.zeros_like(SOC)
+            R_0_cell  = np.zeros_like(SOC)
+            SOC[SOC<0.] = 0.
+            SOC[SOC>1.] = 1.
+            for i in range(len(SOC)): 
+                V_oc_cell[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
+                C_Th_cell[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
+                R_Th_cell[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
+                R_0_cell[i]  = battery_data.R_0_interp(T_cell[i], SOC[i])[0]  
                 
-            # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-            eta                       = conditions.propulsion.throttle[:,0,None]
-            P_forward[eta>1.0]        = P_forward[eta>1.0]*eta[eta>1.0]
-            F_forward[eta[:,0]>1.0,:] = F_forward[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]  
-            
-            # Run the motor for current
-            _, etam_prop = motor.current(conditions)
-            
-            # Conditions specific to this instantation of motor and propellers
-            R                        = prop.tip_radius
-            rpm                      = motor.outputs.omega / Units.rpm
-            F_mag                    = np.atleast_2d(np.linalg.norm(F_forward, axis=1)).T
-            total_prop_thrust        = total_prop_thrust + F_forward * factor
-            total_prop_power         = total_prop_power  + P_forward * factor
-            total_prop_motor_current = total_prop_motor_current + factor*motor.outputs.current
+            dV_TH_dt =  np.dot(D,V_Th_cell)
+            I_cell   = V_Th_cell/(R_Th_cell * battery.R_growth_factor)  + C_Th_cell*dV_TH_dt
+            R_0_cell = R_0_cell * battery.R_growth_factor
+             
+            # Voltage under load:
+            volts =  n_series*(V_oc_cell - V_Th_cell - (I_cell  * R_0_cell)) 
 
-            # Pack specific outputs
-            conditions.propulsion.propeller_motor_torque[:,ii]     = motor.outputs.torque[:,0]
-            conditions.propulsion.propeller_torque[:,ii]           = Q_forward[:,0]
-            conditions.propulsion.propeller_rpm[:,ii]              = rpm[:,0]
-            conditions.propulsion.propeller_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
-            conditions.propulsion.propeller_disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
-            conditions.propulsion.propeller_power_loading[:,ii]    = (F_mag[:,0])/(P_forward[:,0])  # N/W  
-            conditions.propulsion.propeller_efficiency[:,ii]       = etap_forward[:,0]
-            conditions.propulsion.propeller_motor_efficiency[:,ii] = etam_prop[:,0]
+        elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650: 
+            SOC        = state.unknowns.battery_state_of_charge 
+            T_cell     = state.unknowns.battery_cell_temperature
+            I_cell     = state.unknowns.battery_current/n_parallel 
             
+            # Link Temperature 
+            battery.cell_temperature         = T_cell  
+            battery.initial_thevenin_voltage = V_th0  
             
-            conditions.noise.sources.propellers[prop.tag]       = outputs_forward            
+            # Make sure things do not break by limiting current, temperature and current 
+            SOC[SOC < 0.]            = 0.  
+            SOC[SOC > 1.]            = 1.    
+            DOD                      = 1 - SOC 
             
-        
-        # link
-        propeller_esc.inputs.currentout = total_prop_motor_current
-        
-        # Run the esc
-        propeller_esc.currentin(conditions)        
-       
-        #-------------------------------------------------------------------
-        # EVALUATE THRUST FROM LIFT PROPULSORS 
-        #-------------------------------------------------------------------
-        
-        # Make a new set of konditions, since there are differences for the esc and motor
-        konditions                                        = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-        konditions._size                                  = conditions._size
-        konditions.propulsion                             = Data()
-        konditions.freestream                             = Data()
-        konditions.frames                                 = Data()
-        konditions.frames.inertial                        = Data()
-        konditions.frames.body                            = Data()
-        konditions.propulsion.throttle                    = conditions.propulsion.throttle_lift* 1.
-        konditions.propulsion.propeller_power_coefficient = conditions.propulsion.lift_rotor_power_coefficient * 1.
-        konditions.freestream.density                     = conditions.freestream.density * 1.
-        konditions.freestream.velocity                    = conditions.freestream.velocity * 1.
-        konditions.freestream.dynamic_viscosity           = conditions.freestream.dynamic_viscosity * 1.
-        konditions.freestream.speed_of_sound              = conditions.freestream.speed_of_sound *1.
-        konditions.freestream.temperature                 = conditions.freestream.temperature * 1.
-        konditions.freestream.altitude                    = conditions.freestream.altitude * 1.
-        konditions.frames.inertial.velocity_vector        = conditions.frames.inertial.velocity_vector *1.
-        konditions.frames.body.transform_to_inertial      = conditions.frames.body.transform_to_inertial
-
-        # Throttle the voltage
-        lift_rotor_esc.voltageout(konditions)      
-        
-        # How many evaluations to do
-        if self.identical_lift_rotors:
-            n_evals = 1
-            factor  = num_lift*1
-        else:
-            n_evals = int(num_lift)
-            factor  = 1.
-        
-        # Setup numbers for iteration
-        total_lift_rotor_motor_current = 0.
-        total_lift_rotor_thrust        = 0. * state.ones_row(3)
-        total_lift_rotor_power         = 0.        
-        
-        # Iterate over motor/lift_rotors
-        for ii in range(n_evals):          
+            T_cell[np.isnan(T_cell)] = 302.65
+            T_cell[T_cell<272.65]    = 272.65 # model does not fit for below 0  degrees
+            T_cell[T_cell>322.65]    = 322.65 # model does not fit for above 50 degrees
+             
+            I_cell[I_cell<0.0]       = 0.0
+            I_cell[I_cell>8.0]       = 8.0   
             
-            # Unpack the motor and props
-            motor_key   = list(lift_rotor_motors.keys())[ii]
-            lift_rotor_key   = list(lift_rotors.keys())[ii]
-            lift_rotor_motor = self.lift_rotor_motors[motor_key]
-            lift_rotor       = self.lift_rotors[lift_rotor_key]            
+            # create vector of conditions for battery data sheet response surface for OCV
+            pts                      = np.hstack((np.hstack((I_cell, T_cell)),DOD  )) # amps, temp, SOC   
+            V_ul_cell                = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T   
+            volts                    = n_series*V_ul_cell    
+        
+        # --------------------------------------------------------------------------------
+        # Run Motor, Avionics and Systems (Discharge Model)
+        # --------------------------------------------------------------------------------    
+        if discharge_flag:    
+                
+            # ESC Voltage
+            lift_rotor_esc.inputs.voltagein = volts      
+            propeller_esc.inputs.voltagein  = volts 
+            
+            #---------------------------------------------------------------
+            # EVALUATE THRUST FROM FORWARD PROPULSORS 
+            #---------------------------------------------------------------
+            # Throttle the voltage
+            propeller_esc.voltageout(conditions) 
+            
+            # How many evaluations to do
+            if self.identical_propellers:
+                n_evals = 1
+                factor  = num_forward*1
+            else:
+                n_evals = int(num_forward)
+                factor  = 1.
+            
+            # Setup numbers for iteration
+            total_prop_motor_current = 0.
+            total_prop_thrust        = 0. * state.ones_row(3)
+            total_prop_power         = 0.
+            
+            # Iterate over motor/props
+            for ii in range(n_evals):    
+                
+                # Unpack the motor and props
+                motor_key = list(propeller_motors.keys())[ii]
+                prop_key  = list(propellers.keys())[ii]
+                motor     = self.propeller_motors[motor_key]
+                prop      = self.propellers[prop_key]            
+            
+                # link
+                motor.inputs.voltage = propeller_esc.outputs.voltageout
+                motor.inputs.propeller_CP = np.atleast_2d(conditions.propulsion.propeller_power_coefficient[:,ii]).T
+                
+                # Run the motor
+                motor.omega(conditions)
+                
+                # link
+                prop.inputs.omega         = motor.outputs.omega
+                prop.inputs.pitch_command = self.propeller_pitch_command 
+                
+                # Run the propeller
+                F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = prop.spin(conditions)
                     
-            # link
-            lift_rotor_motor.inputs.voltage = lift_rotor_esc.outputs.voltageout
-            lift_rotor_motor.inputs.propeller_CP = np.atleast_2d(conditions.propulsion.lift_rotor_power_coefficient[:,ii]).T
-            
-            # Run the motor
-            lift_rotor_motor.omega(konditions)
-            
-            # link
-            lift_rotor.inputs.omega         = lift_rotor_motor.outputs.omega
-            lift_rotor.inputs.pitch_command = self.lift_rotor_pitch_command 
-            lift_rotor.VTOL_flag            = state.VTOL_flag   
-            
-            # Run the propeller
-            F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)
-            
-            # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-            eta                       = conditions.propulsion.throttle_lift[:,0,None]
-            P_lift[eta>1.0]           = P_lift[eta>1.0]*eta[eta>1.0]
-            F_forward[eta[:,0]>1.0,:] = F_lift[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]  
+                # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
+                eta                       = conditions.propulsion.throttle[:,0,None]
+                P_forward[eta>1.0]        = P_forward[eta>1.0]*eta[eta>1.0]
+                F_forward[eta[:,0]>1.0,:] = F_forward[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]  
+                
+                # Run the motor for current
+                _, etam_prop = motor.current(conditions)
+                
+                # Conditions specific to this instantation of motor and propellers
+                R                        = prop.tip_radius
+                rpm                      = motor.outputs.omega / Units.rpm
+                F_mag                    = np.atleast_2d(np.linalg.norm(F_forward, axis=1)).T
+                total_prop_thrust        = total_prop_thrust + F_forward * factor
+                total_prop_power         = total_prop_power  + P_forward * factor
+                total_prop_motor_current = total_prop_motor_current + factor*motor.outputs.current
+    
+                # Pack specific outputs
+                conditions.propulsion.propeller_motor_torque[:,ii]     = motor.outputs.torque[:,0]
+                conditions.propulsion.propeller_torque[:,ii]           = Q_forward[:,0]
+                conditions.propulsion.propeller_rpm[:,ii]              = rpm[:,0]
+                conditions.propulsion.propeller_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
+                conditions.propulsion.propeller_disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
+                conditions.propulsion.propeller_power_loading[:,ii]    = (F_mag[:,0])/(P_forward[:,0])  # N/W  
+                conditions.propulsion.propeller_efficiency[:,ii]       = etap_forward[:,0]
+                conditions.propulsion.propeller_motor_efficiency[:,ii] = etam_prop[:,0]
+                
+                
+                if n_evals==1:
+                    # Append outputs to each identical propeller
+                    for i,p in enumerate(propellers):
+                        conditions.noise.sources.propellers[p.tag]      = outputs_forward
+                else:
+                    conditions.noise.sources.propellers[prop.tag]      = outputs_forward            
                 
             
-            # Run the motor for current
-            _, etam_lift_rotor =lift_rotor_motor.current(konditions)  
+            # link
+            propeller_esc.inputs.currentout = total_prop_motor_current
             
-            # Conditions specific to this instantation of motor and propellers
-            R                              = lift_rotor.tip_radius
-            rpm                            = lift_rotor_motor.outputs.omega / Units.rpm
-            F_mag                          = np.atleast_2d(np.linalg.norm(F_lift, axis=1)).T
-            total_lift_rotor_thrust        = total_lift_rotor_thrust + F_lift * factor
-            total_lift_rotor_power         = total_lift_rotor_power  + P_lift * factor
-            total_lift_rotor_motor_current = total_lift_rotor_motor_current + factor*lift_rotor_motor.outputs.current
+            # Run the esc
+            propeller_esc.currentin(conditions)        
+           
+            #-------------------------------------------------------------------
+            # EVALUATE THRUST FROM LIFT PROPULSORS 
+            #-------------------------------------------------------------------
             
-            
-            # Pack specific outputs
-            conditions.propulsion.lift_rotor_motor_torque[:,ii]     = lift_rotor_motor.outputs.torque[:,0]
-            conditions.propulsion.lift_rotor_torque[:,ii]           = Q_lift[:,0]
-            conditions.propulsion.lift_rotor_rpm[:,ii]              = rpm[:,0]
-            conditions.propulsion.lift_rotor_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
-            conditions.propulsion.lift_rotor_disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
-            conditions.propulsion.lift_rotor_power_loading[:,ii]    = (F_mag[:,0])/(P_lift[:,0])  # N/W      
-            conditions.propulsion.lift_rotor_efficiency[:,ii]       = etap_lift[:,0]
-            conditions.propulsion.lift_rotor_motor_efficiency[:,ii] = etam_lift_rotor[:,0]
-            
-            conditions.noise.sources.lift_rotors[lift_rotor.tag]    = outputs_forward                    
-            
-        # link
-        lift_rotor_esc.inputs.currentout =  lift_rotor_motor.outputs.current     
-        
-        # Run the lift_rotor esc
-        lift_rotor_esc.currentin(konditions)          
-        
-        # Run the avionics
-        avionics.power()
+            # Make a new set of konditions, since there are differences for the esc and motor
+            konditions                                        = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+            konditions._size                                  = conditions._size
+            konditions.propulsion                             = Data()
+            konditions.freestream                             = Data()
+            konditions.frames                                 = Data()
+            konditions.frames.inertial                        = Data()
+            konditions.frames.body                            = Data()
+            konditions.propulsion.throttle                    = conditions.propulsion.throttle_lift* 1.
+            konditions.propulsion.propeller_power_coefficient = conditions.propulsion.lift_rotor_power_coefficient * 1.
+            konditions.freestream.density                     = conditions.freestream.density * 1.
+            konditions.freestream.velocity                    = conditions.freestream.velocity * 1.
+            konditions.freestream.dynamic_viscosity           = conditions.freestream.dynamic_viscosity * 1.
+            konditions.freestream.speed_of_sound              = conditions.freestream.speed_of_sound *1.
+            konditions.freestream.temperature                 = conditions.freestream.temperature * 1.
+            konditions.freestream.altitude                    = conditions.freestream.altitude * 1.
+            konditions.frames.inertial.velocity_vector        = conditions.frames.inertial.velocity_vector *1.
+            konditions.frames.body.transform_to_inertial      = conditions.frames.body.transform_to_inertial
     
-        # Run the payload
-        payload.power()
+            # Throttle the voltage
+            lift_rotor_esc.voltageout(konditions)      
+            
+            # How many evaluations to do
+            if self.identical_lift_rotors:
+                n_evals = 1
+                factor  = num_lift*1
+            else:
+                n_evals = int(num_lift)
+                factor  = 1.
+            
+            # Setup numbers for iteration
+            total_lift_rotor_motor_current = 0.
+            total_lift_rotor_thrust        = 0. * state.ones_row(3)
+            total_lift_rotor_power         = 0.        
+            
+            # Iterate over motor/lift_rotors
+            for ii in range(n_evals):          
+                
+                # Unpack the motor and props
+                motor_key   = list(lift_rotor_motors.keys())[ii]
+                lift_rotor_key   = list(lift_rotors.keys())[ii]
+                lift_rotor_motor = self.lift_rotor_motors[motor_key]
+                lift_rotor       = self.lift_rotors[lift_rotor_key]            
+                        
+                # link
+                lift_rotor_motor.inputs.voltage = lift_rotor_esc.outputs.voltageout
+                lift_rotor_motor.inputs.propeller_CP = np.atleast_2d(conditions.propulsion.lift_rotor_power_coefficient[:,ii]).T
+                
+                # Run the motor
+                lift_rotor_motor.omega(konditions)
+                
+                # link
+                lift_rotor.inputs.omega         = lift_rotor_motor.outputs.omega
+                lift_rotor.inputs.pitch_command = self.lift_rotor_pitch_command 
+                lift_rotor.VTOL_flag            = state.VTOL_flag   
+                
+                # Run the propeller
+                F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)
+                
+                # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
+                eta                       = conditions.propulsion.throttle_lift[:,0,None]
+                P_lift[eta>1.0]           = P_lift[eta>1.0]*eta[eta>1.0]
+                F_forward[eta[:,0]>1.0,:] = F_lift[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]  
+                    
+                
+                # Run the motor for current
+                _, etam_lift_rotor =lift_rotor_motor.current(konditions)  
+                
+                # Conditions specific to this instantation of motor and propellers
+                R                              = lift_rotor.tip_radius
+                rpm                            = lift_rotor_motor.outputs.omega / Units.rpm
+                F_mag                          = np.atleast_2d(np.linalg.norm(F_lift, axis=1)).T
+                total_lift_rotor_thrust        = total_lift_rotor_thrust + F_lift * factor
+                total_lift_rotor_power         = total_lift_rotor_power  + P_lift * factor
+                total_lift_rotor_motor_current = total_lift_rotor_motor_current + factor*lift_rotor_motor.outputs.current
+                
+                
+                # Pack specific outputs
+                conditions.propulsion.lift_rotor_motor_torque[:,ii]     = lift_rotor_motor.outputs.torque[:,0]
+                conditions.propulsion.lift_rotor_torque[:,ii]           = Q_lift[:,0]
+                conditions.propulsion.lift_rotor_rpm[:,ii]              = rpm[:,0]
+                conditions.propulsion.lift_rotor_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
+                conditions.propulsion.lift_rotor_disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
+                conditions.propulsion.lift_rotor_power_loading[:,ii]    = (F_mag[:,0])/(P_lift[:,0])  # N/W      
+                conditions.propulsion.lift_rotor_efficiency[:,ii]       = etap_lift[:,0]
+                conditions.propulsion.lift_rotor_motor_efficiency[:,ii] = etam_lift_rotor[:,0]
+                
+                if n_evals==1:
+                    # Append outputs to each identical propeller
+                    for i,p in enumerate(lift_rotors):
+                        conditions.noise.sources.lift_rotors[p.tag]      = outputs_lift
+                else:
+                    conditions.noise.sources.lift_rotors[prop.tag]      = outputs_lift            
+                
+                
+            # link
+            lift_rotor_esc.inputs.currentout =  lift_rotor_motor.outputs.current     
+            
+            # Run the lift_rotor esc
+            lift_rotor_esc.currentin(konditions)          
+            
+            # Run the avionics
+            avionics.power()
         
-        # Calculate avionics and payload power
-        avionics_payload_power = avionics.outputs.power + payload.outputs.power
+            # Run the payload
+            payload.power()
+            
+            # Calculate avionics and payload power
+            avionics_payload_power = avionics.outputs.power + payload.outputs.power
+        
+            # Calculate avionics and payload current
+            i_avionics_payload = avionics_payload_power/volts   
+            
+            # Add up the power usages
+            i_lift    = lift_rotor_esc.outputs.currentin
+            i_forward = propeller_esc.outputs.currentin
+            
+            current_total = i_lift + i_forward + i_avionics_payload
+            power_total   = current_total * volts   
+            
+            battery.inputs.current  = current_total
+            battery.inputs.power_in = - power_total
+            
+            # Run the battery
+            battery.energy_discharge(numerics)   
     
-        # Calculate avionics and payload current
-        i_avionics_payload = avionics_payload_power/volts   
+            
+        # --------------------------------------------------------------------------------
+        # Run Charge Model 
+        # --------------------------------------------------------------------------------               
+        else:  
+            # link 
+            battery.inputs.current  = -battery.cell.charging_current*n_parallel * np.ones_like(volts)
+            battery.inputs.voltage  =  battery.cell.charging_voltage*n_series * np.ones_like(volts)
+            battery.inputs.power_in =  -battery.inputs.current * battery.inputs.voltage             
+            battery.energy_charge(numerics)        
+            
+            F_total = np.zeros((len(volts),3))  
         
-        # Add up the power usages
-        i_lift    = lift_rotor_esc.outputs.currentin
-        i_forward = propeller_esc.outputs.currentin
-        
-        current_total = i_lift + i_forward + i_avionics_payload
-        power_total   = current_total * volts   
-        
-        battery.inputs.current  = current_total
-        battery.inputs.power_in = - power_total
-        
-        # Run the battery
-        battery.energy_discharge(numerics)   
+            
+        # Pack the conditions for outputs 
+        battery_draw = battery.inputs.power_in    
+        conditions.propulsion.battery_energy                       = battery.current_energy
+        conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load 
+        conditions.propulsion.battery_efficiency                   = (battery_draw+battery.resistive_losses)/battery_draw
+        conditions.propulsion.payload_efficiency                   = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
+        conditions.propulsion.battery_specfic_power                = -battery_draw/battery.mass_properties.mass    # kWh/kg  
+        conditions.propulsion.electronics_efficiency               = -(P_forward + P_lift)/battery_draw  
+        conditions.propulsion.battery_current                      = current_total
+        conditions.propulsion.battery_power_draw                   = battery.inputs.power_in 
+        conditions.propulsion.battery_max_aged_energy              = battery.max_energy 
+        conditions.propulsion.battery_charge_throughput            = battery.charge_throughput 
+        conditions.propulsion.battery_internal_resistance          = battery.internal_resistance
+        conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
+        conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
+        conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage           
+        conditions.propulsion.battery_age_in_days                  = battery.age_in_days  
 
-        # Store network performance  
-        battery_draw = battery.inputs.power_in 
-        conditions.propulsion.battery_draw                      = battery.inputs.power_in 
-        conditions.propulsion.battery_energy                    = battery.current_energy 
-        conditions.propulsion.battery_voltage_open_circuit      = battery.voltage_open_circuit
-        conditions.propulsion.battery_voltage_under_load        = battery.voltage_under_load 
-        conditions.propulsion.battery_efficiency                = (battery_draw+battery.resistive_losses)/battery_draw
-        conditions.propulsion.payload_efficiency                = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
-        conditions.propulsion.battery_specfic_power             = -battery_draw/battery.mass_properties.mass    # kWh/kg
-        conditions.propulsion.state_of_charge                   = battery.state_of_charge      
-        conditions.propulsion.battery_current                   = i_lift + i_forward
-        conditions.propulsion.electronics_efficiency            = -(P_forward + P_lift)/battery_draw  
-        conditions.propulsion.battery_current                   = current_total
+        conditions.propulsion.battery_cell_power_draw              = battery.inputs.power_in /n_series
+        conditions.propulsion.battery_cell_energy                  = battery.current_energy/n_total   
+        conditions.propulsion.battery_cell_voltage_under_load      = battery.cell_voltage_under_load    
+        conditions.propulsion.battery_cell_voltage_open_circuit    = battery.cell_voltage_open_circuit  
+        conditions.propulsion.battery_cell_current                 = abs(battery.cell_current)        
+        conditions.propulsion.battery_cell_temperature             = battery.cell_temperature
+        conditions.propulsion.battery_cell_charge_throughput       = battery.cell_charge_throughput
+        conditions.propulsion.battery_cell_heat_energy_generated   = battery.heat_energy_generated
+        conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
+        conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction   
 
         F_total = total_prop_thrust + total_lift_rotor_thrust
 
         results = Data()
         results.thrust_force_vector = F_total
         results.vehicle_mass_rate   = state.ones_row(1)*0.0 
-        
         return results
     
     def unpack_unknowns_transition(self,segment):
@@ -521,8 +647,8 @@ class Lift_Cruise(Network):
             # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
             ss.conditions.propulsion.throttle_lift                = segment.state.unknowns.throttle_lift 
             ss.conditions.propulsion.lift_rotor_power_coefficient = segment.state.unknowns.lift_rotor_power_coefficient
-            ss.conditions.propulsion.propeller_power_coefficient  = 0.0 * ones(1)
-            ss.conditions.propulsion.throttle                     = 0.0 * ones(1)
+            ss.conditions.propulsion.propeller_power_coefficient  = 0.0 * ones_row(1)
+            ss.conditions.propulsion.throttle                     = 0.0 * ones_row(1)
         else:
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
             
@@ -763,7 +889,7 @@ class Lift_Cruise(Network):
                                                          initial_prop_power_coefficient = 0.005,
                                                          initial_lift_rotor_power_coefficient = 0.005,
                                                          initial_throttle_lift = 0.9,
-                                                         initial_battery_cell_temperature = 300. ,
+                                                         initial_battery_cell_temperature = 283. ,
                                                          initial_battery_state_of_charge = 0.5,
                                                          initial_battery_cell_current = 5. ,
                                                          initial_battery_cell_thevenin_voltage= 0.1):
@@ -877,7 +1003,7 @@ class Lift_Cruise(Network):
     
     def add_cruise_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
                                                          initial_prop_power_coefficient = 0.005,
-                                                         initial_battery_cell_temperature = 300.,
+                                                         initial_battery_cell_temperature = 283.,
                                                          initial_battery_state_of_charge = 0.5,
                                                          initial_battery_cell_current = 5. ,
                                                          initial_battery_cell_thevenin_voltage= 0.1):
@@ -981,7 +1107,7 @@ class Lift_Cruise(Network):
     def add_lift_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None,
                                                          initial_lift_rotor_power_coefficient = 0.005,
                                                          initial_throttle_lift = 0.9,
-                                                         initial_battery_cell_temperature = 300.,
+                                                         initial_battery_cell_temperature = 283.,
                                                          initial_battery_state_of_charge = 0.5,
                                                          initial_battery_cell_current = 5. ,
                                                          initial_battery_cell_thevenin_voltage= 0.1):

@@ -26,8 +26,8 @@ from .Data.Body                                                    import Body
 from .Data.Aircraft                                                import Aircraft
 from .Data.Cases                                                   import Run_Case
 from .Data.Configuration                                           import Configuration
-from SUAVE.Components.Wings.Control_Surfaces                       import Aileron , Elevator , Slat , Flap , Rudder
-from SUAVE.Methods.Aerodynamics.AVL.write_avl_airfoil_file         import write_avl_airfoil_file
+from SUAVE.Components.Wings.Control_Surfaces                       import Aileron , Elevator , Slat , Flap , Rudder 
+from SUAVE.Methods.Aerodynamics.AVL.write_avl_airfoil_file         import write_avl_airfoil_file  
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
 
 ## @ingroup Methods-Aerodynamics-AVL
@@ -314,18 +314,18 @@ def populate_wing_sections(avl_wing,suave_wing):
             origin.append( [[origin[i_segs][0][0] + dx , origin[i_segs][0][1] + dy, origin[i_segs][0][2] + dz]])               
 
     else:    
-        symm                  = avl_wing.symmetric
+        symm                  = avl_wing.symmetric  
         dihedral              = suave_wing.dihedral
         span                  = suave_wing.spans.projected
-        semispan              = suave_wing.spans.projected * 0.5 * (2 - symm)
-        if suave_wing.sweeps.leading_edge  is not None:
+        semispan              = suave_wing.spans.projected * 0.5 * (2 - symm) 
+        if suave_wing.sweeps.leading_edge  is not None: 
             sweep      = suave_wing.sweeps.leading_edge
-        else:
+        else: 
             suave_wing = wing_planform(suave_wing)
             sweep      = suave_wing.sweeps.leading_edge
         avl_wing.semispan     = semispan
-        origin                = suave_wing.origin[0]
-
+        origin                = suave_wing.origin[0]  
+        
         # define root section 
         root_section          = Section()
         root_section.tag      = 'root_section'

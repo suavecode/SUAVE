@@ -1,9 +1,7 @@
 ## @ingroup Methods-Power-Battery-Discharge
 # LiFePO4_discharge.py
 # 
-# Created:  ### ####, M. Vegh
-# Modified: Feb 2016, E. Botero
-# Modified: Apr 2020, M. Clarke
+# Created: Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -70,8 +68,8 @@ def LiFePO4_discharge(battery,numerics):
     R_bat             = battery.resistance
     V_max             = battery.max_voltage
     bat_mass          = battery.mass_properties.mass                
-    bat_Cp            = battery.specific_heat_capacity   
-    T_current         = battery.temperature
+    bat_Cp            = battery.specific_heat_capacity    
+    T_current         = battery.pack_temperature   
     E_max             = battery.max_energy
     E_current         = battery.current_energy 
     Q_prior           = battery.charge_throughput 

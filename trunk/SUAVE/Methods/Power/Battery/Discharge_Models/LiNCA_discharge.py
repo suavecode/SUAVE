@@ -1,7 +1,7 @@
 ## @ingroup Methods-Power-Battery-Discharge
 # LiNCA_discharge.py
 # 
-# Created: Apr 2020, M. Clarke
+# Created: Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

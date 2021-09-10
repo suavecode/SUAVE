@@ -61,7 +61,7 @@ def vehicle_setup():
     wing.twists.root              = 0.
     wing.twists.tip               = 0.
     wing.origin                   = [[0.1,  0.0 , 0.0]]
-    wing.aerodynamic_center       = [0., 0., 0.]
+    wing.aerodynamic_center       = [0.3,  0.0 , 0.0]
     wing.winglet_fraction         = 0.0
     wing.symmetric                = True
 
@@ -86,7 +86,7 @@ def vehicle_setup():
     wing.twists.root              = 0.
     wing.twists.tip               = 0.
     wing.origin                   = [[ 5.138, 0.0  ,  1.323 ]]  # for images 1.54
-    wing.aerodynamic_center       = [0., 0., 0.]
+    wing.aerodynamic_center       = [ 5.3, 0.0  ,  1.323 ]
     wing.winglet_fraction         = 0.0
     wing.symmetric                = True
 
@@ -213,16 +213,19 @@ def vehicle_setup():
 
     #------------------------------------------------------------------
     # Design Battery
-    #------------------------------------------------------------------
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4()
-    bat.mass_properties.mass = 200. * Units.kg
-    bat.specific_energy      = 200. * Units.Wh/Units.kg
-    bat.resistance           = 0.006
-    bat.max_voltage          = 400.
-
-    initialize_from_mass(bat,bat.mass_properties.mass)
-    net.battery              = bat
-    net.voltage              = bat.max_voltage
+    #------------------------------------------------------------------ 
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()   
+    bat.mass_properties.mass = 200. * Units.kg  
+    bat.max_voltage          = net.voltage    
+    initialize_from_mass(bat)
+    
+    # Here we, are going to assume a battery pack module shape. This step is optional but
+    # required for thermal analysis of tge pack
+    number_of_modules                = 10
+    bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
+    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
+    bat.module_config.parallel_count = bat.pack_config.parallel 
+    net.battery              = bat 
 
     # Component 9 Miscellaneous Systems
     sys = SUAVE.Components.Systems.System()

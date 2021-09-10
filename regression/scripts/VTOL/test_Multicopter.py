@@ -43,14 +43,14 @@ def main():
     plot_mission(results)
 
     # save, load and plot old results
-    #save_multicopter_results(results)
+    save_multicopter_results(results)
     old_results = load_multicopter_results()
     plot_mission(old_results,'k-')
     plt.show(block=True)
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.propeller_rpm[0][0]
-    RPM_true   = 1583.6527092402382
+    RPM_true   = 1583.6527082169848
 
     print(RPM)
     diff_RPM = np.abs(RPM - RPM_true)
@@ -60,7 +60,7 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([3.77518368e+08, 3.74165045e+08, 3.70802756e+08])
+    battery_energy_transition_true    = np.array([2.86968586e+08, 2.82964006e+08, 2.78942693e+08])
 
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true)
@@ -204,6 +204,7 @@ def mission_setup(analyses,vehicle):
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.battery_discharge                           = True 
     base_segment.state.numerics.number_control_points        = 3
 
     # ------------------------------------------------------------------
@@ -275,7 +276,7 @@ def plot_mission(results,line_style='bo-'):
     plot_aircraft_velocities(results, line_style)
 
     # Plot Aircraft Electronics
-    plot_electronic_conditions(results, line_style)
+    plot_battery_pack_conditions(results, line_style)
 
     # Plot Propeller Conditions
     plot_propeller_conditions(results, line_style)

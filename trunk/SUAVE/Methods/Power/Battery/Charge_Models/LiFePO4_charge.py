@@ -1,8 +1,7 @@
 ## @ingroup Methods-Power-Battery-Charge
 # dLiFePO4_charge.py
 # 
-# Created:  
-# Modified: Apr 2020, M. Clarke
+# Created: Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -67,7 +66,7 @@ def LiFePO4_charge(battery,numerics):
     V_max             = battery.max_voltage
     bat_mass          = battery.mass_properties.mass                
     bat_Cp            = battery.specific_heat_capacity
-    T_current         = battery.temperature
+    T_current         = battery.pack_temperature
     E_max             = battery.max_energy
     E_current         = battery.current_energy 
     Q_prior           = battery.charge_throughput 

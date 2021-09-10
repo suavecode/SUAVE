@@ -348,7 +348,7 @@ def vehicle_setup():
 
     # Component 2 the Propeller 
     prop = SUAVE.Components.Energy.Converters.Propeller()
-
+    prop.tag = 'propeller_1'
     prop.number_of_blades       = 2.0
     prop.freestream_velocity    = 135.*Units['mph']
     prop.angular_velocity       = 1300.  * Units.rpm
@@ -374,6 +374,7 @@ def vehicle_setup():
     prop                        = propeller_design(prop)
 
     prop_left = deepcopy(prop)
+    prop_left.tag = 'propeller_2' 
     prop_left.origin   = [[2.,-2.5,0.784]]
     prop_left.rotation = 1
     
