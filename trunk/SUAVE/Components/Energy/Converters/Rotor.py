@@ -447,71 +447,73 @@ class Rotor(Energy_Component):
             #plt.plot(np.linspace(0,1,Nr), bemt_outputs.disc_tangential_induced_velocity[0,0,:],"r-",label="BEMT")
             #plt.show()     
 
-            #-----------------------------------------------------------------------            
+            #-----------------------------------------------------------------------  
+            i=0
+            while diff>tol:
+                diff2 = 1.
+                tol2 = 1e-6  
+                
+                # converge on axial induced velocities for the current circulation distribution
+                while(diff2>tol2):
+                    # converge on axial velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+                    va, vt = compute_HFW_blade_velocities(self, self.outputs)
+                    
+                    # compute the axial induced velocity residual between iterations
+                    diff2 = np.max(abs(self.outputs.disc_axial_induced_velocity - va))
+                    print(diff2)
+                    ii+=1
+                    
+                    # update the axial induced velocity for next iteration
+                    self.outputs.disc_axial_induced_velocity = va                
             
-            while(diff>tol):
-                # converge on axial velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-                va, vt = compute_HFW_blade_velocities(self, self.outputs)
+                # compute circulations/forces using the new velocities
+                Wa           = va + Ua
+                Wt           = Ut - vt
+                alpha        = beta - np.arctan2(Wa,Wt)
+                W            = (Wa*Wa + Wt*Wt)**0.5
+                Ma           = W/a        
+                lamdaw       = r*Wa/(R*Wt)
                 
-                # compute the axial induced velocity residual between iterations
-                diff = np.max(self.outputs.disc_axial_induced_velocity - va)
-                print(diff)
+                # Limiter to keep from Nan-ing
+                lamdaw[lamdaw<0.] = 0.
+                f            = (B/2.)*(1.-r/R)/lamdaw
+                f[f<0.]      = 0.
+                piece        = np.exp(-f)
+                arccos_piece = np.arccos(piece)
+                F            = 2.*arccos_piece/pi
+                Gamma        = self.outputs.disc_circulation #vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
+                Re           = (W*c)/nu
                 
-        
-                #-----------------------------------------------------------------------
+                # Compute aerodynamic forces based on specified input airfoil or surrogate
+                Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis)
+                
+                Gamma_Blade = 0.5*W*c*Cl*F
+                
+                diff = np.max(abs(self.outputs.disc_circulation - Gamma_Blade))
+                
+                #-----------------------------------------------------------------------   
                 # DEBUGGING SECTION
-                #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                     
-                ##plot bemt vs. hfw va and vt
-                #fig=plt.figure()
-                #plt.plot(np.linspace(0,1,Nr), bemt_outputs.disc_axial_induced_velocity[0,0,:],"r-",label="BEMT")                
-                #plt.plot(np.linspace(0,1,Nr), va[0,0,:],"k-",label="HFW")
-                #plt.legend()
+                #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                   
+                # plot convergence of circulation over iterations
+                fig = plt.figure()
+                plt.plot(np.linspace(0,1,Nr),Gamma[0,0,:],'r-',label="$\\Gamma_{i}$")
+                plt.plot(np.linspace(0,1,Nr),Gamma_Blade[0,0,:],'k-',label="$\\Gamma_{f}$")
+                plt.xlabel("$\\frac{r}{R}$")
+                plt.ylabel("$\\Gamma$")
+                plt.title("Convergence of Blade Circulation")
+                plt.legend()
+                plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation"+str(i)+".png", dpi = 300)        
+                #plt.show()                     
                 
-                #fig=plt.figure()
-                #plt.plot(np.linspace(0,1,Nr), bemt_outputs.disc_tangential_induced_velocity[0,0,:],"r-",label="BEMT")
-                #plt.plot(np.linspace(0,1,Nr), vt[0,0,:],"k-",label="HFW")
-                #plt.legend()
-                #plt.show()                
-                
-                ## plot difference in blade and wake circulation
-                #fig = plt.figure()
-                #plt.plot(np.linspace(0,1,Nr),self.outputs.disc_axial_induced_velocity[0,0,:],'r-',label="$v_a$ (Prior)")
-                #plt.plot(np.linspace(0,1,Nr),va[0,0,:],'k-',label="$v_a$ (New)")
-                #plt.xlabel("$\\frac{r}{R}$")
-                #plt.ylabel("$v_a$")
-                #plt.title("Convergence of Induced Axial Velocity")
-                #plt.legend()
-                #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/va_"+str(ii)+".png", dpi = 300)
-                #plt.show()  
-                #-----------------------------------------------------------------------
-                
-                ii+=1
+                print("Circulation residual:")
+                print(diff)
 
+                #-----------------------------------------------------------------------   
                 
-                # update the axial induced velocity for next iteration
-                self.outputs.disc_axial_induced_velocity = va                
-            
-            # compute circulations/forces using the new velocities
-            Wa           = va + Ua
-            Wt           = Ut - vt
-            alpha        = beta - np.arctan2(Wa,Wt)
-            W            = (Wa*Wa + Wt*Wt)**0.5
-            Ma           = W/a        
-            lamdaw       = r*Wa/(R*Wt)
-            
-            # Limiter to keep from Nan-ing
-            lamdaw[lamdaw<0.] = 0.
-            f            = (B/2.)*(1.-r/R)/lamdaw
-            f[f<0.]      = 0.
-            piece        = np.exp(-f)
-            arccos_piece = np.arccos(piece)
-            F            = 2.*arccos_piece/pi
-            Gamma        = self.outputs.disc_circulation #vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
-            Re           = (W*c)/nu
-            
-            # Compute aerodynamic forces based on specified input airfoil or surrogate
-            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis)
-                            
+                i +=1    
+                
+                # update blade circulation and repeat
+                self.outputs.disc_circulation = self.outputs.disc_circulation + 0.5*(Gamma_Blade - self.outputs.disc_circulation)
             
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
@@ -675,10 +677,10 @@ class Rotor(Energy_Component):
             plt.show()       
             
             fig = plt.figure()
-            plt.plot(np.linspace(0,1,Nr),Gamma[0,:],'r-',label="BEMT")
-            plt.plot(np.linspace(0,1,Nr),0.5*W*c*Cl[0,:],'k-',label="HFW")
+            plt.plot(np.linspace(0,1,Nr),Gamma[0,0,:],'r-',label="BEMT")
+            plt.plot(np.linspace(0,1,Nr),(0.5*W*c*Cl*F)[0,0,:],'k-',label="HFW")
             plt.xlabel("$\\frac{r}{R}$")
-            plt.ylabel("$v_t$")
+            plt.ylabel("$\\Gamma$")
             plt.title("Comparison of Blade Circulation")
             plt.legend()
             plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation_BEMT_v_HFW.png", dpi = 300)        
