@@ -672,7 +672,17 @@ class Rotor(Energy_Component):
             plt.title("Comparison of Induced Tangential Velocity")
             plt.legend()
             plt.savefig("/Users/rerha/Desktop/HFW_Convergence/vt_BEMT_v_HFW.png", dpi = 300)        
-            plt.show()                            
+            plt.show()       
+            
+            fig = plt.figure()
+            plt.plot(np.linspace(0,1,Nr),Gamma[0,:],'r-',label="BEMT")
+            plt.plot(np.linspace(0,1,Nr),0.5*W*c*Cl[0,:],'k-',label="HFW")
+            plt.xlabel("$\\frac{r}{R}$")
+            plt.ylabel("$v_t$")
+            plt.title("Comparison of Blade Circulation")
+            plt.legend()
+            plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation_BEMT_v_HFW.png", dpi = 300)        
+            plt.show()                      
         
     
         #-----------------------------------------------------------------------        
