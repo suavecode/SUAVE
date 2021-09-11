@@ -175,8 +175,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         
         x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4
         y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4
-        x_cp_airfoils = 5*(xle_airfoils - xte_airfoils)/8
-        y_cp_airfoils = 5*(yle_airfoils - yte_airfoils)/8
+        x_cp_airfoils = 3*(xle_airfoils - xte_airfoils)/4 #xle_airfoils # 5/8
+        y_cp_airfoils = 3*(yle_airfoils - yte_airfoils)/4 #yle_airfoils # 5/8
         
         # apply blade twist rotation along rotor radius
         beta = propi.twist_distribution
@@ -308,10 +308,13 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         propi.Wake_VD.Zblades_c_4 = z_c_4_rotor
         
         # append three-quarter chord evaluation point locations        
-        propi.Wake_VD.Xblades_cp = x_cp_rotor  
-        propi.Wake_VD.Yblades_cp = y_cp_rotor
-        propi.Wake_VD.Zblades_cp = z_cp_rotor      
+        propi.Wake_VD.Xblades_cp = x_cp_rotor #
+        propi.Wake_VD.Yblades_cp = y_cp_rotor #
+        propi.Wake_VD.Zblades_cp = z_cp_rotor # 
         
+        propi.Wake_VD.Xblades_cp2 =  X_pts[0,0,:,:] + (X_pts[0,0,:,:]-X_pts[0,1,:,:])/2
+        propi.Wake_VD.Yblades_cp2 =  Y_pts[0,0,:,:] + (Y_pts[0,0,:,:]-Y_pts[0,1,:,:])/2
+        propi.Wake_VD.Zblades_cp2 =  Z_pts[0,0,:,:] + (Z_pts[0,0,:,:]-Z_pts[0,1,:,:])/2
 
     # Compress Data into 1D Arrays  
     mat4_size = (m,num_prop,(nts),Bmax*nmax)

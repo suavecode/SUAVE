@@ -500,6 +500,7 @@ def VLM(conditions,settings,geometry):
     # STEP 13: Pack outputs
     # ------------------ --------------------------------------------------------------------     
     precision      = settings.floating_point_precision
+    VD.gamma       = GAMMA
     
     #VORLAX _TOT outputs
     results = Data()
@@ -520,6 +521,7 @@ def VLM(conditions,settings,geometry):
     results.alpha_i    =  alpha_i  
     results.CP         =  np.array(CP    , dtype=precision)
     results.gamma      =  np.array(GAMMA , dtype=precision)
+    results.VD = VD
     
     return results
 
