@@ -1514,22 +1514,25 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
     axes1        = fig.add_subplot(1,1,1)
     
     # loop through control points
-    for i in range(dim_seg):    
-        angles = abs(270- results.segments[i].conditions.noise.microphone_phi_angles/Units.degrees)
-        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
-        alt    = results.segments[i].conditions.freestream.altitude[:,0] / Units.ft
-        SPL    = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
-        
-        for j in range(dim_mic):
-            if i == 0:
-                axes1.plot(time, SPL[:,center_line,j], color = colors[j], label= r'$\phi$ = ' + str(round(angles[j],1)) + r' $\degree$' ) 
-            else:
-                axes1.plot(time, SPL[:,center_line,j], color = colors[j]) 
-        axes2 = axes1.twinx()
-        axes2.plot(time, alt, 'k-')      
-        axes1.set_ylabel('SPL (dBA)',axis_font)
-        axes1.set_xlabel('Time (min)',axis_font)
-        axes2.set_ylabel('Altitude (ft)',axis_font)  
+    for i in range(dim_seg): 
+        if  results.segments[i].battery_discharge == False:
+            pass
+        else: 
+            angles = abs(270- results.segments[i].conditions.noise.microphone_phi_angles/Units.degrees)
+            time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
+            alt    = results.segments[i].conditions.freestream.altitude[:,0] / Units.ft
+            SPL    = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
+            
+            for j in range(dim_mic):
+                if i == 0:
+                    axes1.plot(time, SPL[:,center_line,j], color = colors[j], label= r'$\phi$ = ' + str(round(angles[j],1)) + r' $\degree$' ) 
+                else:
+                    axes1.plot(time, SPL[:,center_line,j], color = colors[j]) 
+            axes2 = axes1.twinx()
+            axes2.plot(time, alt, 'k-')      
+            axes1.set_ylabel('SPL (dBA)',axis_font)
+            axes1.set_xlabel('Time (min)',axis_font)
+            axes2.set_ylabel('Altitude (ft)',axis_font)  
     
     axes1.legend(loc='upper right')        
     if save_figure:
@@ -1578,16 +1581,19 @@ def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure =
     fig.set_size_inches(12, 8) 
     
     # loop through control points
-    for i in range(dim_segs): 
-        for j in range(dim_ctrl_pts):
-            idx = i*dim_ctrl_pts + j
-            Aircraft_pos[idx ,0] = results.segments[i].conditions.frames.inertial.position_vector[j,0]
-            Aircraft_pos[idx ,2] = -results.segments[i].conditions.frames.inertial.position_vector[j,2]
-            SPL                  = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
-            SPL_contour[idx,:]   = SPL[j,center_line,:]
-            Range[idx,:]         = np.repeat(results.segments[i].conditions.frames.inertial.position_vector[j,0],dim_mic, axis = 0)
-            MLs                  = results.segments[i].conditions.noise.microphone_locations.reshape(dim_ctrl_pts,dim_mic,dim_mic,3)
-            Span[idx,:]          = MLs[j,center_line,:,1]
+    for i in range(dim_segs):  
+        if  results.segments[i].battery_discharge == False:
+            pass
+        else:    
+            for j in range(dim_ctrl_pts):
+                idx = i*dim_ctrl_pts + j
+                Aircraft_pos[idx ,0] = results.segments[i].conditions.frames.inertial.position_vector[j,0]
+                Aircraft_pos[idx ,2] = -results.segments[i].conditions.frames.inertial.position_vector[j,2]
+                SPL                  = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
+                SPL_contour[idx,:]   = SPL[j,center_line,:]
+                Range[idx,:]         = np.repeat(results.segments[i].conditions.frames.inertial.position_vector[j,0],dim_mic, axis = 0)
+                MLs                  = results.segments[i].conditions.noise.microphone_locations.reshape(dim_ctrl_pts,dim_mic,dim_mic,3)
+                Span[idx,:]          = MLs[j,center_line,:,1]
             
     axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2], c='k'    , marker = 'o' )
     CS = axes.contourf(Range,Span,SPL_contour, levels = 50, zdir='z', offset= 0  , cmap=plt.cm.jet) 

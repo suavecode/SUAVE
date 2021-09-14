@@ -1,5 +1,5 @@
 ## @ingroup Methods-Power-Battery-Sizing
-# initialize_from_module_packaging
+# initialize_from_circuit_configuration
 # 
 # Created: Mar 2021, M. Clarke
 
@@ -13,7 +13,7 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Power-Battery-Sizing
-def initialize_from_module_packaging(battery):  
+def initialize_from_circuit_configuration(battery):  
     """Calculate pack level properties of battery using cell 
     properties and module configuraton
     

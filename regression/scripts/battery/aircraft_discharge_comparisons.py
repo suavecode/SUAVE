@@ -187,11 +187,13 @@ def EVTOL_full_setup(battery_chemistry):
     initialize_from_mass(bat)
     
     # Here we, are going to assume a battery pack module shape. This step is optional but
-    # required for thermal analysis of tge pack
+    # required for thermal analysis of the pack. We will assume that all cells electrically connected 
+    # in series wihtin the module are arranged in one row normal direction to the airflow. Likewise ,
+    # all cells electrically in paralllel are arranged in the direction to the cooling fluid  
     number_of_modules                = 10
     bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
-    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
-    bat.module_config.parallel_count = bat.pack_config.parallel
+    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
+    bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
     
     net.battery              = bat
     net.voltage              = bat.max_voltage     

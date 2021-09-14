@@ -485,8 +485,8 @@ def vehicle_setup():
     # required for thermal analysis of tge pack
     number_of_modules                = 10
     bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
-    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
-    bat.module_config.parallel_count = bat.pack_config.parallel 
+    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
+    bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
     net.battery              = bat       
 
     #------------------------------------------------------------------
