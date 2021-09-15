@@ -39,9 +39,9 @@ def main():
     print(configs.base.mass_properties.center_of_gravity)
 
     # check weights
-    empty_r       = 1031.0480821239719
+    empty_r       = 999.866714279045
     structural_r  = 321.68932478738003
-    total_r       = 1231.0480821239719
+    total_r       = 1199.866714279045
     lift_rotors_r = 16.445392185186808
     propellers_r  = 3.2944573008378044
     prop_motors_r = 2.0
@@ -82,8 +82,8 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([4.04912596e+08, 4.04277011e+08, 4.03185004e+08])
-
+    battery_energy_hover_to_transition_true = np.array([2.85123707e+08, 2.84470928e+08, 2.83367386e+08])
+    
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true)
     print('battery_energy_hover_to_transition difference')
@@ -92,7 +92,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.8043927973520486
+    lift_coefficient_true   = 0.8043927973677136
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')

@@ -61,15 +61,21 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     for network in geometry.networks:
         if isinstance(network,Lift_Cruise) or isinstance(network,Battery_Propeller):
             if 'propellers' in network.keys():
-                if network.identical_propellers:
-                    swet_tot += network.areas.wetted * network.number_of_propeller_engines
-                else:
-                    swet_tot += np.sum(network.areas.wetted)
-            if 'lift_rotors' in network.keys():
-                if network.identical_lift_rotors:
-                    swet_tot += network.areas.wetted * network.number_of_lift_rotor_engines
-                else:
-                    swet_tot += np.sum(network.areas.wetted)
+                if network.number_of_propeller_engines == None:
+                    pass
+                else:   
+                    if network.identical_propellers:
+                        swet_tot += network.areas.wetted * network.number_of_propeller_engines
+                    else:
+                        swet_tot += np.sum(network.areas.wetted)
+            if 'lift_rotors' in network.keys(): 
+                if network.number_of_lift_rotor_engines == None:
+                    pass
+                else:                
+                    if network.identical_lift_rotors:
+                        swet_tot += network.areas.wetted * network.number_of_lift_rotor_engines
+                    else:
+                        swet_tot += np.sum(network.areas.wetted)
         else:
             swet_tot += network.areas.wetted * network.number_of_engines
 

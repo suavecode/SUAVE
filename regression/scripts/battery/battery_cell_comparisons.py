@@ -13,7 +13,7 @@ from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
 from SUAVE.Components.Energy.Storages.Batteries import Battery
 from SUAVE.Core import Units
 from SUAVE.Methods.Power.Battery.Discharge_Models import LiFePO4_discharge 
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass, initialize_from_module_packaging
+from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass, initialize_from_circuit_configuration
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Battery.Ragone import find_ragone_properties, find_specific_power, find_ragone_optimum
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate, find_total_mass_gain
@@ -273,7 +273,7 @@ def vehicle_setup(current,temperature,battery_chemistry,mAh):
     bat.charging_voltage            = bat.cell.nominal_voltage    
     bat.charging_current            = current  
     net.voltage                     = bat.cell.nominal_voltage 
-    initialize_from_module_packaging(bat) 
+    initialize_from_circuit_configuration(bat) 
     net.battery                     = bat  
     
     vehicle.mass_properties.takeoff = bat.mass_properties.mass 

@@ -58,7 +58,9 @@ class Battery_Propeller(Network):
             N/A
         """         
         self.propeller_motors             = Container()
+        self.lift_rotor_motors            = Container()
         self.propellers                   = Container()
+        self.lift_rotors                  = Container()
         self.esc                          = None
         self.avionics                     = None
         self.payload                      = None
@@ -66,12 +68,14 @@ class Battery_Propeller(Network):
         self.nacelle_diameter             = None
         self.engine_length                = None
         self.number_of_propeller_engines  = None
+        self.number_of_lift_rotor_engines = None
         self.voltage                      = None
         self.tag                          = 'Battery_Propeller'
         self.use_surrogate                = False
         self.generative_design_minimum    = 0
         self.pitch_command                = 0
         self.identical_propellers         = True
+        self.identical_lift_rotor         = True
         self.thrust_angle                 = 0. 
     
     # manage process with a driver function
@@ -107,13 +111,22 @@ class Battery_Propeller(Network):
         # unpack  
         conditions   = state.conditions
         numerics     = state.numerics
-        motors       = self.propeller_motors
-        props        = self.propellers
         esc          = self.esc
         avionics     = self.avionics
         payload      = self.payload
-        battery      = self.battery
-        num_engines  = self.number_of_propeller_engines 
+        battery      = self.battery 
+        
+        if self.number_of_lift_rotor_engines  != None: 
+            num_engines    = self.number_of_lift_rotor_engines
+            identical_flag = self.identical_lift_rotor
+            motors         = self.lift_rotor_motors
+            props          = self.lift_rotors
+        else:
+            num_engines    = self.number_of_propeller_engines 
+            identical_flag = self.identical_propellers
+            motors         = self.propeller_motors
+            props          = self.propellers
+            
         D            = numerics.time.differentiate        
         battery_data = battery.discharge_performance_map  
         
@@ -217,7 +230,7 @@ class Battery_Propeller(Network):
             esc.voltageout(conditions)
             
             # How many evaluations to do
-            if self.identical_propellers:
+            if identical_flag:
                 n_evals = 1
                 factor  = num_engines*1
             else:
@@ -235,8 +248,14 @@ class Battery_Propeller(Network):
                 # Unpack the motor and props
                 motor_key = list(motors.keys())[ii]
                 prop_key  = list(props.keys())[ii]
-                motor     = self.propeller_motors[motor_key]
-                prop      = self.propellers[prop_key]
+                
+        
+                if self.number_of_propeller_engines  != None: 
+                    motor     = self.propeller_motors[motor_key]
+                    prop      = self.propellers[prop_key]
+                else:                
+                    motor     = self.lift_rotor_motors[motor_key]
+                    prop      = self.lift_rotors[prop_key]
                 
                 # link
                 motor.inputs.voltage      = esc.outputs.voltageout 
@@ -303,7 +322,7 @@ class Battery_Propeller(Network):
             battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
             battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin + avionics_payload_power)
             battery.energy_discharge(numerics)         
-
+             
         # --------------------------------------------------------------------------------
         # Run Charge Model 
         # --------------------------------------------------------------------------------               
@@ -314,12 +333,13 @@ class Battery_Propeller(Network):
             battery.inputs.power_in =  -battery.inputs.current * battery.inputs.voltage             
             battery.energy_charge(numerics)        
             
-            total_thrust = np.zeros((len(volts),3)) 
-            P            = battery.inputs.power_in
+            avionics_payload_current = np.zeros((len(volts),1)) 
+            total_thrust             = np.zeros((len(volts),3)) 
+            P                        = battery.inputs.power_in
             
         # Pack the conditions for outputs
         battery_draw = battery.inputs.power_in    
-        conditions.propulsion.battery_current                      = esc.outputs.currentin 
+        conditions.propulsion.battery_current                      = battery.inputs.current
         conditions.propulsion.battery_energy                       = battery.current_energy
         conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
         conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load 
@@ -332,7 +352,7 @@ class Battery_Propeller(Network):
         conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage           
         conditions.propulsion.battery_age_in_days                  = battery.age_in_days  
         conditions.propulsion.battery_efficiency                   = (battery_draw+battery.resistive_losses)/battery_draw
-        conditions.propulsion.payload_efficiency                   = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
+        conditions.propulsion.payload_efficiency                   = (battery_draw+avionics_payload_current)/battery_draw            
         conditions.propulsion.battery_specfic_power                = -battery_draw/battery.mass_properties.mass    # kWh/kg  
         conditions.propulsion.electronics_efficiency               = -(P)/battery_draw   
 
@@ -503,7 +523,18 @@ class Battery_Propeller(Network):
             Properties Used:
             N/A
         """           
-        
+
+        if self.number_of_lift_rotor_engines  != None: 
+            n_eng          = int(self.number_of_lift_rotor_engines)
+            identical_flag = self.identical_lift_rotor
+            n_props        = len(self.lift_rotors)
+            n_motors       = len(self.lift_rotor_motors)
+        else:
+            n_eng          = int(self.number_of_propeller_engines)
+            identical_flag = self.identical_propellers
+            n_props        = len(self.propellers)
+            n_motors       = len(self.propeller_motors)
+            
         # unpack the ones function
         ones_row = segment.state.ones_row
         
@@ -511,16 +542,13 @@ class Battery_Propeller(Network):
         if initial_voltage==None:
             initial_voltage = self.battery.max_voltage
         
-        # Count how many unknowns and residuals based on p
-        n_props  = len(self.propellers)
-        n_motors = len(self.propeller_motors)
-        n_eng    = self.number_of_propeller_engines
+        # Count how many unknowns and residuals based on p) 
         
         if n_props!=n_motors!=n_eng:
             print('The number of propellers is not the same as the number of motors')
             
         # Now check if the propellers are all identical, in this case they have the same of residuals and unknowns
-        if self.identical_propellers:
+        if identical_flag:
             n_props = 1 
 
         if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:

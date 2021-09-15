@@ -61,11 +61,15 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_cpt         = len(angle_of_attack)
     num_mic         = len(position_vector[0,:,0,1])
     num_prop        = len(position_vector[0,0,:,1])
-    num_h           = len(harmonics)
-    propellers      = network.propellers
-    propeller       = propellers[list(propellers.keys())[0]]
-    
-    num_r           = len(propeller.radius_distribution)
+    num_h           = len(harmonics) 
+
+    if network.number_of_lift_rotor_engines  != None: 
+        propellers      = network.lift_rotors 
+    else:
+        propellers      = network.propellers
+        
+    propeller       = propellers[list(propellers.keys())[0]] 
+    num_r           = len(propeller.radius_distribution)  
     
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise

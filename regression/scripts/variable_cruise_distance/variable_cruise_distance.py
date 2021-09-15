@@ -65,7 +65,7 @@ def main():
     results_SR              = mission_SR.evaluate()
     results_SR              = results_SR.merged()
     
-    distance_regression_SR = 122493.65689667608
+    distance_regression_SR = 85154.94746487006
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc_SR = ', distance_calc_SR)
     error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)

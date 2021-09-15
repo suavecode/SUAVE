@@ -40,15 +40,21 @@ def compute_point_source_coordinates(conditions,network,mls):
     
     # aquire dimension of matrix
     num_cpt         = conditions._size
-    num_mic         = len(mls[0,:,0])
-    num_prop        = int(network.number_of_propeller_engines)
-    
-    # Setup the origins
-    prop_origin = []
-    for prop in network.propellers:
-        prop_origin.append(prop.origin[0])
-    prop_origin = np.array(prop_origin)
-    
+    num_mic         = len(mls[0,:,0]) 
+    if network.number_of_lift_rotor_engines  != None: 
+        num_prop    = int(network.number_of_lift_rotor_engines)    
+        prop_origin = []
+        for prop in network.lift_rotors:
+            prop_origin.append(prop.origin[0])
+        prop_origin = np.array(prop_origin)
+        
+    else:
+        num_prop    = int(network.number_of_propeller_engines)   
+        prop_origin = []
+        for prop in network.propellers:
+            prop_origin.append(prop.origin[0])
+        prop_origin = np.array(prop_origin)
+        
     # Get the rotation matrix
     prop2body   = prop.prop_vel_to_body()
     

@@ -143,8 +143,9 @@ def GA_full_setup(battery_chemistry):
     # required for thermal analysis of tge pack
     number_of_modules                = 10
     bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
-    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
-    bat.module_config.parallel_count = bat.pack_config.parallel
+    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
+    bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
+    net.battery                      = bat      
     
     net.battery              = bat
     net.voltage              = bat.max_voltage     
@@ -342,29 +343,29 @@ def GA_mission_setup(analyses,vehicle):
     # add to misison
     mission.append_segment(segment)    
 
+
     # ------------------------------------------------------------------
-    #   Descent Segment: constant Speed, constant rate segment 
+    #   Descent Segment Flight 1   
     # ------------------------------------------------------------------ 
-    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "decent" 
-    segment.analyses.extend( analyses.base ) 
-    segment.altitude_start            = 8012  * Units.feet
-    segment.altitude_end              = 2500  * Units.feet
-    segment.air_speed                 = 96.4260 * Units['mph'] 
-    segment.descent_rate              = 100.401  * Units['ft/min']   
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)   
-    
-    # add to misison
-    mission.append_segment(segment)  
+    segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
+    segment.tag = "decent"  
+    segment.analyses.extend( analyses.base )       
+    segment.altitude_start                                   = 8012 * Units.feet  
+    segment.altitude_end                                     = 2500.0 * Units.feet
+    segment.air_speed_start                                  = 175.* Units['mph']  
+    segment.air_speed_end                                    = 110 * Units['mph']   
+    segment.climb_rate                                       = -200 * Units['ft/min']  
+    segment.state.unknowns.throttle                          = 0.8 * ones_row(1)  
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.1)   
 
     # ------------------------------------------------------------------
     #  Charge Segment:  
     # ------------------------------------------------------------------  
-    segment      = Segments.Ground.Battery_Charge_Discharge(base_segment)  
-    segment.tag  = 'charge'  
+    segment                          = Segments.Ground.Battery_Charge_Discharge(base_segment)  
+    segment.tag                      = 'charge'  
     segment.analyses.extend(analyses.base)                 
     segment.battery_discharge        = False 
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)   
+    segment                          = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)   
     
     # add to misison
     mission.append_segment(segment)     
@@ -514,8 +515,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.altitude                                   = 1000.0 * Units.ft
     segment.air_speed                                  = 110. * Units['mph']
     segment.distance                                   = 40. * Units.miles 
-    segment.state.unknowns.throttle                    = 0.8 * ones_row(1)
-    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.max_energy
+    segment.state.unknowns.throttle                    = 0.8 * ones_row(1) 
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment ) 
 
     # add to misison

@@ -48,9 +48,14 @@ def compute_broadband_noise(freestream,angle_of_attack,position_vector,
     '''     
     num_cpt        = len(angle_of_attack)
     num_mic        = len(position_vector[0,:,0,1])
-    num_prop       = len(position_vector[0,0,:,1])
-    propellers     = network.propellers
-    propeller      = network.propellers[list(propellers.keys())[0]]
+    num_prop       = len(position_vector[0,0,:,1]) 
+
+    if network.number_of_lift_rotor_engines  != None: 
+        propellers      = network.lift_rotors 
+        propeller       = network.lift_rotors[list(propellers.keys())[0]]
+    else:
+        propellers      = network.propellers
+        propeller       = network.propellers[list(propellers.keys())[0]] 
     
     # ----------------------------------------------------------------------------------
     # Broadband (Vortex) Noise
