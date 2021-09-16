@@ -33,6 +33,16 @@ def save_evaluation_points_vtk(points,filename):
     yp = points.YC
     zp = points.ZC
     
+    try:
+        velocities = points.induced_velocities
+        vt = velocities.vt
+        va = velocities.va
+        vr = velocities.vr
+        wake=True
+    except:
+        print("No velocities specified at evaluation points.")
+        wake=False
+    
     # Create file
     with open(filename, 'w') as f:
     
@@ -67,7 +77,31 @@ def save_evaluation_points_vtk(points,filename):
         f.write("\nLOOKUP_TABLE default")   
         
         for i in range(len(xp)):
-            f.write("\n"+str(i))           
+            f.write("\n"+str(i))      
+            
+        
+        if wake:
+            # Second scalar value
+            f.write("\nSCALARS vt float")
+            f.write("\nLOOKUP_TABLE default")   
+            
+            for i in range(len(xp)):
+                f.write("\n"+str(vt[i]))     
+            
+            # Third scalar value
+            f.write("\nSCALARS va float")
+            f.write("\nLOOKUP_TABLE default")   
+            
+            for i in range(len(xp)):
+                f.write("\n"+str(va[i]))     
+                
+            # Fourth scalar value
+            f.write("\nSCALARS vr float")
+            f.write("\nLOOKUP_TABLE default")   
+            
+            for i in range(len(xp)):
+                f.write("\n"+str(vr[i]))                  
+        
                        
     f.close()
         

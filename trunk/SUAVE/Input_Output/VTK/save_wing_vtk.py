@@ -38,7 +38,10 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
     wing_vehicle = SUAVE.Vehicle() 
     wing_vehicle.append_component(wing_instance)
     
-    VD        = generate_vortex_distribution(wing_vehicle,settings)
+    try:
+        VD = vehicle.vortex_distribution
+    except:
+        VD = generate_vortex_distribution(wing_vehicle,settings)
     symmetric = vehicle.wings[wing_instance.tag].symmetric
     n_cw      = VD.n_cw[0]  # number of chordwise panels per half wing
     n_sw      = VD.n_sw[0]  # number of spanwise panels per half wing

@@ -115,6 +115,7 @@ def save_prop_vtk(prop, filename, Results, time_step):
             for i in range(cells_per_blade):
                 new_idx = str(i)
                 f.write("\n"+new_idx)
+                
 
                 
         f.close()
@@ -154,7 +155,7 @@ def generate_lofted_propeller_points(prop):
     origin = prop.origin
     
     try:
-        a_o = -prop.start_angle
+        a_o = -prop.start_angle[0]
     except:
         # default is no azimuthal offset (blade 1 starts vertical)
         a_o = 0.0 
@@ -225,7 +226,7 @@ def generate_lofted_propeller_points(prop):
         trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],n_r,axis=0)
         
         # roation about y to orient propeller/rotor to thrust angle 
-        trans_3 = prop.prop_vel_to_body()
+        trans_3 = prop.body_to_prop_vel() #prop.prop_vel_to_body()
         trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],n_r,axis=0)
         
         trans   = np.matmul(trans_3,np.matmul(trans_2,trans_1))
