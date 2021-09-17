@@ -42,7 +42,31 @@ def save_prop_vtk(prop, filename, Results, time_step):
     
     # Generate propeller point geometry
     n_blades = prop.number_of_blades 
-    Gprops   = generate_lofted_propeller_points(prop)
+    n_r      = len(prop.chord_distribution)
+      
+    try:
+        # Check if propeller lofted geometry has already been saved
+        Gprops = prop.lofted_blade_points
+        n_af     = Gprops.n_af  
+        # Check if there are induced velocities from wing wake at the blade (pusher config)
+        velocities = prop.lofted_blade_points.induced_velocities
+        # wing wake induced velocities (rotor frame)
+        vt = np.reshape(velocities.vt, (n_r,n_af,n_blades))
+        va = np.reshape(velocities.va, (n_r,n_af,n_blades))
+        vr = np.reshape(velocities.vr, (n_r,n_af,n_blades))
+        # wing wake induced velocities (wing frame)
+        u = np.reshape(velocities.u, (n_r,n_af,n_blades))
+        v = np.reshape(velocities.v, (n_r,n_af,n_blades))
+        w = np.reshape(velocities.w, (n_r,n_af,n_blades))     
+        # lofted pressure distribution
+        Cp = prop.lofted_blade_points.lofted_pressure_distribution
+        wake=True
+    except:
+        # No lofted geometry has been saved yet, create it
+        Gprops   = generate_lofted_propeller_points(prop)
+        n_af     = Gprops.n_af  
+        wake=False 
+        
     
     for B_idx in range(n_blades):
         # Get geometry of blade for current propeller instance
@@ -66,9 +90,6 @@ def save_prop_vtk(prop, filename, Results, time_step):
             # --------------------
             # Write Points
             # --------------------   
-            n_r      = len(prop.chord_distribution)
-            n_af     = Gprops.n_af
-            
             n_vertices    = (n_r)*(n_af)    # total number of node vertices per blade
             points_header = "\n\nPOINTS "+str(n_vertices) +" float"
             f.write(points_header)
@@ -116,8 +137,158 @@ def save_prop_vtk(prop, filename, Results, time_step):
                 new_idx = str(i)
                 f.write("\n"+new_idx)
                 
-
+            if wake:
+                # Second scalar value
+                f.write("\nSCALARS vt float")
+                f.write("\nLOOKUP_TABLE default")   
                 
+                for i in range(n_r-1):
+                    for j in range(n_af):
+                        # v shape: (n_r,n_af,n_blades)
+                        # cells indexed along airfoil then radially, starting at inboard TE
+                        v_i_j   = vt[i][j][B_idx]
+                        v_ip_j  = vt[i+1][j][B_idx]                        
+                        if j == n_af-1: 
+                            # last airfoil point connects bast to first
+                            v_i_jp  = vt[i][0][B_idx]
+                            v_ip_jp = vt[i+1][0][B_idx]    
+                        else:
+                            v_i_jp  = vt[i][j+1][B_idx]
+                            v_ip_jp = vt[i+1][j+1][B_idx]
+                        
+                        vtavg = (v_i_j + v_ip_j + v_i_jp + v_ip_jp)/4
+                        
+                        f.write("\n"+str(vtavg))     
+                
+                # Third scalar value
+                f.write("\nSCALARS va float")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_r-1):
+                    for j in range(n_af):
+                        # v shape: (n_r,n_af,n_blades)
+                        # cells indexed along airfoil then radially, starting at inboard TE
+                        v_i_j   = va[i][j][B_idx]
+                        v_ip_j  = va[i+1][j][B_idx]                        
+                        if j == n_af-1: 
+                            # last airfoil point connects bast to first
+                            v_i_jp  = va[i][0][B_idx]
+                            v_ip_jp = va[i+1][0][B_idx]    
+                        else:
+                            v_i_jp  = va[i][j+1][B_idx]
+                            v_ip_jp = va[i+1][j+1][B_idx]
+                        
+                        vaavg = (v_i_j + v_ip_j + v_i_jp + v_ip_jp)/4
+                        
+                        f.write("\n"+str(vaavg))  
+                    
+                # Fourth scalar value
+                f.write("\nSCALARS vr float")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_r-1):
+                    for j in range(n_af):
+                        # v shape: (n_r,n_af,n_blades)
+                        # cells indexed along airfoil then radially, starting at inboard TE
+                        v_i_j   = vr[i][j][B_idx]
+                        v_ip_j  = vr[i+1][j][B_idx]                        
+                        if j == n_af-1: 
+                            # last airfoil point connects bast to first
+                            v_i_jp  = vr[i][0][B_idx]
+                            v_ip_jp = vr[i+1][0][B_idx]    
+                        else:
+                            v_i_jp  = vr[i][j+1][B_idx]
+                            v_ip_jp = vr[i+1][j+1][B_idx]
+                        
+                        vravg = (v_i_j + v_ip_j + v_i_jp + v_ip_jp)/4
+                        
+                        f.write("\n"+str(vravg))     
+                # Second scalar value
+                f.write("\nSCALARS u float")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_r-1):
+                    for j in range(n_af):
+                        # v shape: (n_r,n_af,n_blades)
+                        # cells indexed along airfoil then radially, starting at inboard TE
+                        v_i_j   = u[i][j][B_idx]
+                        v_ip_j  = u[i+1][j][B_idx]                        
+                        if j == n_af-1: 
+                            # last airfoil point connects bast to first
+                            v_i_jp  = u[i][0][B_idx]
+                            v_ip_jp = u[i+1][0][B_idx]    
+                        else:
+                            v_i_jp  = u[i][j+1][B_idx]
+                            v_ip_jp = u[i+1][j+1][B_idx]
+                        
+                        uavg = (v_i_j + v_ip_j + v_i_jp + v_ip_jp)/4
+                        
+                        f.write("\n"+str(uavg))     
+                
+                # Third scalar value
+                f.write("\nSCALARS v float")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_r-1):
+                    for j in range(n_af):
+                        # v shape: (n_r,n_af,n_blades)
+                        # cells indexed along airfoil then radially, starting at inboard TE
+                        v_i_j   = v[i][j][B_idx]
+                        v_ip_j  = v[i+1][j][B_idx]                        
+                        if j == n_af-1: 
+                            # last airfoil point connects bast to first
+                            v_i_jp  = v[i][0][B_idx]
+                            v_ip_jp = v[i+1][0][B_idx]    
+                        else:
+                            v_i_jp  = v[i][j+1][B_idx]
+                            v_ip_jp = v[i+1][j+1][B_idx]
+                        
+                        vavg = (v_i_j + v_ip_j + v_i_jp + v_ip_jp)/4
+                        
+                        f.write("\n"+str(vavg))  
+                    
+                # Fourth scalar value
+                f.write("\nSCALARS w float")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_r-1):
+                    for j in range(n_af):
+                        # v shape: (n_r,n_af,n_blades)
+                        # cells indexed along airfoil then radially, starting at inboard TE
+                        v_i_j   = w[i][j][B_idx]
+                        v_ip_j  = w[i+1][j][B_idx]                        
+                        if j == n_af-1: 
+                            # last airfoil point connects bast to first
+                            v_i_jp  = w[i][0][B_idx]
+                            v_ip_jp = w[i+1][0][B_idx]    
+                        else:
+                            v_i_jp  = w[i][j+1][B_idx]
+                            v_ip_jp = w[i+1][j+1][B_idx]
+                        
+                        wavg = (v_i_j + v_ip_j + v_i_jp + v_ip_jp)/4
+                        
+                        f.write("\n"+str(wavg))                                    
+                # Fourth scalar value
+                f.write("\nSCALARS Cp float")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_r-1):
+                    for j in range(n_af):
+                        # v shape: (n_r,n_af,n_blades)
+                        # cells indexed along airfoil then radially, starting at inboard TE
+                        v_i_j   = Cp[i][j][B_idx]
+                        v_ip_j  = Cp[i+1][j][B_idx]                        
+                        if j == n_af-1: 
+                            # last airfoil point connects bast to first
+                            v_i_jp  = Cp[i][0][B_idx]
+                            v_ip_jp = Cp[i+1][0][B_idx]    
+                        else:
+                            v_i_jp  = Cp[i][j+1][B_idx]
+                            v_ip_jp = Cp[i+1][j+1][B_idx]
+                        
+                        Cp_avg = (v_i_j + v_ip_j + v_i_jp + v_ip_jp)/4
+                        
+                        f.write("\n"+str(Cp_avg))                  
         f.close()
     
     
@@ -155,14 +326,14 @@ def generate_lofted_propeller_points(prop):
     origin = prop.origin
     
     try:
-        a_o = -prop.start_angle[0]
+        a_o = -prop.start_angle
     except:
         # default is no azimuthal offset (blade 1 starts vertical)
         a_o = 0.0 
-    
-    n_a_cw    = 20                                   # number of airfoil chordwise points
+                                   
     n_r       = len(b)                               # number radial points
-    n_a_loft  = 2*n_a_cw                             # number points around airfoil
+    n_a_loft  = prop.number_points_around_airfoil    # number points around airfoil
+    n_a_cw    = n_a_loft//2                          # number of airfoil chordwise points
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]  # azimuthal stations
     
     # create empty data structure for storing propeller geometries

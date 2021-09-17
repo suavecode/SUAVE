@@ -5,7 +5,7 @@
 # Modified: 
 #           
 
-def save_evaluation_points_vtk(points,filename):
+def save_evaluation_points_vtk(points,filename,time_step):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
@@ -44,7 +44,9 @@ def save_evaluation_points_vtk(points,filename):
         wake=False
     
     # Create file
-    with open(filename, 'w') as f:
+    sep  = filename.find('.')
+    file = filename[0:sep]+"."+str(time_step)+filename[sep:]
+    with open(file, 'w') as f:
     
         #---------------------
         # Write header

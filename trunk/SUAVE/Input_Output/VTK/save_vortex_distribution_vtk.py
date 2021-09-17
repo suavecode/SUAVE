@@ -4,10 +4,10 @@
 # Created:    Jun 2021, R. Erhard
 # Modified: 
 #           
-from SUAVE.Core import Data
+from SUAVE.Core import Data,Units
 import numpy as np
 
-def save_vortex_distribution_vtk(vehicle,VD,wing_instance,filename, time_step):
+def save_vortex_distribution_vtk(vehicle,conditions,VD,wing_instance,filename, time_step):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
@@ -32,6 +32,7 @@ def save_vortex_distribution_vtk(vehicle,VD,wing_instance,filename, time_step):
     """
     # Extract wake properties of the ith propeller
     symmetric = vehicle.wings[wing_instance.tag].symmetric
+    alpha = -conditions.aerodynamics.angle_of_attack[0][0] # rotating back towards freestream
     if symmetric:
         # generate VLM horseshoes for left and right wings
         half_l = int(len(VD.XA1)/2)
@@ -83,8 +84,8 @@ def save_vortex_distribution_vtk(vehicle,VD,wing_instance,filename, time_step):
         Lfile = filename[0:sep]+"_L"+"_t"+str(time_step)+filename[sep:]
         Rfile = filename[0:sep]+"_R"+"_t"+str(time_step)+filename[sep:]
                 
-        write_vortex_distribution_vtk(R,VD,Rfile)
-        write_vortex_distribution_vtk(L,VD,Lfile)
+        write_vortex_distribution_vtk(R,alpha,VD,Rfile)
+        write_vortex_distribution_vtk(L,alpha,VD,Lfile)
     else:
         wing = Data()
         wing.XAH = VD.XAH
@@ -110,12 +111,12 @@ def save_vortex_distribution_vtk(vehicle,VD,wing_instance,filename, time_step):
         sep  = filename.find('.')
         file = filename[0:sep]+"_t"+str(time_step)+filename[sep:]
         
-        write_vortex_distribution_vtk(wing,VD,file)
+        write_vortex_distribution_vtk(wing,alpha,VD,file)
         
         
     return
 
-def write_vortex_distribution_vtk(wing,VD,filename):
+def write_vortex_distribution_vtk(wing,alpha,VD,filename):
     # Create file
     with open(filename, 'w') as f:
         
@@ -176,8 +177,9 @@ def write_vortex_distribution_vtk(wing,VD,filename):
                     x     = VD.YB1[0::n_cw][-1]
                     rinf  = np.array([rtv[0]-x, rtv[1], rtv[2]])
                     
-                    # TO DO: rotate to leave trailing edge at freestream
-                    
+                    ## TO DO: rotate to leave trailing edge at freestream
+                    #rot_mat = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
+                    #rinf = np.matmul(rot_mat,rinf)
                     
                     # save trailing infinite vortices (shortened after 1 spanwise downstream distance)
                     inf_trailing_vortices.coordinates.append(rtv)
