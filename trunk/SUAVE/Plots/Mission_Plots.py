@@ -1539,12 +1539,9 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
                 if i == 0:
                     axes1.plot(time, SPL[:,center_line,j], color = colors[j], label= r'$\phi$ = ' + str(round(angles[j],1)) + r' $\degree$' ) 
                 else:
-                    axes1.plot(time, SPL[:,center_line,j], color = colors[j]) 
-            axes2 = axes1.twinx()
-            axes2.plot(time, alt, 'k-')      
+                    axes1.plot(time, SPL[:,center_line,j], color = colors[j])  
             axes1.set_ylabel('SPL (dBA)',axis_font)
-            axes1.set_xlabel('Time (min)',axis_font)
-            axes2.set_ylabel('Altitude (ft)',axis_font)  
+            axes1.set_xlabel('Time (min)',axis_font) 
     
     axes1.legend(loc='upper right')        
     if save_figure:
@@ -1610,7 +1607,7 @@ def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure =
     axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2], c='k'    , marker = 'o' )
     CS = axes.contourf(Range,Span,SPL_contour, levels = 50, zdir='z', offset= 0  , cmap=plt.cm.jet) 
     CS = axes.contourf(Range,-Span,SPL_contour, levels = 50, zdir='z', offset= 0 , cmap=plt.cm.jet) 
-    axes.view_init(elev= 8, azim= -166)  
+    axes.view_init(elev= 30, azim= -140)  
     
     #plot the lines
     for i in range(dim_mat-1): 
