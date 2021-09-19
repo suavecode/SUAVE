@@ -18,6 +18,7 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
+from copy import deepcopy
 # ----------------------------------------------------------------------
 #   Define the Vehicle
 # ----------------------------------------------------------------------
@@ -238,21 +239,30 @@ def vehicle_setup():
 
     # add to vehicle
     vehicle.append_component(fuselage)
-    
+
     # -----------------------------------------------------------------
     # Design the Nacelle
     # ----------------------------------------------------------------- 
     nacelle                   = SUAVE.Components.Nacelles.Nacelle()
     nacelle.diameter          = 2.05
     nacelle.engine_length     = 2.71
-    nacelle.origin            =  [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]]
+    nacelle.tag               = 'nacelle_1'
+    nacelle.inlet_diameter    = 2.0
+    nacelle.origin            = [[12.0,4.38,-2.1]]
     Awet                      = 1.1*np.pi*nacelle.diameter*nacelle.engine_length # 1.1 is simple coefficient
     nacelle.areas.wetted      = Awet
-    vehicle.append_component(nacelle)
+    nacelle.naca_4_series_airfoil = '2410'
+    vehicle.append_component(nacelle) 
 
+    nacelle_2          = deepcopy(nacelle)
+    nacelle_2.tag      = 'nacelle_2'
+    nacelle_2.origin   = [[12.0,-4.38,-2.1]]
+    vehicle.append_component(nacelle_2)   
+    
+    
     # ------------------------------------------------------------------
     #  Turbofan Network
-    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------    
 
 
     #initialize the gas turbine network
@@ -260,10 +270,8 @@ def vehicle_setup():
     gt_engine.tag               = 'turbofan'
     gt_engine.origin            = [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]]
     gt_engine.number_of_engines = 2.0
-    gt_engine.bypass_ratio      = 5.4
-    gt_engine.engine_length     = 2.71
-    gt_engine.inlet_diameter    = 2.0
-
+    gt_engine.bypass_ratio      = 5.4   
+  
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air()
 

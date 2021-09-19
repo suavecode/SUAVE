@@ -114,13 +114,7 @@ def energy_network():
     state_off_design            = Data()
     state_off_design.numerics   = Data()
     state_off_design.conditions = conditions
-   
-    # ------------------------------------------------------------------
-    #  Nacelle
-    # ------------------------------------------------------------------       
-    nacelle = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.diameter  = 1.580
-    
+
     # ------------------------------------------------------------------
     #   Turbofan Network
     # ------------------------------------------------------------------    
@@ -133,6 +127,7 @@ def energy_network():
     turbofan.bypass_ratio      = 5.4
     turbofan.number_of_engines = 2.0
     turbofan.engine_length     = 2.5
+    turbofan.nacelle_diameter  = 1.580
     
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()

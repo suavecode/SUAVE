@@ -50,7 +50,7 @@ def main():
     mdot_truth  = 0.010064718636579826
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
-    mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]
+    mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]     
 
     # Check the errors
     error = Data()
@@ -76,13 +76,8 @@ def ICE_CS(vehicle):
     net                                         = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller_Constant_Speed()
     net.tag                                     = 'internal_combustion'
     net.number_of_engines                       = 1.
-
-    nacelle                                     = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.diameter                            = 42 * Units.inches
-    nacelle.length                              = 0.01 * Units.inches
-    nacelle.areas.wetted                        = 0.01   
-    vehicle.append_component(nacelle)
-    
+    net.nacelle_diameter                        = 42 * Units.inches
+    net.engine_length                           = 0.01 * Units.inches
     net.rated_speed                             = 2700. * Units.rpm
     net.rated_power                             = 180.  * Units.hp
     net.areas.wetted                            = 0.01
@@ -93,7 +88,7 @@ def ICE_CS(vehicle):
     engine.flat_rate_altitude               = 0.0
     engine.rated_speed                      = 2700. * Units.rpm
     engine.power_specific_fuel_consumption  = 0.52
-
+    
     net.engines.append(engine)
     
     # 
@@ -144,7 +139,7 @@ def mission_setup(analyses):
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
     airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    mission.airport    = airport
+    mission.airport    = airport    
 
     # unpack Segments module
     Segments = SUAVE.Analyses.Mission.Segments

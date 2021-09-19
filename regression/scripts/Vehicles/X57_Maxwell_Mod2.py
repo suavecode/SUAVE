@@ -182,7 +182,7 @@ def vehicle_setup():
     wing.aspect_ratio                     = wing.spans.projected**2. / wing.areas.reference 
     wing.twists.root                      = 0.0 * Units.degrees
     wing.twists.tip                       = 0.0 * Units.degrees 
-    wing.origin                           = [[6.75 ,0,  0.623]]
+    wing.origin                           = [[6.75 ,0, 0.5]]
     wing.aerodynamic_center               = [0.508 ,0,0]  
     wing.vertical                         = True 
     wing.symmetric                        = False
@@ -329,17 +329,80 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(fuselage)
 
+    # ------------------------------------------------------------------
+    #   Nacelles
+    # ------------------------------------------------------------------ 
+    nacelle                = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.tag            = 'nacelle_1'
+    nacelle.length         = 2
+    nacelle.diameter       = 42 * Units.inches
+    nacelle.areas.wetted   = 0.01*(2*np.pi*0.01/2)
+    nacelle.origin         = [[2.5,2.5,1.0]]
+    nacelle.flow_through   = False  
+    
+    nac_segment                    = SUAVE.Components.Nacelles.Segment()
+    nac_segment.tag                = 'segment_1'
+    nac_segment.percent_x_location = 0.0  
+    nac_segment.height             = 0.0
+    nac_segment.width              = 0.0
+    nacelle.append_segment(nac_segment)   
+    
+    nac_segment                    = SUAVE.Components.Nacelles.Segment()
+    nac_segment.tag                = 'segment_2'
+    nac_segment.percent_x_location = 0.1  
+    nac_segment.height             = 0.5
+    nac_segment.width              = 0.65
+    nacelle.append_segment(nac_segment)   
+    
+    nac_segment                    = SUAVE.Components.Nacelles.Segment()
+    nac_segment.tag                = 'segment_3'
+    nac_segment.percent_x_location = 0.3  
+    nac_segment.height             = 0.52
+    nac_segment.width              = 0.7
+    nacelle.append_segment(nac_segment)  
+     
+    nac_segment                    = SUAVE.Components.Nacelles.Segment()
+    nac_segment.tag                = 'segment_4'
+    nac_segment.percent_x_location = 0.5  
+    nac_segment.height             = 0.5
+    nac_segment.width              = 0.65
+    nacelle.append_segment(nac_segment)  
+    
+    nac_segment                    = SUAVE.Components.Nacelles.Segment()
+    nac_segment.tag                = 'segment_5'
+    nac_segment.percent_x_location = 0.7 
+    nac_segment.height             = 0.4
+    nac_segment.width              = 0.6
+    nacelle.append_segment(nac_segment)   
+    
+    nac_segment                    = SUAVE.Components.Nacelles.Segment()
+    nac_segment.tag                = 'segment_6'
+    nac_segment.percent_x_location = 0.9 
+    nac_segment.height             = 0.3
+    nac_segment.width              = 0.5
+    nacelle.append_segment(nac_segment)  
+    
+    nac_segment                    = SUAVE.Components.Nacelles.Segment()
+    nac_segment.tag                = 'segment_7'
+    nac_segment.percent_x_location = 1.0  
+    nac_segment.height             = 0.0
+    nac_segment.width              = 0.0
+    nacelle.append_segment(nac_segment)    
+    
+    vehicle.append_component(nacelle)  
+
+    nacelle_2          = deepcopy(nacelle)
+    nacelle_2.tag      = 'nacelle_2'
+    nacelle_2.origin   = [[2.5,-2.5,1.0]]
+    vehicle.append_component(nacelle_2)    
+    
     #---------------------------------------------------------------------------------------------
     # DEFINE PROPELLER
     #---------------------------------------------------------------------------------------------
     # build network
     net = Battery_Propeller()
-    net.number_of_propeller_engines  = 2.
-    net.nacelle_diameter             = 42 * Units.inches
-    net.engine_length                = 0.01 * Units.inches
-    net.identical_propellers         = True
-    net.areas                        = Data()
-    net.areas.wetted                 = 0.01*(2*np.pi*0.01/2)
+    net.number_of_propeller_engines  = 2. 
+    net.identical_propellers         = True 
 
     # Component 1 the ESC
     esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()

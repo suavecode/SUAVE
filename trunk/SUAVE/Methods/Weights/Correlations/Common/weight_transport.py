@@ -167,8 +167,8 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
 
     # Prop weight (propulsion pod weight is calculated separately)
     wt_prop_total   = 0
-    wt_prop_data    = None
-    for prop in vehicle.networks:
+    wt_prop_data    = None 
+    for prop , nacelle in zip(vehicle.networks, vehicle.nacelles):
         if isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super) or isinstance(prop,
                                                                                                   Nets.Propulsor_Surrogate):
             
@@ -183,10 +183,10 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
             if 'total_weight' in prop.keys():
                 wt_prop         = prop.total_weight
             elif method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
-                wt_prop_data    = total_prop_flops(vehicle, prop)
+                wt_prop_data    = total_prop_flops(vehicle, prop,nacelle)
                 wt_prop         = wt_prop_data.wt_prop
             elif method_type == 'Raymer':
-                wt_prop_data    = total_prop_Raymer(vehicle, prop)
+                wt_prop_data    = total_prop_Raymer(vehicle, prop,nacelle)
                 wt_prop         = wt_prop_data.wt_prop
 
             else:

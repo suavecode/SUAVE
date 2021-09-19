@@ -130,6 +130,7 @@ def energy_network():
     # setup
     ramjet.number_of_engines = 2.0
     ramjet.engine_length     = 6.0
+    ramjet.nacelle_diameter  = 1.3 * Units.meter
     ramjet.inlet_diameter    = 1.1 * Units.meter
     
     # working fluid

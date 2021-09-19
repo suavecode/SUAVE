@@ -179,24 +179,20 @@ def vehicle_setup():
     vehicle.append_component(wing)
 
     # ------------------------------------------------------------------
-    #   Nacelle  
-    # ------------------------------------------------------------------
-    nacelle                    = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.diameter           = 3.96 * Units.meters 
-    nacelle.length             = 289. * Units.inches    
-    nacelle.origin             = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet],[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet],[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]
-    vehicle.append_component(nacelle)  
-
-    # ------------------------------------------------------------------
     #   Turbofan Network
     # ------------------------------------------------------------------
     #instantiate the gas turbine network
-    turbofan                   = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag               = 'turbofan1' 
+    turbofan     = SUAVE.Components.Energy.Networks.Turbofan()
+    turbofan.tag = 'turbofan1'
+
+    # setup
     turbofan.number_of_engines = 3.0
     turbofan.bypass_ratio      = 8.1
+    turbofan.engine_length     = 289. * Units.inches
+    turbofan.nacelle_diameter  = 3.96 * Units.meters
+    #turbofan.cooling_ratio     = 1.0
     turbofan.origin            = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet],[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet],[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]
-
+    
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
     
@@ -344,7 +340,7 @@ def vehicle_setup():
     #turbofan.size(mach_number,altitude)
     
     #computing the engine length and diameter
-    compute_turbofan_geometry(turbofan,nacelle,None)
+    compute_turbofan_geometry(turbofan,None)
     
     vehicle.append_component(turbofan)  
 

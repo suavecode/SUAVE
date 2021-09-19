@@ -22,6 +22,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from copy import deepcopy
 
 def vehicle_setup():
 
@@ -172,15 +173,32 @@ def vehicle_setup():
     vehicle.append_component(fuselage)
     vehicle.mass_properties.center_of_gravity=np.array([[112.2,0,0]]) * Units.feet
 
+
     # ------------------------------------------------------------------
     #   Nacelle  
     # ------------------------------------------------------------------
     nacelle              = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.diameter     =  2.428
+    nacelle.diameter     = 2.428
     nacelle.length       = 3.934
-    nacelle.origin       = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]
+    nacelle.tag          = 'nacelle_1'
+    nacelle.origin       = [[36.56, 22, -1.9]]
     nacelle.areas.wetted = 1.1 * np.pi * nacelle.diameter * nacelle.length
-    vehicle.append_component(nacelle) 
+    vehicle.append_component(nacelle)  
+
+    nacelle_2          = deepcopy(nacelle)
+    nacelle_2.tag      = 'nacelle_2'
+    nacelle_2.origin   = [[27, 12, -1.9]]
+    vehicle.append_component(nacelle_2)     
+
+    nacelle_3          = deepcopy(nacelle)
+    nacelle_3.tag      = 'nacelle_3'
+    nacelle_3.origin   = [[36.56, -22, -1.9]]
+    vehicle.append_component(nacelle_3)   
+
+    nacelle_4          = deepcopy(nacelle)
+    nacelle_4.tag      = 'nacelle_4'
+    nacelle_4.origin   = [[27, -12, -1.9]]
+    vehicle.append_component(nacelle_4)   
     
     # ------------------------------------------------------------------
     #   Turbofan Network
@@ -191,7 +209,7 @@ def vehicle_setup():
     turbofan.tag                = 'turbofan' 
     turbofan.number_of_engines  = 4.0
     turbofan.bypass_ratio       = 4.8
-    turbofan.origin             = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]   
+    turbofan.origin             = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]    
 
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
