@@ -36,7 +36,7 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
         design_thrust         [N]
         engine_length         [m]
         thrust.bypass_ratio   [-]
-      nacelle.diameter        [m]
+      nacelle.diameter     [m]
     filename (optional)       <string> Determines the name of the saved file
     units (optional)          <string> Determines the type of units used in the output, options are imperial and si
 

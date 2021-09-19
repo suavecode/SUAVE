@@ -29,7 +29,7 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
 
     Inputs:
     configuration.trim_drag_correction_factor  [Unitless]
-    geometry.nacelle.diameter                  [m]
+    geometry.nacelle.diameter               [m]
     geometry.reference_area                    [m^2]
     geometry.wings['main_wing'].aspect_ratio   [Unitless]
     state.conditions.freestream.mach_number    [Unitless] (actual values are not used)

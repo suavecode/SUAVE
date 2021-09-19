@@ -35,7 +35,7 @@ def parasite_drag_nacelle(state,settings,nacelle):
       temperature                                [K]
       reynolds_number                            [Unitless]
     geometry.      
-      nacelle.diameter                           [m^2]
+      nacelle.diameter                        [m^2]
              areas.wetted                        [m^2]
              length                              [m]
  

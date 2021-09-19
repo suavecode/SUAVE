@@ -122,13 +122,13 @@ def vsp_read(tag, units_type='SI'):
 	vsp.ClearVSPModel() 
 	vsp.ReadVSPFile(tag)	
 	
-	vsp_fuselages = []
-	vsp_wings     = []	
-	vsp_props     = []
-	vsp_nacelles  = []
-	
-	vsp_geoms     = vsp.FindGeoms()
-	geom_names    = []
+	vsp_fuselages    = []
+	vsp_wings        = []	
+	vsp_props        = []
+	vsp_nacelles     = []
+	vsp_nacelle_type = []
+	vsp_geoms        = vsp.FindGeoms()
+	geom_names       = []
 
 	vehicle     = SUAVE.Vehicle()
 	vehicle.tag = tag
@@ -165,8 +165,9 @@ def vsp_read(tag, units_type='SI'):
 			vsp_wings.append(geom)
 		if geom_name == 'Propeller':
 			vsp_props.append(geom)
-		if geom_name == 'Nacelle':
+		if (geom_name == 'Stack') or (geom_name == 'BodyOfRevolution'):
 			vsp_nacelles.append(geom)
+			vsp_nacelle_type.append(geom_name) 
 	
 	#Read VSP geoms and store in SUAVE components
 	
@@ -176,11 +177,10 @@ def vsp_read(tag, units_type='SI'):
 	
 	for wing_id in vsp_wings:
 		wing = vsp_read_wing(wing_id, units_type)
-		vehicle.append_component(wing)	
+		vehicle.append_component(wing)	 
 	
-	
-	for nacelle_id in vsp_nacelles:
-		nacelle = vsp_read_nacelle(nacelle_id, units_type)
+	for idx ,nacelle_id in enumerate(vsp_nacelles): 
+		nacelle = vsp_read_nacelle(nacelle_id, vsp_nacelle_type[idx],units_type)
 		vehicle.append_component(nacelle)		
 	
 	return vehicle

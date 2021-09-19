@@ -34,10 +34,10 @@ def compute_turbofan_geometry(turbofan, nacelle, conditions=None):
     turbofan.sealevel_static_thrust [N]
 
     Outputs:
-       nacelle.diameter             [m]
-       areas.wetted                 [m^2]
+       nacelle.diameter          [m]
+       areas.wetted              [m^2]
     turbofan.
-       engine_length                 [m] 
+       engine_length             [m] 
 
     Properties Used:
     N/A
@@ -48,7 +48,7 @@ def compute_turbofan_geometry(turbofan, nacelle, conditions=None):
 
     #based on 241 notes
     nacelle_diameter_in  = 1.0827*slsthrust**0.4134
-    nacelle.diameter     = 0.0254*nacelle_diameter_in
+    nacelle.diameter  = 0.0254*nacelle_diameter_in
 
     
     #compute other dimensions based on AA241 notes
