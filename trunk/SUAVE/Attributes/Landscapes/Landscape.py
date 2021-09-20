@@ -1,8 +1,7 @@
-## @ingroup Attributes-Airports
-# Airport.py
+## @ingroup Attributes-Landscapes
+# Landscape.py
 
-# Created:  Mar 2014, SUAVE Team
-# Modified: Jan 2016, M. Vegh
+# Created: Sep 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,12 +11,12 @@ from SUAVE.Core import Data
 from SUAVE.Attributes.Atmospheres import Earth
 
 # ----------------------------------------------------------------------
-#  Airport Data Class
+#  Landscape Data Class
 # ----------------------------------------------------------------------
 
-## @ingroup Attributes-Airports
-class Airport(Data):
-    """A basic airport.
+## @ingroup Attributes-Landscapes
+class Landscape(Data):
+    """A basic Landscape.
     
     Assumptions:
     None
@@ -45,7 +44,7 @@ class Airport(Data):
         None
         """     
         
-        self.tag = 'Airport'
-        self.altitude = 0.0        # m
+        self.tag        = 'Landscape'
+        self.altitude   = 0.0        # m
         self.atmosphere = Earth.US_Standard_1976()
-        self.delta_isa = 0.0    
+        self.delta_isa  = 0.0    

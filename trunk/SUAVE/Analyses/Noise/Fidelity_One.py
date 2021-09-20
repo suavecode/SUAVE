@@ -73,8 +73,12 @@ class Fidelity_One(Noise):
         settings.approach                        = False
         settings.sideline                        = False
         settings.print_noise_output              = False 
+        settings.fix_lateral_microphone_distance = True
+        settings.static_microphone_array         = False 
         settings.mic_x_position                  = 0    
-        settings.microphone_array_dimension      = 9
+        settings.microphone_array_dimension      = 20
+        settings.lateral_ground_distance         = 1000 * Units.feet
+        settings.longitudinal_ground_distance    = 100  * Units.miles
         settings.ground_microphone_phi_angles    = np.linspace(315,225,settings.microphone_array_dimension)*Units.degrees - 1E-8
         settings.ground_microphone_theta_angles  = np.linspace(45,135,settings.microphone_array_dimension)*Units.degrees  + 1E-8
         settings.center_frequencies              = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
@@ -115,11 +119,19 @@ class Fidelity_One(Noise):
         settings      = self.settings 
         conditions    = segment.state.conditions
         print_flag    = settings.print_noise_output
+        flmd          = settings.fix_lateral_microphone_distance
+        N             = settings.microphone_array_dimension
+        y             = settings.lateral_ground_distance
+        x             = settings.longitudinal_ground_distance
+        sma           = settings.static_microphone_array
     
         # unpack 
-        alt         = -conditions.frames.inertial.position_vector[:,2]   
+        pos         = conditions.frames.inertial.position_vector
+        alt         = -pos[:,2]   
         gm_phi      = settings.ground_microphone_phi_angles 
         gm_theta    = settings.ground_microphone_theta_angles  
+        Y           = np.linspace(0.01,y,N) 
+        X           = np.linspace(pos[:,0][0],pos[:,0][-1],N) 
         cf          = settings.center_frequencies
         
         dim_alt   = len(alt)
@@ -128,13 +140,23 @@ class Fidelity_One(Noise):
         num_mic   = dim_phi*dim_theta
         dim_cf    = len(cf)
         
-        # dimension:[control point, theta, phi]
-        theta    = np.repeat(np.repeat(np.atleast_2d(gm_theta).T  ,dim_phi  , axis = 1)[np.newaxis,:,:],dim_alt, axis = 0)  
-        phi      = np.repeat(np.repeat(np.atleast_2d(gm_phi)      ,dim_theta, axis = 0)[np.newaxis,:,:],dim_alt, axis = 0) 
-        altitude = np.repeat(np.repeat(np.atleast_2d(alt).T       ,dim_theta, axis = 1)[:,:,np.newaxis],dim_phi, axis = 2) 
-        x_vals   = altitude/np.tan(theta)
-        y_vals   = altitude/np.tan(phi)
-        z_vals   = altitude   
+        if sma: 
+            altitude = np.repeat(np.repeat(np.atleast_2d(alt).T       ,dim_theta, axis = 1)[:,:,np.newaxis],dim_phi, axis = 2) 
+            x_vals   = np.repeat(np.repeat(np.atleast_2d(X).T  ,dim_phi  , axis = 1)[np.newaxis,:,:],dim_alt, axis = 0)   
+            y_vals   = np.repeat(np.repeat(np.atleast_2d(Y) ,dim_theta, axis = 0)[np.newaxis,:,:],dim_alt, axis = 0) 
+            z_vals   = altitude             
+        else:
+            
+            # dimension:[control point, theta, phi]
+            theta    = np.repeat(np.repeat(np.atleast_2d(gm_theta).T  ,dim_phi  , axis = 1)[np.newaxis,:,:],dim_alt, axis = 0)  
+            phi      = np.repeat(np.repeat(np.atleast_2d(gm_phi)      ,dim_theta, axis = 0)[np.newaxis,:,:],dim_alt, axis = 0) 
+            altitude = np.repeat(np.repeat(np.atleast_2d(alt).T       ,dim_theta, axis = 1)[:,:,np.newaxis],dim_phi, axis = 2) 
+            x_vals   = altitude/np.tan(theta)
+            if flmd:
+                y_vals = np.repeat(np.repeat(np.atleast_2d(Y) ,dim_theta, axis = 0)[np.newaxis,:,:],dim_alt, axis = 0) 
+            else:
+                y_vals = altitude/np.tan(phi)
+            z_vals   = altitude   
         
         # store microphone locations 
         mic_locations        = np.zeros((dim_alt,num_mic,3))   
