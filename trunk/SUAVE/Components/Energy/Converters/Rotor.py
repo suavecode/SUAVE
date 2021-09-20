@@ -26,6 +26,8 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_v
 import numpy as np
 import scipy as sp
 import pylab as plt
+from copy import deepcopy
+from scipy.interpolate import interp1d
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------    
@@ -58,33 +60,35 @@ class Rotor(Energy_Component):
         None
         """         
         
-        self.tag                       = 'rotor'
-        self.number_of_blades          = 0.0 
-        self.tip_radius                = 0.0
-        self.hub_radius                = 0.0
-        self.twist_distribution        = 0.0
-        self.chord_distribution        = 0.0
-        self.mid_chord_alignment       = 0.0
-        self.thickness_to_chord        = 0.0
-        self.blade_solidity            = 0.0
-        self.design_power              = None
-        self.design_thrust             = None    
-        self.airfoil_geometry          = None
-        self.airfoil_polars            = None
-        self.airfoil_polar_stations    = None 
-        self.radius_distribution       = None
-        self.rotation                  = 1
-        self.orientation_euler_angles  = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
-        self.ducted                    = False 
-        self.number_azimuthal_stations = 24
-        self.induced_power_factor      = 1.48         # accounts for interference effects
-        self.profile_drag_coefficient  = .03      
+        self.tag                          = 'rotor'
+        self.number_of_blades             = 0.0 
+        self.tip_radius                   = 0.0
+        self.hub_radius                   = 0.0
+        self.twist_distribution           = 0.0
+        self.chord_distribution           = 0.0
+        self.mid_chord_alignment          = 0.0
+        self.thickness_to_chord           = 0.0
+        self.blade_solidity               = 0.0
+        self.design_power                 = None
+        self.design_thrust                = None    
+        self.airfoil_geometry             = None
+        self.airfoil_polars               = None
+        self.airfoil_polar_stations       = None 
+        self.radius_distribution          = None
+        self.rotation                     = 1
+        self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
+        self.ducted                       = False 
+        self.number_azimuthal_stations    = 24
+        self.number_points_around_airfoil = 40
+        self.induced_power_factor         = 1.48         # accounts for interference effects
+        self.profile_drag_coefficient     = .03      
         
         self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream     = False 
         self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
         self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor        
+        self.time_accurate_loading     = False
         
         self.Wake_VD                   = Data()
         self.wake_method               = "momentum"
@@ -433,13 +437,13 @@ class Rotor(Energy_Component):
             vt = F*vt  
             
         elif wake_method == "helical_fixed_wake":
-            # compute induced velocities at blade by wake,
-
+            # make a copy of the bemt outputs
+            bemt_outputs = deepcopy(self.outputs)
+            converge_wake = False
             #-----------------------------------------------------------------------   
             # DEBUGGING SECTION
             #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -          
-            #from copy import deepcopy
-            #bemt_outputs = deepcopy(self.outputs)
+            
             #fig=plt.figure()
             #plt.plot(np.linspace(0,1,Nr), bemt_outputs.disc_axial_induced_velocity[0,0,:],"r-",label="BEMT")
             ##plt.show()
@@ -449,9 +453,10 @@ class Rotor(Energy_Component):
 
             #-----------------------------------------------------------------------  
             i=0
+            tol = 1e-3
             while diff>tol:
                 diff2 = 1.
-                tol2 = 1e-6  
+                tol2 = 1e-3 
                 
                 # converge on axial induced velocities for the current circulation distribution
                 while(diff2>tol2):
@@ -459,14 +464,21 @@ class Rotor(Energy_Component):
                     va, vt = compute_HFW_blade_velocities(self, self.outputs)
                     
                     # compute the axial induced velocity residual between iterations
-                    diff2 = np.max(abs(self.outputs.disc_axial_induced_velocity - va))
+                    diff2 = np.max(abs(np.average(self.outputs.disc_axial_induced_velocity-va,axis=1)))
+                    
                     print(diff2)
                     ii+=1
                     
                     # update the axial induced velocity for next iteration
-                    self.outputs.disc_axial_induced_velocity = va                
-            
-                # compute circulations/forces using the new velocities
+                    self.outputs.disc_axial_induced_velocity = self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
+                    
+                    if converge_wake:
+                        diff = np.max(abs(Gamma - Gamma_Blade))
+                    else:
+                        diff = 1e-7      
+                        diff2=1e-7
+                # compute blade circulation/forces using the new velocities
+                Gamma        = self.outputs.disc_circulation
                 Wa           = va + Ua
                 Wt           = Ut - vt
                 alpha        = beta - np.arctan2(Wa,Wt)
@@ -481,7 +493,6 @@ class Rotor(Energy_Component):
                 piece        = np.exp(-f)
                 arccos_piece = np.arccos(piece)
                 F            = 2.*arccos_piece/pi
-                Gamma        = self.outputs.disc_circulation #vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
                 Re           = (W*c)/nu
                 
                 # Compute aerodynamic forces based on specified input airfoil or surrogate
@@ -489,15 +500,15 @@ class Rotor(Energy_Component):
                 
                 Gamma_Blade = 0.5*W*c*Cl*F
                 
-                diff = np.max(abs(self.outputs.disc_circulation - Gamma_Blade))
+                
                 
                 #-----------------------------------------------------------------------   
                 # DEBUGGING SECTION
                 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                   
                 # plot convergence of circulation over iterations
                 fig = plt.figure()
-                plt.plot(np.linspace(0,1,Nr),Gamma[0,0,:],'r-',label="$\\Gamma_{i}$")
-                plt.plot(np.linspace(0,1,Nr),Gamma_Blade[0,0,:],'k-',label="$\\Gamma_{f}$")
+                plt.plot(r_1d/R,Gamma[0,0,:],'r-',label="$\\Gamma_{i}$")
+                plt.plot(r_1d/R,Gamma_Blade[0,0,:],'k-',label="$\\Gamma_{f}$")
                 plt.xlabel("$\\frac{r}{R}$")
                 plt.ylabel("$\\Gamma$")
                 plt.title("Convergence of Blade Circulation")
@@ -513,7 +524,7 @@ class Rotor(Energy_Component):
                 i +=1    
                 
                 # update blade circulation and repeat
-                self.outputs.disc_circulation = self.outputs.disc_circulation + 0.5*(Gamma_Blade - self.outputs.disc_circulation)
+                self.outputs.disc_circulation = Gamma + 0.5*(Gamma_Blade - Gamma)
             
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
@@ -539,12 +550,6 @@ class Rotor(Energy_Component):
             blade_Gamma_2d          = Gamma
             alpha_2d                = alpha
             
-            # set 1d blade loadings to be the average:
-            blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 1)
-            blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 1)  
-            blade_dT_dr             = np.mean((blade_dT_dr_2d), axis = 1) 
-            blade_dQ_dr             = np.mean((blade_dQ_dr_2d), axis = 1)
-            
             Va_2d = Wa
             Vt_2d = Wt
             Va_avg = np.average(Wa, axis=1)      # averaged around the azimuth
@@ -553,7 +558,64 @@ class Rotor(Energy_Component):
             Va_ind_2d  = va
             Vt_ind_2d  = vt
             Vt_ind_avg = np.average(vt, axis=1)
-            Va_ind_avg = np.average(va, axis=1)   
+            Va_ind_avg = np.average(va, axis=1)               
+            
+            # If time-accurate, compute the time-accurate forces \
+            if self.time_accurate_loading:
+                    # set the angle of rotor: update blade position with prescribed offset value
+                if rotation == 1:
+                    # clockwise rotation about x-axis, negate the offset
+                    blade_offsets   = np.repeat(self.start_angle[:,None],B,axis=1) + np.linspace(0,2*np.pi,B+1)[0:-1]
+                else:
+                    blade_offsets   = self.start_angle + np.linspace(0,2*np.pi,B+1)[0:-1]
+                
+                # blade offsets independent of rotation number, so get base rotation angle
+                blade_offsets = blade_offsets%2*np.pi
+                
+                
+                # Close the loop to enable interpolation along last azimuthal slice
+                psi_closed                       = np.append(psi,2*np.pi)
+                blade_T_distribution_disc_closed = np.append(blade_T_distribution_2d,blade_T_distribution_2d[:,0,:][:,None,:],axis=1)
+                blade_Q_distribution_disc_closed = np.append(blade_Q_distribution_2d,blade_Q_distribution_2d[:,0,:][:,None,:],axis=1)
+                
+                # Generate functions for interpolation
+                blade_T_distribution_function = interp1d(psi_closed,blade_T_distribution_disc_closed,axis=1)
+                blade_Q_distribution_function = interp1d(psi_closed,blade_Q_distribution_disc_closed,axis=1)
+                
+                # Interpolate to get distributions at each blade for each aximuthal offset. SHAPES = (cpts, Nsteps, B, Nr)
+                blade_T_distribution_blades = blade_T_distribution_function(blade_offsets)
+                blade_Q_distribution_blades = blade_Q_distribution_function(blade_offsets)
+                
+                # Instantaneous thrust and torque derivatives on each blade
+                blade_dT_dr = np.diff(blade_T_distribution_blades)/np.diff(r_1d)
+                blade_dQ_dr = np.diff(blade_Q_distribution_blades)/np.diff(r_1d)     
+                
+                # Instantaneous forces produced by this rotor 
+                time_accurate_thrust  = np.atleast_2d( np.sum(blade_T_distribution_blades,axis=(2,3)))
+                time_accurate_torque  = np.atleast_2d( np.sum(blade_Q_distribution_blades,axis=(2,3)))             
+                time_accurate_power   = omega*time_accurate_torque  
+                
+                # calculate time-accurate coefficients 
+                D        = 2*R 
+                Cq_time_accurate       = time_accurate_torque/(rho_0*(n*n)*(D*D*D*D*D)) 
+                Ct_time_accurate       = time_accurate_thrust/(rho_0*(n*n)*(D*D*D*D))
+                Cp_time_accurate       = time_accurate_power/(rho_0*(n*n*n)*(D*D*D*D*D))
+                etap_time_accurate     = V*time_accurate_thrust/time_accurate_power                 
+                
+                
+                
+                
+                
+                
+                
+            
+            # set 1d blade loadings to be the average:
+            blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 1)
+            blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 1)  
+            blade_dT_dr             = np.mean((blade_dT_dr_2d), axis = 1) 
+            blade_dQ_dr             = np.mean((blade_dQ_dr_2d), axis = 1)
+            
+
             
             # compute the hub force / rotor drag distribution along the blade
             dL_2d    = 0.5*rho*c_2d*Cd*omegar**2*deltar
@@ -635,55 +697,55 @@ class Rotor(Energy_Component):
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # compare BEMT forces to HFW forces at blade:
         
-        if wake_method == "helical_fixed_wake":
-            fig = plt.figure()
-            plt.plot(np.linspace(0,1,Nr),self.outputs.blade_torque_distribution[0,:],'r-',label="BEMT")
-            plt.plot(np.linspace(0,1,Nr),blade_Q_distribution[0,:],'k-',label="HFW")
+        if wake_method == "helical_fixed_wake" :
+            plt.subplot(231)
+            plt.plot(r_1d/R,bemt_outputs.blade_torque_distribution[0,:],'r-',label="BEMT")
+            plt.plot(r_1d/R,blade_Q_distribution[0,:],'k-',label="HFW")
             plt.xlabel("$\\frac{r}{R}$")
             plt.ylabel("Torque")
             plt.title("Comparison of Blade Torque Distribution")
             plt.legend()
-            plt.savefig("/Users/rerha/Desktop/HFW_Convergence/torque_BEMT_v_HFW.png", dpi = 300)        
-            plt.show()
+            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/torque_BEMT_v_HFW.png", dpi = 300)        
+            #plt.show()
             
-            fig = plt.figure()
-            plt.plot(np.linspace(0,1,Nr),self.outputs.blade_thrust_distribution[0,:],'r-',label="BEMT")
-            plt.plot(np.linspace(0,1,Nr),blade_T_distribution[0,:],'k-',label="HFW")
+            plt.subplot(232)
+            plt.plot(r_1d/R,bemt_outputs.blade_thrust_distribution[0,:],'r-',label="BEMT")
+            plt.plot(r_1d/R,blade_T_distribution[0,:],'k-',label="HFW")
             plt.xlabel("$\\frac{r}{R}$")
             plt.ylabel("Thrust")
             plt.title("Comparison of Blade Thrust Distribution")
             plt.legend()
-            plt.savefig("/Users/rerha/Desktop/HFW_Convergence/thrust_BEMT_v_HFW.png", dpi = 300)        
-            plt.show()            
+            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/thrust_BEMT_v_HFW.png", dpi = 300)        
+            #plt.show()            
             
-            fig = plt.figure()
-            plt.plot(np.linspace(0,1,Nr),self.outputs.blade_axial_induced_velocity[0,:],'r-',label="BEMT")
-            plt.plot(np.linspace(0,1,Nr),Va_ind_avg[0,:],'k-',label="HFW")
+            plt.subplot(233)
+            plt.plot(r_1d/R,bemt_outputs.blade_axial_induced_velocity[0,:],'r-',label="BEMT")
+            plt.plot(r_1d/R,Va_ind_avg[0,:],'k-',label="HFW")
             plt.xlabel("$\\frac{r}{R}$")
             plt.ylabel("$v_a$")
             plt.title("Comparison of Induced Axial Velocity")
             plt.legend()
-            plt.savefig("/Users/rerha/Desktop/HFW_Convergence/va_BEMT_v_HFW.png", dpi = 300)        
-            plt.show()     
+            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/va_BEMT_v_HFW.png", dpi = 300)        
+            #plt.show()     
             
-            fig = plt.figure()
-            plt.plot(np.linspace(0,1,Nr),self.outputs.blade_tangential_induced_velocity[0,:],'r-',label="BEMT")
-            plt.plot(np.linspace(0,1,Nr),Vt_ind_avg[0,:],'k-',label="HFW")
+            plt.subplot(234)
+            plt.plot(r_1d/R,bemt_outputs.blade_tangential_induced_velocity[0,:],'r-',label="BEMT")
+            plt.plot(r_1d/R,Vt_ind_avg[0,:],'k-',label="HFW")
             plt.xlabel("$\\frac{r}{R}$")
             plt.ylabel("$v_t$")
             plt.title("Comparison of Induced Tangential Velocity")
             plt.legend()
-            plt.savefig("/Users/rerha/Desktop/HFW_Convergence/vt_BEMT_v_HFW.png", dpi = 300)        
-            plt.show()       
+            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/vt_BEMT_v_HFW.png", dpi = 300)        
+            #plt.show()       
             
-            fig = plt.figure()
-            plt.plot(np.linspace(0,1,Nr),Gamma[0,0,:],'r-',label="BEMT")
-            plt.plot(np.linspace(0,1,Nr),(0.5*W*c*Cl*F)[0,0,:],'k-',label="HFW")
+            plt.subplot(235)
+            plt.plot(r_1d/R,bemt_outputs.disc_circulation[0,0,:],'r-',label="BEMT")
+            plt.plot(r_1d/R,Gamma_Blade[0,0,:],'k-',label="HFW")
             plt.xlabel("$\\frac{r}{R}$")
             plt.ylabel("$\\Gamma$")
             plt.title("Comparison of Blade Circulation")
             plt.legend()
-            plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation_BEMT_v_HFW.png", dpi = 300)        
+            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation_BEMT_v_HFW.png", dpi = 300)        
             plt.show()                      
         
     
@@ -733,8 +795,16 @@ class Rotor(Energy_Component):
                     propeller_efficiency              = etap,
                     blade_H_distribution              = rotor_drag_distribution,
                     rotor_drag                        = rotor_drag,
-                    rotor_drag_coefficient            = Crd
+                    rotor_drag_coefficient            = Crd,
             ) 
+        if self.time_accurate_loading:
+            outputs.time_accurate_thrust              = time_accurate_thrust
+            outputs.time_accurate_power               = time_accurate_power
+            outputs.time_accurate_torque              = time_accurate_torque
+            outputs.time_accurate_torque_coefficient  = Cq_time_accurate
+            outputs.time_accurate_power_coefficient   = Cp_time_accurate
+            outputs.time_accurate_thrust_coefficient  = Ct_time_accurate
+            outputs.time_accurate_etap                = etap_time_accurate            
     
         return thrust_vector, torque, power, Cp, outputs , etap
     
@@ -933,7 +1003,7 @@ class Rotor(Energy_Component):
 
         return rot_mat
 
-def compute_HFW_blade_velocities(prop, bemt_outputs ):
+def compute_HFW_blade_velocities(prop, prop_outputs ):
     """
     
     Outputs:
@@ -955,7 +1025,7 @@ def compute_HFW_blade_velocities(prop, bemt_outputs ):
     conditions.noise = Data()
     conditions.noise.sources = Data()
     conditions.noise.sources.propellers = Data()
-    conditions.noise.sources.propellers.propeller = bemt_outputs
+    conditions.noise.sources.propellers.propeller = prop_outputs
     
     props=Data()
     props.propeller = prop
@@ -1009,8 +1079,9 @@ def compute_HFW_blade_velocities(prop, bemt_outputs ):
         w       = V_ind[0,:,2]   
         
         Va[:,i,:]  = u
-        Vt[:,i,:]  = (w*np.cos(blade_angle) + v*np.sin(blade_angle))*prop.rotation
+        Vt[:,i,:]  = (-w*np.cos(blade_angle) + v*np.sin(blade_angle))*prop.rotation
     
+    prop.vortex_distribution = VD
         ## test generate vtk
         #from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
         #from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
