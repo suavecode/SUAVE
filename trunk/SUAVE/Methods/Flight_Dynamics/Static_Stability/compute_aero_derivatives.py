@@ -55,6 +55,9 @@ def compute_aero_derivatives(segment):
     psi       = orientation_vector[:,2]      # heading 
     throttle  = segment.state.conditions.propulsion.throttle
     
+    # find main wing flap deflection
+    delta     = segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection
+    
     n_cpts    = len(pitch)
     
     # ----------------------------------------------------------------------------
@@ -167,6 +170,25 @@ def compute_aero_derivatives(segment):
     segment.state.conditions.aero_derivatives.dCD_dThrottle = dCD_dThrottle      
     segment.state.conditions.aero_derivatives.dCT_dThrottle = dCT_dThrottle    
     segment.state.conditions.aero_derivatives.dCP_dThrottle = dCP_dThrottle         
+    
+
+    # ----------------------------------------------------------------------------    
+    # Flap deflection perturbation
+    
+    perturbed_segment = deepcopy(segment)    
+    delta_plus        = delta +0.1
+    perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection = delta_plus
+    
+    iterate = perturbed_segment.process.iterate
+    iterate.conditions(perturbed_segment) 
+    
+    # set segment derivatives based on perturbed segment
+    dDelta = perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection - segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection
+    dCL    = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
+    
+    dCL_dDelta = dCL/dDelta
+    
+    segment.state.conditions.aero_derivatives.dCL_dDelta = dCL_dDelta
     
     return 
 
