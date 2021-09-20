@@ -229,9 +229,9 @@ def VLM(conditions,settings,geometry):
     
     # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
     XBAR    = np.ones(sum(LE_ind)) * x_m
-    ZBAR    = np.ones(sum(LE_ind)) * z_m   
+    ZBAR    = np.ones(sum(LE_ind)) * z_m
     VD.XBAR = XBAR
-    VD.ZBAR = ZBAR    
+    VD.ZBAR = ZBAR
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Generate A and RHS matrices from VD and geometry
@@ -294,7 +294,8 @@ def VLM(conditions,settings,geometry):
     
     # reshape CHORD
     CHORD  = CHORD[0,:]
-    CHORD_strip = CHORD[LE_ind]     
+    CHORD_strip = CHORD[LE_ind]
+    CHORD_panels = CHORD # chord of each panel
 
     # COMPUTE EFFECT OF SIDESLIP on DCP intermediate variables. needs change if cosine chorwise spacing added
     FORAXL = COSCOS
@@ -470,7 +471,11 @@ def VLM(conditions,settings,geometry):
     CDC    = CDC * CHORD_strip
 
     ES     = 2*s[0,LE_ind]
+    ES_panel = 2*s[0,:]                     # panel lengths for each
+    
     STRIP  = ES *CHORD_strip
+    STRIP_panel = ES_panel *CHORD_strip  
+    
     LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
     DRAG   = CDC*ES 
     MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  

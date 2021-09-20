@@ -210,7 +210,7 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
         EW = (W*COS1-V*SIN1)*WEIGHT
     else:
         # Assume and warn that this function is being used outside of VLM, EW is not needed
-        print('NOTE: EW is not computed outside of VLM() unless specified.')
+        #print('NOTE: EW is not computed outside of VLM() unless specified.')
         EW = np.nan
         
 
