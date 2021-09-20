@@ -48,8 +48,8 @@ def plot_propeller_performance(prop,outputs,conditions):
     # extracting outputs for plotting
     psi         = outputs.disc_azimuthal_distribution[i,:,:]
     r           = outputs.disc_radial_distribution[i,:,:]
-    Va_V_disc   = outputs.disc_axial_velocity[i]/outputs.velocity[i][0]
-    Vt_V_disc   = outputs.disc_tangential_velocity[i]/outputs.velocity[i][0]
+    Va_V_disc   = outputs.disc_axial_induced_velocity[i]/outputs.velocity[i][0]
+    Vt_V_disc   = outputs.disc_tangential_induced_velocity[i]/outputs.velocity[i][0]
     thrust_disc = outputs.disc_thrust_distribution[i]
     torque_disc = outputs.disc_torque_distribution[i]
     
@@ -110,7 +110,21 @@ def plot_propeller_performance(prop,outputs,conditions):
     cbar0.ax.set_ylabel('Angle of Attack (deg)',labelpad=25)
     axis0.set_title('Blade Local Effective Angle of Attack',pad=15) 
     axis0.set_rorigin(-rh)
-    axis0.set_yticklabels([])    
+    axis0.set_yticklabels([])  
+    
+    
+    
+    
+    delta_u = (Va_V_disc**2 + Vt_V_disc**2)**0.5
+    Cp = -2*delta_u/np.linalg.norm(outputs.velocity)
+    
+    fig0, axis0 = plt.subplots(subplot_kw=dict(projection='polar'))
+    CS_0 = axis0.contourf(psi, r, Cp,10,cmap=plt.cm.jet)
+    cbar0 = plt.colorbar(CS_0, ax=axis0, format=matplotlib.ticker.FormatStrFormatter('%.3f'))
+    cbar0.ax.set_ylabel('$C_p$',labelpad=25)
+    axis0.set_title('Pressure Distribution',pad=15) 
+    axis0.set_rorigin(-rh)
+    axis0.set_yticklabels([])      
     
     return    
 

@@ -259,13 +259,13 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
                 print("No 'CDi_wing_DVE' in results. Skipping this scalar output.")
                 
             try:
-                CP = Results.vlm_results.CP             
+                CP = Results.vlm_results.CP          
             
                 f.write("\nSCALARS CP float 1")
                 f.write("\nLOOKUP_TABLE default")   
                 
                 for i in range(n_cp):
-                    new_CP = str(CP[int(i/n_cw)])
+                    new_CP = str(CP[i])
                     f.write("\n"+new_CP)     
             except:
                 print("No 'CP' in results. Skipping this scalar output.")            

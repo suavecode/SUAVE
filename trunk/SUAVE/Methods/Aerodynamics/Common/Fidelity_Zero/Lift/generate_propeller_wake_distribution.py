@@ -115,8 +115,12 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         # compute lambda and mu 
         mean_induced_velocity  = np.mean( np.mean(va,axis = 1),axis = 1)   
     
-        lambda_tot   =  np.atleast_2d((V_inf[:,0]  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 30 Leishman)
-        mu_prop      =  np.atleast_2d(V_inf[:,2]).T /(omega*R)                              # rotor advance ratio  (page 30 Leishman) 
+    
+        alpha = propi.orientation_euler_angles[1]
+        rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
+        
+        lambda_tot   =  np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 30 Leishman)
+        mu_prop      =  np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 30 Leishman) 
         V_prop       =  np.atleast_2d(np.sqrt((V_inf[:,0]  + mean_induced_velocity)**2 + (V_inf[:,2])**2)).T
     
         # wake skew angle 
@@ -219,13 +223,20 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         Z_pts0           = z_pts0*wake_contraction + sz_inf
  
         # Rotate wake by thrust angle
-        rot_mat = propi.prop_vel_to_body()
+        rot_mat = propi.body_to_prop_vel() #propi.prop_vel_to_body() #
         
         # append propeller wake to each of its repeated origins  
         X_pts   = propi.origin[0][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]   
         Y_pts   = propi.origin[0][1] + Y_pts0*rot_mat[1,1]                       
         Z_pts   = propi.origin[0][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2] 
         
+        ## rotate by wake skew angle
+        #CHI = wake_skew_angle 
+        #skew_mat = np.array([[np.cos(CHI), 0, np.sin(CHI)], [0,1,0], [-np.sin(CHI), 0, np.cos(CHI)]])
+        #X_pts   = X_pts0*skew_mat[0,0] - Z_pts0*skew_mat[0,2]   
+        #Y_pts   = Y_pts0*skew_mat[1,1]                       
+        #Z_pts   = X_pts0*skew_mat[2,0] + Z_pts0*skew_mat[2,2] 
+                
         if include_lifting_line:
             # prepend points at quarter chord to account for rotor lifting line
             x_c_4 = np.repeat(x_c_4_rotor[None,:,:], m,axis=0)
