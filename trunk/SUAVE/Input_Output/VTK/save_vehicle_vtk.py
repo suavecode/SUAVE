@@ -138,11 +138,13 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step, settings=None, pr
             else:
                 filename = save_loc + wake_filename
             sep  = filename.find('.')
-            file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
+            file = filename[0:sep]+str(i)+"_t."+str(time_step)+filename[sep:]
             
             propi_key = list(Results['all_prop_outputs'].keys())[i]
             Results['prop_outputs'] = Results['all_prop_outputs'][propi_key]
-            save_prop_wake_vtk(VD.Wake, file, Results,i)
+            save_prop_wake_vtk(VD, file, Results,i)
+            
+                
 
     #---------------------------
     # Save wing results to vtk
@@ -172,8 +174,9 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step, settings=None, pr
         else:
             filename = save_loc + fuselage_filename
         sep  = filename.find('.')
-        file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
+        file = filename[0:sep]+str(i)+"_t."+str(time_step)+filename[sep:]
 
         save_fuselage_vtk(vehicle, file, Results)
 
     return
+

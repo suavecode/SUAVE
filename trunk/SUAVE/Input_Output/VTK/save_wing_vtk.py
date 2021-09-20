@@ -7,7 +7,7 @@
 import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution import generate_vortex_distribution
-
+from copy import deepcopy
 
 
 def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step):
@@ -49,6 +49,8 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
 
     if symmetric:
         half_l = int(len(VD.XA1)/2)
+        R_Results = deepcopy(Results)
+        L_Results = deepcopy(Results)
         
         # number panels per half span
         n_cp   = n_cp//2
@@ -70,7 +72,9 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Rwing.ZA1 = VD.ZA1[0:half_l]
         Rwing.ZA2 = VD.ZA2[0:half_l]
         Rwing.ZB1 = VD.ZB1[0:half_l]
-        Rwing.ZB2 = VD.ZB2[0:half_l]        
+        Rwing.ZB2 = VD.ZB2[0:half_l]      
+        
+        R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]
         
         Lwing.XA1 = VD.XA1[half_l:]
         Lwing.XA2 = VD.XA2[half_l:]
@@ -85,19 +89,22 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Lwing.ZB1 = VD.ZB1[half_l:]
         Lwing.ZB2 = VD.ZB2[half_l:]       
         
+        L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
+        
         sep  = filename.find('.')
         
         Lfile = filename[0:sep]+"_L"+"_t"+str(time_step)+filename[sep:]
         Rfile = filename[0:sep]+"_R"+"_t"+str(time_step)+filename[sep:]
         
         # write vtks for each half wing
-        write_wing_vtk(Lwing,n_cw,n_sw,n_cp,Results,Lfile)
-        write_wing_vtk(Rwing,n_cw,n_sw,n_cp,Results,Rfile)
+        write_wing_vtk(Lwing,n_cw,n_sw,n_cp,L_Results,Lfile)
+        write_wing_vtk(Rwing,n_cw,n_sw,n_cp,R_Results,Rfile)
         
     else:
         wing = VD
         sep  = filename.find('.')
         file = filename[0:sep]+"_t"+str(time_step)+filename[sep:]
+        Results.vlm_results.CP = Results.vlm_results.CP[0]
         write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,file)
 
     return
@@ -250,6 +257,18 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
                     f.write("\n"+new_cd_CD)     
             except:
                 print("No 'CDi_wing_DVE' in results. Skipping this scalar output.")
+                
+            try:
+                CP = Results.vlm_results.CP             
+            
+                f.write("\nSCALARS CP float 1")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_cp):
+                    new_CP = str(CP[int(i/n_cw)])
+                    f.write("\n"+new_CP)     
+            except:
+                print("No 'CP' in results. Skipping this scalar output.")            
     
     f.close()
     return
