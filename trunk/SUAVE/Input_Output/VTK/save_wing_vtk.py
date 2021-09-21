@@ -268,7 +268,30 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
                     new_CP = str(CP[i])
                     f.write("\n"+new_CP)     
             except:
-                print("No 'CP' in results. Skipping this scalar output.")            
-    
+                print("No 'CP' in results. Skipping this scalar output.") 
+                
+            try:
+                cl = Results.vlm_results.cl_y_panels[0]          
+                CL = Results.vlm_results.CL[0][0]                
+                f.write("\nSCALARS cl2/CL float 1")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_cp):
+                    new_cl = str(cl[i]/CL)
+                    f.write("\n"+new_cl)     
+            except:
+                print("No 'cl_y_panels' in results. Skipping this scalar output.")                   
+
+            try:
+                cdi = Results.vlm_results.cdi_y_panels[0]         
+                CD = Results.vlm_results.CDi[0][0]                
+                f.write("\nSCALARS cdi2/CD float 1")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_cp):
+                    new_cd = str(cdi[i]/CD)
+                    f.write("\n"+new_cd)     
+            except:
+                print("No 'cdi_y_panels' in results. Skipping this scalar output.")         
     f.close()
     return

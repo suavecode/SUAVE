@@ -359,7 +359,10 @@ def VLM(conditions,settings,geometry):
     # DL IS THE DIHEDRAL ANGLE (WITH RESPECT TO THE X-Y PLANE) OF
     # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES. 
     COD = np.cos(phi[0,LE_ind])  # Just the LE values
+    COD_panels = np.cos(phi)
+    
     SID = np.sin(phi[0,LE_ind])  # Just the LE values
+    SID_panels = np.sin(phi)
 
     # Now on to each strip
     PION = 2.0 /RNMAX
@@ -385,7 +388,10 @@ def VLM(conditions,settings,geometry):
     # Split into chordwise strengths and sum into strips    
     # SICPLE = COUPLE (ABOUT STRIP CENTERLINE) DUE TO SIDESLIP.
     CNC    = np.add.reduceat(SINF       ,chord_breaks,axis=1)
+    CNC_panels = SINF
+    
     SICPLE = np.add.reduceat(SINF*CORMED,chord_breaks,axis=1)
+    SICPLE_panels = SINF*CORMED
 
     # COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
     # POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
@@ -394,14 +400,16 @@ def VLM(conditions,settings,geometry):
     TX    = SLOPE - ZETA
     CAXL  = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
     BMLE  = (XLE-XX)*SINF        # These are moment on each panel
-
+    
+    CAXL_panels = CAXL
+    
     # Sum onto the panel
     CAXL = np.add.reduceat(CAXL,chord_breaks,axis=1)
     BMLE = np.add.reduceat(BMLE,chord_breaks,axis=1)
     
     SICPLE *= (-1) * COSIN * COD * GAF
     DCP_LE = DCP[:,LE_ind]
-       
+    
     
     # COMPUTE LEADING EDGE THRUST COEFF. (CSUC) BY CALCULATING
     # THE TOTAL INDUCED FLOW AT THE LEADING EDGE. THIS COMPUTATION
@@ -414,6 +422,7 @@ def VLM(conditions,settings,geometry):
     # Leading edge suction multiplier. See documentation. This is a negative integer if used
     # Default to 1 unless specified otherwise
     SPC  = K_SPC*np.ones_like(DCP_LE)
+    SPC_panels = K_SPC*np.ones_like(DCP_LE)
     
     # If the vehicle is subsonic and there is vortex lift enabled then SPC changes to -1
     VL   = np.repeat(VD.vortex_lift,n_sw)
@@ -421,12 +430,16 @@ def VLM(conditions,settings,geometry):
     SPC_cond      = VL*m_b.T
     SPC[SPC_cond] = -1.
     SPC           = SPC * exposed_leading_edge_flag
+    SPC_panels    = SPC_panels * exposed_leading_edge_flag
     
     CLE  = CLE + 0.5* DCP_LE *np.sqrt(XLE[LE_ind])
-    CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
+    
+    CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB 
 
     # TFX AND TFZ ARE THE COMPONENTS OF LEADING EDGE FORCE VECTOR ALONG
     # ALONG THE X AND Z BODY AXES.   
+    ZETA_panels = ZETA
+    
     SLE  = SLOPE[LE_ind]
     ZETA = ZETA[LE_ind]
     XCOS = np.broadcast_to(np.cos(SLE-ZETA),np.shape(DCP_LE))
@@ -439,20 +452,29 @@ def VLM(conditions,settings,geometry):
     TFZ[SPC<0] = np.abs(XCOS)[SPC<0]*np.sign(DCP_LE)[SPC<0]
 
     CAXL = CAXL - TFX*CSUC
-
+    CAXL_panels = CAXL_panels                          # no suction for now
+    
     # Add a dimension into the suction to be chordwise
     CNC   = CNC + CSUC*np.sqrt(1+T2)*TFZ
-
+    CNC_panels = CNC_panels                             # ignoring leading edge suction for now
+    
     # FCOS AND FSIN ARE THE COSINE AND SINE OF THE ANGLE BETWEEN
     # THE CHORDLINE OF THE IR-STRIP AND THE X-AXIS    
     FCOS = np.cos(ZETA)
     FSIN = np.sin(ZETA)
+    
+    FCOS_panels = np.cos(ZETA_panels)
+    FSIN_panels = np.sin(ZETA_panels)    
 
     # BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP FORCE CONTRIBUTION.
     BFX = -  CNC *FSIN + CAXL *FCOS
     BFY = - (CNC *FCOS + CAXL *FSIN) *SID
     BFZ =   (CNC *FCOS + CAXL *FSIN) *COD
+    
+    BFX_panels = -  CNC_panels *FSIN_panels + CAXL_panels *FCOS_panels
+    BFY_panels = - (CNC_panels *FCOS_panels + CAXL_panels *FSIN_panels) *SID_panels   
+    BFZ_panels = (CNC_panels * FCOS_panels + CAXL_panels * FSIN_panels) * COD_panels
 
     # CONVERT CNC FROM CN INTO CNC (COEFF. *CHORD).
     CNC  = CNC  * CHORD_strip
@@ -470,14 +492,22 @@ def VLM(conditions,settings,geometry):
     CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) * COSALF
     CDC    = CDC * CHORD_strip
 
+    CDC_panels = BFZ_panels * SINALF +  (BFX_panels *COPSI + BFY_panels *SINPSI) * COSALF    
+
     ES     = 2*s[0,LE_ind]
-    ES_panel = 2*s[0,:]                     # panel lengths for each
+    ES_panels = 2*s[0,:]                     # panel lengths for each
     
     STRIP  = ES *CHORD_strip
-    STRIP_panel = ES_panel *CHORD_strip  
+    STRIP_panels = ES_panels *CHORD_panels  # surface area of panels
     
-    LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
-    DRAG   = CDC*ES 
+    
+    
+    LIFT         = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP   
+    DRAG         = CDC*ES 
+    
+    LIFT_panels  = (BFZ_panels *COSALF - (BFX_panels *COPSI + BFY_panels *SINPSI) *SINALF)*STRIP_panels
+    DRAG_panels  = CDC_panels*ES_panels
+    
     MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  
     FY     = (BFY *COPSI - BFX *SINPSI) *STRIP
     RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF *SINPSI + BMZ *SINALF)
@@ -486,6 +516,10 @@ def VLM(conditions,settings,geometry):
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES
     cdi_y    = DRAG/CHORD_strip/ES
+    
+    cl_y_panels = LIFT_panels/CHORD_panels/ES_panels
+    cdi_y_panels    = DRAG_panels/CHORD_panels/ES_panels
+    
     CL_wing  = np.add.reduceat(LIFT,span_breaks,axis=1)/SURF
     CDi_wing = np.add.reduceat(DRAG,span_breaks,axis=1)/SURF
     alpha_i = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
@@ -521,8 +555,10 @@ def VLM(conditions,settings,geometry):
     #other SUAVE outputs
     results.CL_wing    =  CL_wing   
     results.CDi_wing   =  CDi_wing 
-    results.cl_y       =  cl_y     
+    results.cl_y       =  cl_y   
     results.cdi_y      =  cdi_y     
+    results.cl_y_panels = cl_y_panels
+    results.cdi_y_panels = cdi_y_panels    
     results.alpha_i    =  alpha_i  
     results.CP         =  np.array(CP    , dtype=precision)
     results.gamma      =  np.array(GAMMA , dtype=precision)
