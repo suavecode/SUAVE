@@ -2,6 +2,7 @@
 # Lithium_Ion_LiNCA_18650.py
 # 
 # Created:  Feb 2020, M. Clarke
+# Modified: Sep 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,12 +11,12 @@ from SUAVE.Core import Units , Data
 from scipy.interpolate import  RectBivariateSpline
 import numpy as np
 
-from SUAVE.Components.Energy.Storages.Batteries                     import Battery 
+from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass       import Lithium_Ion 
 from SUAVE.Methods.Power.Battery.Discharge_Models.LiNCA_discharge   import LiNCA_discharge 
 from SUAVE.Methods.Power.Battery.Charge_Models.LiNCA_charge         import LiNCA_charge 
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
-class Lithium_Ion_LiNCA_18650(Battery): 
+class Lithium_Ion_LiNCA_18650(Lithium_Ion): 
     """ Specifies discharge/specific energy characteristics specific 
         18650 lithium-nickel-cobalt-aluminum oxide (LiNCA) battery cells   
         
@@ -52,12 +53,7 @@ class Lithium_Ion_LiNCA_18650(Battery):
     """  
     
     def __defaults__(self):
-        self.tag                                          = 'Lithium_Ion_Battery_Cell' 
-        self.cell                                         = Data()   
-        self.module                                       = Data()        
-        self.pack_config                                  = Data()
-        self.module_config                                = Data()
-        self.cooling_fluid                                = Data()
+        self.tag                                          = 'Lithium_Ion_LiNCA_Cell' 
                                               
         self.cell.mass                                    = 0.048 * Units.kg 
         self.cell.diameter                                = 0.01833  # [m]
@@ -70,9 +66,8 @@ class Lithium_Ion_LiNCA_18650(Battery):
         self.cell.max_voltage                             = 4.2   # [V]
         self.cell.nominal_capacity                        = 3.00  # [Amp-Hrs]
         self.cell.nominal_voltage                         = 3.6   # [V]
-        self.cell.charging_SOC_cutoff                     = 1.         
         self.cell.charging_voltage                        = self.cell.nominal_voltage   # [V]  
-        self.cell.charging_current                        = 3.0    
+        
         self.watt_hour_rating                             = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
         self.specific_energy                              = self.watt_hour_rating*Units.Wh/self.cell.mass            # [J/kg]
         self.specific_power                               = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
@@ -80,25 +75,7 @@ class Lithium_Ion_LiNCA_18650(Battery):
                                                           
         self.specific_heat_capacity                       = 837.4   # [J/kgK] 
         self.cell.specific_heat_capacity                  = 837.4   # [J/kgK]  
-        self.heat_transfer_coefficient                    = 35      # [W/m^2K]       
-        self.heat_transfer_efficiency                     = 1.0 
         self.cell.thermal_conductivity                    = 32.2    # [J/kgK]   
-                                                         
-        self.pack_config.series                           = 1
-        self.pack_config.parallel                         = 1   
-        self.pack_config.total                            = 1   
-        self.module_config.total                          = 1  
-        self.module_config.normal_count                   = 1    # number of cells normal to flow
-        self.module_config.parallel_count                 = 1    # number of cells parallel to flow      
-        self.module_config.normal_spacing                 = 0.02
-        self.module_config.parallel_spacing               = 0.02
-
-                                                   
-        self.cooling_fluid.tag                             = 'air'
-        self.cooling_fluid.thermal_conductivity            = 0.0253 # W/mK
-        self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK
-        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.01   
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.01     
            
         self.discharge_model                               = LiNCA_discharge 
         self.charge_model                                  = LiNCA_charge 

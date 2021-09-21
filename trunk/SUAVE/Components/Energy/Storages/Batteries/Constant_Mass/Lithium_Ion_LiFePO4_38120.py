@@ -1,22 +1,22 @@
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 # Lithium_Ion_LiFePO4_38120.py
 # 
-# Created:  Nov 2014, M. Vegh
-# Modified: Feb 2016, T. MacDonald
+# Created:  Feb 2020, M. Clarke
+# Modified: Sep 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Core import Units , Data 
-from SUAVE.Components.Energy.Storages.Batteries                       import Battery 
+from SUAVE.Core import Units 
+from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass         import Lithium_Ion 
 from SUAVE.Methods.Power.Battery.Discharge_Models.LiFePO4_discharge   import LiFePO4_discharge
 from SUAVE.Methods.Power.Battery.Charge_Models.LiFePO4_charge         import LiFePO4_charge
 import numpy as np 
  
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
-class Lithium_Ion_LiFePO4_38120(Battery):
+class Lithium_Ion_LiFePO4_38120(Lithium_Ion):
     """ Specifies discharge/specific energy characteristics specific 
         18650 lithium-iron-phosphate-oxide battery cells     
         
@@ -44,11 +44,6 @@ class Lithium_Ion_LiFePO4_38120(Battery):
     """   
     def __defaults__(self):
         self.tag                                          = 'Lithium_Ion_LiFePO4_Cell' 
-        self.cell                                         = Data()  
-        self.module                                       = Data()        
-        self.pack_config                                  = Data()
-        self.module_config                                = Data()
-        self.cooling_fluid                                = Data() 
         
         self.cell.mass                                    = 0.335  * Units.kg 
         self.cell.diameter                                = 0.038   # [m]
@@ -61,9 +56,8 @@ class Lithium_Ion_LiFePO4_38120(Battery):
         self.cell.max_voltage                             = 3.8 # [V]
         self.cell.nominal_capacity                        = 8.0 # [Amp-Hrs]
         self.cell.nominal_voltage                         = 3.3 # [V]
-        self.cell.charging_SOC_cutoff                     = 1.         
         self.cell.charging_voltage                        = self.cell.nominal_voltage   # [V]  
-        self.cell.charging_current                        = 3.0    
+        
         self.watt_hour_rating                             = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
         self.specific_energy                              = self.watt_hour_rating*Units.Wh/self.cell.mass            # [J/kg]
         self.specific_power                               = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
@@ -75,24 +69,8 @@ class Lithium_Ion_LiFePO4_38120(Battery):
      
         self.specific_heat_capacity                       = 998     # [J/kgK] 
         self.cell.specific_heat_capacity                  = 998     # [J/kgK] 
-        self.heat_transfer_coefficient                    = 35.     # [W/m^2K] 
-        self.heat_transfer_efficiency                     = 1.0 
         self.cell.thermal_conductivity                    = 32.2    # [J/kgK]   
-    
-        self.pack_config.series                           = 1
-        self.pack_config.parallel                         = 1 
-        self.pack_config.total                            = 1   
-        self.module_config.total                          = 1  
-        self.module_config.normal_count                   = 1    # number of cells normal to flow
-        self.module_config.parallel_count                 = 1    # number of cells parallel to flow      
-        self.module_config.normal_spacing                 = 0.02
-        self.module_config.parallel_spacing               = 0.02 
-    
-        self.cooling_fluid.tag                             = 'air'
-        self.cooling_fluid.thermal_conductivity            = 0.0253 # W/mK
-        self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK
-        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.05   
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.05         
+          
         
         self.discharge_model                               = LiFePO4_discharge
         self.charge_model                                  = LiFePO4_charge  
