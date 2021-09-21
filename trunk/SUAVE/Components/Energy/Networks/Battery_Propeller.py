@@ -68,6 +68,7 @@ class Battery_Propeller(Network):
         self.voltage                      = None
         self.tag                          = 'Battery_Propeller'
         self.use_surrogate                = False
+        self.pitch_command                = 0.0
         self.generative_design_minimum    = 0
         self.identical_propellers         = True
         self.thrust_angle                 = 0.
