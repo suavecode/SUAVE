@@ -50,7 +50,7 @@ class Lithium_Ion_LiFePO4_38120(Lithium_Ion):
         self.cell.height                                  = 0.146   # [m] 
         self.cell.surface_area                            = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  # [m^2]
         self.cell.volume                                  = self.cell.height*0.25*np.pi*(self.cell.diameter**2)     # [m^3] 
-        self.cell.density                                 = self.cell.diameter/self.cell.volume  # [kg/m^3] 
+        self.cell.density                                 = self.cell.mass/self.cell.volume  # [kg/m^3] 
         self.cell.electrode_area                          = 0.07    # [m^2] 
      
         self.cell.max_voltage                             = 3.8 # [V]
