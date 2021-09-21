@@ -81,6 +81,7 @@ class Supersonic_Zero(Markup):
         settings.propeller_wake_model               = False
         settings.use_bemt_wake_model                = False
         settings.model_fuselage                     = False
+        settings.model_nacelle                      = False
         
         # this multiplier is used to determine the volume wave drag at the peak Mach number
         # by multiplying the volume wave drag at the end drag rise Mach number
@@ -158,8 +159,9 @@ class Supersonic_Zero(Markup):
         wdt                       = self.settings.wake_development_time
         nwts                      = self.settings.number_of_wake_timesteps
         mf                        = self.settings.model_fuselage
+        mn                        = self.settings.model_nacelle
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf)
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn)
                 
     finalize = initialize        

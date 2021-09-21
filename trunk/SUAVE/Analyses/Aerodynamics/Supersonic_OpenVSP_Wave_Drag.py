@@ -140,8 +140,9 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         wdt                       = self.settings.wake_development_time
         nwts                      = self.settings.number_of_wake_timesteps
         mf                        = self.settings.model_fuselage
+        mn                        = self.settings.model_nacelle
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf )
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn)
         
     finalize = initialize        

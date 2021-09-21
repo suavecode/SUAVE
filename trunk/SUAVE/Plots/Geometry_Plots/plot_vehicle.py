@@ -52,6 +52,7 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
         settings.number_chordwise_vortices = 5
         settings.spanwise_cosine_spacing   = False
         settings.model_fuselage            = False
+        settings.model_nacelle             = False
         VD = generate_vortex_distribution(vehicle,settings)
 
     # initalize figure

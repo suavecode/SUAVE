@@ -53,6 +53,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
         settings.number_chordwise_vortices = 5
         settings.spanwise_cosine_spacing   = False
         settings.model_fuselage            = False
+        settings.model_nacelle             = False
 
     # unpack vortex distribution
     try:
