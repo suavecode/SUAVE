@@ -410,8 +410,7 @@ def vehicle_setup():
     
     # append left motor 
     motor_left = deepcopy(motor)
-    motor_left.origin = [[2., -2.5, 0.784]]
-    motor_left.rotation = 1
+    motor_left.origin = [[2., -2.5, 0.784]] 
     net.propeller_motors.append(motor_left) 
 
     # Component 6 the Payload
