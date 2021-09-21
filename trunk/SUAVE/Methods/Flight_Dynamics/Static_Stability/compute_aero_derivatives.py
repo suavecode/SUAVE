@@ -176,7 +176,7 @@ def compute_aero_derivatives(segment):
     # Flap deflection perturbation
     
     perturbed_segment = deepcopy(segment)    
-    delta_plus        = delta +0.1
+    delta_plus        = delta + 0.1
     perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection = delta_plus
     
     iterate = perturbed_segment.process.iterate
@@ -189,6 +189,27 @@ def compute_aero_derivatives(segment):
     dCL_dDelta = dCL/dDelta
     
     segment.state.conditions.aero_derivatives.dCL_dDelta = dCL_dDelta
+    
+    
+    
+    # ----------------------------------------------------------------------------    
+    # Velocity deflection perturbation
+    vinf                = segment.state.conditions.frames.inertial.velocity_vector #segment.state.conditions.freestream.velocity
+    vmag                = np.linalg.norm(vinf)
+    
+    perturbed_segment   = deepcopy(segment)    
+    vinf_plus           = vinf*(1+h) # add in zero protection (0 * (1+h) = 0) to prevent NaNs 
+    perturbed_segment.state.conditions.freestream.velocity = vinf_plus
+        
+    iterate = perturbed_segment.process.iterate
+    iterate.conditions(perturbed_segment)
+    
+    # set segment derivatives based on perturbed segment
+    dV = perturbed_segment.state.conditions.freestream.velocity - segment.state.conditions.frames.inertial.velocity_vector
+    dCL    = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
+    
+    dCL_dV = dCL/dV   
+    
     
     return 
 
