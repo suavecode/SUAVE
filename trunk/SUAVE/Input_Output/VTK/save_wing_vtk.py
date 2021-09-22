@@ -43,17 +43,28 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
     except:
         VD = generate_vortex_distribution(wing_vehicle,settings)
     symmetric = vehicle.wings[wing_instance.tag].symmetric
-    n_cw      = VD.n_cw[0]  # number of chordwise panels per half wing
-    n_sw      = VD.n_sw[0]  # number of spanwise panels per half wing
-    n_cp      = VD.n_cp     # number of control points and panels on wing
-
+    
+    n_wing_components      = len(VD.wing_areas)
+    cps_per_wing_component = VD.n_cw*VD.n_sw
+    
+    # which wing this is
+    i = list(vehicle.wings.keys()).index(wing_instance.tag)
+    
+    n_cw      = VD.n_cw[i]  # number of chordwise panels per half wing
+    n_sw      = VD.n_sw[i]  # number of spanwise panels per half wing
+    n_cp      = cps_per_wing_component[i]   # VD.n_cp     # number of control points and panels per wing section
+    
+    sec_start = i*sum(cps_per_wing_component[0:i-1])
+    
     if symmetric:
-        half_l = int(len(VD.XA1)/2)
+        half_l = sec_start+n_cp
+        sec_end = sec_start + n_cp*2
         R_Results = deepcopy(Results)
         L_Results = deepcopy(Results)
         
         # number panels per half span
-        n_cp   = n_cp//2
+        n_cp_R   = cps_per_wing_component[i]
+        n_cp_L   = cps_per_wing_component[i+1]
         n_cw   = n_cw
         n_sw   = n_sw
         
@@ -61,50 +72,68 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Rwing = Data()
         Lwing = Data()
         
-        Rwing.XA1 = VD.XA1[0:half_l]
-        Rwing.XA2 = VD.XA2[0:half_l]
-        Rwing.XB1 = VD.XB1[0:half_l]
-        Rwing.XB2 = VD.XB2[0:half_l]
-        Rwing.YA1 = VD.YA1[0:half_l]
-        Rwing.YA2 = VD.YA2[0:half_l]
-        Rwing.YB1 = VD.YB1[0:half_l]
-        Rwing.YB2 = VD.YB2[0:half_l]
-        Rwing.ZA1 = VD.ZA1[0:half_l]
-        Rwing.ZA2 = VD.ZA2[0:half_l]
-        Rwing.ZB1 = VD.ZB1[0:half_l]
-        Rwing.ZB2 = VD.ZB2[0:half_l]      
+        Rwing.XA1 = VD.XA1[sec_start:half_l]
+        Rwing.XA2 = VD.XA2[sec_start:half_l]
+        Rwing.XB1 = VD.XB1[sec_start:half_l]
+        Rwing.XB2 = VD.XB2[sec_start:half_l]
+        Rwing.YA1 = VD.YA1[sec_start:half_l]
+        Rwing.YA2 = VD.YA2[sec_start:half_l]
+        Rwing.YB1 = VD.YB1[sec_start:half_l]
+        Rwing.YB2 = VD.YB2[sec_start:half_l]
+        Rwing.ZA1 = VD.ZA1[sec_start:half_l]
+        Rwing.ZA2 = VD.ZA2[sec_start:half_l]
+        Rwing.ZB1 = VD.ZB1[sec_start:half_l]
+        Rwing.ZB2 = VD.ZB2[sec_start:half_l]      
         
-        R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]
+        Lwing.XA1 = VD.XA1[half_l:sec_end]
+        Lwing.XA2 = VD.XA2[half_l:sec_end]
+        Lwing.XB1 = VD.XB1[half_l:sec_end]
+        Lwing.XB2 = VD.XB2[half_l:sec_end]  
+        Lwing.YA1 = VD.YA1[half_l:sec_end]
+        Lwing.YA2 = VD.YA2[half_l:sec_end]
+        Lwing.YB1 = VD.YB1[half_l:sec_end]
+        Lwing.YB2 = VD.YB2[half_l:sec_end]   
+        Lwing.ZA1 = VD.ZA1[half_l:sec_end]
+        Lwing.ZA2 = VD.ZA2[half_l:sec_end]
+        Lwing.ZB1 = VD.ZB1[half_l:sec_end]
+        Lwing.ZB2 = VD.ZB2[half_l:sec_end]       
         
-        Lwing.XA1 = VD.XA1[half_l:]
-        Lwing.XA2 = VD.XA2[half_l:]
-        Lwing.XB1 = VD.XB1[half_l:]
-        Lwing.XB2 = VD.XB2[half_l:]  
-        Lwing.YA1 = VD.YA1[half_l:]
-        Lwing.YA2 = VD.YA2[half_l:]
-        Lwing.YB1 = VD.YB1[half_l:]
-        Lwing.YB2 = VD.YB2[half_l:]   
-        Lwing.ZA1 = VD.ZA1[half_l:]
-        Lwing.ZA2 = VD.ZA2[half_l:]
-        Lwing.ZB1 = VD.ZB1[half_l:]
-        Lwing.ZB2 = VD.ZB2[half_l:]       
+
+        if len(Results)!=0:
+            R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]        
+            L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
         
-        L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
-        
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         
         Lfile = filename[0:sep]+"_L"+"_t"+str(time_step)+filename[sep:]
         Rfile = filename[0:sep]+"_R"+"_t"+str(time_step)+filename[sep:]
         
         # write vtks for each half wing
-        write_wing_vtk(Lwing,n_cw,n_sw,n_cp,L_Results,Lfile)
-        write_wing_vtk(Rwing,n_cw,n_sw,n_cp,R_Results,Rfile)
+        write_wing_vtk(Lwing,n_cw,n_sw,n_cp_L,L_Results,Lfile)
+        write_wing_vtk(Rwing,n_cw,n_sw,n_cp_R,R_Results,Rfile)
         
     else:
-        wing = VD
-        sep  = filename.find('.')
+        sec_end = sec_start + n_cp
+        wing = Data()
+        wing.XA1 = VD.XA1[sec_start:sec_end]
+        wing.XA2 = VD.XA2[sec_start:sec_end]
+        wing.XB1 = VD.XB1[sec_start:sec_end]
+        wing.XB2 = VD.XB2[sec_start:sec_end]
+        wing.YA1 = VD.YA1[sec_start:sec_end]
+        wing.YA2 = VD.YA2[sec_start:sec_end]
+        wing.YB1 = VD.YB1[sec_start:sec_end]
+        wing.YB2 = VD.YB2[sec_start:sec_end]
+        wing.ZA1 = VD.ZA1[sec_start:sec_end]
+        wing.ZA2 = VD.ZA2[sec_start:sec_end]
+        wing.ZB1 = VD.ZB1[sec_start:sec_end]
+        wing.ZB2 = VD.ZB2[sec_start:sec_end] 
+        
+        sep  = filename.rfind('.')
         file = filename[0:sep]+"_t"+str(time_step)+filename[sep:]
-        Results.vlm_results.CP = Results.vlm_results.CP[0]
+        
+        if len(Results)!=0:
+            Results.vlm_results.CP = Results.vlm_results.CP[0]
+            
         write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,file)
 
     return
@@ -200,17 +229,17 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
         #--------------------------        
         # Write Scalar Cell Data:
         #--------------------------
-        if len(Results)!=0:
-            cell_data_header  = "\n\nCELL_DATA "+str(n)
-            f.write(cell_data_header)  
+        cell_data_header  = "\n\nCELL_DATA "+str(n)
+        f.write(cell_data_header)  
+        
+        # First scalar value
+        f.write("\nSCALARS i float 1")
+        f.write("\nLOOKUP_TABLE default")  
+        for i in range(n_cp):
+            new_idx = str(i)
+            f.write("\n"+new_idx)
             
-            # First scalar value
-            f.write("\nSCALARS i float 1")
-            f.write("\nLOOKUP_TABLE default")  
-            for i in range(n_cp):
-                new_idx = str(i)
-                f.write("\n"+new_idx)
-                
+        if len(Results)!=0:   
             # Check for results
             try:
                 cl = Results.vlm_results.cl_y[0] #Results['cl_y_DVE'][0]

@@ -17,7 +17,7 @@ import numpy as np
 #------------------------------
 # Fuselage VTK generation
 #------------------------------
-def save_fuselage_vtk(vehicle, filename, Results):
+def save_fuselage_vtk(fuselage, filename, Results):
     """
     Saves a SUAVE fuselage object as a VTK in legacy format.
 
@@ -40,7 +40,7 @@ def save_fuselage_vtk(vehicle, filename, Results):
     
     """    
     
-    fus_pts = generate_fuselage_points(vehicle.fuselages.fuselage)
+    fus_pts = generate_fuselage_points(fuselage)
     num_fus_segs = np.shape(fus_pts)[0]
     if num_fus_segs == 0:
         print("No fuselage segments found!")
