@@ -185,9 +185,39 @@ def compute_aero_derivatives(segment):
                 
                 dDelta          = perturbed_segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces[cs].deflection - segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces[cs].deflection
                 dCL             = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
-                dCL_dDelta      = dCL/dDelta
+                dCD             = perturbed_segment.state.conditions.aerodynamics.drag_coefficient - segment.state.conditions.aerodynamics.drag_coefficient
+                
+                # roll and yaw moment coefficient derivatives
+                if surrogate_used:
+                    print("Surrogate model is being used. No roll or yaw coefficients available.")
+                    dCn = 0
+                    dCl = 0
+                else:
+                    # use VLM outputs directly
+                    dCn = perturbed_segment.state.conditions.stability.static.yawing_moment_coefficient - segment.state.conditions.stability.static.yawing_moment_coefficient
+                    dCl = perturbed_segment.state.conditions.stability.static.rolling_moment_coefficient - segment.state.conditions.stability.static.rolling_moment_coefficient              
+                
+                # propeller derivatives 
+                dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts) 
+                    
+                dCL_dDelta      = dCL/dDelta 
+                dCD_dDelta      = dCD/dDelta
+                dCn_dDelta      = dCn/dDelta            
+                dCl_dDelta      = dCl/dDelta           
+                dCT_dDelta      = dCT/dDelta        
+                dCP_dDelta      = dCP/dDelta
                 dCL_dDelta_tag  = 'dCL_dDelta_'+cs
-                segment.state.conditions.aero_derivatives[dCL_dDelta_tag] = dCL_dDelta
+                dCD_dDelta_tag  = 'dCD_dDelta_'+cs
+                dCn_dDelta_tag  = 'dCn_dDelta_'+cs  
+                dCl_dDelta_tag  = 'dCl_dDelta_'+cs   
+                dCT_dDelta_tag  = 'dCT_dDelta_'+cs   
+                dCP_dDelta_tag  = 'dCP_dDelta_'+cs  
+                segment.state.conditions.aero_derivatives[dCL_dDelta_tag]  = dCL_dDelta
+                segment.state.conditions.aero_derivatives[dCD_dDelta_tag]  = dCD_dDelta
+                segment.state.conditions.aero_derivatives[dCn_dDelta_tag]  = dCn_dDelta
+                segment.state.conditions.aero_derivatives[dCl_dDelta_tag]  = dCl_dDelta
+                segment.state.conditions.aero_derivatives[dCT_dDelta_tag]  = dCT_dDelta
+                segment.state.conditions.aero_derivatives[dCP_dDelta_tag]  = dCP_dDelta
 
     # ----------------------------------------------------------------------------    
     # Velocity magnitude perturbation
@@ -204,11 +234,14 @@ def compute_aero_derivatives(segment):
     iterate.conditions(perturbed_segment)
     
     # set segment derivatives based on perturbed segment
-    dV     = perturbed_segment.state.conditions.freestream.velocity - segment.state.conditions.frames.inertial.velocity_vector
-    dCL    = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
-    dCL_dV = dCL/dV   
+    dV      = perturbed_segment.state.conditions.freestream.velocity - segment.state.conditions.frames.inertial.velocity_vector
+    dCL     = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
+    dCD     = perturbed_segment.state.conditions.aerodynamics.drag_coefficient - segment.state.conditions.aerodynamics.drag_coefficient
+    dCL_dV  = dCL/dV   
+    dCD_dV  = dCD/dV  
 
-    segment.state.conditions.aero_derivatives.dCL_dV = dCL_dV      
+    segment.state.conditions.aero_derivatives.dCL_dV = dCL_dV  
+    segment.state.conditions.aero_derivatives.dCD_dV = dCD_dV     
     
     return 
 
