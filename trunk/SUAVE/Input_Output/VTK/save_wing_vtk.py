@@ -99,7 +99,7 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Lwing.ZB2 = VD.ZB2[half_l:sec_end]       
         
 
-        if len(Results)!=0:
+        if 'vlm_results' in Results.keys():
             R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]        
             L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
         
@@ -131,7 +131,7 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         sep  = filename.rfind('.')
         file = filename[0:sep]+"_t"+str(time_step)+filename[sep:]
         
-        if len(Results)!=0:
+        if 'vlm_results' in Results.keys():
             Results.vlm_results.CP = Results.vlm_results.CP[0]
             
         write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,file)
@@ -239,7 +239,7 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
             new_idx = str(i)
             f.write("\n"+new_idx)
             
-        if len(Results)!=0:   
+        if 'vlm_results' in Results.keys():   
             # Check for results
             try:
                 cl = Results.vlm_results.cl_y[0] #Results['cl_y_DVE'][0]
@@ -298,29 +298,6 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
                     f.write("\n"+new_CP)     
             except:
                 print("No 'CP' in results. Skipping this scalar output.") 
-                
-            try:
-                cl = Results.vlm_results.cl_y_panels[0]          
-                CL = Results.vlm_results.CL[0][0]                
-                f.write("\nSCALARS cl2/CL float 1")
-                f.write("\nLOOKUP_TABLE default")   
-                
-                for i in range(n_cp):
-                    new_cl = str(cl[i]/CL)
-                    f.write("\n"+new_cl)     
-            except:
-                print("No 'cl_y_panels' in results. Skipping this scalar output.")                   
-
-            try:
-                cdi = Results.vlm_results.cdi_y_panels[0]         
-                CD = Results.vlm_results.CDi[0][0]                
-                f.write("\nSCALARS cdi2/CD float 1")
-                f.write("\nLOOKUP_TABLE default")   
-                
-                for i in range(n_cp):
-                    new_cd = str(cdi[i]/CD)
-                    f.write("\n"+new_cd)     
-            except:
-                print("No 'cdi_y_panels' in results. Skipping this scalar output.")         
+                                       
     f.close()
     return

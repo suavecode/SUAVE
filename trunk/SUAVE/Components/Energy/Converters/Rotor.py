@@ -94,9 +94,10 @@ class Rotor(Energy_Component):
         self.wake_method               = "momentum"
         self.wake_settings             = Data()
         
-        self.wake_settings.initial_timestep_offset   = 0
-        self.wake_settings.wake_development_time     = 0.05
-        self.wake_settings.number_of_wake_timesteps  = 30   
+        self.wake_settings.initial_timestep_offset   = 0    # initial timestep
+        self.wake_settings.wake_development_time     = 0.05 # total simulation time required for wake development
+        self.wake_settings.number_of_wake_timesteps  = 30   # total number of time steps in wake development
+        self.start_angle                             = 0.0  # angle of first blade from vertical
         
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
@@ -562,15 +563,11 @@ class Rotor(Energy_Component):
             
             # If time-accurate, compute the time-accurate forces \
             if self.time_accurate_loading:
-                    # set the angle of rotor: update blade position with prescribed offset value
-                if rotation == 1:
-                    # clockwise rotation about x-axis, negate the offset
-                    blade_offsets   = np.repeat(self.start_angle[:,None],B,axis=1) + np.linspace(0,2*np.pi,B+1)[0:-1]
-                else:
-                    blade_offsets   = self.start_angle + np.linspace(0,2*np.pi,B+1)[0:-1]
+                # set the angle of rotor: update blade position with prescribed offset value
+                blade_offsets   = self.start_angle + np.linspace(0,2*np.pi,B+1)[0:-1]
                 
                 # blade offsets independent of rotation number, so get base rotation angle
-                blade_offsets = blade_offsets%2*np.pi
+                blade_offsets = blade_offsets%(2*np.pi)
                 
                 
                 # Close the loop to enable interpolation along last azimuthal slice
@@ -591,8 +588,8 @@ class Rotor(Energy_Component):
                 blade_dQ_dr = np.diff(blade_Q_distribution_blades)/np.diff(r_1d)     
                 
                 # Instantaneous forces produced by this rotor 
-                time_accurate_thrust  = np.atleast_2d( np.sum(blade_T_distribution_blades,axis=(2,3)))
-                time_accurate_torque  = np.atleast_2d( np.sum(blade_Q_distribution_blades,axis=(2,3)))             
+                time_accurate_thrust  = np.atleast_2d( np.sum(blade_T_distribution_blades,axis=(1,2)))
+                time_accurate_torque  = np.atleast_2d( np.sum(blade_Q_distribution_blades,axis=(1,2)))             
                 time_accurate_power   = omega*time_accurate_torque  
                 
                 # calculate time-accurate coefficients 
@@ -600,8 +597,12 @@ class Rotor(Energy_Component):
                 Cq_time_accurate       = time_accurate_torque/(rho_0*(n*n)*(D*D*D*D*D)) 
                 Ct_time_accurate       = time_accurate_thrust/(rho_0*(n*n)*(D*D*D*D))
                 Cp_time_accurate       = time_accurate_power/(rho_0*(n*n*n)*(D*D*D*D*D))
-                etap_time_accurate     = V*time_accurate_thrust/time_accurate_power                 
+                etap_time_accurate     = V*time_accurate_thrust/time_accurate_power     
                 
+                
+                Cq_time_accurate_blades       = blade_Q_distribution_blades/(rho_0*(n*n)*(D*D*D*D*D)) 
+                Ct_time_accurate_blades       = blade_T_distribution_blades/(rho_0*(n*n)*(D*D*D*D))
+                Cp_time_accurate_blades       = omega*blade_Q_distribution_blades/(rho_0*(n*n*n)*(D*D*D*D*D))                
                 
                 
                 
@@ -804,7 +805,13 @@ class Rotor(Energy_Component):
             outputs.time_accurate_torque_coefficient  = Cq_time_accurate
             outputs.time_accurate_power_coefficient   = Cp_time_accurate
             outputs.time_accurate_thrust_coefficient  = Ct_time_accurate
-            outputs.time_accurate_etap                = etap_time_accurate            
+            outputs.time_accurate_etap                = etap_time_accurate  
+            
+            outputs.time_accurate_torque_distribution_blades = blade_Q_distribution_blades
+            outputs.time_accurate_thrust_distribution_blades = blade_T_distribution_blades
+            outputs.Cq_time_accurate_blades                  = Cq_time_accurate_blades
+            outputs.Ct_time_accurate_blades                  = Ct_time_accurate_blades
+            outputs.Cp_time_accurate_blades                  = Cp_time_accurate_blades
     
         return thrust_vector, torque, power, Cp, outputs , etap
     
