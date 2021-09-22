@@ -14,7 +14,7 @@ import numpy as np
 from .Network import Network
 from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiNCA_18650      
 from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiNiMnCoO2_18650   
-from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiFePO4_38120    
+from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiFePO4_18650    
 from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
@@ -110,7 +110,7 @@ class Battery_Cell_Cycler(Network):
         #-------------------------------------------------------------------------------
         # Predict Voltage and Battery Properties Depending on Battery Chemistry
         #-------------------------------------------------------------------------------      
-        if type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             volts                            = state.unknowns.battery_voltage_under_load
             battery.battery_thevenin_voltage = 0             
             battery.temperature              = conditions.propulsion.battery_pack_temperature 
@@ -251,7 +251,7 @@ class Battery_Cell_Cycler(Network):
         # Here we are going to unpack the unknowns (Cp) provided for this network
         ss = segment.state 
        
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
             
         elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
@@ -291,7 +291,7 @@ class Battery_Cell_Cycler(Network):
             self.voltage                              [volts]
         """          
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
             v_predict = segment.state.unknowns.battery_voltage_under_load
             v_max     = self.voltage
@@ -353,7 +353,7 @@ class Battery_Cell_Cycler(Network):
         ones_row = segment.state.ones_row
         
         # unpack the initial values if the user doesn't specify  
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:   
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:   
             if initial_voltage==None:
                 initial_voltage = self.battery.max_voltage 
             segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1)  

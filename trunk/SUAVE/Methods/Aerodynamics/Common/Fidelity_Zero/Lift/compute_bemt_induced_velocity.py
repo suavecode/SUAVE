@@ -38,7 +38,7 @@ def compute_bemt_induced_velocity(props,geometry,cpts,conditions,wing_instance=N
     prop_V_wake_ind = np.zeros((cpts,VD.n_cp,3))
     
     for i,prop in enumerate(props):
-        prop_key     = list(props.keys())[0]
+        prop_key     = list(props.keys())[i]
         prop_outputs = conditions.noise.sources.propellers[prop_key]
         R            = prop.tip_radius
         

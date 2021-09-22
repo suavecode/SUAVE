@@ -1,6 +1,4 @@
-#test battery.py
-# by M Vegh, last modified 2/05/2015
-
+# battery_cell_comparison.py 
 
 #----------------------------------------------------------------------
 #   Imports
@@ -33,7 +31,7 @@ def main():
     battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
     battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()
     battery_li_air.discharge_model= LiFePO4_discharge           #default discharge model, but assign anyway
-    battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()
+    battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')
     battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
     li_ion_mass                   = 10*Units.kg
     
@@ -262,11 +260,11 @@ def vehicle_setup(current,temperature,battery_chemistry,mAh):
 
     # Battery  
     if battery_chemistry == 'NCA':
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()   
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NCA')   
     elif battery_chemistry == 'NMC': 
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NMC')  
     elif battery_chemistry == 'LFP': 
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()  
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')  
           
     bat.ambient_temperature         = 300. # [ambient]
     bat.temperature                 = temperature

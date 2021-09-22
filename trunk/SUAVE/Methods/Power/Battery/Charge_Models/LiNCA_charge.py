@@ -1,5 +1,5 @@
 ## @ingroup Methods-Power-Battery-Charge
-# LiNCA_discharge.py
+# LiNCA_charge.py
 # 
 # Created: Apr 2021, M. Clarke
 
@@ -7,27 +7,21 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Data , Units 
+from SUAVE.Core import Units 
 import numpy as np 
 from scipy.integrate import  cumtrapz  
 
 def LiNCA_charge(battery,numerics): 
-    """This is a Charge model for lithium-nickel-cobalt-aluminum oxide 18650 battery
+    """This is a charge model for lithium-nickel-cobalt-aluminum oxide 18650 battery
        using a thevenin equavalent circuit with parameters taken from 
-       pulse tests done by NASA Glen (referece below) of a Samsung (SDI 18650-30Q).
-       Cell Aging model was developed from fitting of experimental data of LiMNC 
-       18650 cell.  
+       pulse tests done by NASA Glen (referece below) of a Samsung (SDI 18650-30Q). 
      
-       Source: 
-       Cell Charge: Chin, J. C., Schnulo, S. L., Miller, T. B., Prokopius, K., and Gray, 
-       J., Battery Performance Modeling on Maxwell X-57",AIAA Scitech, San Diego, CA,
-       2019. URLhttp://openmdao.org/pubs/chin_battery_performance_x57_2019.pdf.     
+       Assumtions:
+       1) All battery modules exhibit the same themal behaviour.
        
-       Cell Heat Coefficient:  Wu et. al. "Determination of the optimum heat transfer 
-       coefficient and temperature rise analysis for a lithium-ion battery under 
-       the conditions of Harbin city bus driving cycles". Energies, 10(11). 
-       https://doi.org/10.3390/en10111723
-        
+       Source:  
+       N/A 
+       
        Inputs:
          battery. 
                I_bat             (max_energy)                          [Joules]
@@ -71,7 +65,7 @@ def LiNCA_charge(battery,numerics):
     cell_mass                = battery.cell.mass   
     electrode_area           = battery.cell.electrode_area
     Cp                       = battery.cell.specific_heat_capacity 
-    h                        = battery.heat_transfer_coefficient
+    h                        = battery.convective_heat_transfer_coefficient
     As_cell                  = battery.cell.surface_area 
     D_cell                   = battery.cell.diameter                     
     H_cell                   = battery.cell.height    

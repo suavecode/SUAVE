@@ -160,7 +160,7 @@ class Battery_Propeller(Network):
         # --------------------------------------------------------------------------------
         # Predict Voltage and Battery Properties Depending on Battery Chemistry
         # --------------------------------------------------------------------------------  
-        if type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             volts                            = state.unknowns.battery_voltage_under_load
             battery.battery_thevenin_voltage = 0             
             battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
@@ -406,7 +406,7 @@ class Battery_Propeller(Network):
         else:
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
             
         elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
@@ -446,7 +446,7 @@ class Battery_Propeller(Network):
             self.voltage                              [volts]
         """          
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
             v_predict = segment.state.unknowns.battery_voltage_under_load
             v_max     = self.voltage
@@ -552,7 +552,7 @@ class Battery_Propeller(Network):
         if identical_flag:
             n_props = 1 
 
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1)
             if segment.battery_discharge: 
                 n_res = n_props + 1

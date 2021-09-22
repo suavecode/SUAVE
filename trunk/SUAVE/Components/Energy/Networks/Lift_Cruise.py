@@ -169,7 +169,7 @@ class Lift_Cruise(Network):
         # --------------------------------------------------------------------------------
         # Predict Voltage and Battery Properties Depending on Battery Chemistry
         # --------------------------------------------------------------------------------  
-        if type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             volts                            = state.unknowns.battery_voltage_under_load
             battery.battery_thevenin_voltage = 0             
             battery.temperature              = conditions.propulsion.battery_pack_temperature
@@ -546,7 +546,7 @@ class Lift_Cruise(Network):
         else:
             ss.conditions.propulsion.propeller_power_coefficientb = 0. * ones_row(1)
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
             
         elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
@@ -600,7 +600,7 @@ class Lift_Cruise(Network):
         else:
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
             
         elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
@@ -659,7 +659,7 @@ class Lift_Cruise(Network):
             ss.conditions.propulsion.lift_rotor_power_coefficient = 0.0 * ones_row(1)  
             ss.conditions.propulsion.throttle                     = 0.0 * ones_row(1)
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
             
         elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
@@ -709,7 +709,7 @@ class Lift_Cruise(Network):
             segment.state.residuals.network.propellers  = (q_propeller_motor - q_prop_forward)/q_propeller_motor
             segment.state.residuals.network.lift_rotors = (q_lift_rotor_motor - q_prop_lift)/q_lift_rotor_motor 
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
             v_predict = segment.state.unknowns.battery_voltage_under_load
             v_max     = self.voltage 
@@ -781,7 +781,7 @@ class Lift_Cruise(Network):
             segment.state.residuals.network.propellers = (q_propeller_motor - q_prop_forward)/q_propeller_motor 
 
 
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
             v_predict = segment.state.unknowns.battery_voltage_under_load
             v_max     = self.voltage 
@@ -852,7 +852,7 @@ class Lift_Cruise(Network):
             segment.state.residuals.network.lift_rotors  = (q_lift_rotor_motor - q_lift_rotor_lift)/q_lift_rotor_motor
 
 
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120:
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
             v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
             v_predict = segment.state.unknowns.battery_voltage_under_load
             v_max     = self.voltage 
@@ -955,7 +955,7 @@ class Lift_Cruise(Network):
         # Setup the residuals
         segment.state.residuals.network = Data()        
         
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120: 
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650: 
             if initial_voltage==None:
                 initial_voltage = self.battery.max_voltage
                 
@@ -1061,7 +1061,7 @@ class Lift_Cruise(Network):
         
         # Setup the residuals
         segment.state.residuals.network            = Data() 
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120: 
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650: 
             if initial_voltage==None:
                 initial_voltage = self.battery.max_voltage
                 
@@ -1169,7 +1169,7 @@ class Lift_Cruise(Network):
 
         # Setup the residuals
         segment.state.residuals.network  = Data()    
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120: 
+        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650: 
             if initial_voltage==None:
                 initial_voltage = self.battery.max_voltage
 

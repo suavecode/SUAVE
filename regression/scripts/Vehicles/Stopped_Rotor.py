@@ -476,7 +476,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Battery
     #------------------------------------------------------------------
-    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650() 
+    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NCA') 
     bat.mass_properties.mass = 500. * Units.kg  
     bat.max_voltage          = net.voltage   
     initialize_from_mass(bat)

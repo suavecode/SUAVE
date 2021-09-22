@@ -1,5 +1,5 @@
 ## @ingroup Methods-Power-Battery-Charge
-# dLiFePO4_charge.py
+# cLiFePO4_charge.py
 # 
 # Created: Apr 2021, M. Clarke
 
@@ -10,23 +10,30 @@
 import numpy as np
 from scipy.integrate import  cumtrapz
 from SUAVE.Core import  Units 
+
 # ----------------------------------------------------------------------
 #  LiFePO4 Charge
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Power-Battery-Charge
 def LiFePO4_charge(battery,numerics): 
-    """models charge losses based on an empirical correlation
-       Based on method taken from Datta and Johnson: 
+    """This is a charge model for 18650 lithium-iron_phosphate battery cells. It
+       models charge losses based on an empirical correlation Based on method taken 
+       from Datta and Johnson. 
        
        Assumptions: 
-       Constant Peukart coefficient
+       1) Constant Peukart coefficient 
+       2) All battery modules exhibit the same themal behaviour.
        
        Source:
-       "Requirements for a Hydrogen Powered All-Electric Manned Helicopter" by Datta and Johnson
+       Internal Resistance:
+       "Requirements for a Hydrogen Powered All-Electric Manned Helicopter" by Datta
+       and Johnson
       
-       voltage model from from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting
-       # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511
+       Voltage:
+       Chen, M. and Rincon-Mora, G. A., "Accurate Electrical
+       Battery Model Capable of Predicting Runtime and I - V Performance" IEEE
+       Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511
        
        Inputs:
          battery. 

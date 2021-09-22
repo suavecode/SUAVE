@@ -1,10 +1,10 @@
-# test_VTOL.py
+# aircraft_discharge_comparisons.py
 # 
 # Created: Feb 2020, M. Clarke
 #          Sep 2020, M. Clarke 
 #          Jul 2021, R. Erhard
 
-""" setup file for electric aircraft regression """
+""" setup file for comparing battery packs of three chemistries in all-electric aircraft """
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -129,18 +129,18 @@ def GA_full_setup(battery_chemistry):
     net = vehicle.networks.battery_propeller
     bat = net.battery
     if battery_chemistry == 'NCA':
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()     
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NCA')     
     elif battery_chemistry == 'NMC': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NMC')  
     elif battery_chemistry == 'LFP': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()  
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')  
     
     bat.mass_properties.mass = 500. * Units.kg  
     bat.max_voltage          = 500.             
     initialize_from_mass(bat)
     
-    # Here we, are going to assume a battery pack module shape. This step is optional but
-    # required for thermal analysis of tge pack
+    # Assume a battery pack module shape. This step is optional but
+    # required for thermal analysis of the pack
     number_of_modules                = 10
     bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
     bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
@@ -177,11 +177,11 @@ def EVTOL_full_setup(battery_chemistry):
     net = vehicle.networks.lift_cruise
     bat = net.battery
     if battery_chemistry == 'NCA':
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()     
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NCA')     
     elif battery_chemistry == 'NMC': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NMC')  
     elif battery_chemistry == 'LFP': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()  
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')  
     
     bat.mass_properties.mass = 500. * Units.kg  
     bat.max_voltage          = 500.             
