@@ -190,7 +190,7 @@ def compute_aero_derivatives(segment):
                 # roll and yaw moment coefficient derivatives
                 if surrogate_used:
                     print("Surrogate model is being used. No roll or yaw coefficients available.")
-                    dCM_dAlpha = segment.state.conditions.stability.static.Cm_alpha
+                    dCM = 0
                     dCn = 0
                     dCl = 0
                 else:
