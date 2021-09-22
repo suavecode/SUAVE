@@ -174,7 +174,7 @@ def compute_aero_derivatives(segment):
     for wing in list(segment.analyses.aerodynamics.geometry.wings.keys()):
         if len(segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces) !=0:
             # set segment derivatives based on perturbed segment
-            for cs in list(segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces):
+            for cs in list(segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces.keys()):
                 delta             = segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces[cs].deflection                
                 perturbed_segment = deepcopy(segment)    
                 delta_plus        = delta + 0.1
@@ -190,30 +190,35 @@ def compute_aero_derivatives(segment):
                 # roll and yaw moment coefficient derivatives
                 if surrogate_used:
                     print("Surrogate model is being used. No roll or yaw coefficients available.")
+                    dCM_dAlpha = segment.state.conditions.stability.static.Cm_alpha
                     dCn = 0
                     dCl = 0
                 else:
                     # use VLM outputs directly
                     dCn = perturbed_segment.state.conditions.stability.static.yawing_moment_coefficient - segment.state.conditions.stability.static.yawing_moment_coefficient
                     dCl = perturbed_segment.state.conditions.stability.static.rolling_moment_coefficient - segment.state.conditions.stability.static.rolling_moment_coefficient              
-                
+                    dCM = perturbed_segment.state.conditions.aerodynamics.moment_coefficient - segment.state.conditions.aerodynamics.moment_coefficient
+                    
                 # propeller derivatives 
                 dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts) 
                     
                 dCL_dDelta      = dCL/dDelta 
                 dCD_dDelta      = dCD/dDelta
+                dCM_dDelta      = dCM/dDelta
                 dCn_dDelta      = dCn/dDelta            
                 dCl_dDelta      = dCl/dDelta           
                 dCT_dDelta      = dCT/dDelta        
                 dCP_dDelta      = dCP/dDelta
                 dCL_dDelta_tag  = 'dCL_dDelta_'+cs
                 dCD_dDelta_tag  = 'dCD_dDelta_'+cs
+                dCM_dDelta_tag  = 'dCM_dDelta_'+cs
                 dCn_dDelta_tag  = 'dCn_dDelta_'+cs  
                 dCl_dDelta_tag  = 'dCl_dDelta_'+cs   
                 dCT_dDelta_tag  = 'dCT_dDelta_'+cs   
                 dCP_dDelta_tag  = 'dCP_dDelta_'+cs  
                 segment.state.conditions.aero_derivatives[dCL_dDelta_tag]  = dCL_dDelta
                 segment.state.conditions.aero_derivatives[dCD_dDelta_tag]  = dCD_dDelta
+                segment.state.conditions.aero_derivatives[dCM_dDelta_tag]  = dCM_dDelta
                 segment.state.conditions.aero_derivatives[dCn_dDelta_tag]  = dCn_dDelta
                 segment.state.conditions.aero_derivatives[dCl_dDelta_tag]  = dCl_dDelta
                 segment.state.conditions.aero_derivatives[dCT_dDelta_tag]  = dCT_dDelta
@@ -223,12 +228,12 @@ def compute_aero_derivatives(segment):
     # Velocity magnitude perturbation
     vinf                = segment.state.conditions.frames.inertial.velocity_vector
     vmag                = np.linalg.norm(vinf,axis=1)
-    psi                 = np.arctan2(vinf[:,2],vinf[:,0])
+    gamma               = np.arctan2(vinf[:,2],vinf[:,0])
     
     perturbed_segment   = deepcopy(segment)    
     vmag_plus           = vmag*(1+h) 
-    perturbed_segment.state.conditions.frames.inertial.velocity_vector[:,0] = vmag_plus*np.cos(psi)
-    perturbed_segment.state.conditions.frames.inertial.velocity_vector[:,2] = vmag_plus*np.sin(psi)
+    perturbed_segment.state.conditions.frames.inertial.velocity_vector[:,0] = vmag_plus*np.cos(gamma)
+    perturbed_segment.state.conditions.frames.inertial.velocity_vector[:,2] = vmag_plus*np.sin(gamma)
         
     iterate = perturbed_segment.process.iterate
     iterate.conditions(perturbed_segment)
