@@ -174,7 +174,7 @@ def compute_aero_derivatives(segment):
     for wing in list(segment.analyses.aerodynamics.geometry.wings.keys()):
         if len(segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces) !=0:
             # set segment derivatives based on perturbed segment
-            for cs in list(wing.control_surfaces):
+            for cs in list(segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces):
                 delta             = segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces[cs].deflection                
                 perturbed_segment = deepcopy(segment)    
                 delta_plus        = delta + 0.1
