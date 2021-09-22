@@ -166,9 +166,9 @@ def update_battery_age(segment):
        Inputs:
          segment.conditions.propulsion. 
             t (battery age in days)                                                [days]   
-            battery_cell_temperature                                               [Degrees Celcius] 
+            battery_cell_temperature                                               [Kelvin] 
             battery_voltage_open_circuit                                           [Volts] 
-            battery_charge_throughput                                   [Amp-hrs] 
+            battery_charge_throughput                                              [Amp-hrs] 
             battery_state_of_charge                                                [unitless] 
        
        Outputs:
@@ -186,7 +186,7 @@ def update_battery_age(segment):
     V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
     t          = segment.conditions.propulsion.battery_age_in_days 
     Q_prior    = segment.conditions.propulsion.battery_charge_throughput[-1,0] 
-    Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) 
+    Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) - 273.2
     
     # aging model  
     delta_DOD = abs(SOC[0][0] - SOC[-1][0])

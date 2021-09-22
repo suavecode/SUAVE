@@ -31,7 +31,7 @@ from Stopped_Rotor       import configs_setup as   EVTOL_configs_setup
 
 def main():     
     
-    battery_chemistry  =  ['LFP','NCA','NMC']
+    battery_chemistry  =  ['NCA','NMC','LFP']
     line_style_new     =  ['bo-','ro-','ko-']
     line_style2_new    =  ['bs-','rs-','ks-'] 
     
@@ -129,11 +129,11 @@ def GA_full_setup(battery_chemistry):
     net = vehicle.networks.battery_propeller
     bat = net.battery
     if battery_chemistry == 'NCA':
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NCA')     
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()     
     elif battery_chemistry == 'NMC': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NMC')  
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
     elif battery_chemistry == 'LFP': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')  
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()  
     
     bat.mass_properties.mass = 500. * Units.kg  
     bat.max_voltage          = 500.             
@@ -177,11 +177,11 @@ def EVTOL_full_setup(battery_chemistry):
     net = vehicle.networks.lift_cruise
     bat = net.battery
     if battery_chemistry == 'NCA':
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NCA')     
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()   
     elif battery_chemistry == 'NMC': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NMC')  
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')  
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
     
     bat.mass_properties.mass = 500. * Units.kg  
     bat.max_voltage          = 500.             

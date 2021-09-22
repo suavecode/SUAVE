@@ -76,7 +76,7 @@ def main():
     net.avionics        = avionics      
 
     # Component 8 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 5.0 * Units.kg  
     bat.max_voltage          = 400.
     bat.iters                = 0

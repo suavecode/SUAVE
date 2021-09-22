@@ -140,7 +140,7 @@ class Serial_Hybrid_Ducted_Fan(Network):
                 generator.outputs.power_generated)
         
         # Run the battery
-        battery.energy_discharge(numerics)        
+        battery.energy_cycle_model(numerics)        
 
         # Pack the conditions for outputs
         current              = esc.outputs.currentin

@@ -11,10 +11,9 @@ import SUAVE
 
 # package imports
 import numpy as np
-from .Network import Network
-from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiNCA_18650      
-from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiNiMnCoO2_18650   
-from SUAVE.Components.Energy.Storages.Batteries.Constant_Mass import Lithium_Ion_LiFePO4_18650    
+from .Network import Network  
+from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNCA_cell_cycle_model      import compute_NCA_cell_state_variables 
+from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNiMnCoO2_cell_cycle_model import compute_NMC_cell_state_variables
 from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
@@ -23,7 +22,8 @@ from SUAVE.Core import Data
 
 ## @ingroup Components-Energy-Networks
 class Battery_Cell_Cycler(Network):
-    """ This is a test bench for new batteries 
+    """ This is a test bench to analyze the discharge and charge profile 
+        of a battery cell.
     
         Assumptions:
         None
@@ -122,25 +122,15 @@ class Battery_Cell_Cycler(Network):
             
             # link temperature 
             battery.cell_temperature = T_cell   
+             
+            # Compute State Variables
+            V_oc_cell,C_Th_cell,R_Th_cell,R_0_cell = compute_NCA_cell_state_variables(battery_data,SOC,T_cell) 
             
-             # look up tables  
-            V_oc_cell = np.zeros_like(SOC)
-            R_Th_cell = np.zeros_like(SOC)
-            C_Th_cell = np.zeros_like(SOC)
-            R_0_cell  = np.zeros_like(SOC)
-            SOC[SOC<0.] = 0.
-            SOC[SOC>1.] = 1.
-            for i in range(len(SOC)): 
-                V_oc_cell[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
-                C_Th_cell[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
-                R_Th_cell[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
-                R_0_cell[i]  = battery_data.R_0_interp(T_cell[i], SOC[i])[0]  
-                
             dV_TH_dt =  np.dot(D,V_Th_cell)
             I_cell   = V_Th_cell/(R_Th_cell * battery.R_growth_factor)  + C_Th_cell*dV_TH_dt
             R_0_cell = R_0_cell * battery.R_growth_factor
              
-            # Voltage under load:
+            # Voltage under load
             volts =  n_series*(V_oc_cell - V_Th_cell - (I_cell  * R_0_cell)) 
             
         elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650: 
@@ -152,22 +142,11 @@ class Battery_Cell_Cycler(Network):
             battery.cell_temperature         = T_cell  
             battery.initial_thevenin_voltage = V_th0  
             
-            # Make sure things do not break by limiting current, temperature and current 
-            SOC[SOC < 0.]            = 0.  
-            SOC[SOC > 1.]            = 1.    
-            DOD                      = 1 - SOC 
+            # Compute State Variables
+            V_ul_cell = compute_NMC_cell_state_variables(battery_data,SOC,T_cell,I_cell) 
             
-            T_cell[np.isnan(T_cell)] = 300.0 
-            T_cell[T_cell<272.65]  = 272.65
-            T_cell[T_cell>322.65]  = 322.65
-             
-            I_cell[I_cell<0.0]       = 0.0
-            I_cell[I_cell>8.0]       = 8.0    
-            
-            # create vector of conditions for battery data sheet response surface for OCV
-            pts        = np.hstack((np.hstack((I_cell, T_cell)),DOD  )) # amps, temp, SOC   
-            V_ul_cell  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T  
-            volts      = n_series*V_ul_cell 
+            # Voltage under load
+            volts     = n_series*V_ul_cell     
  
         #-------------------------------------------------------------------------------
         # Discharge
@@ -183,13 +162,13 @@ class Battery_Cell_Cycler(Network):
             battery.inputs.current  = avionics_current
             battery.inputs.power_in = -avionics_power
             battery.inputs.voltage  = volts
-            battery.energy_discharge(numerics)          
+            battery.energy_cycle_model(numerics,discharge_flag)          
             
         else: 
             battery.inputs.current  = -battery.charging_current * np.ones_like(volts)
             battery.inputs.voltage  =  battery.charging_voltage * np.ones_like(volts) 
             battery.inputs.power_in =  -battery.inputs.current * battery.inputs.voltage * np.ones_like(volts)
-            battery.energy_charge(numerics)        
+            battery.energy_cycle_model(numerics,discharge_flag)        
         
         # Pack the conditions for outputs     
         conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage 

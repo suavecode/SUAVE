@@ -9,8 +9,7 @@ import SUAVE
 from SUAVE.Core import Units, Data 
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass  
 from SUAVE.Components.Energy.Storages.Batteries import Battery
-from SUAVE.Core import Units
-from SUAVE.Methods.Power.Battery.Discharge_Models import LiFePO4_discharge 
+from SUAVE.Core import Units 
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass, initialize_from_circuit_configuration
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Battery.Ragone import find_ragone_properties, find_specific_power, find_ragone_optimum
@@ -29,9 +28,8 @@ def main():
     battery_inputs                = Data() #create inputs data structure for inputs for testing discharge model
     specific_energy_guess         = 500*Units.Wh/Units.kg
     battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
-    battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()
-    battery_li_air.discharge_model= LiFePO4_discharge           #default discharge model, but assign anyway
-    battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')
+    battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()    
+    battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
     battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
     li_ion_mass                   = 10*Units.kg
     
@@ -64,7 +62,7 @@ def main():
     battery_li_ion.E_growth_factor   = 1 
     
     # run discharge model
-    battery_li_ion.energy_discharge(numerics)
+    battery_li_ion.energy_cycle_model(numerics)
     print(battery_li_ion)
     plot_ragone(battery_li_ion, 'lithium ion')
     plot_ragone(battery_li_s,   'lithium sulfur') 
@@ -72,7 +70,7 @@ def main():
  
     battery_chemistry     =  ['LFP','NCA','NMC']
     curr                  = [1.5, 3, 6, 9 ] 
-    mAh                   = np.array([ 3300 , 3300  , 3300 , 3300]) 
+    mAh                   = np.array([ 1500 , 3300  , 3550]) 
     temperature           = [ 300 ,300  , 300 ,300  ]
     temp_guess            = [301 , 303  , 312  , 318 ]  
  
@@ -90,7 +88,7 @@ def main():
     
     for j in range(len(curr)):      
         for i in range(len(battery_chemistry)):   
-            configs, analyses = full_setup(curr[j],temperature[j],battery_chemistry[i],temp_guess[j],mAh[j] )
+            configs, analyses = full_setup(curr[j],temperature[j],battery_chemistry[i],temp_guess[j],mAh[i] )
             analyses.finalize()     
             mission = analyses.missions.base
             results = mission.evaluate()  
@@ -260,11 +258,11 @@ def vehicle_setup(current,temperature,battery_chemistry,mAh):
 
     # Battery  
     if battery_chemistry == 'NCA':
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NCA')   
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()   
     elif battery_chemistry == 'NMC': 
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='NMC')  
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')  
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
           
     bat.ambient_temperature         = 300. # [ambient]
     bat.temperature                 = temperature

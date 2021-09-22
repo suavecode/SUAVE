@@ -154,7 +154,7 @@ def energy_network():
     hybrid_ducted_fan.avionics     = avionics
 
     # Create the battery and add to the network
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion(battery_chemistry='LFP')
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 1000. * Units.kg  
     bat.max_voltage          = 400.
     initialize_from_mass(bat) 

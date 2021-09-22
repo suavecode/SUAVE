@@ -230,7 +230,7 @@ class Solar(Network):
         
         # link
         battery.inputs = solar_logic.outputs
-        battery.energy_discharge(numerics)
+        battery.energy_cycle_model(numerics)
         
         # Pack the conditions for outputs
         conditions.propulsion.solar_flux                   = solar_flux.outputs.flux
