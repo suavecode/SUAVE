@@ -183,33 +183,49 @@ def compute_aero_derivatives(segment):
     iterate.conditions(perturbed_segment) 
     
     # set segment derivatives based on perturbed segment
-    dDelta = perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection - segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection
-    dCL    = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
+    dDelta_Flap     = perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection - segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection
+    dCL             = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
+    dCL_dDelta_Flap = dCL/dDelta_Flap
     
-    dCL_dDelta = dCL/dDelta
-    
-    segment.state.conditions.aero_derivatives.dCL_dDelta = dCL_dDelta
-    
-    
+    segment.state.conditions.aero_derivatives.dCL_dDelta_Flap = dCL_dDelta_Flap
     
     # ----------------------------------------------------------------------------    
-    # Velocity deflection perturbation
-    vinf                = segment.state.conditions.frames.inertial.velocity_vector #segment.state.conditions.freestream.velocity
-    vmag                = np.linalg.norm(vinf)
+    # Slat deflection perturbation
+    
+    perturbed_segment = deepcopy(segment)    
+    delta_plus        = delta + 0.1
+    perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.slat.deflection = delta_plus
+    
+    iterate = perturbed_segment.process.iterate
+    iterate.conditions(perturbed_segment) 
+    
+    # set segment derivatives based on perturbed segment
+    dDelta_Slat     = perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection - segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection
+    dCL             = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
+    dCL_dDelta_Slat = dCL/dDelta_Slat
+    
+    segment.state.conditions.aero_derivatives.dCL_dDelta_Slat = dCL_dDelta_Slat    
+    
+    # ----------------------------------------------------------------------------    
+    # Velocity magnitude perturbation
+    vinf                = segment.state.conditions.frames.inertial.velocity_vector
+    vmag                = np.linalg.norm(vinf,axis=1)
+    psi                 = np.arctan2(vinf[:,2],vinf[:,0])
     
     perturbed_segment   = deepcopy(segment)    
-    vinf_plus           = vinf*(1+h) # add in zero protection (0 * (1+h) = 0) to prevent NaNs 
-    perturbed_segment.state.conditions.freestream.velocity = vinf_plus
+    vmag_plus           = vmag*(1+h) 
+    perturbed_segment.state.conditions.frames.inertial.velocity_vector[:,0] = vmag_plus*np.cos(psi)
+    perturbed_segment.state.conditions.frames.inertial.velocity_vector[:,2] = vmag_plus*np.sin(psi)
         
     iterate = perturbed_segment.process.iterate
     iterate.conditions(perturbed_segment)
     
     # set segment derivatives based on perturbed segment
-    dV = perturbed_segment.state.conditions.freestream.velocity - segment.state.conditions.frames.inertial.velocity_vector
+    dV     = perturbed_segment.state.conditions.freestream.velocity - segment.state.conditions.frames.inertial.velocity_vector
     dCL    = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
-    
     dCL_dV = dCL/dV   
-    
+
+    segment.state.conditions.aero_derivatives.dCL_dV = dCL_dV      
     
     return 
 
