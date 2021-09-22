@@ -55,9 +55,6 @@ def compute_aero_derivatives(segment):
     psi       = orientation_vector[:,2]      # heading 
     throttle  = segment.state.conditions.propulsion.throttle
     
-    # find main wing flap deflection
-    delta     = segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection
-    
     n_cpts    = len(pitch)
     
     # ----------------------------------------------------------------------------
@@ -173,39 +170,25 @@ def compute_aero_derivatives(segment):
     
 
     # ----------------------------------------------------------------------------    
-    # Flap deflection perturbation
-    
-    perturbed_segment = deepcopy(segment)    
-    delta_plus        = delta + 0.1
-    perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection = delta_plus
-    
-    iterate = perturbed_segment.process.iterate
-    iterate.conditions(perturbed_segment) 
-    
-    # set segment derivatives based on perturbed segment
-    dDelta_Flap     = perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection - segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection
-    dCL             = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
-    dCL_dDelta_Flap = dCL/dDelta_Flap
-    
-    segment.state.conditions.aero_derivatives.dCL_dDelta_Flap = dCL_dDelta_Flap
-    
-    # ----------------------------------------------------------------------------    
-    # Slat deflection perturbation
-    
-    perturbed_segment = deepcopy(segment)    
-    delta_plus        = delta + 0.1
-    perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.slat.deflection = delta_plus
-    
-    iterate = perturbed_segment.process.iterate
-    iterate.conditions(perturbed_segment) 
-    
-    # set segment derivatives based on perturbed segment
-    dDelta_Slat     = perturbed_segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection - segment.analyses.aerodynamics.geometry.wings.main_wing.control_surfaces.flap.deflection
-    dCL             = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
-    dCL_dDelta_Slat = dCL/dDelta_Slat
-    
-    segment.state.conditions.aero_derivatives.dCL_dDelta_Slat = dCL_dDelta_Slat    
-    
+    # Control surface deflection perturbation for each wing
+    for wing in list(segment.analyses.aerodynamics.geometry.wings.keys()):
+        if len(segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces) !=0:
+            # set segment derivatives based on perturbed segment
+            for cs in list(wing.control_surfaces):
+                delta             = segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces[cs].deflection                
+                perturbed_segment = deepcopy(segment)    
+                delta_plus        = delta + 0.1
+                perturbed_segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces[cs].deflection = delta_plus
+                
+                iterate = perturbed_segment.process.iterate
+                iterate.conditions(perturbed_segment)                 
+                
+                dDelta          = perturbed_segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces[cs].deflection - segment.analyses.aerodynamics.geometry.wings[wing].control_surfaces[cs].deflection
+                dCL             = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
+                dCL_dDelta      = dCL/dDelta
+                dCL_dDelta_tag  = 'dCL_dDelta_'+cs
+                segment.state.conditions.aero_derivatives[dCL_dDelta_tag] = dCL_dDelta
+
     # ----------------------------------------------------------------------------    
     # Velocity magnitude perturbation
     vinf                = segment.state.conditions.frames.inertial.velocity_vector
