@@ -383,7 +383,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         # Charge Model 
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'LFP_Charge'  
-        segment.battery_discharge                           = False 
+        segment.battery_discharge_flag                      = False 
         segment.analyses.extend(analyses.base)        
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)      
         mission.append_segment(segment) 
@@ -404,7 +404,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         # Charge Model 
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'NCA_Charge'  
-        segment.battery_discharge                           = False 
+        segment.battery_discharge_flag                      = False 
         segment.analyses.extend(analyses.base)                 
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment) 
@@ -425,7 +425,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         # Charge Model 
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'NMC_Charge'  
-        segment.battery_discharge                           = False 
+        segment.battery_discharge_flag                      = False 
         segment.analyses.extend(analyses.base)            
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment) 

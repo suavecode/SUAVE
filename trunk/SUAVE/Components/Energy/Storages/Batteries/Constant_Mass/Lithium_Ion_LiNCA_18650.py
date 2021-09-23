@@ -87,7 +87,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
     
     
     def energy_calc(self,numerics,battery_discharge_flag = True ):  
-        """This is a electric cycle model for lithium-nickel-cobalt-aluminum oxide 18650 battery
+        """This is an electric cycle model for lithium-nickel-cobalt-aluminum oxide 18650 battery
            using a thevenin equavalent circuit with parameters taken from 
            pulse tests done by NASA Glen (referece below) of a Samsung (SDI 18650-30Q). 
          
@@ -343,7 +343,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         return     
 
     def append_battery_residuals(self,segment,network): 
-        """ This packs the residuals specific to NCA cells to be sent to the mission solver.
+        """ Packs the residuals specific to NCA cells to be sent to the mission solver.
     
             Assumptions:
             None
@@ -386,7 +386,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
     def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage, 
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
                                               initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
-        """ This function sets up the information that the mission needs to run a mission segment using this network
+        """ Sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
             None
@@ -415,9 +415,55 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         
         return  
 
+    def compute_voltage(self,state):  
+        """ Computes the voltage of a single NCA cell or a battery pack of LFP cells   
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:  
+                self    - battery data structure             [unitless]
+                state   - segment unknowns to define voltage [unitless]
+            
+            Outputs
+                V_ul    - under-load voltage                 [volts]
+             
+            Properties Used:
+            N/A
+        """            
+        
+        # Unpack battery properties
+        battery           = self
+        battery_data      = battery.discharge_performance_map
+        n_series          = battery.pack_config.series  
+       
+        # Unpack segment state properties 
+        SOC       = state.unknowns.battery_state_of_charge
+        T_cell    = state.unknowns.battery_cell_temperature
+        V_Th_cell = state.unknowns.battery_thevenin_voltage/n_series
+        D         = state.numerics.time.differentiate  
+        
+        # link temperature 
+        battery.cell_temperature = T_cell   
+         
+        # Compute state variables
+        V_oc_cell,C_Th_cell,R_Th_cell,R_0_cell = compute_NCA_cell_state_variables(battery_data,SOC,T_cell) 
+        dV_TH_dt =  np.dot(D,V_Th_cell)
+        I_cell   = V_Th_cell/(R_Th_cell * battery.R_growth_factor)  + C_Th_cell*dV_TH_dt
+        R_0_cell = R_0_cell * battery.R_growth_factor
+         
+        # Voltage under load
+        V_ul =  n_series*(V_oc_cell - V_Th_cell - (I_cell  * R_0_cell)) 
+        
+        return V_ul
+    
+
 def create_discharge_performance_map(battery_raw_data):
-    """ Create discharge and charge response surface for 
-        LiNCA  battery cells using raw data     
+    """ Creates discharge and charge response surfaces for 
+        LiNCA battery cells using raw data     
         
         Source:
         N/A

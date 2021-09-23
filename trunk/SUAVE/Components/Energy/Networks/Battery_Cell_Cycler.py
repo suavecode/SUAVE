@@ -81,21 +81,17 @@ class Battery_Cell_Cycler(Network):
         conditions        = state.conditions
         numerics          = state.numerics 
         avionics          = self.avionics 
-        battery           = self.battery   
-        D                 = numerics.time.differentiate    
-        I                 = numerics.time.integrate 
-        battery_data      = battery.discharge_performance_map 
+        battery           = self.battery    
          
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
-        battery_discharge_flag      = conditions.propulsion.battery_discharge    
+        battery_discharge_flag      = conditions.propulsion.battery_discharge_flag    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
-        battery.max_energy          = conditions.propulsion.battery_max_aged_energy
-        V_th0                       = conditions.propulsion.battery_initial_thevenin_voltage
+        battery.max_energy          = conditions.propulsion.battery_max_aged_energy 
         n_series                    = battery.pack_config.series  
         n_parallel                  = battery.pack_config.parallel 
         n_total                     = n_series*n_parallel
@@ -106,47 +102,9 @@ class Battery_Cell_Cycler(Network):
         battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
         battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity
         battery.cooling_fluid.density                 = conditions.freestream.density 
-         
-        #-------------------------------------------------------------------------------
-        # Predict Voltage and Battery Properties Depending on Battery Chemistry
-        #-------------------------------------------------------------------------------      
-        if type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
-            volts                            = state.unknowns.battery_voltage_under_load
-            battery.battery_thevenin_voltage = 0             
-            battery.temperature              = conditions.propulsion.battery_pack_temperature 
-            
-        elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:     
-            SOC       = state.unknowns.battery_state_of_charge
-            T_cell    = state.unknowns.battery_cell_temperature
-            V_Th_cell = state.unknowns.battery_thevenin_voltage/n_series
-            
-            # link temperature 
-            battery.cell_temperature = T_cell   
-             
-            # Compute State Variables
-            V_oc_cell,C_Th_cell,R_Th_cell,R_0_cell = compute_NCA_cell_state_variables(battery_data,SOC,T_cell) 
-            
-            dV_TH_dt =  np.dot(D,V_Th_cell)
-            I_cell   = V_Th_cell/(R_Th_cell * battery.R_growth_factor)  + C_Th_cell*dV_TH_dt
-            R_0_cell = R_0_cell * battery.R_growth_factor
-             
-            # Voltage under load
-            volts =  n_series*(V_oc_cell - V_Th_cell - (I_cell  * R_0_cell)) 
-            
-        elif type(battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650: 
-            SOC        = state.unknowns.battery_state_of_charge 
-            T_cell     = state.unknowns.battery_cell_temperature
-            I_cell     = state.unknowns.battery_current/n_parallel 
-            
-            # Link Temperature 
-            battery.cell_temperature         = T_cell  
-            battery.initial_thevenin_voltage = V_th0  
-            
-            # Compute State Variables
-            V_ul_cell = compute_NMC_cell_state_variables(battery_data,SOC,T_cell,I_cell) 
-            
-            # Voltage under load
-            volts     = n_series*V_ul_cell     
+          
+        # Predict voltage based on battery  
+        volts = battery.compute_voltage(state)
  
         #-------------------------------------------------------------------------------
         # Discharge

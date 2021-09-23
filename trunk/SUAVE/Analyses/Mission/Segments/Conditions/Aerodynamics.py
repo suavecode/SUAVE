@@ -140,8 +140,7 @@ class Aerodynamics(Basic):
         self.propulsion.battery_charge_throughput            = ones_1col * 0    
         self.propulsion.battery_age_in_days                  = 0.
         self.propulsion.battery_resistance_growth_factor     = 1.
-        self.propulsion.battery_capacity_fade_factor         = 1.
-        self.propulsion.battery_discharge_flag               = True 
+        self.propulsion.battery_capacity_fade_factor         = 1. 
          
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0

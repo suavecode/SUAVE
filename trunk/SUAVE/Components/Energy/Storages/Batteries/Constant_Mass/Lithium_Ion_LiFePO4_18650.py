@@ -89,7 +89,7 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
         return   
 
     def energy_calc(self,numerics,battery_discharge_flag= True): 
-        """This is a electric cycle model for 18650 lithium-iron_phosphate battery cells. It
+        """This is an electric cycle model for 18650 lithium-iron_phosphate battery cells. It
            models losses based on an empirical correlation Based on method taken 
            from Datta and Johnson.
            
@@ -269,7 +269,7 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
         return 
     
     def append_battery_residuals(self,segment,network): 
-        """ This packs the residuals specific to LFP cells to be sent to the mission solver.
+        """ Packs the residuals specific to LFP cells to be sent to the mission solver.
     
             Assumptions:
             None
@@ -302,7 +302,7 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
     def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage, 
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
                                               initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
-        """ This function sets up the information that the mission needs to run a mission segment using this network
+        """ Sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
             None
@@ -330,3 +330,33 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
         segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1) 
         
         return  
+    
+    def compute_voltage(self,state):
+        """ Computes the voltage of a single LFP cell or a battery pack of LFP cells   
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:  
+                self    - battery data structure             [unitless]
+                state   - segment unknowns to define voltage [unitless]
+            
+            Outputs
+                V_ul    - under-load voltage                 [volts]
+             
+            Properties Used:
+            N/A
+        """              
+        # Unpack battery properties
+        battery                          = self 
+        
+        # Set battery properties
+        battery.battery_thevenin_voltage = 0     
+        battery.temperature              = state.conditions.propulsion.battery_pack_temperature 
+        
+        # Voltage under load
+        V_ul                             = state.unknowns.battery_voltage_under_load
+        return V_ul 

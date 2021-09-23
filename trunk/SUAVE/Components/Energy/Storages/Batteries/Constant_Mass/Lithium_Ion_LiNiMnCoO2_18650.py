@@ -92,7 +92,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         return  
     
     def energy_calc(self,numerics,battery_discharge_flag = True ): 
-        '''This is a electric cycle model for 18650 lithium-nickel-manganese-cobalt-oxide
+        '''This is an electric cycle model for 18650 lithium-nickel-manganese-cobalt-oxide
            battery cells. The model uses experimental data performed
            by the Automotive Industrial Systems Company of Panasonic Group 
               
@@ -363,7 +363,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     
 
     def append_battery_residuals(self,segment,network): 
-        """ This packs the residuals specific to NMC cells to be sent to the mission solver.
+        """ Packs the residuals specific to NMC cells to be sent to the mission solver.
     
             Assumptions:
             None
@@ -406,7 +406,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage,
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
                                               initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
-        """ This function sets up the information that the mission needs to run a mission segment using this network
+        """ Sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
             None
@@ -434,7 +434,52 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(1) 
         segment.state.unknowns.battery_current             = initial_battery_cell_current*parallel * ones_row(1)  
         
-        return  
+        return   
+
+    def compute_voltage(self,state):  
+        """ Computes the voltage of a single NMC cell or a battery pack of LFP cells  
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:  
+                self    - battery data structure             [unitless]
+                state   - segment unknowns to define voltage [unitless]
+            
+            Outputs
+                V_ul    - under-load voltage                 [volts]
+             
+            Properties Used:
+            N/A
+        """           
+        
+        # Unpack battery properties
+        battery           = self
+        battery_data      = battery.discharge_performance_map
+        n_series          = battery.pack_config.series  
+        n_parallel        = battery.pack_config.parallel
+        
+        # Unpack segment state properties  
+        SOC        = state.unknowns.battery_state_of_charge 
+        T_cell     = state.unknowns.battery_cell_temperature
+        I_cell     = state.unknowns.battery_current/n_parallel 
+        V_th0      = state.conditions.propulsion.battery_initial_thevenin_voltage
+        
+        # Link Temperature 
+        battery.cell_temperature         = T_cell  
+        battery.initial_thevenin_voltage = V_th0  
+        
+        # Compute State Variables
+        V_ul_cell = compute_NMC_cell_state_variables(battery_data,SOC,T_cell,I_cell) 
+        
+        # Voltage under load
+        V_ul    = n_series*V_ul_cell    
+           
+        return V_ul 
+    
 
 def compute_thevenin_voltage(V_th0,I,C_Th, R_Th,t):
     """ Computes the thevenin voltage of an NMC cell using SciPy ODE solver 
@@ -498,7 +543,7 @@ def model(z,t,I,C_Th, R_Th):
     return [dVth_dt] 
 
 def create_discharge_performance_map(battery_raw_data):
-    """ Create discharge and charge response surface for 
+    """ Creates discharge and charge response surface for 
         LiNiMnCoO2 battery cells 
         
         Source:
