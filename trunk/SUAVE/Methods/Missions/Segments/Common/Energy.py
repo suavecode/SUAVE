@@ -181,23 +181,26 @@ def update_battery_age(segment):
     
     for network in segment.analyses.energy.network: 
         n_series = network.battery.pack_config.series 
-    
-    SOC        = segment.conditions.propulsion.battery_state_of_charge
-    V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
-    t          = segment.conditions.propulsion.battery_age_in_days 
-    Q_prior    = segment.conditions.propulsion.battery_charge_throughput[-1,0] 
-    Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) - 273.2
-    
-    # aging model  
-    delta_DOD = abs(SOC[0][0] - SOC[-1][0])
-    rms_V_ul  = np.sqrt(np.mean(V_ul**2)) 
-    alpha_cap = (7.542*np.mean(V_ul) - 23.75) * 1E6 * np.exp(-6976/(Temp))  
-    alpha_res = (5.270*np.mean(V_ul) - 16.32) * 1E5 * np.exp(-5986/(Temp))  
-    beta_cap  = 7.348E-3 * (rms_V_ul - 3.667)**2 +  7.60E-4 + 4.081E-3*delta_DOD
-    beta_res  = 2.153E-4 * (rms_V_ul - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD
-    
-    E_fade_factor   = 1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior)   
-    R_growth_factor = 1 + alpha_res*(t**0.75) + beta_res*Q_prior 
-    
-    segment.conditions.propulsion.battery_capacity_fade_factor     = E_fade_factor  
-    segment.conditions.propulsion.battery_resistance_growth_factor = R_growth_factor
+        
+        # currently, only NMC battery aging model is implemented
+        if type(network.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:  
+            SOC        = segment.conditions.propulsion.battery_state_of_charge
+            V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
+            t          = segment.conditions.propulsion.battery_age_in_days 
+            Q_prior    = segment.conditions.propulsion.battery_charge_throughput[-1,0] 
+            Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) - 273.2
+            
+            # aging model  
+            delta_DOD = abs(SOC[0][0] - SOC[-1][0])
+            rms_V_ul  = np.sqrt(np.mean(V_ul**2)) 
+            alpha_cap = (7.542*np.mean(V_ul) - 23.75) * 1E6 * np.exp(-6976/(Temp))  
+            alpha_res = (5.270*np.mean(V_ul) - 16.32) * 1E5 * np.exp(-5986/(Temp))  
+            beta_cap  = 7.348E-3 * (rms_V_ul - 3.667)**2 +  7.60E-4 + 4.081E-3*delta_DOD
+            beta_res  = 2.153E-4 * (rms_V_ul - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD
+            
+            E_fade_factor   = 1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior)   
+            R_growth_factor = 1 + alpha_res*(t**0.75) + beta_res*Q_prior 
+            
+            segment.conditions.propulsion.battery_capacity_fade_factor     = E_fade_factor  
+            segment.conditions.propulsion.battery_resistance_growth_factor = R_growth_factor
+        

@@ -9,11 +9,13 @@
 # ----------------------------------------------------------------------
 
 # suave imports 
-from scipy.integrate import  cumtrapz
 from SUAVE.Core import Units  
 from .Lithium_Ion import Lithium_Ion 
+
+# package imports 
 import numpy as np 
- 
+from scipy.integrate import  cumtrapz
+
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
     """ Specifies discharge/specific energy characteristics specific 

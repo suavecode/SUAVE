@@ -122,22 +122,24 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
         elif bemt_wake:
             # adapt the RHS matrix with the BEMT induced velocities
             if 'propellers' in network.keys():  
+                identical_flag = network.identical_propellers
                 if network.number_of_propeller_engines == None:
                     pass
                 else:                          
                     if not network.identical_propellers:
                         assert('This method currently only works with identical propellers')
                     props = network.propellers
-                    prop_V_wake_ind = compute_bemt_induced_velocity(props,geometry,num_ctrl_pts,conditions)
+                    prop_V_wake_ind = compute_bemt_induced_velocity(props,geometry,num_ctrl_pts,conditions,identical_flag)
 
             if 'lift_rotors' in network.keys(): 
+                identical_flag = network.identical_lift_rotors
                 if network.number_of_lift_rotor_engines == None:
                     pass
                 else:                  
                     if not network.identical_lift_rotors:
                         assert('This method currently only works with identical rotors')
                     rotors = network.rotors
-                    rot_V_wake_ind = compute_bemt_induced_velocity(rotors,geometry,num_ctrl_pts,conditions)
+                    rot_V_wake_ind = compute_bemt_induced_velocity(rotors,geometry,num_ctrl_pts,conditions,identical_flag)
 
         if propeller_wake_model or bemt_wake:
             # update the total induced velocity distribution

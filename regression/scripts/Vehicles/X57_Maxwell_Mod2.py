@@ -402,8 +402,7 @@ def vehicle_setup():
     motor.propeller_radius        = prop.tip_radius
     motor.no_load_current         = 4.0
     motor                         = size_optimal_motor(motor,prop)
-    motor.mass_properties.mass    = 10. * Units.kg
-    net.motor                     = motor
+    motor.mass_properties.mass    = 10. * Units.kg 
     
     # append right motor
     net.propeller_motors.append(motor)

@@ -437,7 +437,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     segment                                            = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
     segment.tag                                        = "transition_1"
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base ) 
 
     segment.altitude                                 = 40.  * Units.ft
     segment.air_speed_start                          = 500. * Units['ft/min']
@@ -446,11 +446,14 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.pitch_initial                            = 0.0 * Units.degrees
     segment.pitch_final                              = 5. * Units.degrees
     ones_row                                         = segment.state.ones_row
-    segment.state.unknowns.throttle                  = 0.95  *  ones_row(1)
+    segment.state.unknowns.throttle                  = 1.  *  ones_row(1)
     segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
+                                                         initial_prop_power_coefficient = 0.2,
+                                                         initial_lift_rotor_power_coefficient = 0.01,
+                                                         initial_throttle_lift = 0.9,)
 
     # add to misison
     mission.append_segment(segment)

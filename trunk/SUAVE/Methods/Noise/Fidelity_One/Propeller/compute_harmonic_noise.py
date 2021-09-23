@@ -20,7 +20,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import SPL_harmonic
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
 def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
-                           velocity_vector,network,auc_opts,settings,res):
+                           velocity_vector,network,auc_opts,settings,res,source):
     '''This computes the  harmonic noise (i.e. thickness and loading noise) of a propeller or rotor
     in the frequency domain
     
@@ -63,7 +63,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_prop        = len(position_vector[0,0,:,1])
     num_h           = len(harmonics) 
 
-    if network.number_of_lift_rotor_engines  != None: 
+    if source == 'rotors':  
         propellers      = network.lift_rotors 
     else:
         propellers      = network.propellers

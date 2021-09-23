@@ -16,7 +16,8 @@ from SUAVE.Core import Units, Data
 from SUAVE.Components.Energy.Storages.Batteries  import Battery  
 
 # package imports
-import numpy as np
+import numpy as np 
+from scipy.integrate import  cumtrapz
 
 # ----------------------------------------------------------------------
 #  Lithium_Ion
@@ -47,8 +48,10 @@ class Lithium_Ion(Battery):
         self.module_config     = Data()
         self.cooling_fluid     = Data()     
         
+        self.cell.mass                                     = None
         self.cell.charging_SOC_cutoff                      = 1. 
         self.cell.charging_current                         = 3.0     # [Amps]
+        self.cell.charging_voltage                         = 3       # [Volts]
                          
         self.convective_heat_transfer_coefficient          = 35.     # [W/m^2K] 
         self.heat_transfer_efficiency                      = 1.0       
@@ -207,8 +210,7 @@ class Lithium_Ion(Battery):
         if discharge_flag:
             V_ul   = V_oc - I_bat*R_0
         else: 
-            V_ul   = V_oc + I_bat*R_0
-        
+            V_ul   = V_oc + I_bat*R_0 
              
         # Pack outputs
         battery.current_energy                     = E_current

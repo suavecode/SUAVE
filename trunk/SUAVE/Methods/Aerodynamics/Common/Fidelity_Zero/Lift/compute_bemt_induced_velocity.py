@@ -13,7 +13,7 @@ from scipy.interpolate import interp1d
 from SUAVE.Components import Wings
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_bemt_induced_velocity(props,geometry,cpts,conditions,wing_instance=None):  
+def compute_bemt_induced_velocity(props,geometry,cpts,conditions,identical_flag,wing_instance=None):  
     """ This computes the velocity induced by the BEMT wake
     on lifting surface control points
 
@@ -38,7 +38,11 @@ def compute_bemt_induced_velocity(props,geometry,cpts,conditions,wing_instance=N
     prop_V_wake_ind = np.zeros((cpts,VD.n_cp,3))
     
     for i,prop in enumerate(props):
-        prop_key     = list(props.keys())[i]
+        if identical_flag:
+            idx = 0
+        else:
+            idx = i
+        prop_key     = list(props.keys())[idx]
         prop_outputs = conditions.noise.sources.propellers[prop_key]
         R            = prop.tip_radius
         

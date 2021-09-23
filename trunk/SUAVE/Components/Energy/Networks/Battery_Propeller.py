@@ -78,7 +78,7 @@ class Battery_Propeller(Network):
         self.generative_design_minimum    = 0
         self.pitch_command                = 0
         self.identical_propellers         = True
-        self.identical_lift_rotor         = True
+        self.identical_lift_rotors        = True
         self.thrust_angle                 = 0. 
     
     # manage process with a driver function
@@ -121,7 +121,7 @@ class Battery_Propeller(Network):
         
         if self.number_of_lift_rotor_engines  != None: 
             num_engines    = self.number_of_lift_rotor_engines
-            identical_flag = self.identical_lift_rotor
+            identical_flag = self.identical_lift_rotors
             motors         = self.lift_rotor_motors
             props          = self.lift_rotors
         else:
@@ -238,8 +238,8 @@ class Battery_Propeller(Network):
                     motor     = self.lift_rotor_motors[motor_key]
                     prop      = self.lift_rotors[prop_key]
                 
-                # link
-                motor.inputs.voltage      = esc.outputs.voltageout 
+                # link 
+                motor.inputs.voltage      = esc.outputs.voltageout
                 motor.inputs.propeller_CP = np.atleast_2d(conditions.propulsion.propeller_power_coefficient[:,ii]).T
                 
                 # step 3
@@ -301,7 +301,7 @@ class Battery_Propeller(Network):
         
             # link
             battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
-            battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin + avionics_payload_power)
+            battery.inputs.power_in = -(esc.outputs.voltageout *esc.outputs.currentin + avionics_payload_power)
             battery.energy_cycle_model(numerics,discharge_flag)         
              
         # --------------------------------------------------------------------------------
@@ -324,7 +324,7 @@ class Battery_Propeller(Network):
         conditions.propulsion.battery_energy                       = battery.current_energy
         conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
         conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load 
-        conditions.propulsion.battery_power_draw                   = battery.inputs.power_in 
+        conditions.propulsion.battery_power_draw                   = battery_draw 
         conditions.propulsion.battery_max_aged_energy              = battery.max_energy 
         conditions.propulsion.battery_charge_throughput            = battery.charge_throughput 
         conditions.propulsion.battery_internal_resistance          = battery.internal_resistance
@@ -507,7 +507,7 @@ class Battery_Propeller(Network):
 
         if self.number_of_lift_rotor_engines  != None: 
             n_eng          = int(self.number_of_lift_rotor_engines)
-            identical_flag = self.identical_lift_rotor
+            identical_flag = self.identical_lift_rotors
             n_props        = len(self.lift_rotors)
             n_motors       = len(self.lift_rotor_motors)
         else:
@@ -544,9 +544,9 @@ class Battery_Propeller(Network):
             
         elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:  
             parallel                                           = self.battery.pack_config.parallel            
-            segment.state.unknowns.battery_state_of_charge     = initial_battery_state_of_charge   * ones_row(n_props)  
-            segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(n_props) 
-            segment.state.unknowns.battery_current             = initial_battery_cell_current*parallel * ones_row(n_props) 
+            segment.state.unknowns.battery_state_of_charge     = initial_battery_state_of_charge   * ones_row(1)  
+            segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(1) 
+            segment.state.unknowns.battery_current             = initial_battery_cell_current*parallel * ones_row(1) 
             if segment.battery_discharge: 
                 n_res = n_props + 3  
                 segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props) 
@@ -557,9 +557,9 @@ class Battery_Propeller(Network):
             
         elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
             series                                              = self.battery.pack_config.series       
-            segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge   * ones_row(n_props)  
-            segment.state.unknowns.battery_cell_temperature     = initial_battery_cell_temperature  * ones_row(n_props)       
-            segment.state.unknowns.battery_thevenin_voltage     = initial_battery_cell_thevenin_voltage*series  * ones_row(n_props)   
+            segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge   * ones_row(1)  
+            segment.state.unknowns.battery_cell_temperature     = initial_battery_cell_temperature  * ones_row(1)       
+            segment.state.unknowns.battery_thevenin_voltage     = initial_battery_cell_thevenin_voltage*series  * ones_row(1)   
             if segment.battery_discharge: 
                 n_res = n_props + 3 
                 segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)     

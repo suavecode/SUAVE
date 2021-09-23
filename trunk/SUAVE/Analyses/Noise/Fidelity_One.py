@@ -182,10 +182,9 @@ class Fidelity_One(Noise):
                           
                 elif (source  == 'propellers')  or (source   == 'rotors'): 
                     if bool(conditions.noise.sources[source]) == True: 
-                        net                          = config.networks[network]
-                        prop                         = config.networks[network][source]
+                        net                          = config.networks[network] 
                         acoustic_data                = conditions.noise.sources[source]   
-                        propeller_noise              = propeller_mid_fidelity(net,acoustic_data,segment,settings)  
+                        propeller_noise              = propeller_mid_fidelity(net,acoustic_data,segment,settings,source)  
                         source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
                         source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_spectrum    
                            

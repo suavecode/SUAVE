@@ -37,12 +37,18 @@ def initialize_from_mass(battery, SOC_start = 1, SOC_cutoff = 0.15 ):
 
     """    
 
-    module_weight_factor         = 1.42
-    
+    module_weight_factor         = 1.42 
     mass                         = battery.mass_properties.mass/module_weight_factor
-    n_cells                      = int(mass/battery.cell.mass)
-    n_series                     = int(battery.max_voltage/battery.cell.max_voltage)
-    n_parallel                   = int(n_cells/n_series)
+    
+    if battery.cell.mass == None:
+        n_cells    = 1  
+        n_series   = 1
+        n_parallel = 1 
+    else:
+        n_cells    = int(mass/battery.cell.mass)
+        n_series   = int(battery.max_voltage/battery.cell.max_voltage)
+        n_parallel = int(n_cells/n_series)
+        
     battery.max_energy           = mass*battery.specific_energy* SOC_start 
     battery.min_energy           = mass*battery.specific_energy* SOC_cutoff
     battery.max_power            = mass*battery.specific_power

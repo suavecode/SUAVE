@@ -180,9 +180,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         n_total_module    = Nn*Np        
 
         if discharge_flag :
-            I_cell            = I_bat/n_parallel
+            I_cell = I_bat/n_parallel
         else: 
-            I_cell            = -I_bat/n_parallel 
+            I_cell = -I_bat/n_parallel 
         
         # State of charge of the battery
         initial_discharge_state = np.dot(I,P_bat) + E_current[0]

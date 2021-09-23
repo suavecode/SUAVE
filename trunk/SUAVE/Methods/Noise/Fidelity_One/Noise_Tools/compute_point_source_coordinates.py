@@ -14,7 +14,7 @@ import numpy as np
 # ---------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
-def compute_point_source_coordinates(conditions,network,mls):  
+def compute_point_source_coordinates(conditions,network,mls,source):  
     """This calculated the position vector from a point source to the observer 
             
     Assumptions:
@@ -41,7 +41,7 @@ def compute_point_source_coordinates(conditions,network,mls):
     # aquire dimension of matrix
     num_cpt         = conditions._size
     num_mic         = len(mls[0,:,0]) 
-    if network.number_of_lift_rotor_engines  != None: 
+    if source == 'rotors': 
         num_prop    = int(network.number_of_lift_rotor_engines)    
         prop_origin = []
         for prop in network.lift_rotors:
