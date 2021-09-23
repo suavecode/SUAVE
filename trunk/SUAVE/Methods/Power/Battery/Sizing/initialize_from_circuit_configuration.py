@@ -13,7 +13,7 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Power-Battery-Sizing
-def initialize_from_circuit_configuration(battery):  
+def initialize_from_circuit_configuration(battery,module_weight_factor = 1.42):  
     """Calculate pack level properties of battery using cell 
     properties and module configuraton
     
@@ -46,10 +46,8 @@ def initialize_from_circuit_configuration(battery):
        charging_current   [amps]
        mass_properties.
         mass              [kilograms] 
-    """   
-    module_weight_factor         = 1.42
-    
-    amp_hour_rating              = battery.cell.nominal_capacity  # 
+    """    
+    amp_hour_rating              = battery.cell.nominal_capacity    
     nominal_voltage              = battery.cell.nominal_voltage       
     total_battery_assemply_mass  = battery.cell.mass * battery.pack_config.series * battery.pack_config.parallel  
     

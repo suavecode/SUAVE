@@ -303,9 +303,7 @@ def mission_setup_SR(vehicle,analyses):
     base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip    
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip    
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.battery_discharge                           = True 
-        
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery   
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude

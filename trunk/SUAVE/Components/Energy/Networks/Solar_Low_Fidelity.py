@@ -170,7 +170,7 @@ class Solar_Low_Fidelity(Network):
         solar_logic.logic(conditions,numerics)
         # link
         battery.inputs = solar_logic.outputs
-        battery.energy_cycle_model(numerics)
+        battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
         a                                        = conditions.freestream.speed_of_sound

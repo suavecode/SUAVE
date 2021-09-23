@@ -88,7 +88,7 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
         
         return   
 
-    def energy_cycle_model(self,numerics,discharge_flag= True): 
+    def energy_calc(self,numerics,battery_discharge_flag= True): 
         """This is a electric cycle model for 18650 lithium-iron_phosphate battery cells. It
            models losses based on an empirical correlation Based on method taken 
            from Datta and Johnson.
@@ -215,7 +215,7 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
         V_oc[ V_oc > V_max] = V_max
         
         # Voltage under load:
-        if discharge_flag:
+        if battery_discharge_flag:
             V_ul   = V_oc - I_bat*R_0
         else: 
             V_ul   = V_oc + I_bat*R_0
@@ -243,4 +243,90 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
         battery.internal_resistance                = R_0 
         battery.cell_voltage_under_load            = V_ul 
         
-        return     
+        return      
+    
+    def append_battery_unknowns(self,segment): 
+        """ Appends unknowns specific to LFP cells which are unpacked from the mission solver and send to the network.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.battery_voltage_under_load               [volts]
+    
+            Outputs: 
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+    
+            Properties Used:
+            N/A
+        """             
+        
+        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        
+        return 
+    
+    def append_battery_residuals(self,segment,network): 
+        """ This packs the residuals specific to LFP cells to be sent to the mission solver.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.conditions.propulsion:
+                motor_torque                          [N-m]
+                propeller_torque                      [N-m]
+                voltage_under_load                    [volts]
+            state.unknowns.battery_voltage_under_load [volts]
+            
+            Outputs:
+            None
+    
+            Properties Used:
+            network.voltage                           [volts]
+        """     
+        v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
+        v_predict = segment.state.unknowns.battery_voltage_under_load
+        v_max     = network.voltage
+        
+        # Return the residuals
+        segment.state.residuals.network.voltage = (v_predict[:,0] - v_actual[:,0])/v_max
+        
+        return 
+    
+    def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage, 
+                                              initial_battery_cell_temperature , initial_battery_state_of_charge,
+                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
+        """ This function sets up the information that the mission needs to run a mission segment using this network
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:  
+            initial_voltage                       [volts]
+            initial_battery_cell_temperature      [Kelvin]
+            initial_battery_state_of_charge       [unitless]
+            initial_battery_cell_current          [Amperes]
+            initial_battery_cell_thevenin_voltage [Volts]
+            
+            Outputs
+            None
+            
+            Properties Used:
+            N/A
+        """        
+        
+        ones_row = segment.state.ones_row 
+        if initial_voltage==None:
+            initial_voltage = self.max_voltage 
+        segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1) 
+        
+        return  

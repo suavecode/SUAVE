@@ -213,8 +213,7 @@ def mission_setup(analyses,vehicle):
 
     # base segment
     base_segment                                             = Segments.Segment()
-    base_segment.state.numerics.number_control_points        = 3
-    base_segment.battery_discharge                           = True  
+    base_segment.state.numerics.number_control_points        = 3 
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
 
@@ -280,18 +279,21 @@ def mission_setup(analyses,vehicle):
     segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
     segment.tag                                         = "transition_2"
     segment.analyses.extend( analyses.base )
-    segment.altitude_start                          = 40.0 * Units.ft
-    segment.altitude_end                            = 50.0 * Units.ft
-    segment.air_speed                               = 0.8 * Vstall
-    segment.climb_angle                             = 1 * Units.degrees
-    segment.acceleration                            = 0.5 * Units['m/s/s']
-    segment.pitch_initial                           = 5. * Units.degrees
-    segment.pitch_final                             = 7. * Units.degrees
-    segment.state.unknowns.throttle                 = 0.95  * ones_row(1)
-    segment.process.iterate.unknowns.mission        = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
+    segment.altitude_start                              = 40.0 * Units.ft
+    segment.altitude_end                                = 50.0 * Units.ft
+    segment.air_speed                                   = 0.8 * Vstall
+    segment.climb_angle                                 = 1 * Units.degrees
+    segment.acceleration                                = 0.5 * Units['m/s/s']
+    segment.pitch_initial                               = 5. * Units.degrees
+    segment.pitch_final                                 = 7. * Units.degrees
+    segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
+    segment.process.iterate.unknowns.mission            = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
+    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
+                                                         initial_prop_power_coefficient = 0.2,
+                                                         initial_lift_rotor_power_coefficient = 0.01,
+                                                         initial_throttle_lift = 0.9,)
 
     # add to misison
     mission.append_segment(segment)

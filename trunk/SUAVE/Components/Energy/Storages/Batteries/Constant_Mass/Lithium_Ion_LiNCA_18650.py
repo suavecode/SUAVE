@@ -86,7 +86,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         return  
     
     
-    def energy_cycle_model(self,numerics,discharge_flag = True ):  
+    def energy_calc(self,numerics,battery_discharge_flag = True ):  
         """This is a electric cycle model for lithium-nickel-cobalt-aluminum oxide 18650 battery
            using a thevenin equavalent circuit with parameters taken from 
            pulse tests done by NASA Glen (referece below) of a Samsung (SDI 18650-30Q). 
@@ -170,7 +170,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         Np                = battery.module_config.parallel_count          
         n_total_module    = Nn*Np    
         
-        if discharge_flag :
+        if battery_discharge_flag :
             I_cell = I_bat/n_parallel
         else:  
             I_cell = -I_bat/n_parallel
@@ -311,8 +311,109 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         battery.cell_joule_heat_fraction            = np.zeros_like(V_ul)
         battery.cell_entropy_heat_fraction          = np.zeros_like(V_ul)
         
-        return battery        
+        return battery   
+    
+    def append_battery_unknowns(self,segment): 
+        """ Appends unknowns specific to NCA cells which are unpacked from the mission solver and send to the network.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            segment.state.unknowns.battery_cell_temperature   [Kelvin]
+            segment.state.unknowns.battery_state_of_charge    [unitless]
+            segment.state.unknowns.battery_thevenin_voltage   [volts]
+    
+            Outputs: 
+            segment.state.conditions.propulsion.battery_cell_temperature  [Kelvin]  
+            segment.state.conditions.propulsion.battery_state_of_charge   [unitless]
+            segment.state.conditions.propulsion.battery_thevenin_voltage  [volts]
+    
+            Properties Used:
+            N/A
+        """             
         
+        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
+        segment.state.conditions.propulsion.battery_state_of_charge     = segment.state.unknowns.battery_state_of_charge
+        segment.state.conditions.propulsion.battery_thevenin_voltage    = segment.state.unknowns.battery_thevenin_voltage   
+        
+        return     
+
+    def append_battery_residuals(self,segment,network): 
+        """ This packs the residuals specific to NCA cells to be sent to the mission solver.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            segment.state.conditions.propulsion:
+                battery_state_of_charge      [unitless] 
+                battery_cell_temperature     [Kelvin]        
+                battery_thevenin_voltage     [Volts]
+            segment.state.unknowns.
+                battery_state_of_charge      [unitless]
+                battery_cell_temperature     [Kelvin]  
+                battery_thevenin_voltage     [Volts]
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """      
+        
+        SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
+        SOC_predict  = segment.state.unknowns.battery_state_of_charge 
+    
+        Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
+        Temp_predict = segment.state.unknowns.battery_cell_temperature   
+    
+        v_th_actual  = segment.state.conditions.propulsion.battery_thevenin_voltage
+        v_th_predict = segment.state.unknowns.battery_thevenin_voltage        
+    
+        # Return the residuals   
+        segment.state.residuals.network.thevenin_voltage = v_th_predict[:,0] - v_th_actual[:,0]     
+        segment.state.residuals.network.SOC              = SOC_predict[:,0]  - SOC_actual[:,0]  
+        segment.state.residuals.network.temperature      = Temp_predict[:,0] - Temp_actual[:,0] 
+        
+        return 
+    
+    def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage, 
+                                              initial_battery_cell_temperature , initial_battery_state_of_charge,
+                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
+        """ This function sets up the information that the mission needs to run a mission segment using this network
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:  
+            initial_voltage                       [volts]
+            initial_battery_cell_temperature      [Kelvin]
+            initial_battery_state_of_charge       [unitless]
+            initial_battery_cell_current          [Amperes]
+            initial_battery_cell_thevenin_voltage [Volts]
+            
+            Outputs
+            None
+            
+            Properties Used:
+            N/A
+        """       
+        ones_row = segment.state.ones_row
+      
+        segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge   * ones_row(1)  
+        segment.state.unknowns.battery_cell_temperature     = initial_battery_cell_temperature  * ones_row(1)       
+        segment.state.unknowns.battery_thevenin_voltage     = initial_battery_cell_thevenin_voltage  * ones_row(1)    
+        
+        return  
 
 def create_discharge_performance_map(battery_raw_data):
     """ Create discharge and charge response surface for 

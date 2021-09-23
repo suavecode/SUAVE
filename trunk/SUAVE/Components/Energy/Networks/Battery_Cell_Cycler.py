@@ -54,10 +54,10 @@ class Battery_Cell_Cycler(Network):
         
     # manage process with a driver function
     def evaluate_thrust(self,state):
-        """ Calculate thrust given the current state of the vehicle
+        """ Evaluate the state variables of a cycled cell
     
-            Assumptions:
-            Caps the throttle at 110% and linearly interpolates thrust off that
+            Assumptions: 
+            None
     
             Source:
             N/A
@@ -91,7 +91,7 @@ class Battery_Cell_Cycler(Network):
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
-        discharge_flag              = conditions.propulsion.battery_discharge    
+        battery_discharge_flag      = conditions.propulsion.battery_discharge    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
         battery.max_energy          = conditions.propulsion.battery_max_aged_energy
@@ -151,7 +151,7 @@ class Battery_Cell_Cycler(Network):
         #-------------------------------------------------------------------------------
         # Discharge
         #-------------------------------------------------------------------------------
-        if discharge_flag:
+        if battery_discharge_flag:
             # Calculate avionics and payload power
             avionics_power = np.ones((numerics.number_control_points,1))*avionics.current * volts
         
@@ -162,13 +162,13 @@ class Battery_Cell_Cycler(Network):
             battery.inputs.current  = avionics_current
             battery.inputs.power_in = -avionics_power
             battery.inputs.voltage  = volts
-            battery.energy_cycle_model(numerics,discharge_flag)          
+            battery.energy_calc(numerics,battery_discharge_flag)          
             
         else: 
             battery.inputs.current  = -battery.charging_current * np.ones_like(volts)
             battery.inputs.voltage  =  battery.charging_voltage * np.ones_like(volts) 
             battery.inputs.power_in =  -battery.inputs.current * battery.inputs.voltage * np.ones_like(volts)
-            battery.energy_cycle_model(numerics,discharge_flag)        
+            battery.energy_calc(numerics,battery_discharge_flag)        
         
         # Pack the conditions for outputs     
         conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage 
@@ -218,37 +218,25 @@ class Battery_Cell_Cycler(Network):
             N/A
     
             Inputs:
-            state.unknowns.battery_voltage_under_load  [volts]
+            unknowns specific to the battery cell 
     
             Outputs: 
-            state.conditions.propulsion.battery_voltage_under_load  [volts]
-    
+            conditions specific to the battery cell
+             
             Properties Used:
             N/A
-        """                  
+        """             
+        # unpack 
+        battery = self.battery 
         
-        # Here we are going to unpack the unknowns (Cp) provided for this network
-        ss = segment.state 
-       
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
-            ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
-            ss.conditions.propulsion.battery_cell_temperature    = ss.unknowns.battery_cell_temperature 
-            ss.conditions.propulsion.battery_state_of_charge     = ss.unknowns.battery_state_of_charge
-            ss.conditions.propulsion.battery_current             = ss.unknowns.battery_current   
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            ss.conditions.propulsion.battery_cell_temperature    = ss.unknowns.battery_cell_temperature 
-            ss.conditions.propulsion.battery_state_of_charge     = ss.unknowns.battery_state_of_charge
-            ss.conditions.propulsion.battery_thevenin_voltage    = ss.unknowns.battery_thevenin_voltage   
-            
+        # append battery unknowns 
+        battery.append_battery_unknowns(segment)   
         return  
 
     
     
     def residuals(self,segment):
-        """ This packs the residuals to be send to the mission solver.
+        """ This packs the residuals to be sent to the mission solver.
     
             Assumptions:
             None
@@ -257,63 +245,26 @@ class Battery_Cell_Cycler(Network):
             N/A
     
             Inputs:
-            state.conditions.propulsion:
-                motor_torque                          [N-m]
-                propeller_torque                      [N-m]
-                voltage_under_load                    [volts]
-            state.unknowns.battery_voltage_under_load [volts]
+            unknowns specific to the battery cell 
             
             Outputs:
-            None
+            residuals specific to the battery cell
     
-            Properties Used:
-            self.voltage                              [volts]
-        """          
-            
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
-            v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
-            v_predict = segment.state.unknowns.battery_voltage_under_load
-            v_max     = self.voltage
-            
-            # Return the residuals
-            segment.state.residuals.network[:,0]  = (v_predict[:,0] - v_actual[:,0])/v_max 
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
-            SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
-            SOC_predict  = segment.state.unknowns.battery_state_of_charge 
+            Properties Used: 
+            N/A
+        """         
+        # unpack 
+        network = self
+        battery = self.battery 
         
-            Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
-            Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-            i_actual     = segment.state.conditions.propulsion.battery_current
-            i_predict    = segment.state.unknowns.battery_current      
-        
-            # Return the residuals  
-            segment.state.residuals.network[:,0]  =  SOC_predict[:,0]  - SOC_actual[:,0]  
-            segment.state.residuals.network[:,1]  =  Temp_predict[:,0] - Temp_actual[:,0]
-            segment.state.residuals.network[:,2]  =  i_predict[:,0]    - i_actual[:,0]   
-            
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
-            SOC_predict  = segment.state.unknowns.battery_state_of_charge 
-        
-            Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
-            Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-            v_th_actual  = segment.state.conditions.propulsion.battery_thevenin_voltage
-            v_th_predict = segment.state.unknowns.battery_thevenin_voltage        
-        
-            # Return the residuals   
-            segment.state.residuals.network[:,0]  = v_th_predict[:,0] - v_th_actual[:,0]     
-            segment.state.residuals.network[:,1]  = SOC_predict[:,0]  - SOC_actual[:,0]  
-            segment.state.residuals.network[:,2]  = Temp_predict[:,0] - Temp_actual[:,0] 
+        # append battery residuals 
+        battery.append_battery_residuals(segment,network)   
                 
         return     
 
-    def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, initial_power_coefficient = 0.005,
+    def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
                                               initial_battery_cell_temperature = 300 , initial_battery_state_of_charge = 0.5,
-                                              initial_battery_current = 5. ,initial_battery_thevenin_voltage= 0.1 ):
+                                              initial_battery_cell_current = 5. ,initial_battery_cell_thevenin_voltage= 0.1 ):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -323,33 +274,27 @@ class Battery_Cell_Cycler(Network):
             N/A
     
             Inputs:  
-    
+            initial_voltage                       [volts]
+            initial_battery_cell_temperature      [Kelvin]
+            initial_battery_state_of_charge       [unitless]
+            initial_battery_cell_current          [Amperes]
+            initial_battery_cell_thevenin_voltage [Volts]
+            
+            Outputs
+            None
+            
             Properties Used:
             N/A
-        """           
+        """         
+        # unpack  
+        battery  = self.battery 
         
-        # unpack the ones function
-        ones_row = segment.state.ones_row
+        segment.state.residuals.network  = Data()      
         
-        # unpack the initial values if the user doesn't specify  
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:   
-            if initial_voltage==None:
-                initial_voltage = self.battery.max_voltage 
-            segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1)  
-            segment.state.residuals.network                    = 0. * ones_row(1)
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:   
-            segment.state.unknowns.battery_state_of_charge     = initial_battery_state_of_charge   * ones_row(1)   
-            segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(1) 
-            segment.state.unknowns.battery_current             = initial_battery_current           * ones_row(1)  
-            segment.state.residuals.network                    = 0. * ones_row(3) 
-            
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge   * ones_row(1)  
-            segment.state.unknowns.battery_cell_temperature     = initial_battery_cell_temperature  * ones_row(1)       
-            segment.state.unknowns.battery_thevenin_voltage     = initial_battery_thevenin_voltage  * ones_row(1)   
-            segment.state.residuals.network                     = 0. * ones_row(3) 
+        # add unknowns and residuals specific to battery cell
+        battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage,
+                                              initial_battery_cell_temperature , initial_battery_state_of_charge,
+                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage)  
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns

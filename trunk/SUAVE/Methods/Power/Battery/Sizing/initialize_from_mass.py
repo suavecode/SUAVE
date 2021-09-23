@@ -15,7 +15,7 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Power-Battery-Sizing
-def initialize_from_mass(battery, SOC_start = 1, SOC_cutoff = 0.15 ):
+def initialize_from_mass(battery, SOC_start = 1, SOC_cutoff = 0.15,module_weight_factor = 1.42 ):
     """
     Calculate the max energy and power based of the mass
     Assumptions:
@@ -35,9 +35,7 @@ def initialize_from_mass(battery, SOC_start = 1, SOC_cutoff = 0.15 ):
         mass
 
 
-    """    
-
-    module_weight_factor         = 1.42 
+    """     
     mass                         = battery.mass_properties.mass/module_weight_factor
     
     if battery.cell.mass == None:

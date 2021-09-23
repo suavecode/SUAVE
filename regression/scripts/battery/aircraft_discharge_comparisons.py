@@ -1,8 +1,7 @@
 # aircraft_discharge_comparisons.py
 # 
 # Created: Feb 2020, M. Clarke
-#          Sep 2020, M. Clarke 
-#          Jul 2021, R. Erhard
+#          Sep 2020, M. Clarke  
 
 """ setup file for comparing battery packs of three chemistries in all-electric aircraft """
 
@@ -308,8 +307,7 @@ def GA_mission_setup(analyses,vehicle):
     ones_row     = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.state.numerics.number_control_points        = 4
-    base_segment.battery_discharge                           = True 
+    base_segment.state.numerics.number_control_points        = 4 
     base_segment.battery_age_in_days                         = 1 # optional but added for regression
     base_segment.temperature_deviation                       = 1 # Kelvin #  optional but added for regression
     
@@ -397,8 +395,7 @@ def EVTOL_mission_setup(analyses,vehicle):
 
     # base segment
     base_segment                                             = Segments.Segment()
-    base_segment.state.numerics.number_control_points        = 3
-    base_segment.battery_discharge                           = True  
+    base_segment.state.numerics.number_control_points        = 3 
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
 
@@ -475,7 +472,10 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.process.iterate.unknowns.mission        = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
+                                                         initial_prop_power_coefficient = 0.2,
+                                                         initial_lift_rotor_power_coefficient = 0.01,
+                                                         initial_throttle_lift = 0.9,)
 
     # add to misison
     mission.append_segment(segment)

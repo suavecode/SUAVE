@@ -146,7 +146,7 @@ class Lift_Cruise(Network):
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
-        discharge_flag              = conditions.propulsion.battery_discharge    
+        battery_discharge_flag      = conditions.propulsion.battery_discharge_flag    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
         battery.max_energy          = conditions.propulsion.battery_max_aged_energy
@@ -211,7 +211,7 @@ class Lift_Cruise(Network):
         # --------------------------------------------------------------------------------
         # Run Motor, Avionics and Systems (Discharge Model)
         # --------------------------------------------------------------------------------    
-        if discharge_flag:    
+        if battery_discharge_flag:    
                 
             # ESC Voltage
             lift_rotor_esc.inputs.voltagein = volts      
@@ -428,7 +428,7 @@ class Lift_Cruise(Network):
             battery.inputs.power_in = - power_total
             
             # Run the battery
-            battery.energy_cycle_model(numerics,discharge_flag)   
+            battery.energy_calc(numerics,battery_discharge_flag)   
     
             
         # --------------------------------------------------------------------------------
@@ -439,7 +439,7 @@ class Lift_Cruise(Network):
             battery.inputs.current  = -battery.cell.charging_current*n_parallel * np.ones_like(volts)
             battery.inputs.voltage  =  battery.cell.charging_voltage*n_series * np.ones_like(volts)
             battery.inputs.power_in =  -battery.inputs.current * battery.inputs.voltage             
-            battery.energy_cycle_model(numerics,discharge_flag)        
+            battery.energy_calc(numerics,battery_discharge_flag)        
              
             total_prop_thrust       = np.zeros((len(volts),3))  
             total_lift_rotor_thrust = np.zeros((len(volts),3))  
@@ -516,28 +516,20 @@ class Lift_Cruise(Network):
         # unpack the ones function
         ones_row = segment.state.ones_row
         
-        # Here we are going to unpack the unknowns provided for this network
-        ss = segment.state
-        if segment.battery_discharge: 
+        # Unpack the unknowns provided for this network  
+         
+        ss = segment.state 
+        if segment.battery_discharge_flag: 
             ss.conditions.propulsion.lift_rotor_power_coefficient = segment.state.unknowns.lift_rotor_power_coefficient
             ss.conditions.propulsion.propeller_power_coefficient  = segment.state.unknowns.propeller_power_coefficient   
             ss.conditions.propulsion.throttle_lift                = segment.state.unknowns.throttle_lift        
             ss.conditions.propulsion.throttle                     = segment.state.unknowns.throttle  
-        else:
+        else: 
             ss.conditions.propulsion.propeller_power_coefficientb = 0. * ones_row(1)
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
-            ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
-            ss.conditions.propulsion.battery_cell_temperature    = ss.unknowns.battery_cell_temperature 
-            ss.conditions.propulsion.battery_state_of_charge     = ss.unknowns.battery_state_of_charge
-            ss.conditions.propulsion.battery_current             = ss.unknowns.battery_current   
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            ss.conditions.propulsion.battery_cell_temperature    = ss.unknowns.battery_cell_temperature 
-            ss.conditions.propulsion.battery_state_of_charge     = ss.unknowns.battery_state_of_charge
-            ss.conditions.propulsion.battery_thevenin_voltage    = ss.unknowns.battery_thevenin_voltage   
+        battery = self.battery 
+        battery.append_battery_unknowns(segment)  
+
         
         return
     
@@ -568,31 +560,20 @@ class Lift_Cruise(Network):
             N/A
         """             
         
-        ones_row = segment.state.ones_row 
-        
-        # Here we are going to unpack the unknowns provided for this network
-        ss = segment.state
-        if segment.battery_discharge:   
+        ones_row = segment.state.ones_row  
+
+        # Unpack the unknowns provided for this network  
+        ss = segment.state 
+        if segment.battery_discharge_flag: 
             ss.conditions.propulsion.throttle_lift                       = 0.0 * ones_row(1)
             ss.conditions.propulsion.lift_rotor_power_coefficient        = 0.0 * ones_row(1) 
             ss.conditions.propulsion.propeller_power_coefficient         = segment.state.unknowns.propeller_power_coefficient
-            ss.conditions.propulsion.throttle                            = segment.state.unknowns.throttle            
-        else:
+            ss.conditions.propulsion.throttle                            = segment.state.unknowns.throttle   
+        else: 
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
-            ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
-            ss.conditions.propulsion.battery_cell_temperature    = ss.unknowns.battery_cell_temperature 
-            ss.conditions.propulsion.battery_state_of_charge     = ss.unknowns.battery_state_of_charge
-            ss.conditions.propulsion.battery_current             = ss.unknowns.battery_current   
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            ss.conditions.propulsion.battery_cell_temperature    = ss.unknowns.battery_cell_temperature 
-            ss.conditions.propulsion.battery_state_of_charge     = ss.unknowns.battery_state_of_charge
-            ss.conditions.propulsion.battery_thevenin_voltage    = ss.unknowns.battery_thevenin_voltage   
-
+        battery = self.battery 
+        battery.append_battery_unknowns(segment)  
         
         return    
     
@@ -623,35 +604,24 @@ class Lift_Cruise(Network):
         """         
         
         # unpack the ones function
-        ones_row = segment.state.ones_row
+        ones_row = segment.state.ones_row 
         
-        # Here we are going to unpack the unknowns (Cp) provided for this network
-        ss = segment.state
-        if segment.battery_discharge: 
-            # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
+        # Unpack the unknowns provided for this network  
+        ss = segment.state 
+        if segment.battery_discharge_flag:
             ss.conditions.propulsion.throttle_lift                = segment.state.unknowns.throttle_lift 
             ss.conditions.propulsion.lift_rotor_power_coefficient = segment.state.unknowns.lift_rotor_power_coefficient
             ss.conditions.propulsion.propeller_power_coefficient  = 0.0 * ones_row(1)
             ss.conditions.propulsion.throttle                     = 0.0 * ones_row(1)
-        else:
+        else: 
             ss.conditions.propulsion.propeller_power_coefficient  = 0.0 * ones_row(1) 
             ss.conditions.propulsion.throttle_lift                = 0.0 * ones_row(1) 
             ss.conditions.propulsion.lift_rotor_power_coefficient = 0.0 * ones_row(1)  
             ss.conditions.propulsion.throttle                     = 0.0 * ones_row(1)
             
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
-            ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
+        battery = self.battery 
+        battery.append_battery_unknowns(segment)  
             
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:
-            ss.conditions.propulsion.battery_cell_temperature    = ss.unknowns.battery_cell_temperature 
-            ss.conditions.propulsion.battery_state_of_charge     = ss.unknowns.battery_state_of_charge
-            ss.conditions.propulsion.battery_current             = ss.unknowns.battery_current   
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            ss.conditions.propulsion.battery_cell_temperature    = ss.unknowns.battery_cell_temperature 
-            ss.conditions.propulsion.battery_state_of_charge     = ss.unknowns.battery_state_of_charge
-            ss.conditions.propulsion.battery_thevenin_voltage    = ss.unknowns.battery_thevenin_voltage   
-                
         return    
     
     def residuals_transition(self,segment):
@@ -681,51 +651,17 @@ class Lift_Cruise(Network):
         """              
 
 
-        if segment.battery_discharge:  
+        if segment.battery_discharge_flag:  
             q_propeller_motor  = segment.state.conditions.propulsion.propeller_motor_torque
             q_prop_forward     = segment.state.conditions.propulsion.propeller_torque
             q_lift_rotor_motor = segment.state.conditions.propulsion.lift_rotor_motor_torque
             q_prop_lift        = segment.state.conditions.propulsion.lift_rotor_torque  
             segment.state.residuals.network.propellers  = (q_propeller_motor - q_prop_forward)/q_propeller_motor
-            segment.state.residuals.network.lift_rotors = (q_lift_rotor_motor - q_prop_lift)/q_lift_rotor_motor 
-            
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
-            v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
-            v_predict = segment.state.unknowns.battery_voltage_under_load
-            v_max     = self.voltage 
-            segment.state.residuals.network.voltage  = (v_predict - v_actual)/v_max        
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:       
-            SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
-            SOC_predict  = segment.state.unknowns.battery_state_of_charge 
-        
-            Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
-            Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-            i_actual     = segment.state.conditions.propulsion.battery_current
-            i_predict    = segment.state.unknowns.battery_current 
-        
-            # Return the residuals  
-            segment.state.residuals.network.current      =  i_predict - i_actual 
-            segment.state.residuals.network.SOC          =  SOC_predict - SOC_actual 
-            segment.state.residuals.network.temperature  =  Temp_predict - Temp_actual 
-            
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650: 
-            SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
-            SOC_predict  = segment.state.unknowns.battery_state_of_charge 
-        
-            Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
-            Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-            v_th_actual  = segment.state.conditions.propulsion.battery_thevenin_voltage
-            v_th_predict = segment.state.unknowns.battery_thevenin_voltage       
-        
-            # Return the residuals   
-            segment.state.residuals.thevenin_voltage  = v_th_predict - v_th_actual    
-            segment.state.residuals.SOC               = SOC_predict - SOC_actual
-            segment.state.residuals.temperature       = Temp_predict - Temp_actual
-                  
+            segment.state.residuals.network.lift_rotors = (q_lift_rotor_motor - q_prop_lift)/q_lift_rotor_motor   
+               
+        network       = self
+        battery       = self.battery 
+        battery.append_battery_residuals(segment,network)    
         return
     
     
@@ -755,48 +691,14 @@ class Lift_Cruise(Network):
             self.voltage                              [volts]
         """          
         
-        if segment.battery_discharge:   
+        if segment.battery_discharge_flag:   
             q_propeller_motor = segment.state.conditions.propulsion.propeller_motor_torque
             q_prop_forward    = segment.state.conditions.propulsion.propeller_torque    
             segment.state.residuals.network.propellers = (q_propeller_motor - q_prop_forward)/q_propeller_motor 
-
-
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
-            v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
-            v_predict = segment.state.unknowns.battery_voltage_under_load
-            v_max     = self.voltage 
-            segment.state.residuals.network.voltage  = (v_predict - v_actual)/v_max        
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:       
-            SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
-            SOC_predict  = segment.state.unknowns.battery_state_of_charge 
-        
-            Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
-            Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-            i_actual     = segment.state.conditions.propulsion.battery_current
-            i_predict    = segment.state.unknowns.battery_current 
-        
-            # Return the residuals  
-            segment.state.residuals.network.current      =  i_predict - i_actual 
-            segment.state.residuals.network.SOC          =  SOC_predict - SOC_actual 
-            segment.state.residuals.network.temperature  =  Temp_predict - Temp_actual 
-            
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650: 
-            SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
-            SOC_predict  = segment.state.unknowns.battery_state_of_charge 
-        
-            Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
-            Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-            v_th_actual  = segment.state.conditions.propulsion.battery_thevenin_voltage
-            v_th_predict = segment.state.unknowns.battery_thevenin_voltage       
-        
-            # Return the residuals   
-            segment.state.residuals.thevenin_voltage  = v_th_predict - v_th_actual    
-            segment.state.residuals.SOC               = SOC_predict - SOC_actual
-            segment.state.residuals.temperature       = Temp_predict - Temp_actual
+    
+        network       = self
+        battery       = self.battery 
+        battery.append_battery_residuals(segment,network)    
 
         return    
     
@@ -826,49 +728,14 @@ class Lift_Cruise(Network):
             self.voltage                              [volts]
         """            
           
-        if segment.battery_discharge:   
+        if segment.battery_discharge_flag:   
             q_lift_rotor_motor   = segment.state.conditions.propulsion.lift_rotor_motor_torque
             q_lift_rotor_lift    = segment.state.conditions.propulsion.lift_rotor_torque        
-            segment.state.residuals.network.lift_rotors  = (q_lift_rotor_motor - q_lift_rotor_lift)/q_lift_rotor_motor
-
-
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650:
-            v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
-            v_predict = segment.state.unknowns.battery_voltage_under_load
-            v_max     = self.voltage 
-            segment.state.residuals.network.voltage  = (v_predict - v_actual)/v_max        
+            segment.state.residuals.network.lift_rotors  = (q_lift_rotor_motor - q_lift_rotor_lift)/q_lift_rotor_motor 
             
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:       
-            SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
-            SOC_predict  = segment.state.unknowns.battery_state_of_charge 
-        
-            Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
-            Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-            i_actual     = segment.state.conditions.propulsion.battery_current
-            i_predict    = segment.state.unknowns.battery_current 
-        
-            # Return the residuals  
-            segment.state.residuals.network.current      =  i_predict - i_actual 
-            segment.state.residuals.network.SOC          =  SOC_predict - SOC_actual 
-            segment.state.residuals.network.temperature  =  Temp_predict - Temp_actual 
-            
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650: 
-            SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
-            SOC_predict  = segment.state.unknowns.battery_state_of_charge 
-        
-            Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
-            Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-            v_th_actual  = segment.state.conditions.propulsion.battery_thevenin_voltage
-            v_th_predict = segment.state.unknowns.battery_thevenin_voltage       
-        
-            # Return the residuals   
-            segment.state.residuals.thevenin_voltage  = v_th_predict - v_th_actual    
-            segment.state.residuals.SOC               = SOC_predict - SOC_actual
-            segment.state.residuals.temperature       = Temp_predict - Temp_actual
-            
+        network       = self
+        battery       = self.battery 
+        battery.append_battery_residuals(segment,network)    
         return
     
     
@@ -932,34 +799,28 @@ class Lift_Cruise(Network):
         else:
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
         
-        # Setup the residuals
-        segment.state.residuals.network = Data()        
-        
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650: 
-            if initial_voltage==None:
-                initial_voltage = self.battery.max_voltage
-                
-            segment.state.residuals.network.voltage             = 0. * ones_row(1)
-            segment.state.unknowns.battery_voltage_under_load   = initial_voltage * ones_row(1)
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:  
-            parallel                                           = self.battery.pack_config.parallel            
-            segment.state.unknowns.battery_state_of_charge     = initial_battery_state_of_charge   * ones_row(1)  
-            segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(1) 
-            segment.state.unknowns.battery_current             = initial_battery_cell_current*parallel * ones_row(1) 
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            series                                              = self.battery.pack_config.series       
-            segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge   * ones_row(1)  
-            segment.state.unknowns.battery_cell_temperature     = initial_battery_cell_temperature  * ones_row(1)       
-            segment.state.unknowns.battery_thevenin_voltage     = initial_battery_cell_thevenin_voltage*series  * ones_row(1)
-    
-        if segment.battery_discharge:  
+
+        # add unknowns and residuals specific to battery cell
+        segment.state.residuals.network  = Data() 
+        battery = self.battery
+        battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
+                                                                           initial_battery_state_of_charge, initial_battery_cell_current,
+                                                                           initial_battery_cell_thevenin_voltage)  
+        if ('battery_discharge_flag' not in segment):   
             segment.state.residuals.network.propellers          = 0. * ones_row(n_props)
             segment.state.residuals.network.lift_rotors         = 0. * ones_row(n_lift_rotors)
             segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1)   
             segment.state.unknowns.propeller_power_coefficient  = initial_prop_power_coefficient  * ones_row(n_props)
             segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)
+            segment.battery_discharge_flag = True          
+        else:
+            if segment.battery_discharge_flag: 
+                segment.state.residuals.network.propellers          = 0. * ones_row(n_props)
+                segment.state.residuals.network.lift_rotors         = 0. * ones_row(n_lift_rotors)
+                segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1)   
+                segment.state.unknowns.propeller_power_coefficient  = initial_prop_power_coefficient  * ones_row(n_props)
+                segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)  
+         
         
         # Setup the conditions for the propellers
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
@@ -1037,32 +898,23 @@ class Lift_Cruise(Network):
         if self.identical_lift_rotors:
             n_lift_rotors = 1
         else:
-            self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
-        
-        # Setup the residuals
-        segment.state.residuals.network            = Data() 
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650: 
-            if initial_voltage==None:
-                initial_voltage = self.battery.max_voltage
-                
-            segment.state.residuals.network.voltage             = 0. * ones_row(1)
-            segment.state.unknowns.battery_voltage_under_load   = initial_voltage * ones_row(1)
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:  
-            parallel                                           = self.battery.pack_config.parallel            
-            segment.state.unknowns.battery_state_of_charge     = initial_battery_state_of_charge   * ones_row(1)  
-            segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(1) 
-            segment.state.unknowns.battery_current             = initial_battery_cell_current*parallel * ones_row(1) 
-            
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            series                                              = self.battery.pack_config.series       
-            segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge   * ones_row(1)  
-            segment.state.unknowns.battery_cell_temperature     = initial_battery_cell_temperature  * ones_row(1)       
-            segment.state.unknowns.battery_thevenin_voltage     = initial_battery_cell_thevenin_voltage*series  * ones_row(1)
-        
-        if segment.battery_discharge:    
+            self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines) 
+    
+        # add unknowns and residuals specific to battery cell
+        segment.state.residuals.network  = Data() 
+        battery = self.battery
+        battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
+                                                                           initial_battery_state_of_charge, initial_battery_cell_current,
+                                                                           initial_battery_cell_thevenin_voltage)  
+        if ('battery_discharge_flag' not in segment):   
             segment.state.residuals.network.propellers         = 0. * ones_row(n_props)
             segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)
+            segment.battery_discharge_flag = True          
+        else:
+            if segment.battery_discharge_flag: 
+                segment.state.residuals.network.propellers         = 0. * ones_row(n_props)
+                segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)   
+            
         
         # Setup the conditions for the propellers
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
@@ -1147,32 +999,25 @@ class Lift_Cruise(Network):
         else:
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
 
-        # Setup the residuals
-        segment.state.residuals.network  = Data()    
-        if type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650: 
-            if initial_voltage==None:
-                initial_voltage = self.battery.max_voltage
 
-            segment.state.residuals.network.voltage             = 0. * ones_row(1)
-            segment.state.unknowns.battery_voltage_under_load   = initial_voltage * ones_row(1)
-
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650:  
-            parallel                                           = self.battery.pack_config.parallel            
-            segment.state.unknowns.battery_state_of_charge     = initial_battery_state_of_charge   * ones_row(1)  
-            segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(1) 
-            segment.state.unknowns.battery_current             = initial_battery_cell_current*parallel * ones_row(1) 
-
-        elif type(self.battery) == SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650:   
-            series                                              = self.battery.pack_config.series       
-            segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge   * ones_row(1)  
-            segment.state.unknowns.battery_cell_temperature     = initial_battery_cell_temperature  * ones_row(1)       
-            segment.state.unknowns.battery_thevenin_voltage     = initial_battery_cell_thevenin_voltage*series  * ones_row(1)
-
-        if segment.battery_discharge:        
+        # add unknowns and residuals specific to battery cell
+        segment.state.residuals.network  = Data() 
+        battery = self.battery
+        battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
+                                                                           initial_battery_state_of_charge, initial_battery_cell_current,
+                                                                           initial_battery_cell_thevenin_voltage)  
+        if ('battery_discharge_flag' not in segment):   
             segment.state.residuals.network.lift_rotors = 0. * ones_row(n_lift_rotors) 
             segment.state.unknowns.__delitem__('throttle')
             segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1) 
-            segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)
+            segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)    
+            segment.battery_discharge_flag = True          
+        else:
+            if segment.battery_discharge_flag: 
+                segment.state.residuals.network.lift_rotors = 0. * ones_row(n_lift_rotors) 
+                segment.state.unknowns.__delitem__('throttle')
+                segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1) 
+                segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)  
 
         # Setup the conditions for the propellers
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)

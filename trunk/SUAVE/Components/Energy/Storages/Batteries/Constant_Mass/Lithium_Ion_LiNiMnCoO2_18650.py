@@ -84,16 +84,14 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         self.specific_heat_capacity           = 1108                                                     # [J/kgK]  
         self.cell.specific_heat_capacity      = 1108                                                     # [J/kgK]    
         self.cell.radial_thermal_conductivity = 0.4                                                      # [J/kgK]  
-        self.cell.axial_thermal_conductivity  = 32.2                                                     # [J/kgK] # estimated   
-         
-        self.energy_cycle_model             
+        self.cell.axial_thermal_conductivity  = 32.2                                                     # [J/kgK] # estimated  
                                               
         battery_raw_data                      = load_battery_results()                                                   
         self.discharge_performance_map        = create_discharge_performance_map(battery_raw_data)  
         
         return  
     
-    def energy_cycle_model(self,numerics,discharge_flag = True ): 
+    def energy_calc(self,numerics,battery_discharge_flag = True ): 
         '''This is a electric cycle model for 18650 lithium-nickel-manganese-cobalt-oxide
            battery cells. The model uses experimental data performed
            by the Automotive Industrial Systems Company of Panasonic Group 
@@ -179,7 +177,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         Np                = battery.module_config.parallel_count          
         n_total_module    = Nn*Np        
 
-        if discharge_flag :
+        if battery_discharge_flag:
             I_cell = I_bat/n_parallel
         else: 
             I_cell = -I_bat/n_parallel 
@@ -282,7 +280,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
          
         # Compute thevening equivalent voltage   
         V_th0  = V_th0/n_series
-        V_Th   = compute_thevenin_votlage(V_th0,I_cell,C_Th ,R_Th,numerics.time.control_points[:,0])
+        V_Th   = compute_thevenin_voltage(V_th0,I_cell,C_Th ,R_Th,numerics.time.control_points[:,0])
         
         # Voltage under load: 
         V_oc      = V_ul + V_Th + (I_cell * R_0_aged) 
@@ -332,10 +330,113 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         battery.voltage_under_load                 = V_ul*n_series 
         battery.cell_voltage_under_load            = V_ul
         
-        return battery
+        return battery 
+    
+    def append_battery_unknowns(self,segment): 
+        """ Appends unknowns specific to NMC cells which are unpacked from the mission solver and send to the network.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            segment.state.unknowns.battery_cell_temperature   [Kelvin]
+            segment.state.unknowns.battery_state_of_charge    [unitless]
+            segment.state.unknowns.battery_current            [Amperes]
+    
+            Outputs: 
+            segment.state.conditions.propulsion.battery_cell_temperature  [Kelvin]  
+            segment.state.conditions.propulsion.battery_state_of_charge   [unitless]
+            segment.state.conditions.propulsion.battery_current           [Amperes]
+    
+            Properties Used:
+            N/A
+        """             
+        
+        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
+        segment.state.conditions.propulsion.battery_state_of_charge     = segment.state.unknowns.battery_state_of_charge
+        segment.state.conditions.propulsion.battery_current             = segment.state.unknowns.battery_current    
+        
+        return     
     
 
-def compute_thevenin_votlage(V_th0,I,C_Th, R_Th,t):
+    def append_battery_residuals(self,segment,network): 
+        """ This packs the residuals specific to NMC cells to be sent to the mission solver.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            segment.state.conditions.propulsion:
+                battery_state_of_charge      [unitless] 
+                battery_cell_temperature     [Kelvin]        
+                battery_current              [Amperes]
+            segment.state.unknowns.
+                battery_state_of_charge      [unitless]
+                battery_cell_temperature     [Kelvin]  
+                battery_current              [Amperes]
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """      
+        
+        SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
+        SOC_predict  = segment.state.unknowns.battery_state_of_charge 
+    
+        Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
+        Temp_predict = segment.state.unknowns.battery_cell_temperature   
+    
+        i_actual     = segment.state.conditions.propulsion.battery_current
+        i_predict    = segment.state.unknowns.battery_current      
+    
+        # Return the residuals  
+        segment.state.residuals.network.SOC         =  SOC_predict[:,0]  - SOC_actual[:,0]  
+        segment.state.residuals.network.temperature =  Temp_predict[:,0] - Temp_actual[:,0]
+        segment.state.residuals.network.current     =  i_predict[:,0]    - i_actual[:,0]  
+        
+        return  num_residuals
+    
+    def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage,
+                                              initial_battery_cell_temperature , initial_battery_state_of_charge,
+                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
+        """ This function sets up the information that the mission needs to run a mission segment using this network
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:  
+            initial_voltage                       [volts] 
+            initial_battery_cell_temperature      [Kelvin]
+            initial_battery_state_of_charge       [unitless]
+            initial_battery_cell_current          [Amperes]
+            initial_battery_cell_thevenin_voltage [Volts]
+            
+            Outputs
+            None
+            
+            Properties Used:
+            N/A
+        """        
+        ones_row = segment.state.ones_row  
+         
+        parallel                                           = self.pack_config.parallel            
+        segment.state.unknowns.battery_state_of_charge     = initial_battery_state_of_charge   * ones_row(1)  
+        segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(1) 
+        segment.state.unknowns.battery_current             = initial_battery_cell_current*parallel * ones_row(1)  
+        
+        return  
+
+def compute_thevenin_voltage(V_th0,I,C_Th, R_Th,t):
     """ Computes the thevenin voltage of an NMC cell using SciPy ODE solver 
     
     Assumptions:

@@ -131,7 +131,7 @@ class Battery_Ducted_Fan(Network):
         # link to the battery
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current 
         battery.inputs.power_in = -(esc_power + avionics_payload_power)
-        battery.energy_cycle_model(numerics)        
+        battery.energy_calc(numerics)        
     
         # No mass gaining batteries
         mdot = np.zeros(np.shape(conditions.freestream.velocity))

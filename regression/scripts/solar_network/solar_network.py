@@ -186,7 +186,6 @@ def mission_setup(analyses,vehicle):
     # base segment
     base_segment = Segments.Segment()
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.battery_discharge                           = True 
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude

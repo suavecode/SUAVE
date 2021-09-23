@@ -51,8 +51,10 @@ class Battery_Charge_Discharge(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude = None
-        self.time     = 1.0 * Units.seconds
+        self.altitude               = None
+        self.time                   = 1.0 * Units.seconds
+        self.overcharge_contingency = 1.25
+        self.battery_discharge      = True  
         
         # --------------------------------------------------------------
         #   State

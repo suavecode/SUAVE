@@ -1,4 +1,3 @@
-
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 # Lithium_Ion.py
 # 
@@ -80,7 +79,7 @@ class Lithium_Ion(Battery):
         self.ragone.upper_bound                            = 225.    *Units.Wh/Units.kg    
         return           
 
-    def energy_cycle_model(self,numerics,discharge_flag= True): 
+    def energy_calc(self,numerics,battery_discharge_flag= True): 
         """This is a electric cycle model for 18650 lithium-iron_phosphate battery cells. It
            models losses based on an empirical correlation Based on method taken 
            from Datta and Johnson.
@@ -207,7 +206,7 @@ class Lithium_Ion(Battery):
         V_oc[ V_oc > V_max] = V_max
         
         # Voltage under load:
-        if discharge_flag:
+        if battery_discharge_flag:
             V_ul   = V_oc - I_bat*R_0
         else: 
             V_ul   = V_oc + I_bat*R_0 
@@ -233,5 +232,60 @@ class Lithium_Ion(Battery):
         battery.heat_energy_generated              = Q_heat_gen 
         battery.internal_resistance                = R_0 
         battery.cell_voltage_under_load            = V_ul 
+        
+        return      
+    
+    def append_battery_unknowns(self,segment): 
+        """ Appends unknowns specific to LFP cells which are unpacked from the mission solver and send to the network.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.battery_voltage_under_load  [volts]
+    
+            Outputs: 
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+    
+            Properties Used:
+            N/A
+        """             
+        
+        segment.conditions.propulsion.battery_voltage_under_load  = segment.unknowns.battery_voltage_under_load
+        
+        return 
+    
+    def append_battery_residuals(self,segment,network): 
+        """ This packs the residuals specific to LFP cells to be sent to the mission solver.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.conditions.propulsion:
+                motor_torque                          [N-m]
+                propeller_torque                      [N-m]
+                voltage_under_load                    [volts]
+            state.unknowns.battery_voltage_under_load [volts]
+            
+            Outputs:
+            None
+    
+            Properties Used:
+            network.voltage                              [volts]
+        """     
+        
+        v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
+        v_predict = segment.state.unknowns.battery_voltage_under_load
+        v_max     = network.voltage
+        
+        # Return the residuals
+        segment.state.residuals.network[:,0]  = (v_predict[:,0] - v_actual[:,0])/v_max
         
         return     

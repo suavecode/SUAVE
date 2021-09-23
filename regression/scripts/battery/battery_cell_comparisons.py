@@ -1,4 +1,6 @@
 # battery_cell_comparison.py 
+# 
+# Created: Sep 2021, M. Clarke  
 
 #----------------------------------------------------------------------
 #   Imports
@@ -62,7 +64,7 @@ def main():
     battery_li_ion.E_growth_factor   = 1 
     
     # run discharge model
-    battery_li_ion.energy_cycle_model(numerics)
+    battery_li_ion.energy_calc(numerics)
     print(battery_li_ion)
     plot_ragone(battery_li_ion, 'lithium ion')
     plot_ragone(battery_li_s,   'lithium sulfur') 
@@ -370,8 +372,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)
         segment.tag                                         = "LFP_Discharge" 
         segment.analyses.extend(analyses.base)       
-        segment.time                                        = discharge_time
-        segment.battery_discharge                           = True  
+        segment.time                                        = discharge_time 
         segment.battery_pack_temperature                    = 300  
         segment.ambient_temperature                         = 300   
         segment.initial_battery_charge_throughput           = 0
@@ -382,8 +383,8 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         # Charge Model 
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'LFP_Charge'  
-        segment.analyses.extend(analyses.base)       
         segment.battery_discharge                           = False 
+        segment.analyses.extend(analyses.base)        
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)      
         mission.append_segment(segment) 
         
@@ -392,8 +393,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)
         segment.tag                                         = "NCA_Discharge" 
         segment.analyses.extend(analyses.base)               
-        segment.time                                        = discharge_time
-        segment.battery_discharge                           = True  
+        segment.time                                        = discharge_time 
         segment.battery_pack_temperature                    = 300  
         segment.ambient_temperature                         = 300   
         segment.initial_battery_charge_throughput           = 0
@@ -404,8 +404,8 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         # Charge Model 
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'NCA_Charge'  
-        segment.analyses.extend(analyses.base)                
         segment.battery_discharge                           = False 
+        segment.analyses.extend(analyses.base)                 
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment) 
         
@@ -414,8 +414,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)
         segment.tag                                         = "NMC_Discharge" 
         segment.analyses.extend(analyses.base)       
-        segment.time                                        = discharge_time
-        segment.battery_discharge                           = True  
+        segment.time                                        = discharge_time 
         segment.battery_pack_temperature                    = 300  
         segment.ambient_temperature                         = 300   
         segment.initial_battery_charge_throughput           = 0
@@ -426,8 +425,8 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         # Charge Model 
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'NMC_Charge'  
-        segment.analyses.extend(analyses.base)           
         segment.battery_discharge                           = False 
+        segment.analyses.extend(analyses.base)            
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment) 
         
