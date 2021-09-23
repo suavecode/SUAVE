@@ -146,7 +146,7 @@ class Lift_Cruise(Network):
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
-        battery_discharge_flag      = conditions.propulsion.battery_discharge_flag    
+        battery_discharge_flag      = conditions.propulsion.battery_discharge    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
         battery.max_energy          = conditions.propulsion.battery_max_aged_energy
@@ -519,7 +519,7 @@ class Lift_Cruise(Network):
         # Unpack the unknowns provided for this network  
          
         ss = segment.state 
-        if segment.battery_discharge_flag: 
+        if segment.battery_discharge: 
             ss.conditions.propulsion.lift_rotor_power_coefficient = segment.state.unknowns.lift_rotor_power_coefficient
             ss.conditions.propulsion.propeller_power_coefficient  = segment.state.unknowns.propeller_power_coefficient   
             ss.conditions.propulsion.throttle_lift                = segment.state.unknowns.throttle_lift        
@@ -564,7 +564,7 @@ class Lift_Cruise(Network):
 
         # Unpack the unknowns provided for this network  
         ss = segment.state 
-        if segment.battery_discharge_flag: 
+        if segment.battery_discharge: 
             ss.conditions.propulsion.throttle_lift                       = 0.0 * ones_row(1)
             ss.conditions.propulsion.lift_rotor_power_coefficient        = 0.0 * ones_row(1) 
             ss.conditions.propulsion.propeller_power_coefficient         = segment.state.unknowns.propeller_power_coefficient
@@ -608,7 +608,7 @@ class Lift_Cruise(Network):
         
         # Unpack the unknowns provided for this network  
         ss = segment.state 
-        if segment.battery_discharge_flag:
+        if segment.battery_discharge:
             ss.conditions.propulsion.throttle_lift                = segment.state.unknowns.throttle_lift 
             ss.conditions.propulsion.lift_rotor_power_coefficient = segment.state.unknowns.lift_rotor_power_coefficient
             ss.conditions.propulsion.propeller_power_coefficient  = 0.0 * ones_row(1)
@@ -651,7 +651,7 @@ class Lift_Cruise(Network):
         """              
 
 
-        if segment.battery_discharge_flag:  
+        if segment.battery_discharge:  
             q_propeller_motor  = segment.state.conditions.propulsion.propeller_motor_torque
             q_prop_forward     = segment.state.conditions.propulsion.propeller_torque
             q_lift_rotor_motor = segment.state.conditions.propulsion.lift_rotor_motor_torque
@@ -691,7 +691,7 @@ class Lift_Cruise(Network):
             self.voltage                              [volts]
         """          
         
-        if segment.battery_discharge_flag:   
+        if segment.battery_discharge:   
             q_propeller_motor = segment.state.conditions.propulsion.propeller_motor_torque
             q_prop_forward    = segment.state.conditions.propulsion.propeller_torque    
             segment.state.residuals.network.propellers = (q_propeller_motor - q_prop_forward)/q_propeller_motor 
@@ -728,7 +728,7 @@ class Lift_Cruise(Network):
             self.voltage                              [volts]
         """            
           
-        if segment.battery_discharge_flag:   
+        if segment.battery_discharge:   
             q_lift_rotor_motor   = segment.state.conditions.propulsion.lift_rotor_motor_torque
             q_lift_rotor_lift    = segment.state.conditions.propulsion.lift_rotor_torque        
             segment.state.residuals.network.lift_rotors  = (q_lift_rotor_motor - q_lift_rotor_lift)/q_lift_rotor_motor 
@@ -806,15 +806,15 @@ class Lift_Cruise(Network):
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current,
                                                                            initial_battery_cell_thevenin_voltage)  
-        if ('battery_discharge_flag' not in segment):   
+        if ('battery_discharge' not in segment):   
             segment.state.residuals.network.propellers          = 0. * ones_row(n_props)
             segment.state.residuals.network.lift_rotors         = 0. * ones_row(n_lift_rotors)
             segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1)   
             segment.state.unknowns.propeller_power_coefficient  = initial_prop_power_coefficient  * ones_row(n_props)
             segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)
-            segment.battery_discharge_flag = True          
+            segment.battery_discharge = True          
         else:
-            if segment.battery_discharge_flag: 
+            if segment.battery_discharge: 
                 segment.state.residuals.network.propellers          = 0. * ones_row(n_props)
                 segment.state.residuals.network.lift_rotors         = 0. * ones_row(n_lift_rotors)
                 segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1)   
@@ -906,12 +906,12 @@ class Lift_Cruise(Network):
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current,
                                                                            initial_battery_cell_thevenin_voltage)  
-        if ('battery_discharge_flag' not in segment):   
+        if ('battery_discharge' not in segment):   
             segment.state.residuals.network.propellers         = 0. * ones_row(n_props)
             segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)
-            segment.battery_discharge_flag = True          
+            segment.battery_discharge = True          
         else:
-            if segment.battery_discharge_flag: 
+            if segment.battery_discharge: 
                 segment.state.residuals.network.propellers         = 0. * ones_row(n_props)
                 segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)   
             
@@ -1006,14 +1006,14 @@ class Lift_Cruise(Network):
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current,
                                                                            initial_battery_cell_thevenin_voltage)  
-        if ('battery_discharge_flag' not in segment):   
+        if ('battery_discharge' not in segment):   
             segment.state.residuals.network.lift_rotors = 0. * ones_row(n_lift_rotors) 
             segment.state.unknowns.__delitem__('throttle')
             segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1) 
             segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)    
-            segment.battery_discharge_flag = True          
+            segment.battery_discharge = True          
         else:
-            if segment.battery_discharge_flag: 
+            if segment.battery_discharge: 
                 segment.state.residuals.network.lift_rotors = 0. * ones_row(n_lift_rotors) 
                 segment.state.unknowns.__delitem__('throttle')
                 segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1) 

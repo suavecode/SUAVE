@@ -401,7 +401,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         segment.state.residuals.network.temperature =  Temp_predict[:,0] - Temp_actual[:,0]
         segment.state.residuals.network.current     =  i_predict[:,0]    - i_actual[:,0]  
         
-        return  num_residuals
+        return  
     
     def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage,
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
