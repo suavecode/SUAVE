@@ -18,9 +18,9 @@ import SUAVE
 import numpy as np
 from .Network import Network
 from SUAVE.Components.Physical_Component import Container 
-from SUAVE.Core import Data , Units
-from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNCA_cell_cycle_model      import compute_NCA_cell_state_variables 
-from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNiMnCoO2_cell_cycle_model import compute_NMC_cell_state_variables
+from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
+from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
+from SUAVE.Core import Data , Units 
 
 # ----------------------------------------------------------------------
 #  Network
@@ -134,19 +134,19 @@ class Battery_Propeller(Network):
         battery.current_energy      = conditions.propulsion.battery_energy
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
-        battery.age_in_days         = conditions.propulsion.battery_age_in_days 
+        battery.age                 = conditions.propulsion.battery_age        
         discharge_flag              = conditions.propulsion.battery_discharge_flag    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
         battery.max_energy          = conditions.propulsion.battery_max_aged_energy 
         n_series                    = battery.pack_config.series  
         n_parallel                  = battery.pack_config.parallel
-        n_total                     = n_series*n_parallel
         
         # update ambient temperature based on altitude
         battery.ambient_temperature                   = conditions.freestream.temperature   
         battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
         battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity
+        battery.cooling_fluid.prandtl_number          = conditions.freestream.prandtl_number
         battery.cooling_fluid.density                 = conditions.freestream.density  
         battery.ambient_pressure                      = conditions.freestream.pressure  
         a                                             = conditions.freestream.speed_of_sound
@@ -271,39 +271,12 @@ class Battery_Propeller(Network):
             battery.inputs.power_in =  -battery.inputs.current * battery.inputs.voltage             
             battery.energy_calc(numerics,discharge_flag)        
             
-            avionics_payload_current = np.zeros((len(volts),1)) 
+            avionics_payload_power   = np.zeros((len(volts),1)) 
             total_thrust             = np.zeros((len(volts),3)) 
             P                        = battery.inputs.power_in
             
         # Pack the conditions for outputs
-        battery_draw = battery.inputs.power_in    
-        conditions.propulsion.battery_current                      = battery.inputs.current
-        conditions.propulsion.battery_energy                       = battery.current_energy
-        conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
-        conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load 
-        conditions.propulsion.battery_power_draw                   = battery_draw 
-        conditions.propulsion.battery_max_aged_energy              = battery.max_energy 
-        conditions.propulsion.battery_charge_throughput            = battery.charge_throughput 
-        conditions.propulsion.battery_internal_resistance          = battery.internal_resistance
-        conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
-        conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
-        conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage           
-        conditions.propulsion.battery_age_in_days                  = battery.age_in_days  
-        conditions.propulsion.battery_efficiency                   = (battery_draw+battery.resistive_losses)/battery_draw
-        conditions.propulsion.payload_efficiency                   = (battery_draw+avionics_payload_current)/battery_draw            
-        conditions.propulsion.battery_specfic_power                = -battery_draw/battery.mass_properties.mass    # kWh/kg  
-        conditions.propulsion.electronics_efficiency               = -(P)/battery_draw   
-
-        conditions.propulsion.battery_cell_power_draw              = battery.inputs.power_in /n_series
-        conditions.propulsion.battery_cell_energy                  = battery.current_energy/n_total   
-        conditions.propulsion.battery_cell_voltage_under_load      = battery.cell_voltage_under_load    
-        conditions.propulsion.battery_cell_voltage_open_circuit    = battery.cell_voltage_open_circuit  
-        conditions.propulsion.battery_cell_current                 = abs(battery.cell_current)        
-        conditions.propulsion.battery_cell_temperature             = battery.cell_temperature
-        conditions.propulsion.battery_cell_charge_throughput       = battery.cell_charge_throughput
-        conditions.propulsion.battery_cell_heat_energy_generated   = battery.heat_energy_generated
-        conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
-        conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction 
+        pack_battery_conditions(conditions,battery,avionics_payload_power,P)  
         
          # Create the outputs
         results = Data()
@@ -434,7 +407,11 @@ class Battery_Propeller(Network):
             
         # Now check if the propellers are all identical, in this case they have the same of residuals and unknowns
         if identical_flag:
-            n_props = 1  
+            n_props = 1   
+
+        # Perscribe initial segment conditions first segment 
+        if 'battery_energy'  in segment:
+            append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)      
         
         # add unknowns and residuals specific to battery cell 
         segment.state.residuals.network  = Data()         

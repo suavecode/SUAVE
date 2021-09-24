@@ -47,14 +47,16 @@ class Air(Gas):
         Properties Used:
         None
         """          
-
-        self.molecular_mass = 28.96442        # kg/kmol
-        self.gas_specific_constant = 287.0528742                 # m^2/s^2-K, specific gas constant
-        self.composition.O2 = 0.20946
-        self.composition.Ar = 0.00934
-        self.composition.CO2 = 0.00036
-        self.composition.N2  = 0.78084
-        self.composition.other = 0.00
+        self.tag                    = 'air'
+        self.molecular_mass         = 28.96442        # kg/kmol
+        self.gas_specific_constant  = 287.0528742     # m^2/s^2-K, specific gas constant 
+        #self.thermal_conductivity   = 0.0253          # W/mK 
+        self.specific_heat_capacity = 1006           # J/kgK         
+        self.composition.O2         = 0.20946
+        self.composition.Ar         = 0.00934
+        self.composition.CO2        = 0.00036
+        self.composition.N2         = 0.78084
+        self.composition.other      = 0.00
 
     def compute_density(self,T=300.,p=101325.):
         """Computes air density given temperature and pressure
@@ -217,8 +219,8 @@ class Air(Gas):
         return 3.99E-4 + 9.89E-5*(T) -4.57E-8*(T**2) + 1.4E-11*(T**3)
     
     
-    def compute_prandlt_number(self,T=300.,p=101325. ):
-        """Compute the prandlt number 
+    def compute_prandtl_number(self,T=300.,p=101325. ):
+        """Compute the prandtl number 
             
         Assumptions: 
 
@@ -229,12 +231,12 @@ class Air(Gas):
         T                  [K]       - Temperature
 
         Outputs:
-        prandlt number 
+        prandtl number 
 
         Properties Used:
         None
         """  
-         
+        p                    = np.atleast_2d(p).T
         raw_Pr_Temp_Pressure = np.array([[60,4.138,4.153,4.170,4.187],[80,1.7,2.252,2.259,2.269],[100,0.780,0.898,1.783,1.770],[120,0.759,0.806,0.890,1.360],[140,0.747,0.773,0.812,0.923],
                                         [180,0.731,0.743,0.759,0.792],[200,0.726,0.735,0.745,0.769],[220,0.721,0.728,0.736,0.754],[240,0.717,0.722,0.729,0.742],
                                         [260,0.713,0.718,0.723,0.734],[273,0.711,0.715,0.720,0.729],[280,0.710,0.714,0.718,0.727],[289,0.709,0.713,0.716,0.723],
@@ -246,5 +248,5 @@ class Air(Gas):
         pressures    = np.array([14.5, 72.5, 145,725]) * Units.lbs / (1*Units.inch)**2 
         prandlt_fit  = interpolate.interp2d(pressures, temperatures, raw_Pr_Temp_Pressure[:,1:])                                        
         Pr_vals      = prandlt_fit(T[:,0],p[:,0])
-        Pr           = np.atleast_2d(Pr_vals[0, :]).T
+        Pr           = np.atleast_2d(Pr_vals).T
         return Pr      

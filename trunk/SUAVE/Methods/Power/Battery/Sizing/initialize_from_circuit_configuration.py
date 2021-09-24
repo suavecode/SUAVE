@@ -1,13 +1,12 @@
 ## @ingroup Methods-Power-Battery-Sizing
-# initialize_from_circuit_configuration
+# initialize_from_circuit_configuration.py
 # 
 # Created: Mar 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Units
-import numpy as np
+from SUAVE.Core import Units 
 
 # ----------------------------------------------------------------------
 #  Methods

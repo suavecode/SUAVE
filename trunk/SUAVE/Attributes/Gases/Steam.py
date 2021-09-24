@@ -47,9 +47,10 @@ class Steam(Gas):
         Properties Used:
         None
         """ 
-        self.molecular_mass = 18.                  # kg/kmol
+        self.tag                   ='steam'
+        self.molecular_mass        = 18.           # kg/kmol
         self.gas_specific_constant = 461.889       # m^2/s^2-K, specific gas constant
-        self.composition.H2O = 1.0
+        self.composition.H2O       = 1.0
 
     def compute_density(self,T=300,p=101325):
         """Computes air density given temperature and pressure

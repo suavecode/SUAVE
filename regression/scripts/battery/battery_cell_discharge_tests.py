@@ -21,53 +21,53 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    # size the battery
-    Mission_total = SUAVE.Analyses.Mission.Sequential_Segments()
-    Ereq          = 4000*Units.Wh # required energy for the mission in Joules 
-    Preq          = 3000. # maximum power requirements for mission in W
+    ## size the battery
+    #Mission_total = SUAVE.Analyses.Mission.Sequential_Segments()
+    #Ereq          = 4000*Units.Wh # required energy for the mission in Joules 
+    #Preq          = 3000. # maximum power requirements for mission in W
     
-    numerics                      = Data()
-    battery_inputs                = Data() #create inputs data structure for inputs for testing discharge model
-    specific_energy_guess         = 500*Units.Wh/Units.kg
-    battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
-    battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()    
-    battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
-    battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
-    li_ion_mass                   = 10*Units.kg
+    #numerics                      = Data()
+    #battery_inputs                = Data() #create inputs data structure for inputs for testing discharge model
+    #specific_energy_guess         = 500*Units.Wh/Units.kg
+    #battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
+    #battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()    
+    #battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
+    #battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
+    #li_ion_mass                   = 10*Units.kg
     
-    # build numerics
-    numerics.time                 = Data()
-    numerics.time.integrate       = np.array([[0, 0],[0, 10]])
-    numerics.time.differentiate   = np.array([[0, 0],[0, 1]])
-    numerics.time.control_points  = np.array([[0], [1]])
+    ## build numerics
+    #numerics.time                 = Data()
+    #numerics.time.integrate       = np.array([[0, 0],[0, 10]])
+    #numerics.time.differentiate   = np.array([[0, 0],[0, 1]])
+    #numerics.time.control_points  = np.array([[0], [1]])
     
-    # build battery_inputs(i.e. current it's run at, power, normally done from energy network
-    battery_inputs.current        = np.array([[90],[90]])*Units.amps
-    battery_inputs.power_in       = np.array([[Preq/2.] ,[ Preq]])
-    print('battery_inputs=', battery_inputs)
-    battery_li_ion.inputs         = battery_inputs
-    battery_li_ion.max_voltage    = battery_li_ion.cell.max_voltage
+    ## build battery_inputs(i.e. current it's run at, power, normally done from energy network
+    #battery_inputs.current        = np.array([[90],[90]])*Units.amps
+    #battery_inputs.power_in       = np.array([[Preq/2.] ,[ Preq]])
+    #print('battery_inputs=', battery_inputs)
+    #battery_li_ion.inputs         = battery_inputs
+    #battery_li_ion.max_voltage    = battery_li_ion.cell.max_voltage
     
-    # run tests on functionality
-    test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)
-    test_mass_gain(battery_al_air, Preq)
-    test_find_ragone_properties(specific_energy_guess,battery_li_s, Ereq,Preq)
-    test_find_ragone_optimum(battery_li_ion,Ereq,Preq)
+    ## run tests on functionality
+    #test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)
+    #test_mass_gain(battery_al_air, Preq)
+    #test_find_ragone_properties(specific_energy_guess,battery_li_s, Ereq,Preq)
+    #test_find_ragone_optimum(battery_li_ion,Ereq,Preq)
    
-    test_initialize_from_mass(battery_li_ion,li_ion_mass)
+    #test_initialize_from_mass(battery_li_ion,li_ion_mass)
     
-    # make sure battery starts fully charged
-    battery_li_ion.current_energy    = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
-    battery_li_ion.pack_temperature  = np.array([[20],[20]])
-    battery_li_ion.charge_throughput = np.array([[0],[0]])
-    battery_li_ion.R_growth_factor   = 1
-    battery_li_ion.E_growth_factor   = 1 
+    ## make sure battery starts fully charged
+    #battery_li_ion.current_energy    = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
+    #battery_li_ion.pack_temperature  = np.array([[20],[20]])
+    #battery_li_ion.charge_throughput = np.array([[0],[0]])
+    #battery_li_ion.R_growth_factor   = 1
+    #battery_li_ion.E_growth_factor   = 1 
     
-    # run discharge model
-    battery_li_ion.energy_calc(numerics)
-    print(battery_li_ion)
-    plot_ragone(battery_li_ion, 'lithium ion')
-    plot_ragone(battery_li_s,   'lithium sulfur') 
+    ## run discharge model
+    #battery_li_ion.energy_calc(numerics)
+    #print(battery_li_ion)
+    #plot_ragone(battery_li_ion, 'lithium ion')
+    #plot_ragone(battery_li_s,   'lithium sulfur') 
      
  
     battery_chemistry     =  ['LFP','NCA','NMC']
@@ -79,14 +79,14 @@ def main():
     plt.rcParams.update({'font.size': 12})
     fig1 = plt.figure('Cell Comparison') 
     fig1.set_size_inches(12,7)   
-    axes11 = fig1.add_subplot(2,4,1)
-    axes12 = fig1.add_subplot(2,4,2)    
-    axes13 = fig1.add_subplot(2,4,3)
-    axes14 = fig1.add_subplot(2,4,4) 
-    axes15 = fig1.add_subplot(2,4,5)
-    axes16 = fig1.add_subplot(2,4,6) 
-    axes17 = fig1.add_subplot(2,4,7)
-    axes18 = fig1.add_subplot(2,4,8)     
+    axes1 = fig1.add_subplot(2,4,1)
+    axes2 = fig1.add_subplot(2,4,2)    
+    axes3 = fig1.add_subplot(2,4,3)
+    axes4 = fig1.add_subplot(2,4,4) 
+    axes5 = fig1.add_subplot(2,4,5)
+    axes6 = fig1.add_subplot(2,4,6) 
+    axes7 = fig1.add_subplot(2,4,7)
+    axes8 = fig1.add_subplot(2,4,8)     
     
     for j in range(len(curr)):      
         for i in range(len(battery_chemistry)):   
@@ -94,54 +94,54 @@ def main():
             analyses.finalize()     
             mission = analyses.missions.base
             results = mission.evaluate()  
-            plot_results(results,i,j,battery_chemistry[i], axes11, axes12, axes13, axes14, axes15, axes16, axes17, axes18)  
+            plot_results(results,i,j,battery_chemistry[i], axes1, axes2, axes3, axes4, axes5, axes6, axes7, axes8)  
     
 
     legend_font_size = 12                     
-    axes11.set_ylabel('Voltage $(V_{UL}$)')    
-    axes11.set_xlabel('Amp-Hours (A-hr)') 
-    axes11.legend(loc='upper right', prop={'size': legend_font_size})  
-    axes11.set_ylim([2,4.5]) 
-    axes11.set_xlim([0,7])
-    axes12.set_xlabel('Amp-Hours (A-hr)') 
-    axes12.legend(loc='upper right', prop={'size': legend_font_size})  
-    axes12.set_ylim([2,4.5])   
-    axes12.set_xlim([0,7])
-    axes13.set_xlabel('Amp-Hours (A-hr)')
-    axes13.legend(loc='upper right', prop={'size': legend_font_size})  
-    axes13.set_ylim([2,4.5]) 
-    axes13.set_xlim([0,7])
-    axes14.set_xlabel('Amp-Hours (A-hr)') 
-    axes14.legend(loc='upper right', prop={'size': legend_font_size})
-    axes14.set_ylim([2,4.5])    
-    axes14.set_xlim([0,7]) 
+    axes1.set_ylabel('Voltage $(V_{UL}$)')    
+    axes1.set_xlabel('Amp-Hours (A-hr)') 
+    axes1.legend(loc='upper right', prop={'size': legend_font_size})  
+    axes1.set_ylim([2,4.5]) 
+    axes1.set_xlim([0,7])
+    axes2.set_xlabel('Amp-Hours (A-hr)') 
+    axes2.legend(loc='upper right', prop={'size': legend_font_size})  
+    axes2.set_ylim([2,4.5])   
+    axes2.set_xlim([0,7])
+    axes3.set_xlabel('Amp-Hours (A-hr)')
+    axes3.legend(loc='upper right', prop={'size': legend_font_size})  
+    axes3.set_ylim([2,4.5]) 
+    axes3.set_xlim([0,7])
+    axes4.set_xlabel('Amp-Hours (A-hr)') 
+    axes4.legend(loc='upper right', prop={'size': legend_font_size})
+    axes4.set_ylim([2,4.5])    
+    axes4.set_xlim([0,7]) 
     
-    axes15.set_ylabel(r'Temperature ($\degree$C)')    
-    axes15.set_xlabel('Amp-Hours (A-hr)')        
-    axes15.legend(loc='upper left', prop={'size': legend_font_size})
-    axes15.set_ylim([295,320])
-    axes15.set_xlim([0,7])
+    axes5.set_ylabel(r'Temperature ($\degree$C)')    
+    axes5.set_xlabel('Amp-Hours (A-hr)')        
+    axes5.legend(loc='upper left', prop={'size': legend_font_size})
+    axes5.set_ylim([295,320])
+    axes5.set_xlim([0,7])
      
-    axes16.set_xlabel('Amp-Hours (A-hr)')     
-    axes16.legend(loc='upper left', prop={'size': legend_font_size})  
-    axes16.set_ylim([295,320])
-    axes16.set_xlim([0,7])
+    axes6.set_xlabel('Amp-Hours (A-hr)')     
+    axes6.legend(loc='upper left', prop={'size': legend_font_size})  
+    axes6.set_ylim([295,320])
+    axes6.set_xlim([0,7])
      
-    axes17.set_xlabel('Amp-Hours (A-hr)')    
-    axes17.legend(loc='upper left', prop={'size': legend_font_size})   
-    axes17.set_ylim([295,320])
-    axes17.set_xlim([0,7])
+    axes7.set_xlabel('Amp-Hours (A-hr)')    
+    axes7.legend(loc='upper left', prop={'size': legend_font_size})   
+    axes7.set_ylim([295,320])
+    axes7.set_xlim([0,7])
      
-    axes18.set_xlabel('Amp-Hours (A-hr)')    
-    axes18.legend(loc='upper left', prop={'size': legend_font_size})      
-    axes18.set_ylim([295,320])
-    axes18.set_xlim([0,7])
+    axes8.set_xlabel('Amp-Hours (A-hr)')    
+    axes8.legend(loc='upper left', prop={'size': legend_font_size})      
+    axes8.set_ylim([295,320])
+    axes8.set_xlim([0,7])
    
     plt.tight_layout()
     
     return 
 
-def plot_results(results,i,j,bat_chem, axes11, axes12, axes13, axes14, axes15, axes16, axes17, axes18): 
+def plot_results(results,i,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, axes7, axes8): 
     
     C_rat  = [0.5,1,2,3]     
     mark_1 = ['s' ,'s' ,'s' ,'s','s']
@@ -170,54 +170,54 @@ def plot_results(results,i,j,bat_chem, axes11, axes12, axes13, axes14, axes15, a
         
         if bat_chem == 'LFP':  
             if j == 0:
-                axes11.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
-                axes15.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')    
+                axes1.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
+                axes5.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')    
             elif  j == 1: 
-                axes12.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
-                axes16.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')                     
+                axes2.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
+                axes6.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')                     
             elif  j == 2: 
-                axes13.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
-                axes17.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')               
+                axes3.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
+                axes7.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')               
             elif  j == 3: 
-                axes14.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
-                axes18.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')    
+                axes4.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
+                axes8.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')    
         
         
         elif bat_chem == 'NMC':        
             if j == 0:   
-                axes11.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
-                axes15.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')    
+                axes1.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
+                axes5.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')    
                 
             elif  j == 1:  
-                axes12.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
-                axes16.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')    
+                axes2.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
+                axes6.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')    
                 
             elif  j == 2:  
-                axes13.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
-                axes17.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')                 
+                axes3.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
+                axes7.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')                 
             elif  j == 3:  
 
-                axes14.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
-                axes18.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')                
+                axes4.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
+                axes8.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')                
          
                 
         elif bat_chem == 'NCA':  
             if j == 0:
-                axes11.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
-                axes15.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')   
+                axes1.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
+                axes5.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')   
                     
             elif  j == 1: 
-                axes12.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
-                axes16.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')                     
+                axes2.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
+                axes6.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')                     
         
                 
             elif  j == 2: 
-                axes13.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
-                axes17.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')    
+                axes3.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
+                axes7.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')    
                 
             elif  j == 3: 
-                axes14.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
-                axes18.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')  
+                axes4.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
+                axes8.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')  
                            
          
     return
@@ -349,8 +349,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row
     base_segment.state.numerics.number_control_points        = 20
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery 
-    base_segment.process.finalize.post_process.update_battery_age = SUAVE.Methods.Missions.Segments.Common.Energy.update_battery_age   
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery  
     base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip 
     base_segment.process.iterate.conditions.aerodynamics     = SUAVE.Methods.skip
@@ -383,7 +382,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         # Charge Model 
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'LFP_Charge'  
-        segment.battery_discharge_flag                      = False 
+        segment.battery_discharge                           = False 
         segment.analyses.extend(analyses.base)        
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)      
         mission.append_segment(segment) 
@@ -404,7 +403,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         # Charge Model 
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'NCA_Charge'  
-        segment.battery_discharge_flag                      = False 
+        segment.battery_discharge                           = False 
         segment.analyses.extend(analyses.base)                 
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment) 
@@ -425,7 +424,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         # Charge Model 
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'NMC_Charge'  
-        segment.battery_discharge_flag                      = False 
+        segment.battery_discharge                           = False 
         segment.analyses.extend(analyses.base)            
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment) 

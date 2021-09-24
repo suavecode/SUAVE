@@ -1,5 +1,3 @@
-## @ingroup methods-power-battery-sizing
-
 ## @ingroup Methods-Power-Battery-Sizing
 # initialize_from_energy_and_power.py
 # 
@@ -10,10 +8,10 @@
 
 # ----------------------------------------------------------------------
 #  Imports
-# ----------------------------------------------------------------------
-
+# ---------------------------------------------------------------------- 
 import numpy as np
 from SUAVE.Methods.Utilities.soft_max import soft_max
+
 # ----------------------------------------------------------------------
 #  Initialize from Energy and Power
 # ----------------------------------------------------------------------

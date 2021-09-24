@@ -87,15 +87,30 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
     
     
     def energy_calc(self,numerics,battery_discharge_flag = True ):  
-        """This is an electric cycle model for lithium-nickel-cobalt-aluminum oxide 18650 battery
+        """This is an electric cycle model for 18650 lithium-nickel-cobalt-aluminum oxide battery
            using a thevenin equavalent circuit with parameters taken from 
            pulse tests done by NASA Glen (referece below) of a Samsung (SDI 18650-30Q). 
          
            Assumtions:
            1) All battery modules exhibit the same themal behaviour.
            
-           Source:  
-           N/A 
+           Sources:   
+           Entropy Model:
+           Santhanagopalan, Shriram, Qingzhi Guo, and Ralph E. White. "Parameter estimation 
+           and model discrimination for a lithium-ion cell." Journal of the Electrochemical 
+           Society 154.3 (2007): A198. 
+           
+           Battery Heat Generation Model:
+           Jeon, Dong Hyup, and Seung Man Baek. "Thermal modeling of cylindrical lithium ion 
+           battery during discharge cycle." Energy Conversion and Management 52.8-9 (2011): 
+           2973-2981.
+           
+           Heat Transfer Model:
+           Pakowski, Zdzisław. "Fundamentals of Heat and Mass Transfer, Frank P Incropera,
+           David P DeWitt, Theodore L Bergman, Adrienne S Lavine, J. Wiley & Sons, Hoboken
+           NJ (2007), 997 pp." (2007): 1683-1684. Chapter 7 pg 437-446 
+           
+           
            
            Inputs:
              battery. 
@@ -185,15 +200,15 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         # Compute battery cell temperature 
         # ---------------------------------------------------------------------------------
         # Determine temperature increase         
-        sigma   = 100  # Electrical conductivity  Parameter Estimation and Model Discrimination for a Lithium-Ion Cell
+        sigma   = 100   
         n       = 1
-        F       = 96485      # C/mol Faraday constant    
+        F       = 96485  # C/mol Faraday constant    
         delta_S = -18046*(SOC_old)**6 + 52735*(SOC_old)**5 - 57196*(SOC_old)**4 + \
                    28030*(SOC_old)**3 -6023*(SOC_old)**2 +  514*(SOC_old) -27
         
         i_cell         = I_cell/electrode_area # current intensity 
         q_dot_entropy  = -(T_cell)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
-        q_dot_joule    = (i_cell**2)/sigma                   # eqn 5 , D. Jeon Thermal Modelling ..
+        q_dot_joule    = (i_cell**2)/sigma                 
         Q_heat_gen     = (q_dot_joule + q_dot_entropy)*As_cell 
         q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
         q_entropy_frac = q_dot_entropy/(q_dot_joule + q_dot_entropy)
@@ -205,24 +220,25 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
             P_net          = P_net*n_total 
     
         else: 
-            # Chapter 7 pg 437-446 of Fundamentals of heat and mass transfer : Frank P. Incropera ... Incropera, Fran
+            # Chapter 7 pg 437-446 of Fundamentals of heat and mass transfer 
             S_T             = battery.module_config.normal_spacing          
             S_L             = battery.module_config.parallel_spacing   
-            coolant         = SUAVE.Attributes.Gases.Air()
-            coolant.K       = battery.cooling_fluid.thermal_conductivity    
-            coolant.Cp      = battery.cooling_fluid.specific_heat_capacity  
-            coolant.V       = battery.cooling_fluid.discharge_air_cooling_flowspeed
-            coolant.rho     = battery.cooling_fluid.density 
-            coolant.nu      = battery.cooling_fluid.kinematic_viscosity     
+            coolant         = battery.cooling_fluid
+            K_coolant       = coolant.thermal_conductivity 
+            Cp_coolant      = coolant.specific_heat_capacity  
+            V_coolant       = coolant.discharge_air_cooling_flowspeed
+            rho_coolant     = coolant.density 
+            nu_coolant      = coolant.kinematic_viscosity     
+            Pr_coolant      = coolant.prandtl_number  
         
             S_D = np.sqrt(S_T**2+S_L**2)
             if 2*(S_D-D_cell) < (S_T-D_cell):
-                V_max = coolant.V*(S_T/(2*(S_D-D_cell)))
+                V_max = V_coolant*(S_T/(2*(S_D-D_cell)))
             else:
-                V_max = coolant.V*(S_T/(S_T-D_cell))
+                V_max = V_coolant*(S_T/(S_T-D_cell))
         
             T        = (T_ambient+T_current)/2   
-            Re_max   = V_max*D_cell/coolant.nu   
+            Re_max   = V_max*D_cell/nu_coolant   
             if all(Re_max) > 10E2: 
                 C = 0.35*((S_T/S_L)**0.2) 
                 m = 0.6 
@@ -230,15 +246,14 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
                 C = 0.51
                 m = 0.5  
         
-            coolant.Pr      = coolant.compute_prandlt_number(T_ambient,P_ambient)
-            coolant.Pr_wall = coolant.compute_prandlt_number(T,P_ambient)            
-            Nu              = C*(Re_max**m)*(coolant.Pr**0.36)*((coolant.Pr/coolant.Pr_wall)**0.25)           
-            h               = Nu*coolant.K/D_cell
-            Tw_Ti           = (T - T_ambient)
-            Tw_To           = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(coolant.rho*coolant.V*Nn*S_T*coolant.Cp))
-            dT_lm           = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-            Q_convec        = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
-            P_net           = Q_heat_gen*n_total_module - Q_convec  
+            Pr_w_coolant = coolant.compute_prandtl_number(T,P_ambient)            
+            Nu           = C*(Re_max**m)*(Pr_coolant**0.36)*((Pr_coolant/Pr_w_coolant)**0.25)           
+            h            = Nu*K_coolant/D_cell
+            Tw_Ti        = (T - T_ambient)
+            Tw_To        = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_coolant*V_coolant*Nn*S_T*Cp_coolant))
+            dT_lm        = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
+            Q_convec     = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
+            P_net        = Q_heat_gen*n_total_module - Q_convec  
              
         dT_dt     = P_net/(cell_mass*n_total_module*Cp)
         T_current = T_current[0] + np.dot(I,dT_dt)  
@@ -298,6 +313,8 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         battery.current                             = I_bat 
         battery.voltage_open_circuit                = V_oc*n_series
         battery.thevenin_voltage                    = V_Th*n_series 
+        battery.cell_joule_heat_fraction            = q_joule_frac
+        battery.cell_entropy_heat_fraction          = q_entropy_frac
         battery.charge_throughput                   = Q_total*n_parallel  
         battery.cell_charge_throughput              = Q_total
         battery.internal_resistance                 = R_0*n_series 
@@ -383,6 +400,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         
         return 
     
+    
     def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage, 
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
                                               initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
@@ -458,8 +476,11 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         # Voltage under load
         V_ul =  n_series*(V_oc_cell - V_Th_cell - (I_cell  * R_0_cell)) 
         
-        return V_ul
-    
+        return V_ul 
+ 
+    def update_battery_age(self,segment):   
+        pass
+        return   
 
 def create_discharge_performance_map(battery_raw_data):
     """ Creates discharge and charge response surfaces for 
@@ -488,6 +509,7 @@ def create_discharge_performance_map(battery_raw_data):
     battery_data.R_0_interp  = RectBivariateSpline(battery_raw_data.T_bp, battery_raw_data.SOC_bp, battery_raw_data.tR_0,  s=SMOOTHING) 
  
     return battery_data
+
 
 def load_NCA_raw_results(): 
     ospath    = os.path.abspath(__file__)

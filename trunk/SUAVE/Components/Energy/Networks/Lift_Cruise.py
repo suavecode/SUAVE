@@ -19,9 +19,10 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units, Data
 from .Network import Network
-from SUAVE.Components.Physical_Component import Container
-from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNCA_cell_cycle_model      import compute_NCA_cell_state_variables 
-from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNiMnCoO2_cell_cycle_model import compute_NMC_cell_state_variables
+from SUAVE.Components.Physical_Component import Container 
+from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
+from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
+
 # ----------------------------------------------------------------------
 #  Lift_Forward
 # ----------------------------------------------------------------------
@@ -143,19 +144,19 @@ class Lift_Cruise(Network):
         battery.current_energy      = conditions.propulsion.battery_energy
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
-        battery.age_in_days         = conditions.propulsion.battery_age_in_days 
+        battery.age                 = conditions.propulsion.battery_age         
         battery_discharge_flag      = conditions.propulsion.battery_discharge_flag    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
         battery.max_energy          = conditions.propulsion.battery_max_aged_energy 
         n_series                    = battery.pack_config.series  
         n_parallel                  = battery.pack_config.parallel
-        n_total                     = n_series*n_parallel
         
         # update ambient temperature based on altitude
         battery.ambient_temperature                   = conditions.freestream.temperature   
         battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
         battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity
+        battery.cooling_fluid.prandtl_number          = conditions.freestream.prandtl_number
         battery.cooling_fluid.density                 = conditions.freestream.density  
         battery.ambient_pressure                      = conditions.freestream.pressure  
         a                                             = conditions.freestream.speed_of_sound
@@ -403,38 +404,12 @@ class Lift_Cruise(Network):
             total_lift_rotor_thrust = np.zeros((len(volts),3))  
             P_forward               = np.zeros((len(volts),1))  
             P_lift                  = np.zeros((len(volts),1))  
-            current_total           = battery.cell.charging_current*n_parallel * np.ones_like(volts)
+            current_total           = battery.cell.charging_current*n_parallel * np.ones_like(volts) 
         
-            
-        # Pack the conditions for outputs 
-        battery_draw = battery.inputs.power_in    
-        conditions.propulsion.battery_energy                       = battery.current_energy
-        conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
-        conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load 
-        conditions.propulsion.battery_efficiency                   = (battery_draw+battery.resistive_losses)/battery_draw
-        conditions.propulsion.payload_efficiency                   = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
-        conditions.propulsion.battery_specfic_power                = -battery_draw/battery.mass_properties.mass    # kWh/kg  
-        conditions.propulsion.electronics_efficiency               = -(P_forward + P_lift)/battery_draw  
-        conditions.propulsion.battery_current                      = current_total
-        conditions.propulsion.battery_power_draw                   = battery.inputs.power_in 
-        conditions.propulsion.battery_max_aged_energy              = battery.max_energy 
-        conditions.propulsion.battery_charge_throughput            = battery.charge_throughput 
-        conditions.propulsion.battery_internal_resistance          = battery.internal_resistance
-        conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
-        conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
-        conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage           
-        conditions.propulsion.battery_age_in_days                  = battery.age_in_days  
-
-        conditions.propulsion.battery_cell_power_draw              = battery.inputs.power_in /n_series
-        conditions.propulsion.battery_cell_energy                  = battery.current_energy/n_total   
-        conditions.propulsion.battery_cell_voltage_under_load      = battery.cell_voltage_under_load    
-        conditions.propulsion.battery_cell_voltage_open_circuit    = battery.cell_voltage_open_circuit  
-        conditions.propulsion.battery_cell_current                 = abs(battery.cell_current)        
-        conditions.propulsion.battery_cell_temperature             = battery.cell_temperature
-        conditions.propulsion.battery_cell_charge_throughput       = battery.cell_charge_throughput
-        conditions.propulsion.battery_cell_heat_energy_generated   = battery.heat_energy_generated
-        conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
-        conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction   
+        # Pack the conditions for outputs     
+        P = P_forward + P_lift
+        avionics_payload_power = avionics.outputs.power + payload.outputs.power
+        pack_battery_conditions(conditions,battery,avionics_payload_power,P)  
 
         F_total = total_prop_thrust + total_lift_rotor_thrust
 
@@ -756,7 +731,10 @@ class Lift_Cruise(Network):
             n_lift_rotors = 1
         else:
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
-        
+
+        # Perscribe initial segment conditions first segment 
+        if 'battery_energy'  in segment:
+            append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)       
 
         # add unknowns and residuals specific to battery cell
         segment.state.residuals.network  = Data() 
@@ -856,8 +834,12 @@ class Lift_Cruise(Network):
         if self.identical_lift_rotors:
             n_lift_rotors = 1
         else:
-            self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines) 
-    
+            self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)  
+            
+        # Perscribe initial segment conditions first segment 
+        if 'battery_energy'  in segment:
+            append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)           
+      
         # add unknowns and residuals specific to battery cell
         segment.state.residuals.network  = Data() 
         battery = self.battery
@@ -956,7 +938,10 @@ class Lift_Cruise(Network):
             n_lift_rotors = 1
         else:
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
-
+ 
+        # Perscribe initial segment conditions first segment 
+        if 'battery_energy'  in segment:
+            append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)     
 
         # add unknowns and residuals specific to battery cell
         segment.state.residuals.network  = Data() 

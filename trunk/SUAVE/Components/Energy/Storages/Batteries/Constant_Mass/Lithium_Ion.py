@@ -9,9 +9,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
+# suave imports 
 from SUAVE.Core import Units, Data
+from SUAVE.Attributes.Gases import Air
 from SUAVE.Components.Energy.Storages.Batteries  import Battery  
 
 # package imports
@@ -44,9 +44,9 @@ class Lithium_Ion(Battery):
         self.cell              = Data()   
         self.module            = Data()        
         self.pack_config       = Data()
-        self.module_config     = Data()
-        self.cooling_fluid     = Data()     
+        self.module_config     = Data() 
         
+        self.age                                           = 0       # [days]
         self.cell.mass                                     = None
         self.cell.charging_SOC_cutoff                      = 1. 
         self.cell.charging_current                         = 3.0     # [Amps]
@@ -63,10 +63,8 @@ class Lithium_Ion(Battery):
         self.module_config.parallel_count                  = 1       # number of cells parallel to flow      
         self.module_config.normal_spacing                  = 0.02
         self.module_config.parallel_spacing                = 0.02 
-
-        self.cooling_fluid.tag                             = 'air'
-        self.cooling_fluid.thermal_conductivity            = 0.0253 # W/mK
-        self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK  
+        
+        self.cooling_fluid                                 = Air()   
         self.cooling_fluid.discharge_air_cooling_flowspeed = 0.01   
         self.cooling_fluid.charge_air_cooling_flowspeed    = 0.01       
         
@@ -78,10 +76,10 @@ class Lithium_Ion(Battery):
         self.ragone.lower_bound                            = 60.     *Units.Wh/Units.kg
         self.ragone.upper_bound                            = 225.    *Units.Wh/Units.kg    
         return           
-
+ 
     def energy_calc(self,numerics,battery_discharge_flag= True): 
-        """This is a electric cycle model for 18650 lithium-iron_phosphate battery cells. It
-           models losses based on an empirical correlation Based on method taken 
+        """This is an electric cycle model for 18650 lithium-iron_phosphate battery cells used as the degfaut
+           Lithium ion cell in SUAVE. It models losses based on an empirical correlation Based on method taken 
            from Datta and Johnson.
            
            Assumptions: 
@@ -90,8 +88,10 @@ class Lithium_Ion(Battery):
            
            Source:
            Internal Resistance:
-           "Requirements for a Hydrogen Powered All-Electric Manned Helicopter" by Datta
-           and Johnson
+           Nikolian, Alexandros, et al. "Complete cell-level lithium-ion electrical ECM model 
+           for different chemistries (NMC, LFP, LTO) and temperatures (− 5° C to 45° C)–
+           Optimized modelling techniques." International Journal of Electrical Power &
+           Energy Systems 98 (2018): 133-146.
           
            Voltage:
            Chen, M. and Rincon-Mora, G. A., "Accurate Electrical
@@ -133,8 +133,7 @@ class Lithium_Ion(Battery):
         # Unpack varibles 
         battery           = self
         I_bat             = battery.inputs.current
-        P_bat             = battery.inputs.power_in  
-        R_bat             = battery.resistance
+        P_bat             = battery.inputs.power_in   
         V_max             = battery.max_voltage
         bat_mass          = battery.mass_properties.mass                
         bat_Cp            = battery.specific_heat_capacity    
@@ -144,8 +143,10 @@ class Lithium_Ion(Battery):
         Q_prior           = battery.charge_throughput 
         R_growth_factor   = battery.R_growth_factor
         E_growth_factor   = battery.E_growth_factor 
-        I                 = numerics.time.integrate 
-        
+        I                 = numerics.time.integrate  
+
+        if not battery_discharge_flag:   
+            I_bat = -I_bat  
         # ---------------------------------------------------------------------------------
         # Compute battery electrical properties 
         # --------------------------------------------------------------------------------- 
@@ -156,19 +157,11 @@ class Lithium_Ion(Battery):
         
         # Compute state of charge and depth of discarge of the battery
         initial_discharge_state = np.dot(I,P_bat) + E_current[0]
-        DOD_old                 = 1 - np.divide(initial_discharge_state,E_max)
-        DOD_old[DOD_old< 0.]    = 0. 
-        
-        # compute the C rate
-        C = np.abs(3600.*P_bat/E_max)
-        
-        # Empirical for for discharge   
-        f = 1-np.exp(-20.*DOD_old)-np.exp(-20.*(1.- DOD_old)) 
-        f[f<0.0] = 0.0 # Negative f's don't make sense  
+        SOC_old                 = np.divide(initial_discharge_state,E_max)  
         
         # Compute internal resistance
-        R_0 = R_bat*(1.+np.multiply(C,f))*R_growth_factor
-        R_0[R_0==R_bat] = 0.  # when battery isn't being called
+        R_bat = -0.0169*(SOC_old**4) + 0.0418*(SOC_old**3) - 0.0273*(SOC_old**2) + 0.0069*(SOC_old) + 0.0043
+        R_0   = R_bat*R_growth_factor 
         
         # Compute Heat power generated by all cells
         Q_heat_gen = (I_bat**2.)*R_0
@@ -214,7 +207,8 @@ class Lithium_Ion(Battery):
         # Pack outputs
         battery.current_energy                     = E_current
         battery.resistive_losses                   = Q_heat_gen
-        battery.cell_temperature                   = T_current
+        battery.cell_temperature                   = T_current 
+        battery.pack_temperature                   = T_current 
         battery.load_power                         = V_ul*I_bat
         battery.state_of_charge                    = SOC_new 
         battery.depth_of_discharge                 = DOD_new
@@ -245,7 +239,7 @@ class Lithium_Ion(Battery):
             N/A
     
             Inputs:
-            state.unknowns.battery_voltage_under_load  [volts]
+            state.unknowns.battery_voltage_under_load               [volts]
     
             Outputs: 
             state.conditions.propulsion.battery_voltage_under_load  [volts]
@@ -254,12 +248,12 @@ class Lithium_Ion(Battery):
             N/A
         """             
         
-        segment.conditions.propulsion.battery_voltage_under_load  = segment.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
         
         return 
     
     def append_battery_residuals(self,segment,network): 
-        """ This packs the residuals specific to LFP cells to be sent to the mission solver.
+        """ Packs the residuals specific to LFP cells to be sent to the mission solver.
     
             Assumptions:
             None
@@ -278,14 +272,75 @@ class Lithium_Ion(Battery):
             None
     
             Properties Used:
-            network.voltage                              [volts]
+            network.voltage                           [volts]
         """     
-        
         v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
         v_predict = segment.state.unknowns.battery_voltage_under_load
         v_max     = network.voltage
         
         # Return the residuals
-        segment.state.residuals.network[:,0]  = (v_predict[:,0] - v_actual[:,0])/v_max
+        segment.state.residuals.network.voltage = (v_predict[:,0] - v_actual[:,0])/v_max
         
-        return     
+        return 
+    
+    def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage, 
+                                              initial_battery_cell_temperature , initial_battery_state_of_charge,
+                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
+        """ Sets up the information that the mission needs to run a mission segment using this network
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:  
+            initial_voltage                       [volts]
+            initial_battery_cell_temperature      [Kelvin]
+            initial_battery_state_of_charge       [unitless]
+            initial_battery_cell_current          [Amperes]
+            initial_battery_cell_thevenin_voltage [Volts]
+            
+            Outputs
+            None
+            
+            Properties Used:
+            N/A
+        """        
+        
+        ones_row = segment.state.ones_row 
+        if initial_voltage==None:
+            initial_voltage = self.max_voltage 
+        segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1) 
+        
+        return  
+    
+    def compute_voltage(self,state):
+        """ Computes the voltage of a single LFP cell or a battery pack of LFP cells   
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:  
+                self    - battery data structure             [unitless]
+                state   - segment unknowns to define voltage [unitless]
+            
+            Outputs
+                V_ul    - under-load voltage                 [volts]
+             
+            Properties Used:
+            N/A
+        """              
+        # Unpack battery properties
+        battery                          = self 
+        
+        # Set battery properties
+        battery.battery_thevenin_voltage = 0     
+        battery.temperature              = state.conditions.propulsion.battery_pack_temperature 
+        
+        # Voltage under load
+        V_ul                             = state.unknowns.battery_voltage_under_load
+        return V_ul   

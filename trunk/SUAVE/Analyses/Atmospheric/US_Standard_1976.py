@@ -85,6 +85,7 @@ class US_Standard_1976(Atmospheric):
           dynamic_viscosity                      [kg/(m*s)]
           kinematic_viscosity                    [m^2/s]
           thermal_conductivity                   [W/(m*K)]
+          prandtl_number                         [-]
            
         Properties Used:
         self.
@@ -163,7 +164,8 @@ class US_Standard_1976(Atmospheric):
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T,p,var_gamma)
         mu  = gas.compute_absolute_viscosity(T)
-        K   = gas.compute_thermal_conductivity(T)       
+        K   = gas.compute_thermal_conductivity(T)  
+        Pr  = gas.compute_prandtl_number(T,p)     
         
         atmo_data = Conditions()
         atmo_data.expand_rows(zs.shape[0])
@@ -174,6 +176,7 @@ class US_Standard_1976(Atmospheric):
         atmo_data.dynamic_viscosity    = mu
         atmo_data.kinematic_viscosity  = mu/rho
         atmo_data.thermal_conductivity = K
+        atmo_data.prandtl_number       = Pr
         
         return atmo_data
 

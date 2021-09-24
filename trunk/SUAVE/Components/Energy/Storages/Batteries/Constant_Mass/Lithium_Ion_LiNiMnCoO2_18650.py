@@ -96,12 +96,23 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
            battery cells. The model uses experimental data performed
            by the Automotive Industrial Systems Company of Panasonic Group 
               
-           Source:  
+           Sources:  
            Internal Resistance Model:
            Zou, Y., Hu, X., Ma, H., and Li, S. E., "Combined State of Charge and State of
            Health estimation over lithium-ion battery cellcycle lifespan for electric 
            vehicles,"Journal of Power Sources, Vol. 273, 2015, pp. 793-803.
            doi:10.1016/j.jpowsour.2014.09.146,URLhttp://dx.doi.org/10.1016/j.jpowsour.2014.09.146. 
+            
+           Battery Heat Generation Model and  Entropy Model:
+           Jeon, Dong Hyup, and Seung Man Baek. "Thermal modeling of cylindrical lithium ion 
+           battery during discharge cycle." Energy Conversion and Management 52.8-9 (2011): 
+           2973-2981.
+           
+           Heat Transfer Model:
+           Pakowski, Zdzisław. "Fundamentals of Heat and Mass Transfer, Frank P Incropera,
+           David P DeWitt, Theodore L Bergman, Adrienne S Lavine, J. Wiley & Sons, Hoboken
+           NJ (2007), 997 pp." (2007): 1683-1684.,  Chapter 7 pg 437-446 
+           
            
            Assumtions:
            1) All battery modules exhibit the same themal behaviour. 
@@ -201,11 +212,11 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         n       = 1
         F       = 96485 # C/mol Faraday constant    
         delta_S = -496.66*(SOC_old)**6 +  1729.4*(SOC_old)**5 + -2278 *(SOC_old)**4 +  1382.2 *(SOC_old)**3 + \
-                  -380.47*(SOC_old)**2 + 46.508*(SOC_old) + -10.692  # eqn 10 and , D. Jeon Thermal Modelling ..
+                  -380.47*(SOC_old)**2 + 46.508*(SOC_old) + -10.692  
         
         i_cell         = I_cell/electrode_area # current intensity 
-        q_dot_entropy  = -(T_cell)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
-        q_dot_joule    = (i_cell**2)/sigma                   # eqn 5 , D. Jeon Thermal Modelling ..
+        q_dot_entropy  = -(T_cell)*delta_S*i_cell/(n*F)       
+        q_dot_joule    = (i_cell**2)/sigma                   
         Q_heat_gen     = (q_dot_joule + q_dot_entropy)*As_cell 
         q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
         q_entropy_frac = q_dot_entropy/(q_dot_joule + q_dot_entropy)
@@ -218,40 +229,40 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
             P_net          = P_net*n_total 
             
         else:      
-            # Chapter 7 pg 437-446 of Fundamentals of heat and mass transfer : Frank P. Incropera ... Incropera, Fran 
+            # Chapter 7 pg 437-446 of Fundamentals of heat and mass transfer  
             S_T             = battery.module_config.normal_spacing          
-            S_L             = battery.module_config.parallel_spacing                      
-            coolant         = SUAVE.Attributes.Gases.Air()
-            coolant.K       = battery.cooling_fluid.thermal_conductivity    
-            coolant.Cp      = battery.cooling_fluid.specific_heat_capacity  
-            coolant.V       = battery.cooling_fluid.discharge_air_cooling_flowspeed
-            coolant.rho     = battery.cooling_fluid.density 
-            coolant.nu      = battery.cooling_fluid.kinematic_viscosity     
+            S_L             = battery.module_config.parallel_spacing   
+            coolant         = battery.cooling_fluid 
+            K_coolant       = coolant.thermal_conductivity 
+            Cp_coolant      = coolant.specific_heat_capacity  
+            V_coolant       = coolant.discharge_air_cooling_flowspeed
+            rho_coolant     = coolant.density 
+            nu_coolant      = coolant.kinematic_viscosity     
+            Pr_coolant      = coolant.prandtl_number   
         
             S_D = np.sqrt(S_T**2+S_L**2)
             if 2*(S_D-D_cell) < (S_T-D_cell):
-                V_max = coolant.V*(S_T/(2*(S_D-D_cell)))
+                V_max = V_coolant*(S_T/(2*(S_D-D_cell)))
             else:
-                V_max = coolant.V*(S_T/(S_T-D_cell))
+                V_max = V_coolant*(S_T/(S_T-D_cell))
         
             T      = (T_ambient+T_current)/2   
-            Re_max = V_max*D_cell/coolant.nu   
+            Re_max = V_max*D_cell/nu_coolant   
             if all(Re_max) > 10E2: 
                 C = 0.35*((S_T/S_L)**0.2) 
                 m = 0.6 
             else:
                 C = 0.51
                 m = 0.5 
-                
-            coolant.Pr      = coolant.compute_prandlt_number(T_ambient,P_ambient)
-            coolant.Pr_wall = coolant.compute_prandlt_number(T,P_ambient)
-            Nu              = C*(Re_max**m)*(coolant.Pr**0.36)*((coolant.Pr/coolant.Pr_wall)**0.25)           
-            h               = Nu*coolant.K/D_cell
-            Tw_Ti           = (T - T_ambient)
-            Tw_To           = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(coolant.rho*coolant.V*Nn*S_T*coolant.Cp))
-            dT_lm           = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-            Q_convec        = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
-            P_net           = Q_heat_gen*n_total_module - Q_convec  
+                 
+            Pr_w_coolant = coolant.compute_prandtl_number(T,P_ambient)
+            Nu           = C*(Re_max**m)*(Pr_coolant**0.36)*((Pr_coolant/Pr_w_coolant)**0.25)           
+            h            = Nu*K_coolant/D_cell
+            Tw_Ti        = (T - T_ambient)
+            Tw_To        = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_coolant*V_coolant*Nn*S_T*Cp_coolant))
+            dT_lm        = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
+            Q_convec     = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
+            P_net        = Q_heat_gen*n_total_module - Q_convec  
         
         dT_dt     = P_net/(cell_mass*n_total_module*Cp)
         T_current = T_current[0] + np.dot(I,dT_dt)  
@@ -466,7 +477,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         SOC        = state.unknowns.battery_state_of_charge 
         T_cell     = state.unknowns.battery_cell_temperature
         I_cell     = state.unknowns.battery_current/n_parallel 
-        V_th0      = state.conditions.propulsion.battery_initial_thevenin_voltage
+        V_th0      = state.conditions.propulsion.battery_thevenin_voltage
         
         # Link Temperature 
         battery.cell_temperature         = T_cell  
@@ -479,6 +490,57 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         V_ul    = n_series*V_ul_cell    
            
         return V_ul 
+    
+    def update_battery_age(self,segment):  
+        """ This is an aging model for 18650 lithium-nickel-manganese-cobalt-oxide batteries. 
+       
+        Source: 
+        Schmalstieg, Johannes, et al. "A holistic aging model for Li (NiMnCo) O2
+        based 18650 lithium-ion batteries." Journal of Power Sources 257 (2014): 325-334.
+          
+        Assumptions:
+        None
+    
+        Inputs:
+          segment.conditions.propulsion. 
+             battery_age                                                            [days]   
+             battery_cell_temperature                                               [Kelvin] 
+             battery_voltage_open_circuit                                           [Volts] 
+             battery_charge_throughput                                              [Amp-hrs] 
+             battery_state_of_charge                                                [unitless] 
+        
+        Outputs:
+           segment.conditions.propulsion.
+             battery_capacity_fade_factor     (internal resistance growth factor)   [unitless]
+             battery_resistance_growth_factor (capactance (energy) growth factor)   [unitless]  
+             
+        Properties Used:
+        N/A 
+        """    
+        n_series   = self.pack_config.series
+        SOC        = segment.conditions.propulsion.battery_state_of_charge
+        V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
+        t          = segment.conditions.propulsion.battery_age         
+        Q_prior    = segment.conditions.propulsion.battery_charge_throughput[-1,0] 
+        Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) - 273.2
+        
+        # aging model  
+        delta_DOD = abs(SOC[0][0] - SOC[-1][0])
+        rms_V_ul  = np.sqrt(np.mean(V_ul**2)) 
+        alpha_cap = (7.542*np.mean(V_ul) - 23.75) * 1E6 * np.exp(-6976/(Temp))  
+        alpha_res = (5.270*np.mean(V_ul) - 16.32) * 1E5 * np.exp(-5986/(Temp))  
+        beta_cap  = 7.348E-3 * (rms_V_ul - 3.667)**2 +  7.60E-4 + 4.081E-3*delta_DOD
+        beta_res  = 2.153E-4 * (rms_V_ul - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD
+        
+        E_fade_factor   = 1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior)   
+        R_growth_factor = 1 + alpha_res*(t**0.75) + beta_res*Q_prior  
+        
+        segment.conditions.propulsion.battery_capacity_fade_factor     = E_fade_factor  
+        segment.conditions.propulsion.battery_resistance_growth_factor = R_growth_factor
+        
+        segment.conditions.propulsion.battery_age += 1 # update battery age by one day 
+      
+        return  
     
 
 def compute_thevenin_voltage(V_th0,I,C_Th, R_Th,t):
