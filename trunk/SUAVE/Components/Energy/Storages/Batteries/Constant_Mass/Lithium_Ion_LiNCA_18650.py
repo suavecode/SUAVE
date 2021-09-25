@@ -58,8 +58,8 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
     def __defaults__(self):    
         self.tag                              = 'Lithium_Ion_LiNCA_Cell' 
                                              
-        self.cell.diameter                    = 0.0184                                                   # [m]
-        self.cell.height                      = 0.0652                                                   # [m]
+        self.cell.diameter                    = 0.0185                                                   # [m]
+        self.cell.height                      = 0.0653                                                   # [m]
         self.cell.mass                        = 0.048 * Units.kg                                         # [kg]
         self.cell.surface_area                = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  # [m^2]
         self.cell.volume                      = np.pi*(0.5*self.cell.diameter)**2*self.cell.height 
@@ -246,7 +246,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
                 C = 0.51
                 m = 0.5  
         
-            Pr_w_coolant = coolant.compute_prandtl_number(T,P_ambient)            
+            Pr_w_coolant = coolant.compute_prandtl_number(T)            
             Nu           = C*(Re_max**m)*(Pr_coolant**0.36)*((Pr_coolant/Pr_w_coolant)**0.25)           
             h            = Nu*K_coolant/D_cell
             Tw_Ti        = (T - T_ambient)
@@ -434,7 +434,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         return  
 
     def compute_voltage(self,state):  
-        """ Computes the voltage of a single NCA cell or a battery pack of LFP cells   
+        """ Computes the voltage of a single NCA cell or a battery pack of NCA cells   
     
             Assumptions:
             None
@@ -479,7 +479,6 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         return V_ul 
  
     def update_battery_age(self,segment):   
-        pass
         return   
 
 def create_discharge_performance_map(battery_raw_data):
@@ -498,7 +497,7 @@ def create_discharge_performance_map(battery_raw_data):
         battery_data
 
         Properties Used:
-        N/Af
+        N/A
                                 
     """  
     battery_data             = Data()
@@ -512,6 +511,23 @@ def create_discharge_performance_map(battery_raw_data):
 
 
 def load_NCA_raw_results(): 
+    '''Load experimental raw data of NCA cells 
+    
+    Source:
+    Intriduction of INR18650-30Q. https://eu.nkon.nl/sk/k/30q.pdf
+    
+    Assumptions:
+    N/A
+    
+    Inputs: 
+    N/A
+        
+    Outputs: 
+    battery_data
+
+    Properties Used:
+    N/A  
+    '''
     ospath    = os.path.abspath(__file__)
     separator = os.path.sep
     rel_path  = os.path.dirname(ospath) + separator     

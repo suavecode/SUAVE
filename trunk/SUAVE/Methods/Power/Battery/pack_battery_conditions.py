@@ -72,16 +72,16 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
         Properties Used:
         None
     """      
-    n_series          = battery.pack_config.series  
-    n_parallel        = battery.pack_config.parallel
-    n_total           = n_series*n_parallel 
-    battery_draw      = battery.inputs.power_in    
+    n_series           = battery.pack_config.series  
+    n_parallel         = battery.pack_config.parallel
+    n_total            = n_series*n_parallel 
+    battery_power_draw = battery.inputs.power_in    
     
     conditions.propulsion.battery_current                      = battery.inputs.current
     conditions.propulsion.battery_energy                       = battery.current_energy
     conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
     conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load 
-    conditions.propulsion.battery_power_draw                   = battery_draw 
+    conditions.propulsion.battery_power_draw                   = battery_power_draw 
     conditions.propulsion.battery_max_aged_energy              = battery.max_energy 
     conditions.propulsion.battery_charge_throughput            = battery.charge_throughput 
     conditions.propulsion.battery_age                          = battery.age
@@ -89,10 +89,10 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
     conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
     conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
     conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage  
-    conditions.propulsion.battery_efficiency                   = (battery_draw+battery.resistive_losses)/battery_draw
-    conditions.propulsion.payload_efficiency                   = (battery_draw+avionics_payload_power)/battery_draw            
-    conditions.propulsion.battery_specfic_power                = -battery_draw/battery.mass_properties.mass    
-    conditions.propulsion.electronics_efficiency               = -(P)/battery_draw    
+    conditions.propulsion.battery_efficiency                   = (battery_power_draw+battery.resistive_losses)/battery_power_draw
+    conditions.propulsion.payload_efficiency                   = (battery_power_draw+avionics_payload_power)/battery_power_draw            
+    conditions.propulsion.battery_specfic_power                = -battery_power_draw/battery.mass_properties.mass    
+    conditions.propulsion.electronics_efficiency               = -(P)/battery_power_draw    
     conditions.propulsion.battery_cell_power_draw              = battery.inputs.power_in /n_series
     conditions.propulsion.battery_cell_energy                  = battery.current_energy/n_total   
     conditions.propulsion.battery_cell_voltage_under_load      = battery.cell_voltage_under_load    

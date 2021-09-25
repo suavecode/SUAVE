@@ -224,9 +224,8 @@ class Battery_Cell_Cycler(Network):
         # unpack  
         battery  = self.battery  
 
-        # Perscribe initial segment conditions first segment 
-        if 'battery_energy'  in segment:
-            append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)     
+        # Assign initial segment conditions to segment if missing 
+        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)     
             
         segment.state.residuals.network  = Data()      
         

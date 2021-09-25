@@ -159,7 +159,7 @@ class Constant_Temperature(Atmospheric):
         a   = gas.compute_speed_of_sound(T)
         mu  = gas.compute_absolute_viscosity(T)
         K   = gas.compute_thermal_conductivity(T)
-        Pr  = gas.compute_prandtl_number(T,p)
+        Pr  = gas.compute_prandtl_number(T)
                 
         atmo_data = Conditions()
         atmo_data.expand_rows(zs.shape[0])

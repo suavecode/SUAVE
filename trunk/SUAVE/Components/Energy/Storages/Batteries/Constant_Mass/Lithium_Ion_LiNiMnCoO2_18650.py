@@ -63,11 +63,13 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     def __defaults__(self):    
         self.tag                              = 'Lithium_Ion_LiNiMnCoO2_Cell' 
                                               
-        self.cell.diameter                    = 0.0184                                                   # [m]
-        self.cell.height                      = 0.0652                                                   # [m]
+                                              
+
+        self.cell.diameter                    = 0.0185                                                   # [m]
+        self.cell.height                      = 0.0653                                                   # [m]
         self.cell.mass                        = 0.048 * Units.kg                                         # [kg]
-        self.cell.surface_area                = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)   # [m^2]
-        self.cell.volume                      = np.pi*(0.5*self.cell.diameter)**2*self.cell.height       # [m^3] 
+        self.cell.surface_area                = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  # [m^2]
+        self.cell.volume                      = np.pi*(0.5*self.cell.diameter)**2*self.cell.height 
         self.cell.density                     = self.cell.mass/self.cell.volume                          # [kg/m^3]  
         self.cell.electrode_area              = 0.0342                                                   # [m^2] 
                                                                                                
@@ -254,8 +256,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
             else:
                 C = 0.51
                 m = 0.5 
-                 
-            Pr_w_coolant = coolant.compute_prandtl_number(T,P_ambient)
+                  
+            Pr_w_coolant = coolant.compute_prandtl_number(T)
             Nu           = C*(Re_max**m)*(Pr_coolant**0.36)*((Pr_coolant/Pr_w_coolant)**0.25)           
             h            = Nu*K_coolant/D_cell
             Tw_Ti        = (T - T_ambient)
@@ -448,7 +450,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         return   
 
     def compute_voltage(self,state):  
-        """ Computes the voltage of a single NMC cell or a battery pack of LFP cells  
+        """ Computes the voltage of a single NMC cell or a battery pack of NMC cells  
     
             Assumptions:
             None
@@ -522,7 +524,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
         t          = segment.conditions.propulsion.battery_age         
         Q_prior    = segment.conditions.propulsion.battery_charge_throughput[-1,0] 
-        Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) - 273.2
+        Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) 
         
         # aging model  
         delta_DOD = abs(SOC[0][0] - SOC[-1][0])
@@ -693,7 +695,25 @@ def process_raw_data(raw_data):
     
     return  processed_data  
 
-def load_battery_results():
+def load_battery_results(): 
+    '''Load experimental raw data of NMC cells 
+    
+    Source:
+    Automotive Industrial Systems Company of Panasonic Group, Technical Information of 
+    NCR18650G, URL https://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
+    
+    Assumptions:
+    N/A
+    
+    Inputs: 
+    N/A
+        
+    Outputs: 
+    battery_data
+
+    Properties Used:
+    N/A  
+    '''    
     ospath    = os.path.abspath(__file__)
     separator = os.path.sep
     rel_path  = os.path.dirname(ospath) + separator     

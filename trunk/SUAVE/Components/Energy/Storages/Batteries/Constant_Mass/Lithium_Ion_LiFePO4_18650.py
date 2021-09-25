@@ -59,8 +59,8 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
     def __defaults__(self):
         self.tag                              = 'Lithium_Ion_LiFePO4_Cell' 
          
-        self.cell.diameter                    = 0.0184                                                   # [m]
-        self.cell.height                      = 0.0652                                                   # [m]
+        self.cell.diameter                    = 0.0185                                                   # [m]
+        self.cell.height                      = 0.0653                                                   # [m]
         self.cell.mass                        = 0.03  * Units.kg                                         # [kg]
         self.cell.surface_area                = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  # [m^2]
         self.cell.volume                      = np.pi*(0.5*self.cell.diameter)**2*self.cell.height       # [m^3] 
@@ -356,8 +356,7 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
         V_ul                             = state.unknowns.battery_voltage_under_load
         return V_ul  
     
-    def update_battery_age(self,segment):   
-        pass
+    def update_battery_age(self,segment):    
         return  
  
      

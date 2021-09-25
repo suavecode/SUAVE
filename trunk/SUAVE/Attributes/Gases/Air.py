@@ -49,8 +49,7 @@ class Air(Gas):
         """          
         self.tag                    = 'air'
         self.molecular_mass         = 28.96442        # kg/kmol
-        self.gas_specific_constant  = 287.0528742     # m^2/s^2-K, specific gas constant 
-        #self.thermal_conductivity   = 0.0253          # W/mK 
+        self.gas_specific_constant  = 287.0528742     # m^2/s^2-K, specific gas constant  
         self.specific_heat_capacity = 1006           # J/kgK         
         self.composition.O2         = 0.20946
         self.composition.Ar         = 0.00934
@@ -219,34 +218,27 @@ class Air(Gas):
         return 3.99E-4 + 9.89E-5*(T) -4.57E-8*(T**2) + 1.4E-11*(T**3)
     
     
-    def compute_prandtl_number(self,T=300.,p=101325. ):
+    def compute_prandtl_number(self,T=300.):
         """Compute the prandtl number 
             
         Assumptions: 
 
         Source:
-        https://www.engineeringtoolbox.com/air-prandtl-number-viscosity-heat-capacity-thermal-conductivity-d_2009.html
+        N/A
 
         Inputs:
-        T                  [K]       - Temperature
+        specific_heat_capacity [J/kgK]
+        absolute viscosity     [kg/(m-s)]
+        thermal conductivity   [W/(m-K)]
 
         Outputs:
-        prandtl number 
+        prandtl number         [unitless]
 
         Properties Used:
         None
-        """  
-        p                    = np.atleast_2d(p).T
-        raw_Pr_Temp_Pressure = np.array([[60,4.138,4.153,4.170,4.187],[80,1.7,2.252,2.259,2.269],[100,0.780,0.898,1.783,1.770],[120,0.759,0.806,0.890,1.360],[140,0.747,0.773,0.812,0.923],
-                                        [180,0.731,0.743,0.759,0.792],[200,0.726,0.735,0.745,0.769],[220,0.721,0.728,0.736,0.754],[240,0.717,0.722,0.729,0.742],
-                                        [260,0.713,0.718,0.723,0.734],[273,0.711,0.715,0.720,0.729],[280,0.710,0.714,0.718,0.727],[289,0.709,0.713,0.716,0.723],
-                                        [300,0.707,0.711,0.714,0.722],[320,0.705,0.708,0.711,0.717],[340,0.703,0.705,0.708,0.714],[360,0.701,0.703,0.706,0.711],
-                                        [380,0.700,0.702,0.704,0.709],[400,0.699,0.701,0.703,0.706],[500,0.698,0.700,0.701,0.703],[600,0.703,0.704,0.704,0.706],
-                                        [700,0.710,0.710,0.711,0.712],[800,0.717,0.718,0.718,0.719],[900,0.724,0.725,0.725,0.725],[1000,0.730,0.730,0.730,0.731]]) 
+        """   
         
-        temperatures = raw_Pr_Temp_Pressure[:,0]
-        pressures    = np.array([14.5, 72.5, 145,725]) * Units.lbs / (1*Units.inch)**2 
-        prandlt_fit  = interpolate.interp2d(pressures, temperatures, raw_Pr_Temp_Pressure[:,1:])                                        
-        Pr_vals      = prandlt_fit(T[:,0],p[:,0])
-        Pr           = np.atleast_2d(Pr_vals).T
-        return Pr      
+        Cp = self.specific_heat_capacity 
+        mu = self.compute_absolute_viscosity(T)
+        K  = self.compute_thermal_conductivity(T)
+        return  mu*Cp/K      

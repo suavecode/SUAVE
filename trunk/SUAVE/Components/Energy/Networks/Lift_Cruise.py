@@ -109,7 +109,7 @@ class Lift_Cruise(Network):
                 rpm _forward                  [radians/sec]
                 lift_rotor_current_draw       [amps]
                 propeller_current_draw        [amps]
-                battery_draw                  [watts]
+                battery_power_draw            [watts]
                 battery_energy                [joules]
                 voltage_open_circuit          [volts]
                 voltage_under_load            [volts]
@@ -159,10 +159,7 @@ class Lift_Cruise(Network):
         battery.cooling_fluid.prandtl_number          = conditions.freestream.prandtl_number
         battery.cooling_fluid.density                 = conditions.freestream.density  
         battery.ambient_pressure                      = conditions.freestream.pressure  
-        a                                             = conditions.freestream.speed_of_sound
-        
-        # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy  
+        a                                             = conditions.freestream.speed_of_sound 
 
         # Predict voltage based on battery  
         volts = battery.compute_voltage(state)  
@@ -713,7 +710,6 @@ class Lift_Cruise(Network):
         n_motors_r    = len(self.lift_rotor_motors)
         n_eng_p       = self.number_of_propeller_engines
         n_eng_r       = self.number_of_lift_rotor_engines
-
         
         if n_props!=n_motors_p!=n_eng_p:
             assert('The number of propellers is not the same as the number of motors')
@@ -732,31 +728,21 @@ class Lift_Cruise(Network):
         else:
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
 
-        # Perscribe initial segment conditions first segment 
-        if 'battery_energy'  in segment:
-            append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)       
+        # Assign initial segment conditions to segment if missing
+        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)       
 
         # add unknowns and residuals specific to battery cell
         segment.state.residuals.network  = Data() 
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current,
-                                                                           initial_battery_cell_thevenin_voltage)  
-        if ('battery_discharge' not in segment):   
+                                                                        initial_battery_cell_thevenin_voltage)   
+        if segment.battery_discharge: 
             segment.state.residuals.network.propellers          = 0. * ones_row(n_props)
             segment.state.residuals.network.lift_rotors         = 0. * ones_row(n_lift_rotors)
             segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1)   
             segment.state.unknowns.propeller_power_coefficient  = initial_prop_power_coefficient  * ones_row(n_props)
-            segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)
-            segment.battery_discharge = True          
-        else:
-            if segment.battery_discharge: 
-                segment.state.residuals.network.propellers          = 0. * ones_row(n_props)
-                segment.state.residuals.network.lift_rotors         = 0. * ones_row(n_lift_rotors)
-                segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1)   
-                segment.state.unknowns.propeller_power_coefficient  = initial_prop_power_coefficient  * ones_row(n_props)
-                segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)  
-         
+            segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)   
         
         # Setup the conditions for the propellers
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
@@ -836,25 +822,18 @@ class Lift_Cruise(Network):
         else:
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)  
             
-        # Perscribe initial segment conditions first segment 
-        if 'battery_energy'  in segment:
-            append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)           
+        # Assign initial segment conditions to segment if missing  
+        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)           
       
-        # add unknowns and residuals specific to battery cell
+        # add unknowns and residuals specific to to battery cell
         segment.state.residuals.network  = Data() 
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current,
-                                                                           initial_battery_cell_thevenin_voltage)  
-        if ('battery_discharge' not in segment):   
+                                                                           initial_battery_cell_thevenin_voltage)   
+        if segment.battery_discharge: 
             segment.state.residuals.network.propellers         = 0. * ones_row(n_props)
-            segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)
-            segment.battery_discharge = True          
-        else:
-            if segment.battery_discharge: 
-                segment.state.residuals.network.propellers         = 0. * ones_row(n_props)
-                segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)   
-            
+            segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)    
         
         # Setup the conditions for the propellers
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
@@ -939,28 +918,20 @@ class Lift_Cruise(Network):
         else:
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
  
-        # Perscribe initial segment conditions first segment 
-        if 'battery_energy'  in segment:
-            append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)     
+        # Assign initial segment conditions to segment if missing  
+        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)     
 
         # add unknowns and residuals specific to battery cell
         segment.state.residuals.network  = Data() 
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current,
-                                                                           initial_battery_cell_thevenin_voltage)  
-        if ('battery_discharge' not in segment):   
+                                                                           initial_battery_cell_thevenin_voltage)   
+        if segment.battery_discharge: 
             segment.state.residuals.network.lift_rotors = 0. * ones_row(n_lift_rotors) 
             segment.state.unknowns.__delitem__('throttle')
-            segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1) 
-            segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)    
-            segment.battery_discharge = True          
-        else:
-            if segment.battery_discharge: 
-                segment.state.residuals.network.lift_rotors = 0. * ones_row(n_lift_rotors) 
-                segment.state.unknowns.__delitem__('throttle')
-                segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1) 
-                segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)  
+            segment.state.unknowns.throttle_lift                = initial_throttle_lift  * ones_row(1) 
+            segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)  
 
         # Setup the conditions for the propellers
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)

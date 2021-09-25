@@ -82,11 +82,11 @@ class Solar_Low_Fidelity(Network):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                solar_flux           [watts/m^2] 
-                rpm                  [radians/sec]
-                current              [amps]
-                battery_draw         [watts]
-                battery_energy       [joules]
+                solar_flux              [watts/m^2] 
+                rpm                     [radians/sec]
+                current                 [amps]
+                battery_power_draw      [watts]
+                battery_energy          [joules]
                 
             Properties Used:
             Defaulted values
@@ -177,13 +177,13 @@ class Solar_Low_Fidelity(Network):
         R                                        = propeller.tip_radius        
         rpm                                      = motor.outputs.omega / Units.rpm
         current                                  = solar_logic.inputs.currentesc
-        battery_draw                             = battery.inputs.power_in 
+        battery_power_draw                             = battery.inputs.power_in 
         battery_energy                           = battery.current_energy
                                                  
         conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
         conditions.propulsion.propeller_rpm      = rpm
         conditions.propulsion.battery_current    = current
-        conditions.propulsion.battery_draw       = battery_draw
+        conditions.propulsion.battery_power_draw       = battery_power_draw
         conditions.propulsion.battery_energy     = battery_energy
         conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
         

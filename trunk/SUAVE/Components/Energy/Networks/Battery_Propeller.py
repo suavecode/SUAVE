@@ -149,10 +149,7 @@ class Battery_Propeller(Network):
         battery.cooling_fluid.prandtl_number          = conditions.freestream.prandtl_number
         battery.cooling_fluid.density                 = conditions.freestream.density  
         battery.ambient_pressure                      = conditions.freestream.pressure  
-        a                                             = conditions.freestream.speed_of_sound
-        
-        # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy  
+        a                                             = conditions.freestream.speed_of_sound 
         
         # Predict voltage based on battery  
         volts = battery.compute_voltage(state)  
@@ -409,9 +406,8 @@ class Battery_Propeller(Network):
         if identical_flag:
             n_props = 1   
 
-        # Perscribe initial segment conditions first segment 
-        if 'battery_energy'  in segment:
-            append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)      
+        # Assign initial segment conditions to segment if missing
+        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)      
         
         # add unknowns and residuals specific to battery cell 
         segment.state.residuals.network  = Data()         
@@ -419,12 +415,9 @@ class Battery_Propeller(Network):
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage,
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
                                               initial_battery_cell_current,initial_battery_cell_thevenin_voltage)  
-        if ('battery_discharge' not in segment):     
-            segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)
-            segment.battery_discharge = True          
-        else:
-            if segment.battery_discharge: 
-                segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)  
+
+        if segment.battery_discharge: 
+            segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)  
         
         # Setup the conditions
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)

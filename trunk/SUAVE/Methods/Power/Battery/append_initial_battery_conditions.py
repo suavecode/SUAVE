@@ -1,3 +1,4 @@
+## @ingroup Methods-Power-Battery 
 # append_initial_battery_conditions.py
 # 
 # Created: Sep 2021, M. Clarke 
@@ -7,19 +8,18 @@ import SUAVE
 #  Methods
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Power-Battery 
-def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage): 
+def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage = 0.1): 
     """ Packs the initial battery conditions of the first segment
     
         Assumptions:
         Battery temperature is set to one degree hotter than ambient 
-        temperature for more robust convergence 
+        temperature for robust convergence 
     
         Source:
         N/A
     
         Inputs:  
                atmosphere.temperature             [Kelvin]
-        
                
         Outputs:
             segment.
@@ -57,6 +57,9 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
     
     if 'battery_thevenin_voltage' not in segment: 
         segment.battery_thevenin_voltage  = initial_battery_cell_thevenin_voltage  
+        
+    if 'battery_discharge' not in segment:      
+        segment.battery_discharge = True          
             
     return 
     

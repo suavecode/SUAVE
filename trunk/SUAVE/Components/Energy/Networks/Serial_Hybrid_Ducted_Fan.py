@@ -144,11 +144,11 @@ class Serial_Hybrid_Ducted_Fan(Network):
 
         # Pack the conditions for outputs
         current              = esc.outputs.currentin
-        battery_draw         = battery.inputs.power_in
+        battery_power_draw   = battery.inputs.power_in
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit 
         conditions.propulsion.current                      = current
-        conditions.propulsion.battery_draw                 = battery_draw
+        conditions.propulsion.battery_power_draw           = battery_power_draw
         conditions.propulsion.battery_energy               = battery_energy
         conditions.propulsion.battery_voltage_open_circuit = voltage_open_circuit 
         
