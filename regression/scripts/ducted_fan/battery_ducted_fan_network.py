@@ -203,7 +203,6 @@ def energy_network():
     conditions.freestream.Cp                           = ones_1col*working_fluid.compute_cp(atmosphere_conditions.temperature,atmosphere_conditions.pressure)
     conditions.freestream.R                            = ones_1col*working_fluid.gas_specific_constant    
     conditions.q                                       = 0.5 * conditions.freestream.density * conditions.freestream.velocity**2
-    
     # numerics conditions
     numerics.time.integrate                            = np.array([[0, 0],[0, 1]])
     numerics.time.differentiate                        = np.array([[0, 0],[0, 1]])
@@ -212,7 +211,6 @@ def energy_network():
     # propulsion conditions
     conditions.propulsion.throttle                     = np.array([[1.0],[1.0]])
     conditions.propulsion.battery_energy               = bat.max_energy*np.ones_like(ones_1col)
-    conditions.propulsion.battery_max_aged_energy      = bat.max_energy*np.ones_like(ones_1col)
     
     print("Design thrust ", battery_ducted_fan.propulsor.design_thrust 
           * battery_ducted_fan.number_of_engines)

@@ -847,7 +847,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
     
     axis_font = {'size':'14'} 
     fig       = plt.figure(save_filename) 
-    fig.set_size_inches(8, 14)
+    fig.set_size_inches(8, 6)
     
     for segment in results.segments.values():               
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
