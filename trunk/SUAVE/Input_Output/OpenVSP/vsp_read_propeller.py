@@ -15,7 +15,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, wing_
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
 
-import openvsp as vsp
+import vsp
 import numpy as np
 import string
 

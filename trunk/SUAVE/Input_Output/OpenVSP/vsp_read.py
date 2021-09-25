@@ -15,7 +15,11 @@ from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage import vsp_read_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_read_wing import vsp_read_wing
 from SUAVE.Input_Output.OpenVSP.vsp_read_propeller import vsp_read_propeller
 
-from SUAVE.Core import Units
+
+from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
+from SUAVE.Components.Energy.Networks.Battery_Propeller        import Battery_Propeller
+
+from SUAVE.Core import Units, Data
 import vsp as vsp
 
 
@@ -127,8 +131,8 @@ def vsp_read(tag, units_type='SI'):
 
 	vehicle     = SUAVE.Vehicle()
 	vehicle.tag = tag
-	net	    = vehicle.networks.lift_cruise # need to generalize this
-
+	
+	
 	if units_type == 'SI':
 		units_type = 'SI' 
 	elif units_type == 'inches':
@@ -172,16 +176,36 @@ def vsp_read(tag, units_type='SI'):
 		wing = vsp_read_wing(wing_id, units_type)
 		vehicle.append_component(wing)		
 	
+	# Initialize rotor network elements
+	number_of_lift_rotor_engines = 0
+	number_of_propeller_engines  = 0
+	lift_rotors = Data()
+	propellers  = Data()
+	
 	for prop_id in vsp_props:
 		prop = vsp_read_propeller(prop_id,units_type)
 		if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
-			net.lift_rotors.append(prop)
-			net.number_of_rotor_engines += 1 # existence/initialization of this variable assumes a certain network
+			lift_rotors.append(prop)
+			number_of_lift_rotor_engines += 1 # existence/initialization of this variable assumes a certain network
 		else:
 			prop.tag = 'propeller' # changing this tag here assumes only a single propeller
-			net.propellers.append(prop)
-			net.number_of_propeller_engines += 1 # existence/initialization of this variable assumes a certain network
+			propellers.append(prop)
+			number_of_propeller_engines += 1 # existence/initialization of this variable assumes a certain network
 
-	net.number_of_engines = net.number_of_rotor_engines + net.number_of_propeller_engines
+	# Create the rotor network
+	if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
+		# Lift + Cruise network
+		net = Lift_Cruise()
+	else:
+		net = Battery_Propeller()
+	
+	net.append(lift_rotors)
+	net.append(number_of_lift_rotor_engines)
+	net.append(propellers)
+	net.append(number_of_propeller_engines)
+
+	net.number_of_engines = net.number_of_rotor_engines + net.number_of_propeller_engines	
+	
+	vehicle.networks.append(net)
 		
 	return vehicle
