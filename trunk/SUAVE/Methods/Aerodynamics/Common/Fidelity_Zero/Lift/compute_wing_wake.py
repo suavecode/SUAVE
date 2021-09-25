@@ -42,10 +42,12 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, eval
     #-------------------------------------------------------------------------
     #          Extract variables:
     #-------------------------------------------------------------------------
-    span    = geometry.wings.main_wing.spans.projected
-    croot   = geometry.wings.main_wing.chords.root
-    ctip    = geometry.wings.main_wing.chords.tip
-    x0_wing = geometry.wings.main_wing.origin[0,0]
+    wing_tags = list(geometry.wings.keys())
+    main_wing = wing_tags[0] # assumes main wing is the first in the list
+    span    = geometry.wings[main_wing].spans.projected
+    croot   = geometry.wings[main_wing].chords.root
+    ctip    = geometry.wings[main_wing].chords.tip
+    x0_wing = geometry.wings[main_wing].origin[0,0]
     aoa     = conditions.aerodynamics.angle_of_attack
     mach    = conditions.freestream.mach_number
     rho     = conditions.freestream.density

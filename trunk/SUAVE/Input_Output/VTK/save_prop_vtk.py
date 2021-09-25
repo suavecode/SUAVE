@@ -72,7 +72,7 @@ def save_prop_vtk(prop, filename, Results, time_step):
         # Get geometry of blade for current propeller instance
         G = Gprops[B_idx]
         
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         file = filename[0:sep]+"_blade"+str(B_idx)+"_t"+str(time_step)+filename[sep:]
         
         # Create file for each blade
