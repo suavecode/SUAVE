@@ -13,7 +13,9 @@
 import SUAVE
 from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage import vsp_read_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_read_wing import vsp_read_wing
+from SUAVE.Input_Output.OpenVSP.vsp_read_propeller import vsp_read_propeller
 
+from SUAVE.Core import Units
 import vsp as vsp
 
 
@@ -125,6 +127,7 @@ def vsp_read(tag, units_type='SI'):
 
 	vehicle     = SUAVE.Vehicle()
 	vehicle.tag = tag
+	net	    = vehicle.networks.lift_cruise # need to generalize this
 
 	if units_type == 'SI':
 		units_type = 'SI' 
@@ -169,4 +172,16 @@ def vsp_read(tag, units_type='SI'):
 		wing = vsp_read_wing(wing_id, units_type)
 		vehicle.append_component(wing)		
 	
+	for prop_id in vsp_props:
+		prop = vsp_read_propeller(prop_id,units_type)
+		if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
+			net.lift_rotors.append(prop)
+			net.number_of_rotor_engines += 1 # existence/initialization of this variable assumes a certain network
+		else:
+			prop.tag = 'propeller' # changing this tag here assumes only a single propeller
+			net.propellers.append(prop)
+			net.number_of_propeller_engines += 1 # existence/initialization of this variable assumes a certain network
+
+	net.number_of_engines = net.number_of_rotor_engines + net.number_of_propeller_engines
+		
 	return vehicle
