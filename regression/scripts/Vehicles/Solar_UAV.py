@@ -206,11 +206,11 @@ def vehicle_setup():
 
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.mass_properties.mass = 90.0 * Units.kg
-    bat.specific_energy      = 600. * Units.Wh/Units.kg
+    bat.mass_properties.mass = 90.0  * Units.kg
+    bat.specific_energy      = 852.0 * Units.Wh/Units.kg
     bat.resistance           = 0.05
     bat.max_voltage          = 45.0
-    initialize_from_mass(bat,bat.mass_properties.mass)
+    initialize_from_mass(bat)
     net.battery              = bat
    
     #Component 9 the system logic controller and MPPT

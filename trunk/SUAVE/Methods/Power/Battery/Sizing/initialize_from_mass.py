@@ -30,7 +30,7 @@ def initialize_from_mass(battery,module_weight_factor = 1.42 ):
 
 
     """     
-    mass                         = battery.mass_properties.mass/module_weight_factor
+    mass = battery.mass_properties.mass/module_weight_factor
     
     if battery.cell.mass == None:
         n_cells    = 1  

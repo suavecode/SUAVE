@@ -239,7 +239,7 @@ class Solar(Network):
         avionics_payload_power = avionics.outputs.power + payload.outputs.power
         
         # Pack the conditions for outputs 
-        #battery.inputs.current             = solar_logic.inputs.currentesc
+        battery.inputs.current             = solar_logic.inputs.currentesc
         conditions.propulsion.solar_flux   = solar_flux.outputs.flux          
         pack_battery_conditions(conditions,battery,avionics_payload_power,P)  
 

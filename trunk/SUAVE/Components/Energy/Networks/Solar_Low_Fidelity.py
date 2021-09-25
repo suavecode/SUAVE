@@ -177,13 +177,13 @@ class Solar_Low_Fidelity(Network):
         R                                        = propeller.tip_radius        
         rpm                                      = motor.outputs.omega / Units.rpm
         current                                  = solar_logic.inputs.currentesc
-        battery_power_draw                             = battery.inputs.power_in 
+        battery_power_draw                       = battery.inputs.power_in 
         battery_energy                           = battery.current_energy
                                                  
         conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
         conditions.propulsion.propeller_rpm      = rpm
         conditions.propulsion.battery_current    = current
-        conditions.propulsion.battery_power_draw       = battery_power_draw
+        conditions.propulsion.battery_power_draw = battery_power_draw
         conditions.propulsion.battery_energy     = battery_energy
         conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
         
