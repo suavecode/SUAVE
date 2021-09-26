@@ -133,7 +133,7 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     vsp.SetStringAnalysisInput( "BladeElement" , "PropID" , (prop_id,) )
     rid = vsp.ExecAnalysis( "BladeElement" )
     Nc  = len(vsp.GetDoubleResults(rid,"YSection_000"))
-    prop.number_points_around_airfoil = Nc
+    prop.number_points_around_airfoil = 2*Nc
     
     prop.CLi			    = vsp.GetParmVal(parm_id[parm_names.index('CLi')])
     prop.blade_solidity 	    = vsp.GetParmVal(parm_id[parm_names.index('Solidity')])
