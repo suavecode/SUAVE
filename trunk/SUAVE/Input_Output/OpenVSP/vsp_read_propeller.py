@@ -12,7 +12,6 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
-
 import vsp
 import os
 import numpy as np
@@ -86,13 +85,14 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     """
 
 
-    # Check if this is a propeller or a rotor
+    # Check if this is a propeller or a lift rotor
     # Check if the thrust angle	is > 70 deg in pitch
-    if vsp.GetParmVal( prop_id,'Y_Rotation','XForm') >= 70:# Assume it is a lift rotor
-        prop 				= SUAVE.Components.Energy.Converters.Lift_Rotor()
+    if vsp.GetParmVal( prop_id,'Y_Rotation','XForm') >= 70:
+	# Assume lift rotor
+        prop 	= SUAVE.Components.Energy.Converters.Lift_Rotor()
     else:
         # Instantiate a propeller
-        prop 				= SUAVE.Components.Energy.Converters.Propeller()
+        prop 	= SUAVE.Components.Energy.Converters.Propeller()
 
     # Set the units
     if units_type == 'SI':
@@ -128,20 +128,13 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     for i in range(len(parm_id)):
         parm_name = vsp.GetParmName(parm_id[i])
         parm_names.append(parm_name)
-        print(parm_name)    
-
-    # Set number of radial and chordwise stations for running the OpenVSP BEM analysis
-    number_of_chordwise_stations = 17 # chordwise discretization
-    #vsp.SetParmVal(parm_id[72], number_of_radial_stations)    # might be better to find the parameter by   
-    #vsp.SetParmVal(parm_id[73], number_of_chordwise_stations) # name than by hardcoding a specific number
 
     # Run the vsp Blade Element analysis
     vsp.SetStringAnalysisInput( "BladeElement" , "PropID" , (prop_id,) )
     rid = vsp.ExecAnalysis( "BladeElement" )
-    len(vsp.GetDoubleResults(rid,"YSection_000")) # this does not always equal the specified number_of_chordwise_stations
+    Nc  = len(vsp.GetDoubleResults(rid,"YSection_000"))
+    prop.number_points_around_airfoil = Nc
     
-
-        
     prop.CLi			    = vsp.GetParmVal(parm_id[parm_names.index('CLi')])
     prop.blade_solidity 	    = vsp.GetParmVal(parm_id[parm_names.index('Solidity')])
     prop.number_of_blades           = int(vsp.GetParmVal(parm_id[parm_names.index('NumBlade')]))
@@ -158,7 +151,7 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     prop.thickness_to_chord         = np.array(vsp.GetDoubleResults(rid, "Thick" ))
     prop.max_thickness_distribution = prop.thickness_to_chord*prop.chord_distribution * units_factor
 
-    prop.Cl_distribution            = np.array(vsp.GetDoubleResults(rid, "CLi" )) # What if this is just zeros?
+    prop.Cl_distribution            = np.array(vsp.GetDoubleResults(rid, "CLi" ))
 
     number_of_radial_stations        = len(prop.chord_distribution)
     
@@ -170,44 +163,29 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     prop.axial 			= np.array(vsp.GetDoubleResults(rid, "Axial"))
     prop.tangential 		= np.array(vsp.GetDoubleResults(rid, "Tangential"))
 
-    # Prop rotation direction (need to check again)
-    # 	- Propeller
-    #		+1 for clockwise rotation when looking from behind
-    #		-1 for counter-clockwise rotation when looking from behind
-    # 	- Lift Rotor, thrust angle = 90 deg (same as propeller but rotated)
-    #		+1 for right hand advancing blade
-    #		-1 for left hand advancing blade
-    if vsp.GetParmVal(parm_id[40]) == 1:
-        prop.rotation = -1
-    else:
-        prop.rotation = 1
-
-
+    # Set prop rotation
+    prop.rotation = 1
+    
     # ---------------------------------------------
     # Rotor Airfoil
     # ---------------------------------------------
-    # Use available geometry until airfoil import process (and polar data calculation) is determined
-    airfoils_path = os.path.join(os.path.dirname(__file__), 'Airfoils/')
-    polars_path   = airfoils_path + 'Polars/'
-    prop.airfoil_geometry       = [airfoils_path+'NACA_4412.txt']
-    prop.airfoil_polars         = [[polars_path+'NACA_4412_polar_Re_50000.txt', polars_path+'NACA_4412_polar_Re_100000.txt', 
-                                    polars_path+'NACA_4412_polar_Re_200000.txt',polars_path+'NACA_4412_polar_Re_500000.txt', 
-                                    polars_path+'NACA_4412_polar_Re_1000000.txt']]
-    prop.airfoil_polar_stations = [0] * number_of_radial_stations
-
-    # compute airfoil polars for airfoils
-    airfoil_polars              = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)
-    prop.airfoil_cl_surrogates  = airfoil_polars.lift_coefficient_surrogates
-    prop.airfoil_cd_surrogates  = airfoil_polars.drag_coefficient_surrogates
-    prop.airfoil_flag           = True
-
-    # Initial code (from prop_read_wing) to save the BEM airfoil files (needs work)
-    # if write_airfoil_file==True:
-    # 	vsp.WriteSeligAirfoil(str(prop.tag) + '_airfoil_XSec_' + str(jj) +'.dat', prop_id, float(jj/segment_num))
-    # 	airfoil.coordinate_file    = str(prop.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
-    # 	airfoil.tag                = 'airfoil'
-    #
-    # Then run XFOIL for each airfoil to get the polars
+    if write_airfoil_file:
+        print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for propeller cross section.")
+    else:
+	# Use available geometry and polars
+        airfoils_path = os.path.join(os.path.dirname(__file__), 'Airfoils/')
+        polars_path   = airfoils_path + 'Polars/'
+        prop.airfoil_geometry       = [airfoils_path+'NACA_4412.txt']
+        prop.airfoil_polars         = [[polars_path+'NACA_4412_polar_Re_50000.txt', polars_path+'NACA_4412_polar_Re_100000.txt', 
+                                        polars_path+'NACA_4412_polar_Re_200000.txt',polars_path+'NACA_4412_polar_Re_500000.txt', 
+                                        polars_path+'NACA_4412_polar_Re_1000000.txt']]
+        prop.airfoil_polar_stations = [0] * number_of_radial_stations
+        
+        # compute airfoil polars for airfoils
+        airfoil_polars              = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)
+        prop.airfoil_cl_surrogates  = airfoil_polars.lift_coefficient_surrogates
+        prop.airfoil_cd_surrogates  = airfoil_polars.drag_coefficient_surrogates
+        prop.airfoil_flag           = True
 
     return prop
 

@@ -11,9 +11,9 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
+from SUAVE.Input_Output.OpenVSP.vsp_read_propeller import vsp_read_propeller
 from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage import vsp_read_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_read_wing import vsp_read_wing
-from SUAVE.Input_Output.OpenVSP.vsp_read_propeller import vsp_read_propeller
 
 
 from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
@@ -29,7 +29,7 @@ import vsp as vsp
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag, units_type='SI'): 	
+def vsp_read(tag, units_type='SI'): 
 	"""This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
 	Includes wings, fuselages, and propellers.
 
@@ -168,7 +168,6 @@ def vsp_read(tag, units_type='SI'):
 			vsp_props.append(geom)
 	
 	#Read VSP geoms and store in SUAVE components
-	
 	for fuselage_id in vsp_fuselages:
 		fuselage = vsp_read_fuselage(fuselage_id, units_type)
 		vehicle.append_component(fuselage)
@@ -188,10 +187,10 @@ def vsp_read(tag, units_type='SI'):
 		prop.tag = vsp.GetGeomName(prop_id)
 		if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
 			lift_rotors.append(prop)
-			number_of_lift_rotor_engines += 1 # existence/initialization of this variable assumes a certain network
+			number_of_lift_rotor_engines += 1 
 		else:
 			propellers.append(prop)
-			number_of_propeller_engines += 1 # existence/initialization of this variable assumes a certain network
+			number_of_propeller_engines += 1 
 
 	# Create the rotor network
 	if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
@@ -200,7 +199,8 @@ def vsp_read(tag, units_type='SI'):
 	else:
 		net = Battery_Propeller()
 	if number_of_lift_rotor_engines>0:
-		net.append(lift_rotors)
+		for i in range(number_of_lift_rotor_engines):
+			net.lift_rotors.append(propellers[list(lift_rotors.keys())[i]])
 		net.number_of_lift_rotor_engines = number_of_lift_rotor_engines
 	if number_of_propeller_engines>0:
 		for i in range(number_of_propeller_engines):
@@ -208,7 +208,7 @@ def vsp_read(tag, units_type='SI'):
 		net.number_of_propeller_engines = number_of_propeller_engines
 
 	net.number_of_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
-	
+
 	vehicle.networks.append(net)
 		
 	return vehicle
