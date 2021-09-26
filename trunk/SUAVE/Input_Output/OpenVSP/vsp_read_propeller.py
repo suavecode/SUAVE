@@ -50,20 +50,20 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     Writes SUAVE propeller/rotor object, with these geometries, from VSP:
     	prop.
     		origin                                  [m] in all three dimensions
-    		orientation								[deg] in all three dimensions
-    		number_of_blades						[-]
-    		tip_radius								[m]
-    		hub_radius								[m]
-    		twist_distribution						[deg]
-    		chord_distribution						[m]
-    		radius_distribution						[m]
-    		sweep_distribution						[deg]
-    		mid_chord_alignment						[m]
-    		max_thickness_distribution				[m]
-    		thickness_to_chord						[-]
-    		blade_solidity							[-]
-    		rotation								[-]
-    		VTOL_flag								[-]
+    		orientation				[deg] in all three dimensions
+    		number_of_blades			[-]
+    		tip_radius				[m]
+    		hub_radius				[m]
+    		twist_distribution			[deg]
+    		chord_distribution			[m]
+    		radius_distribution			[m]
+    		sweep_distribution			[deg]
+    		mid_chord_alignment			[m]
+    		max_thickness_distribution		[m]
+    		thickness_to_chord			[-]
+    		blade_solidity				[-]
+    		rotation			        [-]
+    		VTOL_flag			        [-]
 
 
     		thickness_to_chord                      [-]
@@ -133,29 +133,28 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     vsp.SetStringAnalysisInput( "BladeElement" , "PropID" , (prop_id,) )
     rid = vsp.ExecAnalysis( "BladeElement" )
     Nc  = len(vsp.GetDoubleResults(rid,"YSection_000"))
+    
     prop.number_points_around_airfoil = 2*Nc
+    prop.CLi			      = vsp.GetParmVal(parm_id[parm_names.index('CLi')])
+    prop.blade_solidity 	      = vsp.GetParmVal(parm_id[parm_names.index('Solidity')])
+    prop.number_of_blades             = int(vsp.GetParmVal(parm_id[parm_names.index('NumBlade')]))
     
-    prop.CLi			    = vsp.GetParmVal(parm_id[parm_names.index('CLi')])
-    prop.blade_solidity 	    = vsp.GetParmVal(parm_id[parm_names.index('Solidity')])
-    prop.number_of_blades           = int(vsp.GetParmVal(parm_id[parm_names.index('NumBlade')]))
+    prop.tip_radius                   = vsp.GetDoubleResults(rid, "Diameter" )[0] / 2 * units_factor
+    prop.radius_distribution          = np.array(vsp.GetDoubleResults(rid, "Radius" )) * prop.tip_radius
+    prop.radius_distribution[-1]      = 0.99 * prop.tip_radius # BEMT requires max nondimensional radius to be less than 1.0
+    prop.hub_radius 		      = prop.radius_distribution[0]
     
-    prop.tip_radius                 = vsp.GetDoubleResults(rid, "Diameter" )[0] / 2 * units_factor
-    prop.radius_distribution        = np.array(vsp.GetDoubleResults(rid, "Radius" )) * prop.tip_radius
-    prop.radius_distribution[-1]    = 0.99 * prop.tip_radius # BEMT requires max nondimensional radius to be less than 1.0
-    prop.hub_radius 		    = prop.radius_distribution[0]
-    
-    prop.chord_distribution         = np.array(vsp.GetDoubleResults(rid, "Chord" ))  * prop.tip_radius # vsp gives c/R
-    prop.twist_distribution         = np.array(vsp.GetDoubleResults(rid, "Twist" ))  * Units.degrees
-    prop.sweep_distribution 	    = np.array(vsp.GetDoubleResults(rid, "Sweep" ))
-    prop.mid_chord_alignment        = np.tan(prop.sweep_distribution*Units.degrees)  * prop.radius_distribution
-    prop.thickness_to_chord         = np.array(vsp.GetDoubleResults(rid, "Thick" ))
-    prop.max_thickness_distribution = prop.thickness_to_chord*prop.chord_distribution * units_factor
-
-    prop.Cl_distribution            = np.array(vsp.GetDoubleResults(rid, "CLi" ))
+    prop.chord_distribution           = np.array(vsp.GetDoubleResults(rid, "Chord" ))  * prop.tip_radius # vsp gives c/R
+    prop.twist_distribution           = np.array(vsp.GetDoubleResults(rid, "Twist" ))  * Units.degrees
+    prop.sweep_distribution 	      = np.array(vsp.GetDoubleResults(rid, "Sweep" ))
+    prop.mid_chord_alignment          = np.tan(prop.sweep_distribution*Units.degrees)  * prop.radius_distribution
+    prop.thickness_to_chord           = np.array(vsp.GetDoubleResults(rid, "Thick" ))
+    prop.max_thickness_distribution   = prop.thickness_to_chord*prop.chord_distribution * units_factor
+    prop.Cl_distribution              = np.array(vsp.GetDoubleResults(rid, "CLi" ))
 
     number_of_radial_stations        = len(prop.chord_distribution)
     
-    # Extra data from VSP BEM that SUAVE might not use...
+    # Extra data from VSP BEM for future use in BEMT
     prop.beta34 		= vsp.GetDoubleResults(rid, "Beta34" )[0]  # pitch at 3/4 radius
     prop.pre_cone 		= vsp.GetDoubleResults(rid, "Pre_Cone")[0]
     prop.rake 			= np.array(vsp.GetDoubleResults(rid, "Rake"))
@@ -171,21 +170,7 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     # ---------------------------------------------
     if write_airfoil_file:
         print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for propeller cross section.")
-    else:
-	# Use available geometry and polars
-        airfoils_path = os.path.join(os.path.dirname(__file__), 'Airfoils/')
-        polars_path   = airfoils_path + 'Polars/'
-        prop.airfoil_geometry       = [airfoils_path+'NACA_4412.txt']
-        prop.airfoil_polars         = [[polars_path+'NACA_4412_polar_Re_50000.txt', polars_path+'NACA_4412_polar_Re_100000.txt', 
-                                        polars_path+'NACA_4412_polar_Re_200000.txt',polars_path+'NACA_4412_polar_Re_500000.txt', 
-                                        polars_path+'NACA_4412_polar_Re_1000000.txt']]
-        prop.airfoil_polar_stations = [0] * number_of_radial_stations
-        
-        # compute airfoil polars for airfoils
-        airfoil_polars              = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)
-        prop.airfoil_cl_surrogates  = airfoil_polars.lift_coefficient_surrogates
-        prop.airfoil_cd_surrogates  = airfoil_polars.drag_coefficient_surrogates
-        prop.airfoil_flag           = True
+
 
     return prop
 

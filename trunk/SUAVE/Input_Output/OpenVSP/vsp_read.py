@@ -5,6 +5,7 @@
 # Modified: Aug 2018, T. St Francis
 #           Jan 2020, T. MacDonald
 #           Jul 2020, E. Botero
+#           Sep 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,9 +13,8 @@
 
 import SUAVE
 from SUAVE.Input_Output.OpenVSP.vsp_read_propeller import vsp_read_propeller
-from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage import vsp_read_fuselage
-from SUAVE.Input_Output.OpenVSP.vsp_read_wing import vsp_read_wing
-
+from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage  import vsp_read_fuselage
+from SUAVE.Input_Output.OpenVSP.vsp_read_wing      import vsp_read_wing
 
 from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
 from SUAVE.Components.Energy.Networks.Battery_Propeller        import Battery_Propeller
@@ -196,18 +196,26 @@ def vsp_read(tag, units_type='SI'):
 	if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
 		# Lift + Cruise network
 		net = Lift_Cruise()
-	else:
-		net = Battery_Propeller()
-	if number_of_lift_rotor_engines>0:
 		for i in range(number_of_lift_rotor_engines):
 			net.lift_rotors.append(propellers[list(lift_rotors.keys())[i]])
-		net.number_of_lift_rotor_engines = number_of_lift_rotor_engines
-	if number_of_propeller_engines>0:
+		net.number_of_lift_rotor_engines = number_of_lift_rotor_engines	
+		
 		for i in range(number_of_propeller_engines):
 			net.propellers.append(propellers[list(propellers.keys())[i]])
-		net.number_of_propeller_engines = number_of_propeller_engines
+		net.number_of_propeller_engines = number_of_propeller_engines		
+		
+	else:
+		# Append all rotors as propellers for the battery propeller network
+		net = Battery_Propeller()
+		
+		for i in range(number_of_lift_rotor_engines):
+			# Accounts for multicopter configurations
+			net.propellers.append(propellers[list(lift_rotors.keys())[i]])
+			
+		for i in range(number_of_propeller_engines):
+			net.propellers.append(propellers[list(propellers.keys())[i]])
 
-	net.number_of_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
+	net.number_of_propeller_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
 
 	vehicle.networks.append(net)
 		
