@@ -8,13 +8,15 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 import SUAVE
+from SUAVE.Core   import Units , Data 
+from .Lithium_Ion import Lithium_Ion 
+from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNiMnCoO2_cell_cycle_model import compute_NMC_cell_state_variables
+from SUAVE.Methods.Power.Battery.compute_net_generated_battery_heat            import compute_net_generated_battery_heat
+
 import numpy as np
 import os
-from SUAVE.Core                                                         import Units , Data 
-from scipy.interpolate                                                  import RegularGridInterpolator 
-from .Lithium_Ion                                                       import Lithium_Ion 
-from scipy.integrate import  cumtrapz , odeint 
-from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNiMnCoO2_cell_cycle_model import compute_NMC_cell_state_variables
+from scipy.integrate    import  cumtrapz , odeint 
+from scipy.interpolate  import RegularGridInterpolator 
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
@@ -108,13 +110,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
            Battery Heat Generation Model and  Entropy Model:
            Jeon, Dong Hyup, and Seung Man Baek. "Thermal modeling of cylindrical lithium ion 
            battery during discharge cycle." Energy Conversion and Management 52.8-9 (2011): 
-           2973-2981.
-           
-           Heat Transfer Model:
-           Pakowski, Zdzisław. "Fundamentals of Heat and Mass Transfer, Frank P Incropera,
-           David P DeWitt, Theodore L Bergman, Adrienne S Lavine, J. Wiley & Sons, Hoboken
-           NJ (2007), 997 pp." (2007): 1683-1684.,  Chapter 7 pg 437-446 
-           
+           2973-2981. 
            
            Assumtions:
            1) All battery modules exhibit the same themal behaviour. 
@@ -123,10 +119,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
              battery.
                    I_bat             (max_energy)                          [Joules]
                    cell_mass         (battery cell mass)                   [kilograms]
-                   Cp                (battery cell specific heat capacity) [J/(K kg)]
-                   h                 (heat transfer coefficient)           [W/(m^2*K)]
-                   t                 (battery age in days)                 [days]
-                   As_cell           (battery cell surface area)           [meters^2]
+                   Cp                (battery cell specific heat capacity) [J/(K kg)] 
+                   t                 (battery age in days)                 [days] 
                    T_ambient         (ambient temperature)                 [Kelvin]
                    T_current         (pack temperature)                    [Kelvin]
                    T_cell            (battery cell temperature)            [Kelvin]
@@ -161,13 +155,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         P_bat                    = battery.inputs.power_in   
         cell_mass                = battery.cell.mass   
         electrode_area           = battery.cell.electrode_area
-        Cp                       = battery.cell.specific_heat_capacity 
-        h                        = battery.convective_heat_transfer_coefficient
-        As_cell                  = battery.cell.surface_area 
-        D_cell                   = battery.cell.diameter                     
-        H_cell                   = battery.cell.height    
-        P_ambient                = battery.ambient_pressure
-        T_ambient                = battery.ambient_temperature 
+        Cp                       = battery.cell.specific_heat_capacity  
+        As_cell                  = battery.cell.surface_area  
         V_th0                    = battery.initial_thevenin_voltage 
         T_current                = battery.pack_temperature      
         T_cell                   = battery.cell_temperature     
@@ -175,10 +164,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         R_growth_factor          = battery.R_growth_factor 
         E_current                = battery.current_energy 
         Q_prior                  = battery.charge_throughput  
-        battery_data             = battery.discharge_performance_map 
-        heat_transfer_efficiency = battery.heat_transfer_efficiency
+        battery_data             = battery.discharge_performance_map  
         I                        = numerics.time.integrate  
-          
+              
         # ---------------------------------------------------------------------------------
         # Compute battery electrical properties 
         # --------------------------------------------------------------------------------- 
@@ -223,48 +211,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
         q_entropy_frac = q_dot_entropy/(q_dot_joule + q_dot_entropy)
         
-        
-        if n_total == 1: 
-            # Using lumped model  
-            Q_convec       = h*As_cell*(T_cell - T_ambient) 
-            P_net          = Q_heat_gen - Q_convec
-            P_net          = P_net*n_total 
-            
-        else:      
-            # Chapter 7 pg 437-446 of Fundamentals of heat and mass transfer  
-            S_T             = battery.module_config.normal_spacing          
-            S_L             = battery.module_config.parallel_spacing   
-            coolant         = battery.cooling_fluid 
-            K_coolant       = coolant.thermal_conductivity 
-            Cp_coolant      = coolant.specific_heat_capacity  
-            V_coolant       = coolant.discharge_air_cooling_flowspeed
-            rho_coolant     = coolant.density 
-            nu_coolant      = coolant.kinematic_viscosity     
-            Pr_coolant      = coolant.prandtl_number   
-        
-            S_D = np.sqrt(S_T**2+S_L**2)
-            if 2*(S_D-D_cell) < (S_T-D_cell):
-                V_max = V_coolant*(S_T/(2*(S_D-D_cell)))
-            else:
-                V_max = V_coolant*(S_T/(S_T-D_cell))
-        
-            T      = (T_ambient+T_current)/2   
-            Re_max = V_max*D_cell/nu_coolant   
-            if all(Re_max) > 10E2: 
-                C = 0.35*((S_T/S_L)**0.2) 
-                m = 0.6 
-            else:
-                C = 0.51
-                m = 0.5 
-                  
-            Pr_w_coolant = coolant.compute_prandtl_number(T)
-            Nu           = C*(Re_max**m)*(Pr_coolant**0.36)*((Pr_coolant/Pr_w_coolant)**0.25)           
-            h            = Nu*K_coolant/D_cell
-            Tw_Ti        = (T - T_ambient)
-            Tw_To        = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_coolant*V_coolant*Nn*S_T*Cp_coolant))
-            dT_lm        = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-            Q_convec     = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
-            P_net        = Q_heat_gen*n_total_module - Q_convec  
+        # Compute net heat generated 
+        P_net = compute_net_generated_battery_heat(n_total,battery,Q_heat_gen)    
         
         dT_dt     = P_net/(cell_mass*n_total_module*Cp)
         T_current = T_current[0] + np.dot(I,dT_dt)  
@@ -493,7 +441,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
            
         return V_ul 
     
-    def update_battery_age(self,segment):  
+    def update_battery_cycle_day(self,segment):  
         """ This is an aging model for 18650 lithium-nickel-manganese-cobalt-oxide batteries. 
        
         Source: 
@@ -505,7 +453,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     
         Inputs:
           segment.conditions.propulsion. 
-             battery_age                                                            [days]   
+             battery_cycle_day                                                            [days]   
              battery_cell_temperature                                               [Kelvin] 
              battery_voltage_open_circuit                                           [Volts] 
              battery_charge_throughput                                              [Amp-hrs] 
@@ -522,7 +470,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         n_series   = self.pack_config.series
         SOC        = segment.conditions.propulsion.battery_state_of_charge
         V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
-        t          = segment.conditions.propulsion.battery_age         
+        t          = segment.conditions.propulsion.battery_cycle_day         
         Q_prior    = segment.conditions.propulsion.battery_charge_throughput[-1,0] 
         Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) 
         
@@ -540,7 +488,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         segment.conditions.propulsion.battery_capacity_fade_factor     = E_fade_factor  
         segment.conditions.propulsion.battery_resistance_growth_factor = R_growth_factor
         
-        segment.conditions.propulsion.battery_age += 1 # update battery age by one day 
+        segment.conditions.propulsion.battery_cycle_day += 1 # update battery age by one day 
       
         return  
     

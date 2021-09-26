@@ -144,7 +144,7 @@ class Lift_Cruise(Network):
         battery.current_energy      = conditions.propulsion.battery_energy
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
-        battery.age                 = conditions.propulsion.battery_age         
+        battery.age                 = conditions.propulsion.battery_cycle_day         
         battery_discharge_flag      = conditions.propulsion.battery_discharge_flag    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 

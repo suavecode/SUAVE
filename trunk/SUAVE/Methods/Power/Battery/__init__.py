@@ -6,5 +6,8 @@ from . import Ragone
 from . import Sizing
 from . import Variable_Mass
 from . import Cell_Cycle_Models
-from .pack_battery_conditions import pack_battery_conditions
-from .append_initial_battery_conditions import append_initial_battery_conditions
+
+# utility funtions 
+from .append_initial_battery_conditions     import append_initial_battery_conditions
+from .compute_net_generated_battery_heat    import compute_net_generated_battery_heat
+from .pack_battery_conditions               import pack_battery_conditions

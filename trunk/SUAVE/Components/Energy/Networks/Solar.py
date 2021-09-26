@@ -122,7 +122,7 @@ class Solar(Network):
         battery.current_energy      = conditions.propulsion.battery_energy
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
-        battery.age                 = conditions.propulsion.battery_age            
+        battery.age                 = conditions.propulsion.battery_cycle_day            
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
         battery.max_energy          = conditions.propulsion.battery_max_aged_energy   

@@ -49,7 +49,7 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
                battery_power_draw                 [Watts]     
                battery_max_aged_energy            [Joules]     
                battery_charge_throughput          [Ampere-Hours]     
-               battery_age                        [days]     
+               battery_cycle_day                  [days]     
                battery_internal_resistance        [Ohms]
                battery_state_of_charge            [unitless]
                battery_pack_temperature           [Kelvin]
@@ -84,7 +84,7 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
     conditions.propulsion.battery_power_draw                   = battery_power_draw 
     conditions.propulsion.battery_max_aged_energy              = battery.max_energy 
     conditions.propulsion.battery_charge_throughput            = battery.charge_throughput 
-    conditions.propulsion.battery_age                          = battery.age
+    conditions.propulsion.battery_cycle_day                    = battery.age
     conditions.propulsion.battery_internal_resistance          = battery.internal_resistance
     conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
     conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 

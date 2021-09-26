@@ -356,7 +356,7 @@ class Lithium_Ion_LiFePO4_18650(Lithium_Ion):
         V_ul                             = state.unknowns.battery_voltage_under_load
         return V_ul  
     
-    def update_battery_age(self,segment):    
+    def update_battery_cycle_day(self,segment):    
         return  
  
      

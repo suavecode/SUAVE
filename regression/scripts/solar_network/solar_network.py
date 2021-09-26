@@ -59,7 +59,7 @@ def main():
     results = mission.evaluate()
 
     # load older results
-    save_results(results)
+    #save_results(results)
     old_results = load_results()   
 
     ## plt the old results

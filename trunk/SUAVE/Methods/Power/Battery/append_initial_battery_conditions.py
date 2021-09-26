@@ -23,7 +23,7 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
                
         Outputs:
             segment.
-               battery_age [days]
+               battery_cycle_day [days]
                battery_pack_temperature           [Kelvin]
                battery_charge_throughput          [Ampere-Hours] 
                battery_resistance_growth_factor   [unitless]
@@ -40,8 +40,8 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
         temp_dev = segment.temperature_deviation    
     atmo_data  = atmosphere.compute_values(altitude = alt,temperature_deviation=temp_dev + 1.)  
     
-    if 'battery_age' not in segment: 
-        segment.battery_age = 0   
+    if 'battery_cycle_day' not in segment: 
+        segment.battery_cycle_day = 0   
         
     if 'battery_pack_temperature' not in segment:     
         segment.battery_pack_temperature  = atmo_data.temperature[0,0]

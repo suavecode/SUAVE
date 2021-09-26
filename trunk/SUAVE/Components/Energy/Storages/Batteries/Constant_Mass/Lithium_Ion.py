@@ -347,7 +347,7 @@ class Lithium_Ion(Battery):
         V_ul                             = state.unknowns.battery_voltage_under_load
         return V_ul  
     
-    def update_battery_age(self,segment):    
+    def update_battery_cycle_day(self,segment):    
         return  
  
   
