@@ -88,7 +88,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
                     filename = prop_filename
                 else:
                     filename = save_loc + prop_filename
-                sep  = filename.find('.')
+                sep  = filename.rfind('.')
                 file = filename[0:sep]+str(i)+filename[sep:]
 
                 save_prop_vtk(propi, file, Results, time_step)
@@ -112,7 +112,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
                     filename = prop_filename
                 else:
                     filename = save_loc + rot_filename
-                sep  = filename.find('.')
+                sep  = filename.rfind('.')
                 file = filename[0:sep]+str(i)+filename[sep:]
 
                 save_prop_vtk(lift_rotors[list(lift_rotors.keys())[i]], file, Results,i,time_step)
@@ -136,7 +136,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
                 filename = wake_filename
             else:
                 filename = save_loc + wake_filename
-            sep  = filename.find('.')
+            sep  = filename.rfind('.')
             file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
             
             propi_key = list(Results['all_prop_outputs'].keys())[i]
@@ -153,7 +153,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
             filename = wing_filename
         else:
             filename = save_loc + wing_filename
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         file = filename[0:sep]+str(wing_names[i])+filename[sep:]
         save_wing_vtk(vehicle, vehicle.wings[wing_names[i]], settings, file, Results,time_step)
 
@@ -167,7 +167,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
             filename = fuselage_filename
         else:
             filename = save_loc + fuselage_filename
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
 
         save_fuselage_vtk(vehicle, file, Results)

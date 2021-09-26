@@ -1,7 +1,7 @@
 ## @ingroup Input_Output-OpenVSP
-# vsp_read_prop.py
+# vsp_read_propeller.py
 
-# Created:  Jul 2021, M. Cunningham
+# Created:  Sep 2021, R. Erhard
 # Modified: 
 
 # ----------------------------------------------------------------------
@@ -10,14 +10,17 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, wing_segmented_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
 
 import vsp
+import os
 import numpy as np
 import string
+
+
+from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, wing_segmented_planform
 
 # This enforces lowercase names
 chars = string.punctuation + string.whitespace
@@ -29,8 +32,8 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 # ----------------------------------------------------------------------
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True, number_of_radial_stations=20):
-    """This reads an OpenVSP prop geometry and writes it into a SUAVE prop format.
+def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, number_of_radial_stations=20):
+    """This reads an OpenVSP propeller geometry and writes it into a SUAVE propeller format.
 
     Assumptions:
     1. Written for OpenVSP 3.24.0
@@ -39,13 +42,11 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True, number_
     N/A
 
     Inputs:
-    0. Pre-loaded VSP vehicle in memory, via vsp_read.
     1. VSP 10-digit geom ID for prop.
     2. units_type set to 'SI' (default) or 'Imperial'.
     3. write_airfoil_file set to True (default) or False
     4. number_of_radial_stations is the radial discretization used to extract the propeller design from OpenVSP
-    5. number_of_chordwise_stations is the chordwise discretization (depending on design in OpenVSP, actual output may
-       have more stations)
+
     Outputs:
     Writes SUAVE propeller/rotor object, with these geometries, from VSP:
     	prop.
@@ -110,53 +111,64 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True, number_
         prop.tag = 'propgeom'
 
     # Propeller location (absolute)
-    prop.origin 		= [[0.0,0.0,0.0]]
+    prop.origin 	= [[0.0,0.0,0.0]]
     prop.origin[0][0] 	= vsp.GetParmVal(prop_id, 'X_Location', 'XForm') * units_factor
     prop.origin[0][1] 	= vsp.GetParmVal(prop_id, 'Y_Location', 'XForm') * units_factor
     prop.origin[0][2] 	= vsp.GetParmVal(prop_id, 'Z_Location', 'XForm') * units_factor
 
     # Propeller orientation
-    prop.orientation_euler_angles 		= [0.0,0.0,0.0]
+    prop.orientation_euler_angles 	= [0.0,0.0,0.0]
     prop.orientation_euler_angles[0] 	= vsp.GetParmVal(prop_id, 'X_Rotation', 'XForm') * Units.degrees
     prop.orientation_euler_angles[1] 	= vsp.GetParmVal(prop_id, 'Y_Rotation', 'XForm') * Units.degrees
     prop.orientation_euler_angles[2] 	= vsp.GetParmVal(prop_id, 'Z_Rotation', 'XForm') * Units.degrees
 
     # Get the propeller parameter IDs
-    parm_id = vsp.GetGeomParmIDs(prop_id)
+    parm_id    = vsp.GetGeomParmIDs(prop_id)
+    parm_names = []
+    for i in range(len(parm_id)):
+        parm_name = vsp.GetParmName(parm_id[i])
+        parm_names.append(parm_name)
+        print(parm_name)    
 
     # Set number of radial and chordwise stations for running the OpenVSP BEM analysis
     number_of_chordwise_stations = 17 # chordwise discretization
-    vsp.SetParmVal(parm_id[72], number_of_radial_stations)    # might be better to find the parameter by   
-    vsp.SetParmVal(parm_id[73], number_of_chordwise_stations) # name than by hardcoding a specific number
+    #vsp.SetParmVal(parm_id[72], number_of_radial_stations)    # might be better to find the parameter by   
+    #vsp.SetParmVal(parm_id[73], number_of_chordwise_stations) # name than by hardcoding a specific number
 
     # Run the vsp Blade Element analysis
     vsp.SetStringAnalysisInput( "BladeElement" , "PropID" , (prop_id,) )
     rid = vsp.ExecAnalysis( "BladeElement" )
     len(vsp.GetDoubleResults(rid,"YSection_000")) # this does not always equal the specified number_of_chordwise_stations
+    
 
-    prop.CLi						= vsp.GetParmVal(parm_id[7])
-    prop.blade_solidity 			= vsp.GetParmVal(parm_id[8])
-    prop.number_of_blades           = int(vsp.GetParmVal(parm_id[36]))
+        
+    prop.CLi			    = vsp.GetParmVal(parm_id[parm_names.index('CLi')])
+    prop.blade_solidity 	    = vsp.GetParmVal(parm_id[parm_names.index('Solidity')])
+    prop.number_of_blades           = int(vsp.GetParmVal(parm_id[parm_names.index('NumBlade')]))
+    
     prop.tip_radius                 = vsp.GetDoubleResults(rid, "Diameter" )[0] / 2 * units_factor
     prop.radius_distribution        = np.array(vsp.GetDoubleResults(rid, "Radius" )) * prop.tip_radius
-    prop.hub_radius 				= prop.radius_distribution[0]
-    prop.radius_distribution[-1]	= 0.99 * prop.tip_radius # BEMT requires max nondimensional radius to be less than 1.0
+    prop.radius_distribution[-1]    = 0.99 * prop.tip_radius # BEMT requires max nondimensional radius to be less than 1.0
+    prop.hub_radius 		    = prop.radius_distribution[0]
+    
     prop.chord_distribution         = np.array(vsp.GetDoubleResults(rid, "Chord" ))  * prop.tip_radius # vsp gives c/R
     prop.twist_distribution         = np.array(vsp.GetDoubleResults(rid, "Twist" ))  * Units.degrees
-    prop.sweep_distribution 		= np.array(vsp.GetDoubleResults(rid, "Sweep" ))
+    prop.sweep_distribution 	    = np.array(vsp.GetDoubleResults(rid, "Sweep" ))
     prop.mid_chord_alignment        = np.tan(prop.sweep_distribution*Units.degrees)  * prop.radius_distribution
     prop.thickness_to_chord         = np.array(vsp.GetDoubleResults(rid, "Thick" ))
     prop.max_thickness_distribution = prop.thickness_to_chord*prop.chord_distribution * units_factor
 
     prop.Cl_distribution            = np.array(vsp.GetDoubleResults(rid, "CLi" )) # What if this is just zeros?
 
+    number_of_radial_stations        = len(prop.chord_distribution)
+    
     # Extra data from VSP BEM that SUAVE might not use...
-    prop.beta34 					= vsp.GetDoubleResults(rid, "Beta34" )[0]  # pitch at 3/4 radius
-    prop.pre_cone 					= vsp.GetDoubleResults(rid, "Pre_Cone")[0]
-    prop.rake 						= np.array(vsp.GetDoubleResults(rid, "Rake"))
-    prop.skew 						= np.array(vsp.GetDoubleResults(rid, "Skew"))
-    prop.axial 						= np.array(vsp.GetDoubleResults(rid, "Axial"))
-    prop.tangential 				= np.array(vsp.GetDoubleResults(rid, "Tangential"))
+    prop.beta34 		= vsp.GetDoubleResults(rid, "Beta34" )[0]  # pitch at 3/4 radius
+    prop.pre_cone 		= vsp.GetDoubleResults(rid, "Pre_Cone")[0]
+    prop.rake 			= np.array(vsp.GetDoubleResults(rid, "Rake"))
+    prop.skew 			= np.array(vsp.GetDoubleResults(rid, "Skew"))
+    prop.axial 			= np.array(vsp.GetDoubleResults(rid, "Axial"))
+    prop.tangential 		= np.array(vsp.GetDoubleResults(rid, "Tangential"))
 
     # Prop rotation direction (need to check again)
     # 	- Propeller
@@ -175,10 +187,12 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True, number_
     # Rotor Airfoil
     # ---------------------------------------------
     # Use available geometry until airfoil import process (and polar data calculation) is determined
-    prop.airfoil_geometry       = ['NACA_4412.txt']
-    prop.airfoil_polars         = [['NACA_4412_polar_Re_50000.txt', 'NACA_4412_polar_Re_100000.txt', 
-                                        'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt', 
-                                    'NACA_4412_polar_Re_1000000.txt']]
+    airfoils_path = os.path.join(os.path.dirname(__file__), 'Airfoils/')
+    polars_path   = airfoils_path + 'Polars/'
+    prop.airfoil_geometry       = [airfoils_path+'NACA_4412.txt']
+    prop.airfoil_polars         = [[polars_path+'NACA_4412_polar_Re_50000.txt', polars_path+'NACA_4412_polar_Re_100000.txt', 
+                                    polars_path+'NACA_4412_polar_Re_200000.txt',polars_path+'NACA_4412_polar_Re_500000.txt', 
+                                    polars_path+'NACA_4412_polar_Re_1000000.txt']]
     prop.airfoil_polar_stations = [0] * number_of_radial_stations
 
     # compute airfoil polars for airfoils

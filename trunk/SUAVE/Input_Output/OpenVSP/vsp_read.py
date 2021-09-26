@@ -122,9 +122,9 @@ def vsp_read(tag, units_type='SI'):
 	vsp.ClearVSPModel() 
 	vsp.ReadVSPFile(tag)	
 	
-	vsp_fuselages = []
-	vsp_wings     = []	
-	vsp_props     = []
+	vsp_fuselages     = []
+	vsp_wings         = []	
+	vsp_props         = []
 	
 	vsp_geoms     = vsp.FindGeoms()
 	geom_names    = []
@@ -157,13 +157,14 @@ def vsp_read(tag, units_type='SI'):
 	# --------------------------------		
 		
 	for geom in vsp_geoms:
-		geom_name = vsp.GetGeomTypeName(str(geom))
+		geom_name = vsp.GetGeomName(geom)
+		geom_type = vsp.GetGeomTypeName(str(geom))
 		
-		if geom_name == 'Fuselage':
+		if geom_type == 'Fuselage':
 			vsp_fuselages.append(geom)
-		if geom_name == 'Wing':
+		if geom_type == 'Wing':
 			vsp_wings.append(geom)
-		if geom_name == 'Propeller':
+		if geom_type == 'Propeller':
 			vsp_props.append(geom)
 	
 	#Read VSP geoms and store in SUAVE components
@@ -184,11 +185,11 @@ def vsp_read(tag, units_type='SI'):
 	
 	for prop_id in vsp_props:
 		prop = vsp_read_propeller(prop_id,units_type)
+		prop.tag = vsp.GetGeomName(prop_id)
 		if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
 			lift_rotors.append(prop)
 			number_of_lift_rotor_engines += 1 # existence/initialization of this variable assumes a certain network
 		else:
-			prop.tag = 'propeller' # changing this tag here assumes only a single propeller
 			propellers.append(prop)
 			number_of_propeller_engines += 1 # existence/initialization of this variable assumes a certain network
 
@@ -198,13 +199,15 @@ def vsp_read(tag, units_type='SI'):
 		net = Lift_Cruise()
 	else:
 		net = Battery_Propeller()
-	
-	net.append(lift_rotors)
-	net.append(number_of_lift_rotor_engines)
-	net.append(propellers)
-	net.append(number_of_propeller_engines)
+	if number_of_lift_rotor_engines>0:
+		net.append(lift_rotors)
+		net.number_of_lift_rotor_engines = number_of_lift_rotor_engines
+	if number_of_propeller_engines>0:
+		for i in range(number_of_propeller_engines):
+			net.propellers.append(propellers[list(propellers.keys())[i]])
+		net.number_of_propeller_engines = number_of_propeller_engines
 
-	net.number_of_engines = net.number_of_rotor_engines + net.number_of_propeller_engines	
+	net.number_of_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
 	
 	vehicle.networks.append(net)
 		
