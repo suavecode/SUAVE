@@ -39,13 +39,13 @@ def save_fuselage_vtk(vehicle, filename, Results):
        None
     
     """    
-    
-    fus_pts = generate_fuselage_points(vehicle.fuselages.fuselage)
-    num_fus_segs = np.shape(fus_pts)[0]
-    if num_fus_segs == 0:
-        print("No fuselage segments found!")
-    else:
-        write_fuselage_data(fus_pts,filename)
+    for fuselage in vehicle.fuselages:
+        fus_pts = generate_fuselage_points(fuselage)
+        num_fus_segs = np.shape(fus_pts)[0]
+        if num_fus_segs == 0:
+            print("No fuselage segments found!")
+        else:
+            write_fuselage_data(fus_pts,filename)
 
     return
 
