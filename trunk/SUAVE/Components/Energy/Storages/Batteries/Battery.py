@@ -46,12 +46,4 @@ class Battery(Energy_Component):
         self.ragone.const_1                 = 0.0     # used for ragone functions; 
         self.ragone.const_2                 = 0.0     # specific_power=ragone_const_1*10^(specific_energy*ragone_const_2)
         self.ragone.lower_bound             = 0.0     # lower bound specific energy for which ragone curves no longer make sense
-        self.ragone.i                       = 0.0
-
-    def energy_discharge(self,numerics): 
-        self.discharge_model(self, numerics) 
-        return  
-    
-    def energy_charge(self,numerics): 
-        self.charge_model(self, numerics) 
-        return  
+        self.ragone.i                       = 0.0 

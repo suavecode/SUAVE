@@ -15,6 +15,8 @@
 import numpy as np
 from .Network import Network
 from SUAVE.Components.Physical_Component import Container
+from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
+from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
 
 from SUAVE.Core import Data , Units
 
@@ -89,7 +91,7 @@ class Solar(Network):
                 solar_flux           [watts/m^2] 
                 rpm                  [radians/sec]
                 current              [amps]
-                battery_draw         [watts]
+                battery_power_draw   [watts]
                 battery_energy       [joules]
                 motor_torque         [N-M]
                 propeller_torque     [N-M]
@@ -115,14 +117,15 @@ class Solar(Network):
         # Unpack conditions
         a = conditions.freestream.speed_of_sound        
         
+
         # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy
+        battery.current_energy      = conditions.propulsion.battery_energy
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
-        battery.age_in_days         = conditions.propulsion.battery_age_in_days  
+        battery.age                 = conditions.propulsion.battery_cycle_day            
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
-        battery.max_energy          = conditions.propulsion.battery_max_aged_energy 
+        battery.max_energy          = conditions.propulsion.battery_max_aged_energy   
         
         # step 1
         solar_flux.solar_radiation(conditions)
@@ -230,16 +233,15 @@ class Solar(Network):
         
         # link
         battery.inputs = solar_logic.outputs
-        battery.energy_discharge(numerics)
+        battery.energy_calc(numerics)
         
-        # Pack the conditions for outputs
-        conditions.propulsion.solar_flux                   = solar_flux.outputs.flux
-        conditions.propulsion.battery_voltage_open_circuit = battery.voltage_open_circuit
-        conditions.propulsion.battery_voltage_under_load   = battery.voltage_under_load
-        conditions.propulsion.battery_current              = solar_logic.inputs.currentesc
-        conditions.propulsion.battery_draw                 = battery.inputs.power_in 
-        conditions.propulsion.battery_energy               = battery.current_energy
-        conditions.propulsion.battery_state_of_charge      = battery.state_of_charge
+        # Calculate avionics and payload power
+        avionics_payload_power = avionics.outputs.power + payload.outputs.power
+        
+        # Pack the conditions for outputs 
+        battery.inputs.current             = solar_logic.inputs.currentesc
+        conditions.propulsion.solar_flux   = solar_flux.outputs.flux          
+        pack_battery_conditions(conditions,battery,avionics_payload_power,P)  
 
         # Create the outputs
         results = Data()
@@ -346,7 +348,10 @@ class Solar(Network):
             n_props = 1
             
         # number of residuals, props plus the battery voltage
-        n_res = n_props
+        n_res = n_props 
+
+        # Assign initial segment conditions to segment if missing
+        append_initial_battery_conditions(segment)          
         
         # Setup the residuals
         segment.state.residuals.network = 0. * ones_row(n_res)

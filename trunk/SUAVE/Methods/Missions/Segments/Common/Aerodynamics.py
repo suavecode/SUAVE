@@ -63,6 +63,7 @@ def update_atmosphere(segment):
                 freestream.dynamic_viscosity    [pascals-seconds]
                 freestream.kinematic_viscosity  [meters^2/second]
                 freestream.thermal_conductivity [Watt/meter-Kelvin]
+                freestream.prandtl_number       [unitless]
                 
         Properties Used:
         N/A
@@ -86,6 +87,7 @@ def update_atmosphere(segment):
     conditions.freestream.speed_of_sound         = atmo_data.speed_of_sound
     conditions.freestream.dynamic_viscosity      = atmo_data.dynamic_viscosity
     conditions.freestream.kinematic_viscosity    = atmo_data.kinematic_viscosity
+    conditions.freestream.prandtl_number         = atmo_data.prandtl_number
     
     return
     

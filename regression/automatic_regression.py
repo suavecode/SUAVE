@@ -49,7 +49,7 @@ modules = [
     'scripts/AVL/test_AVL.py',
     'scripts/B737/mission_B737.py', 
     'scripts/battery/aircraft_discharge_comparisons.py',
-    'scripts/battery/battery_cell_comparisons.py',
+    'scripts/battery/battery_cell_discharge_tests.py', 
     'scripts/cmalpha/cmalpha.py',
     'scripts/cnbeta/cnbeta.py',
     'scripts/concorde/concorde.py',

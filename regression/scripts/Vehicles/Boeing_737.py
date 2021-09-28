@@ -760,6 +760,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'cruise' 
     configs.append(config)
+    config.wings['main_wing'].control_surfaces.flap.deflection       = 0. * Units.deg
+    config.wings['main_wing'].control_surfaces.slat.deflection       = 0. * Units.deg
 
     # ------------------------------------------------------------------
     #   Takeoff Configuration

@@ -2,8 +2,8 @@
 #Contains different battery types that don't change mass, such as lithium-ion and lithium-sulfur batteries
 # @ingroup Components-Energy-Storages-Batteries
 
-
+from .Lithium_Ion                  import Lithium_Ion
 from .Lithium_Ion_LiNCA_18650      import Lithium_Ion_LiNCA_18650 
-from .Lithium_Ion_LiFePO4_38120    import Lithium_Ion_LiFePO4_38120
+from .Lithium_Ion_LiFePO4_18650    import Lithium_Ion_LiFePO4_18650
 from .Lithium_Ion_LiNiMnCoO2_18650 import Lithium_Ion_LiNiMnCoO2_18650  
 from .Lithium_Sulfur               import Lithium_Sulfur

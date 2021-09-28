@@ -76,13 +76,14 @@ def main():
     net.avionics        = avionics      
 
     # Component 8 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()
-    bat.mass_properties.mass = 5.0 * Units.kg  
-    bat.max_voltage          = 400.
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
+    bat.mass_properties.mass = 5.0  * Units.kg
+    bat.specific_energy      = 250. *Units.Wh/Units.kg
+    bat.resistance           = 0.003
     bat.iters                = 0
     initialize_from_mass(bat)   
     net.battery              = bat
-    
+
     #Component 9 the system logic controller and MPPT
     logic = SUAVE.Components.Energy.Distributors.Solar_Logic()
     logic.system_voltage  = 18.5
@@ -136,7 +137,7 @@ def main():
     truth_F   = [[68.78277813       ], [ 68.78277813     ]]
     truth_i   = [[ 5.75011436       ], [ 5.75011436      ]]
     truth_rpm = [[ 14390.30435183   ], [ 14390.30435183  ]]
-    truth_bat = [[998948.91738491   ], [998832.40559196  ]]
+    truth_bat = [[3169014.08450704  ], [3168897.35916947 ]]
     
     error = Data()
     error.Thrust = np.max(np.abs(F[:,0]-truth_F))

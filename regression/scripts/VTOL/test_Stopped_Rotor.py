@@ -82,7 +82,7 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([2.85123707e+08, 2.84470928e+08, 2.83367386e+08])
+    battery_energy_hover_to_transition_true = np.array([3.13644834e+08, 3.12992595e+08, 3.11888750e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true)
@@ -92,7 +92,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.8043927973677136
+    lift_coefficient_true   = 0.8043927973520466
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -213,8 +213,7 @@ def mission_setup(analyses,vehicle):
 
     # base segment
     base_segment                                             = Segments.Segment()
-    base_segment.state.numerics.number_control_points        = 3
-    base_segment.battery_discharge                           = True  
+    base_segment.state.numerics.number_control_points        = 3 
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
 
@@ -280,18 +279,21 @@ def mission_setup(analyses,vehicle):
     segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
     segment.tag                                         = "transition_2"
     segment.analyses.extend( analyses.base )
-    segment.altitude_start                          = 40.0 * Units.ft
-    segment.altitude_end                            = 50.0 * Units.ft
-    segment.air_speed                               = 0.8 * Vstall
-    segment.climb_angle                             = 1 * Units.degrees
-    segment.acceleration                            = 0.5 * Units['m/s/s']
-    segment.pitch_initial                           = 5. * Units.degrees
-    segment.pitch_final                             = 7. * Units.degrees
-    segment.state.unknowns.throttle                 = 0.95  * ones_row(1)
-    segment.process.iterate.unknowns.mission        = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
+    segment.altitude_start                              = 40.0 * Units.ft
+    segment.altitude_end                                = 50.0 * Units.ft
+    segment.air_speed                                   = 0.8 * Vstall
+    segment.climb_angle                                 = 1 * Units.degrees
+    segment.acceleration                                = 0.5 * Units['m/s/s']
+    segment.pitch_initial                               = 5. * Units.degrees
+    segment.pitch_final                                 = 7. * Units.degrees
+    segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
+    segment.process.iterate.unknowns.mission            = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
+    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
+                                                         initial_prop_power_coefficient = 0.2,
+                                                         initial_lift_rotor_power_coefficient = 0.01,
+                                                         initial_throttle_lift = 0.9,)
 
     # add to misison
     mission.append_segment(segment)

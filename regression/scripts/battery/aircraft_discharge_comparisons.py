@@ -1,10 +1,9 @@
-# test_VTOL.py
+# aircraft_discharge_comparisons.py
 # 
 # Created: Feb 2020, M. Clarke
-#          Sep 2020, M. Clarke 
-#          Jul 2021, R. Erhard
+#          Sep 2020, M. Clarke  
 
-""" setup file for electric aircraft regression """
+""" setup file for comparing battery packs of three chemistries in all-electric aircraft """
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -31,7 +30,7 @@ from Stopped_Rotor       import configs_setup as   EVTOL_configs_setup
 
 def main():     
     
-    battery_chemistry  =  ['LFP','NCA','NMC']
+    battery_chemistry  =  ['NCA','NMC','LFP']
     line_style_new     =  ['bo-','ro-','ko-']
     line_style2_new    =  ['bs-','rs-','ks-'] 
     
@@ -133,14 +132,14 @@ def GA_full_setup(battery_chemistry):
     elif battery_chemistry == 'NMC': 
         bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
     elif battery_chemistry == 'LFP': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()  
+        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()  
     
     bat.mass_properties.mass = 500. * Units.kg  
     bat.max_voltage          = 500.             
     initialize_from_mass(bat)
     
-    # Here we, are going to assume a battery pack module shape. This step is optional but
-    # required for thermal analysis of tge pack
+    # Assume a battery pack module shape. This step is optional but
+    # required for thermal analysis of the pack
     number_of_modules                = 10
     bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
     bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
@@ -177,18 +176,17 @@ def EVTOL_full_setup(battery_chemistry):
     net = vehicle.networks.lift_cruise
     bat = net.battery
     if battery_chemistry == 'NCA':
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()     
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()   
     elif battery_chemistry == 'NMC': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_38120()  
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
     
     bat.mass_properties.mass = 500. * Units.kg  
     bat.max_voltage          = 500.             
     initialize_from_mass(bat)
     
-    # Here we, are going to assume a battery pack module shape. This step is optional but
-    # required for thermal analysis of the pack. We will assume that all cells electrically connected 
+    # Assume a battery pack module shape. This step is optional but required for thermal analysis of the pack. We will assume that all cells electrically connected 
     # in series wihtin the module are arranged in one row normal direction to the airflow. Likewise ,
     # all cells electrically in paralllel are arranged in the direction to the cooling fluid  
     number_of_modules                = 10
@@ -308,8 +306,7 @@ def GA_mission_setup(analyses,vehicle):
     ones_row     = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.state.numerics.number_control_points        = 4
-    base_segment.battery_discharge                           = True 
+    base_segment.state.numerics.number_control_points        = 4 
     base_segment.battery_age_in_days                         = 1 # optional but added for regression
     base_segment.temperature_deviation                       = 1 # Kelvin #  optional but added for regression
     
@@ -397,8 +394,7 @@ def EVTOL_mission_setup(analyses,vehicle):
 
     # base segment
     base_segment                                             = Segments.Segment()
-    base_segment.state.numerics.number_control_points        = 3
-    base_segment.battery_discharge                           = True  
+    base_segment.state.numerics.number_control_points        = 3 
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
 
@@ -437,7 +433,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     segment                                            = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
     segment.tag                                        = "transition_1"
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base ) 
 
     segment.altitude                                 = 40.  * Units.ft
     segment.air_speed_start                          = 500. * Units['ft/min']
@@ -446,11 +442,14 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.pitch_initial                            = 0.0 * Units.degrees
     segment.pitch_final                              = 5. * Units.degrees
     ones_row                                         = segment.state.ones_row
-    segment.state.unknowns.throttle                  = 0.95  *  ones_row(1)
+    segment.state.unknowns.throttle                  = 1.  *  ones_row(1)
     segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
+                                                         initial_prop_power_coefficient = 0.2,
+                                                         initial_lift_rotor_power_coefficient = 0.01,
+                                                         initial_throttle_lift = 0.9,)
 
     # add to misison
     mission.append_segment(segment)
@@ -472,7 +471,10 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.process.iterate.unknowns.mission        = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
+                                                         initial_prop_power_coefficient = 0.2,
+                                                         initial_lift_rotor_power_coefficient = 0.01,
+                                                         initial_throttle_lift = 0.9,)
 
     # add to misison
     mission.append_segment(segment)

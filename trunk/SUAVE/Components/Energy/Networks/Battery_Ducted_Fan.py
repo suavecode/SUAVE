@@ -99,10 +99,9 @@ class Battery_Ducted_Fan(Network):
         battery.current_energy      = conditions.propulsion.battery_energy
         battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
-        battery.age_in_days         = conditions.propulsion.battery_age_in_days  
+        battery.age                 = conditions.propulsion.battery_cycle_day         
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
-        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
-        battery.max_energy          = conditions.propulsion.battery_max_aged_energy 
+        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor  
         
         # Calculate ducted fan power 
         results             = propulsor.evaluate_thrust(state)
@@ -131,19 +130,19 @@ class Battery_Ducted_Fan(Network):
         # link to the battery
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current 
         battery.inputs.power_in = -(esc_power + avionics_payload_power)
-        battery.energy_discharge(numerics)        
+        battery.energy_calc(numerics)        
     
         # No mass gaining batteries
         mdot = np.zeros(np.shape(conditions.freestream.velocity))
 
         # Pack the conditions for outputs
         current              = esc.outputs.currentin
-        battery_draw         = battery.inputs.power_in 
+        battery_power_draw   = battery.inputs.power_in 
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
           
         conditions.propulsion.current                      = current
-        conditions.propulsion.battery_draw                 = battery_draw
+        conditions.propulsion.battery_power_draw           = battery_power_draw
         conditions.propulsion.battery_energy               = battery_energy
         conditions.propulsion.battery_voltage_open_circuit = voltage_open_circuit
         

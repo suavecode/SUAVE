@@ -384,7 +384,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'bs-
 
     Inputs:
     results.segments.conditions.propulsion
-         battery_draw 
+         battery_power_draw 
          battery_energy    
          voltage_under_load    
          voltage_open_circuit    
@@ -477,7 +477,7 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'bs--
 
     Inputs:
     results.segments.conditions.propulsion
-         battery_draw 
+         battery_power_draw 
          battery_energy    
          voltage_under_load    
          voltage_open_circuit    
@@ -835,7 +835,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
     Inputs:
     results.segments.conditions.propulsion
         solar_flux 
-        battery_draw 
+        battery_power_draw 
         battery_energy 
         
     Outputs: 
@@ -847,12 +847,12 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
     
     axis_font = {'size':'14'} 
     fig       = plt.figure(save_filename) 
-    fig.set_size_inches(8, 14)
+    fig.set_size_inches(8, 6)
     
     for segment in results.segments.values():               
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         flux   = segment.conditions.propulsion.solar_flux[:,0] 
-        charge = segment.conditions.propulsion.battery_draw[:,0] 
+        charge = segment.conditions.propulsion.battery_power_draw[:,0] 
         energy = segment.conditions.propulsion.battery_energy[:,0] / Units.MJ
     
         axes = plt.subplot(3,1,1)

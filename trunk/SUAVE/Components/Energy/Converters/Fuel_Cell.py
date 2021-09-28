@@ -58,7 +58,7 @@ class Fuel_Cell(Energy_Component):
         self.max_power      = 0.0
         self.discharge_model= zero_fidelity
         
-    def energy_discharge(self,conditions,numerics):
+    def energy_calc(self,conditions,numerics):
         """This call the assigned discharge method.
 
         Assumptions:

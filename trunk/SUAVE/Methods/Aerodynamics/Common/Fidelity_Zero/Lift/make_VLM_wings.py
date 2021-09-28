@@ -449,7 +449,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
         cs_wing[0,1], cs_wing[0,2] = cs_wing[0,2], cs_wing[0,1]
     
     # holds all required y-coords. Will be added to during discretization to ensure y-coords match up between wing and control surface.
-    rel_offset                    = cs_wing.origin[0,1] if not cs_wing.vertical else cs_wing.origin[0,2]
+    rel_offset                    = cs_wing.origin[0,1] - wing.origin[0][1] if not cs_wing.vertical else cs_wing.origin[0,2] - wing.origin[0][2]
     cs_wing.y_coords_required     = [cs.span_fraction_end*hspan - rel_offset] #initialize with the tip y-coord. Other coords to be added in VLM
 
     #find sweep of the 'outside' edge (LE for slats, TE for everything else)

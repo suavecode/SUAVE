@@ -43,7 +43,7 @@ def main():
     plot_mission(results)
 
     # save, load and plot old results
-    save_multicopter_results(results)
+    #save_multicopter_results(results)
     old_results = load_multicopter_results()
     plot_mission(old_results,'k-')
     plt.show(block=True)
@@ -204,7 +204,6 @@ def mission_setup(analyses,vehicle):
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.battery_discharge                           = True 
     base_segment.state.numerics.number_control_points        = 3
 
     # ------------------------------------------------------------------

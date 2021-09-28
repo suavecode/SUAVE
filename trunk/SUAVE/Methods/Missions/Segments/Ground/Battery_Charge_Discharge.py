@@ -22,7 +22,8 @@ def unpack_unknowns(segment):
 
 ## @ingroup Methods-Missions-Segments-Ground 
 def initialize_conditions(segment): 
-    overcharge_contingency = 1.25
+    overcharge_contingency = segment.overcharge_contingency = 1.25
+    
     # unpack   
     if segment.state.initials:
         intial_segment_energy = segment.state.initials.conditions.propulsion.battery_energy[-1,0]  
@@ -31,7 +32,7 @@ def initialize_conditions(segment):
         intial_segment_energy = segment.battery_energy  
         segment_max_energy    = segment.battery_energy
     
-    duration  = segment.time 
+    duration  = segment.time  
     if segment.battery_discharge == False: 
         for network in segment.analyses.energy.network:  
             battery        = network.battery

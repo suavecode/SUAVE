@@ -32,7 +32,7 @@ def main():
     numerics.time.integrate       = np.array([[0, 0],[0, 10]])
     numerics.time.differentiate   = np.array([[0, 0],[0, 1]])
     
-    mdot0       = fuel_cell.energy_discharge(conditions, numerics)
+    mdot0       = fuel_cell.energy_calc(conditions, numerics)
     mdot0_truth = 1.0844928369248122e-06
     m0          = fuel_cell.mass_properties.mass
     m0_truth    = 0.09615384615384616
@@ -44,7 +44,7 @@ def main():
     #populate fuel cell with required values for this discharge method
     setup_larminie(fuel_cell) 
     initialize_larminie_from_power(fuel_cell,power)
-    mdot1          = fuel_cell.energy_discharge(conditions, numerics)
+    mdot1          = fuel_cell.energy_calc(conditions, numerics)
     mdot1_truth    = 1.40641687e-06
     err_mdot1      = (mdot1 - mdot1_truth)/mdot1_truth
     
