@@ -25,7 +25,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise   import 
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
 def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller'):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
-    and frequency spectrums of a system of rotating blades (i.e. propellers and rotors)          
+    and frequency spectrums of a system of rotating blades (i.e. propellers and lift_rotors)          
         
     Assumptions:
     None

@@ -41,7 +41,7 @@ def compute_point_source_coordinates(conditions,network,mls,source):
     # aquire dimension of matrix
     num_cpt         = conditions._size
     num_mic         = len(mls[0,:,0]) 
-    if source == 'rotors': 
+    if source == 'lift_rotors': 
         num_prop    = int(network.number_of_lift_rotor_engines)    
         prop_origin = []
         for prop in network.lift_rotors:

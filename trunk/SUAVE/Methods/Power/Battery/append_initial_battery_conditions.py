@@ -23,12 +23,14 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
                
         Outputs:
             segment.
-               battery_cycle_day [days]
+               battery_cycle_day                  [unitless]
                battery_pack_temperature           [Kelvin]
                battery_charge_throughput          [Ampere-Hours] 
                battery_resistance_growth_factor   [unitless]
                battery_capacity_fade_factor       [unitless]
                battery_thevenin_voltage           [Volts]  
+               battery_discharge                  [boolean]
+               increment_battery_cycle_day        [boolean]
     
         Properties Used:
         None
@@ -59,7 +61,10 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
         segment.battery_thevenin_voltage  = initial_battery_cell_thevenin_voltage  
         
     if 'battery_discharge' not in segment:      
-        segment.battery_discharge = True          
+        segment.battery_discharge = True     
+        
+    if 'increment_battery_cycle_day' not in segment:
+        segment.increment_battery_cycle_day = False
             
     return 
     

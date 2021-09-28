@@ -426,7 +426,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         
         return V_ul 
  
-    def update_battery_cycle_day(self,segment):   
+    def update_battery_state_of_health(self,segment,increment_battery_cycle_day = False):   
         return   
 
 def create_discharge_performance_map(battery_raw_data):

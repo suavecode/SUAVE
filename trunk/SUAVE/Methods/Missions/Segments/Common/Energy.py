@@ -128,7 +128,7 @@ def update_battery(segment):
     # evaluate
     results   = energy_model.evaluate_thrust(segment.state)
 
-def update_battery_cycle_day(segment):  
+def update_battery_state_of_health(segment):  
     """Updates battery age based on operating conditions, cell temperature and time of operation.
        Source: 
        Cell specific. See individual battery cell for more details
@@ -137,7 +137,9 @@ def update_battery_cycle_day(segment):
        Cell specific. See individual battery cell for more details
       
        Inputs: 
-       N/A  
+       segment.
+           conditions                    - conditions of battery at each segment  [unitless]
+           increment_battery_cycle_day   - flag to increment battery cycle day    [boolean]
        
        Outputs:
        N/A  
@@ -145,7 +147,8 @@ def update_battery_cycle_day(segment):
        Properties Used:
        N/A 
     """ 
+    increment_day = segment.increment_battery_cycle_day
     
     for network in segment.analyses.energy.network: 
         battery = network.battery
-        battery.update_battery_cycle_day(segment) 
+        battery.update_battery_state_of_health(segment,increment_battery_cycle_day = increment_day) 

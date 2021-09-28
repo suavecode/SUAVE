@@ -441,7 +441,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
            
         return V_ul 
     
-    def update_battery_cycle_day(self,segment):  
+    def update_battery_state_of_health(self,segment,increment_battery_cycle_day = False):  
         """ This is an aging model for 18650 lithium-nickel-manganese-cobalt-oxide batteries. 
        
         Source: 
@@ -488,7 +488,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         segment.conditions.propulsion.battery_capacity_fade_factor     = E_fade_factor  
         segment.conditions.propulsion.battery_resistance_growth_factor = R_growth_factor
         
-        segment.conditions.propulsion.battery_cycle_day += 1 # update battery age by one day 
+        if increment_battery_cycle_day:
+            segment.conditions.propulsion.battery_cycle_day += 1 # update battery age by one day 
       
         return  
     

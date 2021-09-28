@@ -346,15 +346,16 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
     Segments     = SUAVE.Analyses.Mission.Segments
 
     # base segment
-    base_segment                                             = Segments.Segment()
-    ones_row                                                 = base_segment.state.ones_row
-    base_segment.state.numerics.number_control_points        = 20
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery  
-    base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
-    base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip 
-    base_segment.process.iterate.conditions.aerodynamics     = SUAVE.Methods.skip
-    base_segment.process.finalize.post_process.aerodynamics  = SUAVE.Methods.skip     
-    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment                                                              = Segments.Segment()
+    ones_row                                                                  = base_segment.state.ones_row
+    base_segment.state.numerics.number_control_points                         = 20
+    base_segment.process.iterate.initials.initialize_battery                  = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery 
+    base_segment.process.finalize.post_process.update_battery_state_of_health = SUAVE.Methods.Missions.Segments.Common.Energy.update_battery_state_of_health   
+    base_segment.process.iterate.conditions.stability                         = SUAVE.Methods.skip
+    base_segment.process.finalize.post_process.stability                      = SUAVE.Methods.skip 
+    base_segment.process.iterate.conditions.aerodynamics                      = SUAVE.Methods.skip
+    base_segment.process.finalize.post_process.aerodynamics                   = SUAVE.Methods.skip     
+    base_segment.process.iterate.conditions.planet_position                   = SUAVE.Methods.skip
     
    
     bat                                                      = vehicle.networks.battery_cell.battery    
@@ -425,6 +426,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
         segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
         segment.tag                                         = 'NMC_Charge'  
         segment.battery_discharge                           = False 
+        segment.increment_battery_cycle_day                 = True 
         segment.analyses.extend(analyses.base)            
         segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
         mission.append_segment(segment) 

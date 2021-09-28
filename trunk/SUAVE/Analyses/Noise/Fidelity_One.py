@@ -180,7 +180,7 @@ class Fidelity_One(Noise):
                         source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_mic, axis =1)     # noise measures at one microphone location in segment
                         source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1) # noise measures at one microphone location in segment
                           
-                elif (source  == 'propellers')  or (source   == 'rotors'): 
+                elif (source  == 'propellers')  or (source   == 'lift_rotors'): 
                     if bool(conditions.noise.sources[source]) == True: 
                         net                          = config.networks[network] 
                         acoustic_data                = conditions.noise.sources[source]   
