@@ -434,8 +434,9 @@ class Rotor(Energy_Component):
                     break
                 
             # correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
-            va = F*va
-            vt = F*vt  
+            va     = F*va
+            vt     = F*vt 
+            lamdaw = r*(va+Ua)/(R*(Ut-vt))
             
         elif wake_method == "helical_fixed_wake":
             # make a copy of the bemt outputs

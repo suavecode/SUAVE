@@ -6,6 +6,7 @@
 #     
 from SUAVE.Core import Data      
 import numpy as np
+from scipy.interpolate import interp1d
 
 def save_prop_wake_vtk(VD,filename,Results,i_prop):
     """
@@ -166,6 +167,11 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
         
         # Loop over number of "chordwise" panels in the wake distribution
         for t_idx in range(n_time_steps):
+            g        = gamma[i_prop,t_idx,B_idx] # circulation distribution on current blade at current timestep
+            dgamma   = np.gradient(g)            # gradient of the blade circulation distribution
+            gamma_slope_sign = np.ones_like(dgamma)
+            gamma_slope_sign[dgamma<0] = -1
+   
             
             # Loop over number of "radial" or "spanwise" panels in the wake distribution
             for r_idx in range(n_radial_rings):
@@ -202,7 +208,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(g_r_t - g_rp_t)  # right segment of ring
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring
                 
                 
                     
@@ -243,7 +249,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(g_r_t - g_rp_t)  # right segment of ring                        
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                        
                 
                 elif t_idx==(n_time_steps-1) and r_idx==0:
                     #  
@@ -261,7 +267,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(g_r_t - g_rp_t)  # right segment of ring                
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                
                 elif r_idx==0:
                     # 
                     g_rp_t = gamma[i_prop,t_idx,B_idx,r_idx+1]    
@@ -279,7 +285,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(g_r_t - g_rp_t)  # right segment of ring
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring
                 
                 elif t_idx==(n_time_steps-1) and r_idx==(n_radial_rings-1):
                     # 
@@ -317,7 +323,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(g_r_t - g_rp_t)  # right segment of ring                            
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                            
                            
                 else:           
                     g_rp_t = gamma[i_prop,t_idx,B_idx,r_idx+1]
@@ -331,7 +337,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(g_r_t - g_rp_t)  # right segment of ring    
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring    
                     
                 
                 
