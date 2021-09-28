@@ -27,7 +27,10 @@ class Lithium_Ion(Battery):
     characteristics. 
     
     Assumptions
-    Default discharge curves correspond to lithium-iron-phosphate cells
+    1) Default discharge curves correspond to lithium-iron-phosphate cells
+    
+    2) Convective Thermal Conductivity Coefficient corresponds to forced
+    air cooling in 35 m/s air 
     
     Inputs:
     None
@@ -347,7 +350,9 @@ class Lithium_Ion(Battery):
         V_ul                             = state.unknowns.battery_voltage_under_load
         return V_ul  
     
-    def update_battery_state_of_health(self,segment,increment_battery_cycle_day = False):    
+    def update_battery_state_of_health(self,segment,increment_battery_cycle_day = False):   
+        print(' No aging model currently implemented for LFP cells. Pristine condition of \n '
+              'the battery cell will be assigned each charge cycle')
         return  
  
   

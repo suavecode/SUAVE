@@ -1,4 +1,4 @@
-# battery_cell_comparison.py 
+# battery_cell_discharge_tests.py 
 # 
 # Created: Sep 2021, M. Clarke  
 
@@ -70,8 +70,13 @@ def main():
     plot_ragone(battery_li_s,   'lithium sulfur') 
      
  
-    battery_chemistry     = ['LFP','NCA','NMC']
+    battery_chemistry     = ['LFP','NCA','NMC'] 
+    marker                = [['s' ,'s' ,'s' ,'s','s'],['o' ,'o' ,'o' ,'o','o'],['P' ,'P' ,'P' ,'P','P']]
+    linestyles            = [['-' ,'-' ,'-' ,'-','-'], ['--' ,'--' ,'--' ,'--'],[':' ,':' ,':' ,':']]
+    linecolors            = [['green' , 'blue' , 'red' , 'orange' ],['darkgreen', 'darkblue' , 'darkred'  ,'brown'], ['limegreen', 'lightblue' , 'pink'  ,'yellow']]     
     curr                  = [1.5, 3, 6, 9 ] 
+    C_rat                 = [0.5,1,2,3]   
+    marker_size           = 8 
     mAh                   = np.array([ 1500 , 3300  , 3550]) 
     temperature           = [ 300 ,300  , 300 ,300  ]
     temp_guess            = [301 , 303  , 312  , 318 ]  
@@ -94,8 +99,8 @@ def main():
             analyses.finalize()     
             mission = analyses.missions.base
             results = mission.evaluate()  
-            plot_results(results,i,j,battery_chemistry[i], axes1, axes2, axes3, axes4, axes5, axes6, axes7, axes8)  
-    
+            plot_results(results,j,battery_chemistry[i], axes1, axes2, axes3, axes4, axes5, axes6, axes7, axes8,
+                         marker[i][j],marker_size,linecolors[i][j],linestyles[i][j],C_rat[j])  
 
     legend_font_size = 12                     
     axes1.set_ylabel('Voltage $(V_{UL}$)')    
@@ -141,20 +146,8 @@ def main():
     
     return 
 
-def plot_results(results,i,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, axes7, axes8): 
+def plot_results(results,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, axes7, axes8,m,ms,lc,ls,C_rat): 
     
-    C_rat  = [0.5,1,2,3]     
-    mark_1 = ['s' ,'s' ,'s' ,'s','s']
-    mark_2 = ['o' ,'o' ,'o' ,'o','o']
-    mark_3 = ['P' ,'P' ,'P' ,'P','P']
-    ls_1   = ['-' ,'-' ,'-' ,'-','-']
-    ls_2   = ['--' ,'--' ,'--' ,'--']
-    ls_3   = [':' ,':' ,':' ,':']
-    lc_1   = ['green' , 'blue' , 'red' , 'orange' ]
-    lc_2   = ['darkgreen', 'darkblue' , 'darkred'  ,'brown']
-    lc_3   = ['limegreen', 'lightblue' , 'pink'  ,'yellow'] 
-    ms = 8
-
     for segment in results.segments.values():
         time          = segment.conditions.frames.inertial.time[:,0]/60 
         volts         = segment.conditions.propulsion.battery_voltage_under_load[:,0]   
@@ -167,58 +160,20 @@ def plot_results(results,i,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6,
             x_vals = Amp_Hrs
         else:
             x_vals = time                   
-        
-        if bat_chem == 'LFP':  
-            if j == 0:
-                axes1.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
-                axes5.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')    
-            elif  j == 1: 
-                axes2.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
-                axes6.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')                     
-            elif  j == 2: 
-                axes3.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
-                axes7.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')               
-            elif  j == 3: 
-                axes4.plot(x_vals , volts , marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms   ,label = 'LFP: '+ str(C_rat[j]) + ' C') 
-                axes8.plot(x_vals , cell_temp, marker= mark_1[j] , linestyle = ls_1[j],  color= lc_1[j] , markersize=ms,label = 'LFP: '+ str(C_rat[j]) + ' C')    
-        
-        
-        elif bat_chem == 'NMC':        
-            if j == 0:   
-                axes1.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
-                axes5.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')    
-                
-            elif  j == 1:  
-                axes2.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
-                axes6.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')    
-                
-            elif  j == 2:  
-                axes3.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
-                axes7.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')                 
-            elif  j == 3:  
-
-                axes4.plot(x_vals, volts,  marker= mark_2[j] , linestyle = ls_2[j],  color= lc_2[j] , markersize=ms   ,label = 'NMC: ' + str(C_rat[j]) + ' C')     
-                axes8.plot(x_vals, cell_temp ,  marker= mark_2[j], linestyle = ls_2[j],  color= lc_2[j] , markersize=ms,label = 'NMC: ' + str(C_rat[j]) + ' C')                
-         
-                
-        elif bat_chem == 'NCA':  
-            if j == 0:
-                axes1.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
-                axes5.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')   
-                    
-            elif  j == 1: 
-                axes2.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
-                axes6.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')                     
-        
-                
-            elif  j == 2: 
-                axes3.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
-                axes7.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')    
-                
-            elif  j == 3: 
-                axes4.plot(x_vals , volts , marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms   ,label = 'NCA: '+ str(C_rat[j]) + ' C') 
-                axes8.plot(x_vals , cell_temp, marker= mark_3[j] , linestyle = ls_3[j],  color= lc_3[j] , markersize=ms,label = 'NCA: '+ str(C_rat[j]) + ' C')  
-                           
+          
+        if j == 0:
+            axes1.plot(x_vals , volts , marker= m , linestyle = ls,  color= lc , markersize=ms   ,label = bat_chem + ': '+ str(C_rat) + ' C') 
+            axes5.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')    
+        elif  j == 1: 
+            axes2.plot(x_vals , volts , marker= m , linestyle = ls,  color= lc , markersize=ms   ,label = bat_chem + ': '+ str(C_rat) + ' C') 
+            axes6.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')                     
+        elif  j == 2: 
+            axes3.plot(x_vals , volts , marker= m , linestyle = ls,  color= lc , markersize=ms   ,label = bat_chem + ': '+ str(C_rat) + ' C') 
+            axes7.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')               
+        elif  j == 3: 
+            axes4.plot(x_vals , volts , marker= m , linestyle = ls,  color= lc , markersize=ms   ,label = bat_chem + ': '+ str(C_rat) + ' C') 
+            axes8.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')    
+     
          
     return
 
@@ -266,7 +221,7 @@ def vehicle_setup(current,temperature,battery_chemistry,mAh):
     elif battery_chemistry == 'LFP': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
           
-    bat.ambient_temperature         = 300. # [ambient]
+    bat.ambient_temperature         = 300.  
     bat.temperature                 = temperature
     bat.charging_voltage            = bat.cell.nominal_voltage    
     bat.charging_current            = current  
@@ -368,69 +323,31 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
     base_segment.temperature_deviation                       = 15
     discharge_time                                           = 0.9 * (mAh/1000)/current * Units.hrs
     
-    if battery_chemistry == 'LFP':
-        segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)
-        segment.tag                                         = "LFP_Discharge" 
-        segment.analyses.extend(analyses.base)       
-        segment.time                                        = discharge_time 
-        segment.battery_pack_temperature                    = 300  
-        segment.ambient_temperature                         = 300   
-        segment.initial_battery_charge_throughput           = 0
-        segment.battery_energy                              = bat.max_energy * 1.
-        segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)    
-        mission.append_segment(segment)         
-        
-        # Charge Model 
-        segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
-        segment.tag                                         = 'LFP_Charge'  
-        segment.battery_discharge                           = False 
-        segment.analyses.extend(analyses.base)        
-        segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)      
-        mission.append_segment(segment) 
-        
-        
-    if battery_chemistry == 'NCA':
-        segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)
-        segment.tag                                         = "NCA_Discharge" 
-        segment.analyses.extend(analyses.base)               
-        segment.time                                        = discharge_time 
-        segment.battery_pack_temperature                    = 300  
-        segment.ambient_temperature                         = 300   
-        segment.initial_battery_charge_throughput           = 0
-        segment.battery_energy                              = bat.max_energy * 1.
-        segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
-        mission.append_segment(segment)         
-        
-        # Charge Model 
-        segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
-        segment.tag                                         = 'NCA_Charge'  
-        segment.battery_discharge                           = False 
-        segment.analyses.extend(analyses.base)                 
-        segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
-        mission.append_segment(segment) 
-        
-        
-    elif battery_chemistry == 'NMC':
-        segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)
-        segment.tag                                         = "NMC_Discharge" 
-        segment.analyses.extend(analyses.base)       
-        segment.time                                        = discharge_time 
-        segment.battery_pack_temperature                    = 300  
-        segment.ambient_temperature                         = 300   
-        segment.initial_battery_charge_throughput           = 0
-        segment.battery_energy                              = bat.max_energy * 1.
-        segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
-        mission.append_segment(segment)          
+    segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)
+    segment.tag                                         = "LFP_Discharge" 
+    segment.analyses.extend(analyses.base)       
+    segment.time                                        = discharge_time 
+    segment.battery_pack_temperature                    = 300  
+    segment.ambient_temperature                         = 300   
+    segment.initial_battery_charge_throughput           = 0
+    segment.battery_energy                              = bat.max_energy * 1.
+    segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)    
+    mission.append_segment(segment)         
     
-        # Charge Model 
-        segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
-        segment.tag                                         = 'NMC_Charge'  
-        segment.battery_discharge                           = False 
-        segment.increment_battery_cycle_day                 = True 
-        segment.analyses.extend(analyses.base)            
-        segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature =temp_guess)    
-        mission.append_segment(segment) 
-        
+    # Charge Model 
+    segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
+    
+    if battery_chemistry == 'LFP':
+        segment.tag                                         = 'LFP_Charge'  
+    elif battery_chemistry == 'NCA':
+        segment.tag                                         = 'NCA_Charge'  
+    elif battery_chemistry == 'NMC':
+        segment.tag                                         = 'NMC_Charge' 
+    segment.battery_discharge                           = False 
+    segment.analyses.extend(analyses.base)        
+    segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)      
+    mission.append_segment(segment) 
+         
 
     return mission 
 

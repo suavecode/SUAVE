@@ -186,8 +186,7 @@ def EVTOL_full_setup(battery_chemistry):
     bat.max_voltage          = 500.             
     initialize_from_mass(bat)
     
-    # Here we, are going to assume a battery pack module shape. This step is optional but
-    # required for thermal analysis of the pack. We will assume that all cells electrically connected 
+    # Assume a battery pack module shape. This step is optional but required for thermal analysis of the pack. We will assume that all cells electrically connected 
     # in series wihtin the module are arranged in one row normal direction to the airflow. Likewise ,
     # all cells electrically in paralllel are arranged in the direction to the cooling fluid  
     number_of_modules                = 10
