@@ -65,13 +65,13 @@ def main():
     results_SR              = mission_SR.evaluate()
     results_SR              = results_SR.merged()
     
-    distance_regression_SR = 100763.78024756981
+    distance_regression_SR = 93707.8123828967
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc_SR = ', distance_calc_SR)
     error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)
     assert error_distance_SR < 1e-6   
     
-    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.state_of_charge[-1,0])
+    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.battery_state_of_charge[-1,0])
     print('landing state of charge error' , error_soc)
     assert error_soc < 1e-6    
     
@@ -303,8 +303,7 @@ def mission_setup_SR(vehicle,analyses):
     base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip    
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip    
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-        
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery   
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude

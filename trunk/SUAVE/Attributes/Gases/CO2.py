@@ -41,7 +41,8 @@ class CO2(Gas):
       Properties Used:
       None
       """            
-      self.molecular_mass = 44.01           # kg/kmol
+      self.tag                   ='CO2'
+      self.molecular_mass        = 44.01           # kg/kmol
       self.gas_specific_constant = 188.9                       # m^2/s^2-K, specific gas constant
-      self.composition.CO2 = 1.0
+      self.composition.CO2       = 1.0
  

@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 105.97750757826377
-    truth_rpm = 218.8454586151948
-    truth_i   = 130.93354507592824
-    truth_bat = 184724099.1875254
+    truth_F   = 105.97750757826769
+    truth_rpm = 218.8454586152008
+    truth_i   = 130.93354507593722
+    truth_bat = 547526228.3462446
     
     print('battery energy')
     print(energy)
@@ -198,7 +198,6 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.cruise)
     
     # segment attributes     
-    segment.state.numerics.number_control_points = 16
     segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12

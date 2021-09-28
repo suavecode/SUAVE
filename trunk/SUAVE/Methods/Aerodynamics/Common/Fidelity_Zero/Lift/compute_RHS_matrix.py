@@ -89,45 +89,57 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
 
     for network in geometry.networks:
         if propeller_wake_model:
-            if 'propellers' in network.keys():
+            if 'propellers' in network.keys(): 
+                if network.number_of_propeller_engines == None:
+                    pass
+                else:          
+                    # extract the propeller data structure
+                    identical_props = network.identical_propellers
+                    props           = network.propellers
+    
+                    # generate the geometry of the propeller helical wake
+                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(props,identical_props,num_ctrl_pts,\
+                                                                                                                            VD,initial_timestep_offset,wake_development_time,\
+                                                                                                                            number_of_wake_timesteps,conditions)
+                    # compute the induced velocity
+                    prop_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
 
-                # extract the propeller data structure
-                identical_props = network.identical_propellers
-                props           = network.propellers
-
-                # generate the geometry of the propeller helical wake
-                wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(props,identical_props,num_ctrl_pts,\
-                                                                                                                        VD,initial_timestep_offset,wake_development_time,\
-                                                                                                                        number_of_wake_timesteps,conditions)
-                # compute the induced velocity
-                prop_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
-
-            if 'lift_rotors' in network.keys():
-
-                # extract the propeller data structure
-                identical_rots = network.identical_lift_rotors
-                lift_rotors    = network.rotors
-
-                # generate the geometry of the propeller helical wake
-                wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(lift_rotors,identical_rots,num_ctrl_pts,\
-                                                                                                                        VD,initial_timestep_offset,wake_development_time,\
-                                                                                                                        number_of_wake_timesteps,conditions)
-                # compute the induced velocity
-                rot_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
+            if 'lift_rotors' in network.keys(): 
+                if network.number_of_lift_rotor_engines == None:
+                    pass
+                else:  
+                    # extract the propeller data structure
+                    identical_rots = network.identical_lift_rotors
+                    lift_rotors    = network.rotors
+    
+                    # generate the geometry of the propeller helical wake
+                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(lift_rotors,identical_rots,num_ctrl_pts,\
+                                                                                                                            VD,initial_timestep_offset,wake_development_time,\
+                                                                                                                            number_of_wake_timesteps,conditions)
+                    # compute the induced velocity
+                    rot_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
 
         elif bemt_wake:
             # adapt the RHS matrix with the BEMT induced velocities
-            if 'propellers' in network.keys():
-                if not network.identical_propellers:
-                    assert('This method currently only works with identical propellers')
-                props = network.propellers
-                prop_V_wake_ind = compute_bemt_induced_velocity(props,geometry,num_ctrl_pts,conditions)
+            if 'propellers' in network.keys():  
+                identical_flag = network.identical_propellers
+                if network.number_of_propeller_engines == None:
+                    pass
+                else:                          
+                    if not network.identical_propellers:
+                        assert('This method currently only works with identical propellers')
+                    props = network.propellers
+                    prop_V_wake_ind = compute_bemt_induced_velocity(props,geometry,num_ctrl_pts,conditions,identical_flag)
 
-            if 'lift_rotors' in network.keys():
-                if not network.identical_lift_rotors:
-                    assert('This method currently only works with identical rotors')
-                rotors = network.rotors
-                rot_V_wake_ind = compute_bemt_induced_velocity(rotors,geometry,num_ctrl_pts,conditions)
+            if 'lift_rotors' in network.keys(): 
+                identical_flag = network.identical_lift_rotors
+                if network.number_of_lift_rotor_engines == None:
+                    pass
+                else:                  
+                    if not network.identical_lift_rotors:
+                        assert('This method currently only works with identical rotors')
+                    rotors = network.rotors
+                    rot_V_wake_ind = compute_bemt_induced_velocity(rotors,geometry,num_ctrl_pts,conditions,identical_flag)
 
         if propeller_wake_model or bemt_wake:
             # update the total induced velocity distribution

@@ -178,14 +178,12 @@ def vehicle_setup():
                                                 
     #------------------------------------------------------------------
     # Design Battery
-    #------------------------------------------------------------------
-    bat                                                 = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.specific_energy                                 = 350. * Units.Wh/Units.kg
-    bat.resistance                                      = 0.005
-    bat.max_voltage                                     = net.voltage     
-    bat.mass_properties.mass                            = 300. * Units.kg
-    initialize_from_mass(bat, bat.mass_properties.mass)
-    net.battery                                         = bat
+    #------------------------------------------------------------------ 
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
+    bat.mass_properties.mass = 300. * Units.kg  
+    bat.max_voltage          = net.voltage  
+    initialize_from_mass(bat)
+    net.battery              = bat  
 
     #------------------------------------------------------------------
     # Design Rotors  
@@ -220,7 +218,7 @@ def vehicle_setup():
     # Appending rotors with different origins
     origins                 = [[ 0.,2.,1.4],[ 0.0,-2.,1.4],
                                 [2.5,4.,1.4] ,[2.5,-4.,1.4],
-                                [5.0,2.,1.4] ,[5.0,-2.,1.4]]
+                                [5.0,2.,1.4] ,[5.0,-2.,1.4]] 
     
     for ii in range(6):
         lift_rotor          = deepcopy(lift_rotor)
@@ -231,7 +229,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Motors
     #------------------------------------------------------------------
-    # Motor
+    # Motor 
     lift_motor                      = SUAVE.Components.Energy.Converters.Motor() 
     lift_motor.efficiency           = 0.95
     lift_motor.nominal_voltage      = bat.max_voltage * 0.5
@@ -240,7 +238,7 @@ def vehicle_setup():
     lift_motor.propeller_radius     = lift_rotor.tip_radius   
     lift_motor.no_load_current      = 2.0     
     lift_motor                      = size_optimal_motor(lift_motor,lift_rotor)
-    net.lift_motor                  = lift_motor 
+    net.lift_motor                  = lift_motor  
                                                 
     # Define motor sizing parameters            
     max_power  = lift_rotor.design_power * 1.2

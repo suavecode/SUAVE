@@ -126,14 +126,22 @@ class Aerodynamics(Basic):
 
         # propulsion conditions
         self.propulsion = Conditions()
-        self.propulsion.throttle                       = ones_1col * 0
-        self.propulsion.battery_energy                 = ones_1col * 0
-        self.propulsion.battery_voltage                = ones_1col * 0
-        self.propulsion.battery_voltage_under_load     = ones_1col * 0
-        self.propulsion.battery_voltage_open_circuit   = ones_1col * 0
-        self.propulsion.state_of_charge                = ones_1col * 0
-        self.propulsion.thrust_breakdown               = Conditions()
-
+        self.propulsion.throttle                             = ones_1col * 0
+        self.propulsion.battery_energy                       = ones_1col * 0
+        self.propulsion.battery_voltage                      = ones_1col * 0
+        self.propulsion.battery_voltage_under_load           = ones_1col * 0
+        self.propulsion.battery_voltage_open_circuit         = ones_1col * 0
+        self.propulsion.battery_state_of_charge              = ones_1col * 0
+        self.propulsion.thrust_breakdown                     = Conditions() 
+        self.propulsion.voltage_under_load                   = ones_1col * 0
+        self.propulsion.voltage_open_circuit                 = ones_1col * 0 
+        self.propulsion.battery_pack_temperature             = ones_1col * 0
+        self.propulsion.battery_cell_temperature             = ones_1col * 0 
+        self.propulsion.battery_charge_throughput            = ones_1col * 0    
+        self.propulsion.battery_cycle_day                    = 0
+        self.propulsion.battery_resistance_growth_factor     = 1.
+        self.propulsion.battery_capacity_fade_factor         = 1. 
+         
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
         self.energies.propulsion_power     = ones_1col * 0
