@@ -29,7 +29,7 @@ import vsp as vsp
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag, units_type='SI'): 
+def vsp_read(tag, units_type='SI',specified_network=None): 
 	"""This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
 	Includes wings, fuselages, and propellers.
 
@@ -50,6 +50,7 @@ def vsp_read(tag, units_type='SI'):
 	Inputs:
 	1. A tag for an XML file in format .vsp3.
 	2. Units_type set to 'SI' (default) or 'Imperial'
+	3. User-specified network
 
 	Outputs:
 	Writes SUAVE vehicle with these geometries from VSP:    (All values default to SI. Any other 2nd argument outputs Imperial.)
@@ -192,10 +193,21 @@ def vsp_read(tag, units_type='SI'):
 			propellers.append(prop)
 			number_of_propeller_engines += 1 
 
+
+
+	if specified_network == None:
+		# If no network specified, assign a network
+		if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
+			net = Lift_Cruise()
+		else:
+			net = Battery_Propeller()
+			
+	else:
+		net = specified_network
+	
 	# Create the rotor network
-	if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
+	if net.tag == "Lift_Cruise":
 		# Lift + Cruise network
-		net = Lift_Cruise()
 		for i in range(number_of_lift_rotor_engines):
 			net.lift_rotors.append(propellers[list(lift_rotors.keys())[i]])
 		net.number_of_lift_rotor_engines = number_of_lift_rotor_engines	
@@ -204,10 +216,8 @@ def vsp_read(tag, units_type='SI'):
 			net.propellers.append(propellers[list(propellers.keys())[i]])
 		net.number_of_propeller_engines = number_of_propeller_engines		
 		
-	else:
+	elif net.tag == "Battery_Propeller":
 		# Append all rotors as propellers for the battery propeller network
-		net = Battery_Propeller()
-		
 		for i in range(number_of_lift_rotor_engines):
 			# Accounts for multicopter configurations
 			net.propellers.append(propellers[list(lift_rotors.keys())[i]])
@@ -215,7 +225,7 @@ def vsp_read(tag, units_type='SI'):
 		for i in range(number_of_propeller_engines):
 			net.propellers.append(propellers[list(propellers.keys())[i]])
 
-	net.number_of_propeller_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
+		net.number_of_propeller_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
 
 	vehicle.networks.append(net)
 		
