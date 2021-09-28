@@ -10,13 +10,10 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 import numpy as np
-import Analyses
-import Missions
-import Procedure
-import Plot_Mission
-from SUAVE.Optimization.Nexus import Nexus
-import SUAVE.Optimization.Package_Setups.pyopt_setup as pyopt_setup
-import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
+import Noise_Analyses
+import Noise_Missions
+import Noise_Procedure 
+from SUAVE.Optimization.Nexus import Nexus 
 import sys
 sys.path.append('../Vehicles')
 # the analysis functions
@@ -43,7 +40,7 @@ def main():
     # Compare with truth values
     noise_cumulative_margin        = objectives[0]
     actual                         = Data()
-    actual.noise_cumulative_margin = 21.149429734922194
+    actual.noise_cumulative_margin = 20.65686425949562
 
     error                         = Data()
     error.noise_cumulative_margin = abs(actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
@@ -189,13 +186,13 @@ def setup(generate_new_truth_data):
     # -------------------------------------------------------------------
     #  Analyses
     # -------------------------------------------------------------------
-    nexus.analyses = Analyses.setup(nexus.vehicle_configurations)
+    nexus.analyses = Noise_Analyses.setup(nexus.vehicle_configurations)
 
 
     # -------------------------------------------------------------------
     #  Missions
     # -------------------------------------------------------------------
-    nexus.missions = Missions.setup(nexus.analyses)
+    nexus.missions = Noise_Missions.setup(nexus.analyses)
 
     # -------------------------------------------------------------------
     #  New Regression Flag
@@ -205,7 +202,7 @@ def setup(generate_new_truth_data):
     # -------------------------------------------------------------------
     #  Procedure
     # -------------------------------------------------------------------
-    nexus.procedure = Procedure.setup()
+    nexus.procedure = Noise_Procedure.setup()
 
     # -------------------------------------------------------------------
     #  Summary

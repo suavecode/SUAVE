@@ -1,4 +1,4 @@
-# Procedure.py
+# Noise_Procedure.py
 # 
 # Created:  Nov 2015, Carlos / Tarik
 # Modified: Jun 2016, T. MacDonald

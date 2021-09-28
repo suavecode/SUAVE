@@ -154,7 +154,7 @@ def vehicle_setup():
     wing.twists.root              = 0. * Units.degrees
     wing.twists.tip               = 0. * Units.degrees
     wing.origin                   = [[14.0*0.3048 , 4.0*0.3048  , 0.205  ]]
-    wing.aerodynamic_center       = 0.0
+    wing.aerodynamic_center       = [14.0*0.3048,0,0]  
     wing.winglet_fraction         = 0.0
     wing.vertical                 = True
     wing.symmetric                = False
@@ -181,7 +181,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
     wing.origin                  = [[14.0*0.3048 , -4.0*0.3048  , 0.205   ]]
-    wing.aerodynamic_center      = 0.0
+    wing.aerodynamic_center      = [14.0*0.3048,0,0]  
     wing.winglet_fraction        = 0.0
     wing.vertical                = True
     wing.symmetric               = False
@@ -476,14 +476,18 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Battery
     #------------------------------------------------------------------
-    bat                                                 = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.specific_energy                                 = 300. * Units.Wh/Units.kg
-    bat.resistance                                      = 0.005
-    bat.max_voltage                                     = net.voltage
-    bat.mass_properties.mass                            = 300. * Units.kg
-    initialize_from_mass(bat, bat.mass_properties.mass)
-    net.battery                                         = bat
-
+    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650() 
+    bat.mass_properties.mass = 500. * Units.kg  
+    bat.max_voltage          = net.voltage   
+    initialize_from_mass(bat)
+    
+    # Here we, are going to assume a battery pack module shape. This step is optional but
+    # required for thermal analysis of tge pack
+    number_of_modules                = 10
+    bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
+    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
+    bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
+    net.battery              = bat       
 
     #------------------------------------------------------------------
     # Design Rotors and Propellers

@@ -50,7 +50,7 @@ def main():
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.propeller_rpm[0][0]
-    RPM_true   = 1583.6527092402382
+    RPM_true   = 1583.6527082169848
 
     print(RPM)
     diff_RPM = np.abs(RPM - RPM_true)
@@ -60,7 +60,7 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([3.77518368e+08, 3.74165045e+08, 3.70802756e+08])
+    battery_energy_transition_true    = np.array([2.01877248e+08, 1.97566436e+08, 1.93231413e+08])
 
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true)
@@ -275,7 +275,7 @@ def plot_mission(results,line_style='bo-'):
     plot_aircraft_velocities(results, line_style)
 
     # Plot Aircraft Electronics
-    plot_electronic_conditions(results, line_style)
+    plot_battery_pack_conditions(results, line_style)
 
     # Plot Propeller Conditions
     plot_propeller_conditions(results, line_style)

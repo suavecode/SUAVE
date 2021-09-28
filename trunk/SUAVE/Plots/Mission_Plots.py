@@ -114,8 +114,7 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
         set_axes(axes)
 
         axes = plt.subplot(3,1,2)
-        axes.plot( time , EAS / Units.kts, line_color)
-        axes.set_xlabel('Time (min)',axis_font)
+        axes.plot( time , EAS / Units.kts, line_color) 
         axes.set_ylabel('Equivalent Airspeed',axis_font)
         set_axes(axes)    
         
@@ -345,14 +344,20 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
         cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
-        
-        axes.plot( time , cdp , 'ko-', label='CD parasite' )
-        axes.plot( time , cdi , line_color, label='CD induced' )
-        axes.plot( time , cdc , 'go-', label='CD compressibility' )
-        axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
-        axes.plot( time , cd  , 'ro-', label='CD total'   )            
+                  
         if i == 0: 
+            axes.plot( time , cdp , 'ko-', label='CD parasite' )
+            axes.plot( time , cdi , 'bo-', label='CD induced' )
+            axes.plot( time , cdc , 'go-', label='CD compressibility' )
+            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
+            axes.plot( time , cd  , 'ro-', label='CD total'   )  
             axes.legend(loc='upper center')   
+        else:
+            axes.plot( time , cdp , 'ko-' )
+            axes.plot( time , cdi , 'bo-')
+            axes.plot( time , cdc , 'go-') 
+            axes.plot( time , cdm , 'yo-')
+            axes.plot( time , cd  , 'ro-')  
             
     axes.set_xlabel('Time (min)',axis_font)
     axes.set_ylabel('CD',axis_font)
@@ -368,8 +373,8 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 #   Electronic Conditions
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Electronic_Conditions", file_type = ".png"):
-    """This plots the electronic conditions of the network
+def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'bs--', save_figure = False, save_filename = "Battery_Pack_Conditions", file_type = ".png"):
+    """This plots the battery pack conditions of the network
 
     Assumptions:
     None
@@ -379,7 +384,7 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
 
     Inputs:
     results.segments.conditions.propulsion
-         battery_draw 
+         battery_power_draw 
          battery_energy    
          voltage_under_load    
          voltage_open_circuit    
@@ -392,50 +397,162 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
     N/A	
     """	  
     
-    axis_font = {'size':'14'} 
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)
+    axis_font = {'size':'14'}  
     
+    fig = plt.figure(save_filename) 
+    fig.set_size_inches(12, 10)   
+    fig.suptitle('Battery Pack Conditions')  
     for i in range(len(results.segments)):     
-        time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        power          = results.segments[i].conditions.propulsion.battery_draw[:,0] 
-        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
-        volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]     
-        current        = results.segments[i].conditions.propulsion.battery_current[:,0]      
-        battery_amp_hr = (energy/ Units.Wh )/volts  
-        C_rating       = current/battery_amp_hr
+        time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        pack_power          = results.segments[i].conditions.propulsion.battery_power_draw[:,0] 
+        pack_energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
+        pack_volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
+        pack_volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]     
+        pack_current        = results.segments[i].conditions.propulsion.battery_current[:,0]   
+        pack_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
+        pack_temp           = results.segments[i].conditions.propulsion.battery_pack_temperature[:,0]      
+        pack_charge         = results.segments[i].conditions.propulsion.battery_charge_throughput[:,0]
         
-        axes = plt.subplot(2,2,1)
-        axes.plot(time, -power, line_color)
-        axes.set_ylabel('Battery Power (Watts)',axis_font)
+        pack_battery_amp_hr = (pack_energy/ Units.Wh )/pack_volts  
+        pack_C_rating       = pack_current/pack_battery_amp_hr
+        
+        axes = plt.subplot(2,3,1)
+        axes.plot(time, -pack_power, line_color)
+        axes.set_ylabel('Power (Watts)',axis_font)
         set_axes(axes)       
     
-        axes = plt.subplot(2,2,2)
-        axes.plot(time, energy/ Units.Wh, line_color)
-        axes.set_ylabel('Battery Energy (W-hr)',axis_font)
+        axes = plt.subplot(2,3,2)
+        axes.plot(time, pack_SOC , line_color)
+        axes.set_ylabel('SOC',axis_font)
         set_axes(axes)  
     
-        axes = plt.subplot(2,2,3)
-        axes.plot(time, volts, 'bo-',label='Under Load')
-        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
+        axes = plt.subplot(2,3,3)
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
+        axes.set_ylabel('Voltage (Volts)',axis_font) 
         set_axes(axes) 
         if i == 0:
-            axes.legend(loc='upper right')  
+            axes.plot(time, pack_volts, line_color,label='Under Load')
+            axes.plot(time,pack_volts_oc, line_color2,label='Open Circuit')
+        else:
+            axes.plot(time, pack_volts, line_color)
+            axes.plot(time,pack_volts_oc,line_color2) 
+        axes.legend(loc='upper right')  
         
-        axes = plt.subplot(2,2,4)
-        axes.plot(time, C_rating, line_color)
+        axes = plt.subplot(2,3,4)
+        axes.plot(time, pack_C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rate (C)',axis_font)  
-        set_axes(axes)
+        set_axes(axes)  
+
+        axes = plt.subplot(2,3,5)
+        axes.plot(time, pack_temp, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Temperature (K)',axis_font)  
+        set_axes(axes) 
+         
+        axes = plt.subplot(2,3,6)
+        axes.plot(time, pack_charge, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Charge Throughput(Ah)',axis_font)  
+        set_axes(axes) 
+        
  
     if save_figure:
-        plt.savefig(save_filename + file_type)       
+        fig.savefig(save_filename + file_type)        
         
     return
 
+# ------------------------------------------------------------------
+#   Electronic Conditions
+# ------------------------------------------------------------------
+## @ingroup Plots
+def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'bs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png"):
+    """This plots the battery pack conditions of the network
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.propulsion
+         battery_power_draw 
+         battery_energy    
+         voltage_under_load    
+         voltage_open_circuit    
+         current        
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	  
+    
+    axis_font = {'size':'14'}   
+    
+    fig  = plt.figure(save_filename)
+    fig.set_size_inches(12, 10)   
+    fig.suptitle('Battery Cell Conditions')
+    for i in range(len(results.segments)):
+        time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        cell_power          = results.segments[i].conditions.propulsion.battery_cell_power_draw[:,0] 
+        cell_energy         = results.segments[i].conditions.propulsion.battery_cell_energy[:,0] 
+        cell_volts          = results.segments[i].conditions.propulsion.battery_cell_voltage_under_load[:,0] 
+        cell_volts_oc       = results.segments[i].conditions.propulsion.battery_cell_voltage_open_circuit[:,0]     
+        cell_current        = results.segments[i].conditions.propulsion.battery_cell_current[:,0]  
+        cell_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
+        cell_temp           = results.segments[i].conditions.propulsion.battery_cell_temperature[:,0]      
+        cell_charge         = results.segments[i].conditions.propulsion.battery_cell_charge_throughput[:,0]
+        
+        cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts  
+        cell_C_rating       = cell_current/cell_battery_amp_hr        
+        
+        
+        axes = plt.subplot(2,3,1)
+        axes.plot(time, -cell_power, line_color)
+        axes.set_ylabel('Power (Watts)',axis_font)
+        set_axes(axes)       
+    
+        axes = plt.subplot(2,3,2)
+        axes.plot(time, cell_SOC, line_color)
+        axes.set_ylabel('SOC',axis_font)
+        set_axes(axes)  
+    
+        axes = plt.subplot(2,3,3) 
+        axes.set_xlabel('Time (mins)',axis_font) 
+        set_axes(axes)  
+        if i == 0:
+            axes.plot(time, cell_volts, line_color,label='Under Load')
+            axes.plot(time,cell_volts_oc, line_color2,label='Open Circuit')
+            axes.legend(loc='upper right')  
+        else:
+            axes.plot(time, cell_volts, line_color)
+            axes.plot(time,cell_volts_oc, line_color2) 
+            
+        axes = plt.subplot(2,3,4)
+        axes.plot(time, cell_C_rating, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('C-Rate (C)',axis_font)  
+        set_axes(axes)      
+
+        axes = plt.subplot(2,3,5)
+        axes.plot(time, cell_temp, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Temperature (K)',axis_font)  
+        set_axes(axes) 
+         
+        axes = plt.subplot(2,3,6)
+        axes.plot(time, cell_charge, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Charge Throughput (Ah)',axis_font)  
+        set_axes(axes) 
+  
+    if save_figure:    
+        fig.savefig(save_filename + file_type) 
+        
+    return
 
 # ------------------------------------------------------------------
 #   Flight Conditions
@@ -615,8 +732,8 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
     fig.set_size_inches(12, 10)  
     for segment in results.segments.values():
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        effp   = segment.conditions.propulsion.etap[:,0]
-        effm   = segment.conditions.propulsion.etam[:,0]
+        effp   = segment.conditions.propulsion.propeller_efficiency[:,0]
+        effm   = segment.conditions.propulsion.propeller_motor_efficiency[:,0]
         
         axes = plt.subplot(1,2,1)
         axes.plot(time, effp, line_color )
@@ -718,7 +835,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
     Inputs:
     results.segments.conditions.propulsion
         solar_flux 
-        battery_draw 
+        battery_power_draw 
         battery_energy 
         
     Outputs: 
@@ -730,12 +847,12 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
     
     axis_font = {'size':'14'} 
     fig       = plt.figure(save_filename) 
-    fig.set_size_inches(8, 14)
+    fig.set_size_inches(8, 6)
     
     for segment in results.segments.values():               
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         flux   = segment.conditions.propulsion.solar_flux[:,0] 
-        charge = segment.conditions.propulsion.battery_draw[:,0] 
+        charge = segment.conditions.propulsion.battery_power_draw[:,0] 
         energy = segment.conditions.propulsion.battery_energy[:,0] / Units.MJ
     
         axes = plt.subplot(3,1,1)
@@ -763,7 +880,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
 #   Lift-Cruise Network
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, save_filename = "Lift_Cruise_Network", file_type = ".png"):
+def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', save_figure = False, save_filename = "Lift_Cruise_Network", file_type = ".png"):
     """This plots the electronic and propulsor performance of a vehicle with a lift cruise network
 
     Assumptions:
@@ -791,7 +908,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
     # ------------------------------------------------------------------
     #   Electronic Conditions
     # ------------------------------------------------------------------
-    fig = plt.figure("Lift_Cruise_Electric_Conditions")
+    fig = plt.figure("Lift_Cruise_Battery_Pack_Conditions")
     fig.set_size_inches(16, 8)
     for i in range(len(results.segments)):          
         time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
@@ -802,38 +919,44 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
         volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]  
                     
-
+        plt.title('Battery Pack Conditions')
         axes = plt.subplot(2,2,1)
-        axes.plot(time, eta, 'bo-',label='Propeller Motor')
-        axes.plot(time, eta_l, 'r^-',label='Lift Rotor Motor')
         axes.set_ylabel('Throttle',axis_font)
         set_axes(axes)     
         plt.ylim((0,1))
         if i == 0:
-            axes.legend(loc='upper center')         
+            axes.plot(time, eta, line_color,label='Propeller Motor')
+            axes.plot(time, eta_l, line_color2,label='Lift Rotor Motor')
+            axes.legend(loc='upper center')    
+        else:
+            axes.plot(time, eta, line_color)
+            axes.plot(time, eta_l, line_color2)
     
         axes = plt.subplot(2,2,2)
-        axes.plot(time, energy, 'bo-')
+        axes.plot(time, energy, line_color)
         axes.set_ylabel('Battery Energy (W-hr)',axis_font)
         set_axes(axes)
     
-        axes = plt.subplot(2,2,3)
-        axes.plot(time, volts, 'bo-',label='Under Load')
-        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
-        axes.set_xlabel('Time (mins)',axis_font)
+        axes = plt.subplot(2,2,3) 
         axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
+        axes.set_xlabel('Time (mins)',axis_font)
         set_axes(axes) 
         if i == 0:
-            axes.legend(loc='upper center')                
+            axes.plot(time, volts, line_color,label='Under Load')
+            axes.plot(time,volts_oc, line_color2,label='Open Circuit')
+            axes.legend(loc='upper center')   
+        else:
+            axes.plot(time, volts, line_color)
+            axes.plot(time,volts_oc,line_color2)        
         
         axes = plt.subplot(2,2,4)
-        axes.plot(time, specific_power, 'bo-') 
+        axes.plot(time, specific_power, line_color) 
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Specific Power',axis_font)  
         set_axes(axes)
         
     if save_figure:
-        plt.savefig("Lift_Cruise_Electric_Conditions" + file_type)
+        plt.savefig("Lift_Cruise_Battery_Pack_Conditions" + file_type)
     
    
     # ------------------------------------------------------------------
@@ -855,47 +978,50 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         lift_rotor_effp   = results.segments[i].conditions.propulsion.lift_rotor_efficiency[:,0]
         lift_rotor_effm   = results.segments[i].conditions.propulsion.lift_rotor_motor_efficiency[:,0] 
         lift_rotor_Cp     = results.segments[i].conditions.propulsion.lift_rotor_power_coefficient[:,0]        
-    
+        
+        # title 
+        plt.title("Prop-Rotor Network")
+        
+        # plots 
         axes = plt.subplot(2,3,1)
-        axes.plot(time, prop_rpm, 'bo-')
-        axes.plot(time, lift_rotor_rpm, 'r^-')
+        axes.plot(time, prop_rpm, line_color)
+        axes.plot(time, lift_rotor_rpm, line_color2)
         axes.set_ylabel('RPM',axis_font)
         set_axes(axes)      
     
         axes = plt.subplot(2,3,2)
-        axes.plot(time, prop_thrust, 'bo-')
-        axes.plot(time, lift_rotor_thrust, 'r^-')
+        axes.plot(time, prop_thrust,line_color)
+        axes.plot(time, lift_rotor_thrust, line_color2)
         axes.set_ylabel('Thrust (N)',axis_font)
         set_axes(axes)  
     
         axes = plt.subplot(2,3,3)
-        axes.plot(time, prop_torque, 'bo-' )
-        axes.plot(time, lift_rotor_torque, 'r^-' )
-        axes.set_xlabel('Time (mins)',axis_font)
+        axes.plot(time, prop_torque, line_color)
+        axes.plot(time, lift_rotor_torque, line_color2) 
         axes.set_ylabel('Torque (N-m)',axis_font)
         set_axes(axes)
     
         axes = plt.subplot(2,3,4)
-        axes.plot(time, prop_effp, 'bo-' )
-        axes.plot(time, lift_rotor_effp, 'r^-' )
+        axes.plot(time, prop_effp, line_color )
+        axes.plot(time, lift_rotor_effp, line_color2)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel(r'Propeller Efficiency, $\eta_{propeller}$',axis_font)
         set_axes(axes)      
         plt.ylim((0,1))
     
         axes = plt.subplot(2,3,5)
-        axes.plot(time, prop_effm, 'bo-' )
-        axes.plot(time, lift_rotor_effm, 'r^-' )
+        axes.plot(time, prop_effm, line_color )
+        axes.plot(time, lift_rotor_effm,line_color2)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel(r'Motor Efficiency, $\eta_{motor}$',axis_font)
         set_axes(axes)       
         plt.ylim((0,1))
     
         axes = plt.subplot(2,3,6)
-        axes.plot(time, prop_Cp, 'bo-' )
-        axes.plot(time, lift_rotor_Cp, 'r^-'  )
+        axes.plot(time, prop_Cp,line_color )
+        axes.plot(time, lift_rotor_Cp, line_color2 )
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Power Coefficient',axis_font)
+        axes.set_ylabel('Power Coefficient, $C_{P}$',axis_font)
         set_axes(axes)
         
     if save_figure:
@@ -904,7 +1030,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
     # ------------------------------------------------------------------
     #   Propulsion Conditions
     # ------------------------------------------------------------------
-    fig = plt.figure("Lift Rotor")
+    fig = plt.figure("Lift_Rotor")
     fig.set_size_inches(16, 8)
     for i in range(len(results.segments)):          
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
@@ -914,41 +1040,44 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         effp   = results.segments[i].conditions.propulsion.lift_rotor_efficiency[:,0]
         effm   = results.segments[i].conditions.propulsion.lift_rotor_motor_efficiency[:,0] 
         Cp     = results.segments[i].conditions.propulsion.lift_rotor_power_coefficient[:,0]
-    
+        
+        # title 
+        plt.title("Lift Rotor")
+        
+        # plots 
         axes = plt.subplot(2,3,1)
-        axes.plot(time, rpm, 'r^-')
+        axes.plot(time, rpm, line_color2)
         axes.set_ylabel('RPM',axis_font)
         set_axes(axes)      
     
         axes = plt.subplot(2,3,2)
-        axes.plot(time, -thrust, 'r^-')
+        axes.plot(time, -thrust, line_color2)
         axes.set_ylabel('Thrust (N)',axis_font)
         set_axes(axes)
     
         axes = plt.subplot(2,3,3)
-        axes.plot(time, torque, 'r^-' )
-        axes.set_xlabel('Time (mins)',axis_font)
+        axes.plot(time, torque, line_color2 ) 
         axes.set_ylabel('Torque (N-m)',axis_font)
         set_axes(axes)
     
         axes = plt.subplot(2,3,4)
-        axes.plot(time, effp, 'r^-',label= r'$\eta_{lift_rotor}$' ) 
+        axes.plot(time, effp, line_color2,label= r'$\eta_{lift rotor}$' ) 
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel(r'Propeller Efficiency $\eta_{lift_rotor}$',axis_font)
+        axes.set_ylabel(r'Propeller Efficiency, $\eta_{lift rotor}$',axis_font)
         set_axes(axes)    
         plt.ylim((0,1))
     
         axes = plt.subplot(2,3,5)
-        axes.plot(time, effm, 'r^-' )
+        axes.plot(time, effm, line_color2 )
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel(r'Motor Efficiency $\eta_{mot}$',axis_font)
+        axes.set_ylabel(r'Motor Efficiency, $\eta_{mot}$',axis_font)
         set_axes(axes)
         plt.ylim((0,1))  
     
         axes = plt.subplot(2,3,6)
-        axes.plot(time, Cp , 'r^-' )
+        axes.plot(time, Cp , line_color2 )
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Power Coefficient',axis_font)
+        axes.set_ylabel('Power Coefficient, $C_{P}$',axis_font)
         set_axes(axes)            
     
     if save_figure:
@@ -967,38 +1096,41 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         effp   = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
         effm   = results.segments[i].conditions.propulsion.propeller_motor_efficiency[:,0]
         Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
-    
+
+        # title 
+        plt.title("Propeller")
+        
+        # plots     
         axes = plt.subplot(2,3,1)
-        axes.plot(time, rpm, 'bo-')
+        axes.plot(time, rpm,line_color)
         axes.set_ylabel('RPM')
         set_axes(axes)       
     
         axes = plt.subplot(2,3,2)
-        axes.plot(time, thrust, 'bo-')
+        axes.plot(time, thrust,line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
         set_axes(axes)   
     
         axes = plt.subplot(2,3,3)
-        axes.plot(time, torque, 'bo-' )
-        axes.set_xlabel('Time (mins)',axis_font)
+        axes.plot(time, torque, line_color) 
         axes.set_ylabel('Torque (N-m)',axis_font)
         set_axes(axes)  
     
         axes = plt.subplot(2,3,4)
-        axes.plot(time, effp, 'bo-' )
+        axes.plot(time, effp,line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel(r'Propeller Efficiency $\eta_{propeller}$',axis_font)
         set_axes(axes)            
         plt.ylim((0,1))
     
         axes = plt.subplot(2,3,5)
-        axes.plot(time, effm, 'bo-' )
+        axes.plot(time, effm,line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel(r'Motor Efficiency $\eta_{motor}$',axis_font)
         set_axes(axes) 
     
         axes = plt.subplot(2,3,6)
-        axes.plot(time, Cp, 'bo-' )
+        axes.plot(time, Cp, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Power Coefficient',axis_font)
         set_axes(axes)  
@@ -1014,14 +1146,21 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
         rtm  = results.segments[i].conditions.propulsion.lift_rotor_tip_mach[:,0]
         ptm  = results.segments[i].conditions.propulsion.propeller_tip_mach[:,0] 
+
+        # title 
+        plt.title("Tip Mach Number")
         
+        # plots         
         axes = plt.subplot(1,1,1)
-        axes.plot(time, ptm, 'bo-',label='Propeller')
-        axes.plot(time, rtm, 'r^-',label='Lift Rotor')
         axes.set_ylabel('Mach',axis_font)
         set_axes(axes)   
         if i == 0:
-            axes.legend(loc='upper center')     
+            axes.plot(time, ptm, line_color,label='Propeller')
+            axes.plot(time, rtm, line_color2,label='Lift Rotor')
+            axes.legend(loc='upper center')  
+        else:
+            axes.plot(time, ptm, line_color )
+            axes.plot(time, rtm, line_color2 )
     
     if save_figure:
         plt.savefig("Tip_Mach" + file_type) 
@@ -1387,22 +1526,22 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
     axes1        = fig.add_subplot(1,1,1)
     
     # loop through control points
-    for i in range(dim_seg):    
-        angles = abs(270- results.segments[i].conditions.noise.microphone_phi_angles/Units.degrees)
-        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
-        alt    = results.segments[i].conditions.freestream.altitude[:,0] / Units.ft
-        SPL    = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
-        
-        for j in range(dim_mic):
-            if i == 0:
-                axes1.plot(time, SPL[:,center_line,j], color = colors[j], label= r'$\phi$ = ' + str(round(angles[j],1)) + r' $\degree$' ) 
-            else:
-                axes1.plot(time, SPL[:,center_line,j], color = colors[j]) 
-        axes2 = axes1.twinx()
-        axes2.plot(time, alt, 'k-')      
-        axes1.set_ylabel('SPL (dBA)',axis_font)
-        axes1.set_xlabel('Time (min)',axis_font)
-        axes2.set_ylabel('Altitude (ft)',axis_font)  
+    for i in range(dim_seg): 
+        if  results.segments[i].battery_discharge == False:
+            pass
+        else: 
+            angles = abs(270- results.segments[i].conditions.noise.microphone_phi_angles/Units.degrees)
+            time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
+            alt    = results.segments[i].conditions.freestream.altitude[:,0] / Units.ft
+            SPL    = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
+            
+            for j in range(dim_mic):
+                if i == 0:
+                    axes1.plot(time, SPL[:,center_line,j], color = colors[j], label= r'$\phi$ = ' + str(round(angles[j],1)) + r' $\degree$' ) 
+                else:
+                    axes1.plot(time, SPL[:,center_line,j], color = colors[j])  
+            axes1.set_ylabel('SPL (dBA)',axis_font)
+            axes1.set_xlabel('Time (min)',axis_font) 
     
     axes1.legend(loc='upper right')        
     if save_figure:
@@ -1451,21 +1590,24 @@ def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure =
     fig.set_size_inches(12, 8) 
     
     # loop through control points
-    for i in range(dim_segs): 
-        for j in range(dim_ctrl_pts):
-            idx = i*dim_ctrl_pts + j
-            Aircraft_pos[idx ,0] = results.segments[i].conditions.frames.inertial.position_vector[j,0]
-            Aircraft_pos[idx ,2] = -results.segments[i].conditions.frames.inertial.position_vector[j,2]
-            SPL                  = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
-            SPL_contour[idx,:]   = SPL[j,center_line,:]
-            Range[idx,:]         = np.repeat(results.segments[i].conditions.frames.inertial.position_vector[j,0],dim_mic, axis = 0)
-            MLs                  = results.segments[i].conditions.noise.microphone_locations.reshape(dim_ctrl_pts,dim_mic,dim_mic,3)
-            Span[idx,:]          = MLs[j,center_line,:,1]
+    for i in range(dim_segs):  
+        if  results.segments[i].battery_discharge == False:
+            pass
+        else:    
+            for j in range(dim_ctrl_pts):
+                idx = i*dim_ctrl_pts + j
+                Aircraft_pos[idx ,0] = results.segments[i].conditions.frames.inertial.position_vector[j,0]
+                Aircraft_pos[idx ,2] = -results.segments[i].conditions.frames.inertial.position_vector[j,2]
+                SPL                  = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
+                SPL_contour[idx,:]   = SPL[j,center_line,:]
+                Range[idx,:]         = np.repeat(results.segments[i].conditions.frames.inertial.position_vector[j,0],dim_mic, axis = 0)
+                MLs                  = results.segments[i].conditions.noise.microphone_locations.reshape(dim_ctrl_pts,dim_mic,dim_mic,3)
+                Span[idx,:]          = MLs[j,center_line,:,1]
             
     axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2], c='k'    , marker = 'o' )
     CS = axes.contourf(Range,Span,SPL_contour, levels = 50, zdir='z', offset= 0  , cmap=plt.cm.jet) 
     CS = axes.contourf(Range,-Span,SPL_contour, levels = 50, zdir='z', offset= 0 , cmap=plt.cm.jet) 
-    axes.view_init(elev= 8, azim= -166)  
+    axes.view_init(elev= 30, azim= -140)  
     
     #plot the lines
     for i in range(dim_mat-1): 

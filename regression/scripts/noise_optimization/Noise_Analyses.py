@@ -1,4 +1,4 @@
-# Analyses.py
+# Noise_Analyses.py
 # 
 # Created:  Nov 2015, Carlos / Tarik
 # Modified: Jul, 2017 M. Clarke
@@ -13,7 +13,7 @@ import SUAVE
 #   Setup Analyses
 # ----------------------------------------------------------------------  
 
-def setup(configs):
+def setup(configs): 
     
     analyses = SUAVE.Analyses.Analysis.Container()
 

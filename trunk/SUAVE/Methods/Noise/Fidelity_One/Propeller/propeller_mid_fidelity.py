@@ -23,9 +23,9 @@ from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise   import 
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
 # -------------------------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_mid_fidelity(network,auc_opts,segment,settings):
+def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller'):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
-    and frequency spectrums of a system of rotating blades (i.e. propellers and rotors)          
+    and frequency spectrums of a system of rotating blades (i.e. propellers and lift_rotors)          
         
     Assumptions:
     None
@@ -73,13 +73,13 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings):
     Results = Data()
                      
     # compute position vector of microphones         
-    position_vector = compute_point_source_coordinates(conditions,network,microphone_locations)  
+    position_vector = compute_point_source_coordinates(conditions,network,microphone_locations,source)  
      
     # Harmonic Noise    
-    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,network,auc_opts,settings,Noise)       
+    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,network,auc_opts,settings,Noise,source)       
      
     # Broadband Noise   
-    compute_broadband_noise(freestream,angle_of_attack,position_vector, velocity_vector,network,auc_opts,settings,Noise)       
+    compute_broadband_noise(freestream,angle_of_attack,position_vector, velocity_vector,network,auc_opts,settings,Noise,source)       
      
     # Combine Rotational(periodic/tonal) and Broadband Noise 
     Noise.SPL_prop_bpfs_spectrum                               = Noise.SPL_r
