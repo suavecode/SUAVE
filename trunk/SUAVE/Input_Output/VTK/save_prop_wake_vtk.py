@@ -33,10 +33,10 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
     """
     wVD = VD.Wake
     # Extract wake properties of the ith propeller
-    n_time_steps    = len(wVD.XA1[i_prop,:,0,0])
-    n_blades        = len(wVD.XA1[i_prop,0,:,0])
-    n_radial_rings  = len(wVD.XA1[i_prop,0,0,:])
-    gamma           = np.reshape(VD.Wake_collapsed.GAMMA,(1,n_time_steps,n_blades,n_radial_rings))
+    n_time_steps    = len(wVD.XA1[i_prop,0,0,:])
+    n_blades        = len(wVD.XA1[i_prop,:,0,0])
+    n_radial_rings  = len(wVD.XA1[i_prop,0,:,0])
+    gamma           = np.reshape(VD.Wake_collapsed.GAMMA,(1,n_blades,n_radial_rings,n_time_steps))
     
     # Create file
     with open(filename, 'w') as f:
@@ -69,27 +69,27 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     #-------------------------------------------------------------------
                     if r_idx == n_radial_rings and t_idx==0:
                         # Last ring at t0; use B2 to get rightmost TE node
-                        x = round(wVD.XB2[i_prop,t_idx,B_idx,r_idx-1],4)
-                        y = round(wVD.YB2[i_prop,t_idx,B_idx,r_idx-1],4)
-                        z = round(wVD.ZB2[i_prop,t_idx,B_idx,r_idx-1],4)
+                        x = round(wVD.XB2[i_prop,B_idx,r_idx-1,t_idx],4)
+                        y = round(wVD.YB2[i_prop,B_idx,r_idx-1,t_idx],4)
+                        z = round(wVD.ZB2[i_prop,B_idx,r_idx-1,t_idx],4)
                         
                     elif t_idx==0:
                         # First set of rings; use A2 to get left TE node
-                        x = round(wVD.XA2[i_prop,t_idx,B_idx,r_idx],4)
-                        y = round(wVD.YA2[i_prop,t_idx,B_idx,r_idx],4)
-                        z = round(wVD.ZA2[i_prop,t_idx,B_idx,r_idx],4)   
+                        x = round(wVD.XA2[i_prop,B_idx,r_idx,t_idx],4)
+                        y = round(wVD.YA2[i_prop,B_idx,r_idx,t_idx],4)
+                        z = round(wVD.ZA2[i_prop,B_idx,r_idx,t_idx],4)   
                         
                         
                     elif r_idx==n_radial_rings:  
                         # Last radial ring for tstep; use B1 of prior to get tip node
-                        x = round(wVD.XB1[i_prop,t_idx-1,B_idx,r_idx-1],4)
-                        y = round(wVD.YB1[i_prop,t_idx-1,B_idx,r_idx-1],4)
-                        z = round(wVD.ZB1[i_prop,t_idx-1,B_idx,r_idx-1],4)
+                        x = round(wVD.XB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
+                        y = round(wVD.YB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
+                        z = round(wVD.ZB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
                     else:
                         # print the point index (Left LE --> Left TE --> Right LE --> Right TE)
-                        x = round(wVD.XA1[i_prop,t_idx-1,B_idx,r_idx],4)
-                        y = round(wVD.YA1[i_prop,t_idx-1,B_idx,r_idx],4)
-                        z = round(wVD.ZA1[i_prop,t_idx-1,B_idx,r_idx],4)
+                        x = round(wVD.XA1[i_prop,B_idx,r_idx,t_idx-1],4)
+                        y = round(wVD.YA1[i_prop,B_idx,r_idx,t_idx-1],4)
+                        z = round(wVD.ZA1[i_prop,B_idx,r_idx,t_idx-1],4)
                     
                     
                     
@@ -135,7 +135,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
         # First scalar value
         f.write("\nSCALARS gamma float 1")
         f.write("\nLOOKUP_TABLE default")   
-        blade_circulation = Results['prop_outputs'].disc_circulation[0][0]
+        blade_circulation = Results['prop_outputs'].disc_circulation[0,:,0]
         for B_idx in range(n_blades):
             for i in range(cells_per_blade):
                 circ_L = blade_circulation[int(i%(n_radial_rings))]
@@ -167,7 +167,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
         
         # Loop over number of "chordwise" panels in the wake distribution
         for t_idx in range(n_time_steps):
-            g        = gamma[i_prop,t_idx,B_idx] # circulation distribution on current blade at current timestep
+            g        = gamma[i_prop,B_idx,:,t_idx] # circulation distribution on current blade at current timestep
             dgamma   = np.gradient(g)            # gradient of the blade circulation distribution
             gamma_slope_sign = np.ones_like(dgamma)
             gamma_slope_sign[dgamma<0] = -1
@@ -177,18 +177,18 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
             for r_idx in range(n_radial_rings):
                 
                 # Get vortex strength of panel (current node is the bottom left of the panel)
-                g_r_t = gamma[i_prop,t_idx,B_idx,r_idx]
+                g_r_t = gamma[i_prop,B_idx,r_idx,t_idx]
                 
-                p_r_t   = np.array([wVD.XA1[i_prop,t_idx,B_idx,r_idx],wVD.YA1[i_prop,t_idx,B_idx,r_idx],wVD.ZA1[i_prop,t_idx,B_idx,r_idx]])  # Bottom Left
-                p_rp_t  = np.array([wVD.XB1[i_prop,t_idx,B_idx,r_idx],wVD.YB1[i_prop,t_idx,B_idx,r_idx],wVD.ZB1[i_prop,t_idx,B_idx,r_idx]])  # Top Left
-                p_r_tp  = np.array([wVD.XA2[i_prop,t_idx,B_idx,r_idx],wVD.YA2[i_prop,t_idx,B_idx,r_idx],wVD.ZA2[i_prop,t_idx,B_idx,r_idx]])  # Top Right
-                p_rp_tp = np.array([wVD.XB2[i_prop,t_idx,B_idx,r_idx],wVD.YB2[i_prop,t_idx,B_idx,r_idx],wVD.ZB2[i_prop,t_idx,B_idx,r_idx]])  # Bottom Right
+                p_r_t   = np.array([wVD.XA1[i_prop,B_idx,r_idx,t_idx],wVD.YA1[i_prop,B_idx,r_idx,t_idx],wVD.ZA1[i_prop,B_idx,r_idx,t_idx]])  # Bottom Left
+                p_rp_t  = np.array([wVD.XB1[i_prop,B_idx,r_idx,t_idx],wVD.YB1[i_prop,B_idx,r_idx,t_idx],wVD.ZB1[i_prop,B_idx,r_idx,t_idx]])  # Top Left
+                p_r_tp  = np.array([wVD.XA2[i_prop,B_idx,r_idx,t_idx],wVD.YA2[i_prop,B_idx,r_idx,t_idx],wVD.ZA2[i_prop,B_idx,r_idx,t_idx]])  # Top Right
+                p_rp_tp = np.array([wVD.XB2[i_prop,B_idx,r_idx,t_idx],wVD.YB2[i_prop,B_idx,r_idx,t_idx],wVD.ZB2[i_prop,B_idx,r_idx,t_idx]])  # Bottom Right
                 
                 # Append vortex strengths to ring vortices
                 if t_idx==0 and r_idx==0:
                     # 
-                    g_rp_t = gamma[i_prop,t_idx,B_idx,r_idx+1] 
-                    g_r_tp = gamma[i_prop,t_idx+1,B_idx,r_idx]   
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx] 
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]   
                     
                     # Bottom edge
                     rings.coordinates.append(p_r_t)        # bottom left node   (Bottom edge)
@@ -214,7 +214,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     
                 elif t_idx==0 and r_idx==n_radial_rings-1:
                     
-                    g_r_tp = gamma[i_prop,t_idx+1,B_idx,r_idx]
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]
                     
                     # Bottom edge
                     rings.coordinates.append(p_r_t)
@@ -233,8 +233,8 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                 
                 elif t_idx==0:
                     #     
-                    g_rp_t = gamma[i_prop,t_idx,B_idx,r_idx+1] 
-                    g_r_tp = gamma[i_prop,t_idx+1,B_idx,r_idx]
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx] 
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]
                     
                     # Bottom edge
                     rings.coordinates.append(p_r_t)       # bottom left node   (Bottom edge)
@@ -253,7 +253,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                 
                 elif t_idx==(n_time_steps-1) and r_idx==0:
                     #  
-                    g_rp_t = gamma[i_prop,t_idx,B_idx,r_idx+1]                        
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]                        
                     # Top edge
                     rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
                     rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
@@ -270,8 +270,8 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                
                 elif r_idx==0:
                     # 
-                    g_rp_t = gamma[i_prop,t_idx,B_idx,r_idx+1]    
-                    g_r_tp = gamma[i_prop,t_idx+1,B_idx,r_idx]                        
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]    
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]                        
                     # Top edge
                     rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
                     rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
@@ -301,7 +301,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     
                 elif r_idx==n_radial_rings-1:
                      
-                    g_r_tp = gamma[i_prop,t_idx+1,B_idx,r_idx]                        
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]                        
                     # Top edge
                     rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
                     rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
@@ -314,7 +314,7 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
 
                 elif t_idx==(n_time_steps-1):
                     # 
-                    g_rp_t = gamma[i_prop,t_idx,B_idx,r_idx+1]
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]
                     # Top edge
                     rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
                     rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
@@ -326,8 +326,8 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                            
                            
                 else:           
-                    g_rp_t = gamma[i_prop,t_idx,B_idx,r_idx+1]
-                    g_r_tp = gamma[i_prop,t_idx+1,B_idx,r_idx]    
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]    
                     
                     # Top edge
                     rings.coordinates.append(p_r_tp)               # top left node   (Bottom edge)

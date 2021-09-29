@@ -129,13 +129,13 @@ def propeller_single_point(energy_network,
     else:
         F, Q, P, Cp, outputs, etap = prop.spin(conditions)
         
-    va_ind_BEMT         = outputs.disc_axial_induced_velocity[0, 0, :]
-    vt_ind_BEMT         = outputs.disc_tangential_induced_velocity[0, 0, :]
-    r_BEMT              = outputs.disc_radial_distribution[0, 0, :]
-    T_distribution_BEMT = outputs.disc_thrust_distribution[0]
-    vt_BEMT             = outputs.disc_tangential_velocity[0, 0, :]
-    va_BEMT             = outputs.disc_axial_velocity[0, 0, :]
-    Q_distribution_BEMT = outputs.disc_torque_distribution[0]
+    va_ind_BEMT         = outputs.disc_axial_induced_velocity[0, :, 0]
+    vt_ind_BEMT         = outputs.disc_tangential_induced_velocity[0, :, 0]
+    r_BEMT              = outputs.disc_radial_distribution[0, :, 0]
+    T_distribution_BEMT = outputs.disc_thrust_distribution[0, :, 0]
+    vt_BEMT             = outputs.disc_tangential_velocity[0, :, 0]
+    va_BEMT             = outputs.disc_axial_velocity[0, :, 0]
+    Q_distribution_BEMT = outputs.disc_torque_distribution[0, :, 0]
 
     if print_results:
         print('Total Thrust:    {} N'.format(F[0][0]))

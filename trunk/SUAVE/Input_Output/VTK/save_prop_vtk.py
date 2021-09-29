@@ -354,7 +354,8 @@ def generate_lofted_propeller_points(prop):
         Gprops[i] = Data()
         # get airfoil coordinate geometry   
         if a_sec != None:
-            airfoil_data = import_airfoil_geometry(a_sec,npoints=n_a_cw)   
+            airfoil_data   = import_airfoil_geometry(a_sec,npoints=n_a_cw)   
+            
             xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
             zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0) 
             max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0) 
@@ -371,9 +372,10 @@ def generate_lofted_propeller_points(prop):
         # store points of airfoil in similar format as Vortex Points (i.e. in vertices)   
         max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_a_loft,axis=1)
         
-        xp      = rot*(- MCA_2d + xpts*b_2d)  # x coord of airfoil
-        yp      = r_2d*np.ones_like(xp)       # radial location        
-        zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord 
+        airfoil_le_offset = (b[0]/4 - np.repeat(b[:,None], n_a_loft, axis=1)/4 ) # no sweep
+        xp      = rot*(- MCA_2d + xpts*b_2d + airfoil_le_offset)  # x coord of airfoil
+        yp      = r_2d*np.ones_like(xp)                           # radial location        
+        zp      = zpts*(t_2d/max_t2d)                             # former airfoil y coord 
                           
         matrix = np.zeros((n_r,n_a_loft,3)) # radial location, airfoil pts (same y)   
         matrix[:,:,0] = xp

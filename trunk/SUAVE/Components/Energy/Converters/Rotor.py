@@ -247,15 +247,15 @@ class Rotor(Energy_Component):
     
         # Azimuthal distribution of stations
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
-        psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
-        psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
+        psi_2d         = np.tile(np.atleast_2d(psi),(Nr,1))
+        psi_2d         = np.repeat(psi_2d[None, :, :], ctrl_pts, axis=0)   
         
         # 2 dimensiona radial distribution non dimensionalized
-        chi_2d         = np.tile(chi ,(Na,1))            
+        chi_2d         = np.tile(chi[:, None],(1,Na))            
         chi_2d         = np.repeat(chi_2d[None,:,:], ctrl_pts, axis=0) 
-        r_dim_2d       = np.tile(r_1d ,(Na,1))  
+        r_dim_2d       = np.tile(r_1d[:, None] ,(1,Na))
         r_dim_2d       = np.repeat(r_dim_2d[None,:,:], ctrl_pts, axis=0)          
-        c_2d           = np.tile(c ,(Na,1)) 
+        c_2d           = np.tile(c[:, None] ,(1,Na)) 
         c_2d           = np.repeat(c_2d[None,:,:], ctrl_pts, axis=0)  
         
         # Starting with uniform freestream
@@ -305,15 +305,15 @@ class Rotor(Energy_Component):
                 
         if use_2d_analysis:
             # make everything 2D with shape (ctrl_pts,Na,Nr)
-            size   = (ctrl_pts,Na,Nr)
+            size   = (ctrl_pts,Nr,Na )
             PSI    = np.ones(size)
             PSIold = np.zeros(size)
             
             # 2-D freestream velocity and omega*r
             V_2d   = V_thrust[:,0,None,None]
-            V_2d   = np.repeat(V_2d, Na,axis=1)
-            V_2d   = np.repeat(V_2d, Nr,axis=2)
-            omegar = (np.repeat(np.outer(omega,r_1d)[:,None,:], Na, axis=1))
+            V_2d   = np.repeat(V_2d, Na,axis=2)
+            V_2d   = np.repeat(V_2d, Nr,axis=1)
+            omegar = (np.repeat(np.outer(omega,r_1d)[:,:,None], Na, axis=2))
             
             # total velocities
             Ua     = V_2d + ua      
@@ -321,22 +321,23 @@ class Rotor(Energy_Component):
             # 2-D blade pitch and radial distributions
             if np.size(pitch_c)>1:
                 # control variable is the blade pitch, repeat around azimuth
-                beta = np.repeat(total_blade_pitch[:,None,:], Na, axis=1)
+                beta = np.repeat(total_blade_pitch[:,:,None], Na, axis=2)
             else:
-                beta = np.tile(total_blade_pitch,(Na ,1))
-                beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
-            r    = np.tile(r_1d,(Na ,1))
-            r    = np.repeat(r[np.newaxis,:, :], ctrl_pts, axis=0) 
+                beta = np.tile(total_blade_pitch[None,:,None],(ctrl_pts,1,Na ))
+                
+            r    = np.tile(r_1d[None,:,None], (ctrl_pts, 1, Na))
+            c    = np.tile(c[None,:,None], (ctrl_pts, 1, Na))
+            deltar = np.tile(deltar[None,:,None], (ctrl_pts, 1, Na))
             
             # 2-D atmospheric properties
             a   = np.tile(np.atleast_2d(a),(1,Nr))
-            a   = np.repeat(a[:, np.newaxis,  :], Na, axis=1)  
+            a   = np.repeat(a[:, :, None], Na, axis=2)  
             nu  = np.tile(np.atleast_2d(nu),(1,Nr))
-            nu  = np.repeat(nu[:, np.newaxis,  :], Na, axis=1)    
+            nu  = np.repeat(nu[:,  :, None], Na, axis=2)    
             rho = np.tile(np.atleast_2d(rho),(1,Nr))
-            rho = np.repeat(rho[:, np.newaxis,  :], Na, axis=1)  
+            rho = np.repeat(rho[:,  :, None], Na, axis=2)  
             T   = np.tile(np.atleast_2d(T),(1,Nr))
-            T   = np.repeat(T[:, np.newaxis,  :], Na, axis=1)              
+            T   = np.repeat(T[:, :, None], Na, axis=2)         
             
         else:
             # total velocities
@@ -509,8 +510,8 @@ class Rotor(Energy_Component):
                 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                   
                 # plot convergence of circulation over iterations
                 fig = plt.figure()
-                plt.plot(r_1d/R,Gamma[0,0,:],'r-',label="$\\Gamma_{i}$")
-                plt.plot(r_1d/R,Gamma_Blade[0,0,:],'k-',label="$\\Gamma_{f}$")
+                plt.plot(r_1d/R,Gamma[0,:,0],'r-',label="$\\Gamma_{i}$")
+                plt.plot(r_1d/R,Gamma_Blade[0,:,0],'k-',label="$\\Gamma_{f}$")
                 plt.xlabel("$\\frac{r}{R}$")
                 plt.ylabel("$\\Gamma$")
                 plt.title("Convergence of Blade Circulation")
@@ -554,13 +555,13 @@ class Rotor(Energy_Component):
             
             Va_2d = Wa
             Vt_2d = Wt
-            Va_avg = np.average(Wa, axis=1)      # averaged around the azimuth
-            Vt_avg = np.average(Wt, axis=1)      # averaged around the azimuth
+            Va_avg = np.average(Wa, axis=2)      # averaged around the azimuth
+            Vt_avg = np.average(Wt, axis=2)      # averaged around the azimuth
             
             Va_ind_2d  = va
             Vt_ind_2d  = vt
-            Vt_ind_avg = np.average(vt, axis=1)
-            Va_ind_avg = np.average(va, axis=1)               
+            Vt_ind_avg = np.average(vt, axis=2)
+            Va_ind_avg = np.average(va, axis=2)               
             
             # If time-accurate, compute the time-accurate forces \
             if self.time_accurate_loading:
@@ -612,10 +613,10 @@ class Rotor(Energy_Component):
                 
             
             # set 1d blade loadings to be the average:
-            blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 1)
-            blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 1)  
-            blade_dT_dr             = np.mean((blade_dT_dr_2d), axis = 1) 
-            blade_dQ_dr             = np.mean((blade_dQ_dr_2d), axis = 1)
+            blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 2)
+            blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 2) 
+            blade_dT_dr             = np.mean((blade_dT_dr_2d), axis = 2) 
+            blade_dQ_dr             = np.mean((blade_dQ_dr_2d), axis = 2)
             
 
             
@@ -623,33 +624,33 @@ class Rotor(Energy_Component):
             dL_2d    = 0.5*rho*c_2d*Cd*omegar**2*deltar
             dD_2d    = 0.5*rho*c_2d*Cl*omegar**2*deltar
             
-            rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=1)
+            rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=2)
             
         else:
-            Va_2d   = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
-            Vt_2d   = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
+            Va_2d   = np.repeat(Wa[ :, :, None], Na, axis=2)
+            Vt_2d   = np.repeat(Wt[ :, :, None], Na, axis=2)
     
-            blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
-            blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
-            blade_dT_dr_2d           = np.repeat(blade_dT_dr.T[ np.newaxis,:  , :], Na, axis=0).T 
-            blade_dQ_dr_2d           = np.repeat(blade_dQ_dr.T[ np.newaxis,:  , :], Na, axis=0).T 
-            blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
-            alpha_2d                 = np.repeat(alpha.T[ : , np.newaxis , :], Na, axis=1).T
+            blade_T_distribution_2d  = np.repeat(blade_T_distribution[:, :, None], Na, axis=2)
+            blade_Q_distribution_2d  = np.repeat(blade_Q_distribution[:, :, None], Na, axis=2) 
+            blade_dT_dr_2d           = np.repeat(blade_dT_dr[:, :, None], Na, axis=2)
+            blade_dQ_dr_2d           = np.repeat(blade_dQ_dr[:, :, None], Na, axis=2) 
+            blade_Gamma_2d           = np.repeat(Gamma[ :, :, None], Na, axis=2)
+            alpha_2d                 = np.repeat(alpha[ :, :, None], Na, axis=2)
 
             Vt_avg                  = Wt
             Va_avg                  = Wa 
             Vt_ind_avg              = vt
             Va_ind_avg              = va            
-            Va_ind_2d               = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
-            Vt_ind_2d               = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T     
+            Va_ind_2d               = np.repeat(va[ :, :, None], Na, axis=2)
+            Vt_ind_2d               = np.repeat(vt[ :, :, None], Na, axis=2)     
             
             # compute the hub force / rotor drag distribution along the blade
             dL    = 0.5*rho*c*Cd*omegar**2*deltar
-            dL_2d = np.repeat(dL[:,None,:], Na, axis=1)
+            dL_2d = np.repeat(dL[:, :, None], Na, axis=2)
             dD    = 0.5*rho*c*Cl*omegar**2*deltar            
-            dD_2d = np.repeat(dD[:,None,:], Na, axis=1)
+            dD_2d = np.repeat(dD[:, :, None], Na, axis=2)
             
-            rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=1)
+            rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=2)
         
        
         # forces
@@ -741,8 +742,8 @@ class Rotor(Energy_Component):
             #plt.show()       
             
             plt.subplot(235)
-            plt.plot(r_1d/R,bemt_outputs.disc_circulation[0,0,:],'r-',label="BEMT")
-            plt.plot(r_1d/R,Gamma_Blade[0,0,:],'k-',label="HFW")
+            plt.plot(r_1d/R,bemt_outputs.disc_circulation[0,:,0],'r-',label="BEMT")
+            plt.plot(r_1d/R,Gamma_Blade[0,:,0],'k-',label="HFW")
             plt.xlabel("$\\frac{r}{R}$")
             plt.ylabel("$\\Gamma$")
             plt.title("Comparison of Blade Circulation")
@@ -910,6 +911,7 @@ class Rotor(Energy_Component):
         self.wake_settings.init_timestep_offset     = init_timestep_offset
         self.wake_settings.wake_development_time    = time
         self.wake_settings.number_of_wake_timesteps = number_of_wake_timesteps
+        self.use_2d_analysis                        = True
         
         # spin propeller with helical fixed-wake
         self.wake_method = "helical_fixed_wake"
@@ -1044,8 +1046,8 @@ def compute_HFW_blade_velocities(prop, prop_outputs ):
     t0   = dt*init_timestep_offset    
     
     # set shape of velocitie arrays
-    Va = np.zeros((cpts,Na,Nr))
-    Vt = np.zeros((cpts,Na,Nr))
+    Va = np.zeros((cpts,Nr,Na))
+    Vt = np.zeros((cpts,Nr,Na))
     for i in range(Na):
         # increment blade angle to new azimuthal position
         blade_angle   = omega[0]*t0 + i*(2*np.pi/(Na))
@@ -1062,13 +1064,13 @@ def compute_HFW_blade_velocities(prop, prop_outputs ):
         offset_angle = 0 #-2*Units.deg
         offset_time  = offset_angle/omega[0][0]
         x_offset     = offset_time*prop.outputs.velocity[0][0]
-        rot_mat = np.array([[np.cos(offset_angle), -np.sin(offset_angle)],
-                            [np.sin(offset_angle), np.cos(offset_angle)]])
+        rot_mat      = np.array([[np.cos(offset_angle), -np.sin(offset_angle)],
+                                [np.sin(offset_angle), np.cos(offset_angle)]])
         
         # set the evaluation points in the vortex distribution
-        Yb   = prop.Wake_VD.Yblades_cp[0,:]  #y
-        Zb   = prop.Wake_VD.Zblades_cp[0,:]  #z
-        Xb   = prop.Wake_VD.Xblades_cp[0,:]  #prop.origin[0][0]*np.ones_like(VD.YC)
+        Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0]  #y   (ncpts, nblades, Nr, Ntsteps)
+        Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0]  #z
+        Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0]  #prop.origin[0][0]*np.ones_like(VD.YC)
         
         VD.YC = Yb*rot_mat[0,0] + Zb*rot_mat[0,1]
         VD.ZC = Yb*rot_mat[1,0] + Zb*rot_mat[1,1]
@@ -1086,8 +1088,8 @@ def compute_HFW_blade_velocities(prop, prop_outputs ):
         v       = V_ind[0,:,1]
         w       = V_ind[0,:,2]   
         
-        Va[:,i,:]  = u
-        Vt[:,i,:]  = (-w*np.cos(blade_angle) + v*np.sin(blade_angle))*prop.rotation
+        Va[:,:,i]  = u
+        Vt[:,:,i]  = (-w*np.cos(blade_angle) + v*np.sin(blade_angle))*prop.rotation
     
     prop.vortex_distribution = VD
         ## test generate vtk
@@ -1152,9 +1154,9 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
         # Compute blade Cl and Cd distribution from the airfoil data  
         dim_sur = len(cl_sur)   
         if use_2d_analysis:
-            # return the 2D Cl and CDval of shape (ctrl_pts, Na, Nr)
-            Cl      = np.zeros((ctrl_pts,Na,Nr))              
-            Cdval   = np.zeros((ctrl_pts,Na,Nr))
+            # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
+            Cl      = np.zeros((ctrl_pts,Nr,Na))              
+            Cdval   = np.zeros((ctrl_pts,Nr,Na))
             for jj in range(dim_sur):                 
                 Cl_af           = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
                 Cdval_af        = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
