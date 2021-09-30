@@ -65,6 +65,7 @@ class Rotor(Energy_Component):
         self.tip_radius                   = 0.0
         self.hub_radius                   = 0.0
         self.twist_distribution           = 0.0
+        self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
         self.chord_distribution           = 0.0
         self.mid_chord_alignment          = 0.0
         self.thickness_to_chord           = 0.0
@@ -176,6 +177,7 @@ class Rotor(Energy_Component):
         R       = self.tip_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
+        sweep   = self.sweep_distribution     # quarter chord offset from quarter chord of root airfoil
         r_1d    = self.radius_distribution 
         tc      = self.thickness_to_chord 
         
@@ -244,19 +246,28 @@ class Rotor(Energy_Component):
         # Calculating rotational parameters
         omegar   = np.outer(omega,r_1d)    
         n        = omega/(2.*pi)   # Rotations per second  
-    
-        # Azimuthal distribution of stations
-        psi            = np.linspace(0,2*pi,Na+1)[:-1]
-        psi_2d         = np.tile(np.atleast_2d(psi),(Nr,1))
-        psi_2d         = np.repeat(psi_2d[None, :, :], ctrl_pts, axis=0)   
+
         
-        # 2 dimensiona radial distribution non dimensionalized
+        # 2 dimensional radial distribution non dimensionalized
         chi_2d         = np.tile(chi[:, None],(1,Na))            
         chi_2d         = np.repeat(chi_2d[None,:,:], ctrl_pts, axis=0) 
         r_dim_2d       = np.tile(r_1d[:, None] ,(1,Na))
         r_dim_2d       = np.repeat(r_dim_2d[None,:,:], ctrl_pts, axis=0)          
         c_2d           = np.tile(c[:, None] ,(1,Na)) 
         c_2d           = np.repeat(c_2d[None,:,:], ctrl_pts, axis=0)  
+        
+        # Azimuthal distribution of stations
+        psi            = np.linspace(0,2*pi,Na+1)[:-1]
+        psi            = psi
+        psi_2d         = np.tile(np.atleast_2d(psi),(Nr,1))
+        psi_2d         = np.repeat(psi_2d[None, :, :], ctrl_pts, axis=0)   
+                
+        # apply blade sweep to azimuthal position
+        if np.any(np.array([sweep])!=0):
+            use_2d_analysis     = True
+            sweep_2d            = np.repeat(sweep[:, None], (1,Na))
+            sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)   
+            psi_2d             += sweep_offset_angles
         
         # Starting with uniform freestream
         ua       = 0             

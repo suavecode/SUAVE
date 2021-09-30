@@ -73,8 +73,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         nmax = int(max(Nr_list)-1)
         
     
-    # Add additional time step to include lifting line panel on rotor
     if include_lifting_line:
+        # Add additional time step to include lifting line panel on rotor
         nts = number_of_wake_timesteps
     else:
         nts  = number_of_wake_timesteps-1    
@@ -177,12 +177,10 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)   
         yupper         = np.take(airfoil_data.y_upper_surface,a_secl,axis=0)   
         
-        # Align the midchords of the airfoils (zero sweep)
-        #x_mid_airfoils = xupper[:,25]*c 
-        #y_mid_airfoils = yupper[:,25]*c 
+        # Align the quarter chords of the airfoils (zero sweep)
         airfoil_le_offset = (c[0]/4 - c/4 )
-        xte_airfoils   = xupper[:,-1]*c + airfoil_le_offset
-        yte_airfoils   = yupper[:,-1]*c 
+        xte_airfoils      = xupper[:,-1]*c + airfoil_le_offset
+        yte_airfoils      = yupper[:,-1]*c 
         
         xle_airfoils = xupper[:,0]*c + airfoil_le_offset
         yle_airfoils = yupper[:,0]*c 
