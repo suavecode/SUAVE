@@ -79,8 +79,7 @@ class Fidelity_One(Noise):
         settings.urban_canyon_microphone_locations   = None 
         settings.mic_x_position                      = 0    
         settings.microphone_array_dimension          = 20
-        settings.lateral_ground_distance             = 1000 * Units.feet
-        settings.ground_microphone_phi_angles        = np.linspace(315,225,settings.microphone_array_dimension)*Units.degrees - 1E-8
+        settings.lateral_ground_distance             = 1000 * Units.feet 
         settings.ground_microphone_theta_angles      = np.linspace(45,135,settings.microphone_array_dimension)*Units.degrees  + 1E-8
         settings.center_frequencies                  = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
                                                                  500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
@@ -122,14 +121,31 @@ class Fidelity_One(Noise):
         # unpack     
         dim_cf    = len(settings.center_frequencies ) 
         ctrl_pts  = segment.state.numerics.number_control_points
+         
+        GM_THETA,BM_THETA,GM_PHI,BM_PHI,GML,UCML,num_gm_mic,num_b_mic = compute_noise_evaluation_locations(settings,segment) 
         
-        THETA,PHI,mic_locations,num_mic = compute_noise_evaluation_locations(settings,segment)
-            
+        mic_locations  = np.concatenate((GML,UCML),axis = 1) 
+        THETA          = np.concatenate((GM_THETA,BM_THETA),axis = 1) 
+        PHI            = np.concatenate((GM_PHI,BM_PHI),axis = 1)  
+        
+        num_mic = num_b_mic + num_gm_mic  
+        
         # append microphone locations to conditions
-        conditions.noise.microphone_theta_angles = THETA
-        conditions.noise.microphone_phi_angles   = PHI
-        conditions.noise.microphone_locations    = mic_locations
-        conditions.noise.number_of_microphones   = num_mic
+        conditions.noise.ground_microphone_theta_angles   = GM_THETA
+        conditions.noise.building_microphone_theta_angles = BM_THETA
+        conditions.noise.total_microphone_theta_angles    = THETA
+        
+        conditions.noise.ground_microphone_phi_angles     = GM_PHI
+        conditions.noise.building_microphone_phi_angles   = BM_PHI
+        conditions.noise.total_microphone_phi_angles      = PHI
+        
+        conditions.noise.ground_microphone_locations      = GML
+        conditions.noise.building_microphone_locations    = UCML
+        conditions.noise.total_microphone_locations       = mic_locations
+        
+        conditions.noise.number_ground_microphones        = num_gm_mic
+        conditions.noise.number_building_microphones      = num_b_mic 
+        conditions.noise.total_number_of_microphones      = num_mic
          
         
         # create empty arrays for results  

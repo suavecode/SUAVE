@@ -1504,7 +1504,7 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
         frames.inertial.position_vector   - position vector of aircraft 
         noise.                            
             total_SPL_dBA                 - total SPL (dbA)
-            microphone_locations          - microphone locations
+            total_microphone_locations          - microphone locations
             
     Outputs: 
     Plots
@@ -1515,9 +1515,11 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
     # unpack 
     dim_seg      = len(results.segments)
     dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])
-    dim_mic      = int(np.sqrt(len(results.segments[0].conditions.noise.total_SPL_dBA[0,:])))    
-    center_line  = int(np.floor(dim_mic/2))
-    colors       = cm.jet(np.linspace(0, 1,dim_mic))  
+    dim_gm       = results.segments[0].conditions.noise.number_ground_microphones
+    gm_unit_dim  = int(np.sqrt(dim_gm))     
+    center_line  = int(np.floor(gm_unit_dim/2))
+    colors       = cm.jet(np.linspace(0, 1,gm_unit_dim))   
+    angles       = abs(270- results.segments[0].analyses.noise.settings.ground_microphone_theta_angles/Units.degrees)
     
     # figure parameters
     axis_font    = {'size':'14'} 
@@ -1530,12 +1532,9 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
         if  results.segments[i].battery_discharge == False:
             pass
         else: 
-            angles = abs(270- results.segments[i].conditions.noise.microphone_phi_angles/Units.degrees)
-            time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
-            alt    = results.segments[i].conditions.freestream.altitude[:,0] / Units.ft
-            SPL    = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
-            
-            for j in range(dim_mic):
+            time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min  
+            SPL    = results.segments[i].conditions.noise.total_SPL_dBA[:,:dim_gm].reshape(dim_ctrl_pts,gm_unit_dim,gm_unit_dim) 
+            for j in range(gm_unit_dim):
                 if i == 0:
                     axes1.plot(time, SPL[:,center_line,j], color = colors[j], label= r'$\phi$ = ' + str(round(angles[j],1)) + r' $\degree$' ) 
                 else:
@@ -1549,6 +1548,79 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
         
 
     return
+
+
+def plot_flight_profile_sideline_noise_contour(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour"):
+    """This plots the A-weighted Sound Pressure Level contour of the surface directly under an aircraft  
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    
+    Inputs: 
+    results.segments.conditions.
+        frames.inertial.position_vector   - position vector of aircraft 
+        noise.                            
+            total_SPL_dBA                 - total SPL (dbA)
+            total_microphone_locations          - microphone locations
+            
+    Outputs: 
+    Plots
+    
+    Properties Used:
+    N/A	
+    """   
+    
+    # unpack 
+    dim_seg        = len(results.segments)
+    dim_ctrl_pts   = len(results.segments[0].conditions.frames.inertial.time[:,0])
+    dim_gm         = results.segments[0].conditions.noise.number_ground_microphones
+    gm_unit_dim    = int(np.sqrt(dim_gm)) 
+    dim_mat        = dim_seg*dim_ctrl_pts 
+    SPL_contour_gm = np.zeros((dim_mat,gm_unit_dim)) 
+    Range          = np.zeros((dim_mat,gm_unit_dim)) 
+    Span           = np.zeros((dim_mat,gm_unit_dim))  
+    dim_segs       = len(results.segments) 
+    center_line    = int(np.floor(gm_unit_dim/2))
+    Aircraft_pos   = np.zeros((dim_mat,3)) 
+     
+    # figure parameters
+    fig          = plt.figure(save_filename)
+    axes         = fig.gca(projection='3d') 
+    fig.set_size_inches(12, 8) 
+    
+    # Get SPL at Ground Level (z = 0)
+    for i in range(dim_segs):  
+        if  results.segments[i].battery_discharge == False:
+            pass
+        else:    
+            for j in range(dim_ctrl_pts):  
+                idx                    = i*dim_ctrl_pts + j
+                Aircraft_pos[idx ,0]   = results.segments[i].conditions.frames.inertial.position_vector[j,0]
+                Aircraft_pos[idx ,2]   = -results.segments[i].conditions.frames.inertial.position_vector[j,2]
+                SPL_gm                 = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm].reshape(gm_unit_dim,gm_unit_dim)
+                SPL_contour_gm[idx,:]  = SPL_gm[center_line,:]
+                Range[idx,:]           = np.repeat(results.segments[i].conditions.frames.inertial.position_vector[j,0],gm_unit_dim, axis = 0)
+                MLs                    = results.segments[i].conditions.noise.total_microphone_locations[j,:dim_gm].reshape(gm_unit_dim,gm_unit_dim,3)
+                Span[idx,:]            = MLs[center_line,:,1] 
+    
+            
+    axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2],s=30, c='k'    , marker = 'o' )
+    CS = axes.contourf(Range,Span,SPL_contour_gm, levels = 50, zdir='z', offset= 0  , cmap=plt.cm.jet)  
+    axes.view_init(elev= 30, azim= -140)      
+      
+    cbar = fig.colorbar(CS, ax=axes, shrink=0.5)
+    cbar.ax.set_ylabel('SPL', rotation =  0, labelpad=20)  
+    plt.axis('off')	
+    plt.grid(None)        
+    
+    if save_figure:
+        plt.savefig(save_filename + ".png")   
+
+    return
+
 
 def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour"):
     """This plots the A-weighted Sound Pressure Level contour of the surface directly under an aircraft  
@@ -1564,7 +1636,7 @@ def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure =
         frames.inertial.position_vector   - position vector of aircraft 
         noise.                            
             total_SPL_dBA                 - total SPL (dbA)
-            microphone_locations          - microphone locations
+            total_microphone_locations          - microphone locations
             
     Outputs: 
     Plots
@@ -1572,60 +1644,8 @@ def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure =
     Properties Used:
     N/A	
     """   
-    # unpack 
-    dim_seg      = len(results.segments)
-    dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])
-    dim_mic      = int(np.sqrt(len(results.segments[0].conditions.noise.total_SPL_dBA[0,:])))
-    dim_mat      = dim_seg*dim_ctrl_pts 
-    SPL_contour  = np.zeros((dim_mat,dim_mic)) 
-    Range        = np.zeros((dim_mat,dim_mic)) 
-    Span         = np.zeros((dim_mat,dim_mic)) 
-    dim_segs     = len(results.segments) 
-    center_line  = int(np.floor(dim_mic/2))
-    Aircraft_pos = np.zeros((dim_mat,3)) 
-    
-    # figure parameters
-    fig          = plt.figure(save_filename)
-    axes         = fig.gca(projection='3d') 
-    fig.set_size_inches(12, 8) 
-    
-    # loop through control points
-    for i in range(dim_segs):  
-        if  results.segments[i].battery_discharge == False:
-            pass
-        else:    
-            for j in range(dim_ctrl_pts):
-                idx = i*dim_ctrl_pts + j
-                Aircraft_pos[idx ,0] = results.segments[i].conditions.frames.inertial.position_vector[j,0]
-                Aircraft_pos[idx ,2] = -results.segments[i].conditions.frames.inertial.position_vector[j,2]
-                SPL                  = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
-                SPL_contour[idx,:]   = SPL[j,center_line,:]
-                Range[idx,:]         = np.repeat(results.segments[i].conditions.frames.inertial.position_vector[j,0],dim_mic, axis = 0)
-                MLs                  = results.segments[i].conditions.noise.microphone_locations.reshape(dim_ctrl_pts,dim_mic,dim_mic,3)
-                Span[idx,:]          = MLs[j,center_line,:,1]
-            
-    axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2], c='k'    , marker = 'o' )
-    CS = axes.contourf(Range,Span,SPL_contour, levels = 50, zdir='z', offset= 0  , cmap=plt.cm.jet) 
-    CS = axes.contourf(Range,-Span,SPL_contour, levels = 50, zdir='z', offset= 0 , cmap=plt.cm.jet) 
-    axes.view_init(elev= 30, azim= -140)  
-    
-    #plot the lines
-    for i in range(dim_mat-1): 
-        xs = Aircraft_pos[i,0], Aircraft_pos[i+1,0]
-        ys = Aircraft_pos[i,1], Aircraft_pos[i+1,1]
-        zs = Aircraft_pos[i,2], Aircraft_pos[i+1,2]
-        line = plt3d.art3d.Line3D(xs, ys, zs, color = 'black', linewidth = 3)
-        axes.add_line(line)    
-      
-    cbar = fig.colorbar(CS, ax=axes, shrink=0.5)
-    cbar.ax.set_ylabel('SPL', rotation =  0, labelpad=20)  
-    plt.axis('off')	
-    plt.grid(None)        
-    
-    if save_figure:
-        plt.savefig(save_filename + ".png")   
 
-    return  
+    return 
 
 # ------------------------------------------------------------------
 #   Set Axis Parameters 
