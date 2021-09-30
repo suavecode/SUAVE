@@ -22,7 +22,9 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_certification_limits
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import compute_noise_evaluation_locations
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points         import generate_ground_microphone_points
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_evaluation_locations import compute_ground_noise_evaluation_locations
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_evaluation_locations import compute_building_noise_evaluation_locations
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity import propeller_mid_fidelity 
 
 # package imports
@@ -67,26 +69,34 @@ class Fidelity_One(Noise):
         """
         
         # Initialize quantities                   
-        settings                                     = self.settings
-        settings.harmonics                           = np.arange(1,30) 
-        settings.flyover                             = False    
-        settings.approach                            = False
-        settings.sideline                            = False
-        settings.print_noise_output                  = False 
-        settings.fix_lateral_microphone_distance     = True
-        settings.static_microphone_array             = False 
-        settings.topographical_microphone_locations  = None 
-        settings.urban_canyon_microphone_locations   = None 
-        settings.mic_x_position                      = 0    
-        settings.microphone_array_dimension          = 20
-        settings.lateral_ground_distance             = 1000 * Units.feet 
-        settings.ground_microphone_theta_angles      = np.linspace(45,135,settings.microphone_array_dimension)*Units.degrees  + 1E-8
-        settings.center_frequencies                  = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
-                                                                 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
-                                                                 4000, 5000, 6300, 8000, 10000])        
-        settings.lower_frequencies                   = np.array([14,18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,\
-                                                                 900,1120,1400,1800,2240,2800,3550,4500,5600,7100,9000 ])
-        settings.upper_frequencies                   = np.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
+        settings                                      = self.settings
+        settings.harmonics                            = np.arange(1,30) 
+        settings.flyover                              = False    
+        settings.approach                             = False
+        settings.sideline                             = False
+        settings.print_noise_output                   = False 
+        settings.fix_lateral_microphone_distance      = True
+        settings.static_microphone_array              = False  
+        settings.urban_canyon_microphone_locations    = None  
+        settings.urban_canyon_building_dimensions     = []
+        settings.urban_canyon_building_locations      = []  
+        settings.urban_canyon_microphone_x_resolution = 4 
+        settings.urban_canyon_microphone_y_resolution = 4 
+        settings.urban_canyon_microphone_z_resolution = 16 
+        settings.mic_x_position                       = 0     
+        settings.lateral_ground_distance              = 1000 * Units.feet  
+        settings.level_ground_microphone_min_x        = -50
+        settings.level_ground_microphone_max_x        = 1000
+        settings.level_ground_microphone_min_y        = -1000 * Units.feet 
+        settings.level_ground_microphone_max_y        = 1000 * Units.feet 
+        settings.level_ground_microphone_x_resolution = 16 
+        settings.level_ground_microphone_y_resolution = 4  
+        settings.center_frequencies                   = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
+                                                                  500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
+                                                                  4000, 5000, 6300, 8000, 10000])        
+        settings.lower_frequencies                    = np.array([14,18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,\
+                                                                  900,1120,1400,1800,2240,2800,3550,4500,5600,7100,9000 ])
+        settings.upper_frequencies                    = np.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
                                                                  1400,1800,2240,2800,3550,4500,5600,7100,9000,11200 ])
         
         return
@@ -116,13 +126,23 @@ class Fidelity_One(Noise):
         analyses      = segment.analyses
         settings      = self.settings 
         print_flag    = settings.print_noise_output  
-        conditions    = segment.state.conditions 
+        conditions    = segment.state.conditions  
+        dim_cf        = len(settings.center_frequencies ) 
+        ctrl_pts      = segment.state.numerics.number_control_points 
+        min_x         = settings.level_ground_microphone_min_x         
+        max_x         = settings.level_ground_microphone_max_x         
+        min_y         = settings.level_ground_microphone_min_y         
+        max_y         = settings.level_ground_microphone_max_y         
+        x_resolution  = settings.level_ground_microphone_x_resolution  
+        y_resolution  = settings.level_ground_microphone_y_resolution 
+            
         
-        # unpack     
-        dim_cf    = len(settings.center_frequencies ) 
-        ctrl_pts  = segment.state.numerics.number_control_points
-         
-        GM_THETA,BM_THETA,GM_PHI,BM_PHI,GML,UCML,num_gm_mic,num_b_mic = compute_noise_evaluation_locations(settings,segment) 
+        # generate noise valuation points
+        settings.ground_microphone_locations = generate_ground_microphone_points(min_x,max_x,min_y,max_y,x_resolution,y_resolution )     
+        
+        GM_THETA,GM_PHI,GML,num_gm_mic = compute_ground_noise_evaluation_locations(settings,segment)
+        
+        BM_THETA,BM_PHI,UCML,num_b_mic = compute_building_noise_evaluation_locations(settings,segment) 
         
         mic_locations  = np.concatenate((GML,UCML),axis = 1) 
         THETA          = np.concatenate((GM_THETA,BM_THETA),axis = 1) 

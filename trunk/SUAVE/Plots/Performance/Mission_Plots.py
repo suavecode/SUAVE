@@ -11,10 +11,11 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Units 
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import mpl_toolkits.mplot3d as plt3d
-import numpy as np
+import matplotlib.cm as cm 
+import numpy as np 
+import plotly.graph_objects as go  
 import matplotlib.ticker as ticker 
+
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
@@ -1489,7 +1490,7 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
 # ------------------------------------------------------------------
 #   Rotor/Propeller Acoustics
 # ------------------------------------------------------------------
-def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_filename = "Noise Level"):
+def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, save_filename = "Noise Level"):
     """This plots the A-weighted Sound Pressure Level as a function of time at various aximuthal angles 
     on the ground
     
@@ -1549,8 +1550,7 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
 
     return
 
-
-def plot_flight_profile_sideline_noise_contour(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour"):
+def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour"):
     """This plots the A-weighted Sound Pressure Level contour of the surface directly under an aircraft  
     
     Assumptions:
@@ -1564,7 +1564,7 @@ def plot_flight_profile_sideline_noise_contour(results, line_color = 'bo-', save
         frames.inertial.position_vector   - position vector of aircraft 
         noise.                            
             total_SPL_dBA                 - total SPL (dbA)
-            total_microphone_locations          - microphone locations
+            total_microphone_locations    - microphone locations
             
     Outputs: 
     Plots
@@ -1572,24 +1572,23 @@ def plot_flight_profile_sideline_noise_contour(results, line_color = 'bo-', save
     Properties Used:
     N/A	
     """   
-    
     # unpack 
     dim_seg        = len(results.segments)
     dim_ctrl_pts   = len(results.segments[0].conditions.frames.inertial.time[:,0])
     dim_gm         = results.segments[0].conditions.noise.number_ground_microphones
-    gm_unit_dim    = int(np.sqrt(dim_gm)) 
+    gm_N_x         = results.segments[0].analyses.noise.settings.level_ground_microphone_x_resolution
+    gm_N_y         = results.segments[0].analyses.noise.settings.level_ground_microphone_y_resolution
+    dim_bm         = results.segments[0].conditions.noise.number_building_microphones 
     dim_mat        = dim_seg*dim_ctrl_pts 
-    SPL_contour_gm = np.zeros((dim_mat,gm_unit_dim)) 
-    Range          = np.zeros((dim_mat,gm_unit_dim)) 
-    Span           = np.zeros((dim_mat,gm_unit_dim))  
-    dim_segs       = len(results.segments) 
-    center_line    = int(np.floor(gm_unit_dim/2))
+    SPL_contour_gm = np.zeros((dim_mat,dim_gm)) 
+    Range          = np.zeros((dim_mat,dim_gm)) 
+    Span           = np.zeros((dim_mat,dim_gm)) 
+    SPL_contour_bm = np.zeros((dim_mat,dim_bm)) 
+    dim_segs       = len(results.segments)  
     Aircraft_pos   = np.zeros((dim_mat,3)) 
-     
-    # figure parameters
-    fig          = plt.figure(save_filename)
-    axes         = fig.gca(projection='3d') 
-    fig.set_size_inches(12, 8) 
+    
+    # initialize plot data 
+    plot_data = []
     
     # Get SPL at Ground Level (z = 0)
     for i in range(dim_segs):  
@@ -1599,53 +1598,136 @@ def plot_flight_profile_sideline_noise_contour(results, line_color = 'bo-', save
             for j in range(dim_ctrl_pts):  
                 idx                    = i*dim_ctrl_pts + j
                 Aircraft_pos[idx ,0]   = results.segments[i].conditions.frames.inertial.position_vector[j,0]
-                Aircraft_pos[idx ,2]   = -results.segments[i].conditions.frames.inertial.position_vector[j,2]
-                SPL_gm                 = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm].reshape(gm_unit_dim,gm_unit_dim)
-                SPL_contour_gm[idx,:]  = SPL_gm[center_line,:]
-                Range[idx,:]           = np.repeat(results.segments[i].conditions.frames.inertial.position_vector[j,0],gm_unit_dim, axis = 0)
-                MLs                    = results.segments[i].conditions.noise.total_microphone_locations[j,:dim_gm].reshape(gm_unit_dim,gm_unit_dim,3)
-                Span[idx,:]            = MLs[center_line,:,1] 
+                Aircraft_pos[idx ,2]   = -results.segments[i].conditions.frames.inertial.position_vector[j,2] 
+                SPL_contour_gm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm]
+                
+                if dim_bm > 0:
+                    SPL_contour_bm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,-dim_bm:] 
     
+    # Level Ground Noise Contour
+    gm_mic_loc          = results.segments[0].analyses.noise.settings.ground_microphone_locations  
+    Range               = gm_mic_loc[:,0].reshape(gm_N_x,gm_N_y)
+    Span                = gm_mic_loc[:,1].reshape(gm_N_x,gm_N_y)
+    ground_surface      = np.zeros(Range.shape) 
+    max_SPL_contour_gm  = np.max(SPL_contour_gm,axis=0)
+    SPL_gm              = max_SPL_contour_gm.reshape(gm_N_x,gm_N_y)
+    ground_contour      = contour_surface_slice(Range,Span, ground_surface , SPL_gm)
+    plot_data.append(ground_contour)
+    
+    # Aircraft Trajectory
+    aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,0], y=Aircraft_pos[:,1], z=Aircraft_pos[:,2],
+                                mode='markers', 
+                                marker=dict(size=6,color='black',opacity=0.8),
+                                line=dict(color='black',width=2))    
+    plot_data.append(aircraft_trajectory)
+    
+    # Define Colorbar Bounds
+    min_SPL  = 60
+    max_SPL  = np.max(SPL_contour_bm) 
+    min_alt  = 0
+    max_alt  = 100 # np.max(Aircraft_pos) 
+    
+    # Adjust Plot Camera 
+    camera = dict(up=dict(x=0, y=0, z=1),
+                 center=dict(x=0, y=0, z=0),
+                 eye=dict(x=-1., y=-1., z=.25))     
+
+    # Get SPL aon Building Surfaces
+    max_SPL_contour_bm       = np.max(SPL_contour_bm,axis=0)
+    bldg_mic_loc             = results.segments[0].analyses.noise.settings.urban_canyon_microphone_locations 
+    building_dimensions      = results.segments[0].analyses.noise.settings.urban_canyon_building_dimensions
+    building_loc             = results.segments[0].analyses.noise.settings.urban_canyon_building_locations 
+    num_buildings            = len( building_loc)
+    N_x                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_x_resolution   
+    N_y                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_y_resolution  
+    N_z                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_z_resolution   
+    num_mics_on_xz_surface   = N_x*N_z  
+    num_mics_on_yz_surface   = N_y*N_z 
+    num_mics_on_xy_surface   = N_x*N_y 
+    num_mics_per_building    = 2*(num_mics_on_xz_surface + num_mics_on_yz_surface) +  num_mics_on_xy_surface 
+    
+    # get surfaces of buildings 
+    for bldg_idx in range(num_buildings): 
+            # front (y-z plane)
+            side_1_start = bldg_idx*num_mics_per_building 
+            side_1_end   = bldg_idx*num_mics_per_building + num_mics_on_yz_surface
+            surf_1_x     = np.ones((N_y,N_z))*(building_loc[bldg_idx][0] - building_dimensions[bldg_idx][0]/2)
+            surf_1_y     = bldg_mic_loc[side_1_start:side_1_end,1].reshape(N_y,N_z)
+            surf_1_z     = bldg_mic_loc[side_1_start:side_1_end,2].reshape(N_y,N_z)
+            SPL_vals_1   = max_SPL_contour_bm[side_1_start:side_1_end].reshape(N_y,N_z)
+            bldg_surf_1  = contour_surface_slice(surf_1_x ,surf_1_y ,surf_1_z ,SPL_vals_1)
+            plot_data.append(bldg_surf_1)    
+
+            # right (x-z plane)
+            side_2_start = side_1_end
+            side_2_end   = side_2_start + num_mics_on_xz_surface
+            surf_2_x     = bldg_mic_loc[side_2_start:side_2_end,0].reshape(N_x,N_z)    
+            surf_2_y     = np.ones((N_x,N_z))*building_loc[bldg_idx][1] + building_dimensions[bldg_idx][1]/2
+            surf_2_z     = bldg_mic_loc[side_2_start:side_2_end,2].reshape(N_x,N_z)
+            SPL_vals_2   = max_SPL_contour_bm[side_2_start:side_2_end].reshape(N_x,N_z)
+            bldg_surf_2  = contour_surface_slice(surf_2_x ,surf_2_y ,surf_2_z ,SPL_vals_2)
+            plot_data.append(bldg_surf_2)     
             
-    axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2],s=30, c='k'    , marker = 'o' )
-    CS = axes.contourf(Range,Span,SPL_contour_gm, levels = 50, zdir='z', offset= 0  , cmap=plt.cm.jet)  
-    axes.view_init(elev= 30, azim= -140)      
-      
-    cbar = fig.colorbar(CS, ax=axes, shrink=0.5)
-    cbar.ax.set_ylabel('SPL', rotation =  0, labelpad=20)  
-    plt.axis('off')	
-    plt.grid(None)        
-    
-    if save_figure:
-        plt.savefig(save_filename + ".png")   
-
-    return
-
-
-def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour"):
-    """This plots the A-weighted Sound Pressure Level contour of the surface directly under an aircraft  
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    
-    Inputs: 
-    results.segments.conditions.
-        frames.inertial.position_vector   - position vector of aircraft 
-        noise.                            
-            total_SPL_dBA                 - total SPL (dbA)
-            total_microphone_locations          - microphone locations
+            # back (y-z plane)
+            side_3_start = side_2_end
+            side_3_end   = side_3_start + num_mics_on_yz_surface
+            surf_3_x     = np.ones((N_y,N_z))*(building_loc[bldg_idx][0] + building_dimensions[bldg_idx][0]/2)
+            surf_3_y     = bldg_mic_loc[side_3_start:side_3_end,1].reshape(N_y,N_z)
+            surf_3_z     = bldg_mic_loc[side_3_start:side_3_end,2].reshape(N_y,N_z)
+            SPL_vals_3   = max_SPL_contour_bm[side_3_start:side_3_end].reshape(N_y,N_z)
+            bldg_surf_3  = contour_surface_slice(surf_3_x ,surf_3_y ,surf_3_z ,SPL_vals_3)
+            plot_data.append(bldg_surf_3)                          
             
-    Outputs: 
-    Plots
+            # left (x-z plane)
+            side_4_start = side_3_end
+            side_4_end   = side_4_start +  num_mics_on_xz_surface 
+            surf_4_x     = bldg_mic_loc[side_4_start:side_4_end,0].reshape(N_x,N_z)
+            surf_4_y     = np.ones((N_x,N_z))*(building_loc[bldg_idx][1] - building_dimensions[bldg_idx][1]/2)
+            surf_4_z     = bldg_mic_loc[side_4_start:side_4_end,2].reshape(N_x,N_z)
+            SPL_vals_4   = max_SPL_contour_bm[side_4_start:side_4_end].reshape(N_x,N_z)
+            bldg_surf_4  = contour_surface_slice(surf_4_x ,surf_4_y ,surf_4_z ,SPL_vals_4)
+            plot_data.append(bldg_surf_4) 
+            
+            # top (x-y plane)
+            side_5_start = side_4_end 
+            side_5_end   = (bldg_idx+1)*num_mics_per_building   
+            surf_5_x     = bldg_mic_loc[side_5_start:side_5_end,0].reshape(N_x,N_y)
+            surf_5_y     = bldg_mic_loc[side_5_start:side_5_end,1].reshape(N_x,N_y)
+            surf_5_z     = np.ones((N_x,N_y))*(building_dimensions[bldg_idx][2])
+            SPL_vals_5   = max_SPL_contour_bm[side_5_start:side_5_end].reshape(N_x,N_y)
+            bldg_surf_5  = contour_surface_slice(surf_5_x ,surf_5_y ,surf_5_z ,SPL_vals_5)
+            plot_data.append(bldg_surf_5)         
     
-    Properties Used:
-    N/A	
-    """   
+    fig = go.Figure(data=plot_data)
+    fig.update_layout(
+             title_text='Aircraft Noise Contour', 
+             title_x=0.5,
+             width =1500,
+             height=1500,
+             font_family = "Times New Roman",
+             font_size=18,
+             scene_zaxis_range=[min_alt,max_alt], 
+             coloraxis=dict(colorscale='Jet',
+                            colorbar_thickness=50,
+                            colorbar_nticks=20,
+                            colorbar_title_text = 'SPL (dBA)',
+                            colorbar_tickfont_size=18,
+                            colorbar_title_side="right",
+                            colorbar_ypad=60,
+                            colorbar_len= 0.75,
+                            **colorax(min_SPL, max_SPL)),
+             scene_camera=camera)
+                                     
+    fig.show() 
+    return  
 
-    return 
+
+def contour_surface_slice(x,y,z,values):
+    return go.Surface(x=x,y=y,z=z,surfacecolor=values,coloraxis='coloraxis')
+
+def colorax(vmin, vmax):
+    return dict(cmin=vmin,
+                cmax=vmax)
 
 # ------------------------------------------------------------------
 #   Set Axis Parameters 

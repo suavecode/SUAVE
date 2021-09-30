@@ -10,7 +10,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import *  
+from SUAVE.Plots.Performance import *  
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -22,7 +22,7 @@ import copy, time
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle 
+from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle 
 import sys
 
 sys.path.append('../Vehicles')

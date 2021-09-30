@@ -12,7 +12,7 @@
 import SUAVE
 from SUAVE.Core import Units 
 import numpy as np
-from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Performance import *
 from SUAVE.Core import Data
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty 
 from SUAVE.Methods.Power.Battery.Sizing         import initialize_from_mass

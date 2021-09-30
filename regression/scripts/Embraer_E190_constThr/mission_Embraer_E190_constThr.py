@@ -15,7 +15,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import *  
+from SUAVE.Plots.Performance import *  
 import matplotlib.pyplot as plt  
 import numpy as np  
 

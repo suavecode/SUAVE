@@ -13,7 +13,7 @@ import SUAVE
 from SUAVE.Core import Units 
 import numpy as np    
 from SUAVE.Core import Data 
-from SUAVE.Plots.Mission_Plots import *   
+from SUAVE.Plots.Performance import *   
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Noise.Certification import sideline_noise, flyover_noise, approach_noise
 
@@ -616,10 +616,10 @@ def B737_missions_setup(base_mission,analyses):
 def plot_results(results,filename):   
     
     # Plot noise level
-    plot_noise_level(results,save_filename = filename)
+    plot_ground_noise_levels(results,save_filename = filename)
     
     # Plot noise contour
-    plot_flight_profile_noise_contour(results,save_filename = filename + 'contour') 
+    plot_flight_profile_noise_contours(results,save_filename = filename + 'contour') 
                         
     return  
 

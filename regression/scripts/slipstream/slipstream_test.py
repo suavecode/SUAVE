@@ -16,9 +16,9 @@ import numpy as np
 import pylab as plt
 import sys
 
-from SUAVE.Plots.Mission_Plots import *  
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
-from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
+from SUAVE.Plots.Performance import *  
+from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle  
+from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 
 sys.path.append('../Vehicles') 
 from X57_Maxwell_Mod2 import vehicle_setup, configs_setup 
