@@ -142,7 +142,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
                   current                                                  [Amps]
                   battery_voltage_open_circuit                             [Volts]
                   battery_thevenin_voltage                                 [Volts]
-                  charge_throughput                                        [Amp-hrs]
+                  cell_charge_throughput                                   [Amp-hrs]
                   internal_resistance                                      [Ohms]
                   battery_state_of_charge                                  [unitless]
                   depth_of_discharge                                       [unitless]
@@ -163,7 +163,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         E_max                    = battery.max_energy
         R_growth_factor          = battery.R_growth_factor 
         E_current                = battery.current_energy 
-        Q_prior                  = battery.charge_throughput  
+        Q_prior                  = battery.cell_charge_throughput  
         battery_data             = battery.discharge_performance_map  
         I                        = numerics.time.integrate  
               
@@ -282,8 +282,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         battery.cell_voltage_open_circuit          = V_oc
         battery.cell_current                       = I_cell
         battery.thevenin_voltage                   = V_Th*n_series
-        battery.charge_throughput                  = Q_total*n_parallel  
-        battery.cell_charge_throughput             = Q_total
+        battery.cell_charge_throughput             = Q_total   
         battery.heat_energy_generated              = Q_heat_gen*n_total_module    
         battery.internal_resistance                = R_0*n_series
         battery.state_of_charge                    = SOC_new
@@ -471,7 +470,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         SOC        = segment.conditions.propulsion.battery_state_of_charge
         V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
         t          = segment.conditions.propulsion.battery_cycle_day         
-        Q_prior    = segment.conditions.propulsion.battery_charge_throughput[-1,0] 
+        Q_prior    = segment.conditions.propulsion.battery_cell_charge_throughput[-1,0] 
         Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) 
         
         # aging model  

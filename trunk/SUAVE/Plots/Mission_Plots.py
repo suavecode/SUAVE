@@ -373,7 +373,7 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 #   Electronic Conditions
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'bs--', save_figure = False, save_filename = "Battery_Pack_Conditions", file_type = ".png"):
+def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Pack_Conditions", file_type = ".png"):
     """This plots the battery pack conditions of the network
 
     Assumptions:
@@ -411,7 +411,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'bs-
         pack_current        = results.segments[i].conditions.propulsion.battery_current[:,0]   
         pack_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
         pack_temp           = results.segments[i].conditions.propulsion.battery_pack_temperature[:,0]      
-        pack_charge         = results.segments[i].conditions.propulsion.battery_charge_throughput[:,0]
+        pack_current         = results.segments[i].conditions.propulsion.battery_current[:,0]
         
         pack_battery_amp_hr = (pack_energy/ Units.Wh )/pack_volts  
         pack_C_rating       = pack_current/pack_battery_amp_hr
@@ -428,7 +428,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'bs-
     
         axes = plt.subplot(2,3,3)
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Voltage (Volts)',axis_font) 
+        axes.set_ylabel('Voltage (V)',axis_font) 
         set_axes(axes) 
         if i == 0:
             axes.plot(time, pack_volts, line_color,label='Under Load')
@@ -451,9 +451,9 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'bs-
         set_axes(axes) 
          
         axes = plt.subplot(2,3,6)
-        axes.plot(time, pack_charge, line_color)
+        axes.plot(time, pack_current, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Charge Throughput(Ah)',axis_font)  
+        axes.set_ylabel('Current (A)',axis_font)  
         set_axes(axes) 
         
  
@@ -466,7 +466,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'bs-
 #   Electronic Conditions
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'bs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png"):
+def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png"):
     """This plots the battery pack conditions of the network
 
     Assumptions:
@@ -522,6 +522,7 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'bs--
     
         axes = plt.subplot(2,3,3) 
         axes.set_xlabel('Time (mins)',axis_font) 
+        axes.set_ylabel('Voltage (V)',axis_font)
         set_axes(axes)  
         if i == 0:
             axes.plot(time, cell_volts, line_color,label='Under Load')
