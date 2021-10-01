@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units , Data
-from SUAVE.Plots.Performance import *
+from SUAVE.Plots.Performance.Mission_Plots import *
 from SUAVE.Plots.Geometry import *
 import sys
 import numpy as np

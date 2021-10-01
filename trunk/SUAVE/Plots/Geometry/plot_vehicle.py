@@ -1,4 +1,4 @@
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 # plot_vehicle.py
 #
 # Created:  Mar 2020, M. Clarke
@@ -19,7 +19,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distri
 from SUAVE.Components.Energy.Networks import Lift_Cruise
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,
                  save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics

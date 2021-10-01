@@ -9,7 +9,7 @@
 # Imports
 #------------------------------
 
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import generate_fuselage_points
+from SUAVE.Plots.Geometry.plot_vehicle import generate_fuselage_points
 from SUAVE.Input_Output.VTK.write_azimuthal_cell_values import write_azimuthal_cell_values
 import numpy as np
 

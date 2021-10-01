@@ -28,3 +28,5 @@ from .Airfoil_Plots       import plot_airfoil_analysis_surface_forces
 from .Airfoil_Plots       import plot_airfoil_polar_files
 
 from .Propeller_Plots     import plot_propeller_performance  
+from .Propeller_Plots     import plot_propeller_disc_performance
+from .Propeller_Plots     import plot_propeller_disc_inflow

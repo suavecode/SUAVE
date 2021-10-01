@@ -1490,7 +1490,7 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
 # ------------------------------------------------------------------
 #   Rotor/Propeller Acoustics
 # ------------------------------------------------------------------
-def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, save_filename = "Noise Level"):
+def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, save_filename = "Sideline Noise Levels"):
     """This plots the A-weighted Sound Pressure Level as a function of time at various aximuthal angles 
     on the ground
     
@@ -1514,36 +1514,37 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     N/A	
     """        
     # unpack 
-    dim_seg      = len(results.segments)
-    dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])
+    dim_segs     = len(results.segments)
     dim_gm       = results.segments[0].conditions.noise.number_ground_microphones
-    gm_unit_dim  = int(np.sqrt(dim_gm))     
-    center_line  = int(np.floor(gm_unit_dim/2))
-    colors       = cm.jet(np.linspace(0, 1,gm_unit_dim))   
-    angles       = abs(270- results.segments[0].analyses.noise.settings.ground_microphone_theta_angles/Units.degrees)
+    dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])  
+    N_gm_x       = results.segments[0].analyses.noise.settings.level_ground_microphone_x_resolution  
+    N_gm_y       = results.segments[0].analyses.noise.settings.level_ground_microphone_y_resolution 
+    gm           = results.segments[0].conditions.noise.ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3)
+    gm_x         = gm[:,:,0]
+    gm_y         = gm[:,:,1]
+    colors       = cm.jet(np.linspace(0, 1,int(N_gm_y/2)))   
     
     # figure parameters
     axis_font    = {'size':'14'} 
     fig          = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
-    axes1        = fig.add_subplot(1,1,1)
+    axes        = fig.add_subplot(1,1,1) 
     
-    # loop through control points
-    for i in range(dim_seg): 
-        if  results.segments[i].battery_discharge == False:
-            pass
-        else: 
-            time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min  
-            SPL    = results.segments[i].conditions.noise.total_SPL_dBA[:,:dim_gm].reshape(dim_ctrl_pts,gm_unit_dim,gm_unit_dim) 
-            for j in range(gm_unit_dim):
-                if i == 0:
-                    axes1.plot(time, SPL[:,center_line,j], color = colors[j], label= r'$\phi$ = ' + str(round(angles[j],1)) + r' $\degree$' ) 
-                else:
-                    axes1.plot(time, SPL[:,center_line,j], color = colors[j])  
-            axes1.set_ylabel('SPL (dBA)',axis_font)
-            axes1.set_xlabel('Time (min)',axis_font) 
-    
-    axes1.legend(loc='upper right')        
+    SPL = np.zeros((dim_segs,dim_ctrl_pts,N_gm_x,N_gm_y))
+    # loop through control points 
+    for i in range(dim_segs):  
+        for j in range(dim_ctrl_pts):
+            if results.segments[i].battery_discharge == False:
+                pass 
+            else:
+                SPL[i,j,:] = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm].reshape(N_gm_x,N_gm_y)  
+    max_SPL = np.max(np.max(SPL,axis=0),axis=0)   
+    for k in range(int(N_gm_y/2)):    
+        axes.plot(-gm_x[:,0], max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
+    axes.set_ylabel('SPL (dBA)',axis_font)
+    axes.set_xlabel('Range (m)',axis_font)  
+    set_axes(axes)
+    axes.legend(loc='upper right')        
     if save_figure:
         plt.savefig(save_filename + ".png")  
         
@@ -1620,83 +1621,93 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
                                 marker=dict(size=6,color='black',opacity=0.8),
                                 line=dict(color='black',width=2))    
     plot_data.append(aircraft_trajectory)
-    
-    # Define Colorbar Bounds
-    min_SPL  = 60
-    max_SPL  = np.max(SPL_contour_bm) 
-    min_alt  = 0
-    max_alt  = 100 # np.max(Aircraft_pos) 
+     
+    # Define Colorbar Bounds 
+    min_gm_SPL  = np.min(SPL_contour_gm) 
+    max_gm_SPL  = np.max(SPL_contour_gm)
+    min_SPL     = min_gm_SPL 
+    max_SPL     = max_gm_SPL
+    min_alt     = 0
+    max_alt     = np.max(Aircraft_pos[:,2])
     
     # Adjust Plot Camera 
     camera = dict(up=dict(x=0, y=0, z=1),
                  center=dict(x=0, y=0, z=0),
                  eye=dict(x=-1., y=-1., z=.25))     
-
-    # Get SPL aon Building Surfaces
-    max_SPL_contour_bm       = np.max(SPL_contour_bm,axis=0)
-    bldg_mic_loc             = results.segments[0].analyses.noise.settings.urban_canyon_microphone_locations 
-    building_dimensions      = results.segments[0].analyses.noise.settings.urban_canyon_building_dimensions
-    building_loc             = results.segments[0].analyses.noise.settings.urban_canyon_building_locations 
-    num_buildings            = len( building_loc)
-    N_x                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_x_resolution   
-    N_y                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_y_resolution  
-    N_z                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_z_resolution   
-    num_mics_on_xz_surface   = N_x*N_z  
-    num_mics_on_yz_surface   = N_y*N_z 
-    num_mics_on_xy_surface   = N_x*N_y 
-    num_mics_per_building    = 2*(num_mics_on_xz_surface + num_mics_on_yz_surface) +  num_mics_on_xy_surface 
     
-    # get surfaces of buildings 
-    for bldg_idx in range(num_buildings): 
-            # front (y-z plane)
-            side_1_start = bldg_idx*num_mics_per_building 
-            side_1_end   = bldg_idx*num_mics_per_building + num_mics_on_yz_surface
-            surf_1_x     = np.ones((N_y,N_z))*(building_loc[bldg_idx][0] - building_dimensions[bldg_idx][0]/2)
-            surf_1_y     = bldg_mic_loc[side_1_start:side_1_end,1].reshape(N_y,N_z)
-            surf_1_z     = bldg_mic_loc[side_1_start:side_1_end,2].reshape(N_y,N_z)
-            SPL_vals_1   = max_SPL_contour_bm[side_1_start:side_1_end].reshape(N_y,N_z)
-            bldg_surf_1  = contour_surface_slice(surf_1_x ,surf_1_y ,surf_1_z ,SPL_vals_1)
-            plot_data.append(bldg_surf_1)    
-
-            # right (x-z plane)
-            side_2_start = side_1_end
-            side_2_end   = side_2_start + num_mics_on_xz_surface
-            surf_2_x     = bldg_mic_loc[side_2_start:side_2_end,0].reshape(N_x,N_z)    
-            surf_2_y     = np.ones((N_x,N_z))*building_loc[bldg_idx][1] + building_dimensions[bldg_idx][1]/2
-            surf_2_z     = bldg_mic_loc[side_2_start:side_2_end,2].reshape(N_x,N_z)
-            SPL_vals_2   = max_SPL_contour_bm[side_2_start:side_2_end].reshape(N_x,N_z)
-            bldg_surf_2  = contour_surface_slice(surf_2_x ,surf_2_y ,surf_2_z ,SPL_vals_2)
-            plot_data.append(bldg_surf_2)     
-            
-            # back (y-z plane)
-            side_3_start = side_2_end
-            side_3_end   = side_3_start + num_mics_on_yz_surface
-            surf_3_x     = np.ones((N_y,N_z))*(building_loc[bldg_idx][0] + building_dimensions[bldg_idx][0]/2)
-            surf_3_y     = bldg_mic_loc[side_3_start:side_3_end,1].reshape(N_y,N_z)
-            surf_3_z     = bldg_mic_loc[side_3_start:side_3_end,2].reshape(N_y,N_z)
-            SPL_vals_3   = max_SPL_contour_bm[side_3_start:side_3_end].reshape(N_y,N_z)
-            bldg_surf_3  = contour_surface_slice(surf_3_x ,surf_3_y ,surf_3_z ,SPL_vals_3)
-            plot_data.append(bldg_surf_3)                          
-            
-            # left (x-z plane)
-            side_4_start = side_3_end
-            side_4_end   = side_4_start +  num_mics_on_xz_surface 
-            surf_4_x     = bldg_mic_loc[side_4_start:side_4_end,0].reshape(N_x,N_z)
-            surf_4_y     = np.ones((N_x,N_z))*(building_loc[bldg_idx][1] - building_dimensions[bldg_idx][1]/2)
-            surf_4_z     = bldg_mic_loc[side_4_start:side_4_end,2].reshape(N_x,N_z)
-            SPL_vals_4   = max_SPL_contour_bm[side_4_start:side_4_end].reshape(N_x,N_z)
-            bldg_surf_4  = contour_surface_slice(surf_4_x ,surf_4_y ,surf_4_z ,SPL_vals_4)
-            plot_data.append(bldg_surf_4) 
-            
-            # top (x-y plane)
-            side_5_start = side_4_end 
-            side_5_end   = (bldg_idx+1)*num_mics_per_building   
-            surf_5_x     = bldg_mic_loc[side_5_start:side_5_end,0].reshape(N_x,N_y)
-            surf_5_y     = bldg_mic_loc[side_5_start:side_5_end,1].reshape(N_x,N_y)
-            surf_5_z     = np.ones((N_x,N_y))*(building_dimensions[bldg_idx][2])
-            SPL_vals_5   = max_SPL_contour_bm[side_5_start:side_5_end].reshape(N_x,N_y)
-            bldg_surf_5  = contour_surface_slice(surf_5_x ,surf_5_y ,surf_5_z ,SPL_vals_5)
-            plot_data.append(bldg_surf_5)         
+    building_loc             = results.segments[0].analyses.noise.settings.urban_canyon_building_locations
+    num_buildings            = len( building_loc)
+    
+    if num_buildings >0:   
+        max_alt     = np.maximum(max_alt, max((np.array(building_loc))[:,2]))
+        min_bm_SPL  = np.min(SPL_contour_bm) 
+        max_bm_SPL  = np.max(SPL_contour_bm)   
+        min_SPL     = np.minimum(min_bm_SPL,min_SPL)
+        max_SPL     = np.maximum(max_bm_SPL,max_SPL)
+        
+        # Get SPL aon Building Surfaces
+        max_SPL_contour_bm       = np.max(SPL_contour_bm,axis=0)
+        building_dimensions      = results.segments[0].analyses.noise.settings.urban_canyon_building_dimensions
+        N_x                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_x_resolution 
+        bldg_mic_loc             = results.segments[0].analyses.noise.settings.urban_canyon_microphone_locations   
+        N_y                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_y_resolution  
+        N_z                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_z_resolution   
+        num_mics_on_xz_surface   = N_x*N_z  
+        num_mics_on_yz_surface   = N_y*N_z 
+        num_mics_on_xy_surface   = N_x*N_y 
+        num_mics_per_building    = 2*(num_mics_on_xz_surface + num_mics_on_yz_surface) +  num_mics_on_xy_surface 
+        
+        # get surfaces of buildings 
+        for bldg_idx in range(num_buildings): 
+                # front (y-z plane)
+                side_1_start = bldg_idx*num_mics_per_building 
+                side_1_end   = bldg_idx*num_mics_per_building + num_mics_on_yz_surface
+                surf_1_x     = np.ones((N_y,N_z))*(building_loc[bldg_idx][0] - building_dimensions[bldg_idx][0]/2)
+                surf_1_y     = bldg_mic_loc[side_1_start:side_1_end,1].reshape(N_y,N_z)
+                surf_1_z     = bldg_mic_loc[side_1_start:side_1_end,2].reshape(N_y,N_z)
+                SPL_vals_1   = max_SPL_contour_bm[side_1_start:side_1_end].reshape(N_y,N_z)
+                bldg_surf_1  = contour_surface_slice(surf_1_x ,surf_1_y ,surf_1_z ,SPL_vals_1)
+                plot_data.append(bldg_surf_1)    
+    
+                # right (x-z plane)
+                side_2_start = side_1_end
+                side_2_end   = side_2_start + num_mics_on_xz_surface
+                surf_2_x     = bldg_mic_loc[side_2_start:side_2_end,0].reshape(N_x,N_z)    
+                surf_2_y     = np.ones((N_x,N_z))*building_loc[bldg_idx][1] + building_dimensions[bldg_idx][1]/2
+                surf_2_z     = bldg_mic_loc[side_2_start:side_2_end,2].reshape(N_x,N_z)
+                SPL_vals_2   = max_SPL_contour_bm[side_2_start:side_2_end].reshape(N_x,N_z)
+                bldg_surf_2  = contour_surface_slice(surf_2_x ,surf_2_y ,surf_2_z ,SPL_vals_2)
+                plot_data.append(bldg_surf_2)     
+                
+                # back (y-z plane)
+                side_3_start = side_2_end
+                side_3_end   = side_3_start + num_mics_on_yz_surface
+                surf_3_x     = np.ones((N_y,N_z))*(building_loc[bldg_idx][0] + building_dimensions[bldg_idx][0]/2)
+                surf_3_y     = bldg_mic_loc[side_3_start:side_3_end,1].reshape(N_y,N_z)
+                surf_3_z     = bldg_mic_loc[side_3_start:side_3_end,2].reshape(N_y,N_z)
+                SPL_vals_3   = max_SPL_contour_bm[side_3_start:side_3_end].reshape(N_y,N_z)
+                bldg_surf_3  = contour_surface_slice(surf_3_x ,surf_3_y ,surf_3_z ,SPL_vals_3)
+                plot_data.append(bldg_surf_3)                          
+                
+                # left (x-z plane)
+                side_4_start = side_3_end
+                side_4_end   = side_4_start +  num_mics_on_xz_surface 
+                surf_4_x     = bldg_mic_loc[side_4_start:side_4_end,0].reshape(N_x,N_z)
+                surf_4_y     = np.ones((N_x,N_z))*(building_loc[bldg_idx][1] - building_dimensions[bldg_idx][1]/2)
+                surf_4_z     = bldg_mic_loc[side_4_start:side_4_end,2].reshape(N_x,N_z)
+                SPL_vals_4   = max_SPL_contour_bm[side_4_start:side_4_end].reshape(N_x,N_z)
+                bldg_surf_4  = contour_surface_slice(surf_4_x ,surf_4_y ,surf_4_z ,SPL_vals_4)
+                plot_data.append(bldg_surf_4) 
+                
+                # top (x-y plane)
+                side_5_start = side_4_end 
+                side_5_end   = (bldg_idx+1)*num_mics_per_building   
+                surf_5_x     = bldg_mic_loc[side_5_start:side_5_end,0].reshape(N_x,N_y)
+                surf_5_y     = bldg_mic_loc[side_5_start:side_5_end,1].reshape(N_x,N_y)
+                surf_5_z     = np.ones((N_x,N_y))*(building_dimensions[bldg_idx][2])
+                SPL_vals_5   = max_SPL_contour_bm[side_5_start:side_5_end].reshape(N_x,N_y)
+                bldg_surf_5  = contour_surface_slice(surf_5_x ,surf_5_y ,surf_5_z ,SPL_vals_5)
+                plot_data.append(bldg_surf_5)         
     
     fig = go.Figure(data=plot_data)
     fig.update_layout(

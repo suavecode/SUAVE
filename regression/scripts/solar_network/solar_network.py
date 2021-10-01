@@ -10,7 +10,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Performance import *  
+from SUAVE.Plots.Performance.Mission_Plots import *  
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,

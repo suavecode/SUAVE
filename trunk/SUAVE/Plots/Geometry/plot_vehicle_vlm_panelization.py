@@ -1,4 +1,4 @@
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 # plot_vehicle_vlm_panelization.py
 # 
 # Created:  Mar 2020, M. Clarke
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
 
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 def plot_vehicle_vlm_panelization(vehicle, save_figure = False, plot_control_points = True, save_filename = "VLM_Panelization"):     
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
     Routine is initialized

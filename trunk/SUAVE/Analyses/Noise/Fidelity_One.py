@@ -128,7 +128,7 @@ class Fidelity_One(Noise):
         print_flag    = settings.print_noise_output  
         conditions    = segment.state.conditions  
         dim_cf        = len(settings.center_frequencies ) 
-        ctrl_pts      = segment.state.numerics.number_control_points 
+        ctrl_pts      = int(segment.state.numerics.number_control_points)
         min_x         = settings.level_ground_microphone_min_x         
         max_x         = settings.level_ground_microphone_max_x         
         min_y         = settings.level_ground_microphone_min_y         

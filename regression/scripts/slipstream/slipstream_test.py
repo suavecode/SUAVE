@@ -16,7 +16,7 @@ import numpy as np
 import pylab as plt
 import sys
 
-from SUAVE.Plots.Performance import *  
+from SUAVE.Plots.Performance.Mission_Plots import *  
 from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle  
 from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 
