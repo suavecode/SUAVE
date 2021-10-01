@@ -141,16 +141,16 @@ class Lift_Cruise(Network):
         # SETUP BATTERIES AND ESC's
         #-----------------------------------------------------------------
         # Set battery energy
-        battery.current_energy      = conditions.propulsion.battery_energy
-        battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
-        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
-        battery.age                 = conditions.propulsion.battery_cycle_day         
-        battery_discharge_flag      = conditions.propulsion.battery_discharge_flag    
-        battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
-        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
-        battery.max_energy          = conditions.propulsion.battery_max_aged_energy 
-        n_series                    = battery.pack_config.series  
-        n_parallel                  = battery.pack_config.parallel
+        battery.current_energy           = conditions.propulsion.battery_energy
+        battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
+        battery.cell_charge_throughput   = conditions.propulsion.battery_cell_charge_throughput     
+        battery.age                      = conditions.propulsion.battery_cycle_day         
+        battery_discharge_flag           = conditions.propulsion.battery_discharge_flag    
+        battery.R_growth_factor          = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor          = conditions.propulsion.battery_capacity_fade_factor 
+        battery.max_energy               = conditions.propulsion.battery_max_aged_energy 
+        n_series                         = battery.pack_config.series  
+        n_parallel                       = battery.pack_config.parallel
         
         # update ambient temperature based on altitude
         battery.ambient_temperature                   = conditions.freestream.temperature   

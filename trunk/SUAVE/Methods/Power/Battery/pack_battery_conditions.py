@@ -24,7 +24,7 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
                voltage_under_load              [Volts] 
                inputs.power_in                 [Watts]
                max_energy                      [Joules]
-               charge_throughput               [Ampere-hours]
+               cell_charge_throughput          [Ampere-hours]
                age                             [days]
                internal_resistance             [Ohms]
                state_of_charge                 [unitless]
@@ -34,8 +34,7 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
                cell_voltage_under_load         [Volts]  
                cell_voltage_open_circuit       [Volts]  
                cell_current                    [Amperes]
-               cell_temperature                [Kelvin]
-               cell_charge_throughput          [Ampere-hours]
+               cell_temperature                [Kelvin] 
                heat_energy_generated           [Joules]
                cell_joule_heat_fraction        [unitless]  
                cell_entropy_heat_fraction      [unitless] 
@@ -47,8 +46,7 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
                battery_voltage_open_circuit       [Volts]     
                battery_voltage_under_load         [Volts]      
                battery_power_draw                 [Watts]     
-               battery_max_aged_energy            [Joules]     
-               battery_charge_throughput          [Ampere-Hours]     
+               battery_max_aged_energy            [Joules]        
                battery_cycle_day                  [days]     
                battery_internal_resistance        [Ohms]
                battery_state_of_charge            [unitless]
@@ -82,8 +80,7 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
     conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
     conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load 
     conditions.propulsion.battery_power_draw                   = battery_power_draw 
-    conditions.propulsion.battery_max_aged_energy              = battery.max_energy 
-    conditions.propulsion.battery_charge_throughput            = battery.charge_throughput 
+    conditions.propulsion.battery_max_aged_energy              = battery.max_energy  
     conditions.propulsion.battery_cycle_day                    = battery.age
     conditions.propulsion.battery_internal_resistance          = battery.internal_resistance
     conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 

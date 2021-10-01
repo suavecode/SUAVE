@@ -57,11 +57,11 @@ def main():
     test_initialize_from_mass(battery_li_ion,li_ion_mass)
     
     # make sure battery starts fully charged
-    battery_li_ion.current_energy    = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
-    battery_li_ion.pack_temperature  = np.array([[20],[20]])
-    battery_li_ion.charge_throughput = np.array([[0],[0]])
-    battery_li_ion.R_growth_factor   = 1
-    battery_li_ion.E_growth_factor   = 1 
+    battery_li_ion.current_energy         = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
+    battery_li_ion.pack_temperature       = np.array([[20],[20]])
+    battery_li_ion.cell_charge_throughput = np.array([[0],[0]])
+    battery_li_ion.R_growth_factor        = 1
+    battery_li_ion.E_growth_factor        = 1 
     
     # run discharge model
     battery_li_ion.energy_calc(numerics)
@@ -152,7 +152,7 @@ def plot_results(results,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, a
         time          = segment.conditions.frames.inertial.time[:,0]/60 
         volts         = segment.conditions.propulsion.battery_voltage_under_load[:,0]   
         cell_temp     = segment.conditions.propulsion.battery_cell_temperature[:,0]   
-        Amp_Hrs       = segment.conditions.propulsion.battery_charge_throughput[:,0]    
+        Amp_Hrs       = segment.conditions.propulsion.battery_cell_charge_throughput[:,0]    
         
         use_amp_hrs = True
         
@@ -328,8 +328,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
     segment.analyses.extend(analyses.base)       
     segment.time                                        = discharge_time 
     segment.battery_pack_temperature                    = 300  
-    segment.ambient_temperature                         = 300   
-    segment.initial_battery_charge_throughput           = 0
+    segment.ambient_temperature                         = 300    
     segment.battery_energy                              = bat.max_energy * 1.
     segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)    
     mission.append_segment(segment)         
