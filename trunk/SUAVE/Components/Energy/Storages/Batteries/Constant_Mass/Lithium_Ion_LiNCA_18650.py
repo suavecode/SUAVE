@@ -134,7 +134,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
                   current                                                  [Amps]
                   battery_voltage_open_circuit                             [Volts]
                   battery_thevenin_voltage                                 [Volts]
-                  charge_throughput                                        [Amp-hrs]
+                  cell_charge_throughput                                   [Amp-hrs]
                   internal_resistance                                      [Ohms]
                   battery_state_of_charge                                  [unitless]
                   depth_of_discharge                                       [unitless]
@@ -155,7 +155,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         E_max                    = battery.max_energy
         R_growth_factor          = battery.R_growth_factor 
         E_current                = battery.current_energy 
-        Q_prior                  = battery.charge_throughput  
+        Q_prior                  = battery.cell_charge_throughput  
         battery_data             = battery.discharge_performance_map  
         I                        = numerics.time.integrate  
         D                        = numerics.time.differentiate      
@@ -262,8 +262,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         battery.voltage_open_circuit                = V_oc*n_series
         battery.thevenin_voltage                    = V_Th*n_series 
         battery.cell_joule_heat_fraction            = q_joule_frac
-        battery.cell_entropy_heat_fraction          = q_entropy_frac
-        battery.charge_throughput                   = Q_total*n_parallel  
+        battery.cell_entropy_heat_fraction          = q_entropy_frac 
         battery.cell_charge_throughput              = Q_total
         battery.internal_resistance                 = R_0*n_series 
         battery.state_of_charge                     = SOC_new

@@ -420,8 +420,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.max_energy
     segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability          = SUAVE.Methods.skip  
-    segment.initial_battery_charge_throughput                 = 0     
+    segment.process.finalize.post_process.stability          = SUAVE.Methods.skip   
     segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment,\
                                                                                     initial_lift_rotor_power_coefficient = 0.01,
                                                                                     initial_throttle_lift = 0.9)

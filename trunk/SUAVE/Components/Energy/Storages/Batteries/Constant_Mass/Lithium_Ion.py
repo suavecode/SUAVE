@@ -126,7 +126,7 @@ class Lithium_Ion(Battery):
                   current                                                  [Amps]
                   battery_voltage_open_circuit                             [Volts]
                   battery_thevenin_voltage                                 [Volts]
-                  charge_throughput                                        [Amp-hrs]
+                  cell_charge_throughput                                   [Amp-hrs]
                   internal_resistance                                      [Ohms]
                   battery_state_of_charge                                  [unitless]
                   depth_of_discharge                                       [unitless]
@@ -144,7 +144,7 @@ class Lithium_Ion(Battery):
         T_current         = battery.pack_temperature   
         E_max             = battery.max_energy
         E_current         = battery.current_energy 
-        Q_prior           = battery.charge_throughput 
+        Q_prior           = battery.cell_charge_throughput 
         R_growth_factor   = battery.R_growth_factor
         E_growth_factor   = battery.E_growth_factor 
         I                 = numerics.time.integrate  
@@ -217,8 +217,7 @@ class Lithium_Ion(Battery):
         battery.load_power                         = V_ul*I_bat
         battery.state_of_charge                    = SOC_new 
         battery.depth_of_discharge                 = DOD_new
-        battery.charge_throughput                  = Q_total 
-        battery.cell_charge_throughput             = Q_total/n_parallel  
+        battery.cell_charge_throughput             = Q_total  
         battery.voltage_open_circuit               = V_oc
         battery.voltage_under_load                 = V_ul
         battery.current                            = I_bat 

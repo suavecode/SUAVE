@@ -56,6 +56,6 @@ def initialize_from_circuit_configuration(battery,module_weight_factor = 1.42):
     battery.max_power            = battery.specific_power*battery.mass_properties.mass  
     battery.max_voltage          = battery.cell.max_voltage  * battery.pack_config.series   
     battery.initial_max_energy   = battery.max_energy     
-    
+    battery.pack_config.total    = battery.pack_config.series * battery.pack_config.parallel 
     battery.charging_voltage     = battery.cell.charging_voltage * battery.pack_config.series     
     battery.charging_current     = battery.cell.charging_current * battery.pack_config.parallel    

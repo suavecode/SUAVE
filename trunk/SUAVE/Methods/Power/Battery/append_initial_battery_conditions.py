@@ -48,8 +48,8 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
     if 'battery_pack_temperature' not in segment:     
         segment.battery_pack_temperature  = atmo_data.temperature[0,0]
         
-    if 'battery_charge_throughput' not in segment:
-        segment.battery_charge_throughput = 0   
+    if 'battery_cell_charge_throughput' not in segment:
+        segment.battery_cell_charge_throughput = 0   
     
     if 'battery_resistance_growth_factor' not in segment:
         segment.battery_resistance_growth_factor = 1 
