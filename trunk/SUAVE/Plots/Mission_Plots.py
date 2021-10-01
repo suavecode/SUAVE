@@ -67,7 +67,8 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
         axes.plot( time , mass , 'ro-' )
         axes.set_ylabel('Weight (lb)',axis_font)
         set_axes(axes)
-        
+    
+    plt.tight_layout()     
     if save_figure:
         plt.savefig(save_filename + file_type)  
         
@@ -123,7 +124,8 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Mach',axis_font)
         set_axes(axes)  
-        
+    
+    plt.tight_layout()     
     if save_figure:
         plt.savefig(save_filename + file_type) 
         
@@ -172,7 +174,8 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('lift power loading (N/W)',axis_font)
         set_axes(axes)       
-
+    
+    plt.tight_layout() 
     if save_figure:
         plt.savefig(save_filename + file_type)          
         
@@ -236,7 +239,8 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('L/D',axis_font)
         set_axes(axes)            
-                
+    
+    plt.tight_layout()             
     if save_figure:
         plt.savefig(save_filename + file_type) 
         
@@ -300,6 +304,7 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)       
     
+    plt.tight_layout() 
     if save_figure:
         plt.savefig(save_filename + file_type) 
             
@@ -363,6 +368,7 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
     axes.set_ylabel('CD',axis_font)
     axes.grid(True)         
     
+    plt.tight_layout() 
     if save_figure:
         plt.savefig(save_filename + file_type) 
         
@@ -416,18 +422,23 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         pack_battery_amp_hr = (pack_energy/ Units.Wh )/pack_volts  
         pack_C_rating       = pack_current/pack_battery_amp_hr
         
-        axes = plt.subplot(2,3,1)
-        axes.plot(time, -pack_power, line_color)
-        axes.set_ylabel('Power (Watts)',axis_font)
-        set_axes(axes)       
     
-        axes = plt.subplot(2,3,2)
+        axes = plt.subplot(3,3,1)
         axes.plot(time, pack_SOC , line_color)
         axes.set_ylabel('SOC',axis_font)
-        set_axes(axes)  
+        set_axes(axes)    
+
+        axes = plt.subplot(3,3,2)
+        axes.plot(time, (pack_energy/Units.Wh)/1000, line_color)
+        axes.set_ylabel('Energy (kW-hr)',axis_font)
+        set_axes(axes)              
     
-        axes = plt.subplot(2,3,3)
-        axes.set_xlabel('Time (mins)',axis_font)
+        axes = plt.subplot(3,3,3)
+        axes.plot(time, -pack_power/1000, line_color)
+        axes.set_ylabel('Power (kW)',axis_font)
+        set_axes(axes)       
+        
+        axes = plt.subplot(3,3,4) 
         axes.set_ylabel('Voltage (V)',axis_font) 
         set_axes(axes) 
         if i == 0:
@@ -438,25 +449,26 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
             axes.plot(time,pack_volts_oc,line_color2) 
         axes.legend(loc='upper right')  
         
-        axes = plt.subplot(2,3,4)
+        axes = plt.subplot(3,3,5)
         axes.plot(time, pack_C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rate (C)',axis_font)  
         set_axes(axes)  
 
-        axes = plt.subplot(2,3,5)
-        axes.plot(time, pack_temp, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Temperature (K)',axis_font)  
-        set_axes(axes) 
-         
-        axes = plt.subplot(2,3,6)
+        axes = plt.subplot(3,3,6)
         axes.plot(time, pack_current, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Current (A)',axis_font)  
         set_axes(axes) 
         
- 
+        axes = plt.subplot(3,3,7)
+        axes.plot(time, pack_temp, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Temperature (K)',axis_font)  
+        set_axes(axes) 
+         
+        
+    plt.tight_layout() 
     if save_figure:
         fig.savefig(save_filename + file_type)        
         
@@ -504,24 +516,30 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
         cell_current        = results.segments[i].conditions.propulsion.battery_cell_current[:,0]  
         cell_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
         cell_temp           = results.segments[i].conditions.propulsion.battery_cell_temperature[:,0]      
-        cell_charge         = results.segments[i].conditions.propulsion.battery_cell_charge_throughput[:,0]
-        
+        cell_charge         = results.segments[i].conditions.propulsion.battery_cell_charge_throughput[:,0] 
+        cell_current        = results.segments[i].conditions.propulsion.battery_cell_current[:,0]        
         cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts  
         cell_C_rating       = cell_current/cell_battery_amp_hr        
         
         
-        axes = plt.subplot(2,3,1)
-        axes.plot(time, -cell_power, line_color)
-        axes.set_ylabel('Power (Watts)',axis_font)
-        set_axes(axes)       
-    
-        axes = plt.subplot(2,3,2)
+        axes = plt.subplot(3,3,1)
         axes.plot(time, cell_SOC, line_color)
         axes.set_ylabel('SOC',axis_font)
-        set_axes(axes)  
+        set_axes(axes)   
+
+        axes = plt.subplot(3,3,2)
+        axes.plot(time, (cell_energy/Units.Wh), line_color)
+        axes.set_ylabel('Energy (W-hr)',axis_font)
+        set_axes(axes)          
+        
+        
+        axes = plt.subplot(3,3,3)
+        axes.plot(time, -cell_power, line_color)
+        axes.set_ylabel('Power (W)',axis_font)
+        set_axes(axes)       
     
-        axes = plt.subplot(2,3,3) 
-        axes.set_xlabel('Time (mins)',axis_font) 
+    
+        axes = plt.subplot(3,3,4)  
         axes.set_ylabel('Voltage (V)',axis_font)
         set_axes(axes)  
         if i == 0:
@@ -532,27 +550,33 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
             axes.plot(time, cell_volts, line_color)
             axes.plot(time,cell_volts_oc, line_color2) 
             
-        axes = plt.subplot(2,3,4)
-        axes.plot(time, cell_C_rating, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
+        axes = plt.subplot(3,3,5)
+        axes.plot(time, cell_C_rating, line_color) 
         axes.set_ylabel('C-Rate (C)',axis_font)  
         set_axes(axes)      
 
-        axes = plt.subplot(2,3,5)
-        axes.plot(time, cell_temp, line_color)
+        axes = plt.subplot(3,3,6)
+        axes.plot(time, cell_charge, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Temperature (K)',axis_font)  
-        set_axes(axes) 
+        axes.set_ylabel('Current (A)',axis_font)  
+        set_axes(axes)         
          
-        axes = plt.subplot(2,3,6)
+        axes = plt.subplot(3,3,7)
         axes.plot(time, cell_charge, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Charge Throughput (Ah)',axis_font)  
         set_axes(axes) 
-  
+    
+        axes = plt.subplot(3,3,8)
+        axes.plot(time, cell_temp, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Temperature (K)',axis_font)  
+        set_axes(axes) 
+
+    plt.tight_layout()    
     if save_figure:    
         fig.savefig(save_filename + file_type) 
-        
+    
     return
 
 # ------------------------------------------------------------------
@@ -619,7 +643,8 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         axes.set_ylabel('Range (miles)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)         
-        
+    
+    plt.tight_layout()    
     if save_figure:
         plt.savefig(save_filename + file_type)
         
@@ -698,7 +723,8 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Tip Mach',axis_font)
         set_axes(axes)
-        
+    
+    plt.tight_layout()    
     if save_figure:
         plt.savefig(save_filename + file_type)  
             
@@ -749,7 +775,8 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
         axes.set_ylabel(r'Motor Efficiency ($\eta_m$)',axis_font)
         set_axes(axes)
         plt.ylim((0,1))
-        
+    
+    plt.tight_layout()     
     if save_figure:
         plt.savefig(save_filename + file_type)  
             
@@ -815,6 +842,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
         axes.set_ylabel('Static Margin (%)',axis_font)
         set_axes(axes)
     
+    plt.tight_layout()  
     if save_figure:
         plt.savefig(save_filename + file_type)
         
@@ -872,6 +900,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
         axes.set_ylabel('Battery Energy (MJ)',axis_font)
         set_axes(axes)            
     
+    plt.tight_layout() 
     if save_figure:
         plt.savefig(save_filename + file_type)
         
@@ -955,7 +984,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Specific Power',axis_font)  
         set_axes(axes)
-        
+    
+    plt.tight_layout()     
     if save_figure:
         plt.savefig("Lift_Cruise_Battery_Pack_Conditions" + file_type)
     
@@ -1024,7 +1054,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Power Coefficient, $C_{P}$',axis_font)
         set_axes(axes)
-        
+    
+    plt.tight_layout()     
     if save_figure:
         plt.savefig("Propulsor_Network" + file_type)
             
@@ -1081,6 +1112,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
         axes.set_ylabel('Power Coefficient, $C_{P}$',axis_font)
         set_axes(axes)            
     
+    plt.tight_layout() 
     if save_figure:
         plt.savefig("Lift_Rotor" + file_type)  
         
@@ -1135,7 +1167,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Power Coefficient',axis_font)
         set_axes(axes)  
-        
+    
+    plt.tight_layout()    
     if save_figure:
         plt.savefig("Cruise_Propulsor" + file_type)
        
@@ -1163,6 +1196,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
             axes.plot(time, ptm, line_color )
             axes.plot(time, rtm, line_color2 )
     
+    plt.tight_layout() 
     if save_figure:
         plt.savefig("Tip_Mach" + file_type) 
         
@@ -1545,6 +1579,7 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
             axes1.set_xlabel('Time (min)',axis_font) 
     
     axes1.legend(loc='upper right')        
+    plt.tight_layout() 
     if save_figure:
         plt.savefig(save_filename + ".png")  
         
@@ -1623,6 +1658,7 @@ def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure =
     plt.axis('off')	
     plt.grid(None)        
     
+    plt.tight_layout() 
     if save_figure:
         plt.savefig(save_filename + ".png")   
 
