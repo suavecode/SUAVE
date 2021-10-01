@@ -1586,7 +1586,7 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
 
     return
 
-def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour"):
+def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour",show_figure = True):
     """This plots the A-weighted Sound Pressure Level contour of the surface directly under an aircraft  
     
     Assumptions:
@@ -1763,6 +1763,8 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
                             colorbar_len= 0.75,
                             **colorax(min_SPL, max_SPL)),
              scene_camera=camera) 
+    if show_figure:
+        fig.show()
     return  
 
 

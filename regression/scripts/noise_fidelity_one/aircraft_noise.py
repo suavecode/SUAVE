@@ -640,7 +640,7 @@ def plot_results(results,filename):
     plot_ground_noise_levels(results,save_filename = filename)
     
     # Plot noise contour
-    plot_flight_profile_noise_contours(results,save_filename = filename + 'contour') 
+    plot_flight_profile_noise_contours(results,save_filename = filename + 'contour',show_figure=False)  # show figure set to false for regression.
                         
     return  
 
