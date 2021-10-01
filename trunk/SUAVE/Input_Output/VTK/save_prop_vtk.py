@@ -48,7 +48,7 @@ def save_prop_vtk(prop, filename, Results, time_step):
         # Get geometry of blade for current propeller instance
         G = Gprops[B_idx]
         
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         file = filename[0:sep]+"_blade"+str(B_idx)+"_t"+str(time_step)+filename[sep:]
         
         # Create file for each blade
@@ -159,7 +159,7 @@ def generate_lofted_propeller_points(prop):
         # default is no azimuthal offset (blade 1 starts vertical)
         a_o = 0.0 
     
-    n_a_cw    = 20                                   # number of airfoil chordwise points
+    n_a_cw    = prop.number_points_around_airfoil    # number of airfoil chordwise points
     n_r       = len(b)                               # number radial points
     n_a_loft  = 2*n_a_cw                             # number points around airfoil
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]  # azimuthal stations

@@ -82,7 +82,7 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Lwing.ZB1 = VD.ZB1[half_l:]
         Lwing.ZB2 = VD.ZB1[half_l:]       
         
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         
         Lfile = filename[0:sep]+"_L"+"_t"+str(time_step)+filename[sep:]
         Rfile = filename[0:sep]+"_R"+"_t"+str(time_step)+filename[sep:]
@@ -93,7 +93,7 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         
     else:
         wing = VD
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         file = filename[0:sep]+"_t"+str(time_step)+filename[sep:]
         write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,file)
 
