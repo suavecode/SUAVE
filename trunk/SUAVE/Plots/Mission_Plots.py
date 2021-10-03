@@ -940,50 +940,77 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     # ------------------------------------------------------------------
     fig = plt.figure("Lift_Cruise_Battery_Pack_Conditions")
     fig.set_size_inches(16, 8)
-    for i in range(len(results.segments)):          
-        time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        eta            = results.segments[i].conditions.propulsion.throttle[:,0]
-        eta_l          = results.segments[i].conditions.propulsion.throttle_lift[:,0]
-        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0]/ Units.Wh
-        specific_power = results.segments[i].conditions.propulsion.battery_specfic_power[:,0]
-        volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
-        volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]  
-                    
-        plt.title('Battery Pack Conditions')
-        axes = plt.subplot(2,2,1)
-        axes.set_ylabel('Throttle',axis_font)
-        set_axes(axes)     
-        plt.ylim((0,1))
+    for i in range(len(results.segments)):           
+        time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        pack_power          = results.segments[i].conditions.propulsion.battery_power_draw[:,0] 
+        pack_energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
+        eta                 = results.segments[i].conditions.propulsion.throttle[:,0]
+        eta_l               = results.segments[i].conditions.propulsion.throttle_lift[:,0]
+        pack_volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
+        pack_volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]     
+        pack_current        = results.segments[i].conditions.propulsion.battery_current[:,0]   
+        pack_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
+        pack_temp           = results.segments[i].conditions.propulsion.battery_pack_temperature[:,0]      
+        pack_current         = results.segments[i].conditions.propulsion.battery_current[:,0]
+        
+        pack_battery_amp_hr = (pack_energy/ Units.Wh )/pack_volts  
+        pack_C_rating       = pack_current/pack_battery_amp_hr
+        
+    
+        axes = plt.subplot(3,3,1)
+        axes.plot(time, pack_SOC , line_color)
+        axes.set_ylabel('SOC',axis_font)
+        set_axes(axes)    
+
+        axes = plt.subplot(3,3,2)
+        axes.plot(time, (pack_energy/Units.Wh)/1000, line_color)
+        axes.set_ylabel('Energy (kW-hr)',axis_font)
+        set_axes(axes)              
+    
+        axes = plt.subplot(3,3,3)
+        axes.plot(time, -pack_power/1000, line_color)
+        axes.set_ylabel('Power (kW)',axis_font)
+        set_axes(axes)       
+        
+        axes = plt.subplot(3,3,4) 
+        axes.set_ylabel('Voltage (V)',axis_font) 
+        set_axes(axes) 
+        if i == 0:
+            axes.plot(time, pack_volts, line_color,label='Under Load')
+            axes.plot(time,pack_volts_oc, line_color2,label='Open Circuit')
+        else:
+            axes.plot(time, pack_volts, line_color)
+            axes.plot(time,pack_volts_oc,line_color2) 
+        axes.legend(loc='upper right')  
+        
+        axes = plt.subplot(3,3,5)
+        axes.plot(time, pack_C_rating, line_color)
+        axes.set_ylabel('C-Rate (C)',axis_font)  
+        set_axes(axes)  
+
+        axes = plt.subplot(3,3,6)
+        axes.plot(time, pack_current, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Current (A)',axis_font)  
+        set_axes(axes) 
+
+        axes = plt.subplot(3,3,7)
+        axes.set_xlabel('Time (mins)',axis_font)
         if i == 0:
             axes.plot(time, eta, line_color,label='Propeller Motor')
             axes.plot(time, eta_l, line_color2,label='Lift Rotor Motor')
             axes.legend(loc='upper center')    
         else:
             axes.plot(time, eta, line_color)
-            axes.plot(time, eta_l, line_color2)
-    
-        axes = plt.subplot(2,2,2)
-        axes.plot(time, energy, line_color)
-        axes.set_ylabel('Battery Energy (W-hr)',axis_font)
-        set_axes(axes)
-    
-        axes = plt.subplot(2,2,3) 
-        axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
-        axes.set_xlabel('Time (mins)',axis_font)
-        set_axes(axes) 
-        if i == 0:
-            axes.plot(time, volts, line_color,label='Under Load')
-            axes.plot(time,volts_oc, line_color2,label='Open Circuit')
-            axes.legend(loc='upper center')   
-        else:
-            axes.plot(time, volts, line_color)
-            axes.plot(time,volts_oc,line_color2)        
+            axes.plot(time, eta_l, line_color2)    
+        set_axes(axes)       
         
-        axes = plt.subplot(2,2,4)
-        axes.plot(time, specific_power, line_color) 
+        
+        axes = plt.subplot(3,3,8)
+        axes.plot(time, pack_temp, line_color)
+        axes.set_ylabel('Temperature (K)',axis_font)  
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Specific Power',axis_font)  
-        set_axes(axes)
+        set_axes(axes)  
     
     plt.tight_layout()     
     if save_figure:
