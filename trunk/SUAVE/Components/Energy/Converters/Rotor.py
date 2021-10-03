@@ -279,13 +279,13 @@ class Rotor(Energy_Component):
             
             # y-component of freestream in the propeller plane
             Vy  = V_thrust[:,1,None,None]
-            Vy  = np.repeat(Vy, Na,axis=1)
-            Vy  = np.repeat(Vy, Nr,axis=2)
+            Vy  = np.repeat(Vy, Nr,axis=1)
+            Vy  = np.repeat(Vy, Na,axis=2)
             
             # z-component of freestream in the propeller plane
             Vz  = V_thrust[:,2,None,None]
-            Vz  = np.repeat(Vz, Na,axis=1)
-            Vz  = np.repeat(Vz, Nr,axis=2)            
+            Vz  = np.repeat(Vz, Nr,axis=1)
+            Vz  = np.repeat(Vz, Na,axis=2)            
             
             # check for invalid rotation angle
             if (rotation == 1) or (rotation == -1):  

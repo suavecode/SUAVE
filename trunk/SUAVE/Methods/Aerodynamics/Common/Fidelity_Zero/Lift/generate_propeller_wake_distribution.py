@@ -170,8 +170,6 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         a_sec        = propi.airfoil_geometry   
         a_secl       = propi.airfoil_polar_stations
         airfoil_data = import_airfoil_geometry(a_sec,npoints=100)  
-        
-
        
         # trailing edge points in airfoil coordinates
         xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)   
@@ -203,8 +201,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         
         # transform coordinates from airfoil frame to rotor frame
         xte_rotor = np.tile(np.atleast_2d(yte_twisted), (B,1))
-        yte_rotor = -xte_twisted*np.cos(blade_angle_loc[0,:,:,0]+total_angle_offset[0,:,:,0]) 
-        zte_rotor = xte_twisted*np.sin(blade_angle_loc[0,:,:,0]+total_angle_offset[0,:,:,0])
+        yte_rotor = -np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.cos(blade_angle_loc+total_angle_offset) 
+        zte_rotor = np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.sin(blade_angle_loc+total_angle_offset)
         
         
         r_4d = np.tile(r[None,None,:,None], (m,B,1,number_of_wake_timesteps))
@@ -214,8 +212,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         z0 = r_4d*azi_z
         
         x_pts0 = x0 + np.tile(xte_rotor[None,:,:,None], (m,1,1,number_of_wake_timesteps))
-        y_pts0 = y0 + np.tile(yte_rotor[None,:,:,None], (m,1,1,number_of_wake_timesteps))
-        z_pts0 = z0 + np.tile(zte_rotor[None,:,:,None], (m,1,1,number_of_wake_timesteps))
+        y_pts0 = y0 + yte_rotor  # np.tile(yte_rotor[None,:,:,None], (m,1,1,number_of_wake_timesteps))
+        z_pts0 = z0 + zte_rotor  # np.tile(zte_rotor[None,:,:,None], (m,1,1,number_of_wake_timesteps))
         
         x_c_4_rotor = x0 - np.tile(y_c_4_twisted[None,None,:,None], (m,B,1,number_of_wake_timesteps))
         y_c_4_rotor = y0 + np.tile(x_c_4_twisted[None,None,:,None], (m,B,1,number_of_wake_timesteps))*np.cos(blade_angle_loc+total_angle_offset)
