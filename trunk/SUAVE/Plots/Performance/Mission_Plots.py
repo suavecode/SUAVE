@@ -1609,18 +1609,17 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     N/A	
     """   
     # unpack 
-    dim_seg        = len(results.segments)
+    dim_segs       = len(results.segments)
     dim_ctrl_pts   = len(results.segments[0].conditions.frames.inertial.time[:,0])
     dim_gm         = results.segments[0].conditions.noise.number_ground_microphones
     gm_N_x         = results.segments[0].analyses.noise.settings.level_ground_microphone_x_resolution
     gm_N_y         = results.segments[0].analyses.noise.settings.level_ground_microphone_y_resolution
     dim_bm         = results.segments[0].conditions.noise.number_building_microphones 
-    dim_mat        = dim_seg*dim_ctrl_pts 
+    dim_mat        = dim_segs*dim_ctrl_pts 
     SPL_contour_gm = np.zeros((dim_mat,dim_gm)) 
     Range          = np.zeros((dim_mat,dim_gm)) 
     Span           = np.zeros((dim_mat,dim_gm)) 
-    SPL_contour_bm = np.zeros((dim_mat,dim_bm)) 
-    dim_segs       = len(results.segments)  
+    SPL_contour_bm = np.zeros((dim_mat,dim_bm))  
     Aircraft_pos   = np.zeros((dim_mat,3)) 
     
     # initialize plot data 
