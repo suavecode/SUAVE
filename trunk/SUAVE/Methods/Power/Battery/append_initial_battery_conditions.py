@@ -27,18 +27,36 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
         N/A
     
         Inputs:  
-               atmosphere.temperature             [Kelvin]
+            atmosphere.temperature             [Kelvin]
+            
+            Optional:
+            segment.
+                 battery_cycle_day                  [unitless]
+                 battery_pack_temperature           [Kelvin]
+                 battery_charge_throughput          [Ampere-Hours] 
+                 battery_resistance_growth_factor   [unitless]
+                 battery_capacity_fade_factor       [unitless]
+                 battery_thevenin_voltage           [Volts]  
+                 battery_discharge                  [boolean]
+                 increment_battery_cycle_day        [boolean]
                
         Outputs:
-            segment.settings.battery.
-               cycle_day                          [unitless]
-               pack_temperature                   [Kelvin]
-               charge_throughput                  [Ampere-Hours] 
-               resistance_growth_factor           [unitless]
-               capacity_fade_factor               [unitless]
-               thevenin_voltage                   [Volts]  
-               discharge                          [boolean]
-               increment_battery_cycle_day        [boolean]
+            segment
+               battery_discharge                    [boolean]
+               increment_battery_cycle_day          [boolean]
+            segment.state.conditions.propulsion
+               battery_discharge_flag               [boolean]
+               battery_max_initial_energy           [watts]
+               battery_energy                       [watts]
+               battery_max_aged_energy              [watts]    
+               battery_pack_temperature             [kelvin]
+               battery_cycle_day                    [int]
+               battery_cell_charge_throughput       [Ampere-Hours] 
+               battery_resistance_growth_factor     [unitless]
+               battery_capacity_fade_factor         [unitless]
+
+
+
     
         Properties Used:
         None
@@ -57,7 +75,7 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
     # Set if it is a discharge segment
     if 'battery_discharge' not in segment:      
         segment.battery_discharge          = True
-        propulsion.battery_discharge_flag  = segment.battery_discharge
+        propulsion.battery_discharge_flag  = True
     else:
         propulsion.battery_discharge_flag  = segment.battery_discharge
         
