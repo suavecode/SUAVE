@@ -29,8 +29,8 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     Outputs: 
     GM_THETA   - angle measured from ground microphone in the x-z plane from microphone to aircraft 
     GM_PHI     - angle measured from ground microphone in the y-z plane from microphone to aircraft 
-    GML        - ground microhpone locations
-    num_gm_mic - number of ground microhpones
+    GML        - ground microphone locations
+    num_gm_mic - number of ground microphones
  
     Properties Used:
         N/A       
@@ -71,8 +71,8 @@ def compute_building_noise_evaluation_locations(settings,segment):
     Outputs: 
     BM_THETA   - angle measured from building microphone in the x-z plane from microphone to aircraft 
     BM_PHI     - angle measured from building microphone in the y-z plane from microphone to aircraft 
-    BML        - building microhpone locations
-    num_b_mic  - number of building microhpones
+    UCML       - building microphone locations
+    num_b_mic  - number of building microphones
     
     Properties Used:
         N/A       

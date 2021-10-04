@@ -1746,9 +1746,9 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     fig = go.Figure(data=plot_data)
     fig.update_layout(
              title_text='Aircraft Noise Contour', 
-             title_x=0.5,
-             width =1500,
-             height=1500,
+             title_x = 0.5,
+             width   = 750,
+             height  = 750,
              font_family = "Times New Roman",
              font_size=18,
              scene_zaxis_range=[min_alt,max_alt], 

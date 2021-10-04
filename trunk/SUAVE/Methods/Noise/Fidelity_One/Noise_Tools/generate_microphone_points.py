@@ -66,81 +66,104 @@ def generate_building_microphone_points(building_locations,building_dimensions,N
         N_z                            - discretization of points in z dimension on building surface   [meters]
         
     Outputs: 
-        b_mic_locations                - cartesian coordiates of all microphones defined on buildings  [meters]
+        building_mic_locations         - cartesian coordiates of all microphones defined on buildings  [meters]
                               
     
     Properties Used:
         N/A       
     """   
-    
-    num_buildings            = len(building_locations) 
+    building_locations       = np.array(building_locations)
+    building_dimensions      = np.array(building_dimensions)
+    N_b                      = len(building_locations) 
     num_mics_on_xz_surface   = N_x*N_z 
     num_mics_on_yz_surface   = N_y*N_z 
     num_mics_on_xy_surface   = N_x*N_y
-    num_mics_per_building    = 2*(num_mics_on_xz_surface +num_mics_on_yz_surface) +  num_mics_on_xy_surface
-    b_mic_locations          = np.empty((num_mics_per_building*num_buildings,3))
+    num_mics_per_building    = 2*(num_mics_on_xz_surface +num_mics_on_yz_surface) +  num_mics_on_xy_surface 
+    b_mic_locations          = np.empty((N_b,num_mics_per_building,3))
+
+    x0 = building_locations[:,0] 
+    y0 = building_locations[:,1] 
+    z0 = building_locations[:,2] 
+    l  = building_dimensions[:,0] 
+    w  = building_dimensions[:,1] 
+    h  = building_dimensions[:,2]     
     
-    for i in range(num_buildings): 
-        x0 = building_locations[i][0] 
-        y0 = building_locations[i][1] 
-        z0 = building_locations[i][2] 
-        l  = building_dimensions[i][0] 
-        w  = building_dimensions[i][1] 
-        h  = building_dimensions[i][2] 
+    # surface 1 (front) 
+    x_coords_1     = np.repeat(np.repeat(np.atleast_2d(x0-l/2).T,N_y,axis = 1)[:,:,np.newaxis],N_z,axis = 2)  
+    Y_1            = np.repeat(np.repeat(np.atleast_2d(y0).T,N_y,axis = 1)[:,:,np.newaxis],N_z,axis = 2)
+    YW_1           = np.repeat(np.repeat(np.atleast_2d(w/2).T,N_y,axis = 1)[:,:,np.newaxis],N_z,axis = 2)
+    non_dim_y_1    = np.repeat(np.repeat(np.linspace(-1,1,N_y)[:,np.newaxis],N_z, axis = 1)[np.newaxis,:,:],N_b, axis = 0) 
+    y_coords_1     = non_dim_y_1*YW_1 + Y_1 
+    Z_1            = np.repeat(np.repeat(np.atleast_2d(h).T,N_y,axis = 1)[:,:,np.newaxis],N_z,axis = 2) 
+    non_dim_z_1    = np.repeat(np.repeat(np.linspace(0,1,N_z)[:,np.newaxis],N_y, axis = 1).T[np.newaxis,:,:],N_b, axis = 0) 
+    z_coords_1     = non_dim_z_1*Z_1  
+    start_idx_1    = 0 
+    end_idx_1      = num_mics_on_yz_surface  
+    b_mic_locations[:,start_idx_1:end_idx_1 ,0] = x_coords_1.reshape(N_b,N_y*N_z)
+    b_mic_locations[:,start_idx_1:end_idx_1 ,1] = y_coords_1.reshape(N_b,N_y*N_z)
+    b_mic_locations[:,start_idx_1:end_idx_1 ,2] = z_coords_1.reshape(N_b,N_y*N_z) 
         
-        # define building microphones 
-        building_microphones = np.zeros((num_mics_per_building,3)) # noise not computed on lower surface of buildings
-        # surface 1 (front)
-        x_coords_1  = np.ones((N_y,N_z))*(x0-l/2)
-        y_coords_1  = np.repeat(np.linspace(y0-(w/2),y0+(w/2),N_y)[:,np.newaxis],N_z, axis = 1)
-        z_coords_1  = np.repeat(np.linspace(z0,h,(N_z))[:,np.newaxis],N_y, axis = 1) .T
-        start_idx_1 = 0 
-        end_idx_1   = num_mics_on_yz_surface  
-        building_microphones[start_idx_1:end_idx_1 ,0] = x_coords_1.reshape(N_y*N_z)
-        building_microphones[start_idx_1:end_idx_1 ,1] = y_coords_1.reshape(N_y*N_z)
-        building_microphones[start_idx_1:end_idx_1 ,2] = z_coords_1.reshape(N_y*N_z)
+    # surface 2 (right)    
+    X_2            = np.repeat(np.repeat(np.atleast_2d(x0).T,N_x,axis = 1)[:,:,np.newaxis],N_z,axis = 2)
+    XW_2           = np.repeat(np.repeat(np.atleast_2d(l/2).T,N_x,axis = 1)[:,:,np.newaxis],N_z,axis = 2)
+    non_dim_x_2    = np.repeat(np.repeat(np.linspace(-1,1,N_x)[:,np.newaxis],N_z, axis = 1)[np.newaxis,:,:],N_b, axis = 0) 
+    x_coords_2     = non_dim_x_2*XW_2 + X_2   
+    y_coords_2     = np.repeat(np.repeat(np.atleast_2d(y0+w/2).T,N_x,axis = 1)[:,:,np.newaxis],N_z,axis = 2)     
+    Z_2            = np.repeat(np.repeat(np.atleast_2d(h).T,N_x,axis = 1)[:,:,np.newaxis],N_z,axis = 2) 
+    non_dim_z_2    = np.repeat(np.repeat(np.linspace(0,1,N_z)[:,np.newaxis],N_x, axis = 1).T[np.newaxis,:,:],N_b, axis = 0) 
+    z_coords_2     = non_dim_z_2*Z_2 
+    start_idx_2    = end_idx_1    
+    end_idx_2      = start_idx_2 + num_mics_on_xz_surface  
+    b_mic_locations[:,start_idx_2:end_idx_2 ,0] = x_coords_2.reshape(N_b,N_y*N_z)
+    b_mic_locations[:,start_idx_2:end_idx_2 ,1] = y_coords_2.reshape(N_b,N_y*N_z)
+    b_mic_locations[:,start_idx_2:end_idx_2 ,2] = z_coords_2.reshape(N_b,N_y*N_z)  
         
-        # surface 2 (right)
-        x_coords_2  = np.repeat(np.linspace(x0-(l/2),x0+(l/2),N_x)[:,np.newaxis],N_z)
-        y_coords_2  = np.ones((N_x,N_z))*(y0+w/2)
-        z_coords_2  = np.repeat(np.linspace(z0,h,(N_z))[:,np.newaxis],N_x, axis = 1).T
-        start_idx_2 = end_idx_1
-        end_idx_2   = start_idx_2 + num_mics_on_xz_surface 
-        building_microphones[start_idx_2:end_idx_2,0] = x_coords_2.reshape(N_x*N_z)
-        building_microphones[start_idx_2:end_idx_2,1] = y_coords_2.reshape(N_x*N_z) 
-        building_microphones[start_idx_2:end_idx_2,2] = z_coords_2.reshape(N_x*N_z) 
+    # surface 3 (back) 
+    x_coords_3     = np.repeat(np.repeat(np.atleast_2d(x0+l/2).T,N_y,axis = 1)[:,:,np.newaxis],N_z,axis = 2) 
+    Y_3            = np.repeat(np.repeat(np.atleast_2d(y0).T,N_y,axis = 1)[:,:,np.newaxis],N_z,axis = 2)
+    YW_3           = np.repeat(np.repeat(np.atleast_2d(w/2).T,N_y,axis = 1)[:,:,np.newaxis],N_z,axis = 2)
+    non_dim_y_3    = np.repeat(np.repeat(np.linspace(-1,1,N_y)[:,np.newaxis],N_z, axis = 1)[np.newaxis,:,:],N_b, axis = 0) 
+    y_coords_3     = non_dim_y_3*YW_3 +  Y_3   
+    Z_3            = np.repeat(np.repeat(np.atleast_2d(h).T,N_y,axis = 1)[:,:,np.newaxis],N_z,axis = 2) 
+    non_dim_z_3    = np.repeat(np.repeat(np.linspace(0,1,N_z)[:,np.newaxis],N_y, axis = 1).T[np.newaxis,:,:],N_b, axis = 0) 
+    z_coords_3     = non_dim_z_3*Z_3  
+    start_idx_3    = end_idx_2 
+    end_idx_3      = start_idx_3+num_mics_on_yz_surface  
+    b_mic_locations[:,start_idx_3:end_idx_3 ,0] = x_coords_3.reshape(N_b,N_y*N_z)
+    b_mic_locations[:,start_idx_3:end_idx_3 ,1] = y_coords_3.reshape(N_b,N_y*N_z)
+    b_mic_locations[:,start_idx_3:end_idx_3 ,2] = z_coords_3.reshape(N_b,N_y*N_z)  
         
-        # surface 3 (back) 
-        x_coords_3  = np.ones((N_y,N_z))*(x0+l/2)
-        y_coords_3  = np.repeat(np.linspace(y0-(w/2),y0+(w/2),N_y)[:,np.newaxis],N_z, axis = 1)
-        z_coords_3  = np.repeat(np.linspace(z0,h,(N_z))[:,np.newaxis],N_y, axis = 1) .T
-        start_idx_3 = end_idx_2 
-        end_idx_3   = start_idx_3+num_mics_on_yz_surface  
-        building_microphones[start_idx_3:end_idx_3 ,0] = x_coords_3.reshape(N_y*N_z)
-        building_microphones[start_idx_3:end_idx_3 ,1] = y_coords_3.reshape(N_y*N_z)
-        building_microphones[start_idx_3:end_idx_3 ,2] = z_coords_3.reshape(N_y*N_z) 
-         
-        # surface 4 (left)
-        x_coords_4  = np.repeat(np.linspace(x0-(l/2),x0+(l/2),N_x)[:,np.newaxis],N_z)
-        y_coords_4  = np.ones((N_x,N_z))*(y0-w/2)
-        z_coords_4  = np.repeat(np.linspace(z0,h,(N_z))[:,np.newaxis],N_x, axis = 1).T
-        start_idx_4 = end_idx_3 
-        end_idx_4   = start_idx_4 + num_mics_on_xz_surface 
-        building_microphones[start_idx_4:end_idx_4,0] = x_coords_4.reshape(N_x*N_z)
-        building_microphones[start_idx_4:end_idx_4,1] = y_coords_4.reshape(N_x*N_z) 
-        building_microphones[start_idx_4:end_idx_4,2] = z_coords_4.reshape(N_x*N_z) 
-       
-        # surface 5 (top)
-        x_coords_5 = np.repeat(np.linspace(x0-(l/2),x0+(l/2),N_x)[:,np.newaxis],N_y, axis = 1)
-        y_coords_5 = np.repeat(np.linspace(y0-(w/2),y0+(w/2),N_y)[:,np.newaxis],N_x, axis = 1).T
-        z_coords_5 = np.ones((N_x,N_y))*h     
-        building_microphones[-num_mics_on_xy_surface:,0] = x_coords_5.reshape(N_x*N_y)
-        building_microphones[-num_mics_on_xy_surface:,1] = y_coords_5.reshape(N_x*N_y)
-        building_microphones[-num_mics_on_xy_surface:,2] = z_coords_5.reshape(N_x*N_y)    
-        
-        # append locations  
-        start                        = i*num_mics_per_building
-        end                          = (i+1)*num_mics_per_building 
-        b_mic_locations[start:end,:] = building_microphones
-        
-    return b_mic_locations 
+    # surface 4 (left)
+    X_4            = np.repeat(np.repeat(np.atleast_2d(x0).T,N_x,axis = 1)[:,:,np.newaxis],N_z,axis = 2)      
+    XW_4           = np.repeat(np.repeat(np.atleast_2d(l/2).T,N_x,axis = 1)[:,:,np.newaxis],N_z,axis = 2)      
+    non_dim_x_4    = np.repeat(np.repeat(np.linspace(-1,1,N_x)[:,np.newaxis],N_z, axis = 1)[np.newaxis,:,:],N_b, axis = 0)       
+    x_coords_4     = non_dim_x_4*XW_4 + X_4          
+    y_coords_4     = np.repeat(np.repeat(np.atleast_2d(y0-w/2).T,N_x,axis = 1)[:,:,np.newaxis],N_z,axis = 2)          
+    z_coords_4     = np.repeat(np.linspace(z0,h,(N_z))[:,np.newaxis],N_x, axis = 1).T        
+    Z_4            = np.repeat(np.repeat(np.atleast_2d(h).T,N_x,axis = 1)[:,:,np.newaxis],N_z,axis = 2) 
+    non_dim_z_4    = np.repeat(np.repeat(np.linspace(0,1,N_z)[:,np.newaxis],N_x, axis = 1).T[np.newaxis,:,:],N_b, axis = 0) 
+    z_coords_4     = non_dim_z_4*Z_4 
+    start_idx_4    = end_idx_3 
+    end_idx_4      = start_idx_4 + num_mics_on_xz_surface      
+    b_mic_locations[:,start_idx_4:end_idx_4 ,0] = x_coords_4.reshape(N_b,N_y*N_z)      
+    b_mic_locations[:,start_idx_4:end_idx_4 ,1] = y_coords_4.reshape(N_b,N_y*N_z)      
+    b_mic_locations[:,start_idx_4:end_idx_4 ,2] = z_coords_4.reshape(N_b,N_y*N_z)      
+    
+    # surface 5 (top) 
+    X_5            = np.repeat(np.repeat(np.atleast_2d(x0).T,N_x,axis = 1)[:,:,np.newaxis],N_y,axis = 2)
+    XW_5           = np.repeat(np.repeat(np.atleast_2d(l/2).T,N_x,axis = 1)[:,:,np.newaxis],N_y,axis = 2)
+    non_dim_x_5    = np.repeat(np.repeat(np.linspace(-1,1,N_x)[:,np.newaxis],N_y, axis = 1)[np.newaxis,:,:],N_b, axis = 0) 
+    x_coords_5     = non_dim_x_5*XW_5 + X_5    
+    Y_5            = np.repeat(np.repeat(np.atleast_2d(y0).T,N_y,axis = 1)[:,np.newaxis,:],N_x,axis = 1)
+    YW_5           = np.repeat(np.repeat(np.atleast_2d(w/2).T,N_y,axis = 1)[:,np.newaxis,:],N_x,axis = 1)
+    non_dim_y_5    = np.repeat(np.repeat(np.linspace(-1,1,N_y)[:,np.newaxis],N_x, axis = 1).T[np.newaxis,:,:],N_b, axis = 0) 
+    y_coords_5     = non_dim_y_5*YW_5 + Y_5     
+    z_coords_5     = np.repeat(np.repeat(np.atleast_2d(h).T,N_x,axis = 1)[:,:,np.newaxis],N_y,axis = 2) 
+    start_idx_5    = num_mics_on_xy_surface
+    b_mic_locations[:,-start_idx_5:,0] = x_coords_5.reshape(N_b,N_x*N_y)
+    b_mic_locations[:,-start_idx_5:,1] = y_coords_5.reshape(N_b,N_x*N_y)
+    b_mic_locations[:,-start_idx_5:,2] = z_coords_5.reshape(N_b,N_x*N_y)    
+    
+    building_mic_locations =  b_mic_locations.reshape(N_b*num_mics_per_building,3)    
+             
+    return building_mic_locations
