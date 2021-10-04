@@ -426,7 +426,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         SOC        = state.unknowns.battery_state_of_charge 
         T_cell     = state.unknowns.battery_cell_temperature
         I_cell     = state.unknowns.battery_current/n_parallel 
-        V_th0      = state.conditions.propulsion.battery_thevenin_voltage
+        V_th0      = state.conditions.propulsion.battery_thevenin_voltage[0,0]
         
         # Link Temperature 
         battery.cell_temperature         = T_cell  
