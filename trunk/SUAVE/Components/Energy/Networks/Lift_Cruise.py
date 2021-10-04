@@ -586,8 +586,8 @@ class Lift_Cruise(Network):
             q_prop_forward     = segment.state.conditions.propulsion.propeller_torque
             q_lift_rotor_motor = segment.state.conditions.propulsion.lift_rotor_motor_torque
             q_prop_lift        = segment.state.conditions.propulsion.lift_rotor_torque  
-            segment.state.residuals.network.propellers  = (q_propeller_motor - q_prop_forward)/q_propeller_motor
-            segment.state.residuals.network.lift_rotors = (q_lift_rotor_motor - q_prop_lift)/q_lift_rotor_motor   
+            segment.state.residuals.network.propellers  = (q_propeller_motor - q_prop_forward)
+            segment.state.residuals.network.lift_rotors = (q_lift_rotor_motor - q_prop_lift)
                
         network       = self
         battery       = self.battery 
@@ -624,8 +624,8 @@ class Lift_Cruise(Network):
         if segment.battery_discharge:   
             q_propeller_motor = segment.state.conditions.propulsion.propeller_motor_torque
             q_prop_forward    = segment.state.conditions.propulsion.propeller_torque    
-            segment.state.residuals.network.propellers = (q_propeller_motor - q_prop_forward)/q_propeller_motor 
-    
+            segment.state.residuals.network.propellers = (q_propeller_motor - q_prop_forward)
+            
         network       = self
         battery       = self.battery 
         battery.append_battery_residuals(segment,network)    
@@ -661,7 +661,7 @@ class Lift_Cruise(Network):
         if segment.battery_discharge:   
             q_lift_rotor_motor   = segment.state.conditions.propulsion.lift_rotor_motor_torque
             q_lift_rotor_lift    = segment.state.conditions.propulsion.lift_rotor_torque        
-            segment.state.residuals.network.lift_rotors  = (q_lift_rotor_motor - q_lift_rotor_lift)/q_lift_rotor_motor 
+            segment.state.residuals.network.lift_rotors  = (q_lift_rotor_motor - q_lift_rotor_lift)
             
         network       = self
         battery       = self.battery 
