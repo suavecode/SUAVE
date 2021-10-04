@@ -46,10 +46,12 @@ def initialize_inertial_position(segment):
         r_initial = segment.state.initials.conditions.frames.inertial.position_vector
         r_current = segment.state.conditions.frames.inertial.position_vector
         
-        if 'altitude' in segment.keys() and segment.altitude:
+        if 'altitude' in segment.keys() and segment.altitude is not None:
             r_initial[-1,None,-1] = -segment.altitude
-        elif 'altitude_start' in segment.keys() and segment.altitude_start:
+        elif 'altitude_start' in segment.keys() and segment.altitude_start is not None:
             r_initial[-1,None,-1] = -segment.altitude_start
+        else:
+            assert('Altitude not set')
             
         segment.state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])
         
