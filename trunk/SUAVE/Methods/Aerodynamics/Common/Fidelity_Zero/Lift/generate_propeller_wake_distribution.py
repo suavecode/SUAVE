@@ -112,35 +112,31 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         start_angle       = omega[0]*t0 
         propi.start_angle = start_angle[0]
 
-        # define points ( control point, time step , blade number , location on blade )
         # compute lambda and mu 
         mean_induced_velocity  = np.mean( np.mean(va,axis = 1),axis = 1)   
-    
     
         alpha = propi.orientation_euler_angles[1]
         rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
         
-        lambda_tot   =  np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 30 Leishman)
-        mu_prop      =  np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 30 Leishman) 
+        lambda_tot   =  np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 99 Leishman)
+        mu_prop      =  np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
         V_prop       =  np.atleast_2d(np.sqrt((V_inf[:,0]  + mean_induced_velocity)**2 + (V_inf[:,2])**2)).T
-    
+
         # wake skew angle 
-        wake_skew_angle = np.arctan(mu_prop/lambda_tot)
+        wake_skew_angle = -np.arctan(mu_prop/lambda_tot)
     
         # reshape gamma to find the average between stations 
-        gamma_new = np.zeros((m,(Nr-1),Na)) #[control points, azimuth  , radial stations -1 ] one less because ring
-        gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5 #  not sure if correct 
-
+        gamma_new = np.zeros((m,(Nr-1),Na))    # [control points, Nr-1, Na ] one less radial station because ring
+        gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5
 
         num       = int(Na/B)  
-
         time_idx  = np.arange(nts)
         t_idx     = np.atleast_2d(time_idx).T 
         B_idx     = np.arange(B) 
         B_loc     = (B_idx*num + t_idx)%Na  
         Gamma     = gamma_new[:,:,B_loc]  
         Gamma     = Gamma.transpose(0,3,1,2)
-    
+        
         # --------------------------------------------------------------------------------------------------------------
         #    ( control point , blade number , radial location on blade , time step )
         # --------------------------------------------------------------------------------------------------------------
@@ -200,10 +196,10 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         y_cp_twisted = np.sin(beta)*x_cp_airfoils + np.cos(beta)*y_cp_airfoils  
         
         # transform coordinates from airfoil frame to rotor frame
-        xte_rotor = np.tile(np.atleast_2d(yte_twisted), (B,1))
+        xte = np.tile(np.atleast_2d(yte_twisted), (B,1))
+        xte_rotor = np.tile(xte[None,:,:,None], (m,1,1,number_of_wake_timesteps))
         yte_rotor = -np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.cos(blade_angle_loc+total_angle_offset) 
         zte_rotor = np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.sin(blade_angle_loc+total_angle_offset)
-        
         
         r_4d = np.tile(r[None,None,:,None], (m,B,1,number_of_wake_timesteps))
         
@@ -211,9 +207,9 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         y0 = r_4d*azi_y
         z0 = r_4d*azi_z
         
-        x_pts0 = x0 + np.tile(xte_rotor[None,:,:,None], (m,1,1,number_of_wake_timesteps))
-        y_pts0 = y0 + yte_rotor  # np.tile(yte_rotor[None,:,:,None], (m,1,1,number_of_wake_timesteps))
-        z_pts0 = z0 + zte_rotor  # np.tile(zte_rotor[None,:,:,None], (m,1,1,number_of_wake_timesteps))
+        x_pts0 = x0 + xte_rotor
+        y_pts0 = y0 + yte_rotor
+        z_pts0 = z0 + zte_rotor
         
         x_c_4_rotor = x0 - np.tile(y_c_4_twisted[None,None,:,None], (m,B,1,number_of_wake_timesteps))
         y_c_4_rotor = y0 + np.tile(x_c_4_twisted[None,None,:,None], (m,B,1,number_of_wake_timesteps))*np.cos(blade_angle_loc+total_angle_offset)
@@ -224,17 +220,17 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
 
         # compute wake contraction, apply to y-z plane
         X_pts0           = x_pts0 + sx_inf
-        wake_contraction = compute_wake_contraction_matrix(i,propi,Nr,m,number_of_wake_timesteps,X_pts0,propi_outputs)          
+        wake_contraction = compute_wake_contraction_matrix(i,propi,Nr,m,number_of_wake_timesteps,X_pts0,propi_outputs) 
         Y_pts0           = y_pts0*wake_contraction + sy_inf
         Z_pts0           = z_pts0*wake_contraction + sz_inf
  
         # Rotate wake by thrust angle
-        rot_mat = propi.body_to_prop_vel() #propi.prop_vel_to_body() #
+        rot_to_body = propi.prop_vel_to_body()  # rotate points into the body frame: [Z,Y,X]' = R*[Z,Y,X]
         
         # append propeller wake to each of its repeated origins  
-        X_pts   = propi.origin[0][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]   
-        Y_pts   = propi.origin[0][1] + Y_pts0*rot_mat[1,1]                       
-        Z_pts   = propi.origin[0][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2] 
+        X_pts   = propi.origin[0][0] + X_pts0*rot_to_body[2,2] + Z_pts0*rot_to_body[2,0]   
+        Y_pts   = propi.origin[0][1] + Y_pts0*rot_to_body[1,1]                       
+        Z_pts   = propi.origin[0][2] + Z_pts0*rot_to_body[0,0] + X_pts0*rot_to_body[0,2] 
                 
         if include_lifting_line:
             # prepend points at quarter chord to account for rotor lifting line
