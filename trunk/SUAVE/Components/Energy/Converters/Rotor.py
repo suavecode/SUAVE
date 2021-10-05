@@ -275,12 +275,12 @@ class Rotor(Energy_Component):
         # Include velocities introduced by rotor incidence angles 
         if (np.any(abs(V_thrust[:,1]) >1e-3) or np.any(abs(V_thrust[:,2]) >1e-3)) and use_2d_analysis:
             
-            # y-component of freestream in the propeller plane
+            # y-component of freestream in the propeller cartesian plane
             Vy  = V_thrust[:,1,None,None]
             Vy  = np.repeat(Vy, Nr,axis=1)
             Vy  = np.repeat(Vy, Na,axis=2)
             
-            # z-component of freestream in the propeller plane
+            # z-component of freestream in the propeller cartesian plane
             Vz  = V_thrust[:,2,None,None]
             Vz  = np.repeat(Vz, Nr,axis=1)
             Vz  = np.repeat(Vz, Na,axis=2)            
@@ -292,7 +292,7 @@ class Rotor(Energy_Component):
                 print("Invalid rotation direction. Setting to 1.")
                 rotation = 1
             
-            # compute resulting radial and tangential velocities in rotational frame
+            # compute resulting radial and tangential velocities in polar frame
             utz =  Vz*np.cos(psi_2d) * rotation
             urz = -Vz*np.sin(psi_2d)
             uty = -Vy*np.sin(psi_2d) * rotation
@@ -379,7 +379,7 @@ class Rotor(Energy_Component):
                 vt           = Ut - Wt
                 
                 # compute blade airfoil forces and properties
-                Cl, Cdval, alpha, Ma, W = compute_aerodynamic_forces(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+                Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
                 
                 # compute inflow velocity and tip loss factor
                 lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
@@ -411,10 +411,6 @@ class Rotor(Energy_Component):
                     print("Rotor BEMT did not converge to a solution (Iteration Limit)")
                     break
                 
-            # correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
-            va     = F*va
-            vt     = F*vt 
-            lamdaw = r*(va+Ua)/(R*(Ut-vt))
             
         elif wake_method == "helical_fixed_wake":
             
@@ -427,12 +423,18 @@ class Rotor(Energy_Component):
             Wt           = Ut - vt
             
             # Compute aerodynamic forces based on specified input airfoil or surrogate
-            Cl, Cdval, alpha, Ma,W = compute_aerodynamic_forces(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
             
             lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
             
             # compute HFW circulation at the blade
-            Gamma_Blade = 0.5*W*c*Cl*F
+            Gamma = 0.5*W*c*Cl*F # Gamma_Blade
+            
+            
+        # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration 
+        va     = F*va
+        vt     = F*vt 
+        lamdaw = r*(va+Ua)/(R*(Ut-vt))            
             
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
@@ -449,6 +451,7 @@ class Rotor(Energy_Component):
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
         blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa))
         blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r)          
+        
         
         if use_2d_analysis:
             blade_T_distribution_2d = blade_T_distribution
@@ -884,7 +887,7 @@ def compute_HFW_blade_velocities( prop ):
     Vt = np.zeros((cpts,Nr,Na))
     for i in range(Na):
         # increment blade angle to new azimuthal position
-        blade_angle   = omega[0]*t0 + i*(2*np.pi/(Na))
+        blade_angle   = (omega[0]*t0 + i*(2*np.pi/(Na))) * prop.rotation  # Positive rotation, positive blade angle
         
         # update wake geometry
         init_timestep_offset = blade_angle/(omega * dt)
@@ -914,25 +917,40 @@ def compute_HFW_blade_velocities( prop ):
         VD.Wake_collapsed = WD
         
         V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
-        u       = V_ind[0,:,0]
-        v       = V_ind[0,:,1]
-        w       = V_ind[0,:,2]   
+        u       = V_ind[0,:,0]   # velocity in vehicle x-frame
+        v       = V_ind[0,:,1]   # velocity in vehicle y-frame
+        w       = V_ind[0,:,2]   # velocity in vehicle z-frame
         
         # interpolate from control points to radial stations for evaluation in spin function
         u_cp   = 1
         
         # Update velocities at the disc
         Va[:,:,i]  = u
-        Vt[:,:,i]  = (-w*np.cos(blade_angle) + v*np.sin(blade_angle))*prop.rotation
+        Vt[:,:,i]  = (w*np.cos(blade_angle) + v*np.sin(blade_angle))
+        
+        #-------------------------------------------
+        # store vtks for debug
+        #-------------------------------------------
+        # test generate vtk
+        from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
+        from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
+        from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
+        Results = Data()
+        Results["prop_outputs"] = prop.outputs
+        save_prop_wake_vtk(VD, filename="/Users/rerha/Desktop/vtk_test/wake."+str(i)+".vtk", Results=Results, i_prop=0)
+        save_evaluation_points_vtk(VD, filename="/Users/rerha/Desktop/vtk_test/eval_points.vtk",time_step=i)
+        save_prop_vtk(prop, "/Users/rerha/Desktop/vtk_test/prop.vtk", Results=Results, time_step=i)
     
+
+        #-------------------------------------------    
     prop.vortex_distribution = VD
 
     return Va, Vt
 
 
-def compute_aerodynamic_forces(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
     """
-    Cl, Cdval = compute_aerodynamic_forces(  a_loc, 
+    Cl, Cdval = compute_airfoil_aerodynamics(  a_loc, 
                                              a_geo, 
                                              cl_sur, 
                                              cd_sur, 
