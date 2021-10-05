@@ -197,8 +197,8 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
             
                     # Top edge
                     rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
-                    rings.coordinates.append(p_rp_tp)      # tp right node  (Bottom edge)
-                    rings.vortex_strengths.append(g_r_t - g_r_tp) # bottom segment of initial ring (only sees the current ring vortex strength)
+                    rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t - g_r_tp) # difference between prior time step ring strength
                                             
                     # Left edge
                     rings.coordinates.append(p_r_t)         # bottom left node  (Left edge)

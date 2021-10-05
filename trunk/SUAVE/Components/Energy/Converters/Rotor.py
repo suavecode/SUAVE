@@ -177,7 +177,7 @@ class Rotor(Energy_Component):
         R       = self.tip_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
-        sweep   = self.sweep_distribution     # quarter chord offset from quarter chord of root airfoil
+        sweep   = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
         r_1d    = self.radius_distribution 
         tc      = self.thickness_to_chord 
         
@@ -308,14 +308,14 @@ class Rotor(Energy_Component):
         if nonuniform_freestream:
             use_2d_analysis   = True
 
-            # include additional influences specified at rotor sections, shape=(ctrl_pts,Na,Nr)
+            # include additional influences specified at rotor sections, shape=(ctrl_pts,Nr,Na)
             ua += self.axial_velocities_2d
             ut += self.tangential_velocities_2d
             ur += self.radial_velocities_2d        
         
                 
         if use_2d_analysis:
-            # make everything 2D with shape (ctrl_pts,Na,Nr)
+            # make everything 2D with shape (ctrl_pts,Nr,Na)
             size   = (ctrl_pts,Nr,Na )
             PSI    = np.ones(size)
             PSIold = np.zeros(size)
@@ -370,68 +370,39 @@ class Rotor(Energy_Component):
         diff   = 1.
         tol    = 1e-6  # Convergence tolerance
         ii     = 0               
-        if wake_method == "momentum":
-            # perform a Newton iteration for BEMT
-      
+        
+        if wake_method == 'momentum':
             
             # BEMT Iteration
             while (diff>tol):
+                # compute velocities
                 sin_psi      = np.sin(PSI)
                 cos_psi      = np.cos(PSI)
                 Wa           = 0.5*Ua + 0.5*U*sin_psi
                 Wt           = 0.5*Ut + 0.5*U*cos_psi
                 va           = Wa - Ua
                 vt           = Ut - Wt
-                alpha        = beta - np.arctan2(Wa,Wt)
-                W            = (Wa*Wa + Wt*Wt)**0.5
-                Ma           = W/a        # a is the speed of sound  
-                lamdaw       = r*Wa/(R*Wt)
                 
-                # Limiter to keep from Nan-ing
-                lamdaw[lamdaw<0.] = 0.
-                f            = (B/2.)*(1.-r/R)/lamdaw
-                f[f<0.]      = 0.
-                piece        = np.exp(-f)
-                arccos_piece = np.arccos(piece)
-                F            = 2.*arccos_piece/pi
-                Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
-                Re           = (W*c)/nu
+                # compute blade airfoil forces and properties
+                Cl, Cdval, alpha, Ma, W = compute_aerodynamic_forces(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
                 
-                # Compute aerodynamic forces based on specified input airfoil or surrogate
-                Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis)
+                # compute inflow velocity and tip loss factor
+                lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
                 
-                # Newton residual
+                # compute Newton residual on circulation
+                Gamma       = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
                 Rsquiggly   = Gamma - 0.5*W*c*Cl
                 
-            
-                # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
-                # This was solved symbolically in Matlab and exported        
-                f_wt_2      = 4*Wt*Wt
-                f_wa_2      = 4*Wa*Wa
-                Ucospsi     = U*cos_psi
-                Usinpsi     = U*sin_psi
-                Utcospsi    = Ut*cos_psi
-                Uasinpsi    = Ua*sin_psi 
-                UapUsinpsi  = (Ua + Usinpsi)
-                utpUcospsi  = (Ut + Ucospsi) 
-                utpUcospsi2 = utpUcospsi*utpUcospsi
-                UapUsinpsi2 = UapUsinpsi*UapUsinpsi 
-                dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B - 
-                               (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
-                               + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
-                               - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - 
-                                (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - 
-                                r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
-                                Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
-            
-                dR_dpsi[np.isnan(dR_dpsi)] = 0.1
-            
+                # use analytical derivative to get dR_dpsi
+                dR_dpsi = compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece)
+                
+                # update inflow angle
                 dpsi        = -Rsquiggly/dR_dpsi
                 PSI         = PSI + dpsi
                 diff        = np.max(abs(PSIold-PSI))
                 PSIold      = PSI
             
-                # omega = 0, do not run BEMT convergence loop 
+                # If omega = 0, do not run BEMT convergence loop 
                 if all(omega[:,0]) == 0. :              
                     break
                 
@@ -451,94 +422,41 @@ class Rotor(Energy_Component):
             lamdaw = r*(va+Ua)/(R*(Ut-vt))
             
         elif wake_method == "helical_fixed_wake":
-            # make a copy of the bemt outputs
-            bemt_outputs = deepcopy(self.outputs)
-            converge_wake = False
-            #-----------------------------------------------------------------------   
-            # DEBUGGING SECTION
-            #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -          
+            bemt_outputs = self.outputs
             
-            #fig=plt.figure()
-            #plt.plot(np.linspace(0,1,Nr), bemt_outputs.disc_axial_induced_velocity[0,0,:],"r-",label="BEMT")
-            ##plt.show()
-            #fig=plt.figure()
-            #plt.plot(np.linspace(0,1,Nr), bemt_outputs.disc_tangential_induced_velocity[0,0,:],"r-",label="BEMT")
-            #plt.show()     
+            # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+            va, vt = compute_HFW_blade_velocities(self, self.outputs)
 
-            #-----------------------------------------------------------------------  
-            i=0
-            tol = 1e-3
-            while diff>tol:
-                diff2 = 1.
-                tol2 = 1e-3 
+            # compute blade circulation/forces using the new velocities
+            Gamma        = self.outputs.disc_circulation
+            Wa           = va + Ua
+            Wt           = Ut - vt
+            
+            # Compute aerodynamic forces based on specified input airfoil or surrogate
+            Cl, Cdval, alpha, Ma,W = compute_aerodynamic_forces(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+            
+            lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+            
+            # compute HFW circulation at the blade
+            Gamma_Blade = 0.5*W*c*Cl*F
                 
-                # converge on axial induced velocities for the current circulation distribution
-                while(diff2>tol2):
-                    # converge on axial velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-                    va, vt = compute_HFW_blade_velocities(self, self.outputs)
-                    
-                    # compute the axial induced velocity residual between iterations
-                    diff2 = np.max(abs(np.average(self.outputs.disc_axial_induced_velocity-va,axis=1)))
-                    
-                    print(diff2)
-                    ii+=1
-                    
-                    # update the axial induced velocity for next iteration
-                    self.outputs.disc_axial_induced_velocity = self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
-                    
-                    if converge_wake:
-                        diff = np.max(abs(Gamma - Gamma_Blade))
-                    else:
-                        diff = 1e-7      
-                        diff2=1e-7
-                # compute blade circulation/forces using the new velocities
-                Gamma        = self.outputs.disc_circulation
-                Wa           = va + Ua
-                Wt           = Ut - vt
-                alpha        = beta - np.arctan2(Wa,Wt)
-                W            = (Wa*Wa + Wt*Wt)**0.5
-                Ma           = W/a        
-                lamdaw       = r*Wa/(R*Wt)
-                
-                # Limiter to keep from Nan-ing
-                lamdaw[lamdaw<0.] = 0.
-                f            = (B/2.)*(1.-r/R)/lamdaw
-                f[f<0.]      = 0.
-                piece        = np.exp(-f)
-                arccos_piece = np.arccos(piece)
-                F            = 2.*arccos_piece/pi
-                Re           = (W*c)/nu
-                
-                # Compute aerodynamic forces based on specified input airfoil or surrogate
-                Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis)
-                
-                Gamma_Blade = 0.5*W*c*Cl*F
-                
-                
-                
-                #-----------------------------------------------------------------------   
-                # DEBUGGING SECTION
-                #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                   
-                # plot convergence of circulation over iterations
-                fig = plt.figure()
-                plt.plot(r_1d/R,Gamma[0,:,0],'r-',label="$\\Gamma_{i}$")
-                plt.plot(r_1d/R,Gamma_Blade[0,:,0],'k-',label="$\\Gamma_{f}$")
-                plt.xlabel("$\\frac{r}{R}$")
-                plt.ylabel("$\\Gamma$")
-                plt.title("Convergence of Blade Circulation")
-                plt.legend()
-                plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation"+str(i)+".png", dpi = 300)        
-                #plt.show()                     
-                
-                print("Circulation residual:")
-                print(diff)
-
-                #-----------------------------------------------------------------------   
-                
-                i +=1    
-                
-                # update blade circulation and repeat
-                self.outputs.disc_circulation = Gamma + 0.5*(Gamma_Blade - Gamma)
+            ##-----------------------------------------------------------------------   
+            ## START DEBUGGING SECTION
+            ##- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                   
+            ## plot convergence of circulation over iterations
+            #fig = plt.figure()
+            #plt.plot(r_1d/R,Gamma[0,:,0],'r-',label="$\\Gamma_{i}$")
+            #plt.plot(r_1d/R,Gamma_Blade[0,:,0],'k-',label="$\\Gamma_{f}$")
+            #plt.xlabel("$\\frac{r}{R}$")
+            #plt.ylabel("$\\Gamma$")
+            #plt.title("Convergence of Blade Circulation")
+            #plt.legend()
+            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation"+str(i)+".png", dpi = 300)        
+            ##plt.show()                     
+   
+            ##- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -    
+            ## END DEBUGGING SECTION 
+            ##-----------------------------------------------------------------------              
             
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
@@ -616,13 +534,8 @@ class Rotor(Energy_Component):
                 Cq_time_accurate_blades       = blade_Q_distribution_blades/(rho_0*(n*n)*(D*D*D*D*D)) 
                 Ct_time_accurate_blades       = blade_T_distribution_blades/(rho_0*(n*n)*(D*D*D*D))
                 Cp_time_accurate_blades       = omega*blade_Q_distribution_blades/(rho_0*(n*n*n)*(D*D*D*D*D))                
-                
-                
-                
-                
-                
-                
-            
+                    
+
             # set 1d blade loadings to be the average:
             blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 2)
             blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 2) 
@@ -710,8 +623,8 @@ class Rotor(Energy_Component):
         # DEBUGGING SECTION
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # compare BEMT forces to HFW forces at blade:
-        
-        if wake_method == "helical_fixed_wake" :
+        plot_details=False
+        if wake_method == "helical_fixed_wake" and plot_details:
             plt.subplot(231)
             plt.plot(r_1d/R,bemt_outputs.blade_torque_distribution[0,:],'r-',label="BEMT")
             plt.plot(r_1d/R,blade_Q_distribution[0,:],'k-',label="HFW")
@@ -760,9 +673,16 @@ class Rotor(Energy_Component):
             plt.title("Comparison of Blade Circulation")
             plt.legend()
             #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation_BEMT_v_HFW.png", dpi = 300)        
-            plt.show()                      
+                                
         
+            plt.figure()
+            plt.plot(r_1d/R, F[0,:,0]*lamdaw[0,:,0], label="HFW")
+            plt.plot(r_1d/R, bemt_outputs.converged_inflow_ratio[0],label="BEMT")
+            plt.xlabel("$R$")
+            plt.ylabel("$\\lambda_i$")
+            plt.legend()            
     
+            plt.show()  
         #-----------------------------------------------------------------------        
         
         
@@ -1113,7 +1033,7 @@ def compute_HFW_blade_velocities(prop, prop_outputs ):
     return Va, Vt
 
 
-def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis):
+def compute_aerodynamic_forces(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
     """
     Cl, Cdval = compute_aerodynamic_forces(  a_loc, 
                                              a_geo, 
@@ -1142,6 +1062,17 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
     N/A
 
     Inputs:
+    beta                       blade twist distribution                        [-]
+    c                          chord distribution                              [-]
+    r                          radius distribution                             [-]
+    R                          tip radius                                      [-]
+    B                          number of rotor blades                          [-]
+    
+    Wa                         axial velocity                                  [-]
+    Wt                         tangential velocity                             [-]
+    a                          speed of sound                                  [-]
+    nu                         viscosity                                       [-]
+
     a_loc                      Locations of specified airfoils                 [-]
     a_geo                      Geometry of specified airfoil                   [-]
     cl_sur                     Lift Coefficient Surrogates                     [-]
@@ -1149,8 +1080,7 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
     ctrl_pts                   Number of control points                        [-]
     Nr                         Number of radial blade sections                 [-]
     Na                         Number of azimuthal blade stations              [-]
-    Re                         Local Reynolds numbers                          [-]
-    Ma                         Local Mach number                               [-]
+    
     alpha                      Local angles of attack                          [radians]
     tc                         Thickness to chord                              [-]
     use_2d_analysis            Specifies 2d disc vs. 1d single angle analysis  [Boolean]
@@ -1160,6 +1090,12 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
     Cl                       Lift Coefficients                         [-]                               
     Cdval                    Drag Coefficients  (before scaling)       [-]
     """        
+    
+    alpha        = beta - np.arctan2(Wa,Wt)
+    W            = (Wa*Wa + Wt*Wt)**0.5
+    Ma           = W/a        # a is the speed of sound  
+    Re           = (W*c)/nu
+    
     # If propeller airfoils are defined, use airfoil surrogate 
     if a_loc != None:
         # Compute blade Cl and Cd distribution from the airfoil data  
@@ -1172,8 +1108,8 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
                 Cl_af           = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
                 Cdval_af        = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
                 locs            = np.where(np.array(a_loc) == jj )
-                Cl[:,:,locs]    = Cl_af[:,:,locs]
-                Cdval[:,:,locs] = Cdval_af[:,:,locs]          
+                Cl[:,locs,:]    = Cl_af[:,locs,:]
+                Cdval[:,locs,:] = Cdval_af[:,locs,:]          
         else:
             # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
             Cl      = np.zeros((ctrl_pts,Nr))              
@@ -1212,4 +1148,45 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
     # prevent zero Cl to keep Cd/Cl from breaking in bemt  
     Cl[Cl==0] = 1e-6
         
-    return Cl, Cdval
+    return Cl, Cdval, alpha, Ma, W
+
+
+def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
+    # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
+    # This was solved symbolically in Matlab and exported   
+    pi          = np.pi
+    pi2         = np.pi**2
+    BB          = B*B
+    BBB         = BB*B
+    f_wt_2      = 4*Wt*Wt
+    f_wa_2      = 4*Wa*Wa
+    arccos_piece = np.arccos(piece)
+    Ucospsi     = U*cos_psi
+    Usinpsi     = U*sin_psi
+    Utcospsi    = Ut*cos_psi
+    Uasinpsi    = Ua*sin_psi 
+    UapUsinpsi  = (Ua + Usinpsi)
+    utpUcospsi  = (Ut + Ucospsi) 
+    utpUcospsi2 = utpUcospsi*utpUcospsi
+    UapUsinpsi2 = UapUsinpsi*UapUsinpsi 
+    dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B - 
+                   (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
+                   + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
+                   - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - 
+                    (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - 
+                    r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
+                    Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
+
+    dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+    return dR_dpsi
+
+def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
+    
+    lamdaw            = r*Wa/(R*Wt)
+    lamdaw[lamdaw<0.] = 0.                        # Limiter to keep from Nan-ing
+    f                 = (B/2.)*(1.-r/R)/lamdaw
+    f[f<0.]           = 0.
+    piece             = np.exp(-f)
+    F                 = 2.*np.arccos(piece)/np.pi
+    
+    return lamdaw, F, piece

@@ -323,23 +323,21 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         propi.Wake_VD.Zblades_cp2 =  Z_pts[0,:,:,0] + (Z_pts[0,:,:,0]-Z_pts[0,:,:,1])/2
 
     # Compress Data into 1D Arrays  
-    mat4_size = (m,num_prop,Bmax*nmax, nts)
-    mat5_size = (m,num_prop,nts*Bmax*nmax)
     mat6_size = (m,num_prop*nts*Bmax*nmax) 
 
-    WD.XA1    =  np.reshape(np.reshape(np.reshape(Wmid.WD_XA1,mat4_size),mat5_size),mat6_size)
-    WD.YA1    =  np.reshape(np.reshape(np.reshape(Wmid.WD_YA1,mat4_size),mat5_size),mat6_size)
-    WD.ZA1    =  np.reshape(np.reshape(np.reshape(Wmid.WD_ZA1,mat4_size),mat5_size),mat6_size)
-    WD.XA2    =  np.reshape(np.reshape(np.reshape(Wmid.WD_XA2,mat4_size),mat5_size),mat6_size)
-    WD.YA2    =  np.reshape(np.reshape(np.reshape(Wmid.WD_YA2,mat4_size),mat5_size),mat6_size)
-    WD.ZA2    =  np.reshape(np.reshape(np.reshape(Wmid.WD_ZA2,mat4_size),mat5_size),mat6_size)
-    WD.XB1    =  np.reshape(np.reshape(np.reshape(Wmid.WD_XB1,mat4_size),mat5_size),mat6_size)
-    WD.YB1    =  np.reshape(np.reshape(np.reshape(Wmid.WD_YB1,mat4_size),mat5_size),mat6_size)
-    WD.ZB1    =  np.reshape(np.reshape(np.reshape(Wmid.WD_ZB1,mat4_size),mat5_size),mat6_size)
-    WD.XB2    =  np.reshape(np.reshape(np.reshape(Wmid.WD_XB2,mat4_size),mat5_size),mat6_size)
-    WD.YB2    =  np.reshape(np.reshape(np.reshape(Wmid.WD_YB2,mat4_size),mat5_size),mat6_size)
-    WD.ZB2    =  np.reshape(np.reshape(np.reshape(Wmid.WD_ZB2,mat4_size),mat5_size),mat6_size)
-    WD.GAMMA  =  np.reshape(np.reshape(np.reshape(Wmid.WD_GAMMA,mat4_size),mat5_size),mat6_size)
+    WD.XA1    =  np.reshape(Wmid.WD_XA1,mat6_size)
+    WD.YA1    =  np.reshape(Wmid.WD_YA1,mat6_size)
+    WD.ZA1    =  np.reshape(Wmid.WD_ZA1,mat6_size)
+    WD.XA2    =  np.reshape(Wmid.WD_XA2,mat6_size)
+    WD.YA2    =  np.reshape(Wmid.WD_YA2,mat6_size)
+    WD.ZA2    =  np.reshape(Wmid.WD_ZA2,mat6_size)
+    WD.XB1    =  np.reshape(Wmid.WD_XB1,mat6_size)
+    WD.YB1    =  np.reshape(Wmid.WD_YB1,mat6_size)
+    WD.ZB1    =  np.reshape(Wmid.WD_ZB1,mat6_size)
+    WD.XB2    =  np.reshape(Wmid.WD_XB2,mat6_size)
+    WD.YB2    =  np.reshape(Wmid.WD_YB2,mat6_size)
+    WD.ZB2    =  np.reshape(Wmid.WD_ZB2,mat6_size)
+    WD.GAMMA  =  np.reshape(Wmid.WD_GAMMA,mat6_size)
 
     return WD, dt, ts, B, Nr 
 
