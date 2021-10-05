@@ -233,16 +233,16 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     # Now plotting:
     psi  = outputs.disc_azimuthal_distribution[i,:,:]
     r    = outputs.disc_radial_distribution[i,:,:]
-    psi  = np.append(psi,np.array([np.ones_like(psi[0])*2*np.pi]),axis=0)
-    r    = np.append(r,np.array([r[0]]),axis=0)
+    psi  = np.append(psi,np.atleast_2d(np.ones_like(psi[:,0])).T*2*np.pi,axis=1)
+    r    = np.append(r,np.atleast_2d(r[:,0]).T,axis=1)
     
     T    = outputs.disc_thrust_distribution[i]
     Q    = outputs.disc_torque_distribution[i]
     alf  = (outputs.disc_effective_angle_of_attack[i])/Units.deg
     
-    T    = np.append(T,np.array([T[0]]),axis=0)
-    Q    = np.append(Q,np.array([Q[0]]),axis=0)
-    alf  = np.append(alf,np.array([alf[0]]),axis=0)
+    T    = np.append(T,np.atleast_2d(T[:,0]).T,axis=1)
+    Q    = np.append(Q,np.atleast_2d(Q[:,0]).T,axis=1)
+    alf  = np.append(alf,np.atleast_2d(alf[:,0]).T,axis=1)
     
     rh  = prop.hub_radius
     lev = 21

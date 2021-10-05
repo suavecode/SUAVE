@@ -93,6 +93,8 @@ class Rotor(Energy_Component):
         
         self.Wake_VD                   = Data()
         self.wake_method               = "momentum"
+        self.number_rotor_rotations    = 5
+        self.number_steps_per_rotation = 100        
         self.wake_settings             = Data()
         
         self.wake_settings.initial_timestep_offset   = 0    # initial timestep
@@ -211,10 +213,7 @@ class Rotor(Energy_Component):
         rho_0   = rho
         
         # Helpful shorthands
-        BB      = B*B    
-        BBB     = BB*B
-        pi      = np.pi        
-        pi2     = pi*pi         
+        pi      = np.pi         
      
         # Calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c
@@ -231,8 +230,8 @@ class Rotor(Energy_Component):
         V         = V_thrust[:,0,None]  
         V[V==0.0] = 1E-6
         
-        #Things that don't change with iteration
-        Nr       = len(c) # Number of stations radially    
+        # Number of radial stations and segment control points
+        Nr       = len(c)
         ctrl_pts = len(Vv)
                  
         # Non-dimensional radial distribution and differential radius
@@ -246,7 +245,6 @@ class Rotor(Energy_Component):
         # Calculating rotational parameters
         omegar   = np.outer(omega,r_1d)    
         n        = omega/(2.*pi)   # Rotations per second  
-
         
         # 2 dimensional radial distribution non dimensionalized
         chi_2d         = np.tile(chi[:, None],(1,Na))            
@@ -312,8 +310,7 @@ class Rotor(Energy_Component):
             ua += self.axial_velocities_2d
             ut += self.tangential_velocities_2d
             ur += self.radial_velocities_2d        
-        
-                
+         
         if use_2d_analysis:
             # make everything 2D with shape (ctrl_pts,Nr,Na)
             size   = (ctrl_pts,Nr,Na )
@@ -361,17 +358,15 @@ class Rotor(Energy_Component):
             PSI    = np.ones(size)
             PSIold = np.zeros(size)  
         
-        
         # Total velocities
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur) 
-        
-        # Setup a Newton iteration
-        diff   = 1.
-        tol    = 1e-6  # Convergence tolerance
-        ii     = 0               
-        
+                   
         if wake_method == 'momentum':
+            # Setup a Newton iteration
+            diff   = 1.
+            tol    = 1e-6  # Convergence tolerance
+            ii     = 0    
             
             # BEMT Iteration
             while (diff>tol):
@@ -422,10 +417,9 @@ class Rotor(Energy_Component):
             lamdaw = r*(va+Ua)/(R*(Ut-vt))
             
         elif wake_method == "helical_fixed_wake":
-            bemt_outputs = self.outputs
             
             # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-            va, vt = compute_HFW_blade_velocities(self, self.outputs)
+            va, vt = compute_HFW_blade_velocities(self)
 
             # compute blade circulation/forces using the new velocities
             Gamma        = self.outputs.disc_circulation
@@ -439,24 +433,6 @@ class Rotor(Energy_Component):
             
             # compute HFW circulation at the blade
             Gamma_Blade = 0.5*W*c*Cl*F
-                
-            ##-----------------------------------------------------------------------   
-            ## START DEBUGGING SECTION
-            ##- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                   
-            ## plot convergence of circulation over iterations
-            #fig = plt.figure()
-            #plt.plot(r_1d/R,Gamma[0,:,0],'r-',label="$\\Gamma_{i}$")
-            #plt.plot(r_1d/R,Gamma_Blade[0,:,0],'k-',label="$\\Gamma_{f}$")
-            #plt.xlabel("$\\frac{r}{R}$")
-            #plt.ylabel("$\\Gamma$")
-            #plt.title("Convergence of Blade Circulation")
-            #plt.legend()
-            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation"+str(i)+".png", dpi = 300)        
-            ##plt.show()                     
-   
-            ##- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -    
-            ## END DEBUGGING SECTION 
-            ##-----------------------------------------------------------------------              
             
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
@@ -500,7 +476,6 @@ class Rotor(Energy_Component):
                 # blade offsets independent of rotation number, so get base rotation angle
                 blade_offsets = blade_offsets%(2*np.pi)
                 
-                
                 # Close the loop to enable interpolation along last azimuthal slice
                 psi_closed                       = np.append(psi,2*np.pi)
                 blade_T_distribution_disc_closed = np.append(blade_T_distribution_2d,blade_T_distribution_2d[:,0,:][:,None,:],axis=1)
@@ -530,7 +505,6 @@ class Rotor(Energy_Component):
                 Cp_time_accurate       = time_accurate_power/(rho_0*(n*n*n)*(D*D*D*D*D))
                 etap_time_accurate     = V*time_accurate_thrust/time_accurate_power     
                 
-                
                 Cq_time_accurate_blades       = blade_Q_distribution_blades/(rho_0*(n*n)*(D*D*D*D*D)) 
                 Ct_time_accurate_blades       = blade_T_distribution_blades/(rho_0*(n*n)*(D*D*D*D))
                 Cp_time_accurate_blades       = omega*blade_Q_distribution_blades/(rho_0*(n*n*n)*(D*D*D*D*D))                
@@ -541,8 +515,6 @@ class Rotor(Energy_Component):
             blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 2) 
             blade_dT_dr             = np.mean((blade_dT_dr_2d), axis = 2) 
             blade_dQ_dr             = np.mean((blade_dQ_dr_2d), axis = 2)
-            
-
             
             # compute the hub force / rotor drag distribution along the blade
             dL_2d    = 0.5*rho*c_2d*Cd*omegar**2*deltar
@@ -575,14 +547,12 @@ class Rotor(Energy_Component):
             dD_2d = np.repeat(dD[:, :, None], Na, axis=2)
             
             rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=2)
-        
        
         # forces
         thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
         torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
         rotor_drag              = np.atleast_2d((B * np.sum(rotor_drag_distribution, axis=1))).T
         power                   = omega*torque   
-               
         
         # calculate coefficients 
         D        = 2*R 
@@ -600,7 +570,7 @@ class Rotor(Energy_Component):
         power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0 
         torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
         rotor_drag[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0]                                      = - thrust[omega<0.0]  
+        thrust[omega<0.0]                                      = -thrust[omega<0.0]  
         thrust[omega==0.0]                                     = 0.0
         power[omega==0.0]                                      = 0.0
         torque[omega==0.0]                                     = 0.0
@@ -609,7 +579,6 @@ class Rotor(Energy_Component):
         Cp[omega==0.0]                                         = 0.0 
         etap[omega==0.0]                                       = 0.0           
           
-        
         # Make the thrust a 3D vector
         thrust_prop_frame      = np.zeros((ctrl_pts,3))
         thrust_prop_frame[:,0] = thrust[:,0]
@@ -617,75 +586,6 @@ class Rotor(Energy_Component):
        
         # Assign efficiency to network
         conditions.propulsion.etap = etap 
-        
-        
-        #-----------------------------------------------------------------------
-        # DEBUGGING SECTION
-        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        # compare BEMT forces to HFW forces at blade:
-        plot_details=False
-        if wake_method == "helical_fixed_wake" and plot_details:
-            plt.subplot(231)
-            plt.plot(r_1d/R,bemt_outputs.blade_torque_distribution[0,:],'r-',label="BEMT")
-            plt.plot(r_1d/R,blade_Q_distribution[0,:],'k-',label="HFW")
-            plt.xlabel("$\\frac{r}{R}$")
-            plt.ylabel("Torque")
-            plt.title("Comparison of Blade Torque Distribution")
-            plt.legend()
-            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/torque_BEMT_v_HFW.png", dpi = 300)        
-            #plt.show()
-            
-            plt.subplot(232)
-            plt.plot(r_1d/R,bemt_outputs.blade_thrust_distribution[0,:],'r-',label="BEMT")
-            plt.plot(r_1d/R,blade_T_distribution[0,:],'k-',label="HFW")
-            plt.xlabel("$\\frac{r}{R}$")
-            plt.ylabel("Thrust")
-            plt.title("Comparison of Blade Thrust Distribution")
-            plt.legend()
-            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/thrust_BEMT_v_HFW.png", dpi = 300)        
-            #plt.show()            
-            
-            plt.subplot(233)
-            plt.plot(r_1d/R,bemt_outputs.blade_axial_induced_velocity[0,:],'r-',label="BEMT")
-            plt.plot(r_1d/R,Va_ind_avg[0,:],'k-',label="HFW")
-            plt.xlabel("$\\frac{r}{R}$")
-            plt.ylabel("$v_a$")
-            plt.title("Comparison of Induced Axial Velocity")
-            plt.legend()
-            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/va_BEMT_v_HFW.png", dpi = 300)        
-            #plt.show()     
-            
-            plt.subplot(234)
-            plt.plot(r_1d/R,bemt_outputs.blade_tangential_induced_velocity[0,:],'r-',label="BEMT")
-            plt.plot(r_1d/R,Vt_ind_avg[0,:],'k-',label="HFW")
-            plt.xlabel("$\\frac{r}{R}$")
-            plt.ylabel("$v_t$")
-            plt.title("Comparison of Induced Tangential Velocity")
-            plt.legend()
-            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/vt_BEMT_v_HFW.png", dpi = 300)        
-            #plt.show()       
-            
-            plt.subplot(235)
-            plt.plot(r_1d/R,bemt_outputs.disc_circulation[0,:,0],'r-',label="BEMT")
-            plt.plot(r_1d/R,Gamma_Blade[0,:,0],'k-',label="HFW")
-            plt.xlabel("$\\frac{r}{R}$")
-            plt.ylabel("$\\Gamma$")
-            plt.title("Comparison of Blade Circulation")
-            plt.legend()
-            #plt.savefig("/Users/rerha/Desktop/HFW_Convergence/circulation_BEMT_v_HFW.png", dpi = 300)        
-                                
-        
-            plt.figure()
-            plt.plot(r_1d/R, F[0,:,0]*lamdaw[0,:,0], label="HFW")
-            plt.plot(r_1d/R, bemt_outputs.converged_inflow_ratio[0],label="BEMT")
-            plt.xlabel("$R$")
-            plt.ylabel("$\\lambda_i$")
-            plt.legend()            
-    
-            plt.show()  
-        #-----------------------------------------------------------------------        
-        
-        
         
         # Store data
         self.azimuthal_distribution                   = psi  
@@ -816,7 +716,7 @@ class Rotor(Energy_Component):
         """           
 
         #--------------------------------------------------------------------------------        
-        # Initialize by running BEMT for initial blade circulation
+        # Initialize by running BEMT to get initial blade circulation
         #--------------------------------------------------------------------------------
         _, _, _, _, bemt_outputs , _ = self.spin(conditions)
         conditions.noise.sources.propellers[self.tag] = bemt_outputs
@@ -824,14 +724,14 @@ class Rotor(Energy_Component):
         omega = self.inputs.omega
         
         #--------------------------------------------------------------------------------
-        # generate wake vortex distribution
+        # generate rotor wake vortex distribution
         #--------------------------------------------------------------------------------
         props = Data()
         props.propeller = self
         
         # generate wake distribution for n rotor rotation
-        nrots         = 5
-        steps_per_rot = 50
+        nrots         = self.number_rotor_rotations
+        steps_per_rot = self.number_steps_per_rotation
         rpm           = omega/Units.rpm
         
         # simulation parameters for n rotor rotations
@@ -849,6 +749,7 @@ class Rotor(Energy_Component):
         thrust_vector, torque, power, Cp, outputs , etap = self.spin(conditions)
         
         return thrust_vector, torque, power, Cp, outputs , etap
+    
     def vec_to_vel(self):
         """This rotates from the propellers vehicle frame to the propellers velocity frame
 
@@ -944,23 +845,25 @@ class Rotor(Energy_Component):
 
         return rot_mat
 
-def compute_HFW_blade_velocities(prop, prop_outputs ):
+def compute_HFW_blade_velocities( prop ):
     """
-    
+    Inputs:
+       prop - rotor instance
     Outputs:
-       Va - axial velocity array of shape (ctrl_pts, Na, Nr)
-       Vt - tangential velocity array of shape (ctrl_pts, Na, Nr)
+       Va   - axial velocity array of shape (ctrl_pts, Nr, Na)
+       Vt   - tangential velocity array of shape (ctrl_pts, Nr, Na)
     """
     VD                       = Data()
     omega                    = prop.inputs.omega  
     time                     = prop.wake_settings.wake_development_time
     init_timestep_offset     = prop.wake_settings.init_timestep_offset
-    number_of_wake_timesteps = prop.wake_settings.number_of_wake_timesteps     
+    number_of_wake_timesteps = prop.wake_settings.number_of_wake_timesteps  
     
-    cpts    = 1   # only testing one condition
-    m       = 1
-    Na = prop.number_azimuthal_stations 
-    Nr = len(prop.chord_distribution)
+    # use results from prior bemt iteration
+    prop_outputs  = prop.outputs
+    cpts          = len(prop_outputs.velocity)
+    Na            = prop.number_azimuthal_stations 
+    Nr            = len(prop.chord_distribution)
 
     conditions = Data()
     conditions.noise = Data()
@@ -987,29 +890,25 @@ def compute_HFW_blade_velocities(prop, prop_outputs ):
         init_timestep_offset = blade_angle/(omega * dt)
         
         # generate wake distribution using initial circulation from BEMT
-        WD, _, _, _, _  = generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ) 
+        WD, _, _, _, _  = generate_propeller_wake_distribution(props,identical,cpts,VD,
+                                                               init_timestep_offset, time, 
+                                                               number_of_wake_timesteps,conditions, 
+                                                               include_lifting_line=False ) 
         
         # ----------------------------------------------------------------    
         # Compute the wake-induced velocities at propeller blade
         # ----------------------------------------------------------------
-        offset_angle = 0 #-2*Units.deg
-        offset_time  = offset_angle/omega[0][0]
-        x_offset     = offset_time*prop.outputs.velocity[0][0]
-        rot_mat      = np.array([[np.cos(offset_angle), -np.sin(offset_angle)],
-                                [np.sin(offset_angle), np.cos(offset_angle)]])
         
-        # set the evaluation points in the vortex distribution
-        Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0]  #y   (ncpts, nblades, Nr, Ntsteps)
-        Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0]  #z
-        Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0]  #prop.origin[0][0]*np.ones_like(VD.YC)
+        # set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
+        Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0]
+        Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0]
+        Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0]
         
-        VD.YC = Yb*rot_mat[0,0] + Zb*rot_mat[0,1]
-        VD.ZC = Yb*rot_mat[1,0] + Zb*rot_mat[1,1]
-        VD.XC = Xb + x_offset
-        
+        VD.YC = Yb   # (Yb[1:] + Yb[:-1]) / 2 #
+        VD.ZC = Zb   # (Zb[1:] + Zb[:-1]) / 2 #
+        VD.XC = Xb   # (Xb[1:] + Xb[:-1]) / 2 #
         
         VD.n_cp = np.size(VD.YC)   
-        
         
         # Compute induced velocities at blade from the helical fixed wake
         VD.Wake_collapsed = WD
@@ -1019,17 +918,15 @@ def compute_HFW_blade_velocities(prop, prop_outputs ):
         v       = V_ind[0,:,1]
         w       = V_ind[0,:,2]   
         
+        # interpolate from control points to radial stations for evaluation in spin function
+        u_cp   = 1
+        
+        # Update velocities at the disc
         Va[:,:,i]  = u
         Vt[:,:,i]  = (-w*np.cos(blade_angle) + v*np.sin(blade_angle))*prop.rotation
     
     prop.vortex_distribution = VD
-        ## test generate vtk
-        #from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
-        #from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
-        #Results = Data()
-        #Results["prop_outputs"] = prop.outputs
-        #save_prop_wake_vtk(VD.Wake, filename="/Users/rerha/Desktop/vtk_test/wake."+str(i)+".vtk", Results=Results, i_prop=0)
-        #save_evaluation_points_vtk(VD, filename="/Users/rerha/Desktop/vtk_test/eval_points."+str(i)+".vtk")
+
     return Va, Vt
 
 
@@ -1093,7 +990,7 @@ def compute_aerodynamic_forces(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur
     
     alpha        = beta - np.arctan2(Wa,Wt)
     W            = (Wa*Wa + Wt*Wt)**0.5
-    Ma           = W/a        # a is the speed of sound  
+    Ma           = W/a        
     Re           = (W*c)/nu
     
     # If propeller airfoils are defined, use airfoil surrogate 
@@ -1152,8 +1049,8 @@ def compute_aerodynamic_forces(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur
 
 
 def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
-    # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
-    # This was solved symbolically in Matlab and exported   
+    # An analytical derivative for dR_dpsi used in the Newton iteration for the BEMT
+    # This was solved symbolically in Matlab and exported
     pi          = np.pi
     pi2         = np.pi**2
     BB          = B*B
@@ -1183,7 +1080,7 @@ def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
 def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     
     lamdaw            = r*Wa/(R*Wt)
-    lamdaw[lamdaw<0.] = 0.                        # Limiter to keep from Nan-ing
+    lamdaw[lamdaw<0.] = 0.
     f                 = (B/2.)*(1.-r/R)/lamdaw
     f[f<0.]           = 0.
     piece             = np.exp(-f)
