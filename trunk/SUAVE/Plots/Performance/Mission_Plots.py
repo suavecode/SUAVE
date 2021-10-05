@@ -11,10 +11,11 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Units 
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import mpl_toolkits.mplot3d as plt3d
-import numpy as np
+import matplotlib.cm as cm 
+import numpy as np 
+import plotly.graph_objects as go  
 import matplotlib.ticker as ticker 
+
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
@@ -940,77 +941,50 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     # ------------------------------------------------------------------
     fig = plt.figure("Lift_Cruise_Battery_Pack_Conditions")
     fig.set_size_inches(16, 8)
-    for i in range(len(results.segments)):           
-        time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        pack_power          = results.segments[i].conditions.propulsion.battery_power_draw[:,0] 
-        pack_energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        eta                 = results.segments[i].conditions.propulsion.throttle[:,0]
-        eta_l               = results.segments[i].conditions.propulsion.throttle_lift[:,0]
-        pack_volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
-        pack_volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]     
-        pack_current        = results.segments[i].conditions.propulsion.battery_current[:,0]   
-        pack_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
-        pack_temp           = results.segments[i].conditions.propulsion.battery_pack_temperature[:,0]      
-        pack_current         = results.segments[i].conditions.propulsion.battery_current[:,0]
-        
-        pack_battery_amp_hr = (pack_energy/ Units.Wh )/pack_volts  
-        pack_C_rating       = pack_current/pack_battery_amp_hr
-        
-    
-        axes = plt.subplot(3,3,1)
-        axes.plot(time, pack_SOC , line_color)
-        axes.set_ylabel('SOC',axis_font)
-        set_axes(axes)    
-
-        axes = plt.subplot(3,3,2)
-        axes.plot(time, (pack_energy/Units.Wh)/1000, line_color)
-        axes.set_ylabel('Energy (kW-hr)',axis_font)
-        set_axes(axes)              
-    
-        axes = plt.subplot(3,3,3)
-        axes.plot(time, -pack_power/1000, line_color)
-        axes.set_ylabel('Power (kW)',axis_font)
-        set_axes(axes)       
-        
-        axes = plt.subplot(3,3,4) 
-        axes.set_ylabel('Voltage (V)',axis_font) 
-        set_axes(axes) 
-        if i == 0:
-            axes.plot(time, pack_volts, line_color,label='Under Load')
-            axes.plot(time,pack_volts_oc, line_color2,label='Open Circuit')
-        else:
-            axes.plot(time, pack_volts, line_color)
-            axes.plot(time,pack_volts_oc,line_color2) 
-        axes.legend(loc='upper right')  
-        
-        axes = plt.subplot(3,3,5)
-        axes.plot(time, pack_C_rating, line_color)
-        axes.set_ylabel('C-Rate (C)',axis_font)  
-        set_axes(axes)  
-
-        axes = plt.subplot(3,3,6)
-        axes.plot(time, pack_current, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Current (A)',axis_font)  
-        set_axes(axes) 
-
-        axes = plt.subplot(3,3,7)
-        axes.set_xlabel('Time (mins)',axis_font)
+    for i in range(len(results.segments)):          
+        time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        eta            = results.segments[i].conditions.propulsion.throttle[:,0]
+        eta_l          = results.segments[i].conditions.propulsion.throttle_lift[:,0]
+        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0]/ Units.Wh
+        specific_power = results.segments[i].conditions.propulsion.battery_specfic_power[:,0]
+        volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
+        volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]  
+                    
+        plt.title('Battery Pack Conditions')
+        axes = plt.subplot(2,2,1)
+        axes.set_ylabel('Throttle',axis_font)
+        set_axes(axes)     
+        plt.ylim((0,1))
         if i == 0:
             axes.plot(time, eta, line_color,label='Propeller Motor')
             axes.plot(time, eta_l, line_color2,label='Lift Rotor Motor')
             axes.legend(loc='upper center')    
         else:
             axes.plot(time, eta, line_color)
-            axes.plot(time, eta_l, line_color2)    
-        set_axes(axes)       
-        
-        
-        axes = plt.subplot(3,3,8)
-        axes.plot(time, pack_temp, line_color)
-        axes.set_ylabel('Temperature (K)',axis_font)  
+            axes.plot(time, eta_l, line_color2)
+    
+        axes = plt.subplot(2,2,2)
+        axes.plot(time, energy, line_color)
+        axes.set_ylabel('Battery Energy (W-hr)',axis_font)
+        set_axes(axes)
+    
+        axes = plt.subplot(2,2,3) 
+        axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
         axes.set_xlabel('Time (mins)',axis_font)
-        set_axes(axes)  
+        set_axes(axes) 
+        if i == 0:
+            axes.plot(time, volts, line_color,label='Under Load')
+            axes.plot(time,volts_oc, line_color2,label='Open Circuit')
+            axes.legend(loc='upper center')   
+        else:
+            axes.plot(time, volts, line_color)
+            axes.plot(time,volts_oc,line_color2)        
+        
+        axes = plt.subplot(2,2,4)
+        axes.plot(time, specific_power, line_color) 
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Specific Power',axis_font)  
+        set_axes(axes)
     
     plt.tight_layout()     
     if save_figure:
@@ -1551,7 +1525,7 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
 # ------------------------------------------------------------------
 #   Rotor/Propeller Acoustics
 # ------------------------------------------------------------------
-def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_filename = "Noise Level"):
+def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, save_filename = "Sideline Noise Levels"):
     """This plots the A-weighted Sound Pressure Level as a function of time at various aximuthal angles 
     on the ground
     
@@ -1566,7 +1540,7 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
         frames.inertial.position_vector   - position vector of aircraft 
         noise.                            
             total_SPL_dBA                 - total SPL (dbA)
-            microphone_locations          - microphone locations
+            total_microphone_locations          - microphone locations
             
     Outputs: 
     Plots
@@ -1575,45 +1549,44 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
     N/A	
     """        
     # unpack 
-    dim_seg      = len(results.segments)
-    dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])
-    dim_mic      = int(np.sqrt(len(results.segments[0].conditions.noise.total_SPL_dBA[0,:])))    
-    center_line  = int(np.floor(dim_mic/2))
-    colors       = cm.jet(np.linspace(0, 1,dim_mic))  
+    dim_segs     = len(results.segments)
+    dim_gm       = results.segments[0].conditions.noise.number_ground_microphones
+    dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])  
+    N_gm_x       = results.segments[0].analyses.noise.settings.level_ground_microphone_x_resolution  
+    N_gm_y       = results.segments[0].analyses.noise.settings.level_ground_microphone_y_resolution 
+    gm           = results.segments[0].conditions.noise.ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3)
+    gm_x         = gm[:,:,0]
+    gm_y         = gm[:,:,1]
+    colors       = cm.jet(np.linspace(0, 1,int(N_gm_y/2)))   
     
     # figure parameters
     axis_font    = {'size':'14'} 
     fig          = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
-    axes1        = fig.add_subplot(1,1,1)
-    
-    # loop through control points
-    for i in range(dim_seg): 
-        if  results.segments[i].battery_discharge == False:
-            pass
-        else: 
-            angles = abs(270- results.segments[i].conditions.noise.microphone_phi_angles/Units.degrees)
-            time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
-            alt    = results.segments[i].conditions.freestream.altitude[:,0] / Units.ft
-            SPL    = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
-            
-            for j in range(dim_mic):
-                if i == 0:
-                    axes1.plot(time, SPL[:,center_line,j], color = colors[j], label= r'$\phi$ = ' + str(round(angles[j],1)) + r' $\degree$' ) 
-                else:
-                    axes1.plot(time, SPL[:,center_line,j], color = colors[j])  
-            axes1.set_ylabel('SPL (dBA)',axis_font)
-            axes1.set_xlabel('Time (min)',axis_font) 
-    
-    axes1.legend(loc='upper right')        
-    plt.tight_layout() 
+    axes        = fig.add_subplot(1,1,1) 
+     
+    SPL = np.zeros((dim_segs,dim_ctrl_pts,N_gm_x,N_gm_y))
+    # loop through control points 
+    for i in range(dim_segs):  
+        for j in range(dim_ctrl_pts):
+            if results.segments[i].battery_discharge == False:
+                pass 
+            else:
+                SPL[i,j,:] = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm].reshape(N_gm_x,N_gm_y)  
+    max_SPL = np.max(np.max(SPL,axis=0),axis=0)   
+    for k in range(int(N_gm_y/2)):    
+        axes.plot(-gm_x[:,0], max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
+    axes.set_ylabel('SPL (dBA)',axis_font)
+    axes.set_xlabel('Range (m)',axis_font)  
+    set_axes(axes)
+    axes.legend(loc='upper right')         
     if save_figure:
         plt.savefig(save_filename + ".png")  
         
 
     return
 
-def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour"):
+def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour",show_figure = True):
     """This plots the A-weighted Sound Pressure Level contour of the surface directly under an aircraft  
     
     Assumptions:
@@ -1627,7 +1600,7 @@ def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure =
         frames.inertial.position_vector   - position vector of aircraft 
         noise.                            
             total_SPL_dBA                 - total SPL (dbA)
-            microphone_locations          - microphone locations
+            total_microphone_locations    - microphone locations
             
     Outputs: 
     Plots
@@ -1636,60 +1609,170 @@ def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure =
     N/A	
     """   
     # unpack 
-    dim_seg      = len(results.segments)
-    dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])
-    dim_mic      = int(np.sqrt(len(results.segments[0].conditions.noise.total_SPL_dBA[0,:])))
-    dim_mat      = dim_seg*dim_ctrl_pts 
-    SPL_contour  = np.zeros((dim_mat,dim_mic)) 
-    Range        = np.zeros((dim_mat,dim_mic)) 
-    Span         = np.zeros((dim_mat,dim_mic)) 
-    dim_segs     = len(results.segments) 
-    center_line  = int(np.floor(dim_mic/2))
-    Aircraft_pos = np.zeros((dim_mat,3)) 
+    dim_segs       = len(results.segments)
+    dim_ctrl_pts   = len(results.segments[0].conditions.frames.inertial.time[:,0])
+    dim_gm         = results.segments[0].conditions.noise.number_ground_microphones
+    gm_N_x         = results.segments[0].analyses.noise.settings.level_ground_microphone_x_resolution
+    gm_N_y         = results.segments[0].analyses.noise.settings.level_ground_microphone_y_resolution
+    dim_bm         = results.segments[0].conditions.noise.number_building_microphones 
+    dim_mat        = dim_segs*dim_ctrl_pts 
+    SPL_contour_gm = np.zeros((dim_mat,dim_gm)) 
+    Range          = np.zeros((dim_mat,dim_gm)) 
+    Span           = np.zeros((dim_mat,dim_gm)) 
+    SPL_contour_bm = np.zeros((dim_mat,dim_bm))  
+    Aircraft_pos   = np.zeros((dim_mat,3)) 
     
-    # figure parameters
-    fig          = plt.figure(save_filename)
-    axes         = fig.gca(projection='3d') 
-    fig.set_size_inches(12, 8) 
+    # initialize plot data 
+    plot_data = []
     
-    # loop through control points
+    # Get SPL at Ground Level (z = 0)
     for i in range(dim_segs):  
         if  results.segments[i].battery_discharge == False:
             pass
-        else:    
-            for j in range(dim_ctrl_pts):
-                idx = i*dim_ctrl_pts + j
-                Aircraft_pos[idx ,0] = results.segments[i].conditions.frames.inertial.position_vector[j,0]
-                Aircraft_pos[idx ,2] = -results.segments[i].conditions.frames.inertial.position_vector[j,2]
-                SPL                  = results.segments[i].conditions.noise.total_SPL_dBA.reshape(dim_ctrl_pts,dim_mic,dim_mic)
-                SPL_contour[idx,:]   = SPL[j,center_line,:]
-                Range[idx,:]         = np.repeat(results.segments[i].conditions.frames.inertial.position_vector[j,0],dim_mic, axis = 0)
-                MLs                  = results.segments[i].conditions.noise.microphone_locations.reshape(dim_ctrl_pts,dim_mic,dim_mic,3)
-                Span[idx,:]          = MLs[j,center_line,:,1]
-            
-    axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2], c='k'    , marker = 'o' )
-    CS = axes.contourf(Range,Span,SPL_contour, levels = 50, zdir='z', offset= 0  , cmap=plt.cm.jet) 
-    CS = axes.contourf(Range,-Span,SPL_contour, levels = 50, zdir='z', offset= 0 , cmap=plt.cm.jet) 
-    axes.view_init(elev= 30, azim= -140)  
+        else:     
+            for j in range(dim_ctrl_pts):  
+                idx                    = i*dim_ctrl_pts + j
+                Aircraft_pos[idx ,0]   = results.segments[i].conditions.frames.inertial.position_vector[j,0]
+                Aircraft_pos[idx ,2]   = -results.segments[i].conditions.frames.inertial.position_vector[j,2] 
+                SPL_contour_gm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm]
+                
+                if dim_bm > 0:
+                    SPL_contour_bm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,-dim_bm:] 
     
-    #plot the lines
-    for i in range(dim_mat-1): 
-        xs = Aircraft_pos[i,0], Aircraft_pos[i+1,0]
-        ys = Aircraft_pos[i,1], Aircraft_pos[i+1,1]
-        zs = Aircraft_pos[i,2], Aircraft_pos[i+1,2]
-        line = plt3d.art3d.Line3D(xs, ys, zs, color = 'black', linewidth = 3)
-        axes.add_line(line)    
-      
-    cbar = fig.colorbar(CS, ax=axes, shrink=0.5)
-    cbar.ax.set_ylabel('SPL', rotation =  0, labelpad=20)  
-    plt.axis('off')	
-    plt.grid(None)        
+    # Level Ground Noise Contour
+    gm_mic_loc          = results.segments[0].analyses.noise.settings.ground_microphone_locations  
+    Range               = gm_mic_loc[:,0].reshape(gm_N_x,gm_N_y)
+    Span                = gm_mic_loc[:,1].reshape(gm_N_x,gm_N_y)
+    ground_surface      = np.zeros(Range.shape) 
+    max_SPL_contour_gm  = np.max(SPL_contour_gm,axis=0)
+    SPL_gm              = max_SPL_contour_gm.reshape(gm_N_x,gm_N_y)
+    ground_contour      = contour_surface_slice(Range,Span, ground_surface , SPL_gm)
+    plot_data.append(ground_contour)
     
-    plt.tight_layout() 
-    if save_figure:
-        plt.savefig(save_filename + ".png")   
-
+    # Aircraft Trajectory
+    aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,0], y=Aircraft_pos[:,1], z=Aircraft_pos[:,2],
+                                mode='markers', 
+                                marker=dict(size=6,color='black',opacity=0.8),
+                                line=dict(color='black',width=2))    
+    plot_data.append(aircraft_trajectory)
+     
+    # Define Colorbar Bounds 
+    min_gm_SPL  = np.min(SPL_contour_gm) 
+    max_gm_SPL  = np.max(SPL_contour_gm)
+    min_SPL     = min_gm_SPL 
+    max_SPL     = max_gm_SPL
+    min_alt     = 0
+    max_alt     = np.max(Aircraft_pos[:,2])
+    
+    # Adjust Plot Camera 
+    camera = dict(up=dict(x=0, y=0, z=1),
+                 center=dict(x=0, y=0, z=0),
+                 eye=dict(x=-1., y=-1., z=.25))     
+    
+    building_loc             = results.segments[0].analyses.noise.settings.urban_canyon_building_locations
+    num_buildings            = len( building_loc)
+    
+    if num_buildings >0:   
+        max_alt     = np.maximum(max_alt, max((np.array(building_loc))[:,2]))
+        min_bm_SPL  = np.min(SPL_contour_bm) 
+        max_bm_SPL  = np.max(SPL_contour_bm)   
+        min_SPL     = np.minimum(min_bm_SPL,min_SPL)
+        max_SPL     = np.maximum(max_bm_SPL,max_SPL)
+        
+        # Get SPL aon Building Surfaces
+        max_SPL_contour_bm       = np.max(SPL_contour_bm,axis=0)
+        building_dimensions      = results.segments[0].analyses.noise.settings.urban_canyon_building_dimensions
+        N_x                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_x_resolution 
+        bldg_mic_loc             = results.segments[0].analyses.noise.settings.urban_canyon_microphone_locations   
+        N_y                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_y_resolution  
+        N_z                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_z_resolution   
+        num_mics_on_xz_surface   = N_x*N_z  
+        num_mics_on_yz_surface   = N_y*N_z 
+        num_mics_on_xy_surface   = N_x*N_y 
+        num_mics_per_building    = 2*(num_mics_on_xz_surface + num_mics_on_yz_surface) +  num_mics_on_xy_surface 
+        
+        # get surfaces of buildings 
+        for bldg_idx in range(num_buildings): 
+                # front (y-z plane)
+                side_1_start = bldg_idx*num_mics_per_building 
+                side_1_end   = bldg_idx*num_mics_per_building + num_mics_on_yz_surface
+                surf_1_x     = np.ones((N_y,N_z))*(building_loc[bldg_idx][0] - building_dimensions[bldg_idx][0]/2)
+                surf_1_y     = bldg_mic_loc[side_1_start:side_1_end,1].reshape(N_y,N_z)
+                surf_1_z     = bldg_mic_loc[side_1_start:side_1_end,2].reshape(N_y,N_z)
+                SPL_vals_1   = max_SPL_contour_bm[side_1_start:side_1_end].reshape(N_y,N_z)
+                bldg_surf_1  = contour_surface_slice(surf_1_x ,surf_1_y ,surf_1_z ,SPL_vals_1)
+                plot_data.append(bldg_surf_1)    
+    
+                # right (x-z plane)
+                side_2_start = side_1_end
+                side_2_end   = side_2_start + num_mics_on_xz_surface
+                surf_2_x     = bldg_mic_loc[side_2_start:side_2_end,0].reshape(N_x,N_z)    
+                surf_2_y     = np.ones((N_x,N_z))*building_loc[bldg_idx][1] + building_dimensions[bldg_idx][1]/2
+                surf_2_z     = bldg_mic_loc[side_2_start:side_2_end,2].reshape(N_x,N_z)
+                SPL_vals_2   = max_SPL_contour_bm[side_2_start:side_2_end].reshape(N_x,N_z)
+                bldg_surf_2  = contour_surface_slice(surf_2_x ,surf_2_y ,surf_2_z ,SPL_vals_2)
+                plot_data.append(bldg_surf_2)     
+                
+                # back (y-z plane)
+                side_3_start = side_2_end
+                side_3_end   = side_3_start + num_mics_on_yz_surface
+                surf_3_x     = np.ones((N_y,N_z))*(building_loc[bldg_idx][0] + building_dimensions[bldg_idx][0]/2)
+                surf_3_y     = bldg_mic_loc[side_3_start:side_3_end,1].reshape(N_y,N_z)
+                surf_3_z     = bldg_mic_loc[side_3_start:side_3_end,2].reshape(N_y,N_z)
+                SPL_vals_3   = max_SPL_contour_bm[side_3_start:side_3_end].reshape(N_y,N_z)
+                bldg_surf_3  = contour_surface_slice(surf_3_x ,surf_3_y ,surf_3_z ,SPL_vals_3)
+                plot_data.append(bldg_surf_3)                          
+                
+                # left (x-z plane)
+                side_4_start = side_3_end
+                side_4_end   = side_4_start +  num_mics_on_xz_surface 
+                surf_4_x     = bldg_mic_loc[side_4_start:side_4_end,0].reshape(N_x,N_z)
+                surf_4_y     = np.ones((N_x,N_z))*(building_loc[bldg_idx][1] - building_dimensions[bldg_idx][1]/2)
+                surf_4_z     = bldg_mic_loc[side_4_start:side_4_end,2].reshape(N_x,N_z)
+                SPL_vals_4   = max_SPL_contour_bm[side_4_start:side_4_end].reshape(N_x,N_z)
+                bldg_surf_4  = contour_surface_slice(surf_4_x ,surf_4_y ,surf_4_z ,SPL_vals_4)
+                plot_data.append(bldg_surf_4) 
+                
+                # top (x-y plane)
+                side_5_start = side_4_end 
+                side_5_end   = (bldg_idx+1)*num_mics_per_building   
+                surf_5_x     = bldg_mic_loc[side_5_start:side_5_end,0].reshape(N_x,N_y)
+                surf_5_y     = bldg_mic_loc[side_5_start:side_5_end,1].reshape(N_x,N_y)
+                surf_5_z     = np.ones((N_x,N_y))*(building_dimensions[bldg_idx][2])
+                SPL_vals_5   = max_SPL_contour_bm[side_5_start:side_5_end].reshape(N_x,N_y)
+                bldg_surf_5  = contour_surface_slice(surf_5_x ,surf_5_y ,surf_5_z ,SPL_vals_5)
+                plot_data.append(bldg_surf_5)         
+    
+    fig = go.Figure(data=plot_data)
+    fig.update_layout(
+             title_text='Aircraft Noise Contour', 
+             title_x = 0.5,
+             width   = 750,
+             height  = 750,
+             font_family = "Times New Roman",
+             font_size=18,
+             scene_zaxis_range=[min_alt,max_alt], 
+             coloraxis=dict(colorscale='Jet',
+                            colorbar_thickness=50,
+                            colorbar_nticks=20,
+                            colorbar_title_text = 'SPL (dBA)',
+                            colorbar_tickfont_size=18,
+                            colorbar_title_side="right",
+                            colorbar_ypad=60,
+                            colorbar_len= 0.75,
+                            **colorax(min_SPL, max_SPL)),
+             scene_camera=camera) 
+    if show_figure:
+        fig.show()
     return  
+
+
+def contour_surface_slice(x,y,z,values):
+    return go.Surface(x=x,y=y,z=z,surfacecolor=values,coloraxis='coloraxis')
+
+def colorax(vmin, vmax):
+    return dict(cmin=vmin,
+                cmax=vmax)
 
 # ------------------------------------------------------------------
 #   Set Axis Parameters 

@@ -6,7 +6,7 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 from SUAVE.Methods.Propulsion import propeller_design
-from SUAVE.Plots.Propeller_Plots import plot_propeller_disc_performance
+from SUAVE.Plots.Performance.Propeller_Plots import *
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_wake import compute_wing_wake
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 

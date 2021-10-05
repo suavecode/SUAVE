@@ -1,4 +1,4 @@
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 # plot_propeller.py
 # 
 # Created:  Mar 2020, M. Clarke
@@ -12,10 +12,10 @@ from SUAVE.Core import Units
 import matplotlib.pyplot as plt   
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
 from mpl_toolkits.mplot3d import Axes3D
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_propeller_geometry
+from SUAVE.Plots.Geometry.plot_vehicle import plot_propeller_geometry
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 def plot_propeller(prop, face_color = 'red', edge_color = 'black' , save_figure = False, save_filename = "Propeller_Geometry", file_type = ".png"):
     """This plots the geometry of a propeller or rotor
 

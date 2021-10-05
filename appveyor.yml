@@ -21,6 +21,7 @@ install:
     - pip3 install --upgrade scipy
     - pip3 install --upgrade scikit-learn
     - pip3 install --upgrade matplotlib
+    - pip3 install --upgrade plotly
     - pip3 install coveralls
     - python3 setup.py develop --user
     - cd ../regression
