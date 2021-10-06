@@ -180,7 +180,7 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
                 yp = round(wing.YA1[i],4)
                 zp = round(wing.ZA1[i],4)
 
-            elif i//(n_cw+cw_laps*(n_cw+1))==1:#i==cw_laps + n_cw*(cw_laps+1): #
+            elif i//(n_cw+cw_laps*(n_cw+1))==1:
                 # Last chordwise station for this spanwise location; use A2 to get left TE node
                 cw_laps = cw_laps +1
                 xp = round(wing.XA2[i-cw_laps],4)

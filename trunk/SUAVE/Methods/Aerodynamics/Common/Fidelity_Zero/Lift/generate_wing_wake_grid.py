@@ -94,14 +94,17 @@ def generate_wing_wake_grid(geometry, H, L, hf, x_plane, Nzo=20, Nzf=35, Nyo=20,
         axes.set_ylabel("z [m]")
         axes.set_title("New Grid Points")
         
-        plot_prop=False
+        plot_prop=True
         if plot_prop:
-            R      = geometry.networks.prop_net.propellers.propeller.tip_radius
-            origin = geometry.networks.prop_net.propellers.propeller.origin
-            Na     = geometry.networks.prop_net.propellers.propeller.number_azimuthal_stations
-            psi    = np.linspace(0,2*np.pi,Na+1)[:-1]
-            ycoords = origin[0][1] + R*np.cos(psi)
-            zcoords = origin[0][2] + R*np.sin(psi)
-            axes.plot(ycoords,zcoords,'r')
+            for net in list(geometry.networks.keys()):
+                for prop in list(geometry.networks[net].propellers.keys()):
+                    R      = geometry.networks[net].propellers[prop].tip_radius
+                    origin = geometry.networks[net].propellers[prop].origin
+                    Na     = geometry.networks[net].propellers[prop].number_azimuthal_stations
+                    
+                    psi    = np.linspace(0,2*np.pi,Na+1)[:-1]
+                    ycoords = origin[0][1] + R*np.cos(psi)
+                    zcoords = origin[0][2] + R*np.sin(psi)
+                    axes.plot(ycoords,zcoords,'r')
         
     return grid_points

@@ -354,7 +354,7 @@ def generate_lofted_propeller_points(prop):
         Gprops[i] = Data()
         # get airfoil coordinate geometry
         if a_sec != None:
-            airfoil_data   = import_airfoil_geometry(a_sec,npoints=n_a_cw)
+            airfoil_data   = import_airfoil_geometry(a_sec,npoints=n_a_loft)
 
             xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
             zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0)
@@ -398,7 +398,7 @@ def generate_lofted_propeller_points(prop):
                             [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]   ])
         trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],n_r,axis=0)
 
-        # roation about y to orient propeller/rotor to thrust angle
+        # rotation about y to orient propeller/rotor to thrust angle
         trans_3 = prop.body_to_prop_vel() #prop.prop_vel_to_body()
         trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],n_r,axis=0)
 

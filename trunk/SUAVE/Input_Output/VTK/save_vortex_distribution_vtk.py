@@ -1,18 +1,18 @@
 ## @ingroup Input_Output-VTK
-# save_evaluation_points_vtk.py
+# save_vortex_distribution_vtk.py
 # 
 # Created:    Jun 2021, R. Erhard
 # Modified: 
 #           
-from SUAVE.Core import Data,Units
+from SUAVE.Core import Data
 import numpy as np
 
-def save_vortex_distribution_vtk(vehicle,conditions,VD,wing_instance,filename, time_step,separate_wing_and_wake_VD=True):
+def save_vortex_distribution_vtk(vehicle,conditions,VD,gamma,wing_instance,filename, time_step,separate_wing_and_wake_VD=True):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
     Inputs:
-       wVD           Vortex distribution of propeller wake          [Unitless]  
+       VD           Vortex distribution of propeller wake          [Unitless]  
        filename      Name of vtk file to save                       [Unitless]  
        Results       Data structure of wing and propeller results   [Unitless]  
        i_prop        ith propeller to evaluate wake of              [Unitless]
@@ -57,7 +57,7 @@ def save_vortex_distribution_vtk(vehicle,conditions,VD,wing_instance,filename, t
         L.XA_TE = VD.XA_TE[half_l:]
         L.YA_TE = VD.YA_TE[half_l:]
         L.ZA_TE = VD.ZA_TE[half_l:]  
-        L.gamma = VD.gamma[0][half_l:] 
+        L.gamma = gamma[0][half_l:] 
         
         R.XAH = VD.XAH[0:half_l]
         R.YAH = VD.YAH[0:half_l]
@@ -77,7 +77,7 @@ def save_vortex_distribution_vtk(vehicle,conditions,VD,wing_instance,filename, t
         R.XA_TE = VD.XA_TE[0:half_l]
         R.YA_TE = VD.YA_TE[0:half_l]
         R.ZA_TE = VD.ZA_TE[0:half_l]   
-        R.gamma = VD.gamma[0][0:half_l]     
+        R.gamma = gamma[0][0:half_l]     
         
         sep  = filename.find('.')
         
@@ -106,7 +106,7 @@ def save_vortex_distribution_vtk(vehicle,conditions,VD,wing_instance,filename, t
         wing.XA_TE = VD.XA_TE
         wing.YA_TE = VD.YA_TE
         wing.ZA_TE = VD.ZA_TE    
-        wing.gamma = VD.gamma[0]
+        wing.gamma = gamma[0]
 
         file = filename
         

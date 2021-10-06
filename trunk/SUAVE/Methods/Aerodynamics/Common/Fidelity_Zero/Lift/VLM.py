@@ -245,7 +245,6 @@ def VLM(conditions,settings,geometry):
     RHS     = rhs.RHS*1
     ONSET   = rhs.ONSET*1
 
-    
     # Build induced velocity matrix, C_mn
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = np.unique(mach,return_inverse=True)
@@ -309,7 +308,6 @@ def VLM(conditions,settings,geometry):
     
     TNL    = TAN_LE * 1 # VORLAX's SIGN variable not needed, as these are taken directly from geometry
     TNT    = TAN_TE * 1
-    
     XIA    = np.broadcast_to((RK-1)/RNMAX, np.shape(B2))
     XIB    = np.broadcast_to((RK  )/RNMAX, np.shape(B2))
     TANA   = TNL *(1. - XIA) + TNT *XIA
@@ -401,7 +399,6 @@ def VLM(conditions,settings,geometry):
     SICPLE *= (-1) * COSIN * COD * GAF
     DCP_LE = DCP[:,LE_ind]
     
-    
     # COMPUTE LEADING EDGE THRUST COEFF. (CSUC) BY CALCULATING
     # THE TOTAL INDUCED FLOW AT THE LEADING EDGE. THIS COMPUTATION
     # ONLY PERFORMED FOR COSINE CHORDWISE SPACING (LAX = 0).    
@@ -422,7 +419,6 @@ def VLM(conditions,settings,geometry):
     SPC           = SPC * exposed_leading_edge_flag
     
     CLE  = CLE + 0.5* DCP_LE *np.sqrt(XLE[LE_ind])
-    
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB 
 
     # TFX AND TFZ ARE THE COMPONENTS OF LEADING EDGE FORCE VECTOR ALONG
@@ -449,13 +445,11 @@ def VLM(conditions,settings,geometry):
     FCOS = np.cos(ZETA)
     FSIN = np.sin(ZETA)
     
-
     # BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP FORCE CONTRIBUTION.
     BFX = -  CNC *FSIN + CAXL *FCOS
     BFY = - (CNC *FCOS + CAXL *FSIN) *SID
     BFZ =   (CNC *FCOS + CAXL *FSIN) *COD
-    
 
     # CONVERT CNC FROM CN INTO CNC (COEFF. *CHORD).
     CNC  = CNC  * CHORD_strip
@@ -474,15 +468,9 @@ def VLM(conditions,settings,geometry):
     CDC    = CDC * CHORD_strip 
 
     ES     = 2*s[0,LE_ind]
-    
     STRIP  = ES *CHORD_strip
-    
-    
-    
-    LIFT         = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP   
-    DRAG         = CDC*ES 
-    
-    
+    LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP   
+    DRAG   = CDC*ES 
     MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  
     FY     = (BFY *COPSI - BFX *SINPSI) *STRIP
     RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF *SINPSI + BMZ *SINALF)
@@ -491,17 +479,14 @@ def VLM(conditions,settings,geometry):
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES
     cdi_y    = DRAG/CHORD_strip/ES
-    
-    
     CL_wing  = np.add.reduceat(LIFT,span_breaks,axis=1)/SURF
     CDi_wing = np.add.reduceat(DRAG,span_breaks,axis=1)/SURF
-    alpha_i = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
+    alpha_i  = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
     
     # Now calculate total coefficients
     CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T          # CLTOT in VORLAX
     CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T          # CDTOT in VORLAX
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar  # CMTOT in VORLAX
-
     CYTOT    = np.atleast_2d(np.sum(FY,axis=1)/SREF).T   # total y force coeff
     CRTOT    = np.atleast_2d(np.sum(RM,axis=1)/SREF).T   # rolling moment coeff (unscaled)
     CRMTOT   = CRTOT/w_span*(-1)                         # rolling moment coeff
@@ -512,7 +497,6 @@ def VLM(conditions,settings,geometry):
     # STEP 13: Pack outputs
     # ------------------ --------------------------------------------------------------------     
     precision      = settings.floating_point_precision
-    VD.gamma       = GAMMA
     
     #VORLAX _TOT outputs
     results = Data()

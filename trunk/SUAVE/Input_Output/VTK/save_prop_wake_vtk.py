@@ -6,9 +6,8 @@
 #     
 from SUAVE.Core import Data      
 import numpy as np
-from scipy.interpolate import interp1d
 
-def save_prop_wake_vtk(VD,filename,Results,i_prop):
+def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
@@ -36,7 +35,6 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
     n_time_steps    = len(wVD.XA1[i_prop,0,0,:])
     n_blades        = len(wVD.XA1[i_prop,:,0,0])
     n_radial_rings  = len(wVD.XA1[i_prop,0,:,0])
-    gamma           = np.reshape(VD.Wake_collapsed.GAMMA,(1,n_blades,n_radial_rings,n_time_steps))
     
     # Create file
     with open(filename, 'w') as f:
@@ -365,11 +363,11 @@ def write_VD(rings, nt,nr, filename):
         # --------------------
         # Write Points
         # --------------------   
-        n_edges = nr*(nt+1) + (nt*(nr+1))
-        #n_cp          = (nt+1)*(nr) # node vertices
-        pts_per_edge = 2
+        n_edges       = nr*(nt+1) + (nt*(nr+1))
+        pts_per_edge  = 2
         n_pts         = n_edges*pts_per_edge # total number of node vertices 
         points_header = "\n\nPOINTS "+str(n_pts) +" float"
+        
         f.write(points_header)     
         for i in range(n_edges):
             # write the side vortices for each panel
@@ -377,7 +375,6 @@ def write_VD(rings, nt,nr, filename):
             p2 = rings.coordinates[2*i+1]
             f.write("\n"+str(p1[0])+" "+str(p1[1])+" "+str(p1[2]))
             f.write("\n"+str(p2[0])+" "+str(p2[1])+" "+str(p2[2]))
-        
         
         
         #---------------------    
