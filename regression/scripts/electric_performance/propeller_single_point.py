@@ -101,11 +101,11 @@ def test_2(HFW):
     Cp      = results.power_coefficient
     etap    = results.efficiency
     
-    thrust_r    = 2514.884391824916
-    torque_r    = 942.3517074529138
-    power_r     = 148024.2600615936
-    Cp_r        = 0.33479834292421706
-    etap_r      = 0.16989677170339917
+    thrust_r    = 2271.2221302802873
+    torque_r    = 858.1639605443708
+    power_r     = 134800.0797010858
+    Cp_r        = 0.304888153409426
+    etap_r      = 0.16848818897708653
     
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
     assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Propeller Single Point Regression Failed at Torque Test"

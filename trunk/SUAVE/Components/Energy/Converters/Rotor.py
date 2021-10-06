@@ -293,10 +293,10 @@ class Rotor(Energy_Component):
                 rotation = 1
             
             # compute resulting radial and tangential velocities in polar frame
-            utz =  Vz*np.cos(psi_2d) * rotation
-            urz = -Vz*np.sin(psi_2d)
-            uty = -Vy*np.sin(psi_2d) * rotation
-            ury = -Vy*np.cos(psi_2d)
+            utz =  Vz*np.cos(psi_2d* rotation) 
+            urz =  Vz*np.sin(psi_2d* rotation)
+            uty =  Vy*np.sin(psi_2d* rotation)
+            ury =  Vy*np.cos(psi_2d* rotation)
             
             ut +=  (utz + uty)
             ur +=  (urz + ury)
@@ -428,7 +428,7 @@ class Rotor(Energy_Component):
             lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
             
             # compute HFW circulation at the blade
-            Gamma = 0.5*W*c*Cl*F # Gamma_Blade
+            Gamma = 0.5*W*c*Cl # Gamma_Blade
             
             
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration 
@@ -502,15 +502,15 @@ class Rotor(Energy_Component):
                 time_accurate_power   = omega*time_accurate_torque  
                 
                 # calculate time-accurate coefficients 
-                D        = 2*R 
-                Cq_time_accurate       = time_accurate_torque/(rho_0*(n*n)*(D*D*D*D*D)) 
-                Ct_time_accurate       = time_accurate_thrust/(rho_0*(n*n)*(D*D*D*D))
-                Cp_time_accurate       = time_accurate_power/(rho_0*(n*n*n)*(D*D*D*D*D))
-                etap_time_accurate     = V*time_accurate_thrust/time_accurate_power     
+                D                  = 2*R 
+                Cq_time_accurate   = time_accurate_torque/(rho_0*(n*n)*(D*D*D*D*D)) 
+                Ct_time_accurate   = time_accurate_thrust/(rho_0*(n*n)*(D*D*D*D))
+                Cp_time_accurate   = time_accurate_power/(rho_0*(n*n*n)*(D*D*D*D*D))
+                etap_time_accurate = V*time_accurate_thrust/time_accurate_power     
                 
-                Cq_time_accurate_blades       = blade_Q_distribution_blades/(rho_0*(n*n)*(D*D*D*D*D)) 
-                Ct_time_accurate_blades       = blade_T_distribution_blades/(rho_0*(n*n)*(D*D*D*D))
-                Cp_time_accurate_blades       = omega*blade_Q_distribution_blades/(rho_0*(n*n*n)*(D*D*D*D*D))                
+                Cq_time_accurate_blades  = blade_Q_distribution_blades/(rho_0*(n*n)*(D*D*D*D*D)) 
+                Ct_time_accurate_blades  = blade_T_distribution_blades/(rho_0*(n*n)*(D*D*D*D))
+                Cp_time_accurate_blades  = omega*blade_Q_distribution_blades/(rho_0*(n*n*n)*(D*D*D*D*D))                
                     
 
             # set 1d blade loadings to be the average:
@@ -853,8 +853,8 @@ def compute_HFW_blade_velocities( prop ):
     Inputs:
        prop - rotor instance
     Outputs:
-       Va   - axial velocity array of shape (ctrl_pts, Nr, Na)
-       Vt   - tangential velocity array of shape (ctrl_pts, Nr, Na)
+       Va   - axial velocity array of shape (ctrl_pts, Nr, Na)        [m/s]
+       Vt   - tangential velocity array of shape (ctrl_pts, Nr, Na)   [m/s]
     """
     VD                       = Data()
     omega                    = prop.inputs.omega  
@@ -907,9 +907,9 @@ def compute_HFW_blade_velocities( prop ):
         Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0]
         Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0]
         
-        VD.YC = Yb   # (Yb[1:] + Yb[:-1]) / 2 #
-        VD.ZC = Zb   # (Zb[1:] + Zb[:-1]) / 2 #
-        VD.XC = Xb   # (Xb[1:] + Xb[:-1]) / 2 #
+        VD.YC = Yb 
+        VD.ZC = Zb 
+        VD.XC = Xb 
         
         VD.n_cp = np.size(VD.YC)   
         
@@ -921,28 +921,11 @@ def compute_HFW_blade_velocities( prop ):
         v       = V_ind[0,:,1]   # velocity in vehicle y-frame
         w       = V_ind[0,:,2]   # velocity in vehicle z-frame
         
-        # interpolate from control points to radial stations for evaluation in spin function
-        u_cp   = 1
-        
         # Update velocities at the disc
         Va[:,:,i]  = u
         Vt[:,:,i]  = (w*np.cos(blade_angle) + v*np.sin(blade_angle))
         
-        #-------------------------------------------
-        # store vtks for debug
-        #-------------------------------------------
-        # test generate vtk
-        from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
-        from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
-        from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
-        Results = Data()
-        Results["prop_outputs"] = prop.outputs
-        save_prop_wake_vtk(VD, filename="/Users/rerha/Desktop/vtk_test/wake."+str(i)+".vtk", Results=Results, i_prop=0)
-        save_evaluation_points_vtk(VD, filename="/Users/rerha/Desktop/vtk_test/eval_points.vtk",time_step=i)
-        save_prop_vtk(prop, "/Users/rerha/Desktop/vtk_test/prop.vtk", Results=Results, time_step=i)
-    
-
-        #-------------------------------------------    
+  
     prop.vortex_distribution = VD
 
     return Va, Vt
@@ -950,18 +933,10 @@ def compute_HFW_blade_velocities( prop ):
 
 def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
     """
-    Cl, Cdval = compute_airfoil_aerodynamics(  a_loc, 
-                                             a_geo, 
-                                             cl_sur, 
-                                             cd_sur, 
-                                             ctrl_pts, 
-                                             Nr, 
-                                             Na, 
-                                             Re, 
-                                             Ma, 
-                                             alpha, 
-                                             tc, 
-                                             nonuniform_freestream )
+    Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
+                                              Wa,Wt,a,nu,
+                                              a_loc,a_geo,cl_sur,cd_sur,
+                                              ctrl_pts,Nr,Na,tc,use_2d_analysis )
                                              
     Computes the aerodynamic forces at sectional blade locations. If airfoil 
     geometry and locations are specified, the forces are computed using the 
@@ -977,33 +952,32 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
     N/A
 
     Inputs:
-    beta                       blade twist distribution                        [-]
-    c                          chord distribution                              [-]
-    r                          radius distribution                             [-]
-    R                          tip radius                                      [-]
-    B                          number of rotor blades                          [-]
-    
-    Wa                         axial velocity                                  [-]
-    Wt                         tangential velocity                             [-]
-    a                          speed of sound                                  [-]
-    nu                         viscosity                                       [-]
-
-    a_loc                      Locations of specified airfoils                 [-]
-    a_geo                      Geometry of specified airfoil                   [-]
-    cl_sur                     Lift Coefficient Surrogates                     [-]
-    cd_sur                     Drag Coefficient Surrogates                     [-]
-    ctrl_pts                   Number of control points                        [-]
-    Nr                         Number of radial blade sections                 [-]
-    Na                         Number of azimuthal blade stations              [-]
-    
-    alpha                      Local angles of attack                          [radians]
-    tc                         Thickness to chord                              [-]
-    use_2d_analysis            Specifies 2d disc vs. 1d single angle analysis  [Boolean]
-                                                     
-                                                     
+       beta                       blade twist distribution                        [-]
+       c                          chord distribution                              [-]
+       r                          radius distribution                             [-]
+       R                          tip radius                                      [-]
+       B                          number of rotor blades                          [-]
+       
+       Wa                         axial velocity                                  [-]
+       Wt                         tangential velocity                             [-]
+       a                          speed of sound                                  [-]
+       nu                         viscosity                                       [-]
+   
+       a_loc                      Locations of specified airfoils                 [-]
+       a_geo                      Geometry of specified airfoil                   [-]
+       cl_sur                     Lift Coefficient Surrogates                     [-]
+       cd_sur                     Drag Coefficient Surrogates                     [-]
+       ctrl_pts                   Number of control points                        [-]
+       Nr                         Number of radial blade sections                 [-]
+       Na                         Number of azimuthal blade stations              [-]
+       tc                         Thickness to chord                              [-]
+       use_2d_analysis            Specifies 2d disc vs. 1d single angle analysis  [Boolean]
+                                                                                             
     Outputs:                                          
-    Cl                       Lift Coefficients                         [-]                               
-    Cdval                    Drag Coefficients  (before scaling)       [-]
+       Cl                       Lift Coefficients                         [-]                               
+       Cdval                    Drag Coefficients  (before scaling)       [-]
+       alpha                    section local angle of attack             [rad]
+    
     """        
     
     alpha        = beta - np.arctan2(Wa,Wt)
@@ -1067,6 +1041,28 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
 
 
 def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
+    """                                         
+    Computes the analytical derivative for the BEMT iteration. 
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+       B                          number of rotor blades                          [-]
+       beta                       blade twist distribution                        [-]
+       r                          radius distribution                             [m]
+       R                          tip radius                                      [m]
+       
+       Wt                         tangential velocity                             [m/s]
+       Wa                         axial velocity                                  [m/s]
+                                                                                             
+    Outputs:                                          
+       dR_dpsi                    derivative of residual wrt inflow angle          [-]
+    
+    """       
     # An analytical derivative for dR_dpsi used in the Newton iteration for the BEMT
     # This was solved symbolically in Matlab and exported
     pi          = np.pi
@@ -1096,7 +1092,27 @@ def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
     return dR_dpsi
 
 def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
+    """                                         
+    Computes the inflow, lamdaw, and the tip loss factor, F. 
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+       r                          radius distribution                             [m]
+       R                          tip radius                                      [m]
+       Wa                         axial velocity                                  [m/s]
+       Wt                         tangential velocity                             [m/s]
+       B                          number of rotor blades                          [-]
+                                                                                             
+    Outputs:                                          
+       lamdaw                    inflow ratio         [-]
+       F                         tip loss factor      [-]
     
+    """      
     lamdaw            = r*Wa/(R*Wt)
     lamdaw[lamdaw<0.] = 0.
     f                 = (B/2.)*(1.-r/R)/lamdaw
