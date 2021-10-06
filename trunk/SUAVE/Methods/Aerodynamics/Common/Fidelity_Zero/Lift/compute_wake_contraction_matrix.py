@@ -27,7 +27,7 @@ def compute_wake_contraction_matrix(i,prop,Nr,m,nts,X_pts,prop_outputs):
     Inputs: 
     i        - propeller/rotor index             [Unitless] 
     prop     - propeller/rotor data structure       
-    Nr        - discretization on propeller/rotor [Unitless] 
+    Nr       - discretization on propeller/rotor [Unitless] 
     m        - control points in segemnt         [Unitless] 
     nts      - number of timesteps               [Unitless] 
     X_pts    - location of wake points           [meters] 

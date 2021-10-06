@@ -25,14 +25,17 @@ from X57_Maxwell_Mod2 import vehicle_setup
 
 def main():
 
-    test_1(HFW = False)
-    test_2(HFW = True)
+    test_1()
+    test_2()
 
     return
 
 
-def test_1(HFW):
-
+def test_1():
+    """
+    This tests the propeller_single_point function using the BEMT model.
+    """
+    HFW = False
     vehicle = vehicle_setup()
 
     analyses = SUAVE.Analyses.Vehicle()
@@ -73,8 +76,11 @@ def test_1(HFW):
 
     return
 
-def test_2(HFW):
-
+def test_2():
+    """
+    This tests the propeller_single_point function using the helical fixed wake (HFW) + BET model.
+    """    
+    HFW = True
     vehicle = vehicle_setup()
 
     analyses = SUAVE.Analyses.Vehicle()
