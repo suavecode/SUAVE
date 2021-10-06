@@ -84,8 +84,8 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
 
     # azimuthal distribution
     psi            = np.linspace(0,2*np.pi,Na+1)[:-1]
-    psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
-    psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)
+    psi_2d         = np.tile(np.atleast_2d(psi),(Nr,1))
+    psi_2d         = np.repeat(psi_2d[None,:,:], ctrl_pts, axis=0)
 
     # set an arbitrary nonuniform freestream disturbance
     va = (1+psi_2d) * 1.1
@@ -142,7 +142,7 @@ def case_3(vehicle,conditions):
     #--------------------------------------------------------------------------------------
     prop_loc      = vehicle.networks.prop_net.propeller.origin
     prop_x_center = np.array([vehicle.wings.main_wing.origin[0][0] + prop_loc[0][0]])
-    wing_wake     = compute_wing_wake(vehicle,conditions,prop_x_center[0], grid_settings, VLM_settings, plot_grid=plot_flag, plot_wake=plot_flag)
+    wing_wake, _  = compute_wing_wake(vehicle,conditions,prop_x_center[0], grid_settings, VLM_settings, plot_grid=plot_flag, plot_wake=plot_flag)
 
 
     #--------------------------------------------------------------------------------------
