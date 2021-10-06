@@ -420,7 +420,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             for cs_ID in cs_IDs[cs_IDs >= 0]:
                 cs_tag     = wing.tag + '__cs_id_{}'.format(cs_ID)
                 cs_wing    = wings[cs_tag]
-                rel_offset = cs_wing.origin[0,1] if not vertical_wing else cs_wing.origin[0,2]
+                rel_offset = cs_wing.origin[0,1] - wing.origin[0][1] if not vertical_wing else cs_wing.origin[0,2] - wing.origin[0][2]
                 cs_wing.y_coords_required.append(y_coord - rel_offset)
             
             if y_coordinates[idx_y+1] == break_spans[i_break+1]: 

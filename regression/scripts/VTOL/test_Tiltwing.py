@@ -11,8 +11,8 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units 
-from SUAVE.Plots.Mission_Plots import *  
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle 
+from SUAVE.Plots.Performance.Mission_Plots import *  
+from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle 
 import numpy as np  
 import sys 
 
@@ -185,7 +185,7 @@ def mission_setup(analyses,vehicle):
     # base segment
     base_segment                                             = Segments.Segment()
     base_segment.state.numerics.number_control_points        = 5
-    ones_row                                                 = base_segment.state.ones_row
+    ones_row                                                 = base_segment.state.ones_row 
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
 
   
@@ -238,13 +238,11 @@ def mission_setup(analyses,vehicle):
     segment.altitude                                   = 1000.0 * Units.ft
     segment.air_speed                                  = 110.   * Units['mph']
     segment.distance                                   = 30.    * Units.miles   
-    segment.state.unknowns.throttle                    = 0.5 * ones_row(1) 
+    segment.state.unknowns.throttle                    = 0.7 * ones_row(1) 
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip      
+    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip   
     segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
-                                                                                         initial_power_coefficient = 0.03)
-    
-        
+                                                                                       initial_power_coefficient = 0.03)
     
     # add to misison
     mission.append_segment(segment)     
@@ -286,7 +284,7 @@ def plot_mission(results,line_style = 'bo-'):
     plot_aircraft_velocities(results, line_style)
     
     # Plot Aircraft Electronics
-    plot_electronic_conditions(results, line_style)
+    plot_battery_pack_conditions(results, line_style)
     
     # Plot Propeller Conditions 
     plot_propeller_conditions(results, line_style) 
