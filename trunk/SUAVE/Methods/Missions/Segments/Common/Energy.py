@@ -55,7 +55,7 @@ def initialize_battery(segment):
         segment.state.conditions.propulsion.battery_cell_charge_throughput[:,0]        = battery_cell_charge_throughput 
         segment.state.conditions.propulsion.battery_discharge_flag                     = battery_discharge_flag
         segment.state.conditions.propulsion.battery_resistance_growth_factor           = battery_resistance_growth_factor 
-        segment.state.conditions.propulsion.battery_thevenin_voltage                   = battery_thevenin_voltage 
+        segment.state.conditions.propulsion.battery_thevenin_voltage[0,0]              = battery_thevenin_voltage 
         segment.state.conditions.propulsion.battery_capacity_fade_factor               = battery_capacity_fade_factor      
     
 
