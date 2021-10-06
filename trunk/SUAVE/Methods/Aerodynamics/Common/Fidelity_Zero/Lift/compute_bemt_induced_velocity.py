@@ -70,7 +70,7 @@ def compute_bemt_induced_velocity(props,geometry,cpts,conditions,identical_flag,
         # extract radial and azimuthal velocities at blade
         va = kd*prop_outputs.blade_axial_induced_velocity[0]
         vt = kd*prop_outputs.blade_tangential_induced_velocity[0]
-        r  = prop_outputs.disc_radial_distribution[0][0]
+        r  = prop_outputs.disc_radial_distribution[0,:,0]
         
         hub_y_center = prop.origin[0][1]
         prop_y_min   = hub_y_center - r[-1]
