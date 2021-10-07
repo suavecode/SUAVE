@@ -86,7 +86,7 @@ def compute_wake_induced_velocity(WD,VD,cpts):
 # vortex strength computation
 # -------------------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1):
+def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1, use_regularization_kernal=True):
     """ This computes the velocity induced on a control point by a segment
     of a horseshoe vortex from point 1 to point 2 
     Assumptions:  
@@ -128,6 +128,29 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1):
     R0R2   = X2_X1*X_X2 + Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
     COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)    
+    
+    if use_regularization_kernal:
+        KAPPA = regularization_kernel(COEF)
+        COEF  = KAPPA
+        
     V_IND  = GAMMA * COEF
     
     return COEF , V_IND  
+
+def regularization_kernel(COEF, sigma=0.1):
+    """
+    Inputs:
+       COEF    Biot-Savart Kernel
+    Outputs:
+       KAPPA   Regularization Kernel
+    
+    """
+    COEF_MAG = np.sqrt(COEF**2)
+    R = np.sqrt(1/(4*np.pi*COEF_MAG))
+    
+    NUM = -R*(np.square(R/sigma) + (5/2))
+    DEN = 4*np.pi*(sigma**3)*((np.square(R/sigma) + 1)**(5/2))
+    
+    KAPPA = (NUM / DEN) * np.sign(COEF)
+    
+    return KAPPA
