@@ -618,7 +618,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         airspeed = segment.conditions.freestream.velocity[:,0] /   Units['mph']  
         theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg
         
-        x        = segment.conditions.frames.inertial.position_vector[:,0]/ Units.mile
+        x        = segment.conditions.frames.inertial.position_vector[:,0]/ Units.nmi
         y        = segment.conditions.frames.inertial.position_vector[:,1]
         z        = segment.conditions.frames.inertial.position_vector[:,2]
         altitude = segment.conditions.freestream.altitude[:,0]/Units.feet
@@ -641,7 +641,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         
         axes = plt.subplot(2,2,4)
         axes.plot( time , x, 'bo-')
-        axes.set_ylabel('Range (miles)',axis_font)
+        axes.set_ylabel('Range (nmi)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)         
     
@@ -1555,9 +1555,9 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     N_gm_x       = results.segments[0].analyses.noise.settings.level_ground_microphone_x_resolution  
     N_gm_y       = results.segments[0].analyses.noise.settings.level_ground_microphone_y_resolution 
     gm           = results.segments[0].conditions.noise.ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3)
-    gm_x         = gm[:,:,0]
-    gm_y         = gm[:,:,1]
-    colors       = cm.jet(np.linspace(0, 1,int(N_gm_y/2)))   
+    gm_x         = -gm[:,:,0]
+    gm_y         = -gm[:,:,1]
+    colors       = cm.jet(np.linspace(0, 1,N_gm_y))   
     
     # figure parameters
     axis_font    = {'size':'14'} 
@@ -1574,10 +1574,10 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
             else:
                 SPL[i,j,:] = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm].reshape(N_gm_x,N_gm_y)  
     max_SPL = np.max(np.max(SPL,axis=0),axis=0)   
-    for k in range(int(N_gm_y/2)):    
-        axes.plot(-gm_x[:,0], max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
+    for k in range(N_gm_y):    
+        axes.plot(gm_x[:,0]/Units.nmi, max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
     axes.set_ylabel('SPL (dBA)',axis_font)
-    axes.set_xlabel('Range (m)',axis_font)  
+    axes.set_xlabel('Range (nmi)',axis_font)  
     set_axes(axes)
     axes.legend(loc='upper right')         
     if save_figure:
