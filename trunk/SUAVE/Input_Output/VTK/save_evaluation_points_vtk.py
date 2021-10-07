@@ -5,7 +5,7 @@
 # Modified: 
 #           
 
-def save_evaluation_points_vtk(points,filename,time_step):
+def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 

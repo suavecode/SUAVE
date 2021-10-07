@@ -148,7 +148,7 @@ def regularization_kernel(COEF, sigma=0.1):
     COEF_MAG = np.sqrt(COEF**2)
     R = np.sqrt(1/(4*np.pi*COEF_MAG))
     
-    NUM = -R*(np.square(R/sigma) + (5/2))
+    NUM = R*(np.square(R/sigma) + (5/2))
     DEN = 4*np.pi*(sigma**3)*((np.square(R/sigma) + 1)**(5/2))
     
     KAPPA = (NUM / DEN) * np.sign(COEF)
