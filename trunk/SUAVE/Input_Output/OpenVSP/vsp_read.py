@@ -12,9 +12,9 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Input_Output.OpenVSP.vsp_read_propeller import vsp_read_propeller
-from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage  import vsp_read_fuselage
-from SUAVE.Input_Output.OpenVSP.vsp_read_wing      import vsp_read_wing
+from SUAVE.Input_Output.OpenVSP.vsp_propeller import read_vsp_propeller
+from SUAVE.Input_Output.OpenVSP.vsp_fuselage  import read_vsp_fuselage
+from SUAVE.Input_Output.OpenVSP.vsp_wing      import read_vsp_wing
 
 from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
 from SUAVE.Components.Energy.Networks.Battery_Propeller        import Battery_Propeller
@@ -170,11 +170,11 @@ def vsp_read(tag, units_type='SI',specified_network=None):
 	
 	#Read VSP geoms and store in SUAVE components
 	for fuselage_id in vsp_fuselages:
-		fuselage = vsp_read_fuselage(fuselage_id, units_type)
+		fuselage = read_vsp_fuselage(fuselage_id, units_type)
 		vehicle.append_component(fuselage)
 	
 	for wing_id in vsp_wings:
-		wing = vsp_read_wing(wing_id, units_type)
+		wing = read_vsp_wing(wing_id, units_type)
 		vehicle.append_component(wing)		
 	
 	# Initialize rotor network elements
@@ -184,7 +184,7 @@ def vsp_read(tag, units_type='SI',specified_network=None):
 	propellers  = Data()
 	
 	for prop_id in vsp_props:
-		prop = vsp_read_propeller(prop_id,units_type)
+		prop = read_vsp_propeller(prop_id,units_type)
 		prop.tag = vsp.GetGeomName(prop_id)
 		if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
 			lift_rotors.append(prop)
