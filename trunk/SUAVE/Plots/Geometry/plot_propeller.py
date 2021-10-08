@@ -9,9 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------  
 from SUAVE.Core import Units
-import matplotlib.pyplot as plt   
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
-from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt    
 from SUAVE.Plots.Geometry.plot_vehicle import plot_propeller_geometry
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 

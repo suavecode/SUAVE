@@ -5,6 +5,7 @@
 #           Apr 2020, M. Clarke
 #           Jul 2020, M. Clarke
 #           Jul 2021, E. Botero
+#           Oct 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,8 +16,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
-from SUAVE.Components.Energy.Networks import Lift_Cruise
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution 
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 ## @ingroup Plots-Geometry
