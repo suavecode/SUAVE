@@ -56,7 +56,7 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
     
     # unpack 
     conditions           = segment.state.conditions
-    microphone_locations = conditions.noise.microphone_locations
+    microphone_locations = conditions.noise.total_microphone_locations
     angle_of_attack      = conditions.aerodynamics.angle_of_attack 
     velocity_vector      = conditions.frames.inertial.velocity_vector
     freestream           = conditions.freestream  

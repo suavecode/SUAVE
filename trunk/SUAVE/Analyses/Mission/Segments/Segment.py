@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Sep 2016, E. Botero
+#           Oct 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,8 +13,8 @@
 
 from SUAVE.Analyses import Analysis, Settings, Process
 from .Conditions import State
-from SUAVE.Core.Arrays import array_type
 import numpy as np
+from copy import deepcopy
 
 # ----------------------------------------------------------------------
 #  Segment
@@ -225,22 +226,10 @@ class Segment(Analysis):
             sub_state = sub_seg.state
             for key in ['unknowns','conditions','residuals']:
                 if i == 0:
-                    state_out[key].update(sub_state[key])
+                    state_out[key] = deepcopy(sub_state[key]) # Necessary deepcopy: otherwise the next step overwrites this state
                 else:
+                    state_out[key].append_or_update(sub_state[key])
 
-                    # Update existing items
-                    state_out[key] = state_out[key].do_recursive(append_array,sub_state[key])
-                    
-                    # Check if all the states exist, if not add them
-                    existing_keys = list(state_out[key].keys())
-                    new_keys      = list(sub_state[key].keys())
-                    diff_list     = np.setdiff1d(new_keys,existing_keys).tolist()                    
-                    
-                    # Do an update for the remainder
-                    for update_key in diff_list:
-                        state_out[key][update_key] = sub_state[key][update_key]
-                                        
-            
         return state_out
 
     
@@ -305,29 +294,3 @@ class Container(Segment):
         return    
         
 Segment.Container = Container
-
-
-## @ingroup Analyses-Mission-Segments-Conditions
-def append_array(A,B=None):
-    """ A stacking operation used by merged to put together data structures
-
-        Assumptions:
-        None
-
-        Source:
-        N/A
-
-        Inputs:
-        A [array]
-        B [array]
-
-        Outputs:
-        array
-
-        Properties Used:
-        None
-    """       
-    if isinstance(A,array_type) and isinstance(B,array_type):
-        return np.vstack([A,B])
-    else:
-        return None

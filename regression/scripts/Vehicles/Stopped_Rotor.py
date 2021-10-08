@@ -493,20 +493,20 @@ def vehicle_setup():
     # Design Rotors and Propellers
     #------------------------------------------------------------------
     # atmosphere and flight conditions for propeller/rotor design
-    g                        = 9.81                                   # gravitational acceleration
-    S                        = vehicle.reference_area                 # reference area
-    speed_of_sound           = 340                                    # speed of sound
-    rho                      = 1.22                                   # reference density
-    fligth_CL                = 0.75                                   # cruise target lift coefficient
-    AR                       = vehicle.wings.main_wing.aspect_ratio   # aspect ratio
-    Cd0                      = 0.06                                   # profile drag
-    Cdi                      = fligth_CL**2/(np.pi*AR*0.98)           # induced drag
-    Cd                       = Cd0 + Cdi                              # total drag
-    V_inf                    = 110.* Units['mph']                     # freestream velocity
-    Drag                     = S * (0.5*rho*V_inf**2 )*Cd             # cruise drag
-    Hover_Load               = vehicle.mass_properties.takeoff*g      # hover load
-    net.identical_propellers = True
-    net.identical_rotors     = True
+    g                         = 9.81                                   # gravitational acceleration
+    S                         = vehicle.reference_area                 # reference area
+    speed_of_sound            = 340                                    # speed of sound
+    rho                       = 1.22                                   # reference density
+    fligth_CL                 = 0.75                                   # cruise target lift coefficient
+    AR                        = vehicle.wings.main_wing.aspect_ratio   # aspect ratio
+    Cd0                       = 0.06                                   # profile drag
+    Cdi                       = fligth_CL**2/(np.pi*AR*0.98)           # induced drag
+    Cd                        = Cd0 + Cdi                              # total drag
+    V_inf                     = 110.* Units['mph']                     # freestream velocity
+    Drag                      = S * (0.5*rho*V_inf**2 )*Cd             # cruise drag
+    Hover_Load                = vehicle.mass_properties.takeoff*g      # hover load
+    net.identical_propellers  = True
+    net.identical_lift_rotors = True
 
     # Thrust Propeller
     propeller                        = SUAVE.Components.Energy.Converters.Propeller()

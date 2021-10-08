@@ -27,6 +27,7 @@ def propeller_single_point(energy_network,
                            altitude,
                            delta_isa,
                            speed,
+                           HFW=False,
                            plots=False,
                            print_results=False):
     """propeller_single_point(energy_network,
@@ -53,19 +54,20 @@ def propeller_single_point(energy_network,
 
         Inputs:
 
-            energy_network                      SUAVE Energy Network
-                .propeller                      SUAVE Propeller Data Structure
+            energy_network       SUAVE Energy Network
+                .propeller       SUAVE Propeller Data Structure
 
-            analyses                            SUAVE Analyses Structure
-                .atmosphere                     SUAVE Atmosphere Analysis Object
+            analyses             SUAVE Analyses Structure
+                .atmosphere      SUAVE Atmosphere Analysis Object
 
-            pitch                               Propeller Pitch/Collective  [User Set]
-            omega                               Test Angular Velocity       [User Set]
-            altitude                            Test Altitude               [User Set]
-            delta_isa                           Atmosphere Temp Offset      [K]
-            speed                               Propeller Intake Speed      [User Set]
-            plots                               Flag for Plot Generation    [Boolean]
-            print_results                       Flag for Terminal Output    [Boolean]
+            pitch                Propeller Pitch/Collective                    [User Set]
+            omega                Test Angular Velocity                         [User Set]
+            altitude             Test Altitude                                 [User Set]
+            delta_isa            Atmosphere Temp Offset                        [K]
+            speed                Propeller Intake Speed                        [User Set]
+            HFW                  Flag for use of helical fixed wake for rotor  [Boolean]
+            plots                Flag for Plot Generation                      [Boolean]
+            print_results        Flag for Terminal Output                      [Boolean]
 
         Outputs:
 
@@ -106,6 +108,9 @@ def propeller_single_point(energy_network,
     conditions                                      = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
     conditions.freestream                           = Data()
     conditions.propulsion                           = Data()
+    conditions.noise                                = Data()
+    conditions.noise.sources                        = Data()
+    conditions.noise.sources.propellers             = Data()
     conditions.frames                               = Data()
     conditions.frames.inertial                      = Data()
     conditions.frames.body                          = Data()    
@@ -119,15 +124,18 @@ def propeller_single_point(energy_network,
     conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
 
     # Run Propeller BEMT
-
-    F, Q, P, Cp, outputs, etap = prop.spin(conditions)
-    va_ind_BEMT         = outputs.disc_axial_induced_velocity[0, 0, :]
-    vt_ind_BEMT         = outputs.disc_tangential_induced_velocity[0, 0, :]
-    r_BEMT              = outputs.disc_radial_distribution[0, 0, :]
-    T_distribution_BEMT = outputs.disc_thrust_distribution[0]
-    vt_BEMT             = outputs.disc_tangential_velocity[0, 0, :]
-    va_BEMT             = outputs.disc_axial_velocity[0, 0, :]
-    Q_distribution_BEMT = outputs.disc_torque_distribution[0]
+    if HFW:
+        F, Q, P, Cp, outputs, etap = prop.spin_HFW(conditions)
+    else:
+        F, Q, P, Cp, outputs, etap = prop.spin(conditions)
+        
+    va_ind_BEMT         = outputs.disc_axial_induced_velocity[0, :, 0]
+    vt_ind_BEMT         = outputs.disc_tangential_induced_velocity[0, :, 0]
+    r_BEMT              = outputs.disc_radial_distribution[0, :, 0]
+    T_distribution_BEMT = outputs.disc_thrust_distribution[0, :, 0]
+    vt_BEMT             = outputs.disc_tangential_velocity[0, :, 0]
+    va_BEMT             = outputs.disc_axial_velocity[0, :, 0]
+    Q_distribution_BEMT = outputs.disc_torque_distribution[0, :, 0]
 
     if print_results:
         print('Total Thrust:    {} N'.format(F[0][0]))

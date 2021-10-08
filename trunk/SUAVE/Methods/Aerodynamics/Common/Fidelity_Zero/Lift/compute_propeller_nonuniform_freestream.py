@@ -59,7 +59,7 @@ def compute_propeller_nonuniform_freestream(prop, upstream_wake,conditions):
     
     # azimuth distribution 
     psi       = np.linspace(0,2*np.pi,Na+1)[:-1]
-    psi_2d    = np.tile(np.atleast_2d(psi).T,(1,Nr))   
+    psi_2d    = np.tile(np.atleast_2d(psi),(Nr,1))   
 
     # 2 dimensiona radial distribution non dimensionalized
     chi     = prop.radius_distribution /R
@@ -69,17 +69,17 @@ def compute_propeller_nonuniform_freestream(prop, upstream_wake,conditions):
     
     # New points to interpolate data: (corresponding to r,phi locations on propeller disc)
     points  = np.array([[VD.YC[i], VD.ZC[i]] for i in range(len(VD.YC))])
-    ycoords = np.reshape(R*chi*np.cos(psi_2d),(Nr*Na,))
-    zcoords = prop.origin[0][2]  + np.reshape(R*chi*np.sin(psi_2d),(Nr*Na,))
+    ycoords = np.reshape((R*chi*np.cos(psi_2d).T).T,(Nr*Na,))
+    zcoords = prop.origin[0][2]  + np.reshape((R*chi*np.sin(psi_2d).T).T,(Nr*Na,))
     xi      = np.array([[y_center+ycoords[i],zcoords[i]] for i in range(len(ycoords))])
     
     ua_w = sp.interpolate.griddata(points,ua_wing,xi,method='linear')
     uv_w = sp.interpolate.griddata(points,uv_wing,xi,method='linear')
     uw_w = sp.interpolate.griddata(points,uw_wing,xi,method='linear') 
     
-    ua_wing = np.reshape(ua_w,(Na,Nr))
-    uw_wing = np.reshape(uw_w,(Na,Nr))
-    uv_wing = np.reshape(uv_w,(Na,Nr))    
+    ua_wing = np.reshape(ua_w,(Nr,Na))
+    uw_wing = np.reshape(uw_w,(Nr,Na))
+    uv_wing = np.reshape(uv_w,(Nr,Na))    
     
     if rotation == [1]:
         Vt_2d =  V_thrust[:,0]*( -np.array(uw_wing)*np.cos(psi_2d) + np.array(uv_wing)*np.sin(psi_2d)  )  # velocity tangential to the disk plane, positive toward the trailing edge eqn 6.34 pg 165           

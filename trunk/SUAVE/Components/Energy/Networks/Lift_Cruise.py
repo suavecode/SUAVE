@@ -141,16 +141,16 @@ class Lift_Cruise(Network):
         # SETUP BATTERIES AND ESC's
         #-----------------------------------------------------------------
         # Set battery energy
-        battery.current_energy      = conditions.propulsion.battery_energy
-        battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
-        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput     
-        battery.age                 = conditions.propulsion.battery_cycle_day         
-        battery_discharge_flag      = conditions.propulsion.battery_discharge_flag    
-        battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
-        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
-        battery.max_energy          = conditions.propulsion.battery_max_aged_energy 
-        n_series                    = battery.pack_config.series  
-        n_parallel                  = battery.pack_config.parallel
+        battery.current_energy           = conditions.propulsion.battery_energy
+        battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
+        battery.cell_charge_throughput   = conditions.propulsion.battery_cell_charge_throughput     
+        battery.age                      = conditions.propulsion.battery_cycle_day         
+        battery_discharge_flag           = conditions.propulsion.battery_discharge_flag    
+        battery.R_growth_factor          = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor          = conditions.propulsion.battery_capacity_fade_factor 
+        battery.max_energy               = conditions.propulsion.battery_max_aged_energy 
+        n_series                         = battery.pack_config.series  
+        n_parallel                       = battery.pack_config.parallel
         
         # update ambient temperature based on altitude
         battery.ambient_temperature                   = conditions.freestream.temperature   
@@ -586,8 +586,8 @@ class Lift_Cruise(Network):
             q_prop_forward     = segment.state.conditions.propulsion.propeller_torque
             q_lift_rotor_motor = segment.state.conditions.propulsion.lift_rotor_motor_torque
             q_prop_lift        = segment.state.conditions.propulsion.lift_rotor_torque  
-            segment.state.residuals.network.propellers  = (q_propeller_motor - q_prop_forward)/q_propeller_motor
-            segment.state.residuals.network.lift_rotors = (q_lift_rotor_motor - q_prop_lift)/q_lift_rotor_motor   
+            segment.state.residuals.network.propellers  = (q_propeller_motor - q_prop_forward)
+            segment.state.residuals.network.lift_rotors = (q_lift_rotor_motor - q_prop_lift)
                
         network       = self
         battery       = self.battery 
@@ -624,8 +624,8 @@ class Lift_Cruise(Network):
         if segment.battery_discharge:   
             q_propeller_motor = segment.state.conditions.propulsion.propeller_motor_torque
             q_prop_forward    = segment.state.conditions.propulsion.propeller_torque    
-            segment.state.residuals.network.propellers = (q_propeller_motor - q_prop_forward)/q_propeller_motor 
-    
+            segment.state.residuals.network.propellers = (q_propeller_motor - q_prop_forward)
+            
         network       = self
         battery       = self.battery 
         battery.append_battery_residuals(segment,network)    
@@ -661,7 +661,7 @@ class Lift_Cruise(Network):
         if segment.battery_discharge:   
             q_lift_rotor_motor   = segment.state.conditions.propulsion.lift_rotor_motor_torque
             q_lift_rotor_lift    = segment.state.conditions.propulsion.lift_rotor_torque        
-            segment.state.residuals.network.lift_rotors  = (q_lift_rotor_motor - q_lift_rotor_lift)/q_lift_rotor_motor 
+            segment.state.residuals.network.lift_rotors  = (q_lift_rotor_motor - q_lift_rotor_lift)
             
         network       = self
         battery       = self.battery 

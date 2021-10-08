@@ -5,6 +5,8 @@
 # Modified: Jan 2016, E. Botero
 #           Mar 2016, E. Botero
 #           Jul 2017, E. Botero
+#           Oct 2021, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -188,6 +190,8 @@ def unpack_subsegments(segment):
     for i, sub_segment in enumerate(segment.segments):
         ctrl_pnts = sub_segment.state.numerics.number_control_points
         for key in sub_segment.state.unknowns.keys():
+            if key=='tag':
+                continue
             sub_segment.state.unknowns[key] = segment.state.unknowns[key][counter[key]:counter[key]+ctrl_pnts]
             counter[key] = counter[key]+ctrl_pnts
             

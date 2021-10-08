@@ -9,8 +9,8 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units , Data
-from SUAVE.Plots.Mission_Plots import *
-from SUAVE.Plots.Geometry_Plots import *
+from SUAVE.Plots.Performance.Mission_Plots import *
+from SUAVE.Plots.Geometry import *
 import sys
 import numpy as np
 
@@ -240,7 +240,6 @@ def mission_setup(analyses,vehicle):
     segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability          = SUAVE.Methods.skip  
-    segment.initial_battery_charge_throughput                 = 0     
     segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment,\
                                                                                     initial_lift_rotor_power_coefficient = 0.01,
                                                                                     initial_throttle_lift = 0.9)

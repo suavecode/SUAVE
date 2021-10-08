@@ -64,15 +64,15 @@ def compute_wake_induced_velocity(WD,VD,cpts):
     _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,GAMMA) 
     C_AB         = np.transpose(res_C_AB,axes=[1,2,3,0]) 
     
-    # compute influence of 3/4 left legs 
+    # compute influence of 3/4 right legs 
     _ , res_C_BC = vortex(XC, YC, ZC, WXB1, WYB1, WZB1, WXB2, WYB2, WZB2,GAMMA) 
     C_BC         = np.transpose(res_C_BC,axes=[1,2,3,0]) 
     
-    # compute influence of whole panel left legs  
+    # compute influence of bound vortices  
     _ , res_C_CD = vortex(XC, YC, ZC, WXB2, WYB2, WZB2, WXA2, WYA2, WZA2,GAMMA) 
     C_CD         = np.transpose(res_C_CD,axes=[1,2,3,0])
     
-    # compute influence of 3/4 right legs  
+    # compute influence of 3/4 left legs  
     _ , res_C_DA = vortex(XC, YC, ZC, WXA2, WYA2, WZA2, WXA1, WYA1, WZA1,GAMMA) 
     C_DA         = np.transpose(res_C_DA,axes=[1,2,3,0]) 
     
