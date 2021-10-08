@@ -39,11 +39,14 @@ def plot_propeller(prop, face_color = 'red', edge_color = 'black' , save_figure 
     # initalize figure 
     fig_1 = plt.figure(save_filename + '_3D') 
     fig_1.set_size_inches(8,8) 
-    axes_1 = Axes3D(fig_1)    
+    axes_1 = plt.axes(projection='3d')
     axes_1.view_init(elev= 30, azim= 210)   
     axes_1.set_xlim(-1,1)
     axes_1.set_ylim(-1,1)
-    axes_1.set_zlim(-1,1)    
+    axes_1.set_zlim(-1,1) 
+    axes_1.set_xlabel('x')  
+    axes_1.set_ylabel('y')   
+    axes_1.set_zlabel('z')    
     
     # append a network for origin and thrust angle default values
     network = Battery_Propeller() 
