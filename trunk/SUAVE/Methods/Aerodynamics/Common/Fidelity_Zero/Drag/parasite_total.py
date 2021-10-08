@@ -79,17 +79,23 @@ def parasite_total(state,settings,geometry):
         # sum of parasite drag from all rotors
         if isinstance(network,Lift_Cruise) or isinstance(network,Battery_Propeller):
             if 'propellers' in network.keys():
-                if np.isscalar(network.nacelle_diameter):
-                    total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * network.number_of_propeller_engines
+                if network.number_of_propeller_engines == None:
+                    pass
                 else:
-                    # sum using parasite_drag from each prop
-                    total_parasite_drag += np.atleast_2d(np.sum(parasite_drag * np.atleast_2d(ref_area/vehicle_reference_area),axis=1)).T
+                    if np.isscalar(network.nacelle_diameter):
+                        total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * network.number_of_propeller_engines
+                    else:
+                        # sum using parasite_drag from each prop
+                        total_parasite_drag += np.atleast_2d(np.sum(parasite_drag * np.atleast_2d(ref_area/vehicle_reference_area),axis=1)).T
             if 'lift_rotors' in network.keys():
-                if np.isscalar(network.nacelle_diameter):
-                    total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * network.number_of_lift_rotor_engines
+                if network.number_of_lift_rotor_engines == None:
+                    pass
                 else:
-                    # sum using parasite_drag from each lift rotor
-                    total_parasite_drag += np.atleast_2d(np.sum(parasite_drag * np.atleast_2d(ref_area/vehicle_reference_area),axis=1)).T
+                    if np.isscalar(network.nacelle_diameter):
+                        total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * network.number_of_lift_rotor_engines
+                    else:
+                        # sum using parasite_drag from each lift rotor
+                        total_parasite_drag += np.atleast_2d(np.sum(parasite_drag * np.atleast_2d(ref_area/vehicle_reference_area),axis=1)).T
         else:
             total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * network.number_of_engines
 

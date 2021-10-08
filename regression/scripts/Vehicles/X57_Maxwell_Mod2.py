@@ -348,7 +348,7 @@ def vehicle_setup():
 
     # Component 2 the Propeller 
     prop = SUAVE.Components.Energy.Converters.Propeller()
-
+    prop.tag = 'propeller_1'
     prop.number_of_blades       = 2.0
     prop.freestream_velocity    = 135.*Units['mph']
     prop.angular_velocity       = 1300.  * Units.rpm
@@ -361,8 +361,7 @@ def vehicle_setup():
     prop.origin                 = [[2.,2.5,0.784]]
     prop.rotation               = -1
     prop.symmetry               = True
-    prop.variable_pitch         = True
-
+    prop.variable_pitch         = True 
     prop.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
     prop.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
@@ -374,6 +373,7 @@ def vehicle_setup():
     prop                        = propeller_design(prop)
 
     prop_left = deepcopy(prop)
+    prop_left.tag = 'propeller_2' 
     prop_left.origin   = [[2.,-2.5,0.784]]
     prop_left.rotation = 1
     
@@ -382,13 +382,10 @@ def vehicle_setup():
 
 
     # Component 3 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.mass_properties.mass = 500. * Units.kg
-    bat.specific_energy      = 350. * Units.Wh/Units.kg
-    bat.resistance           = 0.006
-    bat.max_voltage          = 500.
-
-    initialize_from_mass(bat,bat.mass_properties.mass)
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()
+    bat.mass_properties.mass = 500. * Units.kg  
+    bat.max_voltage          = 500. 
+    initialize_from_mass(bat)
     net.battery              = bat
     net.voltage              = bat.max_voltage
 
@@ -405,16 +402,14 @@ def vehicle_setup():
     motor.propeller_radius        = prop.tip_radius
     motor.no_load_current         = 4.0
     motor                         = size_optimal_motor(motor,prop)
-    motor.mass_properties.mass    = 10. * Units.kg
-    net.motor                     = motor
+    motor.mass_properties.mass    = 10. * Units.kg 
     
     # append right motor
     net.propeller_motors.append(motor)
     
     # append left motor 
     motor_left = deepcopy(motor)
-    motor_left.origin = [[2., -2.5, 0.784]]
-    motor_left.rotation = 1
+    motor_left.origin = [[2., -2.5, 0.784]] 
     net.propeller_motors.append(motor_left) 
 
     # Component 6 the Payload

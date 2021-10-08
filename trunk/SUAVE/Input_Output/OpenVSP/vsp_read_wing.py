@@ -40,7 +40,6 @@ def vsp_read_wing(wing_id, units_type='SI',write_airfoil_file=True):
 	N/A
 
 	Inputs:
-	0. Pre-loaded VSP vehicle in memory, via vsp_read.
 	1. VSP 10-digit geom ID for wing.
 	2. units_type set to 'SI' (default) or 'Imperial'.
 
