@@ -59,55 +59,55 @@ def write_vsp_turbofan(turbofan, OML_set_ind):
 
     for ii in range(0,int(n_engines)):
 
-	origin = origins_sorted[ii]
+        origin = origins_sorted[ii]
 
-	x = origin[0]
-	y = origin[1]
-	z = origin[2]
+        x = origin[0]
+        y = origin[1]
+        z = origin[2]
 
-	if ft_flag == True:
-	    nac_id = vsp.AddGeom( "BODYOFREVOLUTION")
-	    vsp.SetGeomName(nac_id, tf_tag+'_'+str(ii+1))
+        if ft_flag == True:
+            nac_id = vsp.AddGeom( "BODYOFREVOLUTION")
+            vsp.SetGeomName(nac_id, tf_tag+'_'+str(ii+1))
 
-	    # Origin
-	    vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-	    vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-	    vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-	    vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP  
+            # Origin
+            vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP  
 
-	    # Length and overall diameter
-	    vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
+            # Length and overall diameter
+            vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
 
-	    vsp.ChangeBORXSecShape(nac_id ,vsp.XS_SUPER_ELLIPSE)
-	    vsp.Update()
-	    vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", (width-inlet_width)/2)
-	    vsp.SetParmVal(nac_id, "Super_Width", "XSecCurve", length)
-	    vsp.SetParmVal(nac_id, "Super_MaxWidthLoc", "XSecCurve", -1.)
-	    vsp.SetParmVal(nac_id, "Super_M", "XSecCurve", 2.)
-	    vsp.SetParmVal(nac_id, "Super_N", "XSecCurve", 1.)             
+            vsp.ChangeBORXSecShape(nac_id ,vsp.XS_SUPER_ELLIPSE)
+            vsp.Update()
+            vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", (width-inlet_width)/2)
+            vsp.SetParmVal(nac_id, "Super_Width", "XSecCurve", length)
+            vsp.SetParmVal(nac_id, "Super_MaxWidthLoc", "XSecCurve", -1.)
+            vsp.SetParmVal(nac_id, "Super_M", "XSecCurve", 2.)
+            vsp.SetParmVal(nac_id, "Super_N", "XSecCurve", 1.)             
 
-	else:
-	    nac_id = vsp.AddGeom("STACK")
-	    vsp.SetGeomName(nac_id, tf_tag+'_'+str(ii+1))
+        else:
+            nac_id = vsp.AddGeom("STACK")
+            vsp.SetGeomName(nac_id, tf_tag+'_'+str(ii+1))
 
-	    # Origin
-	    vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-	    vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-	    vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-	    vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-	    vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
+            # Origin
+            vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+            vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
 
-	    vsp.CutXSec(nac_id,2) # remove extra default subsurface
-	    xsecsurf = vsp.GetXSecSurf(nac_id,0)
-	    vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
-	    vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
-	    vsp.Update()
-	    vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_1", width)
-	    vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_2", width)
-	    vsp.SetParmVal(nac_id, "XDelta", "XSec_1", 0)
-	    vsp.SetParmVal(nac_id, "XDelta", "XSec_2", length)
-	    vsp.SetParmVal(nac_id, "XDelta", "XSec_3", 0)
+            vsp.CutXSec(nac_id,2) # remove extra default subsurface
+            xsecsurf = vsp.GetXSecSurf(nac_id,0)
+            vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
+            vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
+            vsp.Update()
+            vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_1", width)
+            vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_2", width)
+            vsp.SetParmVal(nac_id, "XDelta", "XSec_1", 0)
+            vsp.SetParmVal(nac_id, "XDelta", "XSec_2", length)
+            vsp.SetParmVal(nac_id, "XDelta", "XSec_3", 0)
 
-	vsp.SetSetFlag(nac_id, OML_set_ind, True)
+        vsp.SetSetFlag(nac_id, OML_set_ind, True)
 
-	vsp.Update()
+        vsp.Update()

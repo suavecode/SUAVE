@@ -83,27 +83,27 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     # Check if this is a propeller or a lift rotor
     # Check if the thrust angle	is > 70 deg in pitch
     if vsp.GetParmVal( prop_id,'Y_Rotation','XForm') >= 70:
-	# Assume lift rotor
-	prop 	= SUAVE.Components.Energy.Converters.Lift_Rotor()
+        # Assume lift rotor
+        prop 	= SUAVE.Components.Energy.Converters.Lift_Rotor()
     else:
-	# Instantiate a propeller
-	prop 	= SUAVE.Components.Energy.Converters.Propeller()
+        # Instantiate a propeller
+        prop 	= SUAVE.Components.Energy.Converters.Propeller()
 
     # Set the units
     if units_type == 'SI':
-	units_factor = Units.meter * 1.
+        units_factor = Units.meter * 1.
     elif units_type == 'imperial':
-	units_factor = Units.foot * 1.
+        units_factor = Units.foot * 1.
     elif units_type == 'inches':
-	units_factor = Units.inch * 1.		
+        units_factor = Units.inch * 1.		
 
     # Apply a tag to the prop
     if vsp.GetGeomName(prop_id):
-	tag = vsp.GetGeomName(prop_id)
-	tag = tag.translate(t_table)
-	prop.tag = tag
+        tag = vsp.GetGeomName(prop_id)
+        tag = tag.translate(t_table)
+        prop.tag = tag
     else: 
-	prop.tag = 'propgeom'
+        prop.tag = 'propgeom'
 
     # Propeller location (absolute)
     prop.origin 	= [[0.0,0.0,0.0]]
@@ -121,8 +121,8 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     parm_id    = vsp.GetGeomParmIDs(prop_id)
     parm_names = []
     for i in range(len(parm_id)):
-	parm_name = vsp.GetParmName(parm_id[i])
-	parm_names.append(parm_name)
+        parm_name = vsp.GetParmName(parm_id[i])
+        parm_names.append(parm_name)
 
     # Run the vsp Blade Element analysis
     vsp.SetStringAnalysisInput( "BladeElement" , "PropID" , (prop_id,) )
@@ -164,14 +164,14 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     # Rotor Airfoil
     # ---------------------------------------------
     if write_airfoil_file:
-	print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for propeller cross section.") 
+        print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for propeller cross section.") 
 
     return prop
 
 ## @ingroup Input_Output-OpenVSP
 def write_vsp_propeller(prop, OML_set_ind):
     """This converts nacelles into OpenVSP format.
-     
+
     N/A
     """     
     # unpack 
@@ -182,8 +182,8 @@ def write_vsp_propeller(prop, OML_set_ind):
     prop_x_rotation = prop.orientation_euler_angles[0]/Units.degrees    
     prop_y_rotation = prop.orientation_euler_angles[1]/Units.degrees    
     prop_z_rotation = prop.orientation_euler_angles[2]/Units.degrees   
-    
- 
+
+
     prop_id = vsp.AddGeom( "STACK")
     vsp.SetGeomName(prop_id,prop_tag)  
 
@@ -195,113 +195,17 @@ def write_vsp_propeller(prop, OML_set_ind):
     vsp.SetParmVal( prop_id,'X_Location','XForm',prop_x)
     vsp.SetParmVal( prop_id,'Y_Location','XForm',prop_y)
     vsp.SetParmVal( prop_id,'Z_Location','XForm',prop_z)     
-    vsp.SetParmVal( prop_id,'Tess_U','Shape',radial_tesselation)
-    vsp.SetParmVal( prop_id,'Tess_W','Shape',axial_tesselation)
+    #vsp.SetParmVal( prop_id,'Tess_U','Shape',radial_tesselation)
+    #vsp.SetParmVal( prop_id,'Tess_W','Shape',axial_tesselation)
 
-    widths  = []
-    heights = []
-    x_delta = []
-    x_poses = []
-    z_delta = []
+    #widths  = []
+    #heights = []
+    #x_delta = []
+    #x_poses = []
+    #z_delta = []
 
-    segs = nacelle.Segments
-    for seg in range(num_segs):   
-	widths.append(segs[seg].width)
-	heights.append(segs[seg].height) 
-	x_poses.append(segs[seg].percent_x_location)
-	if seg == 0: 
-	    x_delta.append(0)
-	    z_delta.append(0) 
-	else:
-	    x_delta.append(length*(segs[seg].percent_x_location - segs[seg-1].percent_x_location))
-	    z_delta.append(length*(segs[seg].percent_z_location - segs[seg-1].percent_z_location))  
-
-    vsp.CutXSec(prop_id,4) # remove point section at end  
-    vsp.CutXSec(prop_id,0) # remove point section at beginning 
-    vsp.CutXSec(prop_id,1) # remove point section at beginning 
-    for _ in range(num_segs-2): # add back the required number of sections
-	vsp.InsertXSec(prop_id, 1, vsp.XS_ELLIPSE)          
-	vsp.Update() 
-    xsec_surf = vsp.GetXSecSurf(prop_id, 0 )  
-    for i3 in reversed(range(num_segs)): 
-	xsec = vsp.GetXSec( xsec_surf, i3 ) 
-	if i3 == 0:
-	    pass
-	else:
-	    vsp.SetParmVal(prop_id, "XDelta", "XSec_"+str(i3),x_delta[i3])
-	    vsp.SetParmVal(prop_id, "ZDelta", "XSec_"+str(i3),z_delta[i3])  
-	vsp.SetXSecWidthHeight( xsec, widths[i3], heights[i3])
-	vsp.SetXSecTanAngles(xsec,vsp.XSEC_BOTH_SIDES,0,0,0,0)
-	vsp.SetXSecTanSlews(xsec,vsp.XSEC_BOTH_SIDES,0,0,0,0)
-	vsp.SetXSecTanStrengths( xsec, vsp.XSEC_BOTH_SIDES,0,0,0,0)     
-	vsp.Update()          
-
-    if ft_flag: 
-	pass
-    else:   
-	# append front point  
-	xsecsurf = vsp.GetXSecSurf(prop_id,0)
-	vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_POINT)
-	vsp.Update()          
-	xsecsurf = vsp.GetXSecSurf(prop_id,0)
-	vsp.ChangeXSecShape(xsecsurf,num_segs-1,vsp.XS_POINT)
-	vsp.Update()      
-
-else: 
-    prop_id = vsp.AddGeom( "BODYOFREVOLUTION")  
-    vsp.SetGeomName(prop_id, prop_tag)
-
-    # Origin 
-    vsp.SetParmVal( prop_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
-    vsp.SetParmVal( prop_id,'X_Rotation','XForm',prop_x_rotation)
-    vsp.SetParmVal( prop_id,'Y_Rotation','XForm',prop_y_rotation)
-    vsp.SetParmVal( prop_id,'Z_Rotation','XForm',prop_z_rotation) 
-    vsp.SetParmVal( prop_id,'X_Location','XForm',prop_x)
-    vsp.SetParmVal( prop_id,'Y_Location','XForm',prop_y)
-    vsp.SetParmVal( prop_id,'Z_Location','XForm',prop_z)  
-    vsp.SetParmVal( prop_id,'Tess_U','Shape',radial_tesselation)
-    vsp.SetParmVal( prop_id,'Tess_W','Shape',axial_tesselation)      
-
-    # Length and overall diameter
-    vsp.SetParmVal(prop_id,"Diameter","Design",diamater)
-    if ft_flag:
-	vsp.SetParmVal(prop_id,"Mode","Design",0.0)
-    else:
-	vsp.SetParmVal(prop_id,"Mode","Design",1.0) 
-
-    if nacelle.naca_4_series_airfoil != None:
-	if isinstance(nacelle.naca_4_series_airfoil, str) and len(nacelle.naca_4_series_airfoil) != 4:
-	    raise AssertionError('Nacelle cowling airfoil must be of type < string > and length < 4 >')
-	else: 
-	    angle        = nacelle.cowling_airfoil_angle/Units.degrees 
-	    camber       = float(nacelle.naca_4_series_airfoil[0])/100
-	    camber_loc   = float(nacelle.naca_4_series_airfoil[1])/10
-	    thickness    = float(nacelle.naca_4_series_airfoil[2:])/100
-
-	    vsp.ChangeBORXSecShape(prop_id ,vsp.XS_FOUR_SERIES)
-	    vsp.Update()
-	    vsp.SetParmVal(prop_id,"Diameter","Design",diamater)
-	    vsp.SetParmVal(prop_id,"Angle","Design",angle)
-	    vsp.SetParmVal(prop_id, "Chord", "XSecCurve", length)
-	    vsp.SetParmVal(prop_id, "ThickChord", "XSecCurve", thickness)
-	    vsp.SetParmVal(prop_id, "Camber", "XSecCurve", camber )
-	    vsp.SetParmVal(prop_id, "CamberLoc", "XSecCurve",camber_loc)  
-	    vsp.Update()
-    else:
-	vsp.ChangeBORXSecShape(prop_id ,vsp.XS_SUPER_ELLIPSE)
-	vsp.Update()
-	if ft_flag:
-	    vsp.SetParmVal(prop_id, "Super_Height", "XSecCurve", height) 
-	    vsp.SetParmVal(prop_id,"Diameter","Design",diamater)
-	else:
-	    vsp.SetParmVal(prop_id, "Super_Height", "XSecCurve", diamater) 
-	vsp.SetParmVal(prop_id, "Super_Width", "XSecCurve", length)
-	vsp.SetParmVal(prop_id, "Super_MaxWidthLoc", "XSecCurve", 0.)
-	vsp.SetParmVal(prop_id, "Super_M", "XSecCurve", 2.)
-	vsp.SetParmVal(prop_id, "Super_N", "XSecCurve", 1.)  
-     
-    
-	vsp.Update()      
+   
+    vsp.Update()      
     return 
 
 ## @ingroup Input_Output-OpenVSP
@@ -321,42 +225,42 @@ def vsp_read_propeller_bem(filename):
     """  
     # open newly written result files and read in aerodynamic properties 
     with open(filename,'r') as vsp_prop_file:  
-	vsp_bem_lines   = vsp_prop_file.readlines()
+        vsp_bem_lines   = vsp_prop_file.readlines()
 
-	tag                  = vsp_bem_lines[0][0:20].strip('.')
-	n_stations           = int(vsp_bem_lines[1][13:16].strip())  
-	num_blades           = int(vsp_bem_lines[2][10:14].strip())  
-	diameter             = float(vsp_bem_lines[3][9:21].strip()) 
-	three_quarter_twist  = float(vsp_bem_lines[4][15:28].strip())   
-	feather              = float(vsp_bem_lines[5][14:28].strip()) 
-	precone              = float(vsp_bem_lines[6][15:28].strip()) 
-	center               = list(vsp_bem_lines[7][7:44].strip().split(',')) 
-	normal               = list(vsp_bem_lines[7][7:44].strip().split(','))  
+        tag                  = vsp_bem_lines[0][0:20].strip('.')
+        n_stations           = int(vsp_bem_lines[1][13:16].strip())  
+        num_blades           = int(vsp_bem_lines[2][10:14].strip())  
+        diameter             = float(vsp_bem_lines[3][9:21].strip()) 
+        three_quarter_twist  = float(vsp_bem_lines[4][15:28].strip())   
+        feather              = float(vsp_bem_lines[5][14:28].strip()) 
+        precone              = float(vsp_bem_lines[6][15:28].strip()) 
+        center               = list(vsp_bem_lines[7][7:44].strip().split(',')) 
+        normal               = list(vsp_bem_lines[7][7:44].strip().split(','))  
 
-	header     = 11 
-	Radius_R   = np.zeros(n_stations)
-	Chord_R    = np.zeros(n_stations)
-	Twist_deg  = np.zeros(n_stations)
-	Rake_R     = np.zeros(n_stations)
-	Skew_R     = np.zeros(n_stations)
-	Sweep      = np.zeros(n_stations)
-	t_c        = np.zeros(n_stations)
-	CLi        = np.zeros(n_stations)
-	Axial      = np.zeros(n_stations)
-	Tangential = np.zeros(n_stations) 
+        header     = 11 
+        Radius_R   = np.zeros(n_stations)
+        Chord_R    = np.zeros(n_stations)
+        Twist_deg  = np.zeros(n_stations)
+        Rake_R     = np.zeros(n_stations)
+        Skew_R     = np.zeros(n_stations)
+        Sweep      = np.zeros(n_stations)
+        t_c        = np.zeros(n_stations)
+        CLi        = np.zeros(n_stations)
+        Axial      = np.zeros(n_stations)
+        Tangential = np.zeros(n_stations) 
 
-	for i in range(n_stations):
-	    station       = list(vsp_bem_lines[header + i][0:120].strip().split(','))   
-	    Radius_R[i]   = float(station[0])
-	    Chord_R[i]    = float(station[1])
-	    Twist_deg[i]  = float(station[2])
-	    Rake_R[i]     = float(station[3])
-	    Skew_R[i]     = float(station[4])
-	    Sweep[i]      = float(station[5])
-	    t_c[i]        = float(station[6])
-	    CLi[i]        = float(station[7])
-	    Axial[i]      = float(station[8])
-	    Tangential[i] = float(station[9]) 
+        for i in range(n_stations):
+            station       = list(vsp_bem_lines[header + i][0:120].strip().split(','))   
+            Radius_R[i]   = float(station[0])
+            Chord_R[i]    = float(station[1])
+            Twist_deg[i]  = float(station[2])
+            Rake_R[i]     = float(station[3])
+            Skew_R[i]     = float(station[4])
+            Sweep[i]      = float(station[5])
+            t_c[i]        = float(station[6])
+            CLi[i]        = float(station[7])
+            Axial[i]      = float(station[8])
+            Tangential[i] = float(station[9]) 
 
     # non dimensional radius cannot be 1.0 for bemt
     Radius_R[-1] = 0.99
@@ -404,11 +308,11 @@ def write_vsp_propeller_bem(vsp_bem_filename,propeller):
     vsp_bem = open(vsp_bem_filename,'w')
 
     with open(vsp_bem_filename,'w') as vsp_bem:
-	make_header_text(vsp_bem, propeller)
+        make_header_text(vsp_bem, propeller)
 
-	make_section_text(vsp_bem,propeller)
+        make_section_text(vsp_bem,propeller)
 
-	make_airfoil_text(vsp_bem,propeller)  
+        make_airfoil_text(vsp_bem,propeller)  
 
     return
 
@@ -500,11 +404,11 @@ def make_section_text(vsp_bem,prop):
     # Write propeller station imformation
     vsp_bem.write(header)       
     for i in range(N):
-	section_text = format(r_R[i], '.7f')+ ", " + format(c_R[i], '.7f')+ ", " + format(beta_deg[i], '.7f')+ ", " +\
+        section_text = format(r_R[i], '.7f')+ ", " + format(c_R[i], '.7f')+ ", " + format(beta_deg[i], '.7f')+ ", " +\
             format( Rake_R[i], '.7f')+ ", " + format(Skew_R[i], '.7f')+ ", " + format(Sweep[i], '.7f')+ ", " +\
             format(t_c[i], '.7f')+ ", " + format(CLi[i], '.7f') + ", "+ format(Axial[i], '.7f') + ", " +\
             format(Tangential[i], '.7f') + "\n"  
-	vsp_bem.write(section_text)      
+        vsp_bem.write(section_text)      
 
     return   
 
@@ -530,13 +434,13 @@ def make_airfoil_text(vsp_bem,prop):
     airfoil_data  = import_airfoil_geometry(prop.airfoil_geometry)
     a_sec         = prop.airfoil_polar_stations
     for i in range(N):
-	airfoil_station_header = '\nSection ' + str(i) + ' X, Y\n'  
-	vsp_bem.write(airfoil_station_header)   
+        airfoil_station_header = '\nSection ' + str(i) + ' X, Y\n'  
+        vsp_bem.write(airfoil_station_header)   
 
-	airfoil_x     = airfoil_data.x_coordinates[int(a_sec[i])] 
-	airfoil_y     = airfoil_data.y_coordinates[int(a_sec[i])] 
+        airfoil_x     = airfoil_data.x_coordinates[int(a_sec[i])] 
+        airfoil_y     = airfoil_data.y_coordinates[int(a_sec[i])] 
 
-	for j in range(len(airfoil_x)): 
-	    section_text = format(airfoil_x[j], '.7f')+ ", " + format(airfoil_y[j], '.7f') + "\n"  
-	    vsp_bem.write(section_text)      
+        for j in range(len(airfoil_x)): 
+            section_text = format(airfoil_x[j], '.7f')+ ", " + format(airfoil_y[j], '.7f') + "\n"  
+            vsp_bem.write(section_text)      
     return 

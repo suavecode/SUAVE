@@ -80,16 +80,16 @@ def read_vsp_fuselage(fuselage_id, units_type='SI', fineness=True):
     fuselage = SUAVE.Components.Fuselages.Fuselage()	
 
     if units_type == 'SI':
-	units_factor = Units.meter * 1.
+        units_factor = Units.meter * 1.
     elif units_type == 'imperial':
-	units_factor = Units.foot * 1.
+        units_factor = Units.foot * 1.
     elif units_type == 'inches':
-	units_factor = Units.inch * 1.	
+        units_factor = Units.inch * 1.	
 
     if vsp.GetGeomName(fuselage_id):
-	fuselage.tag = vsp.GetGeomName(fuselage_id)
+        fuselage.tag = vsp.GetGeomName(fuselage_id)
     else: 
-	fuselage.tag = 'FuselageGeom'	
+        fuselage.tag = 'FuselageGeom'	
 
     fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Location', 'XForm') * units_factor
     fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Location', 'XForm') * units_factor
@@ -111,41 +111,41 @@ def read_vsp_fuselage(fuselage_id, units_type='SI', fineness=True):
 
     for ii in range(0, fuselage.vsp_data.xsec_num):
 
-	# Create the segment
-	x_sec                     = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii) # VSP XSec ID.
-	segment                   = SUAVE.Components.Fuselages.Segment()
-	segment.vsp_data.xsec_id  = x_sec 
-	segment.tag               = 'segment_' + str(ii)
+        # Create the segment
+        x_sec                     = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii) # VSP XSec ID.
+        segment                   = SUAVE.Components.Fuselages.Segment()
+        segment.vsp_data.xsec_id  = x_sec 
+        segment.tag               = 'segment_' + str(ii)
 
-	# Pull out Parms that will be needed
-	X_Loc_P = vsp.GetXSecParm(x_sec, 'XLocPercent')
-	Z_Loc_P = vsp.GetXSecParm(x_sec, 'ZLocPercent')
+        # Pull out Parms that will be needed
+        X_Loc_P = vsp.GetXSecParm(x_sec, 'XLocPercent')
+        Z_Loc_P = vsp.GetXSecParm(x_sec, 'ZLocPercent')
 
-	segment.percent_x_location = vsp.GetParmVal(X_Loc_P) # Along fuselage length.
-	segment.percent_z_location = vsp.GetParmVal(Z_Loc_P ) # Vertical deviation of fuselage center.
-	segment.height             = vsp.GetXSecHeight(segment.vsp_data.xsec_id) * units_factor
-	segment.width              = vsp.GetXSecWidth(segment.vsp_data.xsec_id) * units_factor
-	segment.effective_diameter = (segment.height+segment.width)/2. 
+        segment.percent_x_location = vsp.GetParmVal(X_Loc_P) # Along fuselage length.
+        segment.percent_z_location = vsp.GetParmVal(Z_Loc_P ) # Vertical deviation of fuselage center.
+        segment.height             = vsp.GetXSecHeight(segment.vsp_data.xsec_id) * units_factor
+        segment.width              = vsp.GetXSecWidth(segment.vsp_data.xsec_id) * units_factor
+        segment.effective_diameter = (segment.height+segment.width)/2. 
 
-	x_locs.append(segment.percent_x_location)	 # Save into arrays for later computation.
-	heights.append(segment.height)
-	widths.append(segment.width)
-	eff_diams.append(segment.effective_diameter)
+        x_locs.append(segment.percent_x_location)	 # Save into arrays for later computation.
+        heights.append(segment.height)
+        widths.append(segment.width)
+        eff_diams.append(segment.effective_diameter)
 
-	if ii != (fuselage.vsp_data.xsec_num-1): # Segment length: stored as length since previous segment. (last segment will have length 0.0.)
-	    next_xsec = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii+1)
-	    X_Loc_P_p = vsp.GetXSecParm(next_xsec, 'XLocPercent')
-	    percent_x_loc_p1 = vsp.GetParmVal(X_Loc_P_p) 
-	    segment.length = fuselage.lengths.total*(percent_x_loc_p1 - segment.percent_x_location) * units_factor
-	else:
-	    segment.length = 0.0
-	lengths.append(segment.length)
+        if ii != (fuselage.vsp_data.xsec_num-1): # Segment length: stored as length since previous segment. (last segment will have length 0.0.)
+            next_xsec = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii+1)
+            X_Loc_P_p = vsp.GetXSecParm(next_xsec, 'XLocPercent')
+            percent_x_loc_p1 = vsp.GetParmVal(X_Loc_P_p) 
+            segment.length = fuselage.lengths.total*(percent_x_loc_p1 - segment.percent_x_location) * units_factor
+        else:
+            segment.length = 0.0
+        lengths.append(segment.length)
 
-	shape	   = vsp.GetXSecShape(segment.vsp_data.xsec_id)
-	shape_dict = {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file'}
-	segment.vsp_data.shape = shape_dict[shape]	
+        shape	   = vsp.GetXSecShape(segment.vsp_data.xsec_id)
+        shape_dict = {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file'}
+        segment.vsp_data.shape = shape_dict[shape]	
 
-	fuselage.Segments.append(segment)
+        fuselage.Segments.append(segment)
 
     fuselage.heights.at_quarter_length          = get_fuselage_height(fuselage, .25)  # Calls get_fuselage_height function (below).
     fuselage.heights.at_three_quarters_length   = get_fuselage_height(fuselage, .75) 
@@ -225,46 +225,46 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
     fuse_z_rotation    = fuselage.z_rotation    
     if num_segs==0: # SUAVE default fuselage shaping
 
-	width    = fuselage.width
-	hmax     = fuselage.heights.maximum
-	height1  = fuselage.heights.at_quarter_length
-	height2  = fuselage.heights.at_wing_root_quarter_chord 
-	height3  = fuselage.heights.at_three_quarters_length
-	effdia   = fuselage.effective_diameter
-	n_fine   = fuselage.fineness.nose 
-	t_fine   = fuselage.fineness.tail  
+        width    = fuselage.width
+        hmax     = fuselage.heights.maximum
+        height1  = fuselage.heights.at_quarter_length
+        height2  = fuselage.heights.at_wing_root_quarter_chord 
+        height3  = fuselage.heights.at_three_quarters_length
+        effdia   = fuselage.effective_diameter
+        n_fine   = fuselage.fineness.nose 
+        t_fine   = fuselage.fineness.tail  
 
-	try:
-	    if main_wing != None:                
-		w_origin = main_wing.origin
-		w_c_4    = main_wing.chords.root/4.
-	    else:
-		w_origin = 0.5*length
-		w_c_4    = 0.5*length
-	except AttributeError:
-	    raise AttributeError('Main wing not detected. Fuselage must have specified sections in this configuration.')
+        try:
+            if main_wing != None:                
+                w_origin = main_wing.origin
+                w_c_4    = main_wing.chords.root/4.
+            else:
+                w_origin = 0.5*length
+                w_c_4    = 0.5*length
+        except AttributeError:
+            raise AttributeError('Main wing not detected. Fuselage must have specified sections in this configuration.')
 
-	# Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
+        # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
 
-	x1 = n_fine*width/length
-	x2 = (w_origin[0][0]+w_c_4)/length
-	x3 = 1-t_fine*width/length
+        x1 = n_fine*width/length
+        x2 = (w_origin[0][0]+w_c_4)/length
+        x3 = 1-t_fine*width/length
 
-	end_ind = 4
+        end_ind = 4
 
     else: # Fuselage shaping based on sections
-	widths  = []
-	heights = []
-	x_poses = []
-	z_poses = []
-	segs = fuselage.Segments
-	for seg in segs:
-	    widths.append(seg.width)
-	    heights.append(seg.height)
-	    x_poses.append(seg.percent_x_location)
-	    z_poses.append(seg.percent_z_location)
+        widths  = []
+        heights = []
+        x_poses = []
+        z_poses = []
+        segs = fuselage.Segments
+        for seg in segs:
+            widths.append(seg.width)
+            heights.append(seg.height)
+            x_poses.append(seg.percent_x_location)
+            z_poses.append(seg.percent_z_location)
 
-	end_ind = num_segs-1
+        end_ind = num_segs-1
 
     fuse_id = vsp.AddGeom("FUSELAGE") 
     vsp.SetGeomName(fuse_id, fuselage.tag)
@@ -283,132 +283,132 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
 
 
     if 'OpenVSP_values' in fuselage:        
-	vals = fuselage.OpenVSP_values
+        vals = fuselage.OpenVSP_values
 
-	# for wave drag testing
-	fuselage.OpenVSP_ID = fuse_id
+        # for wave drag testing
+        fuselage.OpenVSP_ID = fuse_id
 
-	# Nose
-	vsp.SetParmVal(fuse_id,"TopLAngle","XSec_0",vals.nose.top.angle)
-	vsp.SetParmVal(fuse_id,"TopLStrength","XSec_0",vals.nose.top.strength)
-	vsp.SetParmVal(fuse_id,"RightLAngle","XSec_0",vals.nose.side.angle)
-	vsp.SetParmVal(fuse_id,"RightLStrength","XSec_0",vals.nose.side.strength)
-	vsp.SetParmVal(fuse_id,"TBSym","XSec_0",vals.nose.TB_Sym)
-	vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_0",vals.nose.z_pos)
-	if not vals.nose.TB_Sym:
-	    vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_0",vals.nose.bottom.angle)
-	    vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_0",vals.nose.bottom.strength)           
+        # Nose
+        vsp.SetParmVal(fuse_id,"TopLAngle","XSec_0",vals.nose.top.angle)
+        vsp.SetParmVal(fuse_id,"TopLStrength","XSec_0",vals.nose.top.strength)
+        vsp.SetParmVal(fuse_id,"RightLAngle","XSec_0",vals.nose.side.angle)
+        vsp.SetParmVal(fuse_id,"RightLStrength","XSec_0",vals.nose.side.strength)
+        vsp.SetParmVal(fuse_id,"TBSym","XSec_0",vals.nose.TB_Sym)
+        vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_0",vals.nose.z_pos)
+        if not vals.nose.TB_Sym:
+            vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_0",vals.nose.bottom.angle)
+            vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_0",vals.nose.bottom.strength)           
 
-	# Tail
-	# Below can be enabled if AllSym (below) is removed
-	#vsp.SetParmVal(fuse_id,"RightLAngle","XSec_4",vals.tail.side.angle)
-	#vsp.SetParmVal(fuse_id,"RightLStrength","XSec_4",vals.tail.side.strength)
-	#vsp.SetParmVal(fuse_id,"TBSym","XSec_4",vals.tail.TB_Sym)
-	#vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_4",vals.tail.bottom.angle)
-	#vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_4",vals.tail.bottom.strength)
-	if 'z_pos' in vals.tail:
-	    tail_z_pos = vals.tail.z_pos
-	else:
-	    pass # use above default
+        # Tail
+        # Below can be enabled if AllSym (below) is removed
+        #vsp.SetParmVal(fuse_id,"RightLAngle","XSec_4",vals.tail.side.angle)
+        #vsp.SetParmVal(fuse_id,"RightLStrength","XSec_4",vals.tail.side.strength)
+        #vsp.SetParmVal(fuse_id,"TBSym","XSec_4",vals.tail.TB_Sym)
+        #vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_4",vals.tail.bottom.angle)
+        #vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_4",vals.tail.bottom.strength)
+        if 'z_pos' in vals.tail:
+            tail_z_pos = vals.tail.z_pos
+        else:
+            pass # use above default
 
 
     if num_segs == 0:
-	vsp.SetParmVal(fuse_id,"Length","Design",length)
-	vsp.SetParmVal(fuse_id,"Diameter","Design",width)
-	vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
-	vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
-	vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
-	vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",tail_z_pos)
-	vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
-	vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
-	vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
-	vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
-	vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
-	vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);  
+        vsp.SetParmVal(fuse_id,"Length","Design",length)
+        vsp.SetParmVal(fuse_id,"Diameter","Design",width)
+        vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
+        vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
+        vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
+        vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",tail_z_pos)
+        vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
+        vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
+        vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
+        vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
+        vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
+        vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);  
     else:
-	# OpenVSP vals do not exist:
-	vals                   = Data()
-	vals.nose              = Data()
-	vals.tail              = Data()
-	vals.tail.top          = Data()
+        # OpenVSP vals do not exist:
+        vals                   = Data()
+        vals.nose              = Data()
+        vals.tail              = Data()
+        vals.tail.top          = Data()
 
-	vals.nose.z_pos        = 0.0
-	vals.tail.top.angle    = 0.0
-	vals.tail.top.strength = 0.0
+        vals.nose.z_pos        = 0.0
+        vals.tail.top.angle    = 0.0
+        vals.tail.top.strength = 0.0
 
-	if len(np.unique(x_poses)) != len(x_poses):
-	    raise ValueError('Duplicate fuselage section positions detected.')
-	vsp.SetParmVal(fuse_id,"Length","Design",length)
-	if num_segs != 5: # reduce to only nose and tail
-	    vsp.CutXSec(fuse_id,1) # remove extra default section
-	    vsp.CutXSec(fuse_id,1) # remove extra default section
-	    vsp.CutXSec(fuse_id,1) # remove extra default section
-	    for i in range(num_segs-2): # add back the required number of sections
-		vsp.InsertXSec(fuse_id, 0, vsp.XS_ELLIPSE)           
-		vsp.Update()
-	for i in range(num_segs-2):
-	    # Bunch sections to allow proper length settings in the next step
-	    # This is necessary because OpenVSP will not move a section past an adjacent section
-	    vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),1e-6*(i+1))
-	    vsp.Update()
-	if x_poses[1] < (num_segs-2)*1e-6:
-	    print('Warning: Second fuselage section is too close to the nose. OpenVSP model may not be accurate.')
-	for i in reversed(range(num_segs-2)):
-	    # order is reversed because sections are initially bunched in the front and cannot be extended passed the next
-	    vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),x_poses[i+1])
-	    vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(i+1),z_poses[i+1])
-	    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(i+1), widths[i+1])
-	    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1])   
-	    vsp.Update()             
-	    set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)            
+        if len(np.unique(x_poses)) != len(x_poses):
+            raise ValueError('Duplicate fuselage section positions detected.')
+        vsp.SetParmVal(fuse_id,"Length","Design",length)
+        if num_segs != 5: # reduce to only nose and tail
+            vsp.CutXSec(fuse_id,1) # remove extra default section
+            vsp.CutXSec(fuse_id,1) # remove extra default section
+            vsp.CutXSec(fuse_id,1) # remove extra default section
+            for i in range(num_segs-2): # add back the required number of sections
+                vsp.InsertXSec(fuse_id, 0, vsp.XS_ELLIPSE)           
+                vsp.Update()
+        for i in range(num_segs-2):
+            # Bunch sections to allow proper length settings in the next step
+            # This is necessary because OpenVSP will not move a section past an adjacent section
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),1e-6*(i+1))
+            vsp.Update()
+        if x_poses[1] < (num_segs-2)*1e-6:
+            print('Warning: Second fuselage section is too close to the nose. OpenVSP model may not be accurate.')
+        for i in reversed(range(num_segs-2)):
+            # order is reversed because sections are initially bunched in the front and cannot be extended passed the next
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),x_poses[i+1])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(i+1),z_poses[i+1])
+            vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(i+1), widths[i+1])
+            vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1])   
+            vsp.Update()             
+            set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)            
 
-	vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
-	vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
-	vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(end_ind),x_poses[-1])
-	vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(end_ind),z_poses[-1])    
+        vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
+        vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
+        vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(end_ind),x_poses[-1])
+        vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(end_ind),z_poses[-1])    
 
-	# Tail
-	if heights[-1] > 0.:
-	    stdout = vsp.cvar.cstdout
-	    errorMgr = vsp.ErrorMgrSingleton_getInstance()
-	    errorMgr.PopErrorAndPrint(stdout)
+        # Tail
+        if heights[-1] > 0.:
+            stdout = vsp.cvar.cstdout
+            errorMgr = vsp.ErrorMgrSingleton_getInstance()
+            errorMgr.PopErrorAndPrint(stdout)
 
-	    pos = len(heights)-1
-	    vsp.InsertXSec(fuse_id, pos-1, vsp.XS_ELLIPSE)
-	    vsp.Update()
-	    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(pos), widths[-1])
-	    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(pos), heights[-1])
-	    vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos),x_poses[-1])
-	    vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos),z_poses[-1])              
+            pos = len(heights)-1
+            vsp.InsertXSec(fuse_id, pos-1, vsp.XS_ELLIPSE)
+            vsp.Update()
+            vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(pos), widths[-1])
+            vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(pos), heights[-1])
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos),x_poses[-1])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos),z_poses[-1])              
 
-	    xsecsurf = vsp.GetXSecSurf(fuse_id,0)
-	    vsp.ChangeXSecShape(xsecsurf,pos+1,vsp.XS_POINT)
-	    vsp.Update()           
-	    vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos+1),x_poses[-1])
-	    vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos+1),z_poses[-1])     
+            xsecsurf = vsp.GetXSecSurf(fuse_id,0)
+            vsp.ChangeXSecShape(xsecsurf,pos+1,vsp.XS_POINT)
+            vsp.Update()           
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos+1),x_poses[-1])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos+1),z_poses[-1])     
 
-	    # update strengths to make end flat
-	    vsp.SetParmVal(fuse_id,"TopRStrength","XSec_"+str(pos), 0.)
-	    vsp.SetParmVal(fuse_id,"RightRStrength","XSec_"+str(pos), 0.)
-	    vsp.SetParmVal(fuse_id,"BottomRStrength","XSec_"+str(pos), 0.)
-	    vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(pos+1), 0.)
-	    vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(pos+1), 0.)            
+            # update strengths to make end flat
+            vsp.SetParmVal(fuse_id,"TopRStrength","XSec_"+str(pos), 0.)
+            vsp.SetParmVal(fuse_id,"RightRStrength","XSec_"+str(pos), 0.)
+            vsp.SetParmVal(fuse_id,"BottomRStrength","XSec_"+str(pos), 0.)
+            vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(pos+1), 0.)
+            vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(pos+1), 0.)            
 
-	else:
-	    vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
-	    vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
-	    vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
-	    vsp.Update()
+        else:
+            vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
+            vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
+            vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
+            vsp.Update()
 
 
-	if 'z_pos' in vals.tail:
-	    tail_z_pos = vals.tail.z_pos
-	else:
-	    pass # use above default         
+        if 'z_pos' in vals.tail:
+            tail_z_pos = vals.tail.z_pos
+        else:
+            pass # use above default         
 
     if 'Fuel_Tanks' in fuselage:
-	for tank in fuselage.Fuel_Tanks:
-	    write_fuselage_conformal_fuel_tank(fuse_id, tank, fuel_tank_set_ind)    
+        for tank in fuselage.Fuel_Tanks:
+            write_fuselage_conformal_fuel_tank(fuse_id, tank, fuel_tank_set_ind)    
 
     vsp.SetSetFlag(fuse_id, OML_set_ind, True)
 
@@ -532,15 +532,15 @@ def get_fuselage_height(fuselage, location):
     N/A
     """
     for jj in range(1, fuselage.vsp_data.xsec_num):		# Begin at second section, working toward tail.
-	if fuselage.Segments[jj].percent_x_location>=location and fuselage.Segments[jj-1].percent_x_location<location:  
-	    # Find two sections on either side (or including) the desired fuselage length percentage.
-	    a        = fuselage.Segments[jj].percent_x_location							
-	    b        = fuselage.Segments[jj-1].percent_x_location
-	    a_height = fuselage.Segments[jj].height		# Linear approximation.
-	    b_height = fuselage.Segments[jj-1].height
-	    slope    = (a_height - b_height)/(a-b)
-	    height   = ((location-b)*(slope)) + (b_height)	
-	    break
+        if fuselage.Segments[jj].percent_x_location>=location and fuselage.Segments[jj-1].percent_x_location<location:  
+            # Find two sections on either side (or including) the desired fuselage length percentage.
+            a        = fuselage.Segments[jj].percent_x_location							
+            b        = fuselage.Segments[jj-1].percent_x_location
+            a_height = fuselage.Segments[jj].height		# Linear approximation.
+            b_height = fuselage.Segments[jj-1].height
+            slope    = (a_height - b_height)/(a-b)
+            height   = ((location-b)*(slope)) + (b_height)	
+            break
     return height
 
 ## @ingroup Input_Output-OpenVSP
@@ -575,64 +575,64 @@ def write_wing_conformal_fuel_tank(vehicle,wing, wing_id,fuel_tank,fuel_tank_set
     """        
     # Unpack
     try:
-	offset            = fuel_tank.inward_offset
-	chord_trim_max    = 1.-fuel_tank.start_chord_percent
-	chord_trim_min    = 1.-fuel_tank.end_chord_percent
-	span_trim_max     = fuel_tank.end_span_percent
-	span_trim_min     = fuel_tank.start_span_percent  
-	density           = fuel_tank.fuel_type.density
+        offset            = fuel_tank.inward_offset
+        chord_trim_max    = 1.-fuel_tank.start_chord_percent
+        chord_trim_min    = 1.-fuel_tank.end_chord_percent
+        span_trim_max     = fuel_tank.end_span_percent
+        span_trim_min     = fuel_tank.start_span_percent  
+        density           = fuel_tank.fuel_type.density
     except:
-	print('Fuel tank does not contain parameters needed for OpenVSP geometry. Tag: '+fuel_tank.tag)
-	return
+        print('Fuel tank does not contain parameters needed for OpenVSP geometry. Tag: '+fuel_tank.tag)
+        return
 
     tank_id = vsp.AddGeom('CONFORMAL',wing_id)
     vsp.SetGeomName(tank_id, fuel_tank.tag)    
     n_segments        = len(wing.Segments.keys())
     if n_segments > 0.:
-	seg_span_percents  = np.array([v['percent_span_location'] for (k,v)\
-					       in wing.Segments.iteritems()])
-	vsp_segment_breaks = np.linspace(0.,1.,n_segments)
+        seg_span_percents  = np.array([v['percent_span_location'] for (k,v)\
+                                       in wing.Segments.iteritems()])
+        vsp_segment_breaks = np.linspace(0.,1.,n_segments)
     else:
-	seg_span_percents = np.array([0.,1.])
+        seg_span_percents = np.array([0.,1.])
     span = wing.spans.projected
 
     # Offset
     vsp.SetParmVal(tank_id,'Offset','Design',offset)      
 
     for key, fuselage in vehicle.fuselages.items():
-	width    = fuselage.width
-	length   = fuselage.lengths.total
-	hmax     = fuselage.heights.maximum
-	height1  = fuselage.heights.at_quarter_length
-	height2  = fuselage.heights.at_wing_root_quarter_chord 
-	height3  = fuselage.heights.at_three_quarters_length
-	effdia   = fuselage.effective_diameter
-	n_fine   = fuselage.fineness.nose 
-	t_fine   = fuselage.fineness.tail  
-	w_ac     = wing.aerodynamic_center
+        width    = fuselage.width
+        length   = fuselage.lengths.total
+        hmax     = fuselage.heights.maximum
+        height1  = fuselage.heights.at_quarter_length
+        height2  = fuselage.heights.at_wing_root_quarter_chord 
+        height3  = fuselage.heights.at_three_quarters_length
+        effdia   = fuselage.effective_diameter
+        n_fine   = fuselage.fineness.nose 
+        t_fine   = fuselage.fineness.tail  
+        w_ac     = wing.aerodynamic_center
 
-	w_origin = vehicle.wings.main_wing.origin
-	w_c_4    = vehicle.wings.main_wing.chords.root/4.
+        w_origin = vehicle.wings.main_wing.origin
+        w_c_4    = vehicle.wings.main_wing.chords.root/4.
 
-	# Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
+        # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
 
-	x1 = 0.25
-	x2 = (w_origin[0]+w_c_4)/length
-	x3 = 0.75
+        x1 = 0.25
+        x2 = (w_origin[0]+w_c_4)/length
+        x3 = 0.75
 
-	fuse_id = vsp.AddGeom("FUSELAGE") 
-	vsp.SetGeomName(fuse_id, fuselage.tag)
-	wing_id[fuselage.tag] = ['fuselages',fuselage.tag]
+        fuse_id = vsp.AddGeom("FUSELAGE") 
+        vsp.SetGeomName(fuse_id, fuselage.tag)
+        wing_id[fuselage.tag] = ['fuselages',fuselage.tag]
 
-	# Set the origins:
-	x = fuselage.origin[0][0]
-	y = fuselage.origin[0][1]
-	z = fuselage.origin[0][2]
-	vsp.SetParmVal(fuse_id,'X_Location','XForm',x)
-	vsp.SetParmVal(fuse_id,'Y_Location','XForm',y)
-	vsp.SetParmVal(fuse_id,'Z_Location','XForm',z)
-	vsp.SetParmVal(fuse_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-	vsp.SetParmVal(fuse_id,'Origin','XForm',0.0)
+        # Set the origins:
+        x = fuselage.origin[0][0]
+        y = fuselage.origin[0][1]
+        z = fuselage.origin[0][2]
+        vsp.SetParmVal(fuse_id,'X_Location','XForm',x)
+        vsp.SetParmVal(fuse_id,'Y_Location','XForm',y)
+        vsp.SetParmVal(fuse_id,'Z_Location','XForm',z)
+        vsp.SetParmVal(fuse_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+        vsp.SetParmVal(fuse_id,'Origin','XForm',0.0)
 
     # Fuel tank chord bounds
     vsp.SetParmVal(tank_id,'ChordTrimFlag','Design',1.)
@@ -641,14 +641,14 @@ def write_wing_conformal_fuel_tank(vehicle,wing, wing_id,fuel_tank,fuel_tank_set
 
     # Fuel tank span bounds
     if n_segments>0:
-	span_trim_max = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
-							     vsp_segment_breaks,  
-						     span_trim_max)
-	span_trim_min = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
-							     vsp_segment_breaks,
-						     span_trim_min)
+        span_trim_max = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
+                                                     vsp_segment_breaks,  
+                                                             span_trim_max)
+        span_trim_min = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
+                                                     vsp_segment_breaks,
+                                                             span_trim_min)
     else:
-	pass # no change to span_trim
+        pass # no change to span_trim
 
     vsp.SetParmVal(tank_id,'UTrimFlag','Design',1.)
     vsp.SetParmVal(tank_id,'UTrimMax','Design',span_trim_max)
@@ -688,17 +688,17 @@ def find_fuse_u_coordinate(x_target,fuse_id,fuel_tank_tag):
     u_min = 0
     u_max = 1    
     while np.abs(diff) > tol:
-	u_current = (u_max+u_min)/2
-	probe_id = vsp.AddProbe(fuse_id,0,u_current,0,fuel_tank_tag+'_probe')
-	vsp.Update()
-	x_id  = vsp.FindParm(probe_id,'X','Measure')
-	x_pos = vsp.GetParmVal(x_id) 
-	diff = x_target-x_pos
-	if diff > 0:
-	    u_min = u_current
-	else:
-	    u_max = u_current
-	vsp.DelProbe(probe_id)
+        u_current = (u_max+u_min)/2
+        probe_id = vsp.AddProbe(fuse_id,0,u_current,0,fuel_tank_tag+'_probe')
+        vsp.Update()
+        x_id  = vsp.FindParm(probe_id,'X','Measure')
+        x_pos = vsp.GetParmVal(x_id) 
+        diff = x_target-x_pos
+        if diff > 0:
+            u_min = u_current
+        else:
+            u_max = u_current
+        vsp.DelProbe(probe_id)
     return u_current
 
 
@@ -735,13 +735,13 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
 
     # Unpack
     try:
-	offset         = fuel_tank.inward_offset
-	len_trim_max   = fuel_tank.end_length_percent
-	len_trim_min   = fuel_tank.start_length_percent  
-	density        = fuel_tank.fuel_type.density
+        offset         = fuel_tank.inward_offset
+        len_trim_max   = fuel_tank.end_length_percent
+        len_trim_min   = fuel_tank.start_length_percent  
+        density        = fuel_tank.fuel_type.density
     except:
-	print('Fuel tank does not contain parameters needed for OpenVSP geometry. Tag: '+fuel_tank.tag)
-	return        
+        print('Fuel tank does not contain parameters needed for OpenVSP geometry. Tag: '+fuel_tank.tag)
+        return        
 
     tank_id = vsp.AddGeom('CONFORMAL',fuse_id)
     vsp.SetGeomName(tank_id, fuel_tank.tag)    
@@ -806,9 +806,9 @@ def get_vsp_trim_from_SUAVE_trim(seg_span_percents,vsp_segment_breaks,trim):
     # Determine max chord trim correction
     y_seg_ind = next(i for i,per_y in enumerate(seg_span_percents) if per_y > trim)
     segment_percent_of_total_span = seg_span_percents[y_seg_ind] -\
-	    seg_span_percents[y_seg_ind-1]
+        seg_span_percents[y_seg_ind-1]
     remaining_percent_within_segment = trim - seg_span_percents[y_seg_ind-1]
     percent_of_segment = remaining_percent_within_segment/segment_percent_of_total_span
     trim = vsp_segment_breaks[y_seg_ind-1] + \
-	    (vsp_segment_breaks[y_seg_ind]-vsp_segment_breaks[y_seg_ind-1])*percent_of_segment  
+        (vsp_segment_breaks[y_seg_ind]-vsp_segment_breaks[y_seg_ind-1])*percent_of_segment  
     return trim

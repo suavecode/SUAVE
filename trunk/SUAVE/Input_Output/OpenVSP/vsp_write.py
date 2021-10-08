@@ -101,12 +101,12 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
 
     # Reset OpenVSP to avoid including a previous vehicle
     if verbose:
-	print('Reseting OpenVSP Model in Memory')
+        print('Reseting OpenVSP Model in Memory')
     try:
-	vsp.ClearVSPModel()
+        vsp.ClearVSPModel()
     except NameError:
-	print('VSP import failed')
-	return -1
+        print('VSP import failed')
+        return -1
 
     area_tags = dict() # for wetted area assignment
 
@@ -119,11 +119,11 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     vsp.SetSetName(OML_set_ind, 'OML')
 
     for wing in vehicle.wings:       
-	if verbose:
-	    print('Writing '+wing.tag+' to OpenVSP Model')
-	    area_tags, wing_id = write_vsp_wing(vehicle,wing,area_tags, fuel_tank_set_ind, OML_set_ind)
-	if wing.tag == 'main_wing':
-	    main_wing_id = wing_id    
+        if verbose:
+            print('Writing '+wing.tag+' to OpenVSP Model')
+            area_tags, wing_id = write_vsp_wing(vehicle,wing,area_tags, fuel_tank_set_ind, OML_set_ind)
+        if wing.tag == 'main_wing':
+            main_wing_id = wing_id    
 
     # -------------
     # Engines
@@ -132,61 +132,61 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     ## This was a place to start and may not still be functional    
 
     if 'turbofan' in vehicle.networks:
-	if verbose:
-	    print('Writing '+vehicle.networks.turbofan.tag+' to OpenVSP Model')
-	turbofan  = vehicle.networks.turbofan
-	write_vsp_turbofan(turbofan, OML_set_ind)
+        if verbose:
+            print('Writing '+vehicle.networks.turbofan.tag+' to OpenVSP Model')
+        turbofan  = vehicle.networks.turbofan
+        write_vsp_turbofan(turbofan, OML_set_ind)
 
     if 'turbojet' in vehicle.networks:
-	turbofan  = vehicle.networks.turbojet
-	write_vsp_turbofan(turbofan, OML_set_ind)     
+        turbofan  = vehicle.networks.turbojet
+        write_vsp_turbofan(turbofan, OML_set_ind)     
 
     if 'propellers' in vehicle.networks:
-	for prop in  vehicle.networks.propellers:
-	    vsp_bem_filename = prop.tag + '.bem'
-	    write_vsp_propeller(prop, OML_set_ind)
-	    write_vsp_propeller_bem(vsp_bem_filename,prop)
+        for prop in  vehicle.networks.propellers:
+            vsp_bem_filename = prop.tag + '.bem'
+            write_vsp_propeller(prop, OML_set_ind)
+            write_vsp_propeller_bem(vsp_bem_filename,prop)
 
 
     if 'lift_rotors' in vehicle.networks:
-	for rot in  vehicle.networks.lift_rotors:
-	    vsp_bem_filename = prop.tag + '.bem'
-	    write_vsp_propeller(rot, OML_set_ind)
-	    write_vsp_propeller_bem(vsp_bem_filename,rot)
+        for rot in  vehicle.networks.lift_rotors:
+            vsp_bem_filename = prop.tag + '.bem'
+            write_vsp_propeller(rot, OML_set_ind)
+            write_vsp_propeller_bem(vsp_bem_filename,rot)
 
     # -------------
     # Fuselage
     # -------------    
 
     for key, fuselage in vehicle.fuselages.items():
-	if verbose:
-	    print('Writing '+fuselage.tag+' to OpenVSP Model')
-	try:
-	    area_tags = write_vsp_fuselage(fuselage, area_tags, vehicle.wings.main_wing, 
-	                                   fuel_tank_set_ind, OML_set_ind)
-	except AttributeError:
-	    area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind,
-	                                   OML_set_ind)
+        if verbose:
+            print('Writing '+fuselage.tag+' to OpenVSP Model')
+        try:
+            area_tags = write_vsp_fuselage(fuselage, area_tags, vehicle.wings.main_wing, 
+                                           fuel_tank_set_ind, OML_set_ind)
+        except AttributeError:
+            area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind,
+                                           OML_set_ind)
 
     vsp.Update()
 
     # Write the vehicle to the file    
     if write_file ==True:
-	cwd = os.getcwd()
-	filename = tag + ".vsp3"
-	if verbose:
-	    print('Saving OpenVSP File at '+ cwd + '/' + filename)
-	vsp.WriteVSPFile(filename)
+        cwd = os.getcwd()
+        filename = tag + ".vsp3"
+        if verbose:
+            print('Saving OpenVSP File at '+ cwd + '/' + filename)
+        vsp.WriteVSPFile(filename)
     elif verbose:
-	print('Not Saving OpenVSP File')
+        print('Not Saving OpenVSP File')
 
     if write_igs:
-	if verbose:
-	    print('Exporting IGS File')        
-	vehicle_id = vsp.FindContainersWithName('Vehicle')[0]
-	parm_id = vsp.FindParm(vehicle_id,'LabelID','IGESSettings')
-	vsp.SetParmVal(parm_id, 0.)
-	vsp.ExportFile(tag + ".igs", OML_set_ind, vsp.EXPORT_IGES)
+        if verbose:
+            print('Exporting IGS File')        
+        vehicle_id = vsp.FindContainersWithName('Vehicle')[0]
+        parm_id = vsp.FindParm(vehicle_id,'LabelID','IGESSettings')
+        vsp.SetParmVal(parm_id, 0.)
+        vsp.ExportFile(tag + ".igs", OML_set_ind, vsp.EXPORT_IGES)
 
     return area_tags
 
