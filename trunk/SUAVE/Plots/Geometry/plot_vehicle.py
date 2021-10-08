@@ -348,13 +348,14 @@ def plot_propeller_geometry(axes,prop,network,network_name):
 
 
     rot    = prop.rotation 
-    flip_1 = -(np.pi/2)
+    flip_1 =  (np.pi/2)
     flip_2 =  (np.pi/2)
 
     MCA_2d = np.repeat(np.atleast_2d(MCA).T,n_points,axis=1)
     b_2d   = np.repeat(np.atleast_2d(b).T  ,n_points,axis=1)
     t_2d   = np.repeat(np.atleast_2d(t).T  ,n_points,axis=1)
     r_2d   = np.repeat(np.atleast_2d(r).T  ,n_points,axis=1)
+    shift  = np.repeat(np.atleast_2d(np.ones_like(b)*b[0]).T  ,n_points,axis=1)
 
     for i in range(num_B):
         # get airfoil coordinate geometry
@@ -376,7 +377,7 @@ def plot_propeller_geometry(axes,prop,network,network_name):
         # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
         max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
 
-        xp      = (- MCA_2d + xpts*b_2d )     # x-coord of airfoil
+        xp      = (- MCA_2d + xpts*b_2d - shift/2 )     # x-coord of airfoil
         yp      = r_2d*np.ones_like(xp)       # radial location
         zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord
 
