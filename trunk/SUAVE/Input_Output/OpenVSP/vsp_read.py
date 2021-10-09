@@ -171,8 +171,10 @@ def vsp_read(tag, units_type='SI',specified_network=None):
             vsp_wings.append(geom)
         if geom_type == 'Propeller':
             vsp_props.append(geom)
-
-    #Read VSP geoms and store in SUAVE components
+        
+    # --------------------------------------------------			
+    # Read Fuselages 
+    # --------------------------------------------------			    
     for fuselage_id in vsp_fuselages:
         sym_planar = vsp.GetParmVal(fuselage_id, 'Sym_Planar_Flag', 'Sym') # Check for symmetry
         sym_origin = vsp.GetParmVal(fuselage_id, 'Sym_Ancestor_Origin_Flag', 'Sym') 
@@ -181,23 +183,26 @@ def vsp_read(tag, units_type='SI',specified_network=None):
             sym_flag = [1,-1]
         else: 
             num_fus  = 1 
-            sym_flag = [1]
-
-        # loop through fuselages on aircraft 
-        for fux_idx in range(num_fus):	
+            sym_flag = [1] 
+        for fux_idx in range(num_fus):	# loop through fuselages on aircraft 
             fuselage = read_vsp_fuselage(fuselage_id,fux_idx,sym_flag[fux_idx],units_type)
             vehicle.append_component(fuselage)
-
-        for wing_id in vsp_wings:
-            wing = read_vsp_wing(wing_id, units_type)
-            vehicle.append_component(wing)		
-
+        
+    # --------------------------------------------------			    
+    # Read Wings 
+    # --------------------------------------------------			
+    for wing_id in vsp_wings:
+        wing = read_vsp_wing(wing_id, units_type)
+        vehicle.append_component(wing)		
+    
+    # --------------------------------------------------			    
+    # Read Propellers/Rotors and assign to a network
+    # --------------------------------------------------			
     # Initialize rotor network elements
     number_of_lift_rotor_engines = 0
     number_of_propeller_engines  = 0
     lift_rotors = Data()
-    propellers  = Data()
-
+    propellers  = Data() 
     for prop_id in vsp_props:
         prop = read_vsp_propeller(prop_id,units_type)
         prop.tag = vsp.GetGeomName(prop_id)
@@ -206,17 +211,14 @@ def vsp_read(tag, units_type='SI',specified_network=None):
             number_of_lift_rotor_engines += 1 
         else:
             propellers.append(prop)
-            number_of_propeller_engines += 1 
-
-
+            number_of_propeller_engines += 1  
 
     if specified_network == None:
         # If no network specified, assign a network
         if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
             net = Lift_Cruise()
         else:
-            net = Battery_Propeller()
-
+            net = Battery_Propeller() 
     else:
         net = specified_network
 
