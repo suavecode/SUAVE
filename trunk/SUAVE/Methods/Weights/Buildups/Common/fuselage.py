@@ -23,8 +23,6 @@ import numpy as np
 
 ## @ingroup Methods-Weights-Buildups-Common
 def fuselage(config,
-             fuselage,
-             maxSpan,
              maximum_g_load = 3.8,
              landing_impact_factor = 3.5,
              safety_factor = 1.5):
@@ -51,14 +49,12 @@ def fuselage(config,
         Inputs:
 
             config                      SUAVE Vehicle Configuration
-            fuselage                    Fuselage data structure                             [-]
-            maxSpan                     Reference span, typically the span of the main wing [meters]
-            max_g_load                  Max Accelerative Load During Flight                 [Unitless]
-            landing_impact_factor       Maximum Load Multiplier on Landing                  [Unitless]
+            max_g_load                  Max Accelerative Load During Flight [Unitless]
+            landing_impact_factor       Maximum Load Multiplier on Landing  [Unitless]
 
         Outputs:
 
-            weight:                 Estimated Fuselage Mass                                 [kg]
+            weight:                 Estimated Fuselage Mass             [kg]
         
         Properties Used:
         Material Properties of Imported SUAVE Solids
@@ -68,10 +64,11 @@ def fuselage(config,
     # Unpack Inputs
     #-------------------------------------------------------------------------------
  
-    fuse    = fuselage
+    fuse    = config.fuselages.fuselage 
     fLength = fuse.lengths.total
     fWidth  = fuse.width
-    fHeight = fuse.heights.maximum 
+    fHeight = fuse.heights.maximum
+    maxSpan = config.wings["main_wing"].spans.projected 
     MTOW    = config.mass_properties.max_takeoff
     G_max   = maximum_g_load
     LIF     = landing_impact_factor

@@ -354,12 +354,10 @@ def empty(config,
     #-------------------------------------------------------------------------------
     total_wing_weight   = 0.0
     total_wiring_weight = 0.0
-    reference_span      = 0.0
     output.wings        = Data()
     output.wiring       = Data()
 
     for w in config.wings:
-        reference_span = np.maximum(reference_span,w.spans.projected)
         if w.symbolic:
             wing_weight = 0
         else:
@@ -390,11 +388,9 @@ def empty(config,
     #-------------------------------------------------------------------------------
     # Fuselage  Weight
     #-------------------------------------------------------------------------------
-    output.fuselage = 0
-    for fus in config.fuselages:
-        output.fuselage += fuselage(config,fus,reference_span) * Units.kg
-        fus.mass_properties.center_of_gravity[0][0] = .45*fus.lengths.total
-        fus.mass_properties.mass                    =  output.fuselage + output.passengers + output.seats +\
+    output.fuselage = fuselage(config) * Units.kg
+    config.fuselages.fuselage.mass_properties.center_of_gravity[0][0] = .45*config.fuselages.fuselage.lengths.total
+    config.fuselages.fuselage.mass_properties.mass                    =  output.fuselage + output.passengers + output.seats +\
                                                                          output.wiring + output.BRS
 
     #-------------------------------------------------------------------------------
