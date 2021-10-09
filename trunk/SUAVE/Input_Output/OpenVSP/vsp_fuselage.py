@@ -11,8 +11,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units, Data 
-import vsp as vsp
+from SUAVE.Core import Units, Data  
 import numpy as np
 try:
     import vsp as vsp

@@ -20,7 +20,11 @@ from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruis
 from SUAVE.Components.Energy.Networks.Battery_Propeller        import Battery_Propeller
 
 from SUAVE.Core import Units, Data
-import vsp as vsp
+try:
+    import vsp as vsp
+except ImportError:
+    # This allows SUAVE to build without OpenVSP
+    pass
 
 
 # ----------------------------------------------------------------------

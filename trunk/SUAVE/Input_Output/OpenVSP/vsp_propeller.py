@@ -8,8 +8,7 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 import SUAVE
-from SUAVE.Core import Units , Data
-import vsp 
+from SUAVE.Core import Units , Data 
 import numpy as np
 import string
 from SUAVE.Methods.Aerodynamics.AVL.purge_files              import purge_files

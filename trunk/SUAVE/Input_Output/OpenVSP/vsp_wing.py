@@ -288,7 +288,8 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
         x_sec_1_taper_parm     = vsp.GetXSecParm(x_sec_1,'Taper')
         x_sec_1_rc_parm        = vsp.GetXSecParm(x_sec_1,'Root_Chord')
         x_sec_1_tc_parm        = vsp.GetXSecParm(x_sec_1,'Tip_Chord')
-
+        x_sec_1_t_parm        = vsp.GetXSecParm(x_sec_1,'ThickChord')
+     
         # Calcs
         sweep     = vsp.GetParmVal(x_sec_1_sweep_parm) * Units.deg
         sweep_loc = vsp.GetParmVal(x_sec_1_sweep_loc_parm)
@@ -302,6 +303,7 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
         wing.chords.root           = vsp.GetParmVal(x_sec_1_rc_parm)* units_factor
         wing.chords.tip            = vsp.GetParmVal(x_sec_1_tc_parm) * units_factor	
         wing.chords.mean_geometric = wing.areas.reference / wing.spans.projected
+        wing.thickness_to_chord    = vsp.GetParmVal(x_sec_1_t_parm) 
 
         # Just double calculate and fix things:
         wing = wing_planform(wing)		
