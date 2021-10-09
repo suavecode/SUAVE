@@ -76,6 +76,7 @@ class Rotor(Energy_Component):
         self.airfoil_polar_stations       = None
         self.radius_distribution          = None
         self.rotation                     = 1
+        self.azimuthal_offset_angle       = 0.0          
         self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                       = False
         self.number_azimuthal_stations    = 24
