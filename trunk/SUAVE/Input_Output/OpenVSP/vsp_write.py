@@ -124,7 +124,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     for wing in vehicle.wings:       
         if verbose:
             print('Writing '+wing.tag+' to OpenVSP Model')
-            area_tags, wing_id = write_vsp_wing(wing,area_tags, fuel_tank_set_ind, OML_set_ind)
+            area_tags, wing_id = write_vsp_wing(vehicle,wing,area_tags, fuel_tank_set_ind, OML_set_ind)
         if wing.tag == 'main_wing':
             main_wing_id = wing_id    
     
