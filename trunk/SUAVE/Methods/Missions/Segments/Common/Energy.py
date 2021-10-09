@@ -4,12 +4,7 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           Jul 2017, E. Botero
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import numpy as np
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Initialize Battery
@@ -34,18 +29,45 @@ def initialize_battery(segment):
         Properties Used:
         N/A
                                 
-    """
+    """ 
+        
+    if 'battery_energy' in segment:   
+        initial_segment_energy               = segment.battery_energy
+        battery_max_aged_energy              = segment.battery_energy 
+        initial_mission_energy               = segment.battery_energy 
+        initial_pack_temperature             = segment.battery_pack_temperature
+        battery_cycle_day                    = segment.battery_cycle_day
+        battery_cell_charge_throughput       = segment.battery_cell_charge_throughput
+        battery_discharge_flag               = segment.battery_discharge    
+        battery_resistance_growth_factor     = segment.battery_resistance_growth_factor
+        battery_thevenin_voltage             = segment.battery_thevenin_voltage
+        battery_capacity_fade_factor         = segment.battery_capacity_fade_factor     
     
+    elif segment.state.initials:
+        initial_mission_energy               = segment.state.initials.conditions.propulsion.battery_max_initial_energy
+        battery_max_aged_energy              = segment.state.initials.conditions.propulsion.battery_max_aged_energy         
+        initial_segment_energy               = segment.state.initials.conditions.propulsion.battery_energy[-1,0]
+        initial_pack_temperature             = segment.state.initials.conditions.propulsion.battery_pack_temperature[-1,0]
+        battery_cell_charge_throughput       = segment.state.initials.conditions.propulsion.battery_cell_charge_throughput[-1,0]  
+        battery_cycle_day                    = segment.state.initials.conditions.propulsion.battery_cycle_day        
+        battery_discharge_flag               = segment.battery_discharge 
+        battery_resistance_growth_factor     = segment.state.initials.conditions.propulsion.battery_resistance_growth_factor
+        battery_thevenin_voltage             = segment.state.initials.conditions.propulsion.battery_thevenin_voltage[-1,0]  
+        battery_capacity_fade_factor         = segment.state.initials.conditions.propulsion.battery_capacity_fade_factor
+        
+    if battery_discharge_flag == False: 
+        battery_max_aged_energy  = initial_mission_energy*battery_capacity_fade_factor    
     
-    if segment.state.initials:
-        energy_initial  = segment.state.initials.conditions.propulsion.battery_energy[-1,0]
-    elif 'battery_energy' in segment:
-        energy_initial  = segment.battery_energy
-    else:
-        energy_initial = 0.0
-    
-    segment.state.conditions.propulsion.battery_energy[:,0] = energy_initial
-
+    segment.state.conditions.propulsion.battery_max_initial_energy                 = initial_mission_energy
+    segment.state.conditions.propulsion.battery_energy[:,0]                        = initial_segment_energy 
+    segment.state.conditions.propulsion.battery_max_aged_energy                    = battery_max_aged_energy    
+    segment.state.conditions.propulsion.battery_pack_temperature[:,0]              = initial_pack_temperature
+    segment.state.conditions.propulsion.battery_cycle_day                          = battery_cycle_day        
+    segment.state.conditions.propulsion.battery_cell_charge_throughput[:,0]        = battery_cell_charge_throughput 
+    segment.state.conditions.propulsion.battery_discharge_flag                     = battery_discharge_flag
+    segment.state.conditions.propulsion.battery_resistance_growth_factor           = battery_resistance_growth_factor 
+    segment.state.conditions.propulsion.battery_thevenin_voltage                   = battery_thevenin_voltage 
+    segment.state.conditions.propulsion.battery_capacity_fade_factor               = battery_capacity_fade_factor      
     return
 
 # ----------------------------------------------------------------------
@@ -82,4 +104,51 @@ def update_thrust(segment):
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
     
 
+## @ingroup Methods-Missions-Segments-Common
+def update_battery(segment):
+    """ Evaluates the energy network to find the thrust force and mass rate
+
+        Inputs -
+            segment.analyses.energy_network    [Function]
+
+        Outputs -
+            state.conditions:
+               frames.body.thrust_force_vector [Newtons]
+               weights.vehicle_mass_rate       [kg/s]
+
+
+        Assumptions -
+
+
+    """    
     
+    # unpack
+    energy_model = segment.analyses.energy
+
+    # evaluate
+    results   = energy_model.evaluate_thrust(segment.state)
+
+def update_battery_state_of_health(segment):  
+    """Updates battery age based on operating conditions, cell temperature and time of operation.
+       Source: 
+       Cell specific. See individual battery cell for more details
+         
+       Assumptions:
+       Cell specific. See individual battery cell for more details
+      
+       Inputs: 
+       segment.
+           conditions                    - conditions of battery at each segment  [unitless]
+           increment_battery_cycle_day   - flag to increment battery cycle day    [boolean]
+       
+       Outputs:
+       N/A  
+            
+       Properties Used:
+       N/A 
+    """ 
+    increment_day = segment.increment_battery_cycle_day
+    
+    for network in segment.analyses.energy.network: 
+        battery = network.battery
+        battery.update_battery_state_of_health(segment,increment_battery_cycle_day = increment_day) 

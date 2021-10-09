@@ -14,7 +14,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wak
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_grid import generate_propeller_grid
-from SUAVE.Plots.Propeller_Plots import plot_propeller_disc_inflow, plot_propeller_disc_performance
+from SUAVE.Plots.Performance.Propeller_Plots import *
 
 import numpy as np
 import pylab as plt
@@ -72,7 +72,7 @@ def main():
     assert(abs(Cp_iso-Cp_iso_true)<1e-6)
     assert(abs(etap_iso-etap_iso_true)<1e-6)
     
-    T_true, Q_true, P_true, Cp_true, etap_true = 3.2849888860951233,0.07270277,49.4872045,0.04622107,0.59349541
+    T_true, Q_true, P_true, Cp_true, etap_true = 3.3002559018765862,0.07274349,49.51492605,0.04624697,0.59591986
 
     assert(abs(np.linalg.norm(T)-T_true)<1e-6)
     assert(abs(Q-Q_true)<1e-6)

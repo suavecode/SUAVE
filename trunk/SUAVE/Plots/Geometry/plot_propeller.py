@@ -1,4 +1,4 @@
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 # plot_propeller.py
 # 
 # Created:  Mar 2020, M. Clarke
@@ -9,13 +9,11 @@
 #  Imports
 # ----------------------------------------------------------------------  
 from SUAVE.Core import Units
-import matplotlib.pyplot as plt   
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
-from mpl_toolkits.mplot3d import Axes3D
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_propeller_geometry
+import matplotlib.pyplot as plt    
+from SUAVE.Plots.Geometry.plot_vehicle import plot_propeller_geometry
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 def plot_propeller(prop, face_color = 'red', edge_color = 'black' , save_figure = False, save_filename = "Propeller_Geometry", file_type = ".png"):
     """This plots the geometry of a propeller or rotor
 
@@ -39,11 +37,14 @@ def plot_propeller(prop, face_color = 'red', edge_color = 'black' , save_figure 
     # initalize figure 
     fig_1 = plt.figure(save_filename + '_3D') 
     fig_1.set_size_inches(8,8) 
-    axes_1 = Axes3D(fig_1)    
+    axes_1 = plt.axes(projection='3d')
     axes_1.view_init(elev= 30, azim= 210)   
     axes_1.set_xlim(-1,1)
     axes_1.set_ylim(-1,1)
-    axes_1.set_zlim(-1,1)    
+    axes_1.set_zlim(-1,1) 
+    axes_1.set_xlabel('x')  
+    axes_1.set_ylabel('y')   
+    axes_1.set_zlabel('z')    
     
     # append a network for origin and thrust angle default values
     network = Battery_Propeller() 

@@ -18,8 +18,8 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import *
-from SUAVE.Plots.Geometry_Plots import * 
+from SUAVE.Plots.Performance.Mission_Plots import *
+from SUAVE.Plots.Geometry import * 
 import matplotlib.pyplot as plt  
 import numpy as np 
 
@@ -150,6 +150,7 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry                            = vehicle
+    aerodynamics.settings.use_surrogate              = True
     aerodynamics.settings.number_spanwise_vortices   = 5
     aerodynamics.settings.number_chordwise_vortices  = 2    
     aerodynamics.settings.drag_coefficient_increment = 0.0000

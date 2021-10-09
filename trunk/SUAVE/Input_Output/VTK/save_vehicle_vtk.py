@@ -8,17 +8,20 @@
 #----------------------------
 # Imports
 #----------------------------
-from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  \
+     import generate_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
+
 from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
 from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
 from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
 from SUAVE.Input_Output.VTK.save_fuselage_vtk import save_fuselage_vtk
+from SUAVE.Input_Output.VTK.save_vortex_distribution_vtk import save_vortex_distribution_vtk
 
 
-def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
-                     wake_filename="prop_wake.vtk", wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
+def save_vehicle_vtks(vehicle, conditions, Results, time_step, VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
+                     wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
 
@@ -47,20 +50,19 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
        None
 
     """
-    if settings == None:
-        settings = Vortex_Lattice().settings
-        settings.number_spanwise_vortices  = 25
-        settings.number_chordwise_vortices = 5
-        settings.spanwise_cosine_spacing   = False
-        settings.model_fuselage            = False
-        settings.model_nacelle             = False
+    if VLM_settings == None:
+        VLM_settings = Vortex_Lattice().settings
+        VLM_settings.number_spanwise_vortices  = 25
+        VLM_settings.number_chordwise_vortices = 5
+        VLM_settings.spanwise_cosine_spacing   = False
+        VLM_settings.model_fuselage            = False
 
     # unpack vortex distribution
     try:
         VD = vehicle.vortex_distribution
     except:
         print("Simulation has not yet been run. Generating vortex distribution for geometry export.")
-        VD = generate_vortex_distribution(vehicle,settings)
+        VD = generate_vortex_distribution(vehicle,VLM_settings)
         vehicle.vortex_distribution = VD
 
 
@@ -89,7 +91,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
                     filename = prop_filename
                 else:
                     filename = save_loc + prop_filename
-                sep  = filename.find('.')
+                sep  = filename.rfind('.')
                 file = filename[0:sep]+str(i)+filename[sep:]
 
                 save_prop_vtk(propi, file, Results, time_step)
@@ -97,10 +99,10 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
         try:
             print("Attempting to save rotor.")
             lift_rotors = network.lift_rotors
-            try:
+            if network.number_of_lift_rotor_engines is not None:
                 n_rots = int(network.number_of_lift_rotor_engines)
-            except:
-                n_rots = int(network.number_of_engines)
+            else:
+                n_rots = 0
         except:
             print("No lift rotors.")
             n_rots = 0
@@ -113,11 +115,10 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
                     filename = prop_filename
                 else:
                     filename = save_loc + rot_filename
-                sep  = filename.find('.')
+                sep  = filename.rfind('.')
                 file = filename[0:sep]+str(i)+filename[sep:]
 
                 save_prop_vtk(lift_rotors[list(lift_rotors.keys())[i]], file, Results,i,time_step)
-
 
 
     #---------------------------
@@ -137,12 +138,17 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
                 filename = wake_filename
             else:
                 filename = save_loc + wake_filename
-            sep  = filename.find('.')
-            file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
-            
+            sep  = filename.rfind('.')
+            file = filename[0:sep]+str(i)+"_t."+str(time_step)+filename[sep:]
+
             propi_key = list(Results['all_prop_outputs'].keys())[i]
             Results['prop_outputs'] = Results['all_prop_outputs'][propi_key]
-            save_prop_wake_vtk(VD.Wake, file, Results,i)
+            
+            # save prop wake
+            propi = propellers[list(propellers.keys())[i]]
+            gamma = propi.Wake_VD.GAMMA
+            save_prop_wake_vtk(VD, gamma, file, Results,i)
+
 
     #---------------------------
     # Save wing results to vtk
@@ -152,23 +158,33 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
     for i in range(n_wings):
         if save_loc ==None:
             filename = wing_filename
+            filename2 = wing_vlm_filename
         else:
             filename = save_loc + wing_filename
-        sep  = filename.find('.')
-        file = filename[0:sep]+str(wing_names[i])+filename[sep:]
-        save_wing_vtk(vehicle, vehicle.wings[wing_names[i]], settings, file, Results,time_step)
+            filename2 = save_loc + wing_vlm_filename
 
+
+        sep  = filename.rfind('.')
+        file = filename[0:sep]+str(wing_names[i])+filename[sep:]
+        file2 = filename2[0:sep]+str(wing_names[i])+filename2[sep:]
+        save_wing_vtk(vehicle, vehicle.wings[wing_names[i]], VLM_settings, file, Results,time_step)
+        if conditions != None:
+            # evaluate vortex strengths and same vortex distribution
+            VLM_outputs   = VLM(conditions, VLM_settings, vehicle) 
+            gamma         = VLM_outputs.gamma
+            save_vortex_distribution_vtk(vehicle,conditions,VD,gamma,vehicle.wings[wing_names[i]], file2, time_step)
 
     #------------------------------
     # Save fuselage results to vtk
     #------------------------------
-    n_fuselage    = len(vehicle.fuselages.keys())
+    fuselages    = list(vehicle.fuselages.keys())
+    n_fuselage   = len(fuselages)
     for i in range(n_fuselage):
         if save_loc ==None:
             filename = fuselage_filename
         else:
             filename = save_loc + fuselage_filename
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
 
         save_fuselage_vtk(vehicle, file, Results)

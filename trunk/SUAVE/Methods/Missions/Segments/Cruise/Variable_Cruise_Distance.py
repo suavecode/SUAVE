@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Aug 2021, M. Clarke
 
 # --------------------------------------------------------------
 #   Initialize - for cruise distance
@@ -126,22 +127,22 @@ def residual_state_of_charge(segment):
     N/A
 
     Inputs:
-    segment.state.segments[-1].conditions.propulsion.state_of_charge [None]
-    segment.target_state_of_charge                                   [None]
+    segment.state.segments[-1].conditions.propulsion.battery_state_of_charge [None]
+    segment.target_state_of_charge                                           [None]
 
     Outputs:
-    segment.state.residuals.state_of_charge                          [None]
+    segment.state.residuals.battery_state_of_charge                          [None]
 
     Properties Used:
     N/A
     """      
     
     # unpack
-    end_SOC    = segment.segments[-1].state.conditions.propulsion.state_of_charge[-1]
+    end_SOC    = segment.segments[-1].state.conditions.propulsion.battery_state_of_charge[-1]
     target_SOC = segment.target_state_of_charge
     
     # this needs to go to zero for the solver to complete
-    segment.state.residuals.state_of_charge = (end_SOC - target_SOC)/target_SOC
+    segment.state.residuals.battery_state_of_charge = (end_SOC - target_SOC)/target_SOC
     
     return
     

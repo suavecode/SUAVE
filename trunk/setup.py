@@ -2,6 +2,7 @@
 # 
 # Created:  Dec 2013, T. Lukaczyk 
 # Modified: Jan 2017, E. Botero
+#           Sep 2021, M. Clarke
 
 """ SUAVE setup script
 """
@@ -189,7 +190,12 @@ def import_tests():
         import sklearn
     except ImportError:
         raise ImportError('scikit-learn is required for this package')    
-
+ 
+    try:
+        import plotly
+    except ImportError:
+        raise ImportError('plotly is required for this package')
+    
     return
     
 def read(path):

@@ -1,4 +1,4 @@
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 # plot_airfoil.py
 # 
 # Created:    Mar 2020, M. Clarke

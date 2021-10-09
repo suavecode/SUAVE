@@ -5,16 +5,21 @@
 # Modified: Aug 2018, T. St Francis
 #           Jan 2020, T. MacDonald
 #           Jul 2020, E. Botero
+#           Sep 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage import vsp_read_fuselage
-from SUAVE.Input_Output.OpenVSP.vsp_read_wing import vsp_read_wing
-from SUAVE.Input_Output.OpenVSP.vsp_read_nacelle import vsp_read_nacelle
+from SUAVE.Input_Output.OpenVSP.vsp_read_propeller import vsp_read_propeller
+from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage  import vsp_read_fuselage
+from SUAVE.Input_Output.OpenVSP.vsp_read_wing      import vsp_read_wing
 
+from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
+from SUAVE.Components.Energy.Networks.Battery_Propeller        import Battery_Propeller
+
+from SUAVE.Core import Units, Data
 import vsp as vsp
 
 
@@ -24,7 +29,7 @@ import vsp as vsp
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag, units_type='SI'): 	
+def vsp_read(tag, units_type='SI',specified_network=None): 
 	"""This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
 	Includes wings, fuselages, and propellers.
 
@@ -45,6 +50,7 @@ def vsp_read(tag, units_type='SI'):
 	Inputs:
 	1. A tag for an XML file in format .vsp3.
 	2. Units_type set to 'SI' (default) or 'Imperial'
+	3. User-specified network
 
 	Outputs:
 	Writes SUAVE vehicle with these geometries from VSP:    (All values default to SI. Any other 2nd argument outputs Imperial.)
@@ -108,12 +114,7 @@ def vsp_read(tag, units_type='SI'):
 			rotation[X,Y,Z]                            [radians]
 			tip_radius                                 [m]
 		        hub_radius                                 [m]
-			thrust_angle                               [radians] 
-	        Nacelles. Nacelle.
-			location[X,Y,Z]                            [radians]
-			rotation[X,Y,Z]                            [radians] 
-			# ADD MORE VARIABLES
-			
+			thrust_angle                               [radians]
 	
 	Properties Used:
 	N/A
@@ -122,17 +123,17 @@ def vsp_read(tag, units_type='SI'):
 	vsp.ClearVSPModel() 
 	vsp.ReadVSPFile(tag)	
 	
-	vsp_fuselages    = []
-	vsp_wings        = []	
-	vsp_props        = []
-	vsp_nacelles     = []
-	vsp_nacelle_type = []
-	vsp_geoms        = vsp.FindGeoms()
-	geom_names       = []
+	vsp_fuselages     = []
+	vsp_wings         = []	
+	vsp_props         = []
+	
+	vsp_geoms     = vsp.FindGeoms()
+	geom_names    = []
 
 	vehicle     = SUAVE.Vehicle()
 	vehicle.tag = tag
-
+	
+	
 	if units_type == 'SI':
 		units_type = 'SI' 
 	elif units_type == 'inches':
@@ -157,30 +158,75 @@ def vsp_read(tag, units_type='SI'):
 	# --------------------------------		
 		
 	for geom in vsp_geoms:
-		geom_name = vsp.GetGeomTypeName(str(geom))
+		geom_name = vsp.GetGeomName(geom)
+		geom_type = vsp.GetGeomTypeName(str(geom))
 		
-		if geom_name == 'Fuselage':
+		if geom_type == 'Fuselage':
 			vsp_fuselages.append(geom)
-		if geom_name == 'Wing':
+		if geom_type == 'Wing':
 			vsp_wings.append(geom)
-		if geom_name == 'Propeller':
+		if geom_type == 'Propeller':
 			vsp_props.append(geom)
-		if (geom_name == 'Stack') or (geom_name == 'BodyOfRevolution'):
-			vsp_nacelles.append(geom)
-			vsp_nacelle_type.append(geom_name) 
 	
 	#Read VSP geoms and store in SUAVE components
-	
 	for fuselage_id in vsp_fuselages:
 		fuselage = vsp_read_fuselage(fuselage_id, units_type)
 		vehicle.append_component(fuselage)
 	
 	for wing_id in vsp_wings:
 		wing = vsp_read_wing(wing_id, units_type)
-		vehicle.append_component(wing)	 
+		vehicle.append_component(wing)		
 	
-	for idx ,nacelle_id in enumerate(vsp_nacelles): 
-		nacelle = vsp_read_nacelle(nacelle_id, vsp_nacelle_type[idx],units_type)
-		vehicle.append_component(nacelle)		
+	# Initialize rotor network elements
+	number_of_lift_rotor_engines = 0
+	number_of_propeller_engines  = 0
+	lift_rotors = Data()
+	propellers  = Data()
 	
+	for prop_id in vsp_props:
+		prop = vsp_read_propeller(prop_id,units_type)
+		prop.tag = vsp.GetGeomName(prop_id)
+		if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
+			lift_rotors.append(prop)
+			number_of_lift_rotor_engines += 1 
+		else:
+			propellers.append(prop)
+			number_of_propeller_engines += 1 
+
+
+
+	if specified_network == None:
+		# If no network specified, assign a network
+		if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
+			net = Lift_Cruise()
+		else:
+			net = Battery_Propeller()
+			
+	else:
+		net = specified_network
+	
+	# Create the rotor network
+	if net.tag == "Lift_Cruise":
+		# Lift + Cruise network
+		for i in range(number_of_lift_rotor_engines):
+			net.lift_rotors.append(propellers[list(lift_rotors.keys())[i]])
+		net.number_of_lift_rotor_engines = number_of_lift_rotor_engines	
+		
+		for i in range(number_of_propeller_engines):
+			net.propellers.append(propellers[list(propellers.keys())[i]])
+		net.number_of_propeller_engines = number_of_propeller_engines		
+		
+	elif net.tag == "Battery_Propeller":
+		# Append all rotors as propellers for the battery propeller network
+		for i in range(number_of_lift_rotor_engines):
+			# Accounts for multicopter configurations
+			net.propellers.append(propellers[list(lift_rotors.keys())[i]])
+			
+		for i in range(number_of_propeller_engines):
+			net.propellers.append(propellers[list(propellers.keys())[i]])
+
+		net.number_of_propeller_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
+
+	vehicle.networks.append(net)
+		
 	return vehicle

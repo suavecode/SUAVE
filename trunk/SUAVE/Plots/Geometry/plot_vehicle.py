@@ -1,10 +1,11 @@
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 # plot_vehicle.py
 #
 # Created:  Mar 2020, M. Clarke
 #           Apr 2020, M. Clarke
 #           Jul 2020, M. Clarke
 #           Jul 2021, E. Botero
+#           Oct 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,11 +16,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
-from SUAVE.Components.Energy.Networks import Lift_Cruise
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution 
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots-Geometry
 def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,
                  save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics
@@ -426,6 +426,7 @@ def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color,prop_
     a_sec  = prop.airfoil_geometry
     a_secl = prop.airfoil_polar_stations
     beta   = prop.twist_distribution
+    a_o    = prop.azimuthal_offset_angle
     b      = prop.chord_distribution
     r      = prop.radius_distribution
     MCA    = prop.mid_chord_alignment
@@ -441,15 +442,15 @@ def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color,prop_
     G = Data()
 
 
-    rot    = prop.rotation
-    a_o    = 0
-    flip_1 = (np.pi/2)
-    flip_2 = (np.pi/2)
+    rot    = prop.rotation 
+    flip_1 =  (np.pi/2)
+    flip_2 =  (np.pi/2)
 
     MCA_2d = np.repeat(np.atleast_2d(MCA).T,n_points,axis=1)
     b_2d   = np.repeat(np.atleast_2d(b).T  ,n_points,axis=1)
     t_2d   = np.repeat(np.atleast_2d(t).T  ,n_points,axis=1)
     r_2d   = np.repeat(np.atleast_2d(r).T  ,n_points,axis=1)
+    shift  = np.repeat(np.atleast_2d(np.ones_like(b)*b[0]).T  ,n_points,axis=1)
 
     for i in range(num_B):
         # get airfoil coordinate geometry
@@ -471,35 +472,43 @@ def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color,prop_
         # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
         max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
 
-        xp      = rot*(- MCA_2d + xpts*b_2d)  # x coord of airfoil
+        xp      = (- MCA_2d + xpts*b_2d - shift/2 )     # x-coord of airfoil
         yp      = r_2d*np.ones_like(xp)       # radial location
         zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord
 
         matrix = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
-        matrix[:,:,0] = xp
+        matrix[:,:,0] = xp*rot
         matrix[:,:,1] = yp
         matrix[:,:,2] = zp
 
         # ROTATION MATRICES FOR INNER SECTION
         # rotation about y axis to create twist and position blade upright
         trans_1 = np.zeros((dim,3,3))
-        trans_1[:,0,0] = np.cos(rot*flip_1 - rot*beta)
-        trans_1[:,0,2] = -np.sin(rot*flip_1 - rot*beta)
+        trans_1[:,0,0] = np.cos(flip_1 - rot*beta)
+        trans_1[:,0,2] = -np.sin(flip_1 - rot*beta)
         trans_1[:,1,1] = 1
-        trans_1[:,2,0] = np.sin(rot*flip_1 - rot*beta)
-        trans_1[:,2,2] = np.cos(rot*flip_1 - rot*beta)
+        trans_1[:,2,0] = np.sin(flip_1 - rot*beta)
+        trans_1[:,2,2] = np.cos(flip_1 - rot*beta)
 
         # rotation about x axis to create azimuth locations
         trans_2 = np.array([[1 , 0 , 0],
-                       [0 , np.cos(theta[i] + rot*a_o + flip_2 ), -np.sin(theta[i] + rot*a_o + flip_2)],
-                       [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]])
+                       [0 , np.cos(theta[i] + a_o + flip_2 ), -np.sin(theta[i] +a_o +  flip_2)],
+                       [0,np.sin(theta[i] + a_o + flip_2), np.cos(theta[i] + a_o + flip_2)]])
         trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
 
         # rotation about y to orient propeller/rotor to thrust angle
         trans_3 =  prop.prop_vel_to_body()
-        trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0)
-
-        trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
+        trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0) 
+        
+        # rotation 180 degrees 
+        trans_4 = np.zeros((dim,3,3))
+        trans_4[:,0,0] = np.cos(np.pi)
+        trans_4[:,0,2] = -np.sin(np.pi)
+        trans_4[:,1,1] = 1
+        trans_4[:,2,0] = np.sin(np.pi)
+        trans_4[:,2,2] = np.cos(np.pi)
+        
+        trans     = np.matmul(trans_4,np.matmul(trans_3,np.matmul(trans_2,trans_1)))
         rot_mat   = np.repeat(trans[:, np.newaxis,:,:],n_points,axis=1)
 
         # ---------------------------------------------------------------------------------------------
