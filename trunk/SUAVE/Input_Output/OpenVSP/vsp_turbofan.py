@@ -17,7 +17,11 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-
+try:
+    import vsp as vsp
+except ImportError:
+    # This allows SUAVE to build without OpenVSP
+    pass 
 ## @ingroup Input_Output-OpenVSP  
 def write_vsp_turbofan(turbofan, OML_set_ind):
     """This converts turbofans into OpenVSP format.

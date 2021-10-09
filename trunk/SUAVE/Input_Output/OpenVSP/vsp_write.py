@@ -16,7 +16,10 @@
 
 # ----------------------------------------------------------------------
 #  Imports
-# ---------------------------------------------------------------------- 
+# ----------------------------------------------------------------------
+
+import SUAVE
+from SUAVE.Core import Units, Data 
 from SUAVE.Input_Output.OpenVSP.vsp_propeller import write_vsp_propeller_bem
 from SUAVE.Input_Output.OpenVSP.vsp_fuselage  import write_vsp_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_wing      import write_vsp_wing
@@ -25,14 +28,15 @@ try:
     import vsp as vsp
 except ImportError:
     # This allows SUAVE to build without OpenVSP
-    pass 
+    pass
+import numpy as np
 import os
 
 ## @ingroup Input_Output-OpenVSP
 def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_set_ind = 4, write_igs = False):
     """This writes a SUAVE vehicle to OpenVSP format. It will take wing segments into account
     if they are specified in the vehicle setup file.
-
+    
     Assumptions:
     Vehicle is composed of conventional shape fuselages, wings, and networks. Any network
     that should be created is tagged as 'turbofan'.
@@ -97,7 +101,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     Properties Used:
     N/A
     """    
-
+    
     # Reset OpenVSP to avoid including a previous vehicle
     if verbose:
         print('Reseting OpenVSP Model in Memory')
@@ -106,27 +110,29 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     except NameError:
         print('VSP import failed')
         return -1
-
+    
     area_tags = dict() # for wetted area assignment
-
+    
     # -------------
     # Wings
     # -------------
+    
     # Default Set_0 in OpenVSP is index 3
     vsp.SetSetName(fuel_tank_set_ind, 'fuel_tanks')
     vsp.SetSetName(OML_set_ind, 'OML')
-
+    
     for wing in vehicle.wings:       
         if verbose:
             print('Writing '+wing.tag+' to OpenVSP Model')
-            area_tags, wing_id = write_vsp_wing(vehicle,wing,area_tags, fuel_tank_set_ind, OML_set_ind)  
-
+            area_tags, wing_id = write_vsp_wing(wing,area_tags, fuel_tank_set_ind, OML_set_ind)
+        if wing.tag == 'main_wing':
+            main_wing_id = wing_id    
+    
     # -------------
     # Engines
     # -------------
     ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
-    ## This was a place to start and may not still be functional    
-
+    ## This was a place to start and may not still be functional   
     for network in vehicle.networks: 
         if 'turbofan' in network:
             if verbose:
@@ -146,11 +152,12 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         if 'lift_rotors' in network:
             for rot in network.lift_rotors:
                 vsp_bem_filename = rot.tag + '.bem' 
-                write_vsp_propeller_bem(vsp_bem_filename,rot)
-
+                write_vsp_propeller_bem(vsp_bem_filename,rot)   
+    
     # -------------
     # Fuselage
     # -------------    
+    
     for key, fuselage in vehicle.fuselages.items():
         if verbose:
             print('Writing '+fuselage.tag+' to OpenVSP Model')
@@ -160,7 +167,9 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         except AttributeError:
             area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind,
                                            OML_set_ind)
-
+    
+    vsp.Update()
+    
     # Write the vehicle to the file    
     if write_file ==True:
         cwd = os.getcwd()
@@ -170,7 +179,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         vsp.WriteVSPFile(filename)
     elif verbose:
         print('Not Saving OpenVSP File')
-
+        
     if write_igs:
         if verbose:
             print('Exporting IGS File')        
@@ -178,8 +187,5 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         parm_id = vsp.FindParm(vehicle_id,'LabelID','IGESSettings')
         vsp.SetParmVal(parm_id, 0.)
         vsp.ExportFile(tag + ".igs", OML_set_ind, vsp.EXPORT_IGES)
-
-    vsp.Update()
+    
     return area_tags
-
-

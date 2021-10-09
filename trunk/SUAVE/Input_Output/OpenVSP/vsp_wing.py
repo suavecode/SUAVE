@@ -16,10 +16,13 @@ from SUAVE.Core import Units
 from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, wing_segmented_planform
 from SUAVE.Input_Output.OpenVSP.vsp_fuselage import write_wing_conformal_fuel_tank
-import vsp as vsp
 import numpy as np
 import string
-
+try:
+    import vsp as vsp
+except ImportError:
+    # This allows SUAVE to build without OpenVSP
+    pass 
 # This enforces lowercase names
 chars = string.punctuation + string.whitespace
 t_table = str.maketrans( chars          + string.ascii_uppercase , 
