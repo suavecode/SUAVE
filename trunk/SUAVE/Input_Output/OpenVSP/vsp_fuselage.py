@@ -20,7 +20,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Input_Output-OpenVSP
-def read_vsp_fuselage(fuselage_id, units_type='SI', fineness=True):
+def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=True):
     """This reads an OpenVSP fuselage geometry and writes it to a SUAVE fuselage format.
 
     Assumptions:
@@ -84,21 +84,22 @@ def read_vsp_fuselage(fuselage_id, units_type='SI', fineness=True):
     elif units_type == 'imperial':
         units_factor = Units.foot * 1.
     elif units_type == 'inches':
-        units_factor = Units.inch * 1.	
-
+        units_factor = Units.inch * 1.	 
+     
     if vsp.GetGeomName(fuselage_id):
-        fuselage.tag = vsp.GetGeomName(fuselage_id)
+        fuselage.tag = vsp.GetGeomName(fuselage_id) + '_' + str(fux_idx+1)
     else: 
-        fuselage.tag = 'FuselageGeom'	
+        fuselage.tag = 'FuselageGeom' + '_' + str(fux_idx+1)	
 
     fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Location', 'XForm') * units_factor
-    fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Location', 'XForm') * units_factor
+    fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Location', 'XForm') * units_factor*sym_flag
     fuselage.origin[0][2] = vsp.GetParmVal(fuselage_id, 'Z_Location', 'XForm') * units_factor
 
     fuselage.lengths.total         = vsp.GetParmVal(fuselage_id, 'Length', 'Design') * units_factor
-    fuselage.vsp_data.xsec_surf_id = vsp.GetXSecSurf(fuselage_id, 0) 			# There is only one XSecSurf in geom.
-    fuselage.vsp_data.xsec_num     = vsp.GetNumXSec(fuselage.vsp_data.xsec_surf_id) 		# Number of xsecs in fuselage.	
+    fuselage.vsp_data.xsec_surf_id = vsp.GetXSecSurf(fuselage_id, 0) 			        # There is only one XSecSurf in geom.
+    fuselage.vsp_data.xsec_num     = vsp.GetNumXSec(fuselage.vsp_data.xsec_surf_id) 		# Number of xsecs in fuselage.	 
 
+        
     x_locs    = []
     heights   = []
     widths    = []
@@ -109,8 +110,7 @@ def read_vsp_fuselage(fuselage_id, units_type='SI', fineness=True):
     # Fuselage segments
     # -----------------
 
-    for ii in range(0, fuselage.vsp_data.xsec_num):
-
+    for ii in range(0, fuselage.vsp_data.xsec_num): 
         # Create the segment
         x_sec                     = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii) # VSP XSec ID.
         segment                   = SUAVE.Components.Fuselages.Segment()

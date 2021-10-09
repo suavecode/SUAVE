@@ -12,6 +12,7 @@ from SUAVE.Core import Units , Data
 import vsp 
 import numpy as np
 import string
+from SUAVE.Methods.Aerodynamics.AVL.purge_files              import purge_files
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 
@@ -166,47 +167,7 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     if write_airfoil_file:
         print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for propeller cross section.") 
 
-    return prop
-
-## @ingroup Input_Output-OpenVSP
-def write_vsp_propeller(prop, OML_set_ind):
-    """This converts nacelles into OpenVSP format.
-
-    N/A
-    """     
-    # unpack 
-    prop_tag        = prop.tag 
-    prop_x          = prop.origin[0][0]
-    prop_y          = prop.origin[0][1]
-    prop_z          = prop.origin[0][2]
-    prop_x_rotation = prop.orientation_euler_angles[0]/Units.degrees    
-    prop_y_rotation = prop.orientation_euler_angles[1]/Units.degrees    
-    prop_z_rotation = prop.orientation_euler_angles[2]/Units.degrees   
-
-
-    prop_id = vsp.AddGeom( "STACK")
-    vsp.SetGeomName(prop_id,prop_tag)  
-
-    # set nacelle relative location and rotation
-    vsp.SetParmVal( prop_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
-    vsp.SetParmVal( prop_id,'X_Rotation','XForm',prop_x_rotation)
-    vsp.SetParmVal( prop_id,'Y_Rotation','XForm',prop_y_rotation)
-    vsp.SetParmVal( prop_id,'Z_Rotation','XForm',prop_z_rotation) 
-    vsp.SetParmVal( prop_id,'X_Location','XForm',prop_x)
-    vsp.SetParmVal( prop_id,'Y_Location','XForm',prop_y)
-    vsp.SetParmVal( prop_id,'Z_Location','XForm',prop_z)     
-    #vsp.SetParmVal( prop_id,'Tess_U','Shape',radial_tesselation)
-    #vsp.SetParmVal( prop_id,'Tess_W','Shape',axial_tesselation)
-
-    #widths  = []
-    #heights = []
-    #x_delta = []
-    #x_poses = []
-    #z_delta = []
-
-   
-    vsp.Update()      
-    return 
+    return prop 
 
 ## @ingroup Input_Output-OpenVSP
 def vsp_read_propeller_bem(filename):
@@ -355,9 +316,9 @@ Normal: {8}, {9}, {10}
     X        = prop.origin[0][0]
     Y        = prop.origin[0][1]    
     Z        = prop.origin[0][2]    
-    Xn       = np.round(np.cos(np.pi- prop.thrust_angle ),5)
-    Yn       = 0.0000
-    Zn       = np.round(np.sin(np.pi- prop.thrust_angle ),5)
+    Xn       = np.round(np.cos(np.pi- prop.orientation_euler_angles[0] ),5)
+    Yn       = np.round(prop.orientation_euler_angles[1],5)
+    Zn       = np.round(np.sin(np.pi- prop.orientation_euler_angles[2]),5)
 
     beta_3_4  = np.interp(prop.tip_radius*0.75,prop.radius_distribution,beta)
 

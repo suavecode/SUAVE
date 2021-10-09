@@ -85,7 +85,8 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
         x_rot = (90-x_rot) * Units.deg
     else:
         # Instantiate a wing
-        wing = SUAVE.Components.Wings.Wing()		
+        wing = SUAVE.Components.Wings.Wing()	
+        x_rot =  x_rot  * Units.deg	
 
     # Set the units
     if units_type == 'SI':
@@ -111,7 +112,7 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
 
     # Wing Symmetry
     sym_planar = vsp.GetParmVal(wing_id, 'Sym_Planar_Flag', 'Sym')
-    sym_origin = vsp.GetParmVal(wing_id, 'Sym_Ancestor', 'Sym')
+    sym_origin = vsp.GetParmVal(wing_id, 'Sym_Ancestor_Origin_Flag', 'Sym')
 
     # Check for symmetry
     if sym_planar == 2. and sym_origin == 1.: #origin at wing, not vehicle

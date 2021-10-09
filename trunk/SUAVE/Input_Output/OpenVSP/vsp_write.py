@@ -17,7 +17,6 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-from SUAVE.Input_Output.OpenVSP.vsp_propeller import write_vsp_propeller
 from SUAVE.Input_Output.OpenVSP.vsp_propeller import write_vsp_propeller_bem
 from SUAVE.Input_Output.OpenVSP.vsp_fuselage  import write_vsp_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_wing      import write_vsp_wing
@@ -113,7 +112,6 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     # -------------
     # Wings
     # -------------
-
     # Default Set_0 in OpenVSP is index 3
     vsp.SetSetName(fuel_tank_set_ind, 'fuel_tanks')
     vsp.SetSetName(OML_set_ind, 'OML')
@@ -121,9 +119,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     for wing in vehicle.wings:       
         if verbose:
             print('Writing '+wing.tag+' to OpenVSP Model')
-            area_tags, wing_id = write_vsp_wing(vehicle,wing,area_tags, fuel_tank_set_ind, OML_set_ind)
-        if wing.tag == 'main_wing':
-            main_wing_id = wing_id    
+            area_tags, wing_id = write_vsp_wing(vehicle,wing,area_tags, fuel_tank_set_ind, OML_set_ind)  
 
     # -------------
     # Engines
@@ -131,33 +127,30 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
     ## This was a place to start and may not still be functional    
 
-    if 'turbofan' in vehicle.networks:
-        if verbose:
-            print('Writing '+vehicle.networks.turbofan.tag+' to OpenVSP Model')
-        turbofan  = vehicle.networks.turbofan
-        write_vsp_turbofan(turbofan, OML_set_ind)
-
-    if 'turbojet' in vehicle.networks:
-        turbofan  = vehicle.networks.turbojet
-        write_vsp_turbofan(turbofan, OML_set_ind)     
-
-    if 'propellers' in vehicle.networks:
-        for prop in  vehicle.networks.propellers:
-            vsp_bem_filename = prop.tag + '.bem'
-            write_vsp_propeller(prop, OML_set_ind)
-            write_vsp_propeller_bem(vsp_bem_filename,prop)
-
-
-    if 'lift_rotors' in vehicle.networks:
-        for rot in  vehicle.networks.lift_rotors:
-            vsp_bem_filename = prop.tag + '.bem'
-            write_vsp_propeller(rot, OML_set_ind)
-            write_vsp_propeller_bem(vsp_bem_filename,rot)
+    for network in vehicle.networks: 
+        if 'turbofan' in network:
+            if verbose:
+                print('Writing '+network.turbofan.tag+' to OpenVSP Model')
+            turbofan  = network.turbofan
+            write_vsp_turbofan(turbofan, OML_set_ind)
+    
+        if 'turbojet' in network:
+            turbofan  = network.turbojet
+            write_vsp_turbofan(turbofan, OML_set_ind)     
+    
+        if 'propellers' in  network:
+            for prop in network.propellers:
+                vsp_bem_filename = prop.tag + '.bem' 
+                write_vsp_propeller_bem(vsp_bem_filename,prop) 
+    
+        if 'lift_rotors' in network:
+            for rot in network.lift_rotors:
+                vsp_bem_filename = rot.tag + '.bem' 
+                write_vsp_propeller_bem(vsp_bem_filename,rot)
 
     # -------------
     # Fuselage
     # -------------    
-
     for key, fuselage in vehicle.fuselages.items():
         if verbose:
             print('Writing '+fuselage.tag+' to OpenVSP Model')
@@ -167,8 +160,6 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         except AttributeError:
             area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind,
                                            OML_set_ind)
-
-    vsp.Update()
 
     # Write the vehicle to the file    
     if write_file ==True:
@@ -188,6 +179,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         vsp.SetParmVal(parm_id, 0.)
         vsp.ExportFile(tag + ".igs", OML_set_ind, vsp.EXPORT_IGES)
 
+    vsp.Update()
     return area_tags
 
 
