@@ -1365,7 +1365,7 @@ def generate_nacelle_vortex_distribution(VD,nac,n_cw,n_sw,precision,model_nacell
     """ This generates the vortex distribution points on the nacelle
 
     Assumptions: 
-    None
+    If nacelle has segments defined, the mean width and height of the nacelle is used
 
     Source:   
     None
@@ -1375,380 +1375,379 @@ def generate_nacelle_vortex_distribution(VD,nac,n_cw,n_sw,precision,model_nacell
     
     Properties Used:
     N/A
-    """  
-    
-    num_nac_segs = len(nac.Segments.keys()) 
+    """   
+    nhs_xa1 = np.zeros(n_cw*n_sw)
+    nhs_ya1 = np.zeros(n_cw*n_sw)
+    nhs_za1 = np.zeros(n_cw*n_sw)
+    nhs_xa2 = np.zeros(n_cw*n_sw)
+    nhs_ya2 = np.zeros(n_cw*n_sw)
+    nhs_za2 = np.zeros(n_cw*n_sw)
+    nhs_xb1 = np.zeros(n_cw*n_sw)
+    nhs_yb1 = np.zeros(n_cw*n_sw)
+    nhs_zb1 = np.zeros(n_cw*n_sw)
+    nhs_yb2 = np.zeros(n_cw*n_sw)
+    nhs_xb2 = np.zeros(n_cw*n_sw)
+    nhs_zb2 = np.zeros(n_cw*n_sw)
+    nhs_xah = np.zeros(n_cw*n_sw)
+    nhs_yah = np.zeros(n_cw*n_sw)
+    nhs_zah = np.zeros(n_cw*n_sw)
+    nhs_xbh = np.zeros(n_cw*n_sw)
+    nhs_ybh = np.zeros(n_cw*n_sw)
+    nhs_zbh = np.zeros(n_cw*n_sw)
+    nhs_xch = np.zeros(n_cw*n_sw)
+    nhs_ych = np.zeros(n_cw*n_sw)
+    nhs_zch = np.zeros(n_cw*n_sw)
+    nhs_xc  = np.zeros(n_cw*n_sw)
+    nhs_yc  = np.zeros(n_cw*n_sw)
+    nhs_zc  = np.zeros(n_cw*n_sw)
+    nhs_xac = np.zeros(n_cw*n_sw)
+    nhs_yac = np.zeros(n_cw*n_sw)
+    nhs_zac = np.zeros(n_cw*n_sw)
+    nhs_xbc = np.zeros(n_cw*n_sw)
+    nhs_ybc = np.zeros(n_cw*n_sw)
+    nhs_zbc = np.zeros(n_cw*n_sw)
+    nhs_x   = np.zeros((n_cw+1)*(n_sw+1))
+    nhs_y   = np.zeros((n_cw+1)*(n_sw+1))
+    nhs_z   = np.zeros((n_cw+1)*(n_sw+1))      
 
-    if num_nac_segs > 2:   
-        nhs_xa1 = np.zeros(n_cw*n_sw)
-        nhs_ya1 = np.zeros(n_cw*n_sw)
-        nhs_za1 = np.zeros(n_cw*n_sw)
-        nhs_xa2 = np.zeros(n_cw*n_sw)
-        nhs_ya2 = np.zeros(n_cw*n_sw)
-        nhs_za2 = np.zeros(n_cw*n_sw)
-        nhs_xb1 = np.zeros(n_cw*n_sw)
-        nhs_yb1 = np.zeros(n_cw*n_sw)
-        nhs_zb1 = np.zeros(n_cw*n_sw)
-        nhs_yb2 = np.zeros(n_cw*n_sw)
-        nhs_xb2 = np.zeros(n_cw*n_sw)
-        nhs_zb2 = np.zeros(n_cw*n_sw)
-        nhs_xah = np.zeros(n_cw*n_sw)
-        nhs_yah = np.zeros(n_cw*n_sw)
-        nhs_zah = np.zeros(n_cw*n_sw)
-        nhs_xbh = np.zeros(n_cw*n_sw)
-        nhs_ybh = np.zeros(n_cw*n_sw)
-        nhs_zbh = np.zeros(n_cw*n_sw)
-        nhs_xch = np.zeros(n_cw*n_sw)
-        nhs_ych = np.zeros(n_cw*n_sw)
-        nhs_zch = np.zeros(n_cw*n_sw)
-        nhs_xc  = np.zeros(n_cw*n_sw)
-        nhs_yc  = np.zeros(n_cw*n_sw)
-        nhs_zc  = np.zeros(n_cw*n_sw)
-        nhs_xac = np.zeros(n_cw*n_sw)
-        nhs_yac = np.zeros(n_cw*n_sw)
-        nhs_zac = np.zeros(n_cw*n_sw)
-        nhs_xbc = np.zeros(n_cw*n_sw)
-        nhs_ybc = np.zeros(n_cw*n_sw)
-        nhs_zbc = np.zeros(n_cw*n_sw)
-        nhs_x   = np.zeros((n_cw+1)*(n_sw+1))
-        nhs_y   = np.zeros((n_cw+1)*(n_sw+1))
-        nhs_z   = np.zeros((n_cw+1)*(n_sw+1))      
+    nvs_xc    = np.zeros(n_cw*n_sw)
+    nvs_zc    = np.zeros(n_cw*n_sw)
+    nvs_yc    = np.zeros(n_cw*n_sw)   
+    nvs_x     = np.zeros((n_cw+1)*(n_sw+1))
+    nvs_y     = np.zeros((n_cw+1)*(n_sw+1))
+    nvs_z     = np.zeros((n_cw+1)*(n_sw+1))   
+    nac_v_cs  = np.zeros(n_sw)     
     
-        nvs_xc    = np.zeros(n_cw*n_sw)
-        nvs_zc    = np.zeros(n_cw*n_sw)
-        nvs_yc    = np.zeros(n_cw*n_sw)   
-        nvs_x     = np.zeros((n_cw+1)*(n_sw+1))
-        nvs_y     = np.zeros((n_cw+1)*(n_sw+1))
-        nvs_z     = np.zeros((n_cw+1)*(n_sw+1))   
-        nac_v_cs  = np.zeros(n_sw)     
-        
-        # arrays to hold strip discretization values
-        leading_edge_indices    = np.array([],dtype=bool)    
-        trailing_edge_indices   = np.array([],dtype=bool)    
-        panels_per_strip        = np.array([],dtype=np.int16)
-        chordwise_panel_number  = np.array([],dtype=np.int16)
-        chord_lengths           = np.array([],dtype=precision)               
-        tangent_incidence_angle = np.array([],dtype=precision)               
+    # arrays to hold strip discretization values
+    leading_edge_indices    = np.array([],dtype=bool)    
+    trailing_edge_indices   = np.array([],dtype=bool)    
+    panels_per_strip        = np.array([],dtype=np.int16)
+    chordwise_panel_number  = np.array([],dtype=np.int16)
+    chord_lengths           = np.array([],dtype=precision)               
+    tangent_incidence_angle = np.array([],dtype=precision)               
+
+
+    # --TO DO-- model nacelle segments if defined, else use the following code
     
-        # geometry values
-        semispan_h = nac.width * 0.5  
-        semispan_v = nac.height * 0.5
-        origin     = nac.origin[0] 
+    # Horizontal Sections of nacelle
+    nhs        = Data()        
+    nhs.origin = np.zeros((n_sw+1,3))        
+    nhs.chord  = np.zeros((n_sw+1))         
+    nhs.sweep  = np.zeros((n_sw+1))     
+                 
+    nvs        = Data() 
+    nvs.origin = np.zeros((n_sw+1,3))
+    nvs.chord  = np.zeros((n_sw+1)) 
+    nvs.sweep  = np.zeros((n_sw+1)) 
+
+    num_nac_segs = len(nac.Segments.keys()) 
+    if num_nac_segs>1: 
+        widths = np.zeros(num_nac_segs) 
+        for i_seg in range(num_nac_segs):
+            widths[i_seg] = nac.Segments[i_seg].diameter 
+        mean_width  = np.mean(widths) 
+    else:
+        mean_width   = nac.diameter 
+    length = nac.length 
+
+    # geometry values
+    semispan_h = mean_width * 0.5  
+    semispan_v = semispan_h
+    origin     = nac.origin[0]    
     
-        # --TO DO-- model nacelle segments if defined, else use the following code
-        
-        # Horizontal Sections of nacelle
-        nhs        = Data()        
-        nhs.origin = np.zeros((n_sw+1,3))        
-        nhs.chord  = np.zeros((n_sw+1))         
-        nhs.sweep  = np.zeros((n_sw+1))     
-                     
-        nvs        = Data() 
-        nvs.origin = np.zeros((n_sw+1,3))
-        nvs.chord  = np.zeros((n_sw+1)) 
-        nvs.sweep  = np.zeros((n_sw+1)) 
-    
-        si         = np.arange(1,((n_sw*2)+2))
-        spacing    = np.cos((2*si - 1)/(2*len(si))*np.pi)     
-        h_array    = semispan_h*spacing[0:int((len(si)+1)/2)][::-1]  
-        v_array    = semispan_v*spacing[0:int((len(si)+1)/2)][::-1]  
-    
-        for i in range(n_sw+1):  
-            nhs.origin[i][:]  =  
-            nhs.chord[i]      =         
+    si         = np.arange(1,((n_sw*2)+2))
+    spacing    = np.cos((2*si - 1)/(2*len(si))*np.pi)     
+    h_array    = semispan_h*spacing[0:int((len(si)+1)/2)][::-1]  
+    v_array    = semispan_v*spacing[0:int((len(si)+1)/2)][::-1]  
      
-            nvs.origin[i][:]  =  
-            nvs.chord[i]      =  
+    for i in range(n_sw+1):   
+        nhs.chord[i]      = length 
+        nvs.chord[i]      = length
+
+    # ---------------------------------------------------------------------------------------
+    # STEP 9: Define coordinates of panels horseshoe vortices and control points  
+    # ---------------------------------------------------------------------------------------        
+    nhs_eta_a = h_array[:-1] 
+    nhs_eta_b = h_array[1:]            
+    nhs_del_y = h_array[1:] - h_array[:-1]
+    nhs_eta   = h_array[1:] - nhs_del_y/2
+
+    nvs_eta_a = v_array[:-1] 
+    nvs_eta_b = v_array[1:]                  
+    nvs_del_y = v_array[1:] - v_array[:-1]
+    nvs_eta   = v_array[1:] - nvs_del_y/2 
+
+    nhs_cs = np.concatenate([nhs.chord,nhs.chord])
+    nvs_cs = np.concatenate([nvs.chord,nvs.chord])
     
-        nhs.sweep[:] = np.concatenate([np.arctan((nhs.origin[:,0][1:] - nhs.origin[:,0][:-1])/(nhs.origin[:,1][1:]  - nhs.origin[:,1][:-1])) ,np.zeros(1)])
-        nvs.sweep[:] = np.concatenate([np.arctan((nvs.origin[:,0][1:] - nvs.origin[:,0][:-1])/(nvs.origin[:,2][1:]  - nvs.origin[:,2][:-1])) ,np.zeros(1)])
-    
-        # ---------------------------------------------------------------------------------------
-        # STEP 9: Define coordinates of panels horseshoe vortices and control points  
-        # ---------------------------------------------------------------------------------------        
-        nhs_eta_a = h_array[:-1] 
-        nhs_eta_b = h_array[1:]            
-        nhs_del_y = h_array[1:] - h_array[:-1]
-        nhs_eta   = h_array[1:] - nhs_del_y/2
-    
-        nvs_eta_a = v_array[:-1] 
-        nvs_eta_b = v_array[1:]                  
-        nvs_del_y = v_array[1:] - v_array[:-1]
-        nvs_eta   = v_array[1:] - nvs_del_y/2 
-    
-        nhs_cs = np.concatenate([nhs.chord,nhs.chord])
-        nvs_cs = np.concatenate([nvs.chord,nvs.chord])
+    nac_h_area = 0
+    nac_v_area = 0    
+
+    # define coordinates of horseshoe vortices and control points       
+    for idx_y in range(n_sw):  
+        idx_x = np.arange(n_cw)
+
+        # nacelle horizontal section 
+        delta_x_a = nhs.chord[idx_y]/n_cw      
+        delta_x_b = nhs.chord[idx_y + 1]/n_cw    
+        delta_x   = (nhs.chord[idx_y]+nhs.chord[idx_y + 1])/(2*n_cw)
+
+        nhs_xi_a1 = nhs.origin[idx_y][0] + delta_x_a*idx_x                    # x coordinate of top left corner of panel
+        nhs_xi_ah = nhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.25   # x coordinate of left corner of panel
+        nhs_xi_a2 = nhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a        # x coordinate of bottom left corner of bound vortex 
+        nhs_xi_ac = nhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.75   # x coordinate of bottom left corner of control point vortex  
+        nhs_xi_b1 = nhs.origin[idx_y+1][0] + delta_x_b*idx_x                  # x coordinate of top right corner of panel      
+        nhs_xi_bh = nhs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
+        nhs_xi_b2 = nhs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b      # x coordinate of bottom right corner of panel
+        nhs_xi_bc = nhs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
+        nhs_xi_c  = (nhs.origin[idx_y][0] + nhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
+        nhs_xi_ch = (nhs.origin[idx_y][0] + nhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel  
+
+        nhs_xa1[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_a1                       + nac.origin[0][0]  
+        nhs_ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_a[idx_y]  + nac.origin[0][1]  
+        nhs_za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]
+        nhs_xa2[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_a2                       + nac.origin[0][0]  
+        nhs_ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_a[idx_y]  + nac.origin[0][1] 
+        nhs_za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]      
+        nhs_xb1[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_b1                       + nac.origin[0][0]  
+        nhs_yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_b[idx_y]  + nac.origin[0][1] 
+        nhs_zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]
+        nhs_xb2[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_b2                       + nac.origin[0][0] 
+        nhs_yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_b[idx_y]  + nac.origin[0][1] 
+        nhs_zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]       
+        nhs_xah[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_ah                       + nac.origin[0][0]   
+        nhs_yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_a[idx_y]  + nac.origin[0][1]  
+        nhs_zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]             
+        nhs_xbh[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_bh                       + nac.origin[0][0] 
+        nhs_ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_b[idx_y]  + nac.origin[0][1]  
+        nhs_zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]    
+        nhs_xch[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_ch                       + nac.origin[0][0]  
+        nhs_ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta[idx_y]    + nac.origin[0][1]                
+        nhs_zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]     
+        nhs_xc [idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_c                        + nac.origin[0][0]  
+        nhs_yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta[idx_y]    + nac.origin[0][1]  
+        nhs_zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]       
+        nhs_xac[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_ac                       + nac.origin[0][0]  
+        nhs_yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_a[idx_y]  + nac.origin[0][1]
+        nhs_zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]
+        nhs_xbc[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_bc                       + nac.origin[0][0]  
+        nhs_ybc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_b[idx_y]  + nac.origin[0][1]                             
+        nhs_zbc[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]              
+        nhs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([nhs_xi_a1,np.array([nhs_xi_a2[-1]])])+ nac.origin[0][0]  
+        nhs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*nhs_eta_a[idx_y]  + nac.origin[0][1]                             
+        nhs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                  + nac.origin[0][2]
+
+        # nacelle vertical section                      
+        delta_x_a = nvs.chord[idx_y]/n_cw      
+        delta_x_b = nvs.chord[idx_y + 1]/n_cw    
+        delta_x   = (nvs.chord[idx_y]+nvs.chord[idx_y + 1])/(2*n_cw)   
+
+        nvs_xi_a1 = nvs.origin[idx_y][0] + delta_x_a*idx_x                    # z coordinate of top left corner of panel
+        nvs_xi_ah = nvs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.25   # z coordinate of left corner of panel
+        nvs_xi_a2 = nvs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a        # z coordinate of bottom left corner of bound vortex 
+        nvs_xi_ac = nvs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.75   # z coordinate of bottom left corner of control point vortex  
+        nvs_xi_b1 = nvs.origin[idx_y+1][0] + delta_x_b*idx_x                    # z coordinate of top right corner of panel      
+        nvs_xi_bh = nvs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.25   # z coordinate of right corner of bound vortex         
+        nvs_xi_b2 = nvs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b        # z coordinate of bottom right corner of panel
+        nvs_xi_bc = nvs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.75   # z coordinate of bottom right corner of control point vortex         
+        nvs_xi_c  = (nvs.origin[idx_y][0] + nvs.origin[idx_y+1][0])/2 + delta_x *idx_x + delta_x*0.75     # z coordinate three-quarter chord control point for each panel
+        nvs_xi_ch = (nvs.origin[idx_y][0] + nvs.origin[idx_y+1][0])/2 + delta_x *idx_x + delta_x*0.25     # z coordinate center of bound vortex of each panel 
+
+        nvs_xc [idx_y*n_cw:(idx_y+1)*n_cw] = nvs_xi_c                       + nac.origin[0][0]  
+        nvs_zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nvs_eta[idx_y]   + nac.origin[0][2]  
+        nvs_yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                 + nac.origin[0][1]  
+        nvs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([nvs_xi_a1,np.array([nvs_xi_a2[-1]])]) + nac.origin[0][0]  
+        nvs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*nvs_eta_a[idx_y] + nac.origin[0][2]               
+        nvs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                 + nac.origin[0][1]
         
-        nac_h_area = 0
-        nac_v_area = 0    
-    
-        # define coordinates of horseshoe vortices and control points       
-        for idx_y in range(n_sw):  
-            idx_x = np.arange(n_cw)
-    
-            # nacelle horizontal section 
-            delta_x_a = nhs.chord[idx_y]/n_cw      
-            delta_x_b = nhs.chord[idx_y + 1]/n_cw    
-            delta_x   = (nhs.chord[idx_y]+nhs.chord[idx_y + 1])/(2*n_cw)
-    
-            nhs_xi_a1 = nhs.origin[idx_y][0] + delta_x_a*idx_x                    # x coordinate of top left corner of panel
-            nhs_xi_ah = nhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.25   # x coordinate of left corner of panel
-            nhs_xi_a2 = nhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a        # x coordinate of bottom left corner of bound vortex 
-            nhs_xi_ac = nhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.75   # x coordinate of bottom left corner of control point vortex  
-            nhs_xi_b1 = nhs.origin[idx_y+1][0] + delta_x_b*idx_x                  # x coordinate of top right corner of panel      
-            nhs_xi_bh = nhs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
-            nhs_xi_b2 = nhs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b      # x coordinate of bottom right corner of panel
-            nhs_xi_bc = nhs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
-            nhs_xi_c  = (nhs.origin[idx_y][0] + nhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
-            nhs_xi_ch = (nhs.origin[idx_y][0] + nhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
-    
-    
-            nhs_xa1[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_a1                       + nac.origin[0][0]  
-            nhs_ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_a[idx_y]  + nac.origin[0][1]  
-            nhs_za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]
-            nhs_xa2[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_a2                       + nac.origin[0][0]  
-            nhs_ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_a[idx_y]  + nac.origin[0][1] 
-            nhs_za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]      
-            nhs_xb1[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_b1                       + nac.origin[0][0]  
-            nhs_yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_b[idx_y]  + nac.origin[0][1] 
-            nhs_zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]
-            nhs_xb2[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_b2                       + nac.origin[0][0] 
-            nhs_yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_b[idx_y]  + nac.origin[0][1] 
-            nhs_zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]       
-            nhs_xah[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_ah                       + nac.origin[0][0]   
-            nhs_yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_a[idx_y]  + nac.origin[0][1]  
-            nhs_zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]             
-            nhs_xbh[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_bh                       + nac.origin[0][0] 
-            nhs_ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_b[idx_y]  + nac.origin[0][1]  
-            nhs_zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]    
-            nhs_xch[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_ch                       + nac.origin[0][0]  
-            nhs_ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta[idx_y]    + nac.origin[0][1]                
-            nhs_zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]     
-            nhs_xc [idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_c                        + nac.origin[0][0]  
-            nhs_yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta[idx_y]    + nac.origin[0][1]  
-            nhs_zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]       
-            nhs_xac[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_ac                       + nac.origin[0][0]  
-            nhs_yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_a[idx_y]  + nac.origin[0][1]
-            nhs_zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]
-            nhs_xbc[idx_y*n_cw:(idx_y+1)*n_cw] = nhs_xi_bc                       + nac.origin[0][0]  
-            nhs_ybc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nhs_eta_b[idx_y]  + nac.origin[0][1]                             
-            nhs_zbc[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + nac.origin[0][2]              
-            nhs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([nhs_xi_a1,np.array([nhs_xi_a2[-1]])])+ nac.origin[0][0]  
-            nhs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*nhs_eta_a[idx_y]  + nac.origin[0][1]                             
-            nhs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                  + nac.origin[0][2]
-    
-            # nacelle vertical section                      
-            delta_x_a = nvs.chord[idx_y]/n_cw      
-            delta_x_b = nvs.chord[idx_y + 1]/n_cw    
-            delta_x   = (nvs.chord[idx_y]+nvs.chord[idx_y + 1])/(2*n_cw)   
-    
-            nvs_xi_a1 = nvs.origin[idx_y][0] + delta_x_a*idx_x                    # z coordinate of top left corner of panel
-            nvs_xi_ah = nvs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.25   # z coordinate of left corner of panel
-            nvs_xi_a2 = nvs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a        # z coordinate of bottom left corner of bound vortex 
-            nvs_xi_ac = nvs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.75   # z coordinate of bottom left corner of control point vortex  
-            nvs_xi_b1 = nvs.origin[idx_y+1][0] + delta_x_b*idx_x                    # z coordinate of top right corner of panel      
-            nvs_xi_bh = nvs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.25   # z coordinate of right corner of bound vortex         
-            nvs_xi_b2 = nvs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b        # z coordinate of bottom right corner of panel
-            nvs_xi_bc = nvs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.75   # z coordinate of bottom right corner of control point vortex         
-            nvs_xi_c  = (nvs.origin[idx_y][0] + nvs.origin[idx_y+1][0])/2 + delta_x *idx_x + delta_x*0.75     # z coordinate three-quarter chord control point for each panel
-            nvs_xi_ch = (nvs.origin[idx_y][0] + nvs.origin[idx_y+1][0])/2 + delta_x *idx_x + delta_x*0.25     # z coordinate center of bound vortex of each panel 
-    
-            nvs_xc [idx_y*n_cw:(idx_y+1)*n_cw] = nvs_xi_c                       + nac.origin[0][0]  
-            nvs_zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*nvs_eta[idx_y]   + nac.origin[0][2]  
-            nvs_yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                 + nac.origin[0][1]  
-            nvs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([nvs_xi_a1,np.array([nvs_xi_a2[-1]])]) + nac.origin[0][0]  
-            nvs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*nvs_eta_a[idx_y] + nac.origin[0][2]               
-            nvs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                 + nac.origin[0][1]
-            
-            nac_h_area += ((nhs.chord[idx_y]+nhs.chord[idx_y + 1])/2)*(nhs_eta_b[idx_y] - nhs_eta_a[idx_y])
-            nac_v_area += ((nvs.chord[idx_y]+nvs.chord[idx_y + 1])/2)*(nvs_eta_b[idx_y] - nvs_eta_a[idx_y])
-            
-            # store this strip's discretization information
-            LE_inds        = np.full(n_cw, False)
-            TE_inds        = np.full(n_cw, False)
-            LE_inds[0]     = True
-            TE_inds[-1]    = True
-            
-            RNMAX          = np.ones(n_cw, np.int16)*n_cw
-            panel_numbers  = np.linspace(1,n_cw,n_cw, dtype=np.int16)
-            
-            i_LE, i_TE     = idx_y*n_cw, (idx_y+1)*n_cw-1
-            LE_X           = (nhs_xa1[i_LE] + nhs_xb1[i_LE])/2
-            LE_Z           = (nhs_za1[i_LE] + nhs_zb1[i_LE])/2
-            TE_X           = (nhs_xa2[i_TE] + nhs_xb2[i_TE])/2
-            TE_Z           = (nhs_za2[i_TE] + nhs_zb2[i_TE])/2           
-            chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
-            tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax      
-            chord_adjusted = np.array(chord_adjusted, dtype=precision)
-            tan_incidence  = np.array(tan_incidence , dtype=precision)
-            
-            leading_edge_indices    = np.append(leading_edge_indices   , LE_inds       ) 
-            trailing_edge_indices   = np.append(trailing_edge_indices  , TE_inds       )            
-            panels_per_strip        = np.append(panels_per_strip       , RNMAX         )
-            chordwise_panel_number  = np.append(chordwise_panel_number , panel_numbers )  
-            chord_lengths           = np.append(chord_lengths          , chord_adjusted)
-            tangent_incidence_angle = np.append(tangent_incidence_angle, tan_incidence )        
-    
-        # xyz positions for the right side of this nacelle's outermost panels
-        nhs_x[-(n_cw+1):] = np.concatenate([nhs_xi_b1,np.array([nhs_xi_b2[-1]])])+ nac.origin[0][0]  
-        nhs_y[-(n_cw+1):] = np.ones(n_cw+1)*nhs_eta_b[idx_y]  + nac.origin[0][1]                             
-        nhs_z[-(n_cw+1):] = np.zeros(n_cw+1)                  + nac.origin[0][2]        
-        nvs_x[-(n_cw+1):] = np.concatenate([nvs_xi_a1,np.array([nvs_xi_a2[-1]])]) + nac.origin[0][0]  
-        nvs_z[-(n_cw+1):] = np.ones(n_cw+1)*nvs_eta_a[idx_y] + nac.origin[0][2]               
-        nvs_y[-(n_cw+1):] = np.zeros(n_cw+1)                 + nac.origin[0][1]   
-        nhs_cs =  (nhs.chord[:-1]+nhs.chord[1:])/2
-        nvs_cs =  (nvs.chord[:-1]+nvs.chord[1:])/2  
+        nac_h_area += ((nhs.chord[idx_y]+nhs.chord[idx_y + 1])/2)*(nhs_eta_b[idx_y] - nhs_eta_a[idx_y])
+        nac_v_area += ((nvs.chord[idx_y]+nvs.chord[idx_y + 1])/2)*(nvs_eta_b[idx_y] - nvs_eta_a[idx_y])
         
-        # find the location of the trailing edge panels of each wing
-        locations = ((np.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
-        nhs_xc_te1 = np.repeat(np.atleast_2d(nhs_xc[locations]), n_cw , axis = 0)
-        nhs_yc_te1 = np.repeat(np.atleast_2d(nhs_yc[locations]), n_cw , axis = 0)
-        nhs_zc_te1 = np.repeat(np.atleast_2d(nhs_zc[locations]), n_cw , axis = 0)        
-        nhs_xa_te1 = np.repeat(np.atleast_2d(nhs_xa2[locations]), n_cw , axis = 0)
-        nhs_ya_te1 = np.repeat(np.atleast_2d(nhs_ya2[locations]), n_cw , axis = 0)
-        nhs_za_te1 = np.repeat(np.atleast_2d(nhs_za2[locations]), n_cw , axis = 0)
-        nhs_xb_te1 = np.repeat(np.atleast_2d(nhs_xb2[locations]), n_cw , axis = 0)
-        nhs_yb_te1 = np.repeat(np.atleast_2d(nhs_yb2[locations]), n_cw , axis = 0)
-        nhs_zb_te1 = np.repeat(np.atleast_2d(nhs_zb2[locations]), n_cw , axis = 0)     
+        # store this strip's discretization information
+        LE_inds        = np.full(n_cw, False)
+        TE_inds        = np.full(n_cw, False)
+        LE_inds[0]     = True
+        TE_inds[-1]    = True
         
-        nhs_xc_te = np.hstack(nhs_xc_te1.T)
-        nhs_yc_te = np.hstack(nhs_yc_te1.T)
-        nhs_zc_te = np.hstack(nhs_zc_te1.T)        
-        nhs_xa_te = np.hstack(nhs_xa_te1.T)
-        nhs_ya_te = np.hstack(nhs_ya_te1.T)
-        nhs_za_te = np.hstack(nhs_za_te1.T)
-        nhs_xb_te = np.hstack(nhs_xb_te1.T)
-        nhs_yb_te = np.hstack(nhs_yb_te1.T)
-        nhs_zb_te = np.hstack(nhs_zb_te1.T)     
+        RNMAX          = np.ones(n_cw, np.int16)*n_cw
+        panel_numbers  = np.linspace(1,n_cw,n_cw, dtype=np.int16)
         
-        nhs_xc_te = np.concatenate([nhs_xc_te , nhs_xc_te ])
-        nhs_yc_te = np.concatenate([nhs_yc_te , nhs_yc_te ])
-        nhs_zc_te = np.concatenate([nhs_zc_te ,-nhs_zc_te ])                 
-        nhs_xa_te = np.concatenate([nhs_xa_te , nhs_xa_te ])
-        nhs_ya_te = np.concatenate([nhs_ya_te , nhs_ya_te ])
-        nhs_za_te = np.concatenate([nhs_za_te ,-nhs_za_te ])            
-        nhs_xb_te = np.concatenate([nhs_xb_te , nhs_xb_te ])
-        nhs_yb_te = np.concatenate([nhs_yb_te , nhs_yb_te ])
-        nhs_zb_te = np.concatenate([nhs_zb_te ,-nhs_zb_te ])    
+        i_LE, i_TE     = idx_y*n_cw, (idx_y+1)*n_cw-1
+        LE_X           = (nhs_xa1[i_LE] + nhs_xb1[i_LE])/2
+        LE_Z           = (nhs_za1[i_LE] + nhs_zb1[i_LE])/2
+        TE_X           = (nhs_xa2[i_TE] + nhs_xb2[i_TE])/2
+        TE_Z           = (nhs_za2[i_TE] + nhs_zb2[i_TE])/2           
+        chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
+        tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax      
+        chord_adjusted = np.array(chord_adjusted, dtype=precision)
+        tan_incidence  = np.array(tan_incidence , dtype=precision)
+        
+        leading_edge_indices    = np.append(leading_edge_indices   , LE_inds       ) 
+        trailing_edge_indices   = np.append(trailing_edge_indices  , TE_inds       )            
+        panels_per_strip        = np.append(panels_per_strip       , RNMAX         )
+        chordwise_panel_number  = np.append(chordwise_panel_number , panel_numbers )  
+        chord_lengths           = np.append(chord_lengths          , chord_adjusted)
+        tangent_incidence_angle = np.append(tangent_incidence_angle, tan_incidence )        
+
+    # xyz positions for the right side of this nacelle's outermost panels
+    nhs_x[-(n_cw+1):] = np.concatenate([nhs_xi_b1,np.array([nhs_xi_b2[-1]])])+ nac.origin[0][0]  
+    nhs_y[-(n_cw+1):] = np.ones(n_cw+1)*nhs_eta_b[idx_y]  + nac.origin[0][1]                             
+    nhs_z[-(n_cw+1):] = np.zeros(n_cw+1)                  + nac.origin[0][2]        
+    nvs_x[-(n_cw+1):] = np.concatenate([nvs_xi_a1,np.array([nvs_xi_a2[-1]])]) + nac.origin[0][0]  
+    nvs_z[-(n_cw+1):] = np.ones(n_cw+1)*nvs_eta_a[idx_y] + nac.origin[0][2]               
+    nvs_y[-(n_cw+1):] = np.zeros(n_cw+1)                 + nac.origin[0][1]   
+    nhs_cs =  (nhs.chord[:-1]+nhs.chord[1:])/2
+    nvs_cs =  (nvs.chord[:-1]+nvs.chord[1:])/2  
     
-        # Horizontal nacelle Sections 
-        wing_areas = []
-        wing_areas.append(np.array(nac_h_area, dtype=precision))
-        wing_areas.append(np.array(nac_h_area, dtype=precision))
-        
-        # store points of horizontal section of fuselage 
-        nhs_cs  = np.concatenate([nhs_cs, nhs_cs])
-        nhs_xah = np.concatenate([nhs_xah, nhs_xah])
-        nhs_yah = np.concatenate([nhs_yah,-nhs_yah])
-        nhs_zah = np.concatenate([nhs_zah, nhs_zah])
-        nhs_xbh = np.concatenate([nhs_xbh, nhs_xbh])
-        nhs_ybh = np.concatenate([nhs_ybh,-nhs_ybh])
-        nhs_zbh = np.concatenate([nhs_zbh, nhs_zbh])
-        nhs_xch = np.concatenate([nhs_xch, nhs_xch])
-        nhs_ych = np.concatenate([nhs_ych,-nhs_ych])
-        nhs_zch = np.concatenate([nhs_zch, nhs_zch])
-        nhs_xa1 = np.concatenate([nhs_xa1, nhs_xa1])
-        nhs_ya1 = np.concatenate([nhs_ya1,-nhs_ya1])
-        nhs_za1 = np.concatenate([nhs_za1, nhs_za1])
-        nhs_xa2 = np.concatenate([nhs_xa2, nhs_xa2])
-        nhs_ya2 = np.concatenate([nhs_ya2,-nhs_ya2])
-        nhs_za2 = np.concatenate([nhs_za2, nhs_za2])
-        nhs_xb1 = np.concatenate([nhs_xb1, nhs_xb1])
-        nhs_yb1 = np.concatenate([nhs_yb1,-nhs_yb1])    
-        nhs_zb1 = np.concatenate([nhs_zb1, nhs_zb1])
-        nhs_xb2 = np.concatenate([nhs_xb2, nhs_xb2])
-        nhs_yb2 = np.concatenate([nhs_yb2,-nhs_yb2])            
-        nhs_zb2 = np.concatenate([nhs_zb2, nhs_zb2])
-        nhs_xac = np.concatenate([nhs_xac, nhs_xac])
-        nhs_yac = np.concatenate([nhs_yac,-nhs_yac])
-        nhs_zac = np.concatenate([nhs_zac, nhs_zac])            
-        nhs_xbc = np.concatenate([nhs_xbc, nhs_xbc])
-        nhs_ybc = np.concatenate([nhs_ybc,-nhs_ybc])
-        nhs_zbc = np.concatenate([nhs_zbc, nhs_zbc])
-        nhs_xc  = np.concatenate([nhs_xc , nhs_xc ])
-        nhs_yc  = np.concatenate([nhs_yc ,-nhs_yc])
-        nhs_zc  = np.concatenate([nhs_zc , nhs_zc ])     
-        nhs_x   = np.concatenate([nhs_x  , nhs_x  ])
-        nhs_y   = np.concatenate([nhs_y  ,-nhs_y ])
-        nhs_z   = np.concatenate([nhs_z  , nhs_z  ])      
-        
-        if model_nacelle == True:
-            
-            # increment fuslage lifting surface sections  
-            VD.n_nac += 2    
-            VD.n_cp  += len(nhs_xch)
-            VD.n_w   += 2 
-            
-            # store this fuselage's discretization information 
-            n_panels         = n_sw*n_cw
-            first_panel_ind  = VD.XAH.size
-            first_strip_ind  = [VD.chordwise_breaks.size, VD.chordwise_breaks.size+n_sw]
-            chordwise_breaks =  first_panel_ind + np.arange(0,2*n_panels)[0::n_cw]        
-            
-            VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
-            VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
-            VD.n_sw             = np.append(VD.n_sw            , np.int16([n_sw, n_sw])    )
-            VD.n_cw             = np.append(VD.n_cw            , np.int16([n_cw, n_cw])    )
-            
-            VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , np.tile(leading_edge_indices        , 2) )
-            VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , np.tile(trailing_edge_indices       , 2) )           
-            VD.panels_per_strip          = np.append(VD.panels_per_strip         , np.tile(panels_per_strip            , 2) )
-            VD.chordwise_panel_number    = np.append(VD.chordwise_panel_number   , np.tile(chordwise_panel_number      , 2) ) 
-            VD.chord_lengths             = np.append(VD.chord_lengths            , np.tile(chord_lengths               , 2) )
-            VD.tangent_incidence_angle   = np.append(VD.tangent_incidence_angle  , np.tile(tangent_incidence_angle     , 2) ) 
-            VD.exposed_leading_edge_flag = np.append(VD.exposed_leading_edge_flag, np.tile(np.ones(n_sw,dtype=np.int16), 2) )
-        
-            # Store fus in vehicle vector  
-            VD.XAH    = np.append(VD.XAH  , np.array(nhs_xah  , dtype=precision))
-            VD.YAH    = np.append(VD.YAH  , np.array(nhs_yah  , dtype=precision))
-            VD.ZAH    = np.append(VD.ZAH  , np.array(nhs_zah  , dtype=precision))
-            VD.XBH    = np.append(VD.XBH  , np.array(nhs_xbh  , dtype=precision))
-            VD.YBH    = np.append(VD.YBH  , np.array(nhs_ybh  , dtype=precision))
-            VD.ZBH    = np.append(VD.ZBH  , np.array(nhs_zbh  , dtype=precision))
-            VD.XCH    = np.append(VD.XCH  , np.array(nhs_xch  , dtype=precision))
-            VD.YCH    = np.append(VD.YCH  , np.array(nhs_ych  , dtype=precision))
-            VD.ZCH    = np.append(VD.ZCH  , np.array(nhs_zch  , dtype=precision))     
-            VD.XA1    = np.append(VD.XA1  , np.array(nhs_xa1  , dtype=precision))
-            VD.YA1    = np.append(VD.YA1  , np.array(nhs_ya1  , dtype=precision))
-            VD.ZA1    = np.append(VD.ZA1  , np.array(nhs_za1  , dtype=precision))
-            VD.XA2    = np.append(VD.XA2  , np.array(nhs_xa2  , dtype=precision))
-            VD.YA2    = np.append(VD.YA2  , np.array(nhs_ya2  , dtype=precision))
-            VD.ZA2    = np.append(VD.ZA2  , np.array(nhs_za2  , dtype=precision))    
-            VD.XB1    = np.append(VD.XB1  , np.array(nhs_xb1  , dtype=precision))
-            VD.YB1    = np.append(VD.YB1  , np.array(nhs_yb1  , dtype=precision))
-            VD.ZB1    = np.append(VD.ZB1  , np.array(nhs_zb1  , dtype=precision))
-            VD.XB2    = np.append(VD.XB2  , np.array(nhs_xb2  , dtype=precision))                
-            VD.YB2    = np.append(VD.YB2  , np.array(nhs_yb2  , dtype=precision))        
-            VD.ZB2    = np.append(VD.ZB2  , np.array(nhs_zb2  , dtype=precision))  
-            VD.XC_TE  = np.append(VD.XC_TE, np.array(nhs_xc_te, dtype=precision))
-            VD.YC_TE  = np.append(VD.YC_TE, np.array(nhs_yc_te, dtype=precision)) 
-            VD.ZC_TE  = np.append(VD.ZC_TE, np.array(nhs_zc_te, dtype=precision))          
-            VD.XA_TE  = np.append(VD.XA_TE, np.array(nhs_xa_te, dtype=precision))
-            VD.YA_TE  = np.append(VD.YA_TE, np.array(nhs_ya_te, dtype=precision)) 
-            VD.ZA_TE  = np.append(VD.ZA_TE, np.array(nhs_za_te, dtype=precision)) 
-            VD.XB_TE  = np.append(VD.XB_TE, np.array(nhs_xb_te, dtype=precision))
-            VD.YB_TE  = np.append(VD.YB_TE, np.array(nhs_yb_te, dtype=precision)) 
-            VD.ZB_TE  = np.append(VD.ZB_TE, np.array(nhs_zb_te, dtype=precision))      
-            VD.XAC    = np.append(VD.XAC  , np.array(nhs_xac  , dtype=precision))
-            VD.YAC    = np.append(VD.YAC  , np.array(nhs_yac  , dtype=precision)) 
-            VD.ZAC    = np.append(VD.ZAC  , np.array(nhs_zac  , dtype=precision)) 
-            VD.XBC    = np.append(VD.XBC  , np.array(nhs_xbc  , dtype=precision))
-            VD.YBC    = np.append(VD.YBC  , np.array(nhs_ybc  , dtype=precision)) 
-            VD.ZBC    = np.append(VD.ZBC  , np.array(nhs_zbc  , dtype=precision))  
-            VD.XC     = np.append(VD.XC   , np.array(nhs_xc   , dtype=precision))
-            VD.YC     = np.append(VD.YC   , np.array(nhs_yc   , dtype=precision))
-            VD.ZC     = np.append(VD.ZC   , np.array(nhs_zc   , dtype=precision))  
-            VD.CS     = np.append(VD.CS   , np.array(nhs_cs   , dtype=precision)) 
-            VD.X      = np.append(VD.X    , np.array(nhs_x    , dtype=precision))  
-            VD.Y      = np.append(VD.Y    , np.array(nhs_y    , dtype=precision))  
-            VD.Z      = np.append(VD.Z    , np.array(nhs_z    , dtype=precision))
-            
-            VD.wing_areas = np.append(VD.wing_areas, wing_areas)
-            
-            VL = VD.vortex_lift
-            VL.append(False)
-            VL.append(False)
+    # find the location of the trailing edge panels of each wing
+    locations = ((np.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
+    nhs_xc_te1 = np.repeat(np.atleast_2d(nhs_xc[locations]), n_cw , axis = 0)
+    nhs_yc_te1 = np.repeat(np.atleast_2d(nhs_yc[locations]), n_cw , axis = 0)
+    nhs_zc_te1 = np.repeat(np.atleast_2d(nhs_zc[locations]), n_cw , axis = 0)        
+    nhs_xa_te1 = np.repeat(np.atleast_2d(nhs_xa2[locations]), n_cw , axis = 0)
+    nhs_ya_te1 = np.repeat(np.atleast_2d(nhs_ya2[locations]), n_cw , axis = 0)
+    nhs_za_te1 = np.repeat(np.atleast_2d(nhs_za2[locations]), n_cw , axis = 0)
+    nhs_xb_te1 = np.repeat(np.atleast_2d(nhs_xb2[locations]), n_cw , axis = 0)
+    nhs_yb_te1 = np.repeat(np.atleast_2d(nhs_yb2[locations]), n_cw , axis = 0)
+    nhs_zb_te1 = np.repeat(np.atleast_2d(nhs_zb2[locations]), n_cw , axis = 0)     
     
+    nhs_xc_te = np.hstack(nhs_xc_te1.T)
+    nhs_yc_te = np.hstack(nhs_yc_te1.T)
+    nhs_zc_te = np.hstack(nhs_zc_te1.T)        
+    nhs_xa_te = np.hstack(nhs_xa_te1.T)
+    nhs_ya_te = np.hstack(nhs_ya_te1.T)
+    nhs_za_te = np.hstack(nhs_za_te1.T)
+    nhs_xb_te = np.hstack(nhs_xb_te1.T)
+    nhs_yb_te = np.hstack(nhs_yb_te1.T)
+    nhs_zb_te = np.hstack(nhs_zb_te1.T)     
+    
+    nhs_xc_te = np.concatenate([nhs_xc_te , nhs_xc_te ])
+    nhs_yc_te = np.concatenate([nhs_yc_te , nhs_yc_te ])
+    nhs_zc_te = np.concatenate([nhs_zc_te ,-nhs_zc_te ])                 
+    nhs_xa_te = np.concatenate([nhs_xa_te , nhs_xa_te ])
+    nhs_ya_te = np.concatenate([nhs_ya_te , nhs_ya_te ])
+    nhs_za_te = np.concatenate([nhs_za_te ,-nhs_za_te ])            
+    nhs_xb_te = np.concatenate([nhs_xb_te , nhs_xb_te ])
+    nhs_yb_te = np.concatenate([nhs_yb_te , nhs_yb_te ])
+    nhs_zb_te = np.concatenate([nhs_zb_te ,-nhs_zb_te ])    
+
+    # Horizontal nacelle Sections 
+    wing_areas = []
+    wing_areas.append(np.array(nac_h_area, dtype=precision))
+    wing_areas.append(np.array(nac_h_area, dtype=precision))
+    
+    # store points of horizontal section of fuselage 
+    nhs_cs  = np.concatenate([nhs_cs, nhs_cs])
+    nhs_xah = np.concatenate([nhs_xah, nhs_xah])
+    nhs_yah = np.concatenate([nhs_yah,-nhs_yah])
+    nhs_zah = np.concatenate([nhs_zah, nhs_zah])
+    nhs_xbh = np.concatenate([nhs_xbh, nhs_xbh])
+    nhs_ybh = np.concatenate([nhs_ybh,-nhs_ybh])
+    nhs_zbh = np.concatenate([nhs_zbh, nhs_zbh])
+    nhs_xch = np.concatenate([nhs_xch, nhs_xch])
+    nhs_ych = np.concatenate([nhs_ych,-nhs_ych])
+    nhs_zch = np.concatenate([nhs_zch, nhs_zch])
+    nhs_xa1 = np.concatenate([nhs_xa1, nhs_xa1])
+    nhs_ya1 = np.concatenate([nhs_ya1,-nhs_ya1])
+    nhs_za1 = np.concatenate([nhs_za1, nhs_za1])
+    nhs_xa2 = np.concatenate([nhs_xa2, nhs_xa2])
+    nhs_ya2 = np.concatenate([nhs_ya2,-nhs_ya2])
+    nhs_za2 = np.concatenate([nhs_za2, nhs_za2])
+    nhs_xb1 = np.concatenate([nhs_xb1, nhs_xb1])
+    nhs_yb1 = np.concatenate([nhs_yb1,-nhs_yb1])    
+    nhs_zb1 = np.concatenate([nhs_zb1, nhs_zb1])
+    nhs_xb2 = np.concatenate([nhs_xb2, nhs_xb2])
+    nhs_yb2 = np.concatenate([nhs_yb2,-nhs_yb2])            
+    nhs_zb2 = np.concatenate([nhs_zb2, nhs_zb2])
+    nhs_xac = np.concatenate([nhs_xac, nhs_xac])
+    nhs_yac = np.concatenate([nhs_yac,-nhs_yac])
+    nhs_zac = np.concatenate([nhs_zac, nhs_zac])            
+    nhs_xbc = np.concatenate([nhs_xbc, nhs_xbc])
+    nhs_ybc = np.concatenate([nhs_ybc,-nhs_ybc])
+    nhs_zbc = np.concatenate([nhs_zbc, nhs_zbc])
+    nhs_xc  = np.concatenate([nhs_xc , nhs_xc ])
+    nhs_yc  = np.concatenate([nhs_yc ,-nhs_yc])
+    nhs_zc  = np.concatenate([nhs_zc , nhs_zc ])     
+    nhs_x   = np.concatenate([nhs_x  , nhs_x  ])
+    nhs_y   = np.concatenate([nhs_y  ,-nhs_y ])
+    nhs_z   = np.concatenate([nhs_z  , nhs_z  ])      
+    
+    if model_nacelle == True:
+        # increment fuslage lifting surface sections  
+        VD.n_nac += 2    
+        VD.n_cp  += len(nhs_xch)
+        VD.n_w   += 2 
+        
+        # store this fuselage's discretization information 
+        n_panels         = n_sw*n_cw
+        first_panel_ind  = VD.XAH.size
+        first_strip_ind  = [VD.chordwise_breaks.size, VD.chordwise_breaks.size+n_sw]
+        chordwise_breaks =  first_panel_ind + np.arange(0,2*n_panels)[0::n_cw]        
+        
+        VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
+        VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
+        VD.n_sw             = np.append(VD.n_sw            , np.int16([n_sw, n_sw])    )
+        VD.n_cw             = np.append(VD.n_cw            , np.int16([n_cw, n_cw])    )
+        
+        VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , np.tile(leading_edge_indices        , 2) )
+        VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , np.tile(trailing_edge_indices       , 2) )           
+        VD.panels_per_strip          = np.append(VD.panels_per_strip         , np.tile(panels_per_strip            , 2) )
+        VD.chordwise_panel_number    = np.append(VD.chordwise_panel_number   , np.tile(chordwise_panel_number      , 2) ) 
+        VD.chord_lengths             = np.append(VD.chord_lengths            , np.tile(chord_lengths               , 2) )
+        VD.tangent_incidence_angle   = np.append(VD.tangent_incidence_angle  , np.tile(tangent_incidence_angle     , 2) ) 
+        VD.exposed_leading_edge_flag = np.append(VD.exposed_leading_edge_flag, np.tile(np.ones(n_sw,dtype=np.int16), 2) )
+    
+        # Store fus in vehicle vector  
+        VD.XAH    = np.append(VD.XAH  , np.array(nhs_xah  , dtype=precision))
+        VD.YAH    = np.append(VD.YAH  , np.array(nhs_yah  , dtype=precision))
+        VD.ZAH    = np.append(VD.ZAH  , np.array(nhs_zah  , dtype=precision))
+        VD.XBH    = np.append(VD.XBH  , np.array(nhs_xbh  , dtype=precision))
+        VD.YBH    = np.append(VD.YBH  , np.array(nhs_ybh  , dtype=precision))
+        VD.ZBH    = np.append(VD.ZBH  , np.array(nhs_zbh  , dtype=precision))
+        VD.XCH    = np.append(VD.XCH  , np.array(nhs_xch  , dtype=precision))
+        VD.YCH    = np.append(VD.YCH  , np.array(nhs_ych  , dtype=precision))
+        VD.ZCH    = np.append(VD.ZCH  , np.array(nhs_zch  , dtype=precision))     
+        VD.XA1    = np.append(VD.XA1  , np.array(nhs_xa1  , dtype=precision))
+        VD.YA1    = np.append(VD.YA1  , np.array(nhs_ya1  , dtype=precision))
+        VD.ZA1    = np.append(VD.ZA1  , np.array(nhs_za1  , dtype=precision))
+        VD.XA2    = np.append(VD.XA2  , np.array(nhs_xa2  , dtype=precision))
+        VD.YA2    = np.append(VD.YA2  , np.array(nhs_ya2  , dtype=precision))
+        VD.ZA2    = np.append(VD.ZA2  , np.array(nhs_za2  , dtype=precision))    
+        VD.XB1    = np.append(VD.XB1  , np.array(nhs_xb1  , dtype=precision))
+        VD.YB1    = np.append(VD.YB1  , np.array(nhs_yb1  , dtype=precision))
+        VD.ZB1    = np.append(VD.ZB1  , np.array(nhs_zb1  , dtype=precision))
+        VD.XB2    = np.append(VD.XB2  , np.array(nhs_xb2  , dtype=precision))                
+        VD.YB2    = np.append(VD.YB2  , np.array(nhs_yb2  , dtype=precision))        
+        VD.ZB2    = np.append(VD.ZB2  , np.array(nhs_zb2  , dtype=precision))  
+        VD.XC_TE  = np.append(VD.XC_TE, np.array(nhs_xc_te, dtype=precision))
+        VD.YC_TE  = np.append(VD.YC_TE, np.array(nhs_yc_te, dtype=precision)) 
+        VD.ZC_TE  = np.append(VD.ZC_TE, np.array(nhs_zc_te, dtype=precision))          
+        VD.XA_TE  = np.append(VD.XA_TE, np.array(nhs_xa_te, dtype=precision))
+        VD.YA_TE  = np.append(VD.YA_TE, np.array(nhs_ya_te, dtype=precision)) 
+        VD.ZA_TE  = np.append(VD.ZA_TE, np.array(nhs_za_te, dtype=precision)) 
+        VD.XB_TE  = np.append(VD.XB_TE, np.array(nhs_xb_te, dtype=precision))
+        VD.YB_TE  = np.append(VD.YB_TE, np.array(nhs_yb_te, dtype=precision)) 
+        VD.ZB_TE  = np.append(VD.ZB_TE, np.array(nhs_zb_te, dtype=precision))      
+        VD.XAC    = np.append(VD.XAC  , np.array(nhs_xac  , dtype=precision))
+        VD.YAC    = np.append(VD.YAC  , np.array(nhs_yac  , dtype=precision)) 
+        VD.ZAC    = np.append(VD.ZAC  , np.array(nhs_zac  , dtype=precision)) 
+        VD.XBC    = np.append(VD.XBC  , np.array(nhs_xbc  , dtype=precision))
+        VD.YBC    = np.append(VD.YBC  , np.array(nhs_ybc  , dtype=precision)) 
+        VD.ZBC    = np.append(VD.ZBC  , np.array(nhs_zbc  , dtype=precision))  
+        VD.XC     = np.append(VD.XC   , np.array(nhs_xc   , dtype=precision))
+        VD.YC     = np.append(VD.YC   , np.array(nhs_yc   , dtype=precision))
+        VD.ZC     = np.append(VD.ZC   , np.array(nhs_zc   , dtype=precision))  
+        VD.CS     = np.append(VD.CS   , np.array(nhs_cs   , dtype=precision)) 
+        VD.X      = np.append(VD.X    , np.array(nhs_x    , dtype=precision))  
+        VD.Y      = np.append(VD.Y    , np.array(nhs_y    , dtype=precision))  
+        VD.Z      = np.append(VD.Z    , np.array(nhs_z    , dtype=precision))
+        
+        VD.wing_areas = np.append(VD.wing_areas, wing_areas)
+        
+        VL = VD.vortex_lift
+        VL.append(False)
+        VL.append(False)
+
     
     return VD
 

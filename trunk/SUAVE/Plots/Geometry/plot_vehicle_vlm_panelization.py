@@ -12,6 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt  
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution 
+from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 ## @ingroup Plots-Geometry
 def plot_vehicle_vlm_panelization(vehicle, save_figure = False, plot_control_points = True, save_filename = "VLM_Panelization"):     
@@ -34,7 +36,18 @@ def plot_vehicle_vlm_panelization(vehicle, save_figure = False, plot_control_poi
     N/A	
     """
     # unpack vortex distribution 
-    VD = vehicle.vortex_distribution
+
+    # unpack vortex distribution
+    try:
+        VD = vehicle.vortex_distribution
+    except:
+        settings = Vortex_Lattice().settings
+        settings.number_spanwise_vortices  = 25
+        settings.number_chordwise_vortices = 5
+        settings.spanwise_cosine_spacing   = False
+        settings.model_fuselage            = False
+        settings.model_nacelle             = False
+        VD = generate_vortex_distribution(vehicle,settings)
     
     face_color = 'grey'        
     edge_color = 'black'
@@ -61,10 +74,9 @@ def plot_vehicle_vlm_panelization(vehicle, save_figure = False, plot_control_poi
         mid_z = (VD.Z .max()+VD.Z .min()) * 0.5
         axes.set_xlim(mid_x - max_range, mid_x + max_range)
         axes.set_ylim(mid_y - max_range, mid_y + max_range)
-        axes.set_zlim(mid_z - max_range, mid_z + max_range)          
+        axes.set_zlim(mid_z - max_range, mid_z + max_range)
   
-  
-    if  plot_control_points:
+    if plot_control_points:
         axes.scatter(VD.XC,VD.YC,VD.ZC, c='r', marker = 'o' ) 
         
     return 

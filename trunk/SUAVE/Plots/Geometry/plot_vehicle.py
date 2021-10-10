@@ -340,12 +340,41 @@ def generate_nacelle_points(nac,tessellation = 24):
     """
      
     
-    num_nac_segs = len(nac.Segments.keys())
-    nac_pts      = np.zeros((num_nac_segs,tessellation ,3))
-
-    if num_nac_segs > 0:
+    num_nac_segs = len(nac.Segments.keys())   
+    theta        = np.linspace(0,2*np.pi,tessellation)
+    n_points     = 20
+    
+    if num_nac_segs == 0:
+        num_nac_segs = int(n_points/2)
+        nac_pts      = np.zeros((num_nac_segs,tessellation,3)) 
+        if nac.naca_4_series_airfoil != None: 
+            # use mean camber surface of airfoil
+            camber       = float(nac.naca_4_series_airfoil[0])/100
+            camber_loc   = float(nac.naca_4_series_airfoil[1])/10
+            thickness    = float(nac.naca_4_series_airfoil[2:])/100 
+            airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
+            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
+            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length 
+                   
+            if nac.flow_through: 
+                zpts = zpts + nac.diameter/2  
+        else:
+            # if no airfoil defined, use super ellipse as default
+            a =  nac.length/2 
+            b =  (nac.diameter - nac.inlet_diameter)/2 
+            b = np.maximum(b,1E-3) # ensure 
+            xpts =  np.repeat(np.linspace(-a,a,num_nac_segs),tessellation,axis = 1) 
+            zpts = (np.sqrt((a**2)*(1 - (xpts**2)/(b**2))))*nac.length 
+            xpts = (xpts+a)*nac.length 
+        # create geometry 
+        theta_2d = np.repeat(np.atleast_2d(theta),num_nac_segs,axis =0) 
+        nac_pts[:,:,0] =  xpts
+        nac_pts[:,:,1] =  zpts*np.cos(theta_2d)
+        nac_pts[:,:,2] =  zpts*np.sin(theta_2d)  
+                
+    else:
+        nac_pts = np.zeros((num_nac_segs,tessellation,3)) 
         for i_seg in range(num_nac_segs):
-            theta    = np.linspace(0,2*np.pi,tessellation)
             a        = nac.Segments[i_seg].width/2
             b        = nac.Segments[i_seg].height/2
             r        = np.sqrt((b*np.sin(theta))**2  + (a*np.cos(theta))**2)
