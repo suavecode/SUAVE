@@ -67,7 +67,7 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
     nac_y          = nacelle.origin[0][1]
     nac_z          = nacelle.origin[0][2]
     nac_x_rotation = nacelle.orientation_euler_angles[0]/Units.degrees    
-    nac_y_rotation = nacelle.orientation_euler_angles[1]/Units.degrees    
+    nac_y_rotation = -nacelle.orientation_euler_angles[1]/Units.degrees    
     nac_z_rotation = nacelle.orientation_euler_angles[2]/Units.degrees      
     num_segs       = len(nacelle.Segments)
     

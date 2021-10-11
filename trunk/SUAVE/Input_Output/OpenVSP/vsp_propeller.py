@@ -9,7 +9,9 @@
 # ---------------------------------------------------------------------- 
 import SUAVE
 from SUAVE.Core import Units , Data 
-import numpy as np
+import numpy as np 
+import sys 
+import os
 import string
 from SUAVE.Methods.Aerodynamics.AVL.purge_files              import purge_files
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
@@ -264,8 +266,7 @@ def write_vsp_propeller_bem(vsp_bem_filename,propeller):
         OpenVSP .bem file 
     Properties Used:
         N/A
-    """    
-
+    """     
     # unpack inputs 
     # Open the vsp_bem file after purging if it already exists
     purge_files([vsp_bem_filename]) 
@@ -276,7 +277,17 @@ def write_vsp_propeller_bem(vsp_bem_filename,propeller):
 
         make_section_text(vsp_bem,propeller)
 
-        make_airfoil_text(vsp_bem,propeller)  
+        make_airfoil_text(vsp_bem,propeller)   
+        
+    # Initialize suppression of console window output
+    devnull = open(os.devnull,'w')
+    sys.stdout = devnull       
+        
+    # Now import this prop
+    vsp.ImportFile(vsp_bem_filename,vsp.IMPORT_BEM,'')  
+
+    # Terminate suppression of console window output   
+    sys.stdout = sys.__stdout__      
 
     return
 
@@ -310,18 +321,19 @@ Pre_Cone (deg): 0.00000000
 Center: {5}, {6}, {7}
 Normal: {8}, {9}, {10}
 ''' 
-    # Unpack inputs 
-    name     = prop.tag
-    N        = len(prop.radius_distribution)
-    B        = prop.number_of_blades
-    D        = prop.tip_radius*2
-    beta     = np.round(prop.twist_distribution/Units.degrees,5)
-    X        = prop.origin[0][0]
-    Y        = prop.origin[0][1]    
-    Z        = prop.origin[0][2]    
-    Xn       = np.round(np.cos(np.pi- prop.orientation_euler_angles[0] ),5)
-    Yn       = np.round(prop.orientation_euler_angles[1],5)
-    Zn       = np.round(np.sin(np.pi- prop.orientation_euler_angles[2]),5)
+    # Unpack inputs  
+    name      = prop.tag
+    N         = len(prop.radius_distribution)
+    B         = prop.number_of_blades
+    D         = prop.tip_radius*2
+    beta      = np.round(prop.twist_distribution/Units.degrees,5)
+    X         = np.round(prop.origin[0][0],5)
+    Y         = np.round(prop.origin[0][1],5)    
+    Z         = np.round(prop.origin[0][2],5)    
+    rotations = np.dot(prop.body_to_prop_vel(),np.array([-1,0,0])) # The sign is because props point opposite flow
+    Xn        = np.round(rotations[0],5)
+    Yn        = np.round(rotations[1],5)
+    Zn        = np.round(rotations[2],5) 
 
     beta_3_4  = np.interp(prop.tip_radius*0.75,prop.radius_distribution,beta)
 

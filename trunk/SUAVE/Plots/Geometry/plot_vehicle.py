@@ -354,18 +354,20 @@ def generate_nacelle_points(nac,tessellation = 24):
             thickness    = float(nac.naca_4_series_airfoil[2:])/100 
             airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
             xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
-            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length 
-                   
-            if nac.flow_through: 
-                zpts = zpts + nac.diameter/2  
+            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
+            
         else:
             # if no airfoil defined, use super ellipse as default
             a =  nac.length/2 
             b =  (nac.diameter - nac.inlet_diameter)/2 
             b = np.maximum(b,1E-3) # ensure 
-            xpts =  np.repeat(np.linspace(-a,a,num_nac_segs),tessellation,axis = 1) 
-            zpts = (np.sqrt((a**2)*(1 - (xpts**2)/(b**2))))*nac.length 
-            xpts = (xpts+a)*nac.length 
+            xpts =  np.repeat(np.atleast_2d(np.linspace(-a,a,num_nac_segs)).T,tessellation,axis = 1) 
+            zpts = (np.sqrt((b**2)*(1 - (xpts**2)/(a**2) )))*nac.length 
+            xpts = (xpts+a)*nac.length  
+
+        if nac.flow_through: 
+            zpts = zpts + nac.inlet_diameter/2  
+                
         # create geometry 
         theta_2d = np.repeat(np.atleast_2d(theta),num_nac_segs,axis =0) 
         nac_pts[:,:,0] =  xpts

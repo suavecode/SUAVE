@@ -129,8 +129,8 @@ def vsp_read(tag, units_type='SI',specified_network=None):
 
     vsp_fuselages     = []
     vsp_wings         = []	
-    vsp_props         = []
-    vsp_nacelles      = []
+    vsp_props         = [] 
+    vsp_nacelles      = [] 
 
     vsp_geoms     = vsp.FindGeoms()
     geom_names    = []
@@ -171,9 +171,9 @@ def vsp_read(tag, units_type='SI',specified_network=None):
         if geom_type == 'Wing':
             vsp_wings.append(geom)
         if geom_type == 'Propeller':
-            vsp_props.append(geom)
+            vsp_props.append(geom) 
         if (geom_type == 'Stack') or (geom_type == 'BodyOfRevolution'):
-            vsp_nacelles.append(geom)
+            vsp_nacelles.append(geom) 
         
     # --------------------------------------------------			
     # Read Fuselages 
@@ -196,14 +196,14 @@ def vsp_read(tag, units_type='SI',specified_network=None):
     # --------------------------------------------------			
     for wing_id in vsp_wings:
         wing = read_vsp_wing(wing_id, units_type)
-        vehicle.append_component(wing)		
+        vehicle.append_component(wing)		 
         
     # --------------------------------------------------			    
     # Read Nacelles 
     # --------------------------------------------------			
     for nacelle_id in vsp_nacelles:
         nacelle = read_vsp_wing(nacelle_id, units_type)
-        vehicle.append_component(nacelle)	 
+        vehicle.append_component(nacelle)	  
     
     # --------------------------------------------------			    
     # Read Propellers/Rotors and assign to a network

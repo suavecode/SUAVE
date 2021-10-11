@@ -30,7 +30,7 @@ from Stopped_Rotor       import configs_setup as   EVTOL_configs_setup
 
 def main():     
     
-    battery_chemistry  =  ['NCA','NMC','LFP']
+    battery_chemistry  =  ['NMC'] # ['NCA','NMC','LFP']
     line_style_new     =  ['bo-','ro-','ko-']
     line_style2_new    =  ['bs-','rs-','ks-'] 
     
@@ -441,7 +441,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.pitch_initial                            = 0.0 * Units.degrees
     segment.pitch_final                              = 5. * Units.degrees
     ones_row                                         = segment.state.ones_row
-    segment.state.unknowns.throttle                  = 1.  *  ones_row(1)
+    segment.state.unknowns.throttle                  = 0.95  *  ones_row(1)
     segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability  = SUAVE.Methods.skip

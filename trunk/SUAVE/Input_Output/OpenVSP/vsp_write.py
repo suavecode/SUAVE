@@ -23,8 +23,8 @@ from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP.vsp_propeller import write_vsp_propeller_bem
 from SUAVE.Input_Output.OpenVSP.vsp_fuselage  import write_vsp_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_wing      import write_vsp_wing
-from SUAVE.Input_Output.OpenVSP.vsp_turbofan  import write_vsp_turbofan
-from SUAVE.Input_Output.OpenVSP.vsp_nacelle   import write_vsp_nacelle
+from SUAVE.Input_Output.OpenVSP.vsp_turbofan  import write_vsp_turbofan 
+from SUAVE.Input_Output.OpenVSP.vsp_nacelle   import write_vsp_nacelle 
 try:
     import vsp as vsp
 except ImportError:
@@ -153,8 +153,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         if 'lift_rotors' in network:
             for rot in network.lift_rotors:
                 vsp_bem_filename = rot.tag + '.bem' 
-                write_vsp_propeller_bem(vsp_bem_filename,rot)   
-    
+                write_vsp_propeller_bem(vsp_bem_filename,rot)    
     # -------------
     # Nacelle
     # ------------- 
@@ -162,7 +161,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         if verbose:
             print('Writing '+ nacelle.tag +' to OpenVSP Model')
         write_vsp_nacelle(nacelle, OML_set_ind)
-                    
+                     
     # -------------
     # Fuselage
     # -------------     
