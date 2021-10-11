@@ -277,18 +277,10 @@ def write_vsp_propeller_bem(vsp_bem_filename,propeller):
 
         make_section_text(vsp_bem,propeller)
 
-        make_airfoil_text(vsp_bem,propeller)   
-        
-    # Initialize suppression of console window output
-    devnull = open(os.devnull,'w')
-    sys.stdout = devnull       
+        make_airfoil_text(vsp_bem,propeller)    
         
     # Now import this prop
-    vsp.ImportFile(vsp_bem_filename,vsp.IMPORT_BEM,'')  
-
-    # Terminate suppression of console window output   
-    sys.stdout = sys.__stdout__      
-
+    vsp.ImportFile(vsp_bem_filename,vsp.IMPORT_BEM,'')   
     return
 
 
