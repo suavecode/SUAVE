@@ -77,8 +77,7 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.residuals.forces   = ones_row(2) * 0.0
-        self.state.VTOL_flag          = True       
+        self.state.residuals.forces   = ones_row(2) * 0.0 
         
         
         # --------------------------------------------------------------

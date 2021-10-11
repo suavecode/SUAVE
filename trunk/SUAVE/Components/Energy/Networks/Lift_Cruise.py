@@ -316,8 +316,7 @@ class Lift_Cruise(Network):
                 
                 # link
                 lift_rotor.inputs.omega         = lift_rotor_motor.outputs.omega
-                lift_rotor.inputs.pitch_command = self.lift_rotor_pitch_command 
-                lift_rotor.VTOL_flag            = state.VTOL_flag   
+                lift_rotor.inputs.pitch_command = self.lift_rotor_pitch_command  
                 
                 # Run the propeller
                 F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)
