@@ -1442,18 +1442,21 @@ def generate_nacelle_vortex_distribution(VD,nac,n_cw,n_sw,precision,model_nacell
 
     num_nac_segs = len(nac.Segments.keys()) 
     if num_nac_segs>1: 
-        widths = np.zeros(num_nac_segs) 
+        widths  = np.zeros(num_nac_segs) 
+        heights = np.zeros(num_nac_segs) 
         for i_seg in range(num_nac_segs):
-            widths[i_seg] = nac.Segments[i_seg].diameter 
-        mean_width  = np.mean(widths) 
+            widths[i_seg]  = nac.Segments[i_seg].width 
+            heights[i_seg] = nac.Segments[i_seg].height 
+        mean_width   = np.mean(widths) 
+        mean_height  =  np.mean(heights) 
     else:
         mean_width   = nac.diameter 
+        mean_height  = nac.diameter 
     length = nac.length 
 
     # geometry values
     semispan_h = mean_width * 0.5  
-    semispan_v = semispan_h
-    origin     = nac.origin[0]    
+    semispan_v = mean_height * 0.5  
     
     si         = np.arange(1,((n_sw*2)+2))
     spacing    = np.cos((2*si - 1)/(2*len(si))*np.pi)     

@@ -57,7 +57,7 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
 
     # initalize figure
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8,8)
+    fig.set_size_inches(12,12)
     axes = plt.axes(projection='3d')
     axes.view_init(elev= elevation_angle, azim= azimuthal_angle)
 
