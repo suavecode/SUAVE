@@ -67,11 +67,12 @@ def parasite_drag_pylon(state,settings,geometry):
         pylon_compr_fact    += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].compressibility_factor
         pylon_rey_fact      += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].reynolds_factor
         pylon_FF            += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].form_factor
-        
-    pylon_cf            /= n_nacelles       
-    pylon_compr_fact    /= n_nacelles
-    pylon_rey_fact      /= n_nacelles
-    pylon_FF            /= n_nacelles
+    
+    if n_nacelles>0: 
+        pylon_cf            /= n_nacelles       
+        pylon_compr_fact    /= n_nacelles
+        pylon_rey_fact      /= n_nacelles
+        pylon_FF            /= n_nacelles
     
     # dump data to conditions
     pylon_result = Data(
