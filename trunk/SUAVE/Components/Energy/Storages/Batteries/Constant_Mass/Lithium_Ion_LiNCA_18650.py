@@ -300,7 +300,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
             N/A
         """    
         
-        # Check if this segment set the initial energy
+        # Check if this segment sets the initial energy
         if hasattr(segment,'battery_energy'):
             SOC_init = 1
         else:
