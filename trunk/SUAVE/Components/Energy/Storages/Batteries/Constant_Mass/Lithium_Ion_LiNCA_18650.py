@@ -354,9 +354,9 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         
     
         # Return the residuals   
-        segment.state.residuals.network.thevenin_voltage = v_th_predict[:,0] - v_th_actual[:,0]     
-        segment.state.residuals.network.SOC              = SOC_predict[:,0]  - SOC_actual[SOC_init:,0]  
-        segment.state.residuals.network.temperature      = Temp_predict[:,0] - Temp_actual[:,0] 
+        segment.state.residuals.network.thevenin_voltage = v_th_predict - v_th_actual  
+        segment.state.residuals.network.SOC              = SOC_predict  - SOC_actual[SOC_init:,:]  
+        segment.state.residuals.network.temperature      = Temp_predict - Temp_actual
         
         return 
     

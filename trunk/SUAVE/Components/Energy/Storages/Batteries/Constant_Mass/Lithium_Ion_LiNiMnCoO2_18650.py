@@ -369,9 +369,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
                 
     
         # Return the residuals  
-        segment.state.residuals.network.SOC         = SOC_predict[:,0]  - SOC_actual[SOC_init:,0]  
-        segment.state.residuals.network.temperature = Temp_predict[:,0] - Temp_actual[:,0]
-        segment.state.residuals.network.current     = i_predict[:,0]    - i_actual[:,0]  
+        segment.state.residuals.network.SOC         = SOC_predict  - SOC_actual[SOC_init:,:]  
+        segment.state.residuals.network.temperature = Temp_predict - Temp_actual
+        segment.state.residuals.network.current     = i_predict    - i_actual  
         
         return  
     
