@@ -132,7 +132,9 @@ class Conditions(Data):
                 v.expand_rows(rows)
             # need arrays here
             elif rank == 2:
-                self[k] = np.resize(v,[rows,v.shape[1]])
+                #Check if it's already expanded
+                if v.shape[0]<=1:
+                    self[k] = np.resize(v,[rows,v.shape[1]])
             #: if type
         #: for each key,value
         
