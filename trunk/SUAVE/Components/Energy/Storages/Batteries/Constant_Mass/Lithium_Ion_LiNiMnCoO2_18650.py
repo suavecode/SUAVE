@@ -412,8 +412,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
             SOC_OR = segment.state.unknowns.ones_row          
         
         parallel                                           = self.pack_config.parallel            
-        segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge  * SOC_OR(1)  
-        segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(1) 
+        segment.state.unknowns.battery_state_of_charge     = initial_battery_state_of_charge       * SOC_OR(1)  
+        segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature      * ones_row(1) 
         segment.state.unknowns.battery_current             = initial_battery_cell_current*parallel * ones_row(1)  
         
         return   
@@ -446,8 +446,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         
         # Unpack segment state properties  
         SOC        = state.conditions.propulsion.battery_state_of_charge
-        T_cell     = state.unknowns.battery_cell_temperature
-        I_cell     = state.unknowns.battery_current/n_parallel 
+        T_cell     = state.conditions.propulsion.battery_cell_temperature
+        I_cell     = state.conditions.propulsion.battery_current/n_parallel 
         V_th       = state.conditions.propulsion.battery_thevenin_voltage
 
         # Link Temperature 
