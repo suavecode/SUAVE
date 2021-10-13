@@ -54,12 +54,12 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         n_vertices = n_blades*(n_radial_rings+1)*(n_time_steps+1)    # total number of node vertices
         points_header = "\n\nPOINTS "+str(n_vertices) +" float"
         f.write(points_header)    
-        
+        node_number=[]
         for B_idx in range(n_blades):
-            # Loop over number of rotor blades
-            for t_idx in range(n_time_steps+1):
-                # Loop over number of "chordwise" panels in the wake distribution
-                for r_idx in range(n_radial_rings+1):
+            # Loop over number of "chordwise" panels in the wake distribution
+            for r_idx in range(n_radial_rings+1):            
+                # Loop over number of rotor blades
+                for t_idx in range(n_time_steps+1):
                     # Loop over number of "radial" or "spanwise" panels in the wake distribution
 
                     #-------------------------------------------------------------------
@@ -92,7 +92,7 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
                     
                     
                     new_point = "\n"+str(x)+" "+str(y)+" "+str(z)
-                    node_number = r_idx + (n_radial_rings)*t_idx
+                    node_number = np.append(node_number, r_idx + (n_radial_rings)*t_idx)
                     f.write(new_point)                
         #---------------------    
         # Write Cells:
@@ -106,10 +106,11 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         
         for B_idx in range(n_blades):
             for i in range(cells_per_blade):
-                if i==0:
-                    node = i + int(B_idx*n_vertices/n_blades)
-                elif i%n_radial_rings ==0:
-                    node = node+1
+                node = int(node_number[i])
+                #if i==0:
+                    #node =  i + int(B_idx*n_vertices/n_blades)
+                #elif i%n_radial_rings ==0:
+                    #node = node+1
                 new_cell = "\n4 "+str(node)+" "+str(node+1)+" "+str(node+n_radial_rings+2)+" "+str(node+n_radial_rings+1)
                 f.write(new_cell)
                 #print(new_cell)

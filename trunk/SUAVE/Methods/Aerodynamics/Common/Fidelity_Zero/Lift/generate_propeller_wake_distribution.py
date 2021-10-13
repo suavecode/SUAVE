@@ -124,11 +124,21 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
 
         # wake skew angle 
         wake_skew_angle = -np.arctan(mu_prop/lambda_tot)
-    
+        
         # reshape gamma to find the average between stations 
         gamma_new = np.zeros((m,(Nr-1),Na))    # [control points, Nr-1, Na ] one less radial station because ring
         gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5
 
+
+        ## adjust gamma distribution (negate the root portion to account for X2-->X1 vortex)
+        #dgamma = np.gradient(gamma_new[0,:,0])
+        #gamma_slope_sign = np.ones_like(dgamma)
+        #gamma_slope_sign[dgamma>0]=-1
+        #gamma_slope_sign = np.tile(gamma_slope_sign[None,:,None], (m,1,Na))
+        #gamma_new = gamma_new*gamma_slope_sign
+        
+        
+        
         num       = int(Na/B)  
         time_idx  = np.arange(nts)
         t_idx     = np.atleast_2d(time_idx).T 
@@ -136,6 +146,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         B_loc     = (B_idx*num + t_idx)%Na  
         Gamma     = gamma_new[:,:,B_loc]  
         Gamma     = Gamma.transpose(0,3,1,2)
+        
+        
         
         # --------------------------------------------------------------------------------------------------------------
         #    ( control point , blade number , radial location on blade , time step )
@@ -172,7 +184,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         yupper         = np.take(airfoil_data.y_upper_surface,a_secl,axis=0)   
         
         # Align the quarter chords of the airfoils (zero sweep)
-        airfoil_le_offset = (c[0]/4 - c/4 )
+        airfoil_le_offset = (c[0]/2 - c/2 )
         xte_airfoils      = xupper[:,-1]*c + airfoil_le_offset
         yte_airfoils      = yupper[:,-1]*c 
         
@@ -182,7 +194,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4 - airfoil_le_offset
         y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4
         x_cp_airfoils = 1*(xle_airfoils - xte_airfoils)/2 - airfoil_le_offset
-        y_cp_airfoils = 1*(yle_airfoils - yte_airfoils)/2
+        y_cp_airfoils = 0#1*(yle_airfoils - yte_airfoils)/2
         
         # apply blade twist rotation along rotor radius
         beta = propi.twist_distribution

@@ -134,10 +134,13 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1, use_regularization_kernal=True):
         COEF  = KAPPA
         
     V_IND  = GAMMA * COEF
+    # switch frame: 
+    #V_IND[:,:,:,0] = -V_IND[:,:,:,0] 
+    #V_IND[:,:,:,2] = -V_IND[:,:,:,2] 
     
     return COEF , V_IND  
 
-def regularization_kernel(COEF, sigma=0.1):
+def regularization_kernel(COEF, sigma=0.05):
     """
     Inputs:
        COEF    Biot-Savart Kernel

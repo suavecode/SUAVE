@@ -27,6 +27,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_HFW_inflow_vel
 import numpy as np
 import scipy as sp
 from scipy.interpolate import interp1d
+import copy
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
@@ -92,8 +93,8 @@ class Rotor(Energy_Component):
 
         self.Wake_VD                   = Data()
         self.wake_method               = "momentum"
-        self.number_rotor_rotations    = 5
-        self.number_steps_per_rotation = 100
+        self.number_rotor_rotations    = 5 #5 # 1
+        self.number_steps_per_rotation = 100 #100 #6
         self.wake_settings             = Data()
 
         self.wake_settings.initial_timestep_offset   = 0    # initial timestep
@@ -411,22 +412,44 @@ class Rotor(Energy_Component):
 
 
         elif wake_method == "helical_fixed_wake":
-
-            # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-            va, vt = compute_HFW_inflow_velocities(self)
-
-            # compute blade circulation/forces using the new velocities
-            Gamma        = self.outputs.disc_circulation
-            Wa           = va + Ua
-            Wt           = Ut - vt
-
-            # Compute aerodynamic forces based on specified input airfoil or surrogate
-            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-
-            lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-
-            # compute HFW circulation at the blade
-            Gamma = 0.5*W*c*Cl # Gamma_Blade
+            
+            bemt_outputs = copy.deepcopy(self.outputs)
+            
+            # converge on va for BEMT
+            #while va_diff > 1e-2:
+            #va_diff = 1
+            #while va_diff > 1e-2:  
+            gamma_diff = 1
+            while gamma_diff > 1e-2:
+            
+                # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+                va, vt = compute_HFW_inflow_velocities(self)
+    
+                # compute blade circulation/forces using the new velocities
+                Gamma_disc   = self.outputs.disc_circulation
+                Wa           = va + Ua
+                Wt           = Ut - vt
+    
+                # Compute aerodynamic forces based on specified input airfoil or surrogate
+                Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+    
+                lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+    
+                # compute HFW circulation at the blade
+                Gamma = 0.5*W*c*Cl # Gamma_Blade
+                
+                print("\ncirculation diff:")
+                gamma_diff = 1e-3#np.max(abs(Gamma - Gamma_disc ))
+                print(np.max(abs(Gamma - Gamma_disc )))
+                
+                #self.outputs.disc_circulation = Gamma_disc + 0.25*(Gamma-Gamma_disc)
+            
+                #va_diff = np.max(abs(va - self.outputs.disc_axial_induced_velocity))
+                #print(va_diff)
+                ## incrementally adjust the axial disc velocity based on new va from HFW
+                #self.outputs.disc_axial_induced_velocity = self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
+                                
+                
 
 
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
