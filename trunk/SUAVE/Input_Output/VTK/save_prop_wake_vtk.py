@@ -342,7 +342,7 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
                 
         # Store vortex distribution for this blade
         
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         VD_filename = filename[0:sep]+"_VD_blade"+str(B_idx)+filename[sep:]  
         write_VD(rings,n_time_steps,n_radial_rings, VD_filename)
     return

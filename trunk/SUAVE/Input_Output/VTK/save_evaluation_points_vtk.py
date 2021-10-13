@@ -44,7 +44,7 @@ def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
         wake=False
     
     # Create file
-    sep  = filename.find('.')
+    sep  = filename.rfind('.')
     file = filename[0:sep]+"."+str(time_step)+filename[sep:]
     with open(file, 'w') as f:
     
