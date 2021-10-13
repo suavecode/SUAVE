@@ -318,11 +318,13 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         if hasattr(segment,'battery_energy'):
             SOC_init = 1
         else:
-            SOC_init = 0        
+            SOC_init = 0   
+            
+        propulsion = segment.state.conditions.propulsion
         
-        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
-        segment.state.conditions.propulsion.battery_state_of_charge[SOC_init:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
-        segment.state.conditions.propulsion.battery_current             = segment.state.unknowns.battery_current          
+        propulsion.battery_cell_temperature              = segment.state.unknowns.battery_cell_temperature 
+        propulsion.battery_state_of_charge[SOC_init:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
+        propulsion.battery_current                       = segment.state.unknowns.battery_current          
     
         return     
     
@@ -411,10 +413,10 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         else:
             SOC_OR = segment.state.unknowns.ones_row          
         
-        parallel                                           = self.pack_config.parallel            
-        segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge  * SOC_OR(1)  
-        segment.state.unknowns.battery_cell_temperature    = initial_battery_cell_temperature  * ones_row(1) 
-        segment.state.unknowns.battery_current             = initial_battery_cell_current*parallel * ones_row(1)  
+        parallel                                        = self.pack_config.parallel            
+        segment.state.unknowns.battery_state_of_charge  = initial_battery_state_of_charge       * SOC_OR(1)  
+        segment.state.unknowns.battery_cell_temperature = initial_battery_cell_temperature      * ones_row(1) 
+        segment.state.unknowns.battery_current          = initial_battery_cell_current*parallel * ones_row(1)  
         
         return   
 

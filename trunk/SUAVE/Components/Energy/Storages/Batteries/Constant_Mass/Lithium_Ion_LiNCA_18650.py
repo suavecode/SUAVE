@@ -306,9 +306,11 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         else:
             SOC_init = 0        
         
-        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
-        segment.state.conditions.propulsion.battery_state_of_charge[SOC_init:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
-        segment.state.conditions.propulsion.battery_thevenin_voltage    = segment.state.unknowns.battery_thevenin_voltage   
+        propulsion = segment.state.conditions.propulsion
+        
+        propulsion.battery_cell_temperature              = segment.state.unknowns.battery_cell_temperature 
+        propulsion.battery_state_of_charge[SOC_init:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
+        propulsion.battery_thevenin_voltage              = segment.state.unknowns.battery_thevenin_voltage   
         
         return     
 

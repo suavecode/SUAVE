@@ -98,7 +98,7 @@ class Conditions(Data):
     
     def expand_rows(self,rows,override=False):
         """ Makes a 1-D array the right size. Often used after a mission is initialized to size out the vectors to the
-            right size. Will not overwrite an array if it already exists, unlss override is True.
+            right size. Will not overwrite an array if it already exists, unless override is True.
         
             Assumptions:
             None
