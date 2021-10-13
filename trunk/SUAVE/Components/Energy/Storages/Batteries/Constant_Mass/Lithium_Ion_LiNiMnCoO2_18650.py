@@ -8,7 +8,7 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 import SUAVE
-from SUAVE.Core   import Units , Data, array_type
+from SUAVE.Core   import Units , Data
 from .Lithium_Ion import Lithium_Ion 
 from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNiMnCoO2_cell_cycle_model import compute_NMC_cell_state_variables
 from SUAVE.Methods.Power.Battery.compute_net_generated_battery_heat            import compute_net_generated_battery_heat

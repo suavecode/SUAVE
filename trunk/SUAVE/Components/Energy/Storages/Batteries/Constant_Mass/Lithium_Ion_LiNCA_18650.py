@@ -181,7 +181,13 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         initial_discharge_state = np.dot(I,P_bat) + E_current[0]
         SOC_old =  np.divide(initial_discharge_state,E_max)
         SOC_old[SOC_old < 0.] = 0.    
-        SOC_old[SOC_old > 1.] = 1.      
+        SOC_old[SOC_old > 1.] = 1.
+        
+        T_cell[T_cell<272.65]  = 272.65
+        T_cell[T_cell>317.65]  = 317.65
+        
+        battery.cell_temperature = T_cell
+        
         
         # ---------------------------------------------------------------------------------
         # Compute battery cell temperature 
@@ -426,16 +432,22 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         # Unpack battery properties
         battery           = self
         battery_data      = battery.discharge_performance_map
-        n_series          = battery.pack_config.series  
+        n_series          = battery.pack_config.series
+        
        
         # Unpack segment state properties 
         SOC       = state.conditions.propulsion.battery_state_of_charge
-        T_cell    = state.unknowns.battery_cell_temperature
-        V_Th_cell = state.unknowns.battery_thevenin_voltage/n_series
+        T_cell    = state.unknowns.battery_cell_temperature 
+        V_Th_cell = state.conditions.propulsion.battery_thevenin_voltage/n_series
         D         = state.numerics.time.differentiate  
         
+        # Make sure the first point has SOC
+        SOC[0,0] = battery.current_energy[0]/battery.max_energy
+        
         # link temperature 
-        battery.cell_temperature = T_cell   
+        battery.cell_temperature = T_cell
+        battery.thevenin_voltage = state.conditions.propulsion.battery_thevenin_voltage
+        battery.state_of_charge  = SOC
          
         # Compute state variables
         V_oc_cell,C_Th_cell,R_Th_cell,R_0_cell = compute_NCA_cell_state_variables(battery_data,SOC,T_cell) 
