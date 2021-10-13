@@ -194,6 +194,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         T_cell[T_cell<272.65]  = 272.65
         T_cell[T_cell>322.65]  = 322.65
         
+        battery.cell_temperature = T_cell
+        battery.pack_temperature = T_cell
+        
         # ---------------------------------------------------------------------------------
         # Compute battery cell temperature 
         # ---------------------------------------------------------------------------------
@@ -320,7 +323,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         else:
             SOC_init = 0        
         
-        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
+        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature
         segment.state.conditions.propulsion.battery_state_of_charge[SOC_init:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
         segment.state.conditions.propulsion.battery_current             = segment.state.unknowns.battery_current          
     
