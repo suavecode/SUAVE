@@ -283,7 +283,7 @@ class Lithium_Ion(Battery):
         v_max     = network.voltage
         
         # Return the residuals
-        segment.state.residuals.network.voltage = (v_predict[:,0] - v_actual[:,0])/v_max
+        segment.state.residuals.network.voltage = (v_predict - v_actual)/v_max
         
         return 
     

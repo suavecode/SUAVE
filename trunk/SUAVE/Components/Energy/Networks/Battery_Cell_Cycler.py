@@ -12,6 +12,7 @@ import SUAVE
 # package imports
 import numpy as np
 from .Network import Network   
+from SUAVE.Analyses.Mission.Segments.Conditions import Residuals
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
@@ -227,7 +228,7 @@ class Battery_Cell_Cycler(Network):
         # Assign initial segment conditions to segment if missing 
         append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)     
             
-        segment.state.residuals.network  = Data()      
+        segment.state.residuals.network = Residuals()
         
         # add unknowns and residuals specific to battery cell
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage,

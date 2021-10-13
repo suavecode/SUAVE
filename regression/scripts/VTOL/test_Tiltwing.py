@@ -11,8 +11,8 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units 
-from SUAVE.Plots.Mission_Plots import *  
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle 
+from SUAVE.Plots.Performance.Mission_Plots import *  
+from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle 
 import numpy as np  
 import sys 
 

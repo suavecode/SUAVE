@@ -29,7 +29,7 @@ def generate_vortex_distribution(geometry,settings):
     of major section (wings and fuselages). 
     
     Control surfaces are modelled as wings, but adapt their panel density 
-    to that of the area in which they reside on their owning wing.   
+    to that of the area in which they reside on their own wing.   
 
     Assumptions: 
     Below is a schematic of the coordinates of an arbitrary panel  

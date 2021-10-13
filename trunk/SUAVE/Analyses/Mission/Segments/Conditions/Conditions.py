@@ -96,9 +96,9 @@ class Conditions(Data):
         return np.ones([self._size-2,cols])
     
     
-    def expand_rows(self,rows):
+    def expand_rows(self,rows,override=False):
         """ Makes a 1-D array the right size. Often used after a mission is initialized to size out the vectors to the
-            right size.
+            right size. Will not overwrite an array if it already exists, unlss override is True.
         
             Assumptions:
             None
@@ -107,7 +107,8 @@ class Conditions(Data):
             N/A
     
             Inputs:
-            rows   [int]
+            rows     [int]
+            override [boolean]
     
             Outputs:
             None
@@ -129,10 +130,12 @@ class Conditions(Data):
                 rank = 0
             # recursion
             if isinstance(v,Conditions):
-                v.expand_rows(rows)
+                v.expand_rows(rows,override=override)
             # need arrays here
             elif rank == 2:
-                self[k] = np.resize(v,[rows,v.shape[1]])
+                #Check if it's already expanded
+                if v.shape[0]<=1 or override:
+                    self[k] = np.resize(v,[rows,v.shape[1]])
             #: if type
         #: for each key,value
         
