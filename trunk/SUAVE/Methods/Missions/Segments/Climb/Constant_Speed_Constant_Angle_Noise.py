@@ -51,7 +51,7 @@ def expand_state(segment):
     
     segment.state.numerics.number_control_points = n_points
     
-    segment.state.expand_rows(n_points)      
+    segment.state.expand_rows(n_points,override=True)      
     
     return
 

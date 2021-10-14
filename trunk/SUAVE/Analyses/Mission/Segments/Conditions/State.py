@@ -64,9 +64,9 @@ class State(Conditions):
         self.numerics   = Numerics()
         self.initials   = Conditions()
         
-    def expand_rows(self,rows):
+    def expand_rows(self,rows,override=False):
         """ Makes a 1-D array the right size. Often used after a mission is initialized to size out the vectors to the
-            right size.
+            right size. Will not overwrite an array if it already exists, unless override is True.
         
             Assumptions:
             Doesn't expand initials or numerics
@@ -98,7 +98,7 @@ class State(Conditions):
             
             # recursion
             elif isinstance(v,Conditions):
-                v.expand_rows(rows)
+                v.expand_rows(rows,override=override)
             # need arrays here
             elif rank == 2:
                 self[k] = np.resize(v,[rows,v.shape[1]])
