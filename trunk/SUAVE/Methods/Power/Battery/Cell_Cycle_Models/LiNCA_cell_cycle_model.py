@@ -43,9 +43,9 @@ def compute_NCA_cell_state_variables(battery_data,SOC,T):
     SOC[SOC<0.] = 0.
     SOC[SOC>1.] = 1.
     
-    T[np.isnan(T)] = 302.65
-    T[T<272.65]    = 272.65 # model does not fit for below 0  degrees
-    T[T>317.65]    = 317.65 # model does not fit for above 45 degrees
+    #T[np.isnan(T)] = 302.65
+    #T[T<272.65]    = 272.65 # model does not fit for below 0  degrees
+    #T[T>317.65]    = 317.65 # model does not fit for above 45 degrees
     
     for i in range(len(SOC)): 
         V_oc[i] = battery_data.V_oc_interp(T[i], SOC[i])[0]
