@@ -19,6 +19,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units, Data
 from .Network import Network
+from SUAVE.Analyses.Mission.Segments.Conditions import Residuals
 from SUAVE.Components.Physical_Component import Container 
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
@@ -735,7 +736,7 @@ class Lift_Cruise(Network):
         append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)       
 
         # add unknowns and residuals specific to battery cell
-        segment.state.residuals.network  = Data() 
+        segment.state.residuals.network = Residuals()
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current,
@@ -831,7 +832,7 @@ class Lift_Cruise(Network):
         append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)           
       
         # add unknowns and residuals specific to to battery cell
-        segment.state.residuals.network  = Data() 
+        segment.state.residuals.network = Residuals()
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current,
@@ -929,7 +930,7 @@ class Lift_Cruise(Network):
         append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)     
 
         # add unknowns and residuals specific to battery cell
-        segment.state.residuals.network  = Data() 
+        segment.state.residuals.network = Residuals()
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current,

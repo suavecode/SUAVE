@@ -188,12 +188,12 @@ def unpack_subsegments(segment):
         counter[key] = 0
 
     for i, sub_segment in enumerate(segment.segments):
-        ctrl_pnts = sub_segment.state.numerics.number_control_points
         for key in sub_segment.state.unknowns.keys():
             if key=='tag':
                 continue
-            sub_segment.state.unknowns[key] = segment.state.unknowns[key][counter[key]:counter[key]+ctrl_pnts]
-            counter[key] = counter[key]+ctrl_pnts
+            points = sub_segment.state.unknowns[key].size
+            sub_segment.state.unknowns[key] = segment.state.unknowns[key][counter[key]:counter[key]+points]
+            counter[key] = counter[key]+points
             
     return
             
