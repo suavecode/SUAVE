@@ -285,6 +285,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         battery.cell_voltage_open_circuit          = V_oc
         battery.cell_current                       = I_cell
         battery.thevenin_voltage                   = V_Th*n_series
+        battery.cell_thevenin_voltage              = V_Th
         battery.cell_charge_throughput             = Q_total   
         battery.heat_energy_generated              = Q_heat_gen*n_total_module    
         battery.internal_resistance                = R_0*n_series

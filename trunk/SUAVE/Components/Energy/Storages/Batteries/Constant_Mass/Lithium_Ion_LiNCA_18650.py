@@ -183,12 +183,6 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         SOC_old[SOC_old < 0.] = 0.    
         SOC_old[SOC_old > 1.] = 1.
         
-        #T_cell[T_cell<272.65]  = 272.65
-        #T_cell[T_cell>317.65]  = 317.65
-        
-        #battery.cell_temperature = T_cell
-        
-        
         # ---------------------------------------------------------------------------------
         # Compute battery cell temperature 
         # ---------------------------------------------------------------------------------
@@ -197,7 +191,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         n       = 1
         F       = 96485  # C/mol Faraday constant    
         delta_S = -18046*(SOC_old)**6 + 52735*(SOC_old)**5 - 57196*(SOC_old)**4 + \
-                   28030*(SOC_old)**3 -6023*(SOC_old)**2 +  514*(SOC_old) -27
+                   28030*(SOC_old)**3 - 6023*(SOC_old)**2 +  514*(SOC_old) - 27
         
         i_cell         = I_cell/electrode_area # current intensity 
         q_dot_entropy  = -(T_cell)*delta_S*i_cell/(n*F)  
@@ -267,6 +261,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         battery.current                             = I_bat 
         battery.voltage_open_circuit                = V_oc*n_series
         battery.thevenin_voltage                    = V_Th*n_series 
+        battery.cell_thevenin_voltage               = V_Th
         battery.cell_joule_heat_fraction            = q_joule_frac
         battery.cell_entropy_heat_fraction          = q_entropy_frac 
         battery.cell_charge_throughput              = Q_total
@@ -314,7 +309,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         
         segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
         segment.state.conditions.propulsion.battery_state_of_charge[SOC_init:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
-        segment.state.conditions.propulsion.battery_thevenin_voltage    = segment.state.unknowns.battery_thevenin_voltage   
+        segment.state.conditions.propulsion.battery_cell_thevenin_voltage    = segment.state.unknowns.battery_cell_thevenin_voltage   
         
         return     
 
@@ -349,8 +344,8 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
         Temp_predict = segment.state.unknowns.battery_cell_temperature   
     
-        v_th_actual  = segment.state.conditions.propulsion.battery_thevenin_voltage
-        v_th_predict = segment.state.unknowns.battery_thevenin_voltage
+        v_th_actual  = segment.state.conditions.propulsion.battery_cell_thevenin_voltage
+        v_th_predict = segment.state.unknowns.battery_cell_thevenin_voltage
         
         # Check if this segment set the initial energy
         if hasattr(segment,'battery_energy'):
@@ -360,21 +355,10 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         
     
         # Return the residuals   
-        segment.state.residuals.network.thevenin_voltage = v_th_predict - v_th_actual  
-        segment.state.residuals.network.SOC              = SOC_predict  - SOC_actual[SOC_init:,:]  
-        segment.state.residuals.network.temperature      = Temp_predict - Temp_actual
-        
-        print('thevenin')
-        print(segment.state.residuals.network.thevenin_voltage)
-        print(v_th_actual)
-        
-        #print('SOC')
-        #print(segment.state.residuals.network.SOC)
-        
-        #print('temperature')
-        #print(Temp_predict)
-        #print(Temp_actual)
-        
+        segment.state.residuals.network.battery_cell_thevenin_voltage = v_th_predict - v_th_actual  
+        segment.state.residuals.network.SOC                           = SOC_predict  - SOC_actual[SOC_init:,:]  
+        segment.state.residuals.network.temperature                   = Temp_predict - Temp_actual
+
         return 
     
     
@@ -414,9 +398,9 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         else:
             SOC_OR = segment.state.unknowns.ones_row  
       
-        segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge        * SOC_OR(1)  
-        segment.state.unknowns.battery_cell_temperature     = initial_battery_cell_temperature       * ones_row(1)       
-        segment.state.unknowns.battery_thevenin_voltage     = initial_battery_cell_thevenin_voltage  * ones_row(1)    
+        segment.state.unknowns.battery_state_of_charge       = initial_battery_state_of_charge        * SOC_OR(1)  
+        segment.state.unknowns.battery_cell_temperature      = initial_battery_cell_temperature       * ones_row(1)       
+        segment.state.unknowns.battery_cell_thevenin_voltage = initial_battery_cell_thevenin_voltage  * ones_row(1)    
         
         return  
 
@@ -449,7 +433,7 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         # Unpack segment state properties 
         SOC       = state.conditions.propulsion.battery_state_of_charge
         T_cell    = state.unknowns.battery_cell_temperature 
-        V_Th_cell = state.unknowns.battery_thevenin_voltage/n_series
+        V_Th_cell = state.unknowns.battery_cell_thevenin_voltage
         D         = state.numerics.time.differentiate  
         
         # Make sure the first point has SOC

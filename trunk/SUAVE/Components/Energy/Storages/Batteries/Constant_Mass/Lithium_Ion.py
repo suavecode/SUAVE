@@ -227,6 +227,7 @@ class Lithium_Ion(Battery):
         battery.cell_voltage_open_circuit          = np.zeros_like(V_ul)
         battery.cell_current                       = np.zeros_like(V_ul)
         battery.thevenin_voltage                   = np.zeros_like(V_ul)
+        battery.cell_thevenin_voltage              = np.zeros_like(V_ul)
         battery.heat_energy_generated              = Q_heat_gen 
         battery.internal_resistance                = R_0 
         battery.cell_voltage_under_load            = V_ul 

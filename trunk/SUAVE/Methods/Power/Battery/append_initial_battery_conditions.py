@@ -130,7 +130,7 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
         propulsion.battery_cycle_day                    = cycle_day        
         propulsion.battery_cell_charge_throughput[:,0]  = cell_charge_throughput 
         propulsion.battery_resistance_growth_factor     = resistance_growth_factor 
-        propulsion.battery_thevenin_voltage[:,0]        = initial_cell_thevenin_voltage
+        propulsion.battery_cell_thevenin_voltage[:,0]   = initial_cell_thevenin_voltage
         propulsion.battery_capacity_fade_factor         = capacity_fade_factor           
             
     return 

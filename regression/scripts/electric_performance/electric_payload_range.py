@@ -47,47 +47,69 @@ def main():
 #-------------------------------------------------------------------------------
 
 def mission_setup(vehicle, analyses):
+
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
-
+    
     mission = SUAVE.Analyses.Mission.Variable_Range_Cruise.Given_State_of_Charge()
     mission.tag = 'the_mission'
-
+    
     # the cruise tag to vary cruise distance
     mission.cruise_tag = 'cruise'
-    mission.target_state_of_charge = 0.5
-
+    mission.target_state_of_charge = 0.51
+    
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
-
+    Segments = SUAVE.Analyses.Mission.Segments    
+    
     # base segment
     base_segment = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row    
-    base_segment.state.numerics.number_control_points        = 4
+    base_segment.state.numerics.number_control_points        = 3
     base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip    
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip    
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery   
+    
     # ------------------------------------------------------------------
+    #   First Climb Segment: Constant Speed, Constant Rate
+    # ------------------------------------------------------------------
+    segment     = Segments.Hover.Climb(base_segment)
+    segment.tag = "climb_1"
+    segment.analyses.extend( analyses )
+    segment.altitude_start                                   = 0.0  * Units.ft
+    segment.altitude_end                                     = 40.  * Units.ft
+    segment.climb_rate                                       = 500. * Units['ft/min']
+    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.max_energy
+    segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability          = SUAVE.Methods.skip  
+    segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment,\
+                                                                                    initial_lift_rotor_power_coefficient = 0.01,
+                                                                                    initial_throttle_lift = 0.9)
+    # add to misison
+    mission.append_segment(segment)
+
+    # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
-    # ------------------------------------------------------------------
-
+    # ------------------------------------------------------------------    
+    
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise"
-
-    segment.analyses.extend(analyses)  
-    segment.altitude  = 1000.0 * Units.ft
+    
+    segment.analyses.extend( analyses )
+    
+    segment.altitude  = 1000.0 * Units.ft    
     segment.air_speed = 110.   * Units['mph']
-    segment.distance  = 80.    * Units.miles     
-    segment.battery_energy = vehicle.networks.lift_cruise.battery.max_energy
+    segment.distance  = 60.    * Units.miles     
     segment.state.unknowns.throttle = 0.80 * ones_row(1)
-    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16) 
+    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.max_energy
+    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16)
 
     mission.append_segment(segment)
 
     return mission
+
 
 def base_analysis(vehicle):
 

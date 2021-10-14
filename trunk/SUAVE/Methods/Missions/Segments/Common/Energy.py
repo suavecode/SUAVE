@@ -40,8 +40,7 @@ def initialize_battery(segment):
         battery_cell_charge_throughput       = segment.state.initials.conditions.propulsion.battery_cell_charge_throughput[-1,0]  
         battery_cycle_day                    = segment.state.initials.conditions.propulsion.battery_cycle_day        
         battery_discharge_flag               = segment.battery_discharge 
-        battery_resistance_growth_factor     = segment.state.initials.conditions.propulsion.battery_resistance_growth_factor
-        battery_thevenin_voltage             = segment.state.initials.conditions.propulsion.battery_thevenin_voltage[-1,0]  
+        battery_resistance_growth_factor     = segment.state.initials.conditions.propulsion.battery_resistance_growth_factor       
         battery_capacity_fade_factor         = segment.state.initials.conditions.propulsion.battery_capacity_fade_factor
         
         if battery_discharge_flag == False: 
@@ -55,7 +54,6 @@ def initialize_battery(segment):
         segment.state.conditions.propulsion.battery_cell_charge_throughput[:,0]        = battery_cell_charge_throughput 
         segment.state.conditions.propulsion.battery_discharge_flag                     = battery_discharge_flag
         segment.state.conditions.propulsion.battery_resistance_growth_factor           = battery_resistance_growth_factor 
-        segment.state.conditions.propulsion.battery_thevenin_voltage[0,0]              = battery_thevenin_voltage 
         segment.state.conditions.propulsion.battery_capacity_fade_factor               = battery_capacity_fade_factor      
     
 

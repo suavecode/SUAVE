@@ -138,6 +138,7 @@ class Aerodynamics(Basic):
         self.propulsion.battery_pack_temperature             = ones_1col * 0
         self.propulsion.battery_cell_temperature             = ones_1col * 0 
         self.propulsion.battery_cell_charge_throughput       = ones_1col * 0    
+        self.propulsion.battery_cell_thevenin_voltage        = ones_1col * 0  
         self.propulsion.battery_thevenin_voltage             = ones_1col * 0  
         self.propulsion.battery_cycle_day                    = 0
         self.propulsion.battery_resistance_growth_factor     = 1.
