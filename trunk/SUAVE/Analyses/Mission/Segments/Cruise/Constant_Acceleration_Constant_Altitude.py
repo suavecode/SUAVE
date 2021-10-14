@@ -145,6 +145,7 @@ class Constant_Acceleration_Constant_Altitude(Aerodynamic):
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
         finalize.post_process.aero_derivatives  = skip
         finalize.post_process.noise             = Methods.Common.Noise.compute_noise
+        finalize.post_process.battery_health    = Methods.Common.Energy.update_battery_state_of_health
         
         return
 

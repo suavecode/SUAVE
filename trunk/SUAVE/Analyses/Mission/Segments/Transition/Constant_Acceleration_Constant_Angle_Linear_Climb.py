@@ -75,8 +75,7 @@ class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.residuals.forces    = ones_row(2) * 0.0
-        self.state.VTOL_flag           = True   
+        self.state.residuals.forces    = ones_row(2) * 0.0 
         
         # --------------------------------------------------------------
         #   The Solving Process
@@ -144,6 +143,7 @@ class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
         finalize.post_process.aero_derivatives  = skip
         finalize.post_process.noise             = Methods.Common.Noise.compute_noise
+        finalize.post_process.battery_health    = Methods.Common.Energy.update_battery_state_of_health
         
         return
 
