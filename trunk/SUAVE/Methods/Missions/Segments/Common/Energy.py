@@ -46,7 +46,7 @@ def initialize_battery(segment):
     elif segment.state.initials:
         initial_mission_energy               = segment.state.initials.conditions.propulsion.battery_max_initial_energy
         battery_max_aged_energy              = segment.state.initials.conditions.propulsion.battery_max_aged_energy         
-        initial_segment_energy               = segment.state.initials.conditions.propulsion.battery_energy[-1,0] 
+        initial_segment_energy               = segment.state.initials.conditions.propulsion.battery_energy[-1,0]
         if 'battery_pack_temperature' in segment: # set if the initial temperature of the battery is known
             initial_pack_temperature =  segment.battery_pack_temperature
         else:
@@ -93,7 +93,8 @@ def update_thrust(segment):
         Assumptions -
 
 
-    """     
+    """    
+    
     # unpack
     energy_model = segment.analyses.energy
 
@@ -104,23 +105,53 @@ def update_thrust(segment):
     conditions = segment.state.conditions
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
+    
+
+## @ingroup Methods-Missions-Segments-Common
+def update_battery(segment):
+    """ Evaluates the energy network to find the thrust force and mass rate
+
+        Inputs -
+            segment.analyses.energy_network    [Function]
+
+        Outputs -
+            state.conditions:
+               frames.body.thrust_force_vector [Newtons]
+               weights.vehicle_mass_rate       [kg/s]
+
+
+        Assumptions -
+
+
+    """    
+    
+    # unpack
+    energy_model = segment.analyses.energy
+
+    # evaluate
+    results   = energy_model.evaluate_thrust(segment.state)
 
 def update_battery_state_of_health(segment):  
     """Updates battery age based on operating conditions, cell temperature and time of operation.
+       Source: 
+       Cell specific. See individual battery cell for more details
+         
+       Assumptions:
+       Cell specific. See individual battery cell for more details
+      
+       Inputs: 
+       segment.
+           conditions                    - conditions of battery at each segment  [unitless]
+           increment_battery_cycle_day   - flag to increment battery cycle day    [boolean]
+       
+       Outputs:
+       N/A  
+            
+       Properties Used:
+       N/A 
+    """ 
+    increment_day = segment.increment_battery_cycle_day
     
-    Assumptions -
-    N/A
-    
-    Inputs -
-        segment.analyses.energy           [Function]
-
-    Outputs
-        N/A
-        
-    """  
-    energy_model = segment.analyses.energy
-
-    if energy_model:
-        energy_model.evaluate_battery_state_of_health(segment)    
-        
-    
+    for network in segment.analyses.energy.network: 
+        battery = network.battery
+        battery.update_battery_state_of_health(segment,increment_battery_cycle_day = increment_day) 

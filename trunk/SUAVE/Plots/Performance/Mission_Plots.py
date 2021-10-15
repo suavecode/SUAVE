@@ -630,14 +630,14 @@ def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', s
     axes = plt.subplot(2,2,1)
     axes.plot(charge_throughput, capacity_fade, line_color)
     axes.plot(charge_throughput, resistance_growth, line_color2) 
-    axes.set_ylabel('% Capacity Fade/Resistance Growth',axis_font)
+    axes.set_ylabel('% E/R_{0} Change',axis_font)
     axes.set_xlabel('Time (hrs)',axis_font)
     set_axes(axes)      
 
     axes = plt.subplot(2,2,2)
     axes.plot(time_hrs, capacity_fade, line_color)
     axes.plot(time_hrs, resistance_growth, line_color2) 
-    axes.set_ylabel('% Capacity Fade/Resistance Growth',axis_font)
+    axes.set_ylabel('% E/R_{0} Change',axis_font)
     axes.set_xlabel('Time (hrs)',axis_font)
     set_axes(axes)     
 

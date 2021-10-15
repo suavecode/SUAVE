@@ -47,7 +47,7 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
                battery_voltage_under_load         [Volts]      
                battery_power_draw                 [Watts]     
                battery_max_aged_energy            [Joules]        
-               battery_cycle_day                  [unitless]   
+               battery_cycle_day                  [days]     
                battery_internal_resistance        [Ohms]
                battery_state_of_charge            [unitless]
                battery_pack_temperature           [Kelvin]

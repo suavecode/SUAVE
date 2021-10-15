@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Missions-Segments-Common
 def compute_noise(segment):
-    """ Evaluates the radiated noise from an aircraft to an observer or set of observer locations
+    """ Evaluates the energy network to find the thrust force and mass rate
 
         Inputs -
             segment.analyses.noise             [Function]

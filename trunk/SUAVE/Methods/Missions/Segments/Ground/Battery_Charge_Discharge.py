@@ -22,7 +22,7 @@ def unpack_unknowns(segment):
 
 ## @ingroup Methods-Missions-Segments-Ground 
 def initialize_conditions(segment): 
-    overcharge_contingency = segment.overcharge_contingency 
+    overcharge_contingency = segment.overcharge_contingency = 1.25
     
     # unpack   
     if segment.state.initials:
