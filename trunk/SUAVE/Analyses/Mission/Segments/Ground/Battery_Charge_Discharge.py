@@ -113,7 +113,7 @@ class Battery_Charge_Discharge(Aerodynamic):
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
-        iterate.conditions.propulsion      = Methods.Common.Energy.update_battery
+        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
         iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability        
         iterate.conditions.weights         = Methods.Common.Weights.update_weights  
@@ -125,7 +125,7 @@ class Battery_Charge_Discharge(Aerodynamic):
         finalize = self.process.finalize
         
         # Post Processing
-        finalize.post_process = Process()        
+        finalize.post_process = Process()         
         
         return
 

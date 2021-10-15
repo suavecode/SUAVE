@@ -476,7 +476,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     
         Inputs:
           segment.conditions.propulsion. 
-             battery_cycle_day                                                            [days]   
+             battery_cycle_day                                                      [unitless]
              battery_cell_temperature                                               [Kelvin] 
              battery_voltage_open_circuit                                           [Volts] 
              battery_charge_throughput                                              [Amp-hrs] 
