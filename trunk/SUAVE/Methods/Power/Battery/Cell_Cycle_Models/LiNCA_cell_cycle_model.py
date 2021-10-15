@@ -36,22 +36,14 @@ def compute_NCA_cell_state_variables(battery_data,SOC,T):
         R_0          - phmic resistance             [Ohms]
         
     """
-    V_oc = np.zeros_like(SOC)
-    R_Th = np.zeros_like(SOC)
-    C_Th = np.zeros_like(SOC)
-    R_0  = np.zeros_like(SOC)
+
     SOC[SOC<0.] = 0.
     SOC[SOC>1.] = 1.
-    
-    #T[np.isnan(T)] = 302.65
-    #T[T<272.65]    = 272.65 # model does not fit for below 0  degrees
-    #T[T>317.65]    = 317.65 # model does not fit for above 45 degrees
-    
-    for i in range(len(SOC)): 
-        V_oc[i] = battery_data.V_oc_interp(T[i], SOC[i])[0]
-        C_Th[i] = battery_data.C_Th_interp(T[i], SOC[i])[0]
-        R_Th[i] = battery_data.R_Th_interp(T[i], SOC[i])[0]
-        R_0[i]  = battery_data.R_0_interp(T[i], SOC[i])[0]  
+        
+    V_oc = battery_data.V_oc_interp(T, SOC,grid=False)    
+    C_Th = battery_data.C_Th_interp(T, SOC,grid=False)  
+    R_Th = battery_data.R_Th_interp(T, SOC,grid=False)   
+    R_0  = battery_data.R_0_interp(T, SOC,grid=False)
     
     return V_oc,C_Th,R_Th,R_0
  

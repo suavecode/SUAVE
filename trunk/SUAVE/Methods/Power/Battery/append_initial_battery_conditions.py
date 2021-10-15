@@ -103,7 +103,7 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
             pack_temperature              = segment.battery_pack_temperature
 
         if 'battery_cell_charge_throughput' not in segment:
-            cell_charge_throughput        = 0   
+            cell_charge_throughput        = 0.
         else:
             cell_charge_throughput        = segment.battery_cell_charge_throughput
             
@@ -117,11 +117,6 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
         else:
             capacity_fade_factor          = segment.battery_capacity_fade_factor
         
-        if 'battery_thevenin_voltage' not in segment: 
-            initial_cell_thevenin_voltage = initial_battery_cell_thevenin_voltage  
-        else:
-            initial_cell_thevenin_voltage = segment.battery_thevenin_voltage
-
         # Pack into conditions
         propulsion.battery_max_initial_energy           = initial_mission_energy
         propulsion.battery_energy[:,0]                  = initial_segment_energy 
@@ -130,7 +125,6 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
         propulsion.battery_cycle_day                    = cycle_day        
         propulsion.battery_cell_charge_throughput[:,0]  = cell_charge_throughput 
         propulsion.battery_resistance_growth_factor     = resistance_growth_factor 
-        propulsion.battery_cell_thevenin_voltage[:,0]   = initial_cell_thevenin_voltage
         propulsion.battery_capacity_fade_factor         = capacity_fade_factor           
             
     return 
