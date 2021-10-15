@@ -62,7 +62,7 @@ class Aerodynamic(Simple):
         
         # conditions
         self.state.conditions.update( Conditions.Aerodynamics() )
-        self.temperature_deviation = 0.0 
+        self.temperature_deviation = 0.0
         
         # --------------------------------------------------------------
         #   The Solving Process
@@ -129,7 +129,6 @@ class Aerodynamic(Simple):
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
         finalize.post_process.aero_derivatives  = skip
         finalize.post_process.noise             = Methods.Common.Noise.compute_noise
-        finalize.post_process.battery_health    = Methods.Common.Energy.update_battery_state_of_health
         
         return
 

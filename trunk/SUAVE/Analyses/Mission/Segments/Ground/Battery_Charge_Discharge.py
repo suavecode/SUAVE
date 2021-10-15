@@ -125,8 +125,7 @@ class Battery_Charge_Discharge(Aerodynamic):
         finalize = self.process.finalize
         
         # Post Processing
-        finalize.post_process = Process()        
-        finalize.post_process.battery_health    = Methods.Common.Energy.update_battery_state_of_health
+        finalize.post_process = Process()         
         
         return
 
