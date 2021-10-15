@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------
 #  Computer Mission Center of Gravity
 # ----------------------------------------------------------------------
+import numpy as np 
 
 ## @ingroup Methods-Center_of_Gravity
 def compute_mission_center_of_gravity(vehicle, mission_fuel_weight):
@@ -30,10 +31,10 @@ def compute_mission_center_of_gravity(vehicle, mission_fuel_weight):
     N/A
     """  
 
-    mzf_cg     = vehicle.mass_properties.zero_fuel_center_of_gravity
-    mzf_weight = vehicle.mass_properties.max_zero_fuel
+    mzf_cg     = np.array(vehicle.mass_properties.zero_fuel_center_of_gravity)[0]
+    mzf_weight = vehicle.mass_properties.max_zero_fuel 
     fuel       = vehicle.fuel
-    fuel_cg    = vehicle.fuel.mass_properties.center_of_gravity
+    fuel_cg    = vehicle.fuel.mass_properties.center_of_gravity[0]
     
     cg         =((mzf_cg)*mzf_weight+(fuel_cg+fuel.origin)*mission_fuel_weight)/(mission_fuel_weight+mzf_weight)
    
