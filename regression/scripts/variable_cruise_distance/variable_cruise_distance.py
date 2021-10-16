@@ -298,7 +298,7 @@ def mission_setup_SR(vehicle,analyses):
     # base segment
     base_segment = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row    
-    base_segment.state.numerics.number_control_points        = 3
+    base_segment.state.numerics.number_control_points        = 2
     base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip    
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip    

@@ -299,17 +299,12 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
             Properties Used:
             N/A
         """    
-        
-        # Check if this segment sets the initial energy
-        if hasattr(segment,'battery_energy'):
-            SOC_init = 1
-        else:
-            SOC_init = 0        
+     
         
         propulsion = segment.state.conditions.propulsion
         
         propulsion.battery_cell_temperature              = segment.state.unknowns.battery_cell_temperature 
-        propulsion.battery_state_of_charge[SOC_init:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
+        propulsion.battery_state_of_charge[1:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
         propulsion.battery_thevenin_voltage              = segment.state.unknowns.battery_thevenin_voltage   
         
         return     
@@ -348,16 +343,10 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
         v_th_actual  = segment.state.conditions.propulsion.battery_thevenin_voltage
         v_th_predict = segment.state.unknowns.battery_thevenin_voltage
         
-        # Check if this segment set the initial energy
-        if hasattr(segment,'battery_energy'):
-            SOC_init = 1
-        else:
-            SOC_init = 0
-        
     
         # Return the residuals   
         segment.state.residuals.network.thevenin_voltage = v_th_predict - v_th_actual  
-        segment.state.residuals.network.SOC              = SOC_predict  - SOC_actual[SOC_init:,:]  
+        segment.state.residuals.network.SOC              = SOC_predict  - SOC_actual[1:,:]  
         segment.state.residuals.network.temperature      = Temp_predict - Temp_actual
         
         return 
@@ -388,18 +377,10 @@ class Lithium_Ion_LiNCA_18650(Lithium_Ion):
             N/A
         """       
         # setup the state
-        n_points = segment.state.numerics.number_control_points
-        
-        segment.state.unknowns.expand_rows(n_points)
-        ones_row = segment.state.unknowns.ones_row
-        
-        # Check if this segment set the initial energy
-        if hasattr(segment,'battery_energy'):
-            SOC_OR = segment.state.unknowns.ones_row_m1
-        else:
-            SOC_OR = segment.state.unknowns.ones_row  
+        ones_row    = segment.state.unknowns.ones_row
+        ones_row_m1 = segment.state.unknowns.ones_row_m1
       
-        segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge        * SOC_OR(1)  
+        segment.state.unknowns.battery_state_of_charge      = initial_battery_state_of_charge        * ones_row_m1(1)  
         segment.state.unknowns.battery_cell_temperature     = initial_battery_cell_temperature       * ones_row(1)       
         segment.state.unknowns.battery_thevenin_voltage     = initial_battery_cell_thevenin_voltage  * ones_row(1)    
         
