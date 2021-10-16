@@ -177,8 +177,8 @@ def make_bnds(unknowns, segment):
     """      
 
     ones    = segment.state.ones_row(1)
-    ones_m1 = segment.state.ones_row_m1(1)
-    ones_m2 = segment.state.ones_row_m2(1)
+    ones_m1 = segment.state.ones_row_m1(1).resize(segment.state._size)
+    ones_m2 = segment.state.ones_row_m2(1).resize(segment.state._size)
     
     throttle_bnds = ones*(0.,1.)
     body_angle    = ones*(0., np.pi/2.)

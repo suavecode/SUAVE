@@ -74,7 +74,6 @@ class Conditions(Data):
             Properties Used:
             None
         """ 
-        #return np.ones([self._size-1,cols])  
         return expanded_array(cols, 1)
     
     def ones_row_m2(self,cols):
@@ -95,7 +94,7 @@ class Conditions(Data):
             Properties Used:
             None
         """ 
-        return np.ones([self._size-2,cols])
+        return expanded_array(cols, 2)
     
     
     def expand_rows(self,rows,override=False):
@@ -134,7 +133,7 @@ class Conditions(Data):
             if isinstance(v,Conditions):
                 v.expand_rows(rows,override=override)
             elif isinstance(v,expanded_array):
-                self[k] = v.resize(rows, v)
+                self[k] = v.resize(rows)
             # need arrays here
             elif rank == 2:
                 #Check if it's already expanded
@@ -145,7 +144,14 @@ class Conditions(Data):
         
 ## @ingroup Analyses-Mission-Segments-Conditions        
 class expanded_array(Data):
-    """"""
+    """ This is an array that will expand later when the mission is initialized. It is called specifically by conditions
+    
+        Assumptions:
+        None
+        
+        Source:
+        None   
+    """ 
 
     _size = 1  
         
@@ -160,7 +166,6 @@ class expanded_array(Data):
         
             Inputs:
             self
-            size       - usually number of control points [int]
             cols       - columns                          [int]
             adjustment - how much smaller                 [int]
         
@@ -173,32 +178,103 @@ class expanded_array(Data):
         
         self._adjustment = adjustment
         self._cols       = cols
+        self._array      = np.array([[1]])
         
         
-    def resize(self,rows,v):
-        """"""
+    def resize(self,rows):
+        """ This function actually completes the resizing. After this it's no longer an expanded array. That way it
+            doesn't propogate virally. That means if one wishes to resize later the conditions need to be reset.
+        
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            self
+            rows       - rows                             [int]
+            v          - values (really self)             [int]
+        
+            Outputs:
+            np.array   - properly sized                   [array]
+            
+            Properties Used:
+            N/A
+        """   
         # unpack
         adjustment = self._adjustment
         
         # pack
         self._size = rows
-        value      = v()
+        value      = self._array
         
         return np.resize(value,[rows-adjustment,value.shape[1]])
     
     def __call__(self):
+        """ This returns the value and shape of the array as is
+        
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            self
+
+            Outputs:
+            np.array   - properly sized                   [array]
+            
+            Properties Used:
+            N/A
+        """           
         
         return self._array
     
     def __mul__(self,other):
-
+        """ Performs multiplication and returns self
         
-        self._array = np.resize(other.value,[1,1])
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            self
+            other      - something can be multiplied      [float]
+
+            Outputs:
+            self
+            
+            Properties Used:
+            N/A
+        """          
+        
+        self._array = np.resize(other,[1,1])
         
         return self
 
     def __rmul__(self,other):
+        """ Performs multiplication and returns self
+        
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            self
+            other      - something can be multiplied      [float]
 
+            Outputs:
+            self
+            
+            Properties Used:
+            N/A
+        """                 
         
         self._array = np.resize(other,[1,1])
         
