@@ -5,6 +5,7 @@
 # Modified: Feb 2016, A. Wendorff
 #           Jun 2017, E. Botero
 #           Jan 2020, M. Clarke
+#           Oct 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -73,7 +74,8 @@ class Conditions(Data):
             Properties Used:
             None
         """ 
-        return np.ones([self._size-1,cols])    
+        #return np.ones([self._size-1,cols])  
+        return expanded_array(cols, 1)
     
     def ones_row_m2(self,cols):
         """ returns an N-2 row vector of ones with given number of columns
@@ -131,32 +133,75 @@ class Conditions(Data):
             # recursion
             if isinstance(v,Conditions):
                 v.expand_rows(rows,override=override)
+            elif isinstance(v,expanded_array):
+                self[k] = v.resize(rows, v)
             # need arrays here
             elif rank == 2:
                 #Check if it's already expanded
                 if v.shape[0]<=1 or override:
                     self[k] = np.resize(v,[rows,v.shape[1]])
-            #: if type
-        #: for each key,value
         
         return
+        
+## @ingroup Analyses-Mission-Segments-Conditions        
+class expanded_array(Data):
+    """"""
 
-    def compile(self):
-        """ This is a call to expand_rows above...
+    _size = 1  
+        
+    def __init__(self, cols, adjustment):
+        """ Initialization that sets expansion later
         
             Assumptions:
             None
-    
+        
             Source:
             N/A
-    
+        
             Inputs:
-            None
-    
+            self
+            size       - usually number of control points [int]
+            cols       - columns                          [int]
+            adjustment - how much smaller                 [int]
+        
             Outputs:
-            None
-    
+            N/A
+            
             Properties Used:
-            None
+            N/A
         """          
-        self.expand_rows()
+        
+        self._adjustment = adjustment
+        self._cols       = cols
+        
+        
+    def resize(self,rows,v):
+        """"""
+        # unpack
+        adjustment = self._adjustment
+        
+        # pack
+        self._size = rows
+        value      = v()
+        
+        return np.resize(value,[rows-adjustment,value.shape[1]])
+    
+    def __call__(self):
+        
+        return self._array
+    
+    def __mul__(self,other):
+
+        
+        self._array = np.resize(other.value,[1,1])
+        
+        return self
+
+    def __rmul__(self,other):
+
+        
+        self._array = np.resize(other,[1,1])
+        
+        return self    
+        
+    
