@@ -317,9 +317,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
             
         propulsion = segment.state.conditions.propulsion
         
-        propulsion.battery_cell_temperature              = segment.state.unknowns.battery_cell_temperature 
+        propulsion.battery_cell_temperature[1:,0] = segment.state.unknowns.battery_cell_temperature[:,0]
         propulsion.battery_state_of_charge[1:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
-        propulsion.battery_current                       = segment.state.unknowns.battery_current          
+        propulsion.battery_current                = segment.state.unknowns.battery_current          
     
         return     
     
@@ -361,7 +361,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     
         # Return the residuals  
         segment.state.residuals.network.SOC         = SOC_predict  - SOC_actual[1:,:]  
-        segment.state.residuals.network.temperature = Temp_predict - Temp_actual
+        segment.state.residuals.network.temperature = Temp_predict - Temp_actual[1:,:] 
         segment.state.residuals.network.current     = i_predict    - i_actual  
         
         return  
@@ -396,7 +396,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         
         parallel                                        = self.pack_config.parallel            
         segment.state.unknowns.battery_state_of_charge  = initial_battery_state_of_charge       * ones_row_m1(1)  
-        segment.state.unknowns.battery_cell_temperature = initial_battery_cell_temperature      * ones_row(1) 
+        segment.state.unknowns.battery_cell_temperature = initial_battery_cell_temperature      * ones_row_m1(1)  
         segment.state.unknowns.battery_current          = initial_battery_cell_current*parallel * ones_row(1)  
         
         return   
@@ -429,7 +429,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         
         # Unpack segment state properties  
         SOC        = state.conditions.propulsion.battery_state_of_charge
-        T_cell     = state.unknowns.battery_cell_temperature
+        T_cell     = state.conditions.propulsion.battery_cell_temperature
         I_cell     = state.unknowns.battery_current/n_parallel 
         V_th0      = state.conditions.propulsion.battery_thevenin_voltage
         

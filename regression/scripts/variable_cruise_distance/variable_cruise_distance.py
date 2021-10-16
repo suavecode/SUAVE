@@ -30,30 +30,30 @@ import mission_B737
 
 def main():
     
-    ## Setup for converging on weight
+    # Setup for converging on weight
     
-    #vehicle  = vehicle_setup()
-    #configs  = configs_setup(vehicle)
-    #analyses = mission_B737.analyses_setup(configs)
-    #mission  = mission_setup(configs,analyses)
+    vehicle  = vehicle_setup()
+    configs  = configs_setup(vehicle)
+    analyses = mission_B737.analyses_setup(configs)
+    mission  = mission_setup(configs,analyses)
     
-    #configs.finalize()
-    #analyses.finalize()
+    configs.finalize()
+    analyses.finalize()
     
-    #results = mission.evaluate()
-    #results = results.merged()
+    results = mission.evaluate()
+    results = results.merged()
     
-    #plot_results(results)
+    plot_results(results)
     
-    #distance_regression = 3797681.9970437484
-    #distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
-    #print('distance_calc = ', distance_calc)
-    #error_distance      = abs((distance_regression - distance_calc )/distance_regression)
-    #assert error_distance < 1e-6
+    distance_regression = 3797681.9970437484
+    distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
+    print('distance_calc = ', distance_calc)
+    error_distance      = abs((distance_regression - distance_calc )/distance_regression)
+    assert error_distance < 1e-6
     
-    #error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
-    #print('landing weight error' , error_weight)
-    #assert error_weight < 1e-6
+    error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
+    print('landing weight error' , error_weight)
+    assert error_weight < 1e-6
     
     
     # Setup for converging on SOC, using the stopped rotor vehicle
