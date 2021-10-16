@@ -7,7 +7,7 @@
 from SUAVE.Core import Data      
 import numpy as np
 
-def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
+def save_prop_free_wake_vtk(VD,gamma,filename,Results,i_prop):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
@@ -51,71 +51,55 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         # --------------------
         # Write Points
         # --------------------   
-        n_vertices = n_blades*(n_radial_rings+1)*(n_time_steps+1)    # total number of node vertices
+        n_vertices = np.size(wVD.XC)*4    # total number of node vertices
         points_header = "\n\nPOINTS "+str(n_vertices) +" float"
         f.write(points_header)    
-        node_number=[]
-        for B_idx in range(n_blades):
-            # Loop over number of "chordwise" panels in the wake distribution
-            for r_idx in range(n_radial_rings+1):            
-                # Loop over number of rotor blades
-                for t_idx in range(n_time_steps+1):
-                    # Loop over number of "radial" or "spanwise" panels in the wake distribution
 
-                    #-------------------------------------------------------------------
-                    # Get vertices for each node
-                    #-------------------------------------------------------------------
-                    if r_idx == n_radial_rings and t_idx==0:
-                        # Last ring at t0; use B2 to get rightmost TE node
-                        x = round(wVD.XB2[i_prop,B_idx,r_idx-1,t_idx],4)
-                        y = round(wVD.YB2[i_prop,B_idx,r_idx-1,t_idx],4)
-                        z = round(wVD.ZB2[i_prop,B_idx,r_idx-1,t_idx],4)
-                        
-                    elif t_idx==0:
-                        # First set of rings; use A2 to get left TE node
-                        x = round(wVD.XA2[i_prop,B_idx,r_idx,t_idx],4)
-                        y = round(wVD.YA2[i_prop,B_idx,r_idx,t_idx],4)
-                        z = round(wVD.ZA2[i_prop,B_idx,r_idx,t_idx],4)   
-                        
-                        
-                    elif r_idx==n_radial_rings:  
-                        # Last radial ring for tstep; use B1 of prior to get tip node
-                        x = round(wVD.XB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
-                        y = round(wVD.YB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
-                        z = round(wVD.ZB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
-                    else:
-                        # print the point index (Left LE --> Left TE --> Right LE --> Right TE)
-                        x = round(wVD.XA1[i_prop,B_idx,r_idx,t_idx-1],4)
-                        y = round(wVD.YA1[i_prop,B_idx,r_idx,t_idx-1],4)
-                        z = round(wVD.ZA1[i_prop,B_idx,r_idx,t_idx-1],4)
-                    
-                    
-                    
-                    new_point = "\n"+str(x)+" "+str(y)+" "+str(z)
-                    node_number = np.append(node_number, r_idx + (n_radial_rings)*t_idx)
-                    f.write(new_point)                
+        cells  = []
+        gammas = []
+        i=0
+        for p in range(len(VD.Wake_collapsed.XC[0])):
+            xA1 = VD.Wake_collapsed.XA1[0][p]
+            yA1 = VD.Wake_collapsed.YA1[0][p]
+            zA1 = VD.Wake_collapsed.ZA1[0][p]
+            
+            xA2 = VD.Wake_collapsed.XA2[0][p]
+            yA2 = VD.Wake_collapsed.YA2[0][p]
+            zA2 = VD.Wake_collapsed.ZA2[0][p]   
+            
+            xB1 = VD.Wake_collapsed.XB1[0][p]
+            yB1 = VD.Wake_collapsed.YB1[0][p]
+            zB1 = VD.Wake_collapsed.ZB1[0][p]   
+            
+            xB2 = VD.Wake_collapsed.XB2[0][p]
+            yB2 = VD.Wake_collapsed.YB2[0][p]
+            zB2 = VD.Wake_collapsed.ZB2[0][p]  
+            
+            # print nodes A1 --> A2 --> B2 --> B1
+            f.write("\n"+str(xA1)+" "+str(yA1)+" "+str(zA1))    
+            f.write("\n"+str(xA2)+" "+str(yA2)+" "+str(zA2))  
+            f.write("\n"+str(xB2)+" "+str(yB2)+" "+str(zB2))  
+            f.write("\n"+str(xB1)+" "+str(yB1)+" "+str(zB1))            
+        
+        
+            cells.append("\n4 "+str(i)+ " "+str(i+1)+ " "+str(i+2)+" "+ str(i+3))
+            gammas.append(gamma[0][p])
+            
+            i+=4
+            
         #---------------------    
         # Write Cells:
         #---------------------
-        cells_per_blade = n_radial_rings*n_time_steps
-        n_cells         = n_blades*cells_per_blade # total number of cells
+        n_cells         = len(cells) # total number of cells
         v_per_cell      = 4 # quad cells
         size            = n_cells*(1+v_per_cell) # total number of integer values required to represent the list
         cell_header     = "\n\nCELLS "+str(n_cells)+" "+str(size)
         f.write(cell_header)
         
-        for B_idx in range(n_blades):
-            for i in range(cells_per_blade):
-                node = int(node_number[i])
-                #if i==0:
-                    #node =  i + int(B_idx*n_vertices/n_blades)
-                #elif i%n_radial_rings ==0:
-                    #node = node+1
-                new_cell = "\n4 "+str(node)+" "+str(node+1)+" "+str(node+n_radial_rings+2)+" "+str(node+n_radial_rings+1)
-                f.write(new_cell)
-                #print(new_cell)
-                # update node:
-                node = node+1 
+        for i in range(len(cells)):
+            new_cell = cells[i]
+            f.write(new_cell)
+
         
         #---------------------        
         # Write Cell Types:
@@ -131,31 +115,19 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         cell_data_header  = "\n\nCELL_DATA "+str(n_cells)
         f.write(cell_data_header)      
         
-        # First scalar value
-        f.write("\nSCALARS gamma float 1")
-        f.write("\nLOOKUP_TABLE default")   
-        blade_circulation = Results['prop_outputs'].disc_circulation[0,:,0]
-        for B_idx in range(n_blades):
-            for i in range(cells_per_blade):
-                circ_L = blade_circulation[int(i%(n_radial_rings))]
-                circ_R = blade_circulation[int(i%(n_radial_rings))+1]
-                circ_C = 0.5*(circ_L+circ_R)
-                
-                new_circ = str(circ_C)
-                f.write("\n"+new_circ)     
+        ## First scalar value
+        #f.write("\nSCALARS gamma float 1")
+        #f.write("\nLOOKUP_TABLE default")   
+        #for i in range(n_cells):
+            #new_circ = str(gammas[i])
+            #f.write("\n"+new_circ)     
         
         # Second scalar value
-        f.write("\nSCALARS vt float 1")
+        f.write("\nSCALARS i float 1")
         f.write("\nLOOKUP_TABLE default")   
-        vt = Results['prop_outputs'].blade_tangential_induced_velocity[0]
-        for B_idx in range(n_blades):
-            for i in range(cells_per_blade):
-                vt_L = vt[int(i%(n_radial_rings))]
-                vt_R = vt[int(i%(n_radial_rings))+1]
-                vt_C = 0.5*(vt_L+vt_R)
-                
-                new_vt = str(vt_C)
-                f.write("\n"+new_vt)                  
+        for i in range(n_cells):
+            f.write("\n"+str(i))
+            
     f.close()
 
     ## Loop over number of rotor blades

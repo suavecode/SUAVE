@@ -270,5 +270,7 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     ax2.set_title('Local Blade Angle (deg)',pad=15) 
     ax2.set_rorigin(-rh)
     fig.suptitle(title)
+    
+ 
  
     return

@@ -140,7 +140,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1, use_regularization_kernal=True):
     
     return COEF , V_IND  
 
-def regularization_kernel(COEF, sigma=0.05):
+def regularization_kernel(COEF, sigma=0.1):
     """
     Inputs:
        COEF    Biot-Savart Kernel

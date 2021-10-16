@@ -78,9 +78,9 @@ def compute_HFW_inflow_velocities( prop ):
         # Compute the wake-induced velocities at propeller blade
         # ----------------------------------------------------------------
         # set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
-
-        Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0]
-        Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0]
+        r = np.linspace(0.9*prop.hub_radius, 1.1*prop.tip_radius, Nr)
+        Yb   = r*np.sin(blade_angle) #prop.Wake_VD.Yblades_cp[0,0,:,0]
+        Zb   = r*np.cos(blade_angle) #prop.Wake_VD.Zblades_cp[0,0,:,0]
         Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0]
         
 

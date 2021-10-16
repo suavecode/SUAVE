@@ -16,11 +16,12 @@ from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
 from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
 from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
+from SUAVE.Input_Output.VTK.save_prop_free_wake_vtk import save_prop_free_wake_vtk
 from SUAVE.Input_Output.VTK.save_fuselage_vtk import save_fuselage_vtk
 from SUAVE.Input_Output.VTK.save_vortex_distribution_vtk import save_vortex_distribution_vtk
 
 
-def save_vehicle_vtks(vehicle, conditions, Results, time_step, VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
+def save_vehicle_vtks(vehicle, conditions, Results, time_step, free_wake=False,VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                      wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
@@ -147,7 +148,10 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step, VLM_settings=None
             # save prop wake
             propi = propellers[list(propellers.keys())[i]]
             gamma = propi.Wake_VD.GAMMA
-            save_prop_wake_vtk(VD, gamma, file, Results,i)
+            if free_wake:
+                save_prop_free_wake_vtk(VD, gamma, file, Results,i)
+            else:
+                save_prop_wake_vtk(VD, gamma, file, Results,i)
 
 
     #---------------------------
