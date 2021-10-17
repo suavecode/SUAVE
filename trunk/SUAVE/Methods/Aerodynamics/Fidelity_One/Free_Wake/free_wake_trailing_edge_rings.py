@@ -15,7 +15,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contracti
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry   
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def free_wake_trailing_edge_rings(prop,m,VD,init_timestep_offset, dt, number_of_wake_timesteps): 
+def free_wake_trailing_edge_rings(prop,m,init_timestep_offset, dt, number_of_wake_timesteps): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 
@@ -45,8 +45,6 @@ def free_wake_trailing_edge_rings(prop,m,VD,init_timestep_offset, dt, number_of_
     num_prop = 1
     nts      = number_of_wake_timesteps
         
-    # Initialize empty arrays with required sizes
-    WD, Wmid = initialize_distributions(nmax, Bmax, nts, num_prop, m)
 
     # Unpack
     R                = prop.tip_radius
@@ -202,100 +200,49 @@ def free_wake_trailing_edge_rings(prop,m,VD,init_timestep_offset, dt, number_of_
     GAMMA = Gamma[:,:,:,0]
 
     # store points for plotting 
-    if len(VD.Wake.XA1)==0:
-        VD.Wake.XA1 = XA1[:,:,:,None]
-        VD.Wake.YA1 = YA1[:,:,:,None]
-        VD.Wake.ZA1 = ZA1[:,:,:,None]
-        VD.Wake.XA2 = XA2[:,:,:,None]
-        VD.Wake.YA2 = YA2[:,:,:,None]
-        VD.Wake.ZA2 = ZA2[:,:,:,None]
-        VD.Wake.XB1 = XB1[:,:,:,None]
-        VD.Wake.YB1 = YB1[:,:,:,None]
-        VD.Wake.ZB1 = ZB1[:,:,:,None]
-        VD.Wake.XB2 = XB2[:,:,:,None]
-        VD.Wake.YB2 = YB2[:,:,:,None]
-        VD.Wake.ZB2 = ZB2[:,:,:,None]
-        
-        VD.Wake.GAMMA = GAMMA[:,:,:,None]
-    else:   
-        VD.Wake.XA1 = np.append(VD.Wake.XA1,XA1[:,:,:,None], axis=3)
-        VD.Wake.YA1 = np.append(VD.Wake.YA1,YA1[:,:,:,None], axis=3)
-        VD.Wake.ZA1 = np.append(VD.Wake.ZA1,ZA1[:,:,:,None], axis=3)
-        VD.Wake.XA2 = np.append(VD.Wake.XA2,XA2[:,:,:,None], axis=3)
-        VD.Wake.YA2 = np.append(VD.Wake.YA2,YA2[:,:,:,None], axis=3)
-        VD.Wake.ZA2 = np.append(VD.Wake.ZA2,ZA2[:,:,:,None], axis=3)
-        VD.Wake.XB1 = np.append(VD.Wake.XB1,XB1[:,:,:,None], axis=3)
-        VD.Wake.YB1 = np.append(VD.Wake.YB1,YB1[:,:,:,None], axis=3)
-        VD.Wake.ZB1 = np.append(VD.Wake.ZB1,ZB1[:,:,:,None], axis=3)
-        VD.Wake.XB2 = np.append(VD.Wake.XB2,XB2[:,:,:,None], axis=3)
-        VD.Wake.YB2 = np.append(VD.Wake.YB2,YB2[:,:,:,None], axis=3)
-        VD.Wake.ZB2 = np.append(VD.Wake.ZB2,ZB2[:,:,:,None], axis=3)
-        VD.Wake.GAMMA = np.append(VD.Wake.GAMMA,GAMMA[:,:,:,None], axis=3)
+    wVD = Data()
+    wVD.XA1 = XA1[:,:,:,None]
+    wVD.YA1 = YA1[:,:,:,None]
+    wVD.ZA1 = ZA1[:,:,:,None]
+    wVD.XA2 = XA2[:,:,:,None]
+    wVD.YA2 = YA2[:,:,:,None]
+    wVD.ZA2 = ZA2[:,:,:,None]
+    wVD.XB1 = XB1[:,:,:,None]
+    wVD.YB1 = YB1[:,:,:,None]
+    wVD.ZB1 = ZB1[:,:,:,None]
+    wVD.XB2 = XB2[:,:,:,None]
+    wVD.YB2 = YB2[:,:,:,None]
+    wVD.ZB2 = ZB2[:,:,:,None]
     
-    
-    VD.Wake.XC = (VD.Wake.XA2 + VD.Wake.XA1 + VD.Wake.XB2 + VD.Wake.XB1)/4
-    VD.Wake.YC = (VD.Wake.YA2 + VD.Wake.YA1 + VD.Wake.YB2 + VD.Wake.YB1)/4
-    VD.Wake.ZC = (VD.Wake.ZA2 + VD.Wake.ZA1 + VD.Wake.ZB2 + VD.Wake.ZB1)/4
+    wVD.GAMMA = GAMMA[:,:,:,None]
+
+    wVD.XC = (wVD.XA2 + wVD.XA1 + wVD.XB2 + wVD.XB1)/4
+    wVD.YC = (wVD.YA2 + wVD.YA1 + wVD.YB2 + wVD.YB1)/4
+    wVD.ZC = (wVD.ZA2 + wVD.ZA1 + wVD.ZB2 + wVD.ZB1)/4
     
     # Compress Data into 1D Arrays  
-    mat6_size = (m,np.size(VD.Wake.XC)) 
+    mat6_size = (m,np.size(wVD.XC)) 
+    
+    WD_collapsed = Data()
+    WD_collapsed.XA1    =  np.reshape(wVD.XA1,mat6_size)
+    WD_collapsed.YA1    =  np.reshape(wVD.YA1,mat6_size)
+    WD_collapsed.ZA1    =  np.reshape(wVD.ZA1,mat6_size)
+    WD_collapsed.XA2    =  np.reshape(wVD.XA2,mat6_size)
+    WD_collapsed.YA2    =  np.reshape(wVD.YA2,mat6_size)
+    WD_collapsed.ZA2    =  np.reshape(wVD.ZA2,mat6_size)
+    WD_collapsed.XB1    =  np.reshape(wVD.XB1,mat6_size)
+    WD_collapsed.YB1    =  np.reshape(wVD.YB1,mat6_size)
+    WD_collapsed.ZB1    =  np.reshape(wVD.ZB1,mat6_size)
+    WD_collapsed.XB2    =  np.reshape(wVD.XB2,mat6_size)
+    WD_collapsed.YB2    =  np.reshape(wVD.YB2,mat6_size)
+    WD_collapsed.ZB2    =  np.reshape(wVD.ZB2,mat6_size)
+    
+    WD_collapsed.XC    =  np.reshape(wVD.XC,mat6_size)
+    WD_collapsed.YC    =  np.reshape(wVD.YC,mat6_size)
+    WD_collapsed.ZC    =  np.reshape(wVD.ZC,mat6_size)
+    
+    WD_collapsed.GAMMA  =  np.reshape(wVD.GAMMA,mat6_size)
+    
 
-    WD.XA1    =  np.reshape(VD.Wake.XA1,mat6_size)
-    WD.YA1    =  np.reshape(VD.Wake.YA1,mat6_size)
-    WD.ZA1    =  np.reshape(VD.Wake.ZA1,mat6_size)
-    WD.XA2    =  np.reshape(VD.Wake.XA2,mat6_size)
-    WD.YA2    =  np.reshape(VD.Wake.YA2,mat6_size)
-    WD.ZA2    =  np.reshape(VD.Wake.ZA2,mat6_size)
-    WD.XB1    =  np.reshape(VD.Wake.XB1,mat6_size)
-    WD.YB1    =  np.reshape(VD.Wake.YB1,mat6_size)
-    WD.ZB1    =  np.reshape(VD.Wake.ZB1,mat6_size)
-    WD.XB2    =  np.reshape(VD.Wake.XB2,mat6_size)
-    WD.YB2    =  np.reshape(VD.Wake.YB2,mat6_size)
-    WD.ZB2    =  np.reshape(VD.Wake.ZB2,mat6_size)
-    
-    WD.XC    =  np.reshape(VD.Wake.XC,mat6_size)
-    WD.YC    =  np.reshape(VD.Wake.YC,mat6_size)
-    WD.ZC    =  np.reshape(VD.Wake.ZC,mat6_size)
-    
-    WD.GAMMA  =  np.reshape(VD.Wake.GAMMA,mat6_size)
-    
-    
-    VD.Wake_collapsed = WD
+    return WD_collapsed
 
-    return VD.Wake, WD
-
-
-def initialize_distributions(nmax, Bmax, n_wts, n_props, m):
-    
-    Wmid        = Data()
-    mat1_size = (m,n_props,Bmax,nmax, n_wts)
-    Wmid.WD_XA1    = np.zeros(mat1_size)  
-    Wmid.WD_YA1    = np.zeros(mat1_size)  
-    Wmid.WD_ZA1    = np.zeros(mat1_size)  
-    Wmid.WD_XA2    = np.zeros(mat1_size)  
-    Wmid.WD_YA2    = np.zeros(mat1_size)  
-    Wmid.WD_ZA2    = np.zeros(mat1_size)      
-    Wmid.WD_XB1    = np.zeros(mat1_size)  
-    Wmid.WD_YB1    = np.zeros(mat1_size)  
-    Wmid.WD_ZB1    = np.zeros(mat1_size)  
-    Wmid.WD_XB2    = np.zeros(mat1_size)   
-    Wmid.WD_YB2    = np.zeros(mat1_size)   
-    Wmid.WD_ZB2    = np.zeros(mat1_size)     
-    Wmid.WD_GAMMA  = np.zeros(mat1_size)     
-
-    WD        = Data()
-    mat2_size = (m,n_props*n_wts*Bmax*nmax)
-    WD.XA1    = np.zeros(mat2_size)
-    WD.YA1    = np.zeros(mat2_size)
-    WD.ZA1    = np.zeros(mat2_size)
-    WD.XA2    = np.zeros(mat2_size)
-    WD.YA2    = np.zeros(mat2_size)
-    WD.ZA2    = np.zeros(mat2_size)   
-    WD.XB1    = np.zeros(mat2_size)
-    WD.YB1    = np.zeros(mat2_size)
-    WD.ZB1    = np.zeros(mat2_size)
-    WD.XB2    = np.zeros(mat2_size)
-    WD.YB2    = np.zeros(mat2_size)
-    WD.ZB2    = np.zeros(mat2_size) 
-    
-    return WD, Wmid

@@ -73,4 +73,6 @@ def update_vortex_ring_positions(prop, wVD_collapsed, VD, dt):
     wVD_collapsed.ZC  += Vzp*dt
     
     
+    
+    
     return wVD_collapsed
