@@ -1586,8 +1586,12 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
 
     return
 
-def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour",show_figure = True):
-    """This plots the A-weighted Sound Pressure Level contour of the surface directly under an aircraft  
+
+
+def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Noise_Contour",show_figure = True):
+    """This plots two contour surface of the maximum A-weighted Sound Pressure Level in the defined computational domain. 
+    The first contour is the that of radiated noise on level ground only while the second contains radiated noise on buildings
+    as well as the aircraft trajectory.
     
     Assumptions:
     None
@@ -1621,11 +1625,8 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     Span           = np.zeros((dim_mat,dim_gm)) 
     SPL_contour_bm = np.zeros((dim_mat,dim_bm))  
     Aircraft_pos   = np.zeros((dim_mat,3)) 
-    
-    # initialize plot data 
-    plot_data = []
-    
-    # Get SPL at Ground Level (z = 0)
+    plot_data       = []
+     
     for i in range(dim_segs):  
         if  results.segments[i].battery_discharge == False:
             pass
@@ -1646,6 +1647,26 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     ground_surface      = np.zeros(Range.shape) 
     max_SPL_contour_gm  = np.max(SPL_contour_gm,axis=0)
     SPL_gm              = max_SPL_contour_gm.reshape(gm_N_x,gm_N_y)
+    
+    # ---------------------------------------------------------------------------
+    # Level ground contour 
+    # ---------------------------------------------------------------------------
+    filename_1         = 'Level_Ground_' + save_filename
+    fig                 = plt.figure(filename_1) 
+    fig.set_size_inches(10 ,10)    
+    levs                = np.linspace(40,120,25)   
+    axes                = fig.add_subplot(1,1,1)   
+    Range               = Range/Units.nmi
+    Span                = Span/Units.nmi
+    CS                  = axes.contourf(Range , Span,SPL_gm, levels  = levs, cmap=plt.cm.jet, extend='both')     
+    cbar = fig.colorbar(CS)
+    cbar.ax.set_ylabel('SPL (dBA)', rotation =  90)     
+    axes.set_ylabel('Spanwise $x_{fp}$ (nmi)',labelpad = 15)
+    axes.set_xlabel('Streamwise $x_{fp}$ (nmi)') 
+    
+    # ---------------------------------------------------------------------------
+    # Comprehensive contour including buildings 
+    # ---------------------------------------------------------------------------
     ground_contour      = contour_surface_slice(Range,Span, ground_surface , SPL_gm)
     plot_data.append(ground_contour)
     
@@ -1665,12 +1686,9 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     max_alt     = np.max(Aircraft_pos[:,2])
     
     # Adjust Plot Camera 
-    camera = dict(up=dict(x=0, y=0, z=1),
-                 center=dict(x=0, y=0, z=0),
-                 eye=dict(x=-1., y=-1., z=.25))     
-    
-    building_loc             = results.segments[0].analyses.noise.settings.urban_canyon_building_locations
-    num_buildings            = len( building_loc)
+    camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=-1., y=-1., z=.25))    
+    building_loc  = results.segments[0].analyses.noise.settings.urban_canyon_building_locations
+    num_buildings = len( building_loc)
     
     if num_buildings >0:   
         max_alt     = np.maximum(max_alt, max((np.array(building_loc))[:,2]))
@@ -1745,7 +1763,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     
     fig = go.Figure(data=plot_data)
     fig.update_layout(
-             title_text='Aircraft Noise Contour', 
+             title_text= 'Flight_Profile_' + save_filename, 
              title_x = 0.5,
              width   = 750,
              height  = 750,
