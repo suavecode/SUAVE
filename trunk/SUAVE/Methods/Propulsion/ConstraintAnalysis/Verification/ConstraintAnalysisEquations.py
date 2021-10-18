@@ -9,6 +9,7 @@ WS=np.linspace(20,20000,1)
 
 def LandingConstraint():
     WS_Landing = clmax_landing * rho_SL * LandingDistance / (2 * 0.5847 * FractionWeightLanding)  # Check if clmax of landing is the same as this
+    i=2
     return WS_Landing
 
 def StallConstraint():
