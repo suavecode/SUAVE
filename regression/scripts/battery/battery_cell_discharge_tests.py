@@ -70,24 +70,24 @@ def main():
     plot_ragone(battery_li_s,   'lithium sulfur') 
      
  
-    battery_chemistry     = ['LFP','NCA','NMC'] 
+    battery_chemistry     = ['LFP','NMC'] 
     marker                = [['s' ,'s' ,'s' ,'s','s'],['o' ,'o' ,'o' ,'o','o'],['P' ,'P' ,'P' ,'P','P']]
     linestyles            = [['-' ,'-' ,'-' ,'-','-'], ['--' ,'--' ,'--' ,'--'],[':' ,':' ,':' ,':']]
     linecolors            = [['green' , 'blue' , 'red' , 'orange' ],['darkgreen', 'darkblue' , 'darkred'  ,'brown'], ['limegreen', 'lightblue' , 'pink'  ,'yellow']]     
     curr                  = [1.5, 3, 6, 9 ] 
     C_rat                 = [0.5,1,2,3]   
     marker_size           = 8 
-    mAh                   = np.array([ 1500 , 3300  , 3550]) 
+    mAh                   = np.array([ 1500 , 3550]) 
     temperature           = [ 300 ,300  , 300 ,300  ]
     temp_guess            = [301 , 303  , 312  , 318 ] 
-    V_ul_true  = np.array([[3.570060420060655,4.0825647098009545,4.011312810031548],
-                           [3.5572273851175513,4.02605334603509,3.9634657009311525],
-                           [3.5315532086860766,3.915195874960037,3.8211302786653567],
-                           [3.505868221420623,3.8066545069816278, 3.7049889426424776]])
-    bat_temp_true     = np.array([[304.1976206633315,304.6362477621598,304.3528647050613 ],
-                                  [304.1976206633315,304.6361532423787,304.3522474259394],
-                                  [304.1976206633315,304.6358111185296, 304.34868135808864],
-                                  [304.1976206633315, 304.63517466865244, 304.3482845467779]])  
+    V_ul_true  = np.array([[3.570060420060655 ,4.011312810031548],
+                           [3.5572273851175513,3.9634657009311525],
+                           [3.5315532086860766,3.8211302786653567],
+                           [3.505868221420623 , 3.7049889426424776]])
+    bat_temp_true     = np.array([[304.1976206633315,304.3528647050613 ],
+                                  [304.1976206633315,304.3522474259394],
+                                  [304.1976206633315, 304.34868135808864],
+                                  [304.1976206633315, 304.3482845467779]])  
     
  
     plt.rcParams.update({'font.size': 12})
@@ -237,10 +237,8 @@ def vehicle_setup(current,temperature,battery_chemistry,mAh):
     net.tag                       ='battery_cell'   
     net.dischage_model_fidelity   = battery_chemistry
 
-    # Battery  
-    if battery_chemistry == 'NCA':
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()   
-    elif battery_chemistry == 'NMC': 
+    # Battery    
+    if battery_chemistry == 'NMC': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
@@ -361,9 +359,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
     segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
     
     if battery_chemistry == 'LFP':
-        segment.tag                                         = 'LFP_Charge'  
-    elif battery_chemistry == 'NCA':
-        segment.tag                                         = 'NCA_Charge'  
+        segment.tag                                         = 'LFP_Charge'   
     elif battery_chemistry == 'NMC':
         segment.tag                                         = 'NMC_Charge' 
     segment.battery_discharge                           = False 
