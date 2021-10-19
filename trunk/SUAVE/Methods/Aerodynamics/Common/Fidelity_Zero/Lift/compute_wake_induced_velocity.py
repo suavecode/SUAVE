@@ -61,7 +61,7 @@ def compute_wake_induced_velocity(WD,VD,cpts):
     #compute vortex strengths for every control point on wing 
     # this loop finds the strength of one ring only on entire control points on wing 
     # compute influence of bound vortices 
-    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,GAMMA) 
+    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,GAMMA,bv=True,VD=VD) 
     C_AB         = np.transpose(res_C_AB,axes=[1,2,3,0]) 
     
     # compute influence of 3/4 right legs 
@@ -86,7 +86,7 @@ def compute_wake_induced_velocity(WD,VD,cpts):
 # vortex strength computation
 # -------------------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1, use_regularization_kernal=True):
+def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1, bv=False,VD=None,use_regularization_kernal=True):
     """ This computes the velocity induced on a control point by a segment
     of a horseshoe vortex from point 1 to point 2 
     Assumptions:  
@@ -105,6 +105,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1, use_regularization_kernal=True):
     N/A
     
     """      
+
     X_X1  = X-X1
     X_X2  = X-X2
     X2_X1 = X2-X1
@@ -132,6 +133,18 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1, use_regularization_kernal=True):
     if use_regularization_kernal:
         KAPPA = regularization_kernel(COEF)
         COEF  = KAPPA
+    
+    if bv:
+        # find segments that are the propeller lifting line and exclude from wake calculation
+        # ignore the lifting line row of panels
+        #VD.Wake.XA1
+        COEF_new = np.reshape(COEF[0,:,:,0],np.shape(VD.Wake.XA1))
+        
+        lifting_line_panels = np.zeros_like(COEF_new,dtype=bool)
+        lifting_line_panels[:,:,:,0] = True
+        lifting_line_panels_compressed = np.reshape(lifting_line_panels, np.size(lifting_line_panels))
+        
+        COEF[:,:,lifting_line_panels_compressed] = 0
         
     V_IND  = GAMMA * COEF
     # switch frame: 
@@ -140,7 +153,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1, use_regularization_kernal=True):
     
     return COEF , V_IND  
 
-def regularization_kernel(COEF, sigma=0.1):
+def regularization_kernel(COEF, sigma=0.11):
     """
     Inputs:
        COEF    Biot-Savart Kernel

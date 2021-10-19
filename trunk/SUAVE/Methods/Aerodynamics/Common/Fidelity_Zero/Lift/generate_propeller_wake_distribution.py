@@ -253,6 +253,10 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
             X_pts = np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3)
             Y_pts = np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3)
             Z_pts = np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3)
+            
+            #lifting_line_panels = np.zeros_like(X_pts,dtype=bool)
+            #lifting_line_panels[:,:,:,0] = True
+            
         
 
         # Store points  
