@@ -115,12 +115,12 @@ def save_prop_free_wake_vtk(VD,gamma,filename,Results,i_prop):
         cell_data_header  = "\n\nCELL_DATA "+str(n_cells)
         f.write(cell_data_header)      
         
-        ## First scalar value
-        #f.write("\nSCALARS gamma float 1")
-        #f.write("\nLOOKUP_TABLE default")   
-        #for i in range(n_cells):
-            #new_circ = str(gammas[i])
-            #f.write("\n"+new_circ)     
+        # First scalar value
+        f.write("\nSCALARS gamma float 1")
+        f.write("\nLOOKUP_TABLE default")   
+        for i in range(n_cells):
+            new_circ = str(gammas[i])
+            f.write("\n"+new_circ)     
         
         # Second scalar value
         f.write("\nSCALARS i float 1")

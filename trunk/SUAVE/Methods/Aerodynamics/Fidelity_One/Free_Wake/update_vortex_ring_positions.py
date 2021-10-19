@@ -41,7 +41,7 @@ def update_vortex_ring_positions(prop, wVD_collapsed, VD, dt):
     
     Vx = Vinf[0,0] - V_ind[:,:,0]
     Vy = Vinf[0,1] + V_ind[:,:,1]
-    Vz = Vinf[0,2] + V_ind[:,:,2]
+    Vz = Vinf[0,2] - V_ind[:,:,2]
     
     # Translate from velocity frame to rotor frame
     rot_to_body = prop.prop_vel_to_body()

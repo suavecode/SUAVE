@@ -258,17 +258,17 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     CS_0 = ax0.contourf(psi, r, T,lev,cmap=cm)
     plt.colorbar(CS_0, ax=ax0, orientation='horizontal')
     ax0.set_title('Thrust Distribution',pad=15)  
-    ax0.set_rorigin(-rh)
+    ax0.set_rorigin(0)
     
     CS_1 = ax1.contourf(psi, r, Q,lev,cmap=cm) 
     plt.colorbar(CS_1, ax=ax1, orientation='horizontal')
     ax1.set_title('Torque Distribution',pad=15) 
-    ax1.set_rorigin(-rh)
+    ax1.set_rorigin(0)
     
     CS_2 = ax2.contourf(psi, r, alf,lev,cmap=cm) 
     plt.colorbar(CS_2, ax=ax2, orientation='horizontal')
     ax2.set_title('Local Blade Angle (deg)',pad=15) 
-    ax2.set_rorigin(-rh)
+    ax2.set_rorigin(0)
     fig.suptitle(title)
     
  

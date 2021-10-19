@@ -57,10 +57,10 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         node_number=[]
         for B_idx in range(n_blades):
             # Loop over number of "chordwise" panels in the wake distribution
-            for r_idx in range(n_radial_rings+1):            
-                # Loop over number of rotor blades
-                for t_idx in range(n_time_steps+1):
-                    # Loop over number of "radial" or "spanwise" panels in the wake distribution
+            for t_idx in range(n_time_steps+1):
+                # Loop over number of "radial" or "spanwise" panels in the wake distribution            
+                for r_idx in range(n_radial_rings+1):            
+                    # Loop over number of rotor blades
 
                     #-------------------------------------------------------------------
                     # Get vertices for each node
@@ -106,11 +106,10 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         
         for B_idx in range(n_blades):
             for i in range(cells_per_blade):
-                node = int(node_number[i])
-                #if i==0:
-                    #node =  i + int(B_idx*n_vertices/n_blades)
-                #elif i%n_radial_rings ==0:
-                    #node = node+1
+                if i==0:
+                    node =  i + int(B_idx*n_vertices/n_blades)
+                elif i%n_radial_rings ==0:
+                    node = node+1
                 new_cell = "\n4 "+str(node)+" "+str(node+1)+" "+str(node+n_radial_rings+2)+" "+str(node+n_radial_rings+1)
                 f.write(new_cell)
                 #print(new_cell)
@@ -158,193 +157,193 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
                 f.write("\n"+new_vt)                  
     f.close()
 
-    ## Loop over number of rotor blades
-    #for B_idx in range(n_blades):
-        #rings = Data()
-        #rings.coordinates = []
-        #rings.vortex_strengths = []
+    # Loop over number of rotor blades
+    for B_idx in range(n_blades):
+        rings = Data()
+        rings.coordinates = []
+        rings.vortex_strengths = []
         
-        ## Loop over number of "chordwise" panels in the wake distribution
-        #for t_idx in range(n_time_steps):
-            #g        = gamma[i_prop,B_idx,:,t_idx] # circulation distribution on current blade at current timestep
-            #dgamma   = np.gradient(g)            # gradient of the blade circulation distribution
-            #gamma_slope_sign = np.ones_like(dgamma)
-            #gamma_slope_sign[dgamma<0] = -1
+        # Loop over number of "chordwise" panels in the wake distribution
+        for t_idx in range(n_time_steps):
+            g        = gamma[i_prop,B_idx,:,t_idx] # circulation distribution on current blade at current timestep
+            dgamma   = np.gradient(g)            # gradient of the blade circulation distribution
+            gamma_slope_sign = np.ones_like(dgamma)
+            gamma_slope_sign[dgamma<0] = -1
    
             
-            ## Loop over number of "radial" or "spanwise" panels in the wake distribution
-            #for r_idx in range(n_radial_rings):
+            # Loop over number of "radial" or "spanwise" panels in the wake distribution
+            for r_idx in range(n_radial_rings):
                 
-                ## Get vortex strength of panel (current node is the bottom left of the panel)
-                #g_r_t = gamma[i_prop,B_idx,r_idx,t_idx]
+                # Get vortex strength of panel (current node is the bottom left of the panel)
+                g_r_t = gamma[i_prop,B_idx,r_idx,t_idx]
                 
-                #p_r_t   = np.array([wVD.XA1[i_prop,B_idx,r_idx,t_idx],wVD.YA1[i_prop,B_idx,r_idx,t_idx],wVD.ZA1[i_prop,B_idx,r_idx,t_idx]])  # Bottom Left
-                #p_rp_t  = np.array([wVD.XB1[i_prop,B_idx,r_idx,t_idx],wVD.YB1[i_prop,B_idx,r_idx,t_idx],wVD.ZB1[i_prop,B_idx,r_idx,t_idx]])  # Top Left
-                #p_r_tp  = np.array([wVD.XA2[i_prop,B_idx,r_idx,t_idx],wVD.YA2[i_prop,B_idx,r_idx,t_idx],wVD.ZA2[i_prop,B_idx,r_idx,t_idx]])  # Top Right
-                #p_rp_tp = np.array([wVD.XB2[i_prop,B_idx,r_idx,t_idx],wVD.YB2[i_prop,B_idx,r_idx,t_idx],wVD.ZB2[i_prop,B_idx,r_idx,t_idx]])  # Bottom Right
+                p_r_t   = np.array([wVD.XA1[i_prop,B_idx,r_idx,t_idx],wVD.YA1[i_prop,B_idx,r_idx,t_idx],wVD.ZA1[i_prop,B_idx,r_idx,t_idx]])  # Bottom Left
+                p_rp_t  = np.array([wVD.XB1[i_prop,B_idx,r_idx,t_idx],wVD.YB1[i_prop,B_idx,r_idx,t_idx],wVD.ZB1[i_prop,B_idx,r_idx,t_idx]])  # Top Left
+                p_r_tp  = np.array([wVD.XA2[i_prop,B_idx,r_idx,t_idx],wVD.YA2[i_prop,B_idx,r_idx,t_idx],wVD.ZA2[i_prop,B_idx,r_idx,t_idx]])  # Top Right
+                p_rp_tp = np.array([wVD.XB2[i_prop,B_idx,r_idx,t_idx],wVD.YB2[i_prop,B_idx,r_idx,t_idx],wVD.ZB2[i_prop,B_idx,r_idx,t_idx]])  # Bottom Right
                 
-                ## Append vortex strengths to ring vortices
-                #if t_idx==0 and r_idx==0:
-                    ## 
-                    #g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx] 
-                    #g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]   
+                # Append vortex strengths to ring vortices
+                if t_idx==0 and r_idx==0:
+                    # 
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx] 
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]   
                     
-                    ## Bottom edge
-                    #rings.coordinates.append(p_r_t)        # bottom left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_t)       # bottom right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t )  # bottom segment of initial ring (only sees the current ring vortex strength)
+                    # Bottom edge
+                    rings.coordinates.append(p_r_t)        # bottom left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_t)       # bottom right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t )  # bottom segment of initial ring (only sees the current ring vortex strength)
             
-                    ## Top edge
-                    #rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t - g_r_tp) # difference between prior time step ring strength
+                    # Top edge
+                    rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t - g_r_tp) # difference between prior time step ring strength
                                             
-                    ## Left edge
-                    #rings.coordinates.append(p_r_t)         # bottom left node  (Left edge)
-                    #rings.coordinates.append(p_r_tp)        # top left node     (Left edge)
-                    #rings.vortex_strengths.append(g_r_t)    # left edge of first ring (only current ring vortex)
+                    # Left edge
+                    rings.coordinates.append(p_r_t)         # bottom left node  (Left edge)
+                    rings.coordinates.append(p_r_tp)        # top left node     (Left edge)
+                    rings.vortex_strengths.append(g_r_t)    # left edge of first ring (only current ring vortex)
                     
-                    ## Right edge
-                    #rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
-                    #rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    #rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring
+                    # Right edge
+                    rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring
                 
                 
                     
-                #elif t_idx==0 and r_idx==n_radial_rings-1:
+                elif t_idx==0 and r_idx==n_radial_rings-1:
                     
-                    #g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]
                     
-                    ## Bottom edge
-                    #rings.coordinates.append(p_r_t)
-                    #rings.coordinates.append(p_rp_t)
-                    #rings.vortex_strengths.append(g_r_t ) # bottom segment of initial ring (only sees the current ring vortex strength)
+                    # Bottom edge
+                    rings.coordinates.append(p_r_t)
+                    rings.coordinates.append(p_rp_t)
+                    rings.vortex_strengths.append(g_r_t ) # bottom segment of initial ring (only sees the current ring vortex strength)
                     
-                    ## Top edge
-                    #rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_tp)      # tp right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t - g_r_tp) # bottom segment of initial ring (only sees the current ring vortex strength)
+                    # Top edge
+                    rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_tp)      # tp right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t - g_r_tp) # bottom segment of initial ring (only sees the current ring vortex strength)
                     
-                    ## Right edge
-                    #rings.coordinates.append(p_rp_t)
-                    #rings.coordinates.append(p_rp_tp)   
-                    #rings.vortex_strengths.append(g_r_t )  # right segment of tip ring (only has current ring vortex)                    
+                    # Right edge
+                    rings.coordinates.append(p_rp_t)
+                    rings.coordinates.append(p_rp_tp)   
+                    rings.vortex_strengths.append(g_r_t )  # right segment of tip ring (only has current ring vortex)                    
                 
-                #elif t_idx==0:
-                    ##     
-                    #g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx] 
-                    #g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]
+                elif t_idx==0:
+                    #     
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx] 
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]
                     
-                    ## Bottom edge
-                    #rings.coordinates.append(p_r_t)       # bottom left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_t)      # bottom right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t ) # bottom segment of initial ring (only sees the current ring vortex strength)
+                    # Bottom edge
+                    rings.coordinates.append(p_r_t)       # bottom left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_t)      # bottom right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t ) # bottom segment of initial ring (only sees the current ring vortex strength)
             
-                    ## Top edge
-                    #rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_tp)      # tp right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t - g_r_tp) # bottom segment of initial ring (only sees the current ring vortex strength)
+                    # Top edge
+                    rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_tp)      # tp right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t - g_r_tp) # bottom segment of initial ring (only sees the current ring vortex strength)
                                             
-                    ## Right edge
-                    #rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
-                    #rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    #rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                        
+                    # Right edge
+                    rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                        
                 
-                #elif t_idx==(n_time_steps-1) and r_idx==0:
-                    ##  
-                    #g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]                        
-                    ## Top edge
-                    #rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t )  # top segment of ring 
+                elif t_idx==(n_time_steps-1) and r_idx==0:
+                    #  
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]                        
+                    # Top edge
+                    rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t )  # top segment of ring 
                     
-                    ## Left edge
-                    #rings.coordinates.append(p_r_t)      # bottom left node  (Left edge)
-                    #rings.coordinates.append(p_r_tp)     # top left node     (Left edge)
-                    #rings.vortex_strengths.append(g_r_t) # left edge of first ring (only current ring vortex)
+                    # Left edge
+                    rings.coordinates.append(p_r_t)      # bottom left node  (Left edge)
+                    rings.coordinates.append(p_r_tp)     # top left node     (Left edge)
+                    rings.vortex_strengths.append(g_r_t) # left edge of first ring (only current ring vortex)
                     
-                    ## Right edge
-                    #rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
-                    #rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    #rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                
-                #elif r_idx==0:
-                    ## 
-                    #g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]    
-                    #g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]                        
-                    ## Top edge
-                    #rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t - g_r_tp ) # top segment of ring 
+                    # Right edge
+                    rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                
+                elif r_idx==0:
+                    # 
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]    
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]                        
+                    # Top edge
+                    rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t - g_r_tp ) # top segment of ring 
                     
-                    ## Left edge
-                    #rings.coordinates.append(p_r_t)      # bottom left node  (Left edge)
-                    #rings.coordinates.append(p_r_tp)     # top left node     (Left edge)
-                    #rings.vortex_strengths.append(g_r_t) # left edge of first ring (only current ring vortex)
+                    # Left edge
+                    rings.coordinates.append(p_r_t)      # bottom left node  (Left edge)
+                    rings.coordinates.append(p_r_tp)     # top left node     (Left edge)
+                    rings.vortex_strengths.append(g_r_t) # left edge of first ring (only current ring vortex)
                     
-                    ## Right edge
-                    #rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
-                    #rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    #rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring
+                    # Right edge
+                    rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring
                 
-                #elif t_idx==(n_time_steps-1) and r_idx==(n_radial_rings-1):
-                    ## 
-                    ## Top edge
-                    #rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t )  # top segment of ring 
+                elif t_idx==(n_time_steps-1) and r_idx==(n_radial_rings-1):
+                    # 
+                    # Top edge
+                    rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t )  # top segment of ring 
                     
-                    ## Right edge
-                    #rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
-                    #rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    #rings.vortex_strengths.append(g_r_t )  # right segment of ring     
+                    # Right edge
+                    rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    rings.vortex_strengths.append(g_r_t )  # right segment of ring     
                     
-                #elif r_idx==n_radial_rings-1:
+                elif r_idx==n_radial_rings-1:
                      
-                    #g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]                        
-                    ## Top edge
-                    #rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t - g_r_tp ) # top segment of ring 
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]                        
+                    # Top edge
+                    rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t - g_r_tp ) # top segment of ring 
             
-                    ## Right edge
-                    #rings.coordinates.append(p_rp_t)      # bottom right node  (Right edge)
-                    #rings.coordinates.append(p_rp_tp)     # top right node     (Right edge)
-                    #rings.vortex_strengths.append(g_r_t)  # right segment of ring         
+                    # Right edge
+                    rings.coordinates.append(p_rp_t)      # bottom right node  (Right edge)
+                    rings.coordinates.append(p_rp_tp)     # top right node     (Right edge)
+                    rings.vortex_strengths.append(g_r_t)  # right segment of ring         
 
-                #elif t_idx==(n_time_steps-1):
-                    ## 
-                    #g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]
-                    ## Top edge
-                    #rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t  )  # top segment of ring 
+                elif t_idx==(n_time_steps-1):
+                    # 
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]
+                    # Top edge
+                    rings.coordinates.append(p_r_tp)       # top left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_tp)      # top right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t  )  # top segment of ring 
                     
-                    ## Right edge
-                    #rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
-                    #rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    #rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                            
+                    # Right edge
+                    rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                            
                            
-                #else:           
-                    #g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]
-                    #g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]    
+                else:           
+                    g_rp_t = gamma[i_prop,B_idx,r_idx+1,t_idx]
+                    g_r_tp = gamma[i_prop,B_idx,r_idx,t_idx+1]    
                     
-                    ## Top edge
-                    #rings.coordinates.append(p_r_tp)               # top left node   (Bottom edge)
-                    #rings.coordinates.append(p_rp_tp)              # top right node  (Bottom edge)
-                    #rings.vortex_strengths.append(g_r_t - g_r_tp ) # top segment of ring 
+                    # Top edge
+                    rings.coordinates.append(p_r_tp)               # top left node   (Bottom edge)
+                    rings.coordinates.append(p_rp_tp)              # top right node  (Bottom edge)
+                    rings.vortex_strengths.append(g_r_t - g_r_tp ) # top segment of ring 
             
-                    ## Right edge
-                    #rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
-                    #rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    #rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring    
+                    # Right edge
+                    rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring    
                     
                 
                 
-        ## Store vortex distribution for this blade
+        # Store vortex distribution for this blade
         
-        #sep  = filename.rfind('.')
-        #VD_filename = filename[0:sep]+"_VD_blade"+str(B_idx)+filename[sep:]  
-        #write_VD(rings,n_time_steps,n_radial_rings, VD_filename)
+        sep  = filename.rfind('.')
+        VD_filename = filename[0:sep]+"_VD_blade"+str(B_idx)+filename[sep:]  
+        write_VD(rings,n_time_steps,n_radial_rings, VD_filename)
     return
 
 def write_VD(rings, nt,nr, filename):

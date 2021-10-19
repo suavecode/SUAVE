@@ -93,7 +93,7 @@ class Rotor(Energy_Component):
 
         self.Wake_VD                   = Data()
         self.wake_method               = "momentum"
-        self.number_rotor_rotations    = 5 #5 # 1
+        self.number_rotor_rotations    = 6 #5 # 1
         self.number_steps_per_rotation = 100 #100 #6
         self.wake_settings             = Data()
 

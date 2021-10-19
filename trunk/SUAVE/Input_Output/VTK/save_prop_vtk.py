@@ -326,7 +326,7 @@ def generate_lofted_propeller_points(prop):
     origin = prop.origin
 
     try:
-        a_o = -prop.start_angle
+        a_o = -prop.start_angle[0]
     except:
         # default is no azimuthal offset (blade 1 starts vertical)
         a_o = 0.0
