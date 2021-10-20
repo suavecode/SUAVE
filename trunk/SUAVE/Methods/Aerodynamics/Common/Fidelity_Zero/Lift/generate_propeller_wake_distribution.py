@@ -245,11 +245,14 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         Z_pts   = propi.origin[0][2] + Z_pts0*rot_to_body[0,0] + X_pts0*rot_to_body[0,2] 
                 
         if include_lifting_line:
-            # prepend points at quarter chord to account for rotor lifting line
-            x_c_4 = x_c_4_rotor
-            y_c_4 = y_c_4_rotor
-            z_c_4 = z_c_4_rotor
+            rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
+                        
+            # rotate rotor points to incidence angle
+            x_c_4 = x_c_4_rotor*rots[0,0] + y_c_4_rotor*rots[0,1] + z_c_4_rotor*rots[0,2]
+            y_c_4 = x_c_4_rotor*rots[1,0] + y_c_4_rotor*rots[1,1] + z_c_4_rotor*rots[1,2]
+            z_c_4 = x_c_4_rotor*rots[2,0] + y_c_4_rotor*rots[2,1] + z_c_4_rotor*rots[2,2]
             
+            # prepend points at quarter chord to account for rotor lifting line
             X_pts = np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3)
             Y_pts = np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3)
             Z_pts = np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3)
