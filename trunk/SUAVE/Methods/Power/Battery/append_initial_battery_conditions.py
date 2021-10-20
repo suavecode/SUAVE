@@ -122,10 +122,14 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
         propulsion.battery_energy[:,0]                  = initial_segment_energy 
         propulsion.battery_max_aged_energy              = battery_max_aged_energy   
         propulsion.battery_pack_temperature[:,0]        = pack_temperature
+        propulsion.battery_cell_temperature[:,0]        = pack_temperature
         propulsion.battery_cycle_day                    = cycle_day        
         propulsion.battery_cell_charge_throughput[:,0]  = cell_charge_throughput 
         propulsion.battery_resistance_growth_factor     = resistance_growth_factor 
-        propulsion.battery_capacity_fade_factor         = capacity_fade_factor           
+        propulsion.battery_capacity_fade_factor         = capacity_fade_factor
+        propulsion.battery_state_of_charge[:,0]         = initial_mission_energy/battery_max_aged_energy
+        propulsion.battery_cell_thevenin_voltage[:,0]   = initial_battery_cell_thevenin_voltage
+        
             
     return 
     
