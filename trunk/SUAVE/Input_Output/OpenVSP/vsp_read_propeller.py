@@ -62,8 +62,7 @@ def vsp_read_propeller(prop_id, units_type='SI',write_airfoil_file=True):#, numb
     		max_thickness_distribution		[m]
     		thickness_to_chord			[-]
     		blade_solidity				[-]
-    		rotation			        [-]
-    		VTOL_flag			        [-]
+    		rotation			        [-] 
 
 
     		thickness_to_chord                      [-]

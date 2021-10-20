@@ -33,7 +33,7 @@ def initialize_battery(segment):
     """ 
        
     if segment.state.initials:
-        
+
         initials   = segment.state.initials.conditions.propulsion
         conditions = segment.state.conditions.propulsion
         
@@ -89,7 +89,6 @@ def update_thrust(segment):
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
     
-
 ## @ingroup Methods-Missions-Segments-Common
 def update_battery(segment):
     """ This just runs the battery module. All results are implicit to the battery model
@@ -110,7 +109,6 @@ def update_battery(segment):
 
     # evaluate
     energy_model.evaluate_thrust(segment.state)
-    
 
 def update_battery_state_of_health(segment):  
     """Updates battery age based on operating conditions, cell temperature and time of operation.

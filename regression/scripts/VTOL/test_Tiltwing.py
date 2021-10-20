@@ -237,12 +237,11 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend(analyses.cruise) 
     segment.altitude                                   = 1000.0 * Units.ft
     segment.air_speed                                  = 110.   * Units['mph']
-    segment.distance                                   = 30.    * Units.miles   
-    segment.state.unknowns.throttle                    = 0.7 * ones_row(1) 
+    segment.distance                                   = 10.    * Units.miles   
+    segment.state.unknowns.throttle                    = 0.8 * ones_row(1) 
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip   
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
-                                                                                       initial_power_coefficient = 0.03)
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
     
     # add to misison
     mission.append_segment(segment)     
