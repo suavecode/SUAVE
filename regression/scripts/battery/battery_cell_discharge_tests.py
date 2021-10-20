@@ -326,7 +326,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
     base_segment                                                              = Segments.Segment()
     ones_row                                                                  = base_segment.state.ones_row
     base_segment.state.numerics.number_control_points                         = 20
-    base_segment.process.iterate.initials.initialize_battery                  = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery 
+    base_segment.process.initialize.initialize_battery                        = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery 
     base_segment.process.finalize.post_process.update_battery_state_of_health = SUAVE.Methods.Missions.Segments.Common.Energy.update_battery_state_of_health   
     base_segment.process.iterate.conditions.stability                         = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability                      = SUAVE.Methods.skip 
