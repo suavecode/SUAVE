@@ -173,7 +173,7 @@ def EVTOL_full_setup(battery_chemistry):
     # Modify  Battery  
     net = vehicle.networks.lift_cruise
     bat = net.battery 
-    elif battery_chemistry == 'NMC': 
+    if battery_chemistry == 'NMC': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
@@ -300,7 +300,7 @@ def GA_mission_setup(analyses,vehicle):
     # base segment
     base_segment = Segments.Segment()
     ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 4 
     base_segment.battery_age_in_days                         = 1 # optional but added for regression
