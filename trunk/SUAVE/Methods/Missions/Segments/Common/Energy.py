@@ -65,6 +65,7 @@ def initialize_battery(segment):
     segment.state.conditions.propulsion.battery_energy[:,0]                        = initial_segment_energy 
     segment.state.conditions.propulsion.battery_max_aged_energy                    = battery_max_aged_energy    
     segment.state.conditions.propulsion.battery_pack_temperature[:,0]              = initial_pack_temperature
+    segment.state.conditions.propulsion.battery_cell_temperature[:,0]              = initial_pack_temperature
     segment.state.conditions.propulsion.battery_cycle_day                          = battery_cycle_day        
     segment.state.conditions.propulsion.battery_cell_charge_throughput[:,0]        = battery_cell_charge_throughput 
     segment.state.conditions.propulsion.battery_discharge_flag                     = battery_discharge_flag
