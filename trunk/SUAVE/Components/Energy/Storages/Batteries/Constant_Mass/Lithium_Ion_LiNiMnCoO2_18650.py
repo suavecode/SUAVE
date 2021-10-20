@@ -8,7 +8,7 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 import SUAVE
-from SUAVE.Core   import Units , Data 
+from SUAVE.Core   import Units , Data
 from .Lithium_Ion import Lithium_Ion 
 from SUAVE.Methods.Power.Battery.Cell_Cycle_Models.LiNiMnCoO2_cell_cycle_model import compute_NMC_cell_state_variables
 from SUAVE.Methods.Power.Battery.compute_net_generated_battery_heat            import compute_net_generated_battery_heat
@@ -194,6 +194,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         T_cell[T_cell<272.65]  = 272.65
         T_cell[T_cell>322.65]  = 322.65
         
+        battery.cell_temperature = T_cell
+        battery.pack_temperature = T_cell
+        
         # ---------------------------------------------------------------------------------
         # Compute battery cell temperature 
         # ---------------------------------------------------------------------------------
@@ -282,6 +285,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         battery.cell_voltage_open_circuit          = V_oc
         battery.cell_current                       = I_cell
         battery.thevenin_voltage                   = V_Th*n_series
+        battery.cell_thevenin_voltage              = V_Th
         battery.cell_charge_throughput             = Q_total   
         battery.heat_energy_generated              = Q_heat_gen*n_total_module    
         battery.internal_resistance                = R_0*n_series
@@ -320,7 +324,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         propulsion.battery_cell_temperature[1:,0] = segment.state.unknowns.battery_cell_temperature[:,0]
         propulsion.battery_state_of_charge[1:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
         propulsion.battery_current                = segment.state.unknowns.battery_current          
-    
+
         return     
     
 
@@ -393,7 +397,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         # setup the state
         ones_row    = segment.state.unknowns.ones_row
         ones_row_m1 = segment.state.unknowns.ones_row_m1      
-        
+
         parallel                                        = self.pack_config.parallel            
         segment.state.unknowns.battery_state_of_charge  = initial_battery_state_of_charge       * ones_row_m1(1)  
         segment.state.unknowns.battery_cell_temperature = initial_battery_cell_temperature      * ones_row_m1(1)  
@@ -430,12 +434,12 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         # Unpack segment state properties  
         SOC        = state.conditions.propulsion.battery_state_of_charge
         T_cell     = state.conditions.propulsion.battery_cell_temperature
-        I_cell     = state.unknowns.battery_current/n_parallel 
-        V_th0      = state.conditions.propulsion.battery_thevenin_voltage
-        
+        I_cell     = state.conditions.propulsion.battery_current/n_parallel 
+        V_th       = state.conditions.propulsion.battery_thevenin_voltage
+
         # Link Temperature 
         battery.cell_temperature         = T_cell  
-        battery.initial_thevenin_voltage = V_th0  
+        battery.initial_thevenin_voltage = V_th[0,0]
         
         # Compute State Variables
         V_ul_cell = compute_NMC_cell_state_variables(battery_data,SOC,T_cell,I_cell) 

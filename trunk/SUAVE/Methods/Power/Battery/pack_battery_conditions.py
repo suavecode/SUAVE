@@ -100,5 +100,6 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
     conditions.propulsion.battery_cell_heat_energy_generated   = battery.heat_energy_generated
     conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
     conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction 
+    conditions.propulsion.battery_cell_thevenin_voltage        = battery.cell_thevenin_voltage
     
     return 
