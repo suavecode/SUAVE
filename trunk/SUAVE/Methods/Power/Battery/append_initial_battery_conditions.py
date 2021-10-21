@@ -14,7 +14,7 @@ from SUAVE.Core import Data
 #  Methods
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Power-Battery 
-def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage = 0.0): 
+def append_initial_battery_conditions(segment): 
     """ Packs the initial battery conditions
     
         Assumptions:
@@ -36,7 +36,6 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
                  battery_charge_throughput          [Ampere-Hours] 
                  battery_resistance_growth_factor   [unitless]
                  battery_capacity_fade_factor       [unitless]
-                 battery_thevenin_voltage           [Volts]  
                  battery_discharge                  [boolean]
                  increment_battery_cycle_day        [boolean]
                
@@ -127,7 +126,6 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
         propulsion.battery_resistance_growth_factor     = resistance_growth_factor 
         propulsion.battery_capacity_fade_factor         = capacity_fade_factor
         propulsion.battery_state_of_charge[:,0]         = initial_mission_energy/battery_max_aged_energy
-        propulsion.battery_cell_thevenin_voltage[:,0]   = initial_battery_cell_thevenin_voltage
             
     return 
     

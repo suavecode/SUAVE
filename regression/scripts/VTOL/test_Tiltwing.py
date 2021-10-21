@@ -186,7 +186,7 @@ def mission_setup(analyses,vehicle):
     base_segment                                             = Segments.Segment()
     base_segment.state.numerics.number_control_points        = 5
     ones_row                                                 = base_segment.state.ones_row 
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
 
   
     # ------------------------------------------------------------------

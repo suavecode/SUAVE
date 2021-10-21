@@ -50,8 +50,6 @@ def initialize_battery(segment):
         conditions.battery_max_aged_energy             = battery_max_aged_energy
         conditions.battery_pack_temperature[:,0]       = initials.battery_pack_temperature[-1,0]
         conditions.battery_cell_temperature[:,0]       = initials.battery_pack_temperature[-1,0]
-        conditions.battery_cell_thevenin_voltage[:,0]  = initials.battery_cell_thevenin_voltage[-1,0]
-        conditions.battery_thevenin_voltage[:,0]       = initials.battery_thevenin_voltage[-1,0]
         conditions.battery_cycle_day                   = initials.battery_cycle_day      
         conditions.battery_cell_charge_throughput[:,0] = initials.battery_cell_charge_throughput[-1,0]
         conditions.battery_discharge_flag              = battery_discharge_flag

@@ -302,7 +302,7 @@ def mission_setup_SR(vehicle,analyses):
     base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip    
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip    
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery   
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     
     # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Rate

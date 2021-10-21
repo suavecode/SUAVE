@@ -273,7 +273,7 @@ def X57_mission_setup(analyses,vehicle):
     # base segment
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row 
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 4  
     

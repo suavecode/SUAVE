@@ -125,7 +125,6 @@ class Lithium_Ion(Battery):
                   load_power                                               [Watts]
                   current                                                  [Amps]
                   battery_voltage_open_circuit                             [Volts]
-                  battery_thevenin_voltage                                 [Volts]
                   cell_charge_throughput                                   [Amp-hrs]
                   internal_resistance                                      [Ohms]
                   battery_state_of_charge                                  [unitless]
@@ -226,8 +225,6 @@ class Lithium_Ion(Battery):
         battery.cell_entropy_heat_fraction         = np.zeros_like(V_ul)  
         battery.cell_voltage_open_circuit          = np.zeros_like(V_ul)
         battery.cell_current                       = np.zeros_like(V_ul)
-        battery.thevenin_voltage                   = np.zeros_like(V_ul)
-        battery.cell_thevenin_voltage              = np.zeros_like(V_ul)
         battery.heat_energy_generated              = Q_heat_gen 
         battery.internal_resistance                = R_0 
         battery.cell_voltage_under_load            = V_ul 
@@ -290,7 +287,7 @@ class Lithium_Ion(Battery):
     
     def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage, 
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
-                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
+                                              initial_battery_cell_current): 
         """ Sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -304,7 +301,6 @@ class Lithium_Ion(Battery):
             initial_battery_cell_temperature      [Kelvin]
             initial_battery_state_of_charge       [unitless]
             initial_battery_cell_current          [Amperes]
-            initial_battery_cell_thevenin_voltage [Volts]
             
             Outputs
             None
@@ -343,7 +339,6 @@ class Lithium_Ion(Battery):
         battery                          = self 
         
         # Set battery properties
-        battery.battery_thevenin_voltage = 0     
         battery.temperature              = state.conditions.propulsion.battery_pack_temperature 
         
         # Voltage under load

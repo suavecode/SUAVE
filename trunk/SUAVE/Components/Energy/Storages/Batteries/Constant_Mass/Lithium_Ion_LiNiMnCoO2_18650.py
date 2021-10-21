@@ -141,7 +141,6 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
                   load_power                                               [Watts]
                   current                                                  [Amps]
                   battery_voltage_open_circuit                             [Volts]
-                  battery_thevenin_voltage                                 [Volts]
                   cell_charge_throughput                                   [Amp-hrs]
                   internal_resistance                                      [Ohms]
                   battery_state_of_charge                                  [unitless]
@@ -155,7 +154,6 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         P_bat                    = battery.inputs.power_in    
         electrode_area           = battery.cell.electrode_area 
         As_cell                  = battery.cell.surface_area  
-        V_th0                    = battery.initial_thevenin_voltage 
         T_current                = battery.pack_temperature      
         T_cell                   = battery.cell_temperature     
         E_max                    = battery.max_energy
@@ -236,13 +234,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         
         # Update battery internal and thevenin resistance with aging factor
         R_0_aged = R_0 * R_growth_factor
-         
-        # Compute thevening equivalent voltage   
-        V_th0  = V_th0/n_series
-        V_Th   = compute_thevenin_voltage(V_th0,I_cell,C_Th ,R_Th,numerics.time.control_points[:,0])
         
         # Voltage under load: 
-        V_oc      = V_ul + V_Th + (I_cell * R_0_aged) 
+        V_oc      = V_ul + (I_cell * R_0_aged) 
         
         # ---------------------------------------------------------------------------------
         # Compute updates state of battery 
@@ -279,8 +273,6 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         battery.voltage_open_circuit               = V_oc*n_series
         battery.cell_voltage_open_circuit          = V_oc
         battery.cell_current                       = I_cell
-        battery.thevenin_voltage                   = V_Th*n_series
-        battery.cell_thevenin_voltage              = V_Th
         battery.cell_charge_throughput             = Q_total   
         battery.heat_energy_generated              = Q_heat_gen*n_total_module    
         battery.internal_resistance                = R_0*n_series
@@ -312,8 +304,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     
             Properties Used:
             N/A
-        """             
-            
+        """
         propulsion = segment.state.conditions.propulsion
         
         propulsion.battery_cell_temperature[1:,0] = segment.state.unknowns.battery_cell_temperature[:,0]
@@ -356,7 +347,6 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     
         i_actual     = segment.state.conditions.propulsion.battery_current
         i_predict    = segment.state.unknowns.battery_current    
-
     
         # Return the residuals  
         segment.state.residuals.network.SOC         = SOC_predict  - SOC_actual[1:,:]  
@@ -367,7 +357,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     
     def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage,
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
-                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
+                                              initial_battery_cell_current): 
         """ Sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -381,7 +371,6 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
             initial_battery_cell_temperature      [Kelvin]
             initial_battery_state_of_charge       [unitless]
             initial_battery_cell_current          [Amperes]
-            initial_battery_cell_thevenin_voltage [Volts]
             
             Outputs
             None
@@ -430,11 +419,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         SOC        = state.conditions.propulsion.battery_state_of_charge
         T_cell     = state.conditions.propulsion.battery_cell_temperature
         I_cell     = state.conditions.propulsion.battery_current/n_parallel 
-        V_th       = state.conditions.propulsion.battery_cell_thevenin_voltage
 
         # Link Temperature and update
         battery.cell_temperature         = T_cell
-        battery.initial_thevenin_voltage = V_th[0,0] * n_series
         
         # Compute State Variables
         V_ul_cell = compute_NMC_cell_state_variables(battery_data,SOC,T_cell,I_cell) 
@@ -495,68 +482,6 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
             segment.conditions.propulsion.battery_cycle_day += 1 # update battery age by one day 
       
         return  
-    
-
-def compute_thevenin_voltage(V_th0,I,C_Th, R_Th,t):
-    """ Computes the thevenin voltage of an NMC cell using SciPy ODE solver 
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    
-    Inputs:   
-        V_th0 - initial thevenin voltage [Volts]
-        I     - cell current             [Amperes]
-        C_th  - thevenin capacitance     [Coulombs]
-        R_th  - thevenin resistnace      [Ohms]
-        t     - discretized time         [seconds]
-
-    Outputs:  
-        V_th  - thevenin voltage         [Volts]
-        
-    Properties Used:
-    N/A 
-    """     
-    n    = len(t)
-    V_th = np.zeros(n)
-    
-    # Initial conditition
-    V_th[0] = V_th0 
-    
-    for i in range(1,n): 
-        z = odeint(model, V_th0, t, args=(I[i][0],C_Th[i][0], R_Th[i][0])) 
-        z0 = z[1] 
-        V_th[i] = z0[0] 
-        
-    return np.atleast_2d(V_th).T
-     
-def model(z,t,I,C_Th, R_Th):
-    """ Computes the derivative of the thevenin voltage for the ODE solver
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    
-    Inputs:   
-        z        - ODE function                                [Unitless]
-        I        - cell current                                [Amperes]
-        C_th     - thevenin capacitance                        [Coulombs]
-        R_th     - thevenin resistnace                         [Ohms]
-        t        - discretized time                            [seconds]
-
-    Outputs:  
-        dVth_dt  - derivative of thevenin voltage w.r.t time   [Volts/time]
-        
-    Properties Used:
-    N/A 
-    """    
-    V_th    = z[0]
-    dVth_dt = I/C_Th - (V_th/(R_Th*C_Th))
-    return [dVth_dt] 
 
 def create_discharge_performance_map(battery_raw_data):
     """ Creates discharge and charge response surface for 
