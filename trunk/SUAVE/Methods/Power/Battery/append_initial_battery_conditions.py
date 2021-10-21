@@ -14,7 +14,7 @@ from SUAVE.Core import Data
 #  Methods
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Power-Battery 
-def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage = 0.1): 
+def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage = 0.0): 
     """ Packs the initial battery conditions
     
         Assumptions:
@@ -69,7 +69,7 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
     alt           = -segment.conditions.frames.inertial.position_vector[:,2] 
     if segment.temperature_deviation != None:
         temp_dev = segment.temperature_deviation    
-    atmo_data  = atmosphere.compute_values(altitude = alt,temperature_deviation=temp_dev + 1.)
+    atmo_data  = atmosphere.compute_values(altitude = alt,temperature_deviation=temp_dev)
     
     
     # Set if it is a discharge segment
@@ -84,8 +84,14 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
     if 'increment_battery_cycle_day' not in segment:
         segment.increment_battery_cycle_day   = False    
         
+    # If an initial segment with battery energy set 
+    if 'battery_pack_temperature' not in segment:     
+        pack_temperature              = atmo_data.temperature[0,0]
+    else:
+        pack_temperature              = segment.battery_pack_temperature 
+    propulsion.battery_pack_temperature[:,0] = pack_temperature
+    propulsion.battery_cell_temperature[:,0] = pack_temperature
         
-    # If an initial segment with battery energy set
     if 'battery_energy' in segment: 
         
         initial_segment_energy         = segment.battery_energy
@@ -96,11 +102,6 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
             cycle_day                     = 0
         else:
             cycle_day                     = segment.battery_cycle_day
-            
-        if 'battery_pack_temperature' not in segment:     
-            pack_temperature              = atmo_data.temperature[0,0]
-        else:
-            pack_temperature              = segment.battery_pack_temperature
 
         if 'battery_cell_charge_throughput' not in segment:
             cell_charge_throughput        = 0.
@@ -121,15 +122,12 @@ def append_initial_battery_conditions(segment,initial_battery_cell_thevenin_volt
         propulsion.battery_max_initial_energy           = initial_mission_energy
         propulsion.battery_energy[:,0]                  = initial_segment_energy 
         propulsion.battery_max_aged_energy              = battery_max_aged_energy   
-        propulsion.battery_pack_temperature[:,0]        = pack_temperature
-        propulsion.battery_cell_temperature[:,0]        = pack_temperature
         propulsion.battery_cycle_day                    = cycle_day        
         propulsion.battery_cell_charge_throughput[:,0]  = cell_charge_throughput 
         propulsion.battery_resistance_growth_factor     = resistance_growth_factor 
         propulsion.battery_capacity_fade_factor         = capacity_fade_factor
         propulsion.battery_state_of_charge[:,0]         = initial_mission_energy/battery_max_aged_energy
         propulsion.battery_cell_thevenin_voltage[:,0]   = initial_battery_cell_thevenin_voltage
-        
             
     return 
     

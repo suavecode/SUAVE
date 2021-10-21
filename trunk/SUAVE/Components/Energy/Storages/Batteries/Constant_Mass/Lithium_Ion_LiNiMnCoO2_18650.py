@@ -152,10 +152,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         # Unpack varibles 
         battery                  = self
         I_bat                    = battery.inputs.current
-        P_bat                    = battery.inputs.power_in   
-        cell_mass                = battery.cell.mass   
-        electrode_area           = battery.cell.electrode_area
-        Cp                       = battery.cell.specific_heat_capacity  
+        P_bat                    = battery.inputs.power_in    
+        electrode_area           = battery.cell.electrode_area 
         As_cell                  = battery.cell.surface_area  
         V_th0                    = battery.initial_thevenin_voltage 
         T_current                = battery.pack_temperature      
@@ -164,8 +162,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         R_growth_factor          = battery.R_growth_factor 
         E_current                = battery.current_energy 
         Q_prior                  = battery.cell_charge_throughput  
-        battery_data             = battery.discharge_performance_map  
-        I                        = numerics.time.integrate  
+        battery_data             = battery.discharge_performance_map     
+        I                        = numerics.time.integrate      
               
         # ---------------------------------------------------------------------------------
         # Compute battery electrical properties 
@@ -214,11 +212,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
         q_entropy_frac = q_dot_entropy/(q_dot_joule + q_dot_entropy)
         
-        # Compute net heat generated 
-        P_net = compute_net_generated_battery_heat(n_total,battery,Q_heat_gen)    
-        
-        dT_dt     = P_net/(cell_mass*n_total_module*Cp)
-        T_current = T_current[0] + np.dot(I,dT_dt)  
+        # Compute cell temperature 
+        T_current = compute_net_generated_battery_heat(n_total,battery,Q_heat_gen,numerics)    
         
         # Power going into the battery accounting for resistance losses
         P_loss = n_total*Q_heat_gen
