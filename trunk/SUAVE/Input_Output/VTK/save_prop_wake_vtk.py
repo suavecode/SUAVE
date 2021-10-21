@@ -133,15 +133,17 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         # First scalar value
         f.write("\nSCALARS gamma float 1")
         f.write("\nLOOKUP_TABLE default")   
-        blade_circulation = Results['prop_outputs'].disc_circulation[0,:,0]
+        #blade_circulation = Results['prop_outputs'].disc_circulation[0,:,0]
+        circulations=[]
         for B_idx in range(n_blades):
-            for i in range(cells_per_blade):
-                circ_L = blade_circulation[int(i%(n_radial_rings))]
-                circ_R = blade_circulation[int(i%(n_radial_rings))+1]
-                circ_C = 0.5*(circ_L+circ_R)
-                
-                new_circ = str(circ_C)
-                f.write("\n"+new_circ)     
+            for t_idx in range(n_time_steps):
+                for r_idx in range(n_radial_rings):
+                    circulations = np.append(circulations, gamma[0,B_idx,r_idx,t_idx])     
+                    
+        for i in range(n_cells):
+            new_circ = str(circulations[i])
+            f.write("\n"+new_circ)     
+
         
         # Second scalar value
         f.write("\nSCALARS vt float 1")

@@ -243,6 +243,7 @@ def free_wake_trailing_edge_rings(prop,m,init_timestep_offset, dt, number_of_wak
     
     WD_collapsed.GAMMA  =  np.reshape(wVD.GAMMA,mat6_size)
     
-
+    
+    
     return WD_collapsed
 

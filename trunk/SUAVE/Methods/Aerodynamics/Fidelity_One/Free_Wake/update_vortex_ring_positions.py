@@ -30,17 +30,65 @@ def update_vortex_ring_positions(prop, wVD_collapsed, VD, dt):
        wVD         - new total wake vortex distribution with updated positions
     
     """
-    VD.XC = deepcopy(wVD_collapsed.XC)
-    VD.YC = deepcopy(wVD_collapsed.YC)
-    VD.ZC = deepcopy(wVD_collapsed.ZC)
+    #VD.XC = deepcopy(wVD_collapsed.XC)
+    #VD.YC = deepcopy(wVD_collapsed.YC)
+    #VD.ZC = deepcopy(wVD_collapsed.ZC)
+    
+    #-----------------------------------------------
+    # Evaluate at all A1 points on panels
+    #-----------------------------------------------
+    VD.XC = deepcopy(wVD_collapsed.XA1)
+    VD.YC = deepcopy(wVD_collapsed.YA1)
+    VD.ZC = deepcopy(wVD_collapsed.ZA1)    
     VD.n_cp = wVD_collapsed.n_cp
     
     # compute vortex-induced velocities at centers of each vortex ring
-    V_ind = compute_wake_induced_velocity(wVD_collapsed, VD, cpts=1)
+    V_A1 = compute_wake_induced_velocity(wVD_collapsed, VD, cpts=1)
+    
+
+    #-----------------------------------------------
+    # Evaluate at all A2 points on panels
+    #-----------------------------------------------
+    VD.XC = deepcopy(wVD_collapsed.XA2)
+    VD.YC = deepcopy(wVD_collapsed.YA2)
+    VD.ZC = deepcopy(wVD_collapsed.ZA2)    
+    VD.n_cp = wVD_collapsed.n_cp
+    
+    # compute vortex-induced velocities at centers of each vortex ring
+    V_A2 = compute_wake_induced_velocity(wVD_collapsed, VD, cpts=1)    
+    
+    #-----------------------------------------------
+    # Evaluate at all B1 points on panels
+    #-----------------------------------------------
+    VD.XC = deepcopy(wVD_collapsed.XB1)
+    VD.YC = deepcopy(wVD_collapsed.YB1)
+    VD.ZC = deepcopy(wVD_collapsed.ZB1)    
+    VD.n_cp = wVD_collapsed.n_cp
+    
+    # compute vortex-induced velocities at centers of each vortex ring
+    V_B1 = compute_wake_induced_velocity(wVD_collapsed, VD, cpts=1)    
+    
+    #-----------------------------------------------
+    # Evaluate at all B2 points on panels
+    #-----------------------------------------------
+    VD.XC = deepcopy(wVD_collapsed.XB2)
+    VD.YC = deepcopy(wVD_collapsed.YB2)
+    VD.ZC = deepcopy(wVD_collapsed.ZB2)    
+    VD.n_cp = wVD_collapsed.n_cp
+    
+    # compute vortex-induced velocities at centers of each vortex ring
+    V_B2 = compute_wake_induced_velocity(wVD_collapsed, VD, cpts=1)        
+    
+
+    #-----------------------------------------------
+    # Average
+    #-----------------------------------------------   
+    V_ind = (V_A1+V_A2+V_B1+V_B2)/4
+    
     Vinf  = prop.outputs.velocity
     
     Vx = Vinf[0,0] - V_ind[:,:,0]
-    Vy = Vinf[0,1] + V_ind[:,:,1]
+    Vy = Vinf[0,1] - V_ind[:,:,1]
     Vz = Vinf[0,2] - V_ind[:,:,2]
     
     # Translate from velocity frame to rotor frame
