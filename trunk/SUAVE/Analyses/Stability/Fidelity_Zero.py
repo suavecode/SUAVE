@@ -214,7 +214,6 @@ class Fidelity_Zero(Stability):
             stability.dynamic.phugoidDamp   = phugoid_res.damping_ratio
 
             # Dynamic Stability Full Linearized Methods
-
             if stability.static.Cy_beta != 0 and stability.static.Cl_p.all() != 0 and stability.static.Cl_beta.all() != 0:
                 theta = conditions.frames.wind.body_rotations[:,1]
                 stability.static.Cy_psi       = Supporting_Functions.cy_psi(aero.lift_coefficient, theta)

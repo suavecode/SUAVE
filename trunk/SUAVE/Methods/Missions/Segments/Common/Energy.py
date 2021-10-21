@@ -51,13 +51,18 @@ def initialize_battery(segment):
         conditions.battery_pack_temperature[:,0]       = initials.battery_pack_temperature[-1,0]
         conditions.battery_cell_temperature[:,0]       = initials.battery_pack_temperature[-1,0]
         conditions.battery_cell_thevenin_voltage[:,0]  = initials.battery_cell_thevenin_voltage[-1,0]
+        conditions.battery_thevenin_voltage[:,0]       = initials.battery_thevenin_voltage[-1,0]
         conditions.battery_cycle_day                   = initials.battery_cycle_day      
         conditions.battery_cell_charge_throughput[:,0] = initials.battery_cell_charge_throughput[-1,0]
         conditions.battery_discharge_flag              = battery_discharge_flag
         conditions.battery_resistance_growth_factor    = initials.battery_resistance_growth_factor
-        conditions.battery_capacity_fade_factor        = battery_capacity_fade_factor
-
-
+        conditions.battery_capacity_fade_factor        = battery_capacity_fade_factor 
+    
+    if 'battery_pack_temperature' in segment: # rewrite initial temperature of the battery if it is known 
+        conditions.battery_pack_temperature[:,0]       = segment.battery_pack_temperature
+        conditions.battery_cell_temperature[:,0]       = segment.battery_pack_temperature 
+        
+            
 # ----------------------------------------------------------------------
 #  Update Thrust
 # ----------------------------------------------------------------------
@@ -90,27 +95,6 @@ def update_thrust(segment):
     conditions = segment.state.conditions
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
-    
-## @ingroup Methods-Missions-Segments-Common
-def update_battery(segment):
-    """ This just runs the battery module. All results are implicit to the battery model
-
-        Inputs -
-            segment.analyses.energy_network    [Function]
-
-        Outputs -
-
-
-        Assumptions -
-
-
-    """    
-    
-    # unpack
-    energy_model = segment.analyses.energy
-
-    # evaluate
-    energy_model.evaluate_thrust(segment.state)
 
 def update_battery_state_of_health(segment):  
     """Updates battery age based on operating conditions, cell temperature and time of operation.
