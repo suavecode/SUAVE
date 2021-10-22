@@ -61,7 +61,7 @@ def compute_net_generated_battery_heat(n_total,battery,Q_heat_gen,numerics):
     
     if n_total == 1: 
         # Using lumped model   
-        Q_convec       = h*As_cell*(T_cell - T_ambient) 
+        Q_convec       = h*As_cell*(T_cell - T_ambient)
         P_net          = Q_heat_gen - Q_convec
 
     else: 
@@ -91,14 +91,15 @@ def compute_net_generated_battery_heat(n_total,battery,Q_heat_gen,numerics):
             C = 0.51
             m = 0.5  
 
-        Pr_w_coolant = coolant.compute_prandtl_number(T)            
-        Nu           = C*(Re_max**m)*(Pr_coolant**0.36)*((Pr_coolant/Pr_w_coolant)**0.25)           
-        h            = Nu*K_coolant/D_cell
-        Tw_Ti        = (T - T_ambient)
-        Tw_To        = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_coolant*V_coolant*Nn*S_T*Cp_coolant))
-        dT_lm        = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-        Q_convec     = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
-        P_net        = Q_heat_gen*n_total_module - Q_convec 
+        Pr_w_coolant          = coolant.compute_prandtl_number(T)            
+        Nu                    = C*(Re_max**m)*(Pr_coolant**0.36)*((Pr_coolant/Pr_w_coolant)**0.25)           
+        h                     = Nu*K_coolant/D_cell
+        Tw_Ti                 = (T - T_ambient)
+        Tw_To                 = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_coolant*V_coolant*Nn*S_T*Cp_coolant))
+        dT_lm                 = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
+        Q_convec              = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
+        Q_convec[Tw_Ti == 0.] = 0.
+        P_net                 = Q_heat_gen*n_total_module - Q_convec 
 
     dT_dt     = P_net/(cell_mass*n_total_module*Cp)
     T_current = T_current[0] + np.dot(I,dT_dt)  

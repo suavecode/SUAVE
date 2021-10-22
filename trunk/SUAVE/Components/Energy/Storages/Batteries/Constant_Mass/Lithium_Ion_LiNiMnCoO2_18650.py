@@ -201,7 +201,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         n       = 1
         F       = 96485 # C/mol Faraday constant    
         delta_S = -496.66*(SOC_old)**6 +  1729.4*(SOC_old)**5 + -2278 *(SOC_old)**4 +  1382.2 *(SOC_old)**3 + \
-                  -380.47*(SOC_old)**2 + 46.508*(SOC_old) + -10.692  
+                  -380.47*(SOC_old)**2 +  46.508*(SOC_old)    + -10.692  
         
         i_cell         = I_cell/electrode_area # current intensity 
         q_dot_entropy  = -(T_cell)*delta_S*i_cell/(n*F)       
@@ -221,10 +221,10 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         V_ul  = compute_NMC_cell_state_variables(battery_data,SOC_old,T_cell,I_cell)  
             
         # Thevenin Time Constnat 
-        tau_Th  =   2.151* np.exp(2.132 *SOC_old) + 27.2 
+        tau_Th   =  2.151* np.exp(2.132 *SOC_old) + 27.2 
         
         # Thevenin Resistance 
-        R_Th    =  -1.212* np.exp(-0.03383*SOC_old) + 1.258
+        R_Th     = -1.212* np.exp(-0.03383*SOC_old) + 1.258
          
         # Thevenin Capacitance 
         C_Th     = tau_Th/R_Th
@@ -307,7 +307,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         """
         propulsion = segment.state.conditions.propulsion
         
-        propulsion.battery_cell_temperature[1:,0] = segment.state.unknowns.battery_cell_temperature[:,0]
+        propulsion.battery_cell_temperature[1:,:]         = segment.state.unknowns.battery_cell_temperature[1:,:]  
         propulsion.battery_state_of_charge[1:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
         propulsion.battery_current                = segment.state.unknowns.battery_current          
 
@@ -350,7 +350,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     
         # Return the residuals  
         segment.state.residuals.network.SOC         = SOC_predict  - SOC_actual[1:,:]  
-        segment.state.residuals.network.temperature = Temp_predict - Temp_actual[1:,:] 
+        segment.state.residuals.network.temperature = Temp_predict - Temp_actual
         segment.state.residuals.network.current     = i_predict    - i_actual  
         
         return  
@@ -384,7 +384,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
 
         parallel                                        = self.pack_config.parallel            
         segment.state.unknowns.battery_state_of_charge  = initial_battery_state_of_charge       * ones_row_m1(1)  
-        segment.state.unknowns.battery_cell_temperature = initial_battery_cell_temperature      * ones_row_m1(1)  
+        segment.state.unknowns.battery_cell_temperature = initial_battery_cell_temperature      * ones_row(1)  
         segment.state.unknowns.battery_current          = initial_battery_cell_current*parallel * ones_row(1)  
         
         return   

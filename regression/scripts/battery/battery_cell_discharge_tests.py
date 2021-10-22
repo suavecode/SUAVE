@@ -325,10 +325,10 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,mAh):
     discharge_time                                           = 0.9 * (mAh/1000)/current * Units.hrs
     
     if battery_chemistry == 'LFP':
-        discharge_tag = 'LFP_Disharge'   
+        discharge_tag = 'LFP_Discharge'   
         charge_tag    = 'LFP_Charge'   
     elif battery_chemistry == 'NMC':
-        discharge_tag = 'NMC_Disharge'  
+        discharge_tag = 'NMC_Discharge'  
         charge_tag    = 'NMC_Charge'  
     
     # Discharge Segment 
