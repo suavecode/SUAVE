@@ -21,71 +21,71 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    ## size the battery
-    #Mission_total = SUAVE.Analyses.Mission.Sequential_Segments()
-    #Ereq          = 4000*Units.Wh # required energy for the mission in Joules 
-    #Preq          = 3000. # maximum power requirements for mission in W
+    # size the battery
+    Mission_total = SUAVE.Analyses.Mission.Sequential_Segments()
+    Ereq          = 4000*Units.Wh # required energy for the mission in Joules 
+    Preq          = 3000. # maximum power requirements for mission in W
     
-    #numerics                      = Data()
-    #battery_inputs                = Data() #create inputs data structure for inputs for testing discharge model
-    #specific_energy_guess         = 500*Units.Wh/Units.kg
-    #battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
-    #battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()    
-    #battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
-    #battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
-    #li_ion_mass                   = 10*Units.kg
+    numerics                      = Data()
+    battery_inputs                = Data() #create inputs data structure for inputs for testing discharge model
+    specific_energy_guess         = 500*Units.Wh/Units.kg
+    battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
+    battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()    
+    battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
+    battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
+    li_ion_mass                   = 10*Units.kg
     
-    ## build numerics
-    #numerics.time                 = Data()
-    #numerics.time.integrate       = np.array([[0, 0],[0, 10]])
-    #numerics.time.differentiate   = np.array([[0, 0],[0, 1]])
-    #numerics.time.control_points  = np.array([[0], [1]])
+    # build numerics
+    numerics.time                 = Data()
+    numerics.time.integrate       = np.array([[0, 0],[0, 10]])
+    numerics.time.differentiate   = np.array([[0, 0],[0, 1]])
+    numerics.time.control_points  = np.array([[0], [1]])
     
-    ## build battery_inputs(i.e. current it's run at, power, normally done from energy network
-    #battery_inputs.current        = np.array([[90],[90]])*Units.amps
-    #battery_inputs.power_in       = np.array([[Preq/2.] ,[ Preq]])
-    #print('battery_inputs=', battery_inputs)
-    #battery_li_ion.inputs         = battery_inputs
-    #battery_li_ion.max_voltage    = battery_li_ion.cell.max_voltage
+    # build battery_inputs(i.e. current it's run at, power, normally done from energy network
+    battery_inputs.current        = np.array([[90],[90]])*Units.amps
+    battery_inputs.power_in       = np.array([[Preq/2.] ,[ Preq]])
+    print('battery_inputs=', battery_inputs)
+    battery_li_ion.inputs         = battery_inputs
+    battery_li_ion.max_voltage    = battery_li_ion.cell.max_voltage
     
-    ## run tests on functionality
-    #test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)
-    #test_mass_gain(battery_al_air, Preq)
-    #test_find_ragone_properties(specific_energy_guess,battery_li_s, Ereq,Preq)
-    #test_find_ragone_optimum(battery_li_ion,Ereq,Preq)
+    # run tests on functionality
+    test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)
+    test_mass_gain(battery_al_air, Preq)
+    test_find_ragone_properties(specific_energy_guess,battery_li_s, Ereq,Preq)
+    test_find_ragone_optimum(battery_li_ion,Ereq,Preq)
    
-    #test_initialize_from_mass(battery_li_ion,li_ion_mass)
+    test_initialize_from_mass(battery_li_ion,li_ion_mass)
     
-    ## make sure battery starts fully charged
-    #battery_li_ion.current_energy         = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
-    #battery_li_ion.pack_temperature       = np.array([[20],[20]])
-    #battery_li_ion.cell_charge_throughput = np.array([[0],[0]])
-    #battery_li_ion.R_growth_factor        = 1
-    #battery_li_ion.E_growth_factor        = 1 
+    # make sure battery starts fully charged
+    battery_li_ion.current_energy         = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
+    battery_li_ion.pack_temperature       = np.array([[20],[20]])
+    battery_li_ion.cell_charge_throughput = np.array([[0],[0]])
+    battery_li_ion.R_growth_factor        = 1
+    battery_li_ion.E_growth_factor        = 1 
     
-    ## run discharge model
-    #battery_li_ion.energy_calc(numerics)
-    #print(battery_li_ion)
-    #plot_ragone(battery_li_ion, 'lithium ion')
-    #plot_ragone(battery_li_s,   'lithium sulfur') 
+    # run discharge model
+    battery_li_ion.energy_calc(numerics)
+    print(battery_li_ion)
+    plot_ragone(battery_li_ion, 'lithium ion')
+    plot_ragone(battery_li_s,   'lithium sulfur') 
      
  
-    battery_chemistry     = ['NMC'] 
+    battery_chemistry     = ['NMC','LFP'] 
     marker                = [['s' ,'s' ,'s' ,'s','s'],['o' ,'o' ,'o' ,'o','o'],['P' ,'P' ,'P' ,'P','P']]
     linestyles            = [['-' ,'-' ,'-' ,'-','-'], ['--' ,'--' ,'--' ,'--'],[':' ,':' ,':' ,':']]
     linecolors            = [['green' , 'blue' , 'red' , 'orange' ],['darkgreen', 'darkblue' , 'darkred'  ,'brown'], ['limegreen', 'lightblue' , 'pink'  ,'yellow']]     
     curr                  = [1.5, 3, 6, 9 ] 
     C_rat                 = [0.5,1,2,3]   
     marker_size           = 8 
-    mAh                   = np.array([3550]) #  np.array([ 1500 , 3550]) 
-    V_ul_true  = np.array([[3.570060420060655 ,4.011312810031548],
-                           [3.5572273851175513,3.9634657009311525],
-                           [3.5315532086860766,3.8211302786653567],
-                           [3.505868221420623 , 3.7049889426424776]])
-    bat_temp_true     = np.array([[300.9509016414972,304.3528647050613 ],
-                                  [304.1976206633315,304.3522474259394],
-                                  [304.1976206633315, 304.34868135808864],
-                                  [304.1976206633315, 304.3482845467779]])  
+    mAh                   = np.array([ 1500 , 3550]) 
+    V_ul_true  = np.array([[3.9774975232217704,3.5214132500659523],
+                           [3.920678242711271, 3.5095932059328967],
+                           [3.7194815045185647,3.4859240133971974],
+                           [3.615652624688401, 3.462215960687402]])
+    bat_temp_true     = np.array([[290.2052783962721, 289.37526116685353],
+                                  [293.166685332117,  290.6097575420344],
+                                  [299.7568291232199, 293.1048631259652],
+                                  [306.5591054213954, 295.6339034092474]])  
     
  
     plt.rcParams.update({'font.size': 12})
@@ -107,18 +107,18 @@ def main():
             mission = analyses.missions.base
             results = mission.evaluate()   
             
-            ## Voltage Regression
-            #V_ul        = results.segments[0].conditions.propulsion.battery_voltage_under_load[2][0]   
-            #V_ul_diff   = np.abs(V_ul - V_ul_true[j,i])
-            #print('Under Load voltage difference')
-            #print(V_ul_diff)
-            #assert np.abs((V_ul_diff)/V_ul_true[j,i]) < 1e-3  
+            # Voltage Regression
+            V_ul        = results.segments[0].conditions.propulsion.battery_voltage_under_load[2][0]   
+            V_ul_diff   = np.abs(V_ul - V_ul_true[j,i])
+            print('Under Load voltage difference')
+            print(V_ul_diff)
+            assert np.abs((V_ul_diff)/V_ul_true[j,i]) < 1e-3  
             
-            ## Temperature Regression
-            #bat_temp        = results.segments[1].conditions.propulsion.battery_cell_temperature[2][0]    
-            #bat_temp_diff   = np.abs(bat_temp  - bat_temp_true[j,i]) 
-            #print('Battery temperature difference')
-            #print(bat_temp_diff)
+            # Temperature Regression
+            bat_temp        = results.segments[1].conditions.propulsion.battery_cell_temperature[2][0]    
+            bat_temp_diff   = np.abs(bat_temp  - bat_temp_true[j,i]) 
+            print('Battery temperature difference')
+            print(bat_temp_diff)
             #assert np.abs((bat_temp_diff)/bat_temp_true[j,i]) < 1e-3    
             
             plot_results(results,j,battery_chemistry[i], axes1, axes2, axes3, axes4, axes5, axes6,

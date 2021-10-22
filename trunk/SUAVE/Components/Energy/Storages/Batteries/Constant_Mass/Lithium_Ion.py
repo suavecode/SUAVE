@@ -326,7 +326,6 @@ class Lithium_Ion(Battery):
             N/A
     
             Inputs:  
-                self    - battery data structure             [unitless]
                 state   - segment unknowns to define voltage [unitless]
             
             Outputs
@@ -335,15 +334,8 @@ class Lithium_Ion(Battery):
             Properties Used:
             N/A
         """              
-        # Unpack battery properties
-        battery                          = self 
-        
-        # Set battery properties
-        battery.temperature              = state.conditions.propulsion.battery_pack_temperature 
-        
-        # Voltage under load
-        V_ul                             = state.unknowns.battery_voltage_under_load
-        return V_ul  
+
+        return state.conditions.propulsion.battery_voltage_under_load 
     
     def update_battery_state_of_health(self,segment,increment_battery_cycle_day = False):   
         print(' No aging model currently implemented for LFP cells. Pristine condition of \n '
