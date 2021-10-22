@@ -21,7 +21,7 @@ class Fidelity_Zero(Noise):
     
     """ SUAVE.Analyses.Noise.Fidelity_Zero()
     
-        The Fidelity One Noise Analysis Class
+        The Fidelity Zero Noise Analysis Class
         
             Assumptions:
             None

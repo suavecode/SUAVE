@@ -370,6 +370,19 @@ def GA_mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     #   Mission definition complete    
     # ------------------------------------------------------------------ 
+    
+
+    # ------------------------------------------------------------------
+    #  Charge Segment: 
+    # ------------------------------------------------------------------     
+    # Charge Model 
+    segment                                                 = Segments.Ground.Battery_Charge_Discharge(base_segment)     
+    segment.tag                                             = 'Charge'
+    segment.analyses.extend(analyses.base)           
+    segment.battery_discharge                               = False      
+    segment.increment_battery_cycle_day                     = True            
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)    
+    mission.append_segment(segment)       
     return mission
 
 
@@ -522,6 +535,19 @@ def EVTOL_mission_setup(analyses,vehicle):
     # add to misison
     mission.append_segment(segment)
     
+
+    # ------------------------------------------------------------------
+    #  Charge Segment: 
+    # ------------------------------------------------------------------  
+    # Charge Model 
+    segment                                                  = Segments.Ground.Battery_Charge_Discharge(base_segment)     
+    segment.tag                                              = 'Charge'
+    segment.analyses.extend(analyses.base)           
+    segment.battery_discharge                                = False    
+    segment.increment_battery_cycle_day                      = True         
+    segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment)    
+    mission.append_segment(segment)        
+    
     return mission
 
 def missions_setup(base_mission):
@@ -552,6 +578,7 @@ def plot_results(results,line_style,line_style2):
     # Plot Aircraft Electronics
     plot_battery_pack_conditions(results, line_style,line_style2) 
     plot_battery_cell_conditions(results, line_style,line_style2)
+    plot_battery_degradation(results)
     
     # Plot Propeller Conditions 
     plot_propeller_conditions(results, line_style) 

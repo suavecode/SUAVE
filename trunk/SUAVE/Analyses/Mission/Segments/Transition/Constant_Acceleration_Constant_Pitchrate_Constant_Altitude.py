@@ -77,8 +77,7 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.residuals.forces   = ones_row(2) * 0.0
-        self.state.VTOL_flag          = True       
+        self.state.residuals.forces   = ones_row(2) * 0.0 
         
         
         # --------------------------------------------------------------
@@ -146,7 +145,7 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
         finalize.post_process.aero_derivatives  = skip
-        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise 
         
         return
 

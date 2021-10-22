@@ -470,7 +470,7 @@ class Data(dict):
             
             # Check if v is an array and if k is a key in self
             if isinstance(v,array_type) and hasattr(self,k):
-                self[k] = copy(append_array(self[k],v))
+                self[k] = append_array(self[k],v)
             else:
                 try:
                     self[k].append_or_update(v)

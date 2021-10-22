@@ -581,6 +581,81 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
     return
 
 # ------------------------------------------------------------------
+#   Battery Degradation
+# ------------------------------------------------------------------
+## @ingroup Plots
+def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png"):
+    """This plots the battery cell degradation 
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.propulsion    
+        battery_cycle_day                     [unitless]
+        battery_capacity_fade_factor          [-]
+        battery_resistance_growth_factor      [-]
+        battery_cell_charge_throughput        [Ah]
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	  
+    
+    axis_font = {'size':'14'}   
+    
+    fig  = plt.figure(save_filename)
+    fig.set_size_inches(12, 10)   
+    fig.suptitle('Battery Cell Degradation')
+    
+    num_segs          = len(results.segments)
+    time_hrs          = np.zeros(num_segs)
+    capacity_fade     = np.zeros_like(time_hrs)
+    resistance_growth = np.zeros_like(time_hrs)
+    cycle_day         = np.zeros_like(time_hrs)
+    charge_throughput = np.zeros_like(time_hrs)
+    
+    for i in range(num_segs):
+        time_hrs[i]            = results.segments[i].conditions.frames.inertial.time[-1,0] / Units.hour
+        cycle_day[i]           = results.segments[i].conditions.propulsion.battery_cycle_day 
+        capacity_fade[i]       = results.segments[i].conditions.propulsion.battery_capacity_fade_factor 
+        resistance_growth[i]   = results.segments[i].conditions.propulsion.battery_resistance_growth_factor 
+        charge_throughput[i]   =  results.segments[i].conditions.propulsion.battery_cell_charge_throughput[-1,0]  
+         
+    axes = plt.subplot(2,2,1)
+    axes.plot(charge_throughput, capacity_fade, line_color)
+    axes.plot(charge_throughput, resistance_growth, line_color2) 
+    axes.set_ylabel('% E/R_{0} Change',axis_font)
+    axes.set_xlabel('Time (hrs)',axis_font)
+    set_axes(axes)      
+
+    axes = plt.subplot(2,2,2)
+    axes.plot(time_hrs, capacity_fade, line_color)
+    axes.plot(time_hrs, resistance_growth, line_color2) 
+    axes.set_ylabel('% E/R_{0} Change',axis_font)
+    axes.set_xlabel('Time (hrs)',axis_font)
+    set_axes(axes)     
+
+    axes = plt.subplot(2,2,3)
+    axes.plot(cycle_day, capacity_fade, line_color)
+    axes.plot(cycle_day, resistance_growth, line_color2) 
+    axes.set_ylabel('% Capacity Fade/Resistance Growth',axis_font)
+    axes.set_xlabel('Time (days)',axis_font)
+    set_axes(axes)     
+    
+    plt.tight_layout()    
+    if save_figure:    
+        fig.savefig(save_filename + file_type) 
+    
+    return
+
+
+# ------------------------------------------------------------------
 #   Flight Conditions
 # ------------------------------------------------------------------
 ## @ingroup Plots
@@ -618,7 +693,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         airspeed = segment.conditions.freestream.velocity[:,0] /   Units['mph']  
         theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg
         
-        x        = segment.conditions.frames.inertial.position_vector[:,0]/ Units.mile
+        x        = segment.conditions.frames.inertial.position_vector[:,0]/ Units.nmi
         y        = segment.conditions.frames.inertial.position_vector[:,1]
         z        = segment.conditions.frames.inertial.position_vector[:,2]
         altitude = segment.conditions.freestream.altitude[:,0]/Units.feet
@@ -641,7 +716,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         
         axes = plt.subplot(2,2,4)
         axes.plot( time , x, 'bo-')
-        axes.set_ylabel('Range (miles)',axis_font)
+        axes.set_ylabel('Range (nmi)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)         
     
@@ -1555,9 +1630,9 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     N_gm_x       = results.segments[0].analyses.noise.settings.level_ground_microphone_x_resolution  
     N_gm_y       = results.segments[0].analyses.noise.settings.level_ground_microphone_y_resolution 
     gm           = results.segments[0].conditions.noise.ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3)
-    gm_x         = gm[:,:,0]
-    gm_y         = gm[:,:,1]
-    colors       = cm.jet(np.linspace(0, 1,int(N_gm_y/2)))   
+    gm_x         = -gm[:,:,0]
+    gm_y         = -gm[:,:,1]
+    colors       = cm.jet(np.linspace(0, 1,N_gm_y))   
     
     # figure parameters
     axis_font    = {'size':'14'} 
@@ -1574,10 +1649,10 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
             else:
                 SPL[i,j,:] = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm].reshape(N_gm_x,N_gm_y)  
     max_SPL = np.max(np.max(SPL,axis=0),axis=0)   
-    for k in range(int(N_gm_y/2)):    
-        axes.plot(-gm_x[:,0], max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
+    for k in range(N_gm_y):    
+        axes.plot(gm_x[:,0]/Units.nmi, max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
     axes.set_ylabel('SPL (dBA)',axis_font)
-    axes.set_xlabel('Range (m)',axis_font)  
+    axes.set_xlabel('Range (nmi)',axis_font)  
     set_axes(axes)
     axes.legend(loc='upper right')         
     if save_figure:

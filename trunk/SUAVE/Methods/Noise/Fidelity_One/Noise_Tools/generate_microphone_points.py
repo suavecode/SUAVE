@@ -35,7 +35,7 @@ def generate_ground_microphone_points(min_x,max_x,min_y,max_y,N_x,N_y):
     Properties Used:
         N/A       
     """       
-    num_gm = N_x*N_y
+    num_gm                = N_x*N_y
     gm_mic_locations      = np.zeros((num_gm,3))    
     x_coords_0            = np.repeat(np.linspace(min_x,max_x,N_x)[:,np.newaxis],N_y, axis = 1)
     y_coords_0            = np.repeat(np.linspace(min_y,max_y,N_y)[:,np.newaxis],N_x, axis = 1).T
