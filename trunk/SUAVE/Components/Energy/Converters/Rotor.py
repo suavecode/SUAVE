@@ -415,12 +415,13 @@ class Rotor(Energy_Component):
             
             bemt_outputs = copy.deepcopy(self.outputs)
             
-            # converge on va for semi-prescribed wake method
-            va_diff = 1
-            while va_diff > 1e-2:  
-                #gamma_diff = 1
-                #while gamma_diff > 1e-2:
-                
+            # converge on va for BEMT
+            #while va_diff > 1e-2:
+            #va_diff = 1
+            #while va_diff > 1e-2:  
+            gamma_diff = 1
+            while gamma_diff > 1e-2:
+            
                 # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
                 va, vt = compute_HFW_inflow_velocities(self)
     
@@ -436,16 +437,17 @@ class Rotor(Energy_Component):
     
                 # compute HFW circulation at the blade
                 Gamma = 0.5*W*c*Cl # Gamma_Blade
-                    
-                #print("\ncirculation diff:")
-                #gamma_diff = 1e-3#np.max(abs(Gamma - Gamma_disc ))
-                #print(np.max(abs(Gamma - Gamma_disc )))
+                
+                print("\ncirculation diff:")
+                gamma_diff = 1e-3#np.max(abs(Gamma - Gamma_disc ))
+                print(np.max(abs(Gamma - Gamma_disc )))
+                
                 #self.outputs.disc_circulation = Gamma_disc + 0.25*(Gamma-Gamma_disc)
             
-                va_diff = np.max(abs(va - self.outputs.disc_axial_induced_velocity))
-                print(va_diff)
-                # incrementally adjust the axial disc velocity based on new va from HFW
-                self.outputs.disc_axial_induced_velocity = self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
+                #va_diff = np.max(abs(va - self.outputs.disc_axial_induced_velocity))
+                #print(va_diff)
+                ## incrementally adjust the axial disc velocity based on new va from HFW
+                #self.outputs.disc_axial_induced_velocity = self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
                                 
                 
 
