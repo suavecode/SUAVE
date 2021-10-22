@@ -18,7 +18,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 from copy import deepcopy
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def update_vortex_ring_positions(prop, wVD_collapsed, VD, dt): 
+def update_vortex_ring_positions(prop, wVD_collapsed, VD, dt,quasi_wake=True): 
     """
     Computes influence of all ring vortices on each other, updates positions accordinly
     
@@ -33,6 +33,8 @@ def update_vortex_ring_positions(prop, wVD_collapsed, VD, dt):
     #VD.XC = deepcopy(wVD_collapsed.XC)
     #VD.YC = deepcopy(wVD_collapsed.YC)
     #VD.ZC = deepcopy(wVD_collapsed.ZC)
+    
+    Vinf  = prop.outputs.velocity
     
     #-----------------------------------------------
     # Evaluate at all A1 points on panels
@@ -79,48 +81,88 @@ def update_vortex_ring_positions(prop, wVD_collapsed, VD, dt):
     # compute vortex-induced velocities at centers of each vortex ring
     V_B2 = compute_wake_induced_velocity(wVD_collapsed, VD, cpts=1)        
     
-
     #-----------------------------------------------
     # Average
     #-----------------------------------------------   
-    V_ind = (V_A1+V_A2+V_B1+V_B2)/4
-    
-    Vinf  = prop.outputs.velocity
-    
-    Vx = Vinf[0,0] - V_ind[:,:,0]
-    Vy = Vinf[0,1] - V_ind[:,:,1]
-    Vz = Vinf[0,2] - V_ind[:,:,2]
+    V_avg = (V_A1+V_A2+V_B1+V_B2)/4
+
+    Vx = Vinf[0,0] - V_avg[:,:,0]
+    Vy = Vinf[0,1] - V_avg[:,:,1]
+    Vz = Vinf[0,2] - V_avg[:,:,2]
     
     # Translate from velocity frame to rotor frame
     rot_to_body = prop.prop_vel_to_body()
+    Vxp, Vyp, Vzp = rotate_frames(Vx, Vy, Vz, rot_to_body)
     
+    if quasi_wake:
+        # Update all panel points using averaged induced velocities
+        wVD_collapsed.XA1 += Vxp*dt
+        wVD_collapsed.XA2 += Vxp*dt
+        wVD_collapsed.XB1 += Vxp*dt
+        wVD_collapsed.XB2 += Vxp*dt
+        wVD_collapsed.XC  += Vxp*dt
+    
+        
+        wVD_collapsed.YA1 += Vyp*dt
+        wVD_collapsed.YA2 += Vyp*dt
+        wVD_collapsed.YB1 += Vyp*dt
+        wVD_collapsed.YB2 += Vyp*dt
+        wVD_collapsed.YC  += Vyp*dt
+    
+        
+        wVD_collapsed.ZA1 += Vzp*dt
+        wVD_collapsed.ZA2 += Vzp*dt
+        wVD_collapsed.ZB1 += Vzp*dt
+        wVD_collapsed.ZB2 += Vzp*dt
+        wVD_collapsed.ZC  += Vzp*dt
+    else:
+        # update point positions based on their local velocity, centers updated with the average velocities
+        Vxa1 = Vinf[0,0] - V_A1[:,:,0]
+        Vya1 = Vinf[0,1] - V_A1[:,:,1]
+        Vza1 = Vinf[0,2] - V_A1[:,:,2]
+        Vxa1, Vya1, Vza1 = rotate_frames(Vxa1, Vya1, Vza1, rot_to_body)
+        
+        Vxa2 = Vinf[0,0] - V_A2[:,:,0]
+        Vya2 = Vinf[0,1] - V_A2[:,:,1]
+        Vza2 = Vinf[0,2] - V_A2[:,:,2]
+        Vxa2, Vya2, Vza2 = rotate_frames(Vxa2, Vya2, Vza2, rot_to_body)        
+        
+        Vxb1 = Vinf[0,0] - V_B1[:,:,0]
+        Vyb1 = Vinf[0,1] - V_B1[:,:,1]
+        Vzb1 = Vinf[0,2] - V_B1[:,:,2]
+        Vxb1, Vyb1, Vzb1 = rotate_frames(Vxb1, Vyb1, Vzb1, rot_to_body)        
+        
+        Vxb2 = Vinf[0,0] - V_B2[:,:,0]
+        Vyb2 = Vinf[0,1] - V_B2[:,:,1]
+        Vzb2 = Vinf[0,2] - V_B2[:,:,2]
+        Vxb2, Vyb2, Vzb2 = rotate_frames(Vxb2, Vyb2, Vzb2, rot_to_body)      
+        
+        wVD_collapsed.XA1 += Vxa1*dt
+        wVD_collapsed.XA2 += Vxa2*dt
+        wVD_collapsed.XB1 += Vxb1*dt
+        wVD_collapsed.XB2 += Vxb2*dt
+        wVD_collapsed.XC  += Vxp*dt
+    
+        
+        wVD_collapsed.YA1 += Vya1*dt
+        wVD_collapsed.YA2 += Vya2*dt
+        wVD_collapsed.YB1 += Vyb1*dt
+        wVD_collapsed.YB2 += Vyb2*dt
+        wVD_collapsed.YC  += Vyp*dt
+    
+        
+        wVD_collapsed.ZA1 += Vza1*dt
+        wVD_collapsed.ZA2 += Vza2*dt
+        wVD_collapsed.ZB1 += Vzb1*dt
+        wVD_collapsed.ZB2 += Vzb2*dt
+        wVD_collapsed.ZC  += Vzp*dt        
+        
+
+    return wVD_collapsed
+
+def rotate_frames(Vx, Vy, Vz, rot_to_body):
     Vxp = Vx*rot_to_body[2,2] + Vz*rot_to_body[2,0]  # x in prop frame points downstream
     Vyp = Vy*rot_to_body[1,1]                        # y in prop frame along propeller plane
     Vzp = Vz*rot_to_body[0,0] + Vx*rot_to_body[0,2]  # z in prop frame along propeller plane
     
-    # Translate vortex rings with velocity Vx in x-direction
-    
-    wVD_collapsed.XA1 += Vxp*dt
-    wVD_collapsed.XA2 += Vxp*dt
-    wVD_collapsed.XB1 += Vxp*dt
-    wVD_collapsed.XB2 += Vxp*dt
-    wVD_collapsed.XC  += Vxp*dt
-
-    
-    wVD_collapsed.YA1 += Vyp*dt
-    wVD_collapsed.YA2 += Vyp*dt
-    wVD_collapsed.YB1 += Vyp*dt
-    wVD_collapsed.YB2 += Vyp*dt
-    wVD_collapsed.YC  += Vyp*dt
-
-    
-    wVD_collapsed.ZA1 += Vzp*dt
-    wVD_collapsed.ZA2 += Vzp*dt
-    wVD_collapsed.ZB1 += Vzp*dt
-    wVD_collapsed.ZB2 += Vzp*dt
-    wVD_collapsed.ZC  += Vzp*dt
-    
-    
-    
-    
-    return wVD_collapsed
+    return Vxp, Vyp, Vzp
