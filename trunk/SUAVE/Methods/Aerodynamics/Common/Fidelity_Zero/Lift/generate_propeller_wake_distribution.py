@@ -126,18 +126,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         wake_skew_angle = -np.arctan(mu_prop/lambda_tot)
         
         # reshape gamma to find the average between stations 
-        gamma_new = np.zeros((m,(Nr-1),Na))    # [control points, Nr-1, Na ] one less radial station because ring
+        gamma_new = np.zeros((m,(Nr-1),Na))                  # [control points, Nr-1, Na ] one less radial station because ring
         gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5
-
-
-        ## adjust gamma distribution (negate the root portion to account for X2-->X1 vortex)
-        #dgamma = np.gradient(gamma_new[0,:,0])
-        #gamma_slope_sign = np.ones_like(dgamma)
-        #gamma_slope_sign[dgamma>0]=-1
-        #gamma_slope_sign = np.tile(gamma_slope_sign[None,:,None], (m,1,Na))
-        #gamma_new = gamma_new*gamma_slope_sign
-        
-        
         
         num       = int(Na/B)  
         time_idx  = np.arange(nts)
@@ -146,7 +136,6 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         B_loc     = (B_idx*num + t_idx)%Na  
         Gamma     = gamma_new[:,:,B_loc]  
         Gamma     = Gamma.transpose(0,3,1,2)
-        
         
         
         # --------------------------------------------------------------------------------------------------------------
@@ -257,10 +246,6 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
             Y_pts = np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3)
             Z_pts = np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3)
             
-            #lifting_line_panels = np.zeros_like(X_pts,dtype=bool)
-            #lifting_line_panels[:,:,:,0] = True
-            
-        
 
         # Store points  
         # ( control point,  prop  , blade number , location on blade, time step )
