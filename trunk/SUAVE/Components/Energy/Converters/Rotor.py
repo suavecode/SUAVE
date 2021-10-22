@@ -963,22 +963,6 @@ def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
     dR_dpsi[np.isnan(dR_dpsi)] = 0.1
     return dR_dpsi
 
-def compute_dR_dva(va, va_input):
-    """
-    Computes the derivative of the residual on the inflow velocity with respect to the input
-    inflow velocity. Uses forward-difference.
-    
-    Inputs: 
-       va       - axially induced wake velocities at the disc due to current wake shape
-       va_input - axially induced input wake velocities used to generate wake shape
-    """
-    # Residual: va-va_input
-    
-    
-    
-    
-    return dR_dva
-
 def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     """
     Computes the inflow, lamdaw, and the tip loss factor, F.

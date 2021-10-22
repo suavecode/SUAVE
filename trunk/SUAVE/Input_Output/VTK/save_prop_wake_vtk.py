@@ -55,13 +55,14 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         points_header = "\n\nPOINTS "+str(n_vertices) +" float"
         f.write(points_header)    
         node_number=[]
+        
+        # Loop over number of rotor blades
         for B_idx in range(n_blades):
-            # Loop over number of "chordwise" panels in the wake distribution
+            # Loop over number of "chordwise" panels in the wake distribution  
             for t_idx in range(n_time_steps+1):
-                # Loop over number of "radial" or "spanwise" panels in the wake distribution            
+                # Loop over number of "radial" or "spanwise" panels in the wake distribution 
                 for r_idx in range(n_radial_rings+1):            
-                    # Loop over number of rotor blades
-
+                    
                     #-------------------------------------------------------------------
                     # Get vertices for each node
                     #-------------------------------------------------------------------
@@ -77,7 +78,6 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
                         y = round(wVD.YA2[i_prop,B_idx,r_idx,t_idx],4)
                         z = round(wVD.ZA2[i_prop,B_idx,r_idx,t_idx],4)   
                         
-                        
                     elif r_idx==n_radial_rings:  
                         # Last radial ring for tstep; use B1 of prior to get tip node
                         x = round(wVD.XB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
@@ -89,11 +89,10 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
                         y = round(wVD.YA1[i_prop,B_idx,r_idx,t_idx-1],4)
                         z = round(wVD.ZA1[i_prop,B_idx,r_idx,t_idx-1],4)
                     
-                    
-                    
                     new_point = "\n"+str(x)+" "+str(y)+" "+str(z)
                     node_number = np.append(node_number, r_idx + (n_radial_rings)*t_idx)
                     f.write(new_point)                
+                    
         #---------------------    
         # Write Cells:
         #---------------------
@@ -133,7 +132,7 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         # First scalar value
         f.write("\nSCALARS gamma float 1")
         f.write("\nLOOKUP_TABLE default")   
-        #blade_circulation = Results['prop_outputs'].disc_circulation[0,:,0]
+        
         circulations=[]
         for B_idx in range(n_blades):
             for t_idx in range(n_time_steps):
@@ -340,9 +339,7 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
                     rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring    
                     
                 
-                
         # Store vortex distribution for this blade
-        
         sep  = filename.rfind('.')
         VD_filename = filename[0:sep]+"_VD_blade"+str(B_idx)+filename[sep:]  
         write_VD(rings,n_time_steps,n_radial_rings, VD_filename)

@@ -183,7 +183,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4 - airfoil_le_offset
         y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4
         x_cp_airfoils = 1*(xle_airfoils - xte_airfoils)/2 - airfoil_le_offset
-        y_cp_airfoils = 0#1*(yle_airfoils - yte_airfoils)/2
+        y_cp_airfoils = 0 #1*(yle_airfoils - yte_airfoils)/2
         
         # apply blade twist rotation along rotor radius
         beta = propi.twist_distribution
