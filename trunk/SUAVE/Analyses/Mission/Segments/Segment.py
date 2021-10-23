@@ -155,26 +155,6 @@ class Segment(Analysis):
         """         
         self.process.finalize(self)
         return
- 
-    def compile(self):
-        """ This does nothing
-    
-            Assumptions:
-            None
-    
-            Source:
-            N/A
-    
-            Inputs:
-            State  [Data()]
-    
-            Outputs:
-            None
-    
-            Properties Used:
-            None
-        """         
-        return
     
                         
     def evaluate(self,state=None):
