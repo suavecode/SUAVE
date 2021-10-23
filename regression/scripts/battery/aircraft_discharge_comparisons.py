@@ -30,7 +30,7 @@ from Stopped_Rotor       import configs_setup as   EVTOL_configs_setup
 
 def main():     
     
-    battery_chemistry  =  ['NCA','NMC','LFP']
+    battery_chemistry  =  ['NMC','LFP']
     line_style_new     =  ['bo-','ro-','ko-']
     line_style2_new    =  ['bs-','rs-','ks-'] 
     
@@ -126,10 +126,8 @@ def GA_full_setup(battery_chemistry):
     
     # Modify  Battery  
     net = vehicle.networks.battery_propeller
-    bat = net.battery
-    if battery_chemistry == 'NCA':
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()     
-    elif battery_chemistry == 'NMC': 
+    bat = net.battery 
+    if battery_chemistry == 'NMC': 
         bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
     elif battery_chemistry == 'LFP': 
         bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()  
@@ -174,10 +172,8 @@ def EVTOL_full_setup(battery_chemistry):
 
     # Modify  Battery  
     net = vehicle.networks.lift_cruise
-    bat = net.battery
-    if battery_chemistry == 'NCA':
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()   
-    elif battery_chemistry == 'NMC': 
+    bat = net.battery 
+    if battery_chemistry == 'NMC': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
@@ -304,7 +300,7 @@ def GA_mission_setup(analyses,vehicle):
     # base segment
     base_segment = Segments.Segment()
     ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 4 
     base_segment.battery_age_in_days                         = 1 # optional but added for regression
@@ -408,7 +404,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     # base segment
     base_segment                                             = Segments.Segment()
     base_segment.state.numerics.number_control_points        = 3 
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
 
     # VSTALL Calculation

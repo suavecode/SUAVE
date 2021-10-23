@@ -29,7 +29,6 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
                internal_resistance             [Ohms]
                state_of_charge                 [unitless]
                pack_temperature                [Kelvin]
-               thevenin_voltage                [Volts]   
                mass_properties.mass            [kilograms] 
                cell_voltage_under_load         [Volts]  
                cell_voltage_open_circuit       [Volts]  
@@ -51,7 +50,6 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
                battery_internal_resistance        [Ohms]
                battery_state_of_charge            [unitless]
                battery_pack_temperature           [Kelvin]
-               battery_thevenin_voltage           [Volts] 
                battery_efficiency                 [unitless]
                payload_efficiency                 [unitless]
                battery_specfic_power              [Watt-hours/kilogram]     
@@ -84,8 +82,7 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
     conditions.propulsion.battery_cycle_day                    = battery.age
     conditions.propulsion.battery_internal_resistance          = battery.internal_resistance
     conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
-    conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
-    conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage  
+    conditions.propulsion.battery_pack_temperature             = battery.pack_temperature  
     conditions.propulsion.battery_efficiency                   = (battery_power_draw+battery.resistive_losses)/battery_power_draw
     conditions.propulsion.payload_efficiency                   = (battery_power_draw+avionics_payload_power)/battery_power_draw            
     conditions.propulsion.battery_specfic_power                = -battery_power_draw/battery.mass_properties.mass    

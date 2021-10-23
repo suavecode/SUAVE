@@ -14,6 +14,7 @@
 
 from SUAVE.Analyses import Process
 from SUAVE.Core import Data
+from SUAVE.Methods.skip import skip
 
 # ----------------------------------------------------------------------
 #  Expand Sub Segments
@@ -49,6 +50,9 @@ def expand_sub_segments(segment):
         last_tag = tag        
         
         sub_segment.process.initialize.expand_state(sub_segment)
+        
+        # Now we need to skip this next time because it's already done
+        sub_segment.process.initialize.expand_state = skip
                
         if Process.verbose:
             print('segment end :' , tag)        
