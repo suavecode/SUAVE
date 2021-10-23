@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data,Units
+from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
@@ -84,9 +84,9 @@ def compute_HFW_inflow_velocities( prop ):
         Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0] 
         
 
-        VD.YC = (Yb[1:] + Yb[:-1])/2   # Yb
-        VD.ZC = (Zb[1:] + Zb[:-1])/2   # Zb
-        VD.XC = (Xb[1:] + Xb[:-1])/2   # Xb
+        VD.YC = (Yb[1:] + Yb[:-1])/2
+        VD.ZC = (Zb[1:] + Zb[:-1])/2
+        VD.XC = (Xb[1:] + Xb[:-1])/2
          
         
         VD.n_cp = np.size(VD.YC)
@@ -99,7 +99,6 @@ def compute_HFW_inflow_velocities( prop ):
         v       = V_ind[0,:,1]   # velocity in vehicle y-frame
         w       = V_ind[0,:,2]   # velocity in vehicle z-frame
         
-        #if ILL:
         # interpolate to get values at rotor radial stations
         r_midpts = (r[1:] + r[:-1])/2
         u_r = interp1d(r_midpts, u, fill_value="extrapolate")

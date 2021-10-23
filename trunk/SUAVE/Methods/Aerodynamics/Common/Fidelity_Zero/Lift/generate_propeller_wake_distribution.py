@@ -183,7 +183,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4 - airfoil_le_offset
         y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4
         x_cp_airfoils = 1*(xle_airfoils - xte_airfoils)/2 - airfoil_le_offset
-        y_cp_airfoils = 0 #1*(yle_airfoils - yte_airfoils)/2
+        y_cp_airfoils = 1*(yle_airfoils - yte_airfoils)/2
         
         # apply blade twist rotation along rotor radius
         beta = propi.twist_distribution
@@ -279,32 +279,32 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         Wmid.WD_GAMMA[:,i,0:B,:,:] = Gamma 
 
         # store points for plotting 
-        VD.Wake.XA1[i,0:B,:,:] =  X_pts[0 , : , :-1 , :-1 ]
-        VD.Wake.YA1[i,0:B,:,:] =  Y_pts[0 , : , :-1 , :-1 ]
-        VD.Wake.ZA1[i,0:B,:,:] =  Z_pts[0 , : , :-1 , :-1 ]
-        VD.Wake.XA2[i,0:B,:,:] =  X_pts[0 , : , :-1 ,  1: ]
-        VD.Wake.YA2[i,0:B,:,:] =  Y_pts[0 , : , :-1 ,  1: ]
-        VD.Wake.ZA2[i,0:B,:,:] =  Z_pts[0 , : , :-1 ,  1: ]
-        VD.Wake.XB1[i,0:B,:,:] =  X_pts[0 , : , 1:  , :-1 ]
-        VD.Wake.YB1[i,0:B,:,:] =  Y_pts[0 , : , 1:  , :-1 ]
-        VD.Wake.ZB1[i,0:B,:,:] =  Z_pts[0 , : , 1:  , :-1 ]
-        VD.Wake.XB2[i,0:B,:,:] =  X_pts[0 , : , 1:  ,  1: ]
-        VD.Wake.YB2[i,0:B,:,:] =  Y_pts[0 , : , 1:  ,  1: ]
-        VD.Wake.ZB2[i,0:B,:,:] =  Z_pts[0 , : , 1:  ,  1: ]  
+        VD.Wake.XA1[:,i,0:B,:,:] =  X_pts[: , : , :-1 , :-1 ]
+        VD.Wake.YA1[:,i,0:B,:,:] =  Y_pts[: , : , :-1 , :-1 ]
+        VD.Wake.ZA1[:,i,0:B,:,:] =  Z_pts[: , : , :-1 , :-1 ]
+        VD.Wake.XA2[:,i,0:B,:,:] =  X_pts[: , : , :-1 ,  1: ]
+        VD.Wake.YA2[:,i,0:B,:,:] =  Y_pts[: , : , :-1 ,  1: ]
+        VD.Wake.ZA2[:,i,0:B,:,:] =  Z_pts[: , : , :-1 ,  1: ]
+        VD.Wake.XB1[:,i,0:B,:,:] =  X_pts[: , : , 1:  , :-1 ]
+        VD.Wake.YB1[:,i,0:B,:,:] =  Y_pts[: , : , 1:  , :-1 ]
+        VD.Wake.ZB1[:,i,0:B,:,:] =  Z_pts[: , : , 1:  , :-1 ]
+        VD.Wake.XB2[:,i,0:B,:,:] =  X_pts[: , : , 1:  ,  1: ]
+        VD.Wake.YB2[:,i,0:B,:,:] =  Y_pts[: , : , 1:  ,  1: ]
+        VD.Wake.ZB2[:,i,0:B,:,:] =  Z_pts[: , : , 1:  ,  1: ]  
         
         # Append wake geometry and vortex strengths to each individual propeller
-        propi.Wake_VD.XA1   = VD.Wake.XA1[i,0:B,:,:]
-        propi.Wake_VD.YA1   = VD.Wake.YA1[i,0:B,:,:]
-        propi.Wake_VD.ZA1   = VD.Wake.ZA1[i,0:B,:,:]
-        propi.Wake_VD.XA2   = VD.Wake.XA2[i,0:B,:,:]
-        propi.Wake_VD.YA2   = VD.Wake.YA2[i,0:B,:,:]
-        propi.Wake_VD.ZA2   = VD.Wake.ZA2[i,0:B,:,:]
-        propi.Wake_VD.XB1   = VD.Wake.XB1[i,0:B,:,:]
-        propi.Wake_VD.YB1   = VD.Wake.YB1[i,0:B,:,:]
-        propi.Wake_VD.ZB1   = VD.Wake.ZB1[i,0:B,:,:]
-        propi.Wake_VD.XB2   = VD.Wake.XB2[i,0:B,:,:]
-        propi.Wake_VD.YB2   = VD.Wake.YB2[i,0:B,:,:]
-        propi.Wake_VD.ZB2   = VD.Wake.ZB2[i,0:B,:,:]
+        propi.Wake_VD.XA1   = VD.Wake.XA1[:,i,0:B,:,:]
+        propi.Wake_VD.YA1   = VD.Wake.YA1[:,i,0:B,:,:]
+        propi.Wake_VD.ZA1   = VD.Wake.ZA1[:,i,0:B,:,:]
+        propi.Wake_VD.XA2   = VD.Wake.XA2[:,i,0:B,:,:]
+        propi.Wake_VD.YA2   = VD.Wake.YA2[:,i,0:B,:,:]
+        propi.Wake_VD.ZA2   = VD.Wake.ZA2[:,i,0:B,:,:]
+        propi.Wake_VD.XB1   = VD.Wake.XB1[:,i,0:B,:,:]
+        propi.Wake_VD.YB1   = VD.Wake.YB1[:,i,0:B,:,:]
+        propi.Wake_VD.ZB1   = VD.Wake.ZB1[:,i,0:B,:,:]
+        propi.Wake_VD.XB2   = VD.Wake.XB2[:,i,0:B,:,:]
+        propi.Wake_VD.YB2   = VD.Wake.YB2[:,i,0:B,:,:]
+        propi.Wake_VD.ZB2   = VD.Wake.ZB2[:,i,0:B,:,:]
         propi.Wake_VD.GAMMA = Wmid.WD_GAMMA[:,i,0:B,:,:]
         
         # append trailing edge locations
@@ -380,7 +380,7 @@ def initialize_distributions(nmax, Bmax, n_wts, n_props, m,VD):
     WD.ZB2    = np.zeros(mat2_size) 
 
     VD.Wake       = Data()
-    mat3_size     = (n_props,Bmax,nmax,n_wts)
+    mat3_size     = (m,n_props,Bmax,nmax,n_wts)
     VD.Wake.XA1   = np.zeros(mat3_size) 
     VD.Wake.YA1   = np.zeros(mat3_size) 
     VD.Wake.ZA1   = np.zeros(mat3_size) 

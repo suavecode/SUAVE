@@ -26,8 +26,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_HFW_inflow_vel
 # package imports
 import numpy as np
 import scipy as sp
-from scipy.interpolate import interp1d
-import copy
+
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
@@ -414,7 +413,8 @@ class Rotor(Energy_Component):
         elif wake_method == "helical_fixed_wake":
             
             # converge on va for a semi-prescribed wake method
-            va_diff = 1
+            ii,ii_max = 0, 50            
+            va_diff, tol = 1, 1e-3
             while va_diff > 1e-2:  
                 
                 # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
@@ -428,13 +428,18 @@ class Rotor(Energy_Component):
                 Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
     
                 lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-    
+                
+                va_diff = np.max(abs(va - self.outputs.disc_axial_induced_velocity))
                 # compute HFW circulation at the blade
                 Gamma = 0.5*W*c*Cl
                     
                 # update the axial disc velocity based on new va from HFW
                 self.outputs.disc_axial_induced_velocity = self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
                 
+                ii+=1
+                if ii>ii_max and va_diff>tol:
+                    print("Semi-prescribed helical wake did not converge on axial inflow used for wake shape.")
+                                
 
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
         va     = F*va
