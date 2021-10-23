@@ -67,11 +67,9 @@ def compute_HFW_inflow_velocities( prop ):
         init_timestep_offset = blade_angle/(omega * dt)
 
         # generate wake distribution using initial circulation from BEMT
-        ILL = True
         WD, _, _, _, _  = generate_propeller_wake_distribution(props,identical,cpts,VD,
                                                                init_timestep_offset, time,
-                                                               number_of_wake_timesteps,conditions,
-                                                               include_lifting_line=ILL )
+                                                               number_of_wake_timesteps,conditions )
 
 
         # ----------------------------------------------------------------
