@@ -415,7 +415,7 @@ class Rotor(Energy_Component):
             # converge on va for a semi-prescribed wake method
             ii,ii_max = 0, 50            
             va_diff, tol = 1, 1e-3
-            while va_diff > 1e-2:  
+            while va_diff > tol:  
                 
                 # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
                 va, vt = compute_HFW_inflow_velocities(self)

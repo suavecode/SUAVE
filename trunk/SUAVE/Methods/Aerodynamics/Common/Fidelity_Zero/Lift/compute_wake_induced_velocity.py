@@ -131,8 +131,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,VD=None,use_regula
     COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)    
     
     if use_regularization_kernal:
-        KAPPA = regularization_kernel(COEF, sigma)
-        COEF  = KAPPA
+        COEF = regularization_kernel(COEF, sigma)
     
     if bv:
         # ignore the row of panels corresponding to the lifting line of the rotor
@@ -158,9 +157,9 @@ def regularization_kernel(COEF, sigma):
        KAPPA   Regularization Kernel
     
     """
-    COEF = np.nan_to_num(COEF,nan=1e-12)
+    COEF     = np.nan_to_num(COEF,nan=1e-12)
     COEF_MAG = np.sqrt(COEF**2)
-    R = np.sqrt(1/(4*np.pi*COEF_MAG))
+    R        = np.sqrt(1/(4*np.pi*COEF_MAG))
     
     NUM = R*(np.square(R/sigma) + (5/2))
     DEN = 4*np.pi*(sigma**3)*((np.square(R/sigma) + 1)**(5/2))
