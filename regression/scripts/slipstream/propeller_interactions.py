@@ -72,7 +72,7 @@ def main():
     assert(abs(Cp_iso-Cp_iso_true)<1e-6)
     assert(abs(etap_iso-etap_iso_true)<1e-6)
     
-    T_true, Q_true, P_true, Cp_true, etap_true = 3.288117193505058,0.07272618,49.50313775,0.04623596,0.59386939
+    T_true, Q_true, P_true, Cp_true, etap_true = 3.2881167125820747,0.07272616,49.50312927,0.04623595,0.5938694
 
     assert(abs(np.linalg.norm(T)-T_true)<1e-6)
     assert(abs(Q-Q_true)<1e-6)
@@ -190,16 +190,16 @@ def simulation_settings(vehicle):
     grid_settings            = Data()
     grid_settings.radius     = vehicle.networks.prop_net.propeller.tip_radius
     grid_settings.hub_radius = vehicle.networks.prop_net.propeller.hub_radius
-    grid_settings.Nr         = 70
+    grid_settings.Nr         = 40
     grid_settings.Na         = 40
     
     # cartesian grid specs
-    grid_settings.Ny         = 80
-    grid_settings.Nz         = 80
+    grid_settings.Ny         = 50
+    grid_settings.Nz         = 50
     grid_settings.grid_mode  = 'cartesian'
     
     VLM_settings        = Data()
-    VLM_settings.number_spanwise_vortices        = 16
+    VLM_settings.number_spanwise_vortices        = 10
     VLM_settings.number_chordwise_vortices       = 4
     VLM_settings.use_surrogate                   = True
     VLM_settings.propeller_wake_model            = False
