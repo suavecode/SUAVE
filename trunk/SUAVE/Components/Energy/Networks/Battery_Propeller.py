@@ -360,7 +360,7 @@ class Battery_Propeller(Network):
 
     def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, initial_power_coefficient = 0.02,
                                               initial_battery_cell_temperature = 283. , initial_battery_state_of_charge = 0.5,
-                                              initial_battery_cell_current = 5. ,initial_battery_cell_thevenin_voltage= 0.1):
+                                              initial_battery_cell_current = 5.):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -412,14 +412,14 @@ class Battery_Propeller(Network):
             n_props = 1   
 
         # Assign initial segment conditions to segment if missing
-        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)      
+        append_initial_battery_conditions(segment)      
         
         # add unknowns and residuals specific to battery cell 
         segment.state.residuals.network = Residuals()  
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage,
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
-                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage)  
+                                              initial_battery_cell_current)  
 
         if segment.battery_discharge: 
             segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)  

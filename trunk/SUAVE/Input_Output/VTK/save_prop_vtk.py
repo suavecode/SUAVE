@@ -73,7 +73,7 @@ def save_prop_vtk(prop, filename, Results, time_step):
         G = Gprops[B_idx]
 
         sep  = filename.rfind('.')
-        file = filename[0:sep]+"_blade"+str(B_idx)+"_t"+str(time_step)+filename[sep:]
+        file = filename[0:sep]+"_blade"+str(B_idx)+"_t."+str(time_step)+filename[sep:]
 
         # Create file for each blade
         with open(file, 'w') as f:
@@ -372,7 +372,7 @@ def generate_lofted_propeller_points(prop):
         # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
         max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_a_loft,axis=1)
 
-        airfoil_le_offset = (b[0]/4 - np.repeat(b[:,None], n_a_loft, axis=1)/4 ) # no sweep
+        airfoil_le_offset = (b[0]/2 - np.repeat(b[:,None], n_a_loft, axis=1)/2 ) # no sweep
         xp      = rot*(- MCA_2d + xpts*b_2d + airfoil_le_offset)  # x coord of airfoil
         yp      = r_2d*np.ones_like(xp)                           # radial location
         zp      = zpts*(t_2d/max_t2d)                             # former airfoil y coord

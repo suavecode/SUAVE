@@ -69,9 +69,5 @@ class Sequential_Segments(Mission):
         # --------------------------------------------------------------        
         del self.process.iterate
 
-        # --------------------------------------------------------------
-        #   Finalize
-        # --------------------------------------------------------------        
-        self.process.finalize.sub_segments = Methods.Segments.Common.Sub_Segments.finalize_sub_segments
-        
+
         return

@@ -200,7 +200,7 @@ class Battery_Cell_Cycler(Network):
 
     def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
                                               initial_battery_cell_temperature = 300 , initial_battery_state_of_charge = 0.5,
-                                              initial_battery_cell_current = 5. ,initial_battery_cell_thevenin_voltage= 0.1 ):
+                                              initial_battery_cell_current = 5.):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -214,7 +214,6 @@ class Battery_Cell_Cycler(Network):
             initial_battery_cell_temperature      [Kelvin]
             initial_battery_state_of_charge       [unitless]
             initial_battery_cell_current          [Amperes]
-            initial_battery_cell_thevenin_voltage [Volts]
             
             Outputs
             None
@@ -226,14 +225,14 @@ class Battery_Cell_Cycler(Network):
         battery  = self.battery  
 
         # Assign initial segment conditions to segment if missing 
-        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)     
+        append_initial_battery_conditions(segment)     
             
         segment.state.residuals.network = Residuals()
         
         # add unknowns and residuals specific to battery cell
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage,
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
-                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage)  
+                                              initial_battery_cell_current)  
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns

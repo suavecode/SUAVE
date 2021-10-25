@@ -18,7 +18,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contracti
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry   
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions, include_lifting_line=False ): 
+def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 
@@ -73,11 +73,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         nmax = int(max(Nr_list)-1)
         
     
-    if include_lifting_line:
-        # Add additional time step to include lifting line panel on rotor
-        nts = number_of_wake_timesteps
-    else:
-        nts  = number_of_wake_timesteps-1    
+    # Add additional time step to include lifting line panel on rotor
+    nts = number_of_wake_timesteps 
         
     # Initialize empty arrays with required sizes
     VD, WD, Wmid = initialize_distributions(nmax, Bmax, nts, num_prop, m,VD)
@@ -124,11 +121,11 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
 
         # wake skew angle 
         wake_skew_angle = -np.arctan(mu_prop/lambda_tot)
-    
+        
         # reshape gamma to find the average between stations 
-        gamma_new = np.zeros((m,(Nr-1),Na))    # [control points, Nr-1, Na ] one less radial station because ring
+        gamma_new = np.zeros((m,(Nr-1),Na))                  # [control points, Nr-1, Na ] one less radial station because ring
         gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5
-
+        
         num       = int(Na/B)  
         time_idx  = np.arange(nts)
         t_idx     = np.atleast_2d(time_idx).T 
@@ -136,6 +133,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         B_loc     = (B_idx*num + t_idx)%Na  
         Gamma     = gamma_new[:,:,B_loc]  
         Gamma     = Gamma.transpose(0,3,1,2)
+        
         
         # --------------------------------------------------------------------------------------------------------------
         #    ( control point , blade number , radial location on blade , time step )
@@ -172,7 +170,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         yupper         = np.take(airfoil_data.y_upper_surface,a_secl,axis=0)   
         
         # Align the quarter chords of the airfoils (zero sweep)
-        airfoil_le_offset = (c[0]/4 - c/4 )
+        airfoil_le_offset = (c[0]/2 - c/2 )
         xte_airfoils      = xupper[:,-1]*c + airfoil_le_offset
         yte_airfoils      = yupper[:,-1]*c 
         
@@ -231,19 +229,26 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         X_pts   = propi.origin[0][0] + X_pts0*rot_to_body[2,2] + Z_pts0*rot_to_body[2,0]   
         Y_pts   = propi.origin[0][1] + Y_pts0*rot_to_body[1,1]                       
         Z_pts   = propi.origin[0][2] + Z_pts0*rot_to_body[0,0] + X_pts0*rot_to_body[0,2] 
-                
-        if include_lifting_line:
-            # prepend points at quarter chord to account for rotor lifting line
-            x_c_4 = x_c_4_rotor
-            y_c_4 = y_c_4_rotor
-            z_c_4 = z_c_4_rotor
-            
-            X_pts = np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3)
-            Y_pts = np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3)
-            Z_pts = np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3)
         
+        #------------------------------------------------------     
+        # Account for lifting line panels
+        #------------------------------------------------------
+        rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
+                    
+        # rotate rotor points to incidence angle
+        x_c_4 = x_c_4_rotor*rots[0,0] + y_c_4_rotor*rots[0,1] + z_c_4_rotor*rots[0,2]
+        y_c_4 = x_c_4_rotor*rots[1,0] + y_c_4_rotor*rots[1,1] + z_c_4_rotor*rots[1,2]
+        z_c_4 = x_c_4_rotor*rots[2,0] + y_c_4_rotor*rots[2,1] + z_c_4_rotor*rots[2,2]
+        
+        # prepend points at quarter chord to account for rotor lifting line
+        X_pts = np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3)
+        Y_pts = np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3)
+        Z_pts = np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3)
+            
 
+        #------------------------------------------------------
         # Store points  
+        #------------------------------------------------------
         # ( control point,  prop  , blade number , location on blade, time step )
         if (propi.rotation != None) and (propi.rotation == -1):  
             Wmid.WD_XA1[:,i,0:B,:,:] = X_pts[: , : , :-1 , :-1 ]
@@ -275,32 +280,32 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         Wmid.WD_GAMMA[:,i,0:B,:,:] = Gamma 
 
         # store points for plotting 
-        VD.Wake.XA1[i,0:B,:,:] =  X_pts[0 , : , :-1 , :-1 ]
-        VD.Wake.YA1[i,0:B,:,:] =  Y_pts[0 , : , :-1 , :-1 ]
-        VD.Wake.ZA1[i,0:B,:,:] =  Z_pts[0 , : , :-1 , :-1 ]
-        VD.Wake.XA2[i,0:B,:,:] =  X_pts[0 , : , :-1 ,  1: ]
-        VD.Wake.YA2[i,0:B,:,:] =  Y_pts[0 , : , :-1 ,  1: ]
-        VD.Wake.ZA2[i,0:B,:,:] =  Z_pts[0 , : , :-1 ,  1: ]
-        VD.Wake.XB1[i,0:B,:,:] =  X_pts[0 , : , 1:  , :-1 ]
-        VD.Wake.YB1[i,0:B,:,:] =  Y_pts[0 , : , 1:  , :-1 ]
-        VD.Wake.ZB1[i,0:B,:,:] =  Z_pts[0 , : , 1:  , :-1 ]
-        VD.Wake.XB2[i,0:B,:,:] =  X_pts[0 , : , 1:  ,  1: ]
-        VD.Wake.YB2[i,0:B,:,:] =  Y_pts[0 , : , 1:  ,  1: ]
-        VD.Wake.ZB2[i,0:B,:,:] =  Z_pts[0 , : , 1:  ,  1: ]  
+        VD.Wake.XA1[:,i,0:B,:,:] =  X_pts[: , : , :-1 , :-1 ]
+        VD.Wake.YA1[:,i,0:B,:,:] =  Y_pts[: , : , :-1 , :-1 ]
+        VD.Wake.ZA1[:,i,0:B,:,:] =  Z_pts[: , : , :-1 , :-1 ]
+        VD.Wake.XA2[:,i,0:B,:,:] =  X_pts[: , : , :-1 ,  1: ]
+        VD.Wake.YA2[:,i,0:B,:,:] =  Y_pts[: , : , :-1 ,  1: ]
+        VD.Wake.ZA2[:,i,0:B,:,:] =  Z_pts[: , : , :-1 ,  1: ]
+        VD.Wake.XB1[:,i,0:B,:,:] =  X_pts[: , : , 1:  , :-1 ]
+        VD.Wake.YB1[:,i,0:B,:,:] =  Y_pts[: , : , 1:  , :-1 ]
+        VD.Wake.ZB1[:,i,0:B,:,:] =  Z_pts[: , : , 1:  , :-1 ]
+        VD.Wake.XB2[:,i,0:B,:,:] =  X_pts[: , : , 1:  ,  1: ]
+        VD.Wake.YB2[:,i,0:B,:,:] =  Y_pts[: , : , 1:  ,  1: ]
+        VD.Wake.ZB2[:,i,0:B,:,:] =  Z_pts[: , : , 1:  ,  1: ]  
         
         # Append wake geometry and vortex strengths to each individual propeller
-        propi.Wake_VD.XA1   = VD.Wake.XA1[i,0:B,:,:]
-        propi.Wake_VD.YA1   = VD.Wake.YA1[i,0:B,:,:]
-        propi.Wake_VD.ZA1   = VD.Wake.ZA1[i,0:B,:,:]
-        propi.Wake_VD.XA2   = VD.Wake.XA2[i,0:B,:,:]
-        propi.Wake_VD.YA2   = VD.Wake.YA2[i,0:B,:,:]
-        propi.Wake_VD.ZA2   = VD.Wake.ZA2[i,0:B,:,:]
-        propi.Wake_VD.XB1   = VD.Wake.XB1[i,0:B,:,:]
-        propi.Wake_VD.YB1   = VD.Wake.YB1[i,0:B,:,:]
-        propi.Wake_VD.ZB1   = VD.Wake.ZB1[i,0:B,:,:]
-        propi.Wake_VD.XB2   = VD.Wake.XB2[i,0:B,:,:]
-        propi.Wake_VD.YB2   = VD.Wake.YB2[i,0:B,:,:]
-        propi.Wake_VD.ZB2   = VD.Wake.ZB2[i,0:B,:,:]
+        propi.Wake_VD.XA1   = VD.Wake.XA1[:,i,0:B,:,:]
+        propi.Wake_VD.YA1   = VD.Wake.YA1[:,i,0:B,:,:]
+        propi.Wake_VD.ZA1   = VD.Wake.ZA1[:,i,0:B,:,:]
+        propi.Wake_VD.XA2   = VD.Wake.XA2[:,i,0:B,:,:]
+        propi.Wake_VD.YA2   = VD.Wake.YA2[:,i,0:B,:,:]
+        propi.Wake_VD.ZA2   = VD.Wake.ZA2[:,i,0:B,:,:]
+        propi.Wake_VD.XB1   = VD.Wake.XB1[:,i,0:B,:,:]
+        propi.Wake_VD.YB1   = VD.Wake.YB1[:,i,0:B,:,:]
+        propi.Wake_VD.ZB1   = VD.Wake.ZB1[:,i,0:B,:,:]
+        propi.Wake_VD.XB2   = VD.Wake.XB2[:,i,0:B,:,:]
+        propi.Wake_VD.YB2   = VD.Wake.YB2[:,i,0:B,:,:]
+        propi.Wake_VD.ZB2   = VD.Wake.ZB2[:,i,0:B,:,:]
         propi.Wake_VD.GAMMA = Wmid.WD_GAMMA[:,i,0:B,:,:]
         
         # append trailing edge locations
@@ -376,7 +381,7 @@ def initialize_distributions(nmax, Bmax, n_wts, n_props, m,VD):
     WD.ZB2    = np.zeros(mat2_size) 
 
     VD.Wake       = Data()
-    mat3_size     = (n_props,Bmax,nmax,n_wts)
+    mat3_size     = (m,n_props,Bmax,nmax,n_wts)
     VD.Wake.XA1   = np.zeros(mat3_size) 
     VD.Wake.YA1   = np.zeros(mat3_size) 
     VD.Wake.ZA1   = np.zeros(mat3_size) 

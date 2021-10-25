@@ -679,8 +679,7 @@ class Lift_Cruise(Network):
                                                          initial_throttle_lift = 0.9,
                                                          initial_battery_cell_temperature = 283. ,
                                                          initial_battery_state_of_charge = 0.5,
-                                                         initial_battery_cell_current = 5. ,
-                                                         initial_battery_cell_thevenin_voltage= 0.1):
+                                                         initial_battery_cell_current = 5.):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -733,14 +732,13 @@ class Lift_Cruise(Network):
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
 
         # Assign initial segment conditions to segment if missing
-        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)       
+        append_initial_battery_conditions(segment)       
 
         # add unknowns and residuals specific to battery cell
         segment.state.residuals.network = Residuals()
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
-                                                                           initial_battery_state_of_charge, initial_battery_cell_current,
-                                                                        initial_battery_cell_thevenin_voltage)   
+                                                                           initial_battery_state_of_charge, initial_battery_cell_current)   
         if segment.battery_discharge: 
             segment.state.residuals.network.propellers          = 0. * ones_row(n_props)
             segment.state.residuals.network.lift_rotors         = 0. * ones_row(n_lift_rotors)
@@ -781,8 +779,7 @@ class Lift_Cruise(Network):
                                                          initial_prop_power_coefficient = 0.005,
                                                          initial_battery_cell_temperature = 283.,
                                                          initial_battery_state_of_charge = 0.5,
-                                                         initial_battery_cell_current = 5. ,
-                                                         initial_battery_cell_thevenin_voltage= 0.1):
+                                                         initial_battery_cell_current = 5.):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -829,14 +826,13 @@ class Lift_Cruise(Network):
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)  
             
         # Assign initial segment conditions to segment if missing  
-        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)           
+        append_initial_battery_conditions(segment)           
       
         # add unknowns and residuals specific to to battery cell
         segment.state.residuals.network = Residuals()
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
-                                                                           initial_battery_state_of_charge, initial_battery_cell_current,
-                                                                           initial_battery_cell_thevenin_voltage)   
+                                                                           initial_battery_state_of_charge, initial_battery_cell_current)   
         if segment.battery_discharge: 
             segment.state.residuals.network.propellers         = 0. * ones_row(n_props)
             segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)    
@@ -875,8 +871,7 @@ class Lift_Cruise(Network):
                                                          initial_throttle_lift = 0.9,
                                                          initial_battery_cell_temperature = 283.,
                                                          initial_battery_state_of_charge = 0.5,
-                                                         initial_battery_cell_current = 5. ,
-                                                         initial_battery_cell_thevenin_voltage= 0.1):
+                                                         initial_battery_cell_current = 5.):
         """ This function sets up the information that the mission needs to run a mission segment using this network
 
             Assumptions:
@@ -927,14 +922,13 @@ class Lift_Cruise(Network):
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
  
         # Assign initial segment conditions to segment if missing  
-        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)     
+        append_initial_battery_conditions(segment)     
 
         # add unknowns and residuals specific to battery cell
         segment.state.residuals.network = Residuals()
         battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
-                                                                           initial_battery_state_of_charge, initial_battery_cell_current,
-                                                                           initial_battery_cell_thevenin_voltage)   
+                                                                           initial_battery_state_of_charge, initial_battery_cell_current)   
         if segment.battery_discharge: 
             segment.state.residuals.network.lift_rotors = 0. * ones_row(n_lift_rotors) 
             segment.state.unknowns.__delitem__('throttle')

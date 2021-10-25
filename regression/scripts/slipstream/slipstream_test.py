@@ -30,10 +30,10 @@ from X57_Maxwell_Mod2 import vehicle_setup, configs_setup
 def main():
     #run test with helical fixed wake model
     helical_fixed_wake_analysis(identical_props=True)
-
+    
     # run test with helical fixed wake model and non-identical props
     helical_fixed_wake_analysis(identical_props=False)
-
+    
     # run test with bemt wake model
     bemt_wake_analysis()
 
@@ -106,7 +106,7 @@ def helical_fixed_wake_analysis(identical_props):
 
     # lift coefficient
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.4370521109369422
+    lift_coefficient_true         = 0.4370211746415997
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true)
@@ -117,13 +117,13 @@ def helical_fixed_wake_analysis(identical_props):
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 4.51413210e-01,  2.14237029e-01,  3.64677630e-01,  3.29567361e-01,
-                                                 7.57855595e-02,  4.72000601e-01,  3.60547942e-01,  3.96184664e-01,
-                                                 3.44936752e-01,  7.87673797e-02, -1.16006274e-02, -1.09715323e-02,
-                                                -8.58174732e-03, -1.14116831e-03,  1.79876439e-03, -2.71709341e-02,
-                                                -2.74635685e-02, -2.21004878e-02, -1.37095696e-02, -6.99019032e-03,
-                                                 4.79864676e-06,  1.34383076e-08,  6.94129271e-08,  1.36096269e-07,
-                                                 7.84588099e-08])
+    sectional_lift_coeff_true       = np.array([ 4.49962241e-01,  2.06516802e-01,  3.65665433e-01,  3.31738222e-01,
+                                                 7.62126320e-02,  4.71416123e-01,  3.60684285e-01,  3.98481338e-01,
+                                                 3.47732436e-01,  7.93587931e-02, -7.70304739e-03, -7.25626741e-03,
+                                                -5.28400154e-03,  1.55006012e-03,  3.50292636e-03, -2.39016816e-02,
+                                                -2.43529891e-02, -1.92799777e-02, -1.15167537e-02, -5.65856176e-03,
+                                                 5.36125023e-06,  1.45675174e-08,  7.95949519e-08,  1.55258325e-07,
+                                                 8.94167600e-08])
 
 
     print(sectional_lift_coeff)
@@ -290,7 +290,7 @@ def mission_setup(analyses,vehicle):
     ones_row     = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.state.numerics.number_control_points        = 3
+    base_segment.state.numerics.number_control_points        = 2
 
     # ------------------------------------------------------------------
     #   Climb 1 : constant Speed, constant rate segment

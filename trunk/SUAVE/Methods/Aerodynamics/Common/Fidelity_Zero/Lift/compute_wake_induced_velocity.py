@@ -11,7 +11,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_wake_induced_velocity(WD,VD,cpts):  
+def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11):  
     """ This computes the velocity induced by the fixed helical wake
     on lifting surface control points
 
@@ -61,19 +61,19 @@ def compute_wake_induced_velocity(WD,VD,cpts):
     #compute vortex strengths for every control point on wing 
     # this loop finds the strength of one ring only on entire control points on wing 
     # compute influence of bound vortices 
-    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,GAMMA) 
+    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,sigma,GAMMA,bv=True,VD=VD) 
     C_AB         = np.transpose(res_C_AB,axes=[1,2,3,0]) 
     
     # compute influence of 3/4 right legs 
-    _ , res_C_BC = vortex(XC, YC, ZC, WXB1, WYB1, WZB1, WXB2, WYB2, WZB2,GAMMA) 
+    _ , res_C_BC = vortex(XC, YC, ZC, WXB1, WYB1, WZB1, WXB2, WYB2, WZB2,sigma,GAMMA) 
     C_BC         = np.transpose(res_C_BC,axes=[1,2,3,0]) 
     
     # compute influence of bound vortices  
-    _ , res_C_CD = vortex(XC, YC, ZC, WXB2, WYB2, WZB2, WXA2, WYA2, WZA2,GAMMA) 
+    _ , res_C_CD = vortex(XC, YC, ZC, WXB2, WYB2, WZB2, WXA2, WYA2, WZA2,sigma,GAMMA) 
     C_CD         = np.transpose(res_C_CD,axes=[1,2,3,0])
     
     # compute influence of 3/4 left legs  
-    _ , res_C_DA = vortex(XC, YC, ZC, WXA2, WYA2, WZA2, WXA1, WYA1, WZA1,GAMMA) 
+    _ , res_C_DA = vortex(XC, YC, ZC, WXA2, WYA2, WZA2, WXA1, WYA1, WZA1,sigma,GAMMA) 
     C_DA         = np.transpose(res_C_DA,axes=[1,2,3,0]) 
     
     # Add all the influences together
@@ -86,7 +86,7 @@ def compute_wake_induced_velocity(WD,VD,cpts):
 # vortex strength computation
 # -------------------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1):
+def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,VD=None,use_regularization_kernal=True):
     """ This computes the velocity induced on a control point by a segment
     of a horseshoe vortex from point 1 to point 2 
     Assumptions:  
@@ -105,6 +105,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1):
     N/A
     
     """      
+
     X_X1  = X-X1
     X_X2  = X-X2
     X2_X1 = X2-X1
@@ -128,6 +129,42 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1):
     R0R2   = X2_X1*X_X2 + Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
     COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)    
+    
+    if use_regularization_kernal:
+        COEF = regularization_kernel(COEF, sigma)
+    
+    if bv:
+        # ignore the row of panels corresponding to the lifting line of the rotor
+        COEF_new = np.reshape(COEF[0,:,:,0],np.shape(VD.Wake.XA1))
+        m = np.shape(VD.Wake.XA1)[0]
+        
+        lifting_line_panels = np.zeros_like(COEF_new,dtype=bool)
+        lifting_line_panels[:,:,:,:,0] = True
+        lifting_line_panels_compressed = np.reshape(lifting_line_panels, (m,np.size(lifting_line_panels[0,:,:,:,:])))
+        
+        COEF[:,lifting_line_panels_compressed,:] = 0
+        
     V_IND  = GAMMA * COEF
     
     return COEF , V_IND  
+
+def regularization_kernel(COEF, sigma):
+    """
+    Inputs:
+       COEF    Biot-Savart Kernel
+       sigma   regularization radius
+    Outputs:
+       KAPPA   Regularization Kernel
+    
+    """
+    COEF     = np.nan_to_num(COEF,nan=1e-12)
+    COEF_MAG = np.sqrt(COEF**2)
+    R        = np.sqrt(1/(4*np.pi*COEF_MAG))
+    
+    NUM = R*(np.square(R/sigma) + (5/2))
+    DEN = 4*np.pi*(sigma**3)*((np.square(R/sigma) + 1)**(5/2))
+    
+    KAPPA = (NUM / DEN) * np.sign(COEF)
+    KAPPA = np.nan_to_num(KAPPA,nan=0.0)
+    
+    return KAPPA

@@ -94,10 +94,7 @@ class Battery_Charge_Discharge(Aerodynamic):
         
         # Update Initials
         iterate.initials = Process()
-        iterate.initials.time              = Methods.Common.Frames.initialize_time
-        iterate.initials.weights           = Methods.Common.Weights.initialize_weights
-        iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
-        iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
+        iterate.initials.time              = Methods.Common.Frames.initialize_time 
             
      
         # Unpack Unknowns
@@ -107,17 +104,9 @@ class Battery_Charge_Discharge(Aerodynamic):
         # Update Conditions
         iterate.conditions = Process()
 
-        iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time
-        iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
-        iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
-        iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
-        iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
-        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
-        iterate.conditions.propulsion      = Methods.Common.Energy.update_battery
-        iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability        
-        iterate.conditions.weights         = Methods.Common.Weights.update_weights  
-        iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position 
+        iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time 
+        iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere 
+        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust  
         
         # --------------------------------------------------------------
         #   Finalize - after iteration
@@ -125,7 +114,7 @@ class Battery_Charge_Discharge(Aerodynamic):
         finalize = self.process.finalize
         
         # Post Processing
-        finalize.post_process = Process()        
+        finalize.post_process = Process()         
         
         return
 
