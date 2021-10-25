@@ -24,7 +24,7 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
-    are obtained in the from of a text file of airfoil polar data obtained from airfoiltools.com
+    are obtained in the form of a text file of airfoil polar data obtained from airfoiltools.com
     
     Assumptions:
     Uses AERODAS formulation for post stall characteristics 
