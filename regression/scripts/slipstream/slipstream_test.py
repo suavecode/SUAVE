@@ -106,7 +106,7 @@ def helical_fixed_wake_analysis(identical_props):
 
     # lift coefficient
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.43706955518985224
+    lift_coefficient_true         = 0.4370697524101985
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true)
@@ -117,13 +117,13 @@ def helical_fixed_wake_analysis(identical_props):
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 4.50356978e-01,  2.06111717e-01,  3.66131718e-01,  3.32360605e-01,
-                                                 7.63310856e-02,  4.71397174e-01,  3.59032041e-01,  3.98500621e-01,
-                                                 3.48113496e-01,  7.94329291e-02, -9.95805353e-03, -1.06212927e-02,
-                                                -7.60918833e-03,  1.28848404e-04,  2.72151212e-03, -2.01703102e-02,
-                                                -1.95687089e-02, -1.56492267e-02, -9.02067150e-03, -4.20006557e-03,
-                                                 8.81768238e-07,  3.83385571e-07,  5.77888661e-07,  5.62515814e-07,
-                                                 2.81426986e-07])
+    sectional_lift_coeff_true       = np.array([ 4.50367879e-01,  2.06126233e-01,  3.66147953e-01,  3.32374193e-01,
+                                                 7.63352800e-02,  4.71387241e-01,  3.59009492e-01,  3.98485681e-01,
+                                                 3.48103279e-01,  7.94293752e-02, -7.14428279e-03, -6.76172990e-03,
+                                                -4.81018630e-03,  1.94964288e-03,  3.75637884e-03, -2.29783952e-02,
+                                                -2.34227279e-02, -1.84432417e-02, -1.08373825e-02, -5.23238836e-03,
+                                                 5.18200382e-06,  1.34093161e-08,  7.97239887e-08,  1.54342483e-07,
+                                                 8.88101502e-08])
 
 
     print(sectional_lift_coeff)

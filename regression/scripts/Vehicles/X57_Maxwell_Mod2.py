@@ -183,7 +183,7 @@ def vehicle_setup():
     wing.aspect_ratio                     = wing.spans.projected**2. / wing.areas.reference 
     wing.twists.root                      = 0.0 * Units.degrees
     wing.twists.tip                       = 0.0 * Units.degrees 
-    wing.origin                           = [[6.75 ,0, 0.5]]
+    wing.origin                           = [[6.75 ,0, 0.623]]
     wing.aerodynamic_center               = [0.508 ,0,0]  
     wing.vertical                         = True 
     wing.symmetric                        = False

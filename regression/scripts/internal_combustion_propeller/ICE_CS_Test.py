@@ -46,8 +46,8 @@ def main():
     # evaluate
     results = mission.evaluate()
     
-    P_truth     = 114551.06292442758
-    mdot_truth  = 0.010064718636579826
+    P_truth     = 83915.7464896355
+    mdot_truth  = 0.007373029599506555
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
     mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]     
@@ -76,11 +76,8 @@ def ICE_CS(vehicle):
     net                                         = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller_Constant_Speed()
     net.tag                                     = 'internal_combustion'
     net.number_of_engines                       = 1.
-    net.nacelle_diameter                        = 42 * Units.inches
-    net.engine_length                           = 0.01 * Units.inches
     net.rated_speed                             = 2700. * Units.rpm
     net.rated_power                             = 180.  * Units.hp
-    net.areas.wetted                            = 0.01
     
     # Component 1 the engine                    
     engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()

@@ -63,9 +63,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
     """       
     
     def __defaults__(self):    
-        self.tag                              = 'Lithium_Ion_LiNiMnCoO2_Cell'
-
-
+        self.tag                              = 'Lithium_Ion_LiNiMnCoO2_Cell'  
 
         self.cell.diameter                    = 0.0185                                                   # [m]
         self.cell.height                      = 0.0653                                                   # [m]

@@ -4,6 +4,7 @@
 # Created:  Jan 2014, T. Orra
 # Modified: Jan 2016, E. Botero 
 #           Jul 2017, M. Clarke
+#           Jul 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -29,11 +30,11 @@ def parasite_total(state,settings,geometry):
     geometry.reference_area                             [m^2]
     geometry.wings.areas.reference                      [m^2]
     geometry.fuselages.areas.front_projected            [m^2] 
-    geometry.nacelles.diameter                           [m]
+    geometry.nacelles.diameter                          [m]
     conditions.aerodynamics.drag_breakdown.
       parasite[wing.tag].parasite_drag_coefficient      [Unitless]
       parasite[fuselage.tag].parasite_drag_coefficient  [Unitless]
-      parasite[nacelle.tag].parasite_drag_coefficient [Unitless]
+      parasite[nacelle.tag].parasite_drag_coefficient   [Unitless]
 
 
     Outputs:
@@ -71,8 +72,8 @@ def parasite_total(state,settings,geometry):
     for nacelle in nacelles.values():
         ref_area = nacelle.diameter**2 / 4 * np.pi
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].parasite_drag_coefficient 
-        conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].parasite_drag_coefficient  = parasite_drag * ref_area/vehicle_reference_area * len(nacelle.origin)
-        total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * len(nacelle.origin)
+        conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].parasite_drag_coefficient  = parasite_drag * ref_area/vehicle_reference_area
+        total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area 
  
     # from pylons
     try:

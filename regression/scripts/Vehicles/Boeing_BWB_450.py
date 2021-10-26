@@ -363,7 +363,7 @@ def vehicle_setup():
     
     #computing the engine length and diameter
     for nac in vehicle.nacelles: 
-        compute_turbofan_geometry(turbofan,nac,None)
+        compute_turbofan_geometry(turbofan,nac)
     
     vehicle.append_component(turbofan)  
 

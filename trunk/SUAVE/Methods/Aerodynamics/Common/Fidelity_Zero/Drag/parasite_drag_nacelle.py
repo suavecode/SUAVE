@@ -20,12 +20,12 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import com
 import numpy as np
 
 # ----------------------------------------------------------------------
-#   Parasite Drag Propulsor
+#   Parasite Drag Nacelle
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 def parasite_drag_nacelle(state,settings,nacelle):
-    """Computes the parasite drag due to the propulsor
+    """Computes the parasite drag due to the nacelle
 
     Assumptions:
     Basic fit

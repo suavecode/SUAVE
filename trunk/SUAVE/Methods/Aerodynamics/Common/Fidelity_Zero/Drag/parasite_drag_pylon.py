@@ -46,11 +46,10 @@ def parasite_drag_pylon(state,settings,geometry):
     """
     # unpack
     
-    conditions = state.conditions
-    configuration = settings
+    conditions = state.conditions 
     
     pylon_factor        = 0.20 # 20% of nacelle drag
-    n_nacelles          = len(geometry.nacelles)  # number of propulsive system in vehicle (NOT # of ENGINES)
+    n_networks          =  len(geometry.networks)  # number of propulsive system in vehicle (NOT # of ENGINES)
     pylon_parasite_drag = 0.00
     pylon_wetted_area   = 0.00
     pylon_cf            = 0.00
@@ -60,19 +59,18 @@ def parasite_drag_pylon(state,settings,geometry):
 
     # Estimating pylon drag
     for nacelle in geometry.nacelles:
-        ref_area = nacelle.diameter**2 / 4 * np.pi
-        pylon_parasite_drag += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].parasite_drag_coefficient* (ref_area/geometry.reference_area * len(nacelle.origin))
-        pylon_wetted_area   += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].wetted_area * len(nacelle.origin)
+        ref_area             = nacelle.diameter**2 / 4 * np.pi
+        pylon_parasite_drag += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].parasite_drag_coefficient* (ref_area/geometry.reference_area)
+        pylon_wetted_area   += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].wetted_area  
         pylon_cf            += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].skin_friction_coefficient
         pylon_compr_fact    += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].compressibility_factor
         pylon_rey_fact      += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].reynolds_factor
         pylon_FF            += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].form_factor
     
-    if n_nacelles>0: 
-        pylon_cf            /= n_nacelles       
-        pylon_compr_fact    /= n_nacelles
-        pylon_rey_fact      /= n_nacelles
-        pylon_FF            /= n_nacelles
+    pylon_cf            /= n_networks           
+    pylon_compr_fact    /= n_networks   
+    pylon_rey_fact      /= n_networks     
+    pylon_FF            /= n_networks   
     
     # dump data to conditions
     pylon_result = Data(

@@ -91,7 +91,7 @@ def initial_sizing(nexus):
         
         turbofan_sizing(config.networks['turbofan'], mach_number, altitude)
         for nac in config.nacelles: 
-            compute_turbofan_geometry(config.networks['turbofan'],nac, conditions)
+            compute_turbofan_geometry(config.networks['turbofan'],nac)
         
         # diff the new data
         config.store_diff()  

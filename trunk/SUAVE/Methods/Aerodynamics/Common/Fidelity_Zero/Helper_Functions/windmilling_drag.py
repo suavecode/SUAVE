@@ -35,7 +35,7 @@ def windmilling_drag(geometry,state):
       wings.sref                  [m^2]
       networks.
         areas.wetted              [m^2]
-        length                    [m^2]
+        length                    [m]
 
     Outputs:
     windmilling_drag_coefficient  [Unitless]
@@ -44,13 +44,13 @@ def windmilling_drag(geometry,state):
     N/A
     """    
     # ==============================================
-	# Unpack
+        # Unpack
     # ==============================================
     vehicle = geometry
 
     # Defining reference area
     if vehicle.reference_area:
-            reference_area = vehicle.reference_area
+        reference_area = vehicle.reference_area
     else:
         n_wing = 0
         for wing in vehicle.wings:
@@ -67,26 +67,19 @@ def windmilling_drag(geometry,state):
                 break
 
     # getting geometric data from engine (estimating when not available)
-    for idx,network in enumerate(vehicle.networks):
-        try:
-            swet_nac = network.areas.wetted
-        except:
+    swet_nac = 0
+    for idx2,nacelle in enumerate(vehicle.nacelles):
+        D_nac = nacelle.diameter
+        if nacelle.length != 0.:
+            l_nac = nacelle.length
+        else:
             try:
-                l_nac = 0
-                for idx2,nacelle in enumerate(vehicle.nacelles):
-                    D_nac = nacelle.diameter
-                    if nacelle.length != 0.:
-                        l_nac = nacelle.length
-                    else:
-                        try:
-                            MMO = vehicle.max_mach_operational
-                        except:
-                            MMO = 0.84
-                        D_nac_in = D_nac / Units.inches
-                        l_nac += (2.36 * D_nac_in - 0.01*(D_nac_in*MMO)**2) * Units.inches
-            except AttributeError:
-                print('Error calculating windmilling drag. Engine dimensions missing.')
-            swet_nac = 5.62 * D_nac * l_nac
+                MMO = vehicle.max_mach_operational
+            except:
+                MMO = 0.84
+            D_nac_in = D_nac / Units.inches
+            l_nac = (2.36 * D_nac_in - 0.01*(D_nac_in*MMO)**2) * Units.inches
+        swet_nac += 5.62 * D_nac * l_nac
 
     # Compute
     windmilling_drag_coefficient = 0.007274 * swet_nac / reference_area

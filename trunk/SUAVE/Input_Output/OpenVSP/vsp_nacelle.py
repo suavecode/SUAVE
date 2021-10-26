@@ -1,5 +1,5 @@
 ## @ingroup Input_Output-OpenVSP
-# vsp_read_nacelle.py
+# vsp_nacelle.py
 
 # Created:  Sep 2021, M. Clarke
 
@@ -16,7 +16,7 @@ except ImportError:
     # This allows SUAVE to build without OpenVSP
     pass 
 # ----------------------------------------------------------------------
-#  vsp read nacelle
+#  vsp_nacelle
 # ----------------------------------------------------------------------
 ## @ingroup Input_Output-OpenVSP
 def write_vsp_nacelle(nacelle, OML_set_ind):

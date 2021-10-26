@@ -29,7 +29,8 @@ def landing_gear_FLOPS(vehicle):
                                                         medium-range, long-range,
                                                         sst, cargo)
                 -.mass_properties.max_takeoff: MTOW                              [kilograms]
-                -.wings['main_wing'].dihedral
+                -.nacelles['nacelle']                                            [meters]
+                -.wings['main_wing'].dihedral                                    [radians]
                 -.fuselages['fuselage'].width: fuselage width                    [meters]
                 -.fuselages['fuselage'].lengths.total: fuselage total length     [meters]
 
@@ -52,14 +53,16 @@ def landing_gear_FLOPS(vehicle):
 
     network_name  = list(vehicle.networks.keys())[0]  # obtain the key for the network for assignment purposes
     networks      = vehicle.networks[network_name]
+    
+
+    nacelle_tag = list(vehicle.nacelles.keys())[0]
+    ref_nacelle = vehicle.nacelles[nacelle_tag]        
     if sum(networks.wing_mounted) > 0: 
-        XMLG = 0 
-        for nacelle in vehicle.nacelles: 
-            FNAC    = nacelle.diameter / Units.ft
-            DIH     = vehicle.wings['main_wing'].dihedral
-            YEE     = np.max(np.abs(np.array(networks.origin)[:, 1])) / Units.ft
-            WF      = vehicle.fuselages['fuselage'].width / Units.ft
-            XMLG    += 12 * FNAC + (0.26 - np.tan(DIH)) * (YEE - 6 * WF)  # length of extended main landing gear        
+        FNAC    = ref_nacelle.diameter / Units.ft
+        DIH     = vehicle.wings['main_wing'].dihedral
+        YEE     = np.max(np.abs(np.array(networks.origin)[:, 1])) / Units.ft
+        WF      = vehicle.fuselages['fuselage'].width / Units.ft
+        XMLG    = 12 * FNAC + (0.26 - np.tan(DIH)) * (YEE - 6 * WF)  # length of extended main landing gear
     else:
         XMLG    = 0.75 * vehicle.fuselages['fuselage'].lengths.total / Units.ft  # length of extended nose landing gear
     XNLG = 0.7 * XMLG

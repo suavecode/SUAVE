@@ -2,8 +2,7 @@
 #
 # Created:  Feb 2017, M. Vegh 
 # Modified: Feb 2018, M. Vegh 
-# Modified: Mar 2020, M. Clarke
-#           Oct 2021, M. Clarke 
+# Modified: Mar 2020, M. Clarke 
 
 """ setup file for the Cessna_172, current values only used to test General Aviation script
 """
@@ -224,15 +223,8 @@ def vehicle_setup():
     # build network
     net                                         = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
     net.tag                                     = 'internal_combustion'
-    net.number_of_engines                       = 1.  
-    net.identical_propellers                    = True 
-
-    # the nacelle 
-    nacelle                                     = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.diameter                            = 42 * Units.inches
-    nacelle.length                              = 0.01 * Units.inches 
-    nacelle.areas.wetted                        = 0.01
-    vehicle.append_component(nacelle)   
+    net.number_of_engines                       = 1.
+    net.identical_propellers                    = True
                                                 
     # the engine                    
     engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()

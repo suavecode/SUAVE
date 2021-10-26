@@ -37,8 +37,8 @@ def main():
     print(results.L_D_max.air_speed)
     print(results.CL32.air_speed)
     
-    saved_results_L_D  = 43.25239218
-    saved_results_CL32 = 35.81585568
+    saved_results_L_D  = 43.40417272
+    saved_results_CL32 = 35.87148987
 
     error_L_D = float(abs(results.L_D_max.air_speed - saved_results_L_D)/saved_results_L_D)
     error_32  = float(abs(results.CL32.air_speed    - saved_results_CL32)/saved_results_CL32)

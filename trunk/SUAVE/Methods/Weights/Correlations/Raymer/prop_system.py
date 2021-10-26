@@ -3,7 +3,7 @@ from SUAVE.Core import Units, Data
 # prop_system.py
 #
 # Created:  May 2020, W. Van Gijseghem
-# Modified:
+# Modified: Oct 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,7 +12,7 @@ import numpy as np
 from SUAVE.Methods.Weights.Correlations.FLOPS.prop_system import engine_FLOPS
 
 ## @ingroup Methods-Weights-Correlations-Raymer
-def total_prop_Raymer(vehicle,prop,nacelle):
+def total_prop_Raymer(vehicle,prop):
     """ Calculate the weight of propulsion system using Raymer method, including:
         - fuel system weight
         - thurst reversers weight
@@ -43,14 +43,14 @@ def total_prop_Raymer(vehicle,prop,nacelle):
 
         Properties Used:
             N/A
-    """
+    """    
     NENG            = prop.number_of_engines
     WFSYS           = fuel_system_Raymer(vehicle, NENG)
     WENG            = engine_FLOPS(vehicle, prop)
-    WNAC            = nacelle_Raymer(vehicle, nacelle, WENG)
+    WNAC            = nacelle_Raymer(vehicle, WENG)
     WEC, WSTART     = misc_engine_Raymer(vehicle, prop, WENG)
     WTHR            = 0
-    WPRO = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
+    WPRO            = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
 
     output                      = Data()
     output.wt_prop              = WPRO
@@ -63,10 +63,11 @@ def total_prop_Raymer(vehicle,prop,nacelle):
     return output
 
 ## @ingroup Methods-Weights-Correlations-Raymer
-def nacelle_Raymer(vehicle, nacelle, WENG):
+def nacelle_Raymer(vehicle, WENG):
     """ Calculates the nacelle weight based on the Raymer method
         Assumptions:
-
+            1) All nacelles are identical
+            2) The number of nacelles is the same as the number of engines 
         Source:
             Aircraft Design: A Conceptual Approach (2nd edition)
 
@@ -85,14 +86,18 @@ def nacelle_Raymer(vehicle, nacelle, WENG):
         Properties Used:
             N/A
     """
-    NENG    = len(nacelle.origin)
-    Kng     = 1 # assuming the engine is not pylon mounted
-    Nlt     = nacelle.length / Units.ft
-    Nw      = nacelle.diameter / Units.ft
-    Wec     = 2.331 * WENG ** 0.901 * 1.18
-    Sn      = 2 * np.pi * Nw/2 * Nlt + np.pi * Nw**2/4 * 2
-    WNAC = 0.6724 * Kng * Nlt ** 0.1 * Nw ** 0.294 * vehicle.envelope.ultimate_load ** 0.119 \
-           * Wec ** 0.611 * NENG * 0.984 * Sn ** 0.224
+    
+
+    nacelle_tag     = list(vehicle.nacelles.keys())[0]
+    ref_nacelle     = vehicle.nacelles[nacelle_tag]    
+    NENG            = len(vehicle.nacelles)
+    Kng             = 1 # assuming the engine is not pylon mounted
+    Nlt             = ref_nacelle.length / Units.ft
+    Nw              = ref_nacelle.diameter / Units.ft
+    Wec             = 2.331 * WENG ** 0.901 * 1.18
+    Sn              = 2 * np.pi * Nw/2 * Nlt + np.pi * Nw**2/4 * 2
+    WNAC            = 0.6724 * Kng * Nlt ** 0.1 * Nw ** 0.294 * vehicle.envelope.ultimate_load ** 0.119 \
+                      * Wec ** 0.611 * NENG * 0.984 * Sn ** 0.224
     return WNAC * Units.lbs
 
 ## @ingroup Methods-Weights-Correlations-Raymer
