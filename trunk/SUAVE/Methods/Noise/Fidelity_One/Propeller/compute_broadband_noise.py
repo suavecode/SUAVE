@@ -225,10 +225,7 @@ def compute_broadband_noise(freestream,angle_of_attack,position_vector,
 
     X   = np.repeat(POS[:,:,:,:,0,:],2,axis = 4)                                            # CHECKED
     Y   = np.repeat(POS[:,:,:,:,1,:],2,axis = 4)
-    Z   = np.repeat(POS[:,:,:,:,2,:],2,axis = 4)
-    X_1 = np.repeat(POS_1[:,:,:,:,0,:],2,axis = 4)
-    Y_1 = np.repeat(POS_1[:,:,:,:,1,:],2,axis = 4)
-    Z_1 = np.repeat(POS_1[:,:,:,:,2,:],2,axis = 4)    
+    Z   = np.repeat(POS[:,:,:,:,2,:],2,axis = 4)  
     X_2 = np.repeat(POS_2[:,:,:,:,0,:],2,axis = 4)
     Y_2 = np.repeat(POS_2[:,:,:,:,1,:],2,axis = 4)
     Z_2 = np.repeat(POS_2[:,:,:,:,2,:],2,axis = 4)
