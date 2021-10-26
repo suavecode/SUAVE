@@ -505,9 +505,9 @@ def vehicle_setup():
     nacelle_airfoil.naca_4_series_airfoil = '2410'
     nacelle.append_airfoil(nacelle_airfoil)
 
-    nacelle_2          = deepcopy(nacelle)
-    nacelle_2.tag      = 'nacelle_2'
-    nacelle_2.origin   = [[13.72, 4.86,-1.9]]
+    nacelle_2                     = deepcopy(nacelle)
+    nacelle_2.tag                 = 'nacelle_2'
+    nacelle_2.origin              = [[13.72, 4.86,-1.9]]
     
     vehicle.append_component(nacelle)  
     vehicle.append_component(nacelle_2)     

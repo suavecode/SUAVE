@@ -246,7 +246,7 @@ def vehicle_setup():
     for idx in range(8):
         nacelle          = deepcopy(nacelle)
         nacelle.tag      = 'nacelle_' +  str(idx)
-        nacelle.origin   = [nacelle_origins[ii]] 
+        nacelle.origin   = [nacelle_origins[idx]] 
         vehicle.append_component(nacelle)       
 
 

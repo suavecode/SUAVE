@@ -59,7 +59,7 @@ def total_prop_flops(vehicle,prop,nacelle):
             N/A
     """
     NENG        = len(nacelle.origin)
-    WNAC        = nacelle_FLOPS(prop)
+    WNAC        = nacelle_FLOPS(prop,nacelle)
     WFSYS       = fuel_system_FLOPS(vehicle, NENG)
     WENG        = engine_FLOPS(vehicle, prop)
     WEC, WSTART = misc_engine_FLOPS(vehicle,prop,nacelle)

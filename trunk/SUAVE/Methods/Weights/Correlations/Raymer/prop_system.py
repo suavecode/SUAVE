@@ -12,7 +12,7 @@ import numpy as np
 from SUAVE.Methods.Weights.Correlations.FLOPS.prop_system import engine_FLOPS
 
 ## @ingroup Methods-Weights-Correlations-Raymer
-def total_prop_Raymer(vehicle, prop):
+def total_prop_Raymer(vehicle,prop,nacelle):
     """ Calculate the weight of propulsion system using Raymer method, including:
         - fuel system weight
         - thurst reversers weight
@@ -47,7 +47,7 @@ def total_prop_Raymer(vehicle, prop):
     NENG            = prop.number_of_engines
     WFSYS           = fuel_system_Raymer(vehicle, NENG)
     WENG            = engine_FLOPS(vehicle, prop)
-    WNAC            = nacelle_Raymer(vehicle, prop, WENG)
+    WNAC            = nacelle_Raymer(vehicle, nacelle, WENG)
     WEC, WSTART     = misc_engine_Raymer(vehicle, prop, WENG)
     WTHR            = 0
     WPRO = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
