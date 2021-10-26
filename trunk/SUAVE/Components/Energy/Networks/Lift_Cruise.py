@@ -116,6 +116,8 @@ class Lift_Cruise(Network):
                 voltage_under_load            [volts]
                 lift_rotor_motor_torque       [N-M]
                 propeller_motor_torque        [N-M]
+                lift_rotor_thrust             [N]
+                propeller_thrust              [N]
                 lift_rotor_torque             [N-M]
                 propeller_torque              [N-M]
     
@@ -236,6 +238,7 @@ class Lift_Cruise(Network):
                 conditions.propulsion.propeller_motor_torque[:,ii]     = motor.outputs.torque[:,0]
                 conditions.propulsion.propeller_torque[:,ii]           = Q_forward[:,0]
                 conditions.propulsion.propeller_rpm[:,ii]              = rpm[:,0]
+                conditions.propulsion.propeller_thrust[:,ii]           = np.linalg.norm(total_prop_thrust ,axis = 1) 
                 conditions.propulsion.propeller_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
                 conditions.propulsion.propeller_disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
                 conditions.propulsion.propeller_power_loading[:,ii]    = (F_mag[:,0])/(P_forward[:,0])  # N/W  
@@ -341,6 +344,7 @@ class Lift_Cruise(Network):
                 conditions.propulsion.lift_rotor_motor_torque[:,ii]     = lift_rotor_motor.outputs.torque[:,0]
                 conditions.propulsion.lift_rotor_torque[:,ii]           = Q_lift[:,0]
                 conditions.propulsion.lift_rotor_rpm[:,ii]              = rpm[:,0]
+                conditions.propulsion.lift_rotor_thrust[:,ii]           = np.linalg.norm(total_lift_rotor_thrust ,axis = 1) 
                 conditions.propulsion.lift_rotor_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
                 conditions.propulsion.lift_rotor_disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
                 conditions.propulsion.lift_rotor_power_loading[:,ii]    = (F_mag[:,0])/(P_lift[:,0])  # N/W      
@@ -747,7 +751,8 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.propeller_torque           = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_rpm              = 0. * ones_row(n_props)      
         segment.state.conditions.propulsion.propeller_disc_loading     = 0. * ones_row(n_props)                 
-        segment.state.conditions.propulsion.propeller_power_loading    = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_power_loading    = 0. * ones_row(n_props)      
+        segment.state.conditions.propulsion.propeller_thrust           = 0. * ones_row(n_props)         
         segment.state.conditions.propulsion.propeller_tip_mach         = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
@@ -757,7 +762,8 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.lift_rotor_torque            = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_rpm               = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_disc_loading      = 0. * ones_row(n_lift_rotors)                 
-        segment.state.conditions.propulsion.lift_rotor_power_loading     = 0. * ones_row(n_lift_rotors)        
+        segment.state.conditions.propulsion.lift_rotor_power_loading     = 0. * ones_row(n_lift_rotors)               
+        segment.state.conditions.propulsion.lift_rotor_thrust            = 0. * ones_row(n_lift_rotors)         
         segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_efficiency        = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_motor_efficiency  = 0. * ones_row(n_lift_rotors)
@@ -835,7 +841,8 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_torque           = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_rpm              = 0. * ones_row(n_props)      
-        segment.state.conditions.propulsion.propeller_disc_loading     = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.propeller_disc_loading     = 0. * ones_row(n_props)      
+        segment.state.conditions.propulsion.propeller_thrust           = 0. * ones_row(n_props)                
         segment.state.conditions.propulsion.propeller_power_loading    = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_tip_mach         = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)
@@ -845,7 +852,8 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.lift_rotor_motor_torque      = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_torque            = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_rpm               = 0. * ones_row(n_lift_rotors)
-        segment.state.conditions.propulsion.lift_rotor_disc_loading      = 0. * ones_row(n_lift_rotors)                 
+        segment.state.conditions.propulsion.lift_rotor_disc_loading      = 0. * ones_row(n_lift_rotors)               
+        segment.state.conditions.propulsion.lift_rotor_thrust            = 0. * ones_row(n_lift_rotors)                
         segment.state.conditions.propulsion.lift_rotor_power_loading     = 0. * ones_row(n_lift_rotors)        
         segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)       
         segment.state.conditions.propulsion.lift_rotor_efficiency        = 0. * ones_row(n_lift_rotors)
@@ -931,7 +939,8 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_torque           = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_rpm              = 0. * ones_row(n_props)      
-        segment.state.conditions.propulsion.propeller_disc_loading     = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.propeller_disc_loading     = 0. * ones_row(n_props)     
+        segment.state.conditions.propulsion.propeller_thrust           = 0. * ones_row(n_props)                 
         segment.state.conditions.propulsion.propeller_power_loading    = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_tip_mach         = 0. * ones_row(n_props)   
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)
@@ -940,7 +949,8 @@ class Lift_Cruise(Network):
         # Setup the conditions for the lift_rotors
         segment.state.conditions.propulsion.lift_rotor_motor_torque      = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_torque            = 0. * ones_row(n_lift_rotors)
-        segment.state.conditions.propulsion.lift_rotor_rpm               = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_rpm               = 0. * ones_row(n_lift_rotors)             
+        segment.state.conditions.propulsion.lift_rotor_thrust            = 0. * ones_row(n_lift_rotors) 
         segment.state.conditions.propulsion.lift_rotor_disc_loading      = 0. * ones_row(n_lift_rotors)                 
         segment.state.conditions.propulsion.lift_rotor_power_loading     = 0. * ones_row(n_lift_rotors)        
         segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)

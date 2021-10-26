@@ -44,8 +44,8 @@ def main():
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2385.069532419814,2385.069533209447,2385.069532423358 ]
-    EVTOL_lift_coefficient_true = [0.8074217543764051,0.8074217543763301,0.8074217543763312]
+    EVTOL_RPM_true              = [2385.0695303620305,2385.069533209447,2385.069532423358 ]
+    EVTOL_lift_coefficient_true = [0.8074217543873324,0.8074217543763301,0.8074217543763312]
     
         
     for i in range(len(battery_chemistry)):
@@ -72,7 +72,7 @@ def main():
         GA_diff_RPM   = np.abs(GA_RPM - GA_RPM_true[i])
         print('RPM difference')
         print(GA_diff_RPM)
-        assert np.abs((GA_RPM - GA_RPM_true[i])/GA_RPM_true[i]) < 1e-3  
+        assert np.abs((GA_RPM - GA_RPM_true[i])/GA_RPM_true[i]) < 1e-6  
         
         # lift Coefficient Check During Cruise
         GA_lift_coefficient        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
@@ -102,14 +102,14 @@ def main():
         EVTOL_diff_RPM   = np.abs(EVTOL_RPM - EVTOL_RPM_true[i])
         print('EVTOL_RPM difference')
         print(EVTOL_diff_RPM)
-        assert np.abs((EVTOL_RPM - EVTOL_RPM_true[i])/EVTOL_RPM_true[i]) < 1e-3  
+        assert np.abs((EVTOL_RPM - EVTOL_RPM_true[i])/EVTOL_RPM_true[i]) < 1e-6  
         
         # lift Coefficient Check During Cruise
         EVTOL_lift_coefficient        = EVTOL_results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[2][0] 
         EVTOL_diff_CL                 = np.abs(EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i]) 
         print('CL difference')
         print(EVTOL_diff_CL)
-        assert np.abs((EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i])/EVTOL_lift_coefficient_true[i]) < 1e-3   
+        assert np.abs((EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i])/EVTOL_lift_coefficient_true[i]) < 1e-6   
                 
             
     return
@@ -450,7 +450,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.pitch_initial                            = 0.0 * Units.degrees
     segment.pitch_final                              = 5. * Units.degrees
     ones_row                                         = segment.state.ones_row
-    segment.state.unknowns.throttle                  = 1.  *  ones_row(1)
+    segment.state.unknowns.throttle                  = 0.95  *  ones_row(1)
     segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
