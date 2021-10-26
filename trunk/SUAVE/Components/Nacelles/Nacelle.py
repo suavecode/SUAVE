@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------  
 from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Physical_Component, Lofted_Body  
+from SUAVE.Components.Wings.Airfoils import Airfoil
 import scipy as sp
 import numpy as np
 
@@ -45,32 +46,22 @@ class Nacelle(Lofted_Body):
         None
         """      
         
-        self.tag                     = 'nacelle'
-        self.origin                  = [[0.0,0.0,0.0]]
-        self.aerodynamic_center      = [0.0,0.0,0.0] 
-           
-        self.areas                   = Data()
-        self.areas.front_projected   = 0.0
-        self.areas.side_projected    = 0.0
-        self.areas.wetted            = 0.0
-            
-        self.diameter                = 0.0 
-        self.inlet_diameter          = 0.0
-        self.length                  = 0.0  
-          
-        self.orientation_euler_angles  = [0.,0.,0.]   
-          
-        self.flow_through            = True 
-        self.differential_pressure   = 0.0  
-        self.naca_4_series_airfoil   = None # string
-        self.cowling_airfoil_angle   = 0.0
- 
-        # For VSP
-        self.vsp_data                = Data()
-        self.vsp_data.xsec_surf_id   = ''    # There is only one XSecSurf in each VSP geom.
-        self.vsp_data.xsec_num       = None  # Number if XSecs in nacelle geom.
-        
-        self.Segments                = ContainerOrdered()
+        self.tag                       = 'nacelle'
+        self.origin                    = [[0.0,0.0,0.0]]
+        self.aerodynamic_center        = [0.0,0.0,0.0]  
+        self.areas                     = Data()
+        self.areas.front_projected     = 0.0
+        self.areas.side_projected      = 0.0
+        self.areas.wetted              = 0.0 
+        self.diameter                  = 0.0 
+        self.inlet_diameter            = 0.0
+        self.length                    = 0.0   
+        self.orientation_euler_angles  = [0.,0.,0.]    
+        self.flow_through              = True 
+        self.differential_pressure     = 0.0   
+        self.Airfoil                   = Data()  
+        self.cowling_airfoil_angle     = 0.0  
+        self.Segments                  = ContainerOrdered()
         
     def append_segment(self,segment):
         """ Adds a segment to the nacelle. 
@@ -95,6 +86,34 @@ class Nacelle(Lofted_Body):
         self.Segments.append(segment)
 
         return 
+    
+    def append_airfoil(self,airfoil):
+        """ Adds an airfoil to the segment 
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
+
+        # Assert database type
+        if not isinstance(airfoil,Data):
+            raise Exception('input component must be of type Data()')
+
+        # Store data
+        self.Airfoil.append(airfoil)
+
+        return           
     
 
     def nac_vel_to_body(self):

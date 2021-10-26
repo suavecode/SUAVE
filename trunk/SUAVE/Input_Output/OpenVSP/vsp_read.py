@@ -15,6 +15,7 @@ import SUAVE
 from SUAVE.Input_Output.OpenVSP.vsp_propeller import read_vsp_propeller
 from SUAVE.Input_Output.OpenVSP.vsp_fuselage  import read_vsp_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_wing      import read_vsp_wing
+from SUAVE.Input_Output.OpenVSP.vsp_nacelle   import read_vsp_nacelle
 
 from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
 from SUAVE.Components.Energy.Networks.Battery_Propeller        import Battery_Propeller
@@ -131,13 +132,13 @@ def vsp_read(tag, units_type='SI',specified_network=None):
     vsp_wings         = []	
     vsp_props         = [] 
     vsp_nacelles      = [] 
+    vsp_nacelle_type  = []
+    
+    vsp_geoms         = vsp.FindGeoms()
+    geom_names        = []
 
-    vsp_geoms     = vsp.FindGeoms()
-    geom_names    = []
-
-    vehicle     = SUAVE.Vehicle()
-    vehicle.tag = tag
-
+    vehicle           = SUAVE.Vehicle()
+    vehicle.tag       = tag 
 
     if units_type == 'SI':
         units_type = 'SI' 
@@ -173,6 +174,7 @@ def vsp_read(tag, units_type='SI',specified_network=None):
         if geom_type == 'Propeller':
             vsp_props.append(geom) 
         if (geom_type == 'Stack') or (geom_type == 'BodyOfRevolution'):
+            vsp_nacelle_type.append(geom_type)
             vsp_nacelles.append(geom) 
         
     # --------------------------------------------------			
@@ -201,8 +203,8 @@ def vsp_read(tag, units_type='SI',specified_network=None):
     # --------------------------------------------------			    
     # Read Nacelles 
     # --------------------------------------------------			
-    for nacelle_id in vsp_nacelles:
-        nacelle = read_vsp_wing(nacelle_id, units_type)
+    for nac_id, nacelle_id in enumerate(vsp_nacelles):
+        nacelle = read_vsp_nacelle(nacelle_id,vsp_nacelle_type[nac_id], units_type)
         vehicle.append_component(nacelle)	  
     
     # --------------------------------------------------			    

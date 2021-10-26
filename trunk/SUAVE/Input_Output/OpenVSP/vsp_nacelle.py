@@ -72,7 +72,7 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
     num_segs       = len(nacelle.Segments)
     
     if num_segs > 0: 
-        if nacelle.naca_4_series_airfoil != None:
+        if nacelle.Airfoil.naca_4_series_airfoil != None:
             raise AssertionError('Nacelle segments defined. Airfoil section will not be used.')
         nac_id = vsp.AddGeom( "STACK")
         vsp.SetGeomName(nac_id,nac_tag)  
@@ -159,14 +159,14 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
         else:
             vsp.SetParmVal(nac_id,"Mode","Design",1.0) 
          
-        if nacelle.naca_4_series_airfoil != None:
-            if isinstance(nacelle.naca_4_series_airfoil, str) and len(nacelle.naca_4_series_airfoil) != 4:
+        if nacelle.Airfoil.naca_4_series_airfoil != None:
+            if isinstance(nacelle.Airfoil.naca_4_series_airfoil, str) and len(nacelle.Airfoil.naca_4_series_airfoil) != 4:
                 raise AssertionError('Nacelle cowling airfoil must be of type < string > and length < 4 >')
             else: 
                 angle        = nacelle.cowling_airfoil_angle/Units.degrees 
-                camber       = float(nacelle.naca_4_series_airfoil[0])/100
-                camber_loc   = float(nacelle.naca_4_series_airfoil[1])/10
-                thickness    = float(nacelle.naca_4_series_airfoil[2:])/100
+                camber       = float(nacelle.Airfoil.naca_4_series_airfoil[0])/100
+                camber_loc   = float(nacelle.Airfoil.naca_4_series_airfoil[1])/10
+                thickness    = float(nacelle.Airfoil.naca_4_series_airfoil[2:])/100
                 
                 vsp.ChangeBORXSecShape(nac_id ,vsp.XS_FOUR_SERIES)
                 vsp.Update()
@@ -251,7 +251,7 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
     
     if vsp_nacelle_type == 'Stack': 
         
-        xsec_surf_id = vsp.GetXSecSurf(nacelle_id, 0) 			# There is only one XSecSurf in geom.
+        xsec_surf_id = vsp.GetXSecSurf(nacelle_id, 0) # There is only one XSecSurf in geom.
         num_segs     = vsp.GetNumXSec(xsec_surf_id)   # Number of xsecs in nacelle.	
         abs_x_location = 0 
         abs_y_location = 0
@@ -319,26 +319,41 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
 
         shape      = vsp.GetBORXSecShape(nacelle_id)
         shape_dict = {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file',\
-                      7:'four series',8:'six series',9:'biconvex'}  
-        if shape_dict[shape] == 'four series':     
+                      7:'four series',8:'six series',9:'biconvex',10:'wedge',11:'editcurve',12:'file airfoil'}  
+        if shape_dict[shape] == 'four series': 
+            naf        = SUAVE.Components.Nacelles.Airfoils.Airfoil()
             length     = vsp.GetParmVal(nacelle_id, "Chord", "XSecCurve")
             thickness  = int(round(vsp.GetParmVal(nacelle_id, "ThickChord", "XSecCurve")*10,0))
             camber     = int(round(vsp.GetParmVal(nacelle_id, "Camber", "XSecCurve")*100,0))
             camber_loc = int(round( vsp.GetParmVal(nacelle_id, "CamberLoc", "XSecCurve" )*10,0)) 
             
             airfoil = str(camber) +  str(camber_loc) +  str(thickness)
-            nacelle.naca_4_series_airfoil  = str(airfoil) 
             height  =  thickness  
+            naf.naca_4_series_airfoil  = str(airfoil)  
+            naf.thickness_to_chord     = thickness 
+            nacelle.append_airfoil(naf)
             
         elif shape_dict[shape] == 'super ellipse':  
             if ft_flag:
                 height   = vsp.GetParmVal(nacelle_id, "Super_Height", "XSecCurve") 
-                diamater = vsp.GetParmVal(nacelle_id,"Diameter","Design")
+                diamater = vsp.GetParmVal(nacelle_id, "Diameter","Design")
                 length   = vsp.GetParmVal(nacelle_id, "Super_Width", "XSecCurve")  
             else:
                 diamater = vsp.GetParmVal(nacelle_id, "Super_Height", "XSecCurve") 
                 length   = vsp.GetParmVal(nacelle_id, "Super_Width", "XSecCurve")  
                 height   = diamater/2
+        
+        elif shape_dict[shape] == 'file airfoil': # this does not read in airfoil due to absenec of api functions in VSP
+            naf                = SUAVE.Components.Nacelles.Airfoils.Airfoil()
+            thickness_to_chord = vsp.GetParmVal(nacelle_id, "ThickChord", "XSecCurve")   * units_factor
+            length             = vsp.GetParmVal(nacelle_id, "Chord", "XSecCurve")   * units_factor 
+            height             = thickness_to_chord*length  * units_factor            
+            if ft_flag: 
+                diamater = vsp.GetParmVal(nacelle_id,  "Diameter","Design") * units_factor
+            else: 
+                diamater = 0   
+            naf.thickness_to_chord     = thickness_to_chord 
+            nacelle.append_airfoil(naf)
             
         nacelle.length                = length  
         nacelle.diameter              = diameter + height/2    

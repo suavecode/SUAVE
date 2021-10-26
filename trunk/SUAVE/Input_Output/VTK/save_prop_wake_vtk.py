@@ -30,11 +30,12 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
        None
     
     """
+    m = 0 # first control point
     wVD = VD.Wake
     # Extract wake properties of the ith propeller
-    n_time_steps    = len(wVD.XA1[i_prop,0,0,:])
-    n_blades        = len(wVD.XA1[i_prop,:,0,0])
-    n_radial_rings  = len(wVD.XA1[i_prop,0,:,0])
+    n_time_steps    = len(wVD.XA1[m,i_prop,0,0,:])
+    n_blades        = len(wVD.XA1[m,i_prop,:,0,0])
+    n_radial_rings  = len(wVD.XA1[m,i_prop,0,:,0])
     
     # Create file
     with open(filename, 'w') as f:
@@ -54,46 +55,45 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         n_vertices = n_blades*(n_radial_rings+1)*(n_time_steps+1)    # total number of node vertices
         points_header = "\n\nPOINTS "+str(n_vertices) +" float"
         f.write(points_header)    
+        node_number=[]
         
+        # Loop over number of rotor blades
         for B_idx in range(n_blades):
-            # Loop over number of rotor blades
+            # Loop over number of "chordwise" panels in the wake distribution  
             for t_idx in range(n_time_steps+1):
-                # Loop over number of "chordwise" panels in the wake distribution
-                for r_idx in range(n_radial_rings+1):
-                    # Loop over number of "radial" or "spanwise" panels in the wake distribution
-
+                # Loop over number of "radial" or "spanwise" panels in the wake distribution 
+                for r_idx in range(n_radial_rings+1):            
+                    
                     #-------------------------------------------------------------------
                     # Get vertices for each node
                     #-------------------------------------------------------------------
                     if r_idx == n_radial_rings and t_idx==0:
                         # Last ring at t0; use B2 to get rightmost TE node
-                        x = round(wVD.XB2[i_prop,B_idx,r_idx-1,t_idx],4)
-                        y = round(wVD.YB2[i_prop,B_idx,r_idx-1,t_idx],4)
-                        z = round(wVD.ZB2[i_prop,B_idx,r_idx-1,t_idx],4)
+                        x = round(wVD.XB2[m,i_prop,B_idx,r_idx-1,t_idx],4)
+                        y = round(wVD.YB2[m,i_prop,B_idx,r_idx-1,t_idx],4)
+                        z = round(wVD.ZB2[m,i_prop,B_idx,r_idx-1,t_idx],4)
                         
                     elif t_idx==0:
                         # First set of rings; use A2 to get left TE node
-                        x = round(wVD.XA2[i_prop,B_idx,r_idx,t_idx],4)
-                        y = round(wVD.YA2[i_prop,B_idx,r_idx,t_idx],4)
-                        z = round(wVD.ZA2[i_prop,B_idx,r_idx,t_idx],4)   
-                        
+                        x = round(wVD.XA2[m,i_prop,B_idx,r_idx,t_idx],4)
+                        y = round(wVD.YA2[m,i_prop,B_idx,r_idx,t_idx],4)
+                        z = round(wVD.ZA2[m,i_prop,B_idx,r_idx,t_idx],4)   
                         
                     elif r_idx==n_radial_rings:  
                         # Last radial ring for tstep; use B1 of prior to get tip node
-                        x = round(wVD.XB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
-                        y = round(wVD.YB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
-                        z = round(wVD.ZB1[i_prop,B_idx,r_idx-1,t_idx-1],4)
+                        x = round(wVD.XB1[m,i_prop,B_idx,r_idx-1,t_idx-1],4)
+                        y = round(wVD.YB1[m,i_prop,B_idx,r_idx-1,t_idx-1],4)
+                        z = round(wVD.ZB1[m,i_prop,B_idx,r_idx-1,t_idx-1],4)
                     else:
                         # print the point index (Left LE --> Left TE --> Right LE --> Right TE)
-                        x = round(wVD.XA1[i_prop,B_idx,r_idx,t_idx-1],4)
-                        y = round(wVD.YA1[i_prop,B_idx,r_idx,t_idx-1],4)
-                        z = round(wVD.ZA1[i_prop,B_idx,r_idx,t_idx-1],4)
-                    
-                    
+                        x = round(wVD.XA1[m,i_prop,B_idx,r_idx,t_idx-1],4)
+                        y = round(wVD.YA1[m,i_prop,B_idx,r_idx,t_idx-1],4)
+                        z = round(wVD.ZA1[m,i_prop,B_idx,r_idx,t_idx-1],4)
                     
                     new_point = "\n"+str(x)+" "+str(y)+" "+str(z)
-                    node_number = r_idx + (n_radial_rings)*t_idx
+                    node_number = np.append(node_number, r_idx + (n_radial_rings)*t_idx)
                     f.write(new_point)                
+                    
         #---------------------    
         # Write Cells:
         #---------------------
@@ -107,7 +107,7 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         for B_idx in range(n_blades):
             for i in range(cells_per_blade):
                 if i==0:
-                    node = i + int(B_idx*n_vertices/n_blades)
+                    node =  i + int(B_idx*n_vertices/n_blades)
                 elif i%n_radial_rings ==0:
                     node = node+1
                 new_cell = "\n4 "+str(node)+" "+str(node+1)+" "+str(node+n_radial_rings+2)+" "+str(node+n_radial_rings+1)
@@ -133,15 +133,17 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
         # First scalar value
         f.write("\nSCALARS gamma float 1")
         f.write("\nLOOKUP_TABLE default")   
-        blade_circulation = Results['prop_outputs'].disc_circulation[0,:,0]
+        
+        circulations=[]
         for B_idx in range(n_blades):
-            for i in range(cells_per_blade):
-                circ_L = blade_circulation[int(i%(n_radial_rings))]
-                circ_R = blade_circulation[int(i%(n_radial_rings))+1]
-                circ_C = 0.5*(circ_L+circ_R)
-                
-                new_circ = str(circ_C)
-                f.write("\n"+new_circ)     
+            for t_idx in range(n_time_steps):
+                for r_idx in range(n_radial_rings):
+                    circulations = np.append(circulations, gamma[0,B_idx,r_idx,t_idx])     
+                    
+        for i in range(n_cells):
+            new_circ = str(circulations[i])
+            f.write("\n"+new_circ)     
+
         
         # Second scalar value
         f.write("\nSCALARS vt float 1")
@@ -177,10 +179,10 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
                 # Get vortex strength of panel (current node is the bottom left of the panel)
                 g_r_t = gamma[i_prop,B_idx,r_idx,t_idx]
                 
-                p_r_t   = np.array([wVD.XA1[i_prop,B_idx,r_idx,t_idx],wVD.YA1[i_prop,B_idx,r_idx,t_idx],wVD.ZA1[i_prop,B_idx,r_idx,t_idx]])  # Bottom Left
-                p_rp_t  = np.array([wVD.XB1[i_prop,B_idx,r_idx,t_idx],wVD.YB1[i_prop,B_idx,r_idx,t_idx],wVD.ZB1[i_prop,B_idx,r_idx,t_idx]])  # Top Left
-                p_r_tp  = np.array([wVD.XA2[i_prop,B_idx,r_idx,t_idx],wVD.YA2[i_prop,B_idx,r_idx,t_idx],wVD.ZA2[i_prop,B_idx,r_idx,t_idx]])  # Top Right
-                p_rp_tp = np.array([wVD.XB2[i_prop,B_idx,r_idx,t_idx],wVD.YB2[i_prop,B_idx,r_idx,t_idx],wVD.ZB2[i_prop,B_idx,r_idx,t_idx]])  # Bottom Right
+                p_r_t   = np.array([wVD.XA1[m,i_prop,B_idx,r_idx,t_idx],wVD.YA1[m,i_prop,B_idx,r_idx,t_idx],wVD.ZA1[m,i_prop,B_idx,r_idx,t_idx]])  # Bottom Left
+                p_rp_t  = np.array([wVD.XB1[m,i_prop,B_idx,r_idx,t_idx],wVD.YB1[m,i_prop,B_idx,r_idx,t_idx],wVD.ZB1[m,i_prop,B_idx,r_idx,t_idx]])  # Top Left
+                p_r_tp  = np.array([wVD.XA2[m,i_prop,B_idx,r_idx,t_idx],wVD.YA2[m,i_prop,B_idx,r_idx,t_idx],wVD.ZA2[m,i_prop,B_idx,r_idx,t_idx]])  # Top Right
+                p_rp_tp = np.array([wVD.XB2[m,i_prop,B_idx,r_idx,t_idx],wVD.YB2[m,i_prop,B_idx,r_idx,t_idx],wVD.ZB2[m,i_prop,B_idx,r_idx,t_idx]])  # Bottom Right
                 
                 # Append vortex strengths to ring vortices
                 if t_idx==0 and r_idx==0:
@@ -338,10 +340,8 @@ def save_prop_wake_vtk(VD,gamma,filename,Results,i_prop):
                     rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring    
                     
                 
-                
         # Store vortex distribution for this blade
-        
-        sep  = filename.find('.')
+        sep  = filename.rfind('.')
         VD_filename = filename[0:sep]+"_VD_blade"+str(B_idx)+filename[sep:]  
         write_VD(rings,n_time_steps,n_radial_rings, VD_filename)
     return

@@ -179,30 +179,17 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(fuselage)
 
-    #------------------------------------------------------------------
-    # Nacelles
-    #------------------------------------------------------------------  
-    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.diameter        = 0.2921
-    nacelle.length          = 0.95 
-    nacelle_origins         = [[-0.2, 1.347, 0.0], [-0.2, 3.2969999999999997, 0.0],
-                               [-0.2, -1.347, 0.0], [-0.2, -3.2969999999999997, 0.0], 
-                               [4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54],
-                               [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
-    nacelle.areas.wetted    =  np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
-     
-    for idx in range(8):
-        nacelle          = deepcopy(nacelle)
-        nacelle.tag      = 'nacelle_' +  str(idx)
-        nacelle.origin   = [nacelle_origins[ii]] 
-        vehicle.append_component(nacelle)       
 
     #------------------------------------------------------------------
     # network
     #------------------------------------------------------------------
     net                                = SUAVE.Components.Energy.Networks.Battery_Propeller()
     net.number_of_propeller_engines    = 8
-    net.thrust_angle                   = 0.0   * Units.degrees #  conversion to radians 
+    net.thrust_angle                   = 0.0   * Units.degrees #  conversion to radians,
+    net.nacelle_diameter               = 0.2921 # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
+    net.engine_length                  = 0.95
+    net.areas                          = Data()
+    net.areas.wetted                   = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
     net.voltage                        = 400.
     net.identical_propellers           = True
 
@@ -243,6 +230,25 @@ def vehicle_setup():
     # Component 9 Miscellaneous Systems
     sys = SUAVE.Components.Systems.System()
     sys.mass_properties.mass = 5 # kg
+
+    #------------------------------------------------------------------
+    # Nacelles
+    #------------------------------------------------------------------  
+    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter        = 0.2921
+    nacelle.length          = 0.95 
+    nacelle_origins         = [[-0.2, 1.347, 0.0], [-0.2, 3.2969999999999997, 0.0],
+                               [-0.2, -1.347, 0.0], [-0.2, -3.2969999999999997, 0.0], 
+                               [4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54],
+                               [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
+    nacelle.areas.wetted    =  np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
+
+    for idx in range(8):
+        nacelle          = deepcopy(nacelle)
+        nacelle.tag      = 'nacelle_' +  str(idx)
+        nacelle.origin   = [nacelle_origins[ii]] 
+        vehicle.append_component(nacelle)       
+
 
     #------------------------------------------------------------------
     # Design Rotors

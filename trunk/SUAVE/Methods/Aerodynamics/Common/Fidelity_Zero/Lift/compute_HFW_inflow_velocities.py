@@ -13,6 +13,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_v
 
 # package imports
 import numpy as np
+from scipy.interpolate import interp1d
 
 def compute_HFW_inflow_velocities( prop ):
     """
@@ -27,6 +28,7 @@ def compute_HFW_inflow_velocities( prop ):
         Va   - axial velocity array of shape (ctrl_pts, Nr, Na)        [m/s]
         Vt   - tangential velocity array of shape (ctrl_pts, Nr, Na)   [m/s]
     """
+    
     VD                       = Data()
     omega                    = prop.inputs.omega
     time                     = prop.wake_settings.wake_development_time
@@ -38,6 +40,7 @@ def compute_HFW_inflow_velocities( prop ):
     cpts          = len(prop_outputs.velocity)
     Na            = prop.number_azimuthal_stations
     Nr            = len(prop.chord_distribution)
+    r             = prop.radius_distribution
 
     conditions = Data()
     conditions.noise = Data()
@@ -66,22 +69,24 @@ def compute_HFW_inflow_velocities( prop ):
         # generate wake distribution using initial circulation from BEMT
         WD, _, _, _, _  = generate_propeller_wake_distribution(props,identical,cpts,VD,
                                                                init_timestep_offset, time,
-                                                               number_of_wake_timesteps,conditions,
-                                                               include_lifting_line=False )
+                                                               number_of_wake_timesteps,conditions )
+
 
         # ----------------------------------------------------------------
         # Compute the wake-induced velocities at propeller blade
         # ----------------------------------------------------------------
-
         # set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
-        Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0]
-        Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0]
-        Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0]
+        r = prop.radius_distribution 
+        Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0] 
+        Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0] 
+        Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0] 
+        
 
-        VD.YC = Yb
-        VD.ZC = Zb
-        VD.XC = Xb
-
+        VD.YC = (Yb[1:] + Yb[:-1])/2
+        VD.ZC = (Zb[1:] + Zb[:-1])/2
+        VD.XC = (Xb[1:] + Xb[:-1])/2
+         
+        
         VD.n_cp = np.size(VD.YC)
 
         # Compute induced velocities at blade from the helical fixed wake
@@ -91,10 +96,20 @@ def compute_HFW_inflow_velocities( prop ):
         u       = V_ind[0,:,0]   # velocity in vehicle x-frame
         v       = V_ind[0,:,1]   # velocity in vehicle y-frame
         w       = V_ind[0,:,2]   # velocity in vehicle z-frame
+        
+        # interpolate to get values at rotor radial stations
+        r_midpts = (r[1:] + r[:-1])/2
+        u_r = interp1d(r_midpts, u, fill_value="extrapolate")
+        v_r = interp1d(r_midpts, v, fill_value="extrapolate")
+        w_r = interp1d(r_midpts, w, fill_value="extrapolate")
+        
+        up = u_r(r)
+        vp = v_r(r)
+        wp = w_r(r)       
 
         # Update velocities at the disc
-        Va[:,:,i]  = u
-        Vt[:,:,i]  = (w*np.cos(blade_angle) + v*np.sin(blade_angle))
+        Va[:,:,i]  = -up
+        Vt[:,:,i]  = (-vp*np.cos(blade_angle) + wp*np.sin(blade_angle)) 
 
 
     prop.vortex_distribution = VD

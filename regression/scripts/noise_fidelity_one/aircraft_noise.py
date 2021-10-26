@@ -53,11 +53,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
     X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-<<<<<<< HEAD
-    X57_SPL_true   = 81.30025356331771
-=======
-    X57_SPL_true   = 63.08132027334217
->>>>>>> 4829b6803ec116c02ff43a4f625f4c4c82e4cc91
+    X57_SPL_true   = 62.887863178130765
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
@@ -277,7 +273,7 @@ def X57_mission_setup(analyses,vehicle):
     # base segment
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row 
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 4  
     

@@ -181,26 +181,26 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     Properties Used:
     N/A
     """
-    num_prop = len(VD.Wake.XA1[:,0,0,0])
-    nts      = len(VD.Wake.XA1[0,:,0,0])
-    num_B    = len(VD.Wake.XA1[0,0,:,0])
-    dim_R    = len(VD.Wake.XA1[0,0,0,:])
+    num_prop = len(VD.Wake.XA1[0,:,0,0,0])
+    num_B    = len(VD.Wake.XA1[0,0,:,0,0])
+    dim_R    = len(VD.Wake.XA1[0,0,0,:,0])
+    nts      = len(VD.Wake.XA1[0,0,0,0,:])
     for p_idx in range(num_prop):
         for t_idx in range(nts):
             for B_idx in range(num_B):
                 for loc in range(dim_R):
-                    X = [VD.Wake.XA1[p_idx,t_idx,B_idx,loc],
-                         VD.Wake.XB1[p_idx,t_idx,B_idx,loc],
-                         VD.Wake.XB2[p_idx,t_idx,B_idx,loc],
-                         VD.Wake.XA2[p_idx,t_idx,B_idx,loc]]
-                    Y = [VD.Wake.YA1[p_idx,t_idx,B_idx,loc],
-                         VD.Wake.YB1[p_idx,t_idx,B_idx,loc],
-                         VD.Wake.YB2[p_idx,t_idx,B_idx,loc],
-                         VD.Wake.YA2[p_idx,t_idx,B_idx,loc]]
-                    Z = [VD.Wake.ZA1[p_idx,t_idx,B_idx,loc],
-                         VD.Wake.ZB1[p_idx,t_idx,B_idx,loc],
-                         VD.Wake.ZB2[p_idx,t_idx,B_idx,loc],
-                         VD.Wake.ZA2[p_idx,t_idx,B_idx,loc]]
+                    X = [VD.Wake.XA1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.XB1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.XB2[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.XA2[0,p_idx,B_idx,loc,t_idx]]
+                    Y = [VD.Wake.YA1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.YB1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.YB2[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.YA2[0,p_idx,B_idx,loc,t_idx]]
+                    Z = [VD.Wake.ZA1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.ZB1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.ZB2[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.ZA2[0,p_idx,B_idx,loc,t_idx]]
                     verts = [list(zip(X, Y, Z))]
                     collection = Poly3DCollection(verts)
                     collection.set_facecolor(face_color)
@@ -347,15 +347,24 @@ def generate_nacelle_points(nac,tessellation = 24):
     if num_nac_segs == 0:
         num_nac_segs = int(n_points/2)
         nac_pts      = np.zeros((num_nac_segs,tessellation,3)) 
-        if nac.naca_4_series_airfoil != None: 
-            # use mean camber surface of airfoil
-            camber       = float(nac.naca_4_series_airfoil[0])/100
-            camber_loc   = float(nac.naca_4_series_airfoil[1])/10
-            thickness    = float(nac.naca_4_series_airfoil[2:])/100 
-            airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
-            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
-            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
-            
+        if nac.Airfoil: 
+            for naf in nac.Airfoil: 
+                if naf.naca_4_series_airfoil != None: 
+                    # use mean camber surface of airfoil
+                    camber       = float(naf.naca_4_series_airfoil[0])/100
+                    camber_loc   = float(naf.naca_4_series_airfoil[1])/10
+                    thickness    = float(naf.naca_4_series_airfoil[2:])/100 
+                    airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
+                    xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
+                    zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
+                
+                elif naf.coordinate_file != None: 
+                    a_sec        = naf.coordinate_file
+                    a_secl       = [0]
+                    airfoil_data = import_airfoil_geometry(a_sec,npoints=num_nac_segs)
+                    xpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.x_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
+                    zpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.y_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
+                
         else:
             # if no airfoil defined, use super ellipse as default
             a =  nac.length/2 
@@ -436,7 +445,7 @@ def plot_nacelle_geometry(axes,NAC_SURF_PTS,face_color,edge_color,alpha):
 
     return
 
-def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color,prop_edge_color,prop_alpha):
+def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color='red',prop_edge_color='darkred',prop_alpha=1):
     """ This plots a 3D surface of the  propeller
 
     Assumptions:

@@ -3,6 +3,7 @@
 # Created:  Feb 2017, M. Vegh (taken from data originally in B737/mission_B737.py, noise_optimization/Vehicles.py, and Boeing 737 tutorial script
 # Modified: Jul 2017, M. Clarke
 #           Mar 2020, M. Clarke
+#           Oct 2021, M. Clarke
 
 """ setup file for the Boeing 737 vehicle
 """
@@ -16,9 +17,7 @@ import numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from copy import deepcopy
-
-
+from copy import deepcopy 
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -489,26 +488,30 @@ def vehicle_setup():
     fuselage.Segments.append(segment)                  
     
     # add to vehicle
-    vehicle.append_component(fuselage) 
-
+    vehicle.append_component(fuselage)  
+    
     # ------------------------------------------------------------------
     #   Nacelles
     # ------------------------------------------------------------------ 
-    nacelle                = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.tag            = 'nacelle_1'
-    nacelle.length         = 2.71
-    nacelle.inlet_diameter = 1.90
-    nacelle.diameter       = 2.05
-    nacelle.areas.wetted   = 1.1*np.pi*nacelle.diameter*nacelle.length
-    nacelle.origin         = [[13.72, -4.86,-1.9]]
-    nacelle.flow_through   = True 
-    nacelle.naca_4_series_airfoil = '2410'
-    vehicle.append_component(nacelle)  
+    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.tag                   = 'nacelle_1'
+    nacelle.length                = 2.71
+    nacelle.inlet_diameter        = 1.90
+    nacelle.diameter              = 2.05
+    nacelle.areas.wetted          = 1.1*np.pi*nacelle.diameter*nacelle.length
+    nacelle.origin                = [[13.72, -4.86,-1.9]]
+    nacelle.flow_through          = True  
+    nacelle_airfoil               = SUAVE.Components.Wings.Airfoils.Airfoil() 
+    nacelle_airfoil.naca_4_series_airfoil = '2410'
+    nacelle.append_airfoil(nacelle_airfoil)
 
     nacelle_2          = deepcopy(nacelle)
     nacelle_2.tag      = 'nacelle_2'
     nacelle_2.origin   = [[13.72, 4.86,-1.9]]
+    
+    vehicle.append_component(nacelle)  
     vehicle.append_component(nacelle_2)     
+    
     
     # ------------------------------------------------------------------
     #   Turbofan Network
@@ -516,13 +519,27 @@ def vehicle_setup():
 
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbofan' 
+    turbofan.tag = 'turbofan'
+
+    # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
-    
+    turbofan.engine_length     = 2.71
+    turbofan.nacelle_diameter  = 2.05
+    # This origin is overwritten by compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
+    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
+
+    #compute engine areas
+    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
+
+    #Assign engine areas
+    turbofan.areas.wetted  = Awet
+
+
 
     # working fluid
-    turbofan.working_fluid = SUAVE.Attributes.Gases.Air() 
+    turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
+
 
     # ------------------------------------------------------------------
     #   Component 1 - Ram

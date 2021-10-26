@@ -11,7 +11,7 @@ from SUAVE.Core import Units, Data
 import copy
 from SUAVE.Components.Energy.Networks.Lift_Cruise                         import Lift_Cruise
 from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_optimal_motor
+from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion                                             import propeller_design
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
@@ -452,7 +452,7 @@ def vehicle_setup():
     for idx in range(12):
         nacelle          = deepcopy(rotor_nacelle)
         nacelle.tag      = 'nacelle_' +  str(idx)
-        nacelle.origin   = [rotor_nacelle_origins[ii]] 
+        nacelle.origin   = [rotor_nacelle_origins[idx]] 
         vehicle.append_component(nacelle)  
     
     propeller_nacelle                     = SUAVE.Components.Nacelles.Nacelle()
@@ -462,13 +462,17 @@ def vehicle_setup():
     propeller_nacelle.length              =  0.5 * Units.feet  
     propeller_nacelle.areas.wetted        =  np.pi*propeller_nacelle.diameter*propeller_nacelle.length + 0.5*np.pi*propeller_nacelle.diameter**2    
     vehicle.append_component(propeller_nacelle)    
-
+    
     #------------------------------------------------------------------
     # network
     #------------------------------------------------------------------
     net                              = Lift_Cruise()
     net.number_of_lift_rotor_engines = 12
-    net.number_of_propeller_engines  = 1 
+    net.number_of_propeller_engines  = 1
+    net.nacelle_diameter             = 0.6 * Units.feet
+    net.engine_length                = 0.5 * Units.feet
+    net.areas                        = Data()
+    net.areas.wetted                 = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
     net.voltage                      = 500.
 
     #------------------------------------------------------------------
@@ -500,7 +504,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Battery
     #------------------------------------------------------------------
-    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650() 
+    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650() 
     bat.mass_properties.mass = 500. * Units.kg  
     bat.max_voltage          = net.voltage   
     initialize_from_mass(bat)

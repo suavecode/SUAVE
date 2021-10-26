@@ -3,6 +3,7 @@
 
 # Created:  SUAVE team
 # Modified: Aug 2016, L. Kulik
+#           Oct 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -35,8 +36,7 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
       networks.turbofan.
         design_thrust         [N]
         engine_length         [m]
-        thrust.bypass_ratio   [-]
-      nacelle.diameter     [m]
+        thrust.bypass_ratio   [-] 
     filename (optional)       <string> Determines the name of the saved file
     units (optional)          <string> Determines the type of units used in the output, options are imperial and si
 
@@ -76,13 +76,7 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
     for network in vehicle.networks:  # may have than one network
         engine_number += network.number_of_engines
     if engine_number == 0:
-        raise ValueError("No engine found in the vehicle")
-
-    engine_tag       = vehicle.propulsors.turbofan.tag
-    design_thrust    = vehicle.propulsors.turbofan.design_thrust
-    engine_length    = vehicle.propulsors.turbofan.engine_length
-    nacelle_diameter = vehicle.nacelles.nacelle.diameter
-    bypass_ratio     = vehicle.propulsors.turbofan.thrust.bypass_ratio
+        raise ValueError("No engine found in the vehicle") 
 
     # Considering planet and atmosphere of 1st mission segment
     sea_level_gravity = SUAVE.Attributes.Planets.Earth().sea_level_gravity

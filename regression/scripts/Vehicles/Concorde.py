@@ -6,6 +6,7 @@
 #           Oct 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
 #           Feb 2019, T. MacDonald
+#           Oct 2021, M. Clarke
 
 """ setup file for the Concorde 
 """

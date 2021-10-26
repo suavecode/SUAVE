@@ -3,6 +3,7 @@
 # Created:  Feb 2017, M. Vegh (data taken from Embraer_E190_constThr/mission_Embraer_E190_constThr, and Regional_Jet_Optimization/Vehicles2.py), takeoff_field_length/takeoff_field_length.py, landing_field_length/landing_field_length.py
 # Modified: Mar 2020, M. Clarke
 #           May 2020, E. Botero
+#           Oct 2021, M. Clarke
 
 
 """ setup file for the E190 vehicle
@@ -243,32 +244,34 @@ def vehicle_setup():
     # -----------------------------------------------------------------
     # Design the Nacelle
     # ----------------------------------------------------------------- 
-    nacelle                   = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.diameter          = 2.05
-    nacelle.engine_length     = 2.71
-    nacelle.tag               = 'nacelle_1'
-    nacelle.inlet_diameter    = 2.0
-    nacelle.origin            = [[12.0,4.38,-2.1]]
-    Awet                      = 1.1*np.pi*nacelle.diameter*nacelle.engine_length # 1.1 is simple coefficient
-    nacelle.areas.wetted      = Awet
-    nacelle.naca_4_series_airfoil = '2410'
-    vehicle.append_component(nacelle) 
+    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter              = 2.05
+    nacelle.length                = 2.71
+    nacelle.tag                   = 'nacelle_1'
+    nacelle.inlet_diameter        = 2.0
+    nacelle.origin                = [[12.0,4.38,-2.1]]
+    Awet                          = 1.1*np.pi*nacelle.diameter*nacelle.length # 1.1 is simple coefficient
+    nacelle.areas.wetted          = Awet 
+    nacelle_airfoil               = SUAVE.Components.Nacelles.Airfoils.Airfoil() 
+    nacelle_airfoil.naca_4_series_airfoil = '2410'
+    nacelle.append_airfoil(nacelle_airfoil) 
 
-    nacelle_2          = deepcopy(nacelle)
-    nacelle_2.tag      = 'nacelle_2'
-    nacelle_2.origin   = [[12.0,-4.38,-2.1]]
+    nacelle_2                     = deepcopy(nacelle)
+    nacelle_2.tag                 = 'nacelle_2'
+    nacelle_2.origin              = [[12.0,-4.38,-2.1]]
+    
+    vehicle.append_component(nacelle)   
     vehicle.append_component(nacelle_2)   
     
     
     # ------------------------------------------------------------------
     #  Turbofan Network
-    # ------------------------------------------------------------------    
-
-
+    # ------------------------------------------------------------------ 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
     gt_engine.tag               = 'turbofan'
-    gt_engine.origin            = [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]]
+    gt_engine.origin            = [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]] 
+    gt_engine.engine_length     = 2.71    
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4   
   

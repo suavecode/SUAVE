@@ -2,6 +2,7 @@
 #
 # Created:  Feb 2017, M. Vegh (taken from data originally in cmalpha/cmalpha.py and cnbeta/cnbeta.py)
 # Modified: May 2020, W. Van Gijseghem 
+#           Oct 2021, M. Clarke
 
 """ setup file for the Boeing 747 vehicle
 note that it does not include an engine; current values only used to test stability cmalpha and cnbeta

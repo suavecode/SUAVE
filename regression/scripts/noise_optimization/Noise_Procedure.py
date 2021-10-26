@@ -90,7 +90,8 @@ def initial_sizing(nexus):
         conditions.freestream = freestream 
         
         turbofan_sizing(config.networks['turbofan'], mach_number, altitude)
-        compute_turbofan_geometry(config.networks['turbofan'], conditions)
+        for nac in config.nacelles: 
+            compute_turbofan_geometry(config.networks['turbofan'],nac, conditions)
         
         # diff the new data
         config.store_diff()  
@@ -488,6 +489,9 @@ def noise_sideline_init(nexus):
     nexus.npoints_sideline_sign = np.sign(n_points)
     
     nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points = int(np.minimum(200, np.abs(n_points))[0])
+    
+    # Force the state to reset the number of points
+    nexus.missions.sideline_takeoff.segments.climb.state.expand_rows(nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points,override=True)
  
     return nexus
 
@@ -505,6 +509,8 @@ def noise_takeoff_init(nexus):
     nexus.npoints_takeoff_sign=np.sign(n_points)
 
     nexus.missions.takeoff.segments.climb.state.numerics.number_control_points = int(np.minimum(200, np.abs(n_points))[0])
+    
+    nexus.missions.takeoff.segments.climb.state.expand_rows(nexus.missions.takeoff.segments.climb.state.numerics.number_control_points,override=True)
 
     return nexus
 

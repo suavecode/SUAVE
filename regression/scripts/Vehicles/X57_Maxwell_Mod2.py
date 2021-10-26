@@ -1,7 +1,8 @@
-# Boeing_737.py
+# X57_Maxwell_Mod2.py
 #
-# Created: Feb 2020, M. Clarke
-#          Sep 2020, M. Clarke
+# Created:  Feb 2020, M. Clarke
+#           Sep 2020, M. Clarke
+#           Oct 2021, M. Clarke
 
 """ setup file for the X57-Maxwell Modification 2 Electric Aircraft
 """
@@ -445,7 +446,7 @@ def vehicle_setup():
 
 
     # Component 3 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     bat.mass_properties.mass = 500. * Units.kg  
     bat.max_voltage          = 500. 
     initialize_from_mass(bat)

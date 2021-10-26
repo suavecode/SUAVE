@@ -64,7 +64,7 @@ def main():
     results_SR              = mission_SR.evaluate()
     results_SR              = results_SR.merged()
     
-    distance_regression_SR = 91797.92798566564
+    distance_regression_SR = 100671.5580738441
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc_SR = ', distance_calc_SR)
     error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)
@@ -302,7 +302,7 @@ def mission_setup_SR(vehicle,analyses):
     base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip    
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip    
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery   
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     
     # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Rate
@@ -332,7 +332,7 @@ def mission_setup_SR(vehicle,analyses):
     
     segment.analyses.extend( analyses )
     
-    segment.altitude  = 1000.0 * Units.ft
+    segment.altitude  = 1000.0 * Units.ft    
     segment.air_speed = 110.   * Units['mph']
     segment.distance  = 60.    * Units.miles     
     segment.state.unknowns.throttle = 0.80 * ones_row(1)

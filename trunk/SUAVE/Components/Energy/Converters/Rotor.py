@@ -26,7 +26,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_HFW_inflow_vel
 # package imports
 import numpy as np
 import scipy as sp
-from scipy.interpolate import interp1d
+
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
@@ -89,11 +89,10 @@ class Rotor(Energy_Component):
         self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
         self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
-        self.time_accurate_loading     = False
 
         self.Wake_VD                   = Data()
         self.wake_method               = "momentum"
-        self.number_rotor_rotations    = 5
+        self.number_rotor_rotations    = 6
         self.number_steps_per_rotation = 100
         self.wake_settings             = Data()
 
@@ -412,23 +411,35 @@ class Rotor(Energy_Component):
 
 
         elif wake_method == "helical_fixed_wake":
-
-            # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-            va, vt = compute_HFW_inflow_velocities(self)
-
-            # compute blade circulation/forces using the new velocities
-            Gamma        = self.outputs.disc_circulation
-            Wa           = va + Ua
-            Wt           = Ut - vt
-
-            # Compute aerodynamic forces based on specified input airfoil or surrogate
-            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-
-            lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-
-            # compute HFW circulation at the blade
-            Gamma = 0.5*W*c*Cl # Gamma_Blade
-
+            
+            # converge on va for a semi-prescribed wake method
+            ii,ii_max = 0, 50            
+            va_diff, tol = 1, 1e-3
+            while va_diff > tol:  
+                
+                # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+                va, vt = compute_HFW_inflow_velocities(self)
+    
+                # compute new blade velocities
+                Wa   = va + Ua
+                Wt   = Ut - vt
+    
+                # Compute aerodynamic forces based on specified input airfoil or surrogate
+                Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+    
+                lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+                
+                va_diff = np.max(abs(va - self.outputs.disc_axial_induced_velocity))
+                # compute HFW circulation at the blade
+                Gamma = 0.5*W*c*Cl
+                    
+                # update the axial disc velocity based on new va from HFW
+                self.outputs.disc_axial_induced_velocity = self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
+                
+                ii+=1
+                if ii>ii_max and va_diff>tol:
+                    print("Semi-prescribed helical wake did not converge on axial inflow used for wake shape.")
+                                
 
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
         va     = F*va
@@ -469,48 +480,6 @@ class Rotor(Energy_Component):
             Vt_ind_2d  = vt
             Vt_ind_avg = np.average(vt, axis=2)
             Va_ind_avg = np.average(va, axis=2)
-
-            # If time-accurate, compute the time-accurate forces \
-            if self.time_accurate_loading:
-                # set the angle of rotor: update blade position with prescribed offset value
-                blade_offsets   = self.start_angle + np.linspace(0,2*np.pi,B+1)[0:-1]
-
-                # blade offsets independent of rotation number, so get base rotation angle
-                blade_offsets = blade_offsets%(2*np.pi)
-
-                # Close the loop to enable interpolation along last azimuthal slice
-                psi_closed                       = np.append(psi,2*np.pi)
-                blade_T_distribution_disc_closed = np.append(blade_T_distribution_2d,blade_T_distribution_2d[:,0,:][:,None,:],axis=1)
-                blade_Q_distribution_disc_closed = np.append(blade_Q_distribution_2d,blade_Q_distribution_2d[:,0,:][:,None,:],axis=1)
-
-                # Generate functions for interpolation
-                blade_T_distribution_function = interp1d(psi_closed,blade_T_distribution_disc_closed,axis=1)
-                blade_Q_distribution_function = interp1d(psi_closed,blade_Q_distribution_disc_closed,axis=1)
-
-                # Interpolate to get distributions at each blade for each aximuthal offset. SHAPES = (cpts, Nsteps, B, Nr)
-                blade_T_distribution_blades = blade_T_distribution_function(blade_offsets)
-                blade_Q_distribution_blades = blade_Q_distribution_function(blade_offsets)
-
-                # Instantaneous thrust and torque derivatives on each blade
-                blade_dT_dr = np.diff(blade_T_distribution_blades)/np.diff(r_1d)
-                blade_dQ_dr = np.diff(blade_Q_distribution_blades)/np.diff(r_1d)
-
-                # Instantaneous forces produced by this rotor
-                time_accurate_thrust  = np.atleast_2d( np.sum(blade_T_distribution_blades,axis=(1,2)))
-                time_accurate_torque  = np.atleast_2d( np.sum(blade_Q_distribution_blades,axis=(1,2)))
-                time_accurate_power   = omega*time_accurate_torque
-
-                # calculate time-accurate coefficients
-                D                  = 2*R
-                Cq_time_accurate   = time_accurate_torque/(rho_0*(n*n)*(D*D*D*D*D))
-                Ct_time_accurate   = time_accurate_thrust/(rho_0*(n*n)*(D*D*D*D))
-                Cp_time_accurate   = time_accurate_power/(rho_0*(n*n*n)*(D*D*D*D*D))
-                etap_time_accurate = V*time_accurate_thrust/time_accurate_power
-
-                Cq_time_accurate_blades  = blade_Q_distribution_blades/(rho_0*(n*n)*(D*D*D*D*D))
-                Ct_time_accurate_blades  = blade_T_distribution_blades/(rho_0*(n*n)*(D*D*D*D))
-                Cp_time_accurate_blades  = omega*blade_Q_distribution_blades/(rho_0*(n*n*n)*(D*D*D*D*D))
-
 
             # set 1d blade loadings to be the average:
             blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 2)
@@ -633,20 +602,6 @@ class Rotor(Energy_Component):
                     rotor_drag                        = rotor_drag,
                     rotor_drag_coefficient            = Crd,
             )
-        if self.time_accurate_loading:
-            outputs.time_accurate_thrust              = time_accurate_thrust
-            outputs.time_accurate_power               = time_accurate_power
-            outputs.time_accurate_torque              = time_accurate_torque
-            outputs.time_accurate_torque_coefficient  = Cq_time_accurate
-            outputs.time_accurate_power_coefficient   = Cp_time_accurate
-            outputs.time_accurate_thrust_coefficient  = Ct_time_accurate
-            outputs.time_accurate_etap                = etap_time_accurate
-
-            outputs.time_accurate_torque_distribution_blades = blade_Q_distribution_blades
-            outputs.time_accurate_thrust_distribution_blades = blade_T_distribution_blades
-            outputs.Cq_time_accurate_blades                  = Cq_time_accurate_blades
-            outputs.Ct_time_accurate_blades                  = Ct_time_accurate_blades
-            outputs.Cp_time_accurate_blades                  = Cp_time_accurate_blades
 
         return thrust_vector, torque, power, Cp, outputs , etap
 

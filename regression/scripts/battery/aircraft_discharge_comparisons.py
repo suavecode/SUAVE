@@ -30,7 +30,7 @@ from Stopped_Rotor       import configs_setup as   EVTOL_configs_setup
 
 def main():     
     
-    battery_chemistry  =  ['NMC'] # ['NCA','NMC','LFP']
+    battery_chemistry  =  ['NMC','LFP']
     line_style_new     =  ['bo-','ro-','ko-']
     line_style2_new    =  ['bs-','rs-','ks-'] 
     
@@ -39,13 +39,13 @@ def main():
     # ----------------------------------------------------------------------    
 
     # General Aviation Aircraft   
-    GA_RPM_true              = [979.994579706428, 979.9945797784385,979.9945796984032]
-    GA_lift_coefficient_true = [0.5473140864833066,0.5473140864832907,0.5473140864830665]
+    GA_RPM_true              = [974.7923284493163,974.7923285221483]
+    GA_lift_coefficient_true = [0.5473586155902289, 0.547358615590229]
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2385.069532419814,2385.069533209447,2385.069532423358 ]
-    EVTOL_lift_coefficient_true = [0.8074217543764051,0.8074217543763301,0.8074217543763312]
+    EVTOL_RPM_true              = [2385.069532364969,2385.0695327099684]
+    EVTOL_lift_coefficient_true = [0.8073925326158456,0.8073925326158382]
     
         
     for i in range(len(battery_chemistry)):
@@ -68,7 +68,8 @@ def main():
         plot_results(GA_results,line_style_new[i],line_style2_new[i])  
         
         # RPM of rotor check during hover
-        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0]  
+        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0]   
+        print('GA RPM : ' + str(GA_RPM))
         GA_diff_RPM   = np.abs(GA_RPM - GA_RPM_true[i])
         print('RPM difference')
         print(GA_diff_RPM)
@@ -76,6 +77,7 @@ def main():
         
         # lift Coefficient Check During Cruise
         GA_lift_coefficient        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
+        print('GA Cl : ' + str(GA_lift_coefficient))
         GA_diff_CL                 = np.abs(GA_lift_coefficient  - GA_lift_coefficient_true[i]) 
         print('CL difference')
         print(GA_diff_CL)
@@ -99,6 +101,7 @@ def main():
         
         # RPM of rotor check during hover
         EVTOL_RPM        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0]  
+        print('EVTOL RPM : ' + str(EVTOL_RPM))
         EVTOL_diff_RPM   = np.abs(EVTOL_RPM - EVTOL_RPM_true[i])
         print('EVTOL_RPM difference')
         print(EVTOL_diff_RPM)
@@ -106,6 +109,7 @@ def main():
         
         # lift Coefficient Check During Cruise
         EVTOL_lift_coefficient        = EVTOL_results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[2][0] 
+        print('EVTOL Cl : ' + str(EVTOL_lift_coefficient))
         EVTOL_diff_CL                 = np.abs(EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i]) 
         print('CL difference')
         print(EVTOL_diff_CL)
@@ -126,10 +130,8 @@ def GA_full_setup(battery_chemistry):
     
     # Modify  Battery  
     net = vehicle.networks.battery_propeller
-    bat = net.battery
-    if battery_chemistry == 'NCA':
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()     
-    elif battery_chemistry == 'NMC': 
+    bat = net.battery 
+    if battery_chemistry == 'NMC': 
         bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
     elif battery_chemistry == 'LFP': 
         bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()  
@@ -174,10 +176,8 @@ def EVTOL_full_setup(battery_chemistry):
 
     # Modify  Battery  
     net = vehicle.networks.lift_cruise
-    bat = net.battery
-    if battery_chemistry == 'NCA':
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()   
-    elif battery_chemistry == 'NMC': 
+    bat = net.battery 
+    if battery_chemistry == 'NMC': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
@@ -304,7 +304,7 @@ def GA_mission_setup(analyses,vehicle):
     # base segment
     base_segment = Segments.Segment()
     ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 4 
     base_segment.battery_age_in_days                         = 1 # optional but added for regression
@@ -370,6 +370,19 @@ def GA_mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     #   Mission definition complete    
     # ------------------------------------------------------------------ 
+    
+
+    # ------------------------------------------------------------------
+    #  Charge Segment: 
+    # ------------------------------------------------------------------     
+    # Charge Model 
+    segment                                                 = Segments.Ground.Battery_Charge_Discharge(base_segment)     
+    segment.tag                                             = 'Charge'
+    segment.analyses.extend(analyses.base)           
+    segment.battery_discharge                               = False      
+    segment.increment_battery_cycle_day                     = True            
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)    
+    mission.append_segment(segment)       
     return mission
 
 
@@ -395,7 +408,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     # base segment
     base_segment                                             = Segments.Segment()
     base_segment.state.numerics.number_control_points        = 3 
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
 
     # VSTALL Calculation
@@ -441,7 +454,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.pitch_initial                            = 0.0 * Units.degrees
     segment.pitch_final                              = 5. * Units.degrees
     ones_row                                         = segment.state.ones_row
-    segment.state.unknowns.throttle                  = 0.95  *  ones_row(1)
+    segment.state.unknowns.throttle                  = 1.  *  ones_row(1)
     segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
@@ -522,6 +535,19 @@ def EVTOL_mission_setup(analyses,vehicle):
     # add to misison
     mission.append_segment(segment)
     
+
+    # ------------------------------------------------------------------
+    #  Charge Segment: 
+    # ------------------------------------------------------------------  
+    # Charge Model 
+    segment                                                  = Segments.Ground.Battery_Charge_Discharge(base_segment)     
+    segment.tag                                              = 'Charge'
+    segment.analyses.extend(analyses.base)           
+    segment.battery_discharge                                = False    
+    segment.increment_battery_cycle_day                      = True         
+    segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment)    
+    mission.append_segment(segment)        
+    
     return mission
 
 def missions_setup(base_mission):
@@ -552,6 +578,7 @@ def plot_results(results,line_style,line_style2):
     # Plot Aircraft Electronics
     plot_battery_pack_conditions(results, line_style,line_style2) 
     plot_battery_cell_conditions(results, line_style,line_style2)
+    plot_battery_degradation(results)
     
     # Plot Propeller Conditions 
     plot_propeller_conditions(results, line_style) 
