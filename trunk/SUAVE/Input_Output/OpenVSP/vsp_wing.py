@@ -14,8 +14,7 @@
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, wing_segmented_planform
-from SUAVE.Input_Output.OpenVSP.vsp_fuselage import write_wing_conformal_fuel_tank
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, wing_segmented_planform 
 import numpy as np
 import string
 try:
@@ -150,20 +149,11 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
 
     span_sum         = 0.				# Non-projected.
     proj_span_sum    = 0.				# Projected.
-    segment_spans    = [None] * (segment_num) 	# Non-projected.
+    segment_spans    = [None] * (segment_num) 	        # Non-projected.
     segment_dihedral = [None] * (segment_num)
-    segment_sweeps_quarter_chord = [None] * (segment_num)
-
-    # Check for wing segment *inside* fuselage, then skip XSec_0 to start at first exposed segment.
-    if np.isclose(total_chord,1):
-        start = 1
-        xsec_surf_id = vsp.GetXSecSurf(wing_id, 1)	
-        x_sec        = vsp.GetXSec(xsec_surf_id, 0)
-        chord_parm   = vsp.GetXSecParm(x_sec,'Tip_Chord')
-        root_chord   = vsp.GetParmVal(chord_parm)* units_factor
-    else:
-        start = 0
-        root_chord = total_chord * units_factor
+    segment_sweeps_quarter_chord = [None] * (segment_num) 
+    start = 0
+    root_chord = total_chord * units_factor
 
     # -------------
     # Wing segments
@@ -591,8 +581,181 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
     return area_tags, wing_id 
 
-def convert_sweep(sweep,sweep_loc,new_sweep_loc,AR,taper):
+## @ingroup Input_Output-OpenVSP
+def write_wing_conformal_fuel_tank(vehicle,wing, wing_id,fuel_tank,fuel_tank_set_ind):
+    """This writes a conformal fuel tank in a wing.
 
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    vehicle                                     [-] vehicle data structure
+    wing.Segments.*.percent_span_location       [-]
+    wing.spans.projected                        [m]
+    wind_id                                     <str>
+    fuel_tank.
+      inward_offset                             [m]
+      start_chord_percent                       [-] .1 is 10%
+      end_chord_percent                         [-]
+      start_span_percent                        [-]
+      end_span_percent                          [-]
+      fuel_type.density                         [kg/m^3]
+    fuel_tank_set_ind                           <int>
+
+    Outputs:
+    Operates on the active OpenVSP model, no direct output
+
+    Properties Used:
+    N/A
+    """        
+    # Unpack
+    try:
+        offset            = fuel_tank.inward_offset
+        chord_trim_max    = 1.-fuel_tank.start_chord_percent
+        chord_trim_min    = 1.-fuel_tank.end_chord_percent
+        span_trim_max     = fuel_tank.end_span_percent
+        span_trim_min     = fuel_tank.start_span_percent  
+        density           = fuel_tank.fuel_type.density
+    except:
+        print('Fuel tank does not contain parameters needed for OpenVSP geometry. Tag: '+fuel_tank.tag)
+        return
+
+    tank_id = vsp.AddGeom('CONFORMAL',wing_id)
+    vsp.SetGeomName(tank_id, fuel_tank.tag)    
+    n_segments        = len(wing.Segments.keys())
+    if n_segments > 0.:
+        seg_span_percents  = np.array([v['percent_span_location'] for (k,v)\
+                                       in wing.Segments.iteritems()])
+        vsp_segment_breaks = np.linspace(0.,1.,n_segments)
+    else:
+        seg_span_percents = np.array([0.,1.])
+    span = wing.spans.projected
+
+    # Offset
+    vsp.SetParmVal(tank_id,'Offset','Design',offset)      
+
+    for key, fuselage in vehicle.fuselages.items():
+        width    = fuselage.width
+        length   = fuselage.lengths.total
+        hmax     = fuselage.heights.maximum
+        height1  = fuselage.heights.at_quarter_length
+        height2  = fuselage.heights.at_wing_root_quarter_chord 
+        height3  = fuselage.heights.at_three_quarters_length
+        effdia   = fuselage.effective_diameter
+        n_fine   = fuselage.fineness.nose 
+        t_fine   = fuselage.fineness.tail  
+        w_ac     = wing.aerodynamic_center
+
+        w_origin = vehicle.wings.main_wing.origin
+        w_c_4    = vehicle.wings.main_wing.chords.root/4.
+
+        # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
+
+        x1 = 0.25
+        x2 = (w_origin[0]+w_c_4)/length
+        x3 = 0.75
+
+        fuse_id = vsp.AddGeom("FUSELAGE") 
+        vsp.SetGeomName(fuse_id, fuselage.tag)
+        wing_id[fuselage.tag] = ['fuselages',fuselage.tag]
+
+        # Set the origins:
+        x = fuselage.origin[0][0]
+        y = fuselage.origin[0][1]
+        z = fuselage.origin[0][2]
+        vsp.SetParmVal(fuse_id,'X_Location','XForm',x)
+        vsp.SetParmVal(fuse_id,'Y_Location','XForm',y)
+        vsp.SetParmVal(fuse_id,'Z_Location','XForm',z)
+        vsp.SetParmVal(fuse_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+        vsp.SetParmVal(fuse_id,'Origin','XForm',0.0)
+
+    # Fuel tank chord bounds
+    vsp.SetParmVal(tank_id,'ChordTrimFlag','Design',1.)
+    vsp.SetParmVal(tank_id,'ChordTrimMax','Design',chord_trim_max)
+    vsp.SetParmVal(tank_id,'ChordTrimMin','Design',chord_trim_min)
+
+    # Fuel tank span bounds
+    if n_segments>0:
+        span_trim_max = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
+                                                     vsp_segment_breaks,  
+                                                             span_trim_max)
+        span_trim_min = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
+                                                     vsp_segment_breaks,
+                                                             span_trim_min)
+    else:
+        pass # no change to span_trim
+
+    vsp.SetParmVal(tank_id,'UTrimFlag','Design',1.)
+    vsp.SetParmVal(tank_id,'UTrimMax','Design',span_trim_max)
+    vsp.SetParmVal(tank_id,'UTrimMin','Design',span_trim_min)  
+
+    # Set density
+    vsp.SetParmVal(tank_id,'Density','Mass_Props',density)  
+
+    # Add to the full fuel tank set
+    vsp.SetSetFlag(tank_id, fuel_tank_set_ind, True)
+
+    return 
+
+## @ingroup Input_Output-OpenVSP
+def get_vsp_trim_from_SUAVE_trim(seg_span_percents,vsp_segment_breaks,trim):
+    """Compute OpenVSP span trim coordinates based on SUAVE coordinates
+
+    Assumptions:
+    Wing does not have end caps
+
+    Source:
+    N/A
+
+    Inputs:
+    seg_span_percents   [-] range of 0 to 1
+    vsp_segment_breaks  [-] range of 0 to 1
+    trim                [-] range of 0 to 1 (SUAVE value)
+
+    Outputs:
+    trim                [-] OpenVSP trim value
+
+    Properties Used:
+    N/A
+    """      
+    # Determine max chord trim correction
+    y_seg_ind = next(i for i,per_y in enumerate(seg_span_percents) if per_y > trim)
+    segment_percent_of_total_span = seg_span_percents[y_seg_ind] -\
+        seg_span_percents[y_seg_ind-1]
+    remaining_percent_within_segment = trim - seg_span_percents[y_seg_ind-1]
+    percent_of_segment = remaining_percent_within_segment/segment_percent_of_total_span
+    trim = vsp_segment_breaks[y_seg_ind-1] + \
+        (vsp_segment_breaks[y_seg_ind]-vsp_segment_breaks[y_seg_ind-1])*percent_of_segment  
+    return trim
+
+
+## @ingroup Input_Output-OpenVSP
+def convert_sweep(sweep,sweep_loc,new_sweep_loc,AR,taper): 
+    """This converts arbitrary sweep into a desired sweep given 
+    wing geometry.
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs: 
+    sweep               [degrees]
+    sweep_loc           [unitless]
+    new_sweep_loc       [unitless]
+    AR                  [unitless]
+    taper               [unitless]
+
+    Outputs:
+    quarter chord sweep
+
+    Properties Used:
+    N/A
+    """   
     sweep_LE = np.arctan(np.tan(sweep)+4*sweep_loc*
                          (1-taper)/(AR*(1+taper))) 
 

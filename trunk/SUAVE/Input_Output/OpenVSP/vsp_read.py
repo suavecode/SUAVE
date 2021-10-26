@@ -238,7 +238,7 @@ def vsp_read(tag, units_type='SI',specified_network=None):
     if net.tag == "Lift_Cruise":
         # Lift + Cruise network
         for i in range(number_of_lift_rotor_engines):
-            net.lift_rotors.append(propellers[list(lift_rotors.keys())[i]])
+            net.lift_rotors.append(lift_rotors[list(lift_rotors.keys())[i]])
         net.number_of_lift_rotor_engines = number_of_lift_rotor_engines	
 
         for i in range(number_of_propeller_engines):
@@ -249,7 +249,7 @@ def vsp_read(tag, units_type='SI',specified_network=None):
         # Append all rotors as propellers for the battery propeller network
         for i in range(number_of_lift_rotor_engines):
             # Accounts for multicopter configurations
-            net.propellers.append(propellers[list(lift_rotors.keys())[i]])
+            net.propellers.append(lift_rotors[list(lift_rotors.keys())[i]])
 
         for i in range(number_of_propeller_engines):
             net.propellers.append(propellers[list(propellers.keys())[i]])

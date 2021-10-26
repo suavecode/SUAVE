@@ -329,6 +329,36 @@ def mission_setup(analyses,vehicle):
 
     # add to misison
     mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------
+    #   Third Climb Segment: Constant Acceleration, Constant Rate
+    # ------------------------------------------------------------------ 
+    segment                                          = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
+    segment.tag                                      = "climb_2" 
+    segment.analyses.extend( analyses.base) 
+    segment.altitude_start                           = 300.0 * Units.ft  
+    segment.altitude_end                             = 1000. * Units.ft
+    segment.climb_rate                               = 500.  * Units['ft/min']
+    segment.air_speed_start                          = 1.2*Vstall
+    segment.air_speed_end                            = 110.  * Units['mph']    
+    segment.state.unknowns.throttle                  = 0.90    *  ones_row(1)
+    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)    
+    mission.append_segment(segment)   
+    
+    # ------------------------------------------------------------------    
+    #   Cruise Segment: constant speed, constant altitude
+    # ------------------------------------------------------------------     
+    segment                                          = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    segment.tag                                      = "cruise" 
+    segment.analyses.extend( analyses.base ) 
+    segment.altitude                                 = 1000.0 * Units.ft
+    segment.air_speed                                = 110.   * Units['mph']
+    segment.distance                                 = 50.    * Units.miles     
+    segment.state.unknowns.throttle                  = 0.60 * ones_row(1) 
+    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment) 
+    mission.append_segment(segment) 
+
+    
 
     return mission
 
