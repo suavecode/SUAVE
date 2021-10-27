@@ -17,4 +17,5 @@ from .SPL_harmonic_to_third_octave     import SPL_harmonic_to_third_octave
 from .print_engine_output              import print_engine_output
 from .print_airframe_output            import print_airframe_output
 from .print_propeller_output           import print_propeller_output
-from .compute_point_source_coordinates import compute_point_source_coordinates
+from .compute_source_coordinates       import compute_point_source_coordinates
+from .compute_source_coordinates       import compute_blade_section_source_coordinates
