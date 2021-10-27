@@ -46,8 +46,8 @@ def main():
     # evaluate
     results = mission.evaluate()
     
-    P_truth     = 83915.7464896355
-    mdot_truth  = 0.007373029599506555
+    P_truth     = 53962.03885996881
+    mdot_truth  = 0.0047412282724960736
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
     mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]     
@@ -158,7 +158,7 @@ def mission_setup(analyses):
     segment.altitude                                = 12000. * Units.feet
     segment.air_speed                               = 119.   * Units.knots
     segment.distance                                = 10 * Units.nautical_mile
-    segment.state.conditions.propulsion.rpm         = 2650.  * Units.rpm *  ones_row(1) 
+    segment.state.conditions.propulsion.rpm         = 2300.  * Units.rpm *  ones_row(1) 
     segment.state.unknowns.throttle                 = 0.1  *  ones_row(1)
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip    
