@@ -23,11 +23,10 @@ def propeller_geometry():
 
     prop = SUAVE.Components.Energy.Converters.Propeller()
     
-    prop.tag              = "APC 10x7 Propeller"
+    prop.tag              = 'apc_10x7_propeller'
     prop.tip_radius       = 5 * Units.inches
     prop.number_of_blades = 2
     prop.hub_radius       = prop.tip_radius * 0.1
-    prop.inputs           = Data()
     prop.inputs.omega     = np.array([[4500 * Units.rpm]])    
     
 
@@ -95,7 +94,7 @@ def propeller_geometry():
         ]
     )
 
-    prop.pitch_command       = 0.0 * Units.deg
+    prop.pitch_command       = 0.0* Units.deg
     prop.twist_distribution  = beta * Units.deg
     prop.chord_distribution  = c_R * prop.tip_radius
     prop.radius_distribution = r_R * prop.tip_radius

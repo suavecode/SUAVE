@@ -32,7 +32,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     state.conditions.aerodynamics.drag_breakdown.windmilling_drag.windmilling_drag_coefficient  [Unitless]
     geometry.
       mass_properties.center_of_gravity                                                         [m]
-      propulsors. 
+      networks. 
         number_of_engines                                                                       [Unitless]
       wings.
         tag                                                                                     
@@ -51,7 +51,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
 	# Unpack
     # ==============================================
     vehicle    = geometry
-    propulsors = vehicle.propulsors
+    nets       = vehicle.networks
     wings      = vehicle.wings
     dyn_press  = state.conditions.freestream.dynamic_pressure
     
@@ -77,11 +77,11 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     xcg = vehicle.mass_properties.center_of_gravity[0] 
     
     # getting engine y position and calculating thrust
-    for idx,propulsor in enumerate(propulsors):
-        y_engine = propulsor.origin[0][1]             
+    for idx,net in enumerate(nets):
+        y_engine = net.origin[0][1]             
         # Getting engine thrust
-        results = propulsor(state) # total thrust
-        thrust  = results.thrust_force_vector[0,0] / propulsor.number_of_engines
+        results = net(state) # total thrust
+        thrust  = results.thrust_force_vector[0,0] / net.number_of_engines
         break
     
     # finding vertical tail

@@ -42,7 +42,8 @@ class Gas(Data):
         Properties Used:
         None
         """    
-        self.molecular_mass  = 0.0    
-        self.gas_specific_constant              = 0.0              
-        self.composition = Data()
-        self.composition.gas = 1.0
+        self.tag                   ='gas'
+        self.molecular_mass        = 0.0    
+        self.gas_specific_constant = 0.0              
+        self.composition           = Data()
+        self.composition.gas       = 1.0

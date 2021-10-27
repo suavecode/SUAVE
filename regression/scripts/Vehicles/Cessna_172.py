@@ -69,7 +69,7 @@ def vehicle_setup():
     wing.chords.root                            = 66. * Units.inches
     wing.chords.tip                             = 45. * Units.inches
     wing.chords.mean_aerodynamic                = 58. * Units.inches
-    wing.taper                                  = wing.chords.root/wing.chords.tip
+    wing.taper                                  = wing.chords.tip/wing.chords.root
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 3.0 * Units.degrees
     wing.twists.tip                             = 1.5 * Units.degrees
@@ -116,7 +116,7 @@ def vehicle_setup():
     wing.chords.root                            = 55. * Units.inches
     wing.chords.tip                             = 30. * Units.inches
     wing.chords.mean_aerodynamic                = 43. * Units.inches 
-    wing.taper                                  = wing.chords.root/wing.chords.tip
+    wing.taper                                  = wing.chords.tip/wing.chords.root
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 0.0 * Units.degrees
     wing.twists.tip                             = 0.0 * Units.degrees
@@ -142,7 +142,7 @@ def vehicle_setup():
     wing.chords.root                            = 66. * Units.inches
     wing.chords.tip                             = 27. * Units.inches
     wing.chords.mean_aerodynamic                = 48. * Units.inches 
-    wing.taper                                  = wing.chords.root/wing.chords.tip
+    wing.taper                                  = wing.chords.tip/wing.chords.root
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 0.0 * Units.degrees
     wing.twists.tip                             = 0.0 * Units.degrees
@@ -226,16 +226,16 @@ def vehicle_setup():
     net.number_of_engines                       = 1.
     net.nacelle_diameter                        = 42 * Units.inches
     net.engine_length                           = 0.01 * Units.inches
-    net.areas                                   = Data()
+    net.identical_propellers                    = True
     net.areas.wetted                            = 0.01
                                                 
     # the engine                    
-    net.engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
-    net.engine.sea_level_power                  = 180. * Units.horsepower
-    net.engine.flat_rate_altitude               = 0.0
-    net.engine.rated_speed                      = 2700. * Units.rpm
-    net.engine.power_specific_fuel_consumption  = 0.52 
-    
+    engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
+    engine.sea_level_power                  = 180. * Units.horsepower
+    engine.flat_rate_altitude               = 0.0
+    engine.rated_speed                      = 2700. * Units.rpm
+    engine.power_specific_fuel_consumption  = 0.52 
+    net.engines.append(engine)
     
     # the prop
     prop = SUAVE.Components.Energy.Converters.Propeller()
@@ -247,6 +247,7 @@ def vehicle_setup():
     prop.design_Cl               = 0.8
     prop.design_altitude         = 12000. * Units.feet
     prop.design_power            = .64 * 180. * Units.horsepower
+    prop.variable_pitch          = True
 
     prop.airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
     prop.airfoil_polars          = [['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
@@ -258,7 +259,7 @@ def vehicle_setup():
     prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     prop                         = propeller_design(prop)   
     
-    net.propeller = prop
+    net.propellers.append(prop)
      
     
     # add the network to the vehicle

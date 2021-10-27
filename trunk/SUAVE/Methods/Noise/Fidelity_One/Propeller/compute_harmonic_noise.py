@@ -2,6 +2,7 @@
 # compute_harmonic_noise.py
 #
 # Created:  Mar 2021, M. Clarke
+# Modified: Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +20,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import SPL_harmonic
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
 def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
-                           velocity_vector,propeller,auc_opts,settings,res):
+                           velocity_vector,network,auc_opts,settings,res,source):
     '''This computes the  harmonic noise (i.e. thickness and loading noise) of a propeller or rotor
     in the frequency domain
     
@@ -60,8 +61,15 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_cpt         = len(angle_of_attack)
     num_mic         = len(position_vector[0,:,0,1])
     num_prop        = len(position_vector[0,0,:,1])
-    num_h           = len(harmonics)
-    num_r           = len(propeller.radius_distribution)
+    num_h           = len(harmonics) 
+
+    if source == 'lift_rotors':  
+        propellers      = network.lift_rotors 
+    else:
+        propellers      = network.propellers
+        
+    propeller       = propellers[list(propellers.keys())[0]] 
+    num_r           = len(propeller.radius_distribution)  
     
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
@@ -74,7 +82,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     a              = vectorize(freestream.speed_of_sound[:,0],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)# speed of sound
     rho            = vectorize(freestream.density[:,0],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)       # air density 
     AoA            = angle_of_attack[:,0]                                                                               # vehicle angle of attack  
-    thrust_angle   = auc_opts.thrust_angle                                                                              # propeller thrust angle
+    thrust_angle   = propeller.orientation_euler_angles[1]                                                                       # propeller thrust angle
     alpha          = vectorize((AoA + thrust_angle),num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)            
     x              = vectorize(position_vector[:,:,:,0],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 3)      # x component of position vector of propeller to microphone 
     y              = vectorize(position_vector[:,:,:,1],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 3)      # y component of position vector of propeller to microphone
@@ -157,7 +165,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
 
 ## @ingroupMethods-Noise-Fidelity_One-Propeller 
 def vectorize(X,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method): 
-    ''' This vectorizes an variable for acoustic computation 
+    ''' This vectorizes a variable for acoustic computation 
     
     Assumptions:
         None
@@ -169,8 +177,8 @@ def vectorize(X,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method):
         X                - input argument                           [None]
         num_cpt          - number of control points                 [Unitless]
         num_h            - number of harmonics                      [Unitless]
-        num_r            - number of radial stations on propeller   [Unitless]
-        num_prop         - number of propellers/rotors              [Unitless]
+        num_r            - number of radial stations on rotor       [Unitless]
+        num_prop         - number of propellers/lift_rotors         [Unitless]
         num_mic          - number of microphones                    [Unitless]
         vectorize_method - method of vectorizing data               [Unitless]
 

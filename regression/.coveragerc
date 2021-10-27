@@ -29,5 +29,6 @@ omit =
     ../trunk/SUAVE/Optimization/Package_Setups/ipopt_setup.py
     ../trunk/SUAVE/Components/Energy/Networks/PyCycle.py 
     ../trunk/SUAVE/Input_Output/OpenVSP/*
+    ../trunk/SUAVE/Input_Output/VTK/*
 
 

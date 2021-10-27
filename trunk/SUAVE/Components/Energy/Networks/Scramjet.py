@@ -7,22 +7,15 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
-# package imports
-import numpy as np
-import scipy as sc
-
-from SUAVE.Core import Data, Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Core import Data
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Scramjet Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks 
-class Scramjet(Propulsor): 
+class Scramjet(Network): 
     """ This is a scramjet for hypersonic flight. 
 
         Assumptions: 

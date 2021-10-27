@@ -69,7 +69,7 @@ class SU2_inviscid_Super(Aerodynamics):
         # Conditions table, used for surrogate model training
         self.training = Data()        
         self.training.angle_of_attack  = np.array([-2.,3.,8.]) * Units.deg
-        self.training.Mach             = np.array([0.3,0.7,0.85])
+        self.training.Mach             = np.array([1.1,1.7,2.3])
         self.training.lift_coefficient = None
         self.training.drag_coefficient = None
         self.training_file             = None

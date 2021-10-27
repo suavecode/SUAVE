@@ -121,7 +121,6 @@ def electric_payload_range(vehicle,
         plt.xlabel('Range (m)')
         plt.ylabel('Payload (kg)')
         plt.title('Payload Range Diagram')
-        plt.grid(True)
-        plt.show()
+        plt.grid(True) 
 
     return payload_range

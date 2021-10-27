@@ -18,7 +18,7 @@
 import SUAVE
 # Units allow any units to be specificied with SUAVE then automatically converting them the standard
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import * 
+from SUAVE.Plots.Performance.Mission_Plots import * 
 
 # Numpy is use extensively throughout SUAVE
 import numpy as np
@@ -134,17 +134,17 @@ def equivalent_area(vehicle,analyses,conditions):
     
     X_locs, AE_x, _ = lift_equivalent_area(vehicle,analyses,conditions)
     
-    regression_X_locs = np.array([ 0.        , 30.07443051, 36.06867653, 40.19106365, 42.87922865,
-                                  43.7586439 , 44.46766887, 44.75288993, 45.4025956 , 45.75309804,
-                                  45.83545015, 50.60861756, 53.9097691 , 55.43401042, 56.10861756,
-                                  56.78777586, 57.28419859, 57.49949247, 57.99040593, 58.61762884,
-                                  58.94737944, 77.075     ])
+    regression_X_locs = np.array([ 0.        , 30.0744302 , 36.06867764, 40.19118129, 42.87929299,
+                                   43.75864575, 44.46769982, 44.75288937, 45.40283952, 45.75323347,
+                                   45.83551432, 50.60861803, 53.90976954, 55.43400893, 56.10861803,
+                                   56.78777765, 57.28419734, 57.49949357, 57.99040541, 58.61763071,
+                                   58.94738099, 77.075     ])
     
-    regression_AE_x   = np.array([ 0.        ,  8.40454492, 12.7713601 , 18.13759064, 20.14838792,
-                                  24.54643315, 25.03930723, 27.5883915 , 34.74268265, 36.5215729 ,
-                                  37.03925317, 37.03925316, 37.03925316, 37.03925316, 37.03925316,
-                                  37.03925316, 37.03925316, 37.03925316, 37.03925316, 37.03925316,
-                                  37.03925316, 37.03925316])
+    regression_AE_x   = np.array([ 0.        ,  8.40639308, 12.7741678 , 18.14471011, 20.15731137,
+                                   24.55618936, 25.04948527, 27.59823275, 34.74428915, 36.52065357,
+                                   37.03779472, 37.03779472, 37.03779471, 37.03779471, 37.03779471,
+                                   37.03779471, 37.03779471, 37.03779471, 37.03779471, 37.03779471,
+                                   37.03779471, 37.03779471])
     
     assert (np.abs((X_locs[1:] - regression_X_locs[1:] )/regression_X_locs[1:] ) < 1e-6).all() 
     assert (np.abs((AE_x[1:] - regression_AE_x[1:])/regression_AE_x[1:]) < 1e-6).all()
@@ -198,7 +198,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
     
     # ------------------------------------------------------------------
