@@ -72,7 +72,7 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings):
     compute_harmonic_noise(harmonics,freestream,angle_of_attack,rotor_position_vectors,velocity_vector,propeller,auc_opts,settings,Noise)   
                      
     # compute position vector of blade section source to microphones         
-    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts.thrust_angle,microphone_locations,propeller)  
+    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,microphone_locations,propeller)  
     
     # Broadband Noise   
     compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors, velocity_vector,propeller,auc_opts,settings,Noise)       

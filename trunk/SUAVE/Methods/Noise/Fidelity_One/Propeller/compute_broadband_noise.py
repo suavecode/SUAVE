@@ -12,12 +12,12 @@ import numpy as np
  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise   import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools             import SPL_harmonic_to_third_octave 
-from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis 
+#from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis 
 import matplotlib.pyplot as plt   
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
-     import  compute_naca_4series
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
-     import import_airfoil_geometry
+#from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
+     #import  compute_naca_4series
+#from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+     #import import_airfoil_geometry
 from scipy.special import fresnel
 
 # ----------------------------------------------------------------------
@@ -153,7 +153,7 @@ def compute_broadband_noise(freestream,angle_of_attack,position_vector,
         AoA_batch            = np.atleast_2d(np.ones(num_sec)*alpha[i,0]).T       
         airfoil_geometry     = compute_naca_4series(0.0,0.0,0.12,npoints=npanel) 
         airfoil_stations     = [0] * num_sec
-        AP                   = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = airfoil_stations)  
+        #AP                   = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = airfoil_stations)  
 
         # lower surface is 0, upper surface is 1 
         delta_star[i,:,:,:,0]   = vectorize_5(AP.delta_star[:,0],N_r,BSR)                         # lower surfacedisplacement thickness 
