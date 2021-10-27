@@ -2,6 +2,7 @@
 # noise_propeller_low_fidelty.py
 #
 # Created:  Mar 2021, M. Clarke
+# Modified: Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,7 +13,7 @@ import numpy as np
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic import pressure_ratio_to_SPL_arithmetic   
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import SPL_arithmetic
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import SPL_spectra_arithmetic 
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import SPL_spectra_arithmetic  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import compute_point_source_coordinates
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import compute_blade_section_source_coordinates
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise  import compute_broadband_noise
@@ -22,9 +23,9 @@ from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise   import 
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
 # -------------------------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings):
+def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller'):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
-    and frequency spectrums of a system of rotating blades (i.e. propellers and rotors)          
+    and frequency spectrums of a system of rotating blades (i.e. propellers and lift_rotors)          
         
     Assumptions:
     None
@@ -55,27 +56,33 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings):
     
     # unpack 
     conditions           = segment.state.conditions
-    microphone_locations = conditions.noise.microphone_locations
+    microphone_locations = conditions.noise.total_microphone_locations
     angle_of_attack      = conditions.aerodynamics.angle_of_attack 
     velocity_vector      = conditions.frames.inertial.velocity_vector
     freestream           = conditions.freestream  
     harmonics            = settings.harmonics  
     
+    if not network.identical_propellers:
+        assert('This method currently only works with identical propellers')
+        
+    # Because the propellers are identical, get the first propellers results
+    auc_opts = auc_opts[list(auc_opts.keys())[0]]
+    
     # create data structures for computation  
     Noise   = Data()  
     Results = Data()
                      
-    # compute position vector from point source at rotor hub to microphones         
-    rotor_position_vectors = compute_point_source_coordinates(angle_of_attack,auc_opts.thrust_angle,microphone_locations,propeller.origin)  
+     # compute position vector from point source at rotor hub to microphones  
+    position_vector = compute_point_source_coordinates(conditions,network,microphone_locations,source)  
      
     # Harmonic Noise    
-    compute_harmonic_noise(harmonics,freestream,angle_of_attack,rotor_position_vectors,velocity_vector,propeller,auc_opts,settings,Noise)   
-                     
+    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,network,auc_opts,settings,Noise,source)       
+    
     # compute position vector of blade section source to microphones         
-    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,microphone_locations,propeller)  
+    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,network,microphone_locations,source,propeller)   
     
     # Broadband Noise   
-    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors, velocity_vector,propeller,auc_opts,settings,Noise)       
+    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors, velocity_vector,network,auc_opts,settings,Noise,source)       
      
     # Combine Rotational(periodic/tonal) and Broadband Noise 
     Noise.SPL_prop_bpfs_spectrum                               = Noise.SPL_r

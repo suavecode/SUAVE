@@ -98,7 +98,7 @@ def compute_point_source_coordinates(conditions,network,mls,source):
     return propeller_position_vector
  
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
-def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,source,prop_origin,prop,broadband_spectrum_resolution= 100):  
+def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,source,prop,broadband_spectrum_resolution= 100):  
     """This calculated the position vector from a point source to the observer 
             
     Assumptions:
@@ -109,9 +109,13 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,so
  
     Inputs:  
     AoA                   - angle of attack           [rad]
-    thrust_angle          - thrust angle              [rad]
-    mls                   - microphone locations      [m]
-    prop_origin           - propeller/rotor orgin     [m]
+    acoustic_outputs
+    network
+    mls                   - microphone locations      [m] 
+    source
+    prop
+    broadband_spectrum_resolution 
+    
  
     Outputs:  
  
@@ -145,7 +149,7 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,so
     beta_p        = np.zeros_like(phi_2d)
     alpha_eff     = acoustic_outputs.disc_effective_angle_of_attack
     num_azi       = len(phi_2d[0,0,:]) 
-    t_v           = -AoA  # vehicle tilt angle between the vehicle hub plane and the geographical ground 
+    t_v           = -AoA               # vehicle tilt angle between the vehicle hub plane and the geographical ground 
     t_r           = np.pi - thrust_angle  # otor tilt angle between the rotor hub plane and the vehicle hub plane 
 
     # Update dimensions for computation   
