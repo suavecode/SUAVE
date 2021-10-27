@@ -12,7 +12,6 @@ import numpy as np
  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise   import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools             import SPL_harmonic_to_third_octave 
-from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis 
 import matplotlib.pyplot as plt   
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
      import  compute_naca_4series
