@@ -11,11 +11,11 @@ import SUAVE
 from SUAVE.Core import  Data
 import numpy as np  
 
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic import pressure_ratio_to_SPL_arithmetic   
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import SPL_arithmetic
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import SPL_spectra_arithmetic  
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import compute_point_source_coordinates
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import compute_blade_section_source_coordinates
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic     import pressure_ratio_to_SPL_arithmetic   
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                        import SPL_arithmetic
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                        import SPL_spectra_arithmetic  
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                        import compute_point_source_coordinates
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                        import compute_blade_section_source_coordinates
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise  import compute_broadband_noise
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise   import compute_harmonic_noise
 
@@ -79,10 +79,10 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
     compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,network,auc_opts,settings,Noise,source)       
     
     # compute position vector of blade section source to microphones         
-    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,network,microphone_locations,source,propeller)   
+    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,network,microphone_locations,source,settings)   
     
     # Broadband Noise   
-    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors, velocity_vector,network,auc_opts,settings,Noise,source)       
+    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,network,auc_opts,settings,Noise,source)       
      
     # Combine Rotational(periodic/tonal) and Broadband Noise 
     Noise.SPL_prop_bpfs_spectrum                               = Noise.SPL_r
