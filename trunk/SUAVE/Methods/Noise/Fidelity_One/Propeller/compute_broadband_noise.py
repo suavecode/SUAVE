@@ -12,7 +12,7 @@ import numpy as np
  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                  import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                            import SPL_harmonic_to_third_octave
-from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method        import airfoil_analysis
+from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis        import airfoil_analysis
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates import vectorize_1,vectorize_3,vectorize_5,vectorize_8 
 
 from scipy.special import fresnel
