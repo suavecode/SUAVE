@@ -80,7 +80,7 @@ def vehicle_setup():
     fuselage.differential_pressure              = 0. 
     
     # Segment  
-    segment                          = SUAVE.Components.Fuselages.Segment() 
+    segment                          = SUAVE.Components.Lofted_Body_Segment.Segment() 
     segment.tag                      = 'segment_1'  
     segment.origin                   = [0., 0. ,0.]  
     segment.percent_x_location       = 0.  
@@ -92,7 +92,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                   
-    segment                         = SUAVE.Components.Fuselages.Segment()
+    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_2'  
     segment.origin                  = [4.*0.3048 , 0. ,0.1*0.3048 ]  
     segment.percent_x_location      = 0.25  
@@ -104,7 +104,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                   
-    segment                         = SUAVE.Components.Fuselages.Segment()
+    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_3'  
     segment.origin                  = [8.*0.3048 , 0. ,0.34*0.3048 ]  
     segment.percent_x_location      = 0.5  
@@ -116,7 +116,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                  
-    segment                         = SUAVE.Components.Fuselages.Segment()
+    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_4'  
     segment.origin                  = [12.*0.3048 , 0. ,0.77*0.3048 ] 
     segment.percent_x_location      = 0.75 
@@ -128,7 +128,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                   
-    segment                         = SUAVE.Components.Fuselages.Segment()
+    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_5'  
     segment.origin                  = [16.*0.3048 , 0. ,2.02*0.3048 ] 
     segment.percent_x_location      = 1.0

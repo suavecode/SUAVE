@@ -119,7 +119,7 @@ def vehicle_setup():
     fuselage.differential_pressure              = 0.
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_0'
     segment.percent_x_location                  = 0.
     segment.percent_z_location                  = 0.
@@ -130,7 +130,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_1'
     segment.percent_x_location                  = 0.97675/6.1
     segment.percent_z_location                  = 0.21977/6.1
@@ -140,7 +140,7 @@ def vehicle_setup():
 
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_2'
     segment.percent_x_location                  = 1.93556/6.1
     segment.percent_z_location                  = 0.39371/6.1
@@ -150,7 +150,7 @@ def vehicle_setup():
 
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_3'
     segment.percent_x_location                  = 3.44137/6.1
     segment.percent_z_location                  = 0.57143/6.1
@@ -159,7 +159,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_4'
     segment.percent_x_location                  = 4.61031/6.1
     segment.percent_z_location                  = 0.81577/6.1
@@ -168,7 +168,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_5'
     segment.percent_x_location                  = 1.
     segment.percent_z_location                  = 1.19622/6.1

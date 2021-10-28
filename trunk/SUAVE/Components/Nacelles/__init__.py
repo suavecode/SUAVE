@@ -3,6 +3,4 @@
 # @ingroup Components
 
 # classes
-from .Nacelle import Nacelle 
-from .Segment import Segment, Segment_Container 
-from . import Airfoils
+from .Nacelle import Nacelle

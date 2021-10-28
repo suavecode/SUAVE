@@ -1,5 +1,5 @@
-## @defgroup Components-Wings-Airfoils Airfoils
-# @ingroup Components-Wings
+## @defgroup Components-Airfoils Airfoils
+# @ingroup Components
 #
 # __init__.py
 # 
