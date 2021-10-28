@@ -108,8 +108,8 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
 
     # Top level wing parameters
     # Wing origin
-    #scaling           = vsp.GetParmVal(wing_id, 'Scale', 'XForm')  
-    #units_factor      = units_factor*scaling
+    scaling           = vsp.GetParmVal(wing_id, 'Scale', 'XForm')  
+    units_factor      = units_factor*scaling
     wing.origin[0][0] = vsp.GetParmVal(wing_id, 'X_Location', 'XForm') * units_factor 
     wing.origin[0][1] = vsp.GetParmVal(wing_id, 'Y_Location', 'XForm') * units_factor 
     wing.origin[0][2] = vsp.GetParmVal(wing_id, 'Z_Location', 'XForm') * units_factor 
@@ -302,29 +302,29 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     wing.twists.root      = vsp.GetParmVal(wing_id, 'Twist', 'XSec_0') * Units.deg
     wing.twists.tip       = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg
     
-    ## check if control surface (sub surfaces) are defined 
-    #num_cs = vsp.GetNumSubSurf(wing_id) 
-    #for cs_idx in range(num_cs):
-        #cs_id   = vsp.GetSubSurf(wing_id,cs_idx)
-        #param_names = vsp.GetSubSurfParmIDs(cs_id)  
-        #for p_idx in range(len(param_names)): 
-            #if 'LE_Flag' == vsp.GetParmName(param_names[p_idx]):
-                #LE_flag  = vsp.GetParmVal(param_names[p_idx])   
-            #if 'UStart' == vsp.GetParmName(param_names[p_idx]):
-                #span_fraction_start   = vsp.GetParmVal(param_names[p_idx])
-            #if 'UEnd' == vsp.GetParmName(param_names[p_idx]):
-                #span_fraction_end     = vsp.GetParmVal(param_names[p_idx])
-            #if 'Length_C_Start' == vsp.GetParmName(param_names[p_idx]):
-                #chord_fraction        = vsp.GetParmVal(param_names[p_idx])  
-        #if LE_flag == 1.0:
-            #CS = SUAVE.Components.Wings.Control_Surfaces.Slat()
-        #else:
-            #CS = SUAVE.Components.Wings.Control_Surfaces.Flap()  
-        #CS.tag   = vsp.GetSubSurfName(cs_id)
-        #CS.span_fraction_start = span_fraction_start*3 - 1
-        #CS.span_fraction_end   = span_fraction_end*3 - 1 
-        #CS.chord_fraction      = chord_fraction    
-        #wing.append_control_surface(CS)  
+    # check if control surface (sub surfaces) are defined 
+    num_cs = vsp.GetNumSubSurf(wing_id) 
+    for cs_idx in range(num_cs):
+        cs_id   = vsp.GetSubSurf(wing_id,cs_idx)
+        param_names = vsp.GetSubSurfParmIDs(cs_id)  
+        for p_idx in range(len(param_names)): 
+            if 'LE_Flag' == vsp.GetParmName(param_names[p_idx]):
+                LE_flag  = vsp.GetParmVal(param_names[p_idx])   
+            if 'UStart' == vsp.GetParmName(param_names[p_idx]):
+                span_fraction_start   = vsp.GetParmVal(param_names[p_idx])
+            if 'UEnd' == vsp.GetParmName(param_names[p_idx]):
+                span_fraction_end     = vsp.GetParmVal(param_names[p_idx])
+            if 'Length_C_Start' == vsp.GetParmName(param_names[p_idx]):
+                chord_fraction        = vsp.GetParmVal(param_names[p_idx])  
+        if LE_flag == 1.0:
+            CS = SUAVE.Components.Wings.Control_Surfaces.Slat()
+        else:
+            CS = SUAVE.Components.Wings.Control_Surfaces.Flap()  
+        CS.tag   = vsp.GetSubSurfName(cs_id)
+        CS.span_fraction_start = span_fraction_start*3 - 1
+        CS.span_fraction_end   = span_fraction_end*3 - 1 
+        CS.chord_fraction      = chord_fraction    
+        wing.append_control_surface(CS)  
     return wing
 
 
