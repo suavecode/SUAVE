@@ -241,7 +241,9 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
         nacelle.tag = vsp.GetGeomName(nacelle_id)
     else: 
         nacelle.tag = 'NacelleGeom'	
-
+    
+    scaling              = vsp.GetParmVal(nacelle_id, 'Scale', 'XForm')  
+    units_factor         = units_factor*scaling
     nacelle.origin[0][0] = vsp.GetParmVal(nacelle_id, 'X_Location', 'XForm') * units_factor
     nacelle.origin[0][1] = vsp.GetParmVal(nacelle_id, 'Y_Location', 'XForm') * units_factor
     nacelle.origin[0][2] = vsp.GetParmVal(nacelle_id, 'Z_Location', 'XForm') * units_factor

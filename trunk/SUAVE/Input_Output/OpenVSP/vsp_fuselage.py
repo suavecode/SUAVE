@@ -93,6 +93,9 @@ def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=Tr
         fuselage.tag = vsp.GetGeomName(fuselage_id) + '_' + str(fux_idx+1)
     else: 
         fuselage.tag = 'FuselageGeom' + '_' + str(fux_idx+1)	
+    
+    #scaling           = vsp.GetParmVal(fuselage_id, 'Scale', 'XForm')  
+    #units_factor      = units_factor*scaling
 
     fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Location', 'XForm') * units_factor
     fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Location', 'XForm') * units_factor*sym_flag
