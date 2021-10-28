@@ -105,11 +105,12 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
         wing.tag = tag
     else: 
         wing.tag = 'winggeom'
-
-    # Top level wing parameters
-    # Wing origin
+    
     scaling           = vsp.GetParmVal(wing_id, 'Scale', 'XForm')  
     units_factor      = units_factor*scaling
+        
+    # Top level wing parameters
+    # Wing origin
     wing.origin[0][0] = vsp.GetParmVal(wing_id, 'X_Location', 'XForm') * units_factor 
     wing.origin[0][1] = vsp.GetParmVal(wing_id, 'Y_Location', 'XForm') * units_factor 
     wing.origin[0][2] = vsp.GetParmVal(wing_id, 'Z_Location', 'XForm') * units_factor 
@@ -122,7 +123,7 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     if sym_planar == 2. and sym_origin == 1.: #origin at wing, not vehicle
         wing.symmetric = True	
     else:
-        wing.symmetric = False
+        wing.symmetric = False 
 
     #More top level parameters
     total_proj_span      = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom') * units_factor
@@ -132,11 +133,9 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
 
     # Check if this is a single segment wing
     xsec_surf_id      = vsp.GetXSecSurf(wing_id, 0)   # This is how VSP stores surfaces.
-    x_sec_1           = vsp.GetXSec(xsec_surf_id, 1)
-    x_sec_1_span_parm = vsp.GetXSecParm(x_sec_1,'Span')
-    x_sec_1_span      = vsp.GetParmVal(x_sec_1_span_parm)*(1+wing.symmetric) * units_factor
+    x_sec_1           = vsp.GetXSec(xsec_surf_id, 1) 
 
-    if x_sec_1_span == wing.spans.projected:
+    if vsp.GetNumXSec(xsec_surf_id) == 2:
         single_seg = True
     else:
         single_seg = False
@@ -296,12 +295,13 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
         wing.thickness_to_chord    = vsp.GetParmVal(x_sec_1_t_parm) 
 
         # Just double calculate and fix things:
-        wing = wing_planform(wing)		 
+        wing = wing_planform(wing)		
+
 
     # Twists
     wing.twists.root      = vsp.GetParmVal(wing_id, 'Twist', 'XSec_0') * Units.deg
     wing.twists.tip       = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg
-    
+
     # check if control surface (sub surfaces) are defined 
     num_cs = vsp.GetNumSubSurf(wing_id) 
     for cs_idx in range(num_cs):
@@ -325,6 +325,7 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
         CS.span_fraction_end   = span_fraction_end*3 - 1 
         CS.chord_fraction      = chord_fraction    
         wing.append_control_surface(CS)  
+        
     return wing
 
 
@@ -593,7 +594,12 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     vsp.SetParmVal(wing_id,'CapUMaxStrength','EndCap',1.)
 
     vsp.Update() # to fix problems with chords not matching up
-
+    
+    
+    if 'Control_Surfaces' in wing:
+        for ctrl_surf in wing.Control_Surfaces():
+            write_vsp_control_surface(wing_id,ctrl_surf) 
+            
     if 'Fuel_Tanks' in wing:
         for tank in wing.Fuel_Tanks:
             write_wing_conformal_fuel_tank(vehicle,wing, wing_id, tank, fuel_tank_set_ind)
@@ -601,6 +607,48 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     vsp.SetSetFlag(wing_id, OML_set_ind, True)
 
     return area_tags, wing_id 
+
+
+## @ingroup Input_Output-OpenVSP
+def write_vsp_control_surface(wing, wing_id,ctrl_surf):
+    """This writes a control surface in a wing.
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs: 
+    wing                 [m]
+    wind_id              <str> 
+    ctrl_surface         [-]          
+
+    Outputs:
+    Operates on the active OpenVSP model, no direct output
+
+    Properties Used:
+    N/A
+    """         
+    cs_id =  vsp.AddSubSurf( wing_id, vsp.SS_CONTROL)   
+    param_names = vsp.GetSubSurfParmIDs(cs_id)  
+    for p_idx in range(len(param_names)): 
+        if 'LE_Flag' == vsp.GetParmName(param_names[p_idx]):
+            if type(ctrl_surf) == SUAVE.Components.Wings.Control_Surfaces.Slat():
+                vsp.SetParmVal( wing_id,'LE_Flag', 1.0)
+            else:
+                vsp.SetParmVal( wing_id,'LE_Flag', 0.0)
+        if 'UStart' == vsp.SetParmVal(param_names[p_idx]):
+            vsp.SetParmVal( wing_id,'UStart', (ctrl_surf.span_fraction_start+1)/3)
+        if 'UEnd' == vsp.SetParmVal(param_names[p_idx]):
+            vsp.SetParmVal( wing_id,'UEnd', (ctrl_surf.span_fraction_end+1)/3)
+        if 'Length_C_Start' == vsp.SetParmVal(param_names[p_idx]):
+            vsp.SetParmVal( wing_id,'Length_C_Start', (ctrl_surf.chord_fraction+1)/3)
+        if 'Length_C_End' == vsp.SetParmVal(param_names[p_idx]):
+            vsp.SetParmVal( wing_id,'Length_C_End', (ctrl_surf.chord_fraction+1)/3)   
+        if 'SE_Const_Flag' == vsp.SetParmVal(param_names[p_idx]): 
+            vsp.SetParmVal( wing_id,'SE_Const_Flag', 1.0)      
+    return
 
 ## @ingroup Input_Output-OpenVSP
 def write_wing_conformal_fuel_tank(vehicle,wing, wing_id,fuel_tank,fuel_tank_set_ind):
