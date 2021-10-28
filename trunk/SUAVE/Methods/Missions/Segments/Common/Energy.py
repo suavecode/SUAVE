@@ -31,7 +31,7 @@ def initialize_battery(segment):
         N/A
                                 
     """ 
-    
+       
     conditions = segment.state.conditions.propulsion
     if segment.state.initials:
 
