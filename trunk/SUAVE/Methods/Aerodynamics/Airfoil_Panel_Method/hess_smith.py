@@ -4,8 +4,11 @@
 
 # ----------------------------------------------------------------------
 #  Imports
-# ---------------------------------------------------------------------- 
-import numpy as np 
+# ----------------------------------------------------------------------
+import SUAVE
+from SUAVE.Core import Units
+import numpy as np
+
 from .panel_geometry import panel_geometry
 from .infl_coeff  import infl_coeff
 from .velocity_distribution import velocity_distribution

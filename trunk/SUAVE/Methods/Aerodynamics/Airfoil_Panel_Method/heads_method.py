@@ -8,8 +8,7 @@
 from SUAVE.Core import Data 
 import numpy as np
 from scipy.interpolate import interp1d
-from scipy.integrate import odeint
-
+from scipy.integrate import odeint  
 # ----------------------------------------------------------------------
 # heads_method.py 
 # ----------------------------------------------------------------------   

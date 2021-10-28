@@ -5,9 +5,11 @@
 
 # ----------------------------------------------------------------------
 #  Imports
-# ---------------------------------------------------------------------- 
+# ----------------------------------------------------------------------
+import SUAVE
 from SUAVE.Core import  Data
-import numpy as np 
+import numpy as np
+from scipy.interpolate import interp1d 
 
 from .hess_smith      import hess_smith
 from .thwaites_method import thwaites_method

@@ -31,7 +31,7 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import
 
 # package imports
 import numpy as np 
-from scipy.interpolate import interp2d, RectBivariateSpline, RegularGridInterpolator
+from scipy.interpolate import RectBivariateSpline, RegularGridInterpolator
 
 # ----------------------------------------------------------------------
 #  Class

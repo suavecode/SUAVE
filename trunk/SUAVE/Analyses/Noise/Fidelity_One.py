@@ -14,10 +14,10 @@ from SUAVE.Core import Data , Units
 from .Noise     import Noise 
 
 # noise imports 
-from SUAVE.Methods.Noise.Fidelity_One.Airframe    import noise_airframe_Fink
-from SUAVE.Methods.Noise.Fidelity_One.Engine      import noise_SAE  
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
+from SUAVE.Methods.Noise.Fidelity_One.Airframe.noise_airframe_Fink                   import noise_airframe_Fink
+from SUAVE.Methods.Noise.Fidelity_One.Engine.noise_SAE                               import noise_SAE  
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric                    import noise_geometric
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic                 import SPL_arithmetic
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points         import generate_ground_microphone_points
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_evaluation_locations import compute_ground_noise_evaluation_locations
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_evaluation_locations import compute_building_noise_evaluation_locations
@@ -79,7 +79,7 @@ class Fidelity_One(Noise):
         settings.urban_canyon_microphone_x_resolution = 4 
         settings.urban_canyon_microphone_y_resolution = 4 
         settings.broadband_spectrum_resolution        = 100
-        settings.floating_point_precision             = np.float16
+        settings.floating_point_precision             = np.float32
         settings.urban_canyon_microphone_z_resolution = 16 
         settings.mic_x_position                       = 0     
         settings.lateral_ground_distance              = 1000 * Units.feet  
