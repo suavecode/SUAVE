@@ -70,6 +70,9 @@ def install(the_package,version,date):
     #print 'Listing Packages and Sub-Packages:'
     packages = list_subpackages(the_package,verbose=False)
     packages = list(map( '.'.join, packages ))
+    
+    requires = ['numpy','scipy','sklearn','plotly','matplotlib']
+    python_v = '>=3.6'
 
     # run the setup!!!
     setup(
@@ -85,6 +88,8 @@ def install(the_package,version,date):
         license = 'LGPL-2.1',
         platforms = ['Win, Linux, Unix, Mac OS-X'],
         zip_safe  = False,
+        requires  = requires,
+        python_requires = python_v,
         long_description = read('../README.md')
     )  
     

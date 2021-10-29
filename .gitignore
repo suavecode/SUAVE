@@ -77,3 +77,5 @@ ide/Wing/SUAVE.wpr
 /doc/latex
 
 !/doc/suave_logo.png
+/trunk/SUAVE/version.py
+
