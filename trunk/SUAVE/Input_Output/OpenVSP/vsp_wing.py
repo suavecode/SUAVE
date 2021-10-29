@@ -13,7 +13,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
+from SUAVE.Components.Airfoils.Airfoil import Airfoil 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, wing_segmented_planform 
 import numpy as np
 import string

@@ -61,13 +61,13 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
     ft_flag        = nacelle.flow_through            
     length         = nacelle.length  
     height         = nacelle.diameter - nacelle.inlet_diameter  
-    diamater       = nacelle.diameter  - height/2 
+    diameter       = nacelle.diameter  - height/2 
     nac_tag        = nacelle.tag 
     nac_x          = nacelle.origin[0][0]
     nac_y          = nacelle.origin[0][1]
     nac_z          = nacelle.origin[0][2]
     nac_x_rotation = nacelle.orientation_euler_angles[0]/Units.degrees    
-    nac_y_rotation = -nacelle.orientation_euler_angles[1]/Units.degrees    
+    nac_y_rotation = nacelle.orientation_euler_angles[1]/Units.degrees    
     nac_z_rotation = nacelle.orientation_euler_angles[2]/Units.degrees      
     num_segs       = len(nacelle.Segments)
     
@@ -153,7 +153,7 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
         vsp.SetParmVal( nac_id,'Tess_W','Shape',axial_tesselation)      
 
         # Length and overall diameter
-        vsp.SetParmVal(nac_id,"Diameter","Design",diamater)
+        vsp.SetParmVal(nac_id,"Diameter","Design",diameter)
         if ft_flag:
             vsp.SetParmVal(nac_id,"Mode","Design",0.0)
         else:
@@ -170,7 +170,7 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
                 
                 vsp.ChangeBORXSecShape(nac_id ,vsp.XS_FOUR_SERIES)
                 vsp.Update()
-                vsp.SetParmVal(nac_id,"Diameter","Design",diamater)
+                vsp.SetParmVal(nac_id,"Diameter","Design",diameter)
                 vsp.SetParmVal(nac_id,"Angle","Design",angle)
                 vsp.SetParmVal(nac_id, "Chord", "XSecCurve", length)
                 vsp.SetParmVal(nac_id, "ThickChord", "XSecCurve", thickness)
@@ -182,9 +182,9 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
             vsp.Update()
             if ft_flag:
                 vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", height) 
-                vsp.SetParmVal(nac_id,"Diameter","Design",diamater)
+                vsp.SetParmVal(nac_id,"Diameter","Design",diameter)
             else:
-                vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", diamater) 
+                vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", diameter) 
             vsp.SetParmVal(nac_id, "Super_Width", "XSecCurve", length)
             vsp.SetParmVal(nac_id, "Super_MaxWidthLoc", "XSecCurve", 0.)
             vsp.SetParmVal(nac_id, "Super_M", "XSecCurve", 2.)
@@ -199,9 +199,11 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
 ## @ingroup Input_Output-OpenVSP
 def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
     """This reads an OpenVSP stack geometry or body of revolution and writes it to a SUAVE nacelle format.
+    If an airfoil is defined in body-of-revolution, its coordinates are not read in due to absence of
+    API functions in VSP.
 
     Assumptions: 
-
+    
     Source:
     N/A
 
@@ -263,7 +265,7 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
         for i in range(num_segs): 
             # Create the segment
             xsec_id      = vsp.GetXSec(xsec_surf_id, i) # VSP XSec ID.
-            segment      = SUAVE.Components.Nacelles.Segment() 
+            segment      = SUAVE.Components.Lofted_Body_Segment.Segment() 
             segment.tag  = 'segment_' + str(i)
     
             # Pull out Parms that will be needed
@@ -321,7 +323,7 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
         shape_dict = {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file',\
                       7:'four series',8:'six series',9:'biconvex',10:'wedge',11:'editcurve',12:'file airfoil'}  
         if shape_dict[shape] == 'four series': 
-            naf        = SUAVE.Components.Nacelles.Airfoils.Airfoil()
+            naf        = SUAVE.Components.Airfoils.Airfoil()
             length     = vsp.GetParmVal(nacelle_id, "Chord", "XSecCurve")
             thickness  = int(round(vsp.GetParmVal(nacelle_id, "ThickChord", "XSecCurve")*10,0))
             camber     = int(round(vsp.GetParmVal(nacelle_id, "Camber", "XSecCurve")*100,0))
@@ -336,22 +338,22 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
         elif shape_dict[shape] == 'super ellipse':  
             if ft_flag:
                 height   = vsp.GetParmVal(nacelle_id, "Super_Height", "XSecCurve") 
-                diamater = vsp.GetParmVal(nacelle_id, "Diameter","Design")
+                diameter = vsp.GetParmVal(nacelle_id, "Diameter","Design")
                 length   = vsp.GetParmVal(nacelle_id, "Super_Width", "XSecCurve")  
             else:
-                diamater = vsp.GetParmVal(nacelle_id, "Super_Height", "XSecCurve") 
+                diameter = vsp.GetParmVal(nacelle_id, "Super_Height", "XSecCurve") 
                 length   = vsp.GetParmVal(nacelle_id, "Super_Width", "XSecCurve")  
-                height   = diamater/2
+                height   = diameter/2
         
-        elif shape_dict[shape] == 'file airfoil': # this does not read in airfoil due to absenec of api functions in VSP
-            naf                = SUAVE.Components.Nacelles.Airfoils.Airfoil()
+        elif shape_dict[shape] == 'file airfoil': 
+            naf                = SUAVE.Components.Airfoils.Airfoil()
             thickness_to_chord = vsp.GetParmVal(nacelle_id, "ThickChord", "XSecCurve")   * units_factor
             length             = vsp.GetParmVal(nacelle_id, "Chord", "XSecCurve")   * units_factor 
             height             = thickness_to_chord*length  * units_factor            
             if ft_flag: 
-                diamater = vsp.GetParmVal(nacelle_id,  "Diameter","Design") * units_factor
+                diameter= vsp.GetParmVal(nacelle_id,  "Diameter","Design") * units_factor
             else: 
-                diamater = 0   
+                diameter= 0   
             naf.thickness_to_chord     = thickness_to_chord 
             nacelle.append_airfoil(naf)
             

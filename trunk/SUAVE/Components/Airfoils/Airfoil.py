@@ -1,4 +1,4 @@
-## @ingroup Components-Wings-Airfoils
+## @ingroup Components-Airfoils
 # Airfoil.py
 # 
 # Created:  
@@ -12,7 +12,6 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Components import Lofted_Body
-import numpy as np
 
 # ------------------------------------------------------------
 #   Airfoil

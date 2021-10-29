@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------  
 from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Physical_Component, Lofted_Body  
-from SUAVE.Components.Wings.Airfoils import Airfoil
+from SUAVE.Components.Airfoils import Airfoil
 import scipy as sp
 import numpy as np
 

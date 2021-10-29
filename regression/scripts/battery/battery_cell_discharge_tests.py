@@ -77,16 +77,15 @@ def main():
     curr                  = [1.5, 3, 6, 9 ] 
     C_rat                 = [0.5,1,2,3]   
     marker_size           = 8 
-    mAh                   = np.array([ 1500 , 3550]) 
-    V_ul_true  = np.array([[3.9774975232217704,3.5214132500659523],
-                           [3.920678242711271, 3.5095932059328967],
-                           [3.7194815045185647,3.4859240133971974],
-                           [3.615652624688401, 3.462215960687402]])
-    bat_temp_true     = np.array([[290.2052783962721, 289.37526116685353],
-                                  [293.166685332117,  290.6097575420344],
-                                  [299.7568291232199, 293.1048631259652],
-                                  [306.5591054213954, 295.6339034092474]])  
-    
+    mAh                   = np.array([3550,1500]) 
+    V_ul_true  = np.array([[3.9446784139104443,3.5590281079836554],
+                           [3.890187851174907,3.546414176818607],
+                           [3.698158733645092,3.5211734513546005],
+                           [3.5998397257546997,3.4959155684694325]])
+    bat_temp_true     = np.array([[290.88689276343854,289.1293674284379],
+                                  [295.39761123008685,290.03365301513804],
+                                  [307.85017179101123,291.84526567740375],
+                                  [319.69372384478675,293.66098235984754]])  
  
     plt.rcParams.update({'font.size': 12})
     fig1 = plt.figure('Cell Comparison') 
@@ -109,17 +108,19 @@ def main():
             
             # Voltage Regression
             V_ul        = results.segments[0].conditions.propulsion.battery_voltage_under_load[2][0]   
+            print('Under Load Voltage: ' + str(V_ul))
             V_ul_diff   = np.abs(V_ul - V_ul_true[j,i])
             print('Under Load voltage difference')
             print(V_ul_diff)
             assert np.abs((V_ul_diff)/V_ul_true[j,i]) < 1e-3  
             
             # Temperature Regression
-            bat_temp        = results.segments[1].conditions.propulsion.battery_cell_temperature[2][0]    
+            bat_temp        = results.segments[1].conditions.propulsion.battery_cell_temperature[2][0]  
+            print('Cell Temperature: ' + str(bat_temp))
             bat_temp_diff   = np.abs(bat_temp  - bat_temp_true[j,i]) 
             print('Battery temperature difference')
             print(bat_temp_diff)
-            #assert np.abs((bat_temp_diff)/bat_temp_true[j,i]) < 1e-3    
+            assert np.abs((bat_temp_diff)/bat_temp_true[j,i]) < 1e-3    
             
             plot_results(results,j,battery_chemistry[i], axes1, axes2, axes3, axes4, axes5, axes6,
                          axes7, axes8,marker[i][j],marker_size,linecolors[i][j],linestyles[i][j],C_rat[j])  
