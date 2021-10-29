@@ -94,6 +94,24 @@ def update_thrust(segment):
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
 
+## @ingroup Methods-Missions-Segments-Common
+def update_battery(segment):
+    """ Evaluates the energy network to find the thrust force and mass rate
+        Inputs -
+            segment.analyses.energy_network    [Function]
+        Outputs -
+            state.conditions:
+               frames.body.thrust_force_vector [Newtons]
+               weights.vehicle_mass_rate       [kg/s]
+        Assumptions -
+    """    
+    
+    # unpack
+    energy_model = segment.analyses.energy
+
+    # evaluate
+    results   = energy_model.evaluate_thrust(segment.state)
+    
 def update_battery_state_of_health(segment):  
     """Updates battery age based on operating conditions, cell temperature and time of operation.
        Source: 

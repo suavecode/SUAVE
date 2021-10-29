@@ -53,7 +53,7 @@ def main():
             settings = None
         weight = Common.empty_weight(vehicle, settings = settings, method_type = method_type)
     
-        save_results(weight, 'weights_'+method_type.replace(' ','_')+'.res')
+        #save_results(weight, 'weights_'+method_type.replace(' ','_')+'.res')
         old_weight = load_results('weights_'+method_type.replace(' ','_')+'.res')
     
         check_list = [

@@ -19,6 +19,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+.vsptime
 lib
 lib64
 __pycache__

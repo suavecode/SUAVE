@@ -216,25 +216,13 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         P = P_bat - np.abs(P_loss)      
         
         # Compute State Variables
-        V_ul  = compute_NMC_cell_state_variables(battery_data,SOC_old,T_cell,I_cell)  
-            
-        # Thevenin Time Constnat 
-        tau_Th   =  2.151* np.exp(2.132 *SOC_old) + 27.2 
-        
-        # Thevenin Resistance 
-        R_Th     = -1.212* np.exp(-0.03383*SOC_old) + 1.258
-         
-        # Thevenin Capacitance 
-        C_Th     = tau_Th/R_Th
+        V_ul  = compute_NMC_cell_state_variables(battery_data,SOC_old,T_cell,I_cell)
         
         # Li-ion battery interal resistance
-        R_0      =  0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036 
-        
-        # Update battery internal and thevenin resistance with aging factor
-        R_0_aged = R_0 * R_growth_factor
+        R_0      =  0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036
         
         # Voltage under load: 
-        V_oc      = V_ul + (I_cell * R_0_aged) 
+        V_oc      = V_ul + (I_cell * R_0) 
         
         # ---------------------------------------------------------------------------------
         # Compute updates state of battery 
@@ -473,8 +461,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         E_fade_factor   = 1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior)   
         R_growth_factor = 1 + alpha_res*(t**0.75) + beta_res*Q_prior  
         
-        segment.conditions.propulsion.battery_capacity_fade_factor     = E_fade_factor  
-        segment.conditions.propulsion.battery_resistance_growth_factor = R_growth_factor
+        segment.conditions.propulsion.battery_capacity_fade_factor     = np.minimum(E_fade_factor,segment.conditions.propulsion.battery_capacity_fade_factor)
+        segment.conditions.propulsion.battery_resistance_growth_factor = np.maximum(R_growth_factor,segment.conditions.propulsion.battery_resistance_growth_factor)
         
         if increment_battery_cycle_day:
             segment.conditions.propulsion.battery_cycle_day += 1 # update battery age by one day 
