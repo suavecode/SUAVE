@@ -20,7 +20,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import SPL_harmonic
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
 def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
-                           velocity_vector,network,auc_opts,settings,res):
+                           velocity_vector,network,auc_opts,settings,res,source):
     '''This computes the  harmonic noise (i.e. thickness and loading noise) of a propeller or rotor
     in the frequency domain
     
@@ -61,11 +61,15 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_cpt         = len(angle_of_attack)
     num_mic         = len(position_vector[0,:,0,1])
     num_prop        = len(position_vector[0,0,:,1])
-    num_h           = len(harmonics)
-    propellers      = network.propellers
-    propeller       = propellers[list(propellers.keys())[0]]
-    
-    num_r           = len(propeller.radius_distribution)
+    num_h           = len(harmonics) 
+
+    if source == 'lift_rotors':  
+        propellers      = network.lift_rotors 
+    else:
+        propellers      = network.propellers
+        
+    propeller       = propellers[list(propellers.keys())[0]] 
+    num_r           = len(propeller.radius_distribution)  
     
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
@@ -173,8 +177,8 @@ def vectorize(X,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method):
         X                - input argument                           [None]
         num_cpt          - number of control points                 [Unitless]
         num_h            - number of harmonics                      [Unitless]
-        num_r            - number of radial stations on propeller   [Unitless]
-        num_prop         - number of propellers/rotors              [Unitless]
+        num_r            - number of radial stations on rotor       [Unitless]
+        num_prop         - number of propellers/lift_rotors         [Unitless]
         num_mic          - number of microphones                    [Unitless]
         vectorize_method - method of vectorizing data               [Unitless]
 

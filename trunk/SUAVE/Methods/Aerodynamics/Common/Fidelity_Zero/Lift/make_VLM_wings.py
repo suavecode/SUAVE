@@ -443,13 +443,11 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     wing_halfspan                 = wing.spans.projected * 0.5 if wing.symmetric else wing.spans.projected
     LE_TE_cs_offset               = 0. if cs_wing.is_slat else (1 - cs.chord_fraction)*wing_chord_local_at_cs_root
     cs_wing.origin[0,0]          += np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset]) + LE_TE_cs_offset
-    cs_wing.origin[0,1]          += cs.span_fraction_start * wing_halfspan
-    cs_wing.origin[0,2]          += np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])
-    if wing.vertical:
-        cs_wing[0,1], cs_wing[0,2] = cs_wing[0,2], cs_wing[0,1]
+    cs_wing.origin[0,1]          += cs.span_fraction_start * wing_halfspan if not wing.vertical else np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])
+    cs_wing.origin[0,2]          += np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset]) if not wing.vertical else cs.span_fraction_start * wing_halfspan
     
     # holds all required y-coords. Will be added to during discretization to ensure y-coords match up between wing and control surface.
-    rel_offset                    = cs_wing.origin[0,1] if not cs_wing.vertical else cs_wing.origin[0,2]
+    rel_offset                    = cs_wing.origin[0,1] - wing.origin[0][1] if not cs_wing.vertical else cs_wing.origin[0,2] - wing.origin[0][2]
     cs_wing.y_coords_required     = [cs.span_fraction_end*hspan - rel_offset] #initialize with the tip y-coord. Other coords to be added in VLM
 
     #find sweep of the 'outside' edge (LE for slats, TE for everything else)

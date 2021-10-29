@@ -1,5 +1,3 @@
-## @ingroup methods-power-battery-sizing
-
 ## @ingroup Methods-Power-Battery-Sizing
 # initialize_from_energy_and_power.py
 # 

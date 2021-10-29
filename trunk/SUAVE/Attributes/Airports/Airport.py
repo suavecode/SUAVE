@@ -1,5 +1,5 @@
 ## @ingroup Attributes-Airports
-# Analysis.py
+# Airport.py
 
 # Created:  Mar 2014, SUAVE Team
 # Modified: Jan 2016, M. Vegh

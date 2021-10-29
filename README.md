@@ -62,7 +62,7 @@ More information available at [download](http://suave.stanford.edu/download.html
 Requirements
 ------------
 
-numpy, scipy, matplotlib, pip, scikit-learn
+numpy, scipy, matplotlib, pip, scikit-learn, plotly
 
 
 Developer Install

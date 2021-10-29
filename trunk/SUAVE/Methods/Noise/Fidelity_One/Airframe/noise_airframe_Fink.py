@@ -130,10 +130,7 @@ def noise_airframe_Fink(segment,analyses,config,settings,ioprint = 0, filename=0
     # Computing atmospheric conditions  
     sound_speed = segment.conditions.freestream.speed_of_sound[:,0] 
     viscosity   = segment.conditions.freestream.dynamic_viscosity[:,0]*Units.ft*Units.ft # units converstion - m2 to ft2 
-    M           = velocity/sound_speed
-    
-    #Wing Turbulent Boundary Layer thickness, ft
-    deltaw      = 0.37*(Sw/bw)*((velocity/Units.ft)*Sw/(bw*viscosity))**(-0.2)
+    M           = velocity/sound_speed 
     
     #Generate array with the One Third Octave Band Center Frequencies
     frequency = settings.center_frequencies[5:]
@@ -167,11 +164,11 @@ def noise_airframe_Fink(segment,analyses,config,settings,ioprint = 0, filename=0
         delta_atmo=atmospheric_attenuation(distance)
 
         # Call each noise source model
-        SPL_wing = noise_clean_wing(Sw,bw,0,1,deltaw[i],velocity,viscosity[i],M[i],phi[i],theta,distance,frequency) - delta_atmo    #Wing Noise
-        SPLht    = noise_clean_wing(Sht,bht,0,1,deltaw[i],velocity,viscosity[i],M[i],phi[i],theta,distance,frequency)  -delta_atmo    #Horizontal Tail Noise
-        SPLvt    = noise_clean_wing(Svt,bvt,0,0,deltaw[i],velocity,viscosity[i],M[i],phi[i],theta,distance,frequency)  -delta_atmo    #Vertical Tail Noise
+        SPL_wing = noise_clean_wing(Sw,bw,0,1,velocity,viscosity[i],M[i],phi[i],theta,distance,frequency) - delta_atmo    #Wing Noise
+        SPLht    = noise_clean_wing(Sht,bht,0,1,velocity,viscosity[i],M[i],phi[i],theta,distance,frequency)  -delta_atmo    #Horizontal Tail Noise
+        SPLvt    = noise_clean_wing(Svt,bvt,0,0,velocity,viscosity[i],M[i],phi[i],theta,distance,frequency)  -delta_atmo    #Vertical Tail Noise
  
-        SPL_slat = noise_leading_edge_slat(SPL_wing,Sw,bw,velocity,deltaw[i],viscosity[i],M[i],phi[i],theta,distance,frequency) -delta_atmo        #Slat leading edge
+        SPL_slat = noise_leading_edge_slat(SPL_wing,Sw,bw,velocity,viscosity[i],M[i],phi[i],theta,distance,frequency) -delta_atmo        #Slat leading edge
  
         if (deltaf==0):
             SPL_flap = np.zeros(num_f)

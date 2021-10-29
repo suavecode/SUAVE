@@ -210,7 +210,7 @@ def vehicle_setup():
     bat.specific_energy      = 600. * Units.Wh/Units.kg
     bat.resistance           = 0.05
     bat.max_voltage          = 45.0
-    initialize_from_mass(bat,bat.mass_properties.mass)
+    initialize_from_mass(bat)
     net.battery              = bat
    
     #Component 9 the system logic controller and MPPT
