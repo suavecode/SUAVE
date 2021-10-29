@@ -4,6 +4,7 @@
 # Created:  Jan 2016, E. Botero
 # Modified: Jul 2017, T. MacDonald
 #           Mar 2020, M. Clarke 
+#           Aug 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,6 +15,7 @@ from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
+from SUAVE.Methods.skip import skip
 
 from SUAVE.Analyses import Process
 
@@ -75,8 +77,7 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.residuals.forces   = ones_row(2) * 0.0
-        self.state.VTOL_flag          = True       
+        self.state.residuals.forces   = ones_row(2) * 0.0 
         
         
         # --------------------------------------------------------------
@@ -143,7 +144,8 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
-        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
+        finalize.post_process.aero_derivatives  = skip
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise 
         
         return
 

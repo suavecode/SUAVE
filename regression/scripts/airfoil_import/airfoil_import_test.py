@@ -10,13 +10,13 @@
 
 import SUAVE 
 from SUAVE.Core import Units, Data 
-from SUAVE.Plots.Geometry_Plots import plot_airfoil
+from SUAVE.Plots.Geometry import plot_airfoil
 import matplotlib.pyplot as plt  
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_polars \
      import import_airfoil_polars
-from SUAVE.Plots import plot_airfoil_polars
+from SUAVE.Plots.Performance.Airfoil_Plots import *
 import os
 import numpy as np
 
@@ -39,15 +39,15 @@ def main():
     
     
     # plot airfoil polar data with and without surrogate
-    plot_airfoil_polars(airfoil_geometry, airfoil_polar_names, display_plot=True)
-    plot_airfoil_polars(airfoil_geometry, airfoil_polar_names, use_surrogate=True, display_plot=True)
+    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, display_plot=True)
+    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, use_surrogate=True, display_plot=True)
     
-    airfoil_polar_data     =  import_airfoil_polars(airfoil_polar_names) 
+    airfoil_polar_data     = import_airfoil_polars(airfoil_polar_names) 
 
     airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry_with_selig)
 
     # Actual t/c values  
-    airfoil_tc_actual = [0.12012222222222223, 0.11171495959595959, 0.11171495959595959]
+    airfoil_tc_actual = [0.12031526401402462, 0.11177063928743779, 0.11177063928743779]
 
 
     # Check t/c calculation against previously calculated values

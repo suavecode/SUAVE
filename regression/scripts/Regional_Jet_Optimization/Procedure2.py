@@ -164,10 +164,10 @@ def simple_sizing(nexus):
     # Landing CL_max
     altitude                                      = nexus.missions.base.segments[-1].altitude_end
     atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu,u                            = atmosphere.compute_values(altitude)
+    atmo_data                                     = atmosphere.compute_values(altitude)
     state.conditions.freestream.velocity          = nexus.missions.base.segments['descent_3'].air_speed
-    state.conditions.freestream.density           = rho
-    state.conditions.freestream.dynamic_viscosity = mu/rho
+    state.conditions.freestream.density           = atmo_data.density
+    state.conditions.freestream.dynamic_viscosity = atmo_data.dynamic_viscosity 
     settings                                      = Data()
     settings.maximum_lift_coefficient_factor      = 1.0
     CL_max_landing, CDi                           = compute_max_lift_coeff(state,settings,landing)
@@ -178,10 +178,10 @@ def simple_sizing(nexus):
     takeoff                                       = nexus.vehicle_configurations.takeoff
     altitude                                      = nexus.missions.base.airport.altitude
     atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu,u                            = atmosphere.compute_values(altitude)
+    atmo_data                                     = atmosphere.compute_values(altitude)
     state.conditions.freestream.velocity          = nexus.missions.base.segments.climb_1.air_speed
-    state.conditions.freestream.density           = rho
-    state.conditions.freestream.dynamic_viscosity = mu
+    state.conditions.freestream.density           = atmo_data.density
+    state.conditions.freestream.dynamic_viscosity = atmo_data.dynamic_viscosity 
     settings.maximum_lift_coefficient_factor      = 1.0    
     max_CL_takeoff,CDi                            = compute_max_lift_coeff(state,settings,takeoff)
     takeoff.maximum_lift_coefficient              = max_CL_takeoff
@@ -190,10 +190,10 @@ def simple_sizing(nexus):
     base                                          = nexus.vehicle_configurations.base
     altitude                                      = nexus.missions.base.airport.altitude
     atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu,u                            = atmosphere.compute_values(altitude)
+    atmo_data                                     = atmosphere.compute_values(altitude)
     state.conditions.freestream.velocity          = nexus.missions.base.segments.climb_1.air_speed
-    state.conditions.freestream.density           = rho
-    state.conditions.freestream.dynamic_viscosity = mu/rho 
+    state.conditions.freestream.density           = atmo_data.density
+    state.conditions.freestream.dynamic_viscosity = atmo_data.dynamic_viscosity 
     settings.maximum_lift_coefficient_factor      = 1.0       
     max_CL_base,CDi                               = compute_max_lift_coeff(state,settings,landing)
     base.maximum_lift_coefficient                 = max_CL_base    

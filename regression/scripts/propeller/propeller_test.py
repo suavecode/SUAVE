@@ -10,7 +10,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Geometry_Plots import plot_propeller
+from SUAVE.Plots.Geometry import plot_propeller
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,

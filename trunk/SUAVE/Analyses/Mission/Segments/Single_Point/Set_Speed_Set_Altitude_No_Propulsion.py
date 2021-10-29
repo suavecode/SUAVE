@@ -4,6 +4,7 @@
 # Created:  Mar 2017, T. MacDonald
 # Modified: Jul 2017, T. MacDonald
 #           Apr 2020, M. Clarke
+#           Aug 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -143,6 +144,7 @@ class Set_Speed_Set_Altitude_No_Propulsion(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = skip
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.aero_derivatives  = skip
         
         return
 
