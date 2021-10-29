@@ -3,6 +3,7 @@
 # Created:  Apr 2019, T. MacDonald 
 #           Mar 2020, M. Clarke
 #           Jun 2020, E. Botero
+#           Oct 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,7 +15,7 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-def segment_properties(wing):
+def segment_properties(wing,force_update_areas=False):
     """Computes detailed segment properties. These are currently used for parasite drag calculations.
 
     Assumptions:
@@ -107,7 +108,15 @@ def segment_properties(wing):
             total_wetted_area    = total_wetted_area + Swet_seg
             total_reference_area = total_reference_area + Sref_seg
             
-    wing.areas.wetted    = total_wetted_area
-    wing.areas.reference = total_reference_area
+
+    
+    if wing.areas.reference==0. or force_update_areas:
+        print('Reference Area updating')
+        wing.areas.reference = total_reference_area
+        
+    if wing.areas.wetted==0. or force_update_areas:
+        print('Wetted Area updating')
+        wing.areas.wetted    = total_wetted_area
+        
         
     return wing
