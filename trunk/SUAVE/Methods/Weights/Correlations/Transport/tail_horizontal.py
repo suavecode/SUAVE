@@ -37,7 +37,7 @@ def tail_horizontal(vehicle, wing):
         wing.aerodynamic_center[0]  - mean aerodynamic chord of the horizontal tail                     [meters]
         wing.thickness_to_chord  - thickness-to-chord ratio of the horizontal tail                      [dimensionless]
         wing.areas.exposed - exposed surface area for the horizontal tail                               [m^2]
-        wing.areas.wetted - wetter surface area of tail
+        wing.areas.wetted - wetted surface area of tail
     
     Outputs:
         weight - weight of the horizontal tail                                                          [kilograms]

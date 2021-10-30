@@ -51,7 +51,6 @@ def parasite_drag_wing(state,settings,geometry):
       sweeps.quarter_chord                       [radians]
       aspect_ratio                               [Unitless]
       spans.projected                            [m]
-      areas.exposed                              [m^2]
       areas.affected                             [m^2]
       areas.wetted                               [m^2]
       transition_x_upper                         [Unitless]
@@ -146,18 +145,20 @@ def parasite_drag_wing(state,settings,geometry):
         chord_root = wing.chords.root
         chord_tip  = wing.chords.tip
         wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_w)
-    
-        # calculate exposed area
-        if wing.symmetric:
-            S_exposed_w = wing.areas.reference - (chord_root + wing_root)*exposed_root_chord_offset         
-        else: 
-            S_exposed_w = wing.areas.reference - 0.5*(chord_root + wing_root)*exposed_root_chord_offset
         
-        if recalculate_total_wetted_area or wing.areas.wetted==0.:   
+        if recalculate_total_wetted_area or wing.areas.wetted==0.:  
+            
+            # calculate exposed area
+            if wing.symmetric:
+                S_exposed_w = wing.areas.reference - (chord_root + wing_root)*exposed_root_chord_offset         
+            else: 
+                S_exposed_w = wing.areas.reference - 0.5*(chord_root + wing_root)*exposed_root_chord_offset
+                
             if t_c_w < 0.05:
                 Swet = 2.003* S_exposed_w
             else:
-                Swet = (1.977 + 0.52*t_c_w) * S_exposed_w            
+                Swet = (1.977 + 0.52*t_c_w) * S_exposed_w   
+                
             wing.areas.wetted = Swet 
         else:
             Swet              = wing.areas.wetted                         
