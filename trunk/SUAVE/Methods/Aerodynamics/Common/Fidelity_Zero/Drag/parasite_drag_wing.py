@@ -100,7 +100,7 @@ def parasite_drag_wing(state,settings,geometry):
         total_k_reyn_l               = 0
         
         if recalculate_total_wetted_area:
-            wing = segment_properties(wing)
+            wing = segment_properties(wing,update_wet_areas=True)
             
         
         for i_segs in range(num_segments):
@@ -153,7 +153,7 @@ def parasite_drag_wing(state,settings,geometry):
         else: 
             S_exposed_w = wing.areas.reference - 0.5*(chord_root + wing_root)*exposed_root_chord_offset
         
-        if recalculate_total_wetted_area:   
+        if recalculate_total_wetted_area or wing.areas.wetted==0.:   
             if t_c_w < 0.05:
                 Swet = 2.003* S_exposed_w
             else:

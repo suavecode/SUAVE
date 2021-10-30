@@ -15,6 +15,7 @@ from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion                           import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing                 import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing     import size_optimal_motor
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
 
 import numpy as np 
 from copy import deepcopy
@@ -132,6 +133,9 @@ def vehicle_setup():
     segment.thickness_to_chord            = 0.12
     segment.append_airfoil(airfoil)
     wing.append_segment(segment)    
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)           
     
     # add to vehicle
     vehicle.append_component(wing)

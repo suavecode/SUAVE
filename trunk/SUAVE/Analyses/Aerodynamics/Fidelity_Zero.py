@@ -78,7 +78,7 @@ class Fidelity_Zero(Markup):
         settings.propeller_wake_model               = False 
         settings.use_bemt_wake_model                = False 
         settings.model_fuselage                     = False
-        settings.recalculate_total_wetted_area      = True
+        settings.recalculate_total_wetted_area      = False
         
 
         # build the evaluation process
