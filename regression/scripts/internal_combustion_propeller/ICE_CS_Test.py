@@ -159,7 +159,7 @@ def mission_setup(analyses):
     segment.air_speed                               = 119.   * Units.knots
     segment.distance                                = 10 * Units.nautical_mile
     segment.state.conditions.propulsion.rpm         = 2650.  * Units.rpm *  ones_row(1) 
-    segment.state.unknowns.throttle                 = 0.2  *  ones_row(1)
+    segment.state.unknowns.throttle                 = 1.0  *  ones_row(1)
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip    
 
