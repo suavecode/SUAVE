@@ -76,11 +76,8 @@ def ICE_CS(vehicle):
     net                                         = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller_Constant_Speed()
     net.tag                                     = 'internal_combustion'
     net.number_of_engines                       = 1.
-    net.nacelle_diameter                        = 42 * Units.inches
-    net.engine_length                           = 0.01 * Units.inches
     net.rated_speed                             = 2700. * Units.rpm
-    net.rated_power                             = 180.  * Units.hp
-    net.areas.wetted                            = 0.01
+    net.rated_power                             = 180.  * Units.hp 
     
     # Component 1 the engine                    
     engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
@@ -162,7 +159,7 @@ def mission_setup(analyses):
     segment.air_speed                               = 119.   * Units.knots
     segment.distance                                = 10 * Units.nautical_mile
     segment.state.conditions.propulsion.rpm         = 2650.  * Units.rpm *  ones_row(1) 
-    segment.state.unknowns.throttle                 = 1.0  *  ones_row(1)
+    segment.state.unknowns.throttle                 = 0.2  *  ones_row(1)
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip    
 
