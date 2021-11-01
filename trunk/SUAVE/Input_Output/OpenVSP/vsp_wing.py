@@ -324,6 +324,7 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
         CS.span_fraction_start = span_fraction_start*3 - 1
         CS.span_fraction_end   = span_fraction_end*3 - 1 
         CS.chord_fraction      = chord_fraction    
+        CS.span                = (CS.span_fraction_end - CS.span_fraction_start)*wing.spans.projected
         wing.append_control_surface(CS)  
         
     return wing
