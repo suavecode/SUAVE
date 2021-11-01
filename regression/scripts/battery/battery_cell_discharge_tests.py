@@ -112,7 +112,7 @@ def main():
             V_ul_diff   = np.abs(V_ul - V_ul_true[j,i])
             print('Under Load voltage difference')
             print(V_ul_diff)
-            assert np.abs((V_ul_diff)/V_ul_true[j,i]) < 1e-3  
+            assert np.abs((V_ul_diff)/V_ul_true[j,i]) < 1e-6 
             
             # Temperature Regression
             bat_temp        = results.segments[1].conditions.propulsion.battery_cell_temperature[2][0]  
@@ -120,7 +120,7 @@ def main():
             bat_temp_diff   = np.abs(bat_temp  - bat_temp_true[j,i]) 
             print('Battery temperature difference')
             print(bat_temp_diff)
-            assert np.abs((bat_temp_diff)/bat_temp_true[j,i]) < 1e-3    
+            assert np.abs((bat_temp_diff)/bat_temp_true[j,i]) < 1e-6    
             
             plot_results(results,j,battery_chemistry[i], axes1, axes2, axes3, axes4, axes5, axes6,
                          axes7, axes8,marker[i][j],marker_size,linecolors[i][j],linestyles[i][j],C_rat[j])  
