@@ -152,8 +152,18 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     segment_spans    = [None] * (segment_num) 	        # Non-projected.
     segment_dihedral = [None] * (segment_num)
     segment_sweeps_quarter_chord = [None] * (segment_num) 
-    start = 0
-    root_chord = total_chord * units_factor
+
+
+    # Check for wing segment *inside* fuselage, then skip XSec_0 to start at first exposed segment.
+    if np.isclose(total_chord,1):
+        start = 1
+        xsec_surf_id = vsp.GetXSecSurf(wing_id, 1)	
+        x_sec        = vsp.GetXSec(xsec_surf_id, 0)
+        chord_parm   = vsp.GetXSecParm(x_sec,'Tip_Chord')
+        root_chord   = vsp.GetParmVal(chord_parm)* units_factor
+    else:
+        start = 0
+        root_chord = total_chord * units_factor
 
     # -------------
     # Wing segments
