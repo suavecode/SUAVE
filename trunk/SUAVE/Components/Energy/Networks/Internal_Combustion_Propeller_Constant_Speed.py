@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Networks
-# Internal_Combustion_Propeller.py
+# Internal_Combustion_Propeller_Constant_Speed.py
 # 
 # Created:  Sep 2016, E. Botero
 # Modified: Apr 2018, M. Clarke 
