@@ -46,11 +46,11 @@ def main():
     # evaluate
     results = mission.evaluate()
     
-    P_truth     = 114526.16791780891
-    mdot_truth  = 0.010062531304304803
+    P_truth     = 114551.06292442758
+    mdot_truth  = 0.010064718636579826
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
-    mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]
+    mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]     
 
     # Check the errors
     error = Data()
@@ -78,17 +78,18 @@ def ICE_CS(vehicle):
     net.number_of_engines                       = 1.
     net.nacelle_diameter                        = 42 * Units.inches
     net.engine_length                           = 0.01 * Units.inches
-    net.areas                                   = Data()
     net.rated_speed                             = 2700. * Units.rpm
     net.rated_power                             = 180.  * Units.hp
     net.areas.wetted                            = 0.01
     
     # Component 1 the engine                    
-    net.engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
-    net.engine.sea_level_power                  = 180. * Units.horsepower
-    net.engine.flat_rate_altitude               = 0.0
-    net.engine.rated_speed                      = 2700. * Units.rpm
-    net.engine.power_specific_fuel_consumption  = 0.52     
+    engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
+    engine.sea_level_power                  = 180. * Units.horsepower
+    engine.flat_rate_altitude               = 0.0
+    engine.rated_speed                      = 2700. * Units.rpm
+    engine.power_specific_fuel_consumption  = 0.52
+    
+    net.engines.append(engine)
     
     # 
     prop = SUAVE.Components.Energy.Converters.Propeller()
@@ -111,10 +112,10 @@ def ICE_CS(vehicle):
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
     prop                        = propeller_design(prop)    
     
-    net.propeller = prop
+    net.propellers.append(prop)
     
     # Replace the network
-    vehicle.propulsors.internal_combustion = net
+    vehicle.networks.internal_combustion = net
     
     
     return vehicle
@@ -138,36 +139,30 @@ def mission_setup(analyses):
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
     airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-
-    mission.airport = airport    
+    mission.airport    = airport    
 
     # unpack Segments module
     Segments = SUAVE.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
-    
+    ones_row     = base_segment.state.ones_row
+    base_segment.state.numerics.number_control_points    = 3
 
 
     # ------------------------------------------------------------------    
     #   Cruise Segment: Constant Speed Constant Altitude
     # ------------------------------------------------------------------    
 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "cruise"
-
+    segment        = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    segment.tag    = "cruise"
     segment.analyses.extend( analyses )
 
-    segment.altitude  = 12000. * Units.feet
-    segment.air_speed = 119.   * Units.knots
-    segment.distance  = 10 * Units.nautical_mile
-    
-    ones_row                                        = segment.state.ones_row   
+    segment.altitude                                = 12000. * Units.feet
+    segment.air_speed                               = 119.   * Units.knots
+    segment.distance                                = 10 * Units.nautical_mile
     segment.state.conditions.propulsion.rpm         = 2650.  * Units.rpm *  ones_row(1) 
-    segment.state.numerics.number_control_points    = 4
-    segment.state.unknowns.throttle                 = 0.1  *  ones_row(1) 
-    
-    
+    segment.state.unknowns.throttle                 = 0.1  *  ones_row(1)
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip    
 
@@ -214,7 +209,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
 
     # ------------------------------------------------------------------

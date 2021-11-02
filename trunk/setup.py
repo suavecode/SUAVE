@@ -2,6 +2,7 @@
 # 
 # Created:  Dec 2013, T. Lukaczyk 
 # Modified: Jan 2017, E. Botero
+#           Sep 2021, M. Clarke
 
 """ SUAVE setup script
 """
@@ -16,8 +17,8 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version     = '2.3.0'
-    date        = 'December 25, 2020'
+    version     = '2.4.0'
+    date        = 'May 25, 2021'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]
@@ -189,7 +190,12 @@ def import_tests():
         import sklearn
     except ImportError:
         raise ImportError('scikit-learn is required for this package')    
-
+ 
+    try:
+        import plotly
+    except ImportError:
+        raise ImportError('plotly is required for this package')
+    
     return
     
 def read(path):

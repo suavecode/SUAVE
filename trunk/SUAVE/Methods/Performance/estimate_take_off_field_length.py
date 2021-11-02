@@ -52,7 +52,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
       reference_area                       [m^2]
       V2_VS_ratio (optional)               [Unitless]
       maximum_lift_coefficient (optional)  [Unitless]
-      propulsors.*.number_of_engines       [Unitless]
+      networks.*.number_of_engines       [Unitless]
 
     Outputs:
     takeoff_field_length                   [m]
@@ -113,8 +113,8 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     # Determining vehicle number of engines
     # ==============================================
     engine_number = 0.
-    for propulsor in vehicle.propulsors : # may have than one propulsor
-        engine_number += propulsor.number_of_engines
+    for network in vehicle.networks : # may have than one network
+        engine_number += network.number_of_engines
     if engine_number == 0:
         raise ValueError("No engine found in the vehicle")
 
@@ -134,7 +134,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     conditions.freestream.pressure         = np.array(np.atleast_1d(p))
     conditions.propulsion.throttle         = np.array(np.atleast_2d([1.]))
     
-    results = vehicle.propulsors.evaluate_thrust(state) # total thrust
+    results = vehicle.networks.evaluate_thrust(state) # total thrust
     
     thrust = results.thrust_force_vector
 
@@ -186,7 +186,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         state.conditions.freestream.mach_number       = np.array(np.atleast_1d(V2_speed/ a))
         state.conditions.freestream.dynamic_viscosity = np.array(np.atleast_1d(mu))
         state.conditions.freestream.density           =  np.array(np.atleast_1d(rho))
-        results = vehicle.propulsors['turbofan'].engine_out(state)
+        results = vehicle.networks['turbofan'].engine_out(state)
         thrust = results.thrust_force_vector[0][0]
 
         # Compute windmilling drag

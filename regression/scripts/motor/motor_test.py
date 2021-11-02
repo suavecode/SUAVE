@@ -91,7 +91,8 @@ def main():
     
     # Define function specific inputs 
     voltage_1 =  400
-    motor_1.inputs.voltage = np.array([[voltage_1]]) 
+    motor_1.inputs.voltage      = np.array([[voltage_1]]) 
+    motor_1.inputs.propeller_CP = conditions.propulsion.propeller_power_coefficient
     
     # Run Motor Omega Function 
     omega_1  = motor_1.omega(conditions)   
@@ -148,12 +149,12 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 163.57739828 
-    torque_1_truth   = 642.2133744789122
-    current_2_truth  = 280.91757593860325 
-    torque_3_truth   = 394.3370915620151
-    voltage_4_truth  = 464.8404166761976 
-    current_4_truth  = 456.24232586256414 
+    omega_1_truth    = 163.57739949
+    torque_1_truth   = 642.2133839748203
+    current_2_truth  = 280.91758304681844 
+    torque_3_truth   = 394.3371015401603
+    voltage_4_truth  = 464.840414954647
+    current_4_truth  = 456.2423326614951
     power_out_truth  = 1960.0
   
     error = Data()
