@@ -33,7 +33,7 @@ def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11):
     num_w_cpts = VD.n_cp
     ones       = np.ones((cpts,1,1))  
     
-    dtype = np.float32
+    dtype = np.float64
     
     WXA1  = np.repeat(np.atleast_3d(WD.XA1).astype(dtype), num_w_cpts , axis = 2)
     WYA1  = np.repeat(np.atleast_3d(WD.YA1).astype(dtype), num_w_cpts , axis = 2)     
