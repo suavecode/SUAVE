@@ -157,14 +157,16 @@ def regularization_kernel(COEF, sigma):
        KAPPA   Regularization Kernel
     
     """
-    COEF     = np.nan_to_num(COEF,nan=1e-12)
-    COEF_MAG = np.sqrt(COEF**2)
-    R        = np.sqrt(1/(4*np.pi*COEF_MAG))
+    COEF_MAG   = np.abs(COEF)
+    R_square   = 1/(4*np.pi*COEF_MAG)
+    R          = np.sqrt(R_square)
+    R_sigma_sq = R_square/np.square(sigma)
     
-    NUM = R*(np.square(R/sigma) + (5/2))
-    DEN = 4*np.pi*(sigma**3)*((np.square(R/sigma) + 1)**(5/2))
+    NUM = R*(R_sigma_sq + (5/2))
+    DEN = 4*np.pi*(sigma**3)*(np.power(R_sigma_sq + 1,5/2))
+    
+    DEN[DEN==0.] = 1e-12
     
     KAPPA = (NUM / DEN) * np.sign(COEF)
-    KAPPA = np.nan_to_num(KAPPA,nan=0.0)
     
     return KAPPA
