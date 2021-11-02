@@ -228,7 +228,39 @@ def full_setup(current,battery_chemistry,mAh ):
 def vehicle_setup(current,battery_chemistry): 
 
     vehicle                       = SUAVE.Vehicle() 
-    vehicle.tag                   = 'battery'  
+    vehicle.tag                   = 'battery'   
+    vehicle.reference_area        = 1
+
+    # ------------------------------------------------------------------
+    #   Vehicle-level Properties
+    # ------------------------------------------------------------------    
+    # mass properties
+    vehicle.mass_properties.takeoff         = 0.048 * Units.kg 
+    vehicle.mass_properties.max_takeoff     = 0.048 * Units.kg 
+    
+    # basic parameters
+    vehicle.reference_area      = 1.    
+    # ------------------------------------------------------------------        
+    #   Main Wing
+    # ------------------------------------------------------------------   
+    wing                         = SUAVE.Components.Wings.Wing()
+    wing.tag                     = 'main_wing' 
+    wing.areas.reference         = 1.
+    wing.spans.projected         = 1.
+    wing.aspect_ratio            = 1.
+    wing.symmetric               = True
+    wing.thickness_to_chord      = 0.12
+    wing.taper                   = 1.
+    wing.dynamic_pressure_ratio  = 1.
+    wing.chords.mean_aerodynamic = 1.
+    wing.chords.root             = 1.
+    wing.chords.tip              = 1.
+    wing.origin                  = [[0.0,0.0,0.0]] # meters
+    wing.aerodynamic_center      = [0.0,0.0,0.0] # meters
+    
+    # add to vehicle
+    vehicle.append_component(wing)
+     
 
     net                           = SUAVE.Components.Energy.Networks.Battery_Cell_Cycler()
     net.tag                       ='battery_cell'   
@@ -268,14 +300,42 @@ def analyses_setup(configs):
     return analyses
 
 def base_analysis(vehicle):   
-    analyses = SUAVE.Analyses.Vehicle() 
-    
+    # ------------------------------------------------------------------
+    #   Initialize the Analyses
+    # ------------------------------------------------------------------     
+    analyses = SUAVE.Analyses.Vehicle()
+
+    # ------------------------------------------------------------------
+    #  Basic Geometry Relations
+    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing.features.vehicle = vehicle
+    analyses.append(sizing)
+
+    # ------------------------------------------------------------------
+    #  Weights
+    weights = SUAVE.Analyses.Weights.Weights_eVTOL()
+    weights.vehicle = vehicle
+    analyses.append(weights)
+
+    # ------------------------------------------------------------------
+    #  Aerodynamics Analysis
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics.geometry = vehicle
+    aerodynamics.settings.drag_coefficient_increment = 0.0000
+    analyses.append(aerodynamics)  
+
+    # ------------------------------------------------------------------	
+    #  Stability Analysis	
+    stability = SUAVE.Analyses.Stability.Fidelity_Zero()    	
+    stability.geometry = vehicle	
+    analyses.append(stability) 
+
     # ------------------------------------------------------------------
     #  Energy
-    energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.networks
-    analyses.append(energy)  
-    
+    energy= SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.networks 
+    analyses.append(energy)
+
     # ------------------------------------------------------------------
     #  Planet Analysis
     planet = SUAVE.Analyses.Planets.Planet()
@@ -285,9 +345,9 @@ def base_analysis(vehicle):
     #  Atmosphere Analysis
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
-    analyses.append(atmosphere)
-    
-    
+    analyses.append(atmosphere)   
+
+    # done!
     return analyses    
 
 
