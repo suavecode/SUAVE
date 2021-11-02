@@ -31,26 +31,28 @@ def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11):
     # control point, time step , blade number , location on blade 
     num_v_cpts = len(WD.XA1[0,:])  
     num_w_cpts = VD.n_cp
-    ones       = np.ones((cpts,1,1))    
+    ones       = np.ones((cpts,1,1))  
     
-    WXA1  = np.repeat(np.atleast_3d(WD.XA1), num_w_cpts , axis = 2)    
-    WYA1  = np.repeat(np.atleast_3d(WD.YA1), num_w_cpts , axis = 2)     
-    WZA1  = np.repeat(np.atleast_3d(WD.ZA1), num_w_cpts , axis = 2)     
-    WXA2  = np.repeat(np.atleast_3d(WD.XA2), num_w_cpts , axis = 2)     
-    WYA2  = np.repeat(np.atleast_3d(WD.YA2), num_w_cpts , axis = 2)     
-    WZA2  = np.repeat(np.atleast_3d(WD.ZA2), num_w_cpts , axis = 2)     
+    dtype = np.float32
+    
+    WXA1  = np.repeat(np.atleast_3d(WD.XA1).astype(dtype), num_w_cpts , axis = 2)
+    WYA1  = np.repeat(np.atleast_3d(WD.YA1).astype(dtype), num_w_cpts , axis = 2)     
+    WZA1  = np.repeat(np.atleast_3d(WD.ZA1).astype(dtype), num_w_cpts , axis = 2)
+    WXA2  = np.repeat(np.atleast_3d(WD.XA2).astype(dtype), num_w_cpts , axis = 2)
+    WYA2  = np.repeat(np.atleast_3d(WD.YA2).astype(dtype), num_w_cpts , axis = 2)
+    WZA2  = np.repeat(np.atleast_3d(WD.ZA2).astype(dtype), num_w_cpts , axis = 2)
                            
-    WXB1  = np.repeat(np.atleast_3d(WD.XB1), num_w_cpts , axis = 2)     
-    WYB1  = np.repeat(np.atleast_3d(WD.YB1), num_w_cpts , axis = 2)     
-    WZB1  = np.repeat(np.atleast_3d(WD.ZB1), num_w_cpts , axis = 2)     
-    WXB2  = np.repeat(np.atleast_3d(WD.XB2), num_w_cpts , axis = 2)     
-    WYB2  = np.repeat(np.atleast_3d(WD.YB2), num_w_cpts , axis = 2)     
-    WZB2  = np.repeat(np.atleast_3d(WD.ZB2), num_w_cpts , axis = 2)       
-    GAMMA = np.repeat(np.atleast_3d(WD.GAMMA), num_w_cpts , axis = 2)   
+    WXB1  = np.repeat(np.atleast_3d(WD.XB1).astype(dtype), num_w_cpts , axis = 2)
+    WYB1  = np.repeat(np.atleast_3d(WD.YB1).astype(dtype), num_w_cpts , axis = 2)
+    WZB1  = np.repeat(np.atleast_3d(WD.ZB1).astype(dtype), num_w_cpts , axis = 2)
+    WXB2  = np.repeat(np.atleast_3d(WD.XB2).astype(dtype), num_w_cpts , axis = 2)
+    WYB2  = np.repeat(np.atleast_3d(WD.YB2).astype(dtype), num_w_cpts , axis = 2)
+    WZB2  = np.repeat(np.atleast_3d(WD.ZB2).astype(dtype), num_w_cpts , axis = 2)
+    GAMMA = np.repeat(np.atleast_3d(WD.GAMMA).astype(dtype), num_w_cpts , axis = 2)
     
-    XC    = np.repeat(np.atleast_2d(VD.XC*ones), num_v_cpts , axis = 1)   
-    YC    = np.repeat(np.atleast_2d(VD.YC*ones), num_v_cpts , axis = 1) 
-    ZC    = np.repeat(np.atleast_2d(VD.ZC*ones), num_v_cpts , axis = 1)
+    XC    = np.repeat(np.atleast_2d(VD.XC*ones).astype(dtype), num_v_cpts , axis = 1)
+    YC    = np.repeat(np.atleast_2d(VD.YC*ones).astype(dtype), num_v_cpts , axis = 1)
+    ZC    = np.repeat(np.atleast_2d(VD.ZC*ones).astype(dtype), num_v_cpts , axis = 1)
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -122,7 +124,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,VD=None,use_regula
     R1R2Y  = Z_Z1*X_X2 - X_X1*Z_Z2
     R1R2Z  = X_X1*Y_Y2 - Y_Y1*X_X2
     SQUARE = np.square(R1R2X) + np.square(R1R2Y) + np.square(R1R2Z)
-    SQUARE[SQUARE==0] = 1e-12
+    SQUARE[SQUARE==0] = 1e-8
     R1     = np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1)) 
     R2     = np.sqrt(np.square(X_X2) + np.square(Y_Y2) + np.square(Z_Z2)) 
     R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
@@ -148,7 +150,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,VD=None,use_regula
     
     return COEF , V_IND  
 
-def regularization_kernel(COEF, sigma):
+def regularization_kernel(COEF_in, sigma):
     """
     Inputs:
        COEF    Biot-Savart Kernel
@@ -157,15 +159,20 @@ def regularization_kernel(COEF, sigma):
        KAPPA   Regularization Kernel
     
     """
+    COEF       = COEF_in.astype(np.float32)
     COEF_MAG   = np.abs(COEF)
+    
+    # Make sure the magnitude doesn't go to zero
+    COEF_MAG[np.isclose(COEF_MAG,0,atol=1e-8)] = 1e-8
+
     R_square   = 1/(4*np.pi*COEF_MAG)
     R          = np.sqrt(R_square)
     R_sigma_sq = R_square/np.square(sigma)
     
     NUM = R*(R_sigma_sq + (5/2))
-    DEN = 4*np.pi*(sigma**3)*(np.power(R_sigma_sq + 1,5/2))
+    DEN = 4*np.pi*(sigma**3)*np.power(R_sigma_sq + 1,5/2)
     
-    DEN[DEN==0.] = 1e-12
+    DEN[DEN==0.] = 1e-8
     
     KAPPA = (NUM / DEN) * np.sign(COEF)
     
