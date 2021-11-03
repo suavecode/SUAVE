@@ -14,8 +14,6 @@ import numpy as np
 
 from SUAVE.Core import  Data
 from SUAVE.Components.Wings import All_Moving_Surface 
-from SUAVE.Components.Fuselages import Fuselage
-from SUAVE.Components.Nacelles  import Nacelle
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
@@ -89,7 +87,6 @@ def generate_vortex_distribution(geometry,settings):
     #unpack other settings----------------------------------------------------
     spc            = settings.spanwise_cosine_spacing
     model_fuselage = settings.model_fuselage
-    model_nacelle  = settings.model_nacelle
     precision      = settings.floating_point_precision
     
     show_prints    = settings.verbose if ('verbose' in settings.keys()) else False
@@ -222,23 +219,14 @@ def generate_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------
     # STEP 8: Unpack aircraft fuselage geometry
     # ---------------------------------------------------------------------------------------      
-    VD.wing_areas = np.array(VD.wing_areas, dtype=precision)    
+    VD.wing_areas = np.array(VD.wing_areas, dtype=precision)   
     VD.n_fus      = 0
-    for nac in geometry.nacelles:   
-        if show_prints: print('discretizing ' + nac.tag)
-        VD = generate_fuselage_and_nacelle_vortex_distribution(VD,nac,n_cw_fuse,n_sw_fuse,precision,model_nacelle)     
-    
-                        
-    # ---------------------------------------------------------------------------------------
-    # STEP 9: Unpack aircraft fuselage geometry
-    # ---------------------------------------------------------------------------------------      
-    VD.wing_areas = np.array(VD.wing_areas, dtype=precision)
     for fus in geometry.fuselages:   
         if show_prints: print('discretizing ' + fus.tag)
-        VD = generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,precision,model_fuselage)  
-            
+        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,precision,model_fuselage)       
+
     # ---------------------------------------------------------------------------------------
-    # STEP 10: Postprocess VD information
+    # STEP 9: Postprocess VD information
     # ---------------------------------------------------------------------------------------      
 
     LE_ind = VD.leading_edge_indices
@@ -954,17 +942,19 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
 #  Discretize Fuselage
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision,model_geometry=False):
-    """ This generates the vortex distribution points on a fuselage or nacelle component
+def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,precision,model_fuselage=False):
+    """ This generates the vortex distribution points on the fuselage 
 
     Assumptions: 
-    If nacelle has segments defined, the mean width and height of the nacelle is used
+    None
 
     Source:   
     None
     
     Inputs:   
-    VD                   - vortex distribution    
+    VD                   - vortex distribution  
+    fus.tail_curvature   - parameter, should be around 1.5
+    fus.nose_curvature   - parameter, should be around 1.5 
     
     Properties Used:
     N/A
@@ -1021,6 +1011,8 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     tangent_incidence_angle = np.array([],dtype=precision)               
 
     # geometry values
+    semispan_h = fus.width * 0.5  
+    semispan_v = fus.heights.maximum * 0.5
     origin     = fus.origin[0]
 
     # --TO DO-- model fuselage segments if defined, else use the following code
@@ -1034,69 +1026,30 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     fvs        = Data() 
     fvs.origin = np.zeros((n_sw+1,3))
     fvs.chord  = np.zeros((n_sw+1)) 
-    fvs.sweep  = np.zeros((n_sw+1))  
+    fvs.sweep  = np.zeros((n_sw+1)) 
 
-    if isinstance(fus, Fuselage):
-    
-        # Compute the curvature of the nose/tail given fineness ratio. Curvature is derived from general quadratic equation
-        # This method relates the fineness ratio to the quadratic curve formula via a spline fit interpolation
-        vec1               = [2 , 1.5, 1.2 , 1]
-        vec2               = [1  ,1.57 , 3.2,  8]
-        x                  = np.linspace(0,1,4)
-        fus_nose_curvature =  np.interp(np.interp(fus.fineness.nose,vec2,x), x , vec1)
-        fus_tail_curvature =  np.interp(np.interp(fus.fineness.tail,vec2,x), x , vec1) 
-        semispan_h = fus.width * 0.5  
-        semispan_v = fus.heights.maximum * 0.5
-        si         = np.arange(1,((n_sw*2)+2))
-        spacing    = np.cos((2*si - 1)/(2*len(si))*np.pi)     
-        h_array    = semispan_h*spacing[0:int((len(si)+1)/2)][::-1]  
-        v_array    = semispan_v*spacing[0:int((len(si)+1)/2)][::-1]  
-    
-        for i in range(n_sw+1): 
-            fhs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
-            fhs.nose_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
-            fhs.tail_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus_tail_curvature ))**(1/fus_tail_curvature))*fus.lengths.tail
-            fhs.nose_origin   = fus.lengths.nose - fhs.nose_length 
-            fhs.origin[i][:]  = np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]])
-            fhs.chord[i]      = fhs_cabin_length + fhs.nose_length + fhs.tail_length          
-    
-            fvs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
-            fvs.nose_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
-            fvs.tail_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus_tail_curvature ))**(1/fus_tail_curvature))*fus.lengths.tail
-            fvs.nose_origin   = fus.lengths.nose - fvs.nose_length 
-            fvs.origin[i][:]  = np.array([origin[0] + fvs.nose_origin , origin[1] , origin[2]+  v_array[i]])
-            fvs.chord[i]      = fvs_cabin_length + fvs.nose_length + fvs.tail_length
-    
-        fhs.sweep[:] = np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,np.zeros(1)])
-        fvs.sweep[:] = np.concatenate([np.arctan((fvs.origin[:,0][1:] - fvs.origin[:,0][:-1])/(fvs.origin[:,2][1:]  - fvs.origin[:,2][:-1])) ,np.zeros(1)])
-    
-    elif isinstance(fus, Nacelle):  
-        num_nac_segs = len(fus.Segments.keys()) 
-        if num_nac_segs>1: 
-            widths  = np.zeros(num_nac_segs) 
-            heights = np.zeros(num_nac_segs) 
-            for i_seg in range(num_nac_segs):
-                widths[i_seg]  = fus.Segments[i_seg].width 
-                heights[i_seg] = fus.Segments[i_seg].height 
-            mean_width   = np.mean(widths) 
-            mean_height  = np.mean(heights) 
-        else:
-            mean_width   = fus.diameter 
-            mean_height  = fus.diameter 
-        length = fus.length 
-    
-        # geometry values
-        semispan_h = mean_width * 0.5  
-        semispan_v = mean_height * 0.5  
-        
-        si         = np.arange(1,((n_sw*2)+2))
-        spacing    = np.cos((2*si - 1)/(2*len(si))*np.pi)     
-        h_array    = semispan_h*spacing[0:int((len(si)+1)/2)][::-1]  
-        v_array    = semispan_v*spacing[0:int((len(si)+1)/2)][::-1]  
-         
-        for i in range(n_sw+1):   
-            fhs.chord[i]      = length 
-            fvs.chord[i]      = length 
+    si         = np.arange(1,((n_sw*2)+2))
+    spacing    = np.cos((2*si - 1)/(2*len(si))*np.pi)     
+    h_array    = semispan_h*spacing[0:int((len(si)+1)/2)][::-1]  
+    v_array    = semispan_v*spacing[0:int((len(si)+1)/2)][::-1]  
+
+    for i in range(n_sw+1): 
+        fhs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
+        fhs.nose_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus.nose_curvature ))**(1/fus.nose_curvature))*fus.lengths.nose
+        fhs.tail_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus.tail_curvature ))**(1/fus.tail_curvature))*fus.lengths.tail
+        fhs.nose_origin   = fus.lengths.nose - fhs.nose_length 
+        fhs.origin[i][:]  = np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]])
+        fhs.chord[i]      = fhs_cabin_length + fhs.nose_length + fhs.tail_length          
+
+        fvs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
+        fvs.nose_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus.nose_curvature ))**(1/fus.nose_curvature))*fus.lengths.nose
+        fvs.tail_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus.tail_curvature ))**(1/fus.tail_curvature))*fus.lengths.tail
+        fvs.nose_origin   = fus.lengths.nose - fvs.nose_length 
+        fvs.origin[i][:]  = np.array([origin[0] + fvs.nose_origin , origin[1] , origin[2]+  v_array[i]])
+        fvs.chord[i]      = fvs_cabin_length + fvs.nose_length + fvs.tail_length
+
+    fhs.sweep[:] = np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,np.zeros(1)])
+    fvs.sweep[:] = np.concatenate([np.arctan((fvs.origin[:,0][1:] - fvs.origin[:,0][:-1])/(fvs.origin[:,2][1:]  - fvs.origin[:,2][:-1])) ,np.zeros(1)])
 
     # ---------------------------------------------------------------------------------------
     # STEP 9: Define coordinates of panels horseshoe vortices and control points  
@@ -1307,7 +1260,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     fhs_y   = np.concatenate([fhs_y  ,-fhs_y ])
     fhs_z   = np.concatenate([fhs_z  , fhs_z  ])      
     
-    if model_geometry == True:
+    if model_fuselage == True:
         
         # increment fuslage lifting surface sections  
         VD.n_fus += 2    
