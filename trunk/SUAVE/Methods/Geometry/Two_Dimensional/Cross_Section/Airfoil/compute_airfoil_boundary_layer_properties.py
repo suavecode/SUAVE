@@ -78,29 +78,29 @@ def compute_airfoil_boundary_layer_properties(a_geo,npanel=100,surrogate_type = 
     AoA        = np.linspace(-5,15,5)*Units.degrees
     Re_batch   = np.atleast_2d(Re ).T
     AoA_batch  = np.atleast_2d(AoA).T    
-     
+    
+    xy         = np.zeros((len(AoA)*len(Re),2))  
+    xy[:,0]    = np.repeat(Re,len(AoA), axis = 0)/1E5
+    xy[:,1]    = np.tile(AoA,len(Re))
+    
     TE_idx    = 2 #  Trailing Edge Index 
     
     for i in range(num_airfoils):  
         airfoil_geometry = import_airfoil_geometry([a_geo[i]], npoints = npanel+2) 
-        AP  = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel, batch_analysis = True)  
+        AP  = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel, batch_analysis = True)   
         
-        xy  = my_data[:,:3] # Altitude, Mach, Throttle 
-        # normalize for better surrogate performance
-        xy[:,0] /= self.altitude_input_scale 
-        
-        lower_surface_theta      = AP.theta[TE_idx,:,:]/np.mean(AP.theta[TE_idx,:,:]) 
-        lower_surface_delta      = AP.delta[TE_idx,:,:]/np.mean(AP.delta[TE_idx,:,:]) 
-        lower_surface_delta_star = AP.delta_star[TE_idx,:,:] /np.mean(AP.delta_star[TE_idx,:,:]) 
-        lower_surface_cf         = AP.Cf[TE_idx,:,:]/np.mean(AP.Cf[TE_idx,:,:]) 
-        lower_surface_Ue         = AP.Ue_Vinf[TE_idx,:,:]/np.mean(AP.Ue_Vinf[TE_idx,:,:]) 
-        lower_surface_H          = AP.H[TE_idx,:,:]/np.mean(AP.H[TE_idx,:,:]) 
-        upper_surface_theta      = AP.theta[-TE_idx,:,:]/np.mean(AP.theta[-TE_idx,:,:])  
-        upper_surface_delta      = AP.delta[-TE_idx,:,:]/np.mean(AP.delta[-TE_idx,:,:])  
-        upper_surface_delta_star = AP.delta_star[-TE_idx,:,:]/np.mean(AP.delta_star[-TE_idx,:,:])  
-        upper_surface_cf         = AP.Cf[-TE_idx,:,:]/np.mean(AP.Cf[-TE_idx,:,:])  
-        upper_surface_Ue         = AP.Ue_Vinf[-TE_idx,:,:]/np.mean( AP.Ue_Vinf[-TE_idx,:,:])  
-        upper_surface_H          = AP.H[-TE_idx,:,:]/np.mean(AP.H[-TE_idx,:,:])        
+        lower_surface_theta      = np.ravel(AP.theta[TE_idx,:,:]/np.mean(AP.theta[TE_idx,:,:]))
+        lower_surface_delta      = np.ravel(AP.delta[TE_idx,:,:]/np.mean(AP.delta[TE_idx,:,:])) 
+        lower_surface_delta_star = np.ravel(AP.delta_star[TE_idx,:,:]/np.mean(AP.delta_star[TE_idx,:,:]))
+        lower_surface_cf         = np.ravel(AP.Cf[TE_idx,:,:]/np.mean(AP.Cf[TE_idx,:,:]))
+        lower_surface_Ue         = np.ravel(AP.Ue_Vinf[TE_idx,:,:]/np.mean(AP.Ue_Vinf[TE_idx,:,:]))
+        lower_surface_H          = np.ravel(AP.H[TE_idx,:,:]/np.mean(AP.H[TE_idx,:,:]))
+        upper_surface_theta      = np.ravel(AP.theta[-TE_idx,:,:]/np.mean(AP.theta[-TE_idx,:,:]))
+        upper_surface_delta      = np.ravel(AP.delta[-TE_idx,:,:]/np.mean(AP.delta[-TE_idx,:,:])) 
+        upper_surface_delta_star = np.ravel(AP.delta_star[-TE_idx,:,:]/np.mean(AP.delta_star[-TE_idx,:,:]))  
+        upper_surface_cf         = np.ravel(AP.Cf[-TE_idx,:,:]/np.mean(AP.Cf[-TE_idx,:,:])) 
+        upper_surface_Ue         = np.ravel( AP.Ue_Vinf[-TE_idx,:,:]/np.mean( AP.Ue_Vinf[-TE_idx,:,:])) 
+        upper_surface_H          = np.ravel(AP.H[-TE_idx,:,:]/np.mean(AP.H[-TE_idx,:,:]))       
     
     
         # Pick the type of process
