@@ -46,8 +46,8 @@ def main():
     # evaluate
     results = mission.evaluate()
     
-    P_truth     = 302473.511413869
-    mdot_truth  = 0.026576015182044374
+    P_truth     = 54477.34373361437
+    mdot_truth  = 0.004786504138410321
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
     mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]     
@@ -159,7 +159,7 @@ def mission_setup(analyses):
     segment.air_speed                               = 119.   * Units.knots
     segment.distance                                = 10 * Units.nautical_mile
     segment.state.conditions.propulsion.rpm         = 2650.  * Units.rpm *  ones_row(1) 
-    segment.state.unknowns.throttle                 = 1.0 *  ones_row(1)
+    segment.state.unknowns.throttle                 = 0.5 *  ones_row(1)
 
     # add to mission
     mission.append_segment(segment)

@@ -118,7 +118,7 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             prop       = self.propellers[prop_key]                
 
             # Run the propeller to get the power
-            prop.inputs.pitch_command = conditions.propulsion.throttle
+            prop.inputs.pitch_command = conditions.propulsion.throttle - 0.5
             prop.inputs.omega         = rpm
             
             # step 4
@@ -132,11 +132,11 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             R                   = prop.tip_radius
             mdot                = mdot + engine.outputs.fuel_flow_rate * factor
             F_mag               = np.atleast_2d(np.linalg.norm(F, axis=1))  
-            engine_throttle     = engine.outputs.throttle
+            engine_throttle     = engine.outputs.throttle  
             total_thrust        = total_thrust + F * factor
             total_power         = total_power  + P * factor            
 
-           # Pack the conditions
+            # Pack the conditions
             conditions.propulsion.propeller_torque[:,ii]     = Q[:,0]
             conditions.propulsion.propeller_tip_mach[:,ii]   = (R*rpm[:,0]*Units.rpm)/a[:,0]
             conditions.propulsion.disc_loading[:,ii]         = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
