@@ -274,7 +274,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
             None
             """         
 
-        self.tag             = ''
+        self.tag             = 'mass_properties'
         self.operating_empty = 0.0
         self.max_takeoff     = 0.0
         self.takeoff         = 0.0
