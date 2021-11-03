@@ -43,8 +43,7 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
 
     # unpack inputs
     configuration = settings
-    
-    trim_correction_factor = configuration.trim_drag_correction_factor   
+     
     vehicle_reference_area = geometry.reference_area
     ones_1col              = state.conditions.freestream.mach_number *0.+1
         

@@ -160,8 +160,6 @@ def mission_setup(analyses):
     segment.distance                                = 10 * Units.nautical_mile
     segment.state.conditions.propulsion.rpm         = 2650.  * Units.rpm *  ones_row(1) 
     segment.state.unknowns.throttle                 = 1.0 *  ones_row(1)
-    segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability = SUAVE.Methods.skip    
 
     # add to mission
     mission.append_segment(segment)
@@ -196,12 +194,6 @@ def base_analysis(vehicle):
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
-
-    # ------------------------------------------------------------------
-    #  Stability Analysis
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
-    stability.geometry = vehicle
-    analyses.append(stability)
 
     # ------------------------------------------------------------------
     #  Energy
