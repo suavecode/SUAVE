@@ -70,6 +70,8 @@ class Fuselage(Lofted_Body):
         
         self.effective_diameter = 0.0
         self.width              = 0.0
+        self.nose_curvature     = 1.5
+        self.tail_curvature     = 1.5
         
         self.heights = Data()
         self.heights.maximum                        = 0.0
