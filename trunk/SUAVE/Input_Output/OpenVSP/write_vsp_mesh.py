@@ -279,7 +279,6 @@ def set_sources(geometry):
                 #rad1 = network.vsp_mesh.radius
             #else:
                 #len1 = 0.1 * 0.5 # not sure where VSP is getting this value
-                #rad1 = 0.2 * network.engine_length
             #uloc = 0.0
             #wloc = 0.0
             #vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 

@@ -67,9 +67,8 @@ class Lithium_Ion(Battery):
         self.module_config.normal_spacing                  = 0.02
         self.module_config.parallel_spacing                = 0.02 
         
-        self.cooling_fluid                                 = Air()   
-        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.01   
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.01       
+        self.cooling_fluid                                 = Air()    
+        self.cooling_fluid.cooling_flowspeed               = 0.01       
         
         # defaults that are overwritten if specific cell chemistry is used 
         self.specific_energy                               = 200.    *Units.Wh/Units.kg    

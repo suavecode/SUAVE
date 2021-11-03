@@ -68,18 +68,8 @@ def windmilling_drag(geometry,state):
 
     # getting geometric data from engine (estimating when not available)
     swet_nac = 0
-    for idx2,nacelle in enumerate(vehicle.nacelles):
-        D_nac = nacelle.diameter
-        if nacelle.length != 0.:
-            l_nac = nacelle.length
-        else:
-            try:
-                MMO = vehicle.max_mach_operational
-            except:
-                MMO = 0.84
-            D_nac_in = D_nac / Units.inches
-            l_nac = (2.36 * D_nac_in - 0.01*(D_nac_in*MMO)**2) * Units.inches
-        swet_nac += 5.62 * D_nac * l_nac
+    for nacelle in vehicle.nacelles: 
+        swet_nac += nacelle.areas.wetted
 
     # Compute
     windmilling_drag_coefficient = 0.007274 * swet_nac / reference_area
