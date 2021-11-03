@@ -168,7 +168,10 @@ class Data(dict):
                 
         # fill in defaults trunk to leaf
         for klass in klasses[::-1]:
-            klass.__defaults__(self)
+            try:
+                klass.__defaults__(self)
+            except:
+                pass
             
         return self
     
