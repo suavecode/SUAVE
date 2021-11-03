@@ -25,7 +25,7 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
     """ An internal combustion engine with a constant speed propeller.
     
         Assumptions:
-        None
+        0.5 Throttle corresponds to 0 rotor pitch. Less than 0.5 throttle implies negative rotor pitch.
         
         Source:
         None
