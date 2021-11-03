@@ -952,7 +952,9 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,precision,model_fusel
     None
     
     Inputs:   
-    VD                   - vortex distribution    
+    VD                   - vortex distribution  
+    fus.tail_curvature   - parameter, should be around 1.5
+    fus.nose_curvature   - parameter, should be around 1.5 
     
     Properties Used:
     N/A
@@ -1013,14 +1015,6 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,precision,model_fusel
     semispan_v = fus.heights.maximum * 0.5
     origin     = fus.origin[0]
 
-    # Compute the curvature of the nose/tail given fineness ratio. Curvature is derived from general quadratic equation
-    # This method relates the fineness ratio to the quadratic curve formula via a spline fit interpolation
-    vec1               = [2 , 1.5, 1.2 , 1]
-    vec2               = [1  ,1.57 , 3.2,  8]
-    x                  = np.linspace(0,1,4)
-    fus_nose_curvature =  np.interp(np.interp(fus.fineness.nose,vec2,x), x , vec1)
-    fus_tail_curvature =  np.interp(np.interp(fus.fineness.tail,vec2,x), x , vec1) 
-
     # --TO DO-- model fuselage segments if defined, else use the following code
     
     # Horizontal Sections of fuselage
@@ -1041,15 +1035,15 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,precision,model_fusel
 
     for i in range(n_sw+1): 
         fhs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
-        fhs.nose_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
-        fhs.tail_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus_tail_curvature ))**(1/fus_tail_curvature))*fus.lengths.tail
+        fhs.nose_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus.nose_curvature ))**(1/fus.nose_curvature))*fus.lengths.nose
+        fhs.tail_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus.tail_curvature ))**(1/fus.tail_curvature))*fus.lengths.tail
         fhs.nose_origin   = fus.lengths.nose - fhs.nose_length 
         fhs.origin[i][:]  = np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]])
         fhs.chord[i]      = fhs_cabin_length + fhs.nose_length + fhs.tail_length          
 
         fvs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
-        fvs.nose_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
-        fvs.tail_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus_tail_curvature ))**(1/fus_tail_curvature))*fus.lengths.tail
+        fvs.nose_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus.nose_curvature ))**(1/fus.nose_curvature))*fus.lengths.nose
+        fvs.tail_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus.tail_curvature ))**(1/fus.tail_curvature))*fus.lengths.tail
         fvs.nose_origin   = fus.lengths.nose - fvs.nose_length 
         fvs.origin[i][:]  = np.array([origin[0] + fvs.nose_origin , origin[1] , origin[2]+  v_array[i]])
         fvs.chord[i]      = fvs_cabin_length + fvs.nose_length + fvs.tail_length
