@@ -29,7 +29,7 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
 
     Inputs:
     configuration.trim_drag_correction_factor  [Unitless]
-    geometry.networks.nacelle_diameter         [m]
+    geometry.nacelle.diameter                  [m]
     geometry.reference_area                    [m^2]
     geometry.wings['main_wing'].aspect_ratio   [Unitless]
     state.conditions.freestream.mach_number    [Unitless] (actual values are not used)
@@ -43,9 +43,7 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
 
     # unpack inputs
     configuration = settings
-    
-    trim_correction_factor = configuration.trim_drag_correction_factor    
-    networks               = geometry.networks
+     
     vehicle_reference_area = geometry.reference_area
     ones_1col              = state.conditions.freestream.mach_number *0.+1
         
@@ -69,13 +67,13 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
     total_nacelle_base_drag = 0.0
     nacelle_base_drag_results = Data()
     
-    for network in networks.values():
+    for nacelle in geometry.nacelles:
         
         # calculate
-        nacelle_base_drag = 0.5/12. * np.pi * network.nacelle_diameter * 0.2/vehicle_reference_area
+        nacelle_base_drag = 0.5/12. * np.pi * nacelle.diameter * 0.2/vehicle_reference_area
         
         # dump
-        nacelle_base_drag_results[network.tag] = nacelle_base_drag * ones_1col
+        nacelle_base_drag_results[nacelle.tag] = nacelle_base_drag * ones_1col
         
         # increment
         total_nacelle_base_drag += nacelle_base_drag

@@ -1,8 +1,8 @@
 ## @ingroup Methods-Weights-Correlations-FLOPS
 # prop_system.py
 #
-# Created:  May 2020, W. Van Gijseghem
-# Modified:
+# Created:  May 2020, W. Van Gijseghem 
+# Modified: Oct 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,7 +11,7 @@ from SUAVE.Core import Units, Data
 import numpy as np
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def total_prop_flops(vehicle, prop):
+def total_prop_flops(vehicle,prop):
     """ Calculate the weight of propulsion system, including:
         - dry engine weight
         - fuel system weight
@@ -38,10 +38,10 @@ def total_prop_flops(vehicle, prop):
                 -.systems.accessories: type of aircraft (short-range, commuter
                                                         medium-range, long-range,
                                                         sst, cargo)
-            prop - data dictionary with propulsion system properties
-                -.number_of_engines: number of engines
-                -.nacelle_diameter: diameter of nacelle                         [meters]
-                -.engine_length: length of complete engine assembly             [meters]
+            nacelle - data dictionary with propulsion system properties 
+                -.diameter: diameter of nacelle                                 [meters]
+                -.length: length of complete engine assembly                    [meters]
+            prop.
                 -.sealevel_static_thrust: thrust at sea level                   [N]
 
 
@@ -58,13 +58,16 @@ def total_prop_flops(vehicle, prop):
         Properties Used:
             N/A
     """
-    NENG        = prop.number_of_engines
-    WNAC        = nacelle_FLOPS(prop)
-    WFSYS       = fuel_system_FLOPS(vehicle, NENG)
-    WENG        = engine_FLOPS(vehicle, prop)
-    WEC, WSTART = misc_engine_FLOPS(vehicle, prop)
-    WTHR        = thrust_reverser_FLOPS(prop)
-    WPRO        = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
+    
+    nacelle_tag     = list(vehicle.nacelles.keys())[0]
+    ref_nacelle     = vehicle.nacelles[nacelle_tag]
+    NENG            = prop.number_of_engines
+    WNAC            = nacelle_FLOPS(prop,ref_nacelle)
+    WFSYS           = fuel_system_FLOPS(vehicle, NENG)
+    WENG            = engine_FLOPS(vehicle, prop)
+    WEC, WSTART     = misc_engine_FLOPS(vehicle,prop,ref_nacelle)
+    WTHR            = thrust_reverser_FLOPS(prop)
+    WPRO            = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
 
     output                      = Data()
     output.wt_prop              = WPRO
@@ -77,9 +80,12 @@ def total_prop_flops(vehicle, prop):
     return output
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def nacelle_FLOPS(prop):
+def nacelle_FLOPS(prop,nacelle):
     """ Calculates the nacelle weight based on the FLOPS method
+    
         Assumptions:
+            1) All nacelles are identical
+            2) The number of nacelles is the same as the number of engines 
 
         Source:
             Aircraft Design: A Conceptual Approach
@@ -87,29 +93,32 @@ def nacelle_FLOPS(prop):
         Inputs:
             prop    - data dictionary for the specific network that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
-                -.engine_lenght: total length of engine                     [m]
-                -.nacelle_diameter: diameter of nacelle                     [m]
-                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
-            WENG    - dry engine weight                                     [kg]
-
-
-        Outputs:
-            WNAC: nacelle weight                                            [kg]
+                -.engine_lenght: total length of engine                                  [m]
+                -.sealevel_static_thrust: sealevel static thrust of engine               [N]
+            nacelle.             
+                -.diameter: diameter of nacelle                                          [m]
+            WENG    - dry engine weight                                                  [kg]
+             
+             
+        Outputs:             
+            WNAC: nacelle weight                                                         [kg]
 
         Properties Used:
             N/A
     """
-    NENG = prop.number_of_engines
-    TNAC = NENG + 1. / 2 * (NENG - 2 * np.floor(NENG / 2.))
-    DNAC = prop.nacelle_diameter / Units.ft
-    XNAC = prop.engine_length / Units.ft
+      
+    NENG   = len(prop.origin)
+    TNAC   = NENG + 1. / 2 * (NENG - 2 * np.floor(NENG / 2.))
+    DNAC   = nacelle.diameter / Units.ft
+    XNAC   = nacelle.length / Units.ft
     FTHRST = prop.sealevel_static_thrust * 1 / Units.lbf
-    WNAC = 0.25 * TNAC * DNAC * XNAC * FTHRST ** 0.36
+    WNAC   = 0.25 * TNAC * DNAC * XNAC * FTHRST ** 0.36
     return WNAC * Units.lbs
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
 def thrust_reverser_FLOPS(prop):
     """ Calculates the weight of the thrust reversers of the aircraft
+    
         Assumptions:
 
         Source:
@@ -133,35 +142,40 @@ def thrust_reverser_FLOPS(prop):
     return WTHR * Units.lbs
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def misc_engine_FLOPS(vehicle, prop):
+def misc_engine_FLOPS(vehicle,prop,nacelle):
     """ Calculates the miscellaneous engine weight based on the FLOPS method, electrical control system weight
         and starter engine weight
+        
         Assumptions:
+            1) All nacelles are identical
+            2) The number of nacelles is the same as the number of engines 
 
         Source:
             The Flight Optimization System Weight Estimation Method
 
         Inputs:
-            vehicle - data dictionary with vehicle properties                   [dimensionless]
+            vehicle - data dictionary with vehicle properties                            [dimensionless]
                  -.design_mach_number: design mach number
             prop    - data dictionary for the specific network that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
-                -.nacelle_diameter: diameter of nacelle                     [m]
-                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
-
-        Outputs:
-            WEC: electrical engine control system weight                    [kg]
-            WSTART: starter engine weight                                   [kg]
+                -.sealevel_static_thrust: sealevel static thrust of engine               [N]
+            nacelle              
+                -.diameter: diameter of nacelle                                          [m]
+              
+        Outputs:              
+            WEC: electrical engine control system weight                                 [kg]
+            WSTART: starter engine weight                                                [kg]
 
         Properties Used:
             N/A
     """
-    NENG = prop.number_of_engines
-    THRUST = prop.sealevel_static_thrust * 1 / Units.lbf
-    WEC = 0.26 * NENG * THRUST ** 0.5
-    FNAC = prop.nacelle_diameter / Units.ft
-    VMAX = vehicle.design_mach_number
-    WSTART = 11.0 * NENG * VMAX ** 0.32 * FNAC ** 1.6
+  
+    NENG    = prop.number_of_engines
+    THRUST  = prop.sealevel_static_thrust * 1 / Units.lbf
+    WEC     = 0.26 * NENG * THRUST ** 0.5
+    FNAC    = nacelle.diameter / Units.ft
+    VMAX    = vehicle.design_mach_number
+    WSTART  = 11.0 * NENG * VMAX ** 0.32 * FNAC ** 1.6
     return WEC * Units.lbs, WSTART * Units.lbs
 
 ## @ingroup Methods-Weights-Correlations-FLOPS

@@ -36,12 +36,12 @@ def main():
     # Print weight properties of vehicle
     weights = configs.base.weight_breakdown
     print(weights)
-    print(configs.base.mass_properties.center_of_gravity)
-
+    print(configs.base.mass_properties.center_of_gravity) 
+    
     # check weights
-    empty_r       = 999.866714279045
-    structural_r  = 321.68932478738003
-    total_r       = 1199.866714279045
+    empty_r       = 1013.0718119599941
+    structural_r  = 330.4958877631757
+    total_r       = 1213.0718119599942
     lift_rotors_r = 16.445392185186808
     propellers_r  = 3.2944573008378044
     prop_motors_r = 2.0
@@ -260,7 +260,7 @@ def mission_setup(analyses,vehicle):
     segment.pitch_initial                            = 0.0 * Units.degrees
     segment.pitch_final                              = 5. * Units.degrees
     ones_row                                         = segment.state.ones_row
-    segment.state.unknowns.throttle                  = 0.95  *  ones_row(1)
+    segment.state.unknowns.throttle                  = 1. * ones_row(1)
     segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
@@ -308,7 +308,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                             = 50.0 * Units.ft
     segment.altitude_end                               = 300. * Units.ft
     segment.climb_rate                                 = 500. * Units['ft/min'] 
-    segment.state.unknowns.throttle =  0.80 * ones_row(1)
+    segment.state.unknowns.throttle                    =  0.80 * ones_row(1)
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)
 
     # add to misison
@@ -323,7 +323,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude                                   = 300.0 * Units.ft
     segment.time                                       = 60.   * Units.second
     segment.air_speed                                  = 1.2*Vstall
-    segment.state.unknowns.throttle =  0.80 * ones_row(1)
+    segment.state.unknowns.throttle                    =  0.80 * ones_row(1)
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,\
                                                                                           initial_prop_power_coefficient = 0.16)
 

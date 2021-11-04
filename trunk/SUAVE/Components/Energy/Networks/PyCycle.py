@@ -51,8 +51,7 @@ class PyCycle(Propulsor_Surrogate):
             
             Properties Used:
             N/A
-        """          
-        self.nacelle_diameter         = None
+        """           
         self.engine_length            = None
         self.number_of_engines        = None
         self.tag                      = 'PyCycle_Engine'
