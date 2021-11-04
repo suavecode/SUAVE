@@ -146,12 +146,14 @@ def wing_segmented_planform(wing, overwrite_reference = False):
         Cxys.append(segment_centroid(le_sweeps[i],lengths_dim[i],dxs[i],dys[i],dzs[i], tapers[i], 
                                      As[i], dihedrals[i], chords_dim[i], chords_dim[i+1]))
 
-    aerodynamic_center= (np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym)))
+    aerodynamic_center = (np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym)))
 
     single_side_aerodynamic_center = (np.array(aerodynamic_center)*1.)
     single_side_aerodynamic_center[0] = single_side_aerodynamic_center[0] - MAC*.25    
     if sym== True:
         aerodynamic_center[1] = 0
+        
+    aerodynamic_center[0] = single_side_aerodynamic_center[0]
     
     # Total length for supersonics
     total_length = np.tan(le_sweep_total)*semispan + chords[-1]*RC
