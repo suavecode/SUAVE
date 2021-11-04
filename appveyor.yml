@@ -22,12 +22,13 @@ install:
     - pip3 install --upgrade scikit-learn
     - pip3 install --upgrade matplotlib
     - pip3 install --upgrade plotly
-    - pip3 install coveralls
+    - PATH=$PATH:/home/appveyor/.local/bin
+    - pip3 install --upgrade coveralls
     - python3 setup.py develop --user
     - cd ../regression
     
 test_script:
-  ~/.local/bin/coverage run automatic_regression.py test
+  coverage run automatic_regression.py test
      
 on_success:
-  ~/.local/bin/coveralls
+  coveralls
