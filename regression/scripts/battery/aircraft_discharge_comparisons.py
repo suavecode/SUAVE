@@ -68,7 +68,8 @@ def main():
         plot_results(GA_results,line_style_new[i],line_style2_new[i])  
         
         # RPM of rotor check during hover
-        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0]  
+        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0] 
+        print('GA RPM: ' + str(GA_RPM))
         GA_diff_RPM   = np.abs(GA_RPM - GA_RPM_true[i])
         print('RPM difference')
         print(GA_diff_RPM)
@@ -76,6 +77,7 @@ def main():
         
         # lift Coefficient Check During Cruise
         GA_lift_coefficient        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
+        print('GA CL: ' + str(GA_lift_coefficient)) 
         GA_diff_CL                 = np.abs(GA_lift_coefficient  - GA_lift_coefficient_true[i]) 
         print('CL difference')
         print(GA_diff_CL)
@@ -98,7 +100,8 @@ def main():
         plot_results(EVTOL_results,line_style_new[i],line_style2_new[i])  
         
         # RPM of rotor check during hover
-        EVTOL_RPM        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0]  
+        EVTOL_RPM        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0] 
+        print('EVTOL RPM: ' + str(EVTOL_RPM)) 
         EVTOL_diff_RPM   = np.abs(EVTOL_RPM - EVTOL_RPM_true[i])
         print('EVTOL_RPM difference')
         print(EVTOL_diff_RPM)
@@ -106,6 +109,7 @@ def main():
         
         # lift Coefficient Check During Cruise
         EVTOL_lift_coefficient        = EVTOL_results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[2][0] 
+        print('EVTOL CL: ' + str(EVTOL_lift_coefficient)) 
         EVTOL_diff_CL                 = np.abs(EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i]) 
         print('CL difference')
         print(EVTOL_diff_CL)

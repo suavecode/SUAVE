@@ -6,6 +6,7 @@
 #           Oct 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
 #           Feb 2019, T. MacDonald
+#           Oct 2021, M. Clarke
 
 """ setup file for the Concorde 
 """
@@ -19,6 +20,7 @@ from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
 
+from copy import deepcopy
 
 def vehicle_setup():
 
@@ -95,7 +97,7 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio    = 1.0
     
-    wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    wing_airfoil = SUAVE.Components.Airfoils.Airfoil()
     
     # This airfoil is not a true Concorde airfoil
     wing_airfoil.coordinate_file   = '../Vehicles/Airfoils/NACA65-203.txt' 
@@ -247,7 +249,7 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio  = 1.0
     
-    tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    tail_airfoil = SUAVE.Components.Airfoils.Airfoil()
     # This airfoil is not a true Concorde airfoil
     tail_airfoil.coordinate_file = '../Vehicles/Airfoils/supersonic_tail.txt' 
     
@@ -359,6 +361,33 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(fuselage)
     
+
+    # ------------------------------------------------------------------        
+    # the nacelle 
+    # ------------------------------------------------------------------    
+    nacelle                  = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter         = 1.3
+    nacelle.tag              = 'nacelle_L1'
+    nacelle.origin           = [[36.56, 22, -1.9]] 
+    nacelle.length           = 12.0 
+    nacelle.inlet_diameter   = 1.1 
+    nacelle.areas.wetted     = 30.
+    vehicle.append_component(nacelle)       
+
+    nacelle_2               = deepcopy(nacelle)
+    nacelle_2.tag           = 'nacelle_2'
+    nacelle_2.origin        = [[37.,5.3,-1.3]]
+    vehicle.append_component(nacelle_2)     
+
+    nacelle_3               = deepcopy(nacelle)
+    nacelle_3.tag           = 'nacelle_3'
+    nacelle_3.origin        = [[37.,-5.3,-1.3]]
+    vehicle.append_component(nacelle_3)   
+
+    nacelle_4              = deepcopy(nacelle)
+    nacelle_4.tag          = 'nacelle_4'
+    nacelle_4.origin       = [[37.,-6.,-1.3]]
+    vehicle.append_component(nacelle_4)       
         
     # ------------------------------------------------------------------
     #   Turbojet Network

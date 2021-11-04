@@ -35,21 +35,20 @@ def parasite_drag_pylon(state,settings,geometry):
       parasite_drag_coefficient                                     [Unitless]
       reynolds_number                                               [Unitless]
     geometry.reference_area                                         [m^2]
-    geometry.networks. 
-      nacelle_diameter                                              [m]
-      number_of_engines                                             [Unitless]
+    geometry.nacelle.
+      diameter                                                      [m] 
 
     Outputs:
-    network_parasite_drag                                         [Unitless]
+    network_parasite_drag                                           [Unitless]
 
     Properties Used:
     N/A
     """
     # unpack
     
-    conditions = state.conditions
+    conditions = state.conditions 
     
-    pylon_factor        =  0.20 # 20% of propulsor drag
+    pylon_factor        = 0.20 # 20% of nacelle drag
     n_networks          =  len(geometry.networks)  # number of propulsive system in vehicle (NOT # of ENGINES)
     pylon_parasite_drag = 0.00
     pylon_wetted_area   = 0.00
@@ -59,19 +58,19 @@ def parasite_drag_pylon(state,settings,geometry):
     pylon_FF            = 0.00
 
     # Estimating pylon drag
-    for network in geometry.networks:
-        ref_area = network.nacelle_diameter**2 / 4 * np.pi
-        pylon_parasite_drag += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[network.tag].parasite_drag_coefficient* (ref_area/geometry.reference_area * network.number_of_engines)
-        pylon_wetted_area   += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[network.tag].wetted_area * network.number_of_engines
-        pylon_cf            += conditions.aerodynamics.drag_breakdown.parasite[network.tag].skin_friction_coefficient
-        pylon_compr_fact    += conditions.aerodynamics.drag_breakdown.parasite[network.tag].compressibility_factor
-        pylon_rey_fact      += conditions.aerodynamics.drag_breakdown.parasite[network.tag].reynolds_factor
-        pylon_FF            += conditions.aerodynamics.drag_breakdown.parasite[network.tag].form_factor
-        
+    for nacelle in geometry.nacelles:
+        ref_area             = nacelle.diameter**2 / 4 * np.pi
+        pylon_parasite_drag += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].parasite_drag_coefficient* (ref_area/geometry.reference_area)
+        pylon_wetted_area   += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].wetted_area  
+        pylon_cf            += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].skin_friction_coefficient
+        pylon_compr_fact    += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].compressibility_factor
+        pylon_rey_fact      += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].reynolds_factor
+        pylon_FF            += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].form_factor
+    
     pylon_cf            /= n_networks           
     pylon_compr_fact    /= n_networks   
     pylon_rey_fact      /= n_networks     
-    pylon_FF            /= n_networks      
+    pylon_FF            /= n_networks   
     
     # dump data to conditions
     pylon_result = Data(

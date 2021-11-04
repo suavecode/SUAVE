@@ -106,12 +106,15 @@ class Aerodynamics(Basic):
         self.aerodynamics.drag_breakdown.induced      = Conditions()
 
         # stability conditions
-        self.stability         = Conditions()        
-        self.stability.static  = Conditions()
-        self.stability.dynamic = Conditions()
-        self.stability.dynamic.pitch_rate   = ones_1col * 0
-        self.stability.dynamic.roll_rate    = ones_1col * 0
-        self.stability.dynamic.yaw_rate     = ones_1col * 0     
+        self.stability                       = Conditions()        
+        self.stability.static                = Conditions()
+        self.stability.dynamic               = Conditions() 
+        self.stability.static.CM             = ones_1col * 0
+        self.stability.static.Cm_alpha       = ones_1col * 0
+        self.stability.static.static_margin  = ones_1col * 0
+        self.stability.dynamic.pitch_rate    = ones_1col * 0
+        self.stability.dynamic.roll_rate     = ones_1col * 0
+        self.stability.dynamic.yaw_rate      = ones_1col * 0     
         
         # aerodynamic derivative conditions
         self.aero_derivatives = Conditions()

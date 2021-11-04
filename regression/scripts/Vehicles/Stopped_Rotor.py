@@ -133,8 +133,8 @@ def vehicle_setup():
     wing.areas.exposed            = 32.0  * Units.feet**2
     wing.twists.root              = 0. * Units.degrees
     wing.twists.tip               = 0. * Units.degrees
-    wing.origin                   = [[14.0*0.3048 , 0.0 , 0.205 ]]
-    wing.aerodynamic_center       = [15.0*0.3048 ,  0.,  0.]
+    wing.origin                   = [[4.0 , 0.0 , 0.205 ]]
+    wing.aerodynamic_center       = [4.2 ,  0.,  0.]
     wing.symmetric                = True
 
     # add to vehicle
@@ -158,8 +158,8 @@ def vehicle_setup():
     wing.areas.exposed            = 9.0 * Units.feet**2
     wing.twists.root              = 0. * Units.degrees
     wing.twists.tip               = 0. * Units.degrees
-    wing.origin                   = [[14.0*0.3048 , 4.0*0.3048  , 0.205  ]]
-    wing.aerodynamic_center       = [14.0*0.3048,0,0]  
+    wing.origin                   = [[4.0, 4.0*0.3048  , 0.205  ]]
+    wing.aerodynamic_center       = [4.2,0,0]  
     wing.winglet_fraction         = 0.0
     wing.vertical                 = True
     wing.symmetric                = False
@@ -185,8 +185,8 @@ def vehicle_setup():
     wing.areas.exposed           = 9.0 * Units.feet**2
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
-    wing.origin                  = [[14.0*0.3048 , -4.0*0.3048  , 0.205   ]]
-    wing.aerodynamic_center      = [14.0*0.3048,0,0]  
+    wing.origin                  = [[4.0, -4.0*0.3048  , 0.205   ]]
+    wing.aerodynamic_center      = [4.2,0,0]  
     wing.winglet_fraction        = 0.0
     wing.vertical                = True
     wing.symmetric               = False
@@ -208,7 +208,7 @@ def vehicle_setup():
     fuselage.lengths.nose                       = 3.2 * Units.feet
     fuselage.lengths.tail                       = 6.4 * Units.feet
     fuselage.lengths.cabin                      = 6.4 * Units.feet
-    fuselage.lengths.total                      = 4.10534
+    fuselage.lengths.total                      = 5.1
     fuselage.width                              = 5.85 * Units.feet
     fuselage.heights.maximum                    = 4.65 * Units.feet
     fuselage.heights.at_quarter_length          = 3.75 * Units.feet
@@ -220,7 +220,7 @@ def vehicle_setup():
     fuselage.differential_pressure              = 0.
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_0'
     segment.percent_x_location        = 0.
     segment.percent_z_location        = -0.267/4.10534
@@ -229,16 +229,16 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_1'
-    segment.percent_x_location        =  0.2579 /4.10534
-    segment.percent_z_location        = -0.12881/1.372
+    segment.percent_x_location        = 0.2579 /4.10534
+    segment.percent_z_location        = -0.05881/1.372
     segment.height                    = 0.5201
     segment.width                     = 0.75
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_2'
     segment.percent_x_location        =  0.9939/4.10534
     segment.percent_z_location        =  -0.0446/4.10534
@@ -247,28 +247,28 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_3'
-    segment.percent_x_location        =   1.95060 /4.10534
-    segment.percent_z_location        =  0/4.10534
+    segment.percent_x_location        =  1.95060 /4.10534
+    segment.percent_z_location        =  0
     segment.height                    =  1.37248
     segment.width                     =  1.35312
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_4'
     segment.percent_x_location        = 3.02797/4.10534
-    segment.percent_z_location        = 0.08/4.10534
-    segment.height                    = 0.8379
-    segment.width                     = 0.79210
+    segment.percent_z_location        = 0.25/4.10534
+    segment.height                    = 0.6
+    segment.width                     = 0.4
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_5'
-    segment.percent_x_location        =  1.
-    segment.percent_z_location        =  0.12522/4.10534
+    segment.percent_x_location        = 1.
+    segment.percent_z_location        = 0.42522/4.10534
     segment.height                    = 0.05
     segment.width                     = 0.05
     fuselage.Segments.append(segment)
@@ -305,7 +305,7 @@ def vehicle_setup():
     long_boom.index                              = 1
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_1'
     segment.percent_x_location        = 0.
     segment.percent_z_location        = 0.0
@@ -314,7 +314,7 @@ def vehicle_setup():
     long_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_2'
     segment.percent_x_location        = 0.2/ 5.6
     segment.percent_z_location        = 0.
@@ -323,7 +323,7 @@ def vehicle_setup():
     long_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_3'
     segment.percent_x_location        = 5.4/5.6
     segment.percent_z_location        = 0.
@@ -332,7 +332,7 @@ def vehicle_setup():
     long_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_4'
     segment.percent_x_location        = 1.
     segment.percent_z_location        = 0.
@@ -381,7 +381,7 @@ def vehicle_setup():
     short_boom.index                              = 1
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_1'
     segment.percent_x_location        = 0.
     segment.percent_z_location        = 0.0
@@ -390,7 +390,7 @@ def vehicle_setup():
     short_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_2'
     segment.percent_x_location        = 0.2/3.3
     segment.percent_z_location        = 0.
@@ -399,7 +399,7 @@ def vehicle_setup():
     short_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_3'
     segment.percent_x_location        = 3.1/3.3
     segment.percent_z_location        = 0.
@@ -408,7 +408,7 @@ def vehicle_setup():
     short_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Fuselages.Segment()
+    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_4'
     segment.percent_x_location        = 1.
     segment.percent_z_location        = 0.
@@ -439,7 +439,65 @@ def vehicle_setup():
     short_boom.index        = 1
     vehicle.append_component(short_boom)
 
+    #------------------------------------------------------------------
+    # Nacelles
+    #------------------------------------------------------------------ 
+    rotor_nacelle                         = SUAVE.Components.Nacelles.Nacelle()
+    rotor_nacelle.tag                     = 'rotor_nacelle'    
+    rotor_nacelle_origins                 =  [[0.543,  1.63  , -0.126] ,[0.543, -1.63  ,  -0.126 ] ,
+                                             [3.843,  1.63  , -0.126] ,[3.843, -1.63  ,  -0.126] ,
+                                             [0.543,  2.826 , -0.126] ,[0.543, -2.826 ,  -0.126 ] ,
+                                             [3.843,  2.826 , -0.126] ,[3.843, -2.826 ,  -0.126] ,
+                                             [0.543,  4.022 , -0.126] ,[0.543, -4.022 ,  -0.126 ] ,
+                                             [3.843,  4.022 , -0.126] ,[3.843, -4.022 ,  -0.126 ]]
+    rotor_nacelle.length         = 0.25
+    rotor_nacelle.diameter       = 0.25
+    rotor_nacelle.orientation_euler_angles  = [0,-90*Units.degrees,0.]    
+    rotor_nacelle.flow_through   = False  
+    
+    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment.tag                = 'segment_1'
+    nac_segment.percent_x_location = 0.0  
+    nac_segment.height             = 0.2
+    nac_segment.width              = 0.2
+    rotor_nacelle.append_segment(nac_segment)    
+    
+    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment.tag                = 'segment_2'
+    nac_segment.percent_x_location = 0.25  
+    nac_segment.height             = 0.25
+    nac_segment.width              = 0.25
+    rotor_nacelle.append_segment(nac_segment)    
+    
+    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment.tag                = 'segment_3'
+    nac_segment.percent_x_location = 0.5 
+    nac_segment.height             = 0.3
+    nac_segment.width              = 0.3
+    rotor_nacelle.append_segment(nac_segment)    
 
+    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment.tag                = 'segment_4'
+    nac_segment.percent_x_location = 0.75
+    nac_segment.height             = 0.25
+    nac_segment.width              = 0.25
+    rotor_nacelle.append_segment(nac_segment)        
+
+    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment.tag                = 'segment_5'
+    nac_segment.percent_x_location = 1.0
+    nac_segment.height             = 0.2
+    nac_segment.width              = 0.2
+    rotor_nacelle.append_segment(nac_segment)      
+    
+    rotor_nacelle.areas.wetted            =  np.pi*rotor_nacelle.diameter*rotor_nacelle.length + 0.5*np.pi*rotor_nacelle.diameter**2     
+
+    for idx in range(12):
+        nacelle          = deepcopy(rotor_nacelle)
+        nacelle.tag      = 'nacelle_' +  str(idx)
+        nacelle.origin   = [rotor_nacelle_origins[idx]] 
+        vehicle.append_component(nacelle)  
+        
     #------------------------------------------------------------------
     # network
     #------------------------------------------------------------------

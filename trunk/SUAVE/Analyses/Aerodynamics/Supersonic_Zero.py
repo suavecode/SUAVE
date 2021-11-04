@@ -82,7 +82,7 @@ class Supersonic_Zero(Markup):
         settings.use_bemt_wake_model                = False
         settings.model_fuselage                     = False
         settings.recalculate_total_wetted_area      = False
-        
+        settings.model_nacelle                      = False
         
         # this multiplier is used to determine the volume wave drag at the peak Mach number
         # by multiplying the volume wave drag at the end drag rise Mach number
@@ -119,8 +119,8 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage 
-        compute.drag.parasite.propulsors           = Process_Geometry('networks')
-        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
+        compute.drag.parasite.nacelles             = Process_Geometry('nacelles')
+        compute.drag.parasite.nacelles.nacelle     = Methods.Drag.parasite_drag_nacelle # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Common.Drag.induced_drag_aircraft
@@ -160,8 +160,9 @@ class Supersonic_Zero(Markup):
         wdt                       = self.settings.wake_development_time
         nwts                      = self.settings.number_of_wake_timesteps
         mf                        = self.settings.model_fuselage
+        mn                        = self.settings.model_nacelle
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf)
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn)
                 
     finalize = initialize        
