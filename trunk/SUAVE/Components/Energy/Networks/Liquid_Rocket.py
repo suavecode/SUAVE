@@ -51,7 +51,6 @@ class Liquid_Rocket(Network):
         self.tag = 'Liquid_Rocket'
         self.number_of_engines = None
         self.engine_length     = None
-        self.nacelle_diameter  = None
 
         # For Drag calculations 
         self.areas             = Data()

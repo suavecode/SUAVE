@@ -23,7 +23,7 @@ from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP.vsp_propeller import write_vsp_propeller_bem
 from SUAVE.Input_Output.OpenVSP.vsp_fuselage  import write_vsp_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_wing      import write_vsp_wing
-from SUAVE.Input_Output.OpenVSP.vsp_turbofan  import write_vsp_turbofan
+from SUAVE.Input_Output.OpenVSP.vsp_nacelle   import write_vsp_nacelle 
 try:
     import vsp as vsp
 except ImportError:
@@ -67,7 +67,6 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
           thickness_to_chord                    [-]
       networks.turbofan. (optional)
         number_of_engines                       [-]
-        engine_length                           [m]
         nacelle_diameter                        [m]
         origin                                  [m] in all three dimension, should have as many origins as engines
         OpenVSP_simple (optional)               <boolean> if False (default) create a flow through nacelle, if True creates a roughly biparabolic shape
@@ -133,16 +132,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     # -------------
     ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
     ## This was a place to start and may not still be functional   
-    for network in vehicle.networks: 
-        if 'turbofan' in network:
-            if verbose:
-                print('Writing '+network.turbofan.tag+' to OpenVSP Model')
-            turbofan  = network.turbofan
-            write_vsp_turbofan(turbofan, OML_set_ind)
-    
-        if 'turbojet' in network:
-            turbofan  = network.turbojet
-            write_vsp_turbofan(turbofan, OML_set_ind)     
+    for network in vehicle.networks:
     
         if 'propellers' in  network:
             for prop in network.propellers:
@@ -152,12 +142,18 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         if 'lift_rotors' in network:
             for rot in network.lift_rotors:
                 vsp_bem_filename = rot.tag + '.bem' 
-                write_vsp_propeller_bem(vsp_bem_filename,rot)   
-    
+                write_vsp_propeller_bem(vsp_bem_filename,rot)    
+    # -------------
+    # Nacelle
+    # ------------- 
+    for key, nacelle in vehicle.nacelles.items():
+        if verbose:
+            print('Writing '+ nacelle.tag +' to OpenVSP Model')
+        write_vsp_nacelle(nacelle, OML_set_ind)
+                     
     # -------------
     # Fuselage
-    # -------------    
-    
+    # -------------     
     for key, fuselage in vehicle.fuselages.items():
         if verbose:
             print('Writing '+fuselage.tag+' to OpenVSP Model')

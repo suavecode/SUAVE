@@ -18,5 +18,4 @@ from .Stabilator                import Stabilator
 from .Vertical_Tail_All_Moving  import Vertical_Tail_All_Moving
 
 # packages
-from . import Airfoils
 from . import Control_Surfaces
