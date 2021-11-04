@@ -2,6 +2,7 @@
 #
 # Created:  Feb 2017, M. Vegh (taken from data originally in cmalpha/cmalpha.py and cnbeta/cnbeta.py)
 # Modified: May 2020, W. Van Gijseghem 
+#           Oct 2021, M. Clarke
 
 """ setup file for the Boeing 747 vehicle
 note that it does not include an engine; current values only used to test stability cmalpha and cnbeta
@@ -22,6 +23,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from copy import deepcopy
 
 def vehicle_setup():
 
@@ -172,26 +174,43 @@ def vehicle_setup():
     vehicle.append_component(fuselage)
     vehicle.mass_properties.center_of_gravity=np.array([[112.2,0,0]]) * Units.feet
 
+
+    # ------------------------------------------------------------------
+    #   Nacelle  
+    # ------------------------------------------------------------------
+    nacelle              = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter     = 2.428
+    nacelle.length       = 3.934
+    nacelle.tag          = 'nacelle_1'
+    nacelle.origin       = [[36.56, 22, -1.9]]
+    nacelle.areas.wetted = 1.1 * np.pi * nacelle.diameter * nacelle.length
+    vehicle.append_component(nacelle)  
+
+    nacelle_2          = deepcopy(nacelle)
+    nacelle_2.tag      = 'nacelle_2'
+    nacelle_2.origin   = [[27, 12, -1.9]]
+    vehicle.append_component(nacelle_2)     
+
+    nacelle_3          = deepcopy(nacelle)
+    nacelle_3.tag      = 'nacelle_3'
+    nacelle_3.origin   = [[36.56, -22, -1.9]]
+    vehicle.append_component(nacelle_3)   
+
+    nacelle_4          = deepcopy(nacelle)
+    nacelle_4.tag      = 'nacelle_4'
+    nacelle_4.origin   = [[27, -12, -1.9]]
+    vehicle.append_component(nacelle_4)   
+    
     # ------------------------------------------------------------------
     #   Turbofan Network
     # ------------------------------------------------------------------
 
     # instantiate the gas turbine network
-    turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbofan'
-
-    # setup
+    turbofan                    = SUAVE.Components.Energy.Networks.Turbofan()
+    turbofan.tag                = 'turbofan' 
     turbofan.number_of_engines  = 4.0
     turbofan.bypass_ratio       = 4.8
-    turbofan.engine_length      = 3.934
-    turbofan.nacelle_diameter   = 2.428
-    turbofan.origin = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]
-
-    # compute engine areas
-    Awet = 1.1 * np.pi * turbofan.nacelle_diameter * turbofan.engine_length
-
-    # Assign engine areas
-    turbofan.areas.wetted = Awet
+    turbofan.origin             = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]    
 
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()

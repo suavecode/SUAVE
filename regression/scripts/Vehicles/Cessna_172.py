@@ -224,10 +224,7 @@ def vehicle_setup():
     net                                         = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
     net.tag                                     = 'internal_combustion'
     net.number_of_engines                       = 1.
-    net.nacelle_diameter                        = 42 * Units.inches
-    net.engine_length                           = 0.01 * Units.inches
     net.identical_propellers                    = True
-    net.areas.wetted                            = 0.01
                                                 
     # the engine                    
     engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()

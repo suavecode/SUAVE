@@ -71,7 +71,7 @@ def compute_net_generated_battery_heat(n_total,battery,Q_heat_gen,numerics):
         coolant         = battery.cooling_fluid
         K_coolant       = coolant.thermal_conductivity 
         Cp_coolant      = coolant.specific_heat_capacity  
-        V_coolant       = coolant.discharge_air_cooling_flowspeed
+        V_coolant       = coolant.cooling_flowspeed
         rho_coolant     = coolant.density 
         nu_coolant      = coolant.kinematic_viscosity     
         Pr_coolant      = coolant.prandtl_number  
