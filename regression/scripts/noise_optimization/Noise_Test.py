@@ -40,7 +40,7 @@ def main():
     # Compare with truth values
     noise_cumulative_margin        = objectives[0]
     actual                         = Data()
-    actual.noise_cumulative_margin = 20.805162724333698
+    actual.noise_cumulative_margin = 20.790291430964245
 
 
     error                         = Data()

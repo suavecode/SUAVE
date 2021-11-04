@@ -14,7 +14,7 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data, Container
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometr
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
 
 from copy import deepcopy

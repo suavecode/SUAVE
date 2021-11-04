@@ -39,13 +39,13 @@ def main():
     # ----------------------------------------------------------------------    
 
     # General Aviation Aircraft   
-    GA_RPM_true              = [980.0985955974302,980.0985956623603]
-    GA_lift_coefficient_true = [0.5473136672898071,0.547313667289807]
+    GA_RPM_true              = [974.8969699856285,974.8969700586878]
+    GA_lift_coefficient_true = [0.5473581960618454,0.5473581960618426]
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2385.0695303620305,2385.069533209447]
-    EVTOL_lift_coefficient_true = [0.8074188149196798,0.8074188149196657]
+    EVTOL_RPM_true              = [2385.0695323649907,2385.06953270966]
+    EVTOL_lift_coefficient_true = [0.8075122900985718,0.8075122900986484]
     
         
     for i in range(len(battery_chemistry)):
@@ -81,7 +81,7 @@ def main():
         GA_diff_CL                 = np.abs(GA_lift_coefficient  - GA_lift_coefficient_true[i]) 
         print('CL difference')
         print(GA_diff_CL)
-        assert np.abs((GA_lift_coefficient  - GA_lift_coefficient_true[i])/GA_lift_coefficient_true[i]) < 1e-3   
+        assert np.abs((GA_lift_coefficient  - GA_lift_coefficient_true[i])/GA_lift_coefficient_true[i]) < 1e-6
             
             
       
