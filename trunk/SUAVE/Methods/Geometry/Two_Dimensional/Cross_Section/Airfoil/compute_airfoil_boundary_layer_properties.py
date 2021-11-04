@@ -61,18 +61,18 @@ def compute_airfoil_boundary_layer_properties(a_geo,npanel=250,surrogate_type = 
     airfoil_geometry = import_airfoil_geometry(a_geo, npoints = npanel+2) 
     
     airfoil_bl_surs  = Data()   
-    lower_surface_theta_surs       = Data()
-    lower_surface_delta_surs       = Data() 
-    lower_surface_delta_star_surs  = Data()
-    lower_surface_cf_surs          = Data() 
-    lower_surface_Ue_surs          = Data()
-    lower_surface_H_surs           = Data() 
-    upper_surface_theta_surs       = Data()
-    upper_surface_delta_surs       = Data() 
-    upper_surface_delta_star_surs  = Data()
-    upper_surface_cf_surs          = Data() 
-    upper_surface_Ue_surs          = Data()
-    upper_surface_H_surs           = Data() 
+    lower_surface_theta_surs       = []
+    lower_surface_delta_surs       = []
+    lower_surface_delta_star_surs  = []
+    lower_surface_cf_surs          = []
+    lower_surface_Ue_surs          = []
+    lower_surface_H_surs           = []
+    upper_surface_theta_surs       = []
+    upper_surface_delta_surs       = []
+    upper_surface_delta_star_surs  = []
+    upper_surface_cf_surs          = []
+    upper_surface_Ue_surs          = []
+    upper_surface_H_surs           = []
         
     Re         = np.linspace(1E1,5E6,4)
     AoA        = np.linspace(-2,15,9)*Units.degrees
@@ -131,18 +131,18 @@ def compute_airfoil_boundary_layer_properties(a_geo,npanel=250,surrogate_type = 
         upper_surface_H[upper_surface_H == 0]                   = np.mean(upper_surface_H) 
         
         
-        lower_surface_theta      = np.ravel(lower_surface_theta.T/np.mean(lower_surface_theta))
-        lower_surface_delta      = np.ravel(lower_surface_delta.T/np.mean(lower_surface_delta)) 
-        lower_surface_delta_star = np.ravel(lower_surface_delta_star.T/np.mean(lower_surface_delta_star))
-        lower_surface_cf         = np.ravel(lower_surface_cf.T/np.mean(lower_surface_cf))
-        lower_surface_Ue         = np.ravel(lower_surface_Ue.T/np.mean(lower_surface_Ue))
-        lower_surface_H          = np.ravel(lower_surface_H.T/np.mean(lower_surface_H))
-        upper_surface_theta      = np.ravel(upper_surface_theta.T/np.mean(upper_surface_theta))
-        upper_surface_delta      = np.ravel(upper_surface_delta.T/np.mean(upper_surface_delta)) 
-        upper_surface_delta_star = np.ravel(upper_surface_delta_star.T/np.mean(upper_surface_delta_star))  
-        upper_surface_cf         = np.ravel(upper_surface_cf.T/np.mean(upper_surface_cf)) 
-        upper_surface_Ue         = np.ravel(upper_surface_Ue.T/np.mean(upper_surface_Ue)) 
-        upper_surface_H          = np.ravel(upper_surface_H.T/np.mean(upper_surface_H))       
+        lower_surface_theta      = np.ravel(lower_surface_theta.T)
+        lower_surface_delta      = np.ravel(lower_surface_delta.T) 
+        lower_surface_delta_star = np.ravel(lower_surface_delta_star.T) 
+        lower_surface_cf         = np.ravel(lower_surface_cf.T) 
+        lower_surface_Ue         = np.ravel(lower_surface_Ue.T) 
+        lower_surface_H          = np.ravel(lower_surface_H.T )
+        upper_surface_theta      = np.ravel(upper_surface_theta.T )
+        upper_surface_delta      = np.ravel(upper_surface_delta.T )
+        upper_surface_delta_star = np.ravel(upper_surface_delta_star.T)  
+        upper_surface_cf         = np.ravel(upper_surface_cf.T )
+        upper_surface_Ue         = np.ravel(upper_surface_Ue.T) 
+        upper_surface_H          = np.ravel(upper_surface_H.T)       
     
         # Pick the type of process
         if surrogate_type  == 'gaussian':
@@ -254,7 +254,7 @@ def compute_airfoil_boundary_layer_properties(a_geo,npanel=250,surrogate_type = 
  
 
 # manage process with a driver function
-def evaluate_thrust(self,state):
+def evaluate_surrogate(propeller,):
     """ Calculate thrust given the current state of the vehicle
     
         Assumptions:
@@ -274,65 +274,64 @@ def evaluate_thrust(self,state):
         Defaulted values
     """            
     
-    # Unpack the surrogate
-    sfc_surrogate = self.sfc_surrogate
+    # Unpack the surrogate 
     thr_surrogate = self.thrust_surrogate
-    
-    # Unpack the conditions
-    conditions = state.conditions
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+    thr_surrogate = self.thrust_surrogate
+     
     # rescale altitude for proper surrogate performance
     altitude   = conditions.freestream.altitude/self.altitude_input_scale
     mach       = conditions.freestream.mach_number
     throttle   = conditions.propulsion.throttle
     
-    cond = np.hstack([altitude,mach,throttle])
-       
-    if self.use_extended_surrogate:
-        lo_blender = Cubic_Spline_Blender(0, .01)
-        hi_blender = Cubic_Spline_Blender(0.99, 1)            
-        sfc = self.extended_sfc_surrogate(sfc_surrogate, cond, lo_blender, hi_blender)
-        thr = self.extended_thrust_surrogate(thr_surrogate, cond, lo_blender, hi_blender)
-    else:
-        sfc = sfc_surrogate.predict(cond)
-        thr = thr_surrogate.predict(cond)
-
-    sfc = sfc*self.sfc_input_scale*self.sfc_anchor_scale
-    thr = thr*self.thrust_input_scale*self.thrust_anchor_scale
+    cond = np.hstack([AoA,Re])  
    
-    F    = thr
-    mdot = thr*sfc*self.number_of_engines
-    
-    if self.negative_throttle_values == False:
-        F[throttle<=0.]    = 0.
-        mdot[throttle<=0.] = 0.
-       
-    # Save the output
-    results = Data()
-    results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]
-    results.vehicle_mass_rate   = mdot
+    for i in range(num_sec):
+        sfc[i] = sfc_surrogate[a_geo[i]].predict(cond)
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
+        thr[i] = thr_surrogate[a_geo[i]].predict(cond) 
 
     return results          
 
-def build_surrogate(self):
-    """ Build a surrogate. Multiple options for models are available including:
-        -Gaussian Processes
-        -KNN
-        -SVR
-        
-        Assumptions:
-        None
-        
-        Source:
-        N/A
-        
-        Inputs:
-        state [state()]
-        
-        Outputs:
-        self.sfc_surrogate    [fun()]
-        self.thrust_surrogate [fun()]
-        
-        Properties Used:
-        Defaulted values
-    """          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    
