@@ -85,7 +85,11 @@ def systems_FLOPS(vehicle):
         NFLCR = 2
 
     FNEW    = sum(networks.wing_mounted)
-    FNAC    = networks.nacelle_diameter / Units.ft
+    if 'nacelle' in vehicle.keys() : 
+        FNAC    = vehicle.nacelle.diameter / Units.ft
+    else:
+        FNAC    = 0 
+        
     FNEF    = len(networks.wing_mounted) - FNEW
     WIN     = 0.48 * FPAREA ** 0.57 * VMAX ** 0.5 * (10 + 2.5 * NFLCR + FNEW + 1.5 * FNEF)  # instrumentation weight
 

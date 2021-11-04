@@ -90,7 +90,8 @@ def initial_sizing(nexus):
         conditions.freestream = freestream 
         
         turbofan_sizing(config.networks['turbofan'], mach_number, altitude)
-        compute_turbofan_geometry(config.networks['turbofan'], conditions)
+        for nac in config.nacelles: 
+            compute_turbofan_geometry(config.networks['turbofan'],nac)
         
         # diff the new data
         config.store_diff()  

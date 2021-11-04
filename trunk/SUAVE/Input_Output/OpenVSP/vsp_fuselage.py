@@ -116,7 +116,7 @@ def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=Tr
     for ii in range(0, fuselage.vsp_data.xsec_num): 
         # Create the segment
         x_sec                     = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii) # VSP XSec ID.
-        segment                   = SUAVE.Components.Fuselages.Segment()
+        segment                   = SUAVE.Components.Lofted_Body_Segment.Segment()
         segment.vsp_data.xsec_id  = x_sec 
         segment.tag               = 'segment_' + str(ii)
 
@@ -154,9 +154,9 @@ def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=Tr
     fuselage.heights.at_three_quarters_length   = get_fuselage_height(fuselage, .75) 
     fuselage.heights.at_wing_root_quarter_chord = get_fuselage_height(fuselage, .4) 
 
-    fuselage.heights.maximum    = max(heights) 		# Max segment height.	
-    fuselage.width		    = max(widths) 		# Max segment width.
-    fuselage.effective_diameter = max(eff_diams)		# Max segment effective diam.
+    fuselage.heights.maximum    = max(heights)          # Max segment height.	
+    fuselage.width              = max(widths)           # Max segment width.
+    fuselage.effective_diameter = max(eff_diams)        # Max segment effective diam.
 
     fuselage.areas.front_projected  = np.pi*((fuselage.effective_diameter)/2)**2
 

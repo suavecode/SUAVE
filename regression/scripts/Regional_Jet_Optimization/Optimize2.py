@@ -39,10 +39,10 @@ def main():
     print(con3)
     
     actual = Data()
-    actual.obj  = 0.7104222
-    actual.con  = 2.73413428
-    actual.obj2 = 0.73352975
-    actual.con3 = 2.88527578
+    actual.obj  = 0.71040567
+    actual.con  = 2.7341946
+    actual.obj2 = 0.73390218
+    actual.con3 = 2.88665183
     
 
     error = Data()

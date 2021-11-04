@@ -74,9 +74,7 @@ class Lift_Cruise(Network):
         self.propeller_esc                = None
         self.avionics                     = None
         self.payload                      = None
-        self.battery                      = None
-        self.lift_rotor_nacelle_diameter  = None
-        self.propeller_nacelle_diameter   = None
+        self.battery                      = None 
         self.lift_rotor_engine_length     = None
         self.propeller_engine_length      = None
         self.number_of_lift_rotor_engines = 0

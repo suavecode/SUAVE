@@ -55,8 +55,7 @@ class Network(Physical_Component):
         self.tag = 'network'
         self.generative_design_max_per_vehicle = 1
         self.non_dimensional_origin = [[0.0,0.0,0.0]]
-        self.number_of_engines = 1.0
-        self.nacelle_diameter  = 1.0
+        self.number_of_engines = 1.0 
         self.engine_length     = 1.0
         self.wing_mounted      = True
         
