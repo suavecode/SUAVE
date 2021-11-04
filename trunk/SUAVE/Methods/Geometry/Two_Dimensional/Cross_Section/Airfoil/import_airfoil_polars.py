@@ -5,6 +5,7 @@
 #           Mar 2020, M. Clarke
 #           Sep 2020, M. Clarke 
 #           May 2021, R. Erhard
+#           Nov 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -34,7 +35,14 @@ def  import_airfoil_polars(airfoil_polar_files):
     
     # number of airfoils 
     num_airfoils = len(airfoil_polar_files)  
-    num_polars   = len(airfoil_polar_files[0]) 
+    
+    num_polars   = 0
+    for i in range(num_airfoils): 
+        n_p = len(airfoil_polar_files[i])
+        if n_p < 3:
+            raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+        
+        num_polars = max(num_polars, n_p)       
     
     # create empty data structures 
     airfoil_data = Data()
