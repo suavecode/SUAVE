@@ -62,8 +62,7 @@ class Solar(Network):
         self.avionics                  = None
         self.payload                   = None
         self.solar_logic               = None
-        self.battery                   = None
-        self.nacelle_diameter          = None
+        self.battery                   = None 
         self.engine_length             = None
         self.number_of_engines         = None
         self.tag                       = 'Solar'

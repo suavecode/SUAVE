@@ -59,8 +59,7 @@ class Solar_Low_Fidelity(Network):
         self.avionics          = None
         self.payload           = None
         self.solar_logic       = None
-        self.battery           = None
-        self.nacelle_dia       = None
+        self.battery           = None 
         self.engine_length     = None
         self.number_of_engines = None
         self.tag               = 'Solar_Low_Fidelity'

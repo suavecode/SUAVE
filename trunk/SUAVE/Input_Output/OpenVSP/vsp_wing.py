@@ -13,7 +13,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
+from SUAVE.Components.Airfoils.Airfoil import Airfoil 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, wing_segmented_planform 
 import numpy as np
 import string
@@ -61,7 +61,6 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     		dihedral                                [radians]
     		symmetric                               <boolean>
     		tag                                     <string>
-    		areas.exposed                           [m^2]
     		areas.reference                         [m^2]
     		areas.wetted                            [m^2]
     		Segments.
@@ -120,9 +119,7 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     if sym_planar == 2. and sym_origin == 1.: #origin at wing, not vehicle
         wing.symmetric = True	
     else:
-        wing.symmetric = False
-
-
+        wing.symmetric = False 
 
     #More top level parameters
     total_proj_span      = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom') * units_factor
@@ -132,11 +129,9 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
 
     # Check if this is a single segment wing
     xsec_surf_id      = vsp.GetXSecSurf(wing_id, 0)   # This is how VSP stores surfaces.
-    x_sec_1           = vsp.GetXSec(xsec_surf_id, 1)
-    x_sec_1_span_parm = vsp.GetXSecParm(x_sec_1,'Span')
-    x_sec_1_span      = vsp.GetParmVal(x_sec_1_span_parm)*(1+wing.symmetric) * units_factor
+    x_sec_1           = vsp.GetXSec(xsec_surf_id, 1) 
 
-    if x_sec_1_span == wing.spans.projected:
+    if vsp.GetNumXSec(xsec_surf_id) == 2:
         single_seg = True
     else:
         single_seg = False

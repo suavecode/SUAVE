@@ -45,7 +45,7 @@ def main():
     
     plot_results(results)
     
-    distance_regression = 3797681.9970437484
+    distance_regression = 3804806.720225211
     distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc = ', distance_calc)
     error_distance      = abs((distance_regression - distance_calc )/distance_regression)
@@ -64,7 +64,8 @@ def main():
     results_SR              = mission_SR.evaluate()
     results_SR              = results_SR.merged()
     
-    distance_regression_SR = 100671.5580738441
+    distance_regression_SR = 101649.83535243798
+
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc_SR = ', distance_calc_SR)
     error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)

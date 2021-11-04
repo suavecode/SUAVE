@@ -54,7 +54,7 @@ def main():
     results = mission.evaluate()
     
     final_mass = results.segments[-1].conditions.weights.total_mass[-1,0]/Units.lb
-    final_mass_true = 561740.1387888432 # [lbs]
+    final_mass_true = 563022.9267107359 # [lbs]
 
     print(final_mass)
     
