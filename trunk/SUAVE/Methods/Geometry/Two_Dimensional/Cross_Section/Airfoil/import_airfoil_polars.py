@@ -47,7 +47,7 @@ def  import_airfoil_polars(airfoil_polar_files):
     
     for i in range(num_airfoils): 
     
-        for j in range(num_polars):   
+        for j in range(len(airfoil_polar_files[i])):   
             # Open file and read column names and data block
             f = open(airfoil_polar_files[i][j]) 
             data_block = f.readlines()

@@ -50,9 +50,15 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     """  
     
     num_airfoils = len(a_geo)
-    num_polars   = len(a_polar[0])
-    if num_polars < 3:
-        raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+    
+    # check number of polars per airfoil in batch
+    num_polars   = 0
+    for i in range(num_airfoils): 
+        n_p = len(a_polar[i])
+        if n_p < 3:
+            raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+        
+        num_polars = max(num_polars, n_p)        
 
     # read airfoil geometry  
     airfoil_data = import_airfoil_geometry(a_geo)
@@ -91,7 +97,7 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
         # Modify the "wing" slightly:
         geometry.thickness_to_chord = airfoil_data.thickness_to_chord[i]
         
-        for j in range(num_polars):
+        for j in range(len(a_polar[i])):
             # Extract from polars
             airfoil_cl         = airfoil_polar_data.lift_coefficients[i,j] 
             airfoil_cd         = airfoil_polar_data.drag_coefficients[i,j] 
@@ -161,9 +167,11 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
             
             if use_pre_stall_data == True:
                 CL[i,j,:], CD[i,j,:] = apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL[i,j,:], CD[i,j,:])
-                
-        CL_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CL[i,:,:])  
-        CD_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CD[i,:,:])   
+        
+        # remove placeholder values (for airfoils that have different number of polars)
+        n_p = len(a_polar[i])
+        CL_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i][0:n_p],AoA_sweep_radians, CL[i,0:n_p,:])  
+        CD_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i][0:n_p],AoA_sweep_radians, CD[i,0:n_p,:])   
         
         CL_surs[a_geo[i]]  = CL_sur
         CD_surs[a_geo[i]]  = CD_sur   
