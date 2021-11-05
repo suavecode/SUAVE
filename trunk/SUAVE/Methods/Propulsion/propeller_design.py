@@ -19,7 +19,7 @@ from scipy.optimize import root
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
      import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_boundary_layer_properties\
-     import compute_airfoil_boundary_layer_properties 
+     import build_boundary_layer_surrogates
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
 # ----------------------------------------------------------------------
@@ -120,17 +120,13 @@ def propeller_design(prop,number_of_stations=20):
         if len(a_loc) != N:
             raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller')
         airfoil_flag = True  
+        airfoil_bl_surs         = build_boundary_layer_surrogates(a_geo,a_loc)  
     else:
         print('\nDefaulting to scaled DAE51')
         airfoil_flag            = False   
         airfoil_cl_surs         = None
         airfoil_cd_surs         = None  
-        airfoil_theta_surs      = None
-        airfoil_delta_surs      = None
-        airfoil_delta_star_surs = None
-        airfoil_cf_surs         = None
-        airfoil_Ue_surs         = None
-        airfoil_H_surs          = None
+        airfoil_bl_surs         = None 
      
     while diff>tol:      
         # assign chord distribution
@@ -157,13 +153,6 @@ def propeller_design(prop,number_of_stations=20):
             airfoil_polars          = compute_airfoil_polars(a_geo, a_pol)  
             airfoil_cl_surs         = airfoil_polars.lift_coefficient_surrogates 
             airfoil_cd_surs         = airfoil_polars.drag_coefficient_surrogates  
-            airfoil_bl_surs         = compute_airfoil_boundary_layer_properties(a_geo)
-            airfoil_theta_surs      = airfoil_bl_surs.theta_surrogates
-            airfoil_delta_surs      = airfoil_bl_surs.delta_surrogates
-            airfoil_delta_star_surs = airfoil_bl_surs.delta_star_surrogates
-            airfoil_cf_surs         = airfoil_bl_surs.cf_surrogates   
-            airfoil_Ue_surs         = airfoil_bl_surs.Ue_surrogates  
-            airfoil_H_surs          = airfoil_bl_surs.H_surrogates     
             
             # assign initial values 
             alpha0   = np.ones(N)*0.05
@@ -299,12 +288,7 @@ def propeller_design(prop,number_of_stations=20):
     prop.blade_solidity             = sigma  
     prop.airfoil_cl_surrogates      = airfoil_cl_surs
     prop.airfoil_cd_surrogates      = airfoil_cd_surs 
-    prop.airfoil_theta_surrogates   = airfoil_theta_surs      
-    prop.airfoil_delta_surrogates   = airfoil_delta_surs      
-    prop.airfoil_delta_surrogates   = airfoil_delta_star_surs 
-    prop.airfoil_cf_surrogates      = airfoil_cf_surs         
-    prop.airfoil_Ue_surrogates      = airfoil_Ue_surs         
-    prop.airfoil_H_surrogates       = airfoil_H_surs              
+    prop.airfoil_bl_surrogates      = airfoil_bl_surs
     prop.airfoil_flag               = airfoil_flag
 
     return prop

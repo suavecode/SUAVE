@@ -20,6 +20,8 @@ import numpy as np
 import copy, time
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_boundary_layer_properties\
+     import evaluate_boundary_layer_surrogates
 
 def main():
     
@@ -251,7 +253,38 @@ def main():
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-6)
+        assert(np.abs(v)<1e-6) 
+     
+    rho                = conditions.freestream.density                 
+    dyna_visc          = conditions.freestream.dynamic_viscosity            
+    alpha_blade        = output_a.disc_effective_angle_of_attack 
+    Vt_2d              = output_a.disc_tangential_velocity  
+    Va_2d              = output_a.disc_axial_velocity                
+    blade_chords       = prop_a.chord_distribution         
+    r                  = prop_a.radius_distribution      
+    num_sec            = len(r) 
+    num_azi            = len(output_a.disc_effective_angle_of_attack[0,0,:])   
+    U_blade            = np.sqrt(Vt_2d**2 + Va_2d **2)
+    Re_blade           = U_blade*np.repeat(np.repeat(blade_chords[np.newaxis,:],1,axis=0)[:,:,np.newaxis],num_azi,axis=2)*\
+                          np.repeat(np.repeat((rho/dyna_visc),num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2)  
+
+    # ------------------------------------------------------------
+    # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ****** 
+    bl_results = evaluate_boundary_layer_surrogates(prop_a,alpha_blade,Re_blade)
+    
+    bl_results.ls_theta 
+    bl_results.ls_delta   
+    bl_results.ls_delta_star 
+    bl_results.ls_cf      
+    bl_results.ls_Ue        
+    bl_results.ls_H          
+    bl_results.us_theta  
+    bl_results.us_delta    
+    bl_results.us_delta_star
+    bl_results.us_cf     
+    bl_results.us_Ue
+    bl_results.us_H   
+    
 
     return
 

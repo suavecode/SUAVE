@@ -272,12 +272,7 @@ def vectorize_6(vec,num_prop,num_sec,num_azi,BSR):
     vec_x = np.repeat(np.repeat(np.repeat(np.repeat(vec[:,:,np.newaxis,:],num_prop,axis = 2)\
             [:,:,:,np.newaxis,:],num_sec,axis = 3)[:,:,:,:,np.newaxis,:],num_azi,axis = 4)\
             [:,:,:,:,:,np.newaxis,:],BSR,axis = 5)[:,:,:,:,:,:,:,np.newaxis]
-    return vec_x 
-
-def vectorize_7(vec,num_mic,num_prop,num_azi,BSR): 
-    vec_x = np.repeat(np.repeat(np.repeat(np.repeat(vec[np.newaxis,:],num_prop,axis = 0)[np.newaxis,:,:],num_mic,\
-            axis = 0)[:,:,:,np.newaxis],num_azi,axis = 3)[:,:,:,:,np.newaxis],BSR,axis = 4)          
-    return vec_x
+    return vec_x  
 
 def vectorize_8(vec,num_mic,num_cpt,num_prop,num_azi,num_sec): 
     vec_x = np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(vec[np.newaxis,:],num_sec,axis=0)\

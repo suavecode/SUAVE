@@ -11,7 +11,9 @@ import numpy as np
  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.SPL_harmonic_to_third_octave  import SPL_harmonic_to_third_octave
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates    import vectorize_1,vectorize_3,vectorize_4,vectorize_5,vectorize_7,vectorize_8 
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates    import vectorize_1,vectorize_2,vectorize_3,vectorize_4,vectorize_5,vectorize_8 
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_boundary_layer_properties\
+     import evaluate_boundary_layer_surrogates
 from scipy.special import fresnel
 
 # ----------------------------------------------------------------------
@@ -88,6 +90,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     U_blade            = np.sqrt(Vt_2d**2 + Va_2d **2)
     Re_blade           = U_blade*np.repeat(np.repeat(blade_chords[np.newaxis,:],num_cpt,axis=0)[:,:,np.newaxis],num_azi,axis=2)*\
                           np.repeat(np.repeat((rho/dyna_visc),num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2)
+    rho_blade          = np.repeat(np.repeat(rho[:,np.newaxis],num_sec,axis=0)[:,:,np.newaxis],num_azi,axis=2)
     U_inf              = np.atleast_2d(np.linalg.norm(velocity_vector,axis=1)).T
     M                  = U_inf/c_0                                             
     B                  = propeller.number_of_blades          # number of propeller blades
@@ -109,42 +112,20 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
 
     # ------------------------------------------------------------
     # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ****** 
-    for i in range(num_cpt) : # lower surface is 0, upper surface is 1 
-        npanel                      = 100
-        idx = 4 
-        Vinf                        = np.repeat(U_blade[i,:,0][:,np.newaxis],npanel,axis = 1)
-        Re_batch                    = np.atleast_2d(Re_blade[i,:,0]).T
-        AoA_batch                   = np.atleast_2d(alpha_blade[i,:,0]).T
-        
-        # lower surface is 0, upper surface is 1   
-        airfoil_geometry_data       = import_airfoil_geometry(propeller.airfoil_geometry, npoints = npanel+2)     
-        delta_star[i,:,:,:,:,:,0]   = vectorize_7(sample_surrogate,num_mic,num_prop,num_azi,BSR)                  # lower surfacedisplacement thickness 
-        delta_star[i,:,:,:,:,:,1]   = vectorize_7(sample_surrogate,num_mic,num_prop,num_azi,BSR)                 # upper surface displacement thickness  
-        P                           = sample_surrogate*(0.5*rho[i,:]*Vinf**2)                                   
-        x_surf                      = AP.x*np.repeat(blade_chords[:,np.newaxis],npanel, axis = 1)                                       
-        dp_dx_surf                  = np.diff(P)/np.diff(x_surf)                          
-        dp_dx[i,:,:,:,:,:,0]        = vectorize_7(abs(dp_dx_surf[:,idx]),num_mic,num_prop,num_azi,BSR)                    # lower surface pressure differential 
-        dp_dx[i,:,:,:,:,:,1]        = vectorize_7(abs(dp_dx_surf[:,-idx]),num_mic,num_prop,num_azi,BSR)                   # upper surface pressure differential 
-        U_e_lower_surf              = sample_surrogate*U_blade[i,:,0]
-        U_e_upper_surf              = sample_surrogate*U_blade[i,:,0]
-        Ue[i,:,:,:,:,:,0]           = vectorize_7(U_e_lower_surf,num_mic,num_prop,num_azi,BSR)             # lower surface boundary layer edge velocity 
-        Ue[i,:,:,:,:,:,1]           = vectorize_7(U_e_upper_surf,num_mic,num_prop,num_azi,BSR)            # upper surface boundary layer edge velocity 
-        tau_w[i,:,:,:,:,:,0]        = vectorize_7(sample_surrogate*(0.5*rho[i,:]*U_e_lower_surf**2),num_mic,num_prop,num_azi,BSR)     # lower surface wall shear stress
-        tau_w[i,:,:,:,:,:,1]        = vectorize_7(sample_surrogate*(0.5*rho[i,:]*U_e_upper_surf**2),num_mic,num_prop,num_azi,BSR)    # upper surface wall shear stress 
-        Theta[i,:,:,:,:,:,0]        = vectorize_7(sample_surrogate,num_mic,num_prop,num_azi,BSR)                      # lower surface momentum thickness     
-        Theta[i,:,:,:,:,:,1]        = vectorize_7(sample_surrogate,num_mic,num_prop,num_azi,BSR)                     # upper surface momentum thickness 
-         
-    delta         = Theta*(3.15 + (1.72/((delta_star/Theta)- 1))) + delta_star 
-    
-    ## correct 
-    #dp_dx[dp_dx>5E4]             = 2E4  # CHECK!!!!!!!
-    #Theta[delta_star>1E-2]       = 1E-2  # CHECK!!!!!!!
-    #delta_star[delta_star>5E-2]  = 5E-2 # CHECK!!!!!!!
-    #delta[delta>1E-1]            = 1E-1 # CHECK!!!!!!!
-    #tau_w[tau_w>1E3]             = 1E3 # CHECK!!!!!!!
-      
-
-    
+    bl_results = evaluate_boundary_layer_surrogates(propeller,alpha_blade,Re_blade)                         # lower surface is 0, upper surface is 1     
+    delta_star[:,:,:,:,:,:,0]   = vectorize_2(bl_results.ls_delta_star,num_mic,num_prop,BSR)                # lower surfacedisplacement thickness 
+    delta_star[:,:,:,:,:,:,1]   = vectorize_2(bl_results.us_delta_star,num_mic,num_prop,BSR)                # upper surface displacement thickness   
+    dp_dx[:,:,:,:,:,:,0]        = vectorize_2(bl_results.ls_dcp_dx,num_mic,num_prop,BSR)                    # lower surface pressure differential 
+    dp_dx[:,:,:,:,:,:,1]        = vectorize_2(bl_results.us_dcp_dx,num_mic,num_prop,BSR)                    # upper surface pressure differential 
+    U_e_lower_surf              = bl_results.ls_Ue*U_blade[i,:,0]
+    U_e_upper_surf              = bl_results.us_Ue*U_blade[i,:,0]
+    Ue[:,:,:,:,:,:,0]           = vectorize_2(U_e_lower_surf,num_mic,num_prop,BSR)                          # lower surface boundary layer edge velocity 
+    Ue[:,:,:,:,:,:,1]           = vectorize_2(U_e_upper_surf,num_mic,num_prop,BSR)                          # upper surface boundary layer edge velocity 
+    tau_w[:,:,:,:,:,:,0]        = vectorize_2(bl_results.ls_cf*(0.5*rho_blade*U_e_lower_surf**2),num_mic,num_prop,BSR)    # lower surface wall shear stress
+    tau_w[:,:,:,:,:,:,1]        = vectorize_2(bl_results.us_cf*(0.5*rho_blade* U_e_upper_surf**2),num_mic,num_prop,BSR)    # upper surface wall shear stress 
+    Theta[:,:,:,:,:,:,0]        = vectorize_2(bl_results.ls_theta,num_mic,num_prop,BSR)                     # lower surface momentum thickness     
+    Theta[:,:,:,:,:,:,1]        = vectorize_2(bl_results.us_theta,num_mic,num_prop,BSR)                     # upper surface momentum thickness  
+    delta                       = Theta*(3.15 + (1.72/((delta_star/Theta)- 1))) + delta_star    
     
     # Update dimensions for computation      
     r         = vectorize_1(r,num_cpt,num_mic,num_prop,num_azi,BSR) 
@@ -156,8 +137,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     Omega     = vectorize_4(Omega,num_mic,num_prop,num_sec,num_azi,BSR)
     U_inf     = vectorize_4(U_inf,num_mic,num_prop,num_sec,num_azi,BSR)
     rho       = vectorize_4(rho,num_mic,num_prop,num_sec,num_azi,BSR)
-    kine_visc = vectorize_4(kine_visc,num_mic,num_prop,num_sec,num_azi,BSR)  
-
+    kine_visc = vectorize_4(kine_visc,num_mic,num_prop,num_sec,num_azi,BSR)   
 
     X   = np.repeat(POS[:,:,:,:,:,:,0,:],2,axis = 6)                                    
     Y   = np.repeat(POS[:,:,:,:,:,:,1,:],2,axis = 6)
@@ -198,13 +178,13 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     gamma         = np.sqrt(((mu/epsilon)**2)*(X**2 + beta_sq*(Z**2)))                
     bar_K         = K /(c/2)                                                          
     bar_gamma     = gamma/(c/2)                                                       
-    ss_1, cc_1 = fresnel(2*(bar_K + bar_mu*M + bar_gamma))                                                
-    E_star_1  = cc_1 - 1j*ss_1                                                        
-    ss_2, cc_2 = fresnel(2*(bar_mu*X/epsilon + bar_gamma) )                                           
-    E_star_2  = cc_2 - 1j*ss_2                                                        
+    ss_1, cc_1    = fresnel(2*(bar_K + bar_mu*M + bar_gamma))                                                
+    E_star_1      = cc_1 - 1j*ss_1                                                        
+    ss_2, cc_2    = fresnel(2*(bar_mu*X/epsilon + bar_gamma) )                                           
+    E_star_2      = cc_2 - 1j*ss_2                                                        
     expression_A  = 1 - (1 + 1j)*E_star_1                                             
     expression_B  = (np.exp(-1j*2*triangle))*(np.sqrt((K + mu*M + gamma)/(mu*X/epsilon +gamma))) *(1 + 1j)*E_star_2     
-    norm_L_sq      = (1/triangle)*abs(np.exp(1j*2*triangle)*(expression_A + expression_B ))                             
+    norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*(expression_A + expression_B ))                             
     
     # ------------------------------------------------------------
     # ****** EMPIRICAL WALL PRESSURE SPECTRUM ******  
@@ -212,8 +192,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     mu_tau              = (tau_w/rho)**0.5                                                          
     ones                = np.ones_like(mu_tau)                                                      
     R_T                 = (delta/Ue)/(kine_visc/(mu_tau**2))                                         
-    beta_c              =  (Theta/tau_w)*dp_dx    
-    #beta_c[beta_c>5E1]  = 5E1   # CHECK!!!!!!!
+    beta_c              =  (Theta/tau_w)*dp_dx     
     Delta               = delta/delta_star                                                          
     e                   = 3.7 + 1.5*beta_c                                                          
     d                   = 4.76*((1.4/Delta)**0.75)*(0.375*e - 1)                                                         
