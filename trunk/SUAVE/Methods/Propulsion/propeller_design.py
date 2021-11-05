@@ -124,6 +124,14 @@ def propeller_design(prop,number_of_stations=20):
         airfoil_flag    = False   
         airfoil_cl_surs = None
         airfoil_cd_surs = None
+        
+        
+    # Step 4, determine epsilon and alpha from airfoil data  
+    if airfoil_flag:   
+        # compute airfoil polars for airfoils 
+        airfoil_polars  = compute_airfoil_polars(a_geo, a_pol)  
+        airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates 
+        airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates          
      
     while diff>tol:      
         # assign chord distribution
@@ -144,13 +152,8 @@ def propeller_design(prop,number_of_stations=20):
         Ma      = Wc/speed_of_sound
         RE      = Wc/nu
 
-        # Step 4, determine epsilon and alpha from airfoil data  
+
         if airfoil_flag:   
-            # compute airfoil polars for airfoils 
-            airfoil_polars  = compute_airfoil_polars(a_geo, a_pol)  
-            airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates 
-            airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates  
-            
             # assign initial values 
             alpha0   = np.ones(N)*0.05
             

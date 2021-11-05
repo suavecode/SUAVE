@@ -61,7 +61,6 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     		dihedral                                [radians]
     		symmetric                               <boolean>
     		tag                                     <string>
-    		areas.exposed                           [m^2]
     		areas.reference                         [m^2]
     		areas.wetted                            [m^2]
     		Segments.
@@ -303,27 +302,50 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     wing.twists.tip       = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg
 
     # check if control surface (sub surfaces) are defined
+    tags                 = []
+    LE_flags             = []
+    span_fraction_starts = []
+    span_fraction_ends   = []
+    chord_fractions      = []
+    
     num_cs = vsp.GetNumSubSurf(wing_id)
+    
+    # loop through wing and get all control surface parameters 
     for cs_idx in range(num_cs):
         cs_id   = vsp.GetSubSurf(wing_id,cs_idx)
         param_names = vsp.GetSubSurfParmIDs(cs_id)
+        tags.append(vsp.GetSubSurfName(cs_id))
         for p_idx in range(len(param_names)):
             if 'LE_Flag' == vsp.GetParmName(param_names[p_idx]):
-                LE_flag  = vsp.GetParmVal(param_names[p_idx])
+                LE_flags.append(vsp.GetParmVal(param_names[p_idx]))
             if 'UStart' == vsp.GetParmName(param_names[p_idx]):
-                span_fraction_start   = vsp.GetParmVal(param_names[p_idx])
+                span_fraction_starts.append(vsp.GetParmVal(param_names[p_idx]))
             if 'UEnd' == vsp.GetParmName(param_names[p_idx]):
-                span_fraction_end     = vsp.GetParmVal(param_names[p_idx])
+                span_fraction_ends.append(vsp.GetParmVal(param_names[p_idx]))
             if 'Length_C_Start' == vsp.GetParmName(param_names[p_idx]):
-                chord_fraction        = vsp.GetParmVal(param_names[p_idx])
-        if LE_flag == 1.0:
+                chord_fractions.append(vsp.GetParmVal(param_names[p_idx]))
+                
+    # assign control surface parameters to wings. Outer most control surface on main/horizontal wing is assigned a aileron
+    for cs_idx in range(num_cs):   
+        aileron_present = False
+        if num_cs > 1:
+            aileron_loc = np.argmax(np.array(span_fraction_starts))   
+            if cs_idx == aileron_loc: 
+                aileron_present = True
+        if LE_flags[cs_idx] == 1.0:
             CS = SUAVE.Components.Wings.Control_Surfaces.Slat()
         else:
-            CS = SUAVE.Components.Wings.Control_Surfaces.Flap()
-        CS.tag   = vsp.GetSubSurfName(cs_id)
-        CS.span_fraction_start = span_fraction_start*3 - 1
-        CS.span_fraction_end   = span_fraction_end*3 - 1
-        CS.chord_fraction      = chord_fraction
+            if wing.vertical == True:
+                CS = SUAVE.Components.Wings.Control_Surfaces.Rudder()
+            else:
+                if aileron_present:
+                    CS = SUAVE.Components.Wings.Control_Surfaces.Aileron()
+                else: 
+                    CS = SUAVE.Components.Wings.Control_Surfaces.Flap()
+        CS.tag                 = tags[cs_idx]
+        CS.span_fraction_start = span_fraction_starts[cs_idx]*3 - 1
+        CS.span_fraction_end   = span_fraction_ends[cs_idx]*3 - 1
+        CS.chord_fraction      = chord_fractions[cs_idx]
         CS.span                = (CS.span_fraction_end - CS.span_fraction_start)*wing.spans.projected
         wing.append_control_surface(CS)
     

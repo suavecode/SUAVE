@@ -111,9 +111,10 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
         prop.tag = tag
     else: 
         prop.tag = 'propgeom'
+
     
-    #scaling           = vsp.GetParmVal(prop_id, 'Scale', 'XForm')  
-    #units_factor      = units_factor*scaling
+    scaling           = vsp.GetParmVal(prop_id, 'Scale', 'XForm')  
+    units_factor      = units_factor*scaling
         
     # Propeller location (absolute)
     prop.origin 	= [[0.0,0.0,0.0]]

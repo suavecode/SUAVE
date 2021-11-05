@@ -39,18 +39,25 @@ class Segment(Lofted_Body.Segment):
         N/A
         """         
         self.tag = 'segment'
-        self.percent_span_location = 0.0
-        self.twist                 = 0.0
-        self.root_chord_percent    = 0.0
-        self.dihedral_outboard     = 0.0
-        self.thickness_to_chord    = 0.0
-        self.sweeps                = Data()
-        self.sweeps.quarter_chord  = 0.0
-        self.sweeps.leading_edge   = None
-        self.areas                 = Data()
-        self.areas.reference       = 0.0
-        self.areas.exposed         = 0.0
-        self.areas.wetted          = 0.0
+        self.percent_span_location   = 0.0
+        self.twist                   = 0.0
+        self.taper                   = 0.0
+        self.root_chord_percent      = 0.0
+        self.dihedral_outboard       = 0.0
+        self.thickness_to_chord      = 0.0
+        
+        self.sweeps                  = Data()
+        self.sweeps.quarter_chord    = 0.0
+        self.sweeps.leading_edge     = None
+    
+        self.chords                  = Data()
+        self.chords.mean_aerodynamic = 0.0
+        
+        self.areas                   = Data()
+        self.areas.reference         = 0.0
+        self.areas.exposed           = 0.0
+        self.areas.wetted            = 0.0
+
         self.Airfoil               = SUAVE.Core.ContainerOrdered()
         self.generative_design_minimum           = 2
         self.generative_design_max_per_vehicle   = 10

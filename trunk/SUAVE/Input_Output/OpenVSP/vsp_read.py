@@ -72,7 +72,6 @@ def vsp_read(tag, units_type='SI',specified_network=None):
     		dihedral                                [radians]
     		symmetric                               <boolean>
     		tag                                     <string>
-    		areas.exposed                           [m^2]
     		areas.reference                         [m^2]
     		areas.wetted                            [m^2]
     		Segments.

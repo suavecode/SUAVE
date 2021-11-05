@@ -277,7 +277,6 @@ def empty(vehicle):
         #calculate fuselage weight
         wt_fuselage = fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_w2h, q_c, V_fuse, diff_p_fus)
     else:
-        print('got here')
         warnings.warn('There is no Fuselage weight being added to the vehicle', stacklevel=1)
 
     #landing gear
