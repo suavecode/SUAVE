@@ -61,7 +61,6 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     		dihedral                                [radians]
     		symmetric                               <boolean>
     		tag                                     <string>
-    		areas.exposed                           [m^2]
     		areas.reference                         [m^2]
     		areas.wetted                            [m^2]
     		Segments.
