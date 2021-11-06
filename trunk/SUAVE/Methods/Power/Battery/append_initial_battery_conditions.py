@@ -14,7 +14,7 @@ from SUAVE.Core import Data
 #  Methods
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Power-Battery 
-def append_initial_battery_conditions(segment): 
+def append_initial_battery_conditions(segment,battery): 
     """ Packs the initial battery conditions
     
         Assumptions:
@@ -90,11 +90,21 @@ def append_initial_battery_conditions(segment):
         pack_temperature              = segment.battery_pack_temperature 
     propulsion.battery_pack_temperature[:,0] = pack_temperature
     propulsion.battery_cell_temperature[:,0] = pack_temperature
+    
+    
+    if 'battery_max_aged_energy' in segment:
+        battery_max_aged_energy = segment.battery_max_aged_energy
+    else:
+        battery_max_aged_energy = battery.max_energy
+        
+        
+    propulsion.battery_max_aged_energy = battery_max_aged_energy   
+    
+    
         
     if 'battery_energy' in segment: 
         
         initial_segment_energy         = segment.battery_energy
-        battery_max_aged_energy        = segment.battery_energy 
         initial_mission_energy         = segment.battery_energy 
         
         if 'battery_cycle_day' not in segment: 
@@ -120,7 +130,7 @@ def append_initial_battery_conditions(segment):
         # Pack into conditions
         propulsion.battery_max_initial_energy           = initial_mission_energy
         propulsion.battery_energy[:,0]                  = initial_segment_energy 
-        propulsion.battery_max_aged_energy              = battery_max_aged_energy   
+
         propulsion.battery_cycle_day                    = cycle_day        
         propulsion.battery_cell_charge_throughput[:,0]  = cell_charge_throughput 
         propulsion.battery_resistance_growth_factor     = resistance_growth_factor 
