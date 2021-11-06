@@ -225,7 +225,7 @@ class Battery_Cell_Cycler(Network):
         battery  = self.battery  
 
         # Assign initial segment conditions to segment if missing 
-        append_initial_battery_conditions(segment)     
+        append_initial_battery_conditions(segment,battery)          
             
         segment.state.residuals.network = Residuals()
         

@@ -15,7 +15,7 @@ from SUAVE.Methods.Power.Battery.compute_net_generated_battery_heat            i
 
 import numpy as np
 import os
-from scipy.integrate    import  cumtrapz , odeint 
+from scipy.integrate    import  cumtrapz
 from scipy.interpolate  import RegularGridInterpolator 
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
@@ -155,11 +155,11 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         T_current                = battery.pack_temperature      
         T_cell                   = battery.cell_temperature     
         E_max                    = battery.max_energy
-        R_growth_factor          = battery.R_growth_factor 
         E_current                = battery.current_energy 
         Q_prior                  = battery.cell_charge_throughput  
         battery_data             = battery.discharge_performance_map     
         I                        = numerics.time.integrate      
+        D                        = numerics.time.differentiate
               
         # ---------------------------------------------------------------------------------
         # Compute battery electrical properties 
@@ -228,12 +228,31 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         # Compute updates state of battery 
         # ---------------------------------------------------------------------------------   
         
-        # Determine actual power going into the battery accounting for resistance losses
-        E_bat = np.dot(I,P) 
+        # Possible Energy going into the battery:
+        energy_unmodified = np.dot(I,P)
+    
+        # Available capacity
+        capacity_available = E_max - battery.current_energy[0]
+    
+        # How much energy the battery could be overcharged by
+        delta           = energy_unmodified -capacity_available
+        delta[delta<0.] = 0.
+    
+        # Power that shouldn't go in
+        ddelta = np.dot(D,delta) 
+    
+        # Power actually going into the battery
+        P[P>0.] = P[P>0.] - ddelta[P>0.]
+        E_bat = np.dot(I,P)
+        E_bat = np.reshape(E_bat,np.shape(E_current)) #make sure it's consistent
+        
+        # Add this to the current state
+        if np.isnan(E_bat).any():
+            E_bat=np.ones_like(E_bat)*np.max(E_bat)
+            if np.isnan(E_bat.any()): #all nans; handle this instance
+                E_bat=np.zeros_like(E_bat)
                 
-        # Determine current energy state of battery (from all previous segments)          
         E_current = E_bat + E_current[0]
-        E_current[E_current>E_max] = E_max
         
         # Determine new State of Charge 
         SOC_new = np.divide(E_current, E_max)
