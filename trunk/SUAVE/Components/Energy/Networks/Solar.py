@@ -207,7 +207,7 @@ class Solar(Network):
             conditions.propulsion.disc_loading[:,ii]               = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
             conditions.propulsion.power_loading[:,ii]              = (F_mag[:,0])/(P[:,0])      # N/W      
             conditions.propulsion.propeller_efficiency[:,ii]       = etap[:,0]      
-            conditions.noise.sources.propellers[prop.tag]      = outputs
+            conditions.noise.sources.propellers[prop.tag]          = outputs
             
         # Run the avionics
         avionics.power()
