@@ -36,23 +36,25 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     
     
     Inputs: 
-        harmonics                     - harmomics                                                              [Unitless]
-        freestream                    - freestream data structure                                              [m/s]
-        angle_of_attack               - aircraft angle of attack                                               [rad]
-        position_vector               - position vector of aircraft                                            [m]
-        velocity_vector               - velocity vector of aircraft                                            [m/s]
-        mic_loc                       - microhone location                                                     [None]
-        propeller                     - propeller class data structure                                         [None]
-        auc_opts                      - data structure of acoustic data                                        [None]
+        harmonics                     - harmomics                                                                  [Unitless]
+        freestream                    - freestream data structure                                                  [m/s]
+        angle_of_attack               - aircraft angle of attack                                                   [rad]
+        position_vector               - position vector of aircraft                                                [m]
+        velocity_vector               - velocity vector of aircraft                                                [m/s]
+        mic_loc                       - microhone location                                                         [None]
+        propeller                     - propeller class data structure                                             [None]
+        auc_opts                      - data structure of acoustic data                                            [None]
         settings                      - accoustic settings                                                     
-        res.                                                                                                   [dB]
-            SPL_prop_tonal_spectrum   - SPL of Frequency Spectrum                                              [dB]
-            SPL_bpfs_spectrum         - Blade Passing Frequency Spectrum                                       [dB]
-            SPL_prop_h_spectrum       - Rotational Noise Frequency Spectrum in 1/3 octave spectrum             [dB]
-            SPL_prop_h_dBA_spectrum   - dBA-WeightedRotational Noise Frequency Spectrum in 1/3 octave spectrum [dB]
     
-    Outputs
-       *acoustic data is stored and passed in data structures*
+    Outputs 
+        res.                                    *acoustic data is stored and passed in data structures*                                                                            
+            SPL_prop_harmonic_spectrum           - harmonic noise in blade passing frequency spectrum              [dB]
+            SPL_prop_harmonic_spectrum_dBA       - dBA-Weighted harmonic noise in blade passing frequency spectrum [dbA]                  
+            SPL_prop_harmonic_1_3_spectrum       - harmonic noise in 1/3 octave spectrum                           [dB]
+            SPL_prop_harmonic_1_3_spectrum_dBA   - dBA-Weighted harmonic noise in 1/3 octave spectrum              [dBA] 
+            p_pref_harmonic                      - pressure ratio of harmonic noise                                [Unitless]
+            p_pref_harmonic_dBA                  - pressure ratio of dBA-weighted harmonic noise                   [Unitless]
+ 
             
     Properties Used:
         N/A   
@@ -147,19 +149,14 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     p_mL_H            =  p_mL_H_function[:,:,:,0]*p_mL_H_integral 
     p_mL_H            =  abs(p_mL_H)  
 
-    # unweighted harmonic sound pressure level 
-    #res.SPL_r[i,:,p_idx,:]      = 20*np.log10((np.linalg.norm(p_mL_H + p_mT_H, axis = 0))/p_ref) 
-    res.SPL_r        = 20*np.log10((abs(p_mL_H + p_mT_H))/p_ref) 
-    res.p_pref_r     = 10**(res.SPL_r/10)   
-    res.SPL_r_dBA    = A_weighting(res.SPL_r,res.f[:,:,:,0,:]) 
-    res.p_pref_r_dBA = 10**(res.SPL_r_dBA/10)         
-        
-    # convert to 1/3 octave spectrum 
-    res.SPL_prop_h_spectrum     = SPL_harmonic_to_third_octave(res.SPL_r,res.f[:,0,0,0,:],settings)         
-    res.SPL_prop_h_dBA_spectrum = SPL_harmonic_to_third_octave(res.SPL_r_dBA,res.f[:,0,0,0,:],settings)     
-  
-    # Rotational(periodic/tonal)   
-    res.SPL_prop_tonal_spectrum = 10*np.log10( 10**(res.SPL_prop_h_spectrum/10)) 
+    # sound pressure levels  
+    res.SPL_prop_harmonic_spectrum         = 20*np.log10((abs(p_mL_H + p_mT_H))/p_ref) 
+    res.p_pref_harmonic                    = 10**(res.SPL_prop_harmonic_spectrum/10)   
+    res.SPL_prop_harmonic_spectrum_dBA     = A_weighting(res.SPL_prop_harmonic_spectrum,res.f[:,:,:,0,:]) 
+    res.p_pref_harmonic_dBA                = 10**(res.SPL_prop_harmonic_spectrum_dBA/10) 
+    res.SPL_prop_harmonic_1_3_spectrum     = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_spectrum,res.f[:,0,0,0,:],settings)         
+    res.SPL_prop_harmonic_1_3_spectrum_dBA = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_spectrum_dBA,res.f[:,0,0,0,:],settings) 
+    res.SPL_prop_harmonic_spectrum         = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_spectrum,res.f[:,0,0,0,:],settings)        
  
     return  
 

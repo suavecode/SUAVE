@@ -14,7 +14,7 @@ from scipy.integrate import odeint
 # ----------------------------------------------------------------------   
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
 def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE_L,TURBULENT_COORD,
-                 VE_I, DVE_I,batch_analysis,tol= 1E0):
+                 VE_I, DVE_I,batch_analysis,tol):
     """ Computes the boundary layer characteristics in turbulent
     flow pressure gradients
 
@@ -123,8 +123,7 @@ def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE
                 Re_x         = Ve_i* x_i / nu
                 
                 # Compute skin friction 
-                cf           = getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))
-                cf[cf<0]     = 1E-6 
+                cf           = abs( getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))) 
                 
                 # Compute displacement thickness
                 del_star     = H*theta   

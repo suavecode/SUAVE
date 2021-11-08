@@ -15,7 +15,7 @@ from scipy.integrate import odeint
 # thwaites_method
 # ----------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,tol  = 1E0):
+def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,tol,THETA_0):
     """ Computes the boundary layer characteristics in laminar 
     flow pressure gradients
     
@@ -110,8 +110,7 @@ def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THET
             Re_x        = Ve_i * x_i/ nu
             
             # Compute skin friction 
-            cf          = getcf(lambda_val ,Re_theta)
-            cf[cf<0]    = 1E-6 
+            cf          = abs(getcf(lambda_val ,Re_theta)) 
             
             # Compute displacement thickness
             del_star    = H*theta   

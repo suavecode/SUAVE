@@ -21,7 +21,7 @@ from sklearn import svm
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def build_boundary_layer_surrogates(propeller,npanel=250,surrogate_type = 'gaussian'):  
+def build_boundary_layer_surrogates(a_geo,a_loc,c,npanel=400 ,surrogate_type = 'gaussian'):  
     """ Build a surrogate. Multiple options for models are available including:
         -Gaussian Processes
         -KNN
@@ -54,12 +54,8 @@ def build_boundary_layer_surrogates(propeller,npanel=250,surrogate_type = 'gauss
         
         Properties Used:
         Defaulted values
-    """              
-     
-    a_geo        = propeller.airfoil_geometry   
-    a_loc        = propeller.airfoil_polar_stations  
-    c            = propeller.chord_distribution        
-    num_sec      = len(c)
+    """    
+    num_sec  = len(c)
     
     airfoil_bl_surs  = Data()   
     lower_surface_theta_surs       = []
@@ -77,85 +73,102 @@ def build_boundary_layer_surrogates(propeller,npanel=250,surrogate_type = 'gauss
     upper_surface_Ue_surs          = []
     upper_surface_H_surs           = []
         
-    Re         = np.linspace(1E2,1E6,5)
-    AoA        = np.linspace(-2,12,4)*Units.degrees
+    Re         = np.array([1E2,1E3,1E4,1E5,1E6,1E7])
+    AoA        = np.linspace(-4,14,10)*Units.degrees
     Re_batch   = np.atleast_2d(Re ).T
     AoA_batch  = np.atleast_2d(AoA).T    
     
     xy         = np.zeros((len(AoA)*len(Re),2))  
-    xy[:,0]    = np.repeat(Re,len(AoA), axis = 0)/1E5
+    xy[:,0]    = np.repeat(Re,len(AoA), axis = 0)/1E6
     xy[:,1]    = np.tile(AoA,len(Re))
     
     TE_idx     = 4#  Trailing Edge Index 
     
-    for i in range(num_sec):  
-        airfoil_geometry = import_airfoil_geometry([a_geo[a_loc[i]]], npoints = npanel+2) 
+    num_airfoils             = len(a_geo)
+
+    lower_surface_theta      = np.zeros((num_airfoils,len(AoA),len(Re)))
+    lower_surface_delta      = np.zeros_like(lower_surface_theta)
+    lower_surface_delta_star = np.zeros_like(lower_surface_theta)
+    lower_surface_cf         = np.zeros_like(lower_surface_theta)
+    lower_surface_Ue         = np.zeros_like(lower_surface_theta)
+    lower_surface_H          = np.zeros_like(lower_surface_theta)
+    upper_surface_theta      = np.zeros_like(lower_surface_theta)
+    upper_surface_delta      = np.zeros_like(lower_surface_theta)
+    upper_surface_delta_star = np.zeros_like(lower_surface_theta)
+    upper_surface_cf         = np.zeros_like(lower_surface_theta)
+    upper_surface_Ue         = np.zeros_like(lower_surface_theta)
+    upper_surface_H          = np.zeros_like(lower_surface_theta) 
+    lower_surface_dcp_dx     = np.zeros_like(lower_surface_theta) 
+    upper_surface_dcp_dx     = np.zeros_like(lower_surface_theta) 
+    
+    for i in range(num_airfoils):  
+        airfoil_geometry = import_airfoil_geometry([a_geo[i]], npoints = npanel+2) 
         AP  = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel, batch_analysis = True)   
         
         # extract properties 
-        lower_surface_theta      = AP.theta[TE_idx,:,:] 
-        lower_surface_delta      = AP.delta[TE_idx,:,:] 
-        lower_surface_delta_star = AP.delta_star[TE_idx,:,:] 
-        lower_surface_cf         = AP.Cf[TE_idx,:,:] 
-        lower_surface_Ue         = AP.Ue_Vinf[TE_idx,:,:] 
-        lower_surface_H          = AP.H[TE_idx,:,:] 
-        upper_surface_theta      = AP.theta[-TE_idx,:,:] 
-        upper_surface_delta      = AP.delta[-TE_idx,:,:] 
-        upper_surface_delta_star = AP.delta_star[-TE_idx,:,:] 
-        upper_surface_cf         = AP.Cf[-TE_idx,:,:] 
-        upper_surface_Ue         = AP.Ue_Vinf[-TE_idx,:,:] 
-        upper_surface_H          = AP.H[-TE_idx,:,:]   
-        x_surf                   = AP.x*c[i] 
-        dp_dx_surf               = np.diff(AP.Cp)/np.diff(x_surf) 
-        lower_surface_dcp_dx     = abs(dp_dx_surf[TE_idx,:,:])
-        upper_surface_dcp_dx     = abs(dp_dx_surf[-TE_idx,:,:])
+        lower_surface_theta[i,:,:]      = AP.theta[TE_idx,:,:] 
+        lower_surface_delta[i,:,:]      = AP.delta[TE_idx,:,:] 
+        lower_surface_delta_star[i,:,:] = AP.delta_star[TE_idx,:,:] 
+        lower_surface_cf[i,:,:]         = AP.Cf[TE_idx,:,:] 
+        lower_surface_Ue[i,:,:]         = AP.Ue_Vinf[TE_idx,:,:] 
+        lower_surface_H[i,:,:]          = AP.H[TE_idx,:,:] 
+        upper_surface_theta[i,:,:]      = AP.theta[-TE_idx,:,:] 
+        upper_surface_delta[i,:,:]      = AP.delta[-TE_idx,:,:] 
+        upper_surface_delta_star[i,:,:] = AP.delta_star[-TE_idx,:,:] 
+        upper_surface_cf[i,:,:]         = AP.Cf[-TE_idx,:,:] 
+        upper_surface_Ue[i,:,:]         = AP.Ue_Vinf[-TE_idx,:,:] 
+        upper_surface_H[i,:,:]          = AP.H[-TE_idx,:,:]   
+        x_surf                          = AP.x*c[i] 
+        dp_dx_surf                      = np.diff(AP.Cp,axis = 0)/np.diff(x_surf,axis = 0) 
+        lower_surface_dcp_dx[i,:,:]     = abs(dp_dx_surf[TE_idx,:,:])
+        upper_surface_dcp_dx[i,:,:]     = abs(dp_dx_surf[-TE_idx,:,:])
         
         # replace nans 0 with mean as a post post-processor  
-        lower_surface_theta       = np.nan_to_num(lower_surface_theta)
-        lower_surface_delta       = np.nan_to_num(lower_surface_delta)
-        lower_surface_delta_star  = np.nan_to_num(lower_surface_delta_star)
-        lower_surface_cf          = np.nan_to_num(lower_surface_cf)
-        lower_surface_dcp_dx      = np.nan_to_num(lower_surface_dcp_dx)
-        lower_surface_Ue          = np.nan_to_num(lower_surface_Ue)
-        lower_surface_H           = np.nan_to_num(lower_surface_H)
-        upper_surface_theta       = np.nan_to_num(upper_surface_theta)
-        upper_surface_delta       = np.nan_to_num(upper_surface_delta)
-        upper_surface_delta_star  = np.nan_to_num(upper_surface_delta_star)
-        upper_surface_cf          = np.nan_to_num(upper_surface_cf)
-        upper_surface_dcp_dx      = np.nan_to_num(upper_surface_dcp_dx)
-        upper_surface_Ue          = np.nan_to_num(upper_surface_Ue)
-        upper_surface_H           = np.nan_to_num(upper_surface_H)    
+        lower_surface_theta[i,:,:]       = np.nan_to_num(lower_surface_theta[i,:,:])
+        lower_surface_delta[i,:,:]       = np.nan_to_num(lower_surface_delta[i,:,:])
+        lower_surface_delta_star[i,:,:]  = np.nan_to_num(lower_surface_delta_star[i,:,:])
+        lower_surface_cf[i,:,:]          = np.nan_to_num(lower_surface_cf[i,:,:])
+        lower_surface_dcp_dx[i,:,:]      = np.nan_to_num(lower_surface_dcp_dx[i,:,:])
+        lower_surface_Ue[i,:,:]          = np.nan_to_num(lower_surface_Ue[i,:,:])
+        lower_surface_H[i,:,:]           = np.nan_to_num(lower_surface_H[i,:,:])
+        upper_surface_theta[i,:,:]       = np.nan_to_num(upper_surface_theta[i,:,:])
+        upper_surface_delta[i,:,:]       = np.nan_to_num(upper_surface_delta[i,:,:])
+        upper_surface_delta_star[i,:,:]  = np.nan_to_num(upper_surface_delta_star[i,:,:])
+        upper_surface_cf[i,:,:]          = np.nan_to_num(upper_surface_cf[i,:,:])
+        upper_surface_dcp_dx[i,:,:]      = np.nan_to_num(upper_surface_dcp_dx[i,:,:])
+        upper_surface_Ue[i,:,:]          = np.nan_to_num(upper_surface_Ue[i,:,:])
+        upper_surface_H[i,:,:]           = np.nan_to_num(upper_surface_H[i,:,:])    
 
-        lower_surface_theta[lower_surface_theta == 0]           = np.mean(lower_surface_theta)
-        lower_surface_delta[lower_surface_delta == 0]           = np.mean(lower_surface_delta)
-        lower_surface_delta_star[lower_surface_delta_star == 0] = np.mean(lower_surface_delta_star)
-        lower_surface_cf[lower_surface_cf == 0]                 = np.mean(lower_surface_cf)
-        lower_surface_dcp_dx[lower_surface_dcp_dx == 0]         = np.mean(lower_surface_dcp_dx)
-        lower_surface_Ue[lower_surface_Ue == 0]                 = np.mean(lower_surface_Ue)
-        lower_surface_H[lower_surface_H == 0]                   = np.mean(lower_surface_H)
-        upper_surface_theta[upper_surface_theta == 0]           = np.mean(upper_surface_theta)
-        upper_surface_delta[upper_surface_delta == 0]           = np.mean(upper_surface_delta)
-        upper_surface_delta_star[upper_surface_delta_star== 0]  = np.mean(upper_surface_delta_star)
-        upper_surface_cf[upper_surface_cf == 0]                 = np.mean(upper_surface_cf)
-        upper_surface_dcp_dx[upper_surface_dcp_dx == 0]         = np.mean(upper_surface_dcp_dx)
-        upper_surface_Ue[upper_surface_Ue == 0]                 = np.mean(upper_surface_Ue)
-        upper_surface_H[upper_surface_H == 0]                   = np.mean(upper_surface_H) 
+        lower_surface_theta[i,:,:][lower_surface_theta[i,:,:] == 0]           = np.mean(lower_surface_theta[i,:,:])
+        lower_surface_delta[i,:,:][lower_surface_delta[i,:,:] == 0]           = np.mean(lower_surface_delta[i,:,:])
+        lower_surface_delta_star[i,:,:][lower_surface_delta_star[i,:,:] == 0] = np.mean(lower_surface_delta_star[i,:,:])
+        lower_surface_cf[i,:,:][lower_surface_cf[i,:,:] == 0]                 = np.mean(lower_surface_cf[i,:,:])
+        lower_surface_dcp_dx[i,:,:][lower_surface_dcp_dx[i,:,:] == 0]         = np.mean(lower_surface_dcp_dx[i,:,:])
+        lower_surface_Ue[i,:,:][lower_surface_Ue[i,:,:] == 0]                 = np.mean(lower_surface_Ue[i,:,:])
+        lower_surface_H[i,:,:][lower_surface_H[i,:,:] == 0]                   = np.mean(lower_surface_H[i,:,:])
+        upper_surface_theta[i,:,:][upper_surface_theta[i,:,:] == 0]           = np.mean(upper_surface_theta[i,:,:])
+        upper_surface_delta[i,:,:][upper_surface_delta[i,:,:] == 0]           = np.mean(upper_surface_delta[i,:,:])
+        upper_surface_delta_star[i,:,:][upper_surface_delta_star[i,:,:]== 0]  = np.mean(upper_surface_delta_star[i,:,:])
+        upper_surface_cf[i,:,:][upper_surface_cf[i,:,:] == 0]                 = np.mean(upper_surface_cf[i,:,:])
+        upper_surface_dcp_dx[i,:,:][upper_surface_dcp_dx[i,:,:] == 0]         = np.mean(upper_surface_dcp_dx[i,:,:])
+        upper_surface_Ue[i,:,:][upper_surface_Ue[i,:,:] == 0]                 = np.mean(upper_surface_Ue[i,:,:])
+        upper_surface_H[i,:,:][upper_surface_H[i,:,:] == 0]                   = np.mean(upper_surface_H[i,:,:]) 
         
         
-        lower_surface_theta      = np.atleast_2d(np.ravel(lower_surface_theta.T)).T
-        lower_surface_delta      = np.atleast_2d(np.ravel(lower_surface_delta.T)).T
-        lower_surface_delta_star = np.atleast_2d(np.ravel(lower_surface_delta_star.T)).T
-        lower_surface_cf         = np.atleast_2d(np.ravel(lower_surface_cf.T)).T 
-        lower_surface_dcp_dx     = np.atleast_2d(np.ravel(lower_surface_dcp_dx.T )).T
-        lower_surface_Ue         = np.atleast_2d(np.ravel(lower_surface_Ue.T)).T 
-        lower_surface_H          = np.atleast_2d(np.ravel(lower_surface_H.T )).T
-        upper_surface_theta      = np.atleast_2d(np.ravel(upper_surface_theta.T )).T
-        upper_surface_delta      = np.atleast_2d(np.ravel(upper_surface_delta.T )).T
-        upper_surface_delta_star = np.atleast_2d(np.ravel(upper_surface_delta_star.T)).T  
-        upper_surface_cf         = np.atleast_2d(np.ravel(upper_surface_cf.T )).T
-        upper_surface_dcp_dx     = np.atleast_2d(np.ravel(upper_surface_dcp_dx.T )).T
-        upper_surface_Ue         = np.atleast_2d(np.ravel(upper_surface_Ue.T)).T
-        upper_surface_H          = np.atleast_2d(np.ravel(upper_surface_H.T)).T       
+        lower_surface_theta_vals      = np.atleast_2d(np.ravel(lower_surface_theta[i,:,:].T)).T
+        lower_surface_delta_vals      = np.atleast_2d(np.ravel(lower_surface_delta[i,:,:].T)).T
+        lower_surface_delta_star_vals = np.atleast_2d(np.ravel(lower_surface_delta_star[i,:,:].T)).T
+        lower_surface_cf_vals         = np.atleast_2d(np.ravel(lower_surface_cf[i,:,:].T)).T 
+        lower_surface_dcp_dx_vals     = np.atleast_2d(np.ravel(lower_surface_dcp_dx[i,:,:].T )).T
+        lower_surface_Ue_vals         = np.atleast_2d(np.ravel(lower_surface_Ue[i,:,:].T)).T 
+        lower_surface_H_vals          = np.atleast_2d(np.ravel(lower_surface_H[i,:,:].T )).T
+        upper_surface_theta_vals      = np.atleast_2d(np.ravel(upper_surface_theta[i,:,:].T )).T
+        upper_surface_delta_vals      = np.atleast_2d(np.ravel(upper_surface_delta[i,:,:].T )).T
+        upper_surface_delta_star_vals = np.atleast_2d(np.ravel(upper_surface_delta_star[i,:,:].T)).T  
+        upper_surface_cf_vals         = np.atleast_2d(np.ravel(upper_surface_cf[i,:,:].T )).T
+        upper_surface_dcp_dx_vals     = np.atleast_2d(np.ravel(upper_surface_dcp_dx[i,:,:].T )).T
+        upper_surface_Ue_vals         = np.atleast_2d(np.ravel(upper_surface_Ue[i,:,:].T)).T
+        upper_surface_H_vals          = np.atleast_2d(np.ravel(upper_surface_H[i,:,:].T)).T       
     
         # Pick the type of process
         if surrogate_type  == 'gaussian':
@@ -174,81 +187,78 @@ def build_boundary_layer_surrogates(propeller,npanel=250,surrogate_type = 'gauss
             regr_us_dcp_dx               = gaussian_process.GaussianProcessRegressor(kernel = gp_kernel)
             regr_us_Ue                   = gaussian_process.GaussianProcessRegressor(kernel = gp_kernel)
             regr_us_H                    = gaussian_process.GaussianProcessRegressor(kernel = gp_kernel)
-            lower_surface_theta_sur      = regr_ls_theta.fit(xy, lower_surface_theta)
-            lower_surface_delta_sur      = regr_ls_delta.fit(xy, lower_surface_delta) 
-            lower_surface_delta_star_sur = regr_ls_delta_star.fit(xy, lower_surface_delta_star) 
-            lower_surface_cf_sur         = regr_ls_cf.fit(xy, lower_surface_cf) 
-            lower_surface_dcp_dx_sur     = regr_ls_dcp_dx.fit(xy, lower_surface_dcp_dx) 
-            lower_surface_Ue_sur         = regr_ls_Ue.fit(xy, lower_surface_Ue) 
-            lower_surface_H_sur          = regr_ls_H.fit(xy, lower_surface_H) 
-            upper_surface_theta_sur      = regr_us_theta.fit(xy, upper_surface_theta)
-            upper_surface_delta_sur      = regr_us_delta.fit(xy, upper_surface_delta) 
-            upper_surface_delta_star_sur = regr_us_delta_star.fit(xy, upper_surface_delta_star) 
-            upper_surface_cf_sur         = regr_us_cf.fit(xy, upper_surface_cf) 
-            upper_surface_dcp_dx_sur     = regr_us_dcp_dx.fit(xy, upper_surface_dcp_dx) 
-            upper_surface_Ue_sur         = regr_us_Ue.fit(xy, upper_surface_Ue) 
-            upper_surface_H_sur          = regr_us_H.fit(xy, upper_surface_H)   
-    
-        elif surrogate_type  == 'knn':
-            regr_ls_theta                = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_ls_delta                = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_ls_delta_star           = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_ls_cf                   = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_ls_dcp_dx               = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_ls_Ue                   = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_ls_H                    = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_us_theta                = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_us_delta                = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_us_delta_star           = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_us_cf                   = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_us_dcp_dx               = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_us_Ue                   = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            regr_us_H                    = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            lower_surface_theta_sur      = regr_ls_theta.fit(xy, lower_surface_theta)
-            lower_surface_delta_sur      = regr_ls_delta.fit(xy, lower_surface_delta) 
-            lower_surface_delta_star_sur = regr_ls_delta_star.fit(xy, lower_surface_delta_star) 
-            lower_surface_cf_sur         = regr_ls_cf.fit(xy, lower_surface_cf) 
-            lower_surface_dcp_dx_sur     = regr_ls_dcp_dx.fit(xy, lower_surface_dcp_dx) 
-            lower_surface_Ue_sur         = regr_ls_Ue.fit(xy, lower_surface_Ue) 
-            lower_surface_H_sur          = regr_ls_H.fit(xy, lower_surface_H) 
-            upper_surface_theta_sur      = regr_us_theta.fit(xy, upper_surface_theta)
-            upper_surface_delta_sur      = regr_us_delta.fit(xy, upper_surface_delta) 
-            upper_surface_delta_star_sur = regr_us_delta_star.fit(xy, upper_surface_delta_star) 
-            upper_surface_cf_sur         = regr_us_cf.fit(xy, upper_surface_cf) 
-            upper_surface_dcp_dx_sur     = regr_us_dcp_dx.fit(xy, upper_surface_dcp_dx) 
-            upper_surface_Ue_sur         = regr_us_Ue.fit(xy, upper_surface_Ue) 
-            upper_surface_H_sur          = regr_us_H.fit(xy, upper_surface_H)  
-
+            lower_surface_theta_sur      = regr_ls_theta.fit(xy, lower_surface_theta_vals)
+            lower_surface_delta_sur      = regr_ls_delta.fit(xy, lower_surface_delta_vals) 
+            lower_surface_delta_star_sur = regr_ls_delta_star.fit(xy, lower_surface_delta_star_vals) 
+            lower_surface_cf_sur         = regr_ls_cf.fit(xy, lower_surface_cf_vals) 
+            lower_surface_dcp_dx_sur     = regr_ls_dcp_dx.fit(xy, lower_surface_dcp_dx_vals) 
+            lower_surface_Ue_sur         = regr_ls_Ue.fit(xy, lower_surface_Ue_vals) 
+            lower_surface_H_sur          = regr_ls_H.fit(xy, lower_surface_H_vals) 
+            upper_surface_theta_sur      = regr_us_theta.fit(xy, upper_surface_theta_vals)
+            upper_surface_delta_sur      = regr_us_delta.fit(xy, upper_surface_delta_vals) 
+            upper_surface_delta_star_sur = regr_us_delta_star.fit(xy, upper_surface_delta_star_vals) 
+            upper_surface_cf_sur         = regr_us_cf.fit(xy, upper_surface_cf_vals) 
+            upper_surface_dcp_dx_sur     = regr_us_dcp_dx.fit(xy, upper_surface_dcp_dx_vals) 
+            upper_surface_Ue_sur         = regr_us_Ue.fit(xy, upper_surface_Ue_vals) 
+            upper_surface_H_sur          = regr_us_H.fit(xy, upper_surface_H_vals)   
+     
         elif surrogate_type  == 'svr':
-            regr_ls_theta                = svm.SVR(C=500)
-            regr_ls_delta                = svm.SVR(C=500)
-            regr_ls_delta_star           = svm.SVR(C=500)
-            regr_ls_cf                   = svm.SVR(C=500)
-            regr_ls_dcp_dx               = svm.SVR(C=500)
-            regr_ls_Ue                   = svm.SVR(C=500)
-            regr_ls_H                    = svm.SVR(C=500)
-            regr_us_theta                = svm.SVR(C=500)
-            regr_us_delta                = svm.SVR(C=500)
-            regr_us_delta_star           = svm.SVR(C=500)
-            regr_us_cf                   = svm.SVR(C=500)
-            regr_us_dcp_dx               = svm.SVR(C=500)
-            regr_us_Ue                   = svm.SVR(C=500)
-            regr_us_H                    = svm.SVR(C=500) 
-            lower_surface_theta_sur      = regr_ls_theta.fit(xy, lower_surface_theta)
-            lower_surface_delta_sur      = regr_ls_delta.fit(xy, lower_surface_delta) 
-            lower_surface_delta_star_sur = regr_ls_delta_star.fit(xy, lower_surface_delta_star) 
-            lower_surface_cf_sur         = regr_ls_cf.fit(xy, lower_surface_cf) 
-            lower_surface_dcp_dx_sur     = regr_ls_dcp_dx.fit(xy, lower_surface_dcp_dx) 
-            lower_surface_Ue_sur         = regr_ls_Ue.fit(xy, lower_surface_Ue) 
-            lower_surface_H_sur          = regr_ls_H.fit(xy, lower_surface_H) 
-            upper_surface_theta_sur      = regr_us_theta.fit(xy, upper_surface_theta)
-            upper_surface_delta_sur      = regr_us_delta.fit(xy, upper_surface_delta) 
-            upper_surface_delta_star_sur = regr_us_delta_star.fit(xy, upper_surface_delta_star) 
-            upper_surface_cf_sur         = regr_us_cf.fit(xy, upper_surface_cf) 
-            upper_surface_dcp_dx_sur     = regr_us_dcp_dx.fit(xy, upper_surface_dcp_dx) 
-            upper_surface_Ue_sur         = regr_us_Ue.fit(xy, upper_surface_Ue) 
-            upper_surface_H_sur          = regr_us_H.fit(xy, upper_surface_H)           
-        
+            C_val       = 100 # 1
+            Epsilon_val = 0.1 #0.01  try 1 next
+            kernel      = 'poly' #'rbf' 
+            degree_Val  = 4
+            
+            #C_val       = 1.0 # 1
+            #Epsilon_val = 0.1 #0.01  try 1 next
+            #kernel      = 'rbf' #'rbf'       
+            Gamma_val   = 'scale'
+             
+            regr_ls_theta                = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_ls_delta                = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_ls_delta_star           = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_ls_cf                   = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_ls_dcp_dx               = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_ls_Ue                   = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_ls_H                    = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_us_theta                = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_us_delta                = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_us_delta_star           = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_us_cf                   = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_us_dcp_dx               = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_us_Ue                   = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val)
+            regr_us_H                    = svm.SVR(kernel= kernel, degree= degree_Val, C=C_val, gamma= Gamma_val, epsilon=Epsilon_val) 
+            lower_surface_theta_sur      = regr_ls_theta.fit(xy, lower_surface_theta_vals)
+            lower_surface_delta_sur      = regr_ls_delta.fit(xy, lower_surface_delta_vals) 
+            lower_surface_delta_star_sur = regr_ls_delta_star.fit(xy, lower_surface_delta_star_vals) 
+            lower_surface_cf_sur         = regr_ls_cf.fit(xy, lower_surface_cf_vals) 
+            lower_surface_dcp_dx_sur     = regr_ls_dcp_dx.fit(xy, lower_surface_dcp_dx_vals) 
+            lower_surface_Ue_sur         = regr_ls_Ue.fit(xy, lower_surface_Ue_vals) 
+            lower_surface_H_sur          = regr_ls_H.fit(xy, lower_surface_H_vals) 
+            upper_surface_theta_sur      = regr_us_theta.fit(xy, upper_surface_theta_vals)
+            upper_surface_delta_sur      = regr_us_delta.fit(xy, upper_surface_delta_vals) 
+            upper_surface_delta_star_sur = regr_us_delta_star.fit(xy, upper_surface_delta_star_vals) 
+            upper_surface_cf_sur         = regr_us_cf.fit(xy, upper_surface_cf_vals) 
+            upper_surface_dcp_dx_sur     = regr_us_dcp_dx.fit(xy, upper_surface_dcp_dx_vals) 
+            upper_surface_Ue_sur         = regr_us_Ue.fit(xy, upper_surface_Ue_vals) 
+            upper_surface_H_sur          = regr_us_H.fit(xy, upper_surface_H_vals)        
+        elif surrogate_type == 'rbs':
+            
+            SMOOTHING = 0.01
+            lower_surface_theta_sur      = RectBivariateSpline(AoA,Re,lower_surface_theta[i,:,:],s = SMOOTHING)
+            lower_surface_delta_sur      = RectBivariateSpline(AoA,Re,lower_surface_delta[i,:,:],s = SMOOTHING)
+            lower_surface_delta_star_sur = RectBivariateSpline(AoA,Re,lower_surface_delta_star[i,:,:],s = SMOOTHING) 
+            lower_surface_cf_sur         = RectBivariateSpline(AoA,Re,lower_surface_cf[i,:,:],s = SMOOTHING)
+            lower_surface_dcp_dx_sur     = RectBivariateSpline(AoA,Re,lower_surface_dcp_dx[i,:,:],s = SMOOTHING)
+            lower_surface_Ue_sur         = RectBivariateSpline(AoA,Re,lower_surface_Ue[i,:,:],s = SMOOTHING) 
+            lower_surface_H_sur          = RectBivariateSpline(AoA,Re,lower_surface_H[i,:,:] ,s = SMOOTHING) 
+            upper_surface_theta_sur      = RectBivariateSpline(AoA,Re,upper_surface_theta[i,:,:],s = SMOOTHING ) 
+            upper_surface_delta_sur      = RectBivariateSpline(AoA,Re,upper_surface_delta[i,:,:],s = SMOOTHING ) 
+            upper_surface_delta_star_sur = RectBivariateSpline(AoA,Re,upper_surface_delta_star[i,:,:],s = SMOOTHING)   
+            upper_surface_cf_sur         = RectBivariateSpline(AoA,Re,upper_surface_cf[i,:,:] ,s = SMOOTHING)
+            upper_surface_dcp_dx_sur     = RectBivariateSpline(AoA,Re,upper_surface_dcp_dx[i,:,:],s = SMOOTHING ) 
+            upper_surface_Ue_sur         = RectBivariateSpline(AoA,Re,upper_surface_Ue[i,:,:],s = SMOOTHING)
+            upper_surface_H_sur          = RectBivariateSpline(AoA,Re,upper_surface_H[i,:,:],s = SMOOTHING)     
+            
         lower_surface_theta_surs.append(lower_surface_theta_sur)
         lower_surface_delta_surs.append(lower_surface_delta_sur)
         lower_surface_delta_star_surs.append(lower_surface_delta_star_sur)
@@ -266,18 +276,34 @@ def build_boundary_layer_surrogates(propeller,npanel=250,surrogate_type = 'gauss
         
     airfoil_bl_surs.lower_surface_theta_surrogates       = lower_surface_theta_surs
     airfoil_bl_surs.lower_surface_delta_surrogates       = lower_surface_delta_surs
-    airfoil_bl_surs.lower_surface_delta_start_surrogates = lower_surface_delta_star_surs
+    airfoil_bl_surs.lower_surface_delta_star_surrogates  = lower_surface_delta_star_surs
     airfoil_bl_surs.lower_surface_cf_surrogates          = lower_surface_cf_surs
     airfoil_bl_surs.lower_surface_dcp_dx_surrogates      = lower_surface_dcp_dx_surs      
     airfoil_bl_surs.lower_surface_Ue_surrogates          = lower_surface_Ue_surs
     airfoil_bl_surs.lower_surface_H_surrogates           = lower_surface_H_surs 
     airfoil_bl_surs.upper_surface_theta_surrogates       = upper_surface_theta_surs
     airfoil_bl_surs.upper_surface_delta_surrogates       = upper_surface_delta_surs
-    airfoil_bl_surs.upper_surface_delta_start_surrogates = upper_surface_delta_star_surs
+    airfoil_bl_surs.upper_surface_delta_star_surrogates  = upper_surface_delta_star_surs
     airfoil_bl_surs.upper_surface_dcp_dx_surrogates      = upper_surface_dcp_dx_surs      
     airfoil_bl_surs.upper_surface_cf_surrogates          = upper_surface_cf_surs
     airfoil_bl_surs.upper_surface_Ue_surrogates          = upper_surface_Ue_surs
     airfoil_bl_surs.upper_surface_H_surrogates           = upper_surface_H_surs  
+    
+
+    airfoil_bl_surs.lower_surface_theta_vals       = lower_surface_theta
+    airfoil_bl_surs.lower_surface_delta_vals       = lower_surface_delta
+    airfoil_bl_surs.lower_surface_delta_star_vals  = lower_surface_delta_star
+    airfoil_bl_surs.lower_surface_cf_vals          = lower_surface_cf
+    airfoil_bl_surs.lower_surface_dcp_dx_vals      = lower_surface_dcp_dx    
+    airfoil_bl_surs.lower_surface_Ue_vals          = lower_surface_Ue
+    airfoil_bl_surs.lower_surface_H_vals           = lower_surface_H 
+    airfoil_bl_surs.upper_surface_theta_vals       = upper_surface_theta
+    airfoil_bl_surs.upper_surface_delta_vals       = upper_surface_delta
+    airfoil_bl_surs.upper_surface_delta_star_vals  = upper_surface_delta_star
+    airfoil_bl_surs.upper_surface_dcp_dx_vals      = upper_surface_dcp_dx   
+    airfoil_bl_surs.upper_surface_cf_vals          = upper_surface_cf
+    airfoil_bl_surs.upper_surface_Ue_vals          = upper_surface_Ue
+    airfoil_bl_surs.upper_surface_H_vals           = upper_surface_H   
 
     return airfoil_bl_surs 
  
@@ -287,20 +313,21 @@ def evaluate_boundary_layer_surrogates(propeller,AoA,Re):
     """  
         Defaulted values
     """            
-    bl_surs = propeller.airfoil_bl_surrogates       
-    a_loc   = propeller.airfoil_polar_stations  
 
+    bl_surs  = propeller.airfoil_bl_surrogates
+    a_loc    = propeller.airfoil_polar_stations    
+    
     # Unpack the surrogate 
     ls_theta_surrogates       = bl_surs.lower_surface_theta_surrogates      
     ls_delta_surrogates       = bl_surs.lower_surface_delta_surrogates      
-    ls_delta_star_surrogates  = bl_surs.lower_surface_delta_start_surrogates
+    ls_delta_star_surrogates  = bl_surs.lower_surface_delta_star_surrogates
     ls_cf_surrogates          = bl_surs.lower_surface_cf_surrogates  
     ls_dcp_dx_surrogates      = bl_surs.lower_surface_dcp_dx_surrogates           
     ls_Ue_surrogates          = bl_surs.lower_surface_Ue_surrogates         
     ls_H_surrogates           = bl_surs.lower_surface_H_surrogates          
     us_theta_surrogates       = bl_surs.upper_surface_theta_surrogates      
     us_delta_surrogates       = bl_surs.upper_surface_delta_surrogates      
-    us_delta_star_surrogates  = bl_surs.upper_surface_delta_start_surrogates
+    us_delta_star_surrogates  = bl_surs.upper_surface_delta_star_surrogates
     us_cf_surrogates          = bl_surs.upper_surface_cf_surrogates         
     us_dcp_dx_surrogates      = bl_surs.upper_surface_dcp_dx_surrogates      
     us_Ue_surrogates          = bl_surs.upper_surface_Ue_surrogates         
@@ -327,7 +354,7 @@ def evaluate_boundary_layer_surrogates(propeller,AoA,Re):
     us_H          = np.zeros_like(ls_theta) 
     
     for i in range(num_sec):
-        Re_sec  = np.ravel(Re[:,i,:]/1E5)
+        Re_sec  = np.ravel(Re[:,i,:]/1E6)
         AoA_sec = np.ravel(AoA[:,i,:])
         cond = np.vstack([Re_sec,AoA_sec]).T  
         
@@ -346,21 +373,37 @@ def evaluate_boundary_layer_surrogates(propeller,AoA,Re):
         us_Ue[:,i,:]         = np.reshape(us_Ue_surrogates[a_loc[i]].predict(cond),(num_cpts,num_azi))
         us_H[:,i,:]          = np.reshape(us_H_surrogates[a_loc[i]].predict(cond),(num_cpts,num_azi))
     
+
+        #ls_theta[:,i,:]      = np.reshape(ls_theta_surrogates[i](AoA_sec ,Re_sec,grid=False) ,(num_cpts,num_azi))
+        #ls_delta[:,i,:]      = np.reshape(ls_delta_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi))
+        #ls_delta_star[:,i,:] = np.reshape(ls_delta_star_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi))
+        #ls_cf[:,i,:]         = np.reshape(ls_cf_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi))
+        #ls_dcp_dx[:,i,:]     = np.reshape(ls_dcp_dx_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi))
+        #ls_Ue[:,i,:]         = np.reshape(ls_Ue_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi))
+        #ls_H[:,i,:]          = np.reshape(ls_H_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi))
+        #us_theta[:,i,:]      = np.reshape(us_theta_surrogates[i](AoA_sec ,Re_sec,grid=False) ,(num_cpts,num_azi)) 
+        #us_delta[:,i,:]      = np.reshape(us_delta_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi)) 
+        #us_delta_star[:,i,:] = np.reshape(us_delta_star_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi)) 
+        #us_cf[:,i,:]         = np.reshape(us_cf_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi)) 
+        #us_dcp_dx[:,i,:]     = np.reshape(us_dcp_dx_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi)) 
+        #us_Ue[:,i,:]         = np.reshape(us_Ue_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi)) 
+        #us_H[:,i,:]          = np.reshape(us_H_surrogates[i](AoA_sec ,Re_sec,grid=False),(num_cpts,num_azi)) 
+        
     bl_results = Data()
-    bl_results.ls_theta      = ls_theta           
-    bl_results.ls_delta      = ls_delta      
-    bl_results.ls_delta_star = ls_delta_star   
-    bl_results.ls_cf         = ls_cf         
-    bl_results.ls_dcp_dx     = ls_dcp_dx   
-    bl_results.ls_Ue         = ls_Ue           
-    bl_results.ls_H          = ls_H             
-    bl_results.us_theta      = us_theta      
-    bl_results.us_delta      = us_delta       
-    bl_results.us_delta_star = us_delta_star 
-    bl_results.us_cf         = us_cf 
-    bl_results.us_dcp_dx     = us_dcp_dx 
-    bl_results.us_Ue         = us_Ue         
-    bl_results.us_H          = us_H          
+    bl_results.lower_surface_theta      = ls_theta           
+    bl_results.lower_surface_delta      = ls_delta      
+    bl_results.lower_surface_delta_star = ls_delta_star   
+    bl_results.lower_surface_cf         = ls_cf         
+    bl_results.lower_surface_dcp_dx     = ls_dcp_dx   
+    bl_results.lower_surface_Ue         = ls_Ue           
+    bl_results.lower_surface_H          = ls_H             
+    bl_results.upper_surface_theta      = us_theta      
+    bl_results.upper_surface_delta      = us_delta       
+    bl_results.upper_surface_delta_star = us_delta_star 
+    bl_results.upper_surface_cf         = us_cf 
+    bl_results.upper_surface_dcp_dx     = us_dcp_dx 
+    bl_results.upper_surface_Ue         = us_Ue         
+    bl_results.upper_surface_H          = us_H          
 
     return bl_results        
 

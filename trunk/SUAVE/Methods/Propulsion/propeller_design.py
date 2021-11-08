@@ -26,7 +26,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoi
 #  Propeller Design
 # ----------------------------------------------------------------------
 
-def propeller_design(prop,number_of_stations=20):
+def propeller_design(prop,number_of_stations=20,npanel=400 ,surrogate_type = 'gaussian'):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
@@ -120,13 +120,11 @@ def propeller_design(prop,number_of_stations=20):
         if len(a_loc) != N:
             raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller')
         airfoil_flag = True  
-        airfoil_bl_surs         = build_boundary_layer_surrogates(a_geo,a_loc)  
     else:
         print('\nDefaulting to scaled DAE51')
         airfoil_flag            = False   
         airfoil_cl_surs         = None
-        airfoil_cd_surs         = None  
-        airfoil_bl_surs         = None 
+        airfoil_cd_surs         = None 
      
     while diff>tol:      
         # assign chord distribution
@@ -256,14 +254,16 @@ def propeller_design(prop,number_of_stations=20):
     t_c    = np.zeros(N)   
     if airfoil_flag:     
         airfoil_geometry_data = import_airfoil_geometry(a_geo) 
-        t_max = np.take(airfoil_geometry_data.max_thickness,a_loc,axis=0)*c 
-        t_c   =  np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)  
-    else:     
-        c_blade  = np.repeat(np.atleast_2d(np.linspace(0,1,N)),N, axis = 0)* np.repeat(np.atleast_2d(c).T,N, axis = 1)
-        t        = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
-        t_max    = np.max(t,axis = 1) 
-        t_c      = np.max(t,axis = 1) /c 
-            
+        t_max                 = np.take(airfoil_geometry_data.max_thickness,a_loc,axis=0)*c 
+        t_c                   =  np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)   
+        airfoil_bl_surs       = build_boundary_layer_surrogates(a_geo,a_loc,c,npanel,surrogate_type)          
+    else:    
+        c_blade          = np.repeat(np.atleast_2d(np.linspace(0,1,N)),N, axis = 0)* np.repeat(np.atleast_2d(c).T,N, axis = 1)
+        t                = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
+        t_max            = np.max(t,axis = 1) 
+        t_c              = np.max(t,axis = 1) /c  
+        airfoil_bl_surs  = None             
+
     # Nondimensional thrust
     if prop.design_power == None: 
         prop.design_power = Power[0]        

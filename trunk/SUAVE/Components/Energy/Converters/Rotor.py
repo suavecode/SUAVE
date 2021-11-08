@@ -84,17 +84,17 @@ class Rotor(Energy_Component):
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
 
-        self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
-        self.nonuniform_freestream     = False
-        self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
-        self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
-        self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
-
-        self.Wake_VD                   = Data()
-        self.wake_method               = "momentum"
-        self.number_rotor_rotations    = 6
-        self.number_steps_per_rotation = 100
-        self.wake_settings             = Data()
+        self.use_2d_analysis              = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream        = False
+        self.axial_velocities_2d          = None     # user input for additional velocity influences at the rotor
+        self.tangential_velocities_2d     = None     # user input for additional velocity influences at the rotor
+        self.radial_velocities_2d         = None     # user input for additional velocity influences at the rotor
+   
+        self.Wake_VD                      = Data()
+        self.wake_method                  = "momentum"
+        self.number_rotor_rotations       = 6
+        self.number_steps_per_rotation    = 100
+        self.wake_settings                = Data()
 
         self.wake_settings.initial_timestep_offset   = 0    # initial timestep
         self.wake_settings.wake_development_time     = 0.05 # total simulation time required for wake development

@@ -45,10 +45,10 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
         Results.    
             SPL                 - SPL                                                 [dB]
             SPL_dBA             - dbA-Weighted SPL                                    [dBA]
-            SPL_bb_spectrum     - broadband contribution to total SPL                 [dB]
-            SPL_spectrum        - 1/3 octave band SPL                                 [dB]
+            SPL_broadband_1_3_spectrum     - 1/3 octave band broadband contribution to total SPL [dB]
+            SPL_total_1_3_spectrum        - 1/3 octave band SPL                                 [dB]
             SPL_tonal_spectrum  - harmonic contribution to total SPL                  [dB]
-            SPL_bpfs_spectrum   - 1/3 octave band harmonic contribution to total SPL  [dB]
+            SPL_harmonic_1_3_spectrum   - 1/3 octave band harmonic contribution to total SPL  [dB]
     
     Properties Used:
         N/A   
@@ -84,33 +84,32 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
     # Broadband Noise   
     compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,network,auc_opts,settings,Noise,source)       
      
-    # Combine Rotational(periodic/tonal) and Broadband Noise 
-    Noise.SPL_prop_bpfs_spectrum                               = Noise.SPL_r
-    Noise.SPL_prop_spectrum                                    = 10*np.log10( 10**(Noise.SPL_prop_h_spectrum/10) + 10**(Noise.SPL_prop_bb_spectrum/10))
-    Noise.SPL_prop_spectrum[np.isnan(Noise.SPL_prop_spectrum)] = 0
+    # Combine Harmonic (periodic/tonal) and Broadband Noise  
+    Noise.SPL_total_1_3_spectrum  = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10))
+    Noise.SPL_total_1_3_spectrum[np.isnan(Noise.SPL_total_1_3_spectrum)] = 0
     
     # pressure ratios used to combine A weighted sound since decibel arithmetic does not work for 
     #broadband noise since it is a continuous spectrum 
-    total_p_pref_dBA                                 = np.concatenate((Noise.p_pref_r_dBA,Noise.p_pref_bb_dBA), axis=3)
-    Noise.SPL_dBA_prop                               = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
-    Noise.SPL_dBA_prop[np.isinf(Noise.SPL_dBA_prop)] = 0  
-    Noise.SPL_dBA_prop[np.isnan(Noise.SPL_dBA_prop)] = 0
+    total_p_pref_dBA                                  = np.concatenate((Noise.p_pref_harmonic_dBA,Noise.p_pref_broadband_dBA), axis=3) 
+    Noise.SPL_total_dBA                               = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
+    Noise.SPL_total_dBA[np.isinf(Noise.SPL_total_dBA)] = 0  
+    Noise.SPL_total_dBA[np.isnan(Noise.SPL_total_dBA)] = 0
     
-    # Summation of spectra from propellers into into one SPL
-    Results.bpfs                =  Noise.f[:,0,0,0,:] # blade passing frequency harmonics
-    Results.SPL                 =  SPL_arithmetic(SPL_arithmetic(Noise.SPL_prop_spectrum))
-    Results.SPL_dBA             =  SPL_arithmetic(Noise.SPL_dBA_prop)  
-    Results.SPL_spectrum        =  SPL_spectra_arithmetic(Noise.SPL_prop_spectrum)       # 1/3 octave band      
-    Results.SPL_bpfs_spectrum   =  SPL_spectra_arithmetic(Noise.SPL_prop_bpfs_spectrum)  # blade passing frequency specturm  
-    Results.SPL_tonal_spectrum  =  SPL_spectra_arithmetic(Noise.SPL_prop_tonal_spectrum) 
-    Results.SPL_bb_spectrum     =  SPL_spectra_arithmetic(Noise.SPL_prop_bb_spectrum)   
+    # Summation of spectra from propellers into into one SPL and store results
+    Results.blade_passing_frequencies      =  Noise.f[:,0,0,0,:]  
+    Results.SPL                            =  SPL_arithmetic(SPL_arithmetic(Noise.SPL_total_1_3_spectrum))
+    Results.SPL_dBA                        =  SPL_arithmetic(Noise.SPL_total_dBA)  
+    Results.SPL_total_1_3_spectrum         =  SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum)        
+    Results.SPL_harmonic_1_3_spectrum      =  SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum)       
+    Results.SPL_broadband_1_3_spectrum     =  SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum)  
+    Results.one_third_frequency_spectrum   =  settings.center_frequencies
     
-    auc_opts.bpfs               =  Results.bpfs               
-    auc_opts.SPL                =  Results.SPL                
-    auc_opts.SPL_dBA            =  Results.SPL_dBA            
-    auc_opts.SPL_spectrum       =  Results.SPL_spectrum       
-    auc_opts.SPL_bpfs_spectrum  =  Results.SPL_bpfs_spectrum  
-    auc_opts.SPL_tonal_spectrum =  Results.SPL_tonal_spectrum 
-    auc_opts.SPL_bb_spectrum    =  Results.SPL_bb_spectrum  
+    auc_opts.blade_passing_frequencies     =  Results.blade_passing_frequencies
+    auc_opts.SPL                           =  Results.SPL                
+    auc_opts.SPL_dBA                       =  Results.SPL_dBA            
+    auc_opts.SPL_total_1_3_spectrum        =  Results.SPL_total_1_3_spectrum       
+    auc_opts.SPL_harmonic_1_3_spectrum     =  Results.SPL_harmonic_1_3_spectrum   
+    auc_opts.SPL_broadband_1_3_spectrum    =  Results.SPL_broadband_1_3_spectrum  
+    auc_opts.one_third_frequency_spectrum  =  settings.center_frequencies
     
     return Results
