@@ -162,7 +162,7 @@ class Lithium_Ion(Battery):
         SOC_old                 = np.divide(initial_discharge_state,E_max)
         
         SOC_old[SOC_old>1] = 1.
-        SOC_old[SOC_old<0] = 0.         
+        SOC_old[SOC_old<0] = 0.
         
         # Compute internal resistance
         R_bat = -0.0169*(SOC_old**4) + 0.0418*(SOC_old**3) - 0.0273*(SOC_old**2) + 0.0069*(SOC_old) + 0.0043
