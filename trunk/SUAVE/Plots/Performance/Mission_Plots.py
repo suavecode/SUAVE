@@ -393,8 +393,8 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
     results.segments.conditions.propulsion
          battery_power_draw 
          battery_energy    
-         voltage_under_load    
-         voltage_open_circuit    
+         battery_voltage_under_load    
+         battery_voltage_open_circuit    
          current        
         
     Outputs: 

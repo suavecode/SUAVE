@@ -537,6 +537,7 @@ def vehicle_setup():
     # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
+    turbofan.engine_length     = 2.71
 
     # This origin is overwritten by compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
     turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
