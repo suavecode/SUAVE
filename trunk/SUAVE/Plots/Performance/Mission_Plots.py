@@ -393,8 +393,8 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
     results.segments.conditions.propulsion
          battery_power_draw 
          battery_energy    
-         voltage_under_load    
-         voltage_open_circuit    
+         battery_voltage_under_load    
+         battery_voltage_open_circuit    
          current        
         
     Outputs: 
@@ -417,11 +417,11 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         pack_volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]     
         pack_current        = results.segments[i].conditions.propulsion.battery_current[:,0]   
         pack_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
-        pack_temp           = results.segments[i].conditions.propulsion.battery_pack_temperature[:,0]      
-        pack_current         = results.segments[i].conditions.propulsion.battery_current[:,0]
+        pack_current        = results.segments[i].conditions.propulsion.battery_current[:,0]
         
         pack_battery_amp_hr = (pack_energy/ Units.Wh )/pack_volts  
-        pack_C_rating       = pack_current/pack_battery_amp_hr
+        pack_C_instant      = pack_current/pack_battery_amp_hr
+        pack_C_nominal      = pack_current/np.max(pack_battery_amp_hr)
         
     
         axes = plt.subplot(3,3,1)
@@ -451,10 +451,16 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         axes.legend(loc='upper right')  
         
         axes = plt.subplot(3,3,5)
-        axes.plot(time, pack_C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('C-Rate (C)',axis_font)  
+        axes.set_ylabel('C-Rate (C)',axis_font)          
         set_axes(axes)  
+        if i == 0:
+            axes.plot(time, pack_C_instant, line_color,label='Instantaneous')
+            axes.plot(time, pack_C_nominal, line_color2,label='Nominal')
+        else:
+            axes.plot(time, pack_C_instant, line_color)
+            axes.plot(time, pack_C_nominal, line_color2)
+        axes.legend(loc='upper right')  
 
         axes = plt.subplot(3,3,6)
         axes.plot(time, pack_current, line_color)
@@ -462,12 +468,15 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         axes.set_ylabel('Current (A)',axis_font)  
         set_axes(axes) 
         
-        axes = plt.subplot(3,3,7)
-        axes.plot(time, pack_temp, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Temperature (K)',axis_font)  
-        set_axes(axes) 
-         
+        
+    # Set limits
+    for i in range(1,7):
+        ax         = plt.subplot(3,3,i)
+        y_lo, y_hi = ax.get_ylim()
+        if y_lo>0: y_lo = 0
+        y_hi       = y_hi*1.1
+        ax.set_ylim(y_lo,y_hi)    
+     
         
     plt.tight_layout() 
     if save_figure:
@@ -520,7 +529,10 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
         cell_charge         = results.segments[i].conditions.propulsion.battery_cell_charge_throughput[:,0] 
         cell_current        = results.segments[i].conditions.propulsion.battery_cell_current[:,0]        
         cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts  
-        cell_C_rating       = cell_current/cell_battery_amp_hr        
+        
+        cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts  
+        cell_C_instant      = cell_current/cell_battery_amp_hr
+        cell_C_nominal      = cell_current/np.max(cell_battery_amp_hr)        
         
         
         axes = plt.subplot(3,3,1)
@@ -552,10 +564,18 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
             axes.plot(time,cell_volts_oc, line_color2) 
             
         axes = plt.subplot(3,3,5)
-        axes.plot(time, cell_C_rating, line_color) 
-        axes.set_ylabel('C-Rate (C)',axis_font)  
-        set_axes(axes)      
-
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('C-Rate (C)',axis_font)          
+        set_axes(axes)  
+        if i == 0:
+            axes.plot(time, cell_C_instant, line_color,label='Instantaneous')
+            axes.plot(time, cell_C_nominal, line_color2,label='Nominal')
+            axes.legend(loc='upper right')
+        else:
+            axes.plot(time, cell_C_instant, line_color)
+            axes.plot(time, cell_C_nominal, line_color2)
+  
+        
         axes = plt.subplot(3,3,6)
         axes.plot(time, cell_charge, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
@@ -573,6 +593,15 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Temperature (K)',axis_font)  
         set_axes(axes) 
+        
+        
+    # Set limits
+    for i in range(1,9):
+        ax         = plt.subplot(3,3,i)
+        y_lo, y_hi = ax.get_ylim()
+        if y_lo>0: y_lo = 0
+        y_hi       = y_hi*1.1
+        ax.set_ylim(y_lo,y_hi)       
 
     plt.tight_layout()    
     if save_figure:    
@@ -771,6 +800,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.plot(time, thrust, line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
         set_axes(axes)
+
         
         axes = plt.subplot(2,3,2)
         axes.plot(time, rpm, line_color)
@@ -799,6 +829,16 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Tip Mach',axis_font)
         set_axes(axes)
+        
+    # Set limits
+    for i in range(1,7):
+        ax         = plt.subplot(2,3,i)
+        y_lo, y_hi = ax.get_ylim()
+        if y_lo>0: y_lo = 0
+        y_hi       = y_hi*1.1
+        ax.set_ylim(y_lo,y_hi)
+            
+        
     
     plt.tight_layout()    
     if save_figure:

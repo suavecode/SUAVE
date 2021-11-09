@@ -59,7 +59,7 @@ class Nacelle(Lofted_Body):
         self.orientation_euler_angles  = [0.,0.,0.]    
         self.flow_through              = True 
         self.differential_pressure     = 0.0   
-        self.Airfoil                   = Data()  
+        self.Airfoil                   = Airfoil()
         self.cowling_airfoil_angle     = 0.0  
         self.Segments                  = ContainerOrdered()
         

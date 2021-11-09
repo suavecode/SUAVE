@@ -346,25 +346,25 @@ def generate_nacelle_points(nac,tessellation = 24):
     
     if num_nac_segs == 0:
         num_nac_segs = int(n_points/2)
-        nac_pts      = np.zeros((num_nac_segs,tessellation,3)) 
-        if nac.Airfoil: 
-            for naf in nac.Airfoil: 
-                if naf.naca_4_series_airfoil != None: 
-                    # use mean camber surface of airfoil
-                    camber       = float(naf.naca_4_series_airfoil[0])/100
-                    camber_loc   = float(naf.naca_4_series_airfoil[1])/10
-                    thickness    = float(naf.naca_4_series_airfoil[2:])/100 
-                    airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
-                    xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
-                    zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
-                
-                elif naf.coordinate_file != None: 
-                    a_sec        = naf.coordinate_file
-                    a_secl       = [0]
-                    airfoil_data = import_airfoil_geometry(a_sec,npoints=num_nac_segs)
-                    xpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.x_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
-                    zpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.y_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
-                
+        nac_pts      = np.zeros((num_nac_segs,tessellation,3))
+        naf          = nac.Airfoil
+        
+        if naf.naca_4_series_airfoil != None: 
+            # use mean camber surface of airfoil
+            camber       = float(naf.naca_4_series_airfoil[0])/100
+            camber_loc   = float(naf.naca_4_series_airfoil[1])/10
+            thickness    = float(naf.naca_4_series_airfoil[2:])/100 
+            airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
+            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
+            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
+        
+        elif naf.coordinate_file != None: 
+            a_sec        = naf.coordinate_file
+            a_secl       = [0]
+            airfoil_data = import_airfoil_geometry(a_sec,npoints=num_nac_segs)
+            xpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.x_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
+            zpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.y_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
+        
         else:
             # if no airfoil defined, use super ellipse as default
             a =  nac.length/2 
