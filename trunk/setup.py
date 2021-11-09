@@ -3,6 +3,7 @@
 # Created:  Dec 2013, T. Lukaczyk 
 # Modified: Jan 2017, E. Botero
 #           Sep 2021, M. Clarke
+#           Oct 2021, E. Botero
 
 """ SUAVE setup script
 """
@@ -17,8 +18,8 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version     = '2.4.0'
-    date        = 'May 25, 2021'
+    version     = '2.5.0'
+    date        = 'Nov 9, 2021'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]
@@ -28,11 +29,30 @@ def main():
     if command == 'uninstall':
         uninstall(the_package,version,date)
     else:
+        write_version_py(version)
         install(the_package,version,date)
- 
+
+# ----------------------------------------------------------------------
+#   Main - Run Setup
+# ----------------------------------------------------------------------   
+
+def write_version_py(version,filename='SUAVE/version.py'):
+    cnt = """
+# THIS FILE IS GENERATED
+version = '%(version)s'
+
+"""
+
+    a = open(filename, 'w')
+    try:
+        a.write(cnt % {'version': version})
+    finally:
+        a.close()        
+        
+
  
 # ----------------------------------------------------------------------
-#   Install Pacakge
+#   Install Package
 # ----------------------------------------------------------------------
 
 def install(the_package,version,date):
@@ -50,6 +70,9 @@ def install(the_package,version,date):
     #print 'Listing Packages and Sub-Packages:'
     packages = list_subpackages(the_package,verbose=False)
     packages = list(map( '.'.join, packages ))
+    
+    requires = ['numpy','scipy','sklearn','plotly','matplotlib']
+    python_v = '>=3.6'
 
     # run the setup!!!
     setup(
@@ -65,6 +88,8 @@ def install(the_package,version,date):
         license = 'LGPL-2.1',
         platforms = ['Win, Linux, Unix, Mac OS-X'],
         zip_safe  = False,
+        requires  = requires,
+        python_requires = python_v,
         long_description = read('../README.md')
     )  
     
