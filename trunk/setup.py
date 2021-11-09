@@ -18,7 +18,7 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version     = '2.5.0'
+    version     = 'Develop'
     date        = 'Nov 9, 2021'
     
     if len(sys.argv) >= 2:
