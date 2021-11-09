@@ -165,6 +165,8 @@ def set_sources(geometry):
     
     for comp in components:
         comp_name = vsp.GetGeomName(comp)
+        if comp_name not in comp_dict:
+            continue
         comp_type = comp_type_dict[comp_name]
         # Nacelle sources are not implemented
         #if comp_name[0:8] == 'turbofan':
