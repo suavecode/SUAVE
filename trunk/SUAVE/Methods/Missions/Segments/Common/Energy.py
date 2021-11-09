@@ -4,12 +4,8 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           Jul 2017, E. Botero
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import numpy as np
+#           Aug 2021, M. Clarke
+#           Oct 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Initialize Battery
@@ -34,20 +30,37 @@ def initialize_battery(segment):
         Properties Used:
         N/A
                                 
-    """
-    
-    
+    """ 
+       
+    conditions = segment.state.conditions.propulsion
     if segment.state.initials:
-        energy_initial  = segment.state.initials.conditions.propulsion.battery_energy[-1,0]
-    elif 'battery_energy' in segment:
-        energy_initial  = segment.battery_energy
-    else:
-        energy_initial = 0.0
+
+        initials   = segment.state.initials.conditions.propulsion
+        
+        initial_mission_energy       = initials.battery_max_initial_energy
+        battery_max_aged_energy      = initials.battery_max_aged_energy         
+        battery_discharge_flag       = segment.battery_discharge 
+        battery_capacity_fade_factor = initials.battery_capacity_fade_factor
+        
+        if battery_discharge_flag == False: 
+            battery_max_aged_energy  = initial_mission_energy*battery_capacity_fade_factor    
+        
+        conditions.battery_max_initial_energy          = initial_mission_energy
+        conditions.battery_energy[:,0]                 = initials.battery_energy[-1,0]
+        conditions.battery_max_aged_energy             = battery_max_aged_energy
+        conditions.battery_pack_temperature[:,0]       = initials.battery_pack_temperature[-1,0]
+        conditions.battery_cell_temperature[:,0]       = initials.battery_cell_temperature[-1,0]
+        conditions.battery_cycle_day                   = initials.battery_cycle_day      
+        conditions.battery_cell_charge_throughput[:,0] = initials.battery_cell_charge_throughput[-1,0]
+        conditions.battery_discharge_flag              = battery_discharge_flag
+        conditions.battery_resistance_growth_factor    = initials.battery_resistance_growth_factor
+        conditions.battery_capacity_fade_factor        = battery_capacity_fade_factor 
     
-    segment.state.conditions.propulsion.battery_energy[:,0] = energy_initial
-
-    return
-
+    if 'battery_pack_temperature' in segment: # rewrite initial temperature of the battery if it is known 
+        conditions.battery_pack_temperature[:,0]       = segment.battery_pack_temperature
+        conditions.battery_cell_temperature[:,0]       = segment.battery_pack_temperature 
+        
+            
 # ----------------------------------------------------------------------
 #  Update Thrust
 # ----------------------------------------------------------------------
@@ -81,5 +94,27 @@ def update_thrust(segment):
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
     
-
+def update_battery_state_of_health(segment):  
+    """Updates battery age based on operating conditions, cell temperature and time of operation.
+       Source: 
+       Cell specific. See individual battery cell for more details
+         
+       Assumptions:
+       Cell specific. See individual battery cell for more details
+      
+       Inputs: 
+       segment.
+           conditions                    - conditions of battery at each segment  [unitless]
+           increment_battery_cycle_day   - flag to increment battery cycle day    [boolean]
+       
+       Outputs:
+       N/A  
+            
+       Properties Used:
+       N/A 
+    """ 
+    increment_day = segment.increment_battery_cycle_day
     
+    for network in segment.analyses.energy.network: 
+        battery = network.battery
+        battery.update_battery_state_of_health(segment,increment_battery_cycle_day = increment_day) 

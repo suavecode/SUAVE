@@ -5,6 +5,7 @@
 # Modified: Mar 2020, M. Clarke
 #           Jan 2021, E. Botero
 #           Jan 2021, R. Erhard
+#           Nov 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -24,7 +25,7 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
-    are obtained in the from of a text file of airfoil polar data obtained from airfoiltools.com
+    are obtained in the form of a text file of airfoil polar data obtained from airfoiltools.com
     
     Assumptions:
     Uses AERODAS formulation for post stall characteristics 
@@ -50,15 +51,22 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     """  
     
     num_airfoils = len(a_geo)
-    num_polars   = len(a_polar[0])
-    if num_polars < 3:
-        raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+    
+    # check number of polars per airfoil in batch
+    num_polars   = 0
+    for i in range(num_airfoils): 
+        n_p = len(a_polar[i])
+        if n_p < 3:
+            raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+        
+        num_polars = max(num_polars, n_p)        
 
     # read airfoil geometry  
     airfoil_data = import_airfoil_geometry(a_geo)
 
     # Get all of the coefficients for AERODAS wings
     AoA_sweep_deg = np.linspace(-14,90,105)
+    AoA_sweep_radians = AoA_sweep_deg*Units.degrees
     CL = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
     CD = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
     aoa0 = np.zeros((num_airfoils,num_polars))
@@ -66,6 +74,7 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
 
     CL_surs = Data()
     CD_surs = Data()    
+    aoa_from_polars = []
     
     # Create an infinite aspect ratio wing
     geometry              = SUAVE.Components.Wings.Wing()
@@ -80,16 +89,17 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     state.conditions.aerodynamics.pre_stall_coefficients = Data()
     state.conditions.aerodynamics.post_stall_coefficients = Data()
 
+    # read airfoil polars 
+    airfoil_polar_data = import_airfoil_polars(a_polar)
+    
     # AERODAS 
     for i in range(num_airfoils):
         
         # Modify the "wing" slightly:
         geometry.thickness_to_chord = airfoil_data.thickness_to_chord[i]
         
-        for j in range(num_polars):
-            
-            # read airfoil polars 
-            airfoil_polar_data = import_airfoil_polars(a_polar)
+        for j in range(len(a_polar[i])):
+            # Extract from polars
             airfoil_cl         = airfoil_polar_data.lift_coefficients[i,j] 
             airfoil_cd         = airfoil_polar_data.drag_coefficients[i,j] 
             airfoil_aoa        = airfoil_polar_data.angle_of_attacks  
@@ -97,7 +107,12 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
             # computing approximate zero lift aoa
             airfoil_cl_plus = airfoil_cl[airfoil_cl>0]
             idx_zero_lift = np.where(airfoil_cl == min(airfoil_cl_plus))[0][0]
-            A0  = airfoil_aoa[idx_zero_lift] * Units.degrees
+            airfoil_cl_crossing = airfoil_cl[idx_zero_lift-1:idx_zero_lift+1]
+            airfoil_aoa_crossing = airfoil_aoa[idx_zero_lift-1:idx_zero_lift+1]
+            try:
+                A0  = np.interp(0,airfoil_cl_crossing, airfoil_aoa_crossing)* Units.deg 
+            except:
+                A0 = airfoil_aoa[idx_zero_lift] * Units.deg
             
 
             # max lift coefficent and associated aoa
@@ -120,7 +135,6 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
             idx_CD_min = np.where(airfoil_cd==min(airfoil_cd))[0][0]
             ACDmin     = airfoil_aoa[idx_CD_min] * Units.degrees
             CDmin      = airfoil_cd[idx_CD_min]    
-            AoA_sweep_radians = AoA_sweep_deg*Units.degrees
             
             # Setup data structures for this run
             ones = np.ones_like(AoA_sweep_radians)
@@ -154,13 +168,16 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
             
             if use_pre_stall_data == True:
                 CL[i,j,:], CD[i,j,:] = apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL[i,j,:], CD[i,j,:])
-                
-        CL_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CL[i,:,:])  
-        CD_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CD[i,:,:])   
+        
+        # remove placeholder values (for airfoils that have different number of polars)
+        n_p = len(a_polar[i])
+        CL_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i][0:n_p],AoA_sweep_radians, CL[i,0:n_p,:])  
+        CD_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i][0:n_p],AoA_sweep_radians, CD[i,0:n_p,:])   
         
         CL_surs[a_geo[i]]  = CL_sur
-        CD_surs[a_geo[i]]  = CD_sur       
-      
+        CD_surs[a_geo[i]]  = CD_sur   
+        aoa_from_polars.append(airfoil_aoa)
+        
     airfoil_data.angle_of_attacks              = AoA_sweep_radians
     airfoil_data.lift_coefficient_surrogates   = CL_surs
     airfoil_data.drag_coefficient_surrogates   = CD_surs 
@@ -168,7 +185,7 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     airfoil_data.lift_coefficients_from_polar  = airfoil_polar_data.lift_coefficients
     airfoil_data.drag_coefficients_from_polar  = airfoil_polar_data.drag_coefficients
     airfoil_data.re_from_polar  = airfoil_polar_data.reynolds_number
-    airfoil_data.aoa_from_polar = airfoil_polar_data.angle_of_attacks
+    airfoil_data.aoa_from_polar = aoa_from_polars #airfoil_polar_data.angle_of_attacks
     
     return airfoil_data
 

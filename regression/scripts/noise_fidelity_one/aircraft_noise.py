@@ -1,6 +1,6 @@
 # aircraft_noise.py
 #
-# Created: Arp 2021, M. Clarke 
+# Created: Apr 2021, M. Clarke 
 
 """ setup file for the X57-Maxwell Electric Aircraft to valdiate noise in a climb segment
 """
@@ -13,11 +13,10 @@ import SUAVE
 from SUAVE.Core import Units 
 import numpy as np    
 from SUAVE.Core import Data 
-from SUAVE.Plots.Mission_Plots import *   
+from SUAVE.Plots.Performance.Mission_Plots import *   
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Noise.Certification import sideline_noise, flyover_noise, approach_noise
-
-
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import generate_building_microphone_points 
 import matplotlib.pyplot as plt 
 
 import sys
@@ -25,10 +24,10 @@ import sys
 sys.path.append('../Vehicles')
 # the analysis functions 
  
-from X57_Maxwell  import vehicle_setup as  X57_vehicle_setup
-from X57_Maxwell  import configs_setup as  X57_configs_setup  
-from Boeing_737   import vehicle_setup as  B737_vehicle_setup 
-from Boeing_737   import configs_setup as  B737_configs_setup 
+from X57_Maxwell_Mod2  import vehicle_setup as  X57_vehicle_setup
+from X57_Maxwell_Mod2  import configs_setup as  X57_configs_setup  
+from Boeing_737        import vehicle_setup as  B737_vehicle_setup 
+from Boeing_737        import configs_setup as  B737_configs_setup 
 
 # ----------------------------------------------------------------------
 #   Main
@@ -36,7 +35,7 @@ from Boeing_737   import configs_setup as  B737_configs_setup
 
 def main():   
     # ----------------------------------------------------------------------
-    # SUAVE Frequecy Domain Propeller Aircraft Noise Model 
+    # SUAVE Frequency Domain Propeller Aircraft Noise Model 
     # ---------------------------------------------------------------------- 
     configs, analyses = X57_full_setup() 
  
@@ -52,9 +51,10 @@ def main():
     plot_results(X57_results,X57_filename)  
     
     # SPL of rotor check during hover
-    print('\n\n SUAVE Frequecy Domain Propeller Aircraft Noise Model')
+    print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
     X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-    X57_SPL_true   = 81.5900710365277
+    X57_SPL_true   = 62.88950180134726
+
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
@@ -81,7 +81,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SAE Turbofan Aircraft Noise Model')
     B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
-    B737_SPL_true   = 27.76777338285558
+    B737_SPL_true   = 27.769008268610953
     print(B737_SPL) 
     B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
     print('SPL difference')
@@ -164,19 +164,26 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry = vehicle
-    aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.drag_coefficient_increment = 0.0000 
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
     #  Noise Analysis
     noise = SUAVE.Analyses.Noise.Fidelity_One()   
     noise.geometry = vehicle  
+    urban_canyon_microphone_array,building_locations,building_dimensions,N_x,N_y,N_z = urban_canyon_microphone_setup() 
+    noise.settings.urban_canyon_microphone_locations    = urban_canyon_microphone_array
+    noise.settings.urban_canyon_building_locations      = building_locations
+    noise.settings.urban_canyon_building_dimensions     = building_dimensions
+    noise.settings.urban_canyon_microphone_x_resolution = N_x 
+    noise.settings.urban_canyon_microphone_y_resolution = N_y
+    noise.settings.urban_canyon_microphone_z_resolution = N_z      
     analyses.append(noise)
 
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -230,6 +237,21 @@ def simple_sizing(configs):
 #   Define the Mission
 # ----------------------------------------------------------------------
 
+def urban_canyon_microphone_setup():  
+    
+    # define building locations 
+    building_locations  = [[200,150,0],[400,-200,0]] # [[x,y,z]]     
+     
+    # define building dimensions  
+    building_dimensions = [[100,200,75],[160,160,90]] # [[length,width,height]]     
+    
+    N_X = 4
+    N_Y = 4
+    N_Z = 16
+    mic_locations  = generate_building_microphone_points(building_locations,building_dimensions,N_x = N_X ,N_y = N_Y ,N_z = N_Z ) 
+     
+    return mic_locations,building_locations ,building_dimensions,N_X ,N_Y ,N_Z 
+
 def X57_mission_setup(analyses,vehicle):  
     
     # ------------------------------------------------------------------
@@ -251,16 +273,10 @@ def X57_mission_setup(analyses,vehicle):
     
     # base segment
     base_segment                                             = Segments.Segment()
-    ones_row                                                 = base_segment.state.ones_row
-    base_segment.use_Jacobian                                = False  
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    ones_row                                                 = base_segment.state.ones_row 
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.state.numerics.number_control_points        = 4
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.battery_propeller.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.battery_propeller.residuals
-    base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.battery_propeller.battery.max_voltage * ones_row(1)  
-    base_segment.state.residuals.network                     = 0. * ones_row(2)        
+    base_segment.state.numerics.number_control_points        = 4  
     
     # ------------------------------------------------------------------
     #   Initial Climb Area Segment Flight 1  
@@ -268,13 +284,16 @@ def X57_mission_setup(analyses,vehicle):
     segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
     segment.tag = 'ICA' 
     segment.analyses.extend( analyses.base )  
-    segment.battery_energy                                   = vehicle.propulsors.battery_propeller.battery.max_energy  
+    segment.battery_energy                                   = vehicle.networks.battery_propeller.battery.max_energy  
     segment.state.unknowns.throttle                          = 0.85  * ones_row(1)  
     segment.altitude_start                                   = 50.0 * Units.feet
     segment.altitude_end                                     = 500.0 * Units.feet
     segment.air_speed_start                                  = 45  * Units['m/s']   
     segment.air_speed_end                                    = 50 * Units['m/s']   
     segment.climb_rate                                       = 600 * Units['ft/min']    
+    
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    
     mission.append_segment(segment) 
               
     
@@ -619,10 +638,10 @@ def B737_missions_setup(base_mission,analyses):
 def plot_results(results,filename):   
     
     # Plot noise level
-    plot_noise_level(results,save_filename = filename)
+    plot_ground_noise_levels(results,save_filename = filename)
     
     # Plot noise contour
-    plot_flight_profile_noise_contour(results,save_filename = filename + 'contour') 
+    plot_flight_profile_noise_contours(results,save_filename = filename + 'contour',show_figure=False)  # show figure set to false for regression.
                         
     return  
 

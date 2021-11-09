@@ -42,7 +42,7 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     # Reset OpenVSP to avoid including a previous vehicle
     vsp.ClearVSPModel()
     
-    if 'turbofan' in geometry.propulsors:
+    if 'turbofan' in geometry.networks:
         print('Warning: no meshing sources are currently implemented for the nacelle')
 
     # Turn on symmetry plane splitting to improve robustness of meshing process
@@ -153,10 +153,10 @@ def set_sources(geometry):
     for fuselage in geometry.fuselages:
         comp_type_dict[fuselage.tag] = 'fuselage'
         comp_dict[fuselage.tag] = fuselage
-    # Propulsor sources have not been implemented
-    #for propulsor in geometry.propulsors:
-        #comp_type_dict[propulsor.tag] = 'turbojet'
-        #comp_dict[propulsor.tag] = propulsor
+    # network sources have not been implemented
+    #for network in geometry.networks:
+        #comp_type_dict[network.tag] = 'turbojet'
+        #comp_dict[network.tag] = network
         
     components = vsp.FindGeoms()
     
@@ -165,6 +165,8 @@ def set_sources(geometry):
     
     for comp in components:
         comp_name = vsp.GetGeomName(comp)
+        if comp_name not in comp_dict:
+            continue
         comp_type = comp_type_dict[comp_name]
         # Nacelle sources are not implemented
         #if comp_name[0:8] == 'turbofan':
@@ -273,13 +275,12 @@ def set_sources(geometry):
         # as is but they will not be appropriate for the nacelle shape.
         
         #elif comp_type == 'turbofan':
-            #propulsor = comp_dict[comp_name[0:8]]
-            #if propulsor.has_key('vsp_mesh'):
-                #len1 = propulsor.vsp_mesh.length
-                #rad1 = propulsor.vsp_mesh.radius
+            #network = comp_dict[comp_name[0:8]]
+            #if network.has_key('vsp_mesh'):
+                #len1 = network.vsp_mesh.length
+                #rad1 = network.vsp_mesh.radius
             #else:
                 #len1 = 0.1 * 0.5 # not sure where VSP is getting this value
-                #rad1 = 0.2 * propulsor.engine_length
             #uloc = 0.0
             #wloc = 0.0
             #vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 

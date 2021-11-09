@@ -18,7 +18,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools             import SPL_harmoni
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
 def compute_broadband_noise(freestream,angle_of_attack,position_vector,
-                            velocity_vector,propeller,auc_opts,settings,res):
+                            velocity_vector,network,auc_opts,settings,res,source):
     '''This computes the broadband noise of a propeller or rotor in the frequency domain
     
     Assumptions:
@@ -34,7 +34,7 @@ def compute_broadband_noise(freestream,angle_of_attack,position_vector,
         angle_of_attack               - aircraft angle of attack         [rad]
         position_vector               - position vector of aircraft      [m]
         velocity_vector               - velocity vector of aircraft      [m/s]
-        propeller                     - propeller class data structure   [None] 
+        network                       - energy network object            [None] 
         auc_opts                      - data structure of acoustic data  [None] 
         settings                      - accoustic settings               [None]
         res.      
@@ -48,7 +48,14 @@ def compute_broadband_noise(freestream,angle_of_attack,position_vector,
     '''     
     num_cpt        = len(angle_of_attack)
     num_mic        = len(position_vector[0,:,0,1])
-    num_prop       = len(position_vector[0,0,:,1])
+    num_prop       = len(position_vector[0,0,:,1]) 
+
+    if source == 'lift_rotors': 
+        propellers      = network.lift_rotors 
+        propeller       = network.lift_rotors[list(propellers.keys())[0]]
+    else:
+        propellers      = network.propellers
+        propeller       = network.propellers[list(propellers.keys())[0]] 
     
     # ----------------------------------------------------------------------------------
     # Broadband (Vortex) Noise

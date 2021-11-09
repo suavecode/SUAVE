@@ -8,17 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
-from SUAVE.Core import Data, Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Core import Data
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Ramjet Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Ramjet(Propulsor):
+class Ramjet(Network):
     """ This is a ramjet for supersonic flight.
 
         Assumptions:
@@ -50,8 +47,7 @@ class Ramjet(Propulsor):
 
         #setting the default values
         self.tag = 'Ramjet'
-        self.number_of_engines         = 1.0
-        self.nacelle_diameter          = 1.0
+        self.number_of_engines         = 1.0 
         self.engine_length             = 1.0
         self.generative_design_minimum = 0
 

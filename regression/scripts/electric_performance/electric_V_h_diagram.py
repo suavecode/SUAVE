@@ -17,7 +17,7 @@ import numpy as np
 import sys
 sys.path.append('../Vehicles')
 
-from X57_Maxwell import vehicle_setup
+from X57_Maxwell_Mod2 import vehicle_setup
 
 #-------------------------------------------------------------------------------
 # Test Function
@@ -47,7 +47,7 @@ def main():
     analyses.append(stability)
 
     energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     planet = SUAVE.Analyses.Planets.Planet()
@@ -69,11 +69,11 @@ def main():
                                       test_omega= 1000 * Units.rpm,
                                       display_plot=True)
 
-    climb_rate_r = [[0., 0., 0., 0., 0.],
-                    [0., 0., 0., 0., 0.],
-                    [732.51532185, 590.73441261, 456.55699063, 327.27220398, 204.13143284],
-                    [0., 0., 0., 0., 0.],
-                    [0., 0., 0., 0., 0.]]
+    climb_rate_r = [[  0.        ,   0.        ,   0.        ,   0.        ,          0.        ],
+                    [  0.        ,   0.        ,   0.        ,   0.        ,          0.        ],
+                    [719.7179757 , 582.17272069, 452.68248026, 329.12481042,        212.19190451],
+                    [  0.        ,   0.        ,   0.        ,   0.        ,          0.        ],
+                    [  0.        ,   0.        ,   0.        ,   0.        ,          0.        ]]
 
     assert (np.all(np.nan_to_num(np.abs(climb_rate-climb_rate_r)/climb_rate_r) < 1e-6)), "Electric V_h Diagram Regression Failed"
 

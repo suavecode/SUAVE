@@ -74,23 +74,23 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
             wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic + mac_le_offset
             
             
-    # Go through all the propulsors
-    propulsion_moment = 0.
-    propulsion_mass   = 0.
-    for prop in vehicle.propulsors:
-        prop.mass_properties.center_of_gravity[0][0] = prop.engine_length*.5
-        propulsion_mass                              += prop.mass_properties.mass
-        propulsion_moment                            += propulsion_mass*(np.sum(np.array(prop.origin),axis=0) +
-                                                                         prop.mass_properties.center_of_gravity)
+    # Go through all the networks
+    network_moment = 0.
+    network_mass   = 0.
+    for net in vehicle.networks:
+        net.mass_properties.center_of_gravity[0][0] = net.engine_length*.5
+        network_mass                               += net.mass_properties.mass
+        network_moment                             += network_mass*(np.sum(np.array(net.origin),axis=0) +
+                                                                         net.mass_properties.center_of_gravity)
 
-        for key,Comp in prop.items():
+        for key,Comp in net.items():
             if isinstance(Comp,Energy_Component):
-                propulsion_moment += prop[key].mass_properties.mass*(np.sum(np.array(prop[key].origin),axis=0) +
-                                                                     prop[key].mass_properties.center_of_gravity)
-                propulsion_mass   += prop[key].mass_properties.mass*len(prop[key].origin)
+                network_moment += net[key].mass_properties.mass*(np.sum(np.array(net[key].origin),axis=0) +
+                                                                     net[key].mass_properties.center_of_gravity)
+                network_mass   += net[key].mass_properties.mass*len(net[key].origin)
 
-    if propulsion_mass!= 0.:
-        propulsion_cg = propulsion_moment/propulsion_mass
+    if network_mass!= 0.:
+        propulsion_cg = network_moment/network_mass
     else:
         propulsion_cg = np.array([[0.,0.,0.]])
 

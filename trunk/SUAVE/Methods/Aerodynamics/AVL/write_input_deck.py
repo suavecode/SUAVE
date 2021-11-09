@@ -14,16 +14,13 @@ from .purge_files import purge_files
 ## @ingroup Methods-Aerodynamics-AVL
 def write_input_deck(avl_object,trim_aircraft):
     """ This function writes the execution steps used in the AVL call
-
     Assumptions:
         None
         
     Source:
         Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
-
     Inputs:
         avl_object
-
     Outputs:
         None
  
@@ -67,18 +64,15 @@ G
 
 def make_case_command(avl_object,case,trim_aircraft):
     """ Makes commands for case execution in AVL
-
     Assumptions:
         None
         
     Source:
         None
-
     Inputs:
         case.index
         case.tag
         case.result_filename
-
     Outputs:
         case_command
  
@@ -134,16 +128,13 @@ x
 
 def make_trim_text_command(case):
     """ Writes the trim command currently for a specified AoA or flight CL condition
-
     Assumptions:
         None
         
     Source:
         None
-
     Inputs:
         case
-
     Outputs:
         trim_command
  
@@ -175,17 +166,14 @@ c1
 
 def control_surface_deflection_command(case,aircraft): 
     """Writes the control surface command template
-
     Assumptions:
         None
         
     Source:
         None
-
     Inputs:
         avl_object
         case
-
     Outputs:
         em_case_command
  

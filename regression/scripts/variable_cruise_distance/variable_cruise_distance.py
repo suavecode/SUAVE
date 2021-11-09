@@ -45,15 +45,15 @@ def main():
     
     plot_results(results)
     
-    distance_regression = 3863686.2122737286
+    distance_regression = 3804806.720225211
     distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
+    print('distance_calc = ', distance_calc)
     error_distance      = abs((distance_regression - distance_calc )/distance_regression)
     assert error_distance < 1e-6
     
     error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
     print('landing weight error' , error_weight)
     assert error_weight < 1e-6
-    
     
     
     # Setup for converging on SOC, using the stopped rotor vehicle
@@ -64,12 +64,14 @@ def main():
     results_SR              = mission_SR.evaluate()
     results_SR              = results_SR.merged()
     
-    distance_regression_SR = 102508.47478670235
+    distance_regression_SR = 101649.83535243798
+
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
+    print('distance_calc_SR = ', distance_calc_SR)
     error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)
     assert error_distance_SR < 1e-6   
     
-    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.state_of_charge[-1,0])
+    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.battery_state_of_charge[-1,0])
     print('landing state of charge error' , error_soc)
     assert error_soc < 1e-6    
     
@@ -289,7 +291,7 @@ def mission_setup_SR(vehicle,analyses):
     
     # the cruise tag to vary cruise distance
     mission.cruise_tag = 'cruise'
-    mission.target_state_of_charge = 0.5
+    mission.target_state_of_charge = 0.51
     
     # unpack Segments module
     Segments = SUAVE.Analyses.Mission.Segments    
@@ -297,18 +299,31 @@ def mission_setup_SR(vehicle,analyses):
     # base segment
     base_segment = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row    
-    base_segment.state.numerics.number_control_points        = 4
+    base_segment.state.numerics.number_control_points        = 2
     base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip    
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.lift_cruise.residuals_transition
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.lift_cruise.battery.max_voltage * ones_row(1)  
-    base_segment.state.residuals.network                     = 0. * ones_row(2)    
+    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip    
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     
-        
-    
+    # ------------------------------------------------------------------
+    #   First Climb Segment: Constant Speed, Constant Rate
+    # ------------------------------------------------------------------
+    segment     = Segments.Hover.Climb(base_segment)
+    segment.tag = "climb_1"
+    segment.analyses.extend( analyses )
+    segment.altitude_start                                   = 0.0  * Units.ft
+    segment.altitude_end                                     = 40.  * Units.ft
+    segment.climb_rate                                       = 500. * Units['ft/min']
+    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.max_energy
+    segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability          = SUAVE.Methods.skip  
+    segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment,\
+                                                                                    initial_lift_rotor_power_coefficient = 0.01,
+                                                                                    initial_throttle_lift = 0.9)
+    # add to misison
+    mission.append_segment(segment)
+
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
@@ -318,18 +333,13 @@ def mission_setup_SR(vehicle,analyses):
     
     segment.analyses.extend( analyses )
     
-    segment.altitude  = 1000.0 * Units.ft
+    segment.altitude  = 1000.0 * Units.ft    
     segment.air_speed = 110.   * Units['mph']
     segment.distance  = 60.    * Units.miles     
-    segment.battery_energy = vehicle.propulsors.lift_cruise.battery.max_energy
+    segment.state.unknowns.throttle = 0.80 * ones_row(1)
     
+    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16)
 
-    segment.state.unknowns.propeller_power_coefficient = 0.16 * ones_row(1)  
-    segment.state.unknowns.throttle                    = 0.80 * ones_row(1)
-
-    segment.process.iterate.unknowns.network  = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
-    segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift    
-    
     mission.append_segment(segment)
 
 
@@ -384,7 +394,7 @@ def base_analysis_SR(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------

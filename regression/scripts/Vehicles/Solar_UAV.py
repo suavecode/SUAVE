@@ -3,6 +3,7 @@
 # Created:  Jul 2014, E. Botero
 # Modified: Aug 2017, E. Botero 
 #           Mar 2020, M. Clarke
+#           Oct 2021, M. Clarke
 
 
 #----------------------------------------------------------------------
@@ -138,17 +139,24 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(wing)  
     
+    # ------------------------------------------------------------------
+    #   Nacelle  
+    # ------------------------------------------------------------------
+    nacelle              = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter     = 0.2 * Units.meters
+    nacelle.length       = 0.01 * Units.meters
+    nacelle.tag          = 'nacelle' 
+    nacelle.areas.wetted =  nacelle.length *(2*np.pi*nacelle.diameter/2.)
+    vehicle.append_component(nacelle) 
+    
+    
     #------------------------------------------------------------------
-    # Propulsor
+    # network
     #------------------------------------------------------------------
     
     # build network
     net                   = Solar()
-    net.number_of_engines = 1.
-    net.nacelle_diameter  = 0.2 * Units.meters
-    net.engine_length     = 0.01 * Units.meters
-    net.areas             = Data()
-    net.areas.wetted      = 0.01*(2*np.pi*0.01/2.)
+    net.number_of_engines = 1. 
     
     # Component 1 the Sun?
     sun            = SUAVE.Components.Energy.Processes.Solar_Radiation()
@@ -178,7 +186,7 @@ def vehicle_setup():
     prop.design_altitude         = 14.0 * Units.km
     prop.design_thrust           = 110.  
     prop                         = propeller_design(prop) 
-    net.propeller                = prop
+    net.propellers.append(prop)
 
     # Component 4 the Motor
     motor                      = SUAVE.Components.Energy.Converters.Motor()
@@ -191,7 +199,7 @@ def vehicle_setup():
     motor.gearbox_efficiency   = .98 # Gear box efficiency
     motor.expected_current     = 160. # Expected current
     motor.mass_properties.mass = 2.0  * Units.kg
-    net.motor                  = motor    
+    net.motors.append(motor)
     
     # Component 6 the Payload
     payload                      = SUAVE.Components.Energy.Peripherals.Payload()
@@ -210,7 +218,7 @@ def vehicle_setup():
     bat.specific_energy      = 600. * Units.Wh/Units.kg
     bat.resistance           = 0.05
     bat.max_voltage          = 45.0
-    initialize_from_mass(bat,bat.mass_properties.mass)
+    initialize_from_mass(bat)
     net.battery              = bat
    
     #Component 9 the system logic controller and MPPT

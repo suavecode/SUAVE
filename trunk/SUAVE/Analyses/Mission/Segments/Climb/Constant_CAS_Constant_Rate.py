@@ -2,7 +2,7 @@
 # Constant_CAS_Constant_Rate.py
 #
 # Created:  Nov 2020, S. Karpuk
-# Modified: 
+# Modified: Aug 2021, J. Mukhopadhaya
 #
 # Adapted from Constant_CAS_Constant_Rate
 
@@ -58,7 +58,7 @@ class Constant_CAS_Constant_Rate(Unknown_Throttle):
         self.altitude_start       = None # Optional
         self.altitude_end         = 10. * Units.km
         self.climb_rate           = 3.  * Units.m / Units.s
-        self.equivalent_air_speed = 100 * Units.m / Units.s
+        self.calibrated_air_speed = 100 * Units.m / Units.s
         
         # --------------------------------------------------------------
         #   The Solving Process

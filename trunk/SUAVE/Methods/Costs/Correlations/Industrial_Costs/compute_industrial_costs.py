@@ -44,7 +44,7 @@ def compute_industrial_costs(vehicle,determine_cash_flow=True):
       stealth                        [-]        0 for non-stealth, 1 for stealth
       material_factor                [-]        1.0 for conventional Al, 1.5 for stainless steel, 2~2.5 for composites, 3 for carbon fiber
     vehicle.mass_properties.empty    [kg]
-    vehicle.propulsors.turbofan.
+    vehicle.networks.turbofan.
       number_of_engines              [-]
       sealevel_static_thrust         [N]
     vehicle.passengers               [-]
@@ -109,8 +109,8 @@ def compute_industrial_costs(vehicle,determine_cash_flow=True):
 
     # general airplane data
     weight            = 0.62 * vehicle.mass_properties.empty / lb_to_kg # correlation for AMPR weight, typical 62% * Empty weight
-    n_engines         = vehicle.propulsors.turbofan.number_of_engines
-    sls_thrust        = vehicle.propulsors.turbofan.sealevel_static_thrust / lbf_to_N
+    n_engines         = vehicle.networks.turbofan.number_of_engines
+    sls_thrust        = vehicle.networks.turbofan.sealevel_static_thrust / lbf_to_N
     n_pax             = vehicle.passengers
 
     # estimate escalation factor

@@ -3,6 +3,7 @@
 
 # Created:  SUAVE team
 # Modified: Aug 2016, L. Kulik
+#           Oct 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -23,7 +24,7 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
     """This creates a file showing engine information.
 
     Assumptions:
-    One propulsor (can be multiple engines) with 'turbofan' tag.
+    One network (can be multiple engines) with 'turbofan' tag.
 
     Source:
     N/A
@@ -32,11 +33,10 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
     vehicle.
       tag
       turbofan()              Function to compute thrust and fuel burn rate
-      propulsors.turbofan.
+      networks.turbofan.
         design_thrust         [N]
         engine_length         [m]
-        nacelle_diameter      [m]
-        thrust.bypass_ratio   [-]
+        thrust.bypass_ratio   [-] 
     filename (optional)       <string> Determines the name of the saved file
     units (optional)          <string> Determines the type of units used in the output, options are imperial and si
 
@@ -73,17 +73,10 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
 
     # Determining vehicle number of engines
     engine_number = 0.
-    for propulsor in vehicle.propulsors:  # may have than one propulsor
-        engine_number += propulsor.number_of_engines
+    for network in vehicle.networks:  # may have than one network
+        engine_number += network.number_of_engines
     if engine_number == 0:
-        raise ValueError("No engine found in the vehicle")
-
-
-    engine_tag = vehicle.propulsors.turbofan.tag
-    design_thrust = vehicle.propulsors.turbofan.design_thrust
-    engine_length = vehicle.propulsors.turbofan.engine_length
-    nacelle_diameter = vehicle.propulsors.turbofan.nacelle_diameter
-    bypass_ratio = vehicle.propulsors.turbofan.thrust.bypass_ratio
+        raise ValueError("No engine found in the vehicle") 
 
     # Considering planet and atmosphere of 1st mission segment
     sea_level_gravity = SUAVE.Attributes.Planets.Earth().sea_level_gravity
@@ -151,7 +144,7 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
                 state.conditions.freestream.pressure = np.array(np.atleast_1d(p))
                 state.conditions.propulsion.throttle = np.array(np.atleast_1d(1.))
 
-                results = vehicle.propulsors.turbofan(state)  # total thrust
+                results = vehicle.networks.turbofan(state)  # total thrust
                 thrust[idx] = results.thrust_force_vector[0, 0]
                 mdot[idx] = results.vehicle_mass_rate[0, 0]
 

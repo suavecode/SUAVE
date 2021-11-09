@@ -31,17 +31,18 @@ def main():
     obj = problem.objective([1.,1.])
     con = problem.all_constraints([1.,1.])
     obj2 = problem.objective([0.9,1.1])
-    con3 = problem.all_constraints([1.1,0.9])    
-    
-    actual = Data()
-
-    actual.obj  = 0.71675392
-    actual.con  = 2.71025508
-    actual.obj2 = 0.73969766
-    actual.con3 = 2.86060695
+    con3 = problem.all_constraints([1.1,0.9])   
     
     print('Fuel Burn   =', obj)
-    print('Fuel Margin =', con)    
+    print('Fuel Margin =', con)
+    print(obj2)
+    print(con3)
+    
+    actual = Data()
+    actual.obj  = 0.71662806
+    actual.con  = 2.7042645
+    actual.obj2 = 0.74496337
+    actual.con3 = 2.89084155   
 
     error = Data()
     error.obj  = (actual.obj - obj)/actual.obj

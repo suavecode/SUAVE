@@ -10,7 +10,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Geometry_Plots import plot_propeller
+from SUAVE.Plots.Geometry import plot_propeller
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -29,7 +29,7 @@ def main():
     # analysis scripts
     
     net                       = Battery_Propeller()   
-    net.number_of_engines     = 2    
+    net.number_of_propeller_engines     = 2    
     
     # Design Gearbox 
     gearbox                   = SUAVE.Components.Energy.Converters.Gearbox()
@@ -121,8 +121,7 @@ def main():
     rot_a.number_of_blades         = 2   
     rot_a.design_tip_mach          = 0.65
     rot_a.number_of_engines        = 12
-    rot_a.disc_area                = np.pi*(rot_a.tip_radius**2)        
-    rot_a.induced_hover_velocity   = 12.756071638899549
+    rot_a.disc_area                = np.pi*(rot_a.tip_radius**2)   
     rot_a.freestream_velocity      = 500. * Units['ft/min']  
     rot_a.angular_velocity         = 258.9520059992501
     rot_a.design_Cl                = 0.7
@@ -147,8 +146,7 @@ def main():
     rot.number_of_blades         = 2   
     rot.design_tip_mach          = 0.65
     rot.number_of_engines        = 12
-    rot.disc_area                = np.pi*(rot.tip_radius**2)        
-    rot.induced_hover_velocity   = 12.756071638899549
+    rot.disc_area                = np.pi*(rot.tip_radius**2)     
     rot.freestream_velocity      = 500. * Units['ft/min']  
     rot.angular_velocity         = 258.9520059992501
     rot.design_Cl                = 0.7
@@ -163,7 +161,8 @@ def main():
     V  = prop.freestream_velocity
     Vr = rot.freestream_velocity
     
-    conditions                                          = Data()
+    conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions._size                                    = 1
     conditions.freestream                               = Data()
     conditions.propulsion                               = Data()
     conditions.frames                                   = Data()
@@ -186,62 +185,64 @@ def main():
     rot.inputs.omega     = copy.copy(prop.inputs.omega)
     
     # propeller with airfoil results 
+    prop_a.inputs.pitch_command                = 0.0*Units.degree
     F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  
     plot_results(output_a, prop_a,'blue','-','s')
     
     # propeller without airfoil results 
-    conditions.propulsion.pitch_command = np.array([[1.0]])*Units.degree
+    prop.inputs.pitch_command           = 0.0*Units.degree
     F, Q, P, Cplast ,output , etap      = prop.spin(conditions)
     plot_results(output, prop,'red','-','o')
     
     # rotor with airfoil results 
+    rot_a.inputs.pitch_command                     = 0.0*Units.degree
     Fr_a, Qr_a, Pr_a, Cplastr_a ,outputr_a , etapr = rot_a.spin(conditions_r)
     plot_results(outputr_a, rot_a,'green','-','^')
     
     # rotor with out airfoil results 
-    conditions_r.propulsion.pitch_command = np.array([[1.0]])*Units.degree
+    rot.inputs.pitch_command              = 0.0*Units.degree
     Fr, Qr, Pr, Cplastr ,outputr , etapr  = rot.spin(conditions_r)
     plot_results(outputr, rot,'black','-','P')
     
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3390.61957425
-    Q_a_truth       = 1001.363593
-    P_a_truth       = 207444.08891448 
-    Cplast_a_truth  = 0.10692172
+    F_a_truth       = 3292.329536278088
+    Q_a_truth       = 972.34064682
+    P_a_truth       = 201431.64880664   
+    Cplast_a_truth  = 0.10382277
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2705.62228566
-    Q_truth         = 815.76685175
-    P_truth         = 168995.57015083
-    Cplast_truth    = 0.08710442
+    F_truth         = 2625.8994118273345
+    Q_truth         = 791.38901131 
+    P_truth         = 163945.41760311 
+    Cplast_truth    = 0.08450145
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1447.00285504
-    Qr_a_truth      = 191.05249889
-    Pr_a_truth      = 39578.74227177 
-    Cplastr_a_truth = 0.06225539
+    Fr_a_truth      = 1488.2325452858663
+    Qr_a_truth      = 141.16099499
+    Pr_a_truth      = 29243.13825682
+    Cplastr_a_truth = 0.045998
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1290.26055703
-    Qr_truth        = 179.49371868
-    Pr_truth        = 37184.2068134
-    Cplastr_truth   = 0.0584889
- 
+    Fr_truth        = 1249.520886459983  
+    Qr_truth        = 122.9096106
+    Pr_truth        = 25462.15217793
+    Cplastr_truth   = 0.0400507
+    
     # Store errors 
     error = Data()
-    error.Thrust_a  = np.max(np.abs(F_a -F_a_truth))
+    error.Thrust_a  = np.max(np.abs(np.linalg.norm(F_a) -F_a_truth))
     error.Torque_a  = np.max(np.abs(Q_a -Q_a_truth))    
     error.Power_a   = np.max(np.abs(P_a -P_a_truth))
     error.Cp_a      = np.max(np.abs(Cplast_a -Cplast_a_truth))  
-    error.Thrust    = np.max(np.abs(F-F_truth))
+    error.Thrust    = np.max(np.abs(np.linalg.norm(F)-F_truth))
     error.Torque    = np.max(np.abs(Q-Q_truth))    
     error.Power     = np.max(np.abs(P-P_truth))
     error.Cp        = np.max(np.abs(Cplast-Cplast_truth))  
-    error.Thrustr_a = np.max(np.abs(Fr_a-Fr_a_truth))
+    error.Thrustr_a = np.max(np.abs(np.linalg.norm(Fr_a)-Fr_a_truth))
     error.Torquer_a = np.max(np.abs(Qr_a-Qr_a_truth))    
     error.Powerr_a  = np.max(np.abs(Pr_a-Pr_a_truth))
     error.Cpr_a     = np.max(np.abs(Cplastr_a-Cplastr_a_truth))  
-    error.Thrustr   = np.max(np.abs(Fr-Fr_truth))
+    error.Thrustr   = np.max(np.abs(np.linalg.norm(Fr)-Fr_truth))
     error.Torquer   = np.max(np.abs(Qr-Qr_truth))    
     error.Powerr    = np.max(np.abs(Pr-Pr_truth))
     error.Cpr       = np.max(np.abs(Cplastr-Cplastr_truth))     
