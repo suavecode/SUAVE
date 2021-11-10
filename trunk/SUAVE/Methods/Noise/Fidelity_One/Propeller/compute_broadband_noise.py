@@ -12,8 +12,6 @@ import numpy as np
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.SPL_harmonic_to_third_octave  import SPL_harmonic_to_third_octave
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates    import vectorize_1,vectorize_2,vectorize_3,vectorize_4,vectorize_5,vectorize_7,vectorize_8 
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_boundary_layer_properties\
-     import evaluate_boundary_layer_surrogates
 from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis        import airfoil_analysis
 from scipy.special import fresnel
 
@@ -220,23 +218,23 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     # ****** BLADE MOTION CALCULATIONS ****** 
     # the rotational Mach number of the blade section 
     frequency = np.linspace(1E2,1E4, BSR)                              
-    omega   = 2*pi*frequency                                           
-    omega   = vectorize_8(omega,num_mic,num_cpt,num_prop,num_azi,num_sec)     
-    r       = np.repeat(r[:,:,:,:,:,:,np.newaxis],2,axis = 6)          
-    c       = np.repeat(c[:,:,:,:,:,:,np.newaxis],2,axis = 6)          
-    delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)    
-    M       = np.repeat(M,2,axis = 6)                                  
-    M_r     = Omega*r/c_0                                              
-    epsilon = X**2 + (beta_sq)*(Y**2 + Z**2)                           
-    U_c     = 0.8*U_inf                                                
-    U_c     = 0.7*U_inf    # ONLY FOR VALIDATION
-    k_x     = omega/U_inf                                              
-    l_r     = 1.6*U_c/omega                                            
-    l_r     = 1.*U_c/omega      # ONLY FOR VALIDATION
-    omega_d = omega/(1 +  M_r*(X/R_s)) # dopler shifted frequency      
-    mu      = omega_d*M/(U_inf*beta_sq)  # omega_d*M/U_inf*beta_p      
-    bar_mu  = mu/(c/2)   # normalized by the semi chord                
-    bar_k_x = k_x/(c/2)                                                
+    omega     = 2*pi*frequency                                           
+    omega     = vectorize_8(omega,num_mic,num_cpt,num_prop,num_azi,num_sec)     
+    r         = np.repeat(r[:,:,:,:,:,:,np.newaxis],2,axis = 6)          
+    c         = np.repeat(c[:,:,:,:,:,:,np.newaxis],2,axis = 6)          
+    delta_r   = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)    
+    M         = np.repeat(M,2,axis = 6)                                  
+    M_r       = Omega*r/c_0                                              
+    epsilon   = X**2 + (beta_sq)*(Y**2 + Z**2)                           
+    U_c       = 0.8*U_inf                                                
+    U_c       = 0.7*U_inf    # ONLY FOR VALIDATION
+    k_x       = omega/U_inf                                              
+    l_r       = 1.6*U_c/omega                                            
+    l_r       = 1.*U_c/omega      # ONLY FOR VALIDATION
+    omega_d   = omega/(1 +  M_r*(X/R_s)) # dopler shifted frequency      
+    mu        = omega_d*M/(U_inf*beta_sq)  # omega_d*M/U_inf*beta_p      
+    bar_mu    = mu/(c/2)   # normalized by the semi chord                
+    bar_k_x   = k_x/(c/2)                                                
 
     # ------------------------------------------------------------
     # ****** LOADING TERM CALCULATIONS ******   

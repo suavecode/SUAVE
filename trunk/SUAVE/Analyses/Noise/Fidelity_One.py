@@ -78,7 +78,7 @@ class Fidelity_One(Noise):
         settings.urban_canyon_building_locations      = []  
         settings.urban_canyon_microphone_x_resolution = 4 
         settings.urban_canyon_microphone_y_resolution = 4 
-        settings.broadband_spectrum_resolution        = 100
+        settings.broadband_spectrum_resolution        = 301 # decreasing below 301 will result in some 1/3 octave bands having no value 
         settings.floating_point_precision             = np.float32
         settings.urban_canyon_microphone_z_resolution = 16 
         settings.mic_x_position                       = 0     
@@ -202,7 +202,7 @@ class Fidelity_One(Noise):
                         acoustic_data                = conditions.noise.sources[source]   
                         propeller_noise              = propeller_mid_fidelity(net,acoustic_data,segment,settings,source)  
                         source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
-                        source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_total_1_3_spectrum    
+                        source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_1_3_spectrum    
                            
                         si += 1
              

@@ -48,8 +48,8 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     
     Outputs 
         res.                                    *acoustic data is stored and passed in data structures*                                                                            
-            SPL_prop_harmonic_spectrum           - harmonic noise in blade passing frequency spectrum              [dB]
-            SPL_prop_harmonic_spectrum_dBA       - dBA-Weighted harmonic noise in blade passing frequency spectrum [dbA]                  
+            SPL_prop_harmonic_bpf_spectrum       - harmonic noise in blade passing frequency spectrum              [dB]
+            SPL_prop_harmonic_bpf_spectrum_dBA   - dBA-Weighted harmonic noise in blade passing frequency spectrum [dbA]                  
             SPL_prop_harmonic_1_3_spectrum       - harmonic noise in 1/3 octave spectrum                           [dB]
             SPL_prop_harmonic_1_3_spectrum_dBA   - dBA-Weighted harmonic noise in 1/3 octave spectrum              [dBA] 
             p_pref_harmonic                      - pressure ratio of harmonic noise                                [Unitless]
@@ -150,13 +150,12 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     p_mL_H            =  abs(p_mL_H)  
 
     # sound pressure levels  
-    res.SPL_prop_harmonic_spectrum         = 20*np.log10((abs(p_mL_H + p_mT_H))/p_ref) 
-    res.p_pref_harmonic                    = 10**(res.SPL_prop_harmonic_spectrum/10)   
-    res.SPL_prop_harmonic_spectrum_dBA     = A_weighting(res.SPL_prop_harmonic_spectrum,res.f[:,:,:,0,:]) 
-    res.p_pref_harmonic_dBA                = 10**(res.SPL_prop_harmonic_spectrum_dBA/10) 
-    res.SPL_prop_harmonic_1_3_spectrum     = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_spectrum,res.f[:,0,0,0,:],settings)         
-    res.SPL_prop_harmonic_1_3_spectrum_dBA = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_spectrum_dBA,res.f[:,0,0,0,:],settings) 
-    res.SPL_prop_harmonic_spectrum         = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_spectrum,res.f[:,0,0,0,:],settings)        
+    res.SPL_prop_harmonic_bpf_spectrum     = 20*np.log10((abs(p_mL_H + p_mT_H))/p_ref) 
+    res.SPL_prop_harmonic_bpf_spectrum_dBA = A_weighting(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,:,:,0,:]) 
+    res.p_pref_harmonic                    = 10**(res.SPL_prop_harmonic_bpf_spectrum/10)   
+    res.p_pref_harmonic_dBA                = 10**(res.SPL_prop_harmonic_bpf_spectrum_dBA/10) 
+    res.SPL_prop_harmonic_1_3_spectrum     = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,0,0,0,:],settings)         
+    res.SPL_prop_harmonic_1_3_spectrum_dBA = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum_dBA,res.f[:,0,0,0,:],settings)  
  
     return  
 
