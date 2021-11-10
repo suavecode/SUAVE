@@ -24,3 +24,5 @@ from .Vehicle import Vehicle
 
 from warnings import simplefilter
 simplefilter('ignore')
+
+from SUAVE.version import version as __version__

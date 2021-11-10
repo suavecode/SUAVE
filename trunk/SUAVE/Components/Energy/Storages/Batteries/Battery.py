@@ -37,7 +37,7 @@ class Battery(Energy_Component):
         self.initial_temperature            = 20.0
         self.current_capacitor_charge       = 0.0
         self.resistance                     = 0.07446 # base internal resistance of battery in ohms  
-        self.specific_heat_capacity         = 20.  
+        self.specific_heat_capacity         = 1100.  
         self.max_energy                     = 0.0
         self.max_power                      = 0.0
         self.max_voltage                    = 0.0
