@@ -4,4 +4,3 @@
 
 
 from .Constraint_Analysis     import Constraint_Analysis
-from . import ADRpy
