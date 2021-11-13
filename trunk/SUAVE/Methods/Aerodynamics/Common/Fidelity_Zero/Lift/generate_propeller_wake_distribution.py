@@ -343,7 +343,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
     WD.YB2    =  np.reshape(Wmid.WD_YB2,mat6_size)
     WD.ZB2    =  np.reshape(Wmid.WD_ZB2,mat6_size)
     WD.GAMMA  =  np.reshape(Wmid.WD_GAMMA,mat6_size)
-
+    WD.wake_skew_angle = wake_skew_angle
+    
     return WD, dt, ts, B, Nr 
 
 
