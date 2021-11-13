@@ -96,7 +96,7 @@ modules = [
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
     'scripts/weights/weights.py',
-    'scripts/constraint_analysis/constraint_analysis.py',
+    'scripts/constraint_analysis/constraint_analysis.py'
 ]
 
 # ----------------------------------------------------------------------
