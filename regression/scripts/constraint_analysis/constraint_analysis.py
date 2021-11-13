@@ -159,22 +159,30 @@ def main():
     prop_TW = ca.des_thrust_to_weight
 
     # true values
-    prop_WS_truth = 244.1164
-    prop_TW_truth = 0.17916
+    prop_WS_truth = 219.70478
+    prop_TW_truth = 0.16453637
     jet_WS_truth  = 725.143706
-    jet_TW_truth  = 3.694133
+    jet_TW_truth  = 3.411239
 
 
     err_prop_WS = (prop_WS - prop_WS_truth)/prop_WS_truth
     err_prop_TW = (prop_TW - prop_TW_truth)/prop_TW_truth 
     err_jet_WS  = (jet_WS  - jet_WS_truth)/jet_WS_truth
     err_jet_TW  = (jet_TW  - jet_TW_truth)/jet_TW_truth
+
+    print('Calculated values:')
+    print(prop_WS,prop_TW,jet_WS,jet_TW)
+    print('Expected values:')
+    print(prop_WS_truth,prop_TW_truth,jet_WS_truth,jet_TW_truth)
     
     err       = Data()
     err.propeller_WS_error = err_prop_WS
     err.propeller_TW_error = err_prop_TW
     err.jet_WS_error       = err_jet_WS
     err.jet_TW_error       = err_jet_TW
+
+    print('Errors:')
+    print(err_prop_WS,err_prop_TW,err_jet_WS,err_jet_TW)
 
     for k,v in list(err.items()):
         assert(np.abs(v)<1E-6)    
