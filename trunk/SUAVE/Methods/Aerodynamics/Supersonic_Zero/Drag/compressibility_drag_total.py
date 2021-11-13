@@ -3,6 +3,8 @@
 # 
 # Created:  Jan 2019, T. MacDonald
 # Modified: Jan 2020, T. MacDonald
+#           May 2021, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,7 +14,8 @@
 from SUAVE.Core import Data
 
 from .wave_drag_lift import wave_drag_lift
-from .wave_drag_volume import wave_drag_volume
+from .wave_drag_volume_raymer import wave_drag_volume_raymer
+from .wave_drag_volume_sears_haack import wave_drag_volume_sears_haack
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 from SUAVE.Components.Wings import Main_Wing
 
@@ -64,6 +67,13 @@ def compressibility_drag_total(state,settings,geometry):
     peak_factor      = settings.transonic_drag_multiplier
     scaling_factor   = settings.volume_wave_drag_scaling
     
+    if settings.wave_drag_type == 'Raymer':
+        wave_drag_volume = wave_drag_volume_raymer
+    elif settings.wave_drag_type == 'Sears-Haack':
+        wave_drag_volume = wave_drag_volume_sears_haack
+    else:
+        raise NotImplementedError    
+    
     if settings.cross_sectional_area_calculation_type != 'Fixed':
         raise NotImplementedError
     
@@ -78,14 +88,14 @@ def compressibility_drag_total(state,settings,geometry):
     Sref_main = geometry.reference_area
     
 
-    low_cutoff_volume_total  = 0.
-    high_cutoff_volume_total = 0.
+    low_cutoff_volume_total  = np.zeros_like(Mc)
+    high_cutoff_volume_total = np.zeros_like(Mc)
     
     # Get the lift coefficient
     cl = conditions.aerodynamics.lift_breakdown.compressible_wings    
     
     for wing in geometry.wings:
-        low_cutoff_volume_total += drag_div(low_mach_cutoff*np.ones([1]), wing, cl, Sref_main)[0]
+        low_cutoff_volume_total += drag_div(low_mach_cutoff*np.ones([1]), wing, cl[wing.tag], Sref_main)[0]
     high_cutoff_volume_total = wave_drag_volume(geometry,low_mach_cutoff*np.ones([1]),scaling_factor)
     
     peak_volume_total = high_cutoff_volume_total*peak_factor
@@ -115,14 +125,14 @@ def compressibility_drag_total(state,settings,geometry):
     hi_inds  = Mc[:,0]>=peak_mach
     
     for wing in geometry.wings:
-        cd_c_v_base[low_inds] += drag_div(Mc[low_inds], wing, cl, Sref_main)[0]
+        cd_c_v_base[low_inds] += drag_div(Mc[low_inds], wing, cl[wing.tag][low_inds], Sref_main)[0]
     cd_c_v_base[Mc>=peak_mach] = wave_drag_volume(geometry, Mc[Mc>=peak_mach], scaling_factor)
     
     cd_c_l_base = lift_wave_drag(conditions, configuration, geometry.wings.main_wing, Sref_main)
     
     cd_c_v = np.zeros_like(Mc)
     
-    cd_c_v[low_inds] = cd_c_v_base[low_inds]*(sub_h00(Mc[low_inds])) + CD_v_para(Mc[low_inds],a1)*(1-sub_h00(Mc[low_inds]))
+    cd_c_v[low_inds] = cd_c_v_base[low_inds]*(sub_h00(Mc[low_inds])) + CD_v_para(Mc[low_inds],a1[low_inds])*(1-sub_h00(Mc[low_inds]))
     cd_c_v[hi_inds]  = CD_v_para(Mc[hi_inds],a2)*(sup_h00(Mc[hi_inds])) + cd_c_v_base[hi_inds]*(1-sup_h00(Mc[hi_inds]))
 
     if peak_mach<1.01:

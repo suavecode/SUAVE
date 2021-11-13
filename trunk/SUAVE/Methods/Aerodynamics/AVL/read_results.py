@@ -135,6 +135,7 @@ def read_results(avl_object):
         wing_local_span      = np.zeros((n_wings,n_sw))
         wing_sectional_chord = np.zeros((n_wings,n_sw))
         wing_cl              = np.zeros((n_wings,n_sw))
+        alpha_i              = np.zeros((n_wings,n_sw))
         wing_cd              = np.zeros((n_wings,n_sw))   
         
         # Extract resulst from surface forces result file
@@ -161,18 +162,21 @@ def read_results(avl_object):
             for i in range(n_wings): 
                 for j in range(n_sw):
                     wing_local_span[i,j]      = float(aero_lines_2[header + j + line_idx][8:16].strip())
-                    wing_sectional_chord[i,j] = float(aero_lines_2[header + j + line_idx][16:24].strip())
-                    wing_cl[i,j]              = float(aero_lines_2[header + j + line_idx][61:69].strip()) 
+                    wing_sectional_chord[i,j] = float(aero_lines_2[header + j + line_idx][16:24].strip()) 
+                    wing_cl[i,j]              = float(aero_lines_2[header + j + line_idx][61:69].strip())  
                     # At high angle of attacks, AVL does not give an answer 
                     try:
+                        alpha_i[i,j]              = float(aero_lines_2[header + j + line_idx][43:51].strip())
                         wing_cd[i,j]              = float(aero_lines_2[header + j + line_idx][70:78].strip())
                     except:
+                        alpha_i[i,j]              = 0.
                         wing_cd[i,j]              = 0.
                 line_idx = divider_header +  n_sw + line_idx            
-            case_res.aerodynamics.wing_local_spans    = wing_local_span
-            case_res.aerodynamics.wing_section_chords = wing_sectional_chord 
-            case_res.aerodynamics.wing_section_cls    = wing_cl 
-            case_res.aerodynamics.wing_section_cds    = wing_cd 
+            case_res.aerodynamics.wing_local_spans         = wing_local_span
+            case_res.aerodynamics.wing_section_chords      = wing_sectional_chord 
+            case_res.aerodynamics.wing_section_cls         = wing_cl 
+            case_res.aerodynamics.wing_section_aoa_i       = alpha_i 
+            case_res.aerodynamics.wing_section_cds         = wing_cd 
   
         with open(case.aero_result_filename_4,'r') as bod_der_vile:
             # Extract results from body axis derivatives file                         

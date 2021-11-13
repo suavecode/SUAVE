@@ -60,9 +60,6 @@ def compressibility_drag_total(state,settings,geometry):
     number_rotations = settings.number_rotations
     
     wings          = geometry.wings
-    fuselages      = geometry.fuselages
-    propulsor_name = geometry.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
-    propulsor      = geometry.propulsors[propulsor_name]
 
     Mc             = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
@@ -86,14 +83,6 @@ def compressibility_drag_total(state,settings,geometry):
         cd_c = np.array([[0.0]] * len(Mc))
         mcc  = np.array([[0.0]] * len(Mc))
         MDiv = np.array([[0.0]] * len(Mc))     
-
-
-        # Get main fuselage data - note that name of fuselage is important here
-        # This should be changed to be general 
-        main_fuselage = fuselages['fuselage']
-
-        # Get number of engines data
-        num_engines = propulsor.number_of_engines
 
         # Get the lift coefficient of the wing.
         # Note that this is not the total CL

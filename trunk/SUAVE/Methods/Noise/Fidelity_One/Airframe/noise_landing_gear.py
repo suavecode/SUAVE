@@ -15,33 +15,50 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Airframe
-def noise_landing_gear (D,H,wheels,M,velocity,phi,theta,distance,frequency):
-    """ SUAVE.Methods.Noise.Fidelity_One.noise_landing_gear(D,H,wheels,M,velocity,phi,theta,distance,frequency):
-            Calculates the Landing gear 1/3 octave band sound pressure level and overall sound pressure level
-            for a tyre diameter D, a strut length H and WHEELS number of  wheels per unit.
+def noise_landing_gear(D,H,wheels,M,velocity,phi,theta,distance,frequency):
+    """This calculates the Landing gear 1/3 octave band sound pressure level and overall sound pressure level
+    for a tyre diameter D, a strut length H and WHEELS number of  wheels per unit.
 
-            Inputs:
-                    D                          - Landing gear tyre diameter [ft]
-                    H                          - Lading gear strut length [ft]
-                    wheels                     - Number of wheels per unit
-                    M                          - Mach number
-                    velocity                   - Aircraft speed [kts]
-                    phi                        - Azimuthal angle [rad]
-                    theta                      - Polar angle [rad]
-                    distance                   - Distance from airplane to observer, evaluated at retarded time [ft]
-                    frequemcy                  - Frequency array [Hz]
+    Assumptions:
+        Correlation based.
+
+    Source:
+        None
 
 
+    Inputs:
+        D         - Landing gear tyre diameter                                     [ft]
+        H         - Lading gear strut length                                       [ft]
+        wheels    - Number of wheels per unit                                      [-]
+        M         - Mach number                                                    [-]
+        velocity  - Aircraft speed                                                 [kts]
+        phi       - Azimuthal angle                                                [rad]
+        theta     - Polar angle                                                    [rad]
+        distance  - Distance from airplane to observer, evaluated at retarded time [ft]
+        frequemcy - Frequency array                                                [Hz] 
 
-            Outputs: One Third Octave Band SPL [dB]
-                SPL                              - Sound Pressure Level of the landing gear [dB]
-                OASPL                            - Overall Sound Pressure Level of the landing gear [dB]
-
-            Assumptions:
-                Correlation based."""
+    Outputs: One Third Octave Band SPL [dB]
+        SPL           - Sound Pressure Level of the landing gear         [dB]
+        OASPL         - Overall Sound Pressure Level of the landing gear [dB]
 
 
-    #Process
+    Source:
+        SAE ARP 876D
+
+    Inputs:
+        Ce = wing chord length at the engine location - as figure 7.3 of the SAE ARP 876D                    [m]                          
+        Xe = fan exit location downstream of the leading edge (Xe<Ce) - as figure 7.3 of the SAE ARP 876D    [m] 
+        Ye = separation distance from the wing chord line to nozzle lip - as figure 7.3 of the SAE ARP 876D  [m] 
+        theta_s                                                                                              [rad]
+        Diameter_mixed                                                                                       [m] 
+
+    Outputs:
+        INST_s          [-]
+
+    Properties Used: 
+        N/A 
+        
+    """  
     
     velocity_fts = velocity/Units.ft
     velocity_kts = velocity/Units.knots
@@ -63,4 +80,4 @@ def noise_landing_gear (D,H,wheels,M,velocity,phi,theta,distance,frequency):
     SPL   = 60.*np.log10(velocity_kts/194.0)+20.*np.log10(D/distance)+10.*np.log10(10.0**G1+10.0**G2)
     OASPL = 60.*np.log10(velocity_kts/194.0)+20.*np.log10(D/distance)+10.*np.log10(10.0**12.52+10.0**G3)
 
-    return(SPL)
+    return SPL

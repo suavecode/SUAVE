@@ -13,7 +13,6 @@
 from SUAVE.Core import Data
 from .Aerodynamics import Aerodynamics
 from SUAVE.Analyses import Process
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform.segment_properties import segment_properties
 
 
 # ----------------------------------------------------------------------
@@ -51,8 +50,9 @@ class Markup(Aerodynamics):
         
         self.geometry = Data()
         self.settings.maximum_lift_coefficient_factor = 1.0        
-        self.settings.lift_to_drag_adjustment  = 0. # (.1 is a 10% increase in L/D over base analysis)
-                                                    # this is applied directly to the final drag value
+        self.settings.lift_to_drag_adjustment         = 0. # (.1 is a 10% increase in L/D over base analysis)
+                                                           # this is applied directly to the final drag value                                                           
+
         
         self.process = Process()
         self.process.initialize = Process()
@@ -103,10 +103,4 @@ class Markup(Aerodynamics):
         Properties Used:
         N/A
         """            
-        self.process.initialize(self)
-        for wing in self.geometry.wings:
-            if len(wing.Segments) > 0:
-                segment_properties(self.settings,wing)          
-    
-        
-        
+        self.process.initialize(self)  

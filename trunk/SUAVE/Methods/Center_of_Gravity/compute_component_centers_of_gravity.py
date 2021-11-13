@@ -6,7 +6,7 @@
 # Mofified: Jun 2017, M. Clarke
 #           Apr 2020, M. Clarke
 #           May 2020, E. Botero
-
+#           May 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,7 +16,7 @@ import numpy as np
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_location import compute_chord_length_from_span_location
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
-
+from SUAVE.Components.Energy.Energy_Component import Energy_Component
 import SUAVE
 
 # ----------------------------------------------------------------------
@@ -74,18 +74,25 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
             wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic + mac_le_offset
             
             
-    # Go through all the propulsors
-    propulsion_moment = 0.
-    propulsion_mass   = 0. 
-    for prop in vehicle.propulsors:
-            prop.mass_properties.center_of_gravity[0][0] = prop.engine_length*.5
-            propulsion_mass                              += prop.mass_properties.mass         
-            propulsion_moment                            += propulsion_mass*(prop.engine_length*.5+prop.origin[0][0])
-            
-    if propulsion_mass!= 0.:
-        propulsion_cg = propulsion_moment/propulsion_mass
+    # Go through all the networks
+    network_moment = 0.
+    network_mass   = 0.
+    for net in vehicle.networks:
+        net.mass_properties.center_of_gravity[0][0] = net.engine_length*.5
+        network_mass                               += net.mass_properties.mass
+        network_moment                             += network_mass*(np.sum(np.array(net.origin),axis=0) +
+                                                                         net.mass_properties.center_of_gravity)
+
+        for key,Comp in net.items():
+            if isinstance(Comp,Energy_Component):
+                network_moment += net[key].mass_properties.mass*(np.sum(np.array(net[key].origin),axis=0) +
+                                                                     net[key].mass_properties.center_of_gravity)
+                network_mass   += net[key].mass_properties.mass*len(net[key].origin)
+
+    if network_mass!= 0.:
+        propulsion_cg = network_moment/network_mass
     else:
-        propulsion_cg = 0.
+        propulsion_cg = np.array([[0.,0.,0.]])
 
     # Go through all the fuselages
     for fuse in vehicle.fuselages:
@@ -124,7 +131,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     cargo                                                   = vehicle.payload.cargo
     air_conditioner                                         = vehicle.systems.air_conditioner
     optionals                                               = vehicle.systems.optionals  
-    fuel                                                    = vehicle.systems.fuel 
+    fuel                                                    = vehicle.systems.fuel
     control_systems                                         = vehicle.systems.control_systems
     electrical_systems                                      = vehicle.systems.electrical_systems
     main_gear                                               = vehicle.landing_gear.main    
@@ -164,7 +171,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
         .1*vehicle.wings.main_wing.chords.mean_aerodynamic
     
     
-    electrical_systems.origin[0][0]                            = .75*(.5*length_scale) + propulsion_cg*.25
+    electrical_systems.origin[0][0]                            = .75*(.5*length_scale) + propulsion_cg[0][0]*.25
     electrical_systems.mass_properties.center_of_gravity[0][0] = 0.0
     
     hydraulics.origin[0][0]                                    = .75*(vehicle.wings.main_wing.origin[0][0] + \
@@ -185,4 +192,3 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     main_gear.origin[0][0]                                     = main_gear_location
     main_gear.mass_properties.center_of_gravity                = 0.0
     
-    return

@@ -34,10 +34,11 @@ def main():
     delta_isa = 0.
     
     results = propeller_range_endurance_speeds(analyses_SR,altitude,CL_max,up_bnd,delta_isa)
+    print(results.L_D_max.air_speed)
+    print(results.CL32.air_speed)
     
-    saved_results_L_D  = 33.93394294
-    saved_results_CL32 = 18.273391194144185
-    
+    saved_results_L_D  = 43.44740905
+    saved_results_CL32 = 35.8851001
 
     error_L_D = float(abs(results.L_D_max.air_speed - saved_results_L_D)/saved_results_L_D)
     error_32  = float(abs(results.CL32.air_speed    - saved_results_CL32)/saved_results_CL32)
@@ -78,7 +79,7 @@ def base_analysis_SR(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Electric_Lift_Cruise()
+    weights = SUAVE.Analyses.Weights.Weights_eVTOL()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -92,7 +93,7 @@ def base_analysis_SR(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------

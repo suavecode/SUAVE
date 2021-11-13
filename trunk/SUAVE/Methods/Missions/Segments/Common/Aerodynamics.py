@@ -4,6 +4,7 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           Jul 2017, E. Botero
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -55,11 +56,14 @@ def update_atmosphere(segment):
             
         Outputs:
             state.conditions:
-                freestream.pressure          [pascals]
-                freestream.temperature       [kelvin]
-                freestream.density           [kilogram/meter^3]
-                freestream.speed_of_sound    [meter/second]
-                freestream.dynamic_viscosity [pascals-seconds]
+                freestream.pressure             [pascals]
+                freestream.temperature          [kelvin]
+                freestream.density              [kilogram/meter^3]
+                freestream.speed_of_sound       [meter/second]
+                freestream.dynamic_viscosity    [pascals-seconds]
+                freestream.kinematic_viscosity  [meters^2/second]
+                freestream.thermal_conductivity [Watt/meter-Kelvin]
+                freestream.prandtl_number       [unitless]
                 
         Properties Used:
         N/A
@@ -76,11 +80,14 @@ def update_atmosphere(segment):
     atmo_data = atmosphere.compute_values(h,temperature_deviation)
     
     # pack
-    conditions.freestream.pressure          = atmo_data.pressure
-    conditions.freestream.temperature       = atmo_data.temperature
-    conditions.freestream.density           = atmo_data.density
-    conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound
-    conditions.freestream.dynamic_viscosity = atmo_data.dynamic_viscosity
+    conditions.freestream.pressure               = atmo_data.pressure
+    conditions.freestream.temperature            = atmo_data.temperature
+    conditions.freestream.thermal_conductivity   = atmo_data.thermal_conductivity
+    conditions.freestream.density                = atmo_data.density
+    conditions.freestream.speed_of_sound         = atmo_data.speed_of_sound
+    conditions.freestream.dynamic_viscosity      = atmo_data.dynamic_viscosity
+    conditions.freestream.kinematic_viscosity    = atmo_data.kinematic_viscosity
+    conditions.freestream.prandtl_number         = atmo_data.prandtl_number
     
     return
     
@@ -239,7 +246,7 @@ def update_stability(segment):
     
     # call aerodynamics model
     if stability_model:
-        results = stability_model( segment.state.conditions )        
+        results = stability_model( segment.state.conditions )
         conditions.stability.update(results)
     
     return

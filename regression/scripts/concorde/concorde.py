@@ -5,6 +5,7 @@
 #           Jul 2017, T. MacDonald
 #           Aug 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
+#           May 2021, E. Botero
 
 """ setup file for a mission with Concorde
 """
@@ -17,36 +18,30 @@
 import SUAVE
 # Units allow any units to be specificied with SUAVE then automatically converting them the standard
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import * 
+from SUAVE.Plots.Performance.Mission_Plots import * 
 
 # Numpy is use extensively throughout SUAVE
 import numpy as np
-# Scipy is required here for integration functions used in post processing
-import scipy as sp
-from scipy import integrate
 
 # Post processing plotting tools are imported here
 import pylab as plt
 
-# copy is used to copy variable that should not be linked
-# time is used to measure run time if needed
-import copy, time
-
 # More basic SUAVE function
-from SUAVE.Core import (
-Data, Container,
-)
+from SUAVE.Core import Data
 
 import sys
 sys.path.append('../Vehicles')
 from Concorde import vehicle_setup, configs_setup
 
 # This is a sizing function to fill turbojet parameters
-from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
      import compute_fuel_center_of_gravity_longitudinal_range
 from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
      import plot_cg_map 
+
+
+# This imports lift equivalent area
+from SUAVE.Methods.Noise.Boom.lift_equivalent_area import lift_equivalent_area
 
 # ----------------------------------------------------------------------
 #   Main
@@ -66,14 +61,23 @@ def main():
     
     ## Use these scripts to test OpenVSP functionality if desired
     #from SUAVE.Input_Output.OpenVSP.vsp_write import write
+    #from SUAVE.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements
     #write(configs.base,'Concorde')
+    #get_vsp_measurements(filename='Unnamed_CompGeom.csv', measurement_type='wetted_area')
+    #get_vsp_measurements(filename='Unnamed_CompGeom.csv', measurement_type='wetted_volume')
 
     # These functions analyze the mission
     mission = analyses.missions.base
     results = mission.evaluate()
     
+    # Check the lift equivalent area
+    equivalent_area(configs.base, analyses.configs.base, results.segments.cruise.state.conditions)        
+    
     masses, cg_mins, cg_maxes = compute_fuel_center_of_gravity_longitudinal_range(configs.base)
-    plot_cg_map(masses, cg_mins, cg_maxes)  
+    plot_cg_map(masses, cg_mins, cg_maxes, units = 'metric', fig_title = 'Metric Test')  
+    plot_cg_map(masses, cg_mins, cg_maxes, units = 'imperial', fig_title = 'Foot Test')
+    plot_cg_map(masses, cg_mins, cg_maxes, units = 'imperial', special_length = 'inches',
+                fig_title = 'Inch Test')
     
     results.fuel_tank_test = Data()
     results.fuel_tank_test.masses   = masses
@@ -83,6 +87,7 @@ def main():
     # load older results
     #save_results(results)
     old_results = load_results()   
+    
 
     # plt the old results
     plot_mission(results)
@@ -90,7 +95,9 @@ def main():
     plt.show()
 
     # check the results
-    check_results(results,old_results) 
+    check_results(results,old_results)
+    
+
     
     return
 
@@ -117,6 +124,32 @@ def full_setup():
     analyses.missions = missions_analyses        
     
     return configs, analyses
+
+
+# ----------------------------------------------------------------------
+#   Lift Equivalent Area Regression
+# ----------------------------------------------------------------------
+
+def equivalent_area(vehicle,analyses,conditions):
+    
+    X_locs, AE_x, _ = lift_equivalent_area(vehicle,analyses,conditions)
+    
+    regression_X_locs = np.array([ 0.        , 30.0744302 , 36.06867764, 40.19118129, 42.87929299,
+                                   43.75864575, 44.46769982, 44.75288937, 45.40283952, 45.75323347,
+                                   45.83551432, 50.60861803, 53.90976954, 55.43400893, 56.10861803,
+                                   56.78777765, 57.28419734, 57.49949357, 57.99040541, 58.61763071,
+                                   58.94738099, 77.075     ])
+
+    regression_AE_x   = np.array([ 0.        ,  8.40597294, 12.77352949, 18.14374279, 20.15621717,
+                                   24.55487098, 25.04813538, 27.59675976, 34.74257342, 36.5188849 ,
+                                   37.03600866, 37.03600865, 37.03600865, 37.03600865, 37.03600865,
+                                   37.03600865, 37.03600865, 37.03600865, 37.03600865, 37.03600865,
+                                   37.03600865, 37.03600865])
+
+    
+    assert (np.abs((X_locs[1:] - regression_X_locs[1:] )/regression_X_locs[1:] ) < 1e-6).all() 
+    assert (np.abs((AE_x[1:] - regression_AE_x[1:])/regression_AE_x[1:]) < 1e-6).all()
+
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle Analyses
@@ -156,15 +189,17 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
     aerodynamics.geometry = vehicle
-    aerodynamics.settings.drag_coefficient_increment = 0.0000
-    aerodynamics.settings.span_efficiency = 0.95
+    aerodynamics.settings.number_spanwise_vortices     = 5
+    aerodynamics.settings.number_chordwise_vortices    = 2       
+    aerodynamics.process.compute.lift.inviscid_wings.settings.model_fuselage = True
+    aerodynamics.settings.drag_coefficient_increment   = 0.0000
     analyses.append(aerodynamics)
     
     
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
     
     # ------------------------------------------------------------------

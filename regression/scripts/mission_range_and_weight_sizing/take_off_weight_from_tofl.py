@@ -53,7 +53,7 @@ def main():
     # Compute take off weight given tofl
     max_tow = find_take_off_weight_given_tofl(configuration,analyses,airport,target_tofl)
     
-    truth_max_tow = 45684.81253231566
+    truth_max_tow = 46656.50026628
     max_tow_error = np.max(np.abs(max_tow[0]-truth_max_tow)) 
     print('Range Error = %.4e' % max_tow_error)
     assert(max_tow_error   < 1e-6 )
@@ -76,7 +76,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy Analysis
     energy  = SUAVE.Analyses.Energy.Energy()
-    energy.network=vehicle.propulsors
+    energy.network=vehicle.networks
     analyses.append(energy)
     
     # ------------------------------------------------------------------

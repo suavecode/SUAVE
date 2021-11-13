@@ -3,6 +3,7 @@
 #
 # Created:  Mar 2016, E. Botero 
 #           Apr 2020, M. Clarke
+#           Aug 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,12 +14,12 @@ from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
+from SUAVE.Methods.skip import skip
 
 from SUAVE.Analyses import Process
 
 # Units
 from SUAVE.Core import Units
-import SUAVE
 
 # ----------------------------------------------------------------------
 #  Segment
@@ -105,7 +106,7 @@ class Optimized(Aerodynamic):
         initialize.expand_state            = Methods.expand_state
         initialize.solved_mission          = Methods.Climb.Optimized.solve_linear_speed_constant_rate
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = SUAVE.Methods.skip
+        initialize.conditions              = skip
 
         # --------------------------------------------------------------
         #   Converge - starts iteration
@@ -165,6 +166,8 @@ class Optimized(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.aero_derivatives  = skip
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
         
         return
 

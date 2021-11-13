@@ -2,23 +2,20 @@
 # Liquid_Rocket.py
 #
 # Created:  Feb 2018, W. Maier
-# Modified: 
+# Modified: Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
-from SUAVE.Core import Data, Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Core import Data
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Liquid Rocket Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Liquid_Rocket(Propulsor):
+class Liquid_Rocket(Network):
     """ This sets up the equations for a liquid rocket.
 
         Assumptions:
@@ -54,7 +51,6 @@ class Liquid_Rocket(Propulsor):
         self.tag = 'Liquid_Rocket'
         self.number_of_engines = None
         self.engine_length     = None
-        self.nacelle_diameter  = None
 
         # For Drag calculations 
         self.areas             = Data()
@@ -80,7 +76,7 @@ class Liquid_Rocket(Propulsor):
         	results.thrust_force_vector                      [newtons]
         	results.vehicle_mass_rate                        [kg/s]
         	results.specific_impulse                         [s]
-        	conditions.propulsion.acoustic_outputs:
+        	conditions.noise.sources.liquid_rocket:
         	    core:
         		exit_static_temperature                  [K]
         		exit_static_pressure                     [K]

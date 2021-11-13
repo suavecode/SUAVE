@@ -58,10 +58,10 @@ def initialize_conditions(segment):
     t_initial = segment.state.conditions.frames.inertial.time[0,0]
     t_final   = (vf-v0)/ax + t_initial
     t_nondim  = segment.state.numerics.dimensionless.control_points
-    time      = t_nondim * (t_final-t_initial)
+    time      = t_nondim * (t_final-t_initial) + t_initial
     
     # Figure out vx
-    vx = v0+time*ax
+    vx = v0+(time - t_initial)*ax
     
     # set the body angle
     if Tf > T0:

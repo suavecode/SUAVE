@@ -12,7 +12,6 @@
 # ----------------------------------------------------------------------        
 
 from .DataOrdered import DataOrdered
-from warnings    import warn
 
 # ----------------------------------------------------------------------
 #   Data Container Base Class
