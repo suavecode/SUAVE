@@ -71,7 +71,8 @@ def compute_HFW_inflow_velocities( prop ):
                                                                init_timestep_offset, time,
                                                                number_of_wake_timesteps,conditions )
 
-
+        prop.wake_skew_angle = WD.wake_skew_angle
+        
         # ----------------------------------------------------------------
         # Compute the wake-induced velocities at propeller blade
         # ----------------------------------------------------------------

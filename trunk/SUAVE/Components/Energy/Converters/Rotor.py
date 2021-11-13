@@ -384,7 +384,7 @@ class Rotor(Energy_Component):
 
                 # compute Newton residual on circulation
                 Gamma       = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
-                Rsquiggly   = Gamma - 0.5*W*c*Cl
+                Rsquiggly   = Gamma - 0.5*W*c*Cl*F
 
                 # use analytical derivative to get dR_dpsi
                 dR_dpsi = compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece)
@@ -412,35 +412,77 @@ class Rotor(Energy_Component):
 
         elif wake_method == "helical_fixed_wake":
             
-            # converge on va for a semi-prescribed wake method
-            ii,ii_max = 0, 50            
-            va_diff, tol = 1, 1e-3
-            while va_diff > tol:  
-                
-                # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+            import pylab as plt
+            import copy
+            bemt_outs = copy.deepcopy(self.outputs)
+            
+            converge = True
+            if converge:
+                for i in range(2):
+                    # converge on va for a semi-prescribed wake method
+                    ii,ii_max = 0, 50            
+                    va_diff, tol = 1, 1e-2               
+                    
+                    while va_diff > tol:  
+                        
+                        # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+                        va, vt = compute_HFW_inflow_velocities(self)
+            
+                        # compute new blade velocities
+                        Wa   = va + Ua
+                        Wt   = Ut - vt
+            
+                        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+                        
+                        va_diff = np.max(abs(F*va - self.outputs.disc_axial_induced_velocity))
+                        print(va_diff)
+    
+                            
+                        # update the axial disc velocity based on new va from HFW
+                        self.outputs.disc_axial_induced_velocity = F*va #self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
+                        
+                        ii+=1
+                        if ii>ii_max and va_diff>tol:
+                            print("Semi-prescribed helical wake did not converge on axial inflow used for wake shape.")
+                                    
+                    
+                    # Compute aerodynamic forces based on specified input airfoil or surrogate
+                    Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+                            
+                    # compute HFW circulation at the blade
+                    Gamma = 0.5*W*c*Cl*F                
+                    print("\nRg: ", np.max(abs(self.outputs.disc_circulation-Gamma)))
+                    self.outputs.disc_circulation = Gamma
+                    ## plot converged va
+                    #plt.figure()
+                    #plt.plot(r_1d, (F*va)[0,:,0],label="va, converged")
+                    #plt.plot(r_1d, bemt_outs.disc_axial_induced_velocity[0,:,0],label="va (BEMT)")
+                    #plt.legend()
+                    #plt.show()
+                    
+                    #plt.plot(r_1d, Gamma[0,:,0],label="New Gamma")
+                    #plt.plot(r_1d, bemt_outs.disc_circulation[0,:,0],label="Gamma (BEMT)")
+                    #plt.legend()
+                    #plt.show()                      
+                    
+            else:
                 va, vt = compute_HFW_inflow_velocities(self)
     
                 # compute new blade velocities
                 Wa   = va + Ua
                 Wt   = Ut - vt
     
+                lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+    
                 # Compute aerodynamic forces based on specified input airfoil or surrogate
                 Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-    
-                lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-                
-                va_diff = np.max(abs(va - self.outputs.disc_axial_induced_velocity))
+                        
                 # compute HFW circulation at the blade
-                Gamma = 0.5*W*c*Cl
+                Gamma = 0.5*W*c*Cl*F      
                     
-                # update the axial disc velocity based on new va from HFW
-                self.outputs.disc_axial_induced_velocity = self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
                 
-                ii+=1
-                if ii>ii_max and va_diff>tol:
-                    print("Semi-prescribed helical wake did not converge on axial inflow used for wake shape.")
-                                
-
+                              
+                
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
         va     = F*va
         vt     = F*vt
