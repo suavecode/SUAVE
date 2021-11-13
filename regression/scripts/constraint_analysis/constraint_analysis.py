@@ -159,13 +159,11 @@ def main():
     prop_TW = ca.des_thrust_to_weight
 
     # true values
-    prop_WS_truth = 219.7047
-    prop_TW_truth = 0.16453
+    prop_WS_truth = 244.1164
+    prop_TW_truth = 0.17916
     jet_WS_truth  = 725.143706
     jet_TW_truth  = 3.694133
 
-    print(prop_WS,prop_WS_truth)
-    print(prop_TW,prop_TW_truth)
 
     err_prop_WS = (prop_WS - prop_WS_truth)/prop_WS_truth
     err_prop_TW = (prop_TW - prop_TW_truth)/prop_TW_truth 
