@@ -323,7 +323,7 @@ class Lift_Cruise(Network):
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta                       = conditions.propulsion.throttle_lift[:,0,None]
                 P_lift[eta>1.0]           = P_lift[eta>1.0]*eta[eta>1.0]
-                F_forward[eta[:,0]>1.0,:] = F_lift[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]  
+                F_lift[eta[:,0]>1.0,:]    = F_lift[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]  
                     
                 
                 # Run the motor for current
