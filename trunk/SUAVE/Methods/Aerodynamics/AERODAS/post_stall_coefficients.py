@@ -81,7 +81,7 @@ def post_stall_coefficients(state,settings,geometry):
     con1      = np.logical_and(0<alpha,alpha<ACL1)
     con2      = np.logical_and(ACL1<=alpha,alpha<=(92.0*Units.deg))
     con3      = [alpha>=(92.0*Units.deg)]
-    CL2 = 0.0 * np.ones_like(state.conditions.freestream.altitude)
+    CL2       = np.zeros_like(alpha)
     CL2[con1] =  0
     CL2[con2] = -0.032*(alpha[con2]/Units.deg-92.0) - RCL2*((92.*Units.deg-alpha[con2])/(51.0*Units.deg))**N2
     CL2[con3] = -0.032*(alpha[con3]/Units.deg-92.0) + RCL2*((alpha[con3]-92.*Units.deg)/(51.0*Units.deg))**N2
@@ -91,14 +91,14 @@ def post_stall_coefficients(state,settings,geometry):
     con1      = np.logical_and(0<alphan, alphan<ACL1)
     con2      = np.logical_and(ACL1<=alphan, alphan<=(92.0*Units.deg))
     con3      = alphan>=(92.0*Units.deg)
-    CL2[con1] =  0.
+    CL2[con1] = 0.
     CL2[con2] = 0.032*(alphan[con2]/Units.deg-92.0) + RCL2*((92.*Units.deg-alphan[con2])/(51.0*Units.deg))**N2
     CL2[con3] = 0.032*(alphan[con3]/Units.deg-92.0) - RCL2*((alphan[con3]-92.*Units.deg)/(51.0*Units.deg))**N2
     
     # Equation 12a 
     con1      = np.logical_and((2*A0-ACL1)<alpha, alpha<ACL1)
     con2      = alpha>ACD1
-    CD2       = 0.0 * np.ones_like(state.conditions.freestream.altitude)
+    CD2       = 0.0 * np.ones_like(alpha)
     CD2[con1] = 0.
     CD2[con2] = CD1max[con2] + (CD2max - CD1max[con2]) * np.sin((alpha[con2]-ACD1[con2])/(np.pi/2-ACD1[con2]))
     

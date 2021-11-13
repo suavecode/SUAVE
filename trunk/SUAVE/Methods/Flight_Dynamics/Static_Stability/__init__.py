@@ -2,3 +2,4 @@
 # @ingroup Methods-Flight_Dynamics
 
 from . import Approximations
+from .compute_aero_derivatives import compute_aero_derivatives

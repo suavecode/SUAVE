@@ -46,12 +46,13 @@ def section_properties(state,settings,geometry):
     """  
     
     # Unpack
-    wing = geometry
-    re   = state.conditions.freestream.reynolds_number
-    mac  = wing.chords.mean_aerodynamic
-    tc   = wing.thickness_to_chord
-    A0   = settings.section_zero_lift_angle_of_attack
-    S1p  = settings.section_lift_curve_slope
+    wing   = geometry
+    re     = state.conditions.freestream.reynolds_number
+    mac    = wing.chords.mean_aerodynamic
+    tc     = wing.thickness_to_chord
+    A0     = settings.section_zero_lift_angle_of_attack
+    S1p    = settings.section_lift_curve_slope
+    ACDmin = settings.section_minimum_drag_coefficient_angle_of_attack 
     
     # RE dimensionless
     RE = re*mac
@@ -94,5 +95,7 @@ def section_properties(state,settings,geometry):
     wing.section.angle_attack_max_prestall_lift           = ACLp
     wing.section.pre_stall_maximum_drag_coefficient       = CD1maxp
     wing.section.pre_stall_maximum_drag_coefficient_angle = ACD1p 
+    wing.section.minimum_drag_coefficient                 = Cd0
+    wing.section.minimum_drag_coefficient_angle_of_attack = ACDmin
     
     return RE, CL1maxp, Cd0, ACLp, CD1maxp

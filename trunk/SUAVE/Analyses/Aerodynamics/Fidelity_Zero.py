@@ -6,6 +6,7 @@
 #           Apr 2019, T. MacDonald
 #           Apr 2020, M. Clarke
 #           Sep 2020, M. Clarke 
+#           Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -70,9 +71,16 @@ class Fidelity_Zero(Markup):
         settings.maximum_lift_coefficient           = np.inf
         settings.number_spanwise_vortices           = None 
         settings.number_chordwise_vortices          = None 
-        settings.use_surrogate                      = True 
+        settings.initial_timestep_offset            = 0.
+        settings.wake_development_time              = 0.05
+        settings.number_of_wake_timesteps           = 30
+        settings.use_surrogate                      = True
         settings.propeller_wake_model               = False 
-        
+        settings.use_bemt_wake_model                = False 
+        settings.model_fuselage                     = False
+        settings.recalculate_total_wetted_area      = False
+        settings.model_nacelle                      = False
+
         # build the evaluation process
         compute = self.process.compute
         
@@ -89,8 +97,8 @@ class Fidelity_Zero(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        compute.drag.parasite.propulsors.propulsor = Common.Drag.parasite_drag_propulsor
+        compute.drag.parasite.nacelles             = Process_Geometry('nacelles')
+        compute.drag.parasite.nacelles.nacelle     = Common.Drag.parasite_drag_nacelle
         compute.drag.parasite.pylons               = Common.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Common.Drag.induced_drag_aircraft
@@ -103,6 +111,9 @@ class Fidelity_Zero(Markup):
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft
+        
+        # Set subsonic mach numbers for the vortex lattice surrogate
+        compute.lift.inviscid_wings.training.Mach = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9]]).T     
         
         
     def initialize(self):
@@ -127,10 +138,16 @@ class Fidelity_Zero(Markup):
         
         use_surrogate             = self.settings.use_surrogate
         propeller_wake_model      = self.settings.propeller_wake_model 
+        use_bemt_wake_model       = self.settings.use_bemt_wake_model
         n_sw                      = self.settings.number_spanwise_vortices
         n_cw                      = self.settings.number_chordwise_vortices
+        ito                       = self.settings.initial_timestep_offset
+        wdt                       = self.settings.wake_development_time
+        nwts                      = self.settings.number_of_wake_timesteps
+        mf                        = self.settings.model_fuselage
+        mn                        = self.settings.model_nacelle
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model)          
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn )
                                                             
     finalize = initialize                                          

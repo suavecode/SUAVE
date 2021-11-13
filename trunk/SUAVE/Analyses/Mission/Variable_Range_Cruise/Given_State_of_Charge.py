@@ -1,8 +1,8 @@
 ## @ingroup Analyses-Mission-Variable_Range_Cruise
 # Given_State_of_Charge.py
 #
-# Created: Dec 2020, E. Botero
-# Modified: 
+# Created:  Dec 2020, E. Botero
+# Modified: Aug 2021, M. Clarke
 
 
 # ----------------------------------------------------------------------
@@ -54,14 +54,14 @@ class Given_State_of_Charge(All_At_Once):
         self.cruise_tag  = 'cruise'
         self.target_state_of_charge = .25
         
-        
+
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
         
         # initials and unknowns, on top of segment initials and unknowns
-        self.state.unknowns.cruise_distance  = 1000.0
-        self.state.residuals.state_of_charge = 0.0
+        self.state.unknowns.cruise_distance          = 1000.0
+        self.state.residuals.battery_state_of_charge = 0.0
         
         
         # --------------------------------------------------------------

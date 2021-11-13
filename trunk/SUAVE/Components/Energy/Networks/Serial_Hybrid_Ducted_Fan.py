@@ -4,24 +4,22 @@
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonaldb
 #           Apr 2019, C. McMillan
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Serial_Hybrid_Ducted_Fan(Propulsor):
+class Serial_Hybrid_Ducted_Fan(Network):
     """ Connects a generator to a battery to a ducted fan, with assumed motor & generator efficiencies
     
         Assumptions:
@@ -101,8 +99,13 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         generator.calculate_power(conditions)
         
         # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy
-
+        battery.current_energy           = conditions.propulsion.battery_energy
+        battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
+        battery.cell_charge_throughput   = conditions.propulsion.battery_cell_charge_throughput     
+        battery.age                      = conditions.propulsion.battery_cycle_day          
+        battery.R_growth_factor          = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor          = conditions.propulsion.battery_capacity_fade_factor  
+        
         # Calculate ducted fan power
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = np.reshape(results.power, (-1,1))
@@ -142,14 +145,13 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
 
         # Pack the conditions for outputs
         current              = esc.outputs.currentin
-        battery_draw         = battery.inputs.power_in 
+        battery_power_draw   = battery.inputs.power_in
         battery_energy       = battery.current_energy
-        voltage_open_circuit = battery.voltage_open_circuit
-          
-        conditions.propulsion.current              = current
-        conditions.propulsion.battery_draw         = battery_draw
-        conditions.propulsion.battery_energy       = battery_energy
-        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
+        voltage_open_circuit = battery.voltage_open_circuit 
+        conditions.propulsion.current                      = current
+        conditions.propulsion.battery_power_draw           = battery_power_draw
+        conditions.propulsion.battery_energy               = battery_energy
+        conditions.propulsion.battery_voltage_open_circuit = voltage_open_circuit 
         
         results.vehicle_mass_rate   = generator.outputs.vehicle_mass_rate
         return results

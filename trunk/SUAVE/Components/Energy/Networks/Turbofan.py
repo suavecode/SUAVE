@@ -7,26 +7,24 @@
 #           Aug 2017, E. Botero
 #           Oct 2017, E. Botero
 #           Nov 2018, T. MacDonald
+#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
 
 from SUAVE.Core import Data
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
-
+from .Network import Network
+from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 # ----------------------------------------------------------------------
 #  Turbofan Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Turbofan(Propulsor):
+class Turbofan(Network):
     """ This is a turbofan. 
     
         Assumptions:
@@ -58,8 +56,7 @@ class Turbofan(Propulsor):
         
         #setting the default values
         self.tag = 'Turbofan'
-        self.number_of_engines    = 0.0
-        self.nacelle_diameter     = 0.0
+        self.number_of_engines    = 0.0 
         self.engine_length        = 0.0
         self.bypass_ratio         = 0.0
         self.SFC_adjustment       = 0.0 # Less than 1 is a reduction
@@ -94,7 +91,7 @@ class Turbofan(Propulsor):
             Outputs:
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
-            conditions.propulsion.acoustic_outputs:
+            conditions.noise.sources.turbofan:
                 core:
                     exit_static_temperature      
                     exit_static_pressure       
@@ -277,23 +274,26 @@ class Turbofan(Propulsor):
         results.vehicle_mass_rate   = mdot
         
         # store data
-        results_conditions = Data
-        conditions.propulsion.acoustic_outputs.core = results_conditions(
-        exit_static_temperature             = core_nozzle.outputs.static_temperature,
-        exit_static_pressure                = core_nozzle.outputs.static_pressure,
-        exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
-        exit_stagnation_pressure            = core_nozzle.outputs.static_pressure,
-        exit_velocity                       = core_nozzle.outputs.velocity
-        )
+        core_outputs = Data(
+            exit_static_temperature             = core_nozzle.outputs.static_temperature,
+            exit_static_pressure                = core_nozzle.outputs.static_pressure,
+            exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
+            exit_stagnation_pressure            = core_nozzle.outputs.static_pressure,
+            exit_velocity                       = core_nozzle.outputs.velocity
+            )
         
-        conditions.propulsion.acoustic_outputs.fan = results_conditions(
-        exit_static_temperature             = fan_nozzle.outputs.static_temperature,
-        exit_static_pressure                = fan_nozzle.outputs.static_pressure,
-        exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,
-        exit_stagnation_pressure            = fan_nozzle.outputs.static_pressure,
-        exit_velocity                       = fan_nozzle.outputs.velocity
-        )
+        fan_outputs = Data(
+            exit_static_temperature             = fan_nozzle.outputs.static_temperature,
+            exit_static_pressure                = fan_nozzle.outputs.static_pressure,
+            exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,
+            exit_stagnation_pressure            = fan_nozzle.outputs.static_pressure,
+            exit_velocity                       = fan_nozzle.outputs.velocity
+            )
         
+        conditions.noise.sources.turbofan       = Conditions()        
+        conditions.noise.sources.turbofan.fan   = fan_outputs
+        conditions.noise.sources.turbofan.core  = core_outputs
+
         return results
     
     def size(self,state):  

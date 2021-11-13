@@ -3,22 +3,19 @@
 #
 # Created:  Mar 2017, E. Botero
 # Modified: Jan 2020, T. MacDonald
+#           May 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
 from copy import deepcopy
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 from SUAVE.Core import Data
-import sklearn
 from sklearn import gaussian_process
 from sklearn.gaussian_process.kernels import RationalQuadratic, ConstantKernel, RBF, Matern
 from sklearn import neighbors
@@ -29,7 +26,7 @@ from sklearn import svm, linear_model
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Propulsor_Surrogate(Propulsor):
+class Propulsor_Surrogate(Network):
     """ This is a way for you to load engine data from a source.
         A .csv file is read in, a surrogate made, that surrogate is used during the mission analysis.
         
@@ -58,8 +55,7 @@ class Propulsor_Surrogate(Propulsor):
             
             Properties Used:
             N/A
-        """          
-        self.nacelle_diameter         = None
+        """           
         self.engine_length            = None
         self.number_of_engines        = None
         self.tag                      = 'Engine_Deck_Surrogate'
@@ -79,6 +75,8 @@ class Propulsor_Surrogate(Propulsor):
         self.thrust_anchor_conditions = np.array([[1.,1.,1.]])
         self.sfc_rubber_scale         = 1.
         self.use_extended_surrogate   = False
+        self.sealevel_static_thrust   = 0.0
+        self.negative_throttle_values = False
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -128,7 +126,11 @@ class Propulsor_Surrogate(Propulsor):
        
         F    = thr
         mdot = thr*sfc*self.number_of_engines
-       
+        
+        if self.negative_throttle_values == False:
+            F[throttle<=0.]    = 0.
+            mdot[throttle<=0.] = 0.
+           
         # Save the output
         results = Data()
         results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]

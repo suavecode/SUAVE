@@ -4,6 +4,7 @@
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
 #           Mar 2020, M. Clarke
+#           Aug 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,6 +15,7 @@ from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
+from SUAVE.Methods.skip import skip
 
 from SUAVE.Analyses import Process
 
@@ -130,7 +132,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
     
-        
         # Solve Residuals
         iterate.residuals = Process()     
         iterate.residuals.total_forces     = Methods.Cruise.Constant_Throttle_Constant_Altitude.solve_residuals
@@ -144,5 +145,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.aero_derivatives  = skip
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
 
         return
