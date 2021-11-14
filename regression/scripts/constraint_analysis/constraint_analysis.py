@@ -198,20 +198,20 @@ def main():
 
 
     # expected values
-    turboprop_WS_true       = 219.7047819
-    turboprop_TW_true       = 0.164536375
-    piston_WS_true          = 219.7047819
-    piston_TW_true          = 0.221022812
-    electric_WS_true        = 195.2931395
-    electric_TW_true        = 0.153919647
-    jet_WS_Matt_true        = 653.905472981
-    jet_TW_Matt_true        = 3.3077663960
-    jet_WS_Scholz_true      = 653.905472981
-    jet_TW_Scholz_true      = 2.962242635
-    jet_WS_Howe_true        = 653.905472981
+    turboprop_WS_true       = 244.116424422
+    turboprop_TW_true       = 0.179162336
+    piston_WS_true          = 268.86321492
+    piston_TW_true          = 0.27087025
+    electric_WS_true        = 195.293139537
+    electric_TW_true        = 0.1539196474
+    jet_WS_Matt_true        = 653.90547298
+    jet_TW_Matt_true        = 3.58897116625
+    jet_WS_Scholz_true      = 653.90547298
+    jet_TW_Scholz_true      = 3.2011063798
+    jet_WS_Howe_true        = 653.90547298
     jet_TW_Howe_true        = 3.0046653126
-    jet_WS_Bartel_true      = 653.905472981
-    jet_TW_Bartel_true      = 3.89728490
+    jet_WS_Bartel_true      = 653.90547298
+    jet_TW_Bartel_true      = 4.1960373
 
 
     err_turboprop_WS    = (turboprop_WS - turboprop_WS_true)/turboprop_WS_true
