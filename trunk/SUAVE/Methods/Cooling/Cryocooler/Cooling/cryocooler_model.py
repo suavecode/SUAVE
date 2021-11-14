@@ -70,7 +70,6 @@ def cryocooler_model(self, cooling_power, cryo_temp, amb_temp):
 
     # calculate the required temperature difference the cryocooler must produce.
     tempDiff = amb_temp-cryo_temp
-    
     # Disable if the target temperature is greater than the ambient temp. Technically cooling like this is possible, however there are better cooling technologies to use if this is the required scenario.
     if np.amin(tempDiff) < 0.:
         tempDiff = np.maximum(tempDiff, 0.)
