@@ -1328,7 +1328,7 @@ class Constraint_Analysis():
                        
                 else:
                     s = 0.7
-                    if self.engine.afteburner == False:
+                    if self.engine.afterburner == False:
                         kab = 1.0
                     else:
                         kab = 1.2
