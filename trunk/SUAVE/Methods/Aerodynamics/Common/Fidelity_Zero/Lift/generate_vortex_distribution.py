@@ -707,22 +707,28 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                 xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs]) if is_last_section else [None, None, None] 
             
             # reflect over the plane y = z for a vertical wing-----------------------------------------------------
+            inverted_wing = -np.sign(break_dihedral[i_break] - np.pi/2)
             if vertical_wing:
-                y_prime_a1, zeta_prime_a1 = zeta_prime_a1, y_prime_a1          
-                y_prime_ah, zeta_prime_ah = zeta_prime_ah, y_prime_ah
-                y_prime_ac, zeta_prime_ac = zeta_prime_ac, y_prime_ac
-                y_prime_a2, zeta_prime_a2 = zeta_prime_a2, y_prime_a2
+                y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1          
+                y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
+                y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
+                y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
                                                                      
-                y_prime_b1, zeta_prime_b1 = zeta_prime_b1, y_prime_b1
-                y_prime_bh, zeta_prime_bh = zeta_prime_bh, y_prime_bh
-                y_prime_bc, zeta_prime_bc = zeta_prime_bc, y_prime_bc
-                y_prime_b2, zeta_prime_b2 = zeta_prime_b2, y_prime_b2
+                y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
+                y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
+                y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
+                y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
                                                                      
-                y_prime_ch, zeta_prime_ch = zeta_prime_ch, y_prime_ch
-                y_prime   , zeta_prime    = zeta_prime   , y_prime   
+                y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
+                y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime   
                                                                      
-                y_prime_as, zeta_prime_as = zeta_prime_as, y_prime_as
-                y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs
+                y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
+                
+                if np.any(y_prime_bs) == None:
+                    pass
+                else:
+                    y_prime_bs = inverted_wing*y_prime_bs  
+                y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs  
                  
             # store coordinates of panels, horseshoeces vortices and control points relative to wing root----------
             xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1     # top left corner of panel

@@ -79,11 +79,11 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
 
     # Check if this is vertical tail, this seems like a weird first step but it's necessary
     # Get the initial rotation to get the dihedral angles
-    x_rot = vsp.GetParmVal( wing_id,'X_Rotation','XForm')		
-    if  x_rot >=70:
+    x_rot = vsp.GetParmVal( wing_id,'X_Rotation','XForm')
+    if  abs(x_rot) >=70:
         wing = SUAVE.Components.Wings.Vertical_Tail()
         wing.vertical = True
-        x_rot = (90-x_rot) * Units.deg
+        x_rot = (90-x_rot) * Units.deg 
     else:
         # Instantiate a wing
         wing = SUAVE.Components.Wings.Wing()	
