@@ -1,5 +1,4 @@
 ## @ingroup Attributes-Solids
-
 # Copper.py
 #
 # Created: Feb 2020, K. Hamilton
