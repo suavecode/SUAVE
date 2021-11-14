@@ -3,3 +3,4 @@
 # @ingroup Methods
 
 from . import Cryocooler
+from . import Leads
