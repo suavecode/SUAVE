@@ -1,7 +1,8 @@
 ## @ingroup Components-Energy-Converters
 # Motor_HTS_Rotor.py
 #
-# Created:  Feb 2020    K. Hamilton
+# Created:  Feb 2020,   K. Hamilton
+# Modified: Nov 2021,   S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports

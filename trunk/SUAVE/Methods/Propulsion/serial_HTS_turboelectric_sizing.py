@@ -1,8 +1,8 @@
 ## @ingroup Methods-Propulsion
 # serial_HTS_turboelectric_sizing.py
 # 
-# Created:  K. Hamilton Mar 2020
-# Modified: 
+# Created:  Mar 2020,   K. Hamilton
+# Modified: Nov 2021,   S. Claridge
 #        
 
 """ create and evaluate a serial hybrid network that follows the power flow:

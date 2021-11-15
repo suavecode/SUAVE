@@ -2,6 +2,7 @@
 # HTS_DC_Supply.py
 #
 # Created:  Feb 2020,   K. Hamilton
+# Modified: Nov 2021,   S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
