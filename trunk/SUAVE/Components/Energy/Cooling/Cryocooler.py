@@ -39,9 +39,7 @@ class Cryocooler(Energy_Component):
 
         
     def energy_calc(self, cooling_power, cryo_temp, amb_temp):
-        
-        
-        #ARE THERE ANY ASSUMPTIONS?  
+
         """This is .........................
 
         Assumptions:
@@ -55,7 +53,7 @@ class Cryocooler(Energy_Component):
 
         Outputs:
         None
-c
+
         Properties Used:
         None
         """      

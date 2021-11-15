@@ -1,3 +1,14 @@
+### @ingroup Regression-scripts-turboelectric_HTS_ducted_fan_network
+#turboelectric_HTS_ducted_fan_network.py
+# 
+# Created:  Nov 2021, S. Claridge
+# 
+
+
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
+
 import SUAVE
 
 import numpy as np
@@ -11,6 +22,7 @@ Data, Units,
 )
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
    
+### @ingroup Regression-scripts-turboelectric_HTS_ducted_fan_network
 def main():   
     
     # call the network function
