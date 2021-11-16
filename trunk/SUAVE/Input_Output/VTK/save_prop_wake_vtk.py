@@ -416,8 +416,21 @@ def write_VD(rings, nt,nr, filename):
         # Second scalar value
         f.write("\nSCALARS circulation float 1")
         f.write("\nLOOKUP_TABLE default")   
-        
+    
         ring_circulations = rings.vortex_strengths
+        
+        # flag to zero-out lifting line panel (for visualizing shed vortices)
+        zero_llps = True  
+        if zero_llps:
+            ring_circulations = np.array(ring_circulations)
+            
+            bools = np.zeros_like(ring_circulations).astype(bool)
+            bools[0] = True
+            bools[4::3][0:nr-1] = True
+            
+            
+            ring_circulations[bools] = 0
+            
         for i in range(n_edges):
             # bound vortex scalar circulation
             f.write("\n"+str(ring_circulations[i])) 

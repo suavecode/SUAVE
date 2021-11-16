@@ -356,7 +356,7 @@ def generate_lofted_propeller_points(prop):
         if a_sec != None:
             airfoil_data   = import_airfoil_geometry(a_sec,npoints=n_a_loft)
 
-            xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
+            xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0) 
             zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0)
             max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0)
 
@@ -365,14 +365,14 @@ def generate_lofted_propeller_points(prop):
             camber_loc   = 0.4
             thickness    = 0.10
             airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_a_loft - 2))
-            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,n_r,axis=0)
+            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,n_r,axis=0) 
             zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,n_r,axis=0)
             max_t        = np.repeat(airfoil_data.thickness_to_chord,n_r,axis=0)
 
         # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
         max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_a_loft,axis=1)
 
-        airfoil_le_offset = (b[0]/2 - np.repeat(b[:,None], n_a_loft, axis=1)/2 ) # no sweep
+        airfoil_le_offset = ( - np.repeat(b[:,None], n_a_loft, axis=1)/2 ) # no sweep
         xp      = rot*(- MCA_2d + xpts*b_2d + airfoil_le_offset)  # x coord of airfoil
         yp      = r_2d*np.ones_like(xp)                           # radial location
         zp      = zpts*(t_2d/max_t2d)                             # former airfoil y coord

@@ -166,11 +166,11 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         airfoil_data = import_airfoil_geometry(a_sec,npoints=100)  
        
         # trailing edge points in airfoil coordinates
-        xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)   
+        xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)
         yupper         = np.take(airfoil_data.y_upper_surface,a_secl,axis=0)   
         
         # Align the quarter chords of the airfoils (zero sweep)
-        airfoil_le_offset = (c[0]/2 - c/2 )
+        airfoil_le_offset = -c/2
         xte_airfoils      = xupper[:,-1]*c + airfoil_le_offset
         yte_airfoils      = yupper[:,-1]*c 
         
@@ -241,9 +241,9 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         z_c_4 = x_c_4_rotor*rots[2,0] + y_c_4_rotor*rots[2,1] + z_c_4_rotor*rots[2,2]
         
         # prepend points at quarter chord to account for rotor lifting line
-        X_pts = np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3)
-        Y_pts = np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3)
-        Z_pts = np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3)
+        X_pts = np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3) #np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3)
+        Y_pts = np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3) #np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3)
+        Z_pts = np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3) #np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3)
             
 
         #------------------------------------------------------
