@@ -26,6 +26,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_HFW_inflow_vel
 # package imports
 import numpy as np
 import scipy as sp
+from scipy.interpolate import RectBivariateSpline
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -384,7 +385,7 @@ class Rotor(Energy_Component):
 
                 # compute Newton residual on circulation
                 Gamma       = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
-                Rsquiggly   = Gamma - 0.5*W*c*Cl*F
+                Rsquiggly   = Gamma - 0.5*W*c*Cl
 
                 # use analytical derivative to get dR_dpsi
                 dR_dpsi = compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece)
@@ -408,13 +409,20 @@ class Rotor(Energy_Component):
                 if ii>10000:
                     print("Rotor BEMT did not converge to a solution (Iteration Limit)")
                     break
+            
+            ## smooth disc circulation
+            #Gspline = RectBivariateSpline(r_1d, psi, Gamma[0,:,:],s=.5)
+            #for i in range(Na):
+                #Gamma[0,:,i] = Gspline(r_1d,psi[i])[:,0]            
 
 
         elif wake_method == "helical_fixed_wake":
             
             import pylab as plt
             import copy
+            
             bemt_outs = copy.deepcopy(self.outputs)
+            
             
             converge = True
             if converge:
@@ -450,20 +458,26 @@ class Rotor(Energy_Component):
                     Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
                             
                     # compute HFW circulation at the blade
-                    Gamma = 0.5*W*c*Cl*F                
+                    Gamma = 0.5*W*c*Cl*F     
+                        
                     print("\nRg: ", np.max(abs(self.outputs.disc_circulation-Gamma)))
                     self.outputs.disc_circulation = Gamma
-                    ## plot converged va
-                    #plt.figure()
-                    #plt.plot(r_1d, (F*va)[0,:,0],label="va, converged")
-                    #plt.plot(r_1d, bemt_outs.disc_axial_induced_velocity[0,:,0],label="va (BEMT)")
-                    #plt.legend()
-                    #plt.show()
-                    
-                    #plt.plot(r_1d, Gamma[0,:,0],label="New Gamma")
-                    #plt.plot(r_1d, bemt_outs.disc_circulation[0,:,0],label="Gamma (BEMT)")
-                    #plt.legend()
-                    #plt.show()                      
+                ## plot converged va
+                #plt.figure()
+                #plt.plot(r_1d, (F*va)[0,:,0],label="va, converged")
+                #plt.plot(r_1d, bemt_outs.disc_axial_induced_velocity[0,:,0],label="va (BEMT)")
+                #plt.legend()
+                #plt.show()
+                
+                #poly_Gnew = np.poly1d(np.polyfit(r_1d,Gamma[0,:,0],3))
+                #poly_bemt = np.poly1d(np.polyfit(r_1d,bemt_outs.disc_circulation[0,:,0],3))
+                
+                #plt.plot(r_1d, Gamma[0,:,0],label="New Gamma")
+                #plt.plot(r_1d, bemt_outs.disc_circulation[0,:,0],label="Gamma (BEMT)")
+                #plt.plot(r_1d, poly_Gnew(r_1d),label="New Gamma (poly)")
+                #plt.plot(r_1d, poly_bemt(r_1d),label="Gamma (BEMT) (poly")
+                #plt.legend()
+                #plt.show()                      
                     
             else:
                 va, vt = compute_HFW_inflow_velocities(self)
@@ -478,8 +492,7 @@ class Rotor(Energy_Component):
                 Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
                         
                 # compute HFW circulation at the blade
-                Gamma = 0.5*W*c*Cl*F      
-                    
+                Gamma = 0.5*W*c*Cl*F   
                 
                               
                 
