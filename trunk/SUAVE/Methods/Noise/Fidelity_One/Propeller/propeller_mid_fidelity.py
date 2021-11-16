@@ -104,8 +104,12 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
     
     # Summation of spectra from propellers into into one SPL and store results
     Results.blade_passing_frequencies      =  Noise.f[:,0,0,0,:]  
-    Results.SPL                            =  SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA))    #SPL_arithmetic(SPL_arithmetic(Noise.SPL_total_1_3_spectrum))
-    Results.SPL_dBA                        =  SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum))        # SPL_arithmetic(Noise.SPL_total_dBA)  
+    Results.SPL                            =  SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum))       
+    Results.SPL_harmonic                   =  SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum))    
+    Results.SPL_broadband                  =  SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum)) 
+    Results.SPL_dBA                        =  SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA))     
+    Results.SPL_harmonic_dBA               =  SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum_dBA))    
+    Results.SPL_broadband_dBA              =  SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum_dBA)) 
     Results.SPL_harmonic_bpf_spectrum_dBA  =  SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum_dBA )  
     Results.SPL_harmonic_bpf_spectrum      =  SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum ) 
     Results.SPL_1_3_spectrum               =  SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum)      
