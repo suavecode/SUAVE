@@ -242,13 +242,8 @@ def energy_network():
 
     # Set the origin of each motor to match its ducted fan
     efan.motor.origin = efan.ducted_fan.origin
-
-    # efan.motor.resistance         = 0.0
-    # efan.motor.no_load_current    = 0.0
-    # efan.motor.speed_constant     = 0.0
     efan.motor.gear_ratio         = 1.0
     efan.motor.gearbox_efficiency = 1.0
-    # efan.motor.expected_current   = 0.0
     efan.motor.motor_efficiency   = 0.96
 
     # ------------------------------------------------------------------
