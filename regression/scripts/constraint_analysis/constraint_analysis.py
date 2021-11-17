@@ -9,10 +9,17 @@
 # ----------------------------------------------------------------------
 import SUAVE
 import SUAVE.Analyses.Constraint_Analysis as Constraint_Analysis
+from SUAVE.Input_Output.Results.plot_constraint_diagram import plot_constraint_diagram
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
 from SUAVE.Core import Data, Units
+
+sys.path.append('../Vehicles')
+
+from Boeing_737 import vehicle_setup as  B737_vehicle
+from Cessna_172 import vehicle_setup as  Cessna172_vehicle
 
 
 def main():
@@ -21,17 +28,15 @@ def main():
     # ------------------------------------------------------------------
     ca = Constraint_Analysis.Constraint_Analysis()
 
-    ca.plot_units = 'US'
-
     # Define default constraint analysis
     ca.analyses.takeoff    = True
     ca.analyses.cruise     = True
     ca.analyses.max_cruise = False
     ca.analyses.landing    = True
     ca.analyses.OEI_climb  = True
-    ca.analyses.turn       = True
+    ca.analyses.turn       = False
     ca.analyses.climb      = True
-    ca.analyses.ceiling    = True
+    ca.analyses.ceiling    = False
 
     # take-off
     ca.takeoff.runway_elevation = 0 * Units['meter']
@@ -44,36 +49,28 @@ def main():
     ca.cruise.altitude        = 35000 * Units['feet']  
     ca.cruise.mach            = 0.78
     ca.cruise.thrust_fraction = 0.85
-    # turn
-    ca.turn.angle           = 15    * Units['degrees']
-    ca.turn.altitude        = 35000 * Units['feet']   
-    ca.turn.mach            = 0.78
-    ca.turn.thrust_fraction = 0.85
-    # ceiling
-    ca.ceiling.altitude    = 36500 * Units['feet'] 
-    ca.ceiling.mach            = 0.78
     # landing
-    ca.landing.ground_roll = 1400 * Units['m']   
+    ca.landing.ground_roll = 1400 * Units['m']  
+
+    # define vehicle-specific properties
+    vehicle  = B737_vehicle()
+
 
     # Default aircraft properties
     # geometry
-    ca.geometry.aspect_ratio           = 9.16
-    ca.geometry.thickness_to_chord     = 0.11
-    ca.geometry.taper                  = 0.3
-    ca.geometry.sweep_quarter_chord    = 25 * Units['degrees']
-    ca.geometry.high_lift_type_clean   = None
-    ca.geometry.high_lift_type_takeoff = 'double-slotted Fowler'
-    ca.geometry.high_lift_type_landing = 'double-slotted Fowler'
+    ca.geometry.aspect_ratio                 = vehicle.wings['main_wing'].aspect_ratio
+    ca.geometry.thickness_to_chord           = vehicle.wings['main_wing'].thickness_to_chord
+    ca.geometry.taper                        = vehicle.wings['main_wing'].taper
+    ca.geometry.sweep_quarter_chord          = vehicle.wings['main_wing'].sweeps.quarter_chord
+    ca.geometry.high_lift_configuration_type = vehicle.wings['main_wing'].control_surfaces.flap.configuration_type 
     # engine
     ca.engine.type         = 'turbofan'
-    ca.engine.number       = 2
-    ca.engine.bypass_ratio = 6.0
+    ca.engine.number       = vehicle.networks.turbofan.number_of_engines
+    ca.engine.bypass_ratio = vehicle.networks.turbofan.bypass_ratio
     
-
-    # Define aerodynamics
+    # Define aerodynamics (an example with pre-defined max lift coefficients)
     ca.aerodynamics.cd_takeoff     = 0.044
     ca.aerodynamics.cl_takeoff     = 0.6
-    ca.aerodynamics.cl_max_clean   = 1.35
     ca.aerodynamics.cd_min_clean   = 0.0134
     ca.aerodynamics.cl_max_takeoff = 2.1
     ca.aerodynamics.cl_max_landing = 2.4
@@ -84,6 +81,7 @@ def main():
 
     ca.engine.method = "Mattingly"
     ca.create_constraint_diagram()
+    plot_constraint_diagram(ca)
 
     jet_WS_Matt = ca.des_wing_loading
     jet_TW_Matt = ca.des_thrust_to_weight
@@ -112,8 +110,6 @@ def main():
     # ------------------------------------------------------------------
     ca = Constraint_Analysis.Constraint_Analysis()
 
-    ca.plot_units = 'US'
-
     # Define default constraint analysis
     ca.analyses.takeoff     = True
     ca.analyses.cruise      = True
@@ -126,35 +122,40 @@ def main():
 
     # take-off
     ca.takeoff.runway_elevation = 0 * Units['meter']
-    ca.takeoff.ground_run       = 1250 * Units['m']
+    ca.takeoff.ground_run       = 450 * Units['m']
     # climb
-    ca.climb.altitude   = 20000 * Units['feet']
-    ca.climb.climb_rate = 4   * Units['m/s']
+    ca.climb.altitude   = 0.0   * Units['meter']
+    ca.climb.climb_rate = 3.66   * Units['m/s']
     #cruise
-    ca.cruise.altitude        = 20000 * Units['feet']  
-    ca.cruise.mach            = 0.42
+    ca.cruise.altitude        = 4000 * Units['meter']  
+    ca.cruise.mach            = 0.2
     ca.cruise.thrust_fraction = 1
     # turn
     ca.turn.angle           = 15    * Units['degrees']
-    ca.turn.altitude        = 20000 * Units['feet']   
-    ca.turn.mach            = 0.42
+    ca.turn.altitude        = 3000  * Units['meter']   
+    ca.turn.mach            = 0.2
     ca.turn.thrust_fraction = 1
     # ceiling
-    ca.ceiling.altitude    = 25000 * Units['feet'] 
-    ca.ceiling.mach            = 0.42
+    ca.ceiling.altitude     = 4000 * Units['meter'] 
+    ca.ceiling.mach         = 0.2
     # landing
-    ca.landing.ground_roll = 650 * Units['m']   
+    ca.landing.ground_roll = 120 * Units['m']   
+
+    # define vehicle-specific properties
+    vehicle  = Cessna172_vehicle()
+
+    ca.analyses.OEI_climb   = False
 
     # Default aircraft properties
     # geometry
-    ca.geometry.aspect_ratio           = 12.0
-    ca.geometry.thickness_to_chord     = 0.15
-    ca.geometry.taper                  = 0.5
-    ca.geometry.sweep_quarter_chord    = 0.0 * Units['degrees']
-    ca.geometry.high_lift_type_clean   = None
+    ca.geometry.aspect_ratio                    = vehicle.wings['main_wing'].aspect_ratio
+    ca.geometry.thickness_to_chord              = vehicle.wings['main_wing'].thickness_to_chord
+    ca.geometry.taper                           = vehicle.wings['main_wing'].taper
+    ca.geometry.sweep_quarter_chord             = vehicle.wings['main_wing'].sweeps.quarter_chord
+    ca.geometry.high_lift_configuration_type    = vehicle.wings['main_wing'].control_surfaces.flap.configuration_type
 
     # engine
-    ca.engine.number = 2
+    ca.engine.number = vehicle.networks.internal_combustion.number_of_engines
     # propeller
     ca.propeller.takeoff_efficiency   = 0.5
     ca.propeller.climb_efficiency     = 0.8
@@ -163,77 +164,88 @@ def main():
     ca.propeller.ceiling_efficiency   = 0.85
     ca.propeller.OEI_climb_efficiency = 0.5
 
-    # Define aerodynamics
+    # Define aerodynamics (an example case with max lift calculation for differnet flap settions)
     ca.aerodynamics.cd_takeoff     = 0.04
     ca.aerodynamics.cl_takeoff     = 0.6
-    ca.aerodynamics.cl_max_clean   = 1.35
     ca.aerodynamics.cd_min_clean   = 0.02
 
     ca.design_point_type = 'minimum power-to-weight'
 
     # run the constraint diagram for various engine ad flap types
     ca.engine.type = 'turboprop'
-    ca.geometry.high_lift_type_takeoff = 'single-slotted'
-    ca.geometry.high_lift_type_landing = 'single-slotted'
+    ca.geometry.high_lift_configuration_type = 'single-slotted'
     ca.create_constraint_diagram()
 
     turboprop_WS = ca.des_wing_loading
     turboprop_TW = ca.des_thrust_to_weight
 
     ca.engine.type = 'piston'
-    ca.geometry.high_lift_type_takeoff = 'plain'
-    ca.geometry.high_lift_type_landing = 'plain'
+    ca.geometry.high_lift_configuration_type = 'plain'
     ca.create_constraint_diagram()
+    plot_constraint_diagram(ca,filename ='constraint_diagram_piston')
 
     piston_WS = ca.des_wing_loading
     piston_TW = ca.des_thrust_to_weight
 
-    ca.engine.type = 'electric'
-    ca.geometry.high_lift_type_takeoff = 'double-slotted fixed vane'
-    ca.geometry.high_lift_type_landing = 'double-slotted fixed vane'
+    ca.engine.type = 'electric air-cooled'
+    ca.geometry.high_lift_configuration_type = 'double-slotted fixed vane'
     ca.create_constraint_diagram()
+    plot_constraint_diagram(ca,filename ='constraint_diagram_electric_air')
 
-    electric_WS = ca.des_wing_loading
-    electric_TW = ca.des_thrust_to_weight
+    electric_air_WS = ca.des_wing_loading
+    electric_air_TW = ca.des_thrust_to_weight
+
+    ca.engine.type = 'electric liquid-cooled'
+    ca.geometry.high_lift_configuration_type = 'double-slotted fixed vane'
+    ca.create_constraint_diagram()
+    plot_constraint_diagram(ca,filename ='constraint_diagram_electric_liquid')
+
+    electric_liquid_WS = ca.des_wing_loading
+    electric_liquid_TW = ca.des_thrust_to_weight
 
 
     # expected values
-    turboprop_WS_true       = 244.116424422
-    turboprop_TW_true       = 0.179162336
-    piston_WS_true          = 268.86321492
-    piston_TW_true          = 0.27087025
-    electric_WS_true        = 195.293139537
-    electric_TW_true        = 0.1539196474
-    jet_WS_Matt_true        = 653.90547298
-    jet_TW_Matt_true        = 3.58897116625
-    jet_WS_Scholz_true      = 653.90547298
-    jet_TW_Scholz_true      = 3.2011063798
-    jet_WS_Howe_true        = 653.90547298
-    jet_TW_Howe_true        = 3.0046653126
-    jet_WS_Bartel_true      = 653.90547298
-    jet_TW_Bartel_true      = 4.1960373
+    turboprop_WS_true       = 629.027516462
+    turboprop_TW_true       = 8.924349473
+    piston_WS_true          = 516.3445826
+    piston_TW_true          = 10.9441325
+    electric_air_TW_true    = 7.1642177
+    electric_air_WS_true    = 780.22233
+    electric_liquid_TW_true = 7.1642177
+    electric_liquid_WS_true = 502.742719
+    jet_WS_Matt_true        = 6412.7523310132865
+    jet_TW_Matt_true        = 0.325505792
+    jet_WS_Scholz_true      = 6412.7523310132865
+    jet_TW_Scholz_true      = 0.25210340
+    jet_WS_Howe_true        = 6412.7523310132865
+    jet_TW_Howe_true        = 0.30980317
+    jet_WS_Bartel_true      = 6412.7523310132865
+    jet_TW_Bartel_true      = 0.31829093
 
 
-    err_turboprop_WS    = (turboprop_WS - turboprop_WS_true)/turboprop_WS_true
-    err_turboprop_TW    = (turboprop_TW - turboprop_TW_true)/turboprop_TW_true
-    err_piston_WS       = (piston_WS - piston_WS_true)/piston_WS_true
-    err_piston_TW       = (piston_TW - piston_TW_true)/piston_TW_true
-    err_electric_WS     = (electric_WS - electric_WS_true)/electric_WS_true
-    err_electric_TW     = (electric_TW - electric_TW_true)/electric_TW_true
-    err_jet_WS_Matt     = (jet_WS_Matt  - jet_WS_Matt_true)/jet_WS_Matt_true
-    err_jet_TW_Matt     = (jet_TW_Matt  - jet_TW_Matt_true)/jet_TW_Matt_true
-    err_jet_WS_Scholz   = (jet_WS_Scholz  - jet_WS_Scholz_true)/jet_WS_Scholz_true
-    err_jet_TW_Scholz   = (jet_TW_Scholz  - jet_TW_Scholz_true)/jet_TW_Scholz_true
-    err_jet_WS_Howe     = (jet_WS_Howe  - jet_WS_Howe_true)/jet_WS_Howe_true
-    err_jet_TW_Howe     = (jet_TW_Howe - jet_TW_Howe_true)/jet_TW_Howe_true
-    err_jet_WS_Bartel   = (jet_WS_Bartel  - jet_WS_Bartel_true)/jet_WS_Bartel_true
-    err_jet_TW_Bartel   = (jet_TW_Bartel - jet_TW_Bartel_true)/jet_TW_Bartel_true
+    err_turboprop_WS        = (turboprop_WS - turboprop_WS_true)/turboprop_WS_true
+    err_turboprop_TW        = (turboprop_TW - turboprop_TW_true)/turboprop_TW_true
+    err_piston_WS           = (piston_WS - piston_WS_true)/piston_WS_true
+    err_piston_TW           = (piston_TW - piston_TW_true)/piston_TW_true
+    err_electric_air_TW     = (electric_air_TW - electric_air_TW_true)/electric_air_TW_true
+    err_electric_air_WS     = (electric_air_WS - electric_air_WS_true)/electric_air_WS_true
+    err_electric_liquid_TW  = (electric_liquid_TW - electric_liquid_TW_true)/electric_liquid_TW_true
+    err_electric_liquid_WS  = (electric_liquid_TW - electric_liquid_TW_true)/electric_liquid_TW_true
+    err_jet_WS_Matt         = (jet_WS_Matt  - jet_WS_Matt_true)/jet_WS_Matt_true
+    err_jet_TW_Matt         = (jet_TW_Matt  - jet_TW_Matt_true)/jet_TW_Matt_true
+    err_jet_WS_Scholz       = (jet_WS_Scholz  - jet_WS_Scholz_true)/jet_WS_Scholz_true
+    err_jet_TW_Scholz       = (jet_TW_Scholz  - jet_TW_Scholz_true)/jet_TW_Scholz_true
+    err_jet_WS_Howe         = (jet_WS_Howe  - jet_WS_Howe_true)/jet_WS_Howe_true
+    err_jet_TW_Howe         = (jet_TW_Howe - jet_TW_Howe_true)/jet_TW_Howe_true
+    err_jet_WS_Bartel       = (jet_WS_Bartel  - jet_WS_Bartel_true)/jet_WS_Bartel_true
+    err_jet_TW_Bartel       = (jet_TW_Bartel - jet_TW_Bartel_true)/jet_TW_Bartel_true
  
 
     print('Calculated values:')
     print('Turboprop           : W/S = ' + str(turboprop_WS) + ', P/W = ' + str(turboprop_TW))
     print('Piston              : W/S = ' + str(piston_WS) + ', P/W = ' + str(piston_TW))
-    print('Electric            : W/S = ' + str(electric_WS) + ', P/W = ' + str(electric_TW))
+    print('Electric air        : W/S = ' + str(electric_air_WS) + ', P/W = ' + str(electric_air_TW))
+    print('Electric liquid     : W/S = ' + str(electric_liquid_WS) + ', P/W = ' + str(electric_liquid_TW))
     print('Turbofan, Mattingly : W/S = ' + str(jet_WS_Matt) + ', T/W = ' + str(jet_TW_Matt))    
     print('Turbofan, Scholz    : W/S = ' + str(jet_WS_Scholz) + ', T/W = ' + str(jet_TW_Scholz))   
     print('Turbofan, Howe      : W/S = ' + str(jet_WS_Howe) + ', T/W = ' + str(jet_TW_Howe))  
@@ -242,7 +254,8 @@ def main():
     print('Expected values:')
     print('Turboprop           : W/S = ' + str(turboprop_WS_true)  + ', P/W = ' + str(turboprop_TW_true))
     print('Piston              : W/S = ' + str(piston_WS_true)     + ', P/W = ' + str(piston_TW_true))
-    print('Electric            : W/S = ' + str(electric_WS_true)   + ', P/W = ' + str(electric_TW_true))
+    print('Electric air        : W/S = ' + str(electric_air_WS_true)   + ', P/W = ' + str(electric_air_TW_true))
+    print('Electric liquid     : W/S = ' + str(electric_liquid_WS_true)   + ', P/W = ' + str(electric_liquid_TW_true))
     print('Turbofan, Mattingly : W/S = ' + str(jet_WS_Matt_true)   + ', T/W = ' + str(jet_TW_Matt_true))    
     print('Turbofan, Scholz    : W/S = ' + str(jet_WS_Scholz_true) + ', T/W = ' + str(jet_TW_Scholz_true))   
     print('Turbofan, Howe      : W/S = ' + str(jet_WS_Howe_true)   + ', T/W = ' + str(jet_TW_Howe_true))  
@@ -254,8 +267,10 @@ def main():
     err.turboprop_TW_error      = err_turboprop_TW
     err.piston_WS_error         = err_piston_WS
     err.piston_TW_error         = err_piston_TW
-    err.electric_WS_error       = err_electric_WS
-    err.electri_TW_error        = err_electric_TW
+    err.electric_air_WS_error   = err_electric_air_WS
+    err.electric_air_TW_error   = err_electric_air_TW
+    err.electric_air_WS_error   = err_electric_liquid_WS
+    err.electric_air_TW_error   = err_electric_liquid_TW
 
     err.jet_WS_Matt_error       = err_jet_WS_Matt
     err.jet_TW_Matt_error       = err_jet_TW_Matt
@@ -270,7 +285,8 @@ def main():
     print('Errors:')
     print('Turboprop           : W/S = ' + str(err_turboprop_WS) + ', P/W = ' + str(err_turboprop_TW))
     print('Piston              : W/S = ' + str(err_piston_WS) + ', P/W = ' + str(err_piston_TW))
-    print('Electric            : W/S = ' + str(err_electric_WS) + ', P/W = ' + str(err_electric_TW))
+    print('Electric air        : W/S = ' + str(err_electric_air_WS) + ', P/W = ' + str(err_electric_air_TW))
+    print('Electric liquid     : W/S = ' + str(err_electric_liquid_WS) + ', P/W = ' + str(err_electric_liquid_TW))
     print('Turbofan, Mattingly : W/S = ' + str(err_jet_WS_Matt) + ', T/W = ' + str(err_jet_TW_Matt))    
     print('Turbofan, Scholz    : W/S = ' + str(err_jet_WS_Scholz) + ', T/W = ' + str(err_jet_TW_Scholz))   
     print('Turbofan, Howe      : W/S = ' + str(err_jet_WS_Howe) + ', T/W = ' + str(err_jet_TW_Howe))  
