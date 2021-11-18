@@ -12,7 +12,7 @@
 from .purge_files import purge_files
 
 ## @ingroup Methods-Aerodynamics-AVL
-def write_input_deck(avl_object,trim_aircraft):
+def write_input_deck(avl_object,trim_aircraft,control_surfaces):
     """ This function writes the execution steps used in the AVL call
     Assumptions:
         None
@@ -54,7 +54,7 @@ G
         input_deck.write(base_input)
         for case in avl_object.current_status.cases:
             # write and store aerodynamic and static stability result files 
-            case_command = make_case_command(avl_object,case,trim_aircraft)
+            case_command = make_case_command(avl_object,case,trim_aircraft,control_surfaces)
             input_deck.write(case_command)
 
         input_deck.write('\nQUIT\n')
@@ -62,7 +62,7 @@ G
     return
 
 
-def make_case_command(avl_object,case,trim_aircraft):
+def make_case_command(avl_object,case,trim_aircraft,control_surfaces):
     """ Makes commands for case execution in AVL
     Assumptions:
         None
@@ -92,12 +92,17 @@ x
 {7}
 {8}
 {9}
-''' 
-    # if trim analysis is specified, this function writes the trim commands 
+'''  
+    
+    # if trim analysis is specified, this function writes the trim commands else it 
+    # uses the defined deflection of the control surfaces of the aircraft
     if trim_aircraft:
         trim_command = make_trim_text_command(case)
     else:
-        trim_command = ''
+        if control_surfaces:
+            trim_command = control_surface_deflection_command(case,avl_object)
+        else: 
+            trim_command = ''
     
     index          = case.index
     case_tag       = case.tag
@@ -187,9 +192,9 @@ D{1}
 {2}'''
     cs_idx = 1 
     cs_commands = ''
-    for wing in aircraft.wings:
+    for wing in aircraft.geometry.wings:
         for ctrl_surf in wing.control_surfaces:
-            cs_command = cs_template.format(cs_idx,cs_idx,wing.control_surfaces[ctrl_surf].deflection)
+            cs_command = cs_template.format(cs_idx,cs_idx,ctrl_surf.deflection)
             cs_commands = cs_commands + cs_command
             cs_idx += 1
     return cs_commands 
