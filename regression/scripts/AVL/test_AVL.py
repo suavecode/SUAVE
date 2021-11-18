@@ -49,7 +49,7 @@ def main():
     configs_analyses = analyses_setup(configs)
 
     
-    run_new_regression = True
+    run_new_regression = False
     
     # append AVL aerodynamic analysis
     aerodynamics                                                                     = SUAVE.Analyses.Aerodynamics.AVL() 
