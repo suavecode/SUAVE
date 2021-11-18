@@ -220,7 +220,7 @@ def generate_vortex_distribution(geometry,settings):
             VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)     
                     
     # ---------------------------------------------------------------------------------------
-    # STEP 8: Unpack aircraft fuselage geometry
+    # STEP 8: Unpack aircraft nacelle geometry
     # ---------------------------------------------------------------------------------------      
     VD.wing_areas = np.array(VD.wing_areas, dtype=precision)
     VD.n_fus      = 0
