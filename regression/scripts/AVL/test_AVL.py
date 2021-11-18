@@ -49,7 +49,7 @@ def main():
     configs_analyses = analyses_setup(configs)
 
     
-    run_new_regression = False
+    run_new_regression = True
     
     # append AVL aerodynamic analysis
     aerodynamics                                                                     = SUAVE.Analyses.Aerodynamics.AVL() 
@@ -144,7 +144,7 @@ def main():
 
     # lift coefficient check
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.6123535266221014
+    lift_coefficient_true         = 0.6124519382551281
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -154,7 +154,7 @@ def main():
     
     # moment coefficient check
     moment_coefficient            = results.segments.cruise.conditions.stability.static.CM[0][0]
-    moment_coefficient_true       = -0.6396390695709918
+    moment_coefficient_true       = -0.6177773381249909
     
     print(moment_coefficient)
     diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)
