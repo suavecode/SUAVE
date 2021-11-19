@@ -50,7 +50,6 @@ def compute_HFW_inflow_velocities( prop ):
 
     props=Data()
     props.propeller = prop
-    identical=False
 
     # compute radial blade section locations based on initial timestep offset
     dt   = time/number_of_wake_timesteps
@@ -67,7 +66,7 @@ def compute_HFW_inflow_velocities( prop ):
         init_timestep_offset = blade_angle/(omega * dt)
 
         # generate wake distribution using initial circulation from BEMT
-        WD, _, _, _, _  = generate_propeller_wake_distribution(props,identical,cpts,VD,
+        WD, _, _, _, _  = generate_propeller_wake_distribution(props,cpts,VD,
                                                                init_timestep_offset, time,
                                                                number_of_wake_timesteps,conditions )
 

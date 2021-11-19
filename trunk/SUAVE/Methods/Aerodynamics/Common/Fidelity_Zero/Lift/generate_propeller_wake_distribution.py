@@ -18,7 +18,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contracti
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry   
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
+def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 
@@ -29,7 +29,6 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
     None
 
     Inputs:  
-    identical                - if all props are identical        [Bool]
     m                        - control point                     [Unitless] 
     VD                       - vortex distribution               
     prop                     - propeller/rotor data structure         
@@ -43,34 +42,23 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
     N/A
     """    
     num_prop = len(props) 
-    
-    if identical:
-        # All props are identical in geometry, so only the first one is unpacked
-        prop_keys    = list(props.keys())
-        prop_key     = prop_keys[0]
-        prop         = props[prop_key]
-        prop_outputs = conditions.noise.sources.propellers[prop_key]
+
+    # Props are unique, must find required matrix sizes to fit all vortex distributions
+    prop_keys   = list(props.keys())
+    B_list      = np.ones(len(prop_keys))
+    Nr_list     = np.ones(len(prop_keys))
+
+    for i in range(len(prop_keys)):
+        p_key      = list(props.keys())[i]
+        p          = props[p_key]
+        p_out      = conditions.noise.sources.propellers[p_key]
         
-        Bmax = int(prop.number_of_blades)
-        nmax = int(prop_outputs.number_radial_stations - 1)
+        B_list[i]  = p.number_of_blades
+        Nr_list[i] = p_out.number_radial_stations
         
-    else:
-        # Props are unique, must find required matrix sizes to fit all vortex distributions
-        prop_keys   = list(props.keys())
-        B_list      = np.ones(len(prop_keys))
-        Nr_list     = np.ones(len(prop_keys))
-    
-        for i in range(len(prop_keys)):
-            p_key      = list(props.keys())[i]
-            p          = props[p_key]
-            p_out      = conditions.noise.sources.propellers[p_key]
-            
-            B_list[i]  = p.number_of_blades
-            Nr_list[i] = p_out.number_radial_stations
-            
-        # Identify max indices for pre-allocating vortex wake distribution matrices
-        Bmax = int(max(B_list))
-        nmax = int(max(Nr_list)-1)
+    # Identify max indices for pre-allocating vortex wake distribution matrices
+    Bmax = int(max(B_list))
+    nmax = int(max(Nr_list)-1)
         
     
     # Add additional time step to include lifting line panel on rotor
@@ -81,11 +69,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
     
     # for each propeller, unpack and compute 
     for i, propi in enumerate(props):
-        propi_key        = list(props.keys())[i]
-        if identical:
-            propi_outputs = prop_outputs
-        else:
-            propi_outputs = conditions.noise.sources.propellers[propi_key]
+        propi_key     = list(props.keys())[i]
+        propi_outputs = conditions.noise.sources.propellers[propi_key]
         
         # Unpack
         R                = propi.tip_radius
