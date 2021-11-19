@@ -57,14 +57,6 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
         VLM_settings.spanwise_cosine_spacing   = False
         VLM_settings.model_fuselage            = False
 
-    # unpack vortex distribution
-    try:
-        VD = vehicle.vortex_distribution
-    except:
-        print("Simulation has not yet been run. Generating vortex distribution for geometry export.")
-        VD = generate_vortex_distribution(vehicle,VLM_settings)
-        vehicle.vortex_distribution = VD
-
 
     #---------------------------
     # Save propellers and rotors to vtk
@@ -81,21 +73,46 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
             print("No propellers.")
             n_props = 0
 
-
         if n_props>0:
             for i in range(n_props):
+                
                 propi = propellers[list(propellers.keys())[i]]
-
+                
                 # save the ith propeller
-                if save_loc ==None:
+                if save_loc==None:
                     filename = prop_filename
                 else:
                     filename = save_loc + prop_filename
+                    
                 sep  = filename.rfind('.')
                 file = filename[0:sep]+str(i)+filename[sep:]
 
                 save_prop_vtk(propi, file, Results, time_step)
-
+                
+                try:
+                    # check if rotor has 
+                    VD    = propi.vortex_distribution
+                    gamma = propi.Wake_VD.GAMMA
+                    
+                    #---------------------------
+                    # Save propeller wake to vtk
+                    #---------------------------
+                    # save the wake of the ith propeller
+                    if save_loc ==None:
+                        filename = wake_filename
+                    else:
+                        filename = save_loc + wake_filename
+                    sep  = filename.rfind('.')
+                    file = filename[0:sep]+str(i)+"_t."+str(time_step)+filename[sep:]
+                
+                    Results['prop_outputs'] = propi.outputs
+                    
+                    # save prop wake
+                    
+                    save_prop_wake_vtk(VD, gamma, file, Results,0)   
+                except:
+                    pass
+                    
         try:
             print("Attempting to save rotor.")
             lift_rotors = network.lift_rotors
@@ -110,6 +127,7 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
 
         if n_rots > 0:
             for i in range(n_rots):
+                roti = lift_rotors[list(lift_rotors.keys())[i]]
                 # save the ith rotor
                 if save_loc ==None:
                     filename = prop_filename
@@ -118,38 +136,34 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                 sep  = filename.rfind('.')
                 file = filename[0:sep]+str(i)+filename[sep:]
 
-                save_prop_vtk(lift_rotors[list(lift_rotors.keys())[i]], file, Results,i,time_step)
+                save_prop_vtk(roti, file, Results,i,time_step)
+                
+                try:
+                    # check if rotor has 
+                    VD    = roti.vortex_distribution
+                    gamma = roti.Wake_VD.GAMMA
+                    
+                    #---------------------------
+                    # Save propeller wake to vtk
+                    #---------------------------
+                    # save the wake of the ith propeller
+                    if save_loc ==None:
+                        filename = wake_filename
+                    else:
+                        filename = save_loc + wake_filename
+                    sep  = filename.rfind('.')
+                    file = filename[0:sep]+str(i)+"_t."+str(time_step)+filename[sep:]
+                
+                    roti_key = list(Results['all_prop_outputs'].keys())[i]
+                    Results['prop_outputs'] = Results['all_prop_outputs'][roti_key]
+                    
+                    # save prop wake
+                    
+                    save_prop_wake_vtk(VD, gamma, file, Results,i)      
+                except:
+                    pass
 
-
-    #---------------------------
-    # Save propeller wake to vtk
-    #---------------------------
-    try:
-        n_wakes = len(VD.Wake.XA1[:,0,0,0])
-
-    except:
-        print("Wake simulation has not yet been run. No propeller wakes generated.")
-        n_wakes = 0
-
-    if n_wakes >0:
-        for i in range(n_wakes):
-            # save the wake of the ith propeller
-            if save_loc ==None:
-                filename = wake_filename
-            else:
-                filename = save_loc + wake_filename
-            sep  = filename.rfind('.')
-            file = filename[0:sep]+str(i)+"_t."+str(time_step)+filename[sep:]
-
-            propi_key = list(Results['all_prop_outputs'].keys())[i]
-            Results['prop_outputs'] = Results['all_prop_outputs'][propi_key]
-            
-            # save prop wake
-            propi = propellers[list(propellers.keys())[i]]
-            gamma = propi.Wake_VD.GAMMA
-            save_prop_wake_vtk(VD, gamma, file, Results,i)
-
-
+    
     #---------------------------
     # Save wing results to vtk
     #---------------------------

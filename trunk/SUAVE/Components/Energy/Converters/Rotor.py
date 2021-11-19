@@ -385,7 +385,7 @@ class Rotor(Energy_Component):
 
                 # compute Newton residual on circulation
                 Gamma       = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
-                Rsquiggly   = Gamma - 0.5*W*c*Cl
+                Rsquiggly   = Gamma - 0.5*W*c*Cl*F
 
                 # use analytical derivative to get dR_dpsi
                 dR_dpsi = compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece)
@@ -426,9 +426,9 @@ class Rotor(Energy_Component):
             
             converge = True
             if converge:
-                for i in range(2):
+                for i in range(1):
                     # converge on va for a semi-prescribed wake method
-                    ii,ii_max = 0, 50            
+                    ii,ii_max = 0, 20            
                     va_diff, tol = 1, 1e-2               
                     
                     while va_diff > tol:  
@@ -452,6 +452,7 @@ class Rotor(Energy_Component):
                         ii+=1
                         if ii>ii_max and va_diff>tol:
                             print("Semi-prescribed helical wake did not converge on axial inflow used for wake shape.")
+                            break
                                     
                     
                     # Compute aerodynamic forces based on specified input airfoil or surrogate
