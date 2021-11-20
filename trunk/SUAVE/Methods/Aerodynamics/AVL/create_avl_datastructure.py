@@ -191,12 +191,14 @@ def populate_wing_sections(avl_wing,suave_wing):
 
                     # if wing is a vertical wing, the y and z coordinates are swapped 
                     if avl_wing.vertical:
-                        dz = ordered_section_spans[section_count] -  semispan*segments[i_segs-1].percent_span_location 
+                        inverted_wing = -np.sign(abs(dihedral_ob) - np.pi/2)
+                        dz = ordered_section_spans[section_count] -  inverted_wing*semispan*segments[i_segs-1].percent_span_location
                         dy = dz*np.tan(dihedral_ob)
                         l  = dz/np.cos(dihedral_ob)
                         dx = l*np.tan(segment_sweeps[i_segs-1])                                                            
                     else:
-                        dy = ordered_section_spans[section_count] - semispan*segments[i_segs-1].percent_span_location 
+                        inverted_wing = np.sign(dihedral_ob)
+                        dy = ordered_section_spans[section_count] - inverted_wing*semispan*segments[i_segs-1].percent_span_location
                         dz = dy*np.tan(dihedral_ob)
                         l  = dy/np.cos(dihedral_ob)
                         dx = l*np.tan(segment_sweeps[i_segs-1])
@@ -302,12 +304,14 @@ def populate_wing_sections(avl_wing,suave_wing):
 
             segment_percent_span =    segments[i_segs+1].percent_span_location - segments[i_segs].percent_span_location     
             if avl_wing.vertical:
-                dz = semispan*segment_percent_span
+                inverted_wing = -np.sign(abs(dihedral) - np.pi/2)
+                dz = inverted_wing*semispan*segment_percent_span
                 dy = dz*np.tan(dihedral)
                 l  = dz/np.cos(dihedral)
                 dx = l*np.tan(segment_sweep)
             else:
-                dy = semispan*segment_percent_span
+                inverted_wing = np.sign(dihedral_ob)
+                dy = inverted_wing*semispan*segment_percent_span
                 dz = dy*np.tan(dihedral)
                 l  = dy/np.cos(dihedral)
                 dx = l*np.tan(segment_sweep)
@@ -341,11 +345,13 @@ def populate_wing_sections(avl_wing,suave_wing):
         tip_section.twist     = suave_wing.twists.tip/Units.degrees 
         tip_section.semispan  = 0
 
-        # assign location of wing tip         
+        # assign location of wing tip
         if avl_wing.vertical:
-            tip_section.origin    = [[origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[2]+semispan]]
+            inverted_wing = -np.sign(abs(suave_wing.dihedral) - np.pi/2)
+            tip_section.origin    = [[origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[2]+inverted_wing*semispan]]
         else: 
-            tip_section.origin    = [[origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]]
+            inverted_wing = np.sign(suave_wing.dihedral)
+            tip_section.origin    = [[origin[0]+semispan*np.tan(sweep),origin[1]+inverted_wing*semispan,origin[2]+semispan*np.tan(dihedral)]]
 
         # assign wing airfoil
         if suave_wing.Airfoil:
