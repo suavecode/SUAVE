@@ -95,14 +95,15 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         propi.start_angle = start_angle[0]
 
         # compute lambda and mu 
-        mean_induced_velocity  = np.mean( np.mean(va,axis = 1),axis = 1)   
+        mean_radial_induced_velocity  = np.mean(va,axis = 2)
+        mean_induced_velocity  = np.mean( mean_radial_induced_velocity,axis = 1)   
     
         alpha = propi.orientation_euler_angles[1]
         rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
         
         lambda_tot   =  np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 99 Leishman)
         mu_prop      =  np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
-        V_prop       =  np.atleast_2d(np.sqrt((V_inf[:,0]  + mean_induced_velocity)**2 + (V_inf[:,2])**2)).T
+        V_prop       =  np.atleast_2d(np.sqrt((V_inf[:,0]  + mean_radial_induced_velocity)**2 + (V_inf[:,2])**2))
 
         # wake skew angle 
         wake_skew_angle = -np.arctan(mu_prop/lambda_tot)
@@ -123,14 +124,16 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         # --------------------------------------------------------------------------------------------------------------
         #    ( control point , blade number , radial location on blade , time step )
         # --------------------------------------------------------------------------------------------------------------
-        sx_inf0            = np.multiply(V_prop*np.cos(wake_skew_angle), np.atleast_2d(ts))
-        sx_inf             = np.repeat(np.repeat(sx_inf0[:, None, :], B, axis = 1)[:, :, None, :], Nr, axis = 2) 
+        V_p = np.repeat(V_prop[:,:,None],len(ts),axis=2)
+                        
+        sx_inf0            = np.multiply(V_p*np.cos(wake_skew_angle), np.repeat(np.atleast_2d(ts)[:,None,:],Nr,axis=1))
+        sx_inf             = np.repeat(sx_inf0[:, None, :,:], B, axis = 1)
                           
         sy_inf0            = np.multiply(np.atleast_2d(V_inf[:,1]).T,np.atleast_2d(ts)) # = zero since no crosswind
         sy_inf             = np.repeat(np.repeat(sy_inf0[:, None, :], B, axis = 1)[:, :, None, :], Nr, axis = 2)   
                           
-        sz_inf0            = np.multiply(V_prop*np.sin(wake_skew_angle),np.atleast_2d(ts))
-        sz_inf             = np.repeat(np.repeat(sz_inf0[:, None, :], B, axis = 1)[:, :, None, :], Nr, axis = 2)           
+        sz_inf0            = np.multiply(V_p*np.sin(wake_skew_angle),np.repeat(np.atleast_2d(ts)[:,None,:],Nr,axis=1))
+        sz_inf             = np.repeat(sz_inf0[:, None, :,:], B, axis = 1)        
     
         angle_offset       = np.repeat(np.repeat(np.multiply(omega,np.atleast_2d(ts))[:, None, :],B, axis = 1)[:, :, None, :],Nr, axis = 2) 
         blade_angle_loc    = np.repeat(np.repeat(np.tile(np.atleast_2d(blade_angles),(m,1))[:, :, None ], Nr, axis = 2)[:, :, :, None],number_of_wake_timesteps, axis = 3) 
