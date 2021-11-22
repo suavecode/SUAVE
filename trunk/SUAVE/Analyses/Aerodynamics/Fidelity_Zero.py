@@ -77,6 +77,7 @@ class Fidelity_Zero(Markup):
         settings.use_surrogate                      = True
         settings.propeller_wake_model               = False 
         settings.use_bemt_wake_model                = False 
+        settings.discretize_control_surfaces        = True
         settings.model_fuselage                     = False
         settings.recalculate_total_wetted_area      = False
         settings.model_nacelle                      = False
@@ -146,8 +147,9 @@ class Fidelity_Zero(Markup):
         nwts                      = self.settings.number_of_wake_timesteps
         mf                        = self.settings.model_fuselage
         mn                        = self.settings.model_nacelle
+        dcs                       = self.settings.discretize_control_surfaces
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn )
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn,dcs )
                                                             
     finalize = initialize                                          

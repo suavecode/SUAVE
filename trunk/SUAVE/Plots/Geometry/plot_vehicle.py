@@ -20,7 +20,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distri
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 ## @ingroup Plots-Geometry
-def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,
+def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,plot_axis = False,
                  save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics
     Routine is initialized
@@ -119,9 +119,10 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     axes.set_xlim(0,axis_limits*2)
     axes.set_ylim(-axis_limits,axis_limits)
     axes.set_zlim(-axis_limits,axis_limits)
-
-    plt.axis('off')
-    plt.grid(None)
+    
+    if not plot_axis:
+        plt.axis('off')
+        plt.grid(None)
     return
 
 def plot_wing(axes,VD,face_color,edge_color,alpha_val):
