@@ -16,6 +16,7 @@ import numpy as np
 from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan   
 from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
 from SUAVE.Methods.Cooling.Cryocooler.Cooling.cryocooler_model import cryocooler_model
+from SUAVE.Attributes.Gases import Air
 
 from SUAVE.Core import (
 Data, Units,
@@ -32,69 +33,84 @@ def main():
 
 
 def energy_network():
-    # ------------------------------------------------------------------
+
+   # ------------------------------------------------------------------
     #   Evaluation Conditions
     # ------------------------------------------------------------------    
     
-    # Setup Conditions        
-    ones_1col  = np.ones([1,1])    
-    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-       
-    # Freestream conditions
-    conditions.freestream.mach_number                 = ones_1col*0.4
-    conditions.freestream.pressure                    = ones_1col*20000.0
-    conditions.freestream.temperature                 = ones_1col*215.0
-    conditions.freestream.density                     = ones_1col*0.8
-    conditions.freestream.dynamic_viscosity           = ones_1col*0.000001475
-    conditions.freestream.altitude                    = ones_1col*10.0
-    conditions.freestream.gravity                     = ones_1col*9.81
-    conditions.freestream.isentropic_expansion_factor = ones_1col*1.4
-    conditions.freestream.Cp                          = 1.4*287.87/(1.4-1)
-    conditions.freestream.R                           = 287.87
-    conditions.M                                      = conditions.freestream.mach_number 
-    conditions.T                                      = conditions.freestream.temperature
-    conditions.p                                      = conditions.freestream.pressure
-    conditions.freestream.speed_of_sound              = ones_1col* np.sqrt(conditions.freestream.Cp/(conditions.freestream.Cp-conditions.freestream.R)*conditions.freestream.R*conditions.freestream.temperature) #300.
-    conditions.freestream.velocity                    = conditions.M * conditions.freestream.speed_of_sound
-    conditions.velocity                               = conditions.M * conditions.freestream.speed_of_sound
-    conditions.q                                      = 0.5*conditions.freestream.density*conditions.velocity**2
-    conditions.g0                                     = conditions.freestream.gravity
+    # Conditions        
+    ones_1col = np.ones([1,1])       
+    alt       = 10.0
+    
+    # Setup conditions
+    planet                           = SUAVE.Attributes.Planets.Earth()   
+    atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data                        = atmosphere.compute_values(alt,0,True) 
+    working_fluid                    = SUAVE.Attributes.Gases.Air()    
+    conditions                       = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+  
+    # freestream conditions
+    conditions.freestream.altitude                     = ones_1col*alt   
+    conditions.freestream.mach_number                  = ones_1col*0.8
+    conditions.freestream.pressure                     = ones_1col*atmo_data.pressure
+    conditions.freestream.temperature                  = ones_1col*atmo_data.temperature
+    conditions.freestream.density                      = ones_1col*atmo_data.density
+    conditions.freestream.dynamic_viscosity            = ones_1col*atmo_data.dynamic_viscosity
+    conditions.freestream.gravity                      = ones_1col*planet.compute_gravity(alt)
+    conditions.freestream.isentropic_expansion_factor  = ones_1col*working_fluid.compute_gamma(atmo_data.temperature,atmo_data.pressure)                                                                                             
+    conditions.freestream.Cp                           = ones_1col*working_fluid.compute_cp(atmo_data.temperature,atmo_data.pressure)
+    conditions.freestream.R                            = ones_1col*working_fluid.gas_specific_constant
+    conditions.freestream.speed_of_sound               = ones_1col*atmo_data.speed_of_sound
+    conditions.freestream.velocity                     = conditions.freestream.mach_number*conditions.freestream.speed_of_sound
+    conditions.velocity                                = conditions.freestream.mach_number*conditions.freestream.speed_of_sound
+    conditions.q                                       = 0.5*conditions.freestream.density*conditions.velocity**2
+    conditions.g0                                      = conditions.freestream.gravity
     
     # propulsion conditions
-    conditions.propulsion.throttle                    =  ones_1col*1.0
-    
-    # ------------------------------------------------------------------
-    #   Design/sizing conditions 
-    # ------------------------------------------------------------------    
+    conditions.propulsion.throttle                     =  ones_1col*1.0
         
-    # Setup Conditions        
-    ones_1col = np.ones([1,1])       
+    # ------------------------------------------------------------------
+    #   Design/sizing conditions
+    # ------------------------------------------------------------------    
+    
+    # Conditions        
+    ones_1col = np.ones([1,1])    
+    alt_size  = 10000.0
+    # Setup conditions
+    planet     = SUAVE.Attributes.Planets.Earth()   
+    atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data                        = atmosphere.compute_values(alt_size,0,True) 
+    working_fluid                    = SUAVE.Attributes.Gases.Air()    
     conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-     
+
     # freestream conditions
-    conditions_sizing.freestream.mach_number                 = ones_1col*0.5
-    conditions_sizing.freestream.pressure                    = ones_1col*26499.73156529
-    conditions_sizing.freestream.temperature                 = ones_1col*223.25186491
-    conditions_sizing.freestream.density                     = ones_1col*0.41350854
-    conditions_sizing.freestream.dynamic_viscosity           = ones_1col* 1.45766126e-05
-    conditions_sizing.freestream.altitude                    = ones_1col* 10000.0
-    conditions_sizing.freestream.gravity                     = ones_1col*9.81
-    conditions_sizing.freestream.isentropic_expansion_factor = ones_1col*1.4
-    conditions_sizing.freestream.Cp                          = 1.4*287.87/(1.4-1)
-    conditions_sizing.freestream.R                           = 287.87
-    conditions_sizing.freestream.speed_of_sound              = 299.53150968
-    conditions_sizing.freestream.velocity                    = conditions_sizing.freestream.mach_number*conditions_sizing.freestream.speed_of_sound
+    conditions_sizing.freestream.altitude                     = ones_1col*alt_size     
+    conditions_sizing.freestream.mach_number                  = ones_1col*0.8
+    conditions_sizing.freestream.pressure                     = ones_1col*atmo_data.pressure
+    conditions_sizing.freestream.temperature                  = ones_1col*atmo_data.temperature
+    conditions_sizing.freestream.density                      = ones_1col*atmo_data.density
+    conditions_sizing.freestream.dynamic_viscosity            = ones_1col*atmo_data.dynamic_viscosity
+    conditions_sizing.freestream.gravity                      = ones_1col*planet.compute_gravity(alt_size)
+    conditions_sizing.freestream.isentropic_expansion_factor  = ones_1col*working_fluid.compute_gamma(atmo_data.temperature,atmo_data.pressure)                                                                                             
+    conditions_sizing.freestream.Cp                           = ones_1col*working_fluid.compute_cp(atmo_data.temperature,atmo_data.pressure)
+    conditions_sizing.freestream.R                            = ones_1col*working_fluid.gas_specific_constant
+    conditions_sizing.freestream.speed_of_sound               = ones_1col*atmo_data.speed_of_sound
+    conditions_sizing.freestream.velocity                     = conditions_sizing.freestream.mach_number*conditions_sizing.freestream.speed_of_sound
+    conditions_sizing.velocity                                = conditions_sizing.freestream.mach_number*conditions_sizing.freestream.speed_of_sound
+    conditions_sizing.q                                       = 0.5*conditions_sizing.freestream.density*conditions_sizing.velocity**2
+    conditions_sizing.g0                                      = conditions_sizing.freestream.gravity
     
     # propulsion conditions
     conditions_sizing.propulsion.throttle                    =  ones_1col*1.0
+
+    state_sizing                = Data()
+    state_sizing.numerics       = Data()
+    state_sizing.conditions     = conditions_sizing
+    state_off_design            = Data()
+    state_off_design.numerics   = Data()
+    state_off_design.conditions = conditions
     
-    # Setup Sizing
-    state_sizing = Data()
-    state_sizing.numerics = Data()
-    state_sizing.conditions = conditions_sizing
-    state_off_design=Data()
-    state_off_design.numerics=Data()
-    state_off_design.conditions=conditions
+
     
     # ------------------------------------------------------------------
     #   Turboelectric HTS Ducted Fan Network 
@@ -149,14 +165,11 @@ def energy_network():
                                     [xStart+xSpace*1,  (yStart+ySpace*1), -2.0],
                                     [xStart+xSpace*0,  (yStart+ySpace*0), -2.0]     ] # meters 
 
-    #compute engine areas
-    efan.ducted_fan.areas.wetted      = 1.1*np.pi*efan.ducted_fan.nacelle_diameter*efan.ducted_fan.engine_length
-
     # copy the ducted fan details to the turboelectric ducted fan network to enable drag calculations
     efan.engine_length      = efan.ducted_fan.engine_length   
     efan.nacelle_diameter   = efan.ducted_fan.nacelle_diameter
     efan.origin             = efan.ducted_fan.origin
-    efan.areas.wetted       = efan.ducted_fan.areas.wetted
+
 
     # working fluid
     efan.ducted_fan.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -249,11 +262,18 @@ def energy_network():
     # ------------------------------------------------------------------
     #  Component 3 - Powersupply
     
-    efan.powersupply = SUAVE.Components.Energy.Converters.Turboelectric()
-    efan.powersupply.tag = 'powersupply'
-    efan.number_of_powersupplies        = 2.
-    efan.powersupply.propellant         = SUAVE.Attributes.Propellants.Jet_A()
-    efan.powersupply.efficiency         = .37
+    efan.powersupply                        = SUAVE.Components.Energy.Converters.Turboelectric()
+    efan.powersupply.tag                    = 'powersupply'
+    efan.number_of_powersupplies            = 2.
+    efan.powersupply.propellant             = SUAVE.Attributes.Propellants.Jet_A()
+    efan.powersupply.oxidizer               = Air()
+    efan.powersupply.number_of_engines      = 2.0                   # number of turboelectric machines, not propulsors
+    efan.powersupply.efficiency             = .37                   # Approximate average gross efficiency across the product range.
+    efan.powersupply.volume                 = 2.36    *Units.m**3.  # 3m long from RB211 datasheet. 1m estimated radius.
+    efan.powersupply.rated_power            = 37400.0 *Units.kW
+    efan.powersupply.mass_properties.mass   = 2500.0  *Units.kg     # 2.5 tonnes from Rolls Royce RB211 datasheet 2013.
+    efan.powersupply.specific_power         = efan.powersupply.rated_power/efan.powersupply.mass_properties.mass
+    efan.powersupply.mass_density           = efan.powersupply.mass_properties.mass /efan.powersupply.volume 
 
     # ------------------------------------------------------------------
     #  Component 4 - Electronic Speed Controller (ESC)
@@ -339,14 +359,14 @@ def energy_network():
     # Test the model 
     # Specify the expected values
     expected = Data()
-    expected.thrust = 59023.7772426 
-    expected.mdot = 0.62414519
+    expected.thrust = 47826.12361690928
+    expected.mdot = 0.8051162227457257
     
     #error data function
     error =  Data()
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
     error.mdot_error   = (mdot[0][0]-expected.mdot)/expected.mdot
-
+    
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)    
         
