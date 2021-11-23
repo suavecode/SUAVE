@@ -9,9 +9,10 @@
 
 # package imports
 import numpy as np 
+import copy
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11):  
+def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11,suppress_root=False):  
     """ This computes the velocity induced by the fixed helical wake
     on lifting surface control points
 
@@ -63,19 +64,19 @@ def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11):
     #compute vortex strengths for every control point on wing 
     # this loop finds the strength of one ring only on entire control points on wing 
     # compute influence of bound vortices 
-    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,sigma,GAMMA,bv=True,VD=VD) 
+    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,sigma,GAMMA,bv=True,suppress_root=suppress_root,VD=VD) 
     C_AB         = np.transpose(res_C_AB,axes=[1,2,3,0]) 
     
-    # compute influence of 3/4 right legs 
-    _ , res_C_BC = vortex(XC, YC, ZC, WXB1, WYB1, WZB1, WXB2, WYB2, WZB2,sigma,GAMMA) 
+    # compute influence of right vortex segment
+    _ , res_C_BC = vortex(XC, YC, ZC, WXB1, WYB1, WZB1, WXB2, WYB2, WZB2,sigma,GAMMA)  # don't suppress right segment
     C_BC         = np.transpose(res_C_BC,axes=[1,2,3,0]) 
     
-    # compute influence of bound vortices  
-    _ , res_C_CD = vortex(XC, YC, ZC, WXB2, WYB2, WZB2, WXA2, WYA2, WZA2,sigma,GAMMA) 
+    # compute influence of bottom vortex segment
+    _ , res_C_CD = vortex(XC, YC, ZC, WXB2, WYB2, WZB2, WXA2, WYA2, WZA2,sigma,GAMMA,suppress_root=suppress_root) 
     C_CD         = np.transpose(res_C_CD,axes=[1,2,3,0])
     
-    # compute influence of 3/4 left legs  
-    _ , res_C_DA = vortex(XC, YC, ZC, WXA2, WYA2, WZA2, WXA1, WYA1, WZA1,sigma,GAMMA) 
+    # compute influence of left vortex segment 
+    _ , res_C_DA = vortex(XC, YC, ZC, WXA2, WYA2, WZA2, WXA1, WYA1, WZA1,sigma,GAMMA,suppress_root=suppress_root) 
     C_DA         = np.transpose(res_C_DA,axes=[1,2,3,0]) 
     
     # Add all the influences together
@@ -88,7 +89,7 @@ def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11):
 # vortex strength computation
 # -------------------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,VD=None,use_regularization_kernal=True):
+def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,suppress_root=False,VD=None,use_regularization_kernal=True):
     """ This computes the velocity induced on a control point by a segment
     of a horseshoe vortex from point 1 to point 2 
     Assumptions:  
@@ -145,8 +146,14 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,VD=None,use_regula
         lifting_line_panels_compressed = np.reshape(lifting_line_panels, (m,np.size(lifting_line_panels[0,:,:,:,:])))
         
         COEF[:,lifting_line_panels_compressed,:] = 0
+    
+    if suppress_root:
+        G = copy.deepcopy(GAMMA)
+        G[:,:,0] = 0
+    else:
+        G = GAMMA
         
-    V_IND  = GAMMA * COEF
+    V_IND  = G * COEF
     
     return COEF , V_IND  
 

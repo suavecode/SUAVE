@@ -93,9 +93,10 @@ class Rotor(Energy_Component):
 
         self.Wake_VD                   = Data()
         self.wake_method               = "momentum"
-        self.number_rotor_rotations    = 6
+        self.number_rotor_rotations    = 5
         self.number_steps_per_rotation = 100
         self.wake_settings             = Data()
+        self.system_vortex_distribution = None
 
         self.wake_settings.initial_timestep_offset   = 0    # initial timestep
         self.wake_settings.wake_development_time     = 0.05 # total simulation time required for wake development
@@ -408,25 +409,14 @@ class Rotor(Energy_Component):
                 ii+=1
                 if ii>10000:
                     print("Rotor BEMT did not converge to a solution (Iteration Limit)")
-                    break
-            
-            ## smooth disc circulation
-            #Gspline = RectBivariateSpline(r_1d, psi, Gamma[0,:,:],s=.5)
-            #for i in range(Na):
-                #Gamma[0,:,i] = Gspline(r_1d,psi[i])[:,0]            
+                    break          
 
 
         elif wake_method == "helical_fixed_wake":
             
-            import pylab as plt
-            import copy
-            
-            bemt_outs = copy.deepcopy(self.outputs)
-            
-            
             converge = True
             if converge:
-                for i in range(1):
+                for i in range(2):
                     # converge on va for a semi-prescribed wake method
                     ii,ii_max = 0, 20            
                     va_diff, tol = 1, 1e-2               
@@ -495,7 +485,15 @@ class Rotor(Energy_Component):
                 # compute HFW circulation at the blade
                 Gamma = 0.5*W*c*Cl*F   
                 
-                              
+        ## smooth disc circulation
+        #Gspline = RectBivariateSpline(r_1d, psi, Gamma[0,:,:],s=.5)
+        #for i in range(Na):
+            #Gamma[0,:,i] = Gspline(r_1d,psi[i])[:,0]     
+        
+        #Gamma[:,0,:] = 0
+        #Gamma[:,-1,:] = 0
+        
+
                 
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
         va     = F*va
@@ -658,6 +656,7 @@ class Rotor(Energy_Component):
                     rotor_drag                        = rotor_drag,
                     rotor_drag_coefficient            = Crd,
             )
+        self.outputs = outputs
 
         return thrust_vector, torque, power, Cp, outputs , etap
 
@@ -1050,7 +1049,29 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     lamdaw[lamdaw<0.] = 0.
     f                 = (B/2.)*(1.-r/R)/lamdaw
     f[f<0.]           = 0.
+    
     piece             = np.exp(-f)
     F                 = 2.*np.arccos(piece)/np.pi
+    
+    # hub loss modification (make from 0)
+    Rhub = r[0,0,0]*.99
+    eh1, eh2, eh3, maxah = 1,1,1,-np.inf
+    hubfactor = B/2.0*(   (R/(R-r+Rhub))**eh1 - 1   )**eh2/lamdaw**eh3
+    hubfactor[hubfactor<0.]           = 0.
+    Fhub = 2.*np.arccos(np.exp(-hubfactor))/np.pi  
+    
+    Rtip = R
+    et1, et2, et3, maxat = 1,1,1,-np.inf
+    tipfactor = B/2.0*(  (Rtip/r)**et1 - 1  )**et2/lamdaw**et3
+    tipfactor[tipfactor<0.]   = 0.
+    Ftip = 2.*np.arccos(np.exp(-tipfactor))/np.pi
+    
+    #import pylab as plt
+    #plt.plot(r[0,:,0], Fhub[0,:,0],label="hub")
+    #plt.plot(r[0,:,0], Ftip[0,:,0],label="tip")
+    #plt.legend()
+    
+    F = Ftip*Fhub
+    
 
     return lamdaw, F, piece
