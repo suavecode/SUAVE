@@ -67,20 +67,14 @@ class Copper(Solid):
         conductivities = [3.204, 4.668, 6.223, 7.781, 9.273, 10.64, 11.85, 12.87, 13.68, 14.44, 11.63, 8.636, 6.7, 5.611, 5.003, 4.651, 4.439, 4.218, 4.116, 4.06, 4.026, 4.001, 3.982, 3.965, 3.95, 3.936, 3.924]
 
         # Function that interpolates the lookup table data
-        c = interpolate.interp1d(temperatures, conductivities, kind = 'cubic')
+        c = interpolate.interp1d(temperatures, conductivities, kind = 'cubic', fill_value='extrapolate')
         
         # Create output variable
-        conductivity = 0.0
 
-        # If the requested temperature is above or below the limit of the data in the table, use the closest value in the table. This is acceptable for the data presented here as the conductivities outside this range is almost constant, this might not apply for other data sets.
-        if temperature<temperatures[0]:
-            conductivity = conductivities[0]
-        elif temperature>temperatures[-1]:
-            conductivity = conductivities[-1]
-        # If the temperature is within the range, interpolate the value from the nearest values in the range.
-        else:
-            conductivity = c(temperature)
+        conductivity = c(temperature)
+
         return conductivity
+        
 
 
     # lookup table and interpolator for estimating the electrical conductivity of copper at cryogenic temperatures.
@@ -90,17 +84,9 @@ class Copper(Solid):
         conductivities = [62706513.73, 59649351.1, 58823529.41, 57862233.7, 56756705.27, 55547010.82, 54265718.98, 52838319.53, 51265727.5, 49621943.91, 47879990.68, 46119256.86, 44295117.43, 42462678.59, 40594025.68, 38689780.55, 36839664.93, 34982975.23, 33178363.63, 29768952.17, 26747761.29, 23951445.97, 21412914.59, 19097216.66, 17144994.46, 15418051.98, 13912657.74, 12602171.91, 11436522.41, 10413826.85, 9526550.123, 8071135.431, 6915841.211, 6030094.818, 5295406.175, 4719663.549, 4129948.887, 3661837.678, 3283955.516, 2972855.668, 2494427.41, 2147259.712, 1884972.1, 1680269.452, 1516360.227, 1382622.667, 1270747.745, 1176213.988, 1095370.181, 1025134.636, 963654.7402, 909308.7026, 860944.9011, 817561.3102, 778513.0909, 742977.6209, 710652.6341, 701058.8235, 681102.5197, 653862.9927, 628729.7528, 605483.2867, 583918.8609]
 
         # Function that interpolates the lookup table data
-        c = interpolate.interp1d(temperatures, conductivities, kind = 'cubic')
+        c = interpolate.interp1d(temperatures, conductivities, kind = 'cubic', fill_value='extrapolate')
         
-        # Create output variable
-        conductivity = 0.0
 
-        # If the requested temperature is above or below the limit of the data in the table, use the closest value in the table. This is acceptable for the data presented here as the conductivities outside this range is almost constant, this might not apply for other data sets.
-        if temperature<temperatures[0]:
-            conductivity = conductivities[0]
-        elif temperature>temperatures[-1]:
-            conductivity = conductivities[-1]
-        # If the temperature is within the range, interpolate the value from the nearest values in the range.
-        else:
-            conductivity = c(temperature)
+        conductivity = c(temperature)
+        
         return conductivity

@@ -15,7 +15,7 @@ import numpy as np
 
 from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan   
 from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
-from SUAVE.Methods.Cooling.Cryocooler.Cooling.cryocooler_model import cryocooler_model
+
 from SUAVE.Attributes.Gases import Air
 
 from SUAVE.Core import (
@@ -244,8 +244,6 @@ def energy_network():
     
     # add to network
     efan.ducted_fan.thrust = thrust
-    
-
     # ------------------------------------------------------------------
     # Component 2 : HTS motor
     
@@ -331,7 +329,7 @@ def energy_network():
     efan.cryocooler.cooler_type        = 'GM'
     efan.cryocooler.min_cryo_temp      = efan.rotor.temperature     # [K]
     efan.cryocooler.ambient_temp       = 300.0                      # [K]
-    efan.cryocooler.cooling_model      = cryocooler_model
+  
 
     # Sizing Conditions. The cryocooler may have greater power requirement at low altitude as the cooling requirement may be static during the flight but the ambient temperature may change.
     cryo_temp       =  50.0     # [K]

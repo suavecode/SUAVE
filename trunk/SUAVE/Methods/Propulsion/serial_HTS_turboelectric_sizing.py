@@ -23,12 +23,34 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
 from SUAVE.Methods.Cooling.Leads.copper_lead import initialize_copper_lead
 from SUAVE.Methods.Cooling.Leads.copper_lead import Q_offdesign
-from SUAVE.Methods.Cooling.Cryocooler.Sizing.size_cryocooler import size_cryocooler
 
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 
 ## @ingroup Methods-Propulsion
 def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):
+    """This sets the default values used in the operating cost methods.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        Turboelectric_HTS_Ducted_Fan    Serial HTYS hybrid ducted fan network object (to be modified)
+        mach_number
+        altitude                        [meters]
+        delta_isa                       temperature difference [K]
+        conditions                      ordered dict object
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """       
+    
+    
     """
     creates and evaluates a ducted_fan network based on an atmospheric sizing condition
     creates and evaluates a serial hybrid network that includes a HTS motor driven ducted fan, turboelectric generator, and the required supporting equipment including cryogenic cooling
@@ -169,7 +191,7 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
 
     # update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
-      
+
     # compute the sls_thrust
     
     # call the atmospheric model to get the conditions at the specified altitude
@@ -242,8 +264,7 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     cooling_power               = rotor_cooling_power + leads_cooling_power  # Cryocooler must cool both rotor and supply leads
     cryocooler_input_power      = 0.0
 
-    size_cryocooler(cryocooler, cooling_power, cryo_cold_temp, cryo_amb_temp)
-    cryocooler_input_power  = cryocooler.rated_power
+    cryocooler_input_power      = cryocooler.rated_power
     rotor_power                 = ccs_input_power + cryocooler_input_power
 
     # Add power required by each stream

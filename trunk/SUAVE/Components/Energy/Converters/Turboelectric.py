@@ -2,7 +2,7 @@
 # Turboelectric.py
 #
 # Created:  Nov 2019, K. Hamilton
-# Modified: Nov 2021,   S. Claridge
+# Modified: Nov 2021, S. Claridge
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -13,8 +13,6 @@ import SUAVE
 # package imports
 from SUAVE.Core import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Attributes.Gases import Air
-from SUAVE.Attributes.Propellants import Liquid_Natural_Gas
 from SUAVE.Methods.Power.Turboelectric.Discharge import zero_fidelity
 
 # ----------------------------------------------------------------------

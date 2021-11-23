@@ -38,7 +38,7 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         """ This sets the default values for the network to function.
     
             Assumptions:
-            Your system always uses 90 amps...?
+            N/A
     
             Source:
             N/A
@@ -52,17 +52,16 @@ class Turboelectric_HTS_Ducted_Fan(Network):
             Properties Used:
             N/A
         """         
-   
+
         self.leads                      = 2.0   # number of cryogenic leads supplying the rotor(s). Typically twice the number of rotors.
         self.number_of_engines          = 1.0   # number of ducted_fans, also the number of propulsion motors.
 
-        self.nacelle_diameter           = 1.0
         self.engine_length              = 1.0
         self.bypass_ratio               = 0.0
         self.areas                      = Data()
         self.tag                        = 'Turboelectric_HTS_Ducted_Fan'
 
-        self.ambient_skin               = 0         # flag to set whether the outer surface of the rotor is amnbient temperature or not.
+        self.ambient_skin               = False        # flag to set whether the outer surface of the rotor is amnbient temperature or not.
         self.skin_temp                  = 300.0     # [K]  if self.ambient_skin is false, this is the temperature of the rotor skin. 
     
     # manage process with a driver function
@@ -103,8 +102,6 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         leads                       = self.leads                    # number of rotor leads, typically twice the number of rotors
         number_of_engines           = self.number_of_engines        # number of propulsors and number of propulsion motors
         number_of_supplies          = self.powersupply.number_of_engines    # number of turboelectric generators
-
-       
     
         conditions      = state.conditions
         numerics        = state.numerics
@@ -116,16 +113,17 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         # Calculate the required electric power to be supplied to the ducted fan motor by dividing the shaft power required by the ducted fan by the efficiency of the ducted fan motor
         # Note here that the efficiency must not include the efficiency of the rotor and rotor supply components as these are handled separately below.
-        # powersupply.inputs.power_in = propulsor.thrust.outputs.power/motor.motor_efficiency
+
         motor_power_in        = ducted_fan.thrust.outputs.power/motor.motor_efficiency
 
         # Calculate the power used by the power electronics. This does not include the power delivered by the power elctronics to the fan motor.
         esc_power             = motor_power_in/esc.efficiency - motor_power_in
 
         # Set the rotor skin temp. Either it's ambient, or it's the temperature set in the rotor.
-        skin_temp           = np.empty_like(amb_temp)
-        skin_temp[:]        = amb_temp
-        if ambient_skin == 0:
+        skin_temp = amb_temp *1
+
+
+        if ambient_skin == False:
             skin_temp[:]    = rotor_surface_temp 
 
         # If the rotor current is to be varied depending on the motor power here is the place to do it. For now the rotor current is set as constant.
@@ -138,18 +136,14 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         # -------- Rotor Current Supply ---------------------------------
 
-
         # Calculate the power loss in the rotor current supply leads.
         # The cryogenic loading due to the leads is also calculated here.
         lead_power            = np.zeros_like(rotor_current)
         lead_cryo_load        = np.full_like(rotor_current, lead.unpowered_Q)
-        # Iterate through each element in the rotor_current array to build the cryo_load and lead_power array
-        for index, r_current in np.ndenumerate(rotor_current):
-            if r_current != 0.0:
-                lead_powers             = Q_offdesign(lead, r_current)
-                lead_power[index]       = lead_powers[1]
-                lead_cryo_load[index]   = lead_powers[0]
-                
+
+        # build the cryo_load and lead_power array
+        lead_power, lead_cryo_load           = Q_offdesign(lead, rotor_current)
+
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads
         lead_cryo_load      = lead_cryo_load * leads
@@ -157,12 +151,10 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         # Calculate the power used by the rotor's current supply.
         ccs_power             = (lead_power+rotor_power_in)/ccs.efficiency - (lead_power+rotor_power_in)
 
-
         # Multiply the power (electrical and cryogenic) required by the rotor components by the number of rotors, i.e. the number of propulsion motors
         all_leads_power             = number_of_engines * lead_power    
         all_leads_cryo              = number_of_engines * lead_cryo_load
         all_ccs_power               = number_of_engines * ccs_power     
-        
 
         # Retreive the cryogenic heat load from the rotor components (not including the leads).
         rotor_cryo_cryostat         = rotor.outputs.cryo_load * number_of_engines
