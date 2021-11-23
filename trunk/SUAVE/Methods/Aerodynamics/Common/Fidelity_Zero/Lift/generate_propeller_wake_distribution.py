@@ -118,7 +118,7 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         B_idx     = np.arange(B) 
         B_loc     = (B_idx*num + t_idx)%Na  
         Gamma     = gamma_new[:,:,B_loc]  
-        Gamma     = Gamma.transpose(0,3,1,2)
+        Gamma     = Gamma.transpose(0,3,1,2)   
         
         
         # --------------------------------------------------------------------------------------------------------------
