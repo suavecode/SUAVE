@@ -15,6 +15,9 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_v
 import numpy as np
 from scipy.interpolate import interp1d
 
+import copy
+from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
+
 def compute_HFW_inflow_velocities( prop ):
     """
     Assumptions:
@@ -34,6 +37,8 @@ def compute_HFW_inflow_velocities( prop ):
     time                     = prop.wake_settings.wake_development_time
     init_timestep_offset     = prop.wake_settings.init_timestep_offset
     number_of_wake_timesteps = prop.wake_settings.number_of_wake_timesteps
+    if prop.system_vortex_distribution is not None:
+        vehicle = copy.deepcopy(prop.vehicle)
 
     # use results from prior bemt iteration
     prop_outputs  = prop.outputs
@@ -47,6 +52,7 @@ def compute_HFW_inflow_velocities( prop ):
     conditions.noise.sources = Data()
     conditions.noise.sources.propellers = Data()
     conditions.noise.sources.propellers.propeller = prop_outputs
+    conditions.noise.sources.propellers.propeller2 = prop_outputs
 
     props=Data()
     props.propeller = prop
@@ -58,6 +64,7 @@ def compute_HFW_inflow_velocities( prop ):
     # set shape of velocitie arrays
     Va = np.zeros((cpts,Nr,Na))
     Vt = np.zeros((cpts,Nr,Na))
+    print("Compute HFW inflow velocities...")
     for i in range(Na):
         # increment blade angle to new azimuthal position
         blade_angle   = (omega[0]*t0 + i*(2*np.pi/(Na))) * prop.rotation  # Positive rotation, positive blade angle
@@ -66,7 +73,11 @@ def compute_HFW_inflow_velocities( prop ):
         init_timestep_offset = blade_angle/(omega * dt)
         
         if prop.system_vortex_distribution is not None:
-            VD_system = prop.system_vortex_distribution
+            
+            props = prop.propellers_in_network
+            
+            #print("\nUsing propeller system vortex distribution..")
+            #VD_system = prop.system_vortex_distribution
             
             # set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
             r = prop.radius_distribution 
@@ -78,28 +89,55 @@ def compute_HFW_inflow_velocities( prop ):
             VD.YC = (Yb[1:] + Yb[:-1])/2
             VD.ZC = (Zb[1:] + Zb[:-1])/2
             VD.XC = (Xb[1:] + Xb[:-1])/2
-             
+            VD.n_cp = np.size(VD.YC)  
             
-            VD.n_cp = np.size(VD.YC)            
-            u = np.zeros(len(VD.YC))
-            v = np.zeros(len(VD.YC))
-            w = np.zeros(len(VD.YC))
-            for item in list(VD_system.keys()):
-                WD = VD_system[item].Wake_collapsed
-                VD.Wake = VD_system[item].Wake
-                
-                # ----------------------------------------------------------------
-                # Compute the wake-induced velocities at propeller blade
-                # ----------------------------------------------------------------
+            # rotate wake WD to new init_timestep_offset
+              
+                    
 
+            WD, _, _, _, _  = generate_propeller_wake_distribution(props,cpts,VD,
+                                                                   init_timestep_offset, time,
+                                                                   number_of_wake_timesteps,conditions )   
+            
+
+            vehicle.networks.prop_net.propellers = props
+            vehicle.vortex_distribution = VD
+            
+            
+            #====================================================================================
+            #======DEBUG: STORE VTKS AFTER NEW WAKE GENERATION===================================
+            #====================================================================================       
+            debug = False
+            if debug:
+                print("\nStoring VTKs...")
+                
+                Results = Data()
+                Results.all_prop_outputs = Data()
+                Results.all_prop_outputs.propeller = vehicle.networks.prop_net.propellers.propeller.outputs
+                Results.identical = True
+                
+                conditions=None
+                save_vehicle_vtks(vehicle, conditions, Results, time_step=i,save_loc="/Users/rerha/Desktop/Test_SBS_VTKs/A0/")         
         
-                # Compute induced velocities at blade from the helical fixed wake
-                VD.Wake_collapsed = WD
-        
-                V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
-                u       += V_ind[0,:,0]   # velocity in vehicle x-frame
-                v       += V_ind[0,:,1]   # velocity in vehicle y-frame
-                w       += V_ind[0,:,2]   # velocity in vehicle z-frame     
+
+            #====================================================================================   
+            #====================================================================================                
+            
+            
+            #VD.Wake = VD_system[item].Wake
+            
+            # ----------------------------------------------------------------
+            # Compute the wake-induced velocities at propeller blade
+            # ----------------------------------------------------------------
+
+    
+            # Compute induced velocities at blade from the helical fixed wake
+            #VD.Wake_collapsed = WD
+    
+            V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
+            u       = V_ind[0,:,0]   # velocity in vehicle x-frame
+            v       = V_ind[0,:,1]   # velocity in vehicle y-frame
+            w       = V_ind[0,:,2]   # velocity in vehicle z-frame     
                 
     
                 
@@ -169,6 +207,6 @@ def compute_HFW_inflow_velocities( prop ):
             Vt[:,:,i]  = (-vp*np.cos(blade_angle) + wp*np.sin(blade_angle)) 
 
 
-    prop.vortex_distribution = VD
+            prop.vortex_distribution = VD
 
     return Va, Vt

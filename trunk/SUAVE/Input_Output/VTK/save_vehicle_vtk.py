@@ -91,9 +91,15 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                 
                 try:
                     # check if rotor has 
-                    VD    = propi.vortex_distribution
+                    #VD    = propi.vortex_distribution
                     gamma = propi.Wake_VD.GAMMA
-                    
+                    wVD = propi.Wake_VD
+                    wake_present = True
+                except:
+                    wake_present = False
+                    pass
+                
+                if wake_present:
                     #---------------------------
                     # Save propeller wake to vtk
                     #---------------------------
@@ -109,9 +115,8 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                     
                     # save prop wake
                     
-                    save_prop_wake_vtk(VD, gamma, file, Results,0)   
-                except:
-                    pass
+                    save_prop_wake_vtk(wVD, gamma, file, Results)#,i_prop=i)   
+                
                     
         try:
             print("Attempting to save rotor.")
@@ -140,9 +145,15 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                 
                 try:
                     # check if rotor has 
-                    VD    = roti.vortex_distribution
+                    #VD    = roti.vortex_distribution
                     gamma = roti.Wake_VD.GAMMA
-                    
+                    wVD = propi.Wake_VD
+                    wake_present = True
+                except:
+                    wake_present = False
+                    pass
+                
+                if wake_present:                    
                     #---------------------------
                     # Save propeller wake to vtk
                     #---------------------------
@@ -158,10 +169,8 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                     Results['prop_outputs'] = Results['all_prop_outputs'][roti_key]
                     
                     # save prop wake
-                    
-                    save_prop_wake_vtk(VD, gamma, file, Results,i)      
-                except:
-                    pass
+                    wVD = roti.Wake_VD
+                    save_prop_wake_vtk(wVD, gamma, file, Results)      
 
     
     #---------------------------

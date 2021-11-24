@@ -51,7 +51,7 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
     for i in range(len(prop_keys)):
         p_key      = list(props.keys())[i]
         p          = props[p_key]
-        p_out      = conditions.noise.sources.propellers[p_key]
+        p_out      = p.outputs #conditions.noise.sources.propellers[p_key]
         
         B_list[i]  = p.number_of_blades
         Nr_list[i] = p_out.number_radial_stations
@@ -70,7 +70,7 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
     # for each propeller, unpack and compute 
     for i, propi in enumerate(props):
         propi_key     = list(props.keys())[i]
-        propi_outputs = conditions.noise.sources.propellers[propi_key]
+        propi_outputs = props[propi_key].outputs
         
         # Unpack
         R                = propi.tip_radius
@@ -189,9 +189,9 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         
         r_4d = np.tile(r[None,None,:,None], (m,B,1,number_of_wake_timesteps))
         
-        x0 = 0
-        y0 = r_4d*azi_y
-        z0 = r_4d*azi_z
+        x0 = 0 #
+        y0 = r_4d*azi_y  #
+        z0 = r_4d*azi_z #
         
         x_pts0 = x0 + xte_rotor
         y_pts0 = y0 + yte_rotor
@@ -224,9 +224,9 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
                     
         # rotate rotor points to incidence angle
-        x_c_4 = x_c_4_rotor*rots[0,0] + y_c_4_rotor*rots[0,1] + z_c_4_rotor*rots[0,2]
-        y_c_4 = x_c_4_rotor*rots[1,0] + y_c_4_rotor*rots[1,1] + z_c_4_rotor*rots[1,2]
-        z_c_4 = x_c_4_rotor*rots[2,0] + y_c_4_rotor*rots[2,1] + z_c_4_rotor*rots[2,2]
+        x_c_4 = (x_c_4_rotor+ propi.origin[0][0])*rots[0,0] + (y_c_4_rotor+ propi.origin[0][1])*rots[0,1] + (z_c_4_rotor+ propi.origin[0][2])*rots[0,2]
+        y_c_4 = (x_c_4_rotor+ propi.origin[0][0])*rots[1,0] + (y_c_4_rotor+ propi.origin[0][1])*rots[1,1] + (z_c_4_rotor+ propi.origin[0][2])*rots[1,2]
+        z_c_4 = (x_c_4_rotor+ propi.origin[0][0])*rots[2,0] + (y_c_4_rotor+ propi.origin[0][1])*rots[2,1] + (z_c_4_rotor+ propi.origin[0][2])*rots[2,2]
         
         # prepend points at quarter chord to account for rotor lifting line
         X_pts = np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3) #np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3)
@@ -280,6 +280,8 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         VD.Wake.XB2[:,i,0:B,:,:] =  X_pts[: , : , 1:  ,  1: ]
         VD.Wake.YB2[:,i,0:B,:,:] =  Y_pts[: , : , 1:  ,  1: ]
         VD.Wake.ZB2[:,i,0:B,:,:] =  Z_pts[: , : , 1:  ,  1: ]  
+        
+        
         
         # Append wake geometry and vortex strengths to each individual propeller
         propi.Wake_VD.XA1   = VD.Wake.XA1[:,i,0:B,:,:]
