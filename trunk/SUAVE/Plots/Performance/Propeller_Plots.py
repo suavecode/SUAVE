@@ -245,32 +245,41 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     alf  = np.append(alf,np.atleast_2d(alf[:,0]).T,axis=1)
     
     rh  = prop.hub_radius
-    lev = 21
+    lev = 101
     cm  = 'jet'
     
     # plot the grid point velocities
-    fig = plt.figure(figsize=(8,4))
-    ax0 = fig.add_subplot(131, polar=True)
-    ax1 = fig.add_subplot(132, polar=True)
-    ax2 = fig.add_subplot(133, polar=True)
-    
-
-    CS_0 = ax0.contourf(psi, r, T,lev,cmap=cm)
-    plt.colorbar(CS_0, ax=ax0, orientation='horizontal')
-    ax0.set_title('Thrust Distribution',pad=15)  
+    fig0 = plt.figure(figsize=(4,4))
+    ax0 = fig0.add_subplot(111, polar=True)
+    ax0.contourf(psi, r, T,lev,cmap=cm)
+    cmap = matplotlib.cm.jet
+    norm = matplotlib.colors.Normalize()#vmin=0, vmax=1.0)    
+    fig0.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap),ax=ax0, orientation='horizontal')
+    #ax0.set_title('Thrust Distribution',pad=15)  
     ax0.set_rorigin(0)
-    
-    CS_1 = ax1.contourf(psi, r, Q,lev,cmap=cm) 
-    plt.colorbar(CS_1, ax=ax1, orientation='horizontal')
-    ax1.set_title('Torque Distribution',pad=15) 
+    ax0.set_yticklabels([])
+
+    fig1 = plt.figure(figsize=(4,4)) 
+    ax1 = fig1.add_subplot(111, polar=True)   
+    ax1.contourf(psi, r, Q,lev,cmap=cm) 
+    cmap = matplotlib.cm.jet
+    norm = matplotlib.colors.Normalize()#vmin=0, vmax=0.035) 
+    fig1.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, orientation='horizontal')
+    #ax1.set_title('Torque Distribution',pad=15) 
     ax1.set_rorigin(0)
+    ax1.set_yticklabels([])
     
-    CS_2 = ax2.contourf(psi, r, alf,lev,cmap=cm) 
-    plt.colorbar(CS_2, ax=ax2, orientation='horizontal')
-    ax2.set_title('Local Blade Angle (deg)',pad=15) 
+    fig2 = plt.figure(figsize=(4,4)) 
+    ax2 = fig2.add_subplot(111, polar=True)       
+    ax2.contourf(psi, r, alf,lev,cmap=cm) 
+    cmap = matplotlib.cm.jet
+    norm = matplotlib.colors.Normalize()#vmin=-5, vmax=5) 
+    fig2.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax2, orientation='horizontal')
+    #ax2.set_title('Local Blade Angle (deg)',pad=15) 
     ax2.set_rorigin(0)
-    fig.suptitle(title)
+    ax2.set_yticklabels([])
+    
     
  
  
-    return
+    return fig0, fig1, fig2
