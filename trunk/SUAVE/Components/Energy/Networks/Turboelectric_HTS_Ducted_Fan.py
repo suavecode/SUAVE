@@ -15,7 +15,6 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Data
 
-from SUAVE.Methods.Cooling.Leads.copper_lead import Q_offdesign
 
 from SUAVE.Components.Energy.Networks.Network import Network
 
@@ -108,6 +107,8 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         amb_temp        = conditions.freestream.temperature
 
+        print("amb_temp = ", amb_temp)
+
         # Solve the thrust using the other network (i.e. the ducted fan network)
         results = ducted_fan.evaluate_thrust(state)
 
@@ -142,7 +143,7 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         lead_cryo_load        = np.full_like(rotor_current, lead.unpowered_Q)
 
         # build the cryo_load and lead_power array
-        lead_power, lead_cryo_load           = Q_offdesign(lead, rotor_current)
+        lead_power, lead_cryo_load           = lead.Q_offdesign(rotor_current)
 
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads

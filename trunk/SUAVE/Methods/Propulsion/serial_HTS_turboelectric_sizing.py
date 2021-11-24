@@ -21,10 +21,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
-from SUAVE.Methods.Cooling.Leads.copper_lead import initialize_copper_lead
-from SUAVE.Methods.Cooling.Leads.copper_lead import Q_offdesign
 
-from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 
 ## @ingroup Methods-Propulsion
 def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):
@@ -250,8 +247,8 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     HTS_current                 = rotor.current
     rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
     # initialize copper lead optimses the leads for the conditions set elsewhere, i.e. the lead is not sized here as it should be sized for the maximum ambient temperature
-    initialize_copper_lead(current_lead)
-    current_lead_powers         = Q_offdesign(current_lead, HTS_current)
+    current_lead.initialize_material_lead()
+    current_lead_powers         = current_lead.Q_offdesign( HTS_current)
     lead_power                  = current_lead_powers[1]
     leads_power                 = 2 * lead_power             # multiply lead loss by number of leads to get total loss
     ccs_output_power            = leads_power + rotor_input_power

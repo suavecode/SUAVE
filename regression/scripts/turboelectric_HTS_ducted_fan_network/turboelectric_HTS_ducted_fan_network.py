@@ -329,12 +329,11 @@ def energy_network():
     efan.cryocooler.cooler_type        = 'GM'
     efan.cryocooler.min_cryo_temp      = efan.rotor.temperature     # [K]
     efan.cryocooler.ambient_temp       = 300.0                      # [K]
-  
 
     # Sizing Conditions. The cryocooler may have greater power requirement at low altitude as the cooling requirement may be static during the flight but the ambient temperature may change.
     cryo_temp       =  50.0     # [K]
     amb_temp        = 300.0     # [K]
- 
+
     # Powertrain Sizing
 
 
@@ -365,6 +364,8 @@ def energy_network():
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
     error.mdot_error   = (mdot[0][0]-expected.mdot)/expected.mdot
     
+    print(F[0][0])
+    print(mdot[0][0])
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)    
         
