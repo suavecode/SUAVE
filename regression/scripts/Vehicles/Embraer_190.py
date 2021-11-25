@@ -3,6 +3,7 @@
 # Created:  Feb 2017, M. Vegh (data taken from Embraer_E190_constThr/mission_Embraer_E190_constThr, and Regional_Jet_Optimization/Vehicles2.py), takeoff_field_length/takeoff_field_length.py, landing_field_length/landing_field_length.py
 # Modified: Mar 2020, M. Clarke
 #           May 2020, E. Botero
+#           Oct 2021, M. Clarke
 
 
 """ setup file for the E190 vehicle
@@ -17,7 +18,10 @@ import numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, segment_properties
+
+from copy import deepcopy
+
 # ----------------------------------------------------------------------
 #   Define the Vehicle
 # ----------------------------------------------------------------------
@@ -120,7 +124,10 @@ def vehicle_setup():
     segment.thickness_to_chord    = .11
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 0.
-    wing.Segments.append(segment)            
+    wing.Segments.append(segment)       
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)        
 
     # control surfaces -------------------------------------------
     flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
@@ -239,26 +246,40 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(fuselage)
 
+    # -----------------------------------------------------------------
+    # Design the Nacelle
+    # ----------------------------------------------------------------- 
+    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter              = 2.05
+    nacelle.length                = 2.71
+    nacelle.tag                   = 'nacelle_1'
+    nacelle.inlet_diameter        = 2.0
+    nacelle.origin                = [[12.0,4.38,-2.1]]
+    Awet                          = 1.1*np.pi*nacelle.diameter*nacelle.length # 1.1 is simple coefficient
+    nacelle.areas.wetted          = Awet 
+    nacelle_airfoil               = SUAVE.Components.Airfoils.Airfoil() 
+    nacelle_airfoil.naca_4_series_airfoil = '2410'
+    nacelle.append_airfoil(nacelle_airfoil) 
+
+    nacelle_2                     = deepcopy(nacelle)
+    nacelle_2.tag                 = 'nacelle_2'
+    nacelle_2.origin              = [[12.0,-4.38,-2.1]]
+    
+    vehicle.append_component(nacelle)   
+    vehicle.append_component(nacelle_2)   
+    
+    
     # ------------------------------------------------------------------
     #  Turbofan Network
-    # ------------------------------------------------------------------    
-
-
+    # ------------------------------------------------------------------ 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
     gt_engine.tag               = 'turbofan'
-    gt_engine.origin            = [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]]
+    gt_engine.origin            = [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]] 
+    gt_engine.engine_length     = 2.71    
     gt_engine.number_of_engines = 2.0
-    gt_engine.bypass_ratio      = 5.4
-    gt_engine.engine_length     = 2.71
-    gt_engine.nacelle_diameter  = 2.05
-    gt_engine.inlet_diameter    = 2.0
-
-    #compute engine areas)
-    Amax                        = (np.pi/4.)*gt_engine.nacelle_diameter**2.
-    Awet                        = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length # 1.1 is simple coefficient
-    #Assign engine area
-    gt_engine.areas.wetted      = Awet
+    gt_engine.bypass_ratio      = 5.4   
+  
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air()
 

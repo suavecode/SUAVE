@@ -18,7 +18,7 @@
 import SUAVE
 # Units allow any units to be specificied with SUAVE then automatically converting them the standard
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import * 
+from SUAVE.Plots.Performance.Mission_Plots import * 
 
 # Numpy is use extensively throughout SUAVE
 import numpy as np
@@ -139,12 +139,13 @@ def equivalent_area(vehicle,analyses,conditions):
                                    45.83551432, 50.60861803, 53.90976954, 55.43400893, 56.10861803,
                                    56.78777765, 57.28419734, 57.49949357, 57.99040541, 58.61763071,
                                    58.94738099, 77.075     ])
-    
-    regression_AE_x   = np.array([ 0.        ,  8.40639308, 12.7741678 , 18.14471011, 20.15731137,
-                                   24.55618936, 25.04948527, 27.59823275, 34.74428915, 36.52065357,
-                                   37.03779472, 37.03779472, 37.03779471, 37.03779471, 37.03779471,
-                                   37.03779471, 37.03779471, 37.03779471, 37.03779471, 37.03779471,
-                                   37.03779471, 37.03779471])
+
+    regression_AE_x   = np.array([ 0.        ,  8.40597294, 12.77352949, 18.14374279, 20.15621717,
+                                   24.55487098, 25.04813538, 27.59675976, 34.74257342, 36.5188849 ,
+                                   37.03600866, 37.03600865, 37.03600865, 37.03600865, 37.03600865,
+                                   37.03600865, 37.03600865, 37.03600865, 37.03600865, 37.03600865,
+                                   37.03600865, 37.03600865])
+
     
     assert (np.abs((X_locs[1:] - regression_X_locs[1:] )/regression_X_locs[1:] ) < 1e-6).all() 
     assert (np.abs((AE_x[1:] - regression_AE_x[1:])/regression_AE_x[1:]) < 1e-6).all()

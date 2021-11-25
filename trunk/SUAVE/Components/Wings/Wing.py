@@ -17,7 +17,7 @@
 import SUAVE
 from SUAVE.Core import Data, ContainerOrdered, Container
 from SUAVE.Components import Lofted_Body, Mass_Properties, Physical_Component
-from .Airfoils import Airfoil
+from SUAVE.Components.Airfoils import Airfoil
 
 import numpy as np
 

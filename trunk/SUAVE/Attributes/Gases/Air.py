@@ -4,14 +4,16 @@
 # Created:  Mar. 2014, SUAVE Team
 # Modified: Jan. 2016, M. Vegh
 #           Dec. 2017, W. Maier 
+#           Aug. 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from .Gas import Gas
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 import numpy as np
+from scipy import interpolate
 
 # ----------------------------------------------------------------------
 #  Air Gas Class
@@ -45,14 +47,15 @@ class Air(Gas):
         Properties Used:
         None
         """          
-
-        self.molecular_mass = 28.96442        # kg/kmol
-        self.gas_specific_constant = 287.0528742                 # m^2/s^2-K, specific gas constant
-        self.composition.O2 = 0.20946
-        self.composition.Ar = 0.00934
-        self.composition.CO2 = 0.00036
-        self.composition.N2  = 0.78084
-        self.composition.other = 0.00
+        self.tag                    = 'air'
+        self.molecular_mass         = 28.96442        # kg/kmol
+        self.gas_specific_constant  = 287.0528742     # m^2/s^2-K, specific gas constant  
+        self.specific_heat_capacity = 1006           # J/kgK         
+        self.composition.O2         = 0.20946
+        self.composition.Ar         = 0.00934
+        self.composition.CO2        = 0.00036
+        self.composition.N2         = 0.78084
+        self.composition.other      = 0.00
 
     def compute_density(self,T=300.,p=101325.):
         """Computes air density given temperature and pressure
@@ -193,3 +196,49 @@ class Air(Gas):
         C1 = 1.458e-6               # kg/m-s-sqrt(K), constant (Sutherland's Formula)
 
         return C1*(T**(1.5))/(T + S)
+    
+    def compute_thermal_conductivity(self,T=300.,p=101325.):
+        """Compute the thermal conductivity
+            
+        Assumptions:
+        Properties computed at 1 bar (14.5 psia)
+
+        Source:
+        https://www.engineeringtoolbox.com/air-properties-viscosity-conductivity-heat-capacity-d_1509.html 
+
+        Inputs:
+        T                  [K]       - Temperature
+
+        Outputs:
+        thermal conductivity [W/(m-K)]
+
+        Properties Used:
+        None
+        """ 
+        return 3.99E-4 + 9.89E-5*(T) -4.57E-8*(T**2) + 1.4E-11*(T**3)
+    
+    
+    def compute_prandtl_number(self,T=300.):
+        """Compute the prandtl number 
+            
+        Assumptions: 
+
+        Source:
+        N/A
+
+        Inputs:
+        specific_heat_capacity [J/kgK]
+        absolute viscosity     [kg/(m-s)]
+        thermal conductivity   [W/(m-K)]
+
+        Outputs:
+        prandtl number         [unitless]
+
+        Properties Used:
+        None
+        """   
+        
+        Cp = self.specific_heat_capacity 
+        mu = self.compute_absolute_viscosity(T)
+        K  = self.compute_thermal_conductivity(T)
+        return  mu*Cp/K      

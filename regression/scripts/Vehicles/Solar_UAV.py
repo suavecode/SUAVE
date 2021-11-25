@@ -3,6 +3,7 @@
 # Created:  Jul 2014, E. Botero
 # Modified: Aug 2017, E. Botero 
 #           Mar 2020, M. Clarke
+#           Oct 2021, M. Clarke
 
 
 #----------------------------------------------------------------------
@@ -138,17 +139,24 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(wing)  
     
+    # ------------------------------------------------------------------
+    #   Nacelle  
+    # ------------------------------------------------------------------
+    nacelle              = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter     = 0.2 * Units.meters
+    nacelle.length       = 0.01 * Units.meters
+    nacelle.tag          = 'nacelle' 
+    nacelle.areas.wetted =  nacelle.length *(2*np.pi*nacelle.diameter/2.)
+    vehicle.append_component(nacelle) 
+    
+    
     #------------------------------------------------------------------
     # network
     #------------------------------------------------------------------
     
     # build network
     net                   = Solar()
-    net.number_of_engines = 1.
-    net.nacelle_diameter  = 0.2 * Units.meters
-    net.engine_length     = 0.01 * Units.meters
-    net.areas             = Data()
-    net.areas.wetted      = 0.01*(2*np.pi*0.01/2.)
+    net.number_of_engines = 1. 
     
     # Component 1 the Sun?
     sun            = SUAVE.Components.Energy.Processes.Solar_Radiation()
@@ -210,7 +218,7 @@ def vehicle_setup():
     bat.specific_energy      = 600. * Units.Wh/Units.kg
     bat.resistance           = 0.05
     bat.max_voltage          = 45.0
-    initialize_from_mass(bat,bat.mass_properties.mass)
+    initialize_from_mass(bat)
     net.battery              = bat
    
     #Component 9 the system logic controller and MPPT

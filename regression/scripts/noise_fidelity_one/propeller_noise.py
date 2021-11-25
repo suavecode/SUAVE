@@ -78,7 +78,7 @@ def main():
     conditions.propulsion.throttle               = np.ones((ctrl_pts,1))*1.0
     conditions.aerodynamics.angle_of_attack      = np.ones((ctrl_pts,1))* 0. * Units.degrees 
     conditions.frames.body.transform_to_inertial = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
-    conditions.noise.microphone_locations        = mic_locations
+    conditions.noise.total_microphone_locations  = mic_locations
     
     # Run Propeller model 
     F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions)

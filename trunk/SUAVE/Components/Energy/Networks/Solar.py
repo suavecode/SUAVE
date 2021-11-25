@@ -5,6 +5,7 @@
 # Modified: Feb 2016, T. MacDonald 
 #           Mar 2020, M. Clarke
 #           Jul 2021, E. Botero
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,6 +15,8 @@
 import numpy as np
 from .Network import Network
 from SUAVE.Components.Physical_Component import Container
+from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
+from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
 
 from SUAVE.Core import Data , Units
 
@@ -59,8 +62,7 @@ class Solar(Network):
         self.avionics                  = None
         self.payload                   = None
         self.solar_logic               = None
-        self.battery                   = None
-        self.nacelle_diameter          = None
+        self.battery                   = None 
         self.engine_length             = None
         self.number_of_engines         = None
         self.tag                       = 'Solar'
@@ -88,7 +90,7 @@ class Solar(Network):
                 solar_flux           [watts/m^2] 
                 rpm                  [radians/sec]
                 current              [amps]
-                battery_draw         [watts]
+                battery_power_draw   [watts]
                 battery_energy       [joules]
                 motor_torque         [N-M]
                 propeller_torque     [N-M]
@@ -115,7 +117,13 @@ class Solar(Network):
         a = conditions.freestream.speed_of_sound        
         
         # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy
+        battery.current_energy           = conditions.propulsion.battery_energy
+        battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
+        battery.cell_charge_throughput   = conditions.propulsion.battery_cell_charge_throughput     
+        battery.age                      = conditions.propulsion.battery_cycle_day            
+        battery.R_growth_factor          = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor          = conditions.propulsion.battery_capacity_fade_factor 
+        battery.max_energy               = conditions.propulsion.battery_max_aged_energy   
         
         # step 1
         solar_flux.solar_radiation(conditions)
@@ -179,7 +187,7 @@ class Solar(Network):
             F[eta[:,0]>1.0,:] = F[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]
             
             # Run the motor for current
-            motor.current(conditions)            
+            _ , etam =  motor.current(conditions)         
             
             # Conditions specific to this instantation of motor and propellers
             R                   = prop.tip_radius
@@ -190,13 +198,16 @@ class Solar(Network):
             total_motor_current = total_motor_current + factor*motor.outputs.current
 
             # Pack specific outputs
-            conditions.propulsion.propeller_motor_torque[:,ii] = motor.outputs.torque[:,0]
-            conditions.propulsion.propeller_torque[:,ii]       = Q[:,0]
-            conditions.propulsion.propeller_rpm[:,ii]          = rpm[:,0]
-            conditions.propulsion.propeller_tip_mach[:,ii]     = (R*rpm[:,0]*Units.rpm)/a[:,0]
-            conditions.propulsion.disc_loading[:,ii]           = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
-            conditions.propulsion.power_loading[:,ii]          = (F_mag[:,0])/(P[:,0])      # N/W               
-            conditions.noise.sources.propellers[prop.tag]      = outputs            
+            conditions.propulsion.propeller_motor_efficiency[:,ii] = etam[:,0]  
+            conditions.propulsion.propeller_motor_torque[:,ii]     = motor.outputs.torque[:,0]
+            conditions.propulsion.propeller_torque[:,ii]           = Q[:,0]
+            conditions.propulsion.propeller_thrust[:,ii]           = np.linalg.norm(total_thrust ,axis = 1) 
+            conditions.propulsion.propeller_rpm[:,ii]              = rpm[:,0]
+            conditions.propulsion.propeller_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
+            conditions.propulsion.disc_loading[:,ii]               = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
+            conditions.propulsion.power_loading[:,ii]              = (F_mag[:,0])/(P[:,0])      # N/W      
+            conditions.propulsion.propeller_efficiency[:,ii]       = etap[:,0]      
+            conditions.noise.sources.propellers[prop.tag]          = outputs
             
         # Run the avionics
         avionics.power()
@@ -225,14 +236,13 @@ class Solar(Network):
         battery.inputs = solar_logic.outputs
         battery.energy_calc(numerics)
         
-        # Pack the conditions for outputs
-        conditions.propulsion.solar_flux                   = solar_flux.outputs.flux
-        conditions.propulsion.battery_voltage_open_circuit = battery.voltage_open_circuit
-        conditions.propulsion.battery_voltage_under_load   = battery.voltage_under_load
-        conditions.propulsion.battery_current              = solar_logic.inputs.currentesc
-        conditions.propulsion.battery_draw                 = battery.inputs.power_in 
-        conditions.propulsion.battery_energy               = battery.current_energy
-        conditions.propulsion.state_of_charge              = battery.state_of_charge
+        # Calculate avionics and payload power
+        avionics_payload_power = avionics.outputs.power + payload.outputs.power
+        
+        # Pack the conditions for outputs 
+        battery.inputs.current             = solar_logic.inputs.currentesc
+        conditions.propulsion.solar_flux   = solar_flux.outputs.flux          
+        pack_battery_conditions(conditions,battery,avionics_payload_power,P)  
 
         # Create the outputs
         results = Data()
@@ -339,7 +349,11 @@ class Solar(Network):
             n_props = 1
             
         # number of residuals, props plus the battery voltage
-        n_res = n_props
+        n_res = n_props 
+
+        # Assign initial segment conditions to segment if missing
+        battery = self.battery
+        append_initial_battery_conditions(segment,battery)          
         
         # Setup the residuals
         segment.state.residuals.network = 0. * ones_row(n_res)
@@ -348,12 +362,15 @@ class Solar(Network):
         segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)
         
         # Setup the conditions
-        segment.state.conditions.propulsion.propeller_motor_torque = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.propeller_torque       = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.propeller_rpm          = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.disc_loading           = 0. * ones_row(n_props)                 
-        segment.state.conditions.propulsion.power_loading          = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.propeller_tip_mach     = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_torque           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_thrust           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_rpm              = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.disc_loading               = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.power_loading              = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_tip_mach         = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)        
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns

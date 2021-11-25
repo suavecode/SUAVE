@@ -52,8 +52,7 @@ class Scramjet(Network):
 
         #setting the default values 
         self.tag = 'Scramjet' 
-        self.number_of_engines         = 1.0 
-        self.nacelle_diameter          = 1.0 
+        self.number_of_engines         = 1.0  
         self.engine_length             = 1.0  
         self.generative_design_minimum = 0
 

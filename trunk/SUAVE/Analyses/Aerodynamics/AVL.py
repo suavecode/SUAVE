@@ -63,6 +63,7 @@ class AVL(Markup):
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
+        settings.recalculate_total_wetted_area      = False
         
         # ------
         settings.number_spanwise_vortices           = None
@@ -86,8 +87,8 @@ class AVL(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        compute.drag.parasite.propulsors           = Process_Geometry('networks')
-        compute.drag.parasite.propulsors.propulsor = Common.Drag.parasite_drag_propulsor
+        compute.drag.parasite.nacelles             = Process_Geometry('nacelles')
+        compute.drag.parasite.nacelles.nacelle     = Common.Drag.parasite_drag_nacelle 
         compute.drag.parasite.pylons               = Common.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.compressibility               = Process()

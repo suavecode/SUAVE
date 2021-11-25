@@ -71,8 +71,7 @@ class Hover(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.residuals.force     = ones_row(1) * 0.0
-        self.state.VTOL_flag           = True 
+        self.state.residuals.force     = ones_row(1) * 0.0 
         
         
         # --------------------------------------------------------------
@@ -138,7 +137,7 @@ class Hover(Aerodynamic):
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
         finalize.post_process.aero_derivatives  = skip
-        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise 
         
         return
 

@@ -29,7 +29,8 @@ def landing_gear_FLOPS(vehicle):
                                                         medium-range, long-range,
                                                         sst, cargo)
                 -.mass_properties.max_takeoff: MTOW                              [kilograms]
-                -.wings['main_wing'].dihedral
+                -.nacelles['nacelle']                                            [meters]
+                -.wings['main_wing'].dihedral                                    [radians]
                 -.fuselages['fuselage'].width: fuselage width                    [meters]
                 -.fuselages['fuselage'].lengths.total: fuselage total length     [meters]
 
@@ -52,8 +53,12 @@ def landing_gear_FLOPS(vehicle):
 
     network_name  = list(vehicle.networks.keys())[0]  # obtain the key for the network for assignment purposes
     networks      = vehicle.networks[network_name]
-    if sum(networks.wing_mounted) > 0:
-        FNAC    = networks.nacelle_diameter / Units.ft
+    
+
+    nacelle_tag = list(vehicle.nacelles.keys())[0]
+    ref_nacelle = vehicle.nacelles[nacelle_tag]        
+    if sum(networks.wing_mounted) > 0: 
+        FNAC    = ref_nacelle.diameter / Units.ft
         DIH     = vehicle.wings['main_wing'].dihedral
         YEE     = np.max(np.abs(np.array(networks.origin)[:, 1])) / Units.ft
         WF      = vehicle.fuselages['fuselage'].width / Units.ft

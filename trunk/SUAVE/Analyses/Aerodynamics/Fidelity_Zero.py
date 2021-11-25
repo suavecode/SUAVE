@@ -78,6 +78,8 @@ class Fidelity_Zero(Markup):
         settings.propeller_wake_model               = False 
         settings.use_bemt_wake_model                = False 
         settings.model_fuselage                     = False
+        settings.recalculate_total_wetted_area      = False
+        settings.model_nacelle                      = False
 
         # build the evaluation process
         compute = self.process.compute
@@ -95,8 +97,8 @@ class Fidelity_Zero(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        compute.drag.parasite.propulsors           = Process_Geometry('networks')
-        compute.drag.parasite.propulsors.propulsor = Common.Drag.parasite_drag_propulsor
+        compute.drag.parasite.nacelles             = Process_Geometry('nacelles')
+        compute.drag.parasite.nacelles.nacelle     = Common.Drag.parasite_drag_nacelle
         compute.drag.parasite.pylons               = Common.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Common.Drag.induced_drag_aircraft
@@ -143,8 +145,9 @@ class Fidelity_Zero(Markup):
         wdt                       = self.settings.wake_development_time
         nwts                      = self.settings.number_of_wake_timesteps
         mf                        = self.settings.model_fuselage
+        mn                        = self.settings.model_nacelle
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf )
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn )
                                                             
     finalize = initialize                                          

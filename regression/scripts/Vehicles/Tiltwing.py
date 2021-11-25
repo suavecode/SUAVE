@@ -13,7 +13,7 @@ from SUAVE.Methods.Power.Battery.Sizing                                   import
 from SUAVE.Methods.Propulsion.electric_motor_sizing                       import  size_optimal_motor
 from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor
 from SUAVE.Methods.Propulsion                                             import propeller_design
-from SUAVE.Plots.Geometry_Plots                                           import *
+from SUAVE.Plots.Geometry                                                 import *
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 from copy import deepcopy
@@ -61,7 +61,7 @@ def vehicle_setup():
     wing.twists.root              = 0.
     wing.twists.tip               = 0.
     wing.origin                   = [[0.1,  0.0 , 0.0]]
-    wing.aerodynamic_center       = [0., 0., 0.]
+    wing.aerodynamic_center       = [0.3,  0.0 , 0.0]
     wing.winglet_fraction         = 0.0
     wing.symmetric                = True
 
@@ -86,7 +86,7 @@ def vehicle_setup():
     wing.twists.root              = 0.
     wing.twists.tip               = 0.
     wing.origin                   = [[ 5.138, 0.0  ,  1.323 ]]  # for images 1.54
-    wing.aerodynamic_center       = [0., 0., 0.]
+    wing.aerodynamic_center       = [ 5.3, 0.0  ,  1.323 ]
     wing.winglet_fraction         = 0.0
     wing.symmetric                = True
 
@@ -119,7 +119,7 @@ def vehicle_setup():
     fuselage.differential_pressure              = 0.
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_0'
     segment.percent_x_location                  = 0.
     segment.percent_z_location                  = 0.
@@ -130,7 +130,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_1'
     segment.percent_x_location                  = 0.97675/6.1
     segment.percent_z_location                  = 0.21977/6.1
@@ -140,7 +140,7 @@ def vehicle_setup():
 
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_2'
     segment.percent_x_location                  = 1.93556/6.1
     segment.percent_z_location                  = 0.39371/6.1
@@ -150,7 +150,7 @@ def vehicle_setup():
 
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_3'
     segment.percent_x_location                  = 3.44137/6.1
     segment.percent_z_location                  = 0.57143/6.1
@@ -159,7 +159,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_4'
     segment.percent_x_location                  = 4.61031/6.1
     segment.percent_z_location                  = 0.81577/6.1
@@ -168,7 +168,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_5'
     segment.percent_x_location                  = 1.
     segment.percent_z_location                  = 1.19622/6.1
@@ -213,20 +213,42 @@ def vehicle_setup():
 
     #------------------------------------------------------------------
     # Design Battery
-    #------------------------------------------------------------------
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.mass_properties.mass = 200. * Units.kg
-    bat.specific_energy      = 200. * Units.Wh/Units.kg
-    bat.resistance           = 0.006
-    bat.max_voltage          = 400.
-
-    initialize_from_mass(bat,bat.mass_properties.mass)
-    net.battery              = bat
-    net.voltage              = bat.max_voltage
+    #------------------------------------------------------------------ 
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()   
+    bat.mass_properties.mass = 200. * Units.kg  
+    bat.max_voltage          = net.voltage    
+    initialize_from_mass(bat)
+    
+    # Here we, are going to assume a battery pack module shape. This step is optional but
+    # required for thermal analysis of tge pack
+    number_of_modules                = 10
+    bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
+    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
+    bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
+    net.battery              = bat 
 
     # Component 9 Miscellaneous Systems
     sys = SUAVE.Components.Systems.System()
     sys.mass_properties.mass = 5 # kg
+
+    #------------------------------------------------------------------
+    # Nacelles
+    #------------------------------------------------------------------  
+    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter        = 0.2921
+    nacelle.length          = 0.95 
+    nacelle_origins         = [[-0.2, 1.347, 0.0], [-0.2, 3.2969999999999997, 0.0],
+                               [-0.2, -1.347, 0.0], [-0.2, -3.2969999999999997, 0.0], 
+                               [4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54],
+                               [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
+    nacelle.areas.wetted    =  np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
+
+    for idx in range(8):
+        nacelle          = deepcopy(nacelle)
+        nacelle.tag      = 'nacelle_' +  str(idx)
+        nacelle.origin   = [nacelle_origins[idx]] 
+        vehicle.append_component(nacelle)       
+
 
     #------------------------------------------------------------------
     # Design Rotors
