@@ -5,15 +5,6 @@
 # Modified: Nov 2021,   S. Claridge
 #        
 
-""" create and evaluate a serial hybrid network that follows the power flow:
-Turboelectric Generators -> Motor Drivers -> Electric Poropulsion Motors
-where the electric motors have cryogenically cooled HTS rotors that follow the power flow:
-Turboelectric Generators -> Current Supplies -> HTS Rotor Coils
-and
-Turboelectric Generators -> Cryocooler <- HTS Rotor Heat Load
-There is also the capability for the HTS components to be cryogenically cooled using liquid or gaseous cryogen, howver this is not sized other than applying a factor to the cryocooler required power.
-"""
-
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
@@ -25,10 +16,18 @@ from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initi
 
 ## @ingroup Methods-Propulsion
 def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):
-    """This sets the default values used in the operating cost methods.
+    """create and evaluate a serial hybrid network that follows the power flow:
+    Turboelectric Generators -> Motor Drivers -> Electric Poropulsion Motors
+    where the electric motors have cryogenically cooled HTS rotors that follow the power flow:
+    Turboelectric Generators -> Current Supplies -> HTS Rotor Coils
+    and
+    Turboelectric Generators -> Cryocooler <- HTS Rotor Heat Load
+    There is also the capability for the HTS components to be cryogenically cooled using liquid or gaseous cryogen, howver this is not sized other than applying a factor to the cryocooler required power.
 
         Assumptions:
-        None
+        One powertrain model represents all engines in the model.
+        There are no transmission losses between components
+        the shaft torque and power required from the fan is the same as what would be required from the fan of a turbofan engine.
 
         Source:
         N/A
@@ -41,25 +40,12 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
         conditions                      ordered dict object
 
         Outputs:
-        None
+        N/A
 
         Properties Used:
         N/A
         """       
-    
-    
-    """
-    creates and evaluates a ducted_fan network based on an atmospheric sizing condition
-    creates and evaluates a serial hybrid network that includes a HTS motor driven ducted fan, turboelectric generator, and the required supporting equipment including cryogenic cooling
 
-    Inputs:
-    Turboelectric_HTS_Ducted_Fan    Serial HTYS hybrid ducted fan network object (to be modified)
-    mach_number
-    altitude                        [meters]
-    delta_isa                       temperature difference [K]
-    conditions                      ordered dict object
-    """
-    
     # Unpack components
     ducted_fan      = Turboelectric_HTS_Ducted_Fan.ducted_fan       # Propulsion fans
     motor           = Turboelectric_HTS_Ducted_Fan.motor            # Propulsion fan motors

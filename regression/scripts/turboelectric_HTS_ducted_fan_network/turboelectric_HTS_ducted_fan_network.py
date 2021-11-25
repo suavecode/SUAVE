@@ -146,7 +146,7 @@ def energy_network():
     efan.ducted_fan.number_of_engines  = 12.
     efan.number_of_engines             = efan.ducted_fan.number_of_engines
     efan.ducted_fan.engine_length      = 1.1            * Units.meter
-    efan.ducted_fan.nacelle_diameter   = 0.84           * Units.meter
+
 
     # Positioning variables for the propulsor locations - Wh
     xStart = 15.0
