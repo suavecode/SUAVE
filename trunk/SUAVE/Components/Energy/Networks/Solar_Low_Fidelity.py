@@ -13,6 +13,7 @@
 # package imports
 import numpy as np
 from .Network import Network
+from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 
 from SUAVE.Core import Data , Units
 
@@ -59,8 +60,7 @@ class Solar_Low_Fidelity(Network):
         self.avionics          = None
         self.payload           = None
         self.solar_logic       = None
-        self.battery           = None
-        self.nacelle_dia       = None
+        self.battery           = None 
         self.engine_length     = None
         self.number_of_engines = None
         self.tag               = 'Solar_Low_Fidelity'
@@ -172,20 +172,22 @@ class Solar_Low_Fidelity(Network):
         battery.inputs = solar_logic.outputs
         battery.energy_calc(numerics)
         
-        #Pack the conditions for outputs
+        # Calculate avionics and payload power
+        avionics_payload_power = avionics.outputs.power + payload.outputs.power        
+        
+        # Pack the conditions for outputs 
         a                                        = conditions.freestream.speed_of_sound
         R                                        = propeller.tip_radius        
-        rpm                                      = motor.outputs.omega / Units.rpm
-        current                                  = solar_logic.inputs.currentesc
-        battery_power_draw                       = battery.inputs.power_in 
-        battery_energy                           = battery.current_energy
-                                                 
+        rpm                                      = motor.outputs.omega / Units.rpm         
+        
+        battery.inputs.current                   = solar_logic.inputs.currentesc
+        pack_battery_conditions(conditions,battery,avionics_payload_power,P)     
+        
         conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
         conditions.propulsion.propeller_rpm      = rpm
-        conditions.propulsion.battery_current    = current
-        conditions.propulsion.battery_power_draw = battery_power_draw
-        conditions.propulsion.battery_energy     = battery_energy
         conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
+        
+     
         
         #Create the outputs
         F                                        = num_engines * F * [1,0,0]      

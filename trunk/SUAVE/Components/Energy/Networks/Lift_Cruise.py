@@ -74,9 +74,7 @@ class Lift_Cruise(Network):
         self.propeller_esc                = None
         self.avionics                     = None
         self.payload                      = None
-        self.battery                      = None
-        self.lift_rotor_nacelle_diameter  = None
-        self.propeller_nacelle_diameter   = None
+        self.battery                      = None 
         self.lift_rotor_engine_length     = None
         self.propeller_engine_length      = None
         self.number_of_lift_rotor_engines = 0
@@ -325,7 +323,7 @@ class Lift_Cruise(Network):
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta                       = conditions.propulsion.throttle_lift[:,0,None]
                 P_lift[eta>1.0]           = P_lift[eta>1.0]*eta[eta>1.0]
-                F_forward[eta[:,0]>1.0,:] = F_lift[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]  
+                F_lift[eta[:,0]>1.0,:]    = F_lift[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]  
                     
                 
                 # Run the motor for current
@@ -732,11 +730,11 @@ class Lift_Cruise(Network):
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
 
         # Assign initial segment conditions to segment if missing
-        append_initial_battery_conditions(segment)       
+        battery = self.battery
+        append_initial_battery_conditions(segment,battery)               
 
         # add unknowns and residuals specific to battery cell
         segment.state.residuals.network = Residuals()
-        battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current)   
         if segment.battery_discharge: 
@@ -826,11 +824,11 @@ class Lift_Cruise(Network):
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)  
             
         # Assign initial segment conditions to segment if missing  
-        append_initial_battery_conditions(segment)           
+        battery = self.battery
+        append_initial_battery_conditions(segment,battery)          
       
         # add unknowns and residuals specific to to battery cell
         segment.state.residuals.network = Residuals()
-        battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current)   
         if segment.battery_discharge: 
@@ -922,11 +920,11 @@ class Lift_Cruise(Network):
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
  
         # Assign initial segment conditions to segment if missing  
-        append_initial_battery_conditions(segment)     
+        battery = self.battery
+        append_initial_battery_conditions(segment,battery)          
 
         # add unknowns and residuals specific to battery cell
         segment.state.residuals.network = Residuals()
-        battery = self.battery
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage, initial_battery_cell_temperature ,
                                                                            initial_battery_state_of_charge, initial_battery_cell_current)   
         if segment.battery_discharge: 

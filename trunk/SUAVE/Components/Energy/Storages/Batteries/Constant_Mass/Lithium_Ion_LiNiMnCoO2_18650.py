@@ -15,7 +15,7 @@ from SUAVE.Methods.Power.Battery.compute_net_generated_battery_heat            i
 
 import numpy as np
 import os
-from scipy.integrate    import  cumtrapz , odeint 
+from scipy.integrate    import  cumtrapz
 from scipy.interpolate  import RegularGridInterpolator 
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
@@ -155,11 +155,11 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         T_current                = battery.pack_temperature      
         T_cell                   = battery.cell_temperature     
         E_max                    = battery.max_energy
-        R_growth_factor          = battery.R_growth_factor 
         E_current                = battery.current_energy 
         Q_prior                  = battery.cell_charge_throughput  
         battery_data             = battery.discharge_performance_map     
         I                        = numerics.time.integrate      
+        D                        = numerics.time.differentiate
               
         # ---------------------------------------------------------------------------------
         # Compute battery electrical properties 
@@ -216,36 +216,43 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         P = P_bat - np.abs(P_loss)      
         
         # Compute State Variables
-        V_ul  = compute_NMC_cell_state_variables(battery_data,SOC_old,T_cell,I_cell)  
-            
-        # Thevenin Time Constnat 
-        tau_Th   =  2.151* np.exp(2.132 *SOC_old) + 27.2 
-        
-        # Thevenin Resistance 
-        R_Th     = -1.212* np.exp(-0.03383*SOC_old) + 1.258
-         
-        # Thevenin Capacitance 
-        C_Th     = tau_Th/R_Th
+        V_ul  = compute_NMC_cell_state_variables(battery_data,SOC_old,T_cell,I_cell)
         
         # Li-ion battery interal resistance
-        R_0      =  0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036 
-        
-        # Update battery internal and thevenin resistance with aging factor
-        R_0_aged = R_0 * R_growth_factor
+        R_0      =  0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036
         
         # Voltage under load: 
-        V_oc      = V_ul + (I_cell * R_0_aged) 
+        V_oc      = V_ul + (I_cell * R_0) 
         
         # ---------------------------------------------------------------------------------
         # Compute updates state of battery 
         # ---------------------------------------------------------------------------------   
         
-        # Determine actual power going into the battery accounting for resistance losses
-        E_bat = np.dot(I,P) 
+        # Possible Energy going into the battery:
+        energy_unmodified = np.dot(I,P)
+    
+        # Available capacity
+        capacity_available = E_max - battery.current_energy[0]
+    
+        # How much energy the battery could be overcharged by
+        delta           = energy_unmodified -capacity_available
+        delta[delta<0.] = 0.
+    
+        # Power that shouldn't go in
+        ddelta = np.dot(D,delta) 
+    
+        # Power actually going into the battery
+        P[P>0.] = P[P>0.] - ddelta[P>0.]
+        E_bat = np.dot(I,P)
+        E_bat = np.reshape(E_bat,np.shape(E_current)) #make sure it's consistent
+        
+        # Add this to the current state
+        if np.isnan(E_bat).any():
+            E_bat=np.ones_like(E_bat)*np.max(E_bat)
+            if np.isnan(E_bat.any()): #all nans; handle this instance
+                E_bat=np.zeros_like(E_bat)
                 
-        # Determine current energy state of battery (from all previous segments)          
         E_current = E_bat + E_current[0]
-        E_current[E_current>E_max] = E_max
         
         # Determine new State of Charge 
         SOC_new = np.divide(E_current, E_max)
@@ -473,8 +480,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         E_fade_factor   = 1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior)   
         R_growth_factor = 1 + alpha_res*(t**0.75) + beta_res*Q_prior  
         
-        segment.conditions.propulsion.battery_capacity_fade_factor     = E_fade_factor  
-        segment.conditions.propulsion.battery_resistance_growth_factor = R_growth_factor
+        segment.conditions.propulsion.battery_capacity_fade_factor     = np.minimum(E_fade_factor,segment.conditions.propulsion.battery_capacity_fade_factor)
+        segment.conditions.propulsion.battery_resistance_growth_factor = np.maximum(R_growth_factor,segment.conditions.propulsion.battery_resistance_growth_factor)
         
         if increment_battery_cycle_day:
             segment.conditions.propulsion.battery_cycle_day += 1 # update battery age by one day 

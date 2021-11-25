@@ -1,4 +1,4 @@
-## @ingroup Components-Fuselages
+## @ingroup Components-Lofted_Body_Segment
 # Segment.py
 # 
 # Created:  Sep 2016, E. Botero (for wings)

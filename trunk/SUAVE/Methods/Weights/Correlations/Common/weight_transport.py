@@ -2,7 +2,7 @@
 # weight_transport.py
 #
 # Created:  May 2020, W. Van Gijseghem
-# Modified:
+# Modified: Oct 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -46,6 +46,8 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
         - WOE = WE + WOPERATING_ITEMS
         - WE = WSTRCT + WPROP + WSYS
         Assumptions:
+            1) All nacelles are identical
+            2) The number of nacelles is the same as the number of engines 
 
         Source:
             FLOPS method: The Flight Optimization System Weight Estimation Method
@@ -167,10 +169,11 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
 
     # Prop weight (propulsion pod weight is calculated separately)
     wt_prop_total   = 0
-    wt_prop_data    = None
-    for prop in vehicle.networks:
-        if isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super) or isinstance(prop,
-                                                                                                  Nets.Propulsor_Surrogate):
+    wt_prop_data    = None 
+    
+    
+    for prop in vehicle.networks: 
+        if isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super) or isinstance(prop, Nets.Propulsor_Surrogate):
             
             if not isinstance(prop.wing_mounted,list):
                 prop.wing_mounted = [prop.wing_mounted] * int(prop.number_of_engines)
@@ -187,8 +190,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
                 wt_prop         = wt_prop_data.wt_prop
             elif method_type == 'Raymer':
                 wt_prop_data    = total_prop_Raymer(vehicle, prop)
-                wt_prop         = wt_prop_data.wt_prop
-
+                wt_prop         = wt_prop_data.wt_prop 
             else:
                 wt_engine_jet = Propulsion.engine_jet(thrust_sls)
                 wt_prop       = Propulsion.integrated_propulsion(wt_engine_jet, num_eng)

@@ -19,7 +19,7 @@ from SUAVE.Core import Data
 
 ## @ingroup Methods-Weights-Correlations-UAV
 def empty(vehicle,settings=None):
-    """ This comoutes the weigt of a UAV   
+    """ This computes the weigt of a UAV   
     
     Assumptions:
         Assumes a 'main wing' is attached

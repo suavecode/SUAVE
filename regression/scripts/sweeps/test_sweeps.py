@@ -30,7 +30,9 @@ def main():
         [ 'cruise_altitude' ,  11,    10   ,   13.    ,   10.  , 1*Units.km]],dtype=object)
     
     outputs_sweep    = linear_sweep(problem)
-    truth_obj_sweeps = [[7335.29754241, 7100.27474431]]
+
+    truth_obj_sweeps = [[7449.6336533 , 6904.71107631]]
+
     print('sweeps = {}'.format(outputs_sweep['objective']))
     
     #print outputs_sweep
@@ -41,8 +43,9 @@ def main():
     
     
     outputs_carpet = variable_sweep(problem)
-    truth_obj_carp = [[7180.09681525, 7086.37363271],
-                      [7624.3826517,  7079.54283558]]
+
+    truth_obj_carp = [[7357.75355717, 6914.60649033],
+                      [7654.88209343, 6866.70857396]]
     print('carpet:\n{}'.format(outputs_carpet['objective']))
     
     #print outputs_carpet

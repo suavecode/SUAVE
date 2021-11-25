@@ -78,6 +78,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.spanwise_cosine_spacing         = True
         self.settings.vortex_distribution             = Data()   
         self.settings.model_fuselage                  = False
+        self.settings.model_nacelle                   = False
         self.settings.leading_edge_suction_multiplier = 1.0
         self.settings.initial_timestep_offset         = 0
         self.settings.wake_development_time           = 0.05
@@ -128,7 +129,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model, use_bemt_wake_model,ito,wdt,nwts,mf):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model, use_bemt_wake_model,ito,wdt,nwts,mf,mn):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -168,6 +169,7 @@ class Vortex_Lattice(Aerodynamics):
         settings.wake_development_time      = wdt
         settings.number_of_wake_timesteps   = nwts
         settings.model_fuselage             = mf
+        settings.model_nacelle              = mn
         
         # If we are using the surrogate
         if use_surrogate == True: 

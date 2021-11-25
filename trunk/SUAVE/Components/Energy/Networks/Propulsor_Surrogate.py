@@ -55,8 +55,7 @@ class Propulsor_Surrogate(Network):
             
             Properties Used:
             N/A
-        """          
-        self.nacelle_diameter         = None
+        """           
         self.engine_length            = None
         self.number_of_engines        = None
         self.tag                      = 'Engine_Deck_Surrogate'

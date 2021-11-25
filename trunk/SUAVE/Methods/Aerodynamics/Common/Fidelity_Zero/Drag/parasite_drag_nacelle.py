@@ -1,9 +1,12 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
-# parasite_drag_propulsor.py
+# parasite_drag_nacelle.py
 # 
 # Created:  Dec 2013, SUAVE Team
-# Modified: Jan 2016, E. Botero 
-#         
+# Modified: Jan 2016, E. Botero     
+#           Jul 2021, M. Clarke
+
+#Sources: Stanford AA241 Course Notes
+#         Raymer: Aircraft Design: A Conceptual Approach
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,32 +20,31 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import com
 import numpy as np
 
 # ----------------------------------------------------------------------
-#   Parasite Drag Propulsor
+#   Parasite Drag Nacelle
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
-def parasite_drag_propulsor(state,settings,geometry):
-    """Computes the parasite drag due to the network
+def parasite_drag_nacelle(state,settings,nacelle):
+    """Computes the parasite drag due to the nacelle
 
     Assumptions:
     Basic fit
 
     Source:
     adg.stanford.edu (Stanford AA241 A/B Course Notes)
-    Raymer: Aircraft Design: A Conceptual Approach
 
     Inputs:
     state.conditions.freestream.
       mach_number                                [Unitless]
       temperature                                [K]
       reynolds_number                            [Unitless]
-    geometry.      
-      nacelle_diameter                           [m^2]
+    nacelle.
+      diameter                                   [m]    
       areas.wetted                               [m^2]
-      engine_length                              [m]
+      length                                     [m]
 
     Outputs:
-    network_parasite_drag                      [Unitless]
+    propulsor_parasite_drag                      [Unitless]
 
     Properties Used:
     N/A
@@ -50,14 +52,12 @@ def parasite_drag_propulsor(state,settings,geometry):
 
     # unpack inputs
     conditions    = state.conditions
-    configuration = settings
+     
+    Sref      = nacelle.diameter**2. / 4. * np.pi
+    Swet      = nacelle.areas.wetted
     
-    network   = geometry
-    Sref      = network.nacelle_diameter**2. / 4. * np.pi
-    Swet      = network.areas.wetted
-    
-    l_prop = network.engine_length
-    d_prop = network.nacelle_diameter
+    l_prop = nacelle.length
+    d_prop = nacelle.diameter
     
     # conditions
     freestream = conditions.freestream
@@ -72,22 +72,22 @@ def parasite_drag_propulsor(state,settings,geometry):
     cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
     
     ## form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
-    k_prop = 1 + 0.35 / (l_prop/d_prop)
+    k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop))  
     
    
     # find the final result    
-    network_parasite_drag = k_prop * cf_prop * Swet / Sref
+    propulsor_parasite_drag = k_prop * cf_prop * Swet / Sref
     
     # dump data to conditions
-    network_result = Data(
+    propulsor_result = Data(
         wetted_area               = Swet    , 
         reference_area            = Sref    , 
-        parasite_drag_coefficient = network_parasite_drag ,
+        parasite_drag_coefficient = propulsor_parasite_drag ,
         skin_friction_coefficient = cf_prop ,
         compressibility_factor    = k_comp  ,
         reynolds_factor           = k_reyn  , 
         form_factor               = k_prop  ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite[network.tag] = network_result    
+    conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag] = propulsor_result    
     
-    return network_parasite_drag
+    return propulsor_parasite_drag

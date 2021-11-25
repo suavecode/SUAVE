@@ -67,9 +67,8 @@ class Lithium_Ion(Battery):
         self.module_config.normal_spacing                  = 0.02
         self.module_config.parallel_spacing                = 0.02 
         
-        self.cooling_fluid                                 = Air()   
-        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.01   
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.01       
+        self.cooling_fluid                                 = Air()    
+        self.cooling_fluid.cooling_flowspeed               = 0.01       
         
         # defaults that are overwritten if specific cell chemistry is used 
         self.specific_energy                               = 200.    *Units.Wh/Units.kg    
@@ -146,21 +145,24 @@ class Lithium_Ion(Battery):
         Q_prior           = battery.cell_charge_throughput 
         R_growth_factor   = battery.R_growth_factor
         E_growth_factor   = battery.E_growth_factor 
-        I                 = numerics.time.integrate  
+        I                 = numerics.time.integrate
+        D                 = numerics.time.differentiate
 
         if not battery_discharge_flag:   
             I_bat = -I_bat  
         # ---------------------------------------------------------------------------------
         # Compute battery electrical properties 
         # --------------------------------------------------------------------------------- 
-        n_parallel        = battery.pack_config.parallel  
          
         # Update battery capacitance (energy) with aging factor
         E_max = E_max*E_growth_factor
         
         # Compute state of charge and depth of discarge of the battery
         initial_discharge_state = np.dot(I,P_bat) + E_current[0]
-        SOC_old                 = np.divide(initial_discharge_state,E_max)  
+        SOC_old                 = np.divide(initial_discharge_state,E_max)
+        
+        SOC_old[SOC_old>1] = 1.
+        SOC_old[SOC_old<0] = 0.
         
         # Compute internal resistance
         R_bat = -0.0169*(SOC_old**4) + 0.0418*(SOC_old**3) - 0.0273*(SOC_old**2) + 0.0069*(SOC_old) + 0.0043
@@ -177,6 +179,21 @@ class Lithium_Ion(Battery):
         dT_dt     = Q_heat_gen /(bat_mass*bat_Cp)
         T_current = T_current[0] + np.dot(I,dT_dt)
         
+        # Possible Energy going into the battery:
+        energy_unmodified = np.dot(I,P)
+    
+        # Available capacity
+        capacity_available = E_max - battery.current_energy[0]
+    
+        # How much energy the battery could be overcharged by
+        delta           = energy_unmodified -capacity_available
+        delta[delta<0.] = 0.
+    
+        # Power that shouldn't go in
+        ddelta = np.dot(D,delta) 
+    
+        # Power actually going into the battery
+        P[P>0.] = P[P>0.] - ddelta[P>0.]
         E_bat = np.dot(I,P)
         E_bat = np.reshape(E_bat,np.shape(E_current)) #make sure it's consistent
         
