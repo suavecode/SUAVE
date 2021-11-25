@@ -310,7 +310,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                 l  = dz/np.cos(dihedral)
                 dx = l*np.tan(segment_sweep)
             else:
-                inverted_wing = np.sign(dihedral_ob)
+                inverted_wing = np.sign(dihedral)
                 dy = inverted_wing*semispan*segment_percent_span
                 dz = dy*np.tan(dihedral)
                 l  = dy/np.cos(dihedral)
@@ -336,14 +336,14 @@ def populate_wing_sections(avl_wing,suave_wing):
         root_section.origin   = [origin]
         root_section.chord    = suave_wing.chords.root 
         root_section.twist    = suave_wing.twists.root/Units.degrees 
-        root_section.semispan  = semispan
+        root_section.semispan = 0   
 
         # define tip section
         tip_section           = Section()
         tip_section.tag       = 'tip_section'
         tip_section.chord     = suave_wing.chords.tip 
         tip_section.twist     = suave_wing.twists.tip/Units.degrees 
-        tip_section.semispan  = 0
+        tip_section.semispan  = semispan
 
         # assign location of wing tip
         if avl_wing.vertical:

@@ -84,6 +84,7 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.number_spanwise_vortices  = 20
         self.settings.number_chordwise_vortices = 10
         self.settings.trim_aircraft             = False 
+        self.settings.print_output              = False 
         
         # Conditions table, used for surrogate model training
         self.training                           = Data()   
@@ -375,7 +376,8 @@ class AVL_Inviscid(Aerodynamics):
         dynamic_results_template_2       = self.settings.filenames.dynamic_output_template_2    # 'system_matrix_{}.dat'
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template 
-
+        print_output                     = self.settings.print_output 
+ 
         # rename defaul avl aircraft tag
         self.tag                         = 'avl_analysis_of_{}'.format(self.geometry.tag) 
         self.settings.filenames.features = self.geometry._base.tag + '.avl'
@@ -438,7 +440,7 @@ class AVL_Inviscid(Aerodynamics):
             write_input_deck(self, trim_aircraft,control_surfaces)
 
             # RUN AVL!
-            results_avl = run_analysis(self)
+            results_avl = run_analysis(self,print_output)
     
         # translate results
         results = translate_results_to_conditions(cases,results_avl)

@@ -18,7 +18,7 @@ from SUAVE.Methods.Aerodynamics.AVL.purge_files  import purge_files
 from SUAVE.Core                                  import redirect
 
 ## @ingroup Methods-Aerodynamics-AVL
-def run_analysis(avl_object):
+def run_analysis(avl_object,print_output):
     """ This calls the AVL executable and runs an analysis
 
     Assumptions:
@@ -36,13 +36,13 @@ def run_analysis(avl_object):
     Properties Used:
         N/A
     """    
-    call_avl(avl_object)
+    call_avl(avl_object,print_output)
     results = read_results(avl_object)
 
     return results
 
 
-def call_avl(avl_object):
+def call_avl(avl_object,print_output):
     """ This function calls the AVL executable and executes analyses
     Assumptions:
         None
@@ -74,8 +74,7 @@ def call_avl(avl_object):
     
             ctime = time.ctime() # Current date and time stamp
     
-            with open(in_deck,'r') as commands:
-                print_output = False
+            with open(in_deck,'r') as commands: 
                 
                 # Initialize suppression of console window output
                 if print_output == False:
