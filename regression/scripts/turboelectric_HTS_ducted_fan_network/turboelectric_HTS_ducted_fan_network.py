@@ -17,6 +17,7 @@ from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboe
 from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
 
 from SUAVE.Attributes.Gases import Air
+from SUAVE.Attributes.Solids.Copper import Copper
 
 from SUAVE.Core import (
 Data, Units,
@@ -304,11 +305,12 @@ def energy_network():
     
     efan.lead = SUAVE.Components.Energy.Distributors.Cryogenic_Lead()
     efan.lead.tag = 'lead'
-
+    copper = Copper()
     efan.lead.cold_temp                 = efan.rotor.temperature   # [K]
     efan.lead.hot_temp                  = efan.rotor.skin_temp     # [K]
     efan.lead.current                   = efan.rotor.current       # [A]
     efan.lead.length                    = 0.3                      # [m]
+    efan.lead.material                  = copper
     efan.leads                          = efan.ducted_fan.number_of_engines * 2.0      # Each motor has two leads to make a complete circuit
 
     # ------------------------------------------------------------------
