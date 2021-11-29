@@ -16,6 +16,7 @@ from SUAVE.Attributes.Solids.Solid import Solid
 from scipy import integrate
 from scipy import interpolate
 from scipy.misc import derivative
+import numpy as np
 # ----------------------------------------------------------------------
 #  Cryogenic Lead Class
 # ----------------------------------------------------------------------
@@ -41,16 +42,16 @@ class Cryogenic_Lead(Energy_Component):
             Properties Used:
             None
             """         
-        self.cold_temp          =   77.0    # [K]
-        self.hot_temp           =  300.0    # [K]
-        self.current            = 1000.0    # [A]
-        self.length             =    1.0    # [m]
+        self.cold_temp          = 0.0    # [K]
+        self.hot_temp           = 0.0    # [K]
+        self.current            = 0.0       # [A]
+        self.length             = 0.0    # [m]
         self.material           = None
     
-        self.cross_section      =    1.0    # [m2]
-        self.optimum_current    = 1000.0    # [A]
-        self.minimum_Q          = 1000.0    # [W]
-        self.unpowered_Q        = 1000.0    # [W]
+        self.cross_section      = 0.0    # [m2]
+        self.optimum_current   = 0.0         # [A]
+        self.minimum_Q          = 0.0         # [W]
+        self.unpowered_Q        = 0.0         # [W]
 
     def Q_min(self, material, cold_temp, hot_temp, current):
         # Estimate the area under the thermal:electrical conductivity vs temperature plot for the temperature range of the current lead.
@@ -125,7 +126,6 @@ class Cryogenic_Lead(Energy_Component):
         self.optimum_current        = current
         self.minimum_Q              = minimum_Q
 
-
         # find the heat conducted into the cryogenic environment if no current is flowing
         unpowered_Q             = self.Q_unpowered()
 
@@ -155,8 +155,13 @@ class Cryogenic_Lead(Energy_Component):
 
     def Q_offdesign(self, current):
         # Estimates the heat flow into the cryogenic environment when a current other than the current the lead was optimised for is flowing. Assumes the temperature difference remains constant.
+        values = list(map(self.calc_current, current.tolist()))
+        values = np.asarray(values)
 
-        # unpack properties
+        return values
+
+    def calc_current(self, current ):
+
         design_current      = self.optimum_current
         design_Q            = self.minimum_Q
         zero_Q              = self.unpowered_Q
@@ -166,12 +171,14 @@ class Cryogenic_Lead(Energy_Component):
         length              = self.length
         material            = self.material
 
+        
         # The thermal gradient along the lead is assumed to remain constant for all currents below the design current. The resistance remains constant if the temperature remains constant. The estimated heat flow is reduced in proportion with the carried current.
         if current <= design_current:
             proportion      = current/design_current
             R               = design_Q/(design_current**2.0)
             power           = R*current**2.0
             Q               = zero_Q + proportion * (design_Q - zero_Q)
+   
 
         # If the supplied current is higher than the design current the maximum temperature in the lead will be higher than ambient. Solve by dividing the lead at the maximum temperature point.
         else:
@@ -181,9 +188,11 @@ class Cryogenic_Lead(Energy_Component):
             error           = 1
             guess_over      = 0
             guess_diff      = hot_temp
+
             while error > 0.01:
                 # Find length of warmer part of lead
                 warm_Q          = self.Q_min(material, hot_temp, max_temp, current)
+    
                 warm_la         = self.LARatio(material, hot_temp, max_temp, current, warm_Q)
                 warm_length     = cs_area * warm_la
                 # Find length of cooler part of lead
@@ -210,5 +219,6 @@ class Cryogenic_Lead(Energy_Component):
                 Q           = cool_Q
                 # All Q is out of the lead, so the electrical power use in the lead is the sum of the Qs
                 power       = warm_Q + cool_Q
-        
-        return [Q, power]
+            
+
+        return [Q,power]

@@ -128,10 +128,10 @@ class Turboelectric_HTS_Ducted_Fan(Network):
             skin_temp[:]    = rotor_surface_temp 
 
         # If the rotor current is to be varied depending on the motor power here is the place to do it. For now the rotor current is set as constant.
-        rotor_current       = np.full_like(motor_power_in, rotor.current)
+        rotor_currents       = np.full_like(motor_power_in, rotor.current)
 
         # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
-        single_rotor_power  = rotor.power(rotor_current, skin_temp)
+        single_rotor_power  = rotor.power(rotor_currents, skin_temp)
         rotor_power_in      = single_rotor_power * ducted_fan.number_of_engines
 
 
@@ -139,11 +139,13 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         # Calculate the power loss in the rotor current supply leads.
         # The cryogenic loading due to the leads is also calculated here.
-        lead_power            = np.zeros_like(rotor_current)
-        lead_cryo_load        = np.full_like(rotor_current, lead.unpowered_Q)
 
-        # build the cryo_load and lead_power array
-        lead_power, lead_cryo_load           = lead.Q_offdesign(rotor_current)
+        lead_power =  np.where(rotor_currents[:,0] > 0, lead.Q_offdesign(rotor_currents[:,0])[:,1], 0.0 )
+        lead_cryo_load =  np.where(rotor_currents[:,0] > 0,  lead.Q_offdesign(rotor_currents[:,0])[:,0], lead.unpowered_Q )
+
+        lead_power = np.reshape(lead_power, (len(lead_power),1))
+        lead_cryo_load = np.reshape(lead_cryo_load, (len(lead_power),1))
+
 
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads

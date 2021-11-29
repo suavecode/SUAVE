@@ -230,17 +230,17 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
 
     # Get power required by the cryogenic rotor stream
     # The sizing conditions here are ground level conditions as this is highest cryocooler demand
-    HTS_current                 = rotor.current
+    HTS_current                 = np.array([rotor.current])
     rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
     # initialize copper lead optimses the leads for the conditions set elsewhere, i.e. the lead is not sized here as it should be sized for the maximum ambient temperature
     current_lead.initialize_material_lead()
     current_lead_powers         = current_lead.Q_offdesign( HTS_current)
-    lead_power                  = current_lead_powers[1]
+    lead_power                  = current_lead_powers[0,1]
     leads_power                 = 2 * lead_power             # multiply lead loss by number of leads to get total loss
     ccs_output_power            = leads_power + rotor_input_power
     ccs_input_power             = ccs.power(HTS_current, ccs_output_power)
     # The cryogenic components are also part of the rotor power stream
-    lead_cooling_power          = current_lead_powers[0]
+    lead_cooling_power          = current_lead_powers[0,0]
     leads_cooling_power         = 2 * lead_cooling_power   # multiply lead cooling requirement by number of leads to get total cooling requirement
     total_lead_cooling_power    = leads_cooling_power * number_of_engines
     rotor_cooling_power         = rotor.outputs.cryo_load

@@ -148,7 +148,7 @@ def energy_network():
     efan.ducted_fan.engine_length      = 1.1            * Units.meter
 
 
-    # Positioning variables for the propulsor locations - Wh
+    # Positioning variables for the propulsor locations - 
     xStart = 15.0
     xSpace = 1.0
     yStart = 3.0
@@ -168,7 +168,6 @@ def energy_network():
 
     # copy the ducted fan details to the turboelectric ducted fan network to enable drag calculations
     efan.engine_length      = efan.ducted_fan.engine_length   
-    efan.nacelle_diameter   = efan.ducted_fan.nacelle_diameter
     efan.origin             = efan.ducted_fan.origin
 
 
