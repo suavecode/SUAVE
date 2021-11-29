@@ -106,7 +106,7 @@ class AVL_Inviscid(Aerodynamics):
         self.save_regression_results            = False          
         self.regression_flag                    = False 
 
-    def initialize(self,number_spanwise_vortices,number_chordwise_vortices):
+    def initialize(self,number_spanwise_vortices,number_chordwise_vortices,keep_files,save_regression_results,regression_flag,print_output,trim_aircraft):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -125,8 +125,16 @@ class AVL_Inviscid(Aerodynamics):
         self.geometry.tag
         """  
         geometry     = self.geometry
-        self.tag     = 'avl_analysis_of_{}'.format(geometry.tag) 
-            
+
+        self.keep_files                         = keep_files
+        self.save_regression_results            = save_regression_results
+        self.regression_flag                    = regression_flag       
+        self.settings.trim_aircraft             = trim_aircraft   
+        self.settings.print_output              = print_output   
+        self.settings.number_spanwise_vortices  = number_spanwise_vortices  
+        self.settings.number_chordwise_vortices = number_chordwise_vortices
+        self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)  
+        
         # Sample training data
         self.sample_training()
     

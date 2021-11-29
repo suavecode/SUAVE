@@ -20,15 +20,16 @@ from copy import deepcopy
 from SUAVE.Core import Data , Units
 
 # SUAVE-AVL Imports
-from .Data.Inputs                                                  import Inputs
-from .Data.Wing                                                    import Wing, Section, Control_Surface
-from .Data.Body                                                    import Body
-from .Data.Aircraft                                                import Aircraft
-from .Data.Cases                                                   import Run_Case
-from .Data.Configuration                                           import Configuration
-from SUAVE.Components.Wings.Control_Surfaces                       import Aileron , Elevator , Slat , Flap , Rudder 
-from SUAVE.Methods.Aerodynamics.AVL.write_avl_airfoil_file         import write_avl_airfoil_file  
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
+from .Data.Inputs                                                        import Inputs
+from .Data.Wing                                                          import Wing, Section, Control_Surface
+from .Data.Body                                                          import Body
+from .Data.Aircraft                                                      import Aircraft
+from .Data.Cases                                                         import Run_Case
+from .Data.Configuration                                                 import Configuration
+from SUAVE.Components.Wings.Control_Surfaces                             import Aileron , Elevator , Slat , Flap , Rudder 
+from SUAVE.Methods.Aerodynamics.AVL.write_avl_airfoil_file               import write_avl_airfoil_file  
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform       import wing_planform
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import convert_to_segmented_wing
 
 ## @ingroup Methods-Aerodynamics-AVL
 def translate_avl_wing(suave_wing):
@@ -123,89 +124,112 @@ def populate_wing_sections(avl_wing,suave_wing):
     Properties Used:
         N/A
     """         
+    if len(suave_wing.Segments.keys())==0:
+        convert_to_segmented_wing(suave_wing) 
+        
+    # obtain the geometry for each segment in a loop                                            
+    symm                 = avl_wing.symmetric
+    semispan             = suave_wing.spans.projected*0.5 * (2 - symm)
+    avl_wing.semispan    = semispan   
+    root_chord           = suave_wing.chords.root
+    segment_percent_span = 0    
+    segments             = suave_wing.Segments
+    n_segments           = len(segments.keys())
+    segment_sweeps       = []
+    origin               = []
 
-    if len(suave_wing.Segments.keys())>0:
-        # obtain the geometry for each segment in a loop                                            
-        symm                 = avl_wing.symmetric
-        semispan             = suave_wing.spans.projected*0.5 * (2 - symm)
-        avl_wing.semispan    = semispan   
-        root_chord           = suave_wing.chords.root
-        segment_percent_span = 0    
-        segments             = suave_wing.Segments
-        n_segments           = len(segments.keys())
-        segment_sweeps       = []
-        origin               = []
+    origin.append(suave_wing.origin[0])
 
-        origin.append(suave_wing.origin)
+    for i_segs in range(n_segments):
+        if (i_segs == n_segments-1):
+            segment_sweeps.append(0)                                  
+        else: # This converts all sweeps defined by the quarter chord to leading edge sweep since AVL needs the start of each wing section
+            # from the leading edge coordinate and not the quarter chord coordinate
+            if segments[i_segs].sweeps.leading_edge is not None: 
+                # If leading edge sweep is defined 
+                segment_sweep       = segments[i_segs].sweeps.leading_edge  
+            else:   
+                # If quarter chord sweep is defined, convert it to leading edge sweep
+                sweep_quarter_chord = segments[i_segs].sweeps.quarter_chord 
+                chord_fraction      = 0.25                          
+                segment_root_chord  = root_chord*segments[i_segs].root_chord_percent
+                segment_tip_chord   = root_chord*segments[i_segs+1].root_chord_percent
+                segment_span        = semispan*(segments[i_segs+1].percent_span_location - segments[i_segs].percent_span_location )
+                segment_sweep       = np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*segment_span - chord_fraction*segment_tip_chord)) /segment_span)
+            segment_sweeps.append(segment_sweep)
+        dihedral       = segments[i_segs].dihedral_outboard  
 
-        for i_segs in range(n_segments):
-            if (i_segs == n_segments-1):
-                segment_sweeps.append(0)                                  
-            else: # this converts all sweeps defined by the quarter chord to leading edge sweep since AVL needs the start of each wing section
-                #from the leading edge coordinate and not the quarter chord coordinate
-                if segments[i_segs].sweeps.leading_edge is not None: 
-                    # if leading edge sweep is defined 
-                    segment_sweep       = segments[i_segs].sweeps.leading_edge  
-                else:   
-                    # if quarter chord sweep is defined, convert it to leading edge sweep
-                    sweep_quarter_chord = segments[i_segs].sweeps.quarter_chord 
-                    chord_fraction      = 0.25                          
-                    segment_root_chord  = root_chord*segments[i_segs].root_chord_percent
-                    segment_tip_chord   = root_chord*segments[i_segs+1].root_chord_percent
-                    segment_span        = semispan*(segments[i_segs+1].percent_span_location - segments[i_segs].percent_span_location )
-                    segment_sweep       = np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*segment_span - chord_fraction*segment_tip_chord)) /segment_span)
-                segment_sweeps.append(segment_sweep)
-            dihedral       = segments[i_segs].dihedral_outboard  
-            ctrl_surf_at_seg = False 
 
+        # append section 
+        section        = Section() 
+        section.tag    = segments[i_segs].tag
+        section.chord  = root_chord*segments[i_segs].root_chord_percent 
+        section.twist  = segments[i_segs].twist/Units.degrees    
+        section.origin = [origin[i_segs]] # first origin in wing root, overwritten by section origin 
+        if segments[i_segs].Airfoil:
+            if segments[i_segs].Airfoil.airfoil.coordinate_file is not None:
+                section.airfoil_coord_file   = write_avl_airfoil_file(segments[i_segs].Airfoil.airfoil.coordinate_file)
+            elif segments[i_segs].Airfoil.airfoil.naca_airfoil is not None:
+                section.naca_airfoil         = segments[i_segs].Airfoil.airfoil.naca_airfoil     
+        # append section to wing
+        avl_wing.append_section(section)   
+
+        if (i_segs == n_segments-1):
+            pass
+        else:
             # condition for the presence of control surfaces in segment 
-            if getattr(segments[i_segs],'control_surfaces',False):    
-                dihedral_ob   = segments[i_segs-1].dihedral_outboard 
+            if getattr(suave_wing,'control_surfaces',False):    
+                dihedral_ob   = segments[i_segs].dihedral_outboard 
                 section_spans = []
-                for cs in segments[i_segs].control_surfaces:     
-                    # create a vector if all the section breaks in a segment. sections include beginning and end of control surfaces and end of segment      
+                for cs in suave_wing.control_surfaces:     
+                    # Create a vectorof all the section breaks from control surfaces on wings.
+                    # Section breaks include beginning and end of control surfaces as well as the end of segment       
                     control_surface_start = semispan*cs.span_fraction_start
                     control_surface_end   = semispan*cs.span_fraction_end
-                    section_spans.append(control_surface_start)
-                    section_spans.append(control_surface_end)                                
+                    if (control_surface_start < semispan*segments[i_segs+1].percent_span_location) and (control_surface_start >= semispan*segments[i_segs].percent_span_location) : 
+                        section_spans.append(control_surface_start) 
+                    if (control_surface_end  < semispan*segments[i_segs+1].percent_span_location) and (control_surface_end  >= semispan*segments[i_segs].percent_span_location):                         
+                        section_spans.append(control_surface_end)                                
                 ordered_section_spans = sorted(list(set(section_spans)))     # sort the section_spans in order to create sections in spanwise order
                 num_sections = len(ordered_section_spans)                    # count the number of sections breaks that the segment will contain    \
-
+        
                 for section_count in range(num_sections):        
                     # create and append sections onto avl wing structure  
-                    if ordered_section_spans[section_count] == semispan*segments[i_segs-1].percent_span_location:  
+                    if ordered_section_spans[section_count] == semispan*segments[i_segs].percent_span_location:  
                         # if control surface begins at beginning of segment, redundant section is removed
                         section_tags = list(avl_wing.sections.keys())
                         del avl_wing.sections[section_tags[-1]]
-
+        
                     # create section for each break in the wing        
                     section                   = Section()              
                     section.tag               = segments[i_segs].tag + '_section_'+ str(ordered_section_spans[section_count]) + 'm'
-                    root_section_chord        = root_chord*segments[i_segs-1].root_chord_percent
-                    tip_section_chord         = root_chord*segments[i_segs].root_chord_percent
-                    semispan_section_fraction = (ordered_section_spans[section_count] - semispan*segments[i_segs-1].percent_span_location)/(semispan*(segments[i_segs].percent_span_location - segments[i_segs-1].percent_span_location ))   
+                    root_section_chord        = root_chord*segments[i_segs].root_chord_percent
+                    tip_section_chord         = root_chord*segments[i_segs+1].root_chord_percent
+                    semispan_section_fraction = (ordered_section_spans[section_count] - semispan*segments[i_segs].percent_span_location)/(semispan*(segments[i_segs+1].percent_span_location - segments[i_segs].percent_span_location ))   
                     section.chord             = np.interp(semispan_section_fraction,[0.,1.],[root_section_chord,tip_section_chord])
-                    root_section_twist        = segments[i_segs-1].twist/Units.degrees 
-                    tip_section_twist         = root_chord*segments[i_segs].twist/Units.degrees  
+                    root_section_twist        = segments[i_segs].twist/Units.degrees 
+                    tip_section_twist         = root_chord*segments[i_segs+1].twist/Units.degrees  
                     section.twist             = np.interp(semispan_section_fraction,[0.,1.],[root_section_twist,tip_section_twist]) 
-
+        
                     # if wing is a vertical wing, the y and z coordinates are swapped 
                     if avl_wing.vertical:
                         inverted_wing = -np.sign(abs(dihedral_ob) - np.pi/2)
-                        dz = ordered_section_spans[section_count] -  inverted_wing*semispan*segments[i_segs-1].percent_span_location
+                        if inverted_wing  == 0: inverted_wing  = 1
+                        dz = ordered_section_spans[section_count] -  inverted_wing*semispan*segments[i_segs].percent_span_location
                         dy = dz*np.tan(dihedral_ob)
                         l  = dz/np.cos(dihedral_ob)
-                        dx = l*np.tan(segment_sweeps[i_segs-1])                                                            
+                        dx = l*np.tan(segment_sweeps[i_segs])                                                            
                     else:
                         inverted_wing = np.sign(dihedral_ob)
-                        dy = ordered_section_spans[section_count] - inverted_wing*semispan*segments[i_segs-1].percent_span_location
+                        if inverted_wing  == 0: inverted_wing  = 1
+                        dy = ordered_section_spans[section_count] - inverted_wing*semispan*segments[i_segs].percent_span_location
                         dz = dy*np.tan(dihedral_ob)
                         l  = dy/np.cos(dihedral_ob)
-                        dx = l*np.tan(segment_sweeps[i_segs-1])
-                    section.origin = [[origin[i_segs-1][0][0] + dx , origin[i_segs-1][0][1] + dy, origin[i_segs-1][0][2] + dz]]              
-
+                        dx = l*np.tan(segment_sweeps[i_segs])
+                    section.origin = [[origin[i_segs][0] + dx , origin[i_segs][1] + dy, origin[i_segs][2] + dz]]              
+        
                     # this loop appends all the control surfaces within a particular wing section
-                    for index  , ctrl_surf in enumerate(segments[i_segs].control_surfaces):
+                    for index  , ctrl_surf in enumerate(suave_wing.control_surfaces):
                         if  (semispan*ctrl_surf.span_fraction_start == ordered_section_spans[section_count]) or \
                                                     (ordered_section_spans[section_count] == semispan*ctrl_surf.span_fraction_end):
                             c                     = Control_Surface()
@@ -214,7 +238,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                             c.x_hinge             = 1 - ctrl_surf.chord_fraction # this float is the % location of the control surface hinge on the wing 
                             c.deflection          = ctrl_surf.deflection / Units.degrees 
                             c.order               = index
-
+        
                             # if control surface is an aileron, the deflection is asymmetric. This is standard convention from AVL
                             if (type(ctrl_surf) ==  Aileron):
                                 c.sign_duplicate = '-1'
@@ -237,7 +261,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                             else:
                                 raise AttributeError("Define control surface function as 'slat', 'flap', 'elevator' , 'aileron' or 'rudder'")
                             section.append_control_surface(c) 
-
+        
                         elif  (semispan*ctrl_surf.span_fraction_start < ordered_section_spans[section_count]) and \
                                                       (ordered_section_spans[section_count] < semispan*ctrl_surf.span_fraction_end):
                             c                     = Control_Surface()
@@ -246,7 +270,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                             c.x_hinge             = 1 - ctrl_surf.chord_fraction # this float is the % location of the control surface hinge on the wing 
                             c.deflection          = ctrl_surf.deflection / Units.degrees 
                             c.order               = index
-
+        
                             # if control surface is an aileron, the deflection is asymmetric. This is standard convention from AVL
                             if (type(ctrl_surf) ==  Aileron):
                                 c.sign_duplicate = '-1'
@@ -269,101 +293,61 @@ def populate_wing_sections(avl_wing,suave_wing):
                             else:
                                 raise AttributeError("Define control surface function as 'slat', 'flap', 'elevator' , 'aileron' or 'rudder'")
                             section.append_control_surface(c)                                                  
-
+        
                     if segments[i_segs].Airfoil:
                         if segments[i_segs].Airfoil.airfoil.coordinate_file is not None:
                             section.airfoil_coord_file   = write_avl_airfoil_file(segments[i_segs].Airfoil.airfoil.coordinate_file)
                         elif segments[i_segs].Airfoil.airfoil.naca_airfoil is not None:
                             section.naca_airfoil         = segments[i_segs].Airfoil.airfoil.naca_airfoil 
-
+        
                     avl_wing.append_section(section)   
 
-                # check if control surface ends at end of segment         
-                if ordered_section_spans[section_count] == semispan*segments[i_segs].percent_span_location:  
-                    ctrl_surf_at_seg = True
+            ## check if control surface ends at end of segment         
+            #if ordered_section_spans[section_count] == semispan*segments[i_segs].percent_span_location:  
+                #ctrl_surf_at_seg = True
 
-            if ctrl_surf_at_seg:  # if a control surface ends at the end of the segment, there is not need to append another segment
-                pass
-            else: # if there is no control surface break at the end of the segment, this block appends a segment
-                section        = Section() 
-                section.tag    = segments[i_segs].tag
-                section.chord  = root_chord*segments[i_segs].root_chord_percent 
-                section.twist  = segments[i_segs].twist/Units.degrees    
-                section.origin = origin[i_segs]
-                if segments[i_segs].Airfoil:
-                    if segments[i_segs].Airfoil.airfoil.coordinate_file is not None:
-                        section.airfoil_coord_file   = write_avl_airfoil_file(segments[i_segs].Airfoil.airfoil.coordinate_file)
-                    elif segments[i_segs].Airfoil.airfoil.naca_airfoil is not None:
-                        section.naca_airfoil         = segments[i_segs].Airfoil.airfoil.naca_airfoil     
-                # append section to wing
-                avl_wing.append_section(section)                               
+        #if ctrl_surf_at_seg:  # if a control surface ends at the end of the segment, there is not need to append another segment
+            #pass
+        #else: # if there is no control surface break at the end of the segment, this block appends a segment
+            #section        = Section() 
+            #section.tag    = segments[i_segs].tag
+            #section.chord  = root_chord*segments[i_segs].root_chord_percent 
+            #section.twist  = segments[i_segs].twist/Units.degrees    
+            #section.origin = origin[i_segs]
+            #if segments[i_segs].Airfoil:
+                #if segments[i_segs].Airfoil.airfoil.coordinate_file is not None:
+                    #section.airfoil_coord_file   = write_avl_airfoil_file(segments[i_segs].Airfoil.airfoil.coordinate_file)
+                #elif segments[i_segs].Airfoil.airfoil.naca_airfoil is not None:
+                    #section.naca_airfoil         = segments[i_segs].Airfoil.airfoil.naca_airfoil     
+            ## append section to wing
+            #avl_wing.append_section(section)                               
 
-            # update origin for next segment
-            if (i_segs == n_segments-1):                                          
-                return avl_wing
 
-            segment_percent_span =    segments[i_segs+1].percent_span_location - segments[i_segs].percent_span_location     
-            if avl_wing.vertical:
-                inverted_wing = -np.sign(abs(dihedral) - np.pi/2)
-                dz = inverted_wing*semispan*segment_percent_span
-                dy = dz*np.tan(dihedral)
-                l  = dz/np.cos(dihedral)
-                dx = l*np.tan(segment_sweep)
-            else:
-                inverted_wing = np.sign(dihedral)
-                dy = inverted_wing*semispan*segment_percent_span
-                dz = dy*np.tan(dihedral)
-                l  = dy/np.cos(dihedral)
-                dx = l*np.tan(segment_sweep)
-            origin.append( [[origin[i_segs][0][0] + dx , origin[i_segs][0][1] + dy, origin[i_segs][0][2] + dz]])               
 
-    else:    
-        symm                  = avl_wing.symmetric  
-        dihedral              = suave_wing.dihedral
-        span                  = suave_wing.spans.projected
-        semispan              = suave_wing.spans.projected * 0.5 * (2 - symm) 
-        if suave_wing.sweeps.leading_edge  is not None: 
-            sweep      = suave_wing.sweeps.leading_edge
-        else: 
-            suave_wing = wing_planform(suave_wing)
-            sweep      = suave_wing.sweeps.leading_edge
-        avl_wing.semispan     = semispan
-        origin                = suave_wing.origin[0]  
-        
-        # define root section 
-        root_section          = Section()
-        root_section.tag      = 'root_section'
-        root_section.origin   = [origin]
-        root_section.chord    = suave_wing.chords.root 
-        root_section.twist    = suave_wing.twists.root/Units.degrees 
-        root_section.semispan = 0   
-
-        # define tip section
-        tip_section           = Section()
-        tip_section.tag       = 'tip_section'
-        tip_section.chord     = suave_wing.chords.tip 
-        tip_section.twist     = suave_wing.twists.tip/Units.degrees 
-        tip_section.semispan  = semispan
-
-        # assign location of wing tip
+        # update origin for next segment
+        if (i_segs == n_segments-1):                                          
+            return avl_wing 
+        segment_percent_span =    segments[i_segs+1].percent_span_location - segments[i_segs].percent_span_location     
         if avl_wing.vertical:
-            inverted_wing = -np.sign(abs(suave_wing.dihedral) - np.pi/2)
-            tip_section.origin    = [[origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[2]+inverted_wing*semispan]]
-        else: 
-            inverted_wing = np.sign(suave_wing.dihedral)
-            tip_section.origin    = [[origin[0]+semispan*np.tan(sweep),origin[1]+inverted_wing*semispan,origin[2]+semispan*np.tan(dihedral)]]
-
-        # assign wing airfoil
-        if suave_wing.Airfoil:
-            root_section.airfoil_coord_file  = suave_wing.Airfoil.airfoil.coordinate_file          
-            tip_section.airfoil_coord_file   = suave_wing.Airfoil.airfoil.coordinate_file    
-
-
-        avl_wing.append_section(root_section)
-        avl_wing.append_section(tip_section)
-
+            inverted_wing = -np.sign(abs(dihedral) - np.pi/2)
+            if inverted_wing  == 0: inverted_wing  = 1
+            dz = inverted_wing*semispan*segment_percent_span
+            dy = dz*np.tan(dihedral)
+            l  = dz/np.cos(dihedral)
+            dx = l*np.tan(segment_sweep)
+        else:
+            inverted_wing = np.sign(dihedral)
+            if inverted_wing  == 0: inverted_wing  = 1
+            dy = inverted_wing*semispan*segment_percent_span
+            dz = dy*np.tan(dihedral)
+            l  = dy/np.cos(dihedral)
+            dx = l*np.tan(segment_sweep)
+        origin.append([origin[i_segs][0] + dx , origin[i_segs][1] + dy, origin[i_segs][2] + dz])              
+        
     return avl_wing
-
+ 
+        
+                
 def populate_body_sections(avl_body,suave_body):
     """ Creates sections of body geometry and populates the AVL body data structure
 

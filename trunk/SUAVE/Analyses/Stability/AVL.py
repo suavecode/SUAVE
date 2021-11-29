@@ -137,8 +137,15 @@ class AVL(Stability):
         Properties Used:
         self.geometry.tag
         """          
-        geometry                       = self.geometry
-        self.tag                       = 'avl_analysis_of_{}'.format(geometry.tag) 
+        geometry                                = self.geometry
+        #self.keep_files                         = keep_files
+        #self.save_regression_results            = save_regression_results
+        #self.regression_flag                    = regression_flag       
+        #self.settings.trim_aircraft             = trim_aircraft   
+        #self.settings.print_output              = print_output   
+        #self.settings.number_spanwise_vortices  = number_spanwise_vortices  
+        #self.settings.number_chordwise_vortices = number_chordwise_vortices
+        self.tag                                = 'avl_analysis_of_{}'.format(geometry.tag) 
             
         # Sample training data
         self.sample_training()

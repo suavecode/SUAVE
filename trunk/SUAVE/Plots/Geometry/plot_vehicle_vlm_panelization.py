@@ -14,7 +14,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
 
 ## @ingroup Plots-Geometry
-def plot_vehicle_vlm_panelization(vehicle, elevation_angle = 90,azimuthal_angle = 0, axis_limits = 10,plot_axis = False,
+def plot_vehicle_vlm_panelization(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,plot_axis = False,
                                   save_figure = False, plot_control_points = True, save_filename = "VLM_Panelization"):
                                   
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
