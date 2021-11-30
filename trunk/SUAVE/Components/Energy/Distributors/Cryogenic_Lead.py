@@ -2,7 +2,7 @@
 # Cryogenic_Lead.py
 #
 # Created:  Feb 2020, K.Hamilton
-# Modified: Nov 2021,   S. Claridge
+# Modified: Nov 2021, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -118,8 +118,6 @@ class Cryogenic_Lead(Energy_Component):
         # Apply the material density to calculate the mass
         mass = cs_area*length*material.density
 
-        # 
-
         # Pack up results
         self.mass_properties.mass   = mass
         self.cross_section          = cs_area
@@ -171,14 +169,12 @@ class Cryogenic_Lead(Energy_Component):
         length              = self.length
         material            = self.material
 
-        
         # The thermal gradient along the lead is assumed to remain constant for all currents below the design current. The resistance remains constant if the temperature remains constant. The estimated heat flow is reduced in proportion with the carried current.
         if current <= design_current:
             proportion      = current/design_current
             R               = design_Q/(design_current**2.0)
             power           = R*current**2.0
             Q               = zero_Q + proportion * (design_Q - zero_Q)
-   
 
         # If the supplied current is higher than the design current the maximum temperature in the lead will be higher than ambient. Solve by dividing the lead at the maximum temperature point.
         else:
@@ -219,6 +215,5 @@ class Cryogenic_Lead(Energy_Component):
                 Q           = cool_Q
                 # All Q is out of the lead, so the electrical power use in the lead is the sum of the Qs
                 power       = warm_Q + cool_Q
-            
 
         return [Q,power]
