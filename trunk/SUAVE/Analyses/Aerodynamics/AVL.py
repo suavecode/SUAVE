@@ -133,7 +133,7 @@ class AVL(Markup):
         srr = self.settings.save_regression_results
         rf  = self.settings.regression_flag
         po  = self.settings.print_output 
-        ta  =self.settings.trim_aircraft
+        ta  = self.settings.trim_aircraft
         
         self.process.compute.lift.inviscid.geometry = self.geometry
         

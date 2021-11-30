@@ -120,7 +120,7 @@ x
     aero_file_4    = case.aero_result_filename_4
     
     # purge files 
-    if not avl_object.keep_files:
+    if not avl_object.settings.keep_files:
         purge_files([aero_file_1])
         purge_files([aero_file_2])
         purge_files([aero_file_3])      

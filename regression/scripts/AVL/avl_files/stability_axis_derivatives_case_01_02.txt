@@ -17,15 +17,15 @@
   Beta  =   0.00000     qc/2V =   0.00000
   Mach  =     0.050     rb/2V =   0.00000     r'b/2V =   0.00000
 
-  CXtot =  -0.00202     Cltot =  -0.00000     Cl'tot =  -0.00000
-  CYtot =  -0.00000     Cmtot =  -0.02810
-  CZtot =  -0.15111     Cntot =  -0.00000     Cn'tot =  -0.00000
+  CXtot =  -0.00211     Cltot =  -0.00000     Cl'tot =  -0.00000
+  CYtot =   0.00000     Cmtot =  -0.03137
+  CZtot =  -0.16025     Cntot =  -0.00000     Cn'tot =  -0.00000
 
-  CLtot =   0.15111
-  CDtot =   0.00202
-  CDvis =   0.00000     CDind =   0.00202
-  CLff  =   0.15108     CDff  =   0.00149    | Trefftz
-  CYff  =   0.00000         e =    0.5181    | Plane  
+  CLtot =   0.16025
+  CDtot =   0.00211
+  CDvis =   0.00000     CDind =   0.00211
+  CLff  =   0.16020     CDff  =   0.00156    | Trefftz
+  CYff  =   0.00000         e =    0.5567    | Plane  
  
    slat            =   0.00000
    flap            =   0.00000
@@ -38,32 +38,32 @@
 
                              alpha                beta
                   ----------------    ----------------
- z' force CL |    CLa =   5.681394    CLb =   0.000000
- y  force CY |    CYa =  -0.000000    CYb =  -0.819924
- x' mom.  Cl'|    Cla =  -0.000001    Clb =  -0.198123
- y  mom.  Cm |    Cma =  -8.014884    Cmb =  -0.000000
- z' mom.  Cn'|    Cna =  -0.000000    Cnb =   0.276504
+ z' force CL |    CLa =   5.681139    CLb =   0.000000
+ y  force CY |    CYa =  -0.000000    CYb =  -0.820240
+ x' mom.  Cl'|    Cla =  -0.000001    Clb =  -0.200742
+ y  mom.  Cm |    Cma =  -8.014321    Cmb =  -0.000000
+ z' mom.  Cn'|    Cna =  -0.000000    Cnb =   0.276361
 
                      roll rate  p'      pitch rate  q'        yaw rate  r'
                   ----------------    ----------------    ----------------
- z' force CL |    CLp =   0.000001    CLq =  27.149084    CLr =  -0.000000
- y  force CY |    CYp =  -0.239303    CYq =  -0.000001    CYr =   0.991999
- x' mom.  Cl'|    Clp =  -0.484317    Clq =  -0.000003    Clr =   0.195433
- y  mom.  Cm |    Cmp =  -0.000002    Cmq = -78.053085    Cmr =   0.000000
- z' mom.  Cn'|    Cnp =   0.094324    Cnq =   0.000000    Cnr =  -0.516846
+ z' force CL |    CLp =   0.000001    CLq =  27.147936    CLr =  -0.000000
+ y  force CY |    CYp =  -0.236055    CYq =  -0.000001    CYr =   0.992663
+ x' mom.  Cl'|    Clp =  -0.484295    Clq =  -0.000003    Clr =   0.198447
+ y  mom.  Cm |    Cmp =  -0.000002    Cmq = -78.044319    Cmr =   0.000000
+ z' mom.  Cn'|    Cnp =   0.092822    Cnq =   0.000000    Cnr =  -0.516853
 
                   slat         d1     flap         d2     aileron      d3     elevator     d4 
                   ----------------    ----------------    ----------------    ----------------
- z' force CL |   CLd1 =  -0.000596   CLd2 =   0.025113   CLd3 =  -0.000000   CLd4 =   0.012034
- y  force CY |   CYd1 =  -0.000000   CYd2 =  -0.000000   CYd3 =   0.000338   CYd4 =  -0.000000
- x' mom.  Cl'|   Cld1 =   0.000000   Cld2 =  -0.000000   Cld3 =   0.001924   Cld4 =  -0.000000
- y  mom.  Cm |   Cmd1 =   0.000110   Cmd2 =  -0.023240   Cmd3 =   0.000000   Cmd4 =  -0.058340
- z' mom.  Cn'|   Cnd1 =   0.000000   Cnd2 =  -0.000000   Cnd3 =  -0.000041   Cnd4 =   0.000000
- Trefftz drag| CDffd1 =  -0.000004 CDffd2 =   0.000146 CDffd3 =  -0.000000 CDffd4 =   0.000105
- span eff.   |    ed1 =  -0.002522    ed2 =   0.121264    ed3 =  -0.000000    ed4 =   0.045558
+ z' force CL |   CLd1 =  -0.000149   CLd2 =   0.000000   CLd3 =  -0.000000   CLd4 =   0.012032
+ y  force CY |   CYd1 =  -0.000000   CYd2 =   0.000000   CYd3 =   0.000345   CYd4 =  -0.000000
+ x' mom.  Cl'|   Cld1 =  -0.000000   Cld2 =   0.000000   Cld3 =   0.001924   Cld4 =  -0.000000
+ y  mom.  Cm |   Cmd1 =   0.000180   Cmd2 =   0.000000   Cmd3 =   0.000000   Cmd4 =  -0.058333
+ z' mom.  Cn'|   Cnd1 =   0.000000   Cnd2 =   0.000000   Cnd3 =  -0.000047   Cnd4 =   0.000000
+ Trefftz drag| CDffd1 =  -0.000001 CDffd2 =   0.000000 CDffd3 =  -0.000000 CDffd4 =   0.000107
+ span eff.   |    ed1 =  -0.000802    ed2 =   0.000000    ed3 =  -0.000000    ed4 =   0.044834
  
  
 
- Neutral point  Xnp =  21.284298
+ Neutral point  Xnp =  21.284147
 
- Clb Cnr / Clr Cnb  =   1.894947    (  > 1 if spirally stable )
+ Clb Cnr / Clr Cnb  =   1.891833    (  > 1 if spirally stable )

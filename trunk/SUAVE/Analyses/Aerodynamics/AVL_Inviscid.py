@@ -86,6 +86,11 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.trim_aircraft             = False 
         self.settings.print_output              = False 
         
+        # Regression Status
+        self.settings.keep_files                         = False
+        self.settings.save_regression_results            = False          
+        self.settings.regression_flag                    = False 
+        
         # Conditions table, used for surrogate model training
         self.training                           = Data()   
         
@@ -100,11 +105,6 @@ class AVL_Inviscid(Aerodynamics):
         
         # Surrogate model
         self.surrogates                         = Data()
-        
-        # Regression Status
-        self.keep_files                         = False
-        self.save_regression_results            = False          
-        self.regression_flag                    = False 
 
     def initialize(self,number_spanwise_vortices,number_chordwise_vortices,keep_files,save_regression_results,regression_flag,print_output,trim_aircraft):
         """Drives functions to get training samples and build a surrogate.
@@ -126,9 +126,9 @@ class AVL_Inviscid(Aerodynamics):
         """  
         geometry     = self.geometry
 
-        self.keep_files                         = keep_files
-        self.save_regression_results            = save_regression_results
-        self.regression_flag                    = regression_flag       
+        self.settings.keep_files                = keep_files
+        self.settings.save_regression_results   = save_regression_results
+        self.settings.regression_flag           = regression_flag       
         self.settings.trim_aircraft             = trim_aircraft   
         self.settings.print_output              = print_output   
         self.settings.number_spanwise_vortices  = number_spanwise_vortices  
@@ -249,7 +249,7 @@ class AVL_Inviscid(Aerodynamics):
         
         # remove old files in run directory
         if os.path.exists('avl_files'):
-            if not self.regression_flag:
+            if not self.settings.regression_flag:
                 rmtree(run_folder)
                 
         for i,_ in enumerate(Mach):
@@ -284,7 +284,7 @@ class AVL_Inviscid(Aerodynamics):
             e  = np.reshape(e_1D , (len_AoA,-1))
         
         # Save the data for regression
-        if self.save_regression_results: 
+        if self.settings.save_regression_results: 
             # convert from 2D to 1D
             CL_1D = CL.reshape([len_AoA*len_Mach,1]) 
             CD_1D = CD.reshape([len_AoA*len_Mach,1])  
@@ -453,7 +453,7 @@ class AVL_Inviscid(Aerodynamics):
         # translate results
         results = translate_results_to_conditions(cases,results_avl)
     
-        if not self.keep_files:
+        if not self.settings.keep_files:
             rmtree( run_folder )
             
         return results

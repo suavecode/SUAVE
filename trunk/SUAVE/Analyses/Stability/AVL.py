@@ -90,6 +90,11 @@ class AVL(Stability):
         self.settings.trim_aircraft                 = False 
         self.settings.print_output                  = False
                                                     
+        # Regression Status      
+        self.settings.keep_files                    = False
+        self.settings.save_regression_results       = False          
+        self.settings.regression_flag               = False 
+
         # Conditions table, used for surrogate model training
         self.training                               = Data()   
         
@@ -114,11 +119,6 @@ class AVL(Stability):
         self.configuration                          = Data()    
         self.geometry                               = Data()
                                                     
-        # Regression Status      
-        self.keep_files                             = False
-        self.save_regression_results                = False          
-        self.regression_flag                        = False 
-
     def finalize(self):
         """Drives functions to get training samples and build a surrogate.
 
@@ -264,7 +264,7 @@ class AVL(Stability):
        
         # remove old files in run directory  
         if os.path.exists('avl_files'):
-            if not self.regression_flag:
+            if not self.settings.regression_flag:
                 rmtree(run_folder)
                 
         for i,_ in enumerate(Mach):
@@ -302,7 +302,7 @@ class AVL(Stability):
             NP        = np.reshape(NP_1D , (len(AoA),-1))
         
         # Save the data for regression 
-        if self.save_regression_results:
+        if self.settings.save_regression_results:
             # convert from 2D to 1D
             CM_1D       = CM.reshape([len(AoA)*len(Mach),1]) 
             Cm_alpha_1D = Cm_alpha.reshape([len(AoA)*len(Mach),1])  
@@ -484,7 +484,7 @@ class AVL(Stability):
         if np.count_nonzero(self.geometry.mass_properties.moments_of_inertia.tensor) > 0:  
                 results = compute_dynamic_flight_modes(results,self.geometry,run_conditions,cases)        
              
-        if not self.keep_files:
+        if not self.settings.keep_files:
             rmtree( run_folder )           
  
         return results
