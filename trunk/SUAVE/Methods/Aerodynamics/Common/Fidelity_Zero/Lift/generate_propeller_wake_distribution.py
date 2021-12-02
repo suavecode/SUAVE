@@ -106,19 +106,32 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         V_prop       =  np.atleast_2d(np.sqrt((V_inf[:,0]  + mean_radial_induced_velocity)**2 + (V_inf[:,2])**2))
 
         # wake skew angle 
-        wake_skew_angle = -np.arctan(mu_prop/lambda_tot)
+        wake_skew_angle = abs(np.arctan(mu_prop/lambda_tot))
         
         # reshape gamma to find the average between stations 
         gamma_new = np.zeros((m,(Nr-1),Na))                  # [control points, Nr-1, Na ] one less radial station because ring
         gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5
         
-        num       = int(Na/B)  
+        num       = (Na+1)//B
         time_idx  = np.arange(nts)
         t_idx     = np.atleast_2d(time_idx).T 
         B_idx     = np.arange(B) 
-        B_loc     = (B_idx*num + t_idx)%Na  
+        B_loc     = (B_idx*num + t_idx)%(Na)  
         Gamma     = gamma_new[:,:,B_loc]  
         Gamma     = Gamma.transpose(0,3,1,2)   
+        
+
+        ## --------------------------------------------------------------------------------------------------------------
+        ## DEBUG PLOTS OF GAMMA
+        ## --------------------------------------------------------------------------------------------------------------
+        #import pylab as plt
+        #psi            = np.linspace(0,2*np.pi,Na+1)[:-1]
+        #fig0 = plt.figure(figsize=(4,4))
+        #ax0 = fig0.add_subplot(111, polar=True)
+        #ax0.contourf(psi, r, gamma[0,:,:],50,cmap='jet')
+        #plt.show()
+        ## --------------------------------------------------------------------------------------------------------------
+        ## --------------------------------------------------------------------------------------------------------------        
         
         
         # --------------------------------------------------------------------------------------------------------------
@@ -143,6 +156,7 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         
         if (propi.rotation != None) and (propi.rotation == 1):        
             total_angle_offset = -total_angle_offset
+            Gamma = np.flip(Gamma,axis=1)
 
         azi_y   = np.sin(blade_angle_loc + total_angle_offset)  
         azi_z   = np.cos(blade_angle_loc + total_angle_offset)
@@ -224,14 +238,14 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
                     
         # rotate rotor points to incidence angle
-        x_c_4 = (x_c_4_rotor+ propi.origin[0][0])*rots[0,0] + (y_c_4_rotor+ propi.origin[0][1])*rots[0,1] + (z_c_4_rotor+ propi.origin[0][2])*rots[0,2]
-        y_c_4 = (x_c_4_rotor+ propi.origin[0][0])*rots[1,0] + (y_c_4_rotor+ propi.origin[0][1])*rots[1,1] + (z_c_4_rotor+ propi.origin[0][2])*rots[1,2]
-        z_c_4 = (x_c_4_rotor+ propi.origin[0][0])*rots[2,0] + (y_c_4_rotor+ propi.origin[0][1])*rots[2,1] + (z_c_4_rotor+ propi.origin[0][2])*rots[2,2]
+        x_c_4 = (x_c_4_rotor)*rots[0,0] + (y_c_4_rotor)*rots[0,1] + (z_c_4_rotor)*rots[0,2] + propi.origin[0][0]
+        y_c_4 = (x_c_4_rotor)*rots[1,0] + (y_c_4_rotor)*rots[1,1] + (z_c_4_rotor)*rots[1,2] + propi.origin[0][1]
+        z_c_4 = (x_c_4_rotor)*rots[2,0] + (y_c_4_rotor)*rots[2,1] + (z_c_4_rotor)*rots[2,2] + propi.origin[0][2]
         
         # prepend points at quarter chord to account for rotor lifting line
-        X_pts = np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3) #np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3)
-        Y_pts = np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3) #np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3)
-        Z_pts = np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3) #np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3)
+        X_pts = np.append(x_c_4[:,:,:,0][:,:,:,None], X_pts, axis=3) 
+        Y_pts = np.append(y_c_4[:,:,:,0][:,:,:,None], Y_pts, axis=3) 
+        Z_pts = np.append(z_c_4[:,:,:,0][:,:,:,None], Z_pts, axis=3)
             
 
         #------------------------------------------------------

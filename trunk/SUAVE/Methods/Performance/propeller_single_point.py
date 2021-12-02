@@ -27,6 +27,7 @@ def propeller_single_point(energy_network,
                            altitude,
                            delta_isa,
                            speed,
+                           i_prop=0,
                            HFW=False,
                            plots=False,
                            print_results=False):
@@ -91,7 +92,7 @@ def propeller_single_point(energy_network,
     
 
     # Unpack Inputs
-    prop_key                    = list(energy_network.propellers.keys())[0]
+    prop_key                    = list(energy_network.propellers.keys())[i_prop]
     prop                        = energy_network.propellers[prop_key]
     prop.inputs.pitch_command   = pitch
     energy_network.propeller    = prop

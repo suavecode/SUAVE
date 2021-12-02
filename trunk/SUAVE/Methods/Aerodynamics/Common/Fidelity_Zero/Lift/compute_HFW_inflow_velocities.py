@@ -54,8 +54,12 @@ def compute_HFW_inflow_velocities( prop ):
     conditions.noise.sources.propellers.propeller = prop_outputs
     conditions.noise.sources.propellers.propeller2 = prop_outputs
 
-    props=Data()
-    props.propeller = prop
+    try:
+        props = prop.propellers_in_network
+    except:
+        print("No other rotors appended to this rotor network. Using single rotor wake induced velocities.")
+        props=Data()
+        props.propeller = prop
 
     # compute radial blade section locations based on initial timestep offset
     dt   = time/number_of_wake_timesteps
@@ -73,8 +77,6 @@ def compute_HFW_inflow_velocities( prop ):
         init_timestep_offset = blade_angle/(omega * dt)
         
         if prop.system_vortex_distribution is not None:
-            
-            props = prop.propellers_in_network
             
             #print("\nUsing propeller system vortex distribution..")
             #VD_system = prop.system_vortex_distribution
