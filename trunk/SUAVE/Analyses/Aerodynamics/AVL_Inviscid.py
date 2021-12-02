@@ -84,12 +84,15 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.number_spanwise_vortices  = 20
         self.settings.number_chordwise_vortices = 10
         self.settings.trim_aircraft             = False 
+        self.settings.side_slip_angle           = 0.0
+        self.settings.roll_rate_coefficient     = 0.0
+        self.settings.pitch_rate_coefficient    = 0.0
         self.settings.print_output              = False 
         
         # Regression Status
-        self.settings.keep_files                         = False
-        self.settings.save_regression_results            = False          
-        self.settings.regression_flag                    = False 
+        self.settings.keep_files                = False
+        self.settings.save_regression_results   = False          
+        self.settings.regression_flag           = False 
         
         # Conditions table, used for surrogate model training
         self.training                           = Data()   
@@ -106,7 +109,7 @@ class AVL_Inviscid(Aerodynamics):
         # Surrogate model
         self.surrogates                         = Data()
 
-    def initialize(self,number_spanwise_vortices,number_chordwise_vortices,keep_files,save_regression_results,regression_flag,print_output,trim_aircraft):
+    def initialize(self,number_spanwise_vortices,number_chordwise_vortices,keep_files,save_regression_results,regression_flag,print_output,trim_aircraft,side_slip_angle,roll_rate_coefficient,pitch_rate_coefficient):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -133,6 +136,10 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.print_output              = print_output   
         self.settings.number_spanwise_vortices  = number_spanwise_vortices  
         self.settings.number_chordwise_vortices = number_chordwise_vortices
+        self.settings.side_slip_angle           = side_slip_angle 
+        self.settings.roll_rate_coefficient     = roll_rate_coefficient 
+        self.settings.pitch_rate_coefficient    = pitch_rate_coefficient
+        
         self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)  
         
         # Sample training data
@@ -231,14 +238,17 @@ class AVL_Inviscid(Aerodynamics):
         self.training_file (optional - file containing previous AVL data)
         """          
         # Unpack
-        run_folder    = os.path.abspath(self.settings.filenames.run_folder)
-        geometry      = self.geometry
-        training      = self.training   
-        trim_aircraft = self.settings.trim_aircraft 
-        AoA           = training.angle_of_attack
-        Mach          = training.Mach   
-        atmosphere    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmo_data     = atmosphere.compute_values(altitude = 0.0) 
+        run_folder             = os.path.abspath(self.settings.filenames.run_folder)
+        geometry               = self.geometry
+        training               = self.training   
+        trim_aircraft          = self.settings.trim_aircraft 
+        AoA                    = training.angle_of_attack
+        Mach                   = training.Mach   
+        side_slip_angle        = self.settings.side_slip_angle
+        roll_rate_coefficient  = self.settings.roll_rate_coefficient
+        pitch_rate_coefficient = self.settings.pitch_rate_coefficient
+        atmosphere             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmo_data              = atmosphere.compute_values(altitude = 0.0) 
         
         len_AoA = len(AoA)
         len_Mach = len(Mach)
@@ -255,13 +265,16 @@ class AVL_Inviscid(Aerodynamics):
         for i,_ in enumerate(Mach):
             # Set training conditions
             run_conditions = Aerodynamics()
-            run_conditions.freestream.density           = atmo_data.density[0,0]  
-            run_conditions.freestream.gravity           = 9.81        
-            run_conditions.aerodynamics.angle_of_attack = AoA 
-            run_conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound[0,0] 
-            run_conditions.aerodynamics.side_slip_angle = 0.0
-            run_conditions.freestream.mach_number       = Mach[i]
-            run_conditions.freestream.velocity          = Mach[i] * run_conditions.freestream.speed_of_sound
+            run_conditions.freestream.density                  = atmo_data.density[0,0]  
+            run_conditions.freestream.gravity                  = 9.81        
+            run_conditions.freestream.speed_of_sound           = atmo_data.speed_of_sound[0,0] 
+            run_conditions.freestream.mach_number              = Mach[i]
+            run_conditions.freestream.velocity                 = Mach[i] * run_conditions.freestream.speed_of_sound
+            run_conditions.aerodynamics.side_slip_angle        = side_slip_angle
+            run_conditions.aerodynamics.angle_of_attack        = AoA 
+            run_conditions.aerodynamics.roll_rate_coefficient  = roll_rate_coefficient
+            run_conditions.aerodynamics.pitch_rate_coefficient = pitch_rate_coefficient
+            
             
             #Run Analysis at AoA[i] and Mach[j]
             results =  self.evaluate_conditions(run_conditions, trim_aircraft)
@@ -406,7 +419,7 @@ class AVL_Inviscid(Aerodynamics):
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
                 control_surfaces = True 
-                wing = populate_control_sections (wing)     
+                wing = populate_control_sections(wing)     
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
                 for cs in wing.control_surfaces:

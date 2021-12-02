@@ -94,6 +94,9 @@ class AVL(Stability):
         self.settings.keep_files                    = False
         self.settings.save_regression_results       = False          
         self.settings.regression_flag               = False 
+        self.settings.side_slip_angle               = 0.0
+        self.settings.roll_rate_coefficient         = 0.0
+        self.settings.pitch_rate_coefficient        = 0.0 
 
         # Conditions table, used for surrogate model training
         self.training                               = Data()   
@@ -137,14 +140,7 @@ class AVL(Stability):
         Properties Used:
         self.geometry.tag
         """          
-        geometry                                = self.geometry
-        #self.keep_files                         = keep_files
-        #self.save_regression_results            = save_regression_results
-        #self.regression_flag                    = regression_flag       
-        #self.settings.trim_aircraft             = trim_aircraft   
-        #self.settings.print_output              = print_output   
-        #self.settings.number_spanwise_vortices  = number_spanwise_vortices  
-        #self.settings.number_chordwise_vortices = number_chordwise_vortices
+        geometry                                = self.geometry 
         self.tag                                = 'avl_analysis_of_{}'.format(geometry.tag) 
             
         # Sample training data
@@ -192,6 +188,8 @@ class AVL(Stability):
         Cm_alpha_model      = surrogates.Cm_alpha_moment_coefficient
         Cn_beta_model       = surrogates.Cn_beta_moment_coefficient      
         neutral_point_model = surrogates.neutral_point
+        cg                  = self.geometry.mass_properties.center_of_gravity[0]
+        MAC                 = self.geometry.wings.main_wing.chords.mean_aerodynamic
         
         # set up data structures
         static_stability    = Data()
@@ -209,11 +207,12 @@ class AVL(Stability):
             Cm_alpha[i] = Cm_alpha_model(AoA[i][0],Mach[i][0])[0]  
             Cn_beta[i]  = Cn_beta_model(AoA[i][0],Mach[i][0])[0]  
             NP[i]       = neutral_point_model(AoA[i][0],Mach[i][0])[0]    
-            
+                
         static_stability.CM            = CM
         static_stability.Cm_alpha      = Cm_alpha 
         static_stability.Cn_beta       = Cn_beta   
         static_stability.neutral_point = NP 
+        static_stability.static_margin = (NP - cg)/MAC    
  
         results         = Data()
         results.static  = static_stability
@@ -248,19 +247,22 @@ class AVL(Stability):
         self.training_file (optional - file containing previous AVL data)
         """ 
         # Unpack
-        run_folder    = os.path.abspath(self.settings.filenames.run_folder)
-        geometry      = self.geometry
-        training      = self.training 
-        trim_aircraft = self.settings.trim_aircraft  
-        AoA           = training.angle_of_attack
-        Mach          = training.Mach
-        atmosphere    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmo_data     = atmosphere.compute_values(altitude = 0.0)         
-                      
-        CM            = np.zeros((len(AoA),len(Mach)))
-        Cm_alpha      = np.zeros_like(CM)
-        Cn_beta       = np.zeros_like(CM)
-        NP            = np.zeros_like(CM)
+        run_folder             = os.path.abspath(self.settings.filenames.run_folder)
+        geometry               = self.geometry
+        training               = self.training 
+        trim_aircraft          = self.settings.trim_aircraft  
+        AoA                    = training.angle_of_attack
+        Mach                   = training.Mach
+        side_slip_angle        = self.settings.side_slip_angle
+        roll_rate_coefficient  = self.settings.roll_rate_coefficient
+        pitch_rate_coefficient = self.settings.pitch_rate_coefficient
+        atmosphere             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmo_data              = atmosphere.compute_values(altitude = 0.0)         
+                               
+        CM                     = np.zeros((len(AoA),len(Mach)))
+        Cm_alpha               = np.zeros_like(CM)
+        Cn_beta                = np.zeros_like(CM)
+        NP                     = np.zeros_like(CM)
        
         # remove old files in run directory  
         if os.path.exists('avl_files'):
@@ -270,13 +272,15 @@ class AVL(Stability):
         for i,_ in enumerate(Mach):
             # Set training conditions
             run_conditions = Aerodynamics()
-            run_conditions.freestream.density           = atmo_data.density[0,0] 
-            run_conditions.freestream.gravity           = 9.81               
-            run_conditions.aerodynamics.angle_of_attack = AoA 
-            run_conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound[0,0] 
-            run_conditions.aerodynamics.side_slip_angle = 0.0
-            run_conditions.freestream.velocity          = Mach[i] * run_conditions.freestream.speed_of_sound
-            run_conditions.freestream.mach_number       = Mach[i] 
+            run_conditions.freestream.density                  = atmo_data.density[0,0] 
+            run_conditions.freestream.gravity                  = 9.81            
+            run_conditions.freestream.speed_of_sound           = atmo_data.speed_of_sound[0,0]  
+            run_conditions.freestream.velocity                 = Mach[i] * run_conditions.freestream.speed_of_sound
+            run_conditions.freestream.mach_number              = Mach[i] 
+            run_conditions.aerodynamics.side_slip_angle        = side_slip_angle
+            run_conditions.aerodynamics.angle_of_attack        = AoA 
+            run_conditions.aerodynamics.roll_rate_coefficient  = roll_rate_coefficient
+            run_conditions.aerodynamics.pitch_rate_coefficient = pitch_rate_coefficient
             
             #Run Analysis at AoA[i] and Mach[i]
             results =  self.evaluate_conditions(run_conditions, trim_aircraft)

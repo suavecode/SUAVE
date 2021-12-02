@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-AVL
-# write_runcases.py
+# write_run_cases.py
 # 
 # Created:  Dec 2014, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -47,8 +47,8 @@ def write_run_cases(avl_object,trim_aircraft):
 
  alpha        ->  {2}       =   {3}        
  beta         ->  beta        =   {4}
- pb/2V        ->  pb/2V       =   0.00000
- qc/2V        ->  qc/2V       =   0.00000
+ pb/2V        ->  pb/2V       =   {23}
+ qc/2V        ->  qc/2V       =   {24}
  rb/2V        ->  rb/2V       =   0.00000
 {5}
  alpha     =   {6}
@@ -106,9 +106,11 @@ def write_run_cases(avl_object,trim_aircraft):
             index = case.index
             name  = case.tag
             CL    = case.conditions.aerodynamics.flight_CL
-            AoA   = round(case.conditions.aerodynamics.angle_of_attack,4)
             CDp   = 0.
+            AoA   = round(case.conditions.aerodynamics.angle_of_attack,4)
             beta  = round(case.conditions.aerodynamics.side_slip_angle,4)
+            pb_2V = round(case.conditions.aerodynamics.roll_rate_coefficient,4)
+            qc_2V = round(case.conditions.aerodynamics.pitch_rate_coefficient,4)
             mach  = round(case.conditions.freestream.mach,4)
             vel   = round(case.conditions.freestream.velocity,4)
             rho   = round(case.conditions.freestream.density,4)
@@ -149,7 +151,7 @@ def write_run_cases(avl_object,trim_aircraft):
                 
             # write the .run file using template and the extracted vehicle properties and flight condition
             case_text = base_case_text.format(index,name,toggle_idx,toggle_val,beta,controls_text,alpha_val, CL_val,CDp,
-                                              mach,vel,rho,g,x_cg,y_cg,z_cg,mass,Ixx,Iyy,Izz,Ixy,Iyz,Izx,) 
+                                              mach,vel,rho,g,x_cg,y_cg,z_cg,mass,Ixx,Iyy,Izz,Ixy,Iyz,Izx,pb_2V,qc_2V) 
             runcases.write(case_text)
 
     return

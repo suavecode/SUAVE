@@ -74,8 +74,10 @@ class AVL(Markup):
         settings.trim_aircraft                      = False 
         settings.print_output                       = False   
         
-        settings.maximum_lift_coefficient           = np.inf 
-        
+        settings.maximum_lift_coefficient           = np.inf  
+        settings.side_slip_angle                    = 0.0
+        settings.roll_rate_coefficient              = 0.0
+        settings.pitch_rate_coefficient             = 0.0
                 
         # Build the evaluation process
         compute = self.process.compute
@@ -134,11 +136,14 @@ class AVL(Markup):
         rf  = self.settings.regression_flag
         po  = self.settings.print_output 
         ta  = self.settings.trim_aircraft
+        ssa = self.settings.side_slip_angle
+        rrc = self.settings.roll_rate_coefficient
+        pra = self.settings.pitch_rate_coefficient
         
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         # Generate the surrogate
-        self.process.compute.lift.inviscid.initialize(sv,cv,kf,srr,rf,po,ta )
+        self.process.compute.lift.inviscid.initialize(sv,cv,kf,srr,rf,po,ta,ssa,rrc,pra)
         
     finalize = initialize
     

@@ -50,6 +50,8 @@ def translate_conditions_to_cases(avl ,conditions):
         case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity      
         case.conditions.aerodynamics.angle_of_attack          = conditions.aerodynamics.angle_of_attack[i]/Units.deg
         case.conditions.aerodynamics.side_slip_angle          = conditions.aerodynamics.side_slip_angle  
+        case.conditions.aerodynamics.roll_rate_coefficient    = conditions.aerodynamics.roll_rate_coefficient
+        case.conditions.aerodynamics.pitch_rate_coefficient   = conditions.aerodynamics.pitch_rate_coefficient
         
         # determine the number of wings 
         n_wings = 0 
@@ -198,9 +200,9 @@ def translate_results_to_conditions(cases,results):
     
     res.stability.static.control_surfaces_cases   = {}
     
-    mach_case = list(results.keys())[0][5:7]   
+    mach_case = list(results.keys())[0][5:9]   
     for i in range(len(results.keys())):
-        aoa_case = '{:02d}'.format(i+1)
+        aoa_case = '{:04d}'.format(i+1)
         tag = 'case_' + mach_case + '_' + aoa_case
         case_res = results[tag]       
         
