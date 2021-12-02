@@ -80,7 +80,7 @@ class Rotor(Energy_Component):
         self.azimuthal_offset_angle       = 0.0          
         self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                       = False
-        self.number_azimuthal_stations    = 24
+        self.number_azimuthal_stations    = 99
         self.number_points_around_airfoil = 40
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
@@ -94,7 +94,7 @@ class Rotor(Energy_Component):
         self.Wake_VD                   = Data()
         self.wake_method               = "momentum"
         self.number_rotor_rotations    = 5
-        self.number_steps_per_rotation = 100
+        self.number_steps_per_rotation = 72
         self.wake_settings             = Data()
         self.system_vortex_distribution = None
 
@@ -410,10 +410,16 @@ class Rotor(Energy_Component):
                 if ii>10000:
                     print("Rotor BEMT did not converge to a solution (Iteration Limit)")
                     break          
-
+            ## smooth disc circulation from BEMT
+            #Gspline = RectBivariateSpline(r_1d, psi, Gamma[0,:,:],s=.5)
+            #Gamma[0,:,:] = Gspline(r_1d,psi) 
+            
+            #Gamma[Gamma<=0] = 1e-4
+            ##Gamma[:,0,:] = 0
+            ##Gamma[:,-1,:] = 0               
 
         elif wake_method == "helical_fixed_wake":
-            
+
             converge = True
             if converge:
                 for i in range(2):
@@ -450,6 +456,7 @@ class Rotor(Energy_Component):
                             
                     # compute HFW circulation at the blade
                     Gamma = 0.5*W*c*Cl*F     
+                                     
                         
                     print("\nRg: ", np.max(abs(self.outputs.disc_circulation-Gamma)))
                     self.outputs.disc_circulation = Gamma
@@ -746,10 +753,7 @@ class Rotor(Energy_Component):
         """
 
 
-        try:
-            outs = self.outputs
-            omega = self.inputs.omega
-        except:
+        if len(self.outputs)==0:
             print("PVW needs initialization of inflow and circulation. Running BEMT for initialization...")
             #--------------------------------------------------------------------------------
             # Initialize by running BEMT to get initial blade circulation
@@ -759,6 +763,10 @@ class Rotor(Energy_Component):
             self.outputs = bemt_outputs      
             omega = self.inputs.omega
 
+        else:
+            outs = self.outputs
+            omega = self.inputs.omega
+            
         #--------------------------------------------------------------------------------
         # generate rotor wake vortex distribution
         #--------------------------------------------------------------------------------
