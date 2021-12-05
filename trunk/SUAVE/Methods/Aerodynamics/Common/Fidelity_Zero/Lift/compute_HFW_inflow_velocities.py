@@ -76,139 +76,82 @@ def compute_HFW_inflow_velocities( prop ):
         # update wake geometry
         init_timestep_offset = blade_angle/(omega * dt)
         
-        if prop.system_vortex_distribution is not None:
             
-            #print("\nUsing propeller system vortex distribution..")
-            #VD_system = prop.system_vortex_distribution
-            
-            # set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
-            r = prop.radius_distribution 
-            Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0] 
-            Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0] 
-            Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0] 
-            
+        # generate wake distribution using initial circulation from BEMT
+        WD, _, _, _, _  = generate_propeller_wake_distribution(props,cpts,VD,
+                                                               init_timestep_offset, time,
+                                                               number_of_wake_timesteps,conditions )
+
+        prop.wake_skew_angle = WD.wake_skew_angle
     
-            VD.YC = (Yb[1:] + Yb[:-1])/2
-            VD.ZC = (Zb[1:] + Zb[:-1])/2
-            VD.XC = (Xb[1:] + Xb[:-1])/2
-            VD.n_cp = np.size(VD.YC)  
-            
-            # rotate wake WD to new init_timestep_offset
-              
-                    
-
-            WD, _, _, _, _  = generate_propeller_wake_distribution(props,cpts,VD,
-                                                                   init_timestep_offset, time,
-                                                                   number_of_wake_timesteps,conditions )   
-            
-
-            vehicle.networks.prop_net.propellers = props
-            vehicle.vortex_distribution = VD
-            
-            
-            #====================================================================================
-            #======DEBUG: STORE VTKS AFTER NEW WAKE GENERATION===================================
-            #====================================================================================       
-            debug = False
-            if debug:
-                print("\nStoring VTKs...")
-                
-                Results = Data()
-                Results.all_prop_outputs = Data()
-                Results.all_prop_outputs.propeller = vehicle.networks.prop_net.propellers.propeller.outputs
-                Results.identical = True
-                
-                conditions=None
-                save_vehicle_vtks(vehicle, conditions, Results, time_step=i,save_loc="/Users/rerha/Desktop/Test_SBS_VTKs/A0/")         
+        # ----------------------------------------------------------------
+        # Compute the wake-induced velocities at propeller blade
+        # ----------------------------------------------------------------
+        # set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
+        r = prop.radius_distribution 
+        Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0] 
+        Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0] 
+        Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0] 
         
 
-            #====================================================================================   
-            #====================================================================================                
-            
-            
-            #VD.Wake = VD_system[item].Wake
-            
-            # ----------------------------------------------------------------
-            # Compute the wake-induced velocities at propeller blade
-            # ----------------------------------------------------------------
-
-    
-            # Compute induced velocities at blade from the helical fixed wake
-            #VD.Wake_collapsed = WD
-    
-            V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
-            u       = V_ind[0,:,0]   # velocity in vehicle x-frame
-            v       = V_ind[0,:,1]   # velocity in vehicle y-frame
-            w       = V_ind[0,:,2]   # velocity in vehicle z-frame     
-                
-    
-                
-            # interpolate to get values at rotor radial stations
-            r_midpts = (r[1:] + r[:-1])/2
-            u_r = interp1d(r_midpts, u, fill_value="extrapolate")
-            v_r = interp1d(r_midpts, v, fill_value="extrapolate")
-            w_r = interp1d(r_midpts, w, fill_value="extrapolate")
-            
-            up = u_r(r)
-            vp = v_r(r)
-            wp = w_r(r)       
-    
-            # Update velocities at the disc
-            Va[:,:,i]  = -up
-            Vt[:,:,i]  = (-vp*np.cos(blade_angle) + wp*np.sin(blade_angle))             
-                
-                
-            
-            
-            
-        else:
-            # generate wake distribution using initial circulation from BEMT
-            WD, _, _, _, _  = generate_propeller_wake_distribution(props,cpts,VD,
-                                                                   init_timestep_offset, time,
-                                                                   number_of_wake_timesteps,conditions )
-
-            prop.wake_skew_angle = WD.wake_skew_angle
+        VD.YC = (Yb[1:] + Yb[:-1])/2
+        VD.ZC = (Zb[1:] + Zb[:-1])/2
+        VD.XC = (Xb[1:] + Xb[:-1])/2
+         
         
-            # ----------------------------------------------------------------
-            # Compute the wake-induced velocities at propeller blade
-            # ----------------------------------------------------------------
-            # set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
-            r = prop.radius_distribution 
-            Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0] 
-            Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0] 
-            Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0] 
-            
+        VD.n_cp = np.size(VD.YC)
+
+        # Compute induced velocities at blade from the helical fixed wake
+        VD.Wake_collapsed = WD
+
+        V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
+        u       = -V_ind[0,:,0]   # velocity in vehicle x-frame
+        v       = V_ind[0,:,1]   # velocity in vehicle y-frame
+        w       = -V_ind[0,:,2]   # velocity in vehicle z-frame
+        
+        # rotate to prop frame:
+        alpha = prop.orientation_euler_angles[1]
     
-            VD.YC = (Yb[1:] + Yb[:-1])/2
-            VD.ZC = (Zb[1:] + Zb[:-1])/2
-            VD.XC = (Xb[1:] + Xb[:-1])/2
-             
-            
-            VD.n_cp = np.size(VD.YC)
-    
-            # Compute induced velocities at blade from the helical fixed wake
-            VD.Wake_collapsed = WD
-    
-            V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
-            u       = V_ind[0,:,0]   # velocity in vehicle x-frame
-            v       = V_ind[0,:,1]   # velocity in vehicle y-frame
-            w       = V_ind[0,:,2]   # velocity in vehicle z-frame
-            
-            # interpolate to get values at rotor radial stations
-            r_midpts = (r[1:] + r[:-1])/2
-            u_r = interp1d(r_midpts, u, fill_value="extrapolate")
-            v_r = interp1d(r_midpts, v, fill_value="extrapolate")
-            w_r = interp1d(r_midpts, w, fill_value="extrapolate")
-            
-            up = u_r(r)
-            vp = v_r(r)
-            wp = w_r(r)       
-    
-            # Update velocities at the disc
-            Va[:,:,i]  = -up
-            Vt[:,:,i]  = (-vp*np.cos(blade_angle) + wp*np.sin(blade_angle)) 
+        uprop = u*np.cos(alpha) + w*np.sin(alpha)
+        vprop = v
+        wprop = u*np.sin(alpha) + w*np.cos(alpha)        
+        
+        # interpolate to get values at rotor radial stations
+        r_midpts = (r[1:] + r[:-1])/2
+        u_r = interp1d(r_midpts, uprop, fill_value="extrapolate")
+        v_r = interp1d(r_midpts, vprop, fill_value="extrapolate")
+        w_r = interp1d(r_midpts, wprop, fill_value="extrapolate")
+        
+        up = u_r(r)
+        vp = v_r(r)
+        wp = w_r(r)       
+
+        # Update velocities at the disc
+        Va[:,:,i]  = up
+        Vt[:,:,i]  = -(vp*np.cos(blade_angle) + wp*np.sin(blade_angle)) 
 
 
-            prop.vortex_distribution = VD
+
+        #====================================================================================
+        #======DEBUG: STORE VTKS AFTER NEW WAKE GENERATION===================================
+        #====================================================================================       
+        debug = False
+        if debug:
+            print("\nStoring VTKs...")
+            vehicle = prop.vehicle
+            Results = Data()
+            Results.all_prop_outputs = Data()
+            Results.all_prop_outputs.propeller = Data()
+            Results.identical = True
+            
+            conditions=None
+            save_vehicle_vtks(vehicle, conditions, Results, time_step=i,save_loc="/Users/rerha/Desktop/Test_SBS_VTKs/A60/")         
+    
+
+        #====================================================================================   
+        #====================================================================================                     
+
+
+        prop.vortex_distribution = VD
 
     return Va, Vt

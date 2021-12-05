@@ -126,8 +126,12 @@ def propeller_single_point(energy_network,
 
     # Run Propeller BEMT
     if HFW:
+        # append all wakes
+        prop.outputs = Data()
+        prop.propellers_in_network = energy_network.propellers
         F, Q, P, Cp, outputs, etap = prop.spin_HFW(conditions)
     else:
+        prop.wake_method="momentum"
         F, Q, P, Cp, outputs, etap = prop.spin(conditions)
         
     va_ind_BEMT         = outputs.disc_axial_induced_velocity[0, :, 0]

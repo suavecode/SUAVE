@@ -112,11 +112,12 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         gamma_new = np.zeros((m,(Nr-1),Na))                  # [control points, Nr-1, Na ] one less radial station because ring
         gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5
         
-        num       = (Na+1)//B
+        num       = Na//B
         time_idx  = np.arange(nts)
+        time_idx  = np.roll(time_idx,propi.rotation*int(init_timestep_offset[0][0])) # (nts//Na)*
         t_idx     = np.atleast_2d(time_idx).T 
         B_idx     = np.arange(B) 
-        B_loc     = (B_idx*num + t_idx)%(Na)  
+        B_loc     = (B_idx*num + t_idx )%Na 
         Gamma     = gamma_new[:,:,B_loc]  
         Gamma     = Gamma.transpose(0,3,1,2)   
         
