@@ -80,7 +80,7 @@ class Rotor(Energy_Component):
         self.azimuthal_offset_angle       = 0.0          
         self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                       = False
-        self.number_azimuthal_stations    = 99
+        self.number_azimuthal_stations    = 72
         self.number_points_around_airfoil = 40
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
@@ -420,7 +420,7 @@ class Rotor(Energy_Component):
 
         elif wake_method == "helical_fixed_wake":
 
-            converge = True
+            converge = False
             if converge:
                 for i in range(2):
                     # converge on va for a semi-prescribed wake method
@@ -478,7 +478,11 @@ class Rotor(Energy_Component):
                 #plt.show()                      
                     
             else:
-                va, vt = compute_HFW_inflow_velocities(self)
+                try:
+                    va = self.PVW_outputs.disc_axial_induced_velocity + self.axial_velocities_2d
+                    vt = self.PVW_outputs.disc_tangential_induced_velocity + self.tangential_velocities_2d
+                except:
+                    va, vt = compute_HFW_inflow_velocities(self)
     
                 # compute new blade velocities
                 Wa   = va + Ua
@@ -491,22 +495,9 @@ class Rotor(Energy_Component):
                         
                 # compute HFW circulation at the blade
                 Gamma = 0.5*W*c*Cl*F   
+            
                 
-        elif wake_method == "VVPM":
-            # load va and vt data from pickle file
-            va, vt = load_VVPM_data(self)
-        
-            # compute new blade velocities
-            Wa   = va + Ua
-            Wt   = Ut - vt
-        
-            lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-        
-            # Compute aerodynamic forces based on specified input airfoil or surrogate
-            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-        
-            # compute HFW circulation at the blade
-            Gamma = 0.5*W*c*Cl*F               
+            
             
             
         ## smooth disc circulation
@@ -518,7 +509,7 @@ class Rotor(Energy_Component):
         ##Gamma[:,0,:] = 0
         ##Gamma[:,-1,:] = 0
         
-
+        
                 
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
         va     = F*va
@@ -758,20 +749,31 @@ class Rotor(Energy_Component):
             #--------------------------------------------------------------------------------
             # Initialize by running BEMT to get initial blade circulation
             #--------------------------------------------------------------------------------
-            _, _, _, _, bemt_outputs , _ = self.spin(conditions)
-            conditions.noise.sources.propellers[self.tag] = bemt_outputs
-            self.outputs = bemt_outputs      
-            omega = self.inputs.omega
-
+            try:
+                props_in_net = self.propellers_in_network
+            except:
+                props_in_net = None
+            
+            if props_in_net is not None:
+                # run bemt on all propellers and append outputs
+                for p in self.propellers_in_network:
+                    p.wake_method = "momentum"
+                    _, _, _, _, bemt_outputs , _ = p.spin(conditions)
+                    conditions.noise.sources.propellers[p.tag] = bemt_outputs
+                    p.outputs = bemt_outputs      
+                                  
+            else:
+                # run bemt on single propeller and append outputs
+                _, _, _, _, bemt_outputs , _ = self.spin(conditions)
+                conditions.noise.sources.propellers[self.tag] = bemt_outputs
+                self.outputs = bemt_outputs  
         else:
             outs = self.outputs
-            omega = self.inputs.omega
             
+        omega = self.inputs.omega      
         #--------------------------------------------------------------------------------
         # generate rotor wake vortex distribution
         #--------------------------------------------------------------------------------
-        props = Data()
-        props.propeller = self
 
         # generate wake distribution for n rotor rotation
         nrots         = self.number_rotor_rotations
