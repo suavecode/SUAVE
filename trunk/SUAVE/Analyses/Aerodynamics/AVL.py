@@ -78,6 +78,7 @@ class AVL(Markup):
         settings.side_slip_angle                    = 0.0
         settings.roll_rate_coefficient              = 0.0
         settings.pitch_rate_coefficient             = 0.0
+        settings.lift_coefficient                   = None
                 
         # Build the evaluation process
         compute = self.process.compute
@@ -139,11 +140,12 @@ class AVL(Markup):
         ssa = self.settings.side_slip_angle
         rrc = self.settings.roll_rate_coefficient
         pra = self.settings.pitch_rate_coefficient
+        lc  = self.settings.lift_coefficient              
         
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         # Generate the surrogate
-        self.process.compute.lift.inviscid.initialize(sv,cv,kf,srr,rf,po,ta,ssa,rrc,pra)
+        self.process.compute.lift.inviscid.initialize(sv,cv,kf,srr,rf,po,ta,ssa,rrc,pra,lc)
         
     finalize = initialize
     

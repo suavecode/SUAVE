@@ -87,6 +87,7 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.side_slip_angle           = 0.0
         self.settings.roll_rate_coefficient     = 0.0
         self.settings.pitch_rate_coefficient    = 0.0
+        self.settings.lift_coefficient          = None
         self.settings.print_output              = False 
         
         # Regression Status
@@ -109,7 +110,8 @@ class AVL_Inviscid(Aerodynamics):
         # Surrogate model
         self.surrogates                         = Data()
 
-    def initialize(self,number_spanwise_vortices,number_chordwise_vortices,keep_files,save_regression_results,regression_flag,print_output,trim_aircraft,side_slip_angle,roll_rate_coefficient,pitch_rate_coefficient):
+    def initialize(self,number_spanwise_vortices,number_chordwise_vortices,keep_files,save_regression_results,regression_flag,
+                   print_output,trim_aircraft,side_slip_angle,roll_rate_coefficient,pitch_rate_coefficient,lift_coefficient):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -139,6 +141,7 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.side_slip_angle           = side_slip_angle 
         self.settings.roll_rate_coefficient     = roll_rate_coefficient 
         self.settings.pitch_rate_coefficient    = pitch_rate_coefficient
+        self.settings.lift_coefficient          =  lift_coefficient
         
         self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)  
         
@@ -247,6 +250,7 @@ class AVL_Inviscid(Aerodynamics):
         side_slip_angle        = self.settings.side_slip_angle
         roll_rate_coefficient  = self.settings.roll_rate_coefficient
         pitch_rate_coefficient = self.settings.pitch_rate_coefficient
+        lift_coefficient       = self.settings.lift_coefficient
         atmosphere             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         atmo_data              = atmosphere.compute_values(altitude = 0.0) 
         
@@ -273,6 +277,7 @@ class AVL_Inviscid(Aerodynamics):
             run_conditions.aerodynamics.side_slip_angle        = side_slip_angle
             run_conditions.aerodynamics.angle_of_attack        = AoA 
             run_conditions.aerodynamics.roll_rate_coefficient  = roll_rate_coefficient
+            run_conditions.aerodynamics.lift_coefficient       = lift_coefficient
             run_conditions.aerodynamics.pitch_rate_coefficient = pitch_rate_coefficient
             
             

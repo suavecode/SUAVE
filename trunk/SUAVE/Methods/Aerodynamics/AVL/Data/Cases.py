@@ -73,7 +73,7 @@ class Run_Case(Data):
 
         aero.parasite_drag              = 0.0
         aero.angle_of_attack            = None
-        aero.flight_CL                  = None
+        aero.lift_coefficient           = None
         aero.side_slip_angle            = 0.0
 
         self.stability_and_control.control_surface_names     = None

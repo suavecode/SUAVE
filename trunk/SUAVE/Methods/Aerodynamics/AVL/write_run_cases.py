@@ -53,8 +53,8 @@ def write_run_cases(avl_object,trim_aircraft):
 {5}
  alpha     =   {6}
  beta      =   0.00000     deg
- pb/2V     =   0.00000
- qc/2V     =   0.00000
+ pb/2V     =   {25}
+ qc/2V     =   {26}
  rb/2V     =   0.00000
  CL        =   {7}                        
  CDo       =   {8}
@@ -105,7 +105,7 @@ def write_run_cases(avl_object,trim_aircraft):
             # extract flight conditions 
             index = case.index
             name  = case.tag
-            CL    = case.conditions.aerodynamics.flight_CL
+            CL    = case.conditions.aerodynamics.lift_coefficient
             CDp   = 0.
             AoA   = round(case.conditions.aerodynamics.angle_of_attack,4)
             beta  = round(case.conditions.aerodynamics.side_slip_angle,4)
@@ -117,31 +117,33 @@ def write_run_cases(avl_object,trim_aircraft):
             g     = case.conditions.freestream.gravitational_acceleration
             
             if trim_aircraft == False: # this flag sets up a trim analysis if one is declared by the boolean "trim_aircraft"
-                controls_text = '' 
-                if CL is None: # if angle of attack is specified without trim, the appropriate fields are filled 
+                controls_text = ''  
+                if CL is not None: # if flight lift coefficient is specified without trim, the appropriate fields are filled 
+                    toggle_idx = 'CL   '
+                    toggle_val = round(CL,4)
+                    alpha_val  = '0.00000     deg'
+                    CL_val     = '0.00000'
+                else: # if angle of attack is specified without trim, the appropriate fields are filled 
                     toggle_idx = 'alpha'
                     toggle_val = AoA
                     alpha_val  = '0.00000     deg'
                     CL_val     = '0.00000'
-                    
-                elif AoA is None: # if flight lift coefficient is specified without trim, the appropriate fields are filled 
-                    toggle_idx = 'CL   '
-                    toggle_val = CL
-                    alpha_val  = '0.00000     deg'
-                    CL_val     = '0.00000'
+                if case.stability_and_control.number_control_surfaces != 0 :
+                    # write control surface text in .run file if there is any
+                    controls = make_controls_case_text(case.stability_and_control.control_surface_names,avl_object.geometry)
+                controls_text = ''.join(controls)
  
-            elif trim_aircraft: # trim is specified 
-                if CL is None: # if angle of attack is specified with trim, the appropriate fields are filled with the trim AoA
+            elif trim_aircraft: # trim is specified  
+                if CL is not None:  # if flight lift coefficient is specified with trim, the appropriate fields are filled with the trim CL
+                    toggle_idx = 'CL'
+                    toggle_val = round(CL,4)
+                    alpha_val  = '0.00000     deg'
+                    CL_val     = CL
+                else: # if angle of attack is specified with trim, the appropriate fields are filled with the trim AoA
                     toggle_idx = 'alpha'
                     toggle_val = AoA
                     alpha_val  = AoA 
                     CL_val     = '0.00000'
-                    
-                elif AoA is None:  # if flight lift coefficient is specified with trim, the appropriate fields are filled with the trim CL
-                    toggle_idx = 'CL'
-                    toggle_val = CL
-                    alpha_val  = '0.00000     deg'
-                    CL_val     = CL
                 
                 controls = []
                 if case.stability_and_control.number_control_surfaces != 0 :
@@ -151,7 +153,7 @@ def write_run_cases(avl_object,trim_aircraft):
                 
             # write the .run file using template and the extracted vehicle properties and flight condition
             case_text = base_case_text.format(index,name,toggle_idx,toggle_val,beta,controls_text,alpha_val, CL_val,CDp,
-                                              mach,vel,rho,g,x_cg,y_cg,z_cg,mass,Ixx,Iyy,Izz,Ixy,Iyz,Izx,pb_2V,qc_2V) 
+                                              mach,vel,rho,g,x_cg,y_cg,z_cg,mass,Ixx,Iyy,Izz,Ixy,Iyz,Izx,pb_2V,qc_2V,pb_2V,qc_2V) 
             runcases.write(case_text)
 
     return

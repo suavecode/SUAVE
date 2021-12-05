@@ -94,9 +94,6 @@ class AVL(Stability):
         self.settings.keep_files                    = False
         self.settings.save_regression_results       = False          
         self.settings.regression_flag               = False 
-        self.settings.side_slip_angle               = 0.0
-        self.settings.roll_rate_coefficient         = 0.0
-        self.settings.pitch_rate_coefficient        = 0.0 
 
         # Conditions table, used for surrogate model training
         self.training                               = Data()   
@@ -104,6 +101,10 @@ class AVL(Stability):
         # Standard subsonic/transonic aircarft
         self.training.angle_of_attack               = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
         self.training.Mach                          = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
+        self.settings.side_slip_angle               = 0.0
+        self.settings.roll_rate_coefficient         = 0.0
+        self.settings.pitch_rate_coefficient        = 0.0 
+        self.settings.lift_coefficient              = None
         
         self.training.moment_coefficient            = None
         self.training.Cm_alpha_moment_coefficient   = None
@@ -256,6 +257,7 @@ class AVL(Stability):
         side_slip_angle        = self.settings.side_slip_angle
         roll_rate_coefficient  = self.settings.roll_rate_coefficient
         pitch_rate_coefficient = self.settings.pitch_rate_coefficient
+        lift_coefficient       = self.settings.lift_coefficient
         atmosphere             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         atmo_data              = atmosphere.compute_values(altitude = 0.0)         
                                
@@ -280,6 +282,7 @@ class AVL(Stability):
             run_conditions.aerodynamics.side_slip_angle        = side_slip_angle
             run_conditions.aerodynamics.angle_of_attack        = AoA 
             run_conditions.aerodynamics.roll_rate_coefficient  = roll_rate_coefficient
+            run_conditions.aerodynamics.lift_coefficient       = lift_coefficient
             run_conditions.aerodynamics.pitch_rate_coefficient = pitch_rate_coefficient
             
             #Run Analysis at AoA[i] and Mach[i]
@@ -373,7 +376,7 @@ class AVL(Stability):
 #  Helper Functions
 # ----------------------------------------------------------------------
         
-    def evaluate_conditions(self,run_conditions, trim_aircraft  ):
+    def evaluate_conditions(self,run_conditions, trim_aircraft ):
         """Process vehicle to setup geometry, condititon, and configuration.
 
         Assumptions:
