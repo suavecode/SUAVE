@@ -49,7 +49,7 @@ class Cryogenic_Lead(Energy_Component):
         self.material           = None
     
         self.cross_section      = 0.0    # [m2]
-        self.optimum_current   = 0.0         # [A]
+        self.optimum_current    = 0.0         # [A]
         self.minimum_Q          = 0.0         # [W]
         self.unpowered_Q        = 0.0         # [W]
 
@@ -138,7 +138,7 @@ class Cryogenic_Lead(Energy_Component):
         cold_temp       = self.cold_temp    
         cross_section   = self.cross_section
         length          = self.length
-        material          = self.material
+        material        = self.material
 
         # Integrate the thermal conductivity across the relevant temperature range.
         integral = integrate.quad(lambda T: material.thermal_conductivity(T), cold_temp, hot_temp)
