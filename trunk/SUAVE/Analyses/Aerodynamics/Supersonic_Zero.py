@@ -83,7 +83,7 @@ class Supersonic_Zero(Markup):
         settings.model_fuselage                     = False
         settings.recalculate_total_wetted_area      = False
         settings.model_nacelle                      = False
-        settings.discretize_control_surfaces        = True
+        settings.discretize_control_surfaces        = False
         
         # this multiplier is used to determine the volume wave drag at the peak Mach number
         # by multiplying the volume wave drag at the end drag rise Mach number

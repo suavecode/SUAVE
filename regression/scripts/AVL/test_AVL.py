@@ -49,7 +49,7 @@ def main():
     configs_analyses = analyses_setup(configs)
 
     
-    run_new_regression = False 
+    run_new_regression = False
     
     # append AVL aerodynamic analysis
     aerodynamics                                      = SUAVE.Analyses.Aerodynamics.AVL()  
@@ -67,16 +67,18 @@ def main():
     if run_new_regression: 
         # append AVL aerodynamic analysis 
         aerodynamics.settings.regression_flag         = False  
+        aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name  = '/Users/matthewclarke/Documents/AVL/avl3.35' # 'CHANGE/TO/AVL/PATH'       
         aerodynamics.settings.save_regression_results = True    
         stability.settings.regression_flag            = False  
-        stability.settings.save_regression_results    = True     
+        stability.settings.save_regression_results    = True   
+        stability.settings.filenames.avl_bin_name     = '/Users/matthewclarke/Documents/AVL/avl3.35' # 'CHANGE/TO/AVL/PATH'            
          
     else:    
         aerodynamics.settings.regression_flag         = True   
         aerodynamics.settings.save_regression_results = False  
         aerodynamics.settings.training_file           = 'cruise_aero_data.txt'   
-        stability.settings.regression_flag            = False 
-        stability.settings.save_regression_results    = True   
+        stability.settings.regression_flag            = True 
+        stability.settings.save_regression_results    = False   
         stability.training_file                       = 'cruise_stability_data.txt'     
    
     configs_analyses.cruise.append(aerodynamics)   
