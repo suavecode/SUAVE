@@ -34,7 +34,7 @@ SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
 16.0532  3.432    -0.7802    5.3649    1.7569     
 AFILE
-B737a.dat
+B737b.dat
 CONTROL
 slat    -1.0   -0.075   0. 0. 0.  +1
 CONTROL
@@ -50,7 +50,7 @@ SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
 20.9118  12.012    -0.066    2.6015    0.0312     
 AFILE
-B737b.dat
+B737c.dat
 CONTROL
 slat    -1.0   -0.075   0. 0. 0.  +1
 CONTROL
@@ -62,7 +62,7 @@ SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
 23.2506  16.5251    0.3686    1.7072    0.0026     
 AFILE
-B737c.dat
+B737d.dat
 CONTROL
 slat    -1.0   -0.075   0. 0. 0.  +1
 CONTROL
