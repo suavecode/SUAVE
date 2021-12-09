@@ -86,7 +86,7 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # ------------------------------------------------------------------------------------------- 
     # If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
-    boolean = YBH<0. 
+    boolean = YAH>YBH
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
     YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]
     ZA1[boolean], ZB1[boolean] = ZB1[boolean], ZA1[boolean]
