@@ -84,6 +84,16 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.number_spanwise_vortices  = 20
         self.settings.number_chordwise_vortices = 10
         self.settings.trim_aircraft             = False 
+        self.settings.side_slip_angle           = 0.0
+        self.settings.roll_rate_coefficient     = 0.0
+        self.settings.pitch_rate_coefficient    = 0.0
+        self.settings.lift_coefficient          = None
+        self.settings.print_output              = False 
+        
+        # Regression Status
+        self.settings.keep_files                = False
+        self.settings.save_regression_results   = False          
+        self.settings.regression_flag           = False 
         
         # Conditions table, used for surrogate model training
         self.training                           = Data()   
@@ -99,13 +109,9 @@ class AVL_Inviscid(Aerodynamics):
         
         # Surrogate model
         self.surrogates                         = Data()
-        
-        # Regression Status
-        self.keep_files                         = False
-        self.save_regression_results            = False          
-        self.regression_flag                    = False 
 
-    def initialize(self,number_spanwise_vortices,number_chordwise_vortices):
+    def initialize(self,number_spanwise_vortices,number_chordwise_vortices,keep_files,save_regression_results,regression_flag,
+                   print_output,trim_aircraft,side_slip_angle,roll_rate_coefficient,pitch_rate_coefficient,lift_coefficient):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -124,8 +130,21 @@ class AVL_Inviscid(Aerodynamics):
         self.geometry.tag
         """  
         geometry     = self.geometry
-        self.tag     = 'avl_analysis_of_{}'.format(geometry.tag) 
-            
+
+        self.settings.keep_files                = keep_files
+        self.settings.save_regression_results   = save_regression_results
+        self.settings.regression_flag           = regression_flag       
+        self.settings.trim_aircraft             = trim_aircraft   
+        self.settings.print_output              = print_output   
+        self.settings.number_spanwise_vortices  = number_spanwise_vortices  
+        self.settings.number_chordwise_vortices = number_chordwise_vortices
+        self.settings.side_slip_angle           = side_slip_angle 
+        self.settings.roll_rate_coefficient     = roll_rate_coefficient 
+        self.settings.pitch_rate_coefficient    = pitch_rate_coefficient
+        self.settings.lift_coefficient          =  lift_coefficient
+        
+        self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)  
+        
         # Sample training data
         self.sample_training()
     
@@ -222,14 +241,18 @@ class AVL_Inviscid(Aerodynamics):
         self.training_file (optional - file containing previous AVL data)
         """          
         # Unpack
-        run_folder    = os.path.abspath(self.settings.filenames.run_folder)
-        geometry      = self.geometry
-        training      = self.training   
-        trim_aircraft = self.settings.trim_aircraft 
-        AoA           = training.angle_of_attack
-        Mach          = training.Mach   
-        atmosphere    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmo_data     = atmosphere.compute_values(altitude = 0.0) 
+        run_folder             = os.path.abspath(self.settings.filenames.run_folder)
+        geometry               = self.geometry
+        training               = self.training   
+        trim_aircraft          = self.settings.trim_aircraft 
+        AoA                    = training.angle_of_attack
+        Mach                   = training.Mach   
+        side_slip_angle        = self.settings.side_slip_angle
+        roll_rate_coefficient  = self.settings.roll_rate_coefficient
+        pitch_rate_coefficient = self.settings.pitch_rate_coefficient
+        lift_coefficient       = self.settings.lift_coefficient
+        atmosphere             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmo_data              = atmosphere.compute_values(altitude = 0.0) 
         
         len_AoA = len(AoA)
         len_Mach = len(Mach)
@@ -240,19 +263,23 @@ class AVL_Inviscid(Aerodynamics):
         
         # remove old files in run directory
         if os.path.exists('avl_files'):
-            if not self.regression_flag:
+            if not self.settings.regression_flag:
                 rmtree(run_folder)
                 
         for i,_ in enumerate(Mach):
             # Set training conditions
             run_conditions = Aerodynamics()
-            run_conditions.freestream.density           = atmo_data.density[0,0]  
-            run_conditions.freestream.gravity           = 9.81        
-            run_conditions.aerodynamics.angle_of_attack = AoA 
-            run_conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound[0,0] 
-            run_conditions.aerodynamics.side_slip_angle = 0.0
-            run_conditions.freestream.mach_number       = Mach[i]
-            run_conditions.freestream.velocity          = Mach[i] * run_conditions.freestream.speed_of_sound
+            run_conditions.freestream.density                  = atmo_data.density[0,0]  
+            run_conditions.freestream.gravity                  = 9.81        
+            run_conditions.freestream.speed_of_sound           = atmo_data.speed_of_sound[0,0] 
+            run_conditions.freestream.mach_number              = Mach[i]
+            run_conditions.freestream.velocity                 = Mach[i] * run_conditions.freestream.speed_of_sound
+            run_conditions.aerodynamics.side_slip_angle        = side_slip_angle
+            run_conditions.aerodynamics.angle_of_attack        = AoA 
+            run_conditions.aerodynamics.roll_rate_coefficient  = roll_rate_coefficient
+            run_conditions.aerodynamics.lift_coefficient       = lift_coefficient
+            run_conditions.aerodynamics.pitch_rate_coefficient = pitch_rate_coefficient
+            
             
             #Run Analysis at AoA[i] and Mach[j]
             results =  self.evaluate_conditions(run_conditions, trim_aircraft)
@@ -275,7 +302,7 @@ class AVL_Inviscid(Aerodynamics):
             e  = np.reshape(e_1D , (len_AoA,-1))
         
         # Save the data for regression
-        if self.save_regression_results: 
+        if self.settings.save_regression_results: 
             # convert from 2D to 1D
             CL_1D = CL.reshape([len_AoA*len_Mach,1]) 
             CD_1D = CD.reshape([len_AoA*len_Mach,1])  
@@ -375,7 +402,8 @@ class AVL_Inviscid(Aerodynamics):
         dynamic_results_template_2       = self.settings.filenames.dynamic_output_template_2    # 'system_matrix_{}.dat'
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template 
-
+        print_output                     = self.settings.print_output 
+ 
         # rename defaul avl aircraft tag
         self.tag                         = 'avl_analysis_of_{}'.format(self.geometry.tag) 
         self.settings.filenames.features = self.geometry._base.tag + '.avl'
@@ -396,7 +424,7 @@ class AVL_Inviscid(Aerodynamics):
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
                 control_surfaces = True 
-                wing = populate_control_sections (wing)     
+                wing = populate_control_sections(wing)     
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
                 for cs in wing.control_surfaces:
@@ -438,12 +466,12 @@ class AVL_Inviscid(Aerodynamics):
             write_input_deck(self, trim_aircraft,control_surfaces)
 
             # RUN AVL!
-            results_avl = run_analysis(self)
+            results_avl = run_analysis(self,print_output)
     
         # translate results
         results = translate_results_to_conditions(cases,results_avl)
     
-        if not self.keep_files:
+        if not self.settings.keep_files:
             rmtree( run_folder )
             
         return results

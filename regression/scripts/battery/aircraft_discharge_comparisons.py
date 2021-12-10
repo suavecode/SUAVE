@@ -354,24 +354,10 @@ def GA_mission_setup(analyses,vehicle):
     segment.climb_rate                                       = -200 * Units['ft/min']  
     segment.state.unknowns.throttle                          = 0.8 * ones_row(1)  
     segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.1)   
-
-    # ------------------------------------------------------------------
-    #  Charge Segment:  
-    # ------------------------------------------------------------------  
-    segment                          = Segments.Ground.Battery_Charge_Discharge(base_segment)  
-    segment.tag                      = 'charge'  
-    segment.analyses.extend(analyses.base)                 
-    segment.battery_discharge        = False 
-    segment                          = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)   
     
     # add to misison
-    mission.append_segment(segment)     
+    mission.append_segment(segment)
     
-    # ------------------------------------------------------------------
-    #   Mission definition complete    
-    # ------------------------------------------------------------------ 
-    
-
     # ------------------------------------------------------------------
     #  Charge Segment: 
     # ------------------------------------------------------------------     
@@ -382,7 +368,10 @@ def GA_mission_setup(analyses,vehicle):
     segment.battery_discharge                               = False      
     segment.increment_battery_cycle_day                     = True            
     segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)    
-    mission.append_segment(segment)       
+    
+    # add to misison
+    mission.append_segment(segment)        
+
     return mission
 
 
@@ -546,6 +535,8 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.battery_discharge                                = False    
     segment.increment_battery_cycle_day                      = True         
     segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment)    
+    
+    # add to misison
     mission.append_segment(segment)        
     
     return mission
