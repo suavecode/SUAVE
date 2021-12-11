@@ -80,14 +80,18 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     # Check if this is vertical tail, this seems like a weird first step but it's necessary
     # Get the initial rotation to get the dihedral angles
     x_rot = vsp.GetParmVal( wing_id,'X_Rotation','XForm')
+    y_rot = vsp.GetParmVal( wing_id,'Y_Rotation','XForm')
     if  abs(x_rot) >=70:
         wing = SUAVE.Components.Wings.Vertical_Tail()
         wing.vertical = True
-        x_rot = (90-x_rot) * Units.deg 
+        sign = (np.sign(x_rot))
+        x_rot = (sign*90 - sign*x_rot) * Units.deg
     else:
         # Instantiate a wing
-        wing = SUAVE.Components.Wings.Wing()	
-        x_rot =  x_rot  * Units.deg	
+        wing = SUAVE.Components.Wings.Wing()
+        x_rot =  x_rot  * Units.deg
+
+    y_rot =  y_rot  * Units.deg
 
     # Set the units
     if units_type == 'SI':
@@ -174,7 +178,7 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
                 segment_root_chord    = 0.0
             segment.root_chord_percent    = segment_root_chord / root_chord		
             segment.percent_span_location = proj_span_sum / (total_proj_span/(1+wing.symmetric))
-            segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(jj)) * Units.deg
+            segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(jj)) * Units.deg +  y_rot
 
             if i==1:
                 wing.thickness_to_chord = thick_cord
@@ -296,8 +300,8 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
 
 
     # Twists
-    wing.twists.root      = vsp.GetParmVal(wing_id, 'Twist', 'XSec_0') * Units.deg
-    wing.twists.tip       = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg
+    wing.twists.root      = vsp.GetParmVal(wing_id, 'Twist', 'XSec_0') * Units.deg +  y_rot
+    wing.twists.tip       = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg +  y_rot
 
     # check if control surface (sub surfaces) are defined
     tags                 = []

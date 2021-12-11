@@ -92,7 +92,7 @@ def main():
     single_pt_CL_1_truth     = 0.251138262389197
     single_pt_CL_2_truth     = 0.25113968108269286
     loiter_CL_truth          = 0.5114262749651366
-    descent_throttle_3_truth = 0.18428433607314795
+    descent_throttle_3_truth = 0.17797156049307095
     
     # Store errors 
     error = Data()
