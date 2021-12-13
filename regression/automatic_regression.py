@@ -37,6 +37,7 @@ import sys, os, traceback, time
 modules = [
 
     # ----------------------- Regression List --------------------------
+    'scripts/fuel_tracking_mission/fuel_tracking_mission.py',
     'scripts/aerodynamics/aerodynamics.py',
     'scripts/aerodynamics/all_moving_surfaces_vlm.py',
     'scripts/aerodynamics/control_surfaces_vlm.py',
@@ -109,8 +110,8 @@ modules = [
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
     'scripts/weights/weights.py',
-    'scripts/turboelectric_HTS_ducted_fan_network/turboelectric_HTS_ducted_fan_network.py',
-    'scripts/fuel_tracking_mission/fuel_tracking_mission.py'
+    'scripts/turboelectric_HTS_ducted_fan_network/turboelectric_HTS_ducted_fan_network.py'
+    
 ]
 
 # ----------------------------------------------------------------------
