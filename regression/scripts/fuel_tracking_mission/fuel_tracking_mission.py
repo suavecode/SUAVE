@@ -1033,6 +1033,8 @@ def check_results(results):
 
     error_val = (final_weight_values - results_final_weight_values) / final_weight_values
 
+    error_val = np.where(np.isnan(error_val), 0, error_val)
+
     print("errors = ", error_val)
 
     assert(np.amax(error_val) < 1e-6)
