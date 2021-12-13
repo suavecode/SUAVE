@@ -130,6 +130,14 @@ class Container(Physical_Component.Container):
         results.vehicle_mass_rate   = 0.*ones_row(1)
 
         for net in self.values():
+
+            if hasattr(net, 'has_additional_fuel_type'):
+                
+                if net.has_additional_fuel_type: #Check if Network has additional fuel
+
+                    results.vehicle_additional_fuel_rate  =  0.*ones_row(1) #fuel rate for additional fuel types, eg cryogenic fuel
+                    results.vehicle_fuel_rate             =  0.*ones_row(1)    
+
             results_p = net.evaluate_thrust(state) 
             
             for key in results.keys():
