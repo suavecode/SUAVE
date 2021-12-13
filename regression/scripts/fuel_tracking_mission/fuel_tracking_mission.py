@@ -1031,7 +1031,7 @@ def check_results(results):
     print("final segment weight values from results", results_final_weight_values)
     print("final segment weight values to compare", final_weight_values)
 
-    error_val = final_weight_values - results_final_weight_values
+    error_val = (final_weight_values - results_final_weight_values) / final_weight_values
 
     print("errors = ", error_val)
 
