@@ -25,17 +25,35 @@ from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initi
 
 ## @ingroup Methods-Propulsion
 def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):  
-    """
-    creates and evaluates a ducted_fan network based on an atmospheric sizing condition
-    creates and evaluates a serial hybrid network that includes a HTS motor driven ducted fan, turboelectric generator, and the required supporting equipment including cryogenic cooling
-    Inputs:
-    Turboelectric_HTS_Ducted_Fan    Serial HTYS hybrid ducted fan network object (to be modified)
-    mach_number
-    altitude                        [meters]
-    delta_isa                       temperature difference [K]
-    conditions                      ordered dict object
-    """
-    
+    """create and evaluate a serial hybrid network that follows the power flow:
+    Turboelectric Generators -> Motor Drivers -> Electric Poropulsion Motors
+    where the electric motors have cryogenically cooled HTS rotors that follow the power flow:
+    Turboelectric Generators -> Current Supplies -> HTS Rotor Coils
+    and
+    Turboelectric Generators -> Cryocooler <- HTS Rotor Heat Load
+    There is also the capability for the HTS components to be cryogenically cooled using liquid or gaseous cryogen, howver this is not sized other than applying a factor to the cryocooler required power.
+
+        Assumptions:
+        One powertrain model represents all engines in the model.
+        There are no transmission losses between components
+        the shaft torque and power required from the fan is the same as what would be required from the fan of a turbofan engine.
+
+        Source:
+        N/A
+
+        Inputs:
+        Turboelectric_HTS_Ducted_Fan    Serial HTYS hybrid ducted fan network object (to be modified)
+        mach_number
+        altitude                        [meters]
+        delta_isa                       temperature difference [K]
+        conditions                      ordered dict object
+
+        Outputs:
+        N/A
+
+        Properties Used:
+        N/A
+        """    
     # Unpack components
     ducted_fan      = Turboelectric_HTS_Ducted_Fan.ducted_fan       # Propulsion fans
     motor           = Turboelectric_HTS_Ducted_Fan.motor            # Propulsion fan motors
@@ -149,7 +167,8 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     thrust.inputs.core_nozzle                              = Data()
     thrust.inputs.core_nozzle.velocity                     = 0.
     thrust.inputs.core_nozzle.area_ratio                   = 0.
-    thrust.inputs.core_nozzle.static_pressure              = 0.                                                                                                                
+    thrust.inputs.core_nozzle.static_pressure              = 0.      
+                                                                                                              
     # compute the thrust
     thrust.size(conditions) 
     mass_flow  = thrust.mass_flow_rate_design
