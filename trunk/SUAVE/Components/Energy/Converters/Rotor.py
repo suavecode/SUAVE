@@ -497,35 +497,6 @@ class Rotor(Energy_Component):
                 Gamma = 0.5*W*c*Cl*F   
             
                 
-            
-        #
-        if self.uq_flag:
-            va += self.axial_velocities_2d
-            vt += self.tangential_velocities_2d
-            # compute new blade velocities
-            Wa   = va + Ua
-            Wt   = Ut - vt
-
-            lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-
-            # Compute aerodynamic forces based on specified input airfoil or surrogate
-            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-                    
-            # compute HFW circulation at the blade
-            Gamma = 0.5*W*c*Cl*F             
-            
-            
-        ## smooth disc circulation
-        #Gspline = RectBivariateSpline(r_1d, psi, Gamma[0,:,:],s=.5)
-        #for i in range(Na):
-            #Gamma[0,:,i] = Gspline(r_1d,psi[i])[:,0]     
-        
-        #Gamma[Gamma<=0] = 1e-4
-        ##Gamma[:,0,:] = 0
-        ##Gamma[:,-1,:] = 0
-        
-        
-                
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
         va     = F*va
         vt     = F*vt
