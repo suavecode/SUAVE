@@ -105,6 +105,8 @@ def compute_HFW_inflow_velocities( prop ):
         VD.Wake_collapsed = WD
 
         V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
+        
+        # put into body fram
         u       = -V_ind[0,:,0]   # velocity in vehicle x-frame
         v       = V_ind[0,:,1]   # velocity in vehicle y-frame
         w       = -V_ind[0,:,2]   # velocity in vehicle z-frame

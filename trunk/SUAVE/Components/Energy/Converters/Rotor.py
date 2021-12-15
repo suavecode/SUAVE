@@ -420,7 +420,7 @@ class Rotor(Energy_Component):
 
         elif wake_method == "helical_fixed_wake":
 
-            converge = False
+            converge = True
             if converge:
                 for i in range(2):
                     # converge on va for a semi-prescribed wake method
@@ -498,6 +498,21 @@ class Rotor(Energy_Component):
             
                 
             
+        #
+        if self.uq_flag:
+            va += self.axial_velocities_2d
+            vt += self.tangential_velocities_2d
+            # compute new blade velocities
+            Wa   = va + Ua
+            Wt   = Ut - vt
+
+            lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+
+            # Compute aerodynamic forces based on specified input airfoil or surrogate
+            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+                    
+            # compute HFW circulation at the blade
+            Gamma = 0.5*W*c*Cl*F             
             
             
         ## smooth disc circulation
