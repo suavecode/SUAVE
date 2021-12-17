@@ -438,7 +438,7 @@ def vehicle_setup():
                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    prop                        = propeller_design(prop)
+    prop                        = propeller_design(prop,number_of_airfoil_section_points = 102)
 
     prop_left = deepcopy(prop)
     prop_left.tag = 'propeller_2' 

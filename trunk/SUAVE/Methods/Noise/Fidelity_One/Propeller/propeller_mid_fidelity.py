@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import  Data
+from SUAVE.Core import  Data 
 import numpy as np  
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import pressure_ratio_to_SPL_arithmetic   
@@ -78,12 +78,12 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
     Results = Data()
                      
      # compute position vector from point source at rotor hub to microphones  
-    position_vector = compute_point_source_coordinates(conditions,network,microphone_locations,source)  
+    position_vector = compute_point_source_coordinates(conditions,network,microphone_locations,source,settings)  
      
     # Harmonic Noise    
     compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,network,auc_opts,settings,Noise,source)       
     
-    # compute position vector of blade section source to microphones         
+    # compute position vector of blade section source to microphones   
     blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,network,microphone_locations,source,settings)   
     
     # Broadband Noise   

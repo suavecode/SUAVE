@@ -38,16 +38,19 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     
     gml            = settings.ground_microphone_locations 
     pos            = segment.state.conditions.frames.inertial.position_vector 
+    precision      = settings.floating_point_precision
     ctrl_pts       = len(pos) 
     num_gm_mic     = len(gml)
     gml_3d         = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0)
-    GML            = np.zeros_like(gml_3d) 
+    GML            = np.zeros_like(gml_3d).astype(precision) 
     Aircraft_x     = np.repeat(np.atleast_2d(pos[:,0] ).T,num_gm_mic , axis = 1)
     Aircraft_y     = np.repeat(np.atleast_2d(pos[:,1]).T,num_gm_mic , axis = 1)
     Aircraft_z     = np.repeat(np.atleast_2d(-pos[:,2]).T,num_gm_mic , axis = 1)
     GML[:,:,0]     = Aircraft_x - gml_3d[:,:,0] 
     GML[:,:,1]     = Aircraft_y - gml_3d[:,:,1]        
     GML[:,:,2]     = Aircraft_z - gml_3d[:,:,2]
+    GM_THETA       = np.zeros_like(GML[:,:,2]).astype(precision) 
+    GM_PHI         = np.zeros_like(GML[:,:,2]).astype(precision) 
     GM_THETA       = np.arctan(GML[:,:,2]/GML[:,:,0]) 
     GM_PHI         = np.arctan(GML[:,:,2]/GML[:,:,1])   
      
@@ -79,18 +82,21 @@ def compute_building_noise_evaluation_locations(settings,segment):
     """        
     ucml        = settings.urban_canyon_microphone_locations 
     pos         = segment.state.conditions.frames.inertial.position_vector 
+    precision   = settings.floating_point_precision
     ctrl_pts    = len(pos)   
      
     if type(ucml) is np.ndarray: # urban canyon microphone locations
         num_b_mic      = len(ucml)
         ucml_3d        = np.repeat(ucml[np.newaxis,:,:],ctrl_pts,axis=0)
-        UCML           = np.zeros_like(ucml_3d) 
+        UCML           = np.zeros_like(ucml_3d).astype(precision) 
         Aircraft_x     = np.repeat(np.atleast_2d(pos[:,0] ).T,num_b_mic , axis = 1)
         Aircraft_y     = np.repeat(np.atleast_2d(pos[:,1]).T,num_b_mic , axis = 1)
         Aircraft_z     = np.repeat(np.atleast_2d(-pos[:,2]).T,num_b_mic , axis = 1)
         UCML[:,:,0]    = Aircraft_x - ucml_3d[:,:,0] 
         UCML[:,:,1]    = Aircraft_y - ucml_3d[:,:,1]        
         UCML[:,:,2]    = Aircraft_z - ucml_3d[:,:,2]
+        BM_THETA       = np.zeros_like(UCML[:,:,2]).astype(precision) 
+        BM_PHI         = np.zeros_like(UCML[:,:,2]).astype(precision)  
         BM_THETA       = np.arctan(UCML[:,:,2]/UCML[:,:,0]) 
         BM_PHI         = np.arctan(UCML[:,:,2]/UCML[:,:,1])    
     else:

@@ -103,13 +103,13 @@ modules = [
     'scripts/sweeps/test_sweeps.py',
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',
+    'scripts/turboelectric_HTS_ducted_fan_network/turboelectric_HTS_ducted_fan_network.py',
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
     'scripts/V_n_diagram/V_n_diagram_regression.py',
     'scripts/VTOL/test_Multicopter.py',
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
     'scripts/weights/weights.py',
-    'scripts/turboelectric_HTS_ducted_fan_network/turboelectric_HTS_ducted_fan_network.py'
 ]
 
 # ----------------------------------------------------------------------

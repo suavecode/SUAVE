@@ -5,6 +5,8 @@ import SUAVE
 from SUAVE.Core import Units, Data 
 from SUAVE.Components.Energy.Networks.Battery_Propeller                                   import Battery_Propeller 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars  import compute_airfoil_polars
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
+     import import_airfoil_geometry     
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                    import propeller_mid_fidelity
 from SUAVE.Analyses.Mission.Segments.Conditions                                           import Aerodynamics , Conditions
 from SUAVE.Analyses.Mission.Segments.Segment                                              import Segment 
@@ -23,22 +25,22 @@ def main():
     noise with windtunnel ..." by Weir, D and Powers, J.
     '''   
 
-    # Define Network 
-    net                                = Battery_Propeller()     
-    net.number_of_propeller_engines    = 1
-    net.identical_propellers           = True
-    prop                               = design_F8745D4_prop()
-    net.propellers.append(prop)
+    net                                = Battery_Propeller()
+    net.number_of_propeller_engines    = 1                                      
+    prop                               = design_F8745D4_prop()  
+    net.identical_propellers           = True  
+    net.propellers.append(prop)  
 
- 
-    # Set-up Validation Conditions 
+    # Atmosheric & Run Conditions                                               
     a                       = 343.376
     T                       = 288.16889478  
     density                 = 1.2250	
-    dynamic_viscosity       = 1.81E-5  
-    theta                   = np.linspace(-np.pi/2,np.pi/2,19) + 1E-8
-    S                       = np.array([4]) # np.linspace(2,10,5) 
-    omega                   = np.array([2390,2710,2630]) * Units.rpm     
+    dynamic_viscosity       = 1.81E-5 
+
+    theta                   = np.array([1,10,20,30.1,40,50,59.9,70,80,89.9,100,110,120.1,130,140,150.1,160,170,179])  
+    S                       = 4.
+    test_omega              = np.array([2390,2710,2630]) * Units.rpm    
+    ctrl_pts                = len(test_omega)
 
     # Set twist target
     three_quarter_twist     = 21 * Units.degrees 
@@ -49,59 +51,63 @@ def main():
     prop.twist_distribution = beta + delta_beta 
 
     # microphone locations
-    ctrl_pts                = len(omega) 
-    dim_theta               = len(theta)
-    dim_S                   = len(S) 
-    num_mic                 = dim_S*dim_theta
-                            
-    theta                   = np.repeat(np.repeat(np.atleast_2d(theta).T ,dim_S , axis = 1)[np.newaxis,:,:],ctrl_pts, axis = 0)  
-    S                       = np.repeat(np.repeat(np.atleast_2d(S)       ,dim_theta, axis = 0)[np.newaxis,:,:],ctrl_pts, axis = 0) 
-    x_vals                  = S*np.sin(theta)
-    y_vals                  = -S*np.cos(theta)
-    z_vals                  = np.zeros_like(x_vals) 
-                           
-    mic_locations           = np.zeros((ctrl_pts,num_mic,3))   
-    mic_locations[:,:,0]    = x_vals.reshape(ctrl_pts,num_mic) 
-    mic_locations[:,:,1]    = y_vals.reshape(ctrl_pts,num_mic) 
-    mic_locations[:,:,2]    = z_vals.reshape(ctrl_pts,num_mic)     
-    
-    # Set up for Propeller Model
-    prop.inputs.omega                            = np.atleast_2d(omega).T
-    prop.inputs.pitch_command                    = 0.
-    conditions                                   = Aerodynamics()
-    conditions._size                             = 3
-    conditions.freestream.density                = np.ones((ctrl_pts,1)) * density
-    conditions.freestream.dynamic_viscosity      = np.ones((ctrl_pts,1)) * dynamic_viscosity   
-    conditions.freestream.speed_of_sound         = np.ones((ctrl_pts,1)) * a 
-    conditions.freestream.temperature            = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector   = np.array([[77.2, 0. ,0.],[ 77.0,0.,0.], [ 77.2, 0. ,0.]])
-    conditions.propulsion.throttle               = np.ones((ctrl_pts,1))*1.0
-    conditions.aerodynamics.angle_of_attack      = np.ones((ctrl_pts,1))* 0. * Units.degrees 
-    conditions.frames.body.transform_to_inertial = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
-    conditions.noise.total_microphone_locations  = mic_locations
-    
-    # Run Propeller model 
-    F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions)
+    positions = np.zeros(( len(theta),3))
+    for i in range(len(theta)):
+        if theta[i]*Units.degrees < np.pi/2:
+            positions[i][:] = [-S*np.cos(theta[i]*Units.degrees)  ,S*np.sin(theta[i]*Units.degrees), 0.0]
+        else: 
+            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0] 
 
-    noise_datas = Data()
-    noise_datas.propeller = noise_data
+    # Set up for Propeller Model
+    prop.inputs.omega                                      = np.atleast_2d(test_omega).T
+    conditions                                             = Aerodynamics()   
+    conditions.freestream.density                          = np.ones((ctrl_pts,1)) * density
+    conditions.freestream.dynamic_viscosity                = np.ones((ctrl_pts,1)) * dynamic_viscosity   
+    conditions.freestream.speed_of_sound                   = np.ones((ctrl_pts,1)) * a 
+    conditions.freestream.temperature                      = np.ones((ctrl_pts,1)) * T 
+    conditions.frames.inertial.velocity_vector             = np.array([[77.2, 0. ,0.],[ 77.0,0.,0.], [ 77.2, 0. ,0.]])
+    conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
+    conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+
+    # Run Propeller model 
+    F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions) 
+
+    # Prepare Inputs for Noise Model  
+    conditions.noise.total_microphone_locations            = np.repeat(positions[ np.newaxis,:,: ],1,axis=0)
+    conditions.aerodynamics.angle_of_attack                = np.ones((ctrl_pts,1))* 0. * Units.degrees 
+    segment                                                = Segment() 
+    segment.state.conditions                               = conditions
+    segment.state.conditions.expand_rows(ctrl_pts)
+    
     
     # Store Noise Data 
-    noise                                                  = SUAVE.Analyses.Noise.Fidelity_One()
-    segment                                                = Segment()
-    settings                                               = noise.settings
-    conditions.noise.sources.propeller                     = noise_datas
+    noise                                                  = SUAVE.Analyses.Noise.Fidelity_One() 
+    settings                                               = noise.settings   
+    num_mic                                                = len(conditions.noise.total_microphone_locations[0] )  
     conditions.noise.number_of_microphones                 = num_mic  
-    segment.state.conditions                               = conditions
-
-    # Run Fidelity One   
-    propeller_noise  = propeller_mid_fidelity(net,noise_datas,segment,settings)  
-    SPL_dBA          = propeller_noise.SPL_dBA
-    SPL_Spectrum     = propeller_noise.SPL_bpfs_spectrum
+    acoustic_outputs                                       = Data()
+    acoustic_outputs.propeller                             = noise_data
+    acoustic_outputs = Data()
+    acoustic_outputs.propeller = noise_data
     
+    # Run Fidelity One    
+    propeller_noise                       = propeller_mid_fidelity(net,acoustic_outputs,segment,settings )    
+    F8745D4_blade_passing_frequencies     = propeller_noise.blade_passing_frequencies      
+    F8745D4_SPL                           = propeller_noise.SPL     
+    F8745D4_SPL_harmonic                  = propeller_noise.SPL_harmonic 
+    F8745D4_SPL_broadband                 = propeller_noise.SPL_broadband  
+    F8745D4_SPL_dBA                       = propeller_noise.SPL_dBA                        
+    F8745D4_SPL_harmonic_bpf_spectrum_dBA = propeller_noise.SPL_harmonic_bpf_spectrum_dBA  
+    F8745D4_SPL_harmonic_bpf_spectrum     = propeller_noise.SPL_harmonic_bpf_spectrum      
+    F8745D4_SPL_1_3_spectrum              = propeller_noise.SPL_1_3_spectrum         
+    F8745D4_SPL_harmonic_1_3_spectrum     = propeller_noise.SPL_harmonic_1_3_spectrum      
+    F8745D4_SPL_broadband_1_3_spectrum    = propeller_noise.SPL_broadband_1_3_spectrum        
+    F8745D4_one_third_frequency_spectrum  = propeller_noise.one_third_frequency_spectrum     
+
     # ----------------------------------------------------------------------------------------------------------------------------------------
     #  Experimental Data
     # ----------------------------------------------------------------------------------------------------------------------------------------      
+
     harmonics              = np.arange(1,19)
     ANOPP_PAS_Case_1_60deg = np.array([105.82,101.08,100.13,97.581,94.035,89.095,82.957,
                                        80.609,81.052,72.718,70.772,68.023,67.072,53.949,
@@ -151,91 +157,122 @@ def main():
                                        109.924,109.129,108.725,107.342,106.743,105.164,
                                        104.369,102.593,101.210,100.021,98.6401,96.6674])
 
+
     # ----------------------------------------------------------------------------------------------------------------------------------------
     #  Plots
-    # ----------------------------------------------------------------------------------------------------------------------------------------      
-    SUAVE_SPL_Case_1_60deg = SPL_Spectrum[0,6,:][:len(harmonics)]
-    SUAVE_SPL_Case_1_90deg = SPL_Spectrum[0,9,:][:len(harmonics)] 
-    SUAVE_SPL_Case_2_60deg = SPL_Spectrum[1,6,:][:len(harmonics)]  
-    SUAVE_SPL_Case_2_90deg = SPL_Spectrum[1,9,:][:len(harmonics)]
-    SUAVE_SPL_Case_3_60deg = SPL_Spectrum[2,6,:][:len(harmonics)] 
-    SUAVE_SPL_Case_3_90deg = SPL_Spectrum[2,9,:][:len(harmonics)]  
-    
+    # ----------------------------------------------------------------------------------------------------------------------------------------    
+    # Universal Plot Settings
+    plt.rcParams["font.family"]    = "Times New Roman"
+    plt.rcParams.update({'font.size': 18})
+    plt.rcParams['axes.linewidth'] = 1. 
+ 
+    PP = Data( 
+        lw  = 2,                             # line_width               
+        m = 10,                            # markersize               
+        lf = 10,                            # legend_font_size         
+        Slc = ['black','dimgray','silver' ], # SUAVE_line_colors        
+        Slm = '^',                           # SUAVE_line_markers       
+        Sls = '-',                           # SUAVE_line_styles        
+        Elc = ['darkred','red','tomato'], # Experimental_line_colors 
+        Elm = 's',                           # Experimental_line_markers
+        Els = '',                          # Experimental_line_styles 
+        Rlc = ['darkblue','blue','cyan'],    # Ref_Code_line_colors     
+        Rlm = 'o',                           # Ref_Code_line_markers    
+        Rls = ':',                           # Ref_Code_line_styles     
+    )   
+   
     # plot results
-    fig = plt.figure('Validation Case')
-    fig.set_size_inches(16, 6)   
-    axes = fig.add_subplot(2,3,1) 
-    axes.plot(harmonics, SUAVE_SPL_Case_1_60deg,'k^' ,  label = r'60 $\degree$ mic.SUAVE')    
-    axes.plot(harmonics, ANOPP_PAS_Case_1_60deg,'bo' ,  label = r'60 $\degree$ mic. ANOPP PAS')       
-    axes.plot(harmonics, Exp_Test_Case_1_60deg ,'rs' ,  label = r'60 $\degree$ mic. Exp.')    
-    axes.set_title('Case 1, Power Coefficient: ' + str(round(Cp[0,0],3)))
+    fig31 = plt.figure('Test_Case_3_p1')
+    fig31.set_size_inches(16, 5)   
+    axes = fig31.add_subplot(1,3,1) 
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[0,6,:][:len(harmonics)]   , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'SUAVE')    
+    axes.plot(harmonics, ANOPP_PAS_Case_1_60deg                                      , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw, label = 'ANOPP PAS')       
+    axes.plot(harmonics, Exp_Test_Case_1_60deg                                       , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')    
+    axes.set_title('Case 1, $C_P$ = ' + str(round(Cp[0,0],3)))
     axes.set_ylabel('SPL (dB)')
-    axes.set_xlabel('harmonic ') 
-    axes.legend(loc='upper right')  
-
-    axes = fig.add_subplot(2,3,4)    
-    axes.plot(harmonics, SUAVE_SPL_Case_1_90deg,'k^' ,  label = r'90 $\degree$ mic.SUAVE')    
-    axes.plot(harmonics, ANOPP_PAS_Case_1_90deg,'bo' ,  label = r'90 $\degree$ mic. ANOPP PAS')       
-    axes.plot(harmonics, Exp_Test_Case_1_90deg ,'rs' ,  label = r'90 $\degree$ mic. Exp.')    
-    axes.set_ylabel('SPL (dB)')
-    axes.set_xlabel('harmonic ')  
-    axes.legend(loc='upper right') 
+    axes.set_xlabel('Harmonic #') 
+    axes.minorticks_on() 
+    #plt.ylim((80,125))      
 
     # Test Case 2
-    axes = fig.add_subplot(2,3,2) 
-    axes.plot(harmonics, SUAVE_SPL_Case_2_60deg,'k^' ,  label = r'60 $\degree$ mic.SUAVE')    
-    axes.plot(harmonics, ANOPP_PAS_Case_2_60deg,'bo' ,  label = r'60 $\degree$ mic. ANOPP PAS')        
-    axes.plot(harmonics, Exp_Test_Case_2_60deg ,'rs' ,  label = r'60 $\degree$ mic. Exp.')    
-    axes.set_title('Case 2, Power Coefficient: ' +  str(round(Cp[1,0],3)))
-    axes.set_ylabel('SPL (dB)')                
-    axes.set_xlabel('harmonic ')
-    axes.legend(loc='upper right') 
-
-    axes = fig.add_subplot(2,3,5)              
-    axes.plot(harmonics, SUAVE_SPL_Case_2_90deg,'k^' ,  label = r'90 $\degree$ mic.SUAVE')    
-    axes.plot(harmonics, ANOPP_PAS_Case_2_90deg,'bo' ,  label = r'90 $\degree$ mic. ANOPP PAS')  
-    axes.plot(harmonics, Exp_Test_Case_2_90deg ,'rs' ,  label = r'90 $\degree$ mic. Exp.')    
-    axes.set_ylabel('SPL (dB)')                 
-    axes.set_xlabel('harmonic ')  
-    axes.legend(loc='upper right') 
+    axes = fig31.add_subplot(1,3,2) 
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
+    axes.plot(harmonics, ANOPP_PAS_Case_2_60deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
+    axes.plot(harmonics, Exp_Test_Case_2_60deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,   label = 'Exp.')  
+    #axes.set_ylabel('SPL (dB)') 
+    axes.set_title('Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))  
+    axes.set_xlabel('Harmonic #') 
+    axes.minorticks_on()  
+    axes.legend(loc='upper center', prop={'size':  PP.lf} , bbox_to_anchor=(0.5, -0.2), ncol= 3 )  
 
     # Test Case 3
-    axes = fig.add_subplot(2,3,3) 
-    axes.plot(harmonics, SUAVE_SPL_Case_3_60deg,'k^',  label = r'60 $\degree$ mic.SUAVE')    
-    axes.plot(harmonics, ANOPP_PAS_Case_3_60deg,'bo',  label = r'60 $\degree$ mic. ANOPP PAS')      
-    axes.plot(harmonics, Exp_Test_Case_3_60deg ,'rs',  label = r'60 $\degree$ mic. Exp.')    
-    axes.set_title('Case 3') 
-    axes.set_title('Case 3, Power Coefficient: ' +  str(round(Cp[2,0],3)))
-    axes.set_ylabel('SPL (dB)')
-    axes.set_xlabel('harmonic ') 
-    axes.legend(loc='upper right') 
+    axes = fig31.add_subplot(1,3,3) 
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[2,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
+    axes.plot(harmonics, ANOPP_PAS_Case_3_60deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
+    axes.plot(harmonics, Exp_Test_Case_3_60deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')        
+    axes.set_title('Case 3, $C_P$ = ' +  str(round(Cp[2,0],3)))  
+    axes.set_xlabel('Harmonic #')  
+    axes.minorticks_on() 
+    plt.tight_layout()
 
-    axes = fig.add_subplot(2,3,6)    
-    axes.plot(harmonics, SUAVE_SPL_Case_3_90deg,'k^' ,  label = r'90 $\degree$ mic.SUAVE')    
-    axes.plot(harmonics, ANOPP_PAS_Case_3_90deg,'bo' ,  label = r'90 $\degree$ mic. ANOPP PAS')  
-    axes.plot(harmonics, Exp_Test_Case_3_90deg ,'rs' ,  label = r'90 $\degree$ mic. Exp.')    
+    fig32 = plt.figure('Test_Case_3_p2') 
+    fig32.set_size_inches(16, 5)       
+    axes = fig32.add_subplot(1,3,1)    
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[0,9,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'SUAVE')    
+    axes.plot(harmonics, ANOPP_PAS_Case_1_90deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
+    axes.plot(harmonics, Exp_Test_Case_1_90deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')       
+    axes.set_title('Case 1, $C_P$ = ' + str(round(Cp[0,0],3)))
     axes.set_ylabel('SPL (dB)')
-    axes.set_xlabel('harmonic ') 
-    axes.legend(loc='upper right')   
-    
-    # Polar plot of noise 
-    theta      = np.linspace(-np.pi/2,np.pi/2,19)   
-    fig, axis  = plt.subplots(subplot_kw={'projection': 'polar'})
-    axis.plot(theta, SPL_dBA[0])
-    axis.set_ylim([50,150])
+    axes.set_xlabel('Harmonic #')   
+    axes.minorticks_on() 
+
+    axes = fig32.add_subplot(1,3,2)              
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,9,:][:len(harmonics)]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'SUAVE')    
+    axes.plot(harmonics, ANOPP_PAS_Case_2_90deg                                     , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw, label = 'ANOPP PAS')       
+    axes.plot(harmonics, Exp_Test_Case_2_90deg                                      , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw, label = 'Exp.')   
+    axes.set_title('Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))   
+    axes.set_xlabel('Harmonic #')  
+    axes.legend(loc='upper center', prop={'size': PP.lf} , bbox_to_anchor=(0.5, -0.2), ncol= 3 )  
+    axes.minorticks_on() 
+
+    axes = fig32.add_subplot(1,3,3)    
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[2,9,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
+    axes.plot(harmonics, ANOPP_PAS_Case_3_90deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
+    axes.plot(harmonics, Exp_Test_Case_3_90deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')     
+    axes.set_title('Case 3, $C_P$ = ' +  str(round(Cp[2,0],3)))     
+    axes.set_xlabel('Harmonic #')  
+    axes.minorticks_on() 
+    plt.tight_layout()
+
+    # Polar plot of noise   
+    fig33 = plt.figure('Test_Case_3_p3')
+    axis = fig33.add_subplot(111, projection='polar')    
+    axis.plot(theta*Units.degrees,F8745D4_SPL[0,:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Total'  )  
+    axis.plot(-theta*Units.degrees,F8745D4_SPL[0,:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw  )  
+    axis.plot(theta*Units.degrees,F8745D4_SPL_harmonic[0,:] , color = PP.Slc[1] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw   )  
+    axis.plot(-theta*Units.degrees,F8745D4_SPL_harmonic[0,:] , color = PP.Slc[1] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Harmonic'  )  
+    axis.plot(theta*Units.degrees,F8745D4_SPL_broadband[0,:] , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw   )  
+    axis.plot(-theta*Units.degrees,F8745D4_SPL_broadband[0,:] , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Broadband' )     
     axis.set_yticks(np.arange(50,150,25))     
-    axis.grid(True) 
-    
-    # ----------------------------------------------------------------------------------------------------------------------------------------
-    #  Regression 
-    # ----------------------------------------------------------------------------------------------------------------------------------------     
-    SPL_Case_1_60deg_truth = Exp_Test_Case_1_60deg
-    SPL_Case_1_90deg_truth = Exp_Test_Case_1_90deg
-    
+    axis.grid(True)     
+
+
+    fig34 = plt.figure('Test_Case_3_p4') 
+    fig34.set_size_inches(10, 8)       
+    axes = fig34.add_subplot(1,1,1)    
+    axes.semilogx(F8745D4_one_third_frequency_spectrum,F8745D4_SPL_1_3_spectrum[0,6,:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'Total SPL @ 60 deg')    
+    axes.semilogx(F8745D4_one_third_frequency_spectrum,F8745D4_SPL_harmonic_1_3_spectrum[0,6,:], color = PP.Slc[1] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Harmonic SPL @ 60 deg' )       
+    axes.semilogx(F8745D4_one_third_frequency_spectrum,F8745D4_SPL_broadband_1_3_spectrum[0,6,:]  , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'Broadband SPL @ 60 deg')    
+    axes.set_ylabel('SPL (dB)')
+    axes.set_xlabel('Frequency') 
+    plt.ylim((65,105)) 
+    axes.legend(loc='lower center', prop={'size': PP.lf}) 
+    axes.minorticks_on()     
+
     # Store errors 
     error = Data()
-    error.SPL_Case_1_60deg  = np.max(np.abs(SUAVE_SPL_Case_1_60deg -SPL_Case_1_60deg_truth))  
-    error.SPL_Case_1_90deg  = np.max(np.abs(SUAVE_SPL_Case_1_90deg -SPL_Case_1_90deg_truth))
+    error.SPL_Case_1_60deg  = np.max(np.abs(F8745D4_SPL_harmonic_bpf_spectrum[0,6,:][:len(harmonics)]  - Exp_Test_Case_1_60deg))  
+    error.SPL_Case_1_90deg  = np.max(np.abs(F8745D4_SPL_harmonic_bpf_spectrum[0,9,:][:len(harmonics)] - Exp_Test_Case_1_90deg))
     
     print('Errors:')
     print(error)
@@ -255,9 +292,9 @@ def design_F8745D4_prop():
     r_R_data                        = np.array([ 0.2,0.300,0.450,0.601,0.747,0.901,0.950,0.975,0.998   ])    
     t_c_data                        = np.array([ 0.3585,0.1976,0.1148,0.0834,0.0648,0.0591,0.0562,0.0542,0.0533    ])    
     b_R_data                        = np.array([0.116,0.143,0.163,0.169,0.166,0.148,0.135,0.113,0.075  ])    
-    beta_data                       = np.array([  0.362,0.286,0.216,0.170,0.135,0.112,0.105,0.101,0.098  ])* 100 
+    beta_data                       = np.array([  0.362,0.286,0.216,0.170,0.135,0.112,0.105,0.101,0.098])* 100 
   
-    dim                             = 30          
+    dim                             = 20          
     new_radius_distribution         = np.linspace(0.2,0.98 ,dim)
     func_twist_distribution         = interp1d(r_R_data, (beta_data)* Units.degrees   , kind='cubic')
     func_chord_distribution         = interp1d(r_R_data, b_R_data * prop.tip_radius , kind='cubic')
@@ -276,14 +313,16 @@ def design_F8745D4_prop():
     prop.airfoil_geometry           = [ rel_path +'Clark_y.txt']
     prop.airfoil_polars             = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
                                         rel_path +'Polars/Clark_y_polar_Re_500000.txt',rel_path +'Polars/Clark_y_polar_Re_1000000.txt']]
-    prop.airfoil_polar_stations     = list(np.zeros(dim))  
+    airfoil_polar_stations          = np.zeros(dim)
+    prop.airfoil_polar_stations     = list(airfoil_polar_stations.astype(int))     
     airfoil_polars                  = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)  
     airfoil_cl_surs                 = airfoil_polars.lift_coefficient_surrogates 
     airfoil_cd_surs                 = airfoil_polars.drag_coefficient_surrogates         
     prop.airfoil_cl_surrogates      = airfoil_cl_surs
     prop.airfoil_cd_surrogates      = airfoil_cd_surs    
     prop.mid_chord_aligment         = np.zeros_like(prop.chord_distribution) #  prop.chord_distribution/4. - prop.chord_distribution[0]/4.    
-    
+    prop.airfoil_data               = import_airfoil_geometry(prop.airfoil_geometry, npoints = 102)
+
     return prop
 if __name__ == '__main__': 
     main()    

@@ -261,7 +261,7 @@ def plot_airfoil_polar_files(airfoil_path, airfoil_polar_paths, line_color = 'k-
     
     if use_surrogate:
         # Compute airfoil surrogates
-        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths, use_pre_stall_data=False)
+        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=False)
         CL_sur = a_data.lift_coefficient_surrogates
         CD_sur = a_data.drag_coefficient_surrogates
         
