@@ -61,32 +61,32 @@ def main():
     print(X57_diff_SPL)
     assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-6    
     
-    # ----------------------------------------------------------------------
-    # SAE Turbofan Aircraft Noise Model 
-    # ---------------------------------------------------------------------- 
-    configs, analyses = B737_full_setup() 
+    ## ----------------------------------------------------------------------
+    ## SAE Turbofan Aircraft Noise Model 
+    ## ---------------------------------------------------------------------- 
+    #configs, analyses = B737_full_setup() 
 
-    configs.finalize()
-    analyses.finalize()   
+    #configs.finalize()
+    #analyses.finalize()   
     
-    # mission analysis
-    mission       = analyses.missions.base
-    B737_results  = mission.evaluate()  
+    ## mission analysis
+    #mission       = analyses.missions.base
+    #B737_results  = mission.evaluate()  
     
-    # certification calculations  
-    sideline_SPL  = sideline_noise(analyses,configs) 
-    flyover_SPL   = flyover_noise(analyses,configs)  
-    approach_SPL  = approach_noise(analyses,configs) 
+    ## certification calculations  
+    #sideline_SPL  = sideline_noise(analyses,configs) 
+    #flyover_SPL   = flyover_noise(analyses,configs)  
+    #approach_SPL  = approach_noise(analyses,configs) 
     
-    # SPL of rotor check during hover
-    print('\n\n SAE Turbofan Aircraft Noise Model')
-    B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
-    B737_SPL_true   = 27.760566836483797
-    print(B737_SPL) 
-    B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
-    print('SPL difference')
-    print(B737_diff_SPL)
-    assert np.abs((B737_SPL - B737_SPL_true)/B737_SPL_true) < 1e-6    
+    ## SPL of rotor check during hover
+    #print('\n\n SAE Turbofan Aircraft Noise Model')
+    #B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
+    #B737_SPL_true   = 27.760566836483797
+    #print(B737_SPL) 
+    #B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
+    #print('SPL difference')
+    #print(B737_diff_SPL)
+    #assert np.abs((B737_SPL - B737_SPL_true)/B737_SPL_true) < 1e-6    
     return     
  
 # ----------------------------------------------------------------------

@@ -203,7 +203,7 @@ class Fidelity_One(Noise):
                         acoustic_data                = conditions.noise.sources[source]   
                         propeller_noise              = propeller_mid_fidelity(net,acoustic_data,segment,settings,source)  
                         source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
-                        source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_1_3_spectrum    
+                        #source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_1_3_spectrum    
                            
                         si += 1
              
