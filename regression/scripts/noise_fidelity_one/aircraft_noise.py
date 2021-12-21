@@ -52,8 +52,8 @@ def main():
     
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
-    X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-    X57_SPL_true   = 62.87188281671746
+    X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[0][0]
+    X57_SPL_true   = 35.02046919780747
 
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
@@ -171,13 +171,13 @@ def base_analysis(vehicle):
     #  Noise Analysis
     noise = SUAVE.Analyses.Noise.Fidelity_One()   
     noise.geometry = vehicle  
-    urban_canyon_microphone_array,building_locations,building_dimensions,N_x,N_y,N_z = urban_canyon_microphone_setup() 
-    noise.settings.urban_canyon_microphone_locations    = urban_canyon_microphone_array
-    noise.settings.urban_canyon_building_locations      = building_locations
-    noise.settings.urban_canyon_building_dimensions     = building_dimensions
-    noise.settings.urban_canyon_microphone_x_resolution = N_x 
-    noise.settings.urban_canyon_microphone_y_resolution = N_y
-    noise.settings.urban_canyon_microphone_z_resolution = N_z      
+    #urban_canyon_microphone_array,building_locations,building_dimensions,N_x,N_y,N_z = urban_canyon_microphone_setup() 
+    #noise.settings.urban_canyon_microphone_locations    = urban_canyon_microphone_array
+    #noise.settings.urban_canyon_building_locations      = building_locations
+    #noise.settings.urban_canyon_building_dimensions     = building_dimensions
+    #noise.settings.urban_canyon_microphone_x_resolution = N_x 
+    #noise.settings.urban_canyon_microphone_y_resolution = N_y
+    #noise.settings.urban_canyon_microphone_z_resolution = N_z      
     analyses.append(noise)
 
     # ------------------------------------------------------------------
@@ -245,9 +245,9 @@ def urban_canyon_microphone_setup():
     # define building dimensions  
     building_dimensions = [[100,200,75],[160,160,90]] # [[length,width,height]]     
     
-    N_X = 4
-    N_Y = 4
-    N_Z = 16
+    N_X = 3
+    N_Y = 3
+    N_Z = 4
     mic_locations  = generate_building_microphone_points(building_locations,building_dimensions,N_x = N_X ,N_y = N_Y ,N_z = N_Z ) 
      
     return mic_locations,building_locations ,building_dimensions,N_X ,N_Y ,N_Z 

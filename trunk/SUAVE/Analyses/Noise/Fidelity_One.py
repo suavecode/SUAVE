@@ -80,7 +80,7 @@ class Fidelity_One(Noise):
         settings.urban_canyon_microphone_y_resolution = 4 
         settings.broadband_spectrum_resolution        = 301 # decreasing below 301 will result in some 1/3 octave bands having no value 
         settings.number_of_airfoil_points             = 200 # decreasing below 301 will result in some 1/3 octave bands having no value 
-        settings.floating_point_precision             = np.float16
+        settings.floating_point_precision             = np.float32
         settings.urban_canyon_microphone_z_resolution = 16 
         settings.mic_x_position                       = 0     
         settings.lateral_ground_distance              = 1000 * Units.feet  

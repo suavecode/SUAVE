@@ -319,6 +319,8 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*((1 - (1 + 1j)*(cc_1 - 1j*ss_1 ) ) +\
                     ((np.exp(-1j*2*triangle))*(np.sqrt((K + mu*M + gamma)/(mu*X/epsilon +gamma)))*(1 + 1j)*( cc_2 - 1j*ss_2))))                             
     norm_L_sq     = np.array(norm_L_sq, dtype=precision) 
+    norm_L_sq     = np.nan_to_num(norm_L_sq)
+    norm_L_sq[norm_L_sq == 0]  = np.mean(norm_L_sq)
     # ------------------------------------------------------------
     # ****** EMPIRICAL WALL PRESSURE SPECTRUM ******  
     # equation 8                                                 
@@ -359,16 +361,11 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     S_pp_azi = mult*D_phi*norm_L_sq*l_r*Phi_pp
 
     # equation 9 
-    SPL     = 10*np.log10((2*pi*S_pp)/((p_ref)**2))
-    SPL_azi = 10*np.log10((2*pi*S_pp_azi)/((p_ref)**2))
-
-    SPL_surf                     = 10**(0.1*SPL[:,:,:,:,:,0]) + 10**(0.1*SPL[:,:,:,:,:,1]) # equation 10 inside brackets 
-    SPL_surf_azi                 = 10**(0.1*SPL_azi[:,:,:,:,:,:,0]) + 10**(0.1*SPL_azi[:,:,:,:,:,:,1]) # equation 10 inside brackets
-    SPL_rotor                    = 10*np.log10(np.sum(SPL_surf,axis=3))  # equation 10 inside brackets  
-    SPL_rotor_azi                = 10*np.log10(np.sum(SPL_surf_azi,axis=3))  # equation 10 inside brackets  
-    SPL_rotor_dBA                = A_weighting(SPL_rotor,frequency)  
-    SPL_rotor_dBA_azi            = A_weighting(SPL_rotor_azi,frequency) 
-     
+    SPL            = 10*np.log10((2*pi*S_pp)/((p_ref)**2)) 
+    SPL_surf       = 10**(0.1*SPL[:,:,:,:,:,0]) + 10**(0.1*SPL[:,:,:,:,:,1]) # equation 10 inside brackets 
+    SPL_rotor      = 10*np.log10(np.sum(SPL_surf,axis=3))  # equation 10 inside brackets  
+    SPL_rotor_dBA  = A_weighting(SPL_rotor,frequency)  
+    
     # convert to 1/3 octave spectrum   
     f = np.repeat(np.atleast_2d(frequency),num_cpt,axis = 0) 
     
@@ -380,13 +377,18 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     res.SPL_prop_broadband_1_3_spectrum               = SPL_harmonic_to_third_octave(SPL_rotor,f,settings)  
     res.SPL_prop_broadband_1_3_spectrum_dBA           = SPL_harmonic_to_third_octave(SPL_rotor_dBA,f,settings)
     
+    
+    SPL_azi           = 10*np.log10((2*pi*S_pp_azi)/((p_ref)**2))
+    SPL_surf_azi      = 10**(0.1*SPL_azi[:,:,:,:,:,:,0]) + 10**(0.1*SPL_azi[:,:,:,:,:,:,1]) # equation 10 inside brackets
+    SPL_rotor_azi     = 10*np.log10(np.sum(SPL_surf_azi,axis=3))  # equation 10 inside brackets  
+    SPL_rotor_dBA_azi = A_weighting(SPL_rotor_azi,frequency) 
+     
+    
     # sound pressure levels 
     res.p_pref_azimuthal_broadband                    = 10**(SPL_rotor_azi /10)   
     res.p_pref_azimuthal_broadband_dBA                = 10**(SPL_rotor_dBA_azi /10)  
     res.SPL_prop_azimuthal_broadband_spectrum         = SPL_rotor_azi  
     res.SPL_prop_azimuthal_broadband_spectrum_dBA     = SPL_rotor_dBA_azi
-    res.SPL_prop_azimuthal_broadband_1_3_spectrum     = SPL_harmonic_to_third_octave(SPL_rotor_azi,f,settings)       
-    res.SPL_prop_azimuthal_broadband_1_3_spectrum_dBA = SPL_harmonic_to_third_octave(SPL_rotor_dBA_azi,f,settings)  
     
     return 
 
