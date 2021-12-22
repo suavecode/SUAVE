@@ -82,11 +82,10 @@ class Fidelity_One(Noise):
         settings.number_of_airfoil_points             = 200 # decreasing below 301 will result in some 1/3 octave bands having no value 
         settings.floating_point_precision             = np.float32
         settings.urban_canyon_microphone_z_resolution = 16 
-        settings.mic_x_position                       = 0     
-        settings.lateral_ground_distance              = 1000 * Units.feet  
-        settings.level_ground_microphone_min_x        = -50
-        settings.level_ground_microphone_max_x        = 1000
-        settings.level_ground_microphone_min_y        = -1000 * Units.feet 
+        settings.mic_x_position                       = 0       
+        settings.level_ground_microphone_min_x        = -50  * Units.feet 
+        settings.level_ground_microphone_max_x        = 1000 * Units.feet 
+        settings.level_ground_microphone_min_y        = 250  * Units.feet 
         settings.level_ground_microphone_max_y        = 1000 * Units.feet 
         settings.level_ground_microphone_x_resolution = 16 
         settings.level_ground_microphone_y_resolution = 4  

@@ -61,32 +61,32 @@ def main():
     print(X57_diff_SPL)
     assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-6    
     
-    ## ----------------------------------------------------------------------
-    ## SAE Turbofan Aircraft Noise Model 
-    ## ---------------------------------------------------------------------- 
-    #configs, analyses = B737_full_setup() 
+    # ----------------------------------------------------------------------
+    # SAE Turbofan Aircraft Noise Model 
+    # ---------------------------------------------------------------------- 
+    configs, analyses = B737_full_setup() 
 
-    #configs.finalize()
-    #analyses.finalize()   
+    configs.finalize()
+    analyses.finalize()   
     
-    ## mission analysis
-    #mission       = analyses.missions.base
-    #B737_results  = mission.evaluate()  
+    # mission analysis
+    mission       = analyses.missions.base
+    B737_results  = mission.evaluate()  
     
-    ## certification calculations  
-    #sideline_SPL  = sideline_noise(analyses,configs) 
-    #flyover_SPL   = flyover_noise(analyses,configs)  
-    #approach_SPL  = approach_noise(analyses,configs) 
+    # certification calculations  
+    sideline_SPL  = sideline_noise(analyses,configs) 
+    flyover_SPL   = flyover_noise(analyses,configs)  
+    approach_SPL  = approach_noise(analyses,configs) 
     
-    ## SPL of rotor check during hover
-    #print('\n\n SAE Turbofan Aircraft Noise Model')
-    #B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
-    #B737_SPL_true   = 27.760566836483797
-    #print(B737_SPL) 
-    #B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
-    #print('SPL difference')
-    #print(B737_diff_SPL)
-    #assert np.abs((B737_SPL - B737_SPL_true)/B737_SPL_true) < 1e-6    
+    # SPL of rotor check during hover
+    print('\n\n SAE Turbofan Aircraft Noise Model')
+    B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
+    B737_SPL_true   = 27.760566836483797
+    print(B737_SPL) 
+    B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
+    print('SPL difference')
+    print(B737_diff_SPL)
+    assert np.abs((B737_SPL - B737_SPL_true)/B737_SPL_true) < 1e-6    
     return     
  
 # ----------------------------------------------------------------------
@@ -171,13 +171,13 @@ def base_analysis(vehicle):
     #  Noise Analysis
     noise = SUAVE.Analyses.Noise.Fidelity_One()   
     noise.geometry = vehicle  
-    #urban_canyon_microphone_array,building_locations,building_dimensions,N_x,N_y,N_z = urban_canyon_microphone_setup() 
-    #noise.settings.urban_canyon_microphone_locations    = urban_canyon_microphone_array
-    #noise.settings.urban_canyon_building_locations      = building_locations
-    #noise.settings.urban_canyon_building_dimensions     = building_dimensions
-    #noise.settings.urban_canyon_microphone_x_resolution = N_x 
-    #noise.settings.urban_canyon_microphone_y_resolution = N_y
-    #noise.settings.urban_canyon_microphone_z_resolution = N_z      
+    urban_canyon_microphone_array,building_locations,building_dimensions,N_x,N_y,N_z = urban_canyon_microphone_setup() 
+    noise.settings.urban_canyon_microphone_locations    = urban_canyon_microphone_array
+    noise.settings.urban_canyon_building_locations      = building_locations
+    noise.settings.urban_canyon_building_dimensions     = building_dimensions
+    noise.settings.urban_canyon_microphone_x_resolution = N_x 
+    noise.settings.urban_canyon_microphone_y_resolution = N_y
+    noise.settings.urban_canyon_microphone_z_resolution = N_z      
     analyses.append(noise)
 
     # ------------------------------------------------------------------
@@ -280,22 +280,18 @@ def X57_mission_setup(analyses,vehicle):
     
     # ------------------------------------------------------------------
     #   Initial Climb Area Segment Flight 1  
-    # ------------------------------------------------------------------ 
+    # ------------------------------------------------------------------   
     segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
-    segment.tag = 'ICA' 
-    segment.analyses.extend( analyses.base )  
-    segment.battery_energy                                   = vehicle.networks.battery_propeller.battery.max_energy  
-    segment.state.unknowns.throttle                          = 0.85  * ones_row(1)  
-    segment.altitude_start                                   = 50.0 * Units.feet
-    segment.altitude_end                                     = 500.0 * Units.feet
-    segment.air_speed_start                                  = 45  * Units['m/s']   
-    segment.air_speed_end                                    = 50 * Units['m/s']   
-    segment.climb_rate                                       = 600 * Units['ft/min']    
-    
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
-    
-    mission.append_segment(segment) 
-              
+    segment.tag = 'Climb'    
+    segment.analyses.extend( analyses.base )            
+    segment.altitude_start                                   = 0.0 * Units.feet
+    segment.altitude_end                                     = 1000.0 * Units.feet
+    segment.air_speed_start                                  = 50
+    segment.air_speed_end                                    = 55       
+    segment.climb_rate                                       = 600 * Units['ft/min']  
+    segment.state.unknowns.throttle                          = 0.9 * ones_row(1)  
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.05)  
+    mission.append_segment(segment)   
     
     return mission
 

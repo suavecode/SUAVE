@@ -1677,7 +1677,7 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     # figure parameters
     axis_font    = {'size':'14'} 
     fig          = plt.figure(save_filename)
-    fig.set_size_inches(10, 8) 
+    fig.set_size_inches(8, 8) 
     axes        = fig.add_subplot(1,1,1) 
      
     SPL = np.zeros((dim_segs,dim_ctrl_pts,N_gm_x,N_gm_y))
@@ -1768,8 +1768,8 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     # ---------------------------------------------------------------------------
     filename_1         = 'Level_Ground_' + save_filename
     fig                 = plt.figure(filename_1) 
-    fig.set_size_inches(10 ,10)    
-    levs                = np.linspace(40,120,25)   
+    fig.set_size_inches(8,8)    
+    levs                = np.linspace(20,120,25)   
     axes                = fig.add_subplot(1,1,1)   
     Range               = Range/Units.nmi
     Span                = Span/Units.nmi
