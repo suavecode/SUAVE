@@ -17,7 +17,6 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           i
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates   import compute_point_source_coordinates
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates   import compute_blade_section_source_coordinates
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise         import compute_harmonic_noise
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise_old    import compute_broadband_noise_old 
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        import compute_broadband_noise
 
 # -------------------------------------------------------------------------------------

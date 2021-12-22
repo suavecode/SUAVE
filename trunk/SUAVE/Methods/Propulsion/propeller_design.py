@@ -21,7 +21,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoi
 #  Propeller Design
 # ----------------------------------------------------------------------
 
-def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points = 200):
+def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points = 300):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
