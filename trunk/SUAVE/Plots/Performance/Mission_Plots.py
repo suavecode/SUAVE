@@ -1655,7 +1655,7 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
         frames.inertial.position_vector   - position vector of aircraft 
         noise.                            
             total_SPL_dBA                 - total SPL (dbA)
-            total_microphone_locations          - microphone locations
+            total_microphone_locations    - microphone locations
             
     Outputs: 
     Plots
@@ -1685,7 +1685,7 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     for i in range(dim_segs):  
         for j in range(dim_ctrl_pts):
             if results.segments[i].battery_discharge == False:
-                pass 
+                pass
             else:
                 SPL[i,j,:] = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm].reshape(N_gm_x,N_gm_y)  
     max_SPL = np.max(np.max(SPL,axis=0),axis=0)   

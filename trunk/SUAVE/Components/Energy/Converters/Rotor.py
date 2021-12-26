@@ -80,7 +80,7 @@ class Rotor(Energy_Component):
         self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                       = False
         self.number_azimuthal_stations    = 24
-        self.number_points_around_airfoil = 40
+        self.vtk_airfoil_points           = 40
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
 

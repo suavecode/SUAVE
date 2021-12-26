@@ -77,18 +77,18 @@ class Fidelity_One(Noise):
         settings.urban_canyon_building_dimensions     = []
         settings.urban_canyon_building_locations      = []  
         settings.urban_canyon_microphone_x_resolution = 4 
-        settings.urban_canyon_microphone_y_resolution = 4 
-        settings.broadband_spectrum_resolution        = 301 # decreasing below 301 will result in some 1/3 octave bands having no value 
-        settings.number_of_airfoil_points             = 200 # decreasing below 301 will result in some 1/3 octave bands having no value 
+        settings.urban_canyon_microphone_y_resolution = 4  
+        settings.number_of_airfoil_points             = 200 
         settings.floating_point_precision             = np.float32
         settings.urban_canyon_microphone_z_resolution = 16 
+        settings.broadband_spectrum_resolution        = 2
         settings.mic_x_position                       = 0       
-        settings.level_ground_microphone_min_x        = -50  * Units.feet 
+        settings.level_ground_microphone_min_x        = 0    * Units.feet 
         settings.level_ground_microphone_max_x        = 1000 * Units.feet 
-        settings.level_ground_microphone_min_y        = 250  * Units.feet 
+        settings.level_ground_microphone_min_y        = 1E-1 * Units.feet 
         settings.level_ground_microphone_max_y        = 1000 * Units.feet 
-        settings.level_ground_microphone_x_resolution = 16 
-        settings.level_ground_microphone_y_resolution = 4  
+        settings.level_ground_microphone_x_resolution = 50
+        settings.level_ground_microphone_y_resolution = 5  
         settings.center_frequencies                   = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
                                                                   500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
                                                                   4000, 5000, 6300, 8000, 10000])        
@@ -202,7 +202,7 @@ class Fidelity_One(Noise):
                         acoustic_data                = conditions.noise.sources[source]   
                         propeller_noise              = propeller_mid_fidelity(net,acoustic_data,segment,settings,source)  
                         source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
-                        #source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_1_3_spectrum    
+                        source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_1_3_spectrum    
                            
                         si += 1
              
