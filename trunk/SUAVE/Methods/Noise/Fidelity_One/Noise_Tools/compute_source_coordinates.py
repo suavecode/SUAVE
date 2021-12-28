@@ -153,7 +153,7 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,so
     prop          = propellers[list(propellers.keys())[0]]   
     rots          = np.array(prop.orientation_euler_angles) * 1. 
     thrust_angle  = rots[1] + prop.inputs.y_axis_rotation
-    BSR           = settings.broadband_spectrum_resolution * 30
+    BSR           = 30
     r             = prop.radius_distribution   
     num_sec       = len(r)  
     phi_2d0       = acoustic_outputs.disc_azimuthal_distribution   

@@ -76,9 +76,9 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
         propellers      = network.propellers
         
     propeller = propellers[list(propellers.keys())[0]]   # CORRECT    
-    vec       = np.flip(np.arange(int(-10*settings.broadband_spectrum_resolution),int(20*settings.broadband_spectrum_resolution))) 
-    frequency = 1000/(2**(vec*(1/(3*settings.broadband_spectrum_resolution))))
-    BSR       = settings.broadband_spectrum_resolution*30
+    vec       = np.flip(np.arange(int(-10),int(20))) 
+    frequency = 1000/(2**(vec*(1/(3))))
+    BSR       = 30
     POS       = blade_section_position_vectors.blade_section_coordinate_sys   
     POS_2     = blade_section_position_vectors.vehicle_coordinate_sys           
     r         = blade_section_position_vectors.r                               
@@ -352,11 +352,13 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     expression_C        = np.maximum(a, (0.25*beta_c - 0.52)*a)*(expression_F**2)                   #  CHECKED AND VALIDATED
     expression_D        = (4.76*(expression_F**0.75) + d_star)**e                                   #  CHECKED AND VALIDATED 
     expression_E        = np.power((8.8*(R_T**(-0.57))*expression_F),h_star)                        #  CHECKED AND VALIDATED 
+    expression_D[np.isinf(expression_D)] = 1E40
+    expression_C[np.isinf(expression_C)] = 1E40
     Phi_pp_expression   =  expression_C/( expression_D + expression_E)                              #  CHECKED AND VALIDATED                           
     Phi_pp              = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue                              #  CHECKED AND VALIDATED  
-    Phi_pp     = np.nan_to_num(Phi_pp)
-    
-    #Phi_pp[np.isnan(Phi_pp)] = 0.    
+    #Phi_pp     = np.nan_to_num(Phi_pp)
+    Phi_pp[np.isinf(Phi_pp)] = 0.
+    Phi_pp[np.isnan(Phi_pp)] = 0.    
 
 
     

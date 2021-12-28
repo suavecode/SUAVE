@@ -79,15 +79,14 @@ class Fidelity_One(Noise):
         settings.urban_canyon_microphone_x_resolution = 4 
         settings.urban_canyon_microphone_y_resolution = 4  
         settings.number_of_airfoil_points             = 200 
-        settings.floating_point_precision             = np.float32
-        settings.urban_canyon_microphone_z_resolution = 16 
-        settings.broadband_spectrum_resolution        = 2
+        settings.floating_point_precision             = np.float64
+        settings.urban_canyon_microphone_z_resolution = 16  
         settings.mic_x_position                       = 0       
-        settings.level_ground_microphone_min_x        = 0    * Units.feet 
+        settings.level_ground_microphone_min_x        = -50  * Units.feet 
         settings.level_ground_microphone_max_x        = 1000 * Units.feet 
         settings.level_ground_microphone_min_y        = 1E-1 * Units.feet 
         settings.level_ground_microphone_max_y        = 1000 * Units.feet 
-        settings.level_ground_microphone_x_resolution = 50
+        settings.level_ground_microphone_x_resolution = 20
         settings.level_ground_microphone_y_resolution = 5  
         settings.center_frequencies                   = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
                                                                   500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
