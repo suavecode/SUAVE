@@ -6,14 +6,12 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-from SUAVE.Core import Units , Data  
-#from memory_profiler import profile 
+from SUAVE.Core import Units , Data   
 import numpy as np 
  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.SPL_harmonic_to_third_octave  import SPL_harmonic_to_third_octave  
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_spectra_arithmetic  
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates    import vectorize
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series  
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
@@ -24,43 +22,45 @@ from scipy.special import fresnel
 # ----------------------------------------------------------------------
 # Frequency Domain Broadband Noise Computation
 # ----------------------------------------------------------------------
-## @ingroupMethods-Noise-Fidelity_One-Propeller
-#@profile
+## @ingroupMethods-Noise-Fidelity_One-Propeller 
 def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,
                             velocity_vector,network,auc_opts,settings,res,source):
     '''This computes the trailing edge noise compoment of broadband noise of a propeller or 
-    rotor in the frequency domain
+    rotor in the frequency domain. Boundary layer properties are computed using SUAVE's 
+    panel method.
     
     Assumptions:
-        UPDATE
+        Boundary laywer thickness (delta) appear to be an order of magnitude off at the trailing edge and 
+        correction factor of 0.1 is used. See lines 255 and 256 
         
-        Modifications: the boundary laywer appears to be an order of magnitude off and therefore a multiplier of 0.1 is multiplied by delta 
-
-    Source:
-       UPDATE
-    
+    Source: 
+        Li, Sicheng Kevin, and Seongkyu Lee. "Prediction of Urban Air Mobility Multirotor VTOL Broadband Noise
+        Using UCD-QuietFly." Journal of the American Helicopter Society (2021).
     
     Inputs:  
-        freestream                    - freestream data structure                                                   [m/s]
-        angle_of_attack               - aircraft angle of attack                                                    [rad]
-        position_vector               - position vector of aircraft                                                 [m]
-        velocity_vector               - velocity vector of aircraft                                                 [m/s]
-        network                       - energy network object                                                       [None] 
-        auc_opts                      - data structure of acoustic data                                             [None] 
-        settings                      - accoustic settings                                                          [None] 
+        freestream                                   - freestream data structure                                                          [m/s]
+        angle_of_attack                              - aircraft angle of attack                                                           [rad]
+        blade_section_position_vectors               - rotor blade section trailing edge vectors                                          [m]
+        velocity_vector                              - velocity vector of aircraft                                                        [m/s]
+        network                                      - energy network object                                                              [None] 
+        auc_opts                                     - data structure of acoustic data                                                    [None] 
+        settings                                     - accoustic settings                                                                 [None] 
+        res                                          - results data structure                                                             [None] 
+        source                                       - noise source data structure                                                        [None] 
     
     Outputs 
-       res.                                       *acoustic data is stored and passed in data structures*                        
-           SPL_prop_broadband_spectrum           - harmonic noise in blade passing frequency spectrum              [dB]
-           SPL_prop_broadband_spectrum_dBA       - dBA-Weighted harmonic noise in blade passing frequency spectrum [dbA]     
-           SPL_prop_broadband_1_3_spectrum       - harmonic noise in 1/3 octave spectrum                           [dB]
-           SPL_prop_broadband_1_3_spectrum_dBA   - dBA-Weighted harmonic noise in 1/3 octave spectrum              [dBA] 
-           p_pref_broadband                      - pressure ratio of harmonic noise                                [Unitless]
-           p_pref_broadband_dBA                  - pressure ratio of dBA-weighted harmonic noise                   [Unitless]
-       
-       
-       
-            
+       res.                                           *acoustic data is stored and passed in data structures*                                          
+           SPL_prop_broadband_spectrum               - broadband noise in blade passing frequency spectrum                                [dB]
+           SPL_prop_broadband_spectrum_dBA           - dBA-Weighted broadband noise in blade passing frequency spectrum                   [dbA]     
+           SPL_prop_broadband_1_3_spectrum           - broadband noise in 1/3 octave spectrum                                             [dB]
+           SPL_prop_broadband_1_3_spectrum_dBA       - dBA-Weighted broadband noise in 1/3 octave spectrum                                [dBA] 
+           p_pref_broadband                          - pressure ratio of broadband noise                                                  [Unitless]
+           p_pref_broadband_dBA                      - pressure ratio of dBA-weighted broadband noise                                     [Unitless]                              
+           p_pref_azimuthal_broadband                - azimuthal varying pressure ratio of broadband noise                                [Unitless]       
+           p_pref_azimuthal_broadband_dBA            - azimuthal varying pressure ratio of dBA-weighted broadband noise                   [Unitless]     
+           SPL_prop_azimuthal_broadband_spectrum     - azimuthal varying broadband noise in blade passing frequency spectrum              [dB]      
+           SPL_prop_azimuthal_broadband_spectrum_dBA - azimuthal varying dBA-Weighted broadband noise in blade passing frequency spectrum [dbA]   
+        
     Properties Used:
         N/A   
     '''     
@@ -146,7 +146,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     # ------------------------------------------------------------
     # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ****** 
     for i in range(num_cpt) : # lower surface is 0, upper surface is 1  
-        TE_idx                  = 5 # assume trailing edge is the forth from last panel  
+        TE_idx                  =  4  # assume trailing edge is the forth from last panel  
         
         if propeller.nonuniform_freestream: # CORRECT THIS HANDLES AZIMUTHALLY CHANGING IN FLOW
             for i_azi in range(num_azi):
@@ -256,8 +256,8 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
         # ------------------------------------------------------------
         # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******  
 
-        delta[i,:,:,:,:,:,0]        = vectorize(lower_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)*0.1                               # lower surfacedisplacement thickness 
-        delta[i,:,:,:,:,:,1]        = vectorize(upper_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)*0.1   
+        delta[i,:,:,:,:,:,0]        = vectorize(lower_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)*0.1                              # lower surfacedisplacement thickness 
+        delta[i,:,:,:,:,:,1]        = vectorize(upper_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)*0.1 
         delta_star[i,:,:,:,:,:,0]   = vectorize(lower_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                               # lower surfacedisplacement thickness 
         delta_star[i,:,:,:,:,:,1]   = vectorize(upper_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                # upper surface displacement thickness   
         dp_dx[i,:,:,:,:,:,0]        = vectorize(lower_surface_dp_dx ,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                   # lower surface pressure differential 
@@ -268,7 +268,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
         tau_w[i:,:,:,:,:,:,1]       = vectorize(upper_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)),num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)    # upper surface wall shear stress 
         Theta[i,:,:,:,:,:,0]        = vectorize(lower_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                    # lower surface momentum thickness     
         Theta[i,:,:,:,:,:,1]        = vectorize(upper_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                   # upper surface momentum thickness  
- 
+  
     # Update dimensions for computation      
     r         = vectorize(r,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 1) 
     c         = vectorize(blade_chords,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 1)  
@@ -293,41 +293,41 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     # ------------------------------------------------------------
     # ****** BLADE MOTION CALCULATIONS ****** 
     # the rotational Mach number of the blade section 
-    omega   = 2*pi*frequency                                                #  CHECKED AND VALIDATED 
-    omega   = vectorize(omega,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 8)       #  CHECKED AND VALIDATED 
-    r       = np.repeat(r[:,:,:,:,:,:,np.newaxis],2,axis = 6)                #  CHECKED AND VALIDATED 
-    c       = np.repeat(c[:,:,:,:,:,:,np.newaxis],2,axis = 6)/2                #  CHECKED AND VALIDATED 
-    delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)          #  CHECKED AND VALIDATED 
-    M       = np.repeat(M,2,axis = 6)                                    #  CHECKED AND VALIDATED 
-    M_r     = Omega*r/c_0                                                #  CHECKED 
-    epsilon = X**2 + (beta_sq)*(Y**2 + Z**2)                             #  CHECKED
-    U_c     = 0.8*U_inf                                                  #  CHECKED
-    k_x     = omega/U_inf                                                #  CHECKED
-    l_r     = 1.6*U_c/omega                                              #  CHECKED  
-    omega_d = omega/(1 +  M_r*(X/R_s)) # dopler shifted frequency        #  CHECKED
-    mu      = omega_d*M/(U_inf*beta_sq)                                  #  CHECKED
-    bar_mu  = mu/c   # normalized by the semi chord                  #  CHECKED  
-    bar_k_x = k_x/c                                                  #  CHECKED
+    omega   = 2*pi*frequency                                                 
+    omega   = vectorize(omega,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 8)        
+    r       = np.repeat(r[:,:,:,:,:,:,np.newaxis],2,axis = 6)                 
+    c       = np.repeat(c[:,:,:,:,:,:,np.newaxis],2,axis = 6)/2                 
+    delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)           
+    M       = np.repeat(M,2,axis = 6)                                     
+    M_r     = Omega*r/c_0                                                 
+    epsilon = X**2 + (beta_sq)*(Y**2 + Z**2)                             
+    U_c     = 0.8*U_inf                                                  
+    k_x     = omega/U_inf                                                
+    l_r     = 1.6*U_c/omega                                                
+    omega_d = omega/(1 +  M_r*(X/R_s)) # dopler shifted frequency        
+    mu      = omega_d*M/(U_inf*beta_sq)                                  
+    bar_mu  = mu/c   # normalized by the semi chord                    
+    bar_k_x = k_x/c                                                  
 
     # ------------------------------------------------------------
     # ****** LOADING TERM CALCULATIONS ******   
     # equation 7 
-    K             = omega_d/U_c                                                       #  CHECKED
-    bar_K         = K /c                                                          #  CHECKED
-    gamma         = np.sqrt(((mu/epsilon)**2)*(X**2 + beta_sq*(Z**2)))                #  CHECKED
-    bar_gamma     = gamma/c                                                       #  CHECKED  
-    ss_1, cc_1    = fresnel(2*(bar_K + bar_mu*M + bar_gamma))                            #  CHECKED     
-    cc_1          = np.array(cc_1, dtype=precision)                                   #  CHECKED 
-    ss_1          = np.array(ss_1, dtype=precision)                                   #  CHECKED               
-    E_star_1      = cc_1 - 1j*ss_1                                                        #  CHECKED 
-    ss_2, cc_2    = fresnel(2*(bar_mu*X/epsilon + bar_gamma) )                           #  CHECKED 
-    cc_2          = np.array(cc_2, dtype=precision)                                   #  CHECKED 
-    ss_2          = np.array(ss_2, dtype=precision)                                   #  CHECKED 
-    E_star_2      = cc_2 - 1j*ss_2                                                        #  CHECKED 
-    triangle      = bar_k_x - bar_mu*X/epsilon + bar_mu*M                             #  CHECKED
-    expression_A  = 1 - (1 + 1j)*E_star_1                                             #  CHECKED 
-    expression_B  = (np.exp(-1j*2*triangle))*(np.sqrt((K + mu*M + gamma)/(mu*X/epsilon +gamma))) *(1 + 1j)*E_star_2    #  CHECKED 
-    norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*(expression_A + expression_B ))                            #  CHECKED                          
+    K             = omega_d/U_c                                                       
+    bar_K         = K /c                                                          
+    gamma         = np.sqrt(((mu/epsilon)**2)*(X**2 + beta_sq*(Z**2)))                
+    bar_gamma     = gamma/c                                                         
+    ss_1, cc_1    = fresnel(2*(bar_K + bar_mu*M + bar_gamma))                                 
+    cc_1          = np.array(cc_1, dtype=precision)                                    
+    ss_1          = np.array(ss_1, dtype=precision)                                                  
+    E_star_1      = cc_1 - 1j*ss_1                                                         
+    ss_2, cc_2    = fresnel(2*(bar_mu*X/epsilon + bar_gamma) )                            
+    cc_2          = np.array(cc_2, dtype=precision)                                    
+    ss_2          = np.array(ss_2, dtype=precision)                                    
+    E_star_2      = cc_2 - 1j*ss_2                                                         
+    triangle      = bar_k_x - bar_mu*X/epsilon + bar_mu*M                             
+    expression_A  = 1 - (1 + 1j)*E_star_1                                              
+    expression_B  = (np.exp(-1j*2*triangle))*(np.sqrt((K + mu*M + gamma)/(mu*X/epsilon +gamma))) *(1 + 1j)*E_star_2     
+    norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*(expression_A + expression_B ))                                                      
     norm_L_sq     = np.array(norm_L_sq, dtype=precision) 
     norm_L_sq     = np.nan_to_num(norm_L_sq)
     norm_L_sq[norm_L_sq == 0]  = 0 #  np.mean(norm_L_sq)
@@ -336,26 +336,26 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     # ------------------------------------------------------------
     # ****** EMPIRICAL WALL PRESSURE SPECTRUM ******  
     # equation 8 
-    mu_tau              = (tau_w/rho)**0.5                                                          #  CHECKED AND VALIDATED
-    ones                = np.ones_like(mu_tau)                                                      #  CHECKED AND VALIDATED
-    R_T                 = (delta/Ue)/(kine_visc/(mu_tau**2))                                        #  CHECKED AND VALIDATED     
-    beta_c              =  (Theta/tau_w)*dp_dx                                                      #  CHECKED AND VALIDATED                                       
-    Delta               = delta/delta_star                                                          #  CHECKED AND VALIDATED
-    e                   = 3.7 + 1.5*beta_c                                                          #  CHECKED AND VALIDATED
-    d                   = 4.76*((1.4/Delta)**0.75)*(0.375*e - 1)                                    #  CHECKED AND VALIDATED                         
-    PI                  = 0.8*((beta_c + 0.5)**3/4)                                                 #  CHECKED AND VALIDATED        
-    a                   = (2.82*(Delta**2)*(np.power((6.13*(Delta**(-0.75)) + d),e)))*(4.2*(PI/Delta) + 1)   #  CHECKED AND VALIDATED
-    h_star              = np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7                            #  CHECKED AND VALIDATED
-    d_star              = d                                                                         #  CHECKED AND VALIDATED 
-    d_star[beta_c<0.5]  = np.maximum(ones,1.5*d)[beta_c<0.5]                                        #  CHECKED AND VALIDATED 
-    expression_F        = (omega*delta_star/Ue)                                                     #  CHECKED AND VALIDATED
-    expression_C        = np.maximum(a, (0.25*beta_c - 0.52)*a)*(expression_F**2)                   #  CHECKED AND VALIDATED
-    expression_D        = (4.76*(expression_F**0.75) + d_star)**e                                   #  CHECKED AND VALIDATED 
-    expression_E        = np.power((8.8*(R_T**(-0.57))*expression_F),h_star)                        #  CHECKED AND VALIDATED 
+    mu_tau              = (tau_w/rho)**0.5                                                          
+    ones                = np.ones_like(mu_tau)                                                      
+    R_T                 = (delta/Ue)/(kine_visc/(mu_tau**2))                                             
+    beta_c              =  (Theta/tau_w)*dp_dx                                                                                             
+    Delta               = delta/delta_star                                                          
+    e                   = 3.7 + 1.5*beta_c                                                          
+    d                   = 4.76*((1.4/Delta)**0.75)*(0.375*e - 1)                                                             
+    PI                  = 0.8*((beta_c + 0.5)**3/4)                                                         
+    a                   = (2.82*(Delta**2)*(np.power((6.13*(Delta**(-0.75)) + d),e)))*(4.2*(PI/Delta) + 1)   
+    h_star              = np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7                            
+    d_star              = d                                                                          
+    d_star[beta_c<0.5]  = np.maximum(ones,1.5*d)[beta_c<0.5]                                         
+    expression_F        = (omega*delta_star/Ue)                                                     
+    expression_C        = np.maximum(a, (0.25*beta_c - 0.52)*a)*(expression_F**2)                   
+    expression_D        = (4.76*(expression_F**0.75) + d_star)**e                                    
+    expression_E        = np.power((8.8*(R_T**(-0.57))*expression_F),h_star)                         
     expression_D[np.isinf(expression_D)] = 1E40
     expression_C[np.isinf(expression_C)] = 1E40
-    Phi_pp_expression   =  expression_C/( expression_D + expression_E)                              #  CHECKED AND VALIDATED                           
-    Phi_pp              = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue                              #  CHECKED AND VALIDATED  
+    Phi_pp_expression   =  expression_C/( expression_D + expression_E)                                                         
+    Phi_pp              = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue                                
     #Phi_pp     = np.nan_to_num(Phi_pp)
     Phi_pp[np.isinf(Phi_pp)] = 0.
     Phi_pp[np.isnan(Phi_pp)] = 0.    
@@ -417,28 +417,13 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
      
     SPL_surf_azi      = SPL_arithmetic(SPL_azi, sum_axis = 6 )# equation 10 inside brackets
     SPL_rotor_azi     = SPL_arithmetic(SPL_surf_azi, sum_axis = 3 ) # equation 10 inside brackets  
-    SPL_rotor_dBA_azi = A_weighting(SPL_rotor_azi,frequency) 
-     
+    SPL_rotor_dBA_azi = A_weighting(SPL_rotor_azi,frequency)  
     
     # sound pressure levels 
     res.p_pref_azimuthal_broadband                    = 10**(SPL_rotor_azi /10)   
     res.p_pref_azimuthal_broadband_dBA                = 10**(SPL_rotor_dBA_azi /10)  
     res.SPL_prop_azimuthal_broadband_spectrum         = SPL_rotor_azi  
-    res.SPL_prop_azimuthal_broadband_spectrum_dBA     = SPL_rotor_dBA_azi
-    
-    #import matplotlib.pyplot as plt  
-    #import matplotlib.cm as cm    
-    #colors  = cm.rainbow(np.linspace(0, 1,num_sec)) 
-    #fig1  = plt.figure('Airfoil Geometry',figsize=(8,6)) 
-    #axis1 = fig1.add_subplot(1,1,1)     
-    #axis1.set_xlabel('Frequency')
-    #axis1.set_ylabel('SPL')  
-    #axis1.set_ylim(0,60)         
-    #for i in range(num_sec):
-        #axis1.semilogx(frequency,SPL_surf[0,4,0,i,:], color = colors[i], linestyle = '-')
-
-    #axis1.semilogx(frequency,SPL_rotor[0,4,0,:], color = 'k', linestyle = '-')    
-    #plt.show()
+    res.SPL_prop_azimuthal_broadband_spectrum_dBA     = SPL_rotor_dBA_azi 
     return 
 
  

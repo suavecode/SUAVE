@@ -52,9 +52,9 @@ def main():
     
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
-    X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[0][0]
-    X57_SPL_true   = 35.02046919780747
-
+    X57_SPL        = X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA[0][0]
+    X57_SPL_true   = 76.09883462326746
+    
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
@@ -81,7 +81,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SAE Turbofan Aircraft Noise Model')
     B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
-    B737_SPL_true   = 27.760566836483797
+    B737_SPL_true   = 27.760566836483815
     print(B737_SPL) 
     B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
     print('SPL difference')
@@ -254,6 +254,16 @@ def urban_canyon_microphone_setup():
 
 def X57_mission_setup(analyses,vehicle):  
     
+
+    # Determine Stall Speed 
+    m     = vehicle.mass_properties.max_takeoff
+    g     = 9.81
+    S     = vehicle.reference_area
+    atmo  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    rho   = atmo.compute_values(1000.*Units.feet,0.).density
+    CLmax = 1.2 
+    Vstall = float(np.sqrt(2.*m*g/(rho*S*CLmax))) 
+    
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
@@ -276,23 +286,23 @@ def X57_mission_setup(analyses,vehicle):
     ones_row                                                 = base_segment.state.ones_row 
     base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.state.numerics.number_control_points        = 4  
+    base_segment.state.numerics.number_control_points        = 4   
     
     # ------------------------------------------------------------------
-    #   Initial Climb Area Segment Flight 1  
-    # ------------------------------------------------------------------   
+    #   Departure End of Runway Segment Flight 1 : 
+    # ------------------------------------------------------------------ 
     segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
-    segment.tag = 'Climb'    
-    segment.analyses.extend( analyses.base )            
+    segment.tag = 'Departure_End_of_Runway'    
+    segment.analyses.extend( analyses.base )      
     segment.altitude_start                                   = 0.0 * Units.feet
-    segment.altitude_end                                     = 1000.0 * Units.feet
-    segment.air_speed_start                                  = 50
-    segment.air_speed_end                                    = 55       
+    segment.altitude_end                                     = 50.0 * Units.feet
+    segment.air_speed_start                                  = Vstall*1.1 
+    segment.air_speed_end                                    = Vstall*1.2       
     segment.climb_rate                                       = 600 * Units['ft/min']  
-    segment.state.unknowns.throttle                          = 0.9 * ones_row(1)  
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.05)  
-    mission.append_segment(segment)   
-    
+    segment.state.unknowns.throttle                          = 0.75 * ones_row(1)  
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)  
+    mission.append_segment(segment) 
+
     return mission
 
 def B737_mission_setup(analyses): 

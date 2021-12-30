@@ -174,7 +174,9 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Noise Analysis
-    noise = SUAVE.Analyses.Noise.Fidelity_One()
+    noise = SUAVE.Analyses.Noise.Fidelity_One() 
+    noise.settings.level_ground_microphone_x_resolution = 2
+    noise.settings.level_ground_microphone_y_resolution = 2       
     noise.geometry = vehicle
     analyses.append(noise)
 

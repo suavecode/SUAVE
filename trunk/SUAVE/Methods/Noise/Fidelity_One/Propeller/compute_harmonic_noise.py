@@ -61,8 +61,8 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     '''     
     num_h           = len(harmonics)     
     num_cpt         = len(angle_of_attack)
-    num_mic         = len(position_vector[0,:,0,1])
-    num_prop        = len(position_vector[0,0,:,1])
+    num_mic         = len(position_vector[0,:,0,0])
+    num_prop        = len(position_vector[0,0,:,0])
     num_h           = len(harmonics) 
     num_azi         = auc_opts.number_azimuthal_stations
 

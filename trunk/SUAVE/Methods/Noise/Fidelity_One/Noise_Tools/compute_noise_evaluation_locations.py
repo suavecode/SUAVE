@@ -14,7 +14,7 @@ import numpy as np
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
 def compute_ground_noise_evaluation_locations(settings,segment):
     """This computes the relative locations on the surface in the computational domain where the 
-    propogated sound is computed.   
+    propogated sound is computed. Vectors point from observer/microphone to aircraft/souce  
             
     Assumptions: 
         Acoustic scattering is not modeled

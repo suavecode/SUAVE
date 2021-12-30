@@ -39,12 +39,12 @@ def main():
     # ----------------------------------------------------------------------    
 
     # General Aviation Aircraft   
-    GA_RPM_true              = [973.9534348587468,973.953434872128]
-    GA_lift_coefficient_true = [0.5474716962005756,0.5474716962005768]
+    GA_RPM_true              = [2396.1128711222573,2396.1128711633864]
+    GA_lift_coefficient_true = [0.5474716961975726,0.5474716961975732]
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2385.0695323649907,2385.06953270966]
+    EVTOL_RPM_true              = [2385.0695323649907,2385.0695327100425]
     EVTOL_lift_coefficient_true = [0.8075122900985718,0.8075122900986484]
     
         
@@ -321,7 +321,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.altitude_end                     = 8012    * Units.feet 
     segment.air_speed                        = 96.4260 * Units['mph'] 
     segment.climb_rate                       = 700.034 * Units['ft/min']    
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment) 
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005) 
 
     # add to misison
     mission.append_segment(segment)
@@ -335,7 +335,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.altitude                  = 8012   * Units.feet
     segment.air_speed                 = 120.91 * Units['mph'] 
     segment.distance                  =  20.   * Units.nautical_mile   
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)   
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)   
 
     # add to misison
     mission.append_segment(segment)    
@@ -353,7 +353,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.air_speed_end                                    = 110 * Units['mph']   
     segment.climb_rate                                       = -200 * Units['ft/min']  
     segment.state.unknowns.throttle                          = 0.8 * ones_row(1)  
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.1)   
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)   
     
     # add to misison
     mission.append_segment(segment)
