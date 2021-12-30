@@ -7,8 +7,7 @@
 #  Imports
 # ---------------------------------------------------------------------
 import numpy as np
-import time 
-from memory_profiler import profile  
+import time
 from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Source Coordinates 
