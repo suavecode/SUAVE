@@ -249,19 +249,19 @@ def vehicle_setup():
     # -----------------------------------------------------------------
     # Design the Nacelle
     # ----------------------------------------------------------------- 
-    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.diameter              = 2.05
-    nacelle.length                = 2.71
-    nacelle.tag                   = 'nacelle_1'
-    nacelle.inlet_diameter        = 2.0
-    nacelle.origin                = [[12.0,4.38,-2.1]]
-    Awet                          = 1.1*np.pi*nacelle.diameter*nacelle.length # 1.1 is simple coefficient
-    nacelle.areas.wetted          = Awet  
-    nacelle.Arfoil.naca_4_series_airfoil = '2410' 
+    nacelle                               = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter                      = 2.05
+    nacelle.length                        = 2.71
+    nacelle.tag                           = 'nacelle_1'
+    nacelle.inlet_diameter                = 2.0
+    nacelle.origin                        = [[12.0,4.38,-2.1]]
+    Awet                                  = 1.1*np.pi*nacelle.diameter*nacelle.length # 1.1 is simple coefficient
+    nacelle.areas.wetted                  = Awet  
+    nacelle.Airfoil.naca_4_series_airfoil = '2410' 
 
-    nacelle_2                     = deepcopy(nacelle)
-    nacelle_2.tag                 = 'nacelle_2'
-    nacelle_2.origin              = [[12.0,-4.38,-2.1]]
+    nacelle_2                             = deepcopy(nacelle)
+    nacelle_2.tag                         = 'nacelle_2'
+    nacelle_2.origin                      = [[12.0,-4.38,-2.1]]
     
     vehicle.append_component(nacelle)   
     vehicle.append_component(nacelle_2)   
