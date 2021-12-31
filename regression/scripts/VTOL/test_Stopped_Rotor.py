@@ -171,7 +171,6 @@ def base_analysis(vehicle):
     energy.network = vehicle.networks
     analyses.append(energy)
 
-
     # ------------------------------------------------------------------
     #  Noise Analysis
     noise = SUAVE.Analyses.Noise.Fidelity_One() 

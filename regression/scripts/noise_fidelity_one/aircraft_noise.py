@@ -177,7 +177,9 @@ def base_analysis(vehicle):
     noise.settings.urban_canyon_building_dimensions     = building_dimensions
     noise.settings.urban_canyon_microphone_x_resolution = N_x 
     noise.settings.urban_canyon_microphone_y_resolution = N_y
-    noise.settings.urban_canyon_microphone_z_resolution = N_z      
+    noise.settings.urban_canyon_microphone_z_resolution = N_z  
+    noise.settings.level_ground_microphone_x_resolution = 2
+    noise.settings.level_ground_microphone_y_resolution = 2        
     analyses.append(noise)
 
     # ------------------------------------------------------------------
@@ -245,9 +247,9 @@ def urban_canyon_microphone_setup():
     # define building dimensions  
     building_dimensions = [[100,200,75],[160,160,90]] # [[length,width,height]]     
     
-    N_X = 3
-    N_Y = 3
-    N_Z = 4
+    N_X = 2
+    N_Y = 2
+    N_Z = 2
     mic_locations  = generate_building_microphone_points(building_locations,building_dimensions,N_x = N_X ,N_y = N_Y ,N_z = N_Z ) 
      
     return mic_locations,building_locations ,building_dimensions,N_X ,N_Y ,N_Z 
