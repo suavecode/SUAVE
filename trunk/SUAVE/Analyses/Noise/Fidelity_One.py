@@ -77,9 +77,7 @@ class Fidelity_One(Noise):
         settings.urban_canyon_building_dimensions     = []
         settings.urban_canyon_building_locations      = []  
         settings.urban_canyon_microphone_x_resolution = 4 
-        settings.urban_canyon_microphone_y_resolution = 4  
-        settings.number_of_airfoil_points             = 200 
-        settings.floating_point_precision             = np.float64
+        settings.urban_canyon_microphone_y_resolution = 4
         settings.urban_canyon_microphone_z_resolution = 16  
         settings.mic_x_position                       = 0       
         settings.level_ground_microphone_min_x        = 1E-6  

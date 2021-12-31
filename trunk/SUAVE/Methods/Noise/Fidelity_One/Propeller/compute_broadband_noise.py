@@ -67,8 +67,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
 
     num_cpt         = len(angle_of_attack) 
     num_prop        = len(blade_section_position_vectors.blade_section_coordinate_sys[0,0,:,0,0,0,0,0]) 
-    num_mic         = len(blade_section_position_vectors.blade_section_coordinate_sys[0,:,0,0,0,0,0,0])
-    precision       = settings.floating_point_precision
+    num_mic         = len(blade_section_position_vectors.blade_section_coordinate_sys[0,:,0,0,0,0,0,0]) 
     
     if source == 'lift_rotors':  
         propellers      = network.lift_rotors 
@@ -112,8 +111,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     M                  = U_inf/c_0                                             
     B                  = propeller.number_of_blades          # number of propeller blades
     Omega              = auc_opts.omega                      # angular velocity   
-    pi                 = np.pi 
-    BPF                = Omega/(2*pi)
+    pi                 = np.pi
     beta_sq            = 1 - M**2                                  
     delta_r            = np.zeros_like(r)
     del_r              = r[1:] - r[:-1]
@@ -121,27 +119,27 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     delta_r[-1]        = 2*del_r[-1]
     delta_r[1:-1]      = (del_r[:-1]+ del_r[1:])/2 
 
-    delta        = np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,BSR,2), dtype=precision) #  control points ,  number rotors, number blades , number sections , sides of airfoil   
-    delta_star   = np.zeros_like(delta, dtype=precision)
-    dp_dx        = np.zeros_like(delta, dtype=precision)
-    tau_w        = np.zeros_like(delta, dtype=precision)
-    Ue           = np.zeros_like(delta, dtype=precision)
-    Theta        = np.zeros_like(delta, dtype=precision)  
+    delta        = np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,BSR,2)) #  control points ,  number rotors, number blades , number sections , sides of airfoil   
+    delta_star   = np.zeros_like(delta)
+    dp_dx        = np.zeros_like(delta)
+    tau_w        = np.zeros_like(delta)
+    Ue           = np.zeros_like(delta)
+    Theta        = np.zeros_like(delta)  
 
-    lower_surface_theta      = np.zeros((num_sec,num_azi), dtype=precision)
-    lower_surface_delta      = np.zeros_like(lower_surface_theta, dtype=precision)
-    lower_surface_delta_star = np.zeros_like(lower_surface_theta, dtype=precision)
-    lower_surface_cf         = np.zeros_like(lower_surface_theta, dtype=precision)
-    lower_surface_Ue         = np.zeros_like(lower_surface_theta, dtype=precision)
-    lower_surface_H          = np.zeros_like(lower_surface_theta, dtype=precision) 
-    lower_surface_dp_dx      = np.zeros_like(lower_surface_theta, dtype=precision)
-    upper_surface_theta      = np.zeros_like(lower_surface_theta, dtype=precision)
-    upper_surface_delta      = np.zeros_like(lower_surface_theta, dtype=precision)
-    upper_surface_delta_star = np.zeros_like(lower_surface_theta, dtype=precision)
-    upper_surface_cf         = np.zeros_like(lower_surface_theta, dtype=precision)
-    upper_surface_Ue         = np.zeros_like(lower_surface_theta, dtype=precision)
-    upper_surface_H          = np.zeros_like(lower_surface_theta, dtype=precision)
-    upper_surface_dp_dx      = np.zeros_like(lower_surface_theta, dtype=precision)
+    lower_surface_theta      = np.zeros((num_sec,num_azi))
+    lower_surface_delta      = np.zeros_like(lower_surface_theta)
+    lower_surface_delta_star = np.zeros_like(lower_surface_theta)
+    lower_surface_cf         = np.zeros_like(lower_surface_theta)
+    lower_surface_Ue         = np.zeros_like(lower_surface_theta)
+    lower_surface_H          = np.zeros_like(lower_surface_theta) 
+    lower_surface_dp_dx      = np.zeros_like(lower_surface_theta)
+    upper_surface_theta      = np.zeros_like(lower_surface_theta)
+    upper_surface_delta      = np.zeros_like(lower_surface_theta)
+    upper_surface_delta_star = np.zeros_like(lower_surface_theta)
+    upper_surface_cf         = np.zeros_like(lower_surface_theta)
+    upper_surface_Ue         = np.zeros_like(lower_surface_theta)
+    upper_surface_H          = np.zeros_like(lower_surface_theta)
+    upper_surface_dp_dx      = np.zeros_like(lower_surface_theta)
     
     # ------------------------------------------------------------
     # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ****** 
@@ -256,30 +254,30 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
         # ------------------------------------------------------------
         # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******  
 
-        delta[i,:,:,:,:,:,0]        = vectorize(lower_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)*0.1                              # lower surfacedisplacement thickness 
-        delta[i,:,:,:,:,:,1]        = vectorize(upper_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)*0.1 
-        delta_star[i,:,:,:,:,:,0]   = vectorize(lower_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                               # lower surfacedisplacement thickness 
-        delta_star[i,:,:,:,:,:,1]   = vectorize(upper_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                # upper surface displacement thickness   
-        dp_dx[i,:,:,:,:,:,0]        = vectorize(lower_surface_dp_dx ,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                   # lower surface pressure differential 
-        dp_dx[i,:,:,:,:,:,1]        = vectorize(upper_surface_dp_dx ,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)      
-        Ue[i,:,:,:,:,:,0]           = vectorize(lower_surface_Ue,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                                    # lower surface boundary layer edge velocity 
-        Ue[i,:,:,:,:,:,1]           = vectorize(upper_surface_Ue,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                                   # upper surface boundary layer edge velocity 
-        tau_w[i,:,:,:,:,:,0]        = vectorize(lower_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)),num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)    # lower surface wall shear stress
-        tau_w[i:,:,:,:,:,:,1]       = vectorize(upper_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)),num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)    # upper surface wall shear stress 
-        Theta[i,:,:,:,:,:,0]        = vectorize(lower_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                    # lower surface momentum thickness     
-        Theta[i,:,:,:,:,:,1]        = vectorize(upper_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 7)                                   # upper surface momentum thickness  
+        delta[i,:,:,:,:,:,0]        = vectorize(lower_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)*0.1                              # lower surfacedisplacement thickness 
+        delta[i,:,:,:,:,:,1]        = vectorize(upper_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)*0.1 
+        delta_star[i,:,:,:,:,:,0]   = vectorize(lower_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)                               # lower surfacedisplacement thickness 
+        delta_star[i,:,:,:,:,:,1]   = vectorize(upper_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)                                # upper surface displacement thickness   
+        dp_dx[i,:,:,:,:,:,0]        = vectorize(lower_surface_dp_dx ,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)                                   # lower surface pressure differential 
+        dp_dx[i,:,:,:,:,:,1]        = vectorize(upper_surface_dp_dx ,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)      
+        Ue[i,:,:,:,:,:,0]           = vectorize(lower_surface_Ue,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)                                                    # lower surface boundary layer edge velocity 
+        Ue[i,:,:,:,:,:,1]           = vectorize(upper_surface_Ue,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)                                                   # upper surface boundary layer edge velocity 
+        tau_w[i,:,:,:,:,:,0]        = vectorize(lower_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)),num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)    # lower surface wall shear stress
+        tau_w[i:,:,:,:,:,:,1]       = vectorize(upper_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)),num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)    # upper surface wall shear stress 
+        Theta[i,:,:,:,:,:,0]        = vectorize(lower_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)                                    # lower surface momentum thickness     
+        Theta[i,:,:,:,:,:,1]        = vectorize(upper_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 7)                                   # upper surface momentum thickness  
   
     # Update dimensions for computation      
-    r         = vectorize(r,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 1) 
-    c         = vectorize(blade_chords,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 1)  
-    delta_r   = vectorize(delta_r,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 1)   
-    M         = vectorize(M,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 3)    
-    c_0       = vectorize(c_0,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 4)  
-    beta_sq   = vectorize(beta_sq,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 4)  
-    Omega     = vectorize(Omega,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 4)  
-    U_inf     = vectorize(U_inf,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 4)  
-    rho       = vectorize(rho,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 4)  
-    kine_visc = vectorize(kine_visc,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 4)   
+    r         = vectorize(r,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 1) 
+    c         = vectorize(blade_chords,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 1)  
+    delta_r   = vectorize(delta_r,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 1)   
+    M         = vectorize(M,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 3)    
+    c_0       = vectorize(c_0,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 4)  
+    beta_sq   = vectorize(beta_sq,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 4)  
+    Omega     = vectorize(Omega,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 4)  
+    U_inf     = vectorize(U_inf,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 4)  
+    rho       = vectorize(rho,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 4)  
+    kine_visc = vectorize(kine_visc,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 4)   
 
     X   = np.repeat(POS[:,:,:,:,:,:,0,:],2,axis = 6)                                    
     Y   = np.repeat(POS[:,:,:,:,:,:,1,:],2,axis = 6)
@@ -294,7 +292,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     # ****** BLADE MOTION CALCULATIONS ****** 
     # the rotational Mach number of the blade section 
     omega   = 2*pi*frequency                                                 
-    omega   = vectorize(omega,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method = 8)        
+    omega   = vectorize(omega,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 8)        
     r       = np.repeat(r[:,:,:,:,:,:,np.newaxis],2,axis = 6)                 
     c       = np.repeat(c[:,:,:,:,:,:,np.newaxis],2,axis = 6)/2                 
     delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)           
@@ -317,18 +315,18 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     gamma         = np.sqrt(((mu/epsilon)**2)*(X**2 + beta_sq*(Z**2)))                
     bar_gamma     = gamma/c                                                         
     ss_1, cc_1    = fresnel(2*(bar_K + bar_mu*M + bar_gamma))                                 
-    cc_1          = np.array(cc_1, dtype=precision)                                    
-    ss_1          = np.array(ss_1, dtype=precision)                                                  
+    cc_1          = np.array(cc_1)                                    
+    ss_1          = np.array(ss_1)                                                  
     E_star_1      = cc_1 - 1j*ss_1                                                         
     ss_2, cc_2    = fresnel(2*(bar_mu*X/epsilon + bar_gamma) )                            
-    cc_2          = np.array(cc_2, dtype=precision)                                    
-    ss_2          = np.array(ss_2, dtype=precision)                                    
+    cc_2          = np.array(cc_2)                                    
+    ss_2          = np.array(ss_2)                                    
     E_star_2      = cc_2 - 1j*ss_2                                                         
     triangle      = bar_k_x - bar_mu*X/epsilon + bar_mu*M                             
     expression_A  = 1 - (1 + 1j)*E_star_1                                              
     expression_B  = (np.exp(-1j*2*triangle))*(np.sqrt((K + mu*M + gamma)/(mu*X/epsilon +gamma))) *(1 + 1j)*E_star_2     
     norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*(expression_A + expression_B ))                                                      
-    norm_L_sq     = np.array(norm_L_sq, dtype=precision) 
+    norm_L_sq     = np.array(norm_L_sq) 
     norm_L_sq     = np.nan_to_num(norm_L_sq)
     norm_L_sq[norm_L_sq == 0]  = 0 #  np.mean(norm_L_sq)
     
@@ -382,14 +380,14 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
 
     # Acousic Power Spectrial Density from each blade - equation 6 
     mult     = ((omega/c_0 )**2)*c**2*delta_r*(1/(32*pi**2))*(B/(2*pi)) 
-    mult     = np.array(mult, dtype=precision)     
+    mult     = np.array(mult)     
     S_pp     = mult[:,:,:,:,0,:,:]*np.trapz(D_phi*norm_L_sq*l_r*Phi_pp,axis = 4)
     S_pp_azi = mult*D_phi*norm_L_sq*l_r*Phi_pp
     
     # equation 9 
     if np.all(S_pp == 0):
-        SPL            = 10*np.log10(np.ones_like(S_pp,dtype=precision)) 
-        SPL_azi        = 10*np.log10(np.ones_like(S_pp_azi,dtype=precision))   
+        SPL            = 10*np.log10(np.ones_like(S_pp)) 
+        SPL_azi        = 10*np.log10(np.ones_like(S_pp_azi))   
     else: 
         SPL            = 10*np.log10((2*pi*S_pp)/((p_ref)**2)) 
         SPL_azi        = 10*np.log10((2*pi*S_pp_azi)/((p_ref)**2))
