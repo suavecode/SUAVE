@@ -22,7 +22,7 @@ from scipy.special import fresnel
 # ----------------------------------------------------------------------
 # Frequency Domain Broadband Noise Computation
 # ----------------------------------------------------------------------
-## @ingroupMethods-Noise-Fidelity_One-Propeller 
+## @ingroupMethods-Noise-Fidelity_One-Propeller  
 def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,
                             velocity_vector,network,auc_opts,settings,res,source):
     '''This computes the trailing edge noise compoment of broadband noise of a propeller or 
@@ -295,42 +295,26 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     omega   = vectorize(omega,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 8)        
     r       = np.repeat(r[:,:,:,:,:,:,np.newaxis],2,axis = 6)                 
     c       = np.repeat(c[:,:,:,:,:,:,np.newaxis],2,axis = 6)/2                 
-    delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)           
-    M       = np.repeat(M,2,axis = 6)                                     
-    M_r     = Omega*r/c_0                                                 
-    epsilon = X**2 + (beta_sq)*(Y**2 + Z**2)                             
-    U_c     = 0.8*U_inf                                                  
-    k_x     = omega/U_inf                                                
-    l_r     = 1.6*U_c/omega                                                
-    omega_d = omega/(1 +  M_r*(X/R_s)) # dopler shifted frequency        
+    delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)                                                    
+    omega_d = omega/(1 +  (Omega*r/c_0)*(X/R_s)) # dopler shifted frequency        
+    M       = np.repeat(M,2,axis = 6)   
     mu      = omega_d*M/(U_inf*beta_sq)                                  
-    bar_mu  = mu/c   # normalized by the semi chord                    
-    bar_k_x = k_x/c                                                  
-
+    bar_mu  = mu/c   # normalized by the semi chord           
+    
     # ------------------------------------------------------------
     # ****** LOADING TERM CALCULATIONS ******   
-    # equation 7 
-    K             = omega_d/U_c                                                       
-    bar_K         = K /c                                                          
+    # equation 7       
+    epsilon       = X**2 + (beta_sq)*(Y**2 + Z**2)                 
+    K             = omega_d/(0.8*U_inf)                                             
     gamma         = np.sqrt(((mu/epsilon)**2)*(X**2 + beta_sq*(Z**2)))                
-    bar_gamma     = gamma/c                                                         
-    ss_1, cc_1    = fresnel(2*(bar_K + bar_mu*M + bar_gamma))                                 
-    cc_1          = np.array(cc_1)                                    
-    ss_1          = np.array(ss_1)                                                  
-    E_star_1      = cc_1 - 1j*ss_1                                                         
-    ss_2, cc_2    = fresnel(2*(bar_mu*X/epsilon + bar_gamma) )                            
-    cc_2          = np.array(cc_2)                                    
-    ss_2          = np.array(ss_2)                                    
-    E_star_2      = cc_2 - 1j*ss_2                                                         
-    triangle      = bar_k_x - bar_mu*X/epsilon + bar_mu*M                             
-    expression_A  = 1 - (1 + 1j)*E_star_1                                              
-    expression_B  = (np.exp(-1j*2*triangle))*(np.sqrt((K + mu*M + gamma)/(mu*X/epsilon +gamma))) *(1 + 1j)*E_star_2     
-    norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*(expression_A + expression_B ))                                                      
-    norm_L_sq     = np.array(norm_L_sq) 
+    ss_1, cc_1    = fresnel(2*((K /c) + bar_mu*M + (gamma/c)))                                
+    ss_2, cc_2    = fresnel(2*(bar_mu*X/epsilon + (gamma/c)) )                               
+    triangle      = (omega/(U_inf*c)) - bar_mu*X/epsilon + bar_mu*M                                       
+    norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*((1 - (1 + 1j)*(cc_1 - 1j*ss_1)) \
+                    + ((np.exp(-1j*2*triangle))*(np.sqrt((K + mu*M + gamma)/(mu*X/epsilon +gamma))) \
+                       *(1 + 1j)*(cc_2 - 1j*ss_2)) ))
     norm_L_sq     = np.nan_to_num(norm_L_sq)
-    norm_L_sq[norm_L_sq == 0]  = 0 #  np.mean(norm_L_sq)
     
-
     # ------------------------------------------------------------
     # ****** EMPIRICAL WALL PRESSURE SPECTRUM ******  
     # equation 8 
@@ -340,30 +324,22 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     beta_c              =  (Theta/tau_w)*dp_dx                                                                                             
     Delta               = delta/delta_star                                                          
     e                   = 3.7 + 1.5*beta_c                                                          
-    d                   = 4.76*((1.4/Delta)**0.75)*(0.375*e - 1)                                                             
-    PI                  = 0.8*((beta_c + 0.5)**3/4)                                                         
-    a                   = (2.82*(Delta**2)*(np.power((6.13*(Delta**(-0.75)) + d),e)))*(4.2*(PI/Delta) + 1)   
+    d                   = 4.76*((1.4/Delta)**0.75)*(0.375*e - 1)                                                
+    a                   = (2.82*(Delta**2)*(np.power((6.13*(Delta**(-0.75)) + d),e)))*(4.2*((0.8*((beta_c + 0.5)**3/4))/Delta) + 1)   
     h_star              = np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7                            
     d_star              = d                                                                          
-    d_star[beta_c<0.5]  = np.maximum(ones,1.5*d)[beta_c<0.5]                                         
-    expression_F        = (omega*delta_star/Ue)                                                     
-    expression_C        = np.maximum(a, (0.25*beta_c - 0.52)*a)*(expression_F**2)                   
-    expression_D        = (4.76*(expression_F**0.75) + d_star)**e                                    
-    expression_E        = np.power((8.8*(R_T**(-0.57))*expression_F),h_star)                         
-    expression_D[np.isinf(expression_D)] = 1E40
-    expression_C[np.isinf(expression_C)] = 1E40
-    Phi_pp_expression   =  expression_C/( expression_D + expression_E)                                                         
-    Phi_pp              = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue                                
-    #Phi_pp     = np.nan_to_num(Phi_pp)
+    d_star[beta_c<0.5]  = np.maximum(ones,1.5*d)[beta_c<0.5]        
+    Phi_pp_expression   =  (np.maximum(a, (0.25*beta_c - 0.52)*a)*((omega*delta_star/Ue)**2))/(((4.76*((omega*delta_star/Ue)**0.75) \
+                           + d_star)**e)+ (np.power((8.8*(R_T**(-0.57))*(omega*delta_star/Ue)),h_star) ))                                                         
+    Phi_pp              = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue    
     Phi_pp[np.isinf(Phi_pp)] = 0.
     Phi_pp[np.isnan(Phi_pp)] = 0.    
 
 
     
     # ------------------------------------------------------------
-    # ****** DIRECTIVITY ******      
-    #   equation A1 to A5 in Prediction of Urban Air Mobility Multirotor VTOL Broadband Noise Using UCD-QuietFly 
-
+    # ****** DIRECTIVITY ******       
+    l_r    = 1.6*(0.8*U_inf)/omega       
     l_x    = M_hub[:,:,:,:,:,:,0,:]
     l_y    = M_hub[:,:,:,:,:,:,1,:]
     l_z    = M_hub[:,:,:,:,:,:,2,:] 
@@ -397,8 +373,8 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     SPL_azi[SPL_azi == np.inf]  = 0
     SPL_azi[SPL_azi == -np.inf] = 0
     
-    SPL_surf       = SPL_arithmetic(SPL, sum_axis = 5 )# equation 10 inside brackets 
-    SPL_rotor      = SPL_arithmetic(SPL_surf, sum_axis = 3 )  # equation 10 inside brackets  
+    SPL_surf       = SPL_arithmetic(SPL, sum_axis = 5 )       
+    SPL_rotor      = SPL_arithmetic(SPL_surf, sum_axis = 3 )   
     SPL_rotor_dBA  = A_weighting(SPL_rotor,frequency)   
     
     
@@ -413,8 +389,8 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     res.SPL_prop_broadband_1_3_spectrum               = SPL_harmonic_to_third_octave(SPL_rotor,f,settings)  
     res.SPL_prop_broadband_1_3_spectrum_dBA           = SPL_harmonic_to_third_octave(SPL_rotor_dBA,f,settings) 
      
-    SPL_surf_azi      = SPL_arithmetic(SPL_azi, sum_axis = 6 )# equation 10 inside brackets
-    SPL_rotor_azi     = SPL_arithmetic(SPL_surf_azi, sum_axis = 3 ) # equation 10 inside brackets  
+    SPL_surf_azi      = SPL_arithmetic(SPL_azi, sum_axis = 6 ) 
+    SPL_rotor_azi     = SPL_arithmetic(SPL_surf_azi, sum_axis = 3 ) 
     SPL_rotor_dBA_azi = A_weighting(SPL_rotor_azi,frequency)  
     
     # sound pressure levels 
