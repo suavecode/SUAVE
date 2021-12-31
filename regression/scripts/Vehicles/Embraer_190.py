@@ -256,10 +256,8 @@ def vehicle_setup():
     nacelle.inlet_diameter        = 2.0
     nacelle.origin                = [[12.0,4.38,-2.1]]
     Awet                          = 1.1*np.pi*nacelle.diameter*nacelle.length # 1.1 is simple coefficient
-    nacelle.areas.wetted          = Awet 
-    nacelle_airfoil               = SUAVE.Components.Airfoils.Airfoil() 
-    nacelle_airfoil.naca_4_series_airfoil = '2410'
-    nacelle.append_airfoil(nacelle_airfoil) 
+    nacelle.areas.wetted          = Awet  
+    nacelle.Arfoil.naca_4_series_airfoil = '2410' 
 
     nacelle_2                     = deepcopy(nacelle)
     nacelle_2.tag                 = 'nacelle_2'
