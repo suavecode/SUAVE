@@ -101,8 +101,7 @@ def compute_point_source_coordinates(conditions,network,mls,source,settings):
      
     return propeller_position_vector
  
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
-#@profile
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools  
 def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,source,settings):  
     """This calculated the position vector from a point source to the observer 
             
@@ -243,7 +242,6 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,so
     blade_section_position_vectors.M_hub                           = M_hub    
  
     return blade_section_position_vectors
-
 
 def vectorize(vec0,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,precision,vectorize_method):
     vec  = np.array(vec0, dtype=precision)
