@@ -420,7 +420,7 @@ def vehicle_setup():
     prop.number_of_blades       = 3.0
     prop.freestream_velocity    = 150.   * Units.knots
     prop.angular_velocity       = 2400. * Units.rpm
-    prop.tip_radius             = 1.72  
+    prop.tip_radius             = 1.72/2  
     prop.hub_radius             = 10.     * Units.inches
     prop.design_Cl              = 0.8
     prop.design_altitude        = 9000. * Units.feet  
@@ -464,7 +464,7 @@ def vehicle_setup():
     motor                         = SUAVE.Components.Energy.Converters.Motor()
     motor.efficiency              = 0.95
     motor.gearbox_efficiency      = 1.
-    motor.origin                  = [[2.,  2.5, 0.784]]
+    motor.origin                  = [[2.,  2.5, 0.95]]
     motor.nominal_voltage         = bat.max_voltage*0.8
     motor.propeller_radius        = prop.tip_radius
     motor.no_load_current         = 0.1
@@ -476,7 +476,7 @@ def vehicle_setup():
     
     # append left motor 
     motor_left = deepcopy(motor)
-    motor_left.origin = [[2., -2.5, 0.784]] 
+    motor_left.origin = [[2., -2.5, 0.95]] 
     net.propeller_motors.append(motor_left) 
 
     # Component 6 the Payload
