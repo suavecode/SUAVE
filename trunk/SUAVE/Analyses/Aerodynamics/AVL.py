@@ -66,11 +66,19 @@ class AVL(Markup):
         settings.recalculate_total_wetted_area      = False
         
         # ------
-        settings.number_spanwise_vortices           = None
-        settings.number_chordwise_vortices          = None        
+        settings.number_spanwise_vortices           = 20
+        settings.number_chordwise_vortices          = 10    
+        settings.keep_files                         = False
+        settings.save_regression_results            = False          
+        settings.regression_flag                    = False   
+        settings.trim_aircraft                      = False 
+        settings.print_output                       = False   
         
-        settings.maximum_lift_coefficient           = np.inf 
-        
+        settings.maximum_lift_coefficient           = np.inf  
+        settings.side_slip_angle                    = 0.0
+        settings.roll_rate_coefficient              = 0.0
+        settings.pitch_rate_coefficient             = 0.0
+        settings.lift_coefficient                   = None
                 
         # Build the evaluation process
         compute = self.process.compute
@@ -122,13 +130,22 @@ class AVL(Markup):
         """  
         super(AVL, self).initialize()
         # unpack
-        sv = self.settings.number_spanwise_vortices
-        cv = self.settings.number_chordwise_vortices 
+        sv  = self.settings.number_spanwise_vortices
+        cv  = self.settings.number_chordwise_vortices 
+        kf  = self.settings.keep_files
+        srr = self.settings.save_regression_results
+        rf  = self.settings.regression_flag
+        po  = self.settings.print_output 
+        ta  = self.settings.trim_aircraft
+        ssa = self.settings.side_slip_angle
+        rrc = self.settings.roll_rate_coefficient
+        pra = self.settings.pitch_rate_coefficient
+        lc  = self.settings.lift_coefficient              
         
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         # Generate the surrogate
-        self.process.compute.lift.inviscid.initialize(sv,cv)
+        self.process.compute.lift.inviscid.initialize(sv,cv,kf,srr,rf,po,ta,ssa,rrc,pra,lc)
         
     finalize = initialize
     

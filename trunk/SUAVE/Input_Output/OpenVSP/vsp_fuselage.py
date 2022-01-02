@@ -511,7 +511,7 @@ def compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fw
     x_locs_tail		    = x_locs>=0.5						# Searches aft 50% of fuselage.
     eff_diam_gradients_fwd_tail = eff_diam_gradients_fwd[x_locs_tail[1:]]			# Smaller array of tail gradients.
     min_val 		    = np.min(-eff_diam_gradients_fwd_tail)			# Computes min gradient, where fuselage tapers (minus sign makes positive).
-    x_loc = x_locs[np.hstack([False,-eff_diam_gradients_fwd==min_val])][-1]			# Saves aft-most value (useful for straight fuselage with multiple zero gradients.) 
+    x_loc = x_locs[np.hstack([False,-eff_diam_gradients_fwd==min_val])][-1]			# Saves aft-most value (useful for straight fuselage with multiple zero gradients.)
     fuselage.lengths.tail       = (1.-x_loc)*fuselage.lengths.total
     fuselage.fineness.tail      = fuselage.lengths.tail/(eff_diams[x_locs==x_loc][0])	# Minus sign converts tail fineness to positive value.
 

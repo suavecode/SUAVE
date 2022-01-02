@@ -109,7 +109,8 @@ modules = [
     'scripts/VTOL/test_Multicopter.py',
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
-    'scripts/weights/weights.py'
+    'scripts/weights/weights.py',
+    'scripts/turboelectric_HTS_ducted_fan_network/turboelectric_HTS_ducted_fan_network.py'
 ]
 
 # ----------------------------------------------------------------------
