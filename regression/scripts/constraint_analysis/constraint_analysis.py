@@ -229,6 +229,7 @@ def main():
     turboprop_TW = constraint_results.des_thrust_to_weight
 
     vehicle.constraints.engine.type = 'piston'
+    vehicle.control_surfaces.flap.configuration_type  = 'double_slotted'
     constraint_results = ca.create_constraint_diagram(vehicle)
     plot_constraint_diagram(constraint_results,vehicle.constraints.plot_tag,vehicle.constraints.engine.type,filename ='constraint_diagram_piston')
 
@@ -237,12 +238,14 @@ def main():
 
     vehicle.constraints.engine.type = 'electric air-cooled'
     constraint_results = ca.create_constraint_diagram(vehicle)
+    vehicle.control_surfaces.flap.configuration_type  = 'single_slotted_Fowler'
     plot_constraint_diagram(constraint_results,vehicle.constraints.plot_tag,vehicle.constraints.engine.type,filename ='constraint_diagram_electric_air')
 
     electric_air_WS = constraint_results.des_wing_loading
     electric_air_TW = constraint_results.des_thrust_to_weight
 
     vehicle.constraints.engine.type = 'electric liquid-cooled'
+    vehicle.control_surfaces.flap.configuration_type  = 'double_slotted_Fowler'
     constraint_results = ca.create_constraint_diagram(vehicle)
     plot_constraint_diagram(constraint_results,vehicle.constraints.plot_tag,vehicle.constraints.engine.type,filename ='constraint_diagram_electric_liquid')
 
