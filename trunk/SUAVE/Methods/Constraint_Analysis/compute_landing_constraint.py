@@ -22,7 +22,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Constraint_Analysis
-def compute_landing_constraint(constraint_analysis):
+def compute_landing_constraint(vehicle):
     
     """Calculate the landing wing loading 
 
@@ -49,16 +49,16 @@ def compute_landing_constraint(constraint_analysis):
     """  
 
     # Unpack inputs
-    cl_max    = constraint_analysis.aerodynamics.cl_max_landing
-    Sg        = constraint_analysis.landing.ground_roll
-    altitude  = constraint_analysis.landing.runway_elevation     
-    eps       = constraint_analysis.landing.approach_speed_factor
-    delta_ISA = constraint_analysis.landing.delta_ISA
-    eng_type  = constraint_analysis.engine.type
+    cl_max    = vehicle.constraints.aerodynamics.cl_max_landing
+    Sg        = vehicle.constraints.analyses.landing.ground_roll
+    altitude  = vehicle.constraints.analyses.landing.runway_elevation     
+    eps       = vehicle.constraints.analyses.landing.approach_speed_factor
+    delta_ISA = vehicle.constraints.analyses.landing.delta_ISA
+    eng_type  = vehicle.constraints.engine.type
 
     # Estimate maximum lift coefficient
     if cl_max == 0:
-        cl_max = compute_max_lift_constraint(constraint_analysis.geometry)
+        cl_max = compute_max_lift_constraint(vehicle.wings['main_wing'])
 
     # Estimate the approach speed
     if eng_type != 'turbofan' and eng_type != 'turbojet':

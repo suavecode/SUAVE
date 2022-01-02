@@ -41,7 +41,7 @@ def compressibility_drag_constraint(mach,cl,geometry):
     """  
 
     # Unpack inputs
-    sweep = geometry.sweep_quarter_chord
+    sweep = geometry.sweeps.quarter_chord
     t_c   = geometry.thickness_to_chord
 
     cos_sweep = np.cos(sweep)

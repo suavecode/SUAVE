@@ -28,7 +28,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Constraint_Analysis
-def compute_climb_constraint(constraint_analysis):
+def compute_climb_constraint(vehicle):
     
     """Calculate thrust-to-weight ratios for the steady climb
 
@@ -56,14 +56,14 @@ def compute_climb_constraint(constraint_analysis):
     """  
 
     # Unpack inputs
-    eng_type  = constraint_analysis.engine.type
-    cd_min    = constraint_analysis.aerodynamics.cd_min_clean 
-    altitude  = constraint_analysis.climb.altitude   
-    Vx        = constraint_analysis.climb.airspeed   
-    Vy        = constraint_analysis.climb.climb_rate 
-    delta_ISA = constraint_analysis.climb.delta_ISA
-    AR        = constraint_analysis.geometry.aspect_ratio 
-    W_S       = constraint_analysis.wing_loading  
+    eng_type  = vehicle.constraints.engine.type
+    cd_min    = vehicle.constraints.aerodynamics.cd_min_clean 
+    altitude  = vehicle.constraints.analyses.climb.altitude   
+    Vx        = vehicle.constraints.analyses.climb.airspeed   
+    Vy        = vehicle.constraints.analyses.climb.climb_rate                   
+    delta_ISA = vehicle.constraints.analyses.climb.delta_ISA
+    AR        = vehicle.wings['main_wing'].aspect_ratio 
+    W_S       = vehicle.constraints.wing_loading 
   
 
     # Determine atmospheric properties at the altitude
@@ -76,9 +76,9 @@ def compute_climb_constraint(constraint_analysis):
     a           = atmo_values.speed_of_sound[0,0]   
 
     T_W = np.zeros(len(W_S))
-    if eng_type != 'turbofan' and eng_type != 'turbojet':
+    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
         P_W        = np.zeros(len(W_S))
-        etap       = constraint_analysis.propeller.climb_efficiency
+        etap       = vehicle.constraints.propeller.climb_efficiency
         if etap == 0:
             raise ValueError('Warning: Set the propeller efficiency during climb')
 
@@ -92,13 +92,12 @@ def compute_climb_constraint(constraint_analysis):
                 CL = W_S[i]/q
 
                 # Calculate compressibility_drag
-                cd_comp   = compressibility_drag(M,CL,constraint_analysis.geometry) 
-                cd_comp_e = compressibility_drag(M,0,constraint_analysis.geometry)  
+                cd_comp   = compressibility_drag(M,CL,vehicle.wings['main_wing']) 
+                cd_comp_e = compressibility_drag(M,0,vehicle.wings['main_wing'])  
                 cd0     = cd_min + cd_comp  
 
-                # Calculate Oswald efficiency
-                if constraint_analysis.aerodynamics.oswald_factor == 0:
-                    e = oswald_efficiency(constraint_analysis,cd_min+cd_comp_e)
+                # Calculate Oswald efficiency                                          
+                e = oswald_efficiency(vehicle,cd_min+cd_comp_e)
 
                 k     = 1/(np.pi*e*AR)
                 Vx    = np.sqrt(2/rho*W_S[i]*np.sqrt(k/(3*cd0)))
@@ -110,13 +109,13 @@ def compute_climb_constraint(constraint_analysis):
             T_W[i] = Vy/Vx + q/W_S[i]*cd0 + k/q*W_S[i]
             P_W[i] = T_W[i]*Vx/etap
 
-            if eng_type == 'turboprop':
+            if eng_type == ('turboprop' or 'Turboprop'):
                 P_W[i] = P_W[i] / normalize_turboprop_thrust(atmo_values) 
-            elif eng_type == 'piston':
+            elif eng_type == ('piston' or 'Piston'):
                 P_W[i] = P_W[i] / normalize_power_piston(rho)   
-            elif eng_type == 'electric air-cooled':
+            elif eng_type == ('electric air-cooled' or 'Electric air-cooled'):
                 P_W[i] = P_W[i] / normalize_power_electric(rho)  
-            elif eng_type == 'electric liquid-cooled':
+            elif eng_type == ('electric liquid-cooled' or 'Electric liquid-cooled'):
                 pass 
 
     else:
@@ -127,20 +126,19 @@ def compute_climb_constraint(constraint_analysis):
             CL = W_S[i]/q
 
             # Calculate compressibility_drag
-            cd_comp   = compressibility_drag(M,CL,constraint_analysis.geometry) 
-            cd_comp_e = compressibility_drag(M,0,constraint_analysis.geometry)  
+            cd_comp   = compressibility_drag(M,CL,vehicle.wings['main_wing']) 
+            cd_comp_e = compressibility_drag(M,0,vehicle.wings['main_wing'])  
             cd0       = cd_min + cd_comp  
 
             # Calculate Oswald efficiency
-            if constraint_analysis.aerodynamics.oswald_factor == 0:
-                e = oswald_efficiency(constraint_analysis,cd_min+cd_comp_e)
+            e = oswald_efficiency(vehicle,cd_min+cd_comp_e)
 
             k      = 1/(np.pi*e*AR)
             T_W[i] = Vy/Vx + q/W_S[i]*cd0 + k/q*W_S[i]
-            T_W[i] = T_W[i] / normalize_gasturbine_thrust(constraint_analysis,atmo_values,M,'climb')  
+            T_W[i] = T_W[i] / normalize_gasturbine_thrust(vehicle,atmo_values,M,'climb')  
 
     # Pack outputs
-    if eng_type != 'turbofan' and eng_type != 'turbojet':
+    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
         constraint = P_W         # convert to W/N
     else:
         constraint = T_W

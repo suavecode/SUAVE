@@ -20,3 +20,4 @@ from . import Sizing
 from . import Noise
 from . import Costs
 from . import Constraint_Analysis
+from . import Emission

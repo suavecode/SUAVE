@@ -18,7 +18,7 @@ import numpy as np
 # ------------------------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Helper_Functions
-def oswald_efficiency(constraint_analysis,cdmin):
+def oswald_efficiency(vehicle,cdmin):
     """Calculate an average Oswald efficiencies based on the method of Scholz for the constraint analysis
 
         Assumptions:
@@ -43,11 +43,11 @@ def oswald_efficiency(constraint_analysis,cdmin):
     """  
 
     # Unpack inputs
-    taper = constraint_analysis.geometry.taper
-    AR    = constraint_analysis.geometry.aspect_ratio
-    sweep = constraint_analysis.geometry.sweep_quarter_chord / Units.degrees
-    kf    = constraint_analysis.aerodynamics.fuselage_factor 
-    K     = constraint_analysis.aerodynamics.viscous_factor 
+    taper = vehicle.wings['main_wing'].taper
+    AR    = vehicle.wings['main_wing'].aspect_ratio
+    sweep = vehicle.wings['main_wing'].sweeps.quarter_chord / Units.degrees
+    kf    = vehicle.constraints.aerodynamics.fuselage_factor 
+    K     = vehicle.constraints.aerodynamics.viscous_factor 
 
     dtaper    = -0.357+0.45*np.exp(-0.0375*np.abs(sweep))
     eff_taper = taper - dtaper

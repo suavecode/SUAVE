@@ -14,7 +14,7 @@ import numpy as np
 #  Plot the constraint diagram
 # ----------------------------------------------------------------------
 ## @ingroup Input_Output-Results
-def plot_constraint_diagram(constraints, filename='constraint_diagram'):
+def plot_constraint_diagram(constraints, plot_tag, eng_type, filename='constraint_diagram'):
     """This creates a constraint diagram_plot and prints the design point
 
     Assumptions:
@@ -40,8 +40,6 @@ def plot_constraint_diagram(constraints, filename='constraint_diagram'):
     """
 
     # Unpack inputs and 
-    plot_tag                = constraints.plot_tag
-    eng_type                = constraints.engine.type
     constraint_matrix       = constraints.constraint_matrix
     combined_constraint     = constraints.combined_design_curve
     design_thrust_to_weight = constraints.des_thrust_to_weight
@@ -54,7 +52,7 @@ def plot_constraint_diagram(constraints, filename='constraint_diagram'):
     ax.set_xlabel('W/S, kg/sq m')   
 
     # Convert the input into commmon units
-    if eng_type != 'turbofan' and eng_type != 'turbojet':
+    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
         ax.set_ylabel('P/W, kW/kg')
         plt.ylim(0, 0.3)
         combined_constraint     = 9.81 * combined_constraint / 1000             # converts to kW/kg
@@ -91,7 +89,7 @@ def plot_constraint_diagram(constraints, filename='constraint_diagram'):
     f.write('Output file with the constraint analysis design point\n\n')           
     f.write("Design point :\n")
     f.write('     Wing loading = ' + str(design_wing_loading) + ' kg/sq m\n') 
-    if eng_type != 'turbofan' and eng_type != 'turbojet':
+    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
         f.write('     Power-to-weight ratio = ' + str(design_thrust_to_weight) + ' kW/kg\n')    
     else:
         f.write('     Thrust-to-weight ratio = ' + str(design_thrust_to_weight) + ' N/kg\n')  

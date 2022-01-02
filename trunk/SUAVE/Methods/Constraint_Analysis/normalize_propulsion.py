@@ -60,7 +60,7 @@ def normalize_power_electric(density):
 
     return 0.50987*density/1.225+0.4981
 
-def normalize_gasturbine_thrust(constraint_analysis,atmo_properties,mach,seg_tag):
+def normalize_gasturbine_thrust(vehicle,atmo_properties,mach,seg_tag):
 
     """Altitude correction for engines that feature a gas turbine
 
@@ -85,12 +85,13 @@ def normalize_gasturbine_thrust(constraint_analysis,atmo_properties,mach,seg_tag
         Properties Used:       
     """        
     # Unpack inputs
-    altitude  = constraint_analysis.takeoff.runway_elevation
-    TR           = constraint_analysis.engine.throttle_ratio
-    afterburner  = constraint_analysis.engine.afterburner
-    BPR          = constraint_analysis.engine.bypass_ratio
-    method       = constraint_analysis.engine.method
-    engine_type  = constraint_analysis.engine.type
+    network_name = list(vehicle.networks.keys())[0]
+    altitude     = vehicle.constraints.analyses.takeoff.runway_elevation
+    TR           = vehicle.constraints.engine.throttle_ratio
+    afterburner  = vehicle.constraints.engine.afterburner
+    method       = vehicle.constraints.engine.method
+    engine_type  = vehicle.constraints.engine.type
+    BPR          = vehicle.networks[network_name].bypass_ratio
     pressure     = atmo_properties.pressure[0,0]
     temperature  = atmo_properties.temperature[0,0]
 
@@ -98,7 +99,7 @@ def normalize_gasturbine_thrust(constraint_analysis,atmo_properties,mach,seg_tag
     theta = temperature/288 * (1+0.2*mach**2)
     delta = pressure/101325 * (1+0.2*mach**2)**3.5 
         
-    if engine_type == 'turbojet':
+    if engine_type == ('turbojet' or 'Turbojet'):
 
         if afterburner == True:
             if theta <= TR:
@@ -111,7 +112,7 @@ def normalize_gasturbine_thrust(constraint_analysis,atmo_properties,mach,seg_tag
             else:
                 thrust_ratio =  delta * 0.8 * (1 - 0.16 * np.sqrt(mach) - 24 * (theta - TR) / ((9 + mach) * theta))
 
-    elif engine_type == 'turbofan':
+    elif engine_type == ('turbofan' or 'Turbofan'):
             
         if method == 'Mattingly':
             if BPR < 1:

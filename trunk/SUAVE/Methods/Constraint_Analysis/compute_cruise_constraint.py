@@ -28,7 +28,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Constraint_Analysis
-def compute_cruise_constraint(constraint_analysis,cruise_tag):
+def compute_cruise_constraint(vehicle,cruise_tag):
     
     """Calculate thrust-to-weight ratios for the cruise
 
@@ -57,20 +57,20 @@ def compute_cruise_constraint(constraint_analysis,cruise_tag):
 
     # Unpack inputs
     if cruise_tag == 'max cruise':
-        altitude    = constraint_analysis.max_cruise.altitude 
-        delta_ISA   = constraint_analysis.max_cruise.delta_ISA
-        M           = constraint_analysis.max_cruise.mach 
-        throttle    = constraint_analysis.max_cruise.thrust_fraction 
+        altitude    = vehicle.constraints.analyses.max_cruise.altitude 
+        delta_ISA   = vehicle.constraints.analyses.max_cruise.delta_ISA
+        M           = vehicle.constraints.analyses.max_cruise.mach 
+        throttle    = vehicle.constraints.analyses.max_cruise.thrust_fraction 
     else:
-        altitude    = constraint_analysis.cruise.altitude 
-        delta_ISA   = constraint_analysis.cruise.delta_ISA
-        M           = constraint_analysis.cruise.mach 
-        throttle    = constraint_analysis.cruise.thrust_fraction
+        altitude    = vehicle.constraints.analyses.cruise.altitude 
+        delta_ISA   = vehicle.constraints.analyses.cruise.delta_ISA
+        M           = vehicle.constraints.analyses.cruise.mach 
+        throttle    = vehicle.constraints.analyses.cruise.thrust_fraction
 
-    eng_type  = constraint_analysis.engine.type
-    cd_min    = constraint_analysis.aerodynamics.cd_min_clean 
-    AR        = constraint_analysis.geometry.aspect_ratio
-    W_S       = constraint_analysis.wing_loading
+    eng_type  = vehicle.constraints.engine.type
+    cd_min    = vehicle.constraints.aerodynamics.cd_min_clean 
+    W_S       = vehicle.constraints.wing_loading
+    AR        = vehicle.wings['main_wing'].aspect_ratio
               
     # Determine atmospheric properties at the altitude
     planet      = SUAVE.Analyses.Planets.Planet()
@@ -85,42 +85,41 @@ def compute_cruise_constraint(constraint_analysis,cruise_tag):
     T_W = np.zeros(len(W_S))
     if eng_type != 'turbofan' and eng_type != 'turbojet':
         P_W  = np.zeros(len(W_S))
-        etap = constraint_analysis.propeller.cruise_efficiency
+        etap = vehicle.constraints.propeller.cruise_efficiency
         if etap == 0:
             raise ValueError('Warning: Set the propeller efficiency during cruise')
     for i in range(len(W_S)):
         CL = W_S[i]/q
 
         # Calculate compressibility_drag
-        cd_comp   = compressibility_drag(M,CL,constraint_analysis.geometry) 
-        cd_comp_e = compressibility_drag(M,0,constraint_analysis.geometry)  
+        cd_comp   = compressibility_drag(M,CL,vehicle.wings['main_wing']) 
+        cd_comp_e = compressibility_drag(M,0,vehicle.wings['main_wing'])  
         cd0       = cd_min + cd_comp  
 
         # Calculate Oswald efficiency
-        if constraint_analysis.aerodynamics.oswald_factor == 0:
-            e = oswald_efficiency(constraint_analysis,cd_min+cd_comp_e)
+        e = oswald_efficiency(vehicle,cd_min+cd_comp_e)
 
         k = 1/(np.pi*e*AR)
         T_W[i] = q*cd0/W_S[i]+k*W_S[i]/q
 
     # Convert thrust to power (for propeller-driven engines) and normalize the results wrt the Sea-level
-    if eng_type != 'turbofan' and eng_type != 'turbojet':
+    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
 
         P_W = T_W*Vcr/etap
 
-        if eng_type == 'turboprop':
-            P_W = P_W / normalize_turboprop_thrust(atmo_values)
-        elif eng_type == 'piston':
-            P_W = P_W / normalize_power_piston(rho)
-        elif eng_type == 'electric air-cooled':
-            P_W = P_W / normalize_power_electric(rho)  
-        elif eng_type == 'electric liquid-cooled':
+        if eng_type == ('turboprop' or 'Turboprop'):
+            P_W[i] = P_W[i] / normalize_turboprop_thrust(atmo_values) 
+        elif eng_type == ('piston' or 'Piston'):
+            P_W[i] = P_W[i] / normalize_power_piston(rho)   
+        elif eng_type == ('electric air-cooled' or 'Electric air-cooled'):
+            P_W[i] = P_W[i] / normalize_power_electric(rho)  
+        elif eng_type == ('electric liquid-cooled' or 'Electric liquid-cooled'):
             pass 
     else:
-        T_W = T_W / normalize_gasturbine_thrust(constraint_analysis,atmo_values,M,'cruise')     
+        T_W = T_W / normalize_gasturbine_thrust(vehicle,atmo_values,M,'cruise')     
 
     # Pack outputs
-    if eng_type != 'turbofan' and eng_type != 'turbojet':
+    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
         constraint = P_W / throttle         # convert to W/N
     else:
         constraint = T_W / throttle 

@@ -18,91 +18,129 @@ from SUAVE.Core import Data, Units
 
 sys.path.append('../Vehicles')
 
-from Boeing_737 import vehicle_setup as  B737_vehicle
-from Cessna_172 import vehicle_setup as  Cessna172_vehicle
 
 
 def main():
 
     # Sample jet airplane
     # ------------------------------------------------------------------
-    ca = Constraint_Analysis.Constraint_Analysis()
+
+    # Define the vehicle and required constrain analysis parameters
+    vehicle = SUAVE.Vehicle()
 
     # Define default constraint analysis
-    ca.analyses.takeoff    = True
-    ca.analyses.cruise     = True
-    ca.analyses.max_cruise = False
-    ca.analyses.landing    = True
-    ca.analyses.OEI_climb  = True
-    ca.analyses.turn       = False
-    ca.analyses.climb      = True
-    ca.analyses.ceiling    = False
+    vehicle.constraints.analyses.takeoff.compute    = True
+    vehicle.constraints.analyses.cruise.compute     = True
+    vehicle.constraints.analyses.max_cruise.compute = True
+    vehicle.constraints.analyses.landing.compute    = True
+    vehicle.constraints.analyses.OEI_climb.compute  = True
+    vehicle.constraints.analyses.turn.compute       = True
+    vehicle.constraints.analyses.climb.compute      = True
+    vehicle.constraints.analyses.ceiling.compute    = False
 
     # take-off
-    ca.takeoff.runway_elevation = 0 * Units['meter']
-    ca.takeoff.ground_run       = 1550 * Units['m']
+    vehicle.constraints.analyses.takeoff.runway_elevation = 0 * Units['meter']
+    vehicle.constraints.analyses.takeoff.ground_run       = 1550 * Units['m']
     # climb
-    ca.climb.altitude   = 35000 * Units['feet']
-    ca.climb.airspeed   = 450   * Units['knots']
-    ca.climb.climb_rate = 1.7   * Units['m/s']
+    vehicle.constraints.analyses.climb.altitude   = 35000 * Units['feet']
+    vehicle.constraints.analyses.climb.airspeed   = 450   * Units['knots']
+    vehicle.constraints.analyses.climb.climb_rate = 2.0   * Units['m/s']
+    # OEI climb
+    vehicle.constraints.analyses.OEI_climb.climb_speed_factor = 1.2
+    #turn
+    vehicle.constraints.analyses.turn.angle           = 15.0 * Units.degrees
+    vehicle.constraints.analyses.turn.altitude        = 35000 * Units['feet']
+    vehicle.constraints.analyses.turn.delta_ISA       = 0.0
+    vehicle.constraints.analyses.turn.mach            = 0.78
+    vehicle.constraints.analyses.turn.specific_energy = 0.0
+    vehicle.constraints.analyses.turn.thrust_fraction = 1.0
     #cruise
-    ca.cruise.altitude        = 35000 * Units['feet']  
-    ca.cruise.mach            = 0.78
-    ca.cruise.thrust_fraction = 0.85
+    vehicle.constraints.analyses.cruise.altitude        = 35000 * Units['feet']  
+    vehicle.constraints.analyses.cruise.mach            = 0.78
+    vehicle.constraints.analyses.cruise.thrust_fraction = 0.8
+    # max cruise
+    vehicle.constraints.analyses.max_cruise.altitude        = 35000 * Units['feet']
+    vehicle.constraints.analyses.max_cruise.delta_ISA       = 0.0
+    vehicle.constraints.analyses.max_cruise.mach            = 0.82
+    vehicle.constraints.analyses.max_cruise.thrust_fraction = 1.0
+    # ceiling
+    vehicle.constraints.analyses.ceiling.altitude  = 39000 * Units['feet']
+    vehicle.constraints.analyses.ceiling.delta_ISA = 0.0
+    vehicle.constraints.analyses.ceiling.mach      = 0.78
     # landing
-    ca.landing.ground_roll = 1400 * Units['m']  
-
-    # define vehicle-specific properties
-    vehicle  = B737_vehicle()
+    vehicle.constraints.analyses.landing.ground_roll = 1400 * Units['m']  
 
 
     # Default aircraft properties
     # geometry
-    ca.geometry.aspect_ratio                 = vehicle.wings['main_wing'].aspect_ratio
-    ca.geometry.thickness_to_chord           = vehicle.wings['main_wing'].thickness_to_chord
-    ca.geometry.taper                        = vehicle.wings['main_wing'].taper
-    ca.geometry.sweep_quarter_chord          = vehicle.wings['main_wing'].sweeps.quarter_chord
-    ca.geometry.high_lift_configuration_type = vehicle.wings['main_wing'].control_surfaces.flap.configuration_type 
-    # engine
-    ca.engine.type         = 'turbofan'
-    ca.engine.number       = vehicle.networks.turbofan.number_of_engines
-    ca.engine.bypass_ratio = vehicle.networks.turbofan.bypass_ratio
-    
-    # Define aerodynamics (an example with pre-defined max lift coefficients)
-    ca.aerodynamics.cd_takeoff     = 0.044
-    ca.aerodynamics.cl_takeoff     = 0.6
-    ca.aerodynamics.cd_min_clean   = 0.0134
-    ca.aerodynamics.cl_max_takeoff = 2.1
-    ca.aerodynamics.cl_max_landing = 2.4
+    wing = SUAVE.Components.Wings.Main_Wing()
+    wing.tag = 'main_wing'
 
-    ca.design_point_type = 'maximum wing loading'
+    wing.aspect_ratio                 = 10.18
+    wing.thickness_to_chord           = 0.1
+    wing.taper                        = 0.1
+    wing.sweeps.quarter_chord         = 35 * Units.degrees
 
+    flap                          = SUAVE.Components.Wings.Control_Surfaces.Flap()
+    flap.tag                      = 'flap'
+    flap.configuration_type       = 'double_slotted'
+    wing.append_control_surface(flap)
+
+    # add to vehicle
+    vehicle.append_component(wing)
+
+    # add energy network
+    turbofan = SUAVE.Components.Energy.Networks.Turbofan()
+    turbofan.number_of_engines = 2.0
+    turbofan.bypass_ratio      = 5.4
+
+
+    # add  gas turbine network turbofan to the vehicle
+    vehicle.append_component(turbofan)
+
+    vehicle.constraints.engine.type           = 'turbofan'             # defines the engine type specifically for the constraint analysis
+    vehicle.constraints.engine.method         = "Mattingly"            # defines turbofan constraint analysis method 
+    vehicle.constraints.engine.throttle_ratio = 1.0
+
+
+    # Define aerodynamics for the constraint analysis(an example with pre-defined max lift coefficients)
+    vehicle.constraints.aerodynamics.cd_takeoff     = 0.044
+    vehicle.constraints.aerodynamics.cl_takeoff     = 0.6
+    vehicle.constraints.aerodynamics.cd_min_clean   = 0.017
+    vehicle.constraints.aerodynamics.cl_max_takeoff = 2.1
+    vehicle.constraints.aerodynamics.cl_max_landing = 2.4
+
+    vehicle.constraints.design_point_type = 'maximum wing loading'
+    # ---------------------------------------------------------------------------------------------------------------
+
+
+    # Define analysis
+    ca = Constraint_Analysis.Constraint_Analysis()
     # run the constraint diagrams for various engine models
 
-    ca.engine.method = "Mattingly"
-    ca.create_constraint_diagram()
-    plot_constraint_diagram(ca)
+    constraint_results = ca.create_constraint_diagram(vehicle)
+    plot_constraint_diagram(constraint_results,vehicle.constraints.plot_tag,vehicle.constraints.engine.type)
 
-    jet_WS_Matt = ca.des_wing_loading
-    jet_TW_Matt = ca.des_thrust_to_weight
+    jet_WS_Matt = constraint_results.des_wing_loading
+    jet_TW_Matt = constraint_results.des_thrust_to_weight
 
-    ca.engine.method = "Scholz"
-    ca.create_constraint_diagram()
+    vehicle.constraints.engine.method   = "Scholz"
+    constraint_results = ca.create_constraint_diagram(vehicle)
 
-    jet_WS_Scholz = ca.des_wing_loading
-    jet_TW_Scholz = ca.des_thrust_to_weight
+    jet_WS_Scholz = constraint_results.des_wing_loading
+    jet_TW_Scholz = constraint_results.des_thrust_to_weight
 
-    ca.engine.method = "Howe"
-    ca.create_constraint_diagram()
+    vehicle.constraints.engine.method   = "Howe"
+    constraint_results = ca.create_constraint_diagram(vehicle)
 
-    jet_WS_Howe = ca.des_wing_loading
-    jet_TW_Howe = ca.des_thrust_to_weight
+    jet_WS_Howe = constraint_results.des_wing_loading
+    jet_TW_Howe = constraint_results.des_thrust_to_weight
     
-    ca.engine.method = "Bartel"
-    ca.create_constraint_diagram()
+    vehicle.constraints.engine.method   = "Bartel"
+    constraint_results = ca.create_constraint_diagram(vehicle)
 
-    jet_WS_Bartel = ca.des_wing_loading
-    jet_TW_Bartel = ca.des_thrust_to_weight
+    jet_WS_Bartel = constraint_results.des_wing_loading
+    jet_TW_Bartel = constraint_results.des_thrust_to_weight
 
  
 
@@ -111,108 +149,116 @@ def main():
     ca = Constraint_Analysis.Constraint_Analysis()
 
     # Define default constraint analysis
-    ca.analyses.takeoff     = True
-    ca.analyses.cruise      = True
-    ca.analyses.max_cruise  = False
-    ca.analyses.landing     = True
-    ca.analyses.OEI_climb   = True
-    ca.analyses.turn        = True
-    ca.analyses.climb       = True
-    ca.analyses.ceiling     = True
+    vehicle.constraints.analyses.takeoff.compute     = True
+    vehicle.constraints.analyses.cruise.compute      = True
+    vehicle.constraints.analyses.max_cruise.compute  = True 
+    vehicle.constraints.analyses.landing.compute     = True
+    vehicle.constraints.analyses.OEI_climb.compute   = True
+    vehicle.constraints.analyses.turn.compute        = True
+    vehicle.constraints.analyses.climb.compute       = True
+    vehicle.constraints.analyses.ceiling.compute     = True
 
     # take-off
-    ca.takeoff.runway_elevation = 0 * Units['meter']
-    ca.takeoff.ground_run       = 450 * Units['m']
+    vehicle.constraints.analyses.takeoff.runway_elevation    = 0 * Units['meter']
+    vehicle.constraints.analyses.takeoff.ground_run          = 450 * Units['m']
     # climb
-    ca.climb.altitude   = 0.0   * Units['meter']
-    ca.climb.climb_rate = 3.66   * Units['m/s']
-    #cruise
-    ca.cruise.altitude        = 4000 * Units['meter']  
-    ca.cruise.mach            = 0.2
-    ca.cruise.thrust_fraction = 1
+    vehicle.constraints.analyses.climb.altitude              = 0.0   * Units['meter']
+    vehicle.constraints.analyses.climb.climb_rate            = 3.66   * Units['m/s']
+    # cruise
+    vehicle.constraints.analyses.cruise.altitude             = 3000 * Units['meter']  
+    vehicle.constraints.analyses.cruise.mach                 = 0.15
+    vehicle.constraints.analyses.cruise.thrust_fraction      = 1
+    # max cruise
+    vehicle.constraints.analyses.max_cruise.altitude        = 4000 * Units['meter'] 
+    vehicle.constraints.analyses.max_cruise.delta_ISA       = 0.0
+    vehicle.constraints.analyses.max_cruise.mach            = 0.25
+    vehicle.constraints.analyses.max_cruise.thrust_fraction = 1.0
     # turn
-    ca.turn.angle           = 15    * Units['degrees']
-    ca.turn.altitude        = 3000  * Units['meter']   
-    ca.turn.mach            = 0.2
-    ca.turn.thrust_fraction = 1
+    vehicle.constraints.analyses.turn.angle                  = 15    * Units['degrees']
+    vehicle.constraints.analyses.turn.altitude               = 3000  * Units['meter']   
+    vehicle.constraints.analyses.turn.mach                   = 0.2
+    vehicle.constraints.analyses.turn.thrust_fraction        = 1
+    # OEI climb
+    vehicle.constraints.analyses.OEI_climb.climb_speed_factor = 1.2
     # ceiling
-    ca.ceiling.altitude     = 4000 * Units['meter'] 
-    ca.ceiling.mach         = 0.2
+    vehicle.constraints.analyses.ceiling.altitude            = 4000 * Units['meter'] 
+    vehicle.constraints.analyses.ceiling.mach                = 0.15
     # landing
-    ca.landing.ground_roll = 120 * Units['m']   
+    vehicle.constraints.analyses.landing.ground_roll         = 120 * Units['m']   
 
-    # define vehicle-specific properties
-    vehicle  = Cessna172_vehicle()
+    wing = SUAVE.Components.Wings.Main_Wing()
+    wing.tag = 'main_wing'
 
-    ca.analyses.OEI_climb   = False
+    wing.aspect_ratio                 = 7.32
+    wing.thickness_to_chord           = 0.13
+    wing.taper                        = 1.0
+    wing.sweeps.quarter_chord         = 0 * Units.degrees
 
-    # Default aircraft properties
-    # geometry
-    ca.geometry.aspect_ratio                    = vehicle.wings['main_wing'].aspect_ratio
-    ca.geometry.thickness_to_chord              = vehicle.wings['main_wing'].thickness_to_chord
-    ca.geometry.taper                           = vehicle.wings['main_wing'].taper
-    ca.geometry.sweep_quarter_chord             = vehicle.wings['main_wing'].sweeps.quarter_chord
-    ca.geometry.high_lift_configuration_type    = vehicle.wings['main_wing'].control_surfaces.flap.configuration_type
+    flap                          = SUAVE.Components.Wings.Control_Surfaces.Flap()
+    flap.tag                      = 'flap'
+    flap.configuration_type       = 'single_slotted'
+    wing.append_control_surface(flap)
+
+    # add to vehicle
+    vehicle.append_component(wing)
 
     # engine
-    ca.engine.number = vehicle.networks.internal_combustion.number_of_engines
+    network = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
+    network.number_of_engines = 2.0
+
     # propeller
-    ca.propeller.takeoff_efficiency   = 0.5
-    ca.propeller.climb_efficiency     = 0.8
-    ca.propeller.cruise_efficiency    = 0.85
-    ca.propeller.turn_efficiency      = 0.85
-    ca.propeller.ceiling_efficiency   = 0.85
-    ca.propeller.OEI_climb_efficiency = 0.5
+    vehicle.constraints.propeller.takeoff_efficiency   = 0.5
+    vehicle.constraints.propeller.climb_efficiency     = 0.8
+    vehicle.constraints.propeller.cruise_efficiency    = 0.85
+    vehicle.constraints.propeller.turn_efficiency      = 0.85
+    vehicle.constraints.propeller.ceiling_efficiency   = 0.85
+    vehicle.constraints.propeller.OEI_climb_efficiency = 0.5
 
     # Define aerodynamics (an example case with max lift calculation for differnet flap settions)
-    ca.aerodynamics.cd_takeoff     = 0.04
-    ca.aerodynamics.cl_takeoff     = 0.6
-    ca.aerodynamics.cd_min_clean   = 0.02
+    vehicle.constraints.aerodynamics.cd_takeoff     = 0.04
+    vehicle.constraints.aerodynamics.cl_takeoff     = 0.6
+    vehicle.constraints.aerodynamics.cd_min_clean   = 0.02
 
-    ca.design_point_type = 'minimum power-to-weight'
+    vehicle.constraints.design_point_type = 'minimum power-to-weight'
 
     # run the constraint diagram for various engine ad flap types
-    ca.engine.type = 'turboprop'
-    ca.geometry.high_lift_configuration_type = 'single-slotted'
-    ca.create_constraint_diagram()
+    vehicle.constraints.engine.type = 'turboprop'
+    constraint_results = ca.create_constraint_diagram(vehicle)
 
-    turboprop_WS = ca.des_wing_loading
-    turboprop_TW = ca.des_thrust_to_weight
+    turboprop_WS = constraint_results.des_wing_loading
+    turboprop_TW = constraint_results.des_thrust_to_weight
 
-    ca.engine.type = 'piston'
-    ca.geometry.high_lift_configuration_type = 'plain'
-    ca.create_constraint_diagram()
-    plot_constraint_diagram(ca,filename ='constraint_diagram_piston')
+    vehicle.constraints.engine.type = 'piston'
+    constraint_results = ca.create_constraint_diagram(vehicle)
+    plot_constraint_diagram(constraint_results,vehicle.constraints.plot_tag,vehicle.constraints.engine.type,filename ='constraint_diagram_piston')
 
-    piston_WS = ca.des_wing_loading
-    piston_TW = ca.des_thrust_to_weight
+    piston_WS = constraint_results.des_wing_loading
+    piston_TW = constraint_results.des_thrust_to_weight
 
-    ca.engine.type = 'electric air-cooled'
-    ca.geometry.high_lift_configuration_type = 'double-slotted fixed vane'
-    ca.create_constraint_diagram()
-    plot_constraint_diagram(ca,filename ='constraint_diagram_electric_air')
+    vehicle.constraints.engine.type = 'electric air-cooled'
+    constraint_results = ca.create_constraint_diagram(vehicle)
+    plot_constraint_diagram(constraint_results,vehicle.constraints.plot_tag,vehicle.constraints.engine.type,filename ='constraint_diagram_electric_air')
 
-    electric_air_WS = ca.des_wing_loading
-    electric_air_TW = ca.des_thrust_to_weight
+    electric_air_WS = constraint_results.des_wing_loading
+    electric_air_TW = constraint_results.des_thrust_to_weight
 
-    ca.engine.type = 'electric liquid-cooled'
-    ca.geometry.high_lift_configuration_type = 'double-slotted fixed vane'
-    ca.create_constraint_diagram()
-    plot_constraint_diagram(ca,filename ='constraint_diagram_electric_liquid')
+    vehicle.constraints.engine.type = 'electric liquid-cooled'
+    constraint_results = ca.create_constraint_diagram(vehicle)
+    plot_constraint_diagram(constraint_results,vehicle.constraints.plot_tag,vehicle.constraints.engine.type,filename ='constraint_diagram_electric_liquid')
 
-    electric_liquid_WS = ca.des_wing_loading
-    electric_liquid_TW = ca.des_thrust_to_weight
+    electric_liquid_WS = constraint_results.des_wing_loading
+    electric_liquid_TW = constraint_results.des_thrust_to_weight
 
 
     # expected values
-    turboprop_WS_true       = 629.027516462
-    turboprop_TW_true       = 8.924349473
-    piston_WS_true          = 516.3445826
-    piston_TW_true          = 10.9441325
-    electric_air_TW_true    = 7.1642177
-    electric_air_WS_true    = 780.22233
-    electric_liquid_TW_true = 7.1642177
-    electric_liquid_WS_true = 502.742719
+    turboprop_WS_true       = 684.6558002
+    turboprop_TW_true       = 8.5003630
+    piston_WS_true          = 684.6558002
+    piston_TW_true          = 8.500363024
+    electric_air_TW_true    = 8.500363
+    electric_air_WS_true    = 684.6558002
+    electric_liquid_TW_true = 8.500363
+    electric_liquid_WS_true = 684.6558002
     jet_WS_Matt_true        = 6412.7523310132865
     jet_TW_Matt_true        = 0.325505792
     jet_WS_Scholz_true      = 6412.7523310132865

@@ -29,7 +29,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Constraint_Analysis
-def compute_take_off_constraint(constraint_analysis):
+def compute_take_off_constraint(vehicle):
     
     """Calculate thrust-to-weight ratios at take-off
 
@@ -63,16 +63,16 @@ def compute_take_off_constraint(constraint_analysis):
     # ==============================================
     # Unpack inputs
     # ==============================================
-    eng_type  = constraint_analysis.engine.type
-    cd_TO     = constraint_analysis.aerodynamics.cd_takeoff 
-    cl_TO     = constraint_analysis.aerodynamics.cl_takeoff 
-    cl_max_TO = constraint_analysis.aerodynamics.cl_max_takeoff
-    Sg        = constraint_analysis.takeoff.ground_run
-    eps       = constraint_analysis.takeoff.liftoff_speed_factor
-    miu       = constraint_analysis.takeoff.rolling_resistance
-    altitude  = constraint_analysis.takeoff.runway_elevation
-    delta_ISA = constraint_analysis.takeoff.delta_ISA
-    W_S       = constraint_analysis.wing_loading
+    eng_type  = vehicle.constraints.engine.type
+    cd_TO     = vehicle.constraints.aerodynamics.cd_takeoff 
+    cl_TO     = vehicle.constraints.aerodynamics.cl_takeoff 
+    cl_max_TO = vehicle.constraints.aerodynamics.cl_max_takeoff
+    Sg        = vehicle.constraints.analyses.takeoff.ground_run
+    eps       = vehicle.constraints.analyses.takeoff.liftoff_speed_factor
+    miu       = vehicle.constraints.analyses.takeoff.rolling_resistance
+    altitude  = vehicle.constraints.analyses.takeoff.runway_elevation
+    delta_ISA = vehicle.constraints.analyses.takeoff.delta_ISA
+    W_S       = vehicle.constraints.wing_loading
 
 
     # Set take-off aerodynamic properties
@@ -80,8 +80,8 @@ def compute_take_off_constraint(constraint_analysis):
         raise ValueError("Define cl_takeoff or cd_takeoff\n")
 
     if cl_max_TO == 0:
-        cl_max_LD = compute_max_lift_constraint(constraint_analysis.geometry)  # Landing maximum lift coefficient     
-        cl_max_TO = 0.85 * cl_max_LD                                                    # Take-off flaps settings
+        cl_max_LD = compute_max_lift_constraint(vehicle.wings['main_wing'])     # Landing maximum lift coefficient     
+        cl_max_TO = 0.85 * cl_max_LD                                                                    # Take-off flaps settings
 
     # Check if the take-off distance was input
     if Sg == 0:
@@ -98,9 +98,9 @@ def compute_take_off_constraint(constraint_analysis):
 
 
     T_W = np.zeros(len(W_S))
-    if eng_type != 'turbofan' and eng_type != 'turbojet':
+    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
         P_W  = np.zeros(len(W_S))
-        etap = constraint_analysis.propeller.takeoff_efficiency
+        etap = vehicle.constraints.propeller.takeoff_efficiency
         if etap == 0:
             raise ValueError('Warning: Set the propeller efficiency during take-off')
     for i in range(len(W_S)):
@@ -109,24 +109,24 @@ def compute_take_off_constraint(constraint_analysis):
         T_W[i] = eps**2*W_S[i] / (g*Sg*rho*cl_max_TO) + eps*cd_TO/(2*cl_max_TO) + miu * (1-eps*cl_TO/(2*cl_max_TO))
             
         # Convert thrust to power (for propeller-driven engines) and normalize the results wrt the Sea-level
-        if eng_type != 'turbofan' and eng_type != 'turbojet':
+        if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
                 
             P_W[i] = T_W[i]*Vlof/etap
 
-            if eng_type == 'turboprop':
+            if eng_type == ('turboprop' or 'Turboprop'):
                 P_W[i] = P_W[i] / normalize_turboprop_thrust(atmo_values) 
-            elif eng_type == 'piston':
+            elif eng_type == ('piston' or 'Piston'):
                 P_W[i] = P_W[i] / normalize_power_piston(rho)
-            elif eng_type == 'electric air-cooled':
+            elif eng_type == ('electric air-cooled' or 'Electric air-cooled'):
                 P_W[i] = P_W[i] / normalize_power_electric(rho)  
-            elif eng_type == 'electric liquid-cooled':
+            elif eng_type == ('electric liquid-cooled' or 'Electric liquid-cooled'):
                 pass 
         else:
-            T_W[i] = T_W[i] / normalize_gasturbine_thrust(constraint_analysis,atmo_values,Mlof,'takeoff')  
+            T_W[i] = T_W[i] / normalize_gasturbine_thrust(vehicle,atmo_values,Mlof,'takeoff')  
      
 
     # Pack outputs
-    if eng_type != 'turbofan' and eng_type != 'turbojet':
+    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
         constraint = P_W         # convert to W/N
     else:
         constraint = T_W
