@@ -196,6 +196,7 @@ def rotor_design(prop, number_of_stations = 20,
         c    = spline_discretize(sol.x[:total_pivots],chi,pivot_points)     
         beta = spline_discretize(sol.x[total_pivots:],chi,pivot_points) 
     
+    
     # Things that don't change with iteration
     Nr       = len(c) # Number of stations radially    
     ctrl_pts = 1
@@ -419,7 +420,7 @@ def create_diff_evo_cons(B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V
     
     return tuple(constraints)     
 
-# objective function
+# objective function (noise)
 def minimize_objective(x,B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V, omega,
                        total_pivots,pivot_points,linear_interp_flag,design_thrust,
                        design_power,design_taper,CL_max,design_FM): 
@@ -566,26 +567,114 @@ def minimize_objective(x,B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V
     
     return 
 
-def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha):
+def vec_to_vel(self):
+    """This rotates from the propellers vehicle frame to the propellers velocity frame
+
+    Assumptions:
+    There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+    velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+    vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Properties Used:
+    None
     """
-    Cl, Cdval = compute_aerodynamic_forces(  a_loc, 
-                                             a_geo, 
-                                             cl_sur, 
-                                             cd_sur, 
-                                             ctrl_pts, 
-                                             Nr, 
-                                             Na, 
-                                             Re, 
-                                             Ma, 
-                                             alpha, 
-                                             tc, 
-                                             nonuniform_freestream )
-                                             
-    Computes the aerodynamic forces at sectional blade locations. If airfoil 
-    geometry and locations are specified, the forces are computed using the 
-    airfoil polar lift and drag surrogates, accounting for the local Reynolds 
-    number and local angle of attack. 
-    
+
+    rot_mat = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+
+    return rot_mat
+
+
+def body_to_prop_vel(self):
+    """This rotates from the systems body frame to the propellers velocity frame
+
+    Assumptions:
+    There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+    velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+    vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Properties Used:
+    None
+    """
+
+    # Go from body to vehicle frame
+    body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+
+    # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
+    rots    = np.array(self.orientation_euler_angles) * 1.
+    rots[1] = rots[1] + self.inputs.y_axis_rotation
+    vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
+
+    # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
+    prop_vec_2_prop_vel = self.vec_to_vel()
+
+    # Do all the matrix multiplies
+    rot1    = np.matmul(body_2_vehicle,vehicle_2_prop_vec)
+    rot_mat = np.matmul(rot1,prop_vec_2_prop_vel)
+
+
+    return rot_mat
+
+
+def prop_vel_to_body(self):
+    """This rotates from the systems body frame to the propellers velocity frame
+
+    Assumptions:
+    There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+    velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+    vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Properties Used:
+    None
+    """
+
+    body2propvel = self.body_to_prop_vel()
+
+    r = sp.spatial.transform.Rotation.from_matrix(body2propvel)
+    r = r.inv()
+    rot_mat = r.as_matrix()
+
+    return rot_mat
+
+
+def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+    """
+    Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
+                                              Wa,Wt,a,nu,
+                                              a_loc,a_geo,cl_sur,cd_sur,
+                                              ctrl_pts,Nr,Na,tc,use_2d_analysis )
+
+    Computes the aerodynamic forces at sectional blade locations. If airfoil
+    geometry and locations are specified, the forces are computed using the
+    airfoil polar lift and drag surrogates, accounting for the local Reynolds
+    number and local angle of attack.
+
     If the airfoils are not specified, an approximation is used.
 
     Assumptions:
@@ -595,496 +684,180 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, M
     N/A
 
     Inputs:
-    a_loc                      Locations of specified airfoils                 [-]
-    a_geo                      Geometry of specified airfoil                   [-]
-    cl_sur                     Lift Coefficient Surrogates                     [-]
-    cd_sur                     Drag Coefficient Surrogates                     [-]
-    ctrl_pts                   Number of control points                        [-]
-    Nr                         Number of radial blade sections                 [-]
-    Re                         Local Reynolds numbers                          [-]
-    Ma                         Local Mach number                               [-]
-    alpha                      Local angles of attack                          [radians]
-   
-                                                     
-                                                     
-    Outputs:                                          
-    Cl                       Lift Coefficients                         [-]                               
-    Cdval                    Drag Coefficients  (before scaling)       [-]
-    """         
-    # Compute blade Cl and Cd distribution from the airfoil data  
-    dim_sur = len(cl_sur)    
-    # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
-    Cl      = np.zeros((ctrl_pts,Nr))              
-    Cdval   = np.zeros((ctrl_pts,Nr))  
-    
-    for jj in range(dim_sur):                 
-        Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
-        Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
-        locs          = np.where(np.array(a_loc) == jj )
-        Cl[:,locs]    = Cl_af[:,locs]
-        Cdval[:,locs] = Cdval_af[:,locs]             
-    
-    return Cl, Cdval
+       beta                       blade twist distribution                        [-]
+       c                          chord distribution                              [-]
+       r                          radius distribution                             [-]
+       R                          tip radius                                      [-]
+       B                          number of rotor blades                          [-]
 
- 
-def constraint_thrust_power(x,B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V, omega,
-                            total_pivots,pivot_points,linear_interp_flag,design_thrust,
-                            design_power,design_taper,CL_max,design_FM): 
-    
-    # Discretized propeller into stations using linear interpolation 
-    if linear_interp_flag:
-        c    = linear_discretize(x[:total_pivots],chi,pivot_points)     
-        beta = linear_discretize(x[total_pivots:],chi,pivot_points)  
-    else: 
-        c    = spline_discretize(x[:total_pivots],chi,pivot_points)     
-        beta = spline_discretize(x[total_pivots:],chi,pivot_points) 
-    
-    # Things that don't change with iteration
-    Nr       = len(c) # Number of stations radially    
-    ctrl_pts = 1
-    BB       = B*B    
-    BBB      = BB*B   
-    omega    = np.abs(omega)        
-    r        = chi*R            # Radial coordinate 
-    omegar   = np.outer(omega,r)
-    pi       = np.pi            
-    pi2      = pi*pi        
-    n        = omega/(2.*pi)    # Cycles per second  
-    deltar   = (r[1]-r[0])         
-    rho_0    = rho
+       Wa                         axial velocity                                  [-]
+       Wt                         tangential velocity                             [-]
+       a                          speed of sound                                  [-]
+       nu                         viscosity                                       [-]
 
-    # Setup a Newton iteration
-    diff   = 1. 
-    ii     = 0
-    tol    = 1e-6  # Convergence tolerance
-    
-    # uniform freestream
-    ua       = np.zeros_like(V)              
-    ut       = np.zeros_like(V)             
-    ur       = np.zeros_like(V)
+       a_loc                      Locations of specified airfoils                 [-]
+       a_geo                      Geometry of specified airfoil                   [-]
+       cl_sur                     Lift Coefficient Surrogates                     [-]
+       cd_sur                     Drag Coefficient Surrogates                     [-]
+       ctrl_pts                   Number of control points                        [-]
+       Nr                         Number of radial blade sections                 [-]
+       Na                         Number of azimuthal blade stations              [-]
+       tc                         Thickness to chord                              [-]
+       use_2d_analysis            Specifies 2d disc vs. 1d single angle analysis  [Boolean]
 
-    # total velocities
-    Ua     = np.outer((V + ua),np.ones_like(r)) 
+    Outputs:
+       Cl                       Lift Coefficients                         [-]
+       Cdval                    Drag Coefficients  (before scaling)       [-]
+       alpha                    section local angle of attack             [rad]
 
-    # Things that will change with iteration
-    size   = (ctrl_pts,Nr)
-    PSI    = np.ones(size)
-    PSIold = np.zeros(size)  
+    """
 
-    # total velocities
-    Ut   = omegar - ut
-    U    = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
+    alpha        = beta - np.arctan2(Wa,Wt)
+    W            = (Wa*Wa + Wt*Wt)**0.5
+    Ma           = W/a
+    Re           = (W*c)/nu
 
-    # Drela's Theory
-    while (diff>tol):
-        sin_psi      = np.sin(PSI)
-        cos_psi      = np.cos(PSI)
-        Wa           = 0.5*Ua + 0.5*U*sin_psi
-        Wt           = 0.5*Ut + 0.5*U*cos_psi   
-        va           = Wa - Ua
-        vt           = Ut - Wt
-        alpha        = beta - np.arctan2(Wa,Wt)
-        W            = (Wa*Wa + Wt*Wt)**0.5
-        Ma           = (W)/a        # a is the speed of sound  
-        lamdaw       = r*Wa/(R*Wt) 
+    # If propeller airfoils are defined, use airfoil surrogate
+    if a_loc != None:
+        # Compute blade Cl and Cd distribution from the airfoil data
+        dim_sur = len(cl_sur)
+        if use_2d_analysis:
+            # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
+            Cl      = np.zeros((ctrl_pts,Nr,Na))
+            Cdval   = np.zeros((ctrl_pts,Nr,Na))
+            for jj in range(dim_sur):
+                Cl_af           = cl_sur[a_geo[jj]](Re,alpha,grid=False)
+                Cdval_af        = cd_sur[a_geo[jj]](Re,alpha,grid=False)
+                locs            = np.where(np.array(a_loc) == jj )
+                Cl[:,locs,:]    = Cl_af[:,locs,:]
+                Cdval[:,locs,:] = Cdval_af[:,locs,:]
+        else:
+            # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
+            Cl      = np.zeros((ctrl_pts,Nr))
+            Cdval   = np.zeros((ctrl_pts,Nr))
 
-        # Limiter to keep from Nan-ing
-        lamdaw[lamdaw<0.] = 0. 
-        f            = (B/2.)*(1.-r/R)/lamdaw
-        f[f<0.]      = 0.
-        piece        = np.exp(-f)
-        arccos_piece = np.arccos(piece)
-        F            = 2.*arccos_piece/pi # Prandtl's tip factor
-        Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5 
-        Re           = (W*c)/nu  
+            for jj in range(dim_sur):
+                Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)
+                Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)
+                locs          = np.where(np.array(a_loc) == jj )
+                Cl[:,locs]    = Cl_af[:,locs]
+                Cdval[:,locs] = Cdval_af[:,locs]
+    else:
+        # Estimate Cl max
+        Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+        Re_ref     = 9.*10**6
+        Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
 
-        # Compute aerodynamic forces based on specified input airfoil or using a surrogate
-        Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha)
+        # If not airfoil polar provided, use 2*pi as lift curve slope
+        Cl = 2.*np.pi*alpha
 
-        Rsquiggly   = Gamma - 0.5*W*c*Cl
+        # By 90 deg, it's totally stalled.
+        Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
+        Cl[alpha>=np.pi/2] = 0.
 
-        # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
-        # This was solved symbolically in Matlab and exported        
-        f_wt_2      = 4*Wt*Wt
-        f_wa_2      = 4*Wa*Wa
-        Ucospsi     = U*cos_psi
-        Usinpsi     = U*sin_psi
-        Utcospsi    = Ut*cos_psi
-        Uasinpsi    = Ua*sin_psi 
-        UapUsinpsi  = (Ua + Usinpsi)
-        utpUcospsi  = (Ut + Ucospsi) 
-        utpUcospsi2 = utpUcospsi*utpUcospsi
-        UapUsinpsi2 = UapUsinpsi*UapUsinpsi 
-        dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B - 
-                           (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
-                           + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
-                           - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - 
-                            (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - 
-                            r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
-                            Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
+        # Scale for Mach, this is Karmen_Tsien
+        Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
 
-        dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+        # If the blade segments are supersonic, don't scale
+        Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]
 
-        dpsi        = -Rsquiggly/dR_dpsi
-        PSI         = PSI + dpsi
-        diff        = np.max(abs(PSIold-PSI))
-        PSIold      = PSI
-
-        # omega = 0, do not run BEMT convergence loop 
-        if all(omega[:,0]) == 0. :
-            break
-
-        # If its really not going to converge
-        if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-            break
-
-        ii+=1 
-        if ii>10000:
-            break
-
-    # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
-    Tw_Tinf     = 1. + 1.78*(Ma*Ma)
-    Tp_Tinf     = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
-    Tp          = (Tp_Tinf)*T
-    Rp_Rinf     = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4) 
-    Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval  
-
-    epsilon                  = Cd/Cl
-    epsilon[epsilon==np.inf] = 10. 
-
-    blade_T_distribution    = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
-    blade_Q_distribution    = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
-    thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
-    torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T         
-    power                   = omega*torque   
-
-    # calculate coefficients 
-    D        = 2*R 
-    Cq       = torque/(rho_0*(n*n)*(D*D*D*D*D)) 
-    Ct       = thrust/(rho_0*(n*n)*(D*D*D*D))
-    Cp       = power/(rho_0*(n*n*n)*(D*D*D*D*D))
-    etap     = V*thrust/power  
-    
-    if design_thrust == None:
-        constraint = 0.005*design_thrust - abs(power[0][0] - design_power)    # error bound = 0.5 % 
-    
-    if design_power == None:
-        constraint = 0.005*design_thrust - abs(thrust[0][0] - design_thrust)   
-        
-    return  constraint
+        #This is an atrocious fit of DAE51 data at RE=50k for Cd
+        Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        Cdval[alpha>=np.pi/2] = 2.
 
 
-def constraint_max_cl(x,B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V, omega,
-                            total_pivots,pivot_points,linear_interp_flag,design_thrust,
-                            design_power,design_taper,CL_max,design_FM): 
-    
-    # Discretized propeller into stations using linear interpolation 
-    if linear_interp_flag:
-        c    = linear_discretize(x[:total_pivots],chi,pivot_points)     
-        beta = linear_discretize(x[total_pivots:],chi,pivot_points)  
-    else: 
-        c    = spline_discretize(x[:total_pivots],chi,pivot_points)     
-        beta = spline_discretize(x[total_pivots:],chi,pivot_points) 
-    
-    # Things that don't change with iteration
-    Nr       = len(c) # Number of stations radially    
-    ctrl_pts = 1
-    BB       = B*B    
-    BBB      = BB*B   
-    omega    = np.abs(omega)        
-    r        = chi*R            # Radial coordinate 
-    omegar   = np.outer(omega,r)
-    pi       = np.pi            
-    pi2      = pi*pi        
-    n        = omega/(2.*pi)    # Cycles per second  
-    deltar   = (r[1]-r[0])         
-    rho_0    = rho
+    # prevent zero Cl to keep Cd/Cl from breaking in bemt
+    Cl[Cl==0] = 1e-6
 
-    # Setup a Newton iteration
-    diff   = 1. 
-    ii     = 0
-    tol    = 1e-6  # Convergence tolerance
-    
-    # uniform freestream
-    ua       = np.zeros_like(V)              
-    ut       = np.zeros_like(V)             
-    ur       = np.zeros_like(V)
-
-    # total velocities
-    Ua     = np.outer((V + ua),np.ones_like(r)) 
-
-    # Things that will change with iteration
-    size   = (ctrl_pts,Nr)
-    PSI    = np.ones(size)
-    PSIold = np.zeros(size)  
-
-    # total velocities
-    Ut   = omegar - ut
-    U    = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
-
-    # Drela's Theory
-    while (diff>tol):
-        sin_psi      = np.sin(PSI)
-        cos_psi      = np.cos(PSI)
-        Wa           = 0.5*Ua + 0.5*U*sin_psi
-        Wt           = 0.5*Ut + 0.5*U*cos_psi   
-        va           = Wa - Ua
-        vt           = Ut - Wt
-        alpha        = beta - np.arctan2(Wa,Wt)
-        W            = (Wa*Wa + Wt*Wt)**0.5
-        Ma           = (W)/a        # a is the speed of sound  
-        lamdaw       = r*Wa/(R*Wt) 
-
-        # Limiter to keep from Nan-ing
-        lamdaw[lamdaw<0.] = 0. 
-        f            = (B/2.)*(1.-r/R)/lamdaw
-        f[f<0.]      = 0.
-        piece        = np.exp(-f)
-        arccos_piece = np.arccos(piece)
-        F            = 2.*arccos_piece/pi # Prandtl's tip factor
-        Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5 
-        Re           = (W*c)/nu  
-
-        # Compute aerodynamic forces based on specified input airfoil or using a surrogate
-        Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha)
-
-        Rsquiggly   = Gamma - 0.5*W*c*Cl
-
-        # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
-        # This was solved symbolically in Matlab and exported        
-        f_wt_2      = 4*Wt*Wt
-        f_wa_2      = 4*Wa*Wa
-        Ucospsi     = U*cos_psi
-        Usinpsi     = U*sin_psi
-        Utcospsi    = Ut*cos_psi
-        Uasinpsi    = Ua*sin_psi 
-        UapUsinpsi  = (Ua + Usinpsi)
-        utpUcospsi  = (Ut + Ucospsi) 
-        utpUcospsi2 = utpUcospsi*utpUcospsi
-        UapUsinpsi2 = UapUsinpsi*UapUsinpsi 
-        dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B - 
-                           (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
-                           + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
-                           - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - 
-                            (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - 
-                            r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
-                            Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
-
-        dR_dpsi[np.isnan(dR_dpsi)] = 0.1
-
-        dpsi        = -Rsquiggly/dR_dpsi
-        PSI         = PSI + dpsi
-        diff        = np.max(abs(PSIold-PSI))
-        PSIold      = PSI
-
-        # omega = 0, do not run BEMT convergence loop 
-        if all(omega[:,0]) == 0. :
-            break
-
-        # If its really not going to converge
-        if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-            break
-
-        ii+=1 
-        if ii>10000:
-            break
-
-    # Cl constraint 
-    cl_diff = CL_max - Cl
-    CL_constraint = sum(cl_diff[cl_diff<0])*10  
-    return CL_constraint
+    return Cl, Cdval, alpha, Ma, W
 
 
-def constraint_blade_taper(x,B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V, omega,
-                           total_pivots,pivot_points,linear_interp_flag,design_thrust,
-                           design_power,design_taper,CL_max,design_FM): 
-    blade_taper = x[total_pivots-1]/x[0]
-    taper_con   = blade_taper - design_taper
-    
-    return  taper_con
+def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
+    """
+    Computes the analytical derivative for the BEMT iteration.
 
+    Assumptions:
+    N/A
 
-def constraint_monotonic_chord(x,B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V, omega,
-                           total_pivots,pivot_points,linear_interp_flag,design_thrust,
-                           design_power,design_taper,CL_max,design_FM):  
-  
-    violation = 0
-    for pi in range(total_pivots-1):
-        if (x[pi] - x[pi+1]) < 0:
-            violation += (x[pi] - x[pi+1])*10 
-            
-    return  violation 
+    Source:
+    N/A
 
-def constraint_monotonic_twist(x,B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V, omega,
-                           total_pivots,pivot_points,linear_interp_flag,design_thrust,
-                           design_power,design_taper,CL_max,design_FM):  
-    violation = 0
-    for pi in range(total_pivots-1):
-        if ( x[total_pivots+ pi] - x[total_pivots + pi+1]) < 0:
-            violation += ( x[total_pivots+ pi] - x[total_pivots + pi+1])*10 
-            
-    return  violation
+    Inputs:
+       B                          number of rotor blades                          [-]
+       beta                       blade twist distribution                        [-]
+       r                          radius distribution                             [m]
+       R                          tip radius                                      [m]
+       Wt                         tangential velocity                             [m/s]
+       Wa                         axial velocity                                  [m/s]
+       U                          total velocity                                  [m/s]
+       Ut                         tangential velocity                             [m/s]
+       Ua                         axial velocity                                  [m/s]
+       cos_psi                    cosine of the inflow angle PSI                  [-]
+       sin_psi                    sine of the inflow angle PSI                    [-]
+       piece                      output of a step in tip loss calculation        [-]
 
+    Outputs:
+       dR_dpsi                    derivative of residual wrt inflow angle         [-]
 
-def constraint_blade_solidity(x,B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V, omega,
-                              total_pivots,pivot_points,linear_interp_flag,design_thrust,
-                              design_power,design_taper,CL_max,design_FM): 
-    
-    # Discretized propeller into stations using linear interpolation
-    c    = linear_discretize(x[:total_pivots],chi,pivot_points)     
-    
-    # blade solidity
-    r          = chi*R                    
-    blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
-    sigma      = blade_area[-1]/(np.pi*R**2)   
-    
-    sigma_con  = 0.2 - sigma  # solidity no greater than 20% - typically 5-20% from Ananth
-    return sigma_con 
+    """
+    # An analytical derivative for dR_dpsi used in the Newton iteration for the BEMT
+    # This was solved symbolically in Matlab and exported
+    pi          = np.pi
+    pi2         = np.pi**2
+    BB          = B*B
+    BBB         = BB*B
+    f_wt_2      = 4*Wt*Wt
+    f_wa_2      = 4*Wa*Wa
+    arccos_piece = np.arccos(piece)
+    Ucospsi     = U*cos_psi
+    Usinpsi     = U*sin_psi
+    Utcospsi    = Ut*cos_psi
+    Uasinpsi    = Ua*sin_psi
+    UapUsinpsi  = (Ua + Usinpsi)
+    utpUcospsi  = (Ut + Ucospsi)
+    utpUcospsi2 = utpUcospsi*utpUcospsi
+    UapUsinpsi2 = UapUsinpsi*UapUsinpsi
+    dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B -
+                   (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
+                   + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
+                   - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. -
+                    (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R -
+                    r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U +
+                    Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5)))
 
+    dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+    return dR_dpsi
 
-def constraint_figure_of_merit(x,B, R,chi,Rh,a_geo ,a_loc,cl_sur,cd_sur, rho,mu,nu,a,T,V, omega,
-                              total_pivots,pivot_points,linear_interp_flag,design_thrust,
-                              design_power,design_taper,CL_max,design_FM): 
-    
-    # Discretized propeller into stations using linear interpolation 
-    if linear_interp_flag:
-        c    = linear_discretize(x[:total_pivots],chi,pivot_points)     
-        beta = linear_discretize(x[total_pivots:],chi,pivot_points)  
-    else: 
-        c    = spline_discretize(x[:total_pivots],chi,pivot_points)     
-        beta = spline_discretize(x[total_pivots:],chi,pivot_points) 
-    
-    # Things that don't change with iteration
-    Nr       = len(c) # Number of stations radially    
-    ctrl_pts = 1
-    BB       = B*B    
-    BBB      = BB*B   
-    omega    = np.abs(omega)        
-    r        = chi*R            # Radial coordinate 
-    omegar   = np.outer(omega,r)
-    pi       = np.pi            
-    pi2      = pi*pi        
-    n        = omega/(2.*pi)    # Cycles per second  
-    deltar   = (r[1]-r[0])         
-    rho_0    = rho
+def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
+    """
+    Computes the inflow, lamdaw, and the tip loss factor, F.
 
-    # Setup a Newton iteration
-    diff   = 1. 
-    ii     = 0
-    tol    = 1e-6  # Convergence tolerance
-    
-    # uniform freestream
-    ua       = np.zeros_like(V)              
-    ut       = np.zeros_like(V)             
-    ur       = np.zeros_like(V)
+    Assumptions:
+    N/A
 
-    # total velocities
-    Ua     = np.outer((V + ua),np.ones_like(r)) 
+    Source:
+    N/A
 
-    # Things that will change with iteration
-    size   = (ctrl_pts,Nr)
-    PSI    = np.ones(size)
-    PSIold = np.zeros(size)  
+    Inputs:
+       r          radius distribution                                              [m]
+       R          tip radius                                                       [m]
+       Wa         axial velocity                                                   [m/s]
+       Wt         tangential velocity                                              [m/s]
+       B          number of rotor blades                                           [-]
+                 
+    Outputs:               
+       lamdaw     inflow ratio                                                     [-]
+       F          tip loss factor                                                  [-]
+       piece      output of a step in tip loss calculation (needed for residual)   [-]
+    """
+    lamdaw            = r*Wa/(R*Wt)
+    lamdaw[lamdaw<0.] = 0.
+    f                 = (B/2.)*(1.-r/R)/lamdaw
+    f[f<0.]           = 0.
+    piece             = np.exp(-f)
+    F                 = 2.*np.arccos(piece)/np.pi
 
-    # total velocities
-    Ut   = omegar - ut
-    U    = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
-
-    # Drela's Theory
-    while (diff>tol):
-        sin_psi      = np.sin(PSI)
-        cos_psi      = np.cos(PSI)
-        Wa           = 0.5*Ua + 0.5*U*sin_psi
-        Wt           = 0.5*Ut + 0.5*U*cos_psi   
-        va           = Wa - Ua
-        vt           = Ut - Wt
-        alpha        = beta - np.arctan2(Wa,Wt)
-        W            = (Wa*Wa + Wt*Wt)**0.5
-        Ma           = (W)/a        # a is the speed of sound  
-        lamdaw       = r*Wa/(R*Wt) 
-
-        # Limiter to keep from Nan-ing
-        lamdaw[lamdaw<0.] = 0. 
-        f            = (B/2.)*(1.-r/R)/lamdaw
-        f[f<0.]      = 0.
-        piece        = np.exp(-f)
-        arccos_piece = np.arccos(piece)
-        F            = 2.*arccos_piece/pi # Prandtl's tip factor
-        Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5 
-        Re           = (W*c)/nu  
-
-        # Compute aerodynamic forces based on specified input airfoil or using a surrogate
-        Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha)
-
-        Rsquiggly   = Gamma - 0.5*W*c*Cl
-
-        # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
-        # This was solved symbolically in Matlab and exported        
-        f_wt_2      = 4*Wt*Wt
-        f_wa_2      = 4*Wa*Wa
-        Ucospsi     = U*cos_psi
-        Usinpsi     = U*sin_psi
-        Utcospsi    = Ut*cos_psi
-        Uasinpsi    = Ua*sin_psi 
-        UapUsinpsi  = (Ua + Usinpsi)
-        utpUcospsi  = (Ut + Ucospsi) 
-        utpUcospsi2 = utpUcospsi*utpUcospsi
-        UapUsinpsi2 = UapUsinpsi*UapUsinpsi 
-        dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B - 
-                           (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
-                           + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
-                           - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - 
-                            (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - 
-                            r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
-                            Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
-
-        dR_dpsi[np.isnan(dR_dpsi)] = 0.1
-
-        dpsi        = -Rsquiggly/dR_dpsi
-        PSI         = PSI + dpsi
-        diff        = np.max(abs(PSIold-PSI))
-        PSIold      = PSI
-
-        # omega = 0, do not run BEMT convergence loop 
-        if all(omega[:,0]) == 0. :
-            break
-
-        # If its really not going to converge
-        if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-            break
-
-        ii+=1 
-        if ii>10000:
-            break
-
-    # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
-    Tw_Tinf     = 1. + 1.78*(Ma*Ma)
-    Tp_Tinf     = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
-    Tp          = (Tp_Tinf)*T
-    Rp_Rinf     = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4) 
-    Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval  
-
-    epsilon                  = Cd/Cl
-    epsilon[epsilon==np.inf] = 10. 
-
-    blade_T_distribution    = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
-    blade_Q_distribution    = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
-    thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
-    torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T         
-    power                   = omega*torque   
-
-    # calculate coefficients with UIUC definition 
-    D        = 2*R 
-    Cq       = torque/(rho_0*(n*n)*(D*D*D*D*D)) 
-    Ct       = thrust/(rho_0*(n*n)*(D*D*D*D))
-    Cp       = power/(rho_0*(n*n*n)*(D*D*D*D*D))
-    etap     = V*thrust/power  
-     
-    Area   = np.pi*(R**2)
-    FM  = (thrust*np.sqrt(thrust/2*rho*Area))/power
-    FM_constraint    = (FM[0][0] - design_FM)*10
-    
-    return FM_constraint
+    return lamdaw, F, piece
 
 def linear_discretize(x_pivs,chi,pivot_points):
     
