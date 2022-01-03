@@ -75,11 +75,11 @@ class Fidelity_Zero(Markup):
         settings.wake_development_time              = 0.05
         settings.number_of_wake_timesteps           = 30
         settings.use_surrogate                      = True
+        settings.recalculate_total_wetted_area      = True
         settings.propeller_wake_model               = False 
         settings.use_bemt_wake_model                = False 
         settings.discretize_control_surfaces        = False
         settings.model_fuselage                     = False
-        settings.recalculate_total_wetted_area      = False
         settings.model_nacelle                      = False
 
         # build the evaluation process
