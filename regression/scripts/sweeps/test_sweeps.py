@@ -31,7 +31,7 @@ def main():
     
     outputs_sweep    = linear_sweep(problem)
 
-    truth_obj_sweeps = [[6964.39612598, 6400.84618826]]
+    truth_obj_sweeps = [[6718.85311776, 6211.99460048]]
 
     print('sweeps = {}'.format(outputs_sweep['objective']))
     
@@ -44,8 +44,8 @@ def main():
     
     outputs_carpet = variable_sweep(problem)
 
-    truth_obj_carp = [[6867.55035222, 6407.40469054],
-                        [7185.25125069, 6375.68646807]]
+    truth_obj_carp = [[6648.50301076, 6241.9560959 ],
+                      [6884.50945952, 6142.8322061 ]]
     print('carpet:\n{}'.format(outputs_carpet['objective']))
     
     #print outputs_carpet

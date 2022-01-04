@@ -74,25 +74,25 @@ def main():
             print(val)
     
     # Truth values
-    climb_throttle_1_truth   = 1.076870435474248
-    climb_throttle_2_truth   = 1.0811705275252188
-    climb_throttle_3_truth   = 0.6708679936668738
-    climb_throttle_4_truth   = 1.1265503689284677
-    climb_throttle_5_truth   = 1.1770721802348285
-    climb_throttle_6_truth   = 0.7772366352514147
-    climb_throttle_7_truth   = 0.9754619978463199
-    climb_throttle_8_truth   = 1.2263494140483848
-    climb_throttle_9_truth   = 1.339647400470607
-    climb_throttle_10_truth  = 1.0
-    cruise_CL_1_truth        = 0.6972564737884285
-    cruise_CL_2_truth        = 0.6975787113223217
-    cruise_CL_3_truth        = 0.7852502026240504
-    descent_throttle_1_truth = 0.09102457856960339
-    descent_throttle_2_truth = 0.24465051386674283
-    single_pt_CL_1_truth     = 0.251138262389197
-    single_pt_CL_2_truth     = 0.25113968108269286
-    loiter_CL_truth          = 0.5114262749651366
-    descent_throttle_3_truth = 0.17797156049307095
+    climb_throttle_1_truth   = 1.0779171064877817
+    climb_throttle_2_truth   = 1.0825265840224687
+    climb_throttle_3_truth   = 0.674660268669148 
+    climb_throttle_4_truth   = 1.1315606426230955
+    climb_throttle_5_truth   = 1.1836691794281005
+    climb_throttle_6_truth   = 0.7820927446131135
+    climb_throttle_7_truth   = 0.9575782120087092
+    climb_throttle_8_truth   = 1.1806251177582514
+    climb_throttle_9_truth   = 1.2803044387670226
+    climb_throttle_10_truth  = 1.0 
+    cruise_CL_1_truth        = 0.697527528118587  
+    cruise_CL_2_truth        = 0.6978305032649874  
+    cruise_CL_3_truth        = 0.7853555716641899  
+    descent_throttle_1_truth = 0.09557733021666127  
+    descent_throttle_2_truth = 0.2467066714518043  
+    single_pt_CL_1_truth     = 0.25119411851114865  
+    single_pt_CL_2_truth     = 0.2511952953215362 
+    loiter_CL_truth          = 0.5115243029776504 
+    descent_throttle_3_truth = 0.17985343172510482 
     
     # Store errors 
     error = Data()
@@ -118,7 +118,7 @@ def main():
      
     print('Errors:')
     print(error)
-    
+     
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)  
     

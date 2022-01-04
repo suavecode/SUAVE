@@ -53,7 +53,7 @@ def main():
     # Compute take off weight given tofl
     max_tow = find_take_off_weight_given_tofl(configuration,analyses,airport,target_tofl)
     
-    truth_max_tow = 46656.50026628
+    truth_max_tow = 46221.18188342512
     max_tow_error = np.max(np.abs(max_tow[0]-truth_max_tow)) 
     print('Range Error = %.4e' % max_tow_error)
     assert(max_tow_error   < 1e-6 )
