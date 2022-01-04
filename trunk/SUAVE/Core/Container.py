@@ -15,6 +15,11 @@ from .Data     import Data
 from warnings import warn
 import random
 
+import string
+chars = string.punctuation + string.whitespace
+t_table = str.maketrans( chars          + string.ascii_uppercase , 
+                            '_'*len(chars) + string.ascii_lowercase )
+
 # ----------------------------------------------------------------------
 #   Data Container Base Class
 # ----------------------------------------------------------------------        
@@ -97,14 +102,16 @@ class Container(Data):
         
         # See if the item tag exists, if it does modify the name
         keys = self.keys()
-        if str.lower(val.tag) in keys:
+        
+        tag = str.lower(val.tag.translate(t_table))
+        if tag in keys:
             string_of_keys = "".join(self.keys())
             n_comps = string_of_keys.count(val.tag)
-            val.tag = val.tag + str(n_comps+1)
+            val.tag = tag + str(n_comps+1)
             
             # Check again, because theres an outside chance that its duplicate again. Then assign a random
-            if str.lower(val.tag) in keys:
-                val.tag = val.tag + str(n_comps+random.randint(0,1000))
+            if tag in keys:
+                val.tag = tag + str(n_comps+random.randint(0,1000))
         
         Data.append(self,val)
         
