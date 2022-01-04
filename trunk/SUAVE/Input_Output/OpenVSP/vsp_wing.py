@@ -110,7 +110,7 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
         wing.tag = 'winggeom'
     
     scaling           = vsp.GetParmVal(wing_id, 'Scale', 'XForm')  
-    units_factor      = units_factor*scaling
+    #units_factor      = units_factor*scaling
         
     # Top level wing parameters
     # Wing origin

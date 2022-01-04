@@ -148,23 +148,28 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     prop.tip_radius                   = vsp.GetDoubleResults(rid, "Diameter" )[0] / 2 * units_factor
     prop.radius_distribution          = np.array(vsp.GetDoubleResults(rid, "Radius" )) * prop.tip_radius
     prop.radius_distribution[-1]      = 0.99 * prop.tip_radius # BEMT requires max nondimensional radius to be less than 1.0
+    if prop.radius_distribution[0] == 0.:
+        start = 1
+        prop.radius_distribution = prop.radius_distribution[start:]
+    else:
+        start = 0
     prop.hub_radius                   = prop.radius_distribution[0]
 
-    prop.chord_distribution           = np.array(vsp.GetDoubleResults(rid, "Chord" ))  * prop.tip_radius # vsp gives c/R
-    prop.twist_distribution           = np.array(vsp.GetDoubleResults(rid, "Twist" ))  * Units.degrees
-    prop.sweep_distribution           = np.array(vsp.GetDoubleResults(rid, "Sweep" ))
+    prop.chord_distribution           = np.array(vsp.GetDoubleResults(rid, "Chord" ))[start:]  * prop.tip_radius # vsp gives c/R
+    prop.twist_distribution           = np.array(vsp.GetDoubleResults(rid, "Twist" ))[start:]  * Units.degrees
+    prop.sweep_distribution           = np.array(vsp.GetDoubleResults(rid, "Sweep" ))[start:]
     prop.mid_chord_alignment          = np.tan(prop.sweep_distribution*Units.degrees)  * prop.radius_distribution
-    prop.thickness_to_chord           = np.array(vsp.GetDoubleResults(rid, "Thick" ))
+    prop.thickness_to_chord           = np.array(vsp.GetDoubleResults(rid, "Thick" ))[start:]
     prop.max_thickness_distribution   = prop.thickness_to_chord*prop.chord_distribution * units_factor
-    prop.Cl_distribution              = np.array(vsp.GetDoubleResults(rid, "CLi" )) 
+    prop.Cl_distribution              = np.array(vsp.GetDoubleResults(rid, "CLi" ))[start:] 
 
     # Extra data from VSP BEM for future use in BEMT
     prop.beta34                       = vsp.GetDoubleResults(rid, "Beta34" )[0]  # pitch at 3/4 radius
     prop.pre_cone                     = vsp.GetDoubleResults(rid, "Pre_Cone")[0]
-    prop.rake                         = np.array(vsp.GetDoubleResults(rid, "Rake"))
-    prop.skew                         = np.array(vsp.GetDoubleResults(rid, "Skew"))
-    prop.axial                        = np.array(vsp.GetDoubleResults(rid, "Axial"))
-    prop.tangential                   = np.array(vsp.GetDoubleResults(rid, "Tangential"))
+    prop.rake                         = np.array(vsp.GetDoubleResults(rid, "Rake"))[start:]
+    prop.skew                         = np.array(vsp.GetDoubleResults(rid, "Skew"))[start:]
+    prop.axial                        = np.array(vsp.GetDoubleResults(rid, "Axial"))[start:]
+    prop.tangential                   = np.array(vsp.GetDoubleResults(rid, "Tangential"))[start:]
 
     # Set prop rotation
     prop.rotation = 1
