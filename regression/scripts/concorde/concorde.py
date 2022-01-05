@@ -85,7 +85,7 @@ def main():
     results.fuel_tank_test.cg_maxes = cg_maxes
     
     # load older results
-    save_results(results)
+    #save_results(results)
     old_results = load_results()   
     
 
