@@ -53,11 +53,12 @@ class Constant_Mach_Linear_Altitude(Constant_Speed_Linear_Altitude):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude  = None
-        self.mach      = 0.5
-        self.distance  = 10. * Units.km
+        self.altitude       = None
+        self.mach           = 0.5
+        self.distance       = 10. * Units.km
         self.altitude_start = None
-        self.altitude_end = None
+        self.altitude_end   = None
+        self.bearing        = 0.0 * Units.degrees    
         
         
         # --------------------------------------------------------------

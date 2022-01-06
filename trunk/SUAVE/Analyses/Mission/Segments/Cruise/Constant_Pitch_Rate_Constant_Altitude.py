@@ -63,7 +63,7 @@ class Constant_Pitch_Rate_Constant_Altitude(Aerodynamic):
         self.pitch_rate    = 1.  * Units['rad/s/s']
         self.pitch_initial = None
         self.pitch_final   = 0.0 * Units['rad']
-        
+        self.bearing       = 0.0 * Units.degrees  
         
         # --------------------------------------------------------------
         #   State

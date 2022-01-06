@@ -11,6 +11,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
+from SUAVE.Core import Units
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
 
@@ -65,6 +66,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         self.altitude        = None
         self.air_speed_start = None
         self.air_speed_end   = 0.0 
+        self.bearing         = 0.0 * Units.degrees  
         
         # --------------------------------------------------------------
         #   State

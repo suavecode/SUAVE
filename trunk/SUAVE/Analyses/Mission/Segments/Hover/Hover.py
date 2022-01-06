@@ -60,6 +60,7 @@ class Hover(Aerodynamic):
         # --------------------------------------------------------------
         self.altitude = None
         self.time     = 1.0 * Units.seconds
+        self.bearing  = 0.0 * Units.degrees 
         
         # --------------------------------------------------------------
         #   State

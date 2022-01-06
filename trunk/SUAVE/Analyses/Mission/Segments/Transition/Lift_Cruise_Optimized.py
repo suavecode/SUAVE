@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
+from SUAVE.Core import Units
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
 
@@ -70,6 +71,7 @@ class Lift_Cruise_Optimized(Aerodynamic):
         self.pitch_final             = None     
         self.objective               = None # This will be a key
         self.minimize                = True
+        self.bearing                 = 0.0 * Units.degrees 
         self.lift_coefficient_limit  =  1.e20  
         self.algorithm               = 'SLSQP'
         

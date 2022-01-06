@@ -57,6 +57,7 @@ class Constant_Dynamic_Pressure_Constant_Altitude_Loiter(Constant_Speed_Constant
         self.altitude         = 0.0
         self.dynamic_pressure = 1600 * Units.pascals 
         self.time             = 1.0 * Units.sec
+        self.bearing          = 0.0 * Units.degrees 
         
         # --------------------------------------------------------------
         #   The Solving Process

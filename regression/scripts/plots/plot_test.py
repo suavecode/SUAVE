@@ -13,8 +13,7 @@ from SUAVE.Plots.Performance.Mission_Plots import *
 import matplotlib.pyplot as plt  
 
 def main():
-    """This test loads resudata to plots from the B737 regression used the 
-    data to test the plot functions 
+    """This test loads results from the B737 regression to test the plot functions 
     """
     results = load_plt_data()
     
@@ -52,11 +51,18 @@ def main():
     # Compare Plot for Flight Conditions   
     """
     plot_flight_conditions(results)
+    
+
+    """
+    # Compare Plot for Flight Trajectory
+    """
+    plot_flight_trajectory(results)
+    
 
     return 
 
 def load_plt_data():
-    return SUAVE.Input_Output.SUAVE.load('../B737/plot_data_B737.res')
+    return SUAVE.Input_Output.SUAVE.load('../B737/results_mission_B737.res')
 
 if __name__ == '__main__':     
     main()  

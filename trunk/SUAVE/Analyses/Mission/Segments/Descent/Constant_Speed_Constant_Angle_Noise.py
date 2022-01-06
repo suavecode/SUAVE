@@ -63,6 +63,8 @@ class Constant_Speed_Constant_Angle_Noise(Unknown_Throttle):
         self.altitude_end   = 0.0 * Units.km
         self.descent_angle  = 3.  * Units.deg
         self.air_speed      = 100 * Units.m / Units.s
+        self.bearing        = 0.0 * Units.degrees 
+        
         self.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
         # --------------------------------------------------------------
         #   The Solving Process

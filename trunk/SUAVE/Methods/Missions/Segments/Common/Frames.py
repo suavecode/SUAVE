@@ -45,6 +45,8 @@ def initialize_inertial_position(segment):
     if segment.state.initials:
         r_initial = segment.state.initials.conditions.frames.inertial.position_vector
         r_current = segment.state.conditions.frames.inertial.position_vector
+        R_initial = segment.state.initials.conditions.frames.inertial.aircraft_range
+        R_current = segment.state.conditions.frames.inertial.aircraft_range
         
         if 'altitude' in segment.keys() and segment.altitude is not None:
             r_initial[-1,None,-1] = -segment.altitude
@@ -54,6 +56,7 @@ def initialize_inertial_position(segment):
             assert('Altitude not set')
             
         segment.state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])
+        segment.state.conditions.frames.inertial.aircraft_range[:,:]  = R_current + (R_initial[-1,None,:] - R_current[0,None,:])
         
     return
     
@@ -143,7 +146,6 @@ def initialize_planet_position(segment):
         longitude_initial = 0.0
         latitude_initial  = 0.0
 
-
     segment.state.conditions.frames.planet.longitude[:,0] = longitude_initial
     segment.state.conditions.frames.planet.latitude[:,0]  = latitude_initial    
 
@@ -184,10 +186,9 @@ def update_planet_position(segment):
     
     # unpack orientations and velocities
     V          = conditions.freestream.velocity[:,0]
-    altitude   = conditions.freestream.altitude[:,0]
-    phi        = conditions.frames.body.inertial_rotations[:,0]
+    altitude   = conditions.freestream.altitude[:,0] 
     theta      = conditions.frames.body.inertial_rotations[:,1]
-    psi        = conditions.frames.body.inertial_rotations[:,2]
+    psi        = segment.bearing
     alpha      = conditions.aerodynamics.angle_of_attack[:,0]
     I          = segment.state.numerics.time.integrate
     Re         = segment.analyses.planet.features.mean_radius
@@ -400,17 +401,22 @@ def integrate_inertial_horizontal_position(segment):
                                 
     """        
 
-    # unpack
     conditions = segment.state.conditions
-    x0 = conditions.frames.inertial.position_vector[0,None,0:1+1]
-    vx = conditions.frames.inertial.velocity_vector[:,0:1+1]
-    I  = segment.state.numerics.time.integrate
+    b          = segment.bearing
+    cpts       = int(segment.state.numerics.number_control_points)
+    x0         = conditions.frames.inertial.position_vector[0,None,0:1+1]
+    R0         = conditions.frames.inertial.aircraft_range[0,None,0:1+1]
+    vx         = conditions.frames.inertial.velocity_vector[:,0:1+1]
+    I          = segment.state.numerics.time.integrate  
+    trajectory = np.repeat( np.atleast_2d(np.array([np.cos(b),np.sin(b)])),cpts , axis = 0) 
     
     # integrate
-    x = np.dot(I,vx) + x0
+    x = np.dot(I,vx)  
+    x[:,1] = x[:,0]
     
     # pack
-    conditions.frames.inertial.position_vector[:,0:1+1] = x[:,:]
+    conditions.frames.inertial.position_vector[:,0:1+1] = x0 + x[:,:]*trajectory
+    conditions.frames.inertial.aircraft_range[:,0]      = R0 + x[:,0]  
     
     return
 
