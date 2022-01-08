@@ -18,11 +18,11 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
      import import_airfoil_geometry
 from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis           import airfoil_analysis
 from scipy.special import fresnel
-
+ 
 # ----------------------------------------------------------------------
 # Frequency Domain Broadband Noise Computation
 # ----------------------------------------------------------------------
-## @ingroupMethods-Noise-Fidelity_One-Propeller  
+## @ingroupMethods-Noise-Fidelity_One-Propeller   
 def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,
                             velocity_vector,network,auc_opts,settings,res,source):
     '''This computes the trailing edge noise compoment of broadband noise of a propeller or 
@@ -290,75 +290,57 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     
     # ------------------------------------------------------------
     # ****** BLADE MOTION CALCULATIONS ****** 
-    # the rotational Mach number of the blade section 
-    omega   = 2*pi*frequency                                                 
-    omega   = vectorize(omega,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 8)        
+    # the rotational Mach number of the blade section                   
+    omega   = vectorize(2*pi*frequency,num_cpt,num_mic,num_sec,num_prop,num_azi,BSR,vectorize_method = 8)        
     r       = np.repeat(r[:,:,:,:,:,:,np.newaxis],2,axis = 6)                 
     c       = np.repeat(c[:,:,:,:,:,:,np.newaxis],2,axis = 6)/2                 
-    delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)                                                    
-    omega_d = omega/(1 +  (Omega*r/c_0)*(X/R_s)) # dopler shifted frequency        
+    delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)                   
     M       = np.repeat(M,2,axis = 6)   
-    mu      = omega_d*M/(U_inf*beta_sq)                                  
-    bar_mu  = mu/c   # normalized by the semi chord           
+    mu      = (omega/(1 +(Omega*r/c_0)*(X/R_s)))*M/(U_inf*beta_sq)                          
     
     # ------------------------------------------------------------
     # ****** LOADING TERM CALCULATIONS ******   
     # equation 7       
-    epsilon       = X**2 + (beta_sq)*(Y**2 + Z**2)                 
-    K             = omega_d/(0.8*U_inf)                                             
+    epsilon       = X**2 + (beta_sq)*(Y**2 + Z**2)                                      
     gamma         = np.sqrt(((mu/epsilon)**2)*(X**2 + beta_sq*(Z**2)))                
-    ss_1, cc_1    = fresnel(2*((K /c) + bar_mu*M + (gamma/c)))                                
-    ss_2, cc_2    = fresnel(2*(bar_mu*X/epsilon + (gamma/c)) )                               
-    triangle      = (omega/(U_inf*c)) - bar_mu*X/epsilon + bar_mu*M                                       
+    ss_1, cc_1    = fresnel(2*((((omega/(1 +  (Omega*r/c_0)*(X/R_s))) /(0.8*U_inf)) /c) + (mu/c)*M + (gamma/c)))                                
+    ss_2, cc_2    = fresnel(2*((mu/c)*X/epsilon + (gamma/c)) )                               
+    triangle      = (omega/(U_inf*c)) - (mu/c)*X/epsilon + (mu/c)*M                                       
     norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*((1 - (1 + 1j)*(cc_1 - 1j*ss_1)) \
-                    + ((np.exp(-1j*2*triangle))*(np.sqrt((K + mu*M + gamma)/(mu*X/epsilon +gamma))) \
+                    + ((np.exp(-1j*2*triangle))*(np.sqrt((((omega/(1 +  (Omega*r/c_0)*(X/R_s))) /(0.8*U_inf)) + mu*M + gamma)/(mu*X/epsilon +gamma))) \
                        *(1 + 1j)*(cc_2 - 1j*ss_2)) ))
     norm_L_sq     = np.nan_to_num(norm_L_sq)
     
     # ------------------------------------------------------------
-    # ****** EMPIRICAL WALL PRESSURE SPECTRUM ******  
-    # equation 8 
-    mu_tau              = (tau_w/rho)**0.5                                                          
-    ones                = np.ones_like(mu_tau)                                                      
-    R_T                 = (delta/Ue)/(kine_visc/(mu_tau**2))                                             
-    beta_c              =  (Theta/tau_w)*dp_dx                                                                                             
-    Delta               = delta/delta_star                                                          
-    e                   = 3.7 + 1.5*beta_c                                                          
-    d                   = 4.76*((1.4/Delta)**0.75)*(0.375*e - 1)                                                
-    a                   = (2.82*(Delta**2)*(np.power((6.13*(Delta**(-0.75)) + d),e)))*(4.2*((0.8*((beta_c + 0.5)**3/4))/Delta) + 1)   
-    h_star              = np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7                            
+    # ****** EMPIRICAL WALL PRESSURE SPECTRUM ******                  
+    ones                = np.ones_like(Theta)                                                                            
+    beta_c              = (Theta/tau_w)*dp_dx                                                  
+    d                   = 4.76*((1.4/(delta/delta_star))**0.75)*(0.375*(3.7 + 1.5*beta_c) - 1)                                                
+    a                   = (2.82*((delta/delta_star)**2)*(np.power((6.13*((delta/delta_star)**(-0.75)) + d),(3.7 + 1.5*beta_c))))*(4.2*((0.8*((beta_c + 0.5)**3/4))/(delta/delta_star)) + 1)    
     d_star              = d                                                                          
     d_star[beta_c<0.5]  = np.maximum(ones,1.5*d)[beta_c<0.5]        
     Phi_pp_expression   =  (np.maximum(a, (0.25*beta_c - 0.52)*a)*((omega*delta_star/Ue)**2))/(((4.76*((omega*delta_star/Ue)**0.75) \
-                           + d_star)**e)+ (np.power((8.8*(R_T**(-0.57))*(omega*delta_star/Ue)),h_star) ))                                                         
+                           + d_star)**(3.7 + 1.5*beta_c))+ (np.power((8.8*(((delta/Ue)/(kine_visc/(((tau_w/rho)**0.5) **2)))**(-0.57))*(omega*delta_star/Ue)),(np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7)) ))                                                         
     Phi_pp              = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue    
     Phi_pp[np.isinf(Phi_pp)] = 0.
     Phi_pp[np.isnan(Phi_pp)] = 0.    
-
-
     
     # ------------------------------------------------------------
-    # ****** DIRECTIVITY ******       
-    l_r    = 1.6*(0.8*U_inf)/omega       
-    l_x    = M_hub[:,:,:,:,:,:,0,:]
-    l_y    = M_hub[:,:,:,:,:,:,1,:]
-    l_z    = M_hub[:,:,:,:,:,:,2,:] 
-
-    A4    = l_y + Y_2 - r*np.sin(beta_p)*np.sin(phi)
-    A3    = (np.cos(t_r + t_v))*((np.cos(t_v))*(l_z + Z_2) - (np.sin(t_v))*(l_x + X_2))\
-        - np.sin(t_r+ t_v)*((np.cos(t_v))*(l_x + X_2) + (np.sin(t_v))*l_z + Z_2) + r*np.cos(beta_p)
-    A2    =  (np.cos(t_r + t_v))*((np.cos(t_v))*(l_x + X_2) + (np.sin(t_v))*(l_z + Z_2))\
-        + np.sin(t_r+ t_v)*((np.cos(t_v))*(l_z + Z_2) - (np.sin(t_v))*l_x + X_2) - r*np.cos(phi)*np.cos(beta_p)
+    # ****** DIRECTIVITY ****** 
+    A4    = M_hub[:,:,:,:,:,:,1,:] + Y_2 - r*np.sin(beta_p)*np.sin(phi)
+    A3    = (np.cos(t_r + t_v))*((np.cos(t_v))*(M_hub[:,:,:,:,:,:,2,:] + Z_2) - (np.sin(t_v))*(M_hub[:,:,:,:,:,:,0,:] + X_2))\
+        - np.sin(t_r+ t_v)*((np.cos(t_v))*(M_hub[:,:,:,:,:,:,0,:] + X_2) + (np.sin(t_v))*M_hub[:,:,:,:,:,:,2,:] + Z_2) + r*np.cos(beta_p)
+    A2    =  (np.cos(t_r + t_v))*((np.cos(t_v))*(M_hub[:,:,:,:,:,:,0,:] + X_2) + (np.sin(t_v))*(M_hub[:,:,:,:,:,:,2,:] + Z_2))\
+        + np.sin(t_r+ t_v)*((np.cos(t_v))*(M_hub[:,:,:,:,:,:,2,:] + Z_2) - (np.sin(t_v))*M_hub[:,:,:,:,:,:,0,:] + X_2) - r*np.cos(phi)*np.cos(beta_p)
     A1    = (np.cos( alpha_eff)*A3 + np.sin( alpha_eff)*np.cos(beta_p)*A4 - np.sin( alpha_eff)*np.sin(beta_p)*A2)**2
     D_phi = A1/( (np.sin( alpha_eff)*A3 - np.cos( alpha_eff)*np.cos(beta_p)*A4 \
                   + np.cos( alpha_eff)*np.sin(beta_p)*A2**2)\
                  + (np.sin(beta_p)*A4 + np.cos(beta_p)*A2)**2)**2 
 
     # Acousic Power Spectrial Density from each blade - equation 6 
-    mult     = ((omega/c_0 )**2)*c**2*delta_r*(1/(32*pi**2))*(B/(2*pi)) 
-    mult     = np.array(mult)     
-    S_pp     = mult[:,:,:,:,0,:,:]*np.trapz(D_phi*norm_L_sq*l_r*Phi_pp,axis = 4)
-    S_pp_azi = mult*D_phi*norm_L_sq*l_r*Phi_pp
+    mult     = ((omega/c_0 )**2)*c**2*delta_r*(1/(32*pi**2))*(B/(2*pi))  
+    S_pp     = mult[:,:,:,:,0,:,:]*np.trapz(D_phi*norm_L_sq*(1.6*(0.8*U_inf)/omega)*Phi_pp,axis = 4)
+    S_pp_azi = mult*D_phi*norm_L_sq*(1.6*(0.8*U_inf)/omega)*Phi_pp
     
     # equation 9 
     if np.all(S_pp == 0):
