@@ -358,16 +358,16 @@ def energy_network():
     # Specify the expected values
     expected = Data()
     expected.thrust = 47826.12361690928
-    expected.mdot = 0.8081491823132513
-    expected.mdot_fuel = 0.79224536
-    expected.mdot_additional_fuel = 0.01590383
+    expected.mdot = 0.7914998316995234
+    expected.mdot_fuel = 0.79056981
+    expected.mdot_additional_fuel = 0.00093002
     
     #error data function
     error =  Data()
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
-    error.mdot_error   = (mdot[0][0]-expected.mdot)/expected.mdot
-    error.mdot_fuel_error = (mdot_fuel[0][0]-expected.mdot_fuel)/expected.mdot_fuel
-    error.mdot_additional_fuel_error = (mdot_additional_fuel[0][0]-expected.mdot_additional_fuel)/expected.mdot_additional_fuel
+    error.mdot_error   = mdot[0][0]-expected.mdot
+    error.mdot_fuel_error = mdot_fuel[0][0]-expected.mdot_fuel
+    error.mdot_additional_fuel_error = mdot_additional_fuel[0][0]-expected.mdot_additional_fuel
     
     print("f[0][0] = ", F[0][0])
     print("mdot = ", mdot[0][0] )
@@ -375,7 +375,7 @@ def energy_network():
     print("mdot cryo = ", results_design.vehicle_additional_fuel_rate)
 
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-6)    
+        assert(np.abs(v) < 1e-6)    
         
     return
     
