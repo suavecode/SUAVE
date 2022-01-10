@@ -15,9 +15,9 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           i
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import SPL_arithmetic
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import SPL_spectra_arithmetic  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates   import compute_point_source_coordinates
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates   import compute_blade_section_source_coordinates
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates   import compute_blade_section_source_coordinates 
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise         import compute_harmonic_noise
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        import compute_broadband_noise
+from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        import compute_broadband_noise 
 
 # -------------------------------------------------------------------------------------
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
@@ -73,31 +73,29 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
     # Because the propellers are identical, get the first propellers results
     auc_opts = auc_opts[list(auc_opts.keys())[0]]
     
-    # create data structures for computation  
+    # Create data structures for computation  
     Noise   = Data()  
     Results = Data()
                      
-     # compute position vector from point source at rotor hub to microphones  
+     # Compute position vector from point source at rotor hub to microphones  
     position_vector = compute_point_source_coordinates(conditions,network,microphone_locations,source,settings)  
-     
+    
     # Harmonic Noise    
     compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,network,auc_opts,settings,Noise,source)       
     
-    # compute position vector of blade section source to microphones   
-    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,network,microphone_locations,source,settings)   
+    # Compute position vector of blade section source to microphones   
+    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,network,microphone_locations,source,settings)  
     
-    # Broadband Noise     
-    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,network,auc_opts,settings,Noise,source)        
-     
-    # Combine Harmonic (periodic/tonal) and Broadband Noise  
+    # Broadband noise
+    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,network,auc_opts,settings,Noise,source)      
+ 
+     # Combine Harmonic (periodic/tonal) and Broadband Noise  
     Noise.SPL_total_1_3_spectrum  = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10)) 
     Noise.SPL_total_1_3_spectrum[np.isnan(Noise.SPL_total_1_3_spectrum)] = 0
     Noise.SPL_total_1_3_spectrum_dBA  = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum_dBA/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum_dBA/10))
     Noise.SPL_total_1_3_spectrum_dBA  = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum_dBA/10))
     Noise.SPL_total_1_3_spectrum_dBA[np.isnan(Noise.SPL_total_1_3_spectrum)] = 0
-    
-    # pressure ratios used to combine A weighted sound since decibel arithmetic does not work for 
-    #broadband noise since it is a continuous spectrum 
+     
     total_p_pref_dBA                                  = np.concatenate((Noise.p_pref_harmonic_dBA,Noise.p_pref_broadband_dBA), axis=3) 
     Noise.SPL_total_dBA                               = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
     Noise.SPL_total_dBA[np.isinf(Noise.SPL_total_dBA)] = 0  
