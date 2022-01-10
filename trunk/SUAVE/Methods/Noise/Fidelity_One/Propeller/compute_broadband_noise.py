@@ -68,8 +68,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     
     num_cpt         = len(blade_section_position_vectors.blade_section_coordinate_sys[:,0,0,0,0,0,0,0])  
     num_prop        = len(blade_section_position_vectors.blade_section_coordinate_sys[0,0,:,0,0,0,0,0])  
-    num_mic         = len(blade_section_position_vectors.blade_section_coordinate_sys[0,:,0,0,0,0,0,0])  
-    num_azi         = len(blade_section_position_vectors.blade_section_coordinate_sys[0,0,0,0,:,0,0,0])
+    num_mic         = len(blade_section_position_vectors.blade_section_coordinate_sys[0,:,0,0,0,0,0,0])
     frequency       = settings.center_frequencies 
     num_processors  = settings.number_of_multiprocessing_workers
     num_cf          = len(frequency)
@@ -83,10 +82,6 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     res.p_pref_broadband_dBA                      = np.zeros_like(res.p_pref_broadband)
     res.SPL_prop_broadband_spectrum               = np.zeros_like(res.p_pref_broadband)
     res.SPL_prop_broadband_spectrum_dBA           = np.zeros_like(res.p_pref_broadband)
-    res.p_pref_azimuthal_broadband                = np.zeros((num_cpt,num_mic,num_prop,num_azi,num_cf))
-    res.p_pref_azimuthal_broadband_dBA            = np.zeros_like(res.p_pref_azimuthal_broadband)
-    res.SPL_prop_azimuthal_broadband_spectrum     = np.zeros_like(res.p_pref_azimuthal_broadband)
-    res.SPL_prop_azimuthal_broadband_spectrum_dBA = np.zeros_like(res.p_pref_azimuthal_broadband)  
     
 
     ti = time.time()      
@@ -101,11 +96,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
             res.p_pref_broadband[:,mi,:,:]                              = mic_res.p_pref_broadband                         
             res.p_pref_broadband_dBA[:,mi,:,:]                          = mic_res.p_pref_broadband_dBA                     
             res.SPL_prop_broadband_spectrum[:,mi,:,:]                   = mic_res.SPL_prop_broadband_spectrum              
-            res.SPL_prop_broadband_spectrum_dBA[:,mi,:,:]               = mic_res.SPL_prop_broadband_spectrum_dBA           
-            res.p_pref_azimuthal_broadband[:,mi,:,:,:]                  = mic_res.p_pref_azimuthal_broadband               
-            res.p_pref_azimuthal_broadband_dBA[:,mi,:,:,:]              = mic_res.p_pref_azimuthal_broadband_dBA           
-            res.SPL_prop_azimuthal_broadband_spectrum[:,mi,:,:,:]       = mic_res.SPL_prop_azimuthal_broadband_spectrum    
-            res.SPL_prop_azimuthal_broadband_spectrum_dBA[:,mi,:,:,:]   = mic_res.SPL_prop_azimuthal_broadband_spectrum_dBA
+            res.SPL_prop_broadband_spectrum_dBA[:,mi,:,:]               = mic_res.SPL_prop_broadband_spectrum_dBA
         
             mi += 1
             
@@ -419,16 +410,6 @@ def broadband_noise(mi,propellers,blade_section_position_vectors,freestream,velo
     results.p_pref_broadband                              = 10**(SPL_rotor /10) 
     results.p_pref_broadband_dBA                          = 10**(SPL_rotor_dBA /10)  
     results.SPL_prop_broadband_spectrum                   = SPL_rotor   
-    results.SPL_prop_broadband_spectrum_dBA               = SPL_rotor_dBA     
-     
-    SPL_surf_azi      = SPL_arithmetic(SPL_azi, sum_axis = 5 ) 
-    SPL_rotor_azi     = SPL_arithmetic(SPL_surf_azi, sum_axis = 2 ) 
-    SPL_rotor_dBA_azi = A_weighting(SPL_rotor_azi,frequency)  
-    
-    # sound pressure levels 
-    results.p_pref_azimuthal_broadband                    = 10**(SPL_rotor_azi /10)   
-    results.p_pref_azimuthal_broadband_dBA                = 10**(SPL_rotor_dBA_azi /10)  
-    results.SPL_prop_azimuthal_broadband_spectrum         = SPL_rotor_azi  
-    results.SPL_prop_azimuthal_broadband_spectrum_dBA     = SPL_rotor_dBA_azi
+    results.SPL_prop_broadband_spectrum_dBA               = SPL_rotor_dBA
     
     return  results
