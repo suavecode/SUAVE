@@ -86,7 +86,7 @@ class Fidelity_One(Noise):
         settings.level_ground_microphone_max_y        = 500   
         settings.level_ground_microphone_x_resolution = 5
         settings.level_ground_microphone_y_resolution = 5  
-        settings.number_of_multiprocessing_workers    = 48 # None # defaults to maximum number of processors 
+        settings.number_of_multiprocessing_workers    = None # defaults to maximum number of processors 
         settings.center_frequencies                   = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
                                                                   500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
                                                                   4000, 5000, 6300, 8000, 10000])        
