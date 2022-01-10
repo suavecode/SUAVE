@@ -1027,15 +1027,9 @@ def check_results(results):
 
     results_final_weight_values = np.array([weights.total_mass, weights.additional_fuel_mass, weights.fuel_mass, weights.vehicle_mass_rate, weights.vehicle_fuel_rate, weights.vehicle_additional_fuel_rate])
 
-    np.set_printoptions(suppress=True)
-    print("final segment weight values from results", results_final_weight_values)
-    print("final segment weight values to compare", final_weight_values)
-
     error_val = (final_weight_values - results_final_weight_values) / final_weight_values
 
     error_val = np.where(np.isnan(error_val), 0, error_val)
-
-    print("errors = ", error_val)
 
     assert(np.amax(error_val) < 1e-6)
 
