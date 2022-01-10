@@ -26,7 +26,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_HFW_inflow_vel
 # package imports
 import numpy as np
 import scipy as sp
-from scipy.interpolate import RectBivariateSpline
+import copy
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -92,7 +92,7 @@ class Rotor(Energy_Component):
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
 
         self.Wake_VD                   = Data()
-        self.wake_method               = "momentum"
+        self.wake_method_fidelity      = 0
         self.number_rotor_rotations    = 5
         self.number_steps_per_rotation = 72
         self.wake_settings             = Data()
@@ -100,7 +100,7 @@ class Rotor(Energy_Component):
 
         self.wake_settings.initial_timestep_offset   = 0    # initial timestep
         self.wake_settings.wake_development_time     = 0.05 # total simulation time required for wake development
-        self.wake_settings.number_of_wake_timesteps  = 30   # total number of time steps in wake development
+        self.wake_settings.number_of_wake_timesteps  = 72*5   # total number of time steps in wake development
         self.start_angle                             = 0.0  # angle of first blade from vertical
 
         self.inputs.y_axis_rotation    = 0.
@@ -195,7 +195,6 @@ class Rotor(Energy_Component):
         Na                    = self.number_azimuthal_stations
         nonuniform_freestream = self.nonuniform_freestream
         use_2d_analysis       = self.use_2d_analysis
-        wake_method           = self.wake_method
         rotation              = self.rotation
         pitch_c               = self.inputs.pitch_command
 
@@ -315,7 +314,6 @@ class Rotor(Energy_Component):
             # make everything 2D with shape (ctrl_pts,Nr,Na)
             size   = (ctrl_pts,Nr,Na )
             PSI    = np.ones(size)
-            PSIold = np.zeros(size)
 
             # 2-D freestream velocity and omega*r
             V_2d   = V_thrust[:,0,None,None]
@@ -356,148 +354,32 @@ class Rotor(Energy_Component):
             # Things that will change with iteration
             size   = (ctrl_pts,Nr)
             PSI    = np.ones(size)
-            PSIold = np.zeros(size)
 
         # Total velocities
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
+        
+        
+        #---------------------------------------------------------------------------
+        # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
+        #---------------------------------------------------------------------------
+        va, vt = self.wake_evaluation(U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        
+        # compute new blade velocities
+        Wa   = va + Ua
+        Wt   = Ut - vt
 
-        if wake_method == 'momentum':
-            # Setup a Newton iteration
-            diff   = 1.
-            tol    = 1e-6  # Convergence tolerance
-            ii     = 0
+        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
-            # BEMT Iteration
-            while (diff>tol):
-                # compute velocities
-                sin_psi      = np.sin(PSI)
-                cos_psi      = np.cos(PSI)
-                Wa           = 0.5*Ua + 0.5*U*sin_psi
-                Wt           = 0.5*Ut + 0.5*U*cos_psi
-                va           = Wa - Ua
-                vt           = Ut - Wt
-
-                # compute blade airfoil forces and properties
-                Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-
-                # compute inflow velocity and tip loss factor
-                lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-
-                # compute Newton residual on circulation
-                Gamma       = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
-                Rsquiggly   = Gamma - 0.5*W*c*Cl*F
-
-                # use analytical derivative to get dR_dpsi
-                dR_dpsi = compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece)
-
-                # update inflow angle
-                dpsi        = -Rsquiggly/dR_dpsi
-                PSI         = PSI + dpsi
-                diff        = np.max(abs(PSIold-PSI))
-                PSIold      = PSI
-
-                # If omega = 0, do not run BEMT convergence loop
-                if all(omega[:,0]) == 0. :
-                    break
-
-                # If its really not going to converge
-                if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-                    print("Rotor BEMT did not converge to a solution (Stall)")
-                    break
-
-                ii+=1
-                if ii>10000:
-                    print("Rotor BEMT did not converge to a solution (Iteration Limit)")
-                    break          
-            ## smooth disc circulation from BEMT
-            #Gspline = RectBivariateSpline(r_1d, psi, Gamma[0,:,:],s=.5)
-            #Gamma[0,:,:] = Gspline(r_1d,psi) 
-            
-            #Gamma[Gamma<=0] = 1e-4
-            ##Gamma[:,0,:] = 0
-            ##Gamma[:,-1,:] = 0               
-
-        elif wake_method == "helical_fixed_wake":
-
-            converge = True
-            if converge:
-                for i in range(2):
-                    # converge on va for a semi-prescribed wake method
-                    ii,ii_max = 0, 20            
-                    va_diff, tol = 1, 1e-2               
-                    
-                    while va_diff > tol:  
-                        
-                        # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-                        va, vt = compute_HFW_inflow_velocities(self)
-            
-                        # compute new blade velocities
-                        Wa   = va + Ua
-                        Wt   = Ut - vt
-            
-                        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-                        
-                        va_diff = np.max(abs(F*va - self.outputs.disc_axial_induced_velocity))
-                        print(va_diff)
-    
-                            
-                        # update the axial disc velocity based on new va from HFW
-                        self.outputs.disc_axial_induced_velocity = F*va #self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
-                        
-                        ii+=1
-                        if ii>ii_max and va_diff>tol:
-                            print("Semi-prescribed helical wake did not converge on axial inflow used for wake shape.")
-                            break
-                                    
-                    
-                    # Compute aerodynamic forces based on specified input airfoil or surrogate
-                    Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-                            
-                    # compute HFW circulation at the blade
-                    Gamma = 0.5*W*c*Cl*F     
-                                     
-                        
-                    print("\nRg: ", np.max(abs(self.outputs.disc_circulation-Gamma)))
-                    self.outputs.disc_circulation = Gamma
-                ## plot converged va
-                #plt.figure()
-                #plt.plot(r_1d, (F*va)[0,:,0],label="va, converged")
-                #plt.plot(r_1d, bemt_outs.disc_axial_induced_velocity[0,:,0],label="va (BEMT)")
-                #plt.legend()
-                #plt.show()
+        # Compute aerodynamic forces based on specified input airfoil or surrogate
+        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
                 
-                #poly_Gnew = np.poly1d(np.polyfit(r_1d,Gamma[0,:,0],3))
-                #poly_bemt = np.poly1d(np.polyfit(r_1d,bemt_outs.disc_circulation[0,:,0],3))
+        # compute HFW circulation at the blade
+        Gamma = 0.5*W*c*Cl  
+
+        #---------------------------------------------------------------------------            
                 
-                #plt.plot(r_1d, Gamma[0,:,0],label="New Gamma")
-                #plt.plot(r_1d, bemt_outs.disc_circulation[0,:,0],label="Gamma (BEMT)")
-                #plt.plot(r_1d, poly_Gnew(r_1d),label="New Gamma (poly)")
-                #plt.plot(r_1d, poly_bemt(r_1d),label="Gamma (BEMT) (poly")
-                #plt.legend()
-                #plt.show()                      
-                    
-            else:
-                try:
-                    va = self.PVW_outputs.disc_axial_induced_velocity + self.axial_velocities_2d
-                    vt = self.PVW_outputs.disc_tangential_induced_velocity + self.tangential_velocities_2d
-                except:
-                    va, vt = compute_HFW_inflow_velocities(self)
-    
-                # compute new blade velocities
-                Wa   = va + Ua
-                Wt   = Ut - vt
-    
-                lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-    
-                # Compute aerodynamic forces based on specified input airfoil or surrogate
-                Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-                        
-                # compute HFW circulation at the blade
-                Gamma = 0.5*W*c*Cl*F   
-            
-                
-        # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
+        # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BET iteration
         va     = F*va
         vt     = F*vt
         lamdaw = r*(va+Ua)/(R*(Ut-vt))
@@ -661,126 +543,121 @@ class Rotor(Energy_Component):
         self.outputs = outputs
 
         return thrust_vector, torque, power, Cp, outputs , etap
-
-
-    def spin_HFW(self,conditions):
-        """Analyzes a general rotor given geometry and operating conditions.
-        Runs the blade element theory with a helical fixed-wake model for the
-        iterative wake analysis.
-
-        Assumptions:
-          Helical fixed-wake with wake skew angle
-
-        Source:
-          N/A
-
-        Inputs:
-        self.inputs.omega                    [radian/s]
-        conditions.freestream.
-          density                            [kg/m^3]
-          dynamic_viscosity                  [kg/(m-s)]
-          speed_of_sound                     [m/s]
-          temperature                        [K]
-        conditions.frames.
-          body.transform_to_inertial         (rotation matrix)
-          inertial.velocity_vector           [m/s]
-        conditions.propulsion.
-          throttle                           [-]
-
-        Outputs:
-        conditions.propulsion.outputs.
-           number_radial_stations            [-]
-           number_azimuthal_stations         [-]
-           disc_radial_distribution          [m]
-           speed_of_sound                    [m/s]
-           density                           [kg/m-3]
-           velocity                          [m/s]
-           disc_tangential_induced_velocity  [m/s]
-           disc_axial_induced_velocity       [m/s]
-           disc_tangential_velocity          [m/s]
-           disc_axial_velocity               [m/s]
-           drag_coefficient                  [-]
-           lift_coefficient                  [-]
-           omega                             [rad/s]
-           disc_circulation                  [-]
-           blade_dQ_dR                       [N/m]
-           blade_dT_dr                       [N]
-           blade_thrust_distribution         [N]
-           disc_thrust_distribution          [N]
-           thrust_per_blade                  [N]
-           thrust_coefficient                [-]
-           azimuthal_distribution            [rad]
-           disc_azimuthal_distribution       [rad]
-           blade_dQ_dR                       [N]
-           blade_dQ_dr                       [Nm]
-           blade_torque_distribution         [Nm]
-           disc_torque_distribution          [Nm]
-           torque_per_blade                  [Nm]
-           torque_coefficient                [-]
-           power                             [W]
-           power_coefficient                 [-]
-
-        Properties Used:
-        self.
-          number_of_blades                   [-]
-          tip_radius                         [m]
-          twist_distribution                 [radians]
-          chord_distribution                 [m]
-          orientation_euler_angles           [rad, rad, rad]
+    
+    def wake_evaluation(self,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
         """
+        Wake evaluation is performed using one of three fidelity wake models.
+           Fidelity Zero: Simplified vortex wake (VW)
+           Fidelity One: Semi-prescribed vortex wake (PVW)
+           Fidelity Two: Externally-supplied inflow field (from either CFD or VPM, etc.)
+        Outputs:
+           va  - axially-induced velocity from rotor wake
+           vt  - tangentially-induced velocity from rotor wake
+        
+        """
+        
+        if self.wake_method_fidelity == 0:
+            # Simplified vortex formulation
+            # Setup a Newton iteration
+            diff   = 1.
+            tol    = 1e-6  # Convergence tolerance
+            ii     = 0
+            PSIold = copy.deepcopy(PSI)*0
+            # BEMT Iteration
+            while (diff>tol):
+                # compute velocities
+                sin_psi      = np.sin(PSI)
+                cos_psi      = np.cos(PSI)
+                Wa           = 0.5*Ua + 0.5*U*sin_psi
+                Wt           = 0.5*Ut + 0.5*U*cos_psi
+                va           = Wa - Ua
+                vt           = Ut - Wt
 
+                # compute blade airfoil forces and properties
+                Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
 
-        if len(self.outputs)==0:
-            print("PVW needs initialization of inflow and circulation. Running BEMT for initialization...")
-            #--------------------------------------------------------------------------------
-            # Initialize by running BEMT to get initial blade circulation
-            #--------------------------------------------------------------------------------
+                # compute inflow velocity and tip loss factor
+                lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+
+                # compute Newton residual on circulation
+                Gamma       = vt*(4.*np.pi*r/B)*F*(1.+(4.*lamdaw*R/(np.pi*B*r))*(4.*lamdaw*R/(np.pi*B*r)))**0.5
+                Rsquiggly   = Gamma - 0.5*W*c*Cl
+
+                # use analytical derivative to get dR_dpsi
+                dR_dpsi = compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece)
+
+                # update inflow angle
+                dpsi        = -Rsquiggly/dR_dpsi
+                PSI         = PSI + dpsi
+                diff        = np.max(abs(PSIold-PSI))
+                PSIold      = PSI
+
+                # If omega = 0, do not run BEMT convergence loop
+                if all(omega[:,0]) == 0. :
+                    break
+
+                # If its really not going to converge
+                if np.any(PSI>np.pi/2) and np.any(dpsi>0.0):
+                    print("Rotor BEMT did not converge to a solution (Stall)")
+                    break
+
+                ii+=1
+                if ii>10000:
+                    print("Rotor BEMT did not converge to a solution (Iteration Limit)")
+                    break    
+                
+        elif self.wake_method_fidelity == 1:
+            for i in range(1):
+                # converge on va for a semi-prescribed wake method
+                ii,ii_max = 0, 20            
+                va_diff, tol = 1, 1e-2               
+        
+                while va_diff > tol:  
+        
+                    # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+                    va, vt = compute_HFW_inflow_velocities(self)
+        
+                    # compute new blade velocities
+                    Wa   = va + Ua
+                    Wt   = Ut - vt
+        
+                    lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+        
+                    va_diff = np.max(abs(F*va - self.outputs.disc_axial_induced_velocity))
+                    print(va_diff)
+                    #-DEBUG----
+                    va_diff=1e-6
+                    #-----
+        
+                    # update the axial disc velocity based on new va from HFW
+                    self.outputs.disc_axial_induced_velocity = F*va #self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
+        
+                    ii+=1
+                    if ii>ii_max and va_diff>tol:
+                        print("Semi-prescribed helical wake did not converge on axial inflow used for wake shape.")
+                        break
+        
+        
+                # Compute aerodynamic forces based on specified input airfoil or surrogate
+                Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        
+                # compute HFW circulation at the blade
+                Gamma = 0.5*W*c*Cl*F     
+        
+        
+                print("\nRg: ", np.max(abs(self.outputs.disc_circulation-Gamma)))
+                self.outputs.disc_circulation = Gamma
+        elif self.wake_method_fidelity == 2:
             try:
-                props_in_net = self.propellers_in_network
+                va = self.external_inflow.va[None,:,:] #+ self.axial_velocities_2d
+                vt = self.external_inflow.vt[None,:,:] #+ self.tangential_velocities_2d     
             except:
-                props_in_net = None
+                va = 0
+                vt = 0
+                print("No external inflow specified! No inflow velocity used.")
             
-            if props_in_net is not None:
-                # run bemt on all propellers and append outputs
-                for p in self.propellers_in_network:
-                    p.wake_method = "momentum"
-                    _, _, _, _, bemt_outputs , _ = p.spin(conditions)
-                    conditions.noise.sources.propellers[p.tag] = bemt_outputs
-                    p.outputs = bemt_outputs      
-                                  
-            else:
-                # run bemt on single propeller and append outputs
-                _, _, _, _, bemt_outputs , _ = self.spin(conditions)
-                conditions.noise.sources.propellers[self.tag] = bemt_outputs
-                self.outputs = bemt_outputs  
-        else:
-            outs = self.outputs
-            
-        omega = self.inputs.omega      
-        #--------------------------------------------------------------------------------
-        # generate rotor wake vortex distribution
-        #--------------------------------------------------------------------------------
-
-        # generate wake distribution for n rotor rotation
-        nrots         = self.number_rotor_rotations
-        steps_per_rot = self.number_steps_per_rotation
-        rpm           = omega/Units.rpm
-
-        # simulation parameters for n rotor rotations
-        init_timestep_offset     = 0.
-        time                     = 60*nrots/rpm[0][0]
-        number_of_wake_timesteps = steps_per_rot*nrots
-
-        self.wake_settings.init_timestep_offset     = init_timestep_offset
-        self.wake_settings.wake_development_time    = time
-        self.wake_settings.number_of_wake_timesteps = number_of_wake_timesteps
-        self.use_2d_analysis                        = True
-
-        # spin propeller with helical fixed-wake
-        self.wake_method = "helical_fixed_wake"
-        thrust_vector, torque, power, Cp, outputs , etap = self.spin(conditions)
-
-        return thrust_vector, torque, power, Cp, outputs , etap
+        
+        return va, vt
 
     def vec_to_vel(self):
         """This rotates from the propellers vehicle frame to the propellers velocity frame
