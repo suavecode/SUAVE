@@ -28,7 +28,6 @@ def propeller_single_point(energy_network,
                            delta_isa,
                            speed,
                            i_prop=0,
-                           HFW=False,
                            plots=False,
                            print_results=False):
     """propeller_single_point(energy_network,
@@ -125,14 +124,7 @@ def propeller_single_point(energy_network,
     conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
 
     # Run Propeller BEMT
-    if HFW:
-        # append all wakes
-        prop.outputs = Data()
-        prop.propellers_in_network = energy_network.propellers
-        F, Q, P, Cp, outputs, etap = prop.spin_HFW(conditions)
-    else:
-        prop.wake_method="momentum"
-        F, Q, P, Cp, outputs, etap = prop.spin(conditions)
+    F, Q, P, Cp, outputs, etap = prop.spin(conditions)
         
     va_ind_BEMT         = outputs.disc_axial_induced_velocity[0, :, 0]
     vt_ind_BEMT         = outputs.disc_tangential_induced_velocity[0, :, 0]

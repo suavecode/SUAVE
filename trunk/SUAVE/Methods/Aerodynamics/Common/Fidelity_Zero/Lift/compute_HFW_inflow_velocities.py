@@ -35,8 +35,9 @@ def compute_HFW_inflow_velocities( prop ):
     VD                       = Data()
     omega                    = prop.inputs.omega
     time                     = prop.wake_settings.wake_development_time
-    init_timestep_offset     = prop.wake_settings.init_timestep_offset
+    init_timestep_offset     = prop.wake_settings.initial_timestep_offset
     number_of_wake_timesteps = prop.wake_settings.number_of_wake_timesteps
+    
     if prop.system_vortex_distribution is not None:
         vehicle = copy.deepcopy(prop.vehicle)
 
@@ -108,7 +109,7 @@ def compute_HFW_inflow_velocities( prop ):
         
         # put into body fram
         u       = -V_ind[0,:,0]   # velocity in vehicle x-frame
-        v       = V_ind[0,:,1]   # velocity in vehicle y-frame
+        v       = V_ind[0,:,1]    # velocity in vehicle y-frame
         w       = -V_ind[0,:,2]   # velocity in vehicle z-frame
         
         # rotate to prop frame:

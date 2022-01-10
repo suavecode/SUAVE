@@ -106,7 +106,7 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         V_prop       =  np.atleast_2d(np.sqrt((V_inf[:,0]  + mean_radial_induced_velocity)**2 + (V_inf[:,2])**2))
 
         # wake skew angle 
-        wake_skew_angle = abs(np.arctan(mu_prop/lambda_tot))
+        wake_skew_angle = -(np.arctan(mu_prop/lambda_tot))
         
         # reshape gamma to find the average between stations 
         gamma_new = np.zeros((m,(Nr-1),Na))                  # [control points, Nr-1, Na ] one less radial station because ring

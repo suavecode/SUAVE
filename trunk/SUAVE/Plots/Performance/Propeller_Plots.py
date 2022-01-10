@@ -239,47 +239,84 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     T    = outputs.disc_thrust_distribution[i]
     Q    = outputs.disc_torque_distribution[i]
     alf  = (outputs.disc_effective_angle_of_attack[i])/Units.deg
+    va   = outputs.disc_axial_induced_velocity[i]
+    vt   = outputs.disc_tangential_induced_velocity[i]
+        
     
     T    = np.append(T,np.atleast_2d(T[:,0]).T,axis=1)
     Q    = np.append(Q,np.atleast_2d(Q[:,0]).T,axis=1)
     alf  = np.append(alf,np.atleast_2d(alf[:,0]).T,axis=1)
     
-    rh  = prop.hub_radius
+    va = np.append(va, np.atleast_2d(va[:,0]).T, axis=1)
+    vt = np.append(vt, np.atleast_2d(vt[:,0]).T, axis=1)
+    
     lev = 101
     cm  = 'jet'
     
     # plot the grid point velocities
     fig0 = plt.figure(figsize=(4,4))
-    ax0 = fig0.add_subplot(111, polar=True)
-    ax0.contourf(psi, r, T,lev,cmap=cm)
-    cmap = matplotlib.cm.jet
-    norm = matplotlib.colors.Normalize()#vmin=0, vmax=1.0)    
-    fig0.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap),ax=ax0, orientation='horizontal')
-    #ax0.set_title('Thrust Distribution',pad=15)  
+    ax0  = fig0.add_subplot(111, polar=True)
+    p0   = ax0.contourf(psi, r, T,lev,cmap=cm)
+    #ax0.set_title('Thrust Distribution',pad=15)      
     ax0.set_rorigin(0)
     ax0.set_yticklabels([])
+    plt.colorbar(p0, ax=ax0)
+    
+    # NORMALIZED PLOTS
+    #cmap = matplotlib.cm.jet
+    #norm = matplotlib.colors.Normalize()#vmin=0, vmax=1.0)   
+    #fig0.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap),ax=ax0, orientation='horizontal')
+
+    
 
     fig1 = plt.figure(figsize=(4,4)) 
-    ax1 = fig1.add_subplot(111, polar=True)   
-    ax1.contourf(psi, r, Q,lev,cmap=cm) 
-    cmap = matplotlib.cm.jet
-    norm = matplotlib.colors.Normalize()#vmin=0, vmax=0.035) 
-    fig1.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, orientation='horizontal')
+    ax1  = fig1.add_subplot(111, polar=True)   
+    p1   = ax1.contourf(psi, r, Q,lev,cmap=cm) 
     #ax1.set_title('Torque Distribution',pad=15) 
     ax1.set_rorigin(0)
-    ax1.set_yticklabels([])
+    ax1.set_yticklabels([])    
+    plt.colorbar(p1, ax=ax1)
+    
+    # NORMALIZED PLOTS
+    #cmap = matplotlib.cm.jet
+    #norm = matplotlib.colors.Normalize()#vmin=0, vmax=0.035) 
+    #fig1.colorbar() #matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, orientation='horizontal')
+
+    
+    
     
     fig2 = plt.figure(figsize=(4,4)) 
-    ax2 = fig2.add_subplot(111, polar=True)       
-    ax2.contourf(psi, r, alf,lev,cmap=cm) 
-    cmap = matplotlib.cm.jet
-    norm = matplotlib.colors.Normalize()#vmin=-5, vmax=5) 
-    fig2.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax2, orientation='horizontal')
+    ax2  = fig2.add_subplot(111, polar=True)       
+    p2   = ax2.contourf(psi, r, alf,lev,cmap=cm) 
     #ax2.set_title('Local Blade Angle (deg)',pad=15) 
     ax2.set_rorigin(0)
     ax2.set_yticklabels([])
+    plt.colorbar(p2, ax=ax2)
+
+    # NORMALIZED PLOTS    
+    #cmap = matplotlib.cm.jet
+    #norm = matplotlib.colors.Normalize()#vmin=-5, vmax=5) 
+    #fig2.colorbar() #matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax2, orientation='horizontal')
+
     
     
+    
+    fig3 = plt.figure(figsize=(4,4)) 
+    ax3  = fig3.add_subplot(111, polar=True)       
+    p3   = ax3.contourf(psi, r, va,lev,cmap=cm) 
+    #ax2.set_title('Local Blade Angle (deg)',pad=15) 
+    ax3.set_rorigin(0)
+    ax3.set_yticklabels([])
+    plt.colorbar(p3, ax=ax3)    
+    
+    
+    fig4 = plt.figure(figsize=(4,4)) 
+    ax4  = fig4.add_subplot(111, polar=True)       
+    p4   = ax4.contourf(psi, r, vt,lev,cmap=cm) 
+    #ax2.set_title('Local Blade Angle (deg)',pad=15) 
+    ax4.set_rorigin(0)
+    ax4.set_yticklabels([])
+    plt.colorbar(p4, ax=ax4)       
  
  
-    return fig0, fig1, fig2
+    return fig0, fig1, fig2, fig3, fig4
