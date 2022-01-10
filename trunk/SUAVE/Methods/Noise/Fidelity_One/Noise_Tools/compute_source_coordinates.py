@@ -8,8 +8,7 @@
 # ---------------------------------------------------------------------
 import numpy as np 
 from SUAVE.Core import Data 
-import concurrent.futures
-import time 
+import concurrent.futures 
 
 # ----------------------------------------------------------------------
 #  Source Coordinates 
@@ -163,9 +162,6 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,so
     t_v0            = -AoA                                        # vehicle tilt angle between the vehicle hub plane and the geographical ground 
     t_r0            = np.ones_like(AoA)*(np.pi/2 - thrust_angle)  # rotor tilt angle between the rotor hub plane and the vehicle hub plane 
     
-    
-    ti = time.time() 
-    
     blade_section_position_vectors                                 = Data() 
     blade_section_position_vectors.blade_section_coordinate_sys    =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,1))
     blade_section_position_vectors.rotor_coordinate_sys            =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,1))
@@ -194,12 +190,8 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,so
             blade_section_position_vectors.t_v[:,mi,:,:,:,:,:]                               = single_mic_blade_section_vectors.t_v                         
             blade_section_position_vectors.t_r[:,mi,:,:,:,:,:]                               = single_mic_blade_section_vectors.t_r                         
             blade_section_position_vectors.M_hub[:,mi,:,:,:,:,:,:]                           = single_mic_blade_section_vectors.M_hub                       
-            mi += 1
+            mi += 1 
             
-    tf           = time.time()
-    elapsed_time = round((tf-ti),2)
-    print('Broadband computation Elapsed Time: ' + str(elapsed_time) + ' secs')      
-        
     return blade_section_position_vectors
 
 def blade_section_cooridinates(i,prop,rots,thrust_angle,num_cf,r,num_sec,num_prop,prop_origin,mls, phi_2d0, beta_p0, alpha_eff0,num_azi, t_v0,t_r0,num_cpt,precision):    
