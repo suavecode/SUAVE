@@ -114,7 +114,7 @@ def energy_network():
 
     
     # ------------------------------------------------------------------
-    #   Turboelectric HTS Ducted Fan Network 
+    #   Turboelectric HTS Dynamo Ducted Fan Network 
     # ------------------------------------------------------------------    
     
     # Instantiate the Turboelectric HTS Ducted Fan Network 
@@ -133,8 +133,8 @@ def energy_network():
     # 3. Powersupply   
     # 4. ESC           
     # 5. Rotor         
-    # 6. Lead          
-    # 7. CCS           
+    # 6. HTS Dynamo         
+    # 7. HTS Dynamo speed controller          
     # 8. Cryocooler    
     # 9. Heat Exchanger
     # The components are then sized
@@ -302,12 +302,17 @@ def energy_network():
 
     # ------------------------------------------------------------------
     #  Component 6 - HTS Dynamo supplying the rotor
-    efan.hts_dynamo         = SUAVE.Components.Energy.Distributors.HTS_DC_Dynamo_Basic()
+    efan.hts_dynamo               = SUAVE.Components.Energy.Distributors.HTS_DC_Dynamo_Basic()
+    efan.hts_dynamo.efficiency    = 0.16 #[W/W]
+    efan.hts_dynamo.rated_current = 800  #[A]
+    efan.hts_dynamo.rated_RPM     = 120  #[RPM]
+    efan.hts_dynamo.rated_temp    = 77   #[K]
 
         # ------------------------------------------------------------------
     #  Component 7 -  HTS Dynamo speed controller
 
     efan.dynamo_esc        = SUAVE.Components.Energy.Distributors.HTS_Dynamo_Supply()
+
 
     # ------------------------------------------------------------------
     #  Component 8 - Cryocooler, to cool the HTS Rotor
@@ -333,9 +338,6 @@ def energy_network():
     # Sizing Conditions. The cryocooler may have greater power requirement at low altitude as the cooling requirement may be static during the flight but the ambient temperature may change.
     cryo_temp       =  50.0     # [K]
     amb_temp        = 300.0     # [K]
-
-    # Powertrain Sizing
-
 
     # Size powertrain components
     ducted_fan_sizing(efan.ducted_fan,mach_number,altitude)
@@ -368,11 +370,6 @@ def energy_network():
     error.mdot_error   = mdot[0][0]-expected.mdot
     error.mdot_fuel_error = mdot_fuel[0][0]-expected.mdot_fuel
     error.mdot_additional_fuel_error = mdot_additional_fuel[0][0]-expected.mdot_additional_fuel
-    
-    print("f[0][0] = ", F[0][0])
-    print("mdot = ", mdot[0][0] )
-    print("mdot fuel = ", results_design.vehicle_fuel_rate)
-    print("mdot cryo = ", results_design.vehicle_additional_fuel_rate)
 
     for k,v in list(error.items()):
         assert(np.abs(v) < 1e-6)    

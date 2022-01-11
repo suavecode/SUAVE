@@ -156,7 +156,7 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         lead_cryo_load      = lead_cryo_load * leads
 
         # Calculate the power used by the rotor's current supply.
-        ccs_power             = (lead_power+rotor_power_in)/ccs.efficiency - (lead_power+rotor_power_in)
+        ccs_power            = (lead_power+rotor_power_in)/ccs.efficiency - (lead_power+rotor_power_in)
 
         # Multiply the power (electrical and cryogenic) required by the rotor components by the number of rotors, i.e. the number of propulsion motors
         all_leads_power             = number_of_engines * lead_power    
