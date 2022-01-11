@@ -47,8 +47,8 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             """         
         
         self.efficiency             =   0.0      # [W/W]
-        self.mass_properties.mass   =   10.0     # [kg]
-        self.rated_current          =   0.0      # [A]
+        self.mass_properties.mass   =   8.7      # [kg] Based on the Squirrel Cage HTS dynamo developed at Robinson Research Institute with eight HTS stators and four Nd-Fe-B permanent magnets.
+        self.rated_current          =   850      # [A]
         self.rated_RPM              =   0.0      # [RPM]
         self.rated_temp             =   0.0      # [K]
     
@@ -117,3 +117,33 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         efficiency = -a * (np.square( x - self.rated_current) ) +  self.efficiency # y = a(x - current)^2 + efficieny 
 
         return   efficiency
+
+
+    def mass_estimation(self):
+
+        """ This sets the default values.
+        Assumptions:
+
+        The mass of a Squirrel Cage HTS dynamo with a rated current of 850A is 8.7kg
+
+        Source:
+
+        ADDD SOURCEEEEE
+
+        Inputs:
+        self.rated_current        [A]
+
+        Outputs:
+        self.mass_properties.mass  [kg]
+
+        Properties Used:
+
+        None
+        """     
+
+        rated_current = self.rated_current
+
+        mass = (8.7 / 850) * rated_current
+
+        self.mass_properties.mass = mass
+

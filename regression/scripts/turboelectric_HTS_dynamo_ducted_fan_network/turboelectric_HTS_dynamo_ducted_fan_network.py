@@ -1,5 +1,5 @@
 ### @ingroup Regression-scripts-turboelectric_HTS_ducted_fan_network
-#turboelectric_HTS_ducted_fan_network.py
+#turboelectric_HTS_dynamo_ducted_fan_network.py
 # 
 # Created:  Nov 2021, S. Claridge
 # 
@@ -17,14 +17,13 @@ from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Dynamo_Ducted_Fan import
 from SUAVE.Methods.Propulsion.serial_HTS_dynamo_turboelectric_sizing import serial_HTS_dynamo_turboelectric_sizing
 
 from SUAVE.Attributes.Gases import Air
-from SUAVE.Attributes.Solids.Copper import Copper
 
 from SUAVE.Core import (
 Data, Units,
 )
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
-   
-### @ingroup Regression-scripts-turboelectric_HTS_ducted_fan_network
+
+### @ingroup Regression-scripts-turboelectric_HTS_dynamo_ducted_fan_network
 def main():   
     
     # call the network function
@@ -311,12 +310,13 @@ def energy_network():
         # ------------------------------------------------------------------
     #  Component 7 -  HTS Dynamo speed controller
 
-    efan.dynamo_esc        = SUAVE.Components.Energy.Distributors.HTS_Dynamo_Supply()
-
+    efan.dynamo_esc             = SUAVE.Components.Energy.Distributors.HTS_Dynamo_Supply()
+    efan.dynamo_esc.efficiency  = 0.5    # Basic estimated efficiency for small motor-gearbox combo. Larger motors have better efficiency.
+    efan.dynamo_esc.rated_RPM   = 1000   #[RPM]
 
     # ------------------------------------------------------------------
     #  Component 8 - Cryocooler, to cool the HTS Rotor
- 
+
     efan.cryocooler = SUAVE.Components.Energy.Cooling.Cryocooler()
     efan.cryocooler.tag = 'cryocooler'
 
