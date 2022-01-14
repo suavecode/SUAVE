@@ -19,12 +19,33 @@ from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_
 from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Solids.Copper import Copper
 
+import cProfile, pstats, io
+
 from SUAVE.Core import (
 Data, Units,
 )
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
    
 ### @ingroup Regression-scripts-turboelectric_HTS_ducted_fan_network
+
+def profile(fnc):
+    
+    def inner(*args, **kwargs):
+        
+        pr = cProfile.Profile()
+        pr.enable()
+        retval = fnc(*args, **kwargs)
+        pr.disable()
+        s = io.StringIO()
+        sortby = 'cumulative'
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        print(s.getvalue())
+        return retval
+
+    return inner
+
+@profile
 def main():   
     
     # call the network function
@@ -275,7 +296,6 @@ def energy_network():
     efan.powersupply.mass_density           = efan.powersupply.mass_properties.mass /efan.powersupply.volume 
 
     # ------------------------------------------------------------------
-    #  Component 4 - Electronic Speed Controller (ESC)
     
     efan.esc = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()     # Could make this where the ESC is defined as a Siemens SD104
     efan.esc.tag = 'esc'
