@@ -78,11 +78,8 @@ class Copper(Solid):
         # Function that interpolates the lookup table data
         self.c_electrical = interpolate.interp1d(temperatures, conductivities, kind = 'cubic', fill_value='extrapolate')
 
-        self.interpolate = True
 
  
-
-
     def thermal_conductivity(self, temperature):
                 
         # Create output variable
