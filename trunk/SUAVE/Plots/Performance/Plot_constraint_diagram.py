@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+import SUAVE
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -14,7 +15,7 @@ import numpy as np
 #  Plot the constraint diagram
 # ----------------------------------------------------------------------
 ## @ingroup Input_Output-Results
-def plot_constraint_diagram(constraints, plot_tag, eng_type, filename='constraint_diagram'):
+def plot_constraint_diagram(constraints, vehicle, plot_tag,filename='constraint_diagram'):
     """This creates a constraint diagram_plot and prints the design point
 
     Assumptions:
@@ -47,23 +48,28 @@ def plot_constraint_diagram(constraints, plot_tag, eng_type, filename='constrain
     design_wing_loading     = constraints.des_wing_loading / 9.81
     landing_wing_loading    = constraints.landing_wing_loading / 9.81
 
+    Nets  = SUAVE.Components.Energy.Networks 
+
     fig = plt.figure()
     ax  = fig.add_subplot(1, 1, 1) 
     ax.set_xlabel('W/S, kg/sq m')   
 
     # Convert the input into commmon units
-    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
-        ax.set_ylabel('P/W, kW/kg')
-        plt.ylim(0, 0.3)
-        combined_constraint     = 9.81 * combined_constraint / 1000             # converts to kW/kg
-        constraint_matrix       = 9.81 * np.asarray(constraint_matrix) / 1000               # converts to kW/kg
-        design_thrust_to_weight = 9.81 * design_thrust_to_weight / 1000         # converts to kW/kg 
-    else:
-        plt.ylim(0, 6)
-        ax.set_ylabel('T/W, N/kg') 
-        combined_constraint     = 9.81 * combined_constraint                    # converts to N/kg
-        constraint_matrix       = 9.81 * np.asarray(constraint_matrix)                      # converts to N/kg
-        design_thrust_to_weight = 9.81 * design_thrust_to_weight                # converts to N/kg    
+    for prop in vehicle.networks: 
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
+           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+
+            ax.set_ylabel('P/W, kW/kg')
+            plt.ylim(0, 0.3)
+            combined_constraint     = 9.81 * combined_constraint / 1000             # converts to kW/kg
+            constraint_matrix       = 9.81 * np.asarray(constraint_matrix) / 1000   # converts to kW/kg
+            design_thrust_to_weight = 9.81 * design_thrust_to_weight / 1000         # converts to kW/kg 
+        else:
+            plt.ylim(0, 6)
+            ax.set_ylabel('T/W, N/kg') 
+            combined_constraint     = 9.81 * combined_constraint                    # converts to N/kg
+            constraint_matrix       = 9.81 * np.asarray(constraint_matrix)          # converts to N/kg
+            design_thrust_to_weight = 9.81 * design_thrust_to_weight                # converts to N/kg    
              
 
     # plot all prescribed constraints
@@ -74,7 +80,6 @@ def plot_constraint_diagram(constraints, plot_tag, eng_type, filename='constrain
 
     ax.scatter(design_wing_loading,design_thrust_to_weight, label = 'Design point')
     ax.set_xlim(0, landing_wing_loading[0]+10)     
-
     
     ax.legend(loc=2,)
     ax.grid(True)
@@ -89,11 +94,15 @@ def plot_constraint_diagram(constraints, plot_tag, eng_type, filename='constrain
     f.write('Output file with the constraint analysis design point\n\n')           
     f.write("Design point :\n")
     f.write('     Wing loading = ' + str(design_wing_loading) + ' kg/sq m\n') 
-    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
-        f.write('     Power-to-weight ratio = ' + str(design_thrust_to_weight) + ' kW/kg\n')    
-    else:
-        f.write('     Thrust-to-weight ratio = ' + str(design_thrust_to_weight) + ' N/kg\n')  
-    f.close()    
+    for prop in vehicle.networks: 
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
+           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+
+            f.write('     Power-to-weight ratio = ' + str(design_thrust_to_weight) + ' kW/kg\n')    
+        else:
+            f.write('     Thrust-to-weight ratio = ' + str(design_thrust_to_weight) + ' N/kg\n')  
+            
+        f.close()    
 
 
 # ----------------------------------------------------------------------

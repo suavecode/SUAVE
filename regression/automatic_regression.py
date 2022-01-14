@@ -104,6 +104,8 @@ modules = [
     'scripts/sweeps/test_sweeps.py',
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',
+    'scripts/Turboprop/Turboprop_Test.py',
+    'scripts/Turboprop/Turboprop_CS_Test.py',
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
     'scripts/V_n_diagram/V_n_diagram_regression.py',
     'scripts/VTOL/test_Multicopter.py',

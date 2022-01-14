@@ -11,6 +11,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE Imports
+from linecache import cache
 import SUAVE    
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_constraint           import compute_max_lift_constraint
 
@@ -22,7 +23,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Constraint_Analysis
-def compute_landing_constraint(vehicle):
+def compute_landing_constraint(ca,vehicle):
     
     """Calculate the landing wing loading 
 
@@ -38,7 +39,6 @@ def compute_landing_constraint(vehicle):
                          runway_elevation       [m]
                          approach_speed_factor  [Unitless]
                          delta_ISA              [K]
-                 engine.type                    string
 
         Outputs:
             constraints.T_W                     [Unitless]
@@ -49,24 +49,32 @@ def compute_landing_constraint(vehicle):
     """  
 
     # Unpack inputs
-    cl_max    = vehicle.constraints.aerodynamics.cl_max_landing
-    Sg        = vehicle.constraints.analyses.landing.ground_roll
-    altitude  = vehicle.constraints.analyses.landing.runway_elevation     
-    eps       = vehicle.constraints.analyses.landing.approach_speed_factor
-    delta_ISA = vehicle.constraints.analyses.landing.delta_ISA
-    eng_type  = vehicle.constraints.engine.type
+    cl_max    = ca.aerodynamics.cl_max_landing
+    Sg        = ca.analyses.landing.ground_roll
+    altitude  = ca.analyses.landing.runway_elevation     
+    eps       = ca.analyses.landing.approach_speed_factor
+    delta_ISA = ca.analyses.landing.delta_ISA
+
+    Nets = SUAVE.Components.Energy.Networks 
 
     # Estimate maximum lift coefficient
     if cl_max == 0:
         cl_max = compute_max_lift_constraint(vehicle.wings['main_wing'])
 
     # Estimate the approach speed
-    if eng_type != 'turbofan' and eng_type != 'turbojet':
-        kappa = 0.7
-        Vapp  = np.sqrt(3.8217*Sg/kappa+49.488)
-    else:
-        kappa = 0.6
-        Vapp  = np.sqrt(2.6319*Sg/kappa+458.8)
+    for prop in vehicle.networks: 
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
+           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+            kappa = 0.7
+            Vapp  = np.sqrt(3.8217*Sg/kappa+49.488)
+
+        elif isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super):
+            kappa = 0.6
+            Vapp  = np.sqrt(2.6319*Sg/kappa+458.8)
+
+        else:
+            raise ValueError('Warning: Specify an existing energy network')
+        
 
     # Determine atmospheric properties at the altitude
     planet      = SUAVE.Analyses.Planets.Planet()

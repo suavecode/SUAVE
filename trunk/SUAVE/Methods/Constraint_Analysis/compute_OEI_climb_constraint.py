@@ -11,12 +11,13 @@
 # ----------------------------------------------------------------------
 
 # SUAVE Imports
+import calendar
+from struct import calcsize
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions.oswald_efficiency  import oswald_efficiency               as  oswald_efficiency
 from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_turboprop_thrust
 from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_power_piston
-from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_power_electric
 from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_gasturbine_thrust
 
 
@@ -28,7 +29,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Constraint_Analysis
-def compute_OEI_climb_constraint(vehicle):
+def compute_OEI_climb_constraint(ca,vehicle):
     
     """Calculate thrust-to-weight ratios for the 2nd segment OEI climb
 
@@ -40,14 +41,13 @@ def compute_OEI_climb_constraint(vehicle):
             L. Loftin,Subsonic Aircraft: Evolution and the Matching of Size to Performance, NASA Ref-erence Publication 1060, August 1980
 
         Inputs:
-            self.engine.type                    string
-                 takeoff.runway_elevation       [m]
-                         delta_ISA              [K]
-                 aerodynamics.cd_takeoff        [Unitless]
-                              cl_takeoff        [Unitless]
-                OEI_climb.climb_speed_factor    [Unitless]
-                engine.number                   [Unitless]
-                wing_loading                    [N/m**2]
+            ca.analyses.takeoff.runway_elevation         [m]
+                                delta_ISA                [K]
+                        OEI_climb.climb_speed_factor    [Unitless]
+
+               aerodynamics.cd_takeoff         [Unitless]
+                            cl_takeoff         [Unitless]
+               wing_loading                    [N/m**2]
 
         Outputs:
             constraints.T_W                     [Unitless]
@@ -58,14 +58,17 @@ def compute_OEI_climb_constraint(vehicle):
     """   
 
     # Unpack inputs
-    eng_type  = vehicle.constraints.engine.type
-    altitude  = vehicle.constraints.analyses.takeoff.runway_elevation     
-    delta_ISA = vehicle.constraints.analyses.takeoff.delta_ISA   
-    cd_TO     = vehicle.constraints.aerodynamics.cd_takeoff 
-    cl_TO     = vehicle.constraints.aerodynamics.cl_takeoff
-    eps       = vehicle.constraints.analyses.OEI_climb.climb_speed_factor 
-    Ne        = vehicle.constraints.engine.number
-    W_S       = vehicle.constraints.wing_loading 
+    altitude  = ca.analyses.takeoff.runway_elevation     
+    delta_ISA = ca.analyses.takeoff.delta_ISA   
+    cd_TO     = ca.aerodynamics.cd_takeoff 
+    cl_TO     = ca.aerodynamics.cl_takeoff
+    eps       = ca.analyses.OEI_climb.climb_speed_factor 
+    W_S       = ca.wing_loading 
+
+    for prop in vehicle.networks:
+        Ne = prop.number_of_engines
+
+    Nets  = SUAVE.Components.Energy.Networks 
 
     # determine the flight path angle
     if Ne == 2:
@@ -93,32 +96,35 @@ def compute_OEI_climb_constraint(vehicle):
     T_W    = np.zeros(len(W_S))
     T_W[:] = Ne/((Ne-1)*L_D)+gamma
 
-    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
-        P_W  = np.zeros(len(W_S))
-        etap = vehicle.constraints.propeller.cruise_efficiency
-        if etap == 0:
-            raise ValueError('Warning: Set the propeller efficiency during the OEI 2nd climb segment')
+    for prop in vehicle.networks: 
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
+           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+        
+            P_W  = np.zeros(len(W_S))
+            etap = ca.propeller.cruise_efficiency
+            if etap == 0:
+                raise ValueError('Warning: Set the propeller efficiency during the OEI 2nd climb segment')
 
-        for i in range(len(W_S)):
-            P_W[i] = T_W[i]*Vcl[i]/etap
+            P_W = T_W*Vcl/etap
 
-            if eng_type   == ('turboprop' or 'Turboprop'):
-                P_W[i] = P_W[i] / normalize_turboprop_thrust(atmo_values)
-            elif eng_type == ('piston' or 'Piston'):
-                P_W[i] = P_W[i] / normalize_power_piston(rho) 
-            elif eng_type == ('electric air-cooled' or 'Electric air-cooled'):
-                P_W[i] = P_W[i] / normalize_power_electric(rho)  
-            elif eng_type == ('electric liquid-cooled' or 'Electric liquid-cooled'):
+            if isinstance(prop, Nets.Turboprop):
+                P_W = P_W / normalize_turboprop_thrust(atmo_values) 
+            elif isinstance(prop, Nets.Internal_Combustion_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed):
+                P_W = P_W / normalize_power_piston(rho)
+            elif isinstance(prop, Nets.Battery_Propeller):
                 pass 
-    else:
-        for i in range(len(W_S)):
-            T_W[i] = T_W[i] / normalize_gasturbine_thrust(vehicle,atmo_values,M[i],'OEIclimb')  
+
+        elif isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super):
+            T_W = T_W / normalize_gasturbine_thrust(ca,vehicle,atmo_values,M*np.zeros(1),'OEIclimb')  
+
+        else:
+            raise ValueError('Warning: Specify an existing energy network')    
 
     # Pack outputs
-    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
-        constraint = P_W         # convert to W/N
+    if isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super):
+        constraint = T_W        
     else:
-        constraint = T_W
+        constraint = P_W         # convert to W/N
 
     return constraint
 

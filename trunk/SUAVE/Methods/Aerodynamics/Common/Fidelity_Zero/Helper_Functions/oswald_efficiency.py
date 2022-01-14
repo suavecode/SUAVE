@@ -9,16 +9,17 @@
 # ----------------------------------------------------------------------
 
 # SUAVE Imports
-import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Components.Wings             import Main_Wing
+from SUAVE.Core                         import Units
 import numpy as np
+
 
 # ------------------------------------------------------------------------------------
 #  Compute Oswald efficiency using the method of Scholz for the constraint analysis
 # ------------------------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Helper_Functions
-def oswald_efficiency(vehicle,cdmin):
+def oswald_efficiency(ca,vehicle,cdmin):
     """Calculate an average Oswald efficiencies based on the method of Scholz for the constraint analysis
 
         Assumptions:
@@ -29,11 +30,11 @@ def oswald_efficiency(vehicle,cdmin):
             Deutscher Luft- und Raumfahrtkongress 20121DocumentID: 281424
 
         Inputs:
-            constraint_analysis.geometry.taper                 [Unitless]
-                                aspect_ratio                   [Unitless]
-                                sweep_quarter_chord            [radians]
-                                aerodynamics.fuselage_factor   [Unitless]
-                                viscous_factor                 [Unitless]
+            main_wing.geometry.taper                 [Unitless]
+                               aspect_ratio          [Unitless]
+                               sweep_quarter_chord   [radians]
+            ca.aerodynamics.fuselage_factor          [Unitless]
+            ca.viscous_factor                        [Unitless]
 
         Outputs:
             e          [Unitless]
@@ -43,11 +44,18 @@ def oswald_efficiency(vehicle,cdmin):
     """  
 
     # Unpack inputs
-    taper = vehicle.wings['main_wing'].taper
-    AR    = vehicle.wings['main_wing'].aspect_ratio
-    sweep = vehicle.wings['main_wing'].sweeps.quarter_chord / Units.degrees
-    kf    = vehicle.constraints.aerodynamics.fuselage_factor 
-    K     = vehicle.constraints.aerodynamics.viscous_factor 
+    main_wing = None
+    wings     = vehicle.wings
+   
+    for wing in wings:
+        if isinstance(wing,Main_Wing):
+            main_wing = wing
+
+    taper = main_wing.taper
+    AR    = main_wing.aspect_ratio
+    sweep = main_wing.sweeps.quarter_chord / Units.degrees
+    kf    = ca.aerodynamics.fuselage_factor 
+    K     = ca.aerodynamics.viscous_factor 
 
     dtaper    = -0.357+0.45*np.exp(-0.0375*np.abs(sweep))
     eff_taper = taper - dtaper

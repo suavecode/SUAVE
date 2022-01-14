@@ -29,7 +29,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Constraint_Analysis
-def compute_take_off_constraint(vehicle):
+def compute_take_off_constraint(ca,vehicle):
     
     """Calculate thrust-to-weight ratios at take-off
 
@@ -40,17 +40,18 @@ def compute_take_off_constraint(vehicle):
             S. Gudmundsson "General Aviation aircraft Design. Applied methods and procedures", Butterworth-Heinemann (6 Nov. 2013), ISBN - 0123973082
 
         Inputs:
-            constraint.engine.type                        string
-                 aerodynamics.cd_takeoff            [Unitless]
-                              cl_takeoff            [Unitless]
-                              cl_max_takeoff        [Unitless]
-                takeoff.ground_run                  [m]      
-                        liftoff_speed_factor        [Unitless]
-                        rolling_resistance
-                        runway_elevation            [m]
-                        delta_ISA                   [K]
-                        
-                wing_loading                        [N/m**2]
+
+                 ca.aerodynamics.cd_takeoff            [Unitless]
+                                 cl_takeoff            [Unitless]
+                                 cl_max_takeoff        [Unitless]
+
+                    analyses.takeoff.ground_run        [m]      
+                             liftoff_speed_factor      [Unitless]
+                             rolling_resistance
+                             runway_elevation          [m]
+                             delta_ISA                 [K]
+                                          
+                    wing_loading                        [N/m**2]
                 
         Outputs:
             constraints.T_W                         [Unitless]
@@ -60,19 +61,18 @@ def compute_take_off_constraint(vehicle):
 
     """       
 
-    # ==============================================
     # Unpack inputs
-    # ==============================================
-    eng_type  = vehicle.constraints.engine.type
-    cd_TO     = vehicle.constraints.aerodynamics.cd_takeoff 
-    cl_TO     = vehicle.constraints.aerodynamics.cl_takeoff 
-    cl_max_TO = vehicle.constraints.aerodynamics.cl_max_takeoff
-    Sg        = vehicle.constraints.analyses.takeoff.ground_run
-    eps       = vehicle.constraints.analyses.takeoff.liftoff_speed_factor
-    miu       = vehicle.constraints.analyses.takeoff.rolling_resistance
-    altitude  = vehicle.constraints.analyses.takeoff.runway_elevation
-    delta_ISA = vehicle.constraints.analyses.takeoff.delta_ISA
-    W_S       = vehicle.constraints.wing_loading
+    cd_TO     = ca.aerodynamics.cd_takeoff 
+    cl_TO     = ca.aerodynamics.cl_takeoff 
+    cl_max_TO = ca.aerodynamics.cl_max_takeoff
+    Sg        = ca.analyses.takeoff.ground_run
+    eps       = ca.analyses.takeoff.liftoff_speed_factor
+    miu       = ca.analyses.takeoff.rolling_resistance
+    altitude  = ca.analyses.takeoff.runway_elevation
+    delta_ISA = ca.analyses.takeoff.delta_ISA
+    W_S       = ca.wing_loading
+
+    Nets  = SUAVE.Components.Energy.Networks  
 
 
     # Set take-off aerodynamic properties
@@ -98,38 +98,43 @@ def compute_take_off_constraint(vehicle):
 
 
     T_W = np.zeros(len(W_S))
-    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
-        P_W  = np.zeros(len(W_S))
-        etap = vehicle.constraints.propeller.takeoff_efficiency
-        if etap == 0:
-            raise ValueError('Warning: Set the propeller efficiency during take-off')
-    for i in range(len(W_S)):
-        Vlof   = eps*np.sqrt(2*W_S[i]/(rho*cl_max_TO))
+    for prop in vehicle.networks: 
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
+           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+            P_W  = np.zeros(len(W_S))
+            etap = ca.propeller.takeoff_efficiency
+            if etap == 0:
+                raise ValueError('Warning: Set the propeller efficiency during take-off')
+
+        Vlof   = eps*np.sqrt(2*W_S/(rho*cl_max_TO))
         Mlof   = Vlof/atmo_values.speed_of_sound[0,0]
-        T_W[i] = eps**2*W_S[i] / (g*Sg*rho*cl_max_TO) + eps*cd_TO/(2*cl_max_TO) + miu * (1-eps*cl_TO/(2*cl_max_TO))
+        T_W    = eps**2*W_S / (g*Sg*rho*cl_max_TO) + eps*cd_TO/(2*cl_max_TO) + miu * (1-eps*cl_TO/(2*cl_max_TO))
             
         # Convert thrust to power (for propeller-driven engines) and normalize the results wrt the Sea-level
-        if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
+           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
                 
-            P_W[i] = T_W[i]*Vlof/etap
+            P_W = T_W*Vlof/etap
 
-            if eng_type == ('turboprop' or 'Turboprop'):
-                P_W[i] = P_W[i] / normalize_turboprop_thrust(atmo_values) 
-            elif eng_type == ('piston' or 'Piston'):
-                P_W[i] = P_W[i] / normalize_power_piston(rho)
-            elif eng_type == ('electric air-cooled' or 'Electric air-cooled'):
-                P_W[i] = P_W[i] / normalize_power_electric(rho)  
-            elif eng_type == ('electric liquid-cooled' or 'Electric liquid-cooled'):
+            if isinstance(prop, Nets.Turboprop):
+                P_W = P_W / normalize_turboprop_thrust(atmo_values) 
+            elif isinstance(prop, Nets.Internal_Combustion_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed):
+                P_W = P_W / normalize_power_piston(rho)
+            elif isinstance(prop, Nets.Battery_Propeller):
                 pass 
+
+        elif isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super):
+            T_W = T_W / normalize_gasturbine_thrust(ca,vehicle,atmo_values,Mlof,'takeoff')  
+
         else:
-            T_W[i] = T_W[i] / normalize_gasturbine_thrust(vehicle,atmo_values,Mlof,'takeoff')  
+            raise ValueError('Warning: Specify an existing energy network')
      
 
     # Pack outputs
-    if eng_type != ('turbofan' or 'Turbofan') and eng_type != ('turbojet' or 'Turbojet'):
-        constraint = P_W         # convert to W/N
+    if isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super):
+        constraint = T_W         
     else:
-        constraint = T_W
+        constraint = P_W        # in W/N
 
     return constraint
 
