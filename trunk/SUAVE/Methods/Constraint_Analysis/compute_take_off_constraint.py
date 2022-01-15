@@ -15,7 +15,6 @@ import SUAVE
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions.oswald_efficiency  import oswald_efficiency            as  oswald_efficiency
 from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_turboprop_thrust
 from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_power_piston
-from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_power_electric
 from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_gasturbine_thrust
 from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_gasturbine_thrust
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_constraint           import compute_max_lift_constraint
