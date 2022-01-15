@@ -10,10 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
-from calendar import calendar
-from gc import callbacks
-from subprocess import call
+# SUAVE Imports
 import SUAVE
 from SUAVE.Methods.Constraint_Analysis.compute_constraint_aero_values                    import compute_constraint_aero_values  
 from SUAVE.Methods.Constraint_Analysis.normalize_propulsion                              import normalize_turboprop_thrust

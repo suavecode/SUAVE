@@ -11,7 +11,6 @@
 # ----------------------------------------------------------------------
 
 # SUAVE Imports
-from linecache import cache
 import SUAVE    
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_constraint           import compute_max_lift_constraint
 

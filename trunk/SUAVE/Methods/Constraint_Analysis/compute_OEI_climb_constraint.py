@@ -11,8 +11,6 @@
 # ----------------------------------------------------------------------
 
 # SUAVE Imports
-import calendar
-from struct import calcsize
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions.oswald_efficiency  import oswald_efficiency               as  oswald_efficiency
