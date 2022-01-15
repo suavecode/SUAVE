@@ -10,7 +10,6 @@ from .compute_cruise_constraint         import compute_cruise_constraint
 from .compute_landing_constraint        import compute_landing_constraint
 from .compute_OEI_climb_constraint      import compute_OEI_climb_constraint
 from .compute_turn_constraint           import compute_turn_constraint
-from .compressibility_drag_constraint   import compressibility_drag_constraint
 from .normalize_propulsion              import *
 
 
