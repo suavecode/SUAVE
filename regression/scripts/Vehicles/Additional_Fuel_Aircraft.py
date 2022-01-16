@@ -1,159 +1,31 @@
-# fuel_tracking_mission.py
-# 
-# Created:  Aug 2014, SUAVE Team
-# Modified: Aug 2017, SUAVE Team
-#           Mar 2020, E. Botero
-#           Nov 2021, S. Claridge
+# Additional_Fuel_Aircraft.py
+#
+# Created:  Jan 2022, S. Claridge (taken from data originally in the Boeing 737 tutorial script)
+
+""" setup file for the vehicle based on the Boeing 737 with a turboelectric hts ducted fan network
+"""
+
+
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
 
-# General Python Imports
 import numpy as np
-
-import matplotlib.pyplot as plt
-
-# SUAVE Imports
 import SUAVE
-
-from SUAVE.Core import Data, Units 
-
-from SUAVE.Plots.Performance.Mission_Plots import *
-
-from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
-
-from SUAVE.Input_Output.Results import  *
-
-from SUAVE.Attributes.Solids.Copper import Copper
-
-from SUAVE.Attributes.Gases import Air
+from SUAVE.Core import Units
 
 from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan   
 
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 
+from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
+
 from copy import deepcopy
 
+from SUAVE.Attributes.Solids.Copper import Copper
 
-# ----------------------------------------------------------------------
-#   Main
-# ----------------------------------------------------------------------
+from SUAVE.Attributes.Gases import Air
 
-def main():
-    """This function gets the vehicle configuration, analysis settings, and then runs the mission.
-    Once the mission is complete, the results are plotted."""
-    
-    # Extract vehicle configurations and the analysis settings that go with them
-    configs, analyses = full_setup()
-
-    # Size each of the configurations according to a given set of geometry relations
-    simple_sizing(configs)
-
-    # Perform operations needed to make the configurations and analyses usable in the mission
-    configs.finalize()
-    analyses.finalize()
-
-    # Perform a mission analysis
-    mission = analyses.missions.base
-    
-    results = mission.evaluate()
-
-    plot_fuel_use(results)
-
-    check_results(results)
-    
-    print_mission_breakdown(results, filename='fuel_mission_breakdown.dat')
-
-    return
-
-# ----------------------------------------------------------------------
-#   Analysis Setup
-# ----------------------------------------------------------------------
-
-def full_setup():
-    """This function gets the baseline vehicle and creates modifications for different 
-    configurations, as well as the mission and analyses to go with those configurations."""
-
-    # Collect baseline vehicle data and changes when using different configuration settings
-    vehicle  = vehicle_setup()
-    configs  = configs_setup(vehicle)
-
-    # Get the analyses to be used when different configurations are evaluated
-    configs_analyses = analyses_setup(configs)
-
-    # Create the mission that will be flown
-    mission  = mission_setup(configs_analyses)
-    missions_analyses = missions_setup(mission)
-
-    # Add the analyses to the proper containers
-    analyses = SUAVE.Analyses.Analysis.Container()
-    analyses.configs  = configs_analyses
-    analyses.missions = missions_analyses
-
-    return configs, analyses
-
-# ----------------------------------------------------------------------
-#   Define the Vehicle Analyses
-# ----------------------------------------------------------------------
-
-def analyses_setup(configs):
-    """Set up analyses for each of the different configurations."""
-
-    analyses = SUAVE.Analyses.Analysis.Container()
-
-    # Build a base analysis for each configuration. Here the base analysis is always used, but
-    # this can be modified if desired for other cases.
-    for tag,config in configs.items():
-        analysis = base_analysis(config)
-        analyses[tag] = analysis
-
-    return analyses
-
-def base_analysis(vehicle):
-    """This is the baseline set of analyses to be used with this vehicle. Of these, the most
-    commonly changed are the weights and aerodynamics methods."""
-
-    # ------------------------------------------------------------------
-    #   Initialize the Analyses
-    # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
-
-    # ------------------------------------------------------------------
-    #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Transport()
-    weights.vehicle = vehicle
-    analyses.append(weights)
-
-    # ------------------------------------------------------------------
-    #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
-    analyses.append(aerodynamics)
-
-    # ------------------------------------------------------------------
-    #  Stability Analysis
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
-    stability.geometry = vehicle
-    analyses.append(stability)
-
-    # ------------------------------------------------------------------
-    #  Energy
-    energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.networks
-    analyses.append(energy)
-
-    # ------------------------------------------------------------------
-    #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
-    analyses.append(planet)
-
-    # ------------------------------------------------------------------
-    #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere.features.planet = planet.features
-    analyses.append(atmosphere)   
-
-    return analyses    
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -668,9 +540,6 @@ def vehicle_setup():
 
     return vehicle
 
-# ----------------------------------------------------------------------
-#   Define the Configurations
-# ---------------------------------------------------------------------
 
 def configs_setup(vehicle):
     """This function sets up vehicle configurations for use in different parts of the mission.
@@ -742,6 +611,7 @@ def configs_setup(vehicle):
     configs.append(config)
 
     return configs
+<<<<<<< HEAD:regression/scripts/fuel_tracking_mission/fuel_tracking_mission.py
 
 def simple_sizing(configs):
     """This function applies a few basic geometric sizing relations and modifies the landing
@@ -1040,3 +910,5 @@ if __name__ == '__main__':
     main()    
     # The show commands makes the plots actually appear
     plt.show()
+=======
+>>>>>>> develop:regression/scripts/Vehicles/Additional_Fuel_Aircraft.py
