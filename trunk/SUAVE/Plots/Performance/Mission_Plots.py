@@ -1766,10 +1766,10 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     # ---------------------------------------------------------------------------
     # Level ground contour 
     # ---------------------------------------------------------------------------
-    filename_1         = 'Level_Ground_' + save_filename
+    filename_1          = 'Level_Ground_' + save_filename
     fig                 = plt.figure(filename_1) 
-    fig.set_size_inches(8,8)    
-    levs                = np.linspace(20,120,25)   
+    fig.set_size_inches(8,4)
+    levs                = np.linspace(40,100,25)
     axes                = fig.add_subplot(1,1,1)   
     Range               = Range/Units.nmi
     Span                = Span/Units.nmi

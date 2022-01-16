@@ -152,6 +152,8 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     res.p_pref_harmonic_dBA                = 10**(res.SPL_prop_harmonic_bpf_spectrum_dBA/10) 
     res.SPL_prop_harmonic_1_3_spectrum     = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,0,0,0,:],settings)         
     res.SPL_prop_harmonic_1_3_spectrum_dBA = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum_dBA,res.f[:,0,0,0,:],settings)  
+    res.SPL_prop_harmonic_1_3_spectrum[np.isinf(res.SPL_prop_harmonic_1_3_spectrum)] = 0
+    res.SPL_prop_harmonic_1_3_spectrum_dBA[np.isinf(res.SPL_prop_harmonic_1_3_spectrum_dBA)] = 0
 
     # compute acoustic waveforms around azimuth of propeller 
     p_mT_H_azi = vectorize(p_mT_H,num_cpt,num_h,num_r,num_prop,num_mic,num_azi,vectorize_method = 6)

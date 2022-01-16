@@ -7,10 +7,7 @@
 #  Imports
 # ---------------------------------------------------------------------
 import numpy as np 
-from SUAVE.Core import Data 
-import concurrent.futures
-import time 
-
+from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Source Coordinates 
 # ---------------------------------------------------------------------
@@ -126,13 +123,13 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,so
  
     Properties Used:
         N/A       
-    """  
-    precision = np.float16
+    """
     
     # aquire dimension of matrix 
     num_cpt         = len(AoA)
     num_mic         = len(mls[0,:,0])  
-    
+    precision       = np.float16
+
     if source == 'lift_rotors': 
         propellers  = network.lift_rotors
         num_prop    = int(network.number_of_lift_rotor_engines)    
@@ -149,175 +146,140 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,network,mls,so
             prop_origin.append(prop.origin[0])
         prop_origin = np.array(prop_origin) 
             
-    prop            = propellers[list(propellers.keys())[0]]   
-    rots            = np.array(prop.orientation_euler_angles) * 1. 
-    thrust_angle    = rots[1] + prop.inputs.y_axis_rotation
-    num_cf          = len(settings.center_frequencies)
-    num_processors  = settings.number_of_multiprocessing_workers
-    r               = prop.radius_distribution   
-    num_sec         = len(r)  
-    phi_2d0         = acoustic_outputs.disc_azimuthal_distribution   
-    beta_p0         = np.zeros_like(phi_2d0)
-    alpha_eff0      = acoustic_outputs.disc_effective_angle_of_attack
-    num_azi         = len(phi_2d0[0,0,:]) 
-    t_v0            = -AoA                                        # vehicle tilt angle between the vehicle hub plane and the geographical ground 
-    t_r0            = np.ones_like(AoA)*(np.pi/2 - thrust_angle)  # rotor tilt angle between the rotor hub plane and the vehicle hub plane 
-    
-    
-    ti = time.time() 
-    
-    blade_section_position_vectors                                 = Data() 
-    blade_section_position_vectors.blade_section_coordinate_sys    =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,1))
-    blade_section_position_vectors.rotor_coordinate_sys            =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,1))
-    blade_section_position_vectors.vehicle_coordinate_sys          =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,1))
-    blade_section_position_vectors.r                               =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf))
-    blade_section_position_vectors.beta_p                          =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,1))  
-    blade_section_position_vectors.phi                             =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,1))  
-    blade_section_position_vectors.alpha_eff                       =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,1))
-    blade_section_position_vectors.t_v                             =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,1))   
-    blade_section_position_vectors.t_r                             =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,1))      
-    blade_section_position_vectors.M_hub                           =  np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,1))
-    
-    with concurrent.futures.ProcessPoolExecutor(max_workers = num_processors) as executor:  
-        results = [executor.submit(blade_section_cooridinates,i,prop,rots,thrust_angle,num_cf,r,num_sec,num_prop,prop_origin,
-                                   mls, phi_2d0, beta_p0, alpha_eff0,num_azi, t_v0,t_r0,num_cpt,precision) for i in range(num_mic)] 
-        mi = 0
-        for instance in concurrent.futures.as_completed(results):
-            single_mic_blade_section_vectors = instance.result()   
-            blade_section_position_vectors.blade_section_coordinate_sys[:,mi,:,:,:,:,:,:]    = single_mic_blade_section_vectors.blade_section_coordinate_sys
-            blade_section_position_vectors.rotor_coordinate_sys[:,mi,:,:,:,:,:,:]            = single_mic_blade_section_vectors.rotor_coordinate_sys        
-            blade_section_position_vectors.vehicle_coordinate_sys[:,mi,:,:,:,:,:,:]          = single_mic_blade_section_vectors.vehicle_coordinate_sys      
-            blade_section_position_vectors.r[:,mi,:,:,:,:]                                   = single_mic_blade_section_vectors.r                           
-            blade_section_position_vectors.beta_p[:,mi,:,:,:,:,:]                            = single_mic_blade_section_vectors.beta_p                      
-            blade_section_position_vectors.phi[:,mi,:,:,:,:,:]                               = single_mic_blade_section_vectors.phi                         
-            blade_section_position_vectors.alpha_eff[:,mi,:,:,:,:,:]                         = single_mic_blade_section_vectors.alpha_eff                   
-            blade_section_position_vectors.t_v[:,mi,:,:,:,:,:]                               = single_mic_blade_section_vectors.t_v                         
-            blade_section_position_vectors.t_r[:,mi,:,:,:,:,:]                               = single_mic_blade_section_vectors.t_r                         
-            blade_section_position_vectors.M_hub[:,mi,:,:,:,:,:,:]                           = single_mic_blade_section_vectors.M_hub                       
-            mi += 1
-            
-    tf           = time.time()
-    elapsed_time = round((tf-ti),2)
-    print('Broadband computation Elapsed Time: ' + str(elapsed_time) + ' secs')      
-        
-    return blade_section_position_vectors
-
-def blade_section_cooridinates(i,prop,rots,thrust_angle,num_cf,r,num_sec,num_prop,prop_origin,mls, phi_2d0, beta_p0, alpha_eff0,num_azi, t_v0,t_r0,num_cpt,precision):    
+    prop          = propellers[list(propellers.keys())[0]]
+    rots          = np.array(prop.orientation_euler_angles) * 1.
+    thrust_angle  = rots[1] + prop.inputs.y_axis_rotation
+    num_cf        = len(settings.center_frequencies)
+    r             = prop.radius_distribution
+    num_sec       = len(r)
+    phi_2d0       = acoustic_outputs.disc_azimuthal_distribution
+    beta_p0       = np.zeros_like(phi_2d0)
+    alpha_eff0    = acoustic_outputs.disc_effective_angle_of_attack
+    num_azi       = len(phi_2d0[0,0,:])
+    t_v0          = -AoA                                        # vehicle tilt angle between the vehicle hub plane and the geographical ground
+    t_r0          = np.ones_like(AoA)*(np.pi/2 - thrust_angle)  # rotor tilt angle between the rotor hub plane and the vehicle hub plane
 
     # Update dimensions for computation   
-    r                    = vectorize(r,num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 1)     
-    beta_p               = vectorize(beta_p0,num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)  
-    cos_beta_p           = vectorize(np.cos(beta_p0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)  
-    sin_phi              = vectorize(np.sin(phi_2d0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
-    phi                  = vectorize(phi_2d0,num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
-    sin_beta_p_cos_phi   = vectorize(np.sin(beta_p0)*np.cos(phi_2d0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)  
-    sin_beta_p_sin_phi   = vectorize(np.sin(beta_p0)*np.sin(phi_2d0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)    
-    cos_phi              = vectorize(np.cos(phi_2d0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)   
-    alpha_eff            = vectorize(alpha_eff0,num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2) 
-    sin_alpha_eff        = vectorize(np.sin(alpha_eff0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2) 
-    cos_alpha_eff        = vectorize(np.cos(alpha_eff0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)        
-    cos_t_v              = vectorize(np.cos(t_v0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)      
-    sin_t_v              = vectorize(np.sin(t_v0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)      
-    t_v                  = vectorize(t_v0,num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)     
-    cos_t_v_t_r          = vectorize(np.cos(t_v0+t_r0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)      
-    sin_t_v_t_r          = vectorize(np.sin(t_v0+t_r0),num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)   
-    t_r                  = vectorize(t_r0,num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)    
-    M_hub                = vectorize(prop_origin,num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 5)   
-    POS_2                = vectorize(mls[:,i],num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 6) 
+    r                    = vectorize(r,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 1)
+    beta_p               = vectorize(beta_p0,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    cos_beta_p           = vectorize(np.cos(beta_p0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    sin_phi              = vectorize(np.sin(phi_2d0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    phi                  = vectorize(phi_2d0,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    sin_beta_p_cos_phi   = vectorize(np.sin(beta_p0)*np.cos(phi_2d0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    sin_beta_p_sin_phi   = vectorize(np.sin(beta_p0)*np.sin(phi_2d0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    cos_phi              = vectorize(np.cos(phi_2d0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    alpha_eff            = vectorize(alpha_eff0,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    sin_alpha_eff        = vectorize(np.sin(alpha_eff0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    cos_alpha_eff        = vectorize(np.cos(alpha_eff0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 2)
+    cos_t_v              = vectorize(np.cos(t_v0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)
+    sin_t_v              = vectorize(np.sin(t_v0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)
+    t_v                  = vectorize(t_v0,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)
+    cos_t_v_t_r          = vectorize(np.cos(t_v0+t_r0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)
+    sin_t_v_t_r          = vectorize(np.sin(t_v0+t_r0),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)
+    t_r                  = vectorize(t_r0,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)
+    M_hub                = vectorize(prop_origin,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 5)
+    POS_2                = vectorize(mls,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 6)
 
     # ------------------------------------------------------------
     # ****** COORDINATE TRANSFOMRATIONS ****** 
-    M_beta_p = np.zeros((num_cpt,num_prop,num_sec,num_azi,num_cf,3,1), dtype = precision)
-    M_t      = np.zeros((num_cpt,num_prop,num_sec,num_azi,num_cf,3,3), dtype = precision)
-    M_phi    = np.zeros((num_cpt,num_prop,num_sec,num_azi,num_cf,3,3), dtype = precision)
-    M_theta  = np.zeros((num_cpt,num_prop,num_sec,num_azi,num_cf,3,3), dtype = precision)
-    M_tv     = np.zeros((num_cpt,num_prop,num_sec,num_azi,num_cf,3,3), dtype = precision)
+    M_beta_p = np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,1))
+    M_t      = np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,3))
+    M_phi    = np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,3))
+    M_theta  = np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,3))
+    M_tv     = np.zeros((num_cpt,num_mic,num_prop,num_sec,num_azi,num_cf,3,3))
 
-    M_tv[:,:,:,:,:,0,0]    = cos_t_v[:,:,:,:,:,0]
-    M_tv[:,:,:,:,:,0,2]    = sin_t_v[:,:,:,:,:,0]
-    M_tv[:,:,:,:,:,1,1]    = 1  
-    M_tv[:,:,:,:,:,2,0]    =-sin_t_v[:,:,:,:,:,0]
-    M_tv[:,:,:,:,:,2,2]    = cos_t_v[:,:,:,:,:,0] 
-    POS_1                  = M_tv@(POS_2 + M_hub)# rotor hub position relative to center of aircraft 
+    M_tv[:,:,:,:,:,:,0,0]    = cos_t_v[:,:,:,:,:,:,0]
+    M_tv[:,:,:,:,:,:,0,2]    = sin_t_v[:,:,:,:,:,:,0]
+    M_tv[:,:,:,:,:,:,1,1]    = 1
+    M_tv[:,:,:,:,:,:,2,0]    =-sin_t_v[:,:,:,:,:,:,0]
+    M_tv[:,:,:,:,:,:,2,2]    = cos_t_v[:,:,:,:,:,:,0]
+    POS_1                    = np.matmul(M_tv,(POS_2 + M_hub)) # rotor hub position relative to center of aircraft
 
     # twist angle matrix
-    M_theta[:,:,:,:,:,0,0] =  cos_alpha_eff[:,:,:,:,:,0]                                 
-    M_theta[:,:,:,:,:,0,2] =  sin_alpha_eff[:,:,:,:,:,0]
-    M_theta[:,:,:,:,:,1,1] = 1   
-    M_theta[:,:,:,:,:,2,0] = -sin_alpha_eff[:,:,:,:,:,0]
-    M_theta[:,:,:,:,:,2,2] =  cos_alpha_eff[:,:,:,:,:,0]
+    M_theta[:,:,:,:,:,:,0,0] =  cos_alpha_eff[:,:,:,:,:,:,0]
+    M_theta[:,:,:,:,:,:,0,2] =  sin_alpha_eff[:,:,:,:,:,:,0]
+    M_theta[:,:,:,:,:,:,1,1] = 1
+    M_theta[:,:,:,:,:,:,2,0] = -sin_alpha_eff[:,:,:,:,:,:,0]
+    M_theta[:,:,:,:,:,:,2,2] =  cos_alpha_eff[:,:,:,:,:,:,0]
 
     # azimuth motion matrix
-    M_phi[:,:,:,:,:,0,0] =  sin_phi[:,:,:,:,:,0]                                          
-    M_phi[:,:,:,:,:,0,1] = -cos_phi[:,:,:,:,:,0] 
-    M_phi[:,:,:,:,:,1,0] =  cos_phi[:,:,:,:,:,0] 
-    M_phi[:,:,:,:,:,1,1] =  sin_phi[:,:,:,:,:,0]    
-    M_phi[:,:,:,:,:,2,2] = 1 
+    M_phi[:,:,:,:,:,:,0,0] =  sin_phi[:,:,:,:,:,:,0]
+    M_phi[:,:,:,:,:,:,0,1] = -cos_phi[:,:,:,:,:,:,0]
+    M_phi[:,:,:,:,:,:,1,0] =  cos_phi[:,:,:,:,:,:,0]
+    M_phi[:,:,:,:,:,:,1,1] =  sin_phi[:,:,:,:,:,:,0]
+    M_phi[:,:,:,:,:,:,2,2] = 1
 
     # tilt motion matrix 
-    M_t[:,:,:,:,:,0,0] =  cos_t_v_t_r[:,:,:,:,:,0]                                          
-    M_t[:,:,:,:,:,0,2] =  sin_t_v_t_r[:,:,:,:,:,0]  
-    M_t[:,:,:,:,:,1,1] =  1                    
-    M_t[:,:,:,:,:,2,0] = -sin_t_v_t_r[:,:,:,:,:,0]  
-    M_t[:,:,:,:,:,2,2] =  cos_t_v_t_r[:,:,:,:,:,0]  
+    M_t[:,:,:,:,:,:,0,0] =  cos_t_v_t_r[:,:,:,:,:,:,0]
+    M_t[:,:,:,:,:,:,0,2] =  sin_t_v_t_r[:,:,:,:,:,:,0]
+    M_t[:,:,:,:,:,:,1,1] =  1
+    M_t[:,:,:,:,:,:,2,0] = -sin_t_v_t_r[:,:,:,:,:,:,0]
+    M_t[:,:,:,:,:,:,2,2] =  cos_t_v_t_r[:,:,:,:,:,:,0]
 
     # flapping motion matrix
-    M_beta_p[:,:,:,:,:,0,0]  = -r*sin_beta_p_cos_phi[:,:,:,:,:,0] 
-    M_beta_p[:,:,:,:,:,1,0]  = -r*sin_beta_p_sin_phi[:,:,:,:,:,0]
-    M_beta_p[:,:,:,:,:,2,0]  =  r*cos_beta_p[:,:,:,:,:,0]
+    M_beta_p[:,:,:,:,:,:,0,0]  = -r*sin_beta_p_cos_phi[:,:,:,:,:,:,0]
+    M_beta_p[:,:,:,:,:,:,1,0]  = -r*sin_beta_p_sin_phi[:,:,:,:,:,:,0]
+    M_beta_p[:,:,:,:,:,:,2,0]  =  r*cos_beta_p[:,:,:,:,:,:,0]
     
-    # transformation of geographical` global reference frame to the sectional local coordinate       
-    POS     = M_theta@M_phi@( M_t@POS_1 + M_beta_p )    
-    POS_1   = M_tv@(POS_2 + M_hub) # rotor hub position relative to center of aircraft
+    # transformation of geographical global reference frame to the sectional local coordinate
+    mat0    = np.matmul(M_t,POS_1)  + M_beta_p
+    mat1    = np.matmul(M_phi,mat0)
+    POS     = np.matmul(M_theta,mat1)
+    POS_1   = np.matmul(M_tv,(POS_2 + M_hub)) # rotor hub position relative to center of aircraft
 
+    blade_section_position_vectors = Data()
+    blade_section_position_vectors.blade_section_coordinate_sys    = POS
+    blade_section_position_vectors.rotor_coordinate_sys            = POS_1
+    blade_section_position_vectors.vehicle_coordinate_sys          = POS_2
+    blade_section_position_vectors.r                               = r
+    blade_section_position_vectors.beta_p                          = beta_p
+    blade_section_position_vectors.phi                             = phi
+    blade_section_position_vectors.alpha_eff                       = alpha_eff
+    blade_section_position_vectors.t_v                             = t_v
+    blade_section_position_vectors.t_r                             = t_r
+    blade_section_position_vectors.M_hub                           = M_hub
 
-    single_mic_blade_section_vectors = Data()
-    single_mic_blade_section_vectors.blade_section_coordinate_sys    = POS 
-    single_mic_blade_section_vectors.rotor_coordinate_sys            = POS_1
-    single_mic_blade_section_vectors.vehicle_coordinate_sys          = POS_2 
-    single_mic_blade_section_vectors.r                               = r        
-    single_mic_blade_section_vectors.beta_p                          = beta_p   
-    single_mic_blade_section_vectors.phi                             = phi      
-    single_mic_blade_section_vectors.alpha_eff                       = alpha_eff   
-    single_mic_blade_section_vectors.t_v                             = t_v      
-    single_mic_blade_section_vectors.t_r                             = t_r       
-    single_mic_blade_section_vectors.M_hub                           = M_hub 
-    
-    return single_mic_blade_section_vectors 
+    return blade_section_position_vectors
 
-def vectorize(vec0,num_cpt,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method): 
-    vec  = np.array(vec0,dtype = precision)
+def vectorize(vec0,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method):
+    vec  = np.array(vec0,dtype=precision)
     if vectorize_method == 1:
         
-        # number of control points , number of rotors, rotor blade sections, number of azimuthal locations , broadband section resolution
-        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(np.atleast_2d(vec),num_prop,axis = 0)[np.newaxis,:,:],num_cpt,axis = 0)
-                                    [:,:,:,np.newaxis],num_azi,axis = 3)[:,:,:,:,np.newaxis],num_cf,axis =4)   
+        # number of control points ,  number of microphones , number of rotors, rotor blade sections, number of azimuthal locations , broadband section resolution
+        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(np.atleast_2d(vec),num_prop,axis = 0)[np.newaxis,:,:],\
+                num_mic,axis = 0)[np.newaxis,:,:,:],num_cpt,axis = 0)[:,:,:,:,np.newaxis],num_azi,axis = 4)\
+                [:,:,:,:,:,np.newaxis],num_cf,axis =5)
     elif vectorize_method == 2:
-        vec_x = np.repeat(np.repeat(vec[:,np.newaxis,:,:],num_prop,axis = 1)[:,:,:,:,np.newaxis],num_cf,axis =4)[:,:,:,:,:,np.newaxis]
+        vec_x = np.repeat(np.repeat(np.repeat(vec[:,np.newaxis,:,:],num_prop,axis = 1)[:,np.newaxis,:,:,:],\
+                num_mic,axis = 1)[:,:,:,:,:,np.newaxis],num_cf,axis =5)[:,:,:,:,:,:,np.newaxis]
     
     elif vectorize_method == 3:
-        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(vec[:,np.newaxis,:],num_prop,axis = 1)[:,:,np.newaxis],num_sec,axis =2)[:,:,:,np.newaxis,:],num_azi,axis = 3)\
-                [:,:,:,:,np.newaxis,:],num_cf,axis = 4) 
+        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(vec[:,np.newaxis,:],num_prop,axis = 1)[:,np.newaxis,:,:],\
+                num_mic,axis = 1)[:,:,:,np.newaxis],num_sec,axis = 3)[:,:,:,:,np.newaxis,:],num_azi,axis = 4)\
+                [:,:,:,:,:,np.newaxis,:],num_cf,axis = 5)
         
     elif vectorize_method == 4:
-        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(vec[:,np.newaxis,:],num_prop,axis = 1)[:,:,np.newaxis,:],num_sec,axis = 2),2,axis = 3)\
-                [:,:,:,np.newaxis,:],num_azi,axis = 3)[:,:,:,:,np.newaxis,:],num_cf,axis = 4)
+        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(vec[:,np.newaxis,:],num_prop,axis = 1)\
+                [:,np.newaxis,:,:], num_mic,axis = 1)[:,:,:,np.newaxis,:],num_sec,axis = 3),2,axis = 4)\
+                [:,:,:,:,np.newaxis,:],num_azi,axis = 4)[:,:,:,:,:,np.newaxis,:],num_cf,axis = 5)
  
     elif vectorize_method == 5: 
-        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(vec[np.newaxis,:,:],num_cpt,axis = 0)[:,:,np.newaxis,:],num_sec,axis = 2)[:,:,:,np.newaxis,:],\
-                num_azi,axis = 3)[:,:,:,:,np.newaxis,:],num_cf,axis = 4)[:,:,:,:,:,:,np.newaxis]
+        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(vec[np.newaxis,:,:],num_cpt,axis = 0)\
+                [:,np.newaxis,:,:],num_mic, axis = 1)[:,:,:,np.newaxis,:],num_sec,axis = 3)[:,:,:,:,np.newaxis,:],\
+                num_azi,axis = 4)[:,:,:,:,:,np.newaxis,:],num_cf,axis = 5)[:,:,:,:,:,:,:,np.newaxis]
  
     elif vectorize_method == 6: 
-        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(vec[:,np.newaxis,:],num_prop,axis = 1)\
-                [:,:,np.newaxis,:],num_sec,axis = 2)[:,:,:,np.newaxis,:],num_azi,axis = 3)\
-                [:,:,:,:,np.newaxis,:],num_cf,axis = 4)[:,:,:,:,:,:,np.newaxis]
+        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(vec[:,:,np.newaxis,:],num_prop,axis = 2)\
+                [:,:,:,np.newaxis,:],num_sec,axis = 3)[:,:,:,:,np.newaxis,:],num_azi,axis = 4)\
+                [:,:,:,:,:,np.newaxis,:],num_cf,axis = 5)[:,:,:,:,:,:,:,np.newaxis]
   
     elif vectorize_method == 7: 
-        vec_x = np.repeat(np.repeat(vec[np.newaxis,:,:],num_prop,axis = 0)[:,:,:,np.newaxis],num_cf,axis =3)
+        vec_x = np.repeat(np.repeat(np.repeat(vec[np.newaxis,:,:],num_prop,axis = 0)[np.newaxis,:,:,:],\
+                num_mic,axis = 0)[:,:,:,:,np.newaxis],num_cf,axis =4)
     
     elif vectorize_method == 8:  
-        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(vec[np.newaxis,:],num_sec,axis=0)\
-                [np.newaxis,:,:], num_prop,axis=0)[np.newaxis,:,:,:],num_cpt,axis=0)\
-                [:,:,:,np.newaxis,:],num_azi,axis=3)[:,:,:,:,:,np.newaxis],2,axis=5)
+        vec_x = np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(np.repeat(vec[np.newaxis,:],num_sec,axis=0)\
+                [np.newaxis,:,:], num_prop,axis=0)[np.newaxis,:,:,:],num_mic,axis=0)[np.newaxis,:,:,:,:],num_cpt,axis=0)\
+                [:,:,:,:,np.newaxis,:],num_azi,axis=4)[:,:,:,:,:,:,np.newaxis],2,axis=6)
  
     return vec_x
