@@ -84,6 +84,7 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         # Return basic results.
         return [power_in, cryo_load]
 
+
     def efficiency_curve(self, current):
 
         """ This sets the default values.
@@ -92,15 +93,13 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         The efficiency curve of the Dynamo is a parabola 
 
         Source:
-        N/A
-        LINK TO KENTS STUFF
+        "Practical Estimation of HTS Dynamo Losses" - Kent Hamilton, Member, IEEE, Ratu Mataira-Cole, Jianzhao Geng, Chris Bumby, Dale Carnegie, and Rod Badcock, Senior Member, IEEE
 
         Inputs:
         current        [A]
 
         Outputs:
         efficiency      [W/W]
-
 
         None
         Properties Used:
@@ -110,7 +109,8 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         x = np.array(current)
 
         if np.any(x > self.rated_current * 1.8 ) or np.any(x < self.rated_current * 0.2): #Plus minus 80
-            print("out of bounds")
+            print("Current out of range")
+            return 0 
 
         a = ( self.efficiency ) / np.square(self.rated_current) #one point on the graph is assumed to be  (0, 2 * current), 0  = a (current ^ 2) + efficiency 
         
@@ -123,7 +123,6 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
 
         """ This sets the default values.
         Assumptions:
-
         The mass of a Squirrel Cage HTS dynamo with a rated current of 850A is 8.7kg
 
         Source:
