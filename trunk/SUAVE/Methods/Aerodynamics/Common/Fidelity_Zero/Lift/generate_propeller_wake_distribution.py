@@ -324,9 +324,9 @@ def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, 
         propi.Wake_VD.Zblades_c_4 = z_c_4_rotor
         
         # append three-quarter chord evaluation point locations        
-        propi.Wake_VD.Xblades_cp = x_cp_rotor #
-        propi.Wake_VD.Yblades_cp = y_cp_rotor #
-        propi.Wake_VD.Zblades_cp = z_cp_rotor # 
+        propi.Wake_VD.Xblades_cp = x_c_4 #x_cp_rotor #
+        propi.Wake_VD.Yblades_cp = y_c_4 #y_cp_rotor #
+        propi.Wake_VD.Zblades_cp = z_c_4 #z_cp_rotor # 
         
         propi.Wake_VD.Xblades_cp2 =  X_pts[0,:,:,0] + (X_pts[0,:,:,0]-X_pts[0,:,:,1])/2
         propi.Wake_VD.Yblades_cp2 =  Y_pts[0,:,:,0] + (Y_pts[0,:,:,0]-Y_pts[0,:,:,1])/2

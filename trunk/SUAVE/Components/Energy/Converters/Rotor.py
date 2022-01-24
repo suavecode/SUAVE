@@ -292,13 +292,13 @@ class Rotor(Energy_Component):
                 rotation = 1
 
             # compute resulting radial and tangential velocities in polar frame
-            utz =  Vz*np.cos(psi_2d* rotation)
-            urz =  Vz*np.sin(psi_2d* rotation)
-            uty =  Vy*np.sin(psi_2d* rotation)
-            ury =  Vy*np.cos(psi_2d* rotation)
+            utz =  Vz*np.sin(psi_2d) #Vz*np.cos(psi_2d* rotation)
+            urz =  Vz*np.cos(psi_2d) #Vz*np.sin(psi_2d* rotation)
+            uty =  Vy*np.cos(psi_2d) #Vy*np.sin(psi_2d* rotation)
+            ury =  Vy*np.sin(psi_2d) #Vy*np.cos(psi_2d* rotation)
 
-            ut +=  (utz + uty)
-            ur +=  (urz + ury)
+            ut +=  -rotation*(utz + uty)
+            ur +=  -rotation*(urz + ury)
             ua +=  np.zeros_like(ut)
 
         # Include external velocities introduced by user
@@ -365,6 +365,13 @@ class Rotor(Energy_Component):
         #---------------------------------------------------------------------------
         va, vt = self.wake_evaluation(U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
+        try:
+            va = self.new_va
+            vt = self.new_vt
+            print("UQ change: new va,vt used for upper/lower bound")
+        except:
+            pass
+        
         # compute new blade velocities
         Wa   = va + Ua
         Wt   = Ut - vt
@@ -373,7 +380,10 @@ class Rotor(Energy_Component):
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
         Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-                
+        
+        
+
+        
         # compute HFW circulation at the blade
         Gamma = 0.5*W*c*Cl  
 
@@ -550,7 +560,8 @@ class Rotor(Energy_Component):
            Fidelity Zero: Simplified vortex wake (VW)
            Fidelity One: Semi-prescribed vortex wake (PVW)
            Fidelity Two: Externally-supplied inflow field (from either CFD or VPM, etc.)
-        Outputs:
+           
+        Outputs of this function include the inflow velocities induced by rotor wake:
            va  - axially-induced velocity from rotor wake
            vt  - tangentially-induced velocity from rotor wake
         
@@ -625,13 +636,10 @@ class Rotor(Energy_Component):
         
                     va_diff = np.max(abs(F*va - self.outputs.disc_axial_induced_velocity))
                     print(va_diff)
-                    #-DEBUG----
-                    va_diff=1e-6
-                    #-----
         
                     # update the axial disc velocity based on new va from HFW
-                    self.outputs.disc_axial_induced_velocity = F*va #self.outputs.disc_axial_induced_velocity + 0.5*(va - self.outputs.disc_axial_induced_velocity)
-        
+                    self.outputs.disc_axial_induced_velocity = F*va 
+                    
                     ii+=1
                     if ii>ii_max and va_diff>tol:
                         print("Semi-prescribed helical wake did not converge on axial inflow used for wake shape.")
@@ -656,7 +664,6 @@ class Rotor(Energy_Component):
                 vt = 0
                 print("No external inflow specified! No inflow velocity used.")
             
-        
         return va, vt
 
     def vec_to_vel(self):
@@ -968,7 +975,7 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     #plt.plot(r[0,:,0], Ftip[0,:,0],label="tip")
     #plt.legend()
     
-    F = Ftip*Fhub
+    F = Ftip#*Fhub
     
 
     return lamdaw, F, piece

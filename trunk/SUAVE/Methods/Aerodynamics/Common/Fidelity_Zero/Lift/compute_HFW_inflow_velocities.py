@@ -17,6 +17,7 @@ from scipy.interpolate import interp1d
 
 import copy
 from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
+from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
 
 def compute_HFW_inflow_velocities( prop ):
     """
@@ -104,7 +105,8 @@ def compute_HFW_inflow_velocities( prop ):
 
         # Compute induced velocities at blade from the helical fixed wake
         VD.Wake_collapsed = WD
-
+        
+        
         V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
         
         # put into body fram
@@ -131,14 +133,14 @@ def compute_HFW_inflow_velocities( prop ):
 
         # Update velocities at the disc
         Va[:,:,i]  = up
-        Vt[:,:,i]  = -(vp*np.cos(blade_angle) + wp*np.sin(blade_angle)) 
+        Vt[:,:,i]  = -(vp*abs(np.cos(blade_angle)) + wp*abs(np.sin(blade_angle)) )
 
 
 
         #====================================================================================
         #======DEBUG: STORE VTKS AFTER NEW WAKE GENERATION===================================
         #====================================================================================       
-        debug = False
+        debug = False #True
         if debug:
             print("\nStoring VTKs...")
             vehicle = prop.vehicle
@@ -148,7 +150,15 @@ def compute_HFW_inflow_velocities( prop ):
             Results.identical = True
             
             conditions=None
-            save_vehicle_vtks(vehicle, conditions, Results, time_step=i,save_loc="/Users/rerha/Desktop/Test_SBS_VTKs/A60/")         
+            save_vehicle_vtks(vehicle, conditions, Results, time_step=i,save_loc="/Users/rerha/Desktop/debug_propeller/outputs/SUAVE/A40/VTKs/")  
+            
+            ## --------- debug --------- 
+            points = Data()
+            points.XC = VD.XC
+            points.YC = VD.YC
+            points.ZC = VD.ZC
+            save_evaluation_points_vtk(points,filename="/Users/rerha/Desktop/debug_propeller/outputs/SUAVE/A40/VTKs/eval_pts.vtk", time_step=i)
+            ## --------- debug ---------             
     
 
         #====================================================================================   
