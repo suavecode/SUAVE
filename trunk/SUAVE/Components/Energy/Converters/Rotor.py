@@ -11,11 +11,12 @@
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
 #           Sep 2021, R. Erhard
+#           Jan 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
@@ -173,6 +174,7 @@ class Rotor(Energy_Component):
           twist_distribution                 [radians]
           chord_distribution                 [m]
           orientation_euler_angles           [rad, rad, rad]
+          wake_method_fidelity               [-]
         """
 
         # Unpack rotor blade parameters
@@ -381,8 +383,6 @@ class Rotor(Energy_Component):
         # Compute aerodynamic forces based on specified input airfoil or surrogate
         Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
-        
-
         
         # compute HFW circulation at the blade
         Gamma = 0.5*W*c*Cl  
@@ -956,26 +956,14 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     
     piece             = np.exp(-f)
     F                 = 2.*np.arccos(piece)/np.pi
-    
-    # hub loss modification (make from 0)
-    Rhub = r[0,0,0]*.99
-    eh1, eh2, eh3, maxah = 1,1,1,-np.inf
-    hubfactor = B/2.0*(   (R/(R-r+Rhub))**eh1 - 1   )**eh2/lamdaw**eh3
-    hubfactor[hubfactor<0.]           = 0.
-    Fhub = 2.*np.arccos(np.exp(-hubfactor))/np.pi  
-    
+
     Rtip = R
     et1, et2, et3, maxat = 1,1,1,-np.inf
     tipfactor = B/2.0*(  (Rtip/r)**et1 - 1  )**et2/lamdaw**et3
     tipfactor[tipfactor<0.]   = 0.
     Ftip = 2.*np.arccos(np.exp(-tipfactor))/np.pi
     
-    #import pylab as plt
-    #plt.plot(r[0,:,0], Fhub[0,:,0],label="hub")
-    #plt.plot(r[0,:,0], Ftip[0,:,0],label="tip")
-    #plt.legend()
-    
-    F = Ftip#*Fhub
+    F = Ftip
     
 
     return lamdaw, F, piece
