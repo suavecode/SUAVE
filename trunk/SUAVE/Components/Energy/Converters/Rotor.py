@@ -471,6 +471,8 @@ class Rotor(Energy_Component):
         Cp       = power/(rho_0*(n*n*n)*(D*D*D*D*D))
         Crd      = rotor_drag/(rho_0*(n*n)*(D*D*D*D))
         etap     = V*thrust/power
+        A        = np.pi*(R**2 - self.hub_radius**2)
+        FoM      = thrust*np.sqrt(T/(2*rho*A))    /power  
 
         # prevent things from breaking
         Cq[Cq<0]                                               = 0.
@@ -488,6 +490,7 @@ class Rotor(Energy_Component):
         Ct[omega==0.0]                                         = 0.0
         Cp[omega==0.0]                                         = 0.0
         etap[omega==0.0]                                       = 0.0
+
 
         # Make the thrust a 3D vector
         thrust_prop_frame      = np.zeros((ctrl_pts,3))
@@ -541,6 +544,7 @@ class Rotor(Energy_Component):
                     blade_H_distribution              = rotor_drag_distribution,
                     rotor_drag                        = rotor_drag,
                     rotor_drag_coefficient            = Crd,
+                    figure_of_merit                   = FoM
             )
         self.outputs = outputs
 
