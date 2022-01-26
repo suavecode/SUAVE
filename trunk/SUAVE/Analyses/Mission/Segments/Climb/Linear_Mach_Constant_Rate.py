@@ -59,7 +59,7 @@ class Linear_Mach_Constant_Rate(Unknown_Throttle):
         self.climb_rate     = 3.  * Units.m / Units.s
         self.mach_end       = 0.7
         self.mach_start     = 0.8
-        self.bearing        = 0.0 * Units.degrees    
+        self.true_course    = 0.0 * Units.degrees    
         
         # --------------------------------------------------------------
         #   The Solving Process

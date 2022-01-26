@@ -68,7 +68,7 @@ class Landing(Ground):
         self.friction_coefficient = 0.4
         self.throttle             = 0.0
         self.altitude             = 0.0
-        self.bearing              = 0.0 * Units.degrees 
+        self.true_course          = 0.0 * Units.degrees 
         
         # initials and unknowns
         ones_row_m1 = self.state.ones_row_m1

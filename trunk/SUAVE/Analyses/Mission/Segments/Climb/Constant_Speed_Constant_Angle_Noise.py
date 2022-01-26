@@ -60,7 +60,7 @@ class Constant_Speed_Constant_Angle_Noise(Unknown_Throttle):
         self.altitude_end   = 10. * Units.km
         self.climb_angle    = 3.  * Units.deg
         self.air_speed      = 100 * Units.m / Units.s
-        self.bearing        = 0.0 * Units.degrees    
+        self.true_course    = 0.0 * Units.degrees    
         
         # --------------------------------------------------------------
         #   The Solving Process

@@ -66,7 +66,7 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         self.altitude_end   = 10. * Units.km
         self.throttle       = 0.5
         self.air_speed      = 100 * Units.m / Units.s 
-        self.bearing        = 0.0 * Units.degrees            
+        self.true_course    = 0.0 * Units.degrees            
         
         # --------------------------------------------------------------
         #   State

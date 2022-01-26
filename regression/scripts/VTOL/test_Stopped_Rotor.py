@@ -67,12 +67,12 @@ def main():
     plot_mission(results,configs.base)
 
     # save, load and plot old results
-    #save_stopped_rotor_results(results)
+    save_stopped_rotor_results(results)
     old_results  = load_stopped_rotor_results()
     plot_mission(old_results,configs.base, 'k-')
 
     # RPM of rotor check during hover
-    RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[0][0]
+    RPM        = results.segments.vertical_climb.conditions.propulsion.lift_rotor_rpm[0][0]
     RPM_true   = 2383.999687566465
     print(RPM)
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -232,7 +232,7 @@ def mission_setup(analyses,vehicle):
     #   First Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
     segment     = Segments.Hover.Climb(base_segment)
-    segment.tag = "climb_1"
+    segment.tag = "vertical_climb"
     segment.analyses.extend( analyses.base )
     segment.altitude_start                                   = 0.0  * Units.ft
     segment.altitude_end                                     = 40.  * Units.ft
@@ -260,6 +260,7 @@ def mission_setup(analyses,vehicle):
     segment.acceleration                             = 9.8/5
     segment.pitch_initial                            = 0.0 * Units.degrees
     segment.pitch_final                              = 5. * Units.degrees
+    segment.true_course                              = 20   * Units.degrees 
     ones_row                                         = segment.state.ones_row
     segment.state.unknowns.throttle                  = 1. * ones_row(1)
     segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
@@ -286,6 +287,7 @@ def mission_setup(analyses,vehicle):
     segment.acceleration                                = 0.5 * Units['m/s/s']
     segment.pitch_initial                               = 5. * Units.degrees
     segment.pitch_final                                 = 7. * Units.degrees
+    segment.true_course                                 = 20   * Units.degrees 
     segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
     segment.process.iterate.unknowns.mission            = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
@@ -303,13 +305,14 @@ def mission_setup(analyses,vehicle):
     #   Second Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
     segment                                            = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag                                        = "climb_2"
+    segment.tag                                        = "climb_1"
     segment.analyses.extend( analyses.base )
     segment.air_speed                                  = 1.1*Vstall
     segment.altitude_start                             = 50.0 * Units.ft
     segment.altitude_end                               = 300. * Units.ft
     segment.climb_rate                                 = 500. * Units['ft/min'] 
     segment.state.unknowns.throttle                    =  0.80 * ones_row(1)
+    segment.true_course                                = 20  * Units.degrees 
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)
 
     # add to misison
@@ -325,6 +328,7 @@ def mission_setup(analyses,vehicle):
     segment.time                                       = 60.   * Units.second
     segment.air_speed                                  = 1.2*Vstall
     segment.state.unknowns.throttle                    =  0.80 * ones_row(1)
+    segment.true_course                                = 10  * Units.degrees 
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,\
                                                                                           initial_prop_power_coefficient = 0.16)
 
@@ -343,6 +347,7 @@ def mission_setup(analyses,vehicle):
     segment.air_speed_start                          = 1.2*Vstall
     segment.air_speed_end                            = 110.  * Units['mph']    
     segment.state.unknowns.throttle                  = 0.90    *  ones_row(1)
+    segment.true_course                              = 5  * Units.degrees 
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)    
     mission.append_segment(segment)   
     
@@ -356,6 +361,7 @@ def mission_setup(analyses,vehicle):
     segment.air_speed                                = 110.   * Units['mph']
     segment.distance                                 = 50.    * Units.miles     
     segment.state.unknowns.throttle                  = 0.60 * ones_row(1) 
+    segment.true_course                              = 5  * Units.degrees 
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment) 
     mission.append_segment(segment) 
 
@@ -386,6 +392,9 @@ def plot_mission(results,vec_configs,line_style='bo-'):
 
     # Plot Flight Conditions
     plot_flight_conditions(results, line_style)
+    
+    # Plot Flight Trajectory
+    plot_flight_trajectory(results, line_style) 
 
     # Plot Aerodynamic Coefficients
     plot_aerodynamic_coefficients(results, line_style)

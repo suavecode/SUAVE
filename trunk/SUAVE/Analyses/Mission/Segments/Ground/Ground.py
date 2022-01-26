@@ -82,7 +82,7 @@ class Ground(Aerodynamic):
         self.velocity_start       = 0.0
         self.velocity_end         = 0.0 
         self.altitude             = 0.0
-        self.bearing              = 0.0 * Units.degrees 
+        self.true_course          = 0.0 * Units.degrees 
         
         # --------------------------------------------------------------
         #   State

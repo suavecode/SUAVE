@@ -50,7 +50,7 @@ class Constant_CAS_Constant_Rate(Unknown_Throttle):
         self.altitude_end        = 10. * Units.km
         self.descent_rate        = 3.  * Units.m / Units.s
         self.calibrated_airspeed = 100 * Units.m / Units.s
-        self.bearing             = 0.0 * Units.degrees 
+        self.true_course         = 0.0 * Units.degrees 
         
         # --------------------------------------------------------------
         #   The Solving Process

@@ -66,7 +66,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         self.altitude        = None
         self.air_speed_start = None
         self.air_speed_end   = 0.0 
-        self.bearing         = 0.0 * Units.degrees  
+        self.true_course     = 0.0 * Units.degrees  
         
         # --------------------------------------------------------------
         #   State
