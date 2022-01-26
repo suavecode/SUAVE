@@ -424,22 +424,22 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         pack_C_nominal      = pack_current/np.max(pack_battery_amp_hr)
         
     
-        axes = plt.subplot(3,3,1)
+        axes = plt.subplot(2,3,1)
         axes.plot(time, pack_SOC , line_color)
         axes.set_ylabel('SOC',axis_font)
         set_axes(axes)    
 
-        axes = plt.subplot(3,3,2)
+        axes = plt.subplot(2,3,2)
         axes.plot(time, (pack_energy/Units.Wh)/1000, line_color)
         axes.set_ylabel('Energy (kW-hr)',axis_font)
         set_axes(axes)              
     
-        axes = plt.subplot(3,3,3)
+        axes = plt.subplot(2,3,3)
         axes.plot(time, -pack_power/1000, line_color)
         axes.set_ylabel('Power (kW)',axis_font)
         set_axes(axes)       
         
-        axes = plt.subplot(3,3,4) 
+        axes = plt.subplot(2,3,4) 
         axes.set_ylabel('Voltage (V)',axis_font) 
         set_axes(axes) 
         if i == 0:
@@ -450,7 +450,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
             axes.plot(time,pack_volts_oc,line_color2) 
         axes.legend(loc='upper right')  
         
-        axes = plt.subplot(3,3,5)
+        axes = plt.subplot(2,3,5)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rate (C)',axis_font)          
         set_axes(axes)  
@@ -462,7 +462,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
             axes.plot(time, pack_C_nominal, line_color2)
         axes.legend(loc='upper right')  
 
-        axes = plt.subplot(3,3,6)
+        axes = plt.subplot(2,3,6)
         axes.plot(time, pack_current, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Current (A)',axis_font)  
@@ -471,12 +471,11 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         
     # Set limits
     for i in range(1,7):
-        ax         = plt.subplot(3,3,i)
+        ax         = plt.subplot(2,3,i)
         y_lo, y_hi = ax.get_ylim()
         if y_lo>0: y_lo = 0
         y_hi       = y_hi*1.1
-        ax.set_ylim(y_lo,y_hi)    
-     
+        ax.set_ylim(y_lo,y_hi)     
         
     plt.tight_layout() 
     if save_figure:
@@ -639,7 +638,7 @@ def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', s
     axis_font = {'size':'14'}   
     
     fig  = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)   
+    fig.set_size_inches(12, 6)   
     fig.suptitle('Battery Cell Degradation')
     
     num_segs          = len(results.segments)
@@ -656,21 +655,21 @@ def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', s
         resistance_growth[i]   = results.segments[i].conditions.propulsion.battery_resistance_growth_factor 
         charge_throughput[i]   =  results.segments[i].conditions.propulsion.battery_cell_charge_throughput[-1,0]  
          
-    axes = plt.subplot(2,2,1)
+    axes = plt.subplot(1,3,1)
     axes.plot(charge_throughput, capacity_fade, line_color)
     axes.plot(charge_throughput, resistance_growth, line_color2) 
     axes.set_ylabel('% Capacity Fade/Resistance Growth',axis_font)
     axes.set_xlabel('Time (hrs)',axis_font)
     set_axes(axes)      
 
-    axes = plt.subplot(2,2,2)
+    axes = plt.subplot(1,3,2)
     axes.plot(time_hrs, capacity_fade, line_color)
     axes.plot(time_hrs, resistance_growth, line_color2) 
     axes.set_ylabel('% Capacity Fade/Resistance Growth',axis_font)
     axes.set_xlabel('Time (hrs)',axis_font)
     set_axes(axes)     
 
-    axes = plt.subplot(2,2,3)
+    axes = plt.subplot(1,3,3)
     axes.plot(cycle_day, capacity_fade, line_color)
     axes.plot(cycle_day, resistance_growth, line_color2) 
     axes.set_ylabel('% Capacity Fade/Resistance Growth',axis_font)

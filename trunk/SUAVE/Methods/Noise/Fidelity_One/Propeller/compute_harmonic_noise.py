@@ -148,24 +148,10 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     # sound pressure levels  
     res.SPL_prop_harmonic_bpf_spectrum     = 20*np.log10((abs(p_mL_H_abs + p_mT_H_abs))/p_ref) 
     res.SPL_prop_harmonic_bpf_spectrum_dBA = A_weighting(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,:,:,0,:]) 
-    res.p_pref_harmonic                    = 10**(res.SPL_prop_harmonic_bpf_spectrum/10)   
-    res.p_pref_harmonic_dBA                = 10**(res.SPL_prop_harmonic_bpf_spectrum_dBA/10) 
     res.SPL_prop_harmonic_1_3_spectrum     = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,0,0,0,:],settings)         
     res.SPL_prop_harmonic_1_3_spectrum_dBA = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum_dBA,res.f[:,0,0,0,:],settings)  
     res.SPL_prop_harmonic_1_3_spectrum[np.isinf(res.SPL_prop_harmonic_1_3_spectrum)] = 0
     res.SPL_prop_harmonic_1_3_spectrum_dBA[np.isinf(res.SPL_prop_harmonic_1_3_spectrum_dBA)] = 0
-
-    # compute acoustic waveforms around azimuth of propeller 
-    p_mT_H_azi = vectorize(p_mT_H,num_cpt,num_h,num_r,num_prop,num_mic,num_azi,vectorize_method = 6)
-    p_mL_H_azi = vectorize(p_mL_H,num_cpt,num_h,num_r,num_prop,num_mic,num_azi,vectorize_method = 6)
-    m_azi      = vectorize(m[:,:,:,0,:],num_cpt,num_h,num_r,num_prop,num_mic,num_azi,vectorize_method = 6)
-    omega_azi  = vectorize(omega[:,:,:,0,:],num_cpt,num_h,num_r,num_prop,num_mic,num_azi,vectorize_method = 6) 
-    time       = vectorize(auc_opts.omega,num_cpt,num_h,num_r,num_prop,num_mic,num_azi,vectorize_method = 7)
-    p_t        = np.sum((p_mT_H_azi + p_mL_H_azi)*np.exp(-1j*m_azi*B*omega_azi*time),axis = 4)
-    p_t_abs    = abs(p_t)
-
-    res.p_harmonic     = p_t_abs 
-    res.azimuthal_time = time
     
     return  
 

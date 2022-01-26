@@ -80,7 +80,7 @@ class Fidelity_One(Noise):
         settings.urban_canyon_microphone_y_resolution = 4
         settings.urban_canyon_microphone_z_resolution = 16  
         settings.mic_x_position                       = 0       
-        settings.level_ground_microphone_min_x        = -450
+        settings.level_ground_microphone_min_x        = 1E-6
         settings.level_ground_microphone_max_x        = 5000 
         settings.level_ground_microphone_min_y        = 1E-6
         settings.level_ground_microphone_max_y        = 450   # sideline microphone distance

@@ -23,7 +23,7 @@ from scipy.special import fresnel
 # Frequency Domain Broadband Noise Computation
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller   
-def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,
+def compute_broadband_noise(freestream,angle_of_attack,bspv,
                             velocity_vector,network,auc_opts,settings,res,source):
     '''This computes the trailing edge noise compoment of broadband noise of a propeller or 
     rotor in the frequency domain. Boundary layer properties are computed using SUAVE's 
@@ -40,7 +40,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     Inputs:  
         freestream                                   - freestream data structure                                                          [m/s]
         angle_of_attack                              - aircraft angle of attack                                                           [rad]
-        blade_section_position_vectors               - rotor blade section trailing edge vectors                                          [m]
+        bspv                                         - rotor blade section trailing position edge vectors                                 [m]
         velocity_vector                              - velocity vector of aircraft                                                        [m/s]
         network                                      - energy network object                                                              [None] 
         auc_opts                                     - data structure of acoustic data                                                    [None] 
@@ -53,9 +53,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
            SPL_prop_broadband_spectrum               - broadband noise in blade passing frequency spectrum                                [dB]
            SPL_prop_broadband_spectrum_dBA           - dBA-Weighted broadband noise in blade passing frequency spectrum                   [dbA]     
            SPL_prop_broadband_1_3_spectrum           - broadband noise in 1/3 octave spectrum                                             [dB]
-           SPL_prop_broadband_1_3_spectrum_dBA       - dBA-Weighted broadband noise in 1/3 octave spectrum                                [dBA] 
-           p_pref_broadband                          - pressure ratio of broadband noise                                                  [Unitless]
-           p_pref_broadband_dBA                      - pressure ratio of dBA-weighted broadband noise                                     [Unitless]                              
+           SPL_prop_broadband_1_3_spectrum_dBA       - dBA-Weighted broadband noise in 1/3 octave spectrum                                [dBA]                               
            p_pref_azimuthal_broadband                - azimuthal varying pressure ratio of broadband noise                                [Unitless]       
            p_pref_azimuthal_broadband_dBA            - azimuthal varying pressure ratio of dBA-weighted broadband noise                   [Unitless]     
            SPL_prop_azimuthal_broadband_spectrum     - azimuthal varying broadband noise in blade passing frequency spectrum              [dB]      
@@ -66,27 +64,17 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     '''     
 
     num_cpt         = len(angle_of_attack)
-    num_prop        = len(blade_section_position_vectors.blade_section_coordinate_sys[0,0,:,0,0,0,0,0])
-    num_mic         = len(blade_section_position_vectors.blade_section_coordinate_sys[0,:,0,0,0,0,0,0])
+    num_prop        = len(bspv.blade_section_coordinate_sys[0,0,:,0,0,0,0,0])
+    num_mic         = len(bspv.blade_section_coordinate_sys[0,:,0,0,0,0,0,0])
     
     if source == 'lift_rotors':  
-        propellers      = network.lift_rotors 
+        propellers = network.lift_rotors 
     else:
-        propellers      = network.propellers
-    
-    precision = np.float64
-    propeller = propellers[list(propellers.keys())[0]]
-    frequency = settings.center_frequencies
-    num_cf    = len(frequency)
-    POS       = blade_section_position_vectors.blade_section_coordinate_sys   
-    POS_2     = blade_section_position_vectors.vehicle_coordinate_sys           
-    r         = blade_section_position_vectors.r                               
-    beta_p    = blade_section_position_vectors.beta_p
-    phi       = blade_section_position_vectors.phi
-    alpha_eff = blade_section_position_vectors.alpha_eff
-    t_v       = blade_section_position_vectors.t_v
-    t_r       = blade_section_position_vectors.t_r
-    M_hub     = blade_section_position_vectors.M_hub
+        propellers = network.propellers
+        
+    propeller     = propellers[list(propellers.keys())[0]]
+    frequency     = settings.center_frequencies
+    num_cf        = len(frequency)     
     
     # ----------------------------------------------------------------------------------
     # Trailing Edge Noise
@@ -100,7 +88,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     Vt_2d              = auc_opts.disc_tangential_velocity  
     Va_2d              = auc_opts.disc_axial_velocity                
     blade_chords       = propeller.chord_distribution        # blade chord    
-    r                  = propeller.radius_distribution        # radial location   
+    r                  = propeller.radius_distribution       # radial location   
     num_sec            = len(r) 
     num_azi            = len(auc_opts.disc_effective_angle_of_attack[0,0,:])   
     U_blade            = np.sqrt(Vt_2d**2 + Va_2d**2)
@@ -111,7 +99,6 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
     M                  = U_inf/c_0                                             
     B                  = propeller.number_of_blades          # number of propeller blades
     Omega              = auc_opts.omega                      # angular velocity   
-    pi                 = np.pi
     beta_sq            = 1 - M**2                                  
     delta_r            = np.zeros_like(r)
     del_r              = r[1:] - r[:-1]
@@ -121,8 +108,7 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
 
 
     if np.all(Omega == 0):
-        res.p_pref_broadband                          = np.zeros((num_cpt,num_mic,num_prop,num_cf))
-        res.p_pref_broadband_dBA                      = np.zeros_like(res.p_pref_broadband)
+        res.p_pref_broadband                          = np.zeros((num_cpt,num_mic,num_prop,num_cf)) 
         res.SPL_prop_broadband_spectrum               = np.zeros_like(res.p_pref_broadband)
         res.SPL_prop_broadband_spectrum_dBA           = np.zeros_like(res.p_pref_broadband)
         res.SPL_prop_broadband_1_3_spectrum           = np.zeros((num_cpt,num_mic,num_prop,num_cf))
@@ -267,48 +253,44 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
             # ------------------------------------------------------------
             # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******
 
-            delta[i,:,:,:,:,:,0]        = vectorize(lower_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                                    # lower surface boundary layer thickness
-            delta[i,:,:,:,:,:,1]        = vectorize(upper_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                                    # upper surface boundary layer thickness
-            delta_star[i,:,:,:,:,:,0]   = vectorize(lower_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                               # lower surface displacement thickness
-            delta_star[i,:,:,:,:,:,1]   = vectorize(upper_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                               # upper surface displacement thickness
-            dp_dx[i,:,:,:,:,:,0]        = vectorize(lower_surface_dp_dx ,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                                   # lower surface pressure differential
-            dp_dx[i,:,:,:,:,:,1]        = vectorize(upper_surface_dp_dx ,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                                   # upper surface pressure differential
-            Ue[i,:,:,:,:,:,0]           = vectorize(lower_surface_Ue,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                                       # lower surface boundary layer edge velocity
-            Ue[i,:,:,:,:,:,1]           = vectorize(upper_surface_Ue,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                                       # upper surface boundary layer edge velocity
-            tau_w[i,:,:,:,:,:,0]        = vectorize(lower_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)    # lower surface wall shear stress
-            tau_w[i:,:,:,:,:,:,1]       = vectorize(upper_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)    # upper surface wall shear stress
-            Theta[i,:,:,:,:,:,0]        = vectorize(lower_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                                    # lower surface momentum thickness
-            Theta[i,:,:,:,:,:,1]        = vectorize(upper_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 7)                                    # upper surface momentum thickness
+            delta[i,:,:,:,:,:,0]        = vectorize(lower_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                                    # lower surface boundary layer thickness
+            delta[i,:,:,:,:,:,1]        = vectorize(upper_surface_delta,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                                    # upper surface boundary layer thickness
+            delta_star[i,:,:,:,:,:,0]   = vectorize(lower_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                               # lower surface displacement thickness
+            delta_star[i,:,:,:,:,:,1]   = vectorize(upper_surface_delta_star,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                               # upper surface displacement thickness
+            dp_dx[i,:,:,:,:,:,0]        = vectorize(lower_surface_dp_dx ,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                                   # lower surface pressure differential
+            dp_dx[i,:,:,:,:,:,1]        = vectorize(upper_surface_dp_dx ,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                                   # upper surface pressure differential
+            Ue[i,:,:,:,:,:,0]           = vectorize(lower_surface_Ue,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                                       # lower surface boundary layer edge velocity
+            Ue[i,:,:,:,:,:,1]           = vectorize(upper_surface_Ue,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                                       # upper surface boundary layer edge velocity
+            tau_w[i,:,:,:,:,:,0]        = vectorize(lower_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)    # lower surface wall shear stress
+            tau_w[i:,:,:,:,:,:,1]       = vectorize(upper_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)),num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)    # upper surface wall shear stress
+            Theta[i,:,:,:,:,:,0]        = vectorize(lower_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                                    # lower surface momentum thickness
+            Theta[i,:,:,:,:,:,1]        = vectorize(upper_surface_theta,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 7)                                    # upper surface momentum thickness
 
         # Update dimensions for computation
-        r         = vectorize(r,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 1)
-        c         = vectorize(blade_chords,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 1)
-        delta_r   = vectorize(delta_r,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 1)
-        M         = vectorize(M,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 3)
-        c_0       = vectorize(c_0,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 4)
-        beta_sq   = vectorize(beta_sq,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 4)
-        Omega     = vectorize(Omega,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 4)
-        U_inf     = vectorize(U_inf,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 4)
-        rho       = vectorize(rho,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 4)
-        kine_visc = vectorize(kine_visc,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 4)
+        r         = vectorize(r,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 1)
+        c         = vectorize(blade_chords,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 1)
+        delta_r   = vectorize(delta_r,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 1)
+        M         = vectorize(M,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 3)
+        c_0       = vectorize(c_0,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 4)
+        beta_sq   = vectorize(beta_sq,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 4)
+        Omega     = vectorize(Omega,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 4)
+        U_inf     = vectorize(U_inf,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 4)
+        rho       = vectorize(rho,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 4)
+        kine_visc = vectorize(kine_visc,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 4)
 
-        X   = np.repeat(POS[:,:,:,:,:,:,0,:],2,axis = 6)
-        Y   = np.repeat(POS[:,:,:,:,:,:,1,:],2,axis = 6)
-        Z   = np.repeat(POS[:,:,:,:,:,:,2,:],2,axis = 6)
-        X_2 = np.repeat(POS_2[:,:,:,:,:,:,0,:],2,axis = 6)
-        Y_2 = np.repeat(POS_2[:,:,:,:,:,:,1,:],2,axis = 6)
-        Z_2 = np.repeat(POS_2[:,:,:,:,:,:,2,:],2,axis = 6)
-
-        R_s = np.repeat(np.linalg.norm(POS,axis = 6),2,axis = 6)
+        X   = np.repeat(bspv.blade_section_coordinate_sys[:,:,:,:,:,:,0,:],2,axis = 6)
+        Y   = np.repeat(bspv.blade_section_coordinate_sys[:,:,:,:,:,:,1,:],2,axis = 6)
+        Z   = np.repeat(bspv.blade_section_coordinate_sys[:,:,:,:,:,:,2,:],2,axis = 6)
 
         # ------------------------------------------------------------
         # ****** BLADE MOTION CALCULATIONS ******
         # the rotational Mach number of the blade section
-        omega   = vectorize(2*pi*frequency,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,precision,vectorize_method = 8)
+        omega   = vectorize(2*np.pi*frequency,num_cpt,num_mic,num_sec,num_prop,num_azi,num_cf,vectorize_method = 8)
         r       = np.repeat(r[:,:,:,:,:,:,np.newaxis],2,axis = 6)
         c       = np.repeat(c[:,:,:,:,:,:,np.newaxis],2,axis = 6)/2
         delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)
         M       = np.repeat(M,2,axis = 6)
+        R_s     = np.repeat(np.linalg.norm(bspv.blade_section_coordinate_sys,axis = 6),2,axis = 6)
         mu      = (omega/(1 +(Omega*r/c_0)*(X/R_s)))*M/(U_inf*beta_sq)
 
         # ------------------------------------------------------------
@@ -339,51 +321,35 @@ def compute_broadband_noise(freestream,angle_of_attack,blade_section_position_ve
         Phi_pp[np.isnan(Phi_pp)] = 0.
 
         # ------------------------------------------------------------
-        # ****** DIRECTIVITY ******
-        A4    = M_hub[:,:,:,:,:,:,1,:] + Y_2 - r*np.sin(beta_p)*np.sin(phi)
-        A3    = (np.cos(t_r + t_v))*((np.cos(t_v))*(M_hub[:,:,:,:,:,:,2,:] + Z_2) - (np.sin(t_v))*(M_hub[:,:,:,:,:,:,0,:] + X_2))\
-            - np.sin(t_r+ t_v)*((np.cos(t_v))*(M_hub[:,:,:,:,:,:,0,:] + X_2) + (np.sin(t_v))*M_hub[:,:,:,:,:,:,2,:] + Z_2) + r*np.cos(beta_p)
-        A2    =  (np.cos(t_r + t_v))*((np.cos(t_v))*(M_hub[:,:,:,:,:,:,0,:] + X_2) + (np.sin(t_v))*(M_hub[:,:,:,:,:,:,2,:] + Z_2))\
-            + np.sin(t_r+ t_v)*((np.cos(t_v))*(M_hub[:,:,:,:,:,:,2,:] + Z_2) - (np.sin(t_v))*M_hub[:,:,:,:,:,:,0,:] + X_2) - r*np.cos(phi)*np.cos(beta_p)
-        A1    = (np.cos( alpha_eff)*A3 + np.sin( alpha_eff)*np.cos(beta_p)*A4 - np.sin( alpha_eff)*np.sin(beta_p)*A2)**2
-        D_phi = A1/( (np.sin( alpha_eff)*A3 - np.cos( alpha_eff)*np.cos(beta_p)*A4 \
-                      + np.cos( alpha_eff)*np.sin(beta_p)*A2**2)\
-                     + (np.sin(beta_p)*A4 + np.cos(beta_p)*A2)**2)**2
+        # ****** DIRECTIVITY ****** 
+        X_2 = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,0,:],2,axis = 6)
+        Y_2 = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,1,:],2,axis = 6)
+        Z_2 = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,2,:],2,axis = 6)        
+        A4    = bspv.M_hub_Y + Y_2 
+        A3    = bspv.cos_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_Z + Z_2) - bspv.sin_t_v*(bspv.M_hub_X + X_2)) \
+            - bspv.sin_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_X + X_2) + bspv.sin_t_v*bspv.M_hub_Z + Z_2) + r 
+        A2    =  bspv.cos_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_X + X_2) + bspv.sin_t_v*(bspv.M_hub_Z + Z_2))\
+            + bspv.sin_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_Z + Z_2) - bspv.sin_t_v*bspv.M_hub_X + X_2) - r*bspv.cos_phi
+        A1    = (bspv.cos_alpha_eff*A3 + bspv.sin_alpha_eff*A4)**2  
 
         # Acousic Power Spectrial Density from each blade
-        mult     = ((omega/c_0 )**2)*c**2*delta_r*(1/(32*pi**2))*(B/(2*pi))
-        S_pp     = mult[:,:,:,:,0,:,:]*np.trapz(D_phi*norm_L_sq*(1.6*(0.8*U_inf)/omega)*Phi_pp,axis = 4)
-        S_pp_azi = mult*D_phi*norm_L_sq*(1.6*(0.8*U_inf)/omega)*Phi_pp
-
+        mult     = ((omega/c_0 )**2)*c**2*delta_r*(1/(32*np.pi**2))*(B/(2*np.pi))
+        S_pp     = mult[:,:,:,:,0,:,:]*np.trapz((A1/((bspv.sin_alpha_eff*A3 - bspv.cos_alpha_eff*A4)\
+                    + A2**2)**2)*norm_L_sq*(1.6*(0.8*U_inf)/omega)*Phi_pp,axis = 4) 
+        
         # Sound Pressure Level
-        SPL                         = 10*np.log10((2*pi*S_pp)/((p_ref)**2))
-        SPL_azi                     = 10*np.log10((2*pi*S_pp_azi)/((p_ref)**2))
-        SPL[SPL == -np.inf]         = 0
-        SPL[SPL == np.inf]          = 0
-        SPL_azi[SPL_azi == np.inf]  = 0
-        SPL_azi[SPL_azi == -np.inf] = 0
-
-        SPL_surf          = SPL_arithmetic(SPL, sum_axis = 5 )
-        SPL_rotor         = SPL_arithmetic(SPL_surf, sum_axis = 3 )
-        SPL_rotor_dBA     = A_weighting(SPL_rotor,frequency)
-        SPL_surf_azi      = SPL_arithmetic(SPL_azi, sum_axis = 6 )
-        SPL_rotor_azi     = SPL_arithmetic(SPL_surf_azi, sum_axis = 3 )
-        SPL_rotor_dBA_azi = A_weighting(SPL_rotor_azi,frequency)
-
+        SPL                        = 10*np.log10((2*np.pi*S_pp)/((p_ref)**2)) 
+        SPL[np.isinf(SPL)]         = 0   
+        SPL_rotor                  = SPL_arithmetic(SPL_arithmetic(SPL, sum_axis = 5 ), sum_axis = 3 )
+        
         # convert to 1/3 octave spectrum
         f = np.repeat(np.atleast_2d(frequency),num_cpt,axis = 0)
-
-        # azimuthal-averaged sound pressure levels
-        res.p_pref_broadband                              = 10**(SPL_rotor /10)
-        res.p_pref_broadband_dBA                          = 10**(SPL_rotor_dBA /10)
+ 
         res.SPL_prop_broadband_spectrum                   = SPL_rotor
-        res.SPL_prop_broadband_spectrum_dBA               = SPL_rotor_dBA
+        res.SPL_prop_broadband_spectrum_dBA               = A_weighting(SPL_rotor,frequency) 
         res.SPL_prop_broadband_1_3_spectrum               = SPL_harmonic_to_third_octave(SPL_rotor,f,settings)
-        res.SPL_prop_broadband_1_3_spectrum_dBA           = SPL_harmonic_to_third_octave(SPL_rotor_dBA,f,settings)
-        res.p_pref_azimuthal_broadband                    = 10**(SPL_rotor_azi /10)
-        res.p_pref_azimuthal_broadband_dBA                = 10**(SPL_rotor_dBA_azi /10)
-        res.SPL_prop_azimuthal_broadband_spectrum         = SPL_rotor_azi
-        res.SPL_prop_azimuthal_broadband_spectrum_dBA     = SPL_rotor_dBA_azi
-
+        res.SPL_prop_broadband_1_3_spectrum_dBA           = SPL_harmonic_to_third_octave(A_weighting(SPL_rotor,frequency),f,settings) 
+        res.SPL_prop_broadband_1_3_spectrum               = SPL_harmonic_to_third_octave(SPL_rotor,f,settings)
+        
     return
 
