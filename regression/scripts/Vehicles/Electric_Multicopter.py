@@ -256,6 +256,12 @@ def vehicle_setup():
                                 [2.5,4.,1.4] ,[2.5,-4.,1.4],
                                 [5.0,2.,1.4] ,[5.0,-2.,1.4]] 
     
+    from SUAVE.Methods.Propulsion import rotor_design
+    lift_rotor.hover_speed   = -5.
+    lift_rotor.forward_speed = 5.
+    lift_rotor.design_power  = None
+    rotor_design(lift_rotor)    
+    
     for ii in range(6):
         lift_rotor          = deepcopy(lift_rotor)
         lift_rotor.tag      = 'lift_rotor'
