@@ -71,6 +71,7 @@ def wave_drag_volume(conditions,geometry,flag105,num_slices=20,num_rots=10):
             if np.any(old_array[:,0]==mach[0]):
                 cd_w = np.array([[float(old_array[old_array[:,0]==mach[0],1])]])
             else:
+                vsp.ReadVSPFile(tag+'.vsp3')
                 vsp.SetDoubleAnalysisInput('WaveDrag', 'Mach', [float(mach)])
                 ridwd        = vsp.ExecAnalysis('WaveDrag') 
                 cd_w         = vsp.GetDoubleResults(ridwd,'CDWave')

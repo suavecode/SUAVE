@@ -21,6 +21,8 @@ from SUAVE.Methods.Aerodynamics import Supersonic_Zero  as Methods
 from SUAVE.Methods.Aerodynamics import OpenVSP_Wave_Drag as VSP_Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 
+from SUAVE.Input_Output.OpenVSP import write
+
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -66,10 +68,25 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         settings.span_efficiency                    = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
+        settings.spoiler_drag_increment             = 0.00 
         settings.oswald_efficiency_factor           = None
         settings.maximum_lift_coefficient           = np.inf
         settings.number_slices                      = 20
         settings.number_rotations                   = 10
+        settings.initial_timestep_offset            = 0.
+        settings.wake_development_time              = 0.05
+        settings.number_of_wake_timesteps           = 30     
+        settings.begin_drag_rise_mach_number        = 0.95
+        settings.end_drag_rise_mach_number          = 1.2
+        settings.transonic_drag_multiplier          = 1.25         
+        settings.use_surrogate                      = True
+        settings.propeller_wake_model               = False 
+        settings.use_bemt_wake_model                = False 
+        settings.discretize_control_surfaces        = False
+        settings.model_fuselage                     = False
+        settings.recalculate_total_wetted_area      = False
+        settings.model_nacelle                      = False
+        
         
         # vortex lattice configurations
         settings.number_spanwise_vortices = 5
@@ -96,11 +113,12 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         compute.drag.parasite.nacelles.nacelle     = Methods.Drag.parasite_drag_nacelle
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # supersonic pylon methods not currently available
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
+        compute.drag.induced                       = Common.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
-        compute.drag.total                         = Methods.Drag.total_aircraft
+        compute.drag.spoiler                       = Common.Drag.spoiler_drag
+        compute.drag.total                         = Common.Drag.total_aircraft
         
         
     def initialize(self):
@@ -124,6 +142,9 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         super(Supersonic_OpenVSP_Wave_Drag, self).initialize()
         import os
         
+        # write the vehicle
+        write(self.geometry,self.geometry.tag)
+        
         # Remove old volume drag data so that new data can be appended without issues
         try:
             os.remove('volume_drag_data_' + self.geometry.tag + '.npy')  
@@ -140,8 +161,9 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         nwts                      = self.settings.number_of_wake_timesteps
         mf                        = self.settings.model_fuselage
         mn                        = self.settings.model_nacelle
+        dcs                       = self.settings.discretize_control_surfaces
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn)
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn,dcs)
         
     finalize = initialize        
