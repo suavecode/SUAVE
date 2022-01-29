@@ -1,8 +1,8 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_HFW_inflow_velocities.py
+# compute_PVW_inflow_velocities.py
 #
 # Created:  Sep 2021, R. Erhard
-# Modified:    
+# Modified: Jan 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +19,7 @@ import copy
 from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
 from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
 
-def compute_HFW_inflow_velocities( prop ):
+def compute_PVW_inflow_velocities( prop ):
     """
     Assumptions:
         None

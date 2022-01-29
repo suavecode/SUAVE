@@ -20,8 +20,8 @@ from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_HFW_inflow_velocities \
-     import compute_HFW_inflow_velocities
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_PVW_inflow_velocities \
+     import compute_PVW_inflow_velocities
 
 
 # package imports
@@ -294,10 +294,10 @@ class Rotor(Energy_Component):
                 rotation = 1
 
             # compute resulting radial and tangential velocities in polar frame
-            utz =  Vz*np.sin(psi_2d) #Vz*np.cos(psi_2d* rotation)
-            urz =  Vz*np.cos(psi_2d) #Vz*np.sin(psi_2d* rotation)
-            uty =  Vy*np.cos(psi_2d) #Vy*np.sin(psi_2d* rotation)
-            ury =  Vy*np.sin(psi_2d) #Vy*np.cos(psi_2d* rotation)
+            utz =  Vz*np.sin(psi_2d)
+            urz =  Vz*np.cos(psi_2d)
+            uty =  Vy*np.cos(psi_2d)
+            ury =  Vy*np.sin(psi_2d)
 
             ut +=  -rotation*(utz + uty)
             ur +=  -rotation*(urz + ury)
@@ -618,47 +618,45 @@ class Rotor(Energy_Component):
                     break    
                 
         elif self.wake_method_fidelity == 1:
-            for i in range(1):
-                # converge on va for a semi-prescribed wake method
-                ii,ii_max = 0, 20            
-                va_diff, tol = 1, 1e-2               
-        
-                while va_diff > tol:  
-        
-                    # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-                    va, vt = compute_HFW_inflow_velocities(self)
-        
-                    # compute new blade velocities
-                    Wa   = va + Ua
-                    Wt   = Ut - vt
-        
-                    lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-        
-                    va_diff = np.max(abs(F*va - self.outputs.disc_axial_induced_velocity))
-                    print(va_diff)
-        
-                    # update the axial disc velocity based on new va from HFW
-                    self.outputs.disc_axial_induced_velocity = F*va 
-                    
-                    ii+=1
-                    if ii>ii_max and va_diff>tol:
-                        print("Semi-prescribed helical wake did not converge on axial inflow used for wake shape.")
-                        break
-        
-        
-                # Compute aerodynamic forces based on specified input airfoil or surrogate
-                Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-        
-                # compute HFW circulation at the blade
-                Gamma = 0.5*W*c*Cl*F     
+            
+            # converge on va for a semi-prescribed wake method
+            ii,ii_max = 0, 20            
+            va_diff, tol = 1, 1e-2               
+    
+            while va_diff > tol:  
+    
+                # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+                va, vt = compute_PVW_inflow_velocities(self)
+    
+                # compute new blade velocities
+                Wa   = va + Ua
+                Wt   = Ut - vt
+    
+                lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+    
+                va_diff = np.max(abs(F*va - self.outputs.disc_axial_induced_velocity))
+                print(va_diff)
+    
+                # update the axial disc velocity based on new va from HFW
+                self.outputs.disc_axial_induced_velocity = F*va 
+                
+                ii+=1
+                if ii>ii_max and va_diff>tol:
+                    print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
+                    break
         
         
-                print("\nRg: ", np.max(abs(self.outputs.disc_circulation-Gamma)))
-                self.outputs.disc_circulation = Gamma
+            # Compute aerodynamic forces based on specified input airfoil or surrogate
+            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+    
+            # compute HFW circulation at the blade
+            Gamma = 0.5*W*c*Cl*F     
+    
+            
         elif self.wake_method_fidelity == 2:
             try:
-                va = self.external_inflow.va[None,:,:] #+ self.axial_velocities_2d
-                vt = self.external_inflow.vt[None,:,:] #+ self.tangential_velocities_2d     
+                va = self.external_inflow.va[None,:,:] 
+                vt = self.external_inflow.vt[None,:,:]    
             except:
                 va = 0
                 vt = 0

@@ -90,8 +90,7 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                 save_prop_vtk(propi, file, Results, time_step)
                 
                 try:
-                    # check if rotor has 
-                    #VD    = propi.vortex_distribution
+                    # check if rotor has wake present
                     gamma = propi.Wake_VD.GAMMA
                     wVD = propi.Wake_VD
                     wake_present = True
@@ -115,7 +114,7 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                     
                     # save prop wake
                     
-                    save_prop_wake_vtk(wVD, gamma, file, Results)#,i_prop=i)   
+                    save_prop_wake_vtk(wVD, gamma, file, Results) 
                 
                     
         try:
@@ -144,8 +143,7 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                 save_prop_vtk(roti, file, Results,i,time_step)
                 
                 try:
-                    # check if rotor has 
-                    #VD    = roti.vortex_distribution
+                    # check if rotor has wake present
                     gamma = roti.Wake_VD.GAMMA
                     wVD = propi.Wake_VD
                     wake_present = True
