@@ -2,6 +2,7 @@
 # compute_wake_induced_velocity.py
 # 
 # Created:  Sep 2020, M. Clarke 
+# Modified: Dec 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports

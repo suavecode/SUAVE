@@ -418,7 +418,7 @@ class Lift_Cruise(Network):
         return results
     
     def unpack_unknowns_transition(self,segment):
-        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+        """ This is an extra set of unknowns which are unpacked from the mission solver and sent to the network.
             This uses all the motors.
     
             Assumptions:
@@ -557,7 +557,7 @@ class Lift_Cruise(Network):
         return    
     
     def residuals_transition(self,segment):
-        """ This packs the residuals to be send to the mission solver.
+        """ This packs the residuals to be sent to the mission solver.
             Use this if all motors are operational
     
             Assumptions:
@@ -598,7 +598,7 @@ class Lift_Cruise(Network):
     
     
     def residuals_cruise(self,segment):
-        """ This packs the residuals to be send to the mission solver.
+        """ This packs the residuals to be sent to the mission solver.
             Use this if only the forward motors are operational
     
             Assumptions:
@@ -635,7 +635,7 @@ class Lift_Cruise(Network):
         return    
     
     def residuals_lift(self,segment):
-        """ This packs the residuals to be send to the mission solver.
+        """ This packs the residuals to be sent to the mission solver.
             Only the lift motors are operational
     
             Assumptions:
