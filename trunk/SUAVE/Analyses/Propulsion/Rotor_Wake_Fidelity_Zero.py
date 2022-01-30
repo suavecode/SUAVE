@@ -50,8 +50,15 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         self.tag                          = 'rotor_wake'
 
 
+    def match_wake_properties(self,rotor):
+        # wake properties inherited by rotor
+        self.omega = rotor.inputs.omega
+        self.rotation = rotor.rotation
+        self.radius_distribution = rotor.radius_distribution
+        self.orientation_euler_angles = rotor.orientation_euler_angles
+        return
     
-    def evaluate(self,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+    def evaluate(self,rotor,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions):
         """
         Wake evaluation is performed using a simplified vortex wake (VW) method for Fidelity Zero.
         

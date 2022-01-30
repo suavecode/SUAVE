@@ -97,7 +97,8 @@ class Rotor(Energy_Component):
         self.variable_pitch            = False
         
         # Initialize the default wake set to Fidelity Zero
-        self.Wake                      = Rotor_Wake_Fidelity_Zero()          
+        self.Wake                      = Rotor_Wake_Fidelity_Zero()
+        
 
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
@@ -355,14 +356,7 @@ class Rotor(Energy_Component):
         #---------------------------------------------------------------------------
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
-        va, vt = self.Wake.evaluate(U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-        
-        try:
-            va = self.new_va
-            vt = self.new_vt
-            print("UQ change: new va,vt used for upper/lower bound")
-        except:
-            pass
+        va, vt = self.Wake.evaluate(self,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions)
         
         # compute new blade velocities
         Wa   = va + Ua

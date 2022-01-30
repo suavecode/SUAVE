@@ -12,7 +12,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_wake_contraction_matrix(i,prop,Nr,m,nts,X_pts,prop_outputs):
+def compute_wake_contraction_matrix(prop,Nr,m,nts,X_pts,prop_outputs):
     """ This computes slipstream development factor for all points 
     along slipstream
 
@@ -25,7 +25,6 @@ def compute_wake_contraction_matrix(i,prop,Nr,m,nts,X_pts,prop_outputs):
     of Aircraft 45.1 (2008): 198-210.
     
     Inputs: 
-    i        - propeller/rotor index             [Unitless] 
     prop     - propeller/rotor data structure       
     Nr       - discretization on propeller/rotor [Unitless] 
     m        - control points in segemnt         [Unitless] 
