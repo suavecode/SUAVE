@@ -8,16 +8,16 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_PVW_geometry import generate_PVW_geometry
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.generate_PVW_geometry import generate_PVW_geometry
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 # package imports
 import numpy as np
 from scipy.interpolate import interp1d
 
 import copy
-from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
-from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
+#from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
+#from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
 
 def compute_PVW_inflow_velocities( prop ):
     """
@@ -137,28 +137,28 @@ def compute_PVW_inflow_velocities( prop ):
 
 
 
-        #====================================================================================
-        #======DEBUG: STORE VTKS AFTER NEW WAKE GENERATION===================================
-        #====================================================================================       
-        debug = False #True
-        if debug:
-            print("\nStoring VTKs...")
-            vehicle = prop.vehicle
-            Results = Data()
-            Results.all_prop_outputs = Data()
-            Results.all_prop_outputs.propeller = Data()
-            Results.identical = True
+        ##====================================================================================
+        ##======DEBUG: STORE VTKS AFTER NEW WAKE GENERATION===================================
+        ##====================================================================================       
+        #debug = False #True
+        #if debug:
+            #print("\nStoring VTKs...")
+            #vehicle = prop.vehicle
+            #Results = Data()
+            #Results.all_prop_outputs = Data()
+            #Results.all_prop_outputs.propeller = Data()
+            #Results.identical = True
             
-            conditions=None
-            save_vehicle_vtks(vehicle, conditions, Results, time_step=i,save_loc="/Users/rerha/Desktop/debug_propeller/outputs/SUAVE/A40/VTKs/")  
+            #conditions=None
+            #save_vehicle_vtks(vehicle, conditions, Results, time_step=i,save_loc="/Users/rerha/Desktop/debug_propeller/outputs/SUAVE/A40/VTKs/")  
             
-            ## --------- debug --------- 
-            points = Data()
-            points.XC = VD.XC
-            points.YC = VD.YC
-            points.ZC = VD.ZC
-            save_evaluation_points_vtk(points,filename="/Users/rerha/Desktop/debug_propeller/outputs/SUAVE/A40/VTKs/eval_pts.vtk", time_step=i)
-            ## --------- debug ---------             
+            ### --------- debug --------- 
+            #points = Data()
+            #points.XC = VD.XC
+            #points.YC = VD.YC
+            #points.ZC = VD.ZC
+            #save_evaluation_points_vtk(points,filename="/Users/rerha/Desktop/debug_propeller/outputs/SUAVE/A40/VTKs/eval_pts.vtk", time_step=i)
+            ### --------- debug ---------             
     
 
         #====================================================================================   

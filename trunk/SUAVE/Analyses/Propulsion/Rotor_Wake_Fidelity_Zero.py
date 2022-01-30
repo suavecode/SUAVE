@@ -8,8 +8,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Components.Energy.Converters.Rotor \
-     import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss,compute_dR_dpsi
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
+     import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 
 # package imports
 import numpy as np
@@ -116,4 +116,58 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
 
 
 
+def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
+    """
+    Computes the analytical derivative for the BEMT iteration.
 
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+       B                          number of rotor blades                          [-]
+       beta                       blade twist distribution                        [-]
+       r                          radius distribution                             [m]
+       R                          tip radius                                      [m]
+       Wt                         tangential velocity                             [m/s]
+       Wa                         axial velocity                                  [m/s]
+       U                          total velocity                                  [m/s]
+       Ut                         tangential velocity                             [m/s]
+       Ua                         axial velocity                                  [m/s]
+       cos_psi                    cosine of the inflow angle PSI                  [-]
+       sin_psi                    sine of the inflow angle PSI                    [-]
+       piece                      output of a step in tip loss calculation        [-]
+
+    Outputs:
+       dR_dpsi                    derivative of residual wrt inflow angle         [-]
+
+    """
+    # An analytical derivative for dR_dpsi used in the Newton iteration for the BEMT
+    # This was solved symbolically in Matlab and exported
+    pi          = np.pi
+    pi2         = np.pi**2
+    BB          = B*B
+    BBB         = BB*B
+    f_wt_2      = 4*Wt*Wt
+    f_wa_2      = 4*Wa*Wa
+    arccos_piece = np.arccos(piece)
+    Ucospsi     = U*cos_psi
+    Usinpsi     = U*sin_psi
+    Utcospsi    = Ut*cos_psi
+    Uasinpsi    = Ua*sin_psi
+    UapUsinpsi  = (Ua + Usinpsi)
+    utpUcospsi  = (Ut + Ucospsi)
+    utpUcospsi2 = utpUcospsi*utpUcospsi
+    UapUsinpsi2 = UapUsinpsi*UapUsinpsi
+    dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B -
+                   (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
+                   + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
+                   - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. -
+                    (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R -
+                    r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U +
+                    Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5)))
+
+    dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+    return dR_dpsi

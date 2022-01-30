@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_PVW_inflow_velocities \
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_PVW_inflow_velocities \
      import compute_PVW_inflow_velocities
 
 from SUAVE.Components.Energy.Converters.Rotor import compute_inflow_and_tip_loss

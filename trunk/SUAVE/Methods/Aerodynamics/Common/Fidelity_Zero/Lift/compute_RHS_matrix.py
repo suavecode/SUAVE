@@ -15,9 +15,9 @@
 # package imports
 import numpy as np
 from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_PVW_geometry import generate_PVW_geometry
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_bemt_induced_velocity import compute_bemt_induced_velocity
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.generate_PVW_geometry import generate_PVW_geometry
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_bemt_induced_velocity import compute_bemt_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model,bemt_wake,initial_timestep_offset,wake_development_time,number_of_wake_timesteps):
