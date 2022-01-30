@@ -143,8 +143,8 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,suppress_root=Fals
         m = np.shape(VD.Wake.XA1)[0]
         
         lifting_line_panels = np.zeros_like(COEF_new,dtype=bool)
-        lifting_line_panels[:,:,:,:,0] = True
-        lifting_line_panels_compressed = np.reshape(lifting_line_panels, (m,np.size(lifting_line_panels[0,:,:,:,:])))
+        lifting_line_panels[:,:,:,0] = True
+        lifting_line_panels_compressed = np.reshape(lifting_line_panels, (m,np.size(lifting_line_panels[0,:,:,:])))
         
         COEF[:,lifting_line_panels_compressed,:] = 0
     

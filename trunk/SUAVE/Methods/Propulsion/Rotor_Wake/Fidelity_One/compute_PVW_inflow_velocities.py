@@ -8,18 +8,16 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.generate_PVW_geometry import generate_PVW_geometry
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 # package imports
 import numpy as np
 from scipy.interpolate import interp1d
 
-import copy
 #from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
 #from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
 
-def compute_PVW_inflow_velocities( prop ):
+def compute_PVW_inflow_velocities( wake, prop, WD ):
     """
     Assumptions:
         None
@@ -33,14 +31,11 @@ def compute_PVW_inflow_velocities( prop ):
         Vt   - tangential velocity array of shape (ctrl_pts, Nr, Na)   [m/s]
     """
     
-    VD                       = Data()
+    VD                       = prop.vortex_distribution
     omega                    = prop.inputs.omega
-    time                     = prop.wake_settings.wake_development_time
-    init_timestep_offset     = prop.wake_settings.initial_timestep_offset
-    number_of_wake_timesteps = prop.wake_settings.number_of_wake_timesteps
-    
-    if prop.system_vortex_distribution is not None:
-        vehicle = copy.deepcopy(prop.vehicle)
+    time                     = wake.wake_settings.wake_development_time
+    init_timestep_offset     = wake.wake_settings.initial_timestep_offset
+    number_of_wake_timesteps = wake.wake_settings.number_of_wake_timesteps
 
     # use results from prior bemt iteration
     prop_outputs  = prop.outputs
@@ -49,12 +44,6 @@ def compute_PVW_inflow_velocities( prop ):
     Nr            = len(prop.chord_distribution)
     r             = prop.radius_distribution
 
-    conditions = Data()
-    conditions.noise = Data()
-    conditions.noise.sources = Data()
-    conditions.noise.sources.propellers = Data()
-    conditions.noise.sources.propellers.propeller = prop_outputs
-    conditions.noise.sources.propellers.propeller2 = prop_outputs
 
     try:
         props = prop.propellers_in_network
@@ -78,12 +67,6 @@ def compute_PVW_inflow_velocities( prop ):
         # update wake geometry
         init_timestep_offset = blade_angle/(omega * dt)
         
-            
-        # generate wake distribution using initial circulation from BEMT
-        WD, _, _, _, _  = generate_PVW_geometry(props,cpts,VD,
-                                                               init_timestep_offset, time,
-                                                               number_of_wake_timesteps,conditions )
-
         prop.wake_skew_angle = WD.wake_skew_angle
     
         # ----------------------------------------------------------------
@@ -91,9 +74,9 @@ def compute_PVW_inflow_velocities( prop ):
         # ----------------------------------------------------------------
         # set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
         r = prop.radius_distribution 
-        Yb   = prop.Wake_VD.Yblades_cp[0,0,:,0] 
-        Zb   = prop.Wake_VD.Zblades_cp[0,0,:,0] 
-        Xb   = prop.Wake_VD.Xblades_cp[0,0,:,0] 
+        Yb   = wake.Wake_VD.Yblades_cp[0,0,:,0] 
+        Zb   = wake.Wake_VD.Zblades_cp[0,0,:,0] 
+        Xb   = wake.Wake_VD.Xblades_cp[0,0,:,0] 
         
 
         VD.YC = (Yb[1:] + Yb[:-1])/2

@@ -92,7 +92,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
            vt  - tangentially-induced velocity from rotor wake
         
         """
-        # TO DO::: initialize rotor with single pass of VW 
+        # Initialize rotor with single pass of VW 
         self.initialize(rotor,conditions)
         
         # converge on va for a semi-prescribed wake method
@@ -101,10 +101,10 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
         while va_diff > tol:  
             # generate wake geometry for rotor
-            self.generate_wake_shape(rotor)
+            WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor)
             
             # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-            va, vt = compute_PVW_inflow_velocities(self)
+            va, vt = compute_PVW_inflow_velocities(self,rotor, WD)
 
             # compute new blade velocities
             Wa   = va + Ua
@@ -112,11 +112,11 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
             lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
-            va_diff = np.max(abs(F*va - self.outputs.disc_axial_induced_velocity))
+            va_diff = np.max(abs(F*va - rotor.outputs.disc_axial_induced_velocity))
             print(va_diff)
 
             # update the axial disc velocity based on new va from HFW
-            self.outputs.disc_axial_induced_velocity = F*va 
+            rotor.outputs.disc_axial_induced_velocity = F*va 
             
             ii+=1
             if ii>ii_max and va_diff>tol:
@@ -159,6 +159,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             VD = rotor.vortex_distribution
         except:
             VD = Data()
+            rotor.vortex_distribution = VD
       
         # dimensions for analysis                      
         Nr   = len(r)                   # number of radial stations
