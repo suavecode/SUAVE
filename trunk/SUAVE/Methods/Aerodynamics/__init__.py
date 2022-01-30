@@ -8,3 +8,4 @@ from . import Fidelity_Zero
 from . import Supersonic_Zero
 from . import Common
 from . import Lifting_Line
+from . import Rotor_Wake

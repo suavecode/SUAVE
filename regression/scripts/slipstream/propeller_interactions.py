@@ -10,7 +10,7 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_PVW_geometry import generate_PVW_geometry
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_grid import generate_propeller_grid
@@ -118,7 +118,7 @@ def compute_propeller_wake_velocities(prop,grid_settings,grid_points, conditions
     props.append(prop_copy)
     
     identical_props = True
-    WD, dt, ts, B, Nr  = generate_propeller_wake_distribution(props,identical_props,cpts,VD,init_timestep_offset, time, number_of_wake_timesteps, conditions )
+    WD, dt, ts, B, Nr  = generate_PVW_geometry(props,identical_props,cpts,VD,init_timestep_offset, time, number_of_wake_timesteps, conditions )
     prop.start_angle = prop_copy.start_angle
     
     # compute the wake induced velocities:

@@ -18,11 +18,9 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_PVW_inflow_velocities \
-     import compute_PVW_inflow_velocities
-
 
 # package imports
 import numpy as np
@@ -91,22 +89,14 @@ class Rotor(Energy_Component):
         self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
         self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
-
-        self.Wake_VD                   = Data()
-        self.wake_method_fidelity      = 0
-        self.number_rotor_rotations    = 5
-        self.number_steps_per_rotation = 72
-        self.wake_settings             = Data()
-        self.system_vortex_distribution = None
-
-        self.wake_settings.initial_timestep_offset   = 0    # initial timestep
-        self.wake_settings.wake_development_time     = 0.05 # total simulation time required for wake development
-        self.wake_settings.number_of_wake_timesteps  = 72*5   # total number of time steps in wake development
-        self.start_angle                             = 0.0  # angle of first blade from vertical
-
+        
+        self.start_angle               = 0.0  # angle of first blade from vertical
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
+        
+        # Initialize the default wake set to Fidelity Zero
+        self.Wake                      = Rotor_Wake_Fidelity_Zero()          
 
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
@@ -174,7 +164,6 @@ class Rotor(Energy_Component):
           twist_distribution                 [radians]
           chord_distribution                 [m]
           orientation_euler_angles           [rad, rad, rad]
-          wake_method_fidelity               [-]
         """
 
         # Unpack rotor blade parameters
@@ -365,7 +354,7 @@ class Rotor(Energy_Component):
         #---------------------------------------------------------------------------
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
-        va, vt = self.wake_evaluation(U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        va, vt = self.Wake.evaluate(U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         try:
             va = self.new_va
@@ -643,14 +632,7 @@ class Rotor(Energy_Component):
                 ii+=1
                 if ii>ii_max and va_diff>tol:
                     print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
-                    break
-        
-        
-            # Compute aerodynamic forces based on specified input airfoil or surrogate
-            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-    
-            # compute HFW circulation at the blade
-            Gamma = 0.5*W*c*Cl*F     
+                    break   
     
             
         elif self.wake_method_fidelity == 2:

@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-#  generate_propeller_wake_distribution.py
+#  generate_PVW_geometry.py
 # 
 # Created:  Sep 2020, M. Clarke 
 # Modified: May 2021, R. Erhard
@@ -18,7 +18,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contracti
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry   
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
+def generate_PVW_geometry(props,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 

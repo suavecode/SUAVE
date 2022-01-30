@@ -15,7 +15,7 @@
 # package imports
 import numpy as np
 from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_PVW_geometry import generate_PVW_geometry
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_bemt_induced_velocity import compute_bemt_induced_velocity
 
@@ -98,7 +98,7 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                     props           = network.propellers
     
                     # generate the geometry of the propeller helical wake
-                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(props,identical_props,num_ctrl_pts,\
+                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_PVW_geometry(props,identical_props,num_ctrl_pts,\
                                                                                                                             VD,initial_timestep_offset,wake_development_time,\
                                                                                                                             number_of_wake_timesteps,conditions)
                     # compute the induced velocity
@@ -113,7 +113,7 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                     lift_rotors    = network.rotors
     
                     # generate the geometry of the propeller helical wake
-                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(lift_rotors,identical_rots,num_ctrl_pts,\
+                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_PVW_geometry(lift_rotors,identical_rots,num_ctrl_pts,\
                                                                                                                             VD,initial_timestep_offset,wake_development_time,\
                                                                                                                             number_of_wake_timesteps,conditions)
                     # compute the induced velocity

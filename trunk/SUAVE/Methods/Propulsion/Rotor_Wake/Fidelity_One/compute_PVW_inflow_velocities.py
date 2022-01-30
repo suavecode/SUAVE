@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_PVW_geometry import generate_PVW_geometry
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 # package imports
@@ -80,7 +80,7 @@ def compute_PVW_inflow_velocities( prop ):
         
             
         # generate wake distribution using initial circulation from BEMT
-        WD, _, _, _, _  = generate_propeller_wake_distribution(props,cpts,VD,
+        WD, _, _, _, _  = generate_PVW_geometry(props,cpts,VD,
                                                                init_timestep_offset, time,
                                                                number_of_wake_timesteps,conditions )
 
