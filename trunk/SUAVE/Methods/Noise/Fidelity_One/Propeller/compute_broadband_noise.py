@@ -303,11 +303,13 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         ones                = np.ones_like(Theta)
         beta_c              = (Theta/tau_w)*dp_dx
         d                   = 4.76*((1.4/(delta/delta_star))**0.75)*(0.375*(3.7 + 1.5*beta_c) - 1)
-        a                   = (2.82*((delta/delta_star)**2)*(np.power((6.13*((delta/delta_star)**(-0.75)) + d),(3.7 + 1.5*beta_c))))*(4.2*((0.8*((beta_c + 0.5)**3/4))/(delta/delta_star)) + 1)
+        a                   = (2.82*((delta/delta_star)**2)*(np.power((6.13*((delta/delta_star)**(-0.75)) + d),(3.7 + 1.5*beta_c))))*\
+                              (4.2*((0.8*((beta_c + 0.5)**3/4))/(delta/delta_star)) + 1)
         d_star              = d
         d_star[beta_c<0.5]  = np.maximum(ones,1.5*d)[beta_c<0.5]
         Phi_pp_expression   =  (np.maximum(a, (0.25*beta_c - 0.52)*a)*((omega*delta_star/Ue)**2))/(((4.76*((omega*delta_star/Ue)**0.75) \
-                               + d_star)**(3.7 + 1.5*beta_c))+ (np.power((8.8*(((delta/Ue)/(kine_visc/(((tau_w/rho)**0.5) **2)))**(-0.57))*(omega*delta_star/Ue)),(np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7)) ))
+                               + d_star)**(3.7 + 1.5*beta_c))+ (np.power((8.8*(((delta/Ue)/(kine_visc/(((tau_w/rho)**0.5) **2)))**(-0.57))\
+                               *(omega*delta_star/Ue)),(np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7)) ))
         Phi_pp              = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue
         Phi_pp[np.isinf(Phi_pp)] = 0.
         Phi_pp[np.isnan(Phi_pp)] = 0.
