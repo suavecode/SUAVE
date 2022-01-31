@@ -61,8 +61,8 @@ class Propulsor_Surrogate(Network):
         self.tag                      = 'Engine_Deck_Surrogate'
         self.input_file               = None
         self.sfc_surrogate            = None
-        self.thrust_surrogate         = None
-        self.thrust_angle             = 0.0
+        self.thrust_surrogate         = None 
+        self.orientation_euler_angles = [0.,0.,0.]
         self.areas                    = Data()
         self.surrogate_type           = 'gaussian'
         self.altitude_input_scale     = 1.
@@ -133,7 +133,9 @@ class Propulsor_Surrogate(Network):
            
         # Save the output
         results = Data()
-        results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]
+        results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.orientation_euler_angles[1]),\
+                                                                    0,\
+                                                                    -np.sin(self.orientation_euler_angles[1])]
         results.vehicle_mass_rate   = mdot
    
         return results          

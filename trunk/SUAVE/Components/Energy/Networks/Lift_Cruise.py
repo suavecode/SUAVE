@@ -79,11 +79,7 @@ class Lift_Cruise(Network):
         self.propeller_engine_length      = None
         self.number_of_lift_rotor_engines = 0
         self.number_of_propeller_engines  = 0
-        self.voltage                      = None
-        self.propeller_pitch_command      = 0.0
-        self.lift_rotor_pitch_command     = 0.0   
-        self.propeller_thrust_angle       = 0
-        self.lift_rotor_thrust_angle      = 0
+        self.voltage                      = None   
         self.tag                          = 'Lift_Cruise'
         self.generative_design_minimum    = 0
         self.identical_propellers         = True
@@ -213,9 +209,7 @@ class Lift_Cruise(Network):
                 motor.omega(conditions)
                 
                 # link
-                prop.inputs.omega           = motor.outputs.omega
-                prop.inputs.pitch_command   = self.propeller_pitch_command 
-                prop.inputs.y_axis_rotation = self.propeller_thrust_angle
+                prop.inputs.omega           = motor.outputs.omega 
                 
                 # Run the propeller
                 F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = prop.spin(conditions)
@@ -318,9 +312,7 @@ class Lift_Cruise(Network):
                 lift_rotor_motor.omega(konditions)
                 
                 # link
-                lift_rotor.inputs.omega           = lift_rotor_motor.outputs.omega
-                lift_rotor.inputs.pitch_command   = self.lift_rotor_pitch_command  
-                lift_rotor.inputs.y_axis_rotation = self.lift_rotor_thrust_angle
+                lift_rotor.inputs.omega           = lift_rotor_motor.outputs.omega   
                 
                 # Run the propeller
                 F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)

@@ -74,13 +74,10 @@ class Battery_Propeller(Network):
         self.number_of_lift_rotor_engines = None
         self.voltage                      = None
         self.tag                          = 'Battery_Propeller'
-        self.use_surrogate                = False
-        self.pitch_command                = 0.0
-        self.generative_design_minimum    = 0
-        self.pitch_command                = 0
+        self.use_surrogate                = False 
+        self.generative_design_minimum    = 0 
         self.identical_propellers         = True
-        self.identical_lift_rotors        = True
-        self.thrust_angle                 = 0. 
+        self.identical_lift_rotors        = True 
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -201,9 +198,7 @@ class Battery_Propeller(Network):
                 motor.omega(conditions)
                 
                 # link
-                prop.inputs.omega           = motor.outputs.omega
-                prop.inputs.pitch_command   = self.pitch_command
-                prop.inputs.y_axis_rotation = self.thrust_angle
+                prop.inputs.omega           = motor.outputs.omega 
                 
                 # step 4
                 F, Q, P, Cp, outputs, etap = prop.spin(conditions)

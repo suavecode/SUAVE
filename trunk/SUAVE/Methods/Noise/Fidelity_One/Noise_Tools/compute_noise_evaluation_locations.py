@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # compute_noise_evaluation_locations.py
 # 
 # Created: Sep 2021, M. Clarke  
@@ -11,7 +11,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Compute Noise Evaluation Points
 # ---------------------------------------------------------------------
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
 def compute_ground_noise_evaluation_locations(settings,segment):
     """This computes the relative locations on the surface in the computational domain where the 
     propogated sound is computed. Vectors point from observer/microphone to aircraft/souce  
@@ -55,7 +55,7 @@ def compute_ground_noise_evaluation_locations(settings,segment):
      
     return GM_THETA,GM_PHI,GML,num_gm_mic
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
 def compute_building_noise_evaluation_locations(settings,segment):
     """This computes the relative locations on the surface in the computational domain where the 
     propogated sound is computed.   

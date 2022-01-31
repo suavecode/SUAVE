@@ -43,7 +43,7 @@ def main():
     plot_mission(results)
 
     # save, load and plot old results
-    #save_multicopter_results(results)
+    save_multicopter_results(results)
     old_results = load_multicopter_results()
     plot_mission(old_results,'k-')
     plt.show(block=True)
@@ -124,22 +124,6 @@ def configs_setup(vehicle):
     base_config.tag = 'base'
     configs.append(base_config)
 
-    # ------------------------------------------------------------------
-    #   Hover Configuration
-    # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'hover'
-    config.networks.battery_propeller.pitch_command            = 0.  * Units.degrees
-    configs.append(config)
-
-    # ------------------------------------------------------------------
-    #    Configuration
-    # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'climb'
-    config.networks.battery_propeller.pitch_command            = 0. * Units.degrees
-    configs.append(config)
-
     return configs
 
 def base_analysis(vehicle):
@@ -211,7 +195,7 @@ def mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     segment                                               = Segments.Hover.Climb(base_segment)
     segment.tag                                           = "Climb"
-    segment.analyses.extend( analyses.climb)
+    segment.analyses.extend( analyses.base)
     segment.altitude_start                                = 0.0  * Units.ft
     segment.altitude_end                                  = 40.  * Units.ft
     segment.climb_rate                                    = 300. * Units['ft/min']
@@ -230,7 +214,7 @@ def mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     segment                                                 = Segments.Hover.Hover(base_segment)
     segment.tag                                             = "Hover"
-    segment.analyses.extend( analyses.hover )
+    segment.analyses.extend( analyses.base)
     segment.altitude                                        = 40.  * Units.ft
     segment.time                                            = 2*60
     segment.process.iterate.conditions.stability            = SUAVE.Methods.skip

@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Propeller
+## @ingroup Methods-Noise-Fidelity_One-Propeller
 # noise_propeller_low_fidelty.py
 #
 # Created:  Mar 2021, M. Clarke
@@ -22,8 +22,8 @@ from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        i
 # -------------------------------------------------------------------------------------
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
 # -------------------------------------------------------------------------------------
-## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller'):
+## @ingroup Methods-Noise-Fidelity_One-Propeller
+def propeller_mid_fidelity(rotors,auc_opts,segment,settings):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
     and frequency spectrums of a system of rotating blades (i.e. propellers and lift_rotors)          
         
@@ -34,7 +34,7 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
     None
     
     Inputs:
-        network                 - vehicle energy network data structure               [None]
+        rotors                  - data structure of rotors                            [None]
         segment                 - flight segment data structure                       [None]
         mic_loc                 - microhone location                                  [m]
         propeller               - propeller class data structure                      [None]
@@ -65,10 +65,7 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
     angle_of_attack      = conditions.aerodynamics.angle_of_attack 
     velocity_vector      = conditions.frames.inertial.velocity_vector
     freestream           = conditions.freestream  
-    harmonics            = settings.harmonics  
-    
-    if not network.identical_propellers:
-        assert('This method currently only works with identical propellers')
+    harmonics            = settings.harmonics   
         
     # Because the propellers are identical, get the first propellers results
     auc_opts = auc_opts[list(auc_opts.keys())[0]]
@@ -78,16 +75,16 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller
     Results = Data()
                      
      # compute position vector from point source at rotor hub to microphones
-    position_vector = compute_point_source_coordinates(conditions,network,microphone_locations,source,settings)  
+    position_vector = compute_point_source_coordinates(conditions,rotors,microphone_locations,settings)  
 
     # Harmonic Noise    
-    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,network,auc_opts,settings,Noise,source)       
+    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,rotors,auc_opts,settings,Noise)       
     
     # compute position vector of blade section source to microphones
-    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,network,microphone_locations,source,settings)
+    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,rotors,microphone_locations,settings)
     
     # Broadband Noise
-    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,network,auc_opts,settings,Noise,source)
+    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,rotors,auc_opts,settings,Noise)
 
     # Combine Harmonic (periodic/tonal) and Broadband Noise
     Noise.SPL_total_1_3_spectrum  = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10)) 

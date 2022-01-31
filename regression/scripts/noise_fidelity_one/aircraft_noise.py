@@ -14,6 +14,7 @@ from SUAVE.Core import Units
 import numpy as np    
 from SUAVE.Core import Data 
 from SUAVE.Plots.Performance.Mission_Plots import *   
+from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Noise.Certification import sideline_noise, flyover_noise, approach_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import generate_building_microphone_points 
@@ -53,7 +54,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
     X57_SPL        = X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA[0][0]
-    X57_SPL_true   = 64.46156397852431
+    X57_SPL_true   = 80.04018021047642
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
@@ -258,13 +259,11 @@ def X57_mission_setup(analyses,vehicle):
     
 
     # Determine Stall Speed 
-    m     = vehicle.mass_properties.max_takeoff
-    g     = 9.81
-    S     = vehicle.reference_area
-    atmo  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    rho   = atmo.compute_values(1000.*Units.feet,0.).density
-    CLmax = 1.2 
-    Vstall = float(np.sqrt(2.*m*g/(rho*S*CLmax))) 
+    vehicle_mass   = vehicle.mass_properties.max_takeoff
+    reference_area = vehicle.reference_area
+    altitude       = 0.0 
+    CL_max         = 1.2  
+    Vstall         = estimate_stall_speed(vehicle_mass,reference_area,altitude,CL_max)   
     
     # ------------------------------------------------------------------
     #   Initialize the Mission
