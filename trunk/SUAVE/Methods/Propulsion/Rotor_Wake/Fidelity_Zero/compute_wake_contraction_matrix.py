@@ -40,7 +40,7 @@ def compute_wake_contraction_matrix(prop,Nr,m,nts,X_pts,prop_outputs):
     va                = np.mean(prop_outputs.disc_axial_induced_velocity, axis=2)  # induced velocitied averaged around the azimuth
     R0                = prop.hub_radius 
     R_p               = prop.tip_radius  
-    s                 = X_pts[:,0,-1,:] - prop.origin[0][0]    #  ( control point, blade number,  location on blade, time step)  
+    s                 = X_pts[0,:,0,-1,:] - prop.origin[0][0]    #  ( control point, blade number,  location on blade, time step)  
     s2                = 1 + s/(np.sqrt(s**2 + R_p**2))
     Kd                = np.repeat(np.atleast_2d(s2)[:, None, :], rdim , axis = 1)  
     

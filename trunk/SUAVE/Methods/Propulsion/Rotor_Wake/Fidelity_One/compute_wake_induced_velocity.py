@@ -10,11 +10,10 @@
 
 # package imports
 import numpy as np 
-import copy
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11,suppress_root=False):  
-    """ This computes the velocity induced by the fixed helical wake
+def compute_wake_induced_velocity(WD,VD,cpts,azi_start_idx=0,sigma=0.11,suppress_root=False):  
+    """ This computes the velocity induced by the semi-prescribed vortex wake (PVW)
     on lifting surface control points
 
     Assumptions:  
@@ -31,30 +30,31 @@ def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11,suppress_root=False):
     """    
     
     # control point, time step , blade number , location on blade 
-    num_v_cpts = len(WD.XA1[0,:])  
-    num_w_cpts = VD.n_cp
-    ones       = np.ones((cpts,1,1))  
+    num_vortex_pts = len(WD.XA1[0,0,:])    # number of vortex points
+    num_eval_pts   = VD.n_cp               # number of evaluation points
     
     dtype = np.float64
+
+    # expand vortex points
+    WXA1  = np.tile(WD.XA1.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    WYA1  = np.tile(WD.YA1.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))     
+    WZA1  = np.tile(WD.ZA1.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    WXA2  = np.tile(WD.XA2.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    WYA2  = np.tile(WD.YA2.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    WZA2  = np.tile(WD.ZA2.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+                
+    WXB1  = np.tile(WD.XB1.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    WYB1  = np.tile(WD.YB1.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    WZB1  = np.tile(WD.ZB1.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    WXB2  = np.tile(WD.XB2.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    WYB2  = np.tile(WD.YB2.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    WZB2  = np.tile(WD.ZB2.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
+    GAMMA = np.tile(WD.GAMMA.astype(dtype)[azi_start_idx,:,:,None], (1,1,num_eval_pts))
     
-    WXA1  = np.repeat(np.atleast_3d(WD.XA1).astype(dtype), num_w_cpts , axis = 2)
-    WYA1  = np.repeat(np.atleast_3d(WD.YA1).astype(dtype), num_w_cpts , axis = 2)     
-    WZA1  = np.repeat(np.atleast_3d(WD.ZA1).astype(dtype), num_w_cpts , axis = 2)
-    WXA2  = np.repeat(np.atleast_3d(WD.XA2).astype(dtype), num_w_cpts , axis = 2)
-    WYA2  = np.repeat(np.atleast_3d(WD.YA2).astype(dtype), num_w_cpts , axis = 2)
-    WZA2  = np.repeat(np.atleast_3d(WD.ZA2).astype(dtype), num_w_cpts , axis = 2)
-                           
-    WXB1  = np.repeat(np.atleast_3d(WD.XB1).astype(dtype), num_w_cpts , axis = 2)
-    WYB1  = np.repeat(np.atleast_3d(WD.YB1).astype(dtype), num_w_cpts , axis = 2)
-    WZB1  = np.repeat(np.atleast_3d(WD.ZB1).astype(dtype), num_w_cpts , axis = 2)
-    WXB2  = np.repeat(np.atleast_3d(WD.XB2).astype(dtype), num_w_cpts , axis = 2)
-    WYB2  = np.repeat(np.atleast_3d(WD.YB2).astype(dtype), num_w_cpts , axis = 2)
-    WZB2  = np.repeat(np.atleast_3d(WD.ZB2).astype(dtype), num_w_cpts , axis = 2)
-    GAMMA = np.repeat(np.atleast_3d(WD.GAMMA).astype(dtype), num_w_cpts , axis = 2)
-    
-    XC    = np.repeat(np.atleast_2d(VD.XC*ones).astype(dtype), num_v_cpts , axis = 1)
-    YC    = np.repeat(np.atleast_2d(VD.YC*ones).astype(dtype), num_v_cpts , axis = 1)
-    ZC    = np.repeat(np.atleast_2d(VD.ZC*ones).astype(dtype), num_v_cpts , axis = 1)
+    # expand evaluation points
+    XC    = np.tile(VD.XC.astype(dtype)[None,None,:],(cpts,num_vortex_pts,1))
+    YC    = np.tile(VD.YC.astype(dtype)[None,None,:],(cpts,num_vortex_pts,1))
+    ZC    = np.tile(VD.ZC.astype(dtype)[None,None,:],(cpts,num_vortex_pts,1))
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -62,27 +62,26 @@ def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11,suppress_root=False):
     # Create empty data structure
     V_ind = np.zeros((cpts,VD.n_cp,3))
      
-    #compute vortex strengths for every control point on wing 
-    # this loop finds the strength of one ring only on entire control points on wing 
     # compute influence of bound vortices 
-    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,sigma,GAMMA,bv=True,suppress_root=suppress_root,VD=VD) 
-    C_AB         = np.transpose(res_C_AB,axes=[1,2,3,0]) 
+    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,sigma,GAMMA,bv=True,VD=VD) 
+    C_AB         = res_C_AB.transpose(1,3,0,2) 
     
     # compute influence of right vortex segment
-    _ , res_C_BC = vortex(XC, YC, ZC, WXB1, WYB1, WZB1, WXB2, WYB2, WZB2,sigma,GAMMA)  # don't suppress right segment
-    C_BC         = np.transpose(res_C_BC,axes=[1,2,3,0]) 
+    _ , res_C_BC = vortex(XC, YC, ZC, WXB1, WYB1, WZB1, WXB2, WYB2, WZB2,sigma,GAMMA)
+    C_BC         = res_C_BC.transpose(1,3,0,2) 
     
     # compute influence of bottom vortex segment
-    _ , res_C_CD = vortex(XC, YC, ZC, WXB2, WYB2, WZB2, WXA2, WYA2, WZA2,sigma,GAMMA,suppress_root=suppress_root) 
-    C_CD         = np.transpose(res_C_CD,axes=[1,2,3,0])
+    _ , res_C_CD = vortex(XC, YC, ZC, WXB2, WYB2, WZB2, WXA2, WYA2, WZA2,sigma,GAMMA) 
+    C_CD         = res_C_CD.transpose(1,3,0,2) 
     
     # compute influence of left vortex segment 
-    _ , res_C_DA = vortex(XC, YC, ZC, WXA2, WYA2, WZA2, WXA1, WYA1, WZA1,sigma,GAMMA,suppress_root=suppress_root) 
-    C_DA         = np.transpose(res_C_DA,axes=[1,2,3,0]) 
+    _ , res_C_DA = vortex(XC, YC, ZC, WXA2, WYA2, WZA2, WXA1, WYA1, WZA1,sigma,GAMMA) 
+    C_DA         = res_C_DA.transpose(1,3,0,2) 
     
     # Add all the influences together
-    V_ind =  np.sum(C_AB +  C_BC  + C_CD + C_DA, axis = 1)
+    V_ind =  row_reduction_summation(C_AB) + row_reduction_summation(C_BC)  + row_reduction_summation(C_CD) + row_reduction_summation(C_DA)   
     
+
     return V_ind
   
   
@@ -90,9 +89,9 @@ def compute_wake_induced_velocity(WD,VD,cpts,sigma=0.11,suppress_root=False):
 # vortex strength computation
 # -------------------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,suppress_root=False,VD=None,use_regularization_kernal=True):
+def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,VD=None,use_regularization_kernal=True):
     """ This computes the velocity induced on a control point by a segment
-    of a horseshoe vortex from point 1 to point 2 
+    of a horseshoe vortex that points from point 1 to point 2 
     Assumptions:  
     None 
     
@@ -108,8 +107,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,suppress_root=Fals
     Properties Used:
     N/A
     
-    """      
-
+    """   
     X_X1  = X-X1
     X_X2  = X-X2
     X2_X1 = X2-X1
@@ -125,6 +123,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,suppress_root=Fals
     R1R2X  = Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
     R1R2Y  = Z_Z1*X_X2 - X_X1*Z_Z2
     R1R2Z  = X_X1*Y_Y2 - Y_Y1*X_X2
+    
     SQUARE = np.square(R1R2X) + np.square(R1R2Y) + np.square(R1R2Z)
     SQUARE[SQUARE==0] = 1e-8
     R1     = np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1)) 
@@ -133,14 +132,15 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,suppress_root=Fals
     R0R2   = X2_X1*X_X2 + Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
     COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)    
+
     
     if use_regularization_kernal:
         COEF = regularization_kernel(COEF, sigma)
-    
+
     if bv:
         # ignore the row of panels corresponding to the lifting line of the rotor
-        COEF_new = np.reshape(COEF[0,:,:,0],np.shape(VD.Wake.XA1))
-        m = np.shape(VD.Wake.XA1)[0]
+        COEF_new = np.reshape(COEF[0,:,:,0],np.shape(VD.Wake.XA1[0,:,:,:,:]))
+        m = np.shape(VD.Wake.XA1)[1]
         
         lifting_line_panels = np.zeros_like(COEF_new,dtype=bool)
         lifting_line_panels[:,:,:,0] = True
@@ -148,15 +148,16 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,suppress_root=Fals
         
         COEF[:,lifting_line_panels_compressed,:] = 0
     
-    if suppress_root:
-        G = copy.deepcopy(GAMMA)
-        G[:,:,0] = 0
-    else:
-        G = GAMMA
-        
-    V_IND  = G * COEF
+
+    V_IND  = GAMMA * COEF
     
     return COEF , V_IND  
+
+def row_reduction_summation(A):
+    # sum along last axis
+    sum_res = A.dot(np.ones(A.shape[-1])) # sum along axis
+    
+    return sum_res
 
 def regularization_kernel(COEF_in, sigma):
     """

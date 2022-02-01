@@ -1,7 +1,7 @@
 ## @ingroup Analyses-Propulsion
 # Rotor_Wake_Fidelity_Zero.py
 #
-# Created:  Jun 2022, R. Erhard
+# Created:  Jan 2022, R. Erhard
 # Modified: 
 
 # ----------------------------------------------------------------------
@@ -18,7 +18,7 @@ import copy
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
-## @ingroup Components-Energy-Converters
+## @ingroup Analyses-Propulsion
 class Rotor_Wake_Fidelity_Zero(Energy_Component):
     """This is a general rotor wake component. 
 
@@ -47,16 +47,9 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         None
         """
 
-        self.tag                          = 'rotor_wake'
+        self.tag            = 'rotor_wake'
+        self.wake_method    = 'VW'
 
-
-    def match_wake_properties(self,rotor):
-        # wake properties inherited by rotor
-        self.omega = rotor.inputs.omega
-        self.rotation = rotor.rotation
-        self.radius_distribution = rotor.radius_distribution
-        self.orientation_euler_angles = rotor.orientation_euler_angles
-        return
     
     def evaluate(self,rotor,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions):
         """

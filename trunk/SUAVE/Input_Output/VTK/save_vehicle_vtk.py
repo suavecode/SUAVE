@@ -8,10 +8,8 @@
 #----------------------------
 # Imports
 #----------------------------
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  \
-     import generate_vortex_distribution
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
-from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
+#from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
+#from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
 from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
@@ -20,6 +18,8 @@ from SUAVE.Input_Output.VTK.save_fuselage_vtk import save_fuselage_vtk
 from SUAVE.Input_Output.VTK.save_vortex_distribution_vtk import save_vortex_distribution_vtk
 
 
+from SUAVE.Core import Data
+import numpy as np
 def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                      wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
     """
@@ -51,7 +51,8 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
 
     """
     if VLM_settings == None:
-        VLM_settings = Vortex_Lattice().settings
+        VLM_settings = Data()
+        #VLM_settings = Vortex_Lattice().settings
         VLM_settings.number_spanwise_vortices  = 25
         VLM_settings.number_chordwise_vortices = 5
         VLM_settings.spanwise_cosine_spacing   = False
@@ -75,8 +76,13 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
 
         if n_props>0:
             for i in range(n_props):
-                
                 propi = propellers[list(propellers.keys())[i]]
+                
+                start_angle = propi.start_angle
+                Na = propi.number_azimuthal_stations
+                angles = np.linspace(0,2*np.pi,Na+1)[:-1]
+                start_angle_idx = np.where(np.isclose(abs(start_angle),angles))[0][0]
+                
                 
                 # save the ith propeller
                 if save_loc==None:
@@ -91,8 +97,8 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                 
                 try:
                     # check if rotor has wake present
-                    gamma = propi.Wake_VD.GAMMA
-                    wVD = propi.Wake_VD
+                    gamma = propi.Wake.Wake_VD.GAMMA[start_angle_idx,:,:,:,:]
+                    wVD = propi.Wake.Wake_VD
                     wake_present = True
                 except:
                     wake_present = False
@@ -114,7 +120,7 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                     
                     # save prop wake
                     
-                    save_prop_wake_vtk(wVD, gamma, file, Results) 
+                    save_prop_wake_vtk(wVD, gamma, file, Results,start_angle_idx) 
                 
                     
         try:
@@ -132,6 +138,14 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
         if n_rots > 0:
             for i in range(n_rots):
                 roti = lift_rotors[list(lift_rotors.keys())[i]]
+                
+
+                start_angle = roti.start_angle
+                Na = roti.number_azimuthal_stations
+                angles = np.linspace(0,2*np.pi,Na+1)[1:]
+                start_angle_idx = np.where(start_angle==angles)
+                
+                
                 # save the ith rotor
                 if save_loc ==None:
                     filename = prop_filename

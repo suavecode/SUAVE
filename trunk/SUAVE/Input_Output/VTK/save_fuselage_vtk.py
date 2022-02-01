@@ -9,7 +9,6 @@
 # Imports
 #------------------------------
 
-from SUAVE.Plots.Geometry.plot_vehicle import generate_fuselage_points
 from SUAVE.Input_Output.VTK.write_azimuthal_cell_values import write_azimuthal_cell_values
 import numpy as np
 
@@ -48,6 +47,38 @@ def save_fuselage_vtk(vehicle, filename, Results):
             write_fuselage_data(fus_pts,filename)
 
     return
+
+def generate_fuselage_points(fus ,tessellation = 24 ):
+    """ This generates the coordinate points on the surface of the fuselage
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    fus                  - fuselage data structure
+
+    Properties Used:
+    N/A
+    """
+    num_fus_segs = len(fus.Segments.keys())
+    fus_pts      = np.zeros((num_fus_segs,tessellation ,3))
+
+    if num_fus_segs > 0:
+        for i_seg in range(num_fus_segs):
+            theta    = np.linspace(0,2*np.pi,tessellation)
+            a        = fus.Segments[i_seg].width/2
+            b        = fus.Segments[i_seg].height/2
+            r        = np.sqrt((b*np.sin(theta))**2  + (a*np.cos(theta))**2)
+            fus_ypts = r*np.cos(theta)
+            fus_zpts = r*np.sin(theta)
+            fus_pts[i_seg,:,0] = fus.Segments[i_seg].percent_x_location*fus.lengths.total + fus.origin[0][0]
+            fus_pts[i_seg,:,1] = fus_ypts + fus.Segments[i_seg].percent_y_location*fus.lengths.total + fus.origin[0][1]
+            fus_pts[i_seg,:,2] = fus_zpts + fus.Segments[i_seg].percent_z_location*fus.lengths.total + fus.origin[0][2]
+
+    return fus_pts
 
 #------------------------------
 # Writing fuselage data
