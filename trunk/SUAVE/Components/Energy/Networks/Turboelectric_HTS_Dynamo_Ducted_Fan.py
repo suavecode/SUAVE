@@ -65,8 +65,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         self.engine_length              = 1.0
         self.bypass_ratio               = 0.0
         self.areas                      = Data()
-        self.tag                        = 'Network'
-
+        self.tag                        = 'Turboelectric_HTS_Dynamo_Ducted_Fan'
         self.ambient_skin               = False  # flag to set whether the outer surface of the rotor is amnbient temperature or not.
         self.skin_temp                  = 300.0  # [K]  if self.ambient_skin is false, this is the temperature of the rotor skin. 
     
@@ -75,24 +74,23 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         """ Calculate thrust given the current state of the vehicle
     
             Assumptions:
-            None
+                None
     
             Source:
-            N/A
+                N/A
     
             Inputs:
-            state [state()]
+                state [state()]
     
             Outputs:
-            results.thrust_force_vector [newtons]
-            results.vehicle_mass_rate   [kg/s]
+                results.thrust_force_vector [newtons]
+                results.vehicle_mass_rate   [kg/s]
     
             Properties Used:
-            Defaulted values
+                Defaulted values
         """         
 
         # unpack
-
         ducted_fan                  = self.ducted_fan               # Electric ducted fan(s) excluding motor
         motor                       = self.motor                    # Motor(s) driving those fans
         powersupply                 = self.powersupply              # Electricity producer(s)
@@ -135,9 +133,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
             skin_temp[:]    = rotor_surface_temp 
 
         # If the rotor current is to be varied depending on the motor power here is the place to do it. For now the rotor current is set as constant.
-        #rotor_current       = np.full_like(motor_power_in, 800)
-        rotor_current       = np.linspace(200, 1400, num = len(motor_power_in))
-        rotor_current       = rotor_current.reshape(len(motor_power_in),1)
+        rotor_current       = np.full_like(motor_power_in, rotor.current)
   
         # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
         single_rotor_power  = rotor.power(rotor_current, skin_temp)

@@ -1,18 +1,10 @@
 ## @ingroup Methods-Propulsion
 # Serial_HTS_dynamo_Turboelectric_Sizing.py
 # 
-# Created:  K. Hamilton Apr 2020
-# Modified: 
+# Created:  K. Hamilton, Apr 2020
+# Modified: S. Claridge, Feb 2022
 #        
 
-""" create and evaluate a serial hybrid network that follows the power flow:
-Turboelectric Generators -> Motor Drivers -> Electric Poropulsion Motors
-where the electric motors have cryogenically cooled HTS rotors that follow the power flow:
-Turboelectric Generators -> HTS Dynamo -> HTS Rotor Coils
-and
-Turboelectric Generators -> Cryocooler <- HTS Rotor Heat Load
-There is also the capability for the HTS components to be cryogenically cooled using liquid or gaseous cryogen, howver this is not sized other than applying a factor to the cryocooler required power.
-"""
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -21,22 +13,43 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
-# from SUAVE.Methods.Cooling.Leads.copper_lead import initialize_copper_lead
-# from SUAVE.Methods.Cooling.Leads.copper_lead import Q_offdesign
+
 
 
 ## @ingroup Methods-Propulsion
 def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):  
     """
+    create and evaluate a serial hybrid network that follows the power flow:
+    Turboelectric Generators -> Motor Drivers -> Electric Poropulsion Motors
+    where the electric motors have cryogenically cooled HTS rotors that follow the power flow:
+    Turboelectric Generators -> HTS Dynamo -> HTS Rotor Coils
+    and
+    Turboelectric Generators -> Cryocooler <- HTS Rotor Heat Load
+    There is also the capability for the HTS components to be cryogenically cooled using liquid or gaseous cryogen, howver this is not sized other than applying a factor to the cryocooler required power.
+
     creates and evaluates a ducted_fan network based on an atmospheric sizing condition
     creates and evaluates a serial hybrid network that includes a HTS motor driven ducted fan, turboelectric generator, and the required supporting equipment including cryogenic cooling and HTS dynamo current supply.
 
+    Assumptions:
+        One powertrain model represents all engines in the model.
+        There are no transmission losses between components
+        the shaft torque and power required from the fan is the same as what would be required from the fan of a turbofan engine.
+
+    Source:
+        N/A
+
     Inputs:
-    Turboelectric_HTS_Dynamo_Ducted_Fan    Serial HTYS hybrid ducted fan network object (to be modified)
-    mach_number
-    altitude                        [meters]
-    delta_isa                       temperature difference [K]
-    conditions                      ordered dict object
+        Turboelectric_HTS_Dynamo_Ducted_Fan    Serial HTYS hybrid ducted fan network object (to be modified)
+        mach_number
+        altitude                        [meters]
+        delta_isa                       temperature difference [K]
+        conditions                      ordered dict object
+
+    Outputs:
+        N/A
+
+    Properties Used:
+        N/A
     """
     
     # Unpack components
@@ -45,8 +58,6 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, 
     turboelectric   = Turboelectric_HTS_Dynamo_Ducted_Fan.powersupply      # Electricity providers
     esc             = Turboelectric_HTS_Dynamo_Ducted_Fan.esc              # Propulsion motor speed controllers
     rotor           = Turboelectric_HTS_Dynamo_Ducted_Fan.rotor            # Propulsion motor HTS rotors
-    # current_lead    = Turboelectric_HTS_Ducted_Fan.lead             # HTS rotor current supply leads
-    # ccs             = Turboelectric_HTS_Ducted_Fan.ccs              # HTS rotor constant current supplies
     hts_dynamo      = Turboelectric_HTS_Dynamo_Ducted_Fan.hts_dynamo       # HTS Dynamo current supply
     dynamo_esc      = Turboelectric_HTS_Dynamo_Ducted_Fan.dynamo_esc       # HTS Dynamo speed controller
     cryocooler      = Turboelectric_HTS_Dynamo_Ducted_Fan.cryocooler       # HTS rotor cryocoolers
@@ -154,20 +165,22 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, 
     thrust.inputs.core_nozzle                              = Data()
     thrust.inputs.core_nozzle.velocity                     = 0.
     thrust.inputs.core_nozzle.area_ratio                   = 0.
-    thrust.inputs.core_nozzle.static_pressure              = 0.                                                                                                                
+    thrust.inputs.core_nozzle.static_pressure              = 0.      
+
     # compute the thrust
     thrust.size(conditions) 
     mass_flow  = thrust.mass_flow_rate_design
 
     # compute total shaft power required (i.e. the sum of the shaft power provided by all the fans)
-    shaft_power                                     = fan.outputs.work_done * mass_flow
-    total_shaft_power                               = shaft_power * number_of_engines
-    Turboelectric_HTS_Dynamo_Ducted_Fan.design_shaft_power = total_shaft_power
+    shaft_power                                             = fan.outputs.work_done * mass_flow
+    total_shaft_power                                       = shaft_power * number_of_engines
+    Turboelectric_HTS_Dynamo_Ducted_Fan.design_shaft_power  = total_shaft_power
+
     # Shaft power seems to be half the expected. 3 MW expected per motor. 1.336 MW reported
 
     # update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
-      
+
     # compute the sls_thrust
     
     # call the atmospheric model to get the conditions at the specified altitude
@@ -244,9 +257,11 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, 
     rotor_cooling_power         = rotor.outputs.cryo_load
     cooling_power               = rotor_cooling_power + leads_cooling_power  # Cryocooler must cool both rotor and supply leads
     cryocooler_input_power      = 0.0
+    
     if Turboelectric_HTS_Dynamo_Ducted_Fan.cryogen_proportion < 1.0:
         cryocooler.size_cryocooler(cooling_power, cryo_cold_temp, cryo_amb_temp)
         cryocooler_input_power  = cryocooler.rated_power
+
     rotor_power                 = ccs_input_power + cryocooler_input_power
 
     # Add power required by each stream
@@ -262,8 +277,6 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, 
     motor.rated_power           = shaft_power
     esc.rated_power             = motor_input_power
     esc.rated_current           = HTS_current
-    # ccs.rated_power             = ccs_output_power
-    # ccs.rated_current           = HTS_current
     hts_dynamo.rated_power      = dynamo_input_power
     dynamo_esc.rated_power      = dynamo_esc_input_power
     turboelectric.rated_power   = turboelectric_output_power

@@ -301,11 +301,12 @@ def energy_network():
 
     # ------------------------------------------------------------------
     #  Component 6 - HTS Dynamo supplying the rotor
-    efan.hts_dynamo               = SUAVE.Components.Energy.Distributors.HTS_DC_Dynamo_Basic()
-    efan.hts_dynamo.efficiency    = 0.16 #[W/W]
-    efan.hts_dynamo.rated_current = 800  #[A]
-    efan.hts_dynamo.rated_RPM     = 120  #[RPM]
-    efan.hts_dynamo.rated_temp    = 77   #[K]
+    efan.hts_dynamo                      = SUAVE.Components.Energy.Distributors.HTS_DC_Dynamo_Basic()
+    efan.hts_dynamo.efficiency           = 0.16 #[W/W]
+    efan.hts_dynamo.rated_current        = 850  #[A]
+    efan.hts_dynamo.rated_RPM            = 120  #[RPM]
+    efan.hts_dynamo.rated_temp           = 77   #[K]
+    efan.hts_dynamo.mass_properties.mass = 8.7 # [kg] Based on the Squirrel Cage HTS dynamo developed at Robinson Research Institute with eight HTS stators and four Nd-Fe-B permanent magnets.
 
         # ------------------------------------------------------------------
     #  Component 7 -  HTS Dynamo speed controller
@@ -360,10 +361,14 @@ def energy_network():
     # Specify the expected values
     expected = Data()
     expected.thrust = 47826.12361690928
-    expected.mdot = 0.7914998316995234
-    expected.mdot_fuel = 0.79056981
-    expected.mdot_additional_fuel = 0.00093002
-    
+    expected.mdot = 0.803874635885751
+    expected.mdot_fuel = 0.7936072561316556
+    expected.mdot_additional_fuel = 0.010267379754095392
+
+    print("e t = ", F[0][0])
+    print("m d = ", mdot[0][0])    
+    print("m f = ", mdot_fuel[0][0])
+    print("m a f = ", mdot_additional_fuel[0][0])
     #error data function
     error =  Data()
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust

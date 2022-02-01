@@ -47,25 +47,25 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             """         
         
         self.efficiency             =   0.0      # [W/W]
-        self.mass_properties.mass   =   8.7      # [kg] Based on the Squirrel Cage HTS dynamo developed at Robinson Research Institute with eight HTS stators and four Nd-Fe-B permanent magnets.
-        self.rated_current          =   850      # [A]
+        self.mass_properties.mass   =   0.0      # [kg] 
+        self.rated_current          =   0.0      # [A]
         self.rated_RPM              =   0.0      # [RPM]
         self.rated_temp             =   0.0      # [K]
     
     def shaft_power(self, cryo_temp, hts_current, power_out):
         """ The shaft power that must be supplied to the DC Dynamo supply to power the HTS coils.
             Assumptions:
-            HTS Dynamo is operating at rated temperature.
+                HTS Dynamo is operating at rated temperature.
             Source:
-            N/A
+                N/A
             Inputs:
-            cryo_temp           [K]
-            current             [A]
-            power_out           [W]
+                cryo_temp           [K]
+                current             [A]
+                power_out           [W]
 
             Outputs:
-            power_in            [W]
-            cryo_load           [W]
+                power_in            [W]
+                cryo_load           [W]
         """
 
 
@@ -88,22 +88,21 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
     def efficiency_curve(self, current):
 
         """ This sets the default values.
-        Assumptions:
 
-        The efficiency curve of the Dynamo is a parabola 
+        Assumptions:
+            The efficiency curve of the Dynamo is a parabola 
 
         Source:
-        "Practical Estimation of HTS Dynamo Losses" - Kent Hamilton, Member, IEEE, Ratu Mataira-Cole, Jianzhao Geng, Chris Bumby, Dale Carnegie, and Rod Badcock, Senior Member, IEEE
+            "Practical Estimation of HTS Dynamo Losses" - Kent Hamilton, Member, IEEE, Ratu Mataira-Cole, Jianzhao Geng, Chris Bumby, Dale Carnegie, and Rod Badcock, Senior Member, IEEE
 
         Inputs:
-        current        [A]
+            current        [A]
 
         Outputs:
-        efficiency      [W/W]
+            efficiency      [W/W]
 
-        None
         Properties Used:
-        None
+            None
         """     
 
         x = np.array(current)
@@ -112,9 +111,9 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             print("Current out of range")
             return 0 
 
-        a = ( self.efficiency ) / np.square(self.rated_current) #one point on the graph is assumed to be  (0, 2 * current), 0  = a (current ^ 2) + efficiency 
+        a          = ( self.efficiency ) / np.square(self.rated_current) #one point on the graph is assumed to be  (0, 2 * current), 0  = a (current ^ 2) + efficiency 
         
-        efficiency = -a * (np.square( x - self.rated_current) ) +  self.efficiency # y = a(x - current)^2 + efficieny 
+        efficiency = -a * (np.square( x - self.rated_current) ) +  self.efficiency # y = -a(x - current)^2 + efficieny 
 
         return   efficiency
 

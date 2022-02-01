@@ -2,6 +2,7 @@
 # HTS_Dynamo_Supply.py
 #
 # Created:  Feb 2020,   K. Hamilton
+# Modified: Feb 2022,   S. Claridge 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -48,16 +49,23 @@ class HTS_Dynamo_Supply(Energy_Component):
     
     def power_in(self, dynamo, power_out, hts_current, RPM=None):
         """ The power supplied to this component based on that that this must deliver to the HTS dynamo as shaft power.
+
             Assumptions:
-            Constant efficiency across the RPM range of the output shaft.
+                Constant efficiency across the RPM range of the output shaft.
+
             Source:
-            N/A
+                N/A
+
             Inputs:
-            RPM                 [RPM]
-            power_out           [W]
-            self.efficiency
+                RPM                 [RPM]
+                power_out           [W]
+                self.efficiency
+
             Outputs:
-            power_in            [W]
+                power_in            [W]
+
+            Properties Used:
+                None
         """
         # Unpack
         rated_RPM   = self.rated_RPM
@@ -84,14 +92,20 @@ class HTS_Dynamo_Supply(Energy_Component):
     def mass_estimation(self):
         """ Basic mass estimation for HTS Dynamo supply. This supply includes all elements required to create the required shaft power from supplied electricity, i.e. the esc, brushless motor, and gearbox.
         Assumptions:
-        Mass scales linearly with power and current
+            Mass scales linearly with power and current
+
         Source:
-        Maxon Motor drivetrains
+            Maxon Motor drivetrains
+
         Inputs:
-        current             [A]
-        power_out           [W]
+            current             [A]
+            power_out           [W]
+
         Outputs:
-        mass                [kg]
+            mass                [kg]
+
+        Properties Used:
+            None
         """
 
         # unpack
