@@ -64,6 +64,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_method                = 'PVW'
         self.Wake_VD                    = Data()
         self.wake_method_fidelity       = 0
+        self.vtk_save_loc               = None
         
         self.wake_settings              = Data()
         self.wake_settings.number_rotor_rotations     = 5
@@ -152,11 +153,11 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
     
         # save vtks:
         #self.generate_VTKs()
-        WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=True)
+        WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=True, save_loc=self.vtk_save_loc)
         
         return va, vt
     
-    def generate_wake_shape(self,rotor,generate_vtks=False):
+    def generate_wake_shape(self,rotor,generate_vtks=False, save_loc=None):
         """
         This generates the propeller wake control points and vortex distribution that make up the PVW. 
         
@@ -184,7 +185,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         va               = rotor_outputs.disc_axial_induced_velocity 
         V_inf            = rotor_outputs.velocity
         gamma            = rotor_outputs.disc_circulation   
-      
+        rot              = rotor.rotation
+        
         # dimensions for analysis                      
         Nr   = len(r)                   # number of radial stations
         m    = len(omega)                         # number of control points
@@ -246,7 +248,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         for ito in range(Na):
             t_idx     = np.atleast_2d(time_idx).T 
             B_idx     = np.arange(B) 
-            B_loc     = (rotor.rotation*ito + B_idx*num + t_idx )%Na 
+            B_loc     = (rot*ito + B_idx*num + t_idx )%Na 
             Gamma1    = gamma_new[:,:,B_loc]  
             Gamma1    = Gamma1.transpose(0,3,1,2) 
             Gamma[ito,:,:,:,:] = Gamma1
@@ -269,11 +271,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         blade_angle_loc    = np.tile( blade_angles[:,None,:,None,None], (1,m,1,Nr,nts))
         start_angle_offset = np.tile(start_angle[None,:,None,None,None], (Na,1,B,Nr,nts))
         
-        total_angle_offset = angle_offset - start_angle_offset
+        total_angle_offset = rot*(angle_offset - start_angle_offset)
         
-        if (rotor.rotation == -1):        
-            total_angle_offset = -total_angle_offset
-            #Gamma = np.flip(Gamma,axis=3)
 
         azi_y   = np.sin(blade_angle_loc + total_angle_offset)  
         azi_z   = np.cos(blade_angle_loc + total_angle_offset)
@@ -361,7 +360,6 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # Store points  
         #------------------------------------------------------
         # ( azimuthal start index, control point  , blade number , location on blade, time step )
-        #if rotor.rotation == 1:  
         VD.Wake.XA1[:,:,0:B,:,:] = X_pts[:, : , :, :-1 , :-1 ]
         VD.Wake.YA1[:,:,0:B,:,:] = Y_pts[:, : , :, :-1 , :-1 ]
         VD.Wake.ZA1[:,:,0:B,:,:] = Z_pts[:, : , :, :-1 , :-1 ]
@@ -374,23 +372,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         VD.Wake.XB2[:,:,0:B,:,:] = X_pts[:, : , :, 1:  ,  1: ]
         VD.Wake.YB2[:,:,0:B,:,:] = Y_pts[:, : , :, 1:  ,  1: ]
         VD.Wake.ZB2[:,:,0:B,:,:] = Z_pts[:, : , :, 1:  ,  1: ] 
-        #else: 
-            ## counter-clockwise rotation
-            #VD.Wake.XA1[:,:,0:B,:,:] = X_pts[:, : , :, 1:  , :-1 ]
-            #VD.Wake.YA1[:,:,0:B,:,:] = Y_pts[:, : , :, 1:  , :-1 ]
-            #VD.Wake.ZA1[:,:,0:B,:,:] = Z_pts[:, : , :, 1:  , :-1 ]
-            #VD.Wake.XA2[:,:,0:B,:,:] = X_pts[:, : , :, 1:  ,  1: ]
-            #VD.Wake.YA2[:,:,0:B,:,:] = Y_pts[:, : , :, 1:  ,  1: ]
-            #VD.Wake.ZA2[:,:,0:B,:,:] = Z_pts[:, : , :, 1:  ,  1: ] 
-            #VD.Wake.XB1[:,:,0:B,:,:] = X_pts[:, : , :, :-1 , :-1 ]
-            #VD.Wake.YB1[:,:,0:B,:,:] = Y_pts[:, : , :, :-1 , :-1 ]
-            #VD.Wake.ZB1[:,:,0:B,:,:] = Z_pts[:, : , :, :-1 , :-1 ]
-            #VD.Wake.XB2[:,:,0:B,:,:] = X_pts[:, : , :, :-1 ,  1: ]
-            #VD.Wake.YB2[:,:,0:B,:,:] = Y_pts[:, : , :, :-1 ,  1: ]
-            #VD.Wake.ZB2[:,:,0:B,:,:] = Z_pts[:, : , :, :-1 ,  1: ]
 
         VD.Wake.GAMMA[:,:,0:B,:,:] = Gamma 
-        
         
         # Append wake geometry and vortex strengths to each individual propeller
         self.Wake_VD   = VD.Wake
@@ -431,49 +414,39 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         
     
-        #====================================================================================
-        #======DEBUG: STORE VTKS AFTER NEW WAKE GENERATION===================================
-        #====================================================================================       
-        #debug = True #True
+        # --------------------------------------------------------------------------------------------------------------
+        #    Store VTKs after wake is generated
+        # --------------------------------------------------------------------------------------------------------------      
         if generate_vtks:
-            # after converged, store vtks for final wake shape for each of Na starting positions
-            for i in range(Na):
-                # increment blade angle to new azimuthal position
-                blade_angle   = (omega[0]*t0 + i*(2*np.pi/(Na))) * rotor.rotation  # Positive rotation, positive blade angle
-    
-                # update wake geometry
-                rotor.start_angle = blade_angle
-    
-    
-                print("\nStoring VTKs...")
-                vehicle = rotor.vehicle
-                Results = Data()
-                Results.all_prop_outputs = Data()
-                Results.all_prop_outputs.propeller = Data()
-                Results.identical = True
-    
-                conditions=None
-                save_vehicle_vtks(vehicle, conditions, Results, time_step=i,save_loc="/Users/rerha/Desktop/debug_propeller/outputs/SUAVE/A0/VTKs/")  
-    
-                ## --------- debug --------- 
-                Yb   = self.Wake_VD.Yblades_cp[i,0,0,:,0] 
-                Zb   = self.Wake_VD.Zblades_cp[i,0,0,:,0] 
-                Xb   = self.Wake_VD.Xblades_cp[i,0,0,:,0] 
-    
-                VD.YC = (Yb[1:] + Yb[:-1])/2
-                VD.ZC = (Zb[1:] + Zb[:-1])/2
-                VD.XC = (Xb[1:] + Xb[:-1])/2
-    
-                points = Data()
-                points.XC = VD.XC
-                points.YC = VD.YC
-                points.ZC = VD.ZC
-                save_evaluation_points_vtk(points,filename="/Users/rerha/Desktop/debug_propeller/outputs/SUAVE/A0/VTKs/eval_pts.vtk", time_step=i)
-                ## --------- debug ---------             
-    
-    
-        #====================================================================================   
-        #====================================================================================          
+            if save_loc == None:
+                print("Component "+self.tag+" has no attribute \"vtk_save_loc\". No VTKs saved.")
+            else:
+                # after converged, store vtks for final wake shape for each of Na starting positions
+                for i in range(Na):
+                    # increment blade angle to new azimuthal position
+                    blade_angle       = (omega[0]*t0 + i*(2*np.pi/(Na))) * rotor.rotation  # Positive rotation, positive blade angle
+                    rotor.start_angle = blade_angle
+        
+                    print("\nStoring VTKs...")
+                    vehicle = rotor.vehicle
+        
+                    save_vehicle_vtks(vehicle, Results=Data(), time_step=i,save_loc=save_loc)  
+        
+                    Yb   = self.Wake_VD.Yblades_cp[i,0,0,:,0] 
+                    Zb   = self.Wake_VD.Zblades_cp[i,0,0,:,0] 
+                    Xb   = self.Wake_VD.Xblades_cp[i,0,0,:,0] 
+        
+                    VD.YC = (Yb[1:] + Yb[:-1])/2
+                    VD.ZC = (Zb[1:] + Zb[:-1])/2
+                    VD.XC = (Xb[1:] + Xb[:-1])/2
+        
+                    points = Data()
+                    points.XC = VD.XC
+                    points.YC = VD.YC
+                    points.ZC = VD.ZC
+                    save_evaluation_points_vtk(points,filename=save_loc+"/eval_pts.vtk", time_step=i)
+                
+           
         return WD, dt, ts, B, Nr 
         
     

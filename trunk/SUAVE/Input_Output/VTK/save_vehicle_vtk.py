@@ -20,7 +20,7 @@ from SUAVE.Input_Output.VTK.save_vortex_distribution_vtk import save_vortex_dist
 
 from SUAVE.Core import Data
 import numpy as np
-def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
+def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                      wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
@@ -119,7 +119,6 @@ def save_vehicle_vtks(vehicle, conditions, Results, time_step,VLM_settings=None,
                     Results['prop_outputs'] = propi.outputs
                     
                     # save prop wake
-                    
                     save_prop_wake_vtk(wVD, gamma, file, Results,start_angle_idx) 
                 
                     
