@@ -14,7 +14,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_wake_contraction_matrix import compute_wake_contraction_matrix
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_PVW_inflow_velocities import compute_PVW_inflow_velocities
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_inflow_and_tip_loss
-
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics
 
 from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
 from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
@@ -124,33 +124,43 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.initialize(rotor,conditions)
         
         # converge on va for a semi-prescribed wake method
-        ii,ii_max = 0, 20            
-        va_diff, tol = 1, 1e-2   
-        print("\tConverging on wake shape...")
-        while va_diff > tol:  
-            # generate wake geometry for rotor
-            WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=False)
-            
-            # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-            va, vt = compute_PVW_inflow_velocities(self,rotor, WD)
-
-            # compute new blade velocities
-            Wa   = va + Ua
-            Wt   = Ut - vt
-
-            lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-
-            va_diff = np.max(abs(F*va - rotor.outputs.disc_axial_induced_velocity))
-            print("\t\t"+str(va_diff))
-
-            # update the axial disc velocity based on new va from HFW
-            rotor.outputs.disc_axial_induced_velocity = F*va 
-            
-            ii+=1
-            if ii>ii_max and va_diff>tol:
-                print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
-                break
+        for i in range(2):
+            ii,ii_max = 0, 20    
+            va_diff, tol = 1, 1e-2  
+            print("\tConverging on wake shape...")
+            while va_diff > tol:  
+                # generate wake geometry for rotor
+                WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=False)
+                
+                # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+                va, vt = compute_PVW_inflow_velocities(self,rotor, WD)
     
+                # compute new blade velocities
+                Wa   = va + Ua
+                Wt   = Ut - vt
+    
+                lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+    
+                va_diff = np.max(abs(F*va - rotor.outputs.disc_axial_induced_velocity))
+                print("\t\t"+str(va_diff))
+    
+                # update the axial disc velocity based on new va from HFW
+                rotor.outputs.disc_axial_induced_velocity = F*va 
+                
+                ii+=1
+                if ii>ii_max and va_diff>tol:
+                    print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
+                    break
+            
+            # Compute aerodynamic forces based on specified input airfoil or surrogate
+            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+            
+            # compute HFW circulation at the blade
+            Gamma = 0.5*W*c*Cl    
+            print("\tRg: " +str(np.max(abs(rotor.outputs.disc_circulation-Gamma)) ))
+            rotor.outputs.disc_circulation = Gamma
+            
+            
         # save vtks:
         #self.generate_VTKs()
         WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=True, save_loc=self.vtk_save_loc)
@@ -245,14 +255,46 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         num       = Na//B
         time_idx  = np.arange(nts)
         Gamma     = np.zeros((Na,m,B,Nr-1,nts))
+        
+
+        
+        
         for ito in range(Na):
+
+            
             t_idx     = np.atleast_2d(time_idx).T 
             B_idx     = np.arange(B) 
-            B_loc     = (rot*ito + B_idx*num + t_idx )%Na 
+            B_loc     = (ito + B_idx*num - t_idx )%Na 
             Gamma1    = gamma_new[:,:,B_loc]  
             Gamma1    = Gamma1.transpose(0,3,1,2) 
             Gamma[ito,:,:,:,:] = Gamma1
-        
+            
+            #=================================
+            #=========DEBUG=============
+            #=================================
+            debug = False
+            if debug:
+                psi = np.linspace(0,2*np.pi,Na+1)[:-1]
+                import pylab as plt
+                # Disc plot of circulation with current blade position
+                fig0 = plt.figure(figsize=(4,4))
+                ax0 = fig0.add_subplot(111, polar=True)
+                CS_0 = ax0.contourf(np.append(psi,2*np.pi), (r[:-1]+r[1:])/2, np.append(gamma_new[0,:,:],gamma_new[0,:,0][:,None],axis=1),50,cmap='jet')
+                blade_loc = rot*psi[ito]
+                ax0.plot([blade_loc,blade_loc],[r[0],r[-1]],'k-.')
+                plt.colorbar(CS_0, ax=ax0, orientation='horizontal')
+                ax0.set_yticklabels([])
+                ax0.set_rorigin(0)           
+                ax0.set_theta_zero_location("N")
+                
+                fig2 = plt.figure(figsize=(4,4))
+                plt.plot(np.linspace(0,1,len(Gamma1[0,0,:,0])),Gamma1[0,0,:,0])
+                plt.show()
+            #=================================
+            #=================================                
+            
+          
+      
         # --------------------------------------------------------------------------------------------------------------
         #    ( control point , blade number , radial location on blade , time step )
         # --------------------------------------------------------------------------------------------------------------
