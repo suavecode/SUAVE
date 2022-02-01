@@ -5,15 +5,6 @@
 # Modified: S. Claridge Nov 2021
 #        
 
-""" create and evaluate a serial hybrid network that follows the power flow:
-Turboelectric Generators -> Motor Drivers -> Electric Poropulsion Motors
-where the electric motors have cryogenically cooled HTS rotors that follow the power flow:
-Turboelectric Generators -> Current Supplies -> HTS Rotor Coils
-and
-Turboelectric Generators -> Cryocooler <- HTS Rotor Heat Load
-There is also the capability for the HTS components to be cryogenically cooled using liquid or gaseous cryogen, howver this is not sized other than applying a factor to the cryocooler required power.
-"""
-
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
