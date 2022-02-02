@@ -343,8 +343,8 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
         vals.tail.top.angle    = 0.0
         vals.tail.top.strength = 0.0
 
-        if len(np.unique(x_poses)) != len(x_poses):
-            raise ValueError('Duplicate fuselage section positions detected.')
+        #if len(np.unique(x_poses)) != len(x_poses):
+            #raise ValueError('Duplicate fuselage section positions detected.')
         vsp.SetParmVal(fuse_id,"Length","Design",length)
         if num_segs != 5: # reduce to only nose and tail
             vsp.CutXSec(fuse_id,1) # remove extra default section

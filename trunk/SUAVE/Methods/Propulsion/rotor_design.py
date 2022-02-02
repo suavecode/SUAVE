@@ -79,8 +79,8 @@ def rotor_design(rotor, number_of_stations=20):
     
     # Setup variables and bounds
     variables = np.concatenate([rotor.twist_distribution,rotor.chord_distribution])    
-    lb        = np.concatenate([np.ones_like(rotor.twist_distribution)*-np.inf,np.ones_like(rotor.twist_distribution)*1e-3])
-    ub        = np.concatenate([np.ones_like(rotor.twist_distribution)*np.inf,np.ones_like(rotor.twist_distribution)*np.inf])
+    lb        = np.concatenate([np.ones_like(rotor.twist_distribution)*-np.pi/2,np.ones_like(rotor.chord_distribution)*1e-3])
+    ub        = np.concatenate([np.ones_like(rotor.twist_distribution)*np.pi/2,np.ones_like(rotor.chord_distribution)*rotor.tip_radius])
     #bnds      = optimize.Bounds(lb, ub,keep_feasible=True)
     bnds      = np.zeros((2*number_of_stations,2))
     
@@ -124,7 +124,7 @@ def rotor_design(rotor, number_of_stations=20):
     rotor.twist_distribution = res[:number_of_stations]
     rotor.chord_distribution = res[number_of_stations:]    
     
-    plot_propeller(rotor)
+    #plot_propeller(rotor)
     
     print(res)
     
