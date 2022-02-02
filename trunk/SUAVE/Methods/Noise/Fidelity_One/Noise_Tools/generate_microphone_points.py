@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # generate_microphone_points.py
 # 
 # Created: Sep 2021, M. Clarke  
@@ -11,7 +11,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Compute Microphone Points
 # ---------------------------------------------------------------------
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
 def generate_ground_microphone_points(min_x,max_x,min_y,max_y,N_x,N_y):
     """This computes the absolute microphone/observer locations on level ground. 
             
@@ -47,7 +47,7 @@ def generate_ground_microphone_points(min_x,max_x,min_y,max_y,N_x,N_y):
     return gm_mic_locations 
      
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
 def generate_building_microphone_points(building_locations,building_dimensions,N_x,N_y,N_z):
     """This computes the absolute microphone/observer locations on the surface of rectilinear buildinsg. 
             
