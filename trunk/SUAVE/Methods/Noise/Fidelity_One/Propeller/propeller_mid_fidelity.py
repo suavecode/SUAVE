@@ -3,19 +3,16 @@
 #
 # Created:  Mar 2021, M. Clarke
 # Modified: Jul 2021, E. Botero
+#           Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
-# ----------------------------------------------------------------------
-import SUAVE
+# ---------------------------------------------------------------------- 
 from SUAVE.Core import  Data 
-import numpy as np  
-
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import pressure_ratio_to_SPL_arithmetic   
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import SPL_arithmetic
+import numpy as np   
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import SPL_spectra_arithmetic  
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates   import compute_point_source_coordinates
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_source_coordinates   import compute_blade_section_source_coordinates
+from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_point_source_coordinates
+from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_blade_section_source_coordinates
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise         import compute_harmonic_noise
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        import compute_broadband_noise
 
@@ -23,7 +20,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        i
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
 # -------------------------------------------------------------------------------------
 ## @ingroup Methods-Noise-Fidelity_One-Propeller
-def propeller_mid_fidelity(rotors,auc_opts,segment,settings):
+def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
     and frequency spectrums of a system of rotating blades (i.e. propellers and lift_rotors)          
         
@@ -35,10 +32,8 @@ def propeller_mid_fidelity(rotors,auc_opts,segment,settings):
     
     Inputs:
         rotors                  - data structure of rotors                            [None]
-        segment                 - flight segment data structure                       [None]
-        mic_loc                 - microhone location                                  [m]
-        propeller               - propeller class data structure                      [None]
-        auc_opts                - data structure of acoustic data                     [None]
+        segment                 - flight segment data structure                       [None] 
+        aeroacoustic_data      - data structure of acoustic data                     [None]
         settings                - accoustic settings                                  [None]
                                
     Outputs:
@@ -65,10 +60,7 @@ def propeller_mid_fidelity(rotors,auc_opts,segment,settings):
     angle_of_attack      = conditions.aerodynamics.angle_of_attack 
     velocity_vector      = conditions.frames.inertial.velocity_vector
     freestream           = conditions.freestream  
-    harmonics            = settings.harmonics   
-        
-    # Because the propellers are identical, get the first propellers results
-    auc_opts = auc_opts[list(auc_opts.keys())[0]]
+    harmonics            = settings.harmonics    
     
     # create data structures for computation
     Noise   = Data()  
@@ -78,13 +70,13 @@ def propeller_mid_fidelity(rotors,auc_opts,segment,settings):
     position_vector = compute_point_source_coordinates(conditions,rotors,microphone_locations,settings)  
 
     # Harmonic Noise    
-    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,rotors,auc_opts,settings,Noise)       
+    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,rotors,aeroacoustic_data,settings,Noise)       
     
     # compute position vector of blade section source to microphones
-    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,auc_opts,rotors,microphone_locations,settings)
+    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,aeroacoustic_data,rotors,microphone_locations,settings)
     
     # Broadband Noise
-    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,rotors,auc_opts,settings,Noise)
+    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,rotors,aeroacoustic_data,settings,Noise)
 
     # Combine Harmonic (periodic/tonal) and Broadband Noise
     Noise.SPL_total_1_3_spectrum  = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10)) 

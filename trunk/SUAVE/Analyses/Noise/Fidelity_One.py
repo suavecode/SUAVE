@@ -5,6 +5,7 @@
 # Modified: Feb 2016, A. Wendorff
 # Modified: Apr 2021, M. Clarke
 #           Jul 2021, E. Botero
+#           Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,6 +13,8 @@
 import SUAVE 
 from SUAVE.Core import Data , Units
 from .Noise     import Noise 
+
+from SUAVE.Components.Physical_Component import Container 
 
 # noise imports 
 from SUAVE.Methods.Noise.Fidelity_One.Airframe.noise_airframe_Fink                   import noise_airframe_Fink
@@ -196,11 +199,32 @@ class Fidelity_One(Noise):
                 elif (source  == 'propellers')  or (source   == 'lift_rotors'): 
                     if bool(conditions.noise.sources[source]) == True: 
                         net                          = config.networks[network] 
-                        acoustic_data                = conditions.noise.sources[source] 
-                        if source == 'propellers': 
-                            propeller_noise          = propeller_mid_fidelity(net.propellers,acoustic_data,segment,settings) 
+                        acoustic_data                = conditions.noise.sources[source]
+                        
+                        if source == 'propellers':
+                            rotors        = net.propellers
+                            identity_flag = net.identical_propellers
                         else:
-                            propeller_noise          = propeller_mid_fidelity(net.lift_rotors,acoustic_data,segment,settings) 
+                            rotors        = net.lift_rotors 
+                            identity_flag = net.identical_lift_rotors
+                             
+                        if identity_flag:
+                            aeroacoustic_data  = acoustic_data[list(acoustic_data.keys())[0]] 
+                            propeller_noise    = propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings) 
+                        else:
+                            distributed_rotors                       = Container()
+                            num_rotors                               = len(rotors)
+                            distributed_prop_noise_SPL_dBA           = np.zeros((num_rotors,ctrl_pts,num_mic)) 
+                            distributed_prop_noise_SPL_1_3_spectrum  = np.zeros((num_rotors,ctrl_pts,num_mic,dim_cf)) 
+                            for r_idx , rotor  in enumerate(rotors): 
+                                aeroacoustic_data                               = acoustic_data[rotor.tag]                                    
+                                distributed_rotors.append(rotors[rotor.tag])       
+                                propeller_noise                                 = propeller_mid_fidelity(distributed_rotors,aeroacoustic_data,segment,settings) 
+                                distributed_prop_noise_SPL_dBA[r_idx]           = propeller_noise.SPL_dBA 
+                                distributed_prop_noise_SPL_1_3_spectrum[r_idx]  = propeller_noise.SPL_1_3_spectrum     
+                            propeller_noise.SPL_dBA          = SPL_arithmetic(distributed_prop_noise_SPL_dBA ,sum_axis=0)
+                            propeller_noise.SPL_1_3_spectrum = SPL_arithmetic(distributed_prop_noise_SPL_1_3_spectrum ,sum_axis=0)
+                     
                         source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
                         source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_1_3_spectrum    
                            

@@ -7,6 +7,7 @@
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
 #           Aug 2021, M. Clarke
+#           Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -351,7 +352,7 @@ class Lift_Cruise(Network):
                     for i,p in enumerate(lift_rotors):
                         conditions.noise.sources.lift_rotors[p.tag]      = outputs_lift
                 else:
-                    conditions.noise.sources.lift_rotors[prop.tag]      = outputs_lift            
+                    conditions.noise.sources.lift_rotors[lift_rotor.tag] = outputs_lift            
                 
                 
             # link
@@ -802,9 +803,10 @@ class Lift_Cruise(Network):
         ones_row = segment.state.ones_row 
         
         # Count how many unknowns and residuals based on p
-        n_props    = len(self.propellers)
-        n_motors_p = len(self.propeller_motors)
-        n_eng_p    = self.number_of_propeller_engines
+        n_props       = len(self.propellers)
+        n_lift_rotors = len(self.lift_rotors)
+        n_motors_p    = len(self.propeller_motors)
+        n_eng_p       = self.number_of_propeller_engines
         
         if n_props!=n_motors_p!=n_eng_p:
             assert('The number of propellers is not the same as the number of motors')

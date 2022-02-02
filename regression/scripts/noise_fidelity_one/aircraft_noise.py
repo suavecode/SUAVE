@@ -38,8 +38,8 @@ def main():
     # ----------------------------------------------------------------------
     # SUAVE Frequency Domain Propeller Aircraft Noise Model 
     # ---------------------------------------------------------------------- 
-    configs, analyses = X57_full_setup() 
- 
+    configs, analyses = X57_full_setup()  
+    
     configs.finalize()
     analyses.finalize()   
     
@@ -54,13 +54,13 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
     X57_SPL        = X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA[0][0]
-    X57_SPL_true   = 80.04018021047642
+    X57_SPL_true   = 85.66540791057582
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
     print(X57_diff_SPL)
-    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-3   # lower tolerance for higly machine tolerance sensitive computation
+    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-3   # lower tolerance for highly machine tolerance sensitive computation
     
     # ----------------------------------------------------------------------
     # SAE Turbofan Aircraft Noise Model 
@@ -97,6 +97,9 @@ def X57_full_setup():
 
     # vehicle data
     vehicle  = X57_vehicle_setup()
+    
+    # change identical propeller flag for regression coverage even though propellers are identical 
+    vehicle.networks.battery_propeller.identical_propellers = False
     
     # Set up configs
     configs  = X57_configs_setup(vehicle)

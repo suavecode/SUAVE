@@ -84,25 +84,14 @@ def main():
     noise                                                  = SUAVE.Analyses.Noise.Fidelity_One() 
     settings                                               = noise.settings   
     num_mic                                                = len(conditions.noise.total_microphone_locations[0] )  
-    conditions.noise.number_of_microphones                 = num_mic  
-    acoustic_outputs                                       = Data()
-    acoustic_outputs.propeller                             = noise_data
-    acoustic_outputs = Data()
-    acoustic_outputs.propeller = noise_data
+    conditions.noise.number_of_microphones                 = num_mic
     
     # Run Fidelity One    
-    propeller_noise                       = propeller_mid_fidelity(net.propellers,acoustic_outputs,segment,settings )    
-    F8745D4_blade_passing_frequencies     = propeller_noise.blade_passing_frequencies      
+    propeller_noise                       = propeller_mid_fidelity(net.propellers,noise_data,segment,settings )
     F8745D4_SPL                           = propeller_noise.SPL     
     F8745D4_SPL_harmonic                  = propeller_noise.SPL_harmonic 
     F8745D4_SPL_broadband                 = propeller_noise.SPL_broadband  
-    F8745D4_SPL_dBA                       = propeller_noise.SPL_dBA                        
-    F8745D4_SPL_harmonic_bpf_spectrum_dBA = propeller_noise.SPL_harmonic_bpf_spectrum_dBA  
     F8745D4_SPL_harmonic_bpf_spectrum     = propeller_noise.SPL_harmonic_bpf_spectrum      
-    F8745D4_SPL_1_3_spectrum              = propeller_noise.SPL_1_3_spectrum         
-    F8745D4_SPL_harmonic_1_3_spectrum     = propeller_noise.SPL_harmonic_1_3_spectrum      
-    F8745D4_SPL_broadband_1_3_spectrum    = propeller_noise.SPL_broadband_1_3_spectrum        
-    F8745D4_one_third_frequency_spectrum  = propeller_noise.one_third_frequency_spectrum     
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
     #  Experimental Data
@@ -168,7 +157,7 @@ def main():
  
     PP = Data( 
         lw  = 2,                             # line_width               
-        m = 10,                            # markersize               
+        m = 10,                             # markersize               
         lf = 10,                            # legend_font_size         
         Slc = ['black','dimgray','silver' ], # SUAVE_line_colors        
         Slm = '^',                           # SUAVE_line_markers       

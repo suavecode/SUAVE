@@ -1,7 +1,8 @@
 ## @ingroup Methods-Noise-Fidelity_One-Propeller
 # compute_broadband_noise.py
 #
-# Created:  Mar 2021, M. Clarke
+# Created:   Mar 2021, M. Clarke
+# Modified:  Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -23,9 +24,9 @@ from scipy.special import fresnel
 
 ## @ingroup Methods-Noise-Fidelity_One-Propeller   
 def compute_broadband_noise(freestream,angle_of_attack,bspv,
-                            velocity_vector,rotors,auc_opts,settings,res):
+                            velocity_vector,rotors,aeroacoustic_data,settings,res):
     '''This computes the trailing edge noise compoment of broadband noise of a propeller or 
-    rotor in the frequency domain. Boundary layer properties are computed using SUAVE's 
+    lift-rotor in the frequency domain. Boundary layer properties are computed using SUAVE's 
     panel method.
     
     Assumptions:
@@ -41,10 +42,10 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         angle_of_attack                              - aircraft angle of attack                                                           [rad]
         bspv                                         - rotor blade section trailing position edge vectors                                 [m]
         velocity_vector                              - velocity vector of aircraft                                                        [m/s]
-        network                                      - rotor                                                             [None] 
-        auc_opts                                     - data structure of acoustic data                                                    [None] 
+        rotors                                       - data structure of rotors                                                           [None] 
+        aeroacoustic_data                            - data structure of acoustic data                                                    [None] 
         settings                                     - accoustic settings                                                                 [None] 
-        res                                          - results data structure                                                              [None] 
+        res                                          - results data structure                                                             [None] 
     
     Outputs 
        res.                                           *acoustic data is stored and passed in data structures*                                          
@@ -64,7 +65,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     num_cpt       = len(angle_of_attack)
     num_rot       = len(bspv.blade_section_coordinate_sys[0,0,:,0,0,0,0,0])
     num_mic       = len(bspv.blade_section_coordinate_sys[0,:,0,0,0,0,0,0])  
-    propeller     = rotors[list(rotors.keys())[0]]
+    rotor         = rotors[list(rotors.keys())[0]]
     frequency     = settings.center_frequencies
     num_cf        = len(frequency)     
     
@@ -76,21 +77,21 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     rho                = freestream.density                 # air density 
     dyna_visc          = freestream.dynamic_viscosity
     kine_visc          = dyna_visc/rho                      # kinematic viscousity    
-    alpha_blade        = auc_opts.disc_effective_angle_of_attack 
-    Vt_2d              = auc_opts.disc_tangential_velocity  
-    Va_2d              = auc_opts.disc_axial_velocity                
-    blade_chords       = propeller.chord_distribution        # blade chord    
-    r                  = propeller.radius_distribution       # radial location   
+    alpha_blade        = aeroacoustic_data.disc_effective_angle_of_attack 
+    Vt_2d              = aeroacoustic_data.disc_tangential_velocity  
+    Va_2d              = aeroacoustic_data.disc_axial_velocity                
+    blade_chords       = rotor.chord_distribution           # blade chord    
+    r                  = rotor.radius_distribution          # radial location   
     num_sec            = len(r) 
-    num_azi            = len(auc_opts.disc_effective_angle_of_attack[0,0,:])   
+    num_azi            = len(aeroacoustic_data.disc_effective_angle_of_attack[0,0,:])   
     U_blade            = np.sqrt(Vt_2d**2 + Va_2d**2)
     Re_blade           = U_blade*np.repeat(np.repeat(blade_chords[np.newaxis,:],num_cpt,axis=0)[:,:,np.newaxis],num_azi,axis=2)*\
                           np.repeat(np.repeat((rho/dyna_visc),num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2)
     rho_blade          = np.repeat(np.repeat(rho,num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2)
     U_inf              = np.atleast_2d(np.linalg.norm(velocity_vector,axis=1)).T
     M                  = U_inf/c_0                                             
-    B                  = propeller.number_of_blades          # number of propeller blades
-    Omega              = auc_opts.omega                      # angular velocity   
+    B                  = rotor.number_of_blades             # number of rotor blades
+    Omega              = aeroacoustic_data.omega            # angular velocity   
     beta_sq            = 1 - M**2                                  
     delta_r            = np.zeros_like(r)
     del_r              = r[1:] - r[:-1]
@@ -137,20 +138,20 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         for i in range(num_cpt) : # lower surface is 0, upper surface is 1
             TE_idx  =  4  # assume trailing edge is the forth from last panel
 
-            if propeller.nonuniform_freestream: # CORRECT THIS HANDLES AZIMUTHALLY CHANGING IN FLOW
+            if rotor.nonuniform_freestream: 
                 for i_azi in range(num_azi):
-                    if propeller.airfoil_flag  == True:
-                        a_geo                   = propeller.airfoil_geometry
-                        airfoil_data            = import_airfoil_geometry(a_geo, npoints = propeller.number_of_airfoil_section_points)
+                    if rotor.airfoil_flag  == True:
+                        a_geo                   = rotor.airfoil_geometry
+                        airfoil_data            = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
                         Re_batch                = np.atleast_2d(Re_blade[i,:,0]).T
                         AoA_batch               = np.atleast_2d(alpha_blade[i,:,0]).T
                         npanel                  = len(airfoil_data.x_coordinates[0]) - 2
-                        AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = propeller.airfoil_polar_stations)
+                        AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = rotor.airfoil_polar_stations)
                     else:
                         camber                          = 0.0
                         camber_loc                      = 0.0
                         thickness                       = 0.12
-                        default_airfoil_data            = compute_naca_4series(camber, camber_loc, thickness,(propeller.number_of_airfoil_section_points*2 - 2))
+                        default_airfoil_data            = compute_naca_4series(camber, camber_loc, thickness,(rotor.number_of_airfoil_section_points*2 - 2))
                         airfoil_polar_stations          = np.zeros(num_sec)
                         default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
                         Re_batch                        = np.atleast_2d(Re_blade[i,:,0]).T
@@ -175,18 +176,18 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                     upper_surface_H[:,i_azi]          = AP.H[:,-TE_idx]
                     upper_surface_dp_dx[:,i_azi]      = abs(surface_dcp_dx[:,-TE_idx]*(0.5*rho_blade[i,:,i_azi]*U_blade[i,:,i_azi]**2)/blade_chords)
             else:
-                if propeller.airfoil_flag  == True:
-                    a_geo                   = propeller.airfoil_geometry
-                    airfoil_data            = import_airfoil_geometry(a_geo, npoints = propeller.number_of_airfoil_section_points)
+                if rotor.airfoil_flag  == True:
+                    a_geo                   = rotor.airfoil_geometry
+                    airfoil_data            = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
                     Re_batch                = np.atleast_2d(Re_blade[i,:,0]).T
                     AoA_batch               = np.atleast_2d(alpha_blade[i,:,0]).T
                     npanel                  = len(airfoil_data.x_coordinates[0]) - 2
-                    AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = propeller.airfoil_polar_stations)
+                    AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = rotor.airfoil_polar_stations)
                 else:
                     camber                          = 0.0
                     camber_loc                      = 0.0
                     thickness                       = 0.12
-                    default_airfoil_data            = compute_naca_4series(camber, camber_loc, thickness,(propeller.number_of_airfoil_section_points*2 - 2))
+                    default_airfoil_data            = compute_naca_4series(camber, camber_loc, thickness,(rotor.number_of_airfoil_section_points*2 - 2))
                     airfoil_polar_stations          = np.zeros(num_sec)
                     default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
                     Re_batch                        = np.atleast_2d(Re_blade[i,:,0]).T
@@ -316,17 +317,17 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
 
         # ------------------------------------------------------------
         # ****** DIRECTIVITY ****** 
-        X_2 = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,0,:],2,axis = 6)
-        Y_2 = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,1,:],2,axis = 6)
-        Z_2 = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,2,:],2,axis = 6)        
+        X_2   = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,0,:],2,axis = 6)
+        Y_2   = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,1,:],2,axis = 6)
+        Z_2   = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,2,:],2,axis = 6)        
         A4    = bspv.M_hub_Y + Y_2 
         A3    = bspv.cos_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_Z + Z_2) - bspv.sin_t_v*(bspv.M_hub_X + X_2)) \
-            - bspv.sin_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_X + X_2) + bspv.sin_t_v*bspv.M_hub_Z + Z_2) + r 
-        A2    =  bspv.cos_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_X + X_2) + bspv.sin_t_v*(bspv.M_hub_Z + Z_2))\
-            + bspv.sin_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_Z + Z_2) - bspv.sin_t_v*bspv.M_hub_X + X_2) - r*bspv.cos_phi
+                 - bspv.sin_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_X + X_2) + bspv.sin_t_v*bspv.M_hub_Z + Z_2) + r 
+        A2    = bspv.cos_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_X + X_2) + bspv.sin_t_v*(bspv.M_hub_Z + Z_2))\
+                + bspv.sin_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_Z + Z_2) - bspv.sin_t_v*bspv.M_hub_X + X_2) - r*bspv.cos_phi
         A1    = (bspv.cos_alpha_eff*A3 + bspv.sin_alpha_eff*A4)**2  
 
-        # Acousic Power Spectrial Density from each blade
+        # Power Spectral Density from each blade
         mult     = ((omega/c_0 )**2)*c**2*delta_r*(1/(32*np.pi**2))*(B/(2*np.pi))
         S_pp     = mult[:,:,:,:,0,:,:]*np.trapz((A1/((bspv.sin_alpha_eff*A3 - bspv.cos_alpha_eff*A4)\
                     + A2**2)**2)*norm_L_sq*(1.6*(0.8*U_inf)/omega)*Phi_pp,axis = 4) 
