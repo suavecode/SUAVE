@@ -60,49 +60,55 @@ class Rotor(Energy_Component):
         None
         """
 
-        self.tag                          = 'rotor'
-        self.number_of_blades             = 0.0
-        self.tip_radius                   = 0.0
-        self.hub_radius                   = 0.0
-        self.twist_distribution           = 0.0
-        self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
-        self.chord_distribution           = 0.0 
-        self.thickness_to_chord           = 0.0
-        self.blade_solidity               = 0.0
-        self.design_power                 = None
-        self.design_thrust                = None
-        self.airfoil_geometry             = None
-        self.airfoil_polars               = None
-        self.airfoil_polar_stations       = None
-        self.radius_distribution          = None
-        self.rotation                     = 1
-        self.azimuthal_offset_angle       = 0.0          
-        self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
-        self.ducted                       = False
-        self.number_azimuthal_stations    = 24
-        self.vtk_airfoil_points           = 40
-        self.induced_power_factor         = 1.48         # accounts for interference effects
-        self.profile_drag_coefficient     = .03
+        self.tag                                         = 'rotor'
+        self.number_of_blades                            = 0.0
+        self.tip_radius                                  = 0.0
+        self.hub_radius                                  = 0.0
+        self.twist_distribution                          = 0.0
+        self.sweep_distribution                          = 0.0         # quarter chord offset from quarter chord of root airfoil
+        self.chord_distribution                          = 0.0 
+        self.thickness_to_chord                          = 0.0
+        self.blade_solidity                              = 0.0
+        self.design_power                                = None
+        self.design_thrust                               = None
+        self.airfoil_geometry                            = None
+        self.airfoil_polars                              = None
+        self.airfoil_polar_stations                      = None
+        self.radius_distribution                         = None
+        self.rotation                                    = 1
+        self.azimuthal_offset_angle                      = 0.0          
+        self.orientation_euler_angles                    = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
+        self.ducted                                      = False
+        self.number_azimuthal_stations                   = 24
+        self.vtk_airfoil_points                          = 40
+        self.induced_power_factor                        = 1.48         # accounts for interference effects
+        self.profile_drag_coefficient                    = .03
+               
+        self.use_2d_analysis                             = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream                       = False
+        self.axial_velocities_2d                         = None     # user input for additional velocity influences at the rotor
+        self.tangential_velocities_2d                    = None     # user input for additional velocity influences at the rotor
+        self.radial_velocities_2d                        = None     # user input for additional velocity influences at the rotor
+                  
+        self.Wake_VD                                     = Data()
+        self.wake_method                                 = "momentum"
+        self.number_rotor_rotations                      = 6
+        self.number_steps_per_rotation                   = 100
+        self.wake_settings                               = Data()
 
-        self.use_2d_analysis              = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
-        self.nonuniform_freestream        = False
-        self.axial_velocities_2d          = None     # user input for additional velocity influences at the rotor
-        self.tangential_velocities_2d     = None     # user input for additional velocity influences at the rotor
-        self.radial_velocities_2d         = None     # user input for additional velocity influences at the rotor
-   
-        self.Wake_VD                      = Data()
-        self.wake_method                  = "momentum"
-        self.number_rotor_rotations       = 6
-        self.number_steps_per_rotation    = 100
-        self.wake_settings                = Data()
-
-        self.wake_settings.initial_timestep_offset   = 0    # initial timestep
-        self.wake_settings.wake_development_time     = 0.05 # total simulation time required for wake development
-        self.wake_settings.number_of_wake_timesteps  = 30   # total number of time steps in wake development
-        self.start_angle                             = 0.0  # angle of first blade from vertical
+        self.wake_settings.initial_timestep_offset       = 0    # initial timestep
+        self.wake_settings.wake_development_time         = 0.05 # total simulation time required for wake development
+        self.wake_settings.number_of_wake_timesteps      = 30   # total number of time steps in wake development
+        self.start_angle                                 = 0.0  # angle of first blade from vertical
  
-        self.inputs.pitch_command      = 0.
-        self.variable_pitch            = False
+        self.inputs.pitch_command                        = 0.
+        self.variable_pitch                              = False 
+        
+        self.optimization_parameters                     = Data() 
+        self.optimization_parameters.slack_constaint     = 1E-6 # slack constraint 
+        self.optimization_parameters.ideal_SPL_dBA       = 40 
+        self.optimization_parameters.aeroacoustic_weight = 1.   # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization  
+        
 
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
