@@ -63,7 +63,7 @@ def compute_wake_induced_velocity(WD,VD,cpts,azi_start_idx=0,sigma=0.11,suppress
     V_ind = np.zeros((cpts,VD.n_cp,3))
      
     # compute influence of bound vortices 
-    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,sigma,GAMMA,bv=True,VD=VD) 
+    _ , res_C_AB = vortex(XC, YC, ZC, WXA1, WYA1, WZA1, WXB1, WYB1, WZB1,sigma,GAMMA,bv=True,WD=WD) 
     C_AB         = res_C_AB.transpose(1,3,0,2) 
     
     # compute influence of right vortex segment
@@ -89,7 +89,7 @@ def compute_wake_induced_velocity(WD,VD,cpts,azi_start_idx=0,sigma=0.11,suppress
 # vortex strength computation
 # -------------------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,VD=None,use_regularization_kernal=True):
+def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,WD=None,use_regularization_kernal=True):
     """ This computes the velocity induced on a control point by a segment
     of a horseshoe vortex that points from point 1 to point 2 
     Assumptions:  
@@ -139,8 +139,8 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,VD=None,use_regula
 
     if bv:
         # ignore the row of panels corresponding to the lifting line of the rotor
-        COEF_new = np.reshape(COEF[0,:,:,0],np.shape(VD.Wake.XA1[0,:,:,:,:]))
-        m = np.shape(VD.Wake.XA1)[1]
+        COEF_new = np.reshape(COEF[0,:,:,0],np.shape(WD.reshaped_wake.XA1[0,:,:,:,:]))
+        m = np.shape(WD.reshaped_wake.XA1)[1]
         
         lifting_line_panels = np.zeros_like(COEF_new,dtype=bool)
         lifting_line_panels[:,:,:,0] = True

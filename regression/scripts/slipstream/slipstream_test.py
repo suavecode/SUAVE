@@ -20,6 +20,8 @@ from SUAVE.Plots.Performance.Mission_Plots import *
 from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle
 from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 
+from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
+from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 sys.path.append('../Vehicles')
 from X57_Maxwell_Mod2 import vehicle_setup, configs_setup
 
@@ -115,7 +117,6 @@ def helical_fixed_wake_analysis(identical_props):
     print('CL difference')
     print(diff_CL)
 
-    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
@@ -127,11 +128,15 @@ def helical_fixed_wake_analysis(identical_props):
                                                  3.91223011e-06,  1.11284673e-08,  5.69593533e-08,  1.12423714e-07,
                                                  6.56733737e-08])
 
-
+    plot_lift_distribution(results,configs.base)
+    
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
+    
+
+    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6    
     assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
 
     # plot results
@@ -231,6 +236,10 @@ def base_analysis(vehicle, bemt_wake, fixed_helical_wake):
         aerodynamics.settings.use_surrogate              = False
         aerodynamics.settings.propeller_wake_model       = True
         aerodynamics.settings.use_bemt_wake_model        = False
+        props = vehicle.networks.battery_propeller.propellers.keys()
+        for p in list(props):
+            vehicle.networks.battery_propeller.propellers[p].Wake = Rotor_Wake_Fidelity_One()
+
 
     aerodynamics.settings.number_spanwise_vortices   = 5
     aerodynamics.settings.number_chordwise_vortices  = 2
@@ -294,22 +303,22 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 2
 
-    # ------------------------------------------------------------------
-    #   Climb 1 : constant Speed, constant rate segment
-    # ------------------------------------------------------------------
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb_1"
-    segment.analyses.extend( analyses.base )
-    segment.battery_energy            = vehicle.networks.battery_propeller.battery.max_energy* 0.89
-    segment.altitude_start            = 2500.0  * Units.feet
-    segment.altitude_end              = 8012    * Units.feet
-    segment.air_speed                 = 96.4260 * Units['mph']
-    segment.climb_rate                = 700.034 * Units['ft/min']
-    segment.state.unknowns.throttle   = 0.85 * ones_row(1)
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    #------------------------------------------------------------------
+    #Climb 1 : constant Speed, constant rate segment
+    #------------------------------------------------------------------
+    #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "climb_1"
+    #segment.analyses.extend( analyses.base )
+    #segment.battery_energy            = vehicle.networks.battery_propeller.battery.max_energy* 0.89
+    #segment.altitude_start            = 2500.0  * Units.feet
+    #segment.altitude_end              = 8012    * Units.feet
+    #segment.air_speed                 = 96.4260 * Units['mph']
+    #segment.climb_rate                = 700.034 * Units['ft/min']
+    #segment.state.unknowns.throttle   = 0.85 * ones_row(1)
+    #segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
 
-    # add to misison
-    mission.append_segment(segment)
+    ## add to misison
+    #mission.append_segment(segment)
 
     # ------------------------------------------------------------------
     #   Cruise Segment: constant Speed, constant altitude
@@ -317,9 +326,11 @@ def mission_setup(analyses,vehicle):
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise"
     segment.analyses.extend(analyses.base)
+    segment.battery_energy            = vehicle.networks.battery_propeller.battery.max_energy* 0.7
+    segment.altitude                  = 8012 * Units.feet
     segment.air_speed                 = 135. * Units['mph']
     segment.distance                  = 20.  * Units.nautical_mile
-    segment.state.unknowns.throttle   = 0.85 *  ones_row(1)
+    segment.state.unknowns.throttle   = 0.85 * ones_row(1)
 
     # post-process aerodynamic derivatives in cruise
     segment.process.finalize.post_process.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Static_Stability.compute_aero_derivatives

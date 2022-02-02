@@ -113,6 +113,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
                 
             
         return va, vt
+    
 
 
 

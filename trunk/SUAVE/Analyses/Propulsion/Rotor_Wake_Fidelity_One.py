@@ -65,6 +65,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.Wake_VD                    = Data()
         self.wake_method_fidelity       = 0
         self.vtk_save_loc               = None
+        self.semi_prescribed_converge   = True
         
         self.wake_settings              = Data()
         self.wake_settings.number_rotor_rotations     = 5
@@ -72,7 +73,12 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
         #self.wake_settings.wake_development_time      = 0.05 # total simulation time required for wake development
         #self.wake_settings.number_of_wake_timesteps   = 72*5   # total number of time steps in wake development
+    def compute_wake_settings(self):
+        """
+        If 
+        """
         
+        return
     def initialize(self,rotor,conditions):
         """
         Initializes the rotor by evaluating the BET once. This is required for generating the 
@@ -124,46 +130,42 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.initialize(rotor,conditions)
         
         # converge on va for a semi-prescribed wake method
-        for i in range(2):
-            ii,ii_max = 0, 20    
-            va_diff, tol = 1, 1e-2  
-            print("\tConverging on wake shape...")
-            while va_diff > tol:  
-                # generate wake geometry for rotor
-                WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=False)
-                
-                # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-                va, vt = compute_PVW_inflow_velocities(self,rotor, WD)
-    
-                # compute new blade velocities
-                Wa   = va + Ua
-                Wt   = Ut - vt
-    
-                lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-    
-                va_diff = np.max(abs(F*va - rotor.outputs.disc_axial_induced_velocity))
-                print("\t\t"+str(va_diff))
-    
-                # update the axial disc velocity based on new va from HFW
-                rotor.outputs.disc_axial_induced_velocity = F*va 
-                
-                ii+=1
-                if ii>ii_max and va_diff>tol:
+        va_diff, tol, ii = 1, 1e-2, 0
+        if self.semi_prescribed_converge:
+            print("\tConverging on semi-prescribed wake shape...")
+            ii_max = 10
+        else:
+            print("\tGenerating fully-prescribed wake shape...")
+            ii_max = 1
+            
+        while va_diff > tol:  
+            # generate wake geometry for rotor
+            WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=False)
+            
+            # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+            va, vt = compute_PVW_inflow_velocities(self,rotor, WD)
+
+            # compute new blade velocities
+            Wa   = va + Ua
+            Wt   = Ut - vt
+
+            lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+
+            va_diff = np.max(abs(F*va - rotor.outputs.disc_axial_induced_velocity))
+
+            # update the axial disc velocity based on new va from HFW
+            rotor.outputs.disc_axial_induced_velocity = F*va 
+            
+            ii+=1
+            if ii>ii_max and va_diff>tol:
+                if self.semi_prescribed_converge:
                     print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
-                    break
-            
-            # Compute aerodynamic forces based on specified input airfoil or surrogate
-            Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-            
-            # compute HFW circulation at the blade
-            Gamma = 0.5*W*c*Cl    
-            print("\tRg: " +str(np.max(abs(rotor.outputs.disc_circulation-Gamma)) ))
-            rotor.outputs.disc_circulation = Gamma
+                break
             
             
-        # save vtks:
-        #self.generate_VTKs()
+        # save converged wake:
         WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=True, save_loc=self.vtk_save_loc)
+        self.vortex_distribution = WD
         
         return va, vt
     
@@ -206,11 +208,6 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         azi = np.linspace(0,2*np.pi,Na+1)[:-1]
         blade_angles     = np.atleast_2d(np.linspace(0,2*np.pi,B+1)[:-1])    + np.atleast_2d(azi).T        
         
-        ## If (wake_development_time, initial_timestep_offset) specified:
-        #nts                  = self.wake_settings.number_of_wake_timesteps      # number of wake time steps
-        #time                 = self.wake_settings.wake_development_time
-        #init_timestep_offset = self.wake_settings.initial_timestep_offset
-        
         # If (number_rotor_rotations, number_steps_per_rotation) specified:
         init_timestep_offset = self.wake_settings.initial_timestep_offset
         n_rotations          = self.wake_settings.number_rotor_rotations
@@ -226,28 +223,30 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         VD, WD = initialize_distributions(Nr, Na, B, nts, m,VD)
         
         # Compute wake geometry properties
-        dt               = time/nts
-        ts               = np.linspace(0,time,nts) 
-        
+        dt                = time/nts
+        ts                = np.linspace(0,time,nts) 
         omega_ts          = np.multiply(omega,np.atleast_2d(ts))
         t0                = dt*init_timestep_offset
         start_angle       = omega[0]*t0 
         rotor.start_angle = start_angle[0]
         
 
-        # compute lambda and mu 
-        mean_radial_induced_velocity  = np.mean(va,axis = 2)
-        mean_induced_velocity  = np.mean( mean_radial_induced_velocity,axis = 1)   
+        # extract mean inflow velocities
+        axial_induced_velocity = np.mean(va,axis = 2) # radial inflow, averaged around the azimuth
+        mean_induced_velocity  = np.mean( axial_induced_velocity,axis = 1)   
     
         alpha = rotor.orientation_euler_angles[1]
         rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
         
         lambda_tot   =  np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 99 Leishman)
         mu_prop      =  np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
-        V_prop       =  np.atleast_2d(np.sqrt((V_inf[:,0]  + mean_radial_induced_velocity)**2 + (V_inf[:,2])**2))
+        Vx           = np.repeat(V_inf[:,0,None], Nr, axis=1) # shape: (m,Nr)
+        Vz           = np.repeat(V_inf[:,2,None], Nr, axis=1) # shape: (m,Nr)
+        V_prop       =  np.sqrt((Vx  + axial_induced_velocity)**2 + Vz**2)
 
         # wake skew angle 
         wake_skew_angle = -(np.arctan(mu_prop/lambda_tot))
+        wake_skew_angle = np.tile(wake_skew_angle[:,:,None],(1,Nr,nts))
         
         # reshape gamma to find the average between stations           
         gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5  # [control points, Nr-1, Na ] one less radial station because ring
@@ -256,43 +255,14 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         time_idx  = np.arange(nts)
         Gamma     = np.zeros((Na,m,B,Nr-1,nts))
         
-
-        
-        
+        # generate Gamma for each start angle
         for ito in range(Na):
-
-            
             t_idx     = np.atleast_2d(time_idx).T 
             B_idx     = np.arange(B) 
-            B_loc     = (ito + B_idx*num - t_idx )%Na 
+            B_loc     = rot*(ito + B_idx*num - t_idx )%Na 
             Gamma1    = gamma_new[:,:,B_loc]  
             Gamma1    = Gamma1.transpose(0,3,1,2) 
             Gamma[ito,:,:,:,:] = Gamma1
-            
-            #=================================
-            #=========DEBUG=============
-            #=================================
-            debug = False
-            if debug:
-                psi = np.linspace(0,2*np.pi,Na+1)[:-1]
-                import pylab as plt
-                # Disc plot of circulation with current blade position
-                fig0 = plt.figure(figsize=(4,4))
-                ax0 = fig0.add_subplot(111, polar=True)
-                CS_0 = ax0.contourf(np.append(psi,2*np.pi), (r[:-1]+r[1:])/2, np.append(gamma_new[0,:,:],gamma_new[0,:,0][:,None],axis=1),50,cmap='jet')
-                blade_loc = rot*psi[ito]
-                ax0.plot([blade_loc,blade_loc],[r[0],r[-1]],'k-.')
-                plt.colorbar(CS_0, ax=ax0, orientation='horizontal')
-                ax0.set_yticklabels([])
-                ax0.set_rorigin(0)           
-                ax0.set_theta_zero_location("N")
-                
-                fig2 = plt.figure(figsize=(4,4))
-                plt.plot(np.linspace(0,1,len(Gamma1[0,0,:,0])),Gamma1[0,0,:,0])
-                plt.show()
-            #=================================
-            #=================================                
-            
           
       
         # --------------------------------------------------------------------------------------------------------------
@@ -453,9 +423,9 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         WD.GAMMA  =  np.reshape(VD.Wake.GAMMA,mat6_size)
         
         rotor.wake_skew_angle = wake_skew_angle
+        WD.reshaped_wake = self.Wake_VD
         
         
-    
         # --------------------------------------------------------------------------------------------------------------
         #    Store VTKs after wake is generated
         # --------------------------------------------------------------------------------------------------------------      

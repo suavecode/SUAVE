@@ -239,7 +239,12 @@ class Battery_Propeller(Network):
                     conditions.noise.sources.propellers[prop.tag]      = outputs
                 else:    
                     conditions.noise.sources.lift_rotors[prop.tag]     = outputs
-    
+            
+            if identical_flag:
+                # append wakes to all propellers
+                for p in props.keys():
+                    props[p].Wake = prop.Wake
+                    
             # Run the avionics
             avionics.power()
     

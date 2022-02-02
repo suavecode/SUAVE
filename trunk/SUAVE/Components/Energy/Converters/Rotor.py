@@ -19,6 +19,7 @@
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
+from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
      import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 from SUAVE.Methods.Geometry.Three_Dimensional \
@@ -80,7 +81,7 @@ class Rotor(Energy_Component):
         self.azimuthal_offset_angle       = 0.0          
         self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                       = False
-        self.number_azimuthal_stations    = 72
+        self.number_azimuthal_stations    = 24
         self.number_points_around_airfoil = 40
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
@@ -190,6 +191,10 @@ class Rotor(Energy_Component):
         use_2d_analysis       = self.use_2d_analysis
         rotation              = self.rotation
         pitch_c               = self.inputs.pitch_command
+        
+        # 2d analysis required for wake fid1
+        if isinstance(self.Wake, Rotor_Wake_Fidelity_One):
+            use_2d_analysis=True
 
         # Check for variable pitch
         if np.any(pitch_c !=0) and not self.variable_pitch:
