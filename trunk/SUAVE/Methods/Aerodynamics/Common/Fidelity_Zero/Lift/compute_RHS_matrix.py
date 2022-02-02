@@ -86,23 +86,26 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
 
     dt               = 0
     num_ctrl_pts     = len(aoa) # number of control points
-
+    num_eval_pts     = len(VD.XC)
     for network in geometry.networks:
         if propeller_wake_model:
+            # include the propeller wake effect on the wing
             if 'propellers' in network.keys(): 
-                if network.number_of_propeller_engines == None:
-                    pass
-                else:          
-                    # extract the propeller data structure
-                    identical_props = network.identical_propellers
-                    props           = network.propellers
-    
-                    # generate the geometry of the propeller helical wake
-                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_PVW_geometry(props,identical_props,num_ctrl_pts,\
-                                                                                                                            VD,initial_timestep_offset,wake_development_time,\
-                                                                                                                            number_of_wake_timesteps,conditions)
-                    # compute the induced velocity
-                    prop_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
+                # extract the propeller wake and compute resulting induced velocitiesdata structure
+                props           = network.propellers
+                num_props = len(props)
+                
+                combined_prop_wakes = Data()
+                prop_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
+                for p in props.keys():
+                    #check that wake shape has been generated
+                    prop = props[p]
+                    wVD = prop.Wake.vortex_distribution
+                    #append_wake_to_system(wVD,combined_prop_wakes,num_props)
+                
+                    # compute the induced velocity from the rotor wake on the lifting surfaces
+                    VD.Wake=wVD
+                    prop_V_wake_ind += compute_wake_induced_velocity(wVD,VD,num_ctrl_pts)
 
             if 'lift_rotors' in network.keys(): 
                 if network.number_of_lift_rotor_engines == None:
