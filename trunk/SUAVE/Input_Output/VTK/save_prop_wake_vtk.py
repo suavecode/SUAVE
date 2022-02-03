@@ -7,7 +7,7 @@
 from SUAVE.Core import Data      
 import numpy as np
 
-def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx):
+def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx,rot=-1):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
@@ -58,6 +58,36 @@ def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx):
         f.write(points_header)    
         node_number=[]
         
+        if rot ==1:
+            # Flip around to use A's as right-side of panel, 1=LE, 2=TE
+            XA2 = wVD.XB2 # bottom left corner of panel
+            XB2 = wVD.XA2 # bottom right corner of panel
+            XA1 = wVD.XB1 # top left corner of panel
+            XB1 = wVD.XA1 # top right corner of panel    
+            YA2 = wVD.YB2 # bottom left corner of panel
+            YB2 = wVD.YA2 # bottom right corner of panel
+            YA1 = wVD.YB1 # top left corner of panel
+            YB1 = wVD.YA1 # top right corner of panel   
+            ZA2 = wVD.ZB2 # bottom left corner of panel
+            ZB2 = wVD.ZA2 # bottom right corner of panel
+            ZA1 = wVD.ZB1 # top left corner of panel
+            ZB1 = wVD.ZA1 # top right corner of panel               
+        else:
+            # Use B's as rightmost panel
+            XA2 = wVD.XA2 # bottom left corner of panel
+            XB2 = wVD.XB2 # bottom right corner of panel
+            XA1 = wVD.XA1 # top left corner of panel
+            XB1 = wVD.XB1 # top right corner of panel    
+            YA2 = wVD.YA2 # bottom left corner of panel
+            YB2 = wVD.YB2 # bottom right corner of panel
+            YA1 = wVD.YA1 # top left corner of panel
+            YB1 = wVD.YB1 # top right corner of panel   
+            ZA2 = wVD.ZA2 # bottom left corner of panel
+            ZB2 = wVD.ZB2 # bottom right corner of panel
+            ZA1 = wVD.ZA1 # top left corner of panel
+            ZB1 = wVD.ZB1 # top right corner of panel              
+           
+        
         # Loop over number of rotor blades
         for B_idx in range(n_blades):
             # Loop over number of "chordwise" panels in the wake distribution (t0 is most recently shed from blade)
@@ -70,26 +100,26 @@ def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx):
                     #-------------------------------------------------------------------
                     if r_idx == n_radial_rings and t_idx==0:
                         # Last ring at t0; use B2 to get rightmost TE node
-                        x = round(wVD.XB2[start_angle_idx,m,B_idx,r_idx-1,t_idx],4)
-                        y = round(wVD.YB2[start_angle_idx,m,B_idx,r_idx-1,t_idx],4)
-                        z = round(wVD.ZB2[start_angle_idx,m,B_idx,r_idx-1,t_idx],4)
+                        x = round(XB2[start_angle_idx,m,B_idx,r_idx-1,t_idx],4)
+                        y = round(YB2[start_angle_idx,m,B_idx,r_idx-1,t_idx],4)
+                        z = round(ZB2[start_angle_idx,m,B_idx,r_idx-1,t_idx],4)
                         
                     elif t_idx==0:
                         # First set of rings shed; use A2 to get left TE node
-                        x = round(wVD.XA2[start_angle_idx,m,B_idx,r_idx,t_idx],4)
-                        y = round(wVD.YA2[start_angle_idx,m,B_idx,r_idx,t_idx],4)
-                        z = round(wVD.ZA2[start_angle_idx,m,B_idx,r_idx,t_idx],4)   
+                        x = round(XA2[start_angle_idx,m,B_idx,r_idx,t_idx],4)
+                        y = round(YA2[start_angle_idx,m,B_idx,r_idx,t_idx],4)
+                        z = round(ZA2[start_angle_idx,m,B_idx,r_idx,t_idx],4)   
                         
                     elif r_idx==n_radial_rings:  
                         # Last radial ring for tstep; use B1 of prior to get tip node
-                        x = round(wVD.XB1[start_angle_idx,m,B_idx,r_idx-1,t_idx-1],4)
-                        y = round(wVD.YB1[start_angle_idx,m,B_idx,r_idx-1,t_idx-1],4)
-                        z = round(wVD.ZB1[start_angle_idx,m,B_idx,r_idx-1,t_idx-1],4)
+                        x = round(XB1[start_angle_idx,m,B_idx,r_idx-1,t_idx-1],4)
+                        y = round(YB1[start_angle_idx,m,B_idx,r_idx-1,t_idx-1],4)
+                        z = round(ZB1[start_angle_idx,m,B_idx,r_idx-1,t_idx-1],4)
                     else:
                         # print the point index (Left LE --> Left TE --> Right LE --> Right TE)
-                        x = round(wVD.XA1[start_angle_idx,m,B_idx,r_idx,t_idx-1],4)
-                        y = round(wVD.YA1[start_angle_idx,m,B_idx,r_idx,t_idx-1],4)
-                        z = round(wVD.ZA1[start_angle_idx,m,B_idx,r_idx,t_idx-1],4)
+                        x = round(XA1[start_angle_idx,m,B_idx,r_idx,t_idx-1],4)
+                        y = round(YA1[start_angle_idx,m,B_idx,r_idx,t_idx-1],4)
+                        z = round(ZA1[start_angle_idx,m,B_idx,r_idx,t_idx-1],4)
                     
                     new_point = "\n"+str(x)+" "+str(y)+" "+str(z)
                     node_number = np.append(node_number, r_idx + (n_radial_rings+1)*t_idx)
@@ -189,10 +219,10 @@ def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx):
                 # Get vortex strength of panel (current node is the bottom left of the panel)
                 g_r_t = gamma[m,B_idx,r_idx,t_idx]
                 
-                p_r_t   = np.array([wVD.XA1[start_angle_idx,m,B_idx,r_idx,t_idx],wVD.YA1[start_angle_idx,m,B_idx,r_idx,t_idx],wVD.ZA1[start_angle_idx,m,B_idx,r_idx,t_idx]])  # Bottom Left
-                p_rp_t  = np.array([wVD.XB1[start_angle_idx,m,B_idx,r_idx,t_idx],wVD.YB1[start_angle_idx,m,B_idx,r_idx,t_idx],wVD.ZB1[start_angle_idx,m,B_idx,r_idx,t_idx]])  # Top Left
-                p_r_tp  = np.array([wVD.XA2[start_angle_idx,m,B_idx,r_idx,t_idx],wVD.YA2[start_angle_idx,m,B_idx,r_idx,t_idx],wVD.ZA2[start_angle_idx,m,B_idx,r_idx,t_idx]])  # Top Right
-                p_rp_tp = np.array([wVD.XB2[start_angle_idx,m,B_idx,r_idx,t_idx],wVD.YB2[start_angle_idx,m,B_idx,r_idx,t_idx],wVD.ZB2[start_angle_idx,m,B_idx,r_idx,t_idx]])  # Bottom Right
+                p_r_t   = np.array([XA1[start_angle_idx,m,B_idx,r_idx,t_idx],YA1[start_angle_idx,m,B_idx,r_idx,t_idx],ZA1[start_angle_idx,m,B_idx,r_idx,t_idx]])  # Bottom Left
+                p_rp_t  = np.array([XB1[start_angle_idx,m,B_idx,r_idx,t_idx],YB1[start_angle_idx,m,B_idx,r_idx,t_idx],ZB1[start_angle_idx,m,B_idx,r_idx,t_idx]])  # Top Left
+                p_r_tp  = np.array([XA2[start_angle_idx,m,B_idx,r_idx,t_idx],YA2[start_angle_idx,m,B_idx,r_idx,t_idx],ZA2[start_angle_idx,m,B_idx,r_idx,t_idx]])  # Top Right
+                p_rp_tp = np.array([XB2[start_angle_idx,m,B_idx,r_idx,t_idx],YB2[start_angle_idx,m,B_idx,r_idx,t_idx],ZB2[start_angle_idx,m,B_idx,r_idx,t_idx]])  # Bottom Right
                 
                 # Append vortex strengths to ring vortices
                 if t_idx==0 and r_idx==0:
