@@ -110,8 +110,8 @@ def rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points
     
     # start optimization 
     ti = time.time()   
-    optimization_problem = rotor_optimization_setup(rotor)
-    output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-8, tolerance = 1E-5)    
+    optimization_problem = rotor_optimization_setup(rotor) 
+    output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-3, tolerance = 1E-3)    
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
     print('Rotor Otimization Simulation Time: ' + str(elapsed_time))   
