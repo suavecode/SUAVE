@@ -1,5 +1,7 @@
-#  rotor_design.py 
 ## @ingroup Methods-Propulsion
+# rotor_design.py 
+#
+# Created: Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------        
 #   Imports
