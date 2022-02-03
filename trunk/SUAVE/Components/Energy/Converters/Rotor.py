@@ -192,6 +192,7 @@ class Rotor(Energy_Component):
         rotation              = self.rotation
         pitch_c               = self.inputs.pitch_command
         
+        
         # 2d analysis required for wake fid1
         if isinstance(self.Wake, Rotor_Wake_Fidelity_One):
             use_2d_analysis=True
@@ -543,7 +544,7 @@ class Rotor(Energy_Component):
 
         return thrust_vector, torque, power, Cp, outputs , etap
     
-
+    
     def vec_to_vel(self):
         """This rotates from the propellers vehicle frame to the propellers velocity frame
 

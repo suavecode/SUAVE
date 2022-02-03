@@ -198,8 +198,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         rot              = rotor.rotation
         
         # apply rotation direction to twist and chord distribution
-        #c    = -rot*c
-        #beta = -rot*beta
+        c    = -rot*c
+        beta = -rot*beta
         
         # dimensions for analysis                      
         Nr   = len(r)                   # number of radial stations
@@ -352,30 +352,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         X_pts   = rotor.origin[0][0] + X_pts0*rot_to_body[2,2] + Z_pts0*rot_to_body[2,0]   
         Y_pts   = rotor.origin[0][1] + Y_pts0*rot_to_body[1,1]              
         Z_pts   = rotor.origin[0][2] + Z_pts0*rot_to_body[0,0] + X_pts0*rot_to_body[0,2] 
-        
-        #============================================================
-        #============DEBUG===================================
-        #============================================================
-        #import pylab as plt
-        #plt.figure(figsize=(10,8))
 
-        #ax0=plt.subplot(3,1,1)
-        #plt.contourf(np.linspace(0,nts-1,nts), np.linspace(0,Na-1,Na), X_pts[:,0,0,0,:])
-        #plt.colorbar()
-        #plt.subplot(3,1,2)
-        #plt.contourf(np.linspace(0,nts-1,nts), np.linspace(0,Na-1,Na), Y_pts[:,0,0,0,:])
-        #plt.colorbar()
-        #plt.subplot(3,1,3)
-        #plt.contourf(np.linspace(0,nts-1,nts), np.linspace(0,Na-1,Na), Z_pts[:,0,0,0,:])
-        #plt.colorbar()
-        #plt.xlabel('nts')
-        #plt.ylabel('Na')     
-        #ax0.set_title("Rotation = "+str(rot))
-        
-        #plt.show()
-        #============================================================
-        #============================================================
-        
         #------------------------------------------------------     
         # Account for lifting line panels
         #------------------------------------------------------

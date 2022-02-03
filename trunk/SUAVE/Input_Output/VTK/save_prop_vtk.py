@@ -43,6 +43,8 @@ def save_prop_vtk(prop, filename, Results, time_step):
     # Generate propeller point geometry
     n_blades = prop.number_of_blades
     n_r      = len(prop.chord_distribution)
+    rot      = prop.rotation   
+    
 
     try:
         # Check if propeller lofted geometry has already been saved
@@ -323,6 +325,12 @@ def generate_lofted_propeller_points(prop):
     MCA    = prop.mid_chord_alignment
     t      = prop.max_thickness_distribution
     origin = prop.origin
+    
+    
+    if prop.rotation==1:
+        # negative chord and twist to give opposite rotation direction
+        b = -b
+        beta = -beta   
 
     try:
         a_o = prop.start_angle[0]
