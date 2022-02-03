@@ -168,6 +168,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
     def generate_wake_shape(self,rotor,generate_vtks=False, save_loc=None):
         """
         This generates the propeller wake control points and vortex distribution that make up the PVW. 
+        All (x,y,z) coordinates are in the vehicle frame of reference.
         
         Assumptions:
            None
@@ -270,7 +271,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         sx_inf             = np.tile(sx_inf0[None,:, None, :,:], (Na,1,B,1,1))
                           
         sy_inf0            = np.multiply(np.atleast_2d(V_inf[:,1]).T,np.atleast_2d(ts)) # = zero since no crosswind
-        sy_inf             = np.tile(sy_inf0[None,:, None, None,:], (Na,1,B,Nr,1)) 
+        sy_inf             = -rot*np.tile(sy_inf0[None,:, None, None,:], (Na,1,B,Nr,1)) 
         
         sz_inf0            = np.multiply(V_p*np.sin(wake_skew_angle),np.repeat(np.atleast_2d(ts)[:,None,:],Nr,axis=1))
         sz_inf             = np.tile(sz_inf0[None,:, None, :,:], (Na,1,B,1,1))        
@@ -283,7 +284,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         total_angle_offset = np.tile(omega_ts[None,:,None,None,:], (Na,1,B,Nr,1))   
         
         # azimuthal position of each wake panel, (blade start index, ctrl_pts, B, Nr, nts)
-        panel_azimuthal_positions = rot*(total_angle_offset - blade_angle_loc)      # rotor frame (angle 0 aligned with z-axis); 
+        panel_azimuthal_positions = rot*(total_angle_offset - blade_angle_loc)      # axial view in rotor frame (angle 0 aligned with z-axis); 
         
         # put into velocity frame and find (y,z) components
         azi_y   = np.sin(panel_azimuthal_positions)
@@ -352,6 +353,29 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         Y_pts   = rotor.origin[0][1] + Y_pts0*rot_to_body[1,1]              
         Z_pts   = rotor.origin[0][2] + Z_pts0*rot_to_body[0,0] + X_pts0*rot_to_body[0,2] 
         
+        #============================================================
+        #============DEBUG===================================
+        #============================================================
+        #import pylab as plt
+        #plt.figure(figsize=(10,8))
+
+        #ax0=plt.subplot(3,1,1)
+        #plt.contourf(np.linspace(0,nts-1,nts), np.linspace(0,Na-1,Na), X_pts[:,0,0,0,:])
+        #plt.colorbar()
+        #plt.subplot(3,1,2)
+        #plt.contourf(np.linspace(0,nts-1,nts), np.linspace(0,Na-1,Na), Y_pts[:,0,0,0,:])
+        #plt.colorbar()
+        #plt.subplot(3,1,3)
+        #plt.contourf(np.linspace(0,nts-1,nts), np.linspace(0,Na-1,Na), Z_pts[:,0,0,0,:])
+        #plt.colorbar()
+        #plt.xlabel('nts')
+        #plt.ylabel('Na')     
+        #ax0.set_title("Rotation = "+str(rot))
+        
+        #plt.show()
+        #============================================================
+        #============================================================
+        
         #------------------------------------------------------     
         # Account for lifting line panels
         #------------------------------------------------------
@@ -366,7 +390,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         X_pts = np.append(x_c_4[:,:,:,:,0][:,:,:,:,None], X_pts, axis=4) 
         Y_pts = np.append(y_c_4[:,:,:,:,0][:,:,:,:,None], Y_pts, axis=4)
         Z_pts = np.append(z_c_4[:,:,:,:,0][:,:,:,:,None], Z_pts, axis=4)
-            
+        
 
         #------------------------------------------------------
         # Store points  
@@ -377,18 +401,33 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         VD, WD = initialize_distributions(Nr, Na, B, nts, m,VD)
         
         # ( azimuthal start index, control point  , blade number , location on blade, time step )
-        VD.Wake.XA1[:,:,0:B,:,:] = X_pts[:, : , :, :-1 , :-1 ]
-        VD.Wake.YA1[:,:,0:B,:,:] = Y_pts[:, : , :, :-1 , :-1 ]
-        VD.Wake.ZA1[:,:,0:B,:,:] = Z_pts[:, : , :, :-1 , :-1 ]
-        VD.Wake.XA2[:,:,0:B,:,:] = X_pts[:, : , :, :-1 ,  1: ]
-        VD.Wake.YA2[:,:,0:B,:,:] = Y_pts[:, : , :, :-1 ,  1: ]
-        VD.Wake.ZA2[:,:,0:B,:,:] = Z_pts[:, : , :, :-1 ,  1: ]
-        VD.Wake.XB1[:,:,0:B,:,:] = X_pts[:, : , :, 1:  , :-1 ]
-        VD.Wake.YB1[:,:,0:B,:,:] = Y_pts[:, : , :, 1:  , :-1 ]
-        VD.Wake.ZB1[:,:,0:B,:,:] = Z_pts[:, : , :, 1:  , :-1 ]
-        VD.Wake.XB2[:,:,0:B,:,:] = X_pts[:, : , :, 1:  ,  1: ]
-        VD.Wake.YB2[:,:,0:B,:,:] = Y_pts[:, : , :, 1:  ,  1: ]
-        VD.Wake.ZB2[:,:,0:B,:,:] = Z_pts[:, : , :, 1:  ,  1: ] 
+        if rot==-1:
+            VD.Wake.XA1[:,:,0:B,:,:] = X_pts[:, : , :, :-1 , :-1 ]
+            VD.Wake.YA1[:,:,0:B,:,:] = Y_pts[:, : , :, :-1 , :-1 ]
+            VD.Wake.ZA1[:,:,0:B,:,:] = Z_pts[:, : , :, :-1 , :-1 ]
+            VD.Wake.XA2[:,:,0:B,:,:] = X_pts[:, : , :, :-1 ,  1: ]
+            VD.Wake.YA2[:,:,0:B,:,:] = Y_pts[:, : , :, :-1 ,  1: ]
+            VD.Wake.ZA2[:,:,0:B,:,:] = Z_pts[:, : , :, :-1 ,  1: ]
+            VD.Wake.XB1[:,:,0:B,:,:] = X_pts[:, : , :, 1:  , :-1 ]
+            VD.Wake.YB1[:,:,0:B,:,:] = Y_pts[:, : , :, 1:  , :-1 ]
+            VD.Wake.ZB1[:,:,0:B,:,:] = Z_pts[:, : , :, 1:  , :-1 ]
+            VD.Wake.XB2[:,:,0:B,:,:] = X_pts[:, : , :, 1:  ,  1: ]
+            VD.Wake.YB2[:,:,0:B,:,:] = Y_pts[:, : , :, 1:  ,  1: ]
+            VD.Wake.ZB2[:,:,0:B,:,:] = Z_pts[:, : , :, 1:  ,  1: ] 
+        else:            
+            VD.Wake.XA1[:,:,0:B,:,:] = X_pts[:, : , :, 1: , :-1 ]
+            VD.Wake.YA1[:,:,0:B,:,:] = Y_pts[:, : , :, 1: , :-1 ]
+            VD.Wake.ZA1[:,:,0:B,:,:] = Z_pts[:, : , :, 1: , :-1 ]
+            VD.Wake.XA2[:,:,0:B,:,:] = X_pts[:, : , :, 1: ,  1: ]
+            VD.Wake.YA2[:,:,0:B,:,:] = Y_pts[:, : , :, 1: ,  1: ]
+            VD.Wake.ZA2[:,:,0:B,:,:] = Z_pts[:, : , :, 1: ,  1: ]
+            VD.Wake.XB1[:,:,0:B,:,:] = X_pts[:, : , :, :-1  , :-1 ]
+            VD.Wake.YB1[:,:,0:B,:,:] = Y_pts[:, : , :, :-1  , :-1 ]
+            VD.Wake.ZB1[:,:,0:B,:,:] = Z_pts[:, : , :, :-1  , :-1 ]
+            VD.Wake.XB2[:,:,0:B,:,:] = X_pts[:, : , :, :-1  ,  1: ]
+            VD.Wake.YB2[:,:,0:B,:,:] = Y_pts[:, : , :, :-1  ,  1: ]
+            VD.Wake.ZB2[:,:,0:B,:,:] = Z_pts[:, : , :, :-1  ,  1: ] 
+            
 
         VD.Wake.GAMMA[:,:,0:B,:,:] = Gamma 
         
