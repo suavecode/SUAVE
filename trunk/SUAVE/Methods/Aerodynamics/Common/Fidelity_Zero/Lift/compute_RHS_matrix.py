@@ -93,14 +93,11 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
             if 'propellers' in network.keys(): 
                 # extract the propeller wake and compute resulting induced velocitiesdata structure
                 props           = network.propellers
-                num_props = len(props)
-                
-                combined_prop_wakes = Data()
                 prop_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
                 for p in props.keys():
                     #check that wake shape has been generated
                     prop = props[p]
-                    wVD = prop.Wake.vortex_distribution
+                    wVD = prop.Wake.vortex_distribution #Wake_VD.reshaped_wake
                     #append_wake_to_system(wVD,combined_prop_wakes,num_props)
                 
                     # compute the induced velocity from the rotor wake on the lifting surfaces

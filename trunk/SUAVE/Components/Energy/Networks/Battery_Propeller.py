@@ -22,6 +22,7 @@ from SUAVE.Components.Physical_Component import Container
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
 from SUAVE.Core import Data , Units 
+import copy
 
 # ----------------------------------------------------------------------
 #  Network
@@ -241,9 +242,12 @@ class Battery_Propeller(Network):
                     conditions.noise.sources.lift_rotors[prop.tag]     = outputs
             
             if identical_flag:
-                # append wakes to all propellers
-                for p in props.keys():
-                    props[p].Wake = prop.Wake
+                wake_vd = copy.deepcopy(prop.Wake.vortex_distribution)
+                # append wakes to all propellers, shifted by new origin
+                for p in props:
+                    origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
+                    p.Wake = copy.deepcopy(prop.Wake) 
+                    p.Wake.shift_wake_VD(wake_vd, origin_offset)
                     
             # Run the avionics
             avionics.power()

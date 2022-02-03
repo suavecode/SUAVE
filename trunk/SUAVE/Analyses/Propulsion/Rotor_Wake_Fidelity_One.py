@@ -64,8 +64,9 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_method                = 'PVW'
         self.Wake_VD                    = Data()
         self.wake_method_fidelity       = 0
-        self.vtk_save_loc               = None
-        self.semi_prescribed_converge   = True
+        self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
+        self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
+        self.vtk_save_loc               = None       # location to save vtk outputs of wake
         
         self.wake_settings              = Data()
         self.wake_settings.number_rotor_rotations     = 5
@@ -73,12 +74,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
         #self.wake_settings.wake_development_time      = 0.05 # total simulation time required for wake development
         #self.wake_settings.number_of_wake_timesteps   = 72*5   # total number of time steps in wake development
-    def compute_wake_settings(self):
-        """
-        If 
-        """
-        
-        return
+
     def initialize(self,rotor,conditions):
         """
         Initializes the rotor by evaluating the BET once. This is required for generating the 
@@ -188,6 +184,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         R                = rotor.tip_radius
         r                = rotor.radius_distribution 
         c                = rotor.chord_distribution 
+        beta             = rotor.twist_distribution
         B                = rotor.number_of_blades  
         
         rotor_outputs    = rotor.outputs
@@ -199,38 +196,37 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         gamma            = rotor_outputs.disc_circulation   
         rot              = rotor.rotation
         
+        # apply rotation direction to twist and chord distribution
+        #c    = -rot*c
+        #beta = -rot*beta
+        
         # dimensions for analysis                      
         Nr   = len(r)                   # number of radial stations
         m    = len(omega)                         # number of control points
-        
 
-        # Blade angles starting from each of Na azimuthal stations, shape: (Na,B)
-        azi = np.linspace(0,2*np.pi,Na+1)[:-1]
-        blade_angles     = np.atleast_2d(np.linspace(0,2*np.pi,B+1)[:-1])    + np.atleast_2d(azi).T        
+        # Compute blade angles starting from each of Na azimuthal stations, shape: (Na,B)
+        azi          = np.linspace(0,2*np.pi,Na+1)[:-1]
+        azi_initial  = np.atleast_2d(np.linspace(0,2*np.pi,B+1)[:-1])
+        blade_angles = (azi_initial + np.atleast_2d(azi).T) 
         
-        # If (number_rotor_rotations, number_steps_per_rotation) specified:
+        # Extract specified wake settings:
         init_timestep_offset = self.wake_settings.initial_timestep_offset
         n_rotations          = self.wake_settings.number_rotor_rotations
         tsteps_per_rot       = self.wake_settings.number_steps_per_rotation
-        nts                  = tsteps_per_rot*n_rotations
-        time                 = nts*(azi[1]-azi[0])/omega[0][0]
-        self.wake_settings.wake_development_time = time
-        self.wake_settings.number_of_wake_timesteps = nts
-
-        # Initialize vortex distribution and arrays with required matrix sizes
-        VD = Data()
-        rotor.vortex_distribution = VD        
-        VD, WD = initialize_distributions(Nr, Na, B, nts, m,VD)
         
-        # Compute wake geometry properties
-        dt                = time/nts
-        ts                = np.linspace(0,time,nts) 
-        omega_ts          = np.multiply(omega,np.atleast_2d(ts))
+        # Calculate additional wake properties
+        dt    = (azi[1]-azi[0])/omega[0][0]
+        nts   = tsteps_per_rot*n_rotations
+        
+        # Compute properties for each wake timestep
+        ts                = np.linspace(0,dt*(nts-1),nts) 
+        omega_ts          = np.multiply(omega,np.atleast_2d(ts))  # Angle of each azimuthal station in nts
+        
+        # Update start angle of rotor
         t0                = dt*init_timestep_offset
         start_angle       = omega[0]*t0 
         rotor.start_angle = start_angle[0]
         
-
         # extract mean inflow velocities
         axial_induced_velocity = np.mean(va,axis = 2) # radial inflow, averaged around the azimuth
         mean_induced_velocity  = np.mean( axial_induced_velocity,axis = 1)   
@@ -279,15 +275,19 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         sz_inf0            = np.multiply(V_p*np.sin(wake_skew_angle),np.repeat(np.atleast_2d(ts)[:,None,:],Nr,axis=1))
         sz_inf             = np.tile(sz_inf0[None,:, None, :,:], (Na,1,B,1,1))        
         
-        angle_offset       = np.tile(omega_ts[None,:,None,None,:], (Na,1,B,Nr,1))
-        blade_angle_loc    = np.tile( blade_angles[:,None,:,None,None], (1,m,1,Nr,nts))
+        # wake panel and blade angles
         start_angle_offset = np.tile(start_angle[None,:,None,None,None], (Na,1,B,Nr,nts))
+        blade_angle_loc    = start_angle_offset + np.tile( blade_angles[:,None,:,None,None], (1,m,1,Nr,nts))  # negative rotation, positive blade angle location
         
-        total_angle_offset = rot*(angle_offset - start_angle_offset)
+        # offset angle of trailing wake panels relative to blade location
+        total_angle_offset = np.tile(omega_ts[None,:,None,None,:], (Na,1,B,Nr,1))   
         
-
-        azi_y   = np.sin(blade_angle_loc + total_angle_offset)  
-        azi_z   = np.cos(blade_angle_loc + total_angle_offset)
+        # azimuthal position of each wake panel, (blade start index, ctrl_pts, B, Nr, nts)
+        panel_azimuthal_positions = rot*(total_angle_offset - blade_angle_loc)      # rotor frame (angle 0 aligned with z-axis); 
+        
+        # put into velocity frame and find (y,z) components
+        azi_y   = np.sin(panel_azimuthal_positions)
+        azi_z   = np.cos(panel_azimuthal_positions)
         
 
         # extract airfoil trailing edge coordinates for initial location of vortex wake
@@ -307,11 +307,11 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         xle_airfoils = xupper[:,0]*c + airfoil_le_offset
         yle_airfoils = yupper[:,0]*c 
         
+        
         x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4 - airfoil_le_offset
         y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4
         
         # apply blade twist rotation along rotor radius
-        beta = rotor.twist_distribution
         xte_twisted = np.cos(beta)*xte_airfoils - np.sin(beta)*yte_airfoils        
         yte_twisted = np.sin(beta)*xte_airfoils + np.cos(beta)*yte_airfoils    
         
@@ -320,9 +320,9 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # transform coordinates from airfoil frame to rotor frame
         xte = np.tile(np.atleast_2d(yte_twisted), (B,1))
-        xte_rotor = np.tile(xte[None,:,:,None], (m,1,1,nts))
-        yte_rotor = -np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.cos(blade_angle_loc+total_angle_offset) 
-        zte_rotor = np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.sin(blade_angle_loc+total_angle_offset)
+        xte_rotor = np.tile(xte[None,:,:,None], (m,1,1,nts))   # TO DO: NEED TO APPLY SKEW ANGLE
+        yte_rotor = -np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.cos(panel_azimuthal_positions)
+        zte_rotor = np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.sin(panel_azimuthal_positions)
         
         r_4d = np.tile(r[None,None,:,None], (m,B,1,nts))
         
@@ -335,8 +335,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         z_pts0 = z0 + zte_rotor
         
         x_c_4_rotor = x0 - np.tile(y_c_4_twisted[None,None,:,None], (m,B,1,nts))
-        y_c_4_rotor = y0 + np.tile(x_c_4_twisted[None,None,:,None], (m,B,1,nts))*np.cos(blade_angle_loc+total_angle_offset)
-        z_c_4_rotor = z0 - np.tile(x_c_4_twisted[None,None,:,None], (m,B,1,nts))*np.sin(blade_angle_loc+total_angle_offset)   
+        y_c_4_rotor = y0 + np.tile(x_c_4_twisted[None,None,:,None], (m,B,1,nts))*np.cos(panel_azimuthal_positions)
+        z_c_4_rotor = z0 - np.tile(x_c_4_twisted[None,None,:,None], (m,B,1,nts))*np.sin(panel_azimuthal_positions)   
         
         # compute wake contraction, apply to y-z plane
         X_pts0           = x_pts0 + sx_inf
@@ -349,7 +349,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # append propeller wake to each of its repeated origins  
         X_pts   = rotor.origin[0][0] + X_pts0*rot_to_body[2,2] + Z_pts0*rot_to_body[2,0]   
-        Y_pts   = rotor.origin[0][1] + Y_pts0*rot_to_body[1,1]                       
+        Y_pts   = rotor.origin[0][1] + Y_pts0*rot_to_body[1,1]              
         Z_pts   = rotor.origin[0][2] + Z_pts0*rot_to_body[0,0] + X_pts0*rot_to_body[0,2] 
         
         #------------------------------------------------------     
@@ -364,13 +364,18 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # prepend points at quarter chord to account for rotor lifting line
         X_pts = np.append(x_c_4[:,:,:,:,0][:,:,:,:,None], X_pts, axis=4) 
-        Y_pts = np.append(y_c_4[:,:,:,:,0][:,:,:,:,None], Y_pts, axis=4) 
+        Y_pts = np.append(y_c_4[:,:,:,:,0][:,:,:,:,None], Y_pts, axis=4)
         Z_pts = np.append(z_c_4[:,:,:,:,0][:,:,:,:,None], Z_pts, axis=4)
             
 
         #------------------------------------------------------
         # Store points  
         #------------------------------------------------------
+        # Initialize vortex distribution and arrays with required matrix sizes
+        VD = Data()
+        rotor.vortex_distribution = VD        
+        VD, WD = initialize_distributions(Nr, Na, B, nts, m,VD)
+        
         # ( azimuthal start index, control point  , blade number , location on blade, time step )
         VD.Wake.XA1[:,:,0:B,:,:] = X_pts[:, : , :, :-1 , :-1 ]
         VD.Wake.YA1[:,:,0:B,:,:] = Y_pts[:, : , :, :-1 , :-1 ]
@@ -431,7 +436,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # --------------------------------------------------------------------------------------------------------------      
         if generate_vtks:
             if save_loc == None:
-                print("Component "+self.tag+" has no attribute \"vtk_save_loc\". No VTKs saved.")
+                pass
             else:
                 # after converged, store vtks for final wake shape for each of Na starting positions
                 for i in range(Na):
@@ -460,6 +465,25 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 
            
         return WD, dt, ts, B, Nr 
+    
+    def shift_wake_VD(self,wVD, offset):
+        for mat in wVD.keys():
+            if 'X' in mat:
+                wVD[mat] += offset[0]
+            elif 'Y' in mat:
+                wVD[mat] += offset[1]
+            elif 'Z' in mat:
+                wVD[mat] += offset[2]
+        for mat in wVD.reshaped_wake.keys():
+            if 'X' in mat:
+                wVD.reshaped_wake[mat] += offset[0]
+            elif 'Y' in mat:
+                wVD.reshaped_wake[mat] += offset[1]
+            elif 'Z' in mat:
+                wVD.reshaped_wake[mat] += offset[2]        
+        self.Wake_VD = wVD
+        return
+        
         
     
     

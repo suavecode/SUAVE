@@ -31,9 +31,7 @@ def compute_PVW_inflow_velocities( wake, prop, WD ):
     
     VD                       = prop.vortex_distribution
     omega                    = prop.inputs.omega
-    time                     = wake.wake_settings.wake_development_time
     init_timestep_offset     = wake.wake_settings.initial_timestep_offset
-    number_of_wake_timesteps = wake.wake_settings.number_of_wake_timesteps
 
     # use results from prior bemt iteration
     prop_outputs  = prop.outputs
@@ -51,8 +49,9 @@ def compute_PVW_inflow_velocities( wake, prop, WD ):
         props.propeller = prop
 
     # compute radial blade section locations based on initial timestep offset
-    dt   = time/number_of_wake_timesteps
-    t0   = dt*init_timestep_offset
+    azi_step = 2*np.pi/(Na+1)
+    dt       = azi_step/omega[0][0]
+    t0       = dt*init_timestep_offset
 
     # set shape of velocitie arrays
     Va = np.zeros((cpts,Nr,Na))
