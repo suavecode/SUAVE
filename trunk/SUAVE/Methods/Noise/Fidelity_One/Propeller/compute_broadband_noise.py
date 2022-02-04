@@ -333,7 +333,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                     + A2**2)**2)*norm_L_sq*(1.6*(0.8*U_inf)/omega)*Phi_pp,axis = 4) 
         
         # Sound Pressure Level
-        SPL                        = 10*np.log10((2*np.pi*S_pp)/((p_ref)**2)) 
+        SPL                        = 10*np.log10((2*np.pi*abs(S_pp))/((p_ref)**2)) 
         SPL[np.isinf(SPL)]         = 0   
         SPL_rotor                  = SPL_arithmetic(SPL_arithmetic(SPL, sum_axis = 5 ), sum_axis = 3 )
         
