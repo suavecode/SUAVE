@@ -382,7 +382,7 @@ class Rotor(Energy_Component):
                 vt           = Ut - Wt
 
                 # compute blade airfoil forces and properties
-                Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+                Cl, Cdval, alpha, Ma, W,Re = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
 
                 # compute inflow velocity and tip loss factor
                 lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
@@ -430,7 +430,7 @@ class Rotor(Energy_Component):
                 Wt   = Ut - vt
     
                 # Compute aerodynamic forces based on specified input airfoil or surrogate
-                Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+                Cl, Cdval, alpha, Ma,W,Re = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
     
                 lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
                 
@@ -577,6 +577,8 @@ class Rotor(Energy_Component):
                     blade_axial_induced_velocity      = Va_ind_avg,
                     blade_tangential_velocity         = Vt_avg,
                     blade_axial_velocity              = Va_avg,
+                    blade_reynolds_number_distribution= Re,
+                    blade_effective_angle_of_attack   = alpha,
                     disc_tangential_induced_velocity  = Vt_ind_2d,
                     disc_axial_induced_velocity       = Va_ind_2d,
                     disc_tangential_velocity          = Vt_2d,
@@ -913,7 +915,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
     # prevent zero Cl to keep Cd/Cl from breaking in bemt
     Cl[Cl==0] = 1e-6
 
-    return Cl, Cdval, alpha, Ma, W
+    return Cl, Cdval, alpha, Ma, W,Re
 
 
 def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):

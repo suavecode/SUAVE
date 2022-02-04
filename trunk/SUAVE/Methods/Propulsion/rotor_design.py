@@ -94,7 +94,7 @@ def rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points
     airfoil_geometry_data                  = import_airfoil_geometry(rotor.airfoil_geometry)  
     rotor.number_of_blades                 = int(B)  
     rotor.thickness_to_chord               = np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)
-    rotor.radius_distribution              = chi
+    rotor.radius_distribution              = chi*R
     rotor.airfoil_cl_surrogates            = cl_sur
     rotor.airfoil_cd_surrogates            = cd_sur 
     rotor.airfoil_flag                     = True      
@@ -113,7 +113,7 @@ def rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points
     # start optimization 
     ti = time.time()   
     optimization_problem = rotor_optimization_setup(rotor) 
-    output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-3, tolerance = 1E-3)    
+    output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4, tolerance = 1E-3)    
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
     print('Rotor Otimization Simulation Time: ' + str(elapsed_time))   
@@ -410,8 +410,8 @@ def modify_blade_geometry(nexus):
     rotor   = vehicle.networks.battery_propeller.lift_rotors.rotor 
     
     # Update geometry of blade
-    c       = updated_blade_geometry(rotor.radius_distribution ,rotor.chord_r,rotor.chord_p,rotor.chord_q,rotor.chord_t)     
-    beta    = updated_blade_geometry(rotor.radius_distribution ,rotor.twist_r,rotor.twist_p,rotor.twist_q,rotor.twist_t)   
+    c       = updated_blade_geometry(rotor.radius_distribution/rotor.tip_radius ,rotor.chord_r,rotor.chord_p,rotor.chord_q,rotor.chord_t)     
+    beta    = updated_blade_geometry(rotor.radius_distribution/rotor.tip_radius ,rotor.twist_r,rotor.twist_p,rotor.twist_q,rotor.twist_t)   
     
     rotor.chord_distribution               = c
     rotor.twist_distribution               = beta  

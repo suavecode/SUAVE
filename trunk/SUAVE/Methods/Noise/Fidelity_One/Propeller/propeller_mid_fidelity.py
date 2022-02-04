@@ -88,8 +88,8 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     Results.blade_passing_frequencies                     = Noise.f[:,0,0,0,:]       
     Results.SPL                                           = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum))       
     Results.SPL_dBA                                       = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA))     
-    Results.SPL_harmonic_1_3_spectrum_dBA                 = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum_dBA))    
-    Results.SPL_broadband_1_3_spectrum_dBA                = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum_dBA)) 
+    Results.SPL_harmonic_1_3_spectrum_dBA                 = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum_dBA)   
+    Results.SPL_broadband_1_3_spectrum_dBA                = SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum_dBA)
     Results.SPL_harmonic_bpf_spectrum                     = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum ) 
     Results.SPL_1_3_spectrum                              = SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum)      
     Results.SPL_1_3_spectrum_dBA                          = SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA)      
