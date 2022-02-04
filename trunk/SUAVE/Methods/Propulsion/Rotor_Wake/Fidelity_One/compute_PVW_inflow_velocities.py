@@ -59,23 +59,16 @@ def compute_PVW_inflow_velocities( wake, prop, WD ):
     
     for i in range(Na):
         # increment blade angle to new azimuthal position
-        blade_angle   = rot*(omega[0]*t0 + i*(2*np.pi/(Na)))  # Positive rotation, positive blade angle
-
-        # update wake geometry
-        prop.start_angle = blade_angle
-
-        start_angle = prop.start_angle
-        angles = np.linspace(0,2*np.pi,Na+1)[:-1]
-        start_angle_idx = np.where(np.isclose(abs(start_angle),angles))[0][0]        
+        blade_angle   = rot*(omega[0]*t0 + i*(2*np.pi/(Na)))  # Positive rotation, positive blade angle     
     
         #----------------------------------------------------------------
         #Compute the wake-induced velocities at propeller blade
         #----------------------------------------------------------------
         #set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
         r = prop.radius_distribution 
-        Yb   = wake.Wake_VD.Yblades_cp[start_angle_idx,0,0,:,0] 
-        Zb   = wake.Wake_VD.Zblades_cp[start_angle_idx,0,0,:,0] 
-        Xb   = wake.Wake_VD.Xblades_cp[start_angle_idx,0,0,:,0] 
+        Yb   = wake.Wake_VD.Yblades_cp[i,0,0,:,0]
+        Zb   = wake.Wake_VD.Zblades_cp[i,0,0,:,0]
+        Xb   = wake.Wake_VD.Xblades_cp[i,0,0,:,0]
         
         VD.YC = (Yb[1:] + Yb[:-1])/2
         VD.ZC = (Zb[1:] + Zb[:-1])/2

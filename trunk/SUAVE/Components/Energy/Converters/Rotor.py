@@ -92,7 +92,7 @@ class Rotor(Energy_Component):
         self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
         
-        self.start_angle               = 0.0  # angle of first blade from vertical
+        self.start_angle               = 0.0      # angle of first blade from vertical
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
@@ -253,7 +253,7 @@ class Rotor(Energy_Component):
         c_2d           = np.tile(c[:, None] ,(1,Na))
         c_2d           = np.repeat(c_2d[None,:,:], ctrl_pts, axis=0)
 
-        # Azimuthal distribution of stations
+        # Azimuthal distribution of stations (in direction of rotation)
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi),(Nr,1))
         psi_2d         = np.repeat(psi_2d[None, :, :], ctrl_pts, axis=0)
@@ -296,9 +296,25 @@ class Rotor(Energy_Component):
             uty =  Vy*np.cos(psi_2d)
             ury =  Vy*np.sin(psi_2d)
 
-            ut +=  -rotation*(utz + uty)
-            ur +=  -rotation*(urz + ury)
+            ut +=  -(utz + uty)  # tangential velocity in direction of rotor rotation
+            ur +=  (urz + ury)  # radial velocity (positive toward tip)
             ua +=  np.zeros_like(ut)
+            
+            #==================================================================
+            #============DEBUG============================================
+            #==================================================================
+            import pylab as plt
+            fig = plt.figure(figsize=(5,3))
+            plt.plot(r_1d/r_1d[-1], ut[0,:,0], "ks-",label="Fid1, $\psi=0^\circ$")  
+            plt.plot(r_1d/r_1d[-1], ut[0,:,Na//4], "b<-",label="Fid1, $\psi=90^\circ$")    
+            plt.plot(r_1d/r_1d[-1], ut[0,:,Na//2], "r>-",label="Fid1, $\psi=180^\circ$")  
+            plt.plot(r_1d/r_1d[-1], ut[0,:,3*Na//4], "g^-",label="Fid1, $\psi=270^\circ$")  
+            plt.legend()
+            plt.show()
+            
+            #==================================================================
+            #==================================================================
+            
 
         # Include external velocities introduced by user
         if nonuniform_freestream:
@@ -363,6 +379,21 @@ class Rotor(Energy_Component):
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
         va, vt = self.Wake.evaluate(self,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions)
+        
+        #==================================================================
+        #============DEBUG============================================
+        #==================================================================
+        import pylab as plt
+        fig = plt.figure(figsize=(5,3))
+        plt.plot(r_1d/r_1d[-1], vt[0,:,0], "ks-",label="Fid1, $\psi=0^\circ$")  
+        plt.plot(r_1d/r_1d[-1], vt[0,:,Na//4], "b<-",label="Fid1, $\psi=90^\circ$")    
+        plt.plot(r_1d/r_1d[-1], vt[0,:,Na//2], "r>-",label="Fid1, $\psi=180^\circ$")  
+        plt.plot(r_1d/r_1d[-1], vt[0,:,3*Na//4], "g^-",label="Fid1, $\psi=270^\circ$")  
+        plt.legend()
+        plt.show()
+        
+        #==================================================================
+        #==================================================================
         
         # compute new blade velocities
         Wa   = va + Ua

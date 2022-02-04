@@ -136,7 +136,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             
         while va_diff > tol:  
             # generate wake geometry for rotor
-            WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=False)
+            WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor)
             
             # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
             va, vt = compute_PVW_inflow_velocities(self,rotor, WD)
@@ -160,7 +160,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             
             
         # save converged wake:
-        WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=True, save_loc=self.vtk_save_loc)
+        WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=self.vtk_save_flag, save_loc=self.vtk_save_loc)
         self.vortex_distribution = WD
         
         return va, vt
@@ -379,6 +379,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # ( azimuthal start index, control point  , blade number , location on blade, time step )
         if rot==-1:
+            # panels ordered root to tip, A for inner-most panel edge
             VD.Wake.XA1[:,:,0:B,:,:] = X_pts[:, : , :, :-1 , :-1 ]
             VD.Wake.YA1[:,:,0:B,:,:] = Y_pts[:, : , :, :-1 , :-1 ]
             VD.Wake.ZA1[:,:,0:B,:,:] = Z_pts[:, : , :, :-1 , :-1 ]
@@ -392,6 +393,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             VD.Wake.YB2[:,:,0:B,:,:] = Y_pts[:, : , :, 1:  ,  1: ]
             VD.Wake.ZB2[:,:,0:B,:,:] = Z_pts[:, : , :, 1:  ,  1: ] 
         else:            
+            # positive rotation reverses the A,B nomenclature of the panel
             VD.Wake.XA1[:,:,0:B,:,:] = X_pts[:, : , :, 1: , :-1 ]
             VD.Wake.YA1[:,:,0:B,:,:] = Y_pts[:, : , :, 1: , :-1 ]
             VD.Wake.ZA1[:,:,0:B,:,:] = Z_pts[:, : , :, 1: , :-1 ]
