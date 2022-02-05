@@ -189,7 +189,6 @@ class Rotor(Energy_Component):
         Na                    = self.number_azimuthal_stations
         nonuniform_freestream = self.nonuniform_freestream
         use_2d_analysis       = self.use_2d_analysis
-        rotation              = self.rotation
         pitch_c               = self.inputs.pitch_command
         
         
@@ -283,37 +282,15 @@ class Rotor(Energy_Component):
             Vz  = np.repeat(Vz, Nr,axis=1)
             Vz  = np.repeat(Vz, Na,axis=2)
 
-            # check for invalid rotation angle
-            if (rotation == 1) or (rotation == -1):
-                pass
-            else:
-                print("Invalid rotation direction. Setting to 1.")
-                rotation = 1
-
             # compute resulting radial and tangential velocities in polar frame
-            utz =  Vz*np.sin(psi_2d)
-            urz =  Vz*np.cos(psi_2d)
-            uty =  Vy*np.cos(psi_2d)
-            ury =  Vy*np.sin(psi_2d)
+            utz =  -Vz*np.sin(psi_2d)
+            urz =   Vz*np.cos(psi_2d)
+            uty =  -Vy*np.cos(psi_2d)
+            ury =   Vy*np.sin(psi_2d)
 
-            ut +=  -(utz + uty)  # tangential velocity in direction of rotor rotation
+            ut +=  (utz + uty)  # tangential velocity in direction of rotor rotation
             ur +=  (urz + ury)  # radial velocity (positive toward tip)
             ua +=  np.zeros_like(ut)
-            
-            #==================================================================
-            #============DEBUG============================================
-            #==================================================================
-            import pylab as plt
-            fig = plt.figure(figsize=(5,3))
-            plt.plot(r_1d/r_1d[-1], ut[0,:,0], "ks-",label="Fid1, $\psi=0^\circ$")  
-            plt.plot(r_1d/r_1d[-1], ut[0,:,Na//4], "b<-",label="Fid1, $\psi=90^\circ$")    
-            plt.plot(r_1d/r_1d[-1], ut[0,:,Na//2], "r>-",label="Fid1, $\psi=180^\circ$")  
-            plt.plot(r_1d/r_1d[-1], ut[0,:,3*Na//4], "g^-",label="Fid1, $\psi=270^\circ$")  
-            plt.legend()
-            plt.show()
-            
-            #==================================================================
-            #==================================================================
             
 
         # Include external velocities introduced by user
@@ -379,21 +356,6 @@ class Rotor(Energy_Component):
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
         va, vt = self.Wake.evaluate(self,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions)
-        
-        #==================================================================
-        #============DEBUG============================================
-        #==================================================================
-        import pylab as plt
-        fig = plt.figure(figsize=(5,3))
-        plt.plot(r_1d/r_1d[-1], vt[0,:,0], "ks-",label="Fid1, $\psi=0^\circ$")  
-        plt.plot(r_1d/r_1d[-1], vt[0,:,Na//4], "b<-",label="Fid1, $\psi=90^\circ$")    
-        plt.plot(r_1d/r_1d[-1], vt[0,:,Na//2], "r>-",label="Fid1, $\psi=180^\circ$")  
-        plt.plot(r_1d/r_1d[-1], vt[0,:,3*Na//4], "g^-",label="Fid1, $\psi=270^\circ$")  
-        plt.legend()
-        plt.show()
-        
-        #==================================================================
-        #==================================================================
         
         # compute new blade velocities
         Wa   = va + Ua
@@ -527,6 +489,7 @@ class Rotor(Energy_Component):
         # Assign efficiency to network
         conditions.propulsion.etap = etap
 
+
         # Store data
         self.azimuthal_distribution                   = psi
         results_conditions                            = Data
@@ -600,7 +563,7 @@ class Rotor(Energy_Component):
         rot_mat = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         return rot_mat
-
+    
 
     def body_to_prop_vel(self):
         """This rotates from the systems body frame to the propellers velocity frame
@@ -670,3 +633,6 @@ class Rotor(Energy_Component):
         rot_mat = r.as_matrix()
 
         return rot_mat
+    
+    def vec_to_prop_body(self):
+        return self.prop_vel_to_body()

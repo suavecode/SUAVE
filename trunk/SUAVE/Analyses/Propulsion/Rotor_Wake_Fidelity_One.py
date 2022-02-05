@@ -72,8 +72,6 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings.number_rotor_rotations     = 5
         self.wake_settings.number_steps_per_rotation  = 72
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
-        #self.wake_settings.wake_development_time      = 0.05 # total simulation time required for wake development
-        #self.wake_settings.number_of_wake_timesteps   = 72*5   # total number of time steps in wake development
 
     def initialize(self,rotor,conditions):
         """
@@ -92,7 +90,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # match the azimuthal discretization betwen rotor and wake
         if self.wake_settings.number_steps_per_rotation  != rotor.number_azimuthal_stations:
             self.wake_settings.number_steps_per_rotation = rotor.number_azimuthal_stations
-            print("Wake azimuthal discretization does not match rotor discretization. Resetting wake to match rotor of Na="+str(rotor.number_azimuthal_stations))
+            print("Wake azimuthal discretization does not match rotor discretization. \
+            Resetting wake to match rotor of Na="+str(rotor.number_azimuthal_stations))
         
         return
     
@@ -105,22 +104,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
            va  - axially-induced velocity from rotor wake
            vt  - tangentially-induced velocity from rotor wake
         
-        """
-        # ===================================================
-        # DEBUG
-        # ===================================================
-        # create dummy vehicle
-        vehicle = SUAVE.Vehicle()
-        net                          = SUAVE.Components.Energy.Networks.Battery_Propeller()
-        net.tag                      = 'prop_net'
-        net.number_of_engines        = 1
-        net.propellers.append(rotor)
-        vehicle.append_component(net)
-        
-        rotor.vehicle = vehicle
-
-        # ===================================================
-        # ===================================================        
+        """   
         
         # Initialize rotor with single pass of VW 
         self.initialize(rotor,conditions)
@@ -153,20 +137,23 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             rotor.outputs.disc_axial_induced_velocity = F*va 
             
             ii+=1
-            if ii>ii_max and va_diff>tol:
+            if ii>=ii_max and va_diff>tol:
                 if self.semi_prescribed_converge:
                     print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
                 break
             
             
         # save converged wake:
-        WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor,generate_vtks=self.vtk_save_flag, save_loc=self.vtk_save_loc)
+        WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor)
         self.vortex_distribution = WD
         
+        if self.vtk_save_flag:
+            self.store_vtks(rotor)
+            
         return va, vt
     
-    def generate_wake_shape(self,rotor,generate_vtks=False, save_loc=None):
-        """
+    def generate_wake_shape(self,rotor):
+        """x
         This generates the propeller wake control points and vortex distribution that make up the PVW. 
         All (x,y,z) coordinates are in the vehicle frame of reference.
         
@@ -256,11 +243,10 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         for ito in range(Na):
             t_idx     = np.atleast_2d(time_idx).T 
             B_idx     = np.arange(B) 
-            B_loc     = rot*(ito + B_idx*num - t_idx )%Na 
+            B_loc     = (ito + B_idx*num - t_idx )%Na 
             Gamma1    = gamma_new[:,:,B_loc]  
             Gamma1    = Gamma1.transpose(0,3,1,2) 
             Gamma[ito,:,:,:,:] = Gamma1
-          
       
         # --------------------------------------------------------------------------------------------------------------
         #    ( control point , blade number , radial location on blade , time step )
@@ -447,39 +433,6 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         rotor.wake_skew_angle = wake_skew_angle
         WD.reshaped_wake = self.Wake_VD
-        
-        
-        # --------------------------------------------------------------------------------------------------------------
-        #    Store VTKs after wake is generated
-        # --------------------------------------------------------------------------------------------------------------      
-        if generate_vtks:
-            if save_loc == None:
-                pass
-            else:
-                # after converged, store vtks for final wake shape for each of Na starting positions
-                for i in range(Na):
-                    # increment blade angle to new azimuthal position
-                    blade_angle       = (omega[0]*t0 + i*(2*np.pi/(Na))) * rotor.rotation  # Positive rotation, positive blade angle
-                    rotor.start_angle = blade_angle
-        
-                    print("\nStoring VTKs...")
-                    vehicle = rotor.vehicle
-        
-                    save_vehicle_vtks(vehicle, Results=Data(), time_step=i,save_loc=save_loc)  
-        
-                    Yb   = self.Wake_VD.Yblades_cp[i,0,0,:,0] 
-                    Zb   = self.Wake_VD.Zblades_cp[i,0,0,:,0] 
-                    Xb   = self.Wake_VD.Xblades_cp[i,0,0,:,0] 
-        
-                    VD.YC = (Yb[1:] + Yb[:-1])/2
-                    VD.ZC = (Zb[1:] + Zb[:-1])/2
-                    VD.XC = (Xb[1:] + Xb[:-1])/2
-        
-                    points = Data()
-                    points.XC = VD.XC
-                    points.YC = VD.YC
-                    points.ZC = VD.ZC
-                    save_evaluation_points_vtk(points,filename=save_loc+"/eval_pts.vtk", time_step=i)
                 
            
         return WD, dt, ts, B, Nr 
@@ -503,7 +456,63 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         return
         
         
-    
+    def store_vtks(self,rotor):
+        generate_vtks = self.vtk_save_flag
+        save_loc = self.vtk_save_loc
+
+        # Unpack rotor
+        rotor_outputs = rotor.outputs
+        Na            = rotor_outputs.number_azimuthal_stations
+        omega         = rotor_outputs.omega                 
+        VD            = rotor.vortex_distribution
+        
+        # Get start angle of rotor
+        azi   = np.linspace(0,2*np.pi,Na+1)[:-1]
+        ito   = self.wake_settings.initial_timestep_offset
+        dt    = (azi[1]-azi[0])/omega[0][0]
+        t0    = dt*ito
+        
+        # --------------------------------------------------------------------------------------------------------------
+        #    Store VTKs after wake is generated
+        # --------------------------------------------------------------------------------------------------------------      
+        if generate_vtks:
+            if save_loc == None:
+                pass
+            else:
+                # after converged, store vtks for final wake shape for each of Na starting positions
+                for i in range(Na):
+                    # increment blade angle to new azimuthal position
+                    blade_angle       = (omega[0]*t0 + i*(2*np.pi/(Na))) * rotor.rotation  # Positive rotation, positive blade angle
+                    rotor.start_angle = blade_angle
+        
+                    print("\nStoring VTKs...")
+                    
+                    # create dummy vehicle
+                    vehicle = SUAVE.Vehicle()
+                    net     = SUAVE.Components.Energy.Networks.Battery_Propeller()
+                    net.number_of_engines  = 1
+                    net.propellers.append(rotor)
+                    vehicle.append_component(net) 
+        
+                    save_vehicle_vtks(vehicle, Results=Data(), time_step=i,save_loc=save_loc)  
+        
+                    Yb   = self.Wake_VD.Yblades_cp[i,0,0,:,0] 
+                    Zb   = self.Wake_VD.Zblades_cp[i,0,0,:,0] 
+                    Xb   = self.Wake_VD.Xblades_cp[i,0,0,:,0] 
+        
+                    VD.YC = (Yb[1:] + Yb[:-1])/2
+                    VD.ZC = (Zb[1:] + Zb[:-1])/2
+                    VD.XC = (Xb[1:] + Xb[:-1])/2
+        
+                    points = Data()
+                    points.XC = VD.XC
+                    points.YC = VD.YC
+                    points.ZC = VD.ZC
+                    points.induced_velocities = Data()
+                    points.induced_velocities.va = rotor_outputs.disc_axial_induced_velocity[0,:,i]
+                    points.induced_velocities.vt = rotor_outputs.disc_tangential_induced_velocity[0,:,i]
+                    save_evaluation_points_vtk(points,filename=save_loc+"/eval_pts.vtk", time_step=i)
+        return
     
 def initialize_distributions(Nr, Na, B, n_wts, m, VD):
     """

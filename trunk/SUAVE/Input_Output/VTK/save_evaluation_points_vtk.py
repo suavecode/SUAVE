@@ -42,7 +42,7 @@ def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
         velocities = points.induced_velocities
         vt = velocities.vt
         va = velocities.va
-        vr = velocities.vr
+        vr = velocities.vt*0
         wake=True
     except:
         print("No velocities specified at evaluation points.")
