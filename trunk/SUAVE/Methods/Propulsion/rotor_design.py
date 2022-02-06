@@ -174,10 +174,11 @@ def rotor_optimization_setup(rotor):
     # Constraints
     # -------------------------------------------------------------------  
     constraints = [] 
-    constraints.append([ 'thrust_power_residual'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less]), 
-    constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.2 ,   1.0   , 1*Units.less]), 
-    constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.7 ,   1.0   , 1*Units.less]),  
-    constraints.append([ 'chord_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])   
+    constraints.append([ 'thrust_power_residual'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])  
+    constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.3 ,   1.0   , 1*Units.less])  
+    constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.7 ,   1.0   , 1*Units.less])
+    constraints.append([ 'max_sectional_cl'         ,  '<'  ,  0.7 ,   1.0   , 1*Units.less])
+    constraints.append([ 'chord_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])    
     constraints.append([ 'twist_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])   
     problem.constraints =  np.array(constraints,dtype=object)                
     
@@ -195,8 +196,9 @@ def rotor_optimization_setup(rotor):
     aliases.append([ 'twist_t'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.twist_t' ]) 
     aliases.append([ 'Aero_Acoustic_Obj'         , 'summary.Aero_Acoustic_Obj'       ])  
     aliases.append([ 'thrust_power_residual'     , 'summary.thrust_power_residual'   ]) 
-    aliases.append([ 'blade_taper_constraint_1'  , 'summary.blade_taper_constraint_1'    ])  
-    aliases.append([ 'blade_taper_constraint_2'  , 'summary.blade_taper_constraint_2'    ])  
+    aliases.append([ 'blade_taper_constraint_1'  , 'summary.blade_taper_constraint_1'])  
+    aliases.append([ 'blade_taper_constraint_2'  , 'summary.blade_taper_constraint_2'])   
+    aliases.append([ 'max_sectional_cl'          , 'summary.max_sectional_cl'])  
     aliases.append([ 'chord_p_to_q_ratio'        , 'summary.chord_p_to_q_ratio'    ])  
     aliases.append([ 'twist_p_to_q_ratio'        , 'summary.twist_p_to_q_ratio'    ])     
     
@@ -563,7 +565,8 @@ def post_process(nexus):
     summary.twist_p_to_q_ratio = rotor.twist_p/rotor.twist_q
     
     # Cl constraint  
-    mean_CL = np.mean(noise_data.lift_coefficient[0])
+    summary.max_sectional_cl  = np.max(noise_data.lift_coefficient[0])
+    mean_CL                   = np.mean(noise_data.lift_coefficient[0])
     
     # blade taper consraint 
     blade_taper = c[-1]/c[0]
@@ -579,7 +582,8 @@ def post_process(nexus):
     # -------------------------------------------------------
     # PRINT ITERATION PERFOMRMANCE
     # -------------------------------------------------------                
-    print("Aero_Acoustic_Obj       : " + str(summary.Aero_Acoustic_Obj)) 
+    print("Aero_Acoustic_Obj       : " + str(summary.Aero_Acoustic_Obj))     
+    print("Aero_Acoustic_Weight    : " + str(alpha))
     if rotor.design_thrust == None: 
         print("Power                   : " + str(power[0][0])) 
     if rotor.design_power == None: 
@@ -587,7 +591,8 @@ def post_process(nexus):
     print("Average SPL             : " + str(mean_SPL))  
     print("Thrust/Power Residual   : " + str(summary.thrust_power_residual)) 
     print("Blade Taper             : " + str(blade_taper))
-    print("Mean CL                 : " + str(mean_CL))  
+    print("Max Sectional Cl        : " + str(summary.max_sectional_cl))  
+    print("Blade CL                : " + str(mean_CL))  
     print("\n\n") 
     
     return nexus 
