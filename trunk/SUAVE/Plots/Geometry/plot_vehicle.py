@@ -183,26 +183,27 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     Properties Used:
     N/A
     """
-    num_prop = len(VD.Wake.XA1[0,:,0,0,0])
-    num_B    = len(VD.Wake.XA1[0,0,:,0,0])
-    dim_R    = len(VD.Wake.XA1[0,0,0,:,0])
-    nts      = len(VD.Wake.XA1[0,0,0,0,:])
+    
+    num_prop = len(VD.Wake.reshaped_wake.XA1[0,:,0,0,0])
+    num_B    = len(VD.Wake.reshaped_wake.XA1[0,0,:,0,0])
+    dim_R    = len(VD.Wake.reshaped_wake.XA1[0,0,0,:,0])
+    nts      = len(VD.Wake.reshaped_wake.XA1[0,0,0,0,:])
     for p_idx in range(num_prop):
         for t_idx in range(nts):
             for B_idx in range(num_B):
                 for loc in range(dim_R):
-                    X = [VD.Wake.XA1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.XB1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.XB2[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.XA2[0,p_idx,B_idx,loc,t_idx]]
-                    Y = [VD.Wake.YA1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.YB1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.YB2[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.YA2[0,p_idx,B_idx,loc,t_idx]]
-                    Z = [VD.Wake.ZA1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.ZB1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.ZB2[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.ZA2[0,p_idx,B_idx,loc,t_idx]]
+                    X = [VD.Wake.reshaped_wake.XA1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.reshaped_wake.XB1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.reshaped_wake.XB2[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.reshaped_wake.XA2[0,p_idx,B_idx,loc,t_idx]]
+                    Y = [VD.Wake.reshaped_wake.YA1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.reshaped_wake.YB1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.reshaped_wake.YB2[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.reshaped_wake.YA2[0,p_idx,B_idx,loc,t_idx]]
+                    Z = [VD.Wake.reshaped_wake.ZA1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.reshaped_wake.ZB1[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.reshaped_wake.ZB2[0,p_idx,B_idx,loc,t_idx],
+                         VD.Wake.reshaped_wake.ZA2[0,p_idx,B_idx,loc,t_idx]]
                     verts = [list(zip(X, Y, Z))]
                     collection = Poly3DCollection(verts)
                     collection.set_facecolor(face_color)
