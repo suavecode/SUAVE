@@ -117,7 +117,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         else:
             print("\tGenerating fully-prescribed wake shape...")
             ii_max = 1
-            
+        
+
         while va_diff > tol:  
             # generate wake geometry for rotor
             WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor)
@@ -141,7 +142,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 if self.semi_prescribed_converge:
                     print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
                 break
-            
+
             
         # save converged wake:
         WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor)

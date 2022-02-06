@@ -172,6 +172,11 @@ def full_setup(bemt_wake, fixed_helical_wake, identical_props):
 
     # vehicle data
     vehicle  = vehicle_setup()
+    # update wake method if PVW is desired:
+    if fixed_helical_wake:
+        props = vehicle.networks.battery_propeller.propellers.keys()
+        for p in list(props):
+            vehicle.networks.battery_propeller.propellers[p].Wake = Rotor_Wake_Fidelity_One()    
 
     # test for non-identical propellers
     if not identical_props:
@@ -236,9 +241,6 @@ def base_analysis(vehicle, bemt_wake, fixed_helical_wake):
         aerodynamics.settings.use_surrogate              = False
         aerodynamics.settings.propeller_wake_model       = True
         aerodynamics.settings.use_bemt_wake_model        = False
-        props = vehicle.networks.battery_propeller.propellers.keys()
-        for p in list(props):
-            vehicle.networks.battery_propeller.propellers[p].Wake = Rotor_Wake_Fidelity_One()
 
 
     aerodynamics.settings.number_spanwise_vortices   = 5
