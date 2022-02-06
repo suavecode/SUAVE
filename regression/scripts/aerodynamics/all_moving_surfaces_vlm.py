@@ -157,7 +157,6 @@ def get_settings():
     settings.fuselage_spanwise_vortices      = 5
     settings.fuselage_chordwise_vortices     = 4
         
-    settings.use_bemt_wake_model             = False
     settings.propeller_wake_model            = None
     settings.spanwise_cosine_spacing         = False
     settings.model_fuselage                  = True

@@ -2,6 +2,7 @@
 #
 # Created:  Mar 2019, M. Clarke
 # Modified: Jun 2021, R. Erhard
+#           Feb 2022, R. Erhard
 
 """ setup file for a cruise segment of the NASA X-57 Maxwell (Twin Engine Variant) Electric Aircraft
 """
@@ -20,7 +21,6 @@ from SUAVE.Plots.Performance.Mission_Plots import *
 from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle
 from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 
-from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 sys.path.append('../Vehicles')
 from X57_Maxwell_Mod2 import vehicle_setup, configs_setup
@@ -33,26 +33,23 @@ import time
 def main():
     #run test with helical fixed wake model
     t0 = time.time()
-    helical_fixed_wake_analysis(identical_props=True)
+    Fidelity_One_Wake_Analysis(identical_props=True)
     print("TIME: " + str(time.time()-t0))
-    plt.show()
 
     # run test with helical fixed wake model and non-identical props    
     t0 = time.time()
-    helical_fixed_wake_analysis(identical_props=False)
-    print("TIME: " + str((time.time()-t0)/60))
-    plt.show()    
+    Fidelity_One_Wake_Analysis(identical_props=False)
+    print("TIME: " + str((time.time()-t0)/60))   
     
-    # run test with bemt wake model
-    bemt_wake_analysis()
+    # run test with bevw wake model
+    Fidelity_Zero_Wake_Analysis()
 
     return
 
-def bemt_wake_analysis():
-    # Evaluate wing in propeller wake (using helical fixed-wake model)
-    bemt_wake          = True
-    fixed_helical_wake = False
-    configs, analyses  = full_setup(bemt_wake, fixed_helical_wake, identical_props=True)
+def Fidelity_Zero_Wake_Analysis():
+    # Evaluate wing in propeller wake (using Fidelity Zero wake model)
+    wake_fidelity = 0
+    configs, analyses  = full_setup(wake_fidelity, identical_props=True)
 
     configs.finalize()
     analyses.finalize()
@@ -76,13 +73,13 @@ def bemt_wake_analysis():
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 4.57579360e-01,  3.32421637e-01,  3.71996069e-01,  3.25200435e-01,
-                                                 6.29163435e-02,  4.57579376e-01,  3.32421648e-01,  3.71996120e-01,
-                                                 3.25200649e-01,  6.29163688e-02, -5.81362770e-02, -5.59108165e-02,
-                                                -4.82555784e-02, -3.41508325e-02, -1.94287963e-02, -5.81362925e-02,
-                                                -5.59108390e-02, -4.82556102e-02, -3.41508728e-02, -1.94288081e-02,
-                                                -2.13292666e-15, -8.27942553e-16, -6.07500119e-16, -4.60340887e-16,
-                                                -2.93145610e-16])
+    sectional_lift_coeff_true       = np.array([ 4.57933495e-01,  3.31030791e-01,  3.72322963e-01,  3.25750054e-01,
+                                                 6.30279073e-02,  4.57933511e-01,  3.31030802e-01,  3.72323014e-01,
+                                                 3.25750268e-01,  6.30279328e-02, -5.76708908e-02, -5.54647407e-02,
+                                                -4.78313483e-02, -3.37720002e-02, -1.91780281e-02, -5.76709064e-02,
+                                                -5.54647633e-02, -4.78313797e-02, -3.37720401e-02, -1.91780399e-02,
+                                                -2.12104101e-15, -8.27709312e-16, -6.08914689e-16, -4.63674304e-16,
+                                                -2.94742692e-16])
 
 
 
@@ -102,11 +99,10 @@ def bemt_wake_analysis():
     plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
     return
 
-def helical_fixed_wake_analysis(identical_props):
+def Fidelity_One_Wake_Analysis(identical_props):
     # Evaluate wing in propeller wake (using helical fixed-wake model)
-    bemt_wake          = False
-    fixed_helical_wake = True
-    configs, analyses = full_setup(bemt_wake, fixed_helical_wake,identical_props)
+    wake_fidelity = 1
+    configs, analyses = full_setup(wake_fidelity, identical_props)
 
     configs.finalize()
     analyses.finalize()
@@ -176,7 +172,7 @@ def plot_mission(results,vehicle):
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup(bemt_wake, fixed_helical_wake, identical_props):
+def full_setup(wake_fidelity, identical_props):
 
     # vehicle data
     vehicle  = vehicle_setup()
@@ -184,7 +180,7 @@ def full_setup(bemt_wake, fixed_helical_wake, identical_props):
     props = vehicle.networks.battery_propeller.propellers
     for p in props:
         p.rotation = -1
-        if fixed_helical_wake:
+        if wake_fidelity==1:
             p.Wake = Rotor_Wake_Fidelity_One()   
             p.Wake.wake_settings.number_rotor_rotations = 1
             
@@ -195,7 +191,7 @@ def full_setup(bemt_wake, fixed_helical_wake, identical_props):
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
-    configs_analyses = analyses_setup(configs, bemt_wake, fixed_helical_wake)
+    configs_analyses = analyses_setup(configs)
 
     # mission analyses
     mission  = mission_setup(configs_analyses,vehicle)
@@ -211,18 +207,18 @@ def full_setup(bemt_wake, fixed_helical_wake, identical_props):
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
 
-def analyses_setup(configs, bemt_wake, fixed_helical_wake):
+def analyses_setup(configs):
 
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
-        analysis = base_analysis(config, bemt_wake, fixed_helical_wake)
+        analysis = base_analysis(config)
         analyses[tag] = analysis
 
     return analyses
 
-def base_analysis(vehicle, bemt_wake, fixed_helical_wake):
+def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -244,15 +240,8 @@ def base_analysis(vehicle, bemt_wake, fixed_helical_wake):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    if bemt_wake == True:
-        aerodynamics.settings.use_surrogate             = False
-        aerodynamics.settings.propeller_wake_model      = False
-        aerodynamics.settings.use_bemt_wake_model       = True
-    elif fixed_helical_wake ==True:
-        aerodynamics.settings.use_surrogate              = False
-        aerodynamics.settings.propeller_wake_model       = True
-        aerodynamics.settings.use_bemt_wake_model        = False
-
+    aerodynamics.settings.use_surrogate              = False
+    aerodynamics.settings.propeller_wake_model       = True
 
     aerodynamics.settings.number_spanwise_vortices   = 5
     aerodynamics.settings.number_chordwise_vortices  = 2
@@ -315,23 +304,6 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 2
-
-    #------------------------------------------------------------------
-    #Climb 1 : constant Speed, constant rate segment
-    #------------------------------------------------------------------
-    #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    #segment.tag = "climb_1"
-    #segment.analyses.extend( analyses.base )
-    #segment.battery_energy            = vehicle.networks.battery_propeller.battery.max_energy* 0.89
-    #segment.altitude_start            = 2500.0  * Units.feet
-    #segment.altitude_end              = 8012    * Units.feet
-    #segment.air_speed                 = 96.4260 * Units['mph']
-    #segment.climb_rate                = 700.034 * Units['ft/min']
-    #segment.state.unknowns.throttle   = 0.85 * ones_row(1)
-    #segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
-
-    ## add to misison
-    #mission.append_segment(segment)
 
     # ------------------------------------------------------------------
     #   Cruise Segment: constant Speed, constant altitude

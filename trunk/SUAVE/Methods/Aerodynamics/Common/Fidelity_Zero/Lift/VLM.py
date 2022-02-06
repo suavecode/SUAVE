@@ -127,7 +127,6 @@ def VLM(conditions,settings,geometry):
     """ 
     # unpack settings----------------------------------------------------------------
     pwm        = settings.propeller_wake_model
-    bemt_wake  = settings.use_bemt_wake_model
     ito        = settings.initial_timestep_offset
     nts        = settings.number_of_wake_timesteps 
     wdt        = settings.wake_development_time   
@@ -241,7 +240,7 @@ def VLM(conditions,settings,geometry):
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
     # Build the RHS vector    
-    rhs = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm,bemt_wake,ito,wdt,nts ) 
+    rhs = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm,ito,wdt,nts ) 
     RHS     = rhs.RHS*1
     ONSET   = rhs.ONSET*1
 

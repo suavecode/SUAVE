@@ -72,7 +72,7 @@ class Lifting_Line(Aerodynamics):
         self.surrogates.drag_coefficient = None
  
         
-    def initialize(self,use_surrogate,n_sw,n_cw ,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf,mn ,dcs):
+    def initialize(self,use_surrogate,n_sw,n_cw ,propeller_wake_model,ito,wdt,nwts,mf,mn ,dcs):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:

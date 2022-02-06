@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_bemt_induced_velocity.py
+# compute_bevw_induced_velocity.py
 # 
 # Created:  Jun 2021, R. Erhard 
 
@@ -13,8 +13,8 @@ from scipy.interpolate import interp1d
 from SUAVE.Components import Wings
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_bemt_induced_velocity(props,geometry,cpts,conditions,identical_flag,wing_instance=None):  
-    """ This computes the velocity induced by the BEMT wake
+def compute_bevw_induced_velocity(props,geometry,cpts,conditions,identical_flag,wing_instance=None):  
+    """ This computes the velocity induced by the BEVW wake
     on lifting surface control points
 
     Assumptions:  
@@ -55,11 +55,11 @@ def compute_bemt_induced_velocity(props,geometry,cpts,conditions,identical_flag,
                 s  = wing.origin[0][0] - prop.origin[0][0]
                 kd = 1 + s/(np.sqrt(s**2 + R**2))
             if nmw ==1:
-                print("No wing specified for wake analysis in compute_bemt_induced_velocity. Main wing is used.")
+                print("No wing specified for wake analysis in compute_bevw_induced_velocity. Main wing is used.")
             elif nmw>1:
-                print("No wing specified for wake analysis in compute_bemt_induced_velocity. Multiple main wings, using the last one.")
+                print("No wing specified for wake analysis in compute_bevw_induced_velocity. Multiple main wings, using the last one.")
             else:
-                print("No wing specified for wake analysis in compute_bemt_induced_velocity. No main_wing defined! Using last wing found.")
+                print("No wing specified for wake analysis in compute_bevw_induced_velocity. No main_wing defined! Using last wing found.")
                 s  = wing.origin[0][0] - prop.origin[0][0]
                 kd = 1 + s/(np.sqrt(s**2 + R**2))            
                     

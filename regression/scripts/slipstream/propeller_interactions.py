@@ -52,7 +52,7 @@ def main():
     #    ANALYSIS
     #--------------------------------------------------------------------    
     
-    # run the BEMT for upstream isolated propeller
+    # run the BEVW for upstream isolated propeller
     T_iso, Q_iso, P_iso, Cp_iso, outputs_iso , etap_iso = prop.spin(conditions)
     
     conditions.noise.sources.propellers[prop.tag] = outputs_iso

@@ -40,7 +40,7 @@ def propeller_single_point(energy_network,
                               plots=False,
                               print_results=False):
 
-        Uses SUAVE's BEMT propeller model to evaluate propeller performance at a
+        Uses SUAVE's BEVW propeller model to evaluate propeller performance at a
         single altitude, pitch command, and angular velocity. Can be used indep-
         endently, or as part of creation of a propller maps or flight envelopes.
 
@@ -50,7 +50,7 @@ def propeller_single_point(energy_network,
         Assumptions:
 
         Assumes use of Battery Propeller Energy Network, All Assumptions of
-        the BEMT model.
+        the BEVW model.
 
         Inputs:
 
@@ -72,18 +72,18 @@ def propeller_single_point(energy_network,
         Outputs:
 
             results                             SUAVE Data Object
-                .thrust                         BEMT Thrust Prediction      [N]
-                .torque                         BEMT Torque Prediction      [N-m]
-                .power                          BEMT Power Prediction       [W]
-                .power_coefficient              BEMT Cp Prediction          [Unitless]
-                .efficiency                     BEMT Efficiency Prediction  [Unitless]
-                .induced_axial_velocity         BEMT Ind. V_a Prediction    [m/s]
-                .induced_tangential_velocity    BEMT Ind. V_tPrediction     [m/s]
-                .radial_distribution            BEMT Radial Stations        [m]
-                .thrust_distribution            BEMT T Dist. Prediction     [N/m]
-                .torque_distribution            BEMT Q Dist. Prediction     [(N-m)/m]
-                .tangential_velocity            BEMT V_t Prediction         [m/s]
-                .axial_velocity                 BEMT V_a Prediction         [m/s]
+                .thrust                         BEVW Thrust Prediction      [N]
+                .torque                         BEVW Torque Prediction      [N-m]
+                .power                          BEVW Power Prediction       [W]
+                .power_coefficient              BEVW Cp Prediction          [Unitless]
+                .efficiency                     BEVW Efficiency Prediction  [Unitless]
+                .induced_axial_velocity         BEVW Ind. V_a Prediction    [m/s]
+                .induced_tangential_velocity    BEVW Ind. V_tPrediction     [m/s]
+                .radial_distribution            BEVW Radial Stations        [m]
+                .thrust_distribution            BEVW T Dist. Prediction     [N/m]
+                .torque_distribution            BEVW Q Dist. Prediction     [(N-m)/m]
+                .tangential_velocity            BEVW V_t Prediction         [m/s]
+                .axial_velocity                 BEVW V_a Prediction         [m/s]
     """
 
     # Unpack Inputs
@@ -119,16 +119,16 @@ def propeller_single_point(energy_network,
     conditions.frames.inertial.velocity_vector      = np.tile(velocity_vector, (ctrl_pts, 1))
     conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
 
-    # Run Propeller BEMT
+    # Run Propeller BEVW
     F, Q, P, Cp, outputs, etap = prop.spin(conditions)
         
-    va_ind_BEMT         = outputs.disc_axial_induced_velocity[0, :, 0]
-    vt_ind_BEMT         = outputs.disc_tangential_induced_velocity[0, :, 0]
-    r_BEMT              = outputs.disc_radial_distribution[0, :, 0]
-    T_distribution_BEMT = outputs.disc_thrust_distribution[0, :, 0]
-    vt_BEMT             = outputs.disc_tangential_velocity[0, :, 0]
-    va_BEMT             = outputs.disc_axial_velocity[0, :, 0]
-    Q_distribution_BEMT = outputs.disc_torque_distribution[0, :, 0]
+    va_ind_BEVW         = outputs.disc_axial_induced_velocity[0, :, 0]
+    vt_ind_BEVW         = outputs.disc_tangential_induced_velocity[0, :, 0]
+    r_BEVW              = outputs.disc_radial_distribution[0, :, 0]
+    T_distribution_BEVW = outputs.disc_thrust_distribution[0, :, 0]
+    vt_BEVW             = outputs.disc_tangential_velocity[0, :, 0]
+    va_BEVW             = outputs.disc_axial_velocity[0, :, 0]
+    Q_distribution_BEVW = outputs.disc_torque_distribution[0, :, 0]
 
     if print_results:
         print('Total Thrust:    {} N'.format(F[0][0]))
@@ -142,25 +142,25 @@ def propeller_single_point(energy_network,
 
     if plots:
         plt.figure(1)
-        plt.plot(r_BEMT, va_BEMT, 'ro-', label='axial BEMT')
-        plt.plot(r_BEMT, vt_BEMT, 'bo-', label='tangential BEMT')
+        plt.plot(r_BEVW, va_BEVW, 'ro-', label='axial BEVW')
+        plt.plot(r_BEVW, vt_BEVW, 'bo-', label='tangential BEVW')
         plt.xlabel('Radial Location')
         plt.ylabel('Velocity')
         plt.legend(loc='lower right')
 
         plt.figure(2)
-        plt.plot(r_BEMT, T_distribution_BEMT, 'ro-')
+        plt.plot(r_BEVW, T_distribution_BEVW, 'ro-')
         plt.xlabel('Radial Location')
         plt.ylabel('Thrust, N')
 
         plt.figure(3)
-        plt.plot(r_BEMT, Q_distribution_BEMT, 'ro-')
+        plt.plot(r_BEVW, Q_distribution_BEVW, 'ro-')
         plt.xlabel('Radial Location')
         plt.ylabel('Torque, N-m')
 
         plt.figure(4)
-        plt.plot(r_BEMT, va_ind_BEMT, 'ro-', label='Axial')
-        plt.plot(r_BEMT, vt_ind_BEMT, 'bo-', label='Tangential')
+        plt.plot(r_BEVW, va_ind_BEVW, 'ro-', label='Axial')
+        plt.plot(r_BEVW, vt_ind_BEVW, 'bo-', label='Tangential')
         plt.xlabel('Radial Location')
         plt.ylabel('Induced Velocity')
 
@@ -174,13 +174,13 @@ def propeller_single_point(energy_network,
     results.power                       = P[0][0]
     results.power_coefficient           = Cp[0][0]
     results.efficiency                  = etap[0][0]
-    results.induced_axial_velocity      = va_ind_BEMT
-    results.induced_tangential_velocity = vt_ind_BEMT
-    results.radial_distribution         = r_BEMT
-    results.thrust_distribution         = T_distribution_BEMT
-    results.torque_distribution         = Q_distribution_BEMT
-    results.tangential_velocity         = vt_BEMT
-    results.axial_velocity              = va_BEMT
+    results.induced_axial_velocity      = va_ind_BEVW
+    results.induced_tangential_velocity = vt_ind_BEVW
+    results.radial_distribution         = r_BEVW
+    results.thrust_distribution         = T_distribution_BEVW
+    results.torque_distribution         = Q_distribution_BEVW
+    results.tangential_velocity         = vt_BEVW
+    results.axial_velocity              = va_BEVW
     results.outputs                     = outputs
 
     return results

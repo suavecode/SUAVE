@@ -68,7 +68,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         tol    = 1e-6  # Convergence tolerance
         ii     = 0
         PSIold = copy.deepcopy(PSI)*0
-        # BEMT Iteration
+        # BEVW Iteration
         while (diff>tol):
             # compute velocities
             sin_psi      = np.sin(PSI)
@@ -97,18 +97,18 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
             diff        = np.max(abs(PSIold-PSI))
             PSIold      = PSI
 
-            # If omega = 0, do not run BEMT convergence loop
+            # If omega = 0, do not run BEVW convergence loop
             if all(omega[:,0]) == 0. :
                 break
 
             # If its really not going to converge
             if np.any(PSI>np.pi/2) and np.any(dpsi>0.0):
-                print("Rotor BEMT did not converge to a solution (Stall)")
+                print("Rotor BEVW did not converge to a solution (Stall)")
                 break
 
             ii+=1
             if ii>10000:
-                print("Rotor BEMT did not converge to a solution (Iteration Limit)")
+                print("Rotor BEVW did not converge to a solution (Iteration Limit)")
                 break    
                 
             
@@ -119,7 +119,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
 
 def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
     """
-    Computes the analytical derivative for the BEMT iteration.
+    Computes the analytical derivative for the BEVW iteration.
 
     Assumptions:
     N/A
@@ -145,7 +145,7 @@ def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
        dR_dpsi                    derivative of residual wrt inflow angle         [-]
 
     """
-    # An analytical derivative for dR_dpsi used in the Newton iteration for the BEMT
+    # An analytical derivative for dR_dpsi used in the Newton iteration for the BEVW
     # This was solved symbolically in Matlab and exported
     pi          = np.pi
     pi2         = np.pi**2

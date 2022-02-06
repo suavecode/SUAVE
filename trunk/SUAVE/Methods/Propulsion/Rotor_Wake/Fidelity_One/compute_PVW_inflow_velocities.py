@@ -32,7 +32,7 @@ def compute_PVW_inflow_velocities( wake, prop, WD ):
     omega                    = prop.inputs.omega
     init_timestep_offset     = wake.wake_settings.initial_timestep_offset
 
-    # use results from prior bemt iteration
+    # use results from prior bevw iteration
     prop_outputs  = prop.outputs
     cpts          = len(prop_outputs.velocity)
     Na            = prop.number_azimuthal_stations

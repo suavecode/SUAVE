@@ -17,10 +17,10 @@ import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.generate_PVW_geometry import generate_PVW_geometry
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_bemt_induced_velocity import compute_bemt_induced_velocity
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_bevw_induced_velocity import compute_bevw_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model,bemt_wake,initial_timestep_offset,wake_development_time,number_of_wake_timesteps):
+def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model,initial_timestep_offset,wake_development_time,number_of_wake_timesteps):
 
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included
@@ -91,56 +91,63 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
         if propeller_wake_model:
             # include the propeller wake effect on the wing
             if 'propellers' in network.keys(): 
-                # extract the propeller wake and compute resulting induced velocitiesdata structure
+                # extract the propeller wake and compute resulting induced velocities data structure
                 props           = network.propellers
                 prop_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
-                for p in props.keys():
-                    #check that wake shape has been generated
-                    prop = props[p]
-                    wVD = prop.Wake.vortex_distribution #Wake_VD.reshaped_wake
                 
-                    # compute the induced velocity from the rotor wake on the lifting surfaces
-                    VD.Wake=wVD
-                    prop_V_wake_ind += compute_wake_induced_velocity(wVD,VD,num_ctrl_pts)
+                for p in props.keys():
+                    # check for wake method
+                    wake_method = props[p].Wake.wake_method
+                    
+                    if wake_method == "PVW":
+                        #extract wake shape previously generated
+                        prop = props[p]
+                        wVD = prop.Wake.vortex_distribution
+                    
+                        # compute the induced velocity from the rotor wake on the lifting surfaces
+                        VD.Wake=wVD
+                        prop_V_wake_ind += compute_wake_induced_velocity(wVD,VD,num_ctrl_pts)
+                    
+                    elif wake_method =="VW":
+                        # compute the wake induced velocities
+                        identical_flag = network.identical_propellers
+                        if network.number_of_propeller_engines == None:
+                            pass
+                        else:                          
+                            if not network.identical_propellers:
+                                assert('This method currently only works with identical propellers')
+                            props = network.propellers
+                            prop_V_wake_ind = compute_bevw_induced_velocity(props,geometry,num_ctrl_pts,conditions,identical_flag)                        
 
             if 'lift_rotors' in network.keys(): 
-                if network.number_of_lift_rotor_engines == None:
-                    pass
-                else:  
-                    # extract the propeller data structure
-                    identical_rots = network.identical_lift_rotors
-                    lift_rotors    = network.rotors
-    
-                    # generate the geometry of the propeller helical wake
-                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_PVW_geometry(lift_rotors,identical_rots,num_ctrl_pts,\
-                                                                                                                            VD,initial_timestep_offset,wake_development_time,\
-                                                                                                                            number_of_wake_timesteps,conditions)
-                    # compute the induced velocity
-                    rot_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
+                # extract the rotor wake and compute resulting induced velocities data structure
+                rots           = network.lift_rotors
+                rot_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
+                
+                for r in rots.keys():
+                    # check for wake method
+                    wake_method = rots[r].Wake.wake_method
+                    
+                    if wake_method == "PVW":
+                        #extract wake shape previously generated
+                        rot = rots[r]
+                        wVD = rot.Wake.vortex_distribution
+                    
+                        # compute the induced velocity from the rotor wake on the lifting surfaces
+                        VD.Wake=wVD
+                        prop_V_wake_ind += compute_wake_induced_velocity(wVD,VD,num_ctrl_pts)
+                    
+                    elif wake_method =="VW":
+                        # compute the wake induced velocities
+                        identical_flag = network.identical_propellers
+                        if network.number_of_propeller_engines == None:
+                            pass
+                        else:                          
+                            if not network.identical_propellers:
+                                assert('This method currently only works with identical lift rotors')
+                            rot_V_wake_ind = compute_bevw_induced_velocity(rots,geometry,num_ctrl_pts,conditions,identical_flag)                  
 
-        elif bemt_wake:
-            # adapt the RHS matrix with the BEMT induced velocities
-            if 'propellers' in network.keys():  
-                identical_flag = network.identical_propellers
-                if network.number_of_propeller_engines == None:
-                    pass
-                else:                          
-                    if not network.identical_propellers:
-                        assert('This method currently only works with identical propellers')
-                    props = network.propellers
-                    prop_V_wake_ind = compute_bemt_induced_velocity(props,geometry,num_ctrl_pts,conditions,identical_flag)
-
-            if 'lift_rotors' in network.keys(): 
-                identical_flag = network.identical_lift_rotors
-                if network.number_of_lift_rotor_engines == None:
-                    pass
-                else:                  
-                    if not network.identical_lift_rotors:
-                        assert('This method currently only works with identical rotors')
-                    rotors = network.rotors
-                    rot_V_wake_ind = compute_bemt_induced_velocity(rotors,geometry,num_ctrl_pts,conditions,identical_flag)
-
-        if propeller_wake_model or bemt_wake:
+        if propeller_wake_model:
             # update the total induced velocity distribution
             Vx_ind_total = Vx_ind_total + prop_V_wake_ind[:,:,0] + rot_V_wake_ind[:,:,0]
             Vy_ind_total = Vy_ind_total + prop_V_wake_ind[:,:,1] + rot_V_wake_ind[:,:,1]
