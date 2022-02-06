@@ -116,7 +116,7 @@ def rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points
     optimization_problem = rotor_optimization_setup(rotor) 
     if use_pyoptsparse:
         output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
-                                                      sense_step= 1E-4) 
+                                                      sense_step= 1E-2) 
     else: 
         output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
                                          tolerance = 1E-3)    
