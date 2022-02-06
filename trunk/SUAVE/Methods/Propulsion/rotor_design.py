@@ -12,6 +12,7 @@ from SUAVE.Core                                                                 
 from SUAVE.Analyses.Mission.Segments.Segment                                              import Segment 
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                    import propeller_mid_fidelity
 import SUAVE.Optimization.Package_Setups.scipy_setup                                      as scipy_setup
+import SUAVE.Optimization.Package_Setups.pyoptsparse_setup                                as pyoptsparse_setup
 from SUAVE.Optimization                                                                   import Nexus      
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry  
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars  import compute_airfoil_polars 
@@ -28,7 +29,7 @@ import time
 #  Rotor Design
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
-def rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP'):  
+def rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP',use_pyoptsparse=False):  
     """ Optimizes rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
@@ -49,8 +50,8 @@ def rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points
                  aeroacoustic_weight           [None]
             
           Outputs:
-          Twist distribution                 [array of radians]
-          Chord distribution                 [array of meters]
+          Twist distribution                   [array of radians]
+          Chord distribution                   [array of meters]
               
           Assumptions: 
              N/A 
@@ -113,7 +114,12 @@ def rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points
     # start optimization 
     ti = time.time()   
     optimization_problem = rotor_optimization_setup(rotor) 
-    output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4, tolerance = 1E-3)    
+    if use_pyoptsparse:
+        output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
+                                                      sense_step= 1E-4) 
+    else: 
+        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
+                                         tolerance = 1E-3)    
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
     print('Rotor Otimization Simulation Time: ' + str(elapsed_time))   
