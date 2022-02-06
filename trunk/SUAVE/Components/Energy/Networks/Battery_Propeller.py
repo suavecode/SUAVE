@@ -242,11 +242,15 @@ class Battery_Propeller(Network):
                     conditions.noise.sources.lift_rotors[prop.tag]     = outputs
             
             if identical_flag and prop.Wake.wake_method=="PVW":
-                wake_vd = copy.deepcopy(prop.Wake.vortex_distribution)
                 # append wakes to all propellers, shifted by new origin
                 for p in props:
+                    # make copy of prop wake and vortex distribution
+                    base_wake = copy.deepcopy(prop.Wake)
+                    wake_vd   = base_wake.vortex_distribution
+                    
+                    # apply offset 
                     origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
-                    p.Wake = copy.deepcopy(prop.Wake) 
+                    p.Wake = base_wake
                     p.Wake.shift_wake_VD(wake_vd, origin_offset)
                     
             # Run the avionics

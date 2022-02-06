@@ -450,7 +450,9 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 wVD.reshaped_wake[mat] += offset[1]
             elif 'Z' in mat:
                 wVD.reshaped_wake[mat] += offset[2]        
+        # update wake distribution
         self.Wake_VD = wVD
+        self.vortex_distribution = wVD
         return
         
         

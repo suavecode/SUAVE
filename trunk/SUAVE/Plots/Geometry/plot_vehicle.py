@@ -73,13 +73,19 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
         axes.scatter(VD.XC,VD.YC,VD.ZC, c='r', marker = 'o' )
 
     # -------------------------------------------------------------------------
-    # PLOT WAKE
+    # PLOT WAKES
     # -------------------------------------------------------------------------
     wake_face_color = 'white'
     wake_edge_color = 'blue'
     wake_alpha      = 0.5
-    if'Wake' in VD:
-        plot_propeller_wake(axes, VD,wake_face_color,wake_edge_color,wake_alpha)
+    for net in vehicle.networks:
+        for prop in net.propellers:
+            # plot propeller wake
+            plot_propeller_wake(axes, prop, wake_face_color, wake_edge_color, wake_alpha)
+        for rot in net.lift_rotors:
+            # plot rotor wake
+            plot_propeller_wake(axes, rot, wake_face_color, wake_edge_color, wake_alpha)            
+            
 
     # -------------------------------------------------------------------------
     # PLOT FUSELAGE
@@ -164,7 +170,7 @@ def plot_wing(axes,VD,face_color,edge_color,alpha_val):
 
     return
 
-def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
+def plot_propeller_wake(axes, prop,face_color,edge_color,alpha,ctrl_pt=0):
     """ This plots a helical wake of a propeller or rotor
 
     Assumptions:
@@ -183,33 +189,33 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     Properties Used:
     N/A
     """
+    wVD = prop.Wake.vortex_distribution.reshaped_wake
+    num_cpts = len(wVD.XA1[0,:,0,0,0])
+    num_B    = len(wVD.XA1[0,0,:,0,0])
+    dim_R    = len(wVD.XA1[0,0,0,:,0])
+    nts      = len(wVD.XA1[0,0,0,0,:])
     
-    num_prop = len(VD.Wake.reshaped_wake.XA1[0,:,0,0,0])
-    num_B    = len(VD.Wake.reshaped_wake.XA1[0,0,:,0,0])
-    dim_R    = len(VD.Wake.reshaped_wake.XA1[0,0,0,:,0])
-    nts      = len(VD.Wake.reshaped_wake.XA1[0,0,0,0,:])
-    for p_idx in range(num_prop):
-        for t_idx in range(nts):
-            for B_idx in range(num_B):
-                for loc in range(dim_R):
-                    X = [VD.Wake.reshaped_wake.XA1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.reshaped_wake.XB1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.reshaped_wake.XB2[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.reshaped_wake.XA2[0,p_idx,B_idx,loc,t_idx]]
-                    Y = [VD.Wake.reshaped_wake.YA1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.reshaped_wake.YB1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.reshaped_wake.YB2[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.reshaped_wake.YA2[0,p_idx,B_idx,loc,t_idx]]
-                    Z = [VD.Wake.reshaped_wake.ZA1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.reshaped_wake.ZB1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.reshaped_wake.ZB2[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.reshaped_wake.ZA2[0,p_idx,B_idx,loc,t_idx]]
-                    verts = [list(zip(X, Y, Z))]
-                    collection = Poly3DCollection(verts)
-                    collection.set_facecolor(face_color)
-                    collection.set_edgecolor(edge_color)
-                    collection.set_alpha(alpha)
-                    axes.add_collection3d(collection)
+    for t_idx in range(nts):
+        for B_idx in range(num_B):
+            for loc in range(dim_R):
+                X = [wVD.XA1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.XB1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.XB2[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.XA2[0,ctrl_pt,B_idx,loc,t_idx]]
+                Y = [wVD.YA1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.YB1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.YB2[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.YA2[0,ctrl_pt,B_idx,loc,t_idx]]
+                Z = [wVD.ZA1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.ZB1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.ZB2[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.ZA2[0,ctrl_pt,B_idx,loc,t_idx]]
+                verts = [list(zip(X, Y, Z))]
+                collection = Poly3DCollection(verts)
+                collection.set_facecolor(face_color)
+                collection.set_edgecolor(edge_color)
+                collection.set_alpha(alpha)
+                axes.add_collection3d(collection)
     return
 
 

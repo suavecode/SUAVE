@@ -85,10 +85,6 @@ def propeller_single_point(energy_network,
                 .tangential_velocity            BEMT V_t Prediction         [m/s]
                 .axial_velocity                 BEMT V_a Prediction         [m/s]
     """
-    # Check if the propellers are identical
-    if not energy_network.identical_propellers:
-        assert('This script only works with identical propellers')
-    
 
     # Unpack Inputs
     prop_key                    = list(energy_network.propellers.keys())[i_prop]
@@ -145,24 +141,24 @@ def propeller_single_point(energy_network,
     # ----------------------------------------------------------------------------
 
     if plots:
-        fig = plt.figure(1)
+        plt.figure(1)
         plt.plot(r_BEMT, va_BEMT, 'ro-', label='axial BEMT')
         plt.plot(r_BEMT, vt_BEMT, 'bo-', label='tangential BEMT')
         plt.xlabel('Radial Location')
         plt.ylabel('Velocity')
         plt.legend(loc='lower right')
 
-        fig = plt.figure(2)
+        plt.figure(2)
         plt.plot(r_BEMT, T_distribution_BEMT, 'ro-')
         plt.xlabel('Radial Location')
         plt.ylabel('Thrust, N')
 
-        fig = plt.figure(3)
+        plt.figure(3)
         plt.plot(r_BEMT, Q_distribution_BEMT, 'ro-')
         plt.xlabel('Radial Location')
         plt.ylabel('Torque, N-m')
 
-        fig = plt.figure(4)
+        plt.figure(4)
         plt.plot(r_BEMT, va_ind_BEMT, 'ro-', label='Axial')
         plt.plot(r_BEMT, vt_ind_BEMT, 'bo-', label='Tangential')
         plt.xlabel('Radial Location')

@@ -25,16 +25,23 @@ from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelit
 sys.path.append('../Vehicles')
 from X57_Maxwell_Mod2 import vehicle_setup, configs_setup
 
+import time
 
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
 def main():
     #run test with helical fixed wake model
+    t0 = time.time()
     helical_fixed_wake_analysis(identical_props=True)
-    
-    # run test with helical fixed wake model and non-identical props
+    print("TIME: " + str(time.time()-t0))
+    plt.show()
+
+    # run test with helical fixed wake model and non-identical props    
+    t0 = time.time()
     helical_fixed_wake_analysis(identical_props=False)
+    print("TIME: " + str((time.time()-t0)/60))
+    plt.show()    
     
     # run test with bemt wake model
     bemt_wake_analysis()
@@ -110,7 +117,7 @@ def helical_fixed_wake_analysis(identical_props):
 
     # lift coefficient
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.4373189325399449
+    lift_coefficient_true         = 0.43813579094153554
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true)
@@ -120,13 +127,14 @@ def helical_fixed_wake_analysis(identical_props):
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 4.57953838e-01,  2.11036609e-01,  3.73738203e-01,  3.33669832e-01,
-                                                 6.47360233e-02,  4.78915782e-01,  3.64147251e-01,  4.06152070e-01,
-                                                 3.49413145e-01,  6.78269110e-02, -4.46105245e-02, -4.22467103e-02,
-                                                -3.58604221e-02, -2.17224796e-02, -1.05369999e-02, -6.04801570e-02,
-                                                -5.89329336e-02, -4.95027813e-02, -3.45177666e-02, -1.95334575e-02,
-                                                 3.91223011e-06,  1.11284673e-08,  5.69593533e-08,  1.12423714e-07,
-                                                 6.56733737e-08])
+    sectional_lift_coeff_true       = np.array([ 4.17980236e-01,  6.35637114e-01,  3.48935801e-01,  2.65231869e-01,
+                                                 5.06858059e-02,  3.89937920e-01,  4.10040539e-01,  2.94170309e-01,
+                                                 2.40561453e-01,  4.58450189e-02, -1.14517416e-01, -1.10479319e-01,
+                                                -9.96857378e-02, -8.28741705e-02, -5.29456124e-02, -9.38371058e-02,
+                                                -8.94528129e-02, -8.26897371e-02, -6.62645032e-02, -4.09864507e-02,
+                                                -6.88346479e-07, -8.74875486e-10, -1.47356561e-08, -2.68471275e-08,
+                                                -1.54810932e-08])
+
 
     plot_lift_distribution(results,configs.base)
     
@@ -172,11 +180,14 @@ def full_setup(bemt_wake, fixed_helical_wake, identical_props):
 
     # vehicle data
     vehicle  = vehicle_setup()
-    # update wake method if PVW is desired:
-    if fixed_helical_wake:
-        props = vehicle.networks.battery_propeller.propellers.keys()
-        for p in list(props):
-            vehicle.networks.battery_propeller.propellers[p].Wake = Rotor_Wake_Fidelity_One()    
+    # update wake method and rotation direction of rotors:
+    props = vehicle.networks.battery_propeller.propellers
+    for p in props:
+        p.rotation = -1
+        if fixed_helical_wake:
+            p.Wake = Rotor_Wake_Fidelity_One()   
+            p.Wake.wake_settings.number_rotor_rotations = 1
+            
 
     # test for non-identical propellers
     if not identical_props:
