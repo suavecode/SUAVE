@@ -1,7 +1,7 @@
 # nonuniform_propeller_inflow.py
 #
 # Created:   Mar 2021, R. Erhard
-# Modified:
+# Modified:  Feb 2022, R. Erhard
 
 import SUAVE
 from SUAVE.Core import Units, Data

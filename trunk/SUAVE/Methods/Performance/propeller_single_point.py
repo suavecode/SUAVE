@@ -1,8 +1,8 @@
 ## @ingroup Methods-Performance
 # propeller_single_point.py
 #
-# Created: Jan 2021, J. Smart
-# Modified:
+# Created:  Jan 2021, J. Smart
+# Modified: Feb 2022, R. Erhard
 
 #-------------------------------------------------------------------------------
 # Imports

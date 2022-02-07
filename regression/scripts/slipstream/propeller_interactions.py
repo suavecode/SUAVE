@@ -1,7 +1,7 @@
 # propeller_interactions.py
 # 
 # Created:  April 2021, R. Erhard
-# Modified: 
+# Modified: Feb 2022, R. Erhard
 
 #----------------------------------------------------------------------
 #   Imports
