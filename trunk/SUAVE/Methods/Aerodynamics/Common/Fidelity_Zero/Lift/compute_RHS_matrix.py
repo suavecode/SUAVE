@@ -15,7 +15,6 @@
 # package imports
 import numpy as np
 from SUAVE.Core import Data
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.generate_PVW_geometry import generate_PVW_geometry
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_bevw_induced_velocity import compute_bevw_induced_velocity
 

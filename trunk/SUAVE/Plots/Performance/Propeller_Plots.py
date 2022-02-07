@@ -183,13 +183,13 @@ def plot_propeller_disc_inflow(prop,velocities, grid_points):
     style = "Simple, tail_width=0.5, head_width=4, head_length=8"
     kw    = dict(arrowstyle=style,color="k")
     
-    if prop.rotation[0]==1:
+    if prop.rotation==1:
         # Rotation direction is ccw
         arrow1 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
         arrow2 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
         arrow3 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
         arrow4 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
-    elif prop.rotation[0]==-1:
+    elif prop.rotation==-1:
         # Rotation direction is cw
         arrow1 = patches.FancyArrowPatch((0.8*R,-0.8*R),(-0.8*R,-0.8*R), connectionstyle="arc3,rad=-0.4", **kw)
         arrow2 = patches.FancyArrowPatch((0.8*R,-0.8*R),(-0.8*R,-0.8*R), connectionstyle="arc3,rad=-0.4", **kw)
