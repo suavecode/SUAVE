@@ -8,8 +8,6 @@
 #----------------------------
 # Imports
 #----------------------------
-#from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
-#from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
 from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
@@ -20,6 +18,7 @@ from SUAVE.Input_Output.VTK.save_vortex_distribution_vtk import save_vortex_dist
 
 from SUAVE.Core import Data
 import numpy as np
+## @ingroup Input_Output-VTK
 def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                      wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
     """
@@ -52,7 +51,6 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_se
     """
     if VLM_settings == None:
         VLM_settings = Data()
-        #VLM_settings = Vortex_Lattice().settings
         VLM_settings.number_spanwise_vortices  = 25
         VLM_settings.number_chordwise_vortices = 5
         VLM_settings.spanwise_cosine_spacing   = False

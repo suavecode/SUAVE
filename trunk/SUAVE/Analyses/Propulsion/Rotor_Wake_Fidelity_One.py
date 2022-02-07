@@ -124,7 +124,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
         while va_diff > tol:  
             # generate wake geometry for rotor
-            WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor)
+            WD  = self.generate_wake_shape(rotor)
             
             # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
             va, vt = compute_PVW_inflow_velocities(self,rotor, WD)
@@ -148,13 +148,13 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
             
         # save converged wake:
-        WD, dt, ts, B, Nr  = self.generate_wake_shape(rotor)
+        WD  = self.generate_wake_shape(rotor)
         self.vortex_distribution = WD
             
         return va, vt
     
     def generate_wake_shape(self,rotor):
-        """x
+        """
         This generates the propeller wake control points and vortex distribution that make up the PVW. 
         All (x,y,z) coordinates are in the vehicle frame of reference.
         
@@ -308,7 +308,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # transform coordinates from airfoil frame to rotor frame
         xte = np.tile(np.atleast_2d(yte_twisted), (B,1))
-        xte_rotor = np.tile(xte[None,:,:,None], (m,1,1,nts))   # TO DO: NEED TO APPLY SKEW ANGLE
+        xte_rotor = np.tile(xte[None,:,:,None], (m,1,1,nts))  
         yte_rotor = -np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.cos(panel_azimuthal_positions)
         zte_rotor = np.tile(xte_twisted[None,None,:,None],(m,B,1,1))*np.sin(panel_azimuthal_positions)
         
@@ -436,7 +436,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         WD.reshaped_wake = self.Wake_VD
                 
            
-        return WD, dt, ts, B, Nr 
+        return WD
     
     def shift_wake_VD(self,wVD, offset):
         for mat in wVD.keys():
