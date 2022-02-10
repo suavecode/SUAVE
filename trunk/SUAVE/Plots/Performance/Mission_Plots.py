@@ -5,6 +5,7 @@
 #           Apr 2020, M. Clarke
 #           Sep 2020, M. Clarke 
 #           Apr 2021, M. Clarke
+#           Dec 2021, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -181,8 +182,94 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
         plt.savefig(save_filename + file_type)          
         
     return
+    
+# ------------------------------------------------------------------
+#   Plot Fuel Use
+# ------------------------------------------------------------------
+
+def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Fuel_Burnt", file_type = ".png"):
+    """This plots aircraft fuel usage
+    Assumptions:
+    None
+    Source:
+    None
+    Inputs:
+    results.segments.condtions.
+        frames.inertial.time
+        weights.fuel_mass
+        weights.additional_fuel_mass
+        weights.total_mass
+    Outputs: 
+    Plots
+    Properties Used:
+    N/A	"""
+
+    axis_font = {'size':'14'}  
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8) 
+
+    prev_seg_fuel       = 0
+    prev_seg_extra_fuel = 0
+    total_fuel          = 0
+
+    axes = plt.subplot(1,1,1)
+            
+    for i in range(len(results.segments)):
+
+        segment  = results.segments[i]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+
+        if "has_additional_fuel" in segment.conditions.weights and segment.conditions.weights.has_additional_fuel == True:
 
 
+            fuel     = segment.conditions.weights.fuel_mass[:,0]
+            alt_fuel = segment.conditions.weights.additional_fuel_mass[:,0]
+
+            if i == 0:
+
+                plot_fuel     = np.negative(fuel)
+                plot_alt_fuel = np.negative(alt_fuel)
+
+                axes.plot( time , plot_fuel , 'ro-' , label = 'fuel')
+                axes.plot( time , plot_alt_fuel , 'bo-', label = 'additional fuel' )
+                axes.plot( time , np.add(plot_fuel, plot_alt_fuel), 'go-', label = 'total fuel' )
+
+                axes.legend(loc='center right')   
+
+            else:
+                prev_seg_fuel       += results.segments[i-1].conditions.weights.fuel_mass[-1]
+                prev_seg_extra_fuel += results.segments[i-1].conditions.weights.additional_fuel_mass[-1]
+
+                current_fuel         = np.add(fuel, prev_seg_fuel)
+                current_alt_fuel     = np.add(alt_fuel, prev_seg_extra_fuel)
+
+                axes.plot( time , np.negative(current_fuel)  , 'ro-' )
+                axes.plot( time , np.negative(current_alt_fuel ), 'bo-')
+                axes.plot( time , np.negative(current_fuel + current_alt_fuel), 'go-')
+
+        else:
+            
+            initial_weight  = results.segments[0].conditions.weights.total_mass[:,0][0]
+            
+            for i in range(len(results.segments) ) :
+                segment     = results.segments[i]
+                fuel        = segment.conditions.weights.total_mass[:,0]
+                time        = segment.conditions.frames.inertial.time[:,0] / Units.min 
+                total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight )
+                axes.plot( time, total_fuel, 'mo-')
+
+    axes.set_ylabel('Fuel (kg)',axis_font)
+    axes.set_xlabel('Time (min)',axis_font)
+
+    set_axes(axes)
+
+
+    plt.tight_layout()  
+
+    if save_figure:
+        plt.savefig(save_filename + file_type)  
+        
+    return
 # ------------------------------------------------------------------
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
