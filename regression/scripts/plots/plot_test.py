@@ -1,7 +1,7 @@
 # test_plots.py
 # 
 # Created: Mar 2020, M. Clarke
-#
+# Modified: Jan 2022, S. Claridge
 # Tests plotting functions 
 
 # ----------------------------------------------------------------------
@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import * 
+from SUAVE.Plots.Performance.Mission_Plots import * 
 import matplotlib.pyplot as plt  
 
 def main():
@@ -52,6 +52,13 @@ def main():
     # Compare Plot for Flight Conditions   
     """
     plot_flight_conditions(results)
+
+    
+    """
+    # Compare Plot for Fuel Tracking 
+    """
+    plot_fuel_use(results)
+
 
     return 
 

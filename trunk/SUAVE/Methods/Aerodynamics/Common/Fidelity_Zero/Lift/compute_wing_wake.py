@@ -16,7 +16,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_v
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_wake_grid import generate_wing_wake_grid
 
 
-def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, viscous_wake=True, plot_grid=False, plot_wake=False):
+def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, evaluation_points=None,viscous_wake=True, plot_grid=False, plot_wake=False):
     """
      Computes the wing-induced velocities at a given x-plane.
      
@@ -42,10 +42,12 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     #-------------------------------------------------------------------------
     #          Extract variables:
     #-------------------------------------------------------------------------
-    span    = geometry.wings.main_wing.spans.projected
-    croot   = geometry.wings.main_wing.chords.root
-    ctip    = geometry.wings.main_wing.chords.tip
-    x0_wing = geometry.wings.main_wing.origin[0,0]
+    wing_tags = list(geometry.wings.keys())
+    main_wing = wing_tags[0] # assumes main wing is the first in the list
+    span    = geometry.wings[main_wing].spans.projected
+    croot   = geometry.wings[main_wing].chords.root
+    ctip    = geometry.wings[main_wing].chords.tip
+    x0_wing = geometry.wings[main_wing].origin[0,0]
     aoa     = conditions.aerodynamics.angle_of_attack
     mach    = conditions.freestream.mach_number
     rho     = conditions.freestream.density
@@ -59,8 +61,9 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     # --------------------------------------------------------------------------------
     #          Run the VLM for the given vehicle and conditions 
     # --------------------------------------------------------------------------------
-    _, _, _, _, _, _, _, _, _, gamma  = VLM(conditions, VLM_settings, geometry)
-    VD = geometry.vortex_distribution 
+    results = VLM(conditions, VLM_settings, geometry)
+    gamma   = results.gamma
+    VD      = geometry.vortex_distribution 
     
     # create a deep copy of the vortex distribution
     VD       = copy.deepcopy(VD)
@@ -69,22 +72,27 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     # ------------------------------------------------------------------------------------
     #          Generate grid points to evaluate wing induced velocities at
     # ------------------------------------------------------------------------------------ 
-    grid_points = generate_wing_wake_grid(geometry, H, L, hf, x, plot_grid=plot_grid)
-    cp_XC = grid_points.XC
-    cp_YC = grid_points.YC
-    cp_ZC = grid_points.ZC
-    
-    VD.XC = cp_XC
-    VD.YC = cp_YC
-    VD.ZC = cp_ZC  
+    if evaluation_points == None:
+        grid_points = generate_wing_wake_grid(geometry, H, L, hf, x, plot_grid=plot_grid)
+        cp_XC = grid_points.XC
+        cp_YC = grid_points.YC
+        cp_ZC = grid_points.ZC
+        
+        VD.XC = cp_XC
+        VD.YC = cp_YC
+        VD.ZC = cp_ZC  
+    else:
+        VD.XC = evaluation_points.X
+        VD.YC = evaluation_points.Y
+        VD.ZC = evaluation_points.Z
     
     #----------------------------------------------------------------------------------------------
     # Compute wing induced velocity    
     #----------------------------------------------------------------------------------------------    
-    C_mn, _, _, _, _ = compute_wing_induced_velocity(VD,VLM_settings.number_spanwise_vortices,VLM_settings.number_chordwise_vortices,mach)     
-    u_inviscid = (C_mn[:,:,:,0]@gammaT)[0,:,0]
-    v_inviscid = (C_mn[:,:,:,1]@gammaT)[0,:,0]
-    w_inviscid = (C_mn[:,:,:,2]@gammaT)[0,:,0]     
+    C_mn, _, _, _ = compute_wing_induced_velocity(VD,mach)     
+    u_inviscid    = (C_mn[:,:,:,0]@gammaT)[0,:,0]
+    v_inviscid    = (C_mn[:,:,:,1]@gammaT)[0,:,0]
+    w_inviscid    = (C_mn[:,:,:,2]@gammaT)[0,:,0]     
     
     #----------------------------------------------------------------------------------------------
     # Impart the wake deficit from BL of wing if x is behind the wing
@@ -92,15 +100,16 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     Va_deficit = np.zeros_like(VD.YC)
     
     if viscous_wake and (x>=x0_wing):
-        # Reynolds number developed at x-plane:
-        Rex_prop_plane     = Vv*(x-x0_wing)/nu
         
         # impart viscous wake to grid points within the span of the wing
         y_inside            = abs(VD.YC)<0.5*span
         chord_distribution  = croot - (croot-ctip)*(abs(VD.YC[y_inside])/(0.5*span))
         
+        # Reynolds number developed at x-plane:
+        Rex_prop_plane     = Vv*(VD.XC[y_inside]-x0_wing)/nu
+        
         # boundary layer development distance
-        x_dev      = (x-x0_wing) * np.ones_like(chord_distribution)
+        x_dev      = (VD.XC[y_inside]-x0_wing) * np.ones_like(chord_distribution)
         
         # For turbulent flow
         theta_turb  = 0.036*x_dev/(Rex_prop_plane**(1/5))
@@ -154,4 +163,4 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
         plt.colorbar(a,ax=axes,orientation='horizontal')        
     
     
-    return wing_wake
+    return wing_wake, results

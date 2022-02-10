@@ -25,7 +25,7 @@ def fuselage_weight_FLOPS(vehicle):
 
         Inputs:
             vehicle - data dictionary with vehicle properties                    [dimensionless]
-                -.propulsors: data dictionary containing all propulsion properties
+                -.networks: data dictionary containing all propulsion properties
                 -.fuselages['fuselage'].lengths.total: fuselage total length      [meters]
                 -.fuselages['fuselage'].width: fuselage width                    [meters]
                 -.fuselages['fuselage'].heights.maximum: fuselage maximum height [meters]
@@ -59,9 +59,9 @@ def fuselage_weight_FLOPS(vehicle):
         DG              = vehicle.mass_properties.max_takeoff / Units.lbs  # Design gross weight in lb
         WFUSE           = 0.052 * SWFUS ** 1.086 * (ULF * DG) ** 0.177 * QCRUS ** 0.241
     else:
-        propulsor_name  = list(vehicle.propulsors.keys())[0]
-        propulsors      = vehicle.propulsors[propulsor_name]
-        FNEF = len(propulsors.wing_mounted) - sum(propulsors.wing_mounted)   # Number of fuselage mounted engines
+        network_name  = list(vehicle.networks.keys())[0]
+        networks      = vehicle.networks[network_name]
+        FNEF = len(networks.wing_mounted) - sum(networks.wing_mounted)   # Number of fuselage mounted engines
         if vehicle.systems.accessories == 'cargo':
             CARGF = 1
         else:

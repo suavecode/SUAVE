@@ -2,6 +2,7 @@
 # noise_propeller_low_fidelty.py
 #
 # Created:  Mar 2021, M. Clarke
+# Modified: Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -22,9 +23,9 @@ from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise   import 
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
 # -------------------------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings):
+def propeller_mid_fidelity(network,auc_opts,segment,settings,source = 'propeller'):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
-    and frequency spectrums of a system of rotating blades (i.e. propellers and rotors)          
+    and frequency spectrums of a system of rotating blades (i.e. propellers and lift_rotors)          
         
     Assumptions:
     None
@@ -55,24 +56,30 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings):
     
     # unpack 
     conditions           = segment.state.conditions
-    microphone_locations = conditions.noise.microphone_locations
+    microphone_locations = conditions.noise.total_microphone_locations
     angle_of_attack      = conditions.aerodynamics.angle_of_attack 
     velocity_vector      = conditions.frames.inertial.velocity_vector
     freestream           = conditions.freestream  
     harmonics            = settings.harmonics  
+    
+    if not network.identical_propellers:
+        assert('This method currently only works with identical propellers')
+        
+    # Because the propellers are identical, get the first propellers results
+    auc_opts = auc_opts[list(auc_opts.keys())[0]]
     
     # create data structures for computation  
     Noise   = Data()  
     Results = Data()
                      
     # compute position vector of microphones         
-    position_vector = compute_point_source_coordinates(angle_of_attack,auc_opts.thrust_angle,microphone_locations,propeller.origin)  
+    position_vector = compute_point_source_coordinates(conditions,network,microphone_locations,source)  
      
     # Harmonic Noise    
-    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,propeller,auc_opts,settings,Noise)       
+    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,network,auc_opts,settings,Noise,source)       
      
     # Broadband Noise   
-    compute_broadband_noise(freestream,angle_of_attack,position_vector, velocity_vector,propeller,auc_opts,settings,Noise)       
+    compute_broadband_noise(freestream,angle_of_attack,position_vector, velocity_vector,network,auc_opts,settings,Noise,source)       
      
     # Combine Rotational(periodic/tonal) and Broadband Noise 
     Noise.SPL_prop_bpfs_spectrum                               = Noise.SPL_r

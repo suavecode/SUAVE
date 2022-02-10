@@ -63,7 +63,7 @@ def main():
     
     for id_eng,engine_number in enumerate(engines):
         
-        configuration.propulsors.turbofan.number_of_engines = engine_number
+        configuration.networks.turbofan.number_of_engines = engine_number
         
         for id_w,weight in enumerate(w_vec):
             configuration.mass_properties.takeoff = weight
@@ -85,16 +85,16 @@ def main():
     print(' takeoff_field_length = ',  takeoff_field_length)
     print(' second_seg_clb_grad  = ', second_seg_clb_grad)                      
                              
-    truth_clb_grad =  np.array([[0.06842616, 0.24573587, 0.42304558],
-                                [0.0624858 , 0.23365346, 0.40482112],
-                                [0.05691173, 0.22233091, 0.38775008],
-                                [0.05167129, 0.21169929, 0.3717273 ],
-                                [0.04673554, 0.20169777, 0.35666   ],
-                                [0.04207879, 0.19227239, 0.34246598],
-                                [0.03767816, 0.18337517, 0.32907217],
-                                [0.03351319, 0.17496329, 0.31641339],
-                                [0.02956553, 0.16699843, 0.30443134],
-                                [0.02581868, 0.15944617, 0.29307367]])
+    truth_clb_grad =  np.array([[0.06750095, 0.24481066, 0.42212037],
+                                [0.06156218, 0.23272984, 0.4038975 ],
+                                [0.05598961, 0.22140878, 0.38682795],
+                                [0.05075057, 0.21077857, 0.37080658],
+                                [0.04581613, 0.20077837, 0.3557406 ],
+                                [0.04116063, 0.19135423, 0.34154782],
+                                [0.03676117, 0.18245818, 0.32815518],
+                                [0.03259731, 0.17404741, 0.31549751],
+                                [0.02865069, 0.16608359, 0.30351649],
+                                [0.02490483, 0.15853232, 0.29215982]])
 
 
     TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length)/truth_TOFL)                           
@@ -152,7 +152,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy Analysis
     energy  = SUAVE.Analyses.Energy.Energy()
-    energy.network=vehicle.propulsors
+    energy.network=vehicle.networks
     analyses.append(energy)
     
     # ------------------------------------------------------------------

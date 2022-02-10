@@ -38,15 +38,18 @@ modules = [
 
     # ----------------------- Regression List --------------------------
     'scripts/aerodynamics/aerodynamics.py',
-    'scripts/aerodynamics/sears_haack.py',
+    'scripts/aerodynamics/all_moving_surfaces_vlm.py',
+    'scripts/aerodynamics/control_surfaces_vlm.py',
+    'scripts/aerodynamics/sideslip_and_rotation_vlm.py',
     'scripts/airfoil_import/airfoil_import_test.py',
     'scripts/airfoil_import/airfoil_interpolation_test.py',
+    'scripts/airfoil_analysis/airfoil_panel_method_test.py',  
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
-    'scripts/B737/mission_B737.py',
-    'scripts/battery/battery.py',
-    'scripts/battery_propeller/battery_propeller.py',
+    'scripts/B737/mission_B737.py', 
+    'scripts/battery/aircraft_discharge_comparisons.py',
+    'scripts/battery/battery_cell_discharge_tests.py', 
     'scripts/cmalpha/cmalpha.py',
     'scripts/cnbeta/cnbeta.py',
     'scripts/concorde/concorde.py',
@@ -95,16 +98,19 @@ modules = [
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
     'scripts/solar_radiation/solar_radiation.py',
+    'scripts/aerodynamics/sears_haack.py',
     'scripts/SU2_surrogate/BWB-450.py',
     'scripts/sweeps/test_sweeps.py',
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',
+    'scripts/turboelectric_HTS_ducted_fan_network/turboelectric_HTS_ducted_fan_network.py',
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
     'scripts/V_n_diagram/V_n_diagram_regression.py',
     'scripts/VTOL/test_Multicopter.py',
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
     'scripts/weights/weights.py'
+    
 ]
 
 # ----------------------------------------------------------------------

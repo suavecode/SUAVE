@@ -11,8 +11,6 @@ from .Fan                        import Fan
 from .Fuel_Cell                  import Fuel_Cell
 from .Motor                      import Motor
 from .Motor_Lo_Fid               import Motor_Lo_Fid
-from .Propeller                  import Propeller
-from .Rotor                      import Rotor
 from .Propeller_Lo_Fid           import Propeller_Lo_Fid
 from .Generator_Zero_Fid         import Generator_Zero_Fid
 from .Internal_Combustion_Engine import Internal_Combustion_Engine
@@ -25,3 +23,7 @@ from .Supersonic_Nozzle          import Supersonic_Nozzle
 from .Shaft_Power_Off_Take       import Shaft_Power_Off_Take
 from .Gearbox                    import Gearbox
 from .Rotor                      import Rotor
+from .Lift_Rotor                 import Lift_Rotor
+from .Propeller                  import Propeller
+from .Motor_HTS_Rotor            import Motor_HTS_Rotor
+from .Turboelectric              import Turboelectric

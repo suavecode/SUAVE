@@ -13,21 +13,18 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
 
 from SUAVE.Core import Data
-from SUAVE.Components.Propulsors.Propulsor      import Propulsor
+from .Network import Network
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 # ----------------------------------------------------------------------
 #  Turbofan Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Turbofan(Propulsor):
+class Turbofan(Network):
     """ This is a turbofan. 
     
         Assumptions:
@@ -59,8 +56,7 @@ class Turbofan(Propulsor):
         
         #setting the default values
         self.tag = 'Turbofan'
-        self.number_of_engines    = 0.0
-        self.nacelle_diameter     = 0.0
+        self.number_of_engines    = 0.0 
         self.engine_length        = 0.0
         self.bypass_ratio         = 0.0
         self.SFC_adjustment       = 0.0 # Less than 1 is a reduction

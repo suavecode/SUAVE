@@ -9,7 +9,7 @@ for future aircraft incorporating advanced technologies.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/h33v9tottm2t5b9a?svg=true)](https://ci.appveyor.com/project/planes/suave)
 [![Coverage Status](https://coveralls.io/repos/github/suavecode/SUAVE/badge.svg?branch=develop)](https://coveralls.io/github/suavecode/SUAVE?branch=develop)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2564444.svg)](https://doi.org/10.5281/zenodo.2564444)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5661107.svg)](https://doi.org/10.5281/zenodo.5661107)
 
 License: LGPL-2.1
 
@@ -62,7 +62,7 @@ More information available at [download](http://suave.stanford.edu/download.html
 Requirements
 ------------
 
-numpy, scipy, matplotlib, pip, scikit-learn
+numpy, scipy, matplotlib, pip, scikit-learn, plotly
 
 
 Developer Install

@@ -9,22 +9,19 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
 
 from SUAVE.Core import Data
-from SUAVE.Components.Propulsors.Propulsor      import Propulsor
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Ducted_Fan Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Ducted_Fan(Propulsor):
+class Ducted_Fan(Network):
     """ A ducted fan 
     
         Assumptions:
@@ -57,7 +54,6 @@ class Ducted_Fan(Propulsor):
         #setting the default values
         self.tag = 'Ducted_Fan'
         self.number_of_engines = 1.0
-        self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
         self.bypass_ratio      = 0.0
         self.areas             = Data()

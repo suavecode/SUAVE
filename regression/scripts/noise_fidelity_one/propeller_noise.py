@@ -24,10 +24,12 @@ def main():
     '''   
 
     # Define Network 
-    net                     = Battery_Propeller()     
-    net.number_of_engines   = 1
-    prop                    = design_F8745D4_prop()  
-    net.propeller           = prop    
+    net                                = Battery_Propeller()     
+    net.number_of_propeller_engines    = 1
+    net.identical_propellers           = True
+    prop                               = design_F8745D4_prop()
+    net.propellers.append(prop)
+
  
     # Set-up Validation Conditions 
     a                       = 343.376
@@ -65,7 +67,9 @@ def main():
     
     # Set up for Propeller Model
     prop.inputs.omega                            = np.atleast_2d(omega).T
-    conditions                                   = Aerodynamics()   
+    prop.inputs.pitch_command                    = 0.
+    conditions                                   = Aerodynamics()
+    conditions._size                             = 3
     conditions.freestream.density                = np.ones((ctrl_pts,1)) * density
     conditions.freestream.dynamic_viscosity      = np.ones((ctrl_pts,1)) * dynamic_viscosity   
     conditions.freestream.speed_of_sound         = np.ones((ctrl_pts,1)) * a 
@@ -74,21 +78,24 @@ def main():
     conditions.propulsion.throttle               = np.ones((ctrl_pts,1))*1.0
     conditions.aerodynamics.angle_of_attack      = np.ones((ctrl_pts,1))* 0. * Units.degrees 
     conditions.frames.body.transform_to_inertial = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
-    conditions.noise.microphone_locations        = mic_locations
+    conditions.noise.total_microphone_locations  = mic_locations
     
     # Run Propeller model 
-    F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions)   
+    F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions)
+
+    noise_datas = Data()
+    noise_datas.propeller = noise_data
     
     # Store Noise Data 
     noise                                                  = SUAVE.Analyses.Noise.Fidelity_One()
     segment                                                = Segment()
     settings                                               = noise.settings
-    conditions.noise.sources.propeller                     = noise_data    
+    conditions.noise.sources.propeller                     = noise_datas
     conditions.noise.number_of_microphones                 = num_mic  
     segment.state.conditions                               = conditions
 
     # Run Fidelity One   
-    propeller_noise  = propeller_mid_fidelity(net,prop,noise_data,segment,settings)  
+    propeller_noise  = propeller_mid_fidelity(net,noise_datas,segment,settings)  
     SPL_dBA          = propeller_noise.SPL_dBA
     SPL_Spectrum     = propeller_noise.SPL_bpfs_spectrum
     
@@ -241,7 +248,6 @@ def main():
                                         
 def design_F8745D4_prop():  
     prop                            = SUAVE.Components.Energy.Converters.Propeller()
-    prop.inputs                     = Data()
     prop.tag                        = 'F8745_D4_Propeller'  
     prop.tip_radius                 = 2.03/2
     prop.hub_radius                 = prop.tip_radius*0.20
@@ -268,8 +274,8 @@ def design_F8745D4_prop():
     separator                       = os.path.sep
     rel_path                        = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator
     prop.airfoil_geometry           = [ rel_path +'Clark_y.txt']
-    prop.airfoil_polars             = [[rel_path +'Clark_y_polar_Re_50000.txt' ,rel_path +'Clark_y_polar_Re_100000.txt',rel_path +'Clark_y_polar_Re_200000.txt',
-                                        rel_path +'Clark_y_polar_Re_500000.txt',rel_path +'Clark_y_polar_Re_1000000.txt']]
+    prop.airfoil_polars             = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
+                                        rel_path +'Polars/Clark_y_polar_Re_500000.txt',rel_path +'Polars/Clark_y_polar_Re_1000000.txt']]
     prop.airfoil_polar_stations     = list(np.zeros(dim))  
     airfoil_polars                  = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)  
     airfoil_cl_surs                 = airfoil_polars.lift_coefficient_surrogates 

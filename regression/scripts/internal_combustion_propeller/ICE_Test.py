@@ -23,7 +23,7 @@ import sys
 sys.path.append('../Vehicles')
 # the analysis functions 
  
-from Cessna_172      import vehicle_setup  
+from Cessna_172  import vehicle_setup  
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -36,13 +36,15 @@ def main():
     # Setup analyses and mission
     analyses = base_analysis(vehicle)
     analyses.finalize()
-    mission  = mission_setup(analyses)
+    mission  = mission_setup(analyses,vehicle)
     
     # evaluate
     results = mission.evaluate()
     
-    P_truth     = 113274.953368933
-    mdot_truth  = 0.008752685036290996
+    h  = 0.008757244664175039
+
+    P_truth     = 53544.66503976736
+    mdot_truth  = 0.00470455685313632
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
     mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]
@@ -66,7 +68,7 @@ def main():
 #   Define the Mission
 # ----------------------------------------------------------------------
 
-def mission_setup(analyses):
+def mission_setup(analyses,vehicle):
 
     # ------------------------------------------------------------------
     #   Initialize the Mission
@@ -106,12 +108,8 @@ def mission_setup(analyses):
     
     ones_row                                        = segment.state.ones_row   
     segment.state.numerics.number_control_points    = 4
-    segment.state.unknowns.throttle                 = 0.1   *  ones_row(1)
-    segment.state.unknowns.rpm                      = 2650. *  ones_row(1) 
-    segment.state.residuals.network                 = 0.    * ones_row(1) 
-    
-    segment.process.iterate.unknowns.network  = analyses.aerodynamics.geometry.propulsors.internal_combustion.unpack_unknowns 
-    segment.process.iterate.residuals.network = analyses.aerodynamics.geometry.propulsors.internal_combustion.residuals   
+    segment.state.unknowns.throttle                 = 1.0 * ones_row(1)
+    segment = vehicle.networks.internal_combustion.add_unknowns_and_residuals_to_segment(segment,rpm=2650)
     
     
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
@@ -159,7 +157,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
 
     # ------------------------------------------------------------------

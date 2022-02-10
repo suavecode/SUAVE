@@ -206,7 +206,7 @@ def energy_network():
     # numerics conditions
     numerics.time.integrate                            = np.array([[0, 0],[0, 1]])
     numerics.time.differentiate                        = np.array([[0, 0],[0, 1]])
-  
+    numerics.time.control_points                       = np.array([[0], [1]])
     
     # propulsion conditions
     conditions.propulsion.throttle                     = np.array([[1.0],[1.0]])

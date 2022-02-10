@@ -5,6 +5,8 @@
 # Modified: Jan 2016, E. Botero
 #           Mar 2016, E. Botero
 #           Jul 2017, E. Botero
+#           Oct 2021, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,6 +14,7 @@
 
 from SUAVE.Analyses import Process
 from SUAVE.Core import Data
+from SUAVE.Methods.skip import skip
 
 # ----------------------------------------------------------------------
 #  Expand Sub Segments
@@ -47,6 +50,9 @@ def expand_sub_segments(segment):
         last_tag = tag        
         
         sub_segment.process.initialize.expand_state(sub_segment)
+        
+        # Now we need to skip this next time because it's already done
+        sub_segment.process.initialize.expand_state = skip
                
         if Process.verbose:
             print('segment end :' , tag)        
@@ -186,10 +192,12 @@ def unpack_subsegments(segment):
         counter[key] = 0
 
     for i, sub_segment in enumerate(segment.segments):
-        ctrl_pnts = sub_segment.state.numerics.number_control_points
         for key in sub_segment.state.unknowns.keys():
-            sub_segment.state.unknowns[key] = segment.state.unknowns[key][counter[key]:counter[key]+ctrl_pnts]
-            counter[key] = counter[key]+ctrl_pnts
+            if key=='tag':
+                continue
+            points = sub_segment.state.unknowns[key].size
+            sub_segment.state.unknowns[key] = segment.state.unknowns[key][counter[key]:counter[key]+points]
+            counter[key] = counter[key]+points
             
     return
             

@@ -5,7 +5,7 @@
 # Modified: Sep 2016, E. Botero
 #           May 2020, E. Botero
 #           Jul 2020, E. Botero 
-
+#           Jul 2021, E. Botero
 
    
 # ----------------------------------------------------------------------
@@ -20,7 +20,6 @@ chars = string.punctuation + string.whitespace
 t_table = str.maketrans( chars          + string.ascii_uppercase , 
                             '_'*len(chars) + string.ascii_lowercase )
 
-from warnings import warn
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -393,17 +392,17 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """        
-        klass = self.__class__
-        klasses = []
-        while klass:
-            if issubclass(klass,DataOrdered): 
-                klasses.append(klass)
-                klass = klass.__base__
-            else:
-                klass = None
-        if not klasses: # empty list
-            raise TypeError('class %s is not of type DataBunch()' % self.__class__)
-        return klasses
+        # Get the Method Resolution Order, i.e. the ancestor tree
+        klasses = list(self.__class__.__mro__)
+        
+        # Make sure that this is a Data object, otherwise throw an error.
+        if DataOrdered not in klasses:
+            raise TypeError('class %s is not of type Data()' % self.__class__)    
+        
+        # Remove the last two items, dict and object. Since the line before ensures this is a data object this won't break
+        klasses = klasses[:-3]
+
+        return klasses 
     
     def typestring(self):
         """ This function makes the .key.key structure in string form of Data()

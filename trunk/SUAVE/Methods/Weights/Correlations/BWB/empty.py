@@ -85,54 +85,42 @@ def empty(vehicle):
     """
 
     # Unpack inputs
-    Nult        = vehicle.envelope.ultimate_load
-    Nlim        = vehicle.envelope.limit_load
     TOW         = vehicle.mass_properties.max_takeoff
-    wt_zf       = vehicle.mass_properties.max_zero_fuel
-    wt_cargo    = vehicle.mass_properties.cargo
-    num_pax     = vehicle.passengers
-    ctrl_type   = vehicle.systems.control
-    ac_type     = vehicle.systems.accessories
 
-    num_seats                   = vehicle.passengers
     bwb_aft_centerbody_area     = vehicle.fuselages['fuselage_bwb'].aft_centerbody_area
     bwb_aft_centerbody_taper    = vehicle.fuselages['fuselage_bwb'].aft_centerbody_taper
     bwb_cabin_area              = vehicle.fuselages['fuselage_bwb'].cabin_area
 
-    propulsor_name = list(vehicle.propulsors.keys())[0]  # obtain the key f
-    # for the propulsor for assignment purposes
+    network_name = list(vehicle.networks.keys())[0]  # obtain the key f
+    # for the network for assignment purposes
 
-    propulsors = vehicle.propulsors[propulsor_name]
-    num_eng = propulsors.number_of_engines
-    if propulsor_name == 'turbofan' or propulsor_name == 'Turbofan':
-        # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor
+    networks = vehicle.networks[network_name]
+    num_eng = networks.number_of_engines
+    if network_name == 'turbofan' or network_name == 'Turbofan':
+        # thrust_sls should be sea level static thrust. Using design thrust results in wrong network
         # weight estimation. Engine sizing should return this value.
         # for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
-        thrust_sls      = propulsors.sealevel_static_thrust
+        thrust_sls      = networks.sealevel_static_thrust
         wt_engine_jet   = Propulsion.engine_jet(thrust_sls)
         wt_propulsion   = Propulsion.integrated_propulsion(wt_engine_jet, num_eng)
-        propulsors.mass_properties.mass = wt_propulsion
+        networks.mass_properties.mass = wt_propulsion
 
-    else:  # propulsor used is not a turbo_fan; assume mass_properties defined outside model
-        wt_propulsion = propulsors.mass_properties.mass
+    else:  # network used is not a turbo_fan; assume mass_properties defined outside model
+        wt_propulsion = networks.mass_properties.mass
 
         if wt_propulsion == 0:
             warnings.warn("Propulsion mass= 0; there is no Engine Weight being added to the Configuration",
                           stacklevel=1)
 
-    S_gross_w = vehicle.reference_area
-
     if 'main_wing' not in vehicle.wings:
         wt_wing = 0.0
-        S_h = 0.0
         warnings.warn("There is no Wing Weight being added to the Configuration", stacklevel=1)
 
     else:
         
         rho      = Aluminum().density
         sigma    = Aluminum().yield_tensile_strength           
-        S_h = vehicle.wings['main_wing'].areas.reference * 0.01  # control surface area on bwb
-        wt_wing = wing_main(vehicle, vehicle.wings['main_wing'], rho, sigma, computation_type='simple')
+        wt_wing  = wing_main(vehicle, vehicle.wings['main_wing'], rho, sigma, computation_type='simple')
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing
 
         # Calculating Empty Weight of Aircraft

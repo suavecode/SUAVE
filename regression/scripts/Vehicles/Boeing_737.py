@@ -3,6 +3,7 @@
 # Created:  Feb 2017, M. Vegh (taken from data originally in B737/mission_B737.py, noise_optimization/Vehicles.py, and Boeing 737 tutorial script
 # Modified: Jul 2017, M. Clarke
 #           Mar 2020, M. Clarke
+#           Oct 2021, M. Clarke
 
 """ setup file for the Boeing 737 vehicle
 """
@@ -16,8 +17,9 @@ import numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
 
-
+from copy import deepcopy 
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -94,7 +96,7 @@ def vehicle_setup():
 
 
     # Wing Segments
-    root_airfoil                          = SUAVE.Components.Wings.Airfoils.Airfoil()
+    root_airfoil                          = SUAVE.Components.Airfoils.Airfoil()
     root_airfoil.coordinate_file          = '../Vehicles/Airfoils/B737a.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Root'
@@ -108,7 +110,7 @@ def vehicle_setup():
     segment.append_airfoil(root_airfoil)
     wing.append_segment(segment)
 
-    yehudi_airfoil                        = SUAVE.Components.Wings.Airfoils.Airfoil()
+    yehudi_airfoil                        = SUAVE.Components.Airfoils.Airfoil()
     yehudi_airfoil.coordinate_file        = '../Vehicles/Airfoils/B737b.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Yehudi'
@@ -122,7 +124,7 @@ def vehicle_setup():
     segment.append_airfoil(yehudi_airfoil)
     wing.append_segment(segment)
 
-    mid_airfoil                           = SUAVE.Components.Wings.Airfoils.Airfoil()
+    mid_airfoil                           = SUAVE.Components.Airfoils.Airfoil()
     mid_airfoil.coordinate_file           = '../Vehicles/Airfoils/B737c.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Section_2'
@@ -136,7 +138,7 @@ def vehicle_setup():
     segment.append_airfoil(mid_airfoil)
     wing.append_segment(segment)
 
-    tip_airfoil                           =  SUAVE.Components.Wings.Airfoils.Airfoil()
+    tip_airfoil                           =  SUAVE.Components.Airfoils.Airfoil()
     tip_airfoil.coordinate_file           = '../Vehicles/Airfoils/B737d.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Tip'
@@ -149,6 +151,9 @@ def vehicle_setup():
     segment.thickness_to_chord            = .1
     segment.append_airfoil(tip_airfoil)
     wing.append_segment(segment)
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)    
 
     # control surfaces -------------------------------------------
     slat                          = SUAVE.Components.Wings.Control_Surfaces.Slat()
@@ -175,6 +180,8 @@ def vehicle_setup():
     aileron.deflection            = 0.0 * Units.degrees
     aileron.chord_fraction        = 0.16
     wing.append_control_surface(aileron)
+    
+
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -233,6 +240,9 @@ def vehicle_setup():
     segment.sweeps.quarter_chord   = 0 * Units.degrees  
     segment.thickness_to_chord     = .1
     wing.append_segment(segment)
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)        
 
     # control surfaces -------------------------------------------
     elevator                       = SUAVE.Components.Wings.Control_Surfaces.Elevator()
@@ -312,6 +322,9 @@ def vehicle_setup():
     segment.sweeps.quarter_chord          = 0.0    
     segment.thickness_to_chord            = .1  
     wing.append_segment(segment)
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)        
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -353,7 +366,7 @@ def vehicle_setup():
     fuselage.differential_pressure = 5.0e4 * Units.pascal # Maximum differential pressure
     
     # Segment  
-    segment                                     = SUAVE.Components.Fuselages.Segment() 
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment() 
     segment.tag                                 = 'segment_0'    
     segment.percent_x_location                  = 0.0000
     segment.percent_z_location                  = -0.00144 
@@ -362,7 +375,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)   
     
     # Segment  
-    segment                                     = SUAVE.Components.Fuselages.Segment() 
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment() 
     segment.tag                                 = 'segment_1'    
     segment.percent_x_location                  = 0.00576 
     segment.percent_z_location                  = -0.00144 
@@ -371,7 +384,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)   
     
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_2'   
     segment.percent_x_location                  = 0.02017 
     segment.percent_z_location                  = 0.00000 
@@ -380,7 +393,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)      
     
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_3'   
     segment.percent_x_location                  = 0.03170 
     segment.percent_z_location                  = 0.00000 
@@ -389,7 +402,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)   
 
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_4'   
     segment.percent_x_location                  = 0.04899 	
     segment.percent_z_location                  = 0.00431 
@@ -398,7 +411,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)   
     
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_5'   
     segment.percent_x_location                  = 0.07781 
     segment.percent_z_location                  = 0.00861 
@@ -407,7 +420,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)     
     
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_6'   
     segment.percent_x_location                  = 0.10375 
     segment.percent_z_location                  = 0.01005 
@@ -416,7 +429,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)             
      
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_7'   
     segment.percent_x_location                  = 0.16427 
     segment.percent_z_location                  = 0.01148 
@@ -425,7 +438,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)    
     
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_8'   
     segment.percent_x_location                  = 0.22478 
     segment.percent_z_location                  = 0.01148 
@@ -434,7 +447,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)   
     
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_9'     
     segment.percent_x_location                  = 0.69164 
     segment.percent_z_location                  = 0.01292
@@ -443,7 +456,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)     
         
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_10'     
     segment.percent_x_location                  = 0.71758 
     segment.percent_z_location                  = 0.01292
@@ -452,7 +465,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)   
         
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_11'     
     segment.percent_x_location                  = 0.78098 
     segment.percent_z_location                  = 0.01722
@@ -461,7 +474,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)    
         
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_12'     
     segment.percent_x_location                  = 0.85303
     segment.percent_z_location                  = 0.02296
@@ -470,7 +483,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)             
         
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_13'     
     segment.percent_x_location                  = 0.91931 
     segment.percent_z_location                  = 0.03157
@@ -479,7 +492,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)               
         
     # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_14'     
     segment.percent_x_location                  = 1.00 
     segment.percent_z_location                  = 0.04593
@@ -488,7 +501,30 @@ def vehicle_setup():
     fuselage.Segments.append(segment)                  
     
     # add to vehicle
-    vehicle.append_component(fuselage) 
+    vehicle.append_component(fuselage)  
+    
+    # ------------------------------------------------------------------
+    #   Nacelles
+    # ------------------------------------------------------------------ 
+    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.tag                   = 'nacelle_1'
+    nacelle.length                = 2.71
+    nacelle.inlet_diameter        = 1.90
+    nacelle.diameter              = 2.05
+    nacelle.areas.wetted          = 1.1*np.pi*nacelle.diameter*nacelle.length
+    nacelle.origin                = [[13.72, -4.86,-1.9]]
+    nacelle.flow_through          = True  
+    nacelle_airfoil               = SUAVE.Components.Airfoils.Airfoil() 
+    nacelle_airfoil.naca_4_series_airfoil = '2410'
+    nacelle.append_airfoil(nacelle_airfoil)
+
+    nacelle_2                     = deepcopy(nacelle)
+    nacelle_2.tag                 = 'nacelle_2'
+    nacelle_2.origin              = [[13.72, 4.86,-1.9]]
+    
+    vehicle.append_component(nacelle)  
+    vehicle.append_component(nacelle_2)     
+    
     
     # ------------------------------------------------------------------
     #   Turbofan Network
@@ -502,17 +538,9 @@ def vehicle_setup():
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
-    turbofan.nacelle_diameter  = 2.05
+
     # This origin is overwritten by compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
     turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
-
-    #compute engine areas
-    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
-
-    #Assign engine areas
-    turbofan.areas.wetted  = Awet
-
-
 
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -760,6 +788,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'cruise' 
     configs.append(config)
+    config.wings['main_wing'].control_surfaces.flap.deflection       = 0. * Units.deg
+    config.wings['main_wing'].control_surfaces.slat.deflection       = 0. * Units.deg
 
     # ------------------------------------------------------------------
     #   Takeoff Configuration
@@ -772,9 +802,9 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Flyover_'
 
-    config.propulsors['turbofan'].fan.rotation            = 3470. #N1 speed
-    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 315.
-    config.propulsors['turbofan'].core_nozzle.noise_speed = 415.
+    config.networks['turbofan'].fan.rotation            = 3470. #N1 speed
+    config.networks['turbofan'].fan_nozzle.noise_speed  = 315.
+    config.networks['turbofan'].core_nozzle.noise_speed = 415.
 
     configs.append(config)
 
@@ -789,9 +819,9 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Cutback_'
 
-    config.propulsors['turbofan'].fan.rotation            = 2780. #N1 speed
-    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 210.
-    config.propulsors['turbofan'].core_nozzle.noise_speed = 360.
+    config.networks['turbofan'].fan.rotation            = 2780. #N1 speed
+    config.networks['turbofan'].fan_nozzle.noise_speed  = 210.
+    config.networks['turbofan'].core_nozzle.noise_speed = 360.
 
     configs.append(config)
 
@@ -808,9 +838,9 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition                               = 'down'    
     config.output_filename                                           = 'Approach_'
 
-    config.propulsors['turbofan'].fan.rotation     = 2030.  #N1 speed
-    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 109.3
-    config.propulsors['turbofan'].core_nozzle.noise_speed = 92.
+    config.networks['turbofan'].fan.rotation     = 2030.  #N1 speed
+    config.networks['turbofan'].fan_nozzle.noise_speed  = 109.3
+    config.networks['turbofan'].core_nozzle.noise_speed = 92.
 
     configs.append(config)
 
