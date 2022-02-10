@@ -53,6 +53,9 @@ def case_1(vehicle, conditions):
 
     # plot velocities at propeller plane and resulting performance
     plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
+    plot_propeller_performance(prop,outputs,conditions=None)
+    
+    plt.show()
 
     thrust   = np.linalg.norm(thrust)
     thrust_r = 1721.4410120677564
