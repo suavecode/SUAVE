@@ -20,7 +20,7 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_veloc
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_bevw_induced_velocity import compute_bevw_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model,initial_timestep_offset,wake_development_time,number_of_wake_timesteps):
+def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model):
 
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included

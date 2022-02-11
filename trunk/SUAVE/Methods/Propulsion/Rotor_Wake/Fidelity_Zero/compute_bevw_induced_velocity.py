@@ -43,7 +43,7 @@ def compute_bevw_induced_velocity(props,geometry,cpts,conditions,identical_flag,
         else:
             idx = i
         prop_key     = list(props.keys())[idx]
-        prop_outputs = conditions.noise.sources.propellers[prop_key]
+        prop_outputs = props[prop_key].outputs
         R            = prop.tip_radius
         
         # contraction factor by McCormick
@@ -55,7 +55,8 @@ def compute_bevw_induced_velocity(props,geometry,cpts,conditions,identical_flag,
                 s  = wing.origin[0][0] - prop.origin[0][0]
                 kd = 1 + s/(np.sqrt(s**2 + R**2))
             if nmw ==1:
-                print("No wing specified for wake analysis in compute_bevw_induced_velocity. Main wing is used.")
+                pass
+                #print("No wing specified for wake analysis in compute_bevw_induced_velocity. Main wing is used.")
             elif nmw>1:
                 print("No wing specified for wake analysis in compute_bevw_induced_velocity. Multiple main wings, using the last one.")
             else:
