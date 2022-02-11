@@ -207,8 +207,8 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
 def regress_2(results):
 
-    CL_truth = 0.53138154
-    CM_truth = 0.39756911
+    CL_truth = 0.51255101
+    CM_truth = 0.40329122
     
     CL = results.CL
     CM = results.CM
@@ -437,12 +437,10 @@ def Stopped_Rotor_vehicle(wake_fidelity, identical_props):
 
 def simulation_settings():
     settings = Vortex_Lattice().settings  
-    settings.number_spanwise_vortices                 = 50
+    settings.number_spanwise_vortices                 = 15
     settings.number_chordwise_vortices                = 1
     settings.use_surrogate                            = False    
     settings.propeller_wake_model                     = True 
-    settings.wake_development_time                    = 0.01 
-    settings.number_of_wake_timesteps                 = 30
     settings.spanwise_cosine_spacing                  = True 
     settings.model_fuselage                           = True   
     settings.leading_edge_suction_multiplier          = 1.0    
