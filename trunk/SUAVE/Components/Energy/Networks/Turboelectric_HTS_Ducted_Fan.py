@@ -99,7 +99,6 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         cryocooler                  = self.cryocooler               # Rotor cryocoolers, powered by electricity
         heat_exchanger              = self.heat_exchanger           # Rotor cryocooling, powered by cryogen
         
-        
         ambient_skin                = self.ambient_skin             # flag to indicate rotor skin temp
         rotor_surface_temp          = self.skin_temp                # Exterior temperature of the rotors
         leads                       = self.leads                    # number of rotor leads, typically twice the number of rotors
@@ -119,7 +118,6 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         # Calculate the required electric power to be supplied to the ducted fan motor by dividing the shaft power required by the ducted fan by the efficiency of the ducted fan motor
         # Note here that the efficiency must not include the efficiency of the rotor and rotor supply components as these are handled separately below.
-
         motor_power_in        = ducted_fan.thrust.outputs.power/motor.motor_efficiency
 
         # Calculate the power used by the power electronics. This does not include the power delivered by the power elctronics to the fan motor.
@@ -150,7 +148,6 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         lead_power      = np.reshape(lead_power, (len(lead_power),1))
         lead_cryo_load  = np.reshape(lead_cryo_load, (len(lead_power),1))
 
-
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads
         lead_cryo_load      = lead_cryo_load * leads
@@ -169,7 +166,6 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         # Sum the two rotor cryogenic heat loads to give the total rotor cryogenic load.
         rotor_cryo_load             = rotor_cryo_cryostat + all_leads_cryo
         
-
         # Calculate the power required from the cryocoolers (if present)
         cryocooler_power = 0.0
         

@@ -2,6 +2,7 @@
 # Turboelectric_HTS_Dynamo_Ducted_Fan.py
 #
 # Created:  Mar 2020, K. Hamilton
+# Modified: Feb 2022, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -83,8 +84,10 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
                 state [state()]
     
             Outputs:
-                results.thrust_force_vector [newtons]
-                results.vehicle_mass_rate   [kg/s]
+                results.thrust_force_vector             [newtons]
+                results.vehicle_mass_rate               [kg/s]
+                results.vehicle_additional_fuel_rate    [kg/s]
+                results.vehicle_fuel_rate               [kg/s]
     
             Properties Used:
                 Defaulted values
@@ -134,7 +137,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
 
         # If the rotor current is to be varied depending on the motor power here is the place to do it. For now the rotor current is set as constant.
         rotor_current       = np.full_like(motor_power_in, rotor.current)
-  
+
         # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
         single_rotor_power  = rotor.power(rotor_current, skin_temp)
         rotor_power_in      = single_rotor_power * ducted_fan.number_of_engines

@@ -21,8 +21,10 @@ import matplotlib.pyplot as plt
 ## @ingroup Components-Energy-Distributors
 class HTS_DC_Dynamo_Basic(Energy_Component):
     """ Basic HTS Dynamo model for constant current DC coil operation at constant cryogenic temperature.
+
         Assumptions:
         HTS Dynamo is operating at rated temperature and output current.
+
         Source:
         None
     """
@@ -56,8 +58,10 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         """ The shaft power that must be supplied to the DC Dynamo supply to power the HTS coils.
             Assumptions:
                 HTS Dynamo is operating at rated temperature.
+                
             Source:
                 N/A
+
             Inputs:
                 cryo_temp           [K]
                 current             [A]
@@ -66,6 +70,9 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             Outputs:
                 power_in            [W]
                 cryo_load           [W]
+
+            Properties Used:
+                None
         """
 
 
@@ -75,11 +82,11 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
 
         # Create output arrays. The hts dynamo input power is assumed zero if the output power is zero, this may not be true for some dynamo configurations however the power required for zero output power will be very low.
         # Similarly, the cryo load will be zero if no dynamo effect is occuring.
-        power_in            = np.zeros_like(power_out)
-        cryo_load           = np.zeros_like(power_out)
+        power_in   = np.zeros_like(power_out)
+        cryo_load  = np.zeros_like(power_out)
 
-        power_in  = np.array(power_out/efficiency)
-        cryo_load = np.array(power_in - power_out)
+        power_in   = np.array(power_out/efficiency)
+        cryo_load  = np.array(power_in - power_out)
 
         # Return basic results.
         return [power_in, cryo_load]
@@ -118,30 +125,4 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         return   efficiency
 
 
-    def mass_estimation(self):
-
-        """ This sets the default values.
-        Assumptions:
-        The mass of a Squirrel Cage HTS dynamo with a rated current of 850A is 8.7kg
-
-        Source:
-
-        ADDD SOURCEEEEE
-
-        Inputs:
-        self.rated_current        [A]
-
-        Outputs:
-        self.mass_properties.mass  [kg]
-
-        Properties Used:
-
-        None
-        """     
-
-        rated_current = self.rated_current
-
-        mass = (8.7 / 850) * rated_current
-
-        self.mass_properties.mass = mass
 

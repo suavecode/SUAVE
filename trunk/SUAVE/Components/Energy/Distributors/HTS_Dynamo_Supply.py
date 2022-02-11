@@ -48,7 +48,7 @@ class HTS_Dynamo_Supply(Energy_Component):
         self.rated_RPM              =    0.0    # [RPM]
     
     def power_in(self, dynamo, power_out, hts_current, RPM=None):
-        """ The power supplied to this component based on that that this must deliver to the HTS dynamo as shaft power.
+        """ The power supplied to this component based on that this must deliver to the HTS dynamo as shaft power.
 
             Assumptions:
                 Constant efficiency across the RPM range of the output shaft.

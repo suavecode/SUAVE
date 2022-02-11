@@ -213,10 +213,10 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, 
     # propulsion conditions
     conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    
     
-    state_sls = Data()
-    state_sls.numerics = Data()
+    state_sls            = Data()
+    state_sls.numerics   = Data()
     state_sls.conditions = conditions_sls   
-    results_sls = ducted_fan.evaluate_thrust(state_sls)
+    results_sls          = ducted_fan.evaluate_thrust(state_sls)
     
     Turboelectric_HTS_Dynamo_Ducted_Fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
 
