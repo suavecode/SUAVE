@@ -13,14 +13,17 @@ from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
 from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
 from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
 from SUAVE.Input_Output.VTK.save_fuselage_vtk import save_fuselage_vtk
+from SUAVE.Input_Output.VTK.save_nacelle_vtk import save_nacelle_vtk
 from SUAVE.Input_Output.VTK.save_vortex_distribution_vtk import save_vortex_distribution_vtk
 
+from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 from SUAVE.Core import Data
 import numpy as np
 ## @ingroup Input_Output-VTK
 def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
-                     wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
+                     wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", 
+                     fuselage_filename="fuselage.vtk", nacelle_filename="nacelle.vtk", save_loc=None):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
 
@@ -50,11 +53,12 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_se
 
     """
     if VLM_settings == None:
-        VLM_settings = Data()
+        VLM_settings = Vortex_Lattice().settings # Data()
         VLM_settings.number_spanwise_vortices  = 25
         VLM_settings.number_chordwise_vortices = 5
         VLM_settings.spanwise_cosine_spacing   = False
         VLM_settings.model_fuselage            = False
+        VLM_settings.model_nacelle             = False
 
 
     #---------------------------
@@ -221,4 +225,18 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_se
 
         save_fuselage_vtk(vehicle, file, Results)
 
+    
+    #------------------------------
+    # Save nacelles to vtk
+    #------------------------------
+    nacelles    = vehicle.nacelles
+    for i, nacelle in enumerate(nacelles):
+        if save_loc ==None:
+            filename = nacelle_filename
+        else:
+            filename = save_loc + nacelle_filename
+        sep  = filename.rfind('.')
+        file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
+
+        save_nacelle_vtk(nacelle, file, Results)
     return
