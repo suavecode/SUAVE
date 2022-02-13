@@ -156,7 +156,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
     def generate_wake_shape(self,rotor):
         """
         This generates the propeller wake control points and vortex distribution that make up the PVW. 
-        All (x,y,z) coordinates are in the vehicle frame of reference.
+        All (x,y,z) coordinates are in the vehicle frame of reference (X points nose to tail).
         
         Assumptions:
            None
@@ -331,30 +331,23 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         wake_contraction = compute_wake_contraction_matrix(rotor,Nr,m,nts,X_pts0,rotor_outputs) 
         Y_pts0           = y_pts0*wake_contraction + sy_inf
         Z_pts0           = z_pts0*wake_contraction + sz_inf
- 
-        # Rotate wake by thrust angle
-        rot_to_body = rotor.prop_vel_to_body()  # rotate points into the body frame: [Z,Y,X]' = R*[Z,Y,X]
         
         # append propeller wake to each of its repeated origins  
-        X_pts   = rotor.origin[0][0] + X_pts0*rot_to_body[2,2] + Z_pts0*rot_to_body[2,0]   
-        Y_pts   = rotor.origin[0][1] + Y_pts0*rot_to_body[1,1]              
-        Z_pts   = rotor.origin[0][2] + Z_pts0*rot_to_body[0,0] + X_pts0*rot_to_body[0,2] 
+        X_pts   = rotor.origin[0][0] + X_pts0  
+        Y_pts   = rotor.origin[0][1] + Y_pts0
+        Z_pts   = rotor.origin[0][2] + Z_pts0
 
         #------------------------------------------------------     
         # Account for lifting line panels
         #------------------------------------------------------
-        rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
-                    
-        # rotate rotor points to incidence angle
-        x_c_4 = (x_c_4_rotor)*rots[0,0] + (y_c_4_rotor)*rots[0,1] + (z_c_4_rotor)*rots[0,2] + rotor.origin[0][0]
-        y_c_4 = (x_c_4_rotor)*rots[1,0] + (y_c_4_rotor)*rots[1,1] + (z_c_4_rotor)*rots[1,2] + rotor.origin[0][1]
-        z_c_4 = (x_c_4_rotor)*rots[2,0] + (y_c_4_rotor)*rots[2,1] + (z_c_4_rotor)*rots[2,2] + rotor.origin[0][2]
+        x_c_4 = np.repeat(x_c_4_rotor[None,:,:,:,:], Na, axis=0) + rotor.origin[0][0]
+        y_c_4 = (y_c_4_rotor) + rotor.origin[0][1]
+        z_c_4 = (z_c_4_rotor) + rotor.origin[0][2]
         
         # prepend points at quarter chord to account for rotor lifting line
         X_pts = np.append(x_c_4[:,:,:,:,0][:,:,:,:,None], X_pts, axis=4) 
         Y_pts = np.append(y_c_4[:,:,:,:,0][:,:,:,:,None], Y_pts, axis=4)
         Z_pts = np.append(z_c_4[:,:,:,:,0][:,:,:,:,None], Z_pts, axis=4)
-        
 
         #------------------------------------------------------
         # Store points  
