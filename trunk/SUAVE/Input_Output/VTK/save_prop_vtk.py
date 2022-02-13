@@ -335,8 +335,7 @@ def generate_lofted_propeller_points(prop):
     try:
         a_o = prop.start_angle[0]
     except:
-        # default is no azimuthal offset (blade 1 starts vertical)
-        a_o = 0.0
+        a_o = prop.start_angle
 
     n_r       = len(b)                               # number radial points
     n_a_loft  = prop.number_points_around_airfoil    # number points around airfoil
@@ -403,11 +402,8 @@ def generate_lofted_propeller_points(prop):
                             [0,np.sin(theta[i] + a_o + flip_2), np.cos(theta[i] + a_o + flip_2)]   ])
         trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],n_r,axis=0)
 
-        # rotation about y to orient propeller/rotor to thrust angle
-        trans_3 = prop.body_to_prop_vel() #prop.prop_vel_to_body()
-        trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],n_r,axis=0)
 
-        trans   = np.matmul(trans_3,np.matmul(trans_2,trans_1))
+        trans   = np.matmul(trans_2,trans_1) 
         rot_mat = np.repeat(trans[:, np.newaxis,:,:],n_a_loft,axis=1)
 
         # ---------------------------------------------------------------------------------------------
