@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+from SUAVE.Core import Data
 from .Rotor import Rotor
 import numpy as np
 
@@ -45,5 +46,12 @@ class Lift_Rotor(Rotor):
         self.tag                       = 'lift_rotor'
         self.orientation_euler_angles  = [0.,np.pi/2.,0.] # This is Z-direction thrust up in vehicle frame
         self.use_2d_analysis           = False
-        self.variable_pitch            = False
+        self.variable_pitch            = False 
+
+        self.optimization_parameters                      = Data() 
+        self.optimization_parameters.slack_constaint      = 1E-5 # slack constraint 
+        self.optimization_parameters.ideal_SPL_dBA        = 45 
+        self.optimization_parameters.aeroacoustic_weight  = 1.   # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization    
+     
+                
         

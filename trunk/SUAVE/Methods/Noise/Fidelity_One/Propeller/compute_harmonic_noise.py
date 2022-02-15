@@ -125,7 +125,9 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     # sound pressure for thickness noise   
     Jmb               = jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M_x*np.cos(theta_r))))  
     phi_s             = ((2*m*B*M_t)/(M_r*(1 - M_x*np.cos(theta_r))))*(MCA/D)
-    phi_prime         = np.arccos((np.sin(theta_r)/np.sin(theta_r_prime))*np.cos(phi))      
+    phi_prime_var     = (np.sin(theta_r)/np.sin(theta_r_prime))*np.cos(phi)
+    phi_prime_var[phi_prime_var>1.0] = 1.0
+    phi_prime         = np.arccos(phi_prime_var)      
     S_r               = Y/(np.sin(theta_r))                                # distance in retarded reference frame                                                                             
     exponent_fraction = np.exp(1j*m_1d*B*((omega*S_r/a) +  phi_prime - np.pi/2))/(1 - M_x*np.cos(theta_r))
     p_mT_H_integral   = -((M_r**2)*(t_c)*np.exp(1j*phi_s)*Jmb*(k_x**2)*psi_V ) * ((rho*(a**2)*B*np.sin(theta_r))/(4*np.sqrt(2)*np.pi*(Y/D)))* exponent_fraction
@@ -142,7 +144,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     res.SPL_prop_harmonic_bpf_spectrum_dBA = A_weighting(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,:,:,0,:]) 
     res.SPL_prop_harmonic_1_3_spectrum     = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,0,0,0,:],settings)         
     res.SPL_prop_harmonic_1_3_spectrum_dBA = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum_dBA,res.f[:,0,0,0,:],settings)  
-    res.SPL_prop_harmonic_1_3_spectrum[np.isinf(res.SPL_prop_harmonic_1_3_spectrum)] = 0
+    res.SPL_prop_harmonic_1_3_spectrum[np.isinf(res.SPL_prop_harmonic_1_3_spectrum)]         = 0
     res.SPL_prop_harmonic_1_3_spectrum_dBA[np.isinf(res.SPL_prop_harmonic_1_3_spectrum_dBA)] = 0
 
     return

@@ -214,33 +214,50 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
 
             # replace nans 0 with mean as a post post-processor
             lower_surface_theta       = np.nan_to_num(lower_surface_theta)
-            lower_surface_delta       = np.nan_to_num(lower_surface_delta)
-            lower_surface_delta_star  = np.nan_to_num(lower_surface_delta_star)
-            lower_surface_cf          = np.nan_to_num(lower_surface_cf)
-            lower_surface_dp_dx       = np.nan_to_num(lower_surface_dp_dx )
-            lower_surface_Ue          = np.nan_to_num(lower_surface_Ue)
-            lower_surface_H           = np.nan_to_num(lower_surface_H)
             upper_surface_theta       = np.nan_to_num(upper_surface_theta)
+            lower_surface_delta       = np.nan_to_num(lower_surface_delta)
             upper_surface_delta       = np.nan_to_num(upper_surface_delta)
+            lower_surface_delta_star  = np.nan_to_num(lower_surface_delta_star)
             upper_surface_delta_star  = np.nan_to_num(upper_surface_delta_star)
+            lower_surface_cf          = np.nan_to_num(lower_surface_cf)
             upper_surface_cf          = np.nan_to_num(upper_surface_cf)
+            lower_surface_dp_dx       = np.nan_to_num(lower_surface_dp_dx )
             upper_surface_dp_dx       = np.nan_to_num(upper_surface_dp_dx )
+            lower_surface_Ue          = np.nan_to_num(lower_surface_Ue)
             upper_surface_Ue          = np.nan_to_num(upper_surface_Ue)
+            lower_surface_H           = np.nan_to_num(lower_surface_H)
             upper_surface_H           = np.nan_to_num(upper_surface_H)
-
+            
+            # apply thresholds for non-converged boundary layer solutions form pandel code 
+            lower_surface_theta[abs(lower_surface_theta)> 0.01 ]           = 0.0
+            upper_surface_theta[abs(upper_surface_theta)>0.01 ]            = 0.0
+            lower_surface_delta[abs(lower_surface_delta)> 0.1 ]            = 0.0
+            upper_surface_delta[abs(upper_surface_delta)> 0.1]             = 0.0
+            lower_surface_delta_star[abs(lower_surface_delta_star)>0.1 ]   = 0.0
+            upper_surface_delta_star[abs(upper_surface_delta_star)>0.1 ]   = 0.0
+            lower_surface_cf[abs(lower_surface_cf)>0.1 ]                   = 0.0
+            upper_surface_cf[abs(upper_surface_cf)> 0.1]                   = 0.0
+            lower_surface_dp_dx[abs(lower_surface_dp_dx)> 1E7]             = 0.0
+            upper_surface_dp_dx[abs(upper_surface_dp_dx)> 1E7]             = 0.0
+            lower_surface_Ue[abs(lower_surface_Ue)> 500.]                  = 0.0
+            upper_surface_Ue[abs(upper_surface_Ue)> 500.]                  = 0.0
+            lower_surface_H[abs(lower_surface_H)> 10.]                     = 0.0
+            upper_surface_H[abs(upper_surface_H)> 10.]                     = 0.0 
+            
+            # replace null solutions with mean
             lower_surface_theta[lower_surface_theta == 0]           = np.mean(lower_surface_theta)
-            lower_surface_delta[lower_surface_delta == 0]           = np.mean(lower_surface_delta)
-            lower_surface_delta_star[lower_surface_delta_star == 0] = np.mean(lower_surface_delta_star)
-            lower_surface_cf[lower_surface_cf == 0]                 = np.mean(lower_surface_cf)
-            lower_surface_dp_dx [lower_surface_dp_dx  == 0]         = np.mean(lower_surface_dp_dx )
-            lower_surface_Ue[lower_surface_Ue == 0]                 = np.mean(lower_surface_Ue)
-            lower_surface_H[lower_surface_H == 0]                   = np.mean(lower_surface_H)
             upper_surface_theta[upper_surface_theta == 0]           = np.mean(upper_surface_theta)
+            lower_surface_delta[lower_surface_delta == 0]           = np.mean(lower_surface_delta)
             upper_surface_delta[upper_surface_delta == 0]           = np.mean(upper_surface_delta)
+            lower_surface_delta_star[lower_surface_delta_star == 0] = np.mean(lower_surface_delta_star)
             upper_surface_delta_star[upper_surface_delta_star== 0]  = np.mean(upper_surface_delta_star)
+            lower_surface_cf[lower_surface_cf == 0]                 = np.mean(lower_surface_cf)
             upper_surface_cf[upper_surface_cf == 0]                 = np.mean(upper_surface_cf)
+            lower_surface_dp_dx [lower_surface_dp_dx  == 0]         = np.mean(lower_surface_dp_dx )
             upper_surface_dp_dx [upper_surface_dp_dx  == 0]         = np.mean(upper_surface_dp_dx )
+            lower_surface_Ue[lower_surface_Ue == 0]                 = np.mean(lower_surface_Ue)
             upper_surface_Ue[upper_surface_Ue == 0]                 = np.mean(upper_surface_Ue)
+            lower_surface_H[lower_surface_H == 0]                   = np.mean(lower_surface_H)
             upper_surface_H[upper_surface_H == 0]                   = np.mean(upper_surface_H)
 
             # ------------------------------------------------------------
@@ -301,37 +318,26 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
 
         # ------------------------------------------------------------
         # ****** EMPIRICAL WALL PRESSURE SPECTRUM ******
-        ones                = np.ones_like(Theta)
-        beta_c              = (Theta/tau_w)*dp_dx
-        d                   = 4.76*((1.4/(delta/delta_star))**0.75)*(0.375*(3.7 + 1.5*beta_c) - 1)
-        a                   = (2.82*((delta/delta_star)**2)*(np.power((6.13*((delta/delta_star)**(-0.75)) + d),(3.7 + 1.5*beta_c))))*\
-                              (4.2*((0.8*((beta_c + 0.5)**3/4))/(delta/delta_star)) + 1)
-        d_star              = d
-        d_star[beta_c<0.5]  = np.maximum(ones,1.5*d)[beta_c<0.5]
-        Phi_pp_expression   =  (np.maximum(a, (0.25*beta_c - 0.52)*a)*((omega*delta_star/Ue)**2))/(((4.76*((omega*delta_star/Ue)**0.75) \
-                               + d_star)**(3.7 + 1.5*beta_c))+ (np.power((8.8*(((delta/Ue)/(kine_visc/(((tau_w/rho)**0.5) **2)))**(-0.57))\
-                               *(omega*delta_star/Ue)),(np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7)) ))
-        Phi_pp              = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue
+        ones                     = np.ones_like(Theta)
+        beta_c                   = (Theta/tau_w)*dp_dx 
+        d                        = 4.76*((1.4/(delta/delta_star))**0.75)*(0.375*(3.7 + 1.5*beta_c) - 1)
+        a                        = (2.82*((delta/delta_star)**2)*(np.power((6.13*((delta/delta_star)**(-0.75)) + d),(3.7 + 1.5*beta_c))))*\
+                                   (4.2*((0.8*((beta_c + 0.5)**3/4))/(delta/delta_star)) + 1)
+        d_star                   = d
+        d_star[beta_c<0.5]       = np.maximum(ones,1.5*d)[beta_c<0.5]
+        Phi_pp_expression        =  (np.maximum(a, (0.25*beta_c - 0.52)*a)*((omega*delta_star/Ue)**2))/(((4.76*((omega*delta_star/Ue)**0.75) \
+                                    + d_star)**(3.7 + 1.5*beta_c))+ (np.power((8.8*(((delta/Ue)/(kine_visc/(((tau_w/rho)**0.5)**2)))**(-0.57))\
+                                    *(omega*delta_star/Ue)),(np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7)) ))
+        Phi_pp                   = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue
         Phi_pp[np.isinf(Phi_pp)] = 0.
         Phi_pp[np.isnan(Phi_pp)] = 0.
-
-        # ------------------------------------------------------------
-        # ****** DIRECTIVITY ****** 
-        X_2   = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,0,:],2,axis = 6)
-        Y_2   = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,1,:],2,axis = 6)
-        Z_2   = np.repeat(bspv.vehicle_coordinate_sys[:,:,:,:,:,:,2,:],2,axis = 6)        
-        A4    = bspv.M_hub_Y + Y_2 
-        A3    = bspv.cos_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_Z + Z_2) - bspv.sin_t_v*(bspv.M_hub_X + X_2)) \
-                 - bspv.sin_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_X + X_2) + bspv.sin_t_v*bspv.M_hub_Z + Z_2) + r 
-        A2    = bspv.cos_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_X + X_2) + bspv.sin_t_v*(bspv.M_hub_Z + Z_2))\
-                + bspv.sin_t_v_t_r*(bspv.cos_t_v*(bspv.M_hub_Z + Z_2) - bspv.sin_t_v*bspv.M_hub_X + X_2) - r*bspv.cos_phi
-        A1    = (bspv.cos_alpha_eff*A3 + bspv.sin_alpha_eff*A4)**2  
-
+ 
         # Power Spectral Density from each blade
-        mult     = ((omega/c_0 )**2)*c**2*delta_r*(1/(32*np.pi**2))*(B/(2*np.pi))
-        S_pp     = mult[:,:,:,:,0,:,:]*np.trapz((A1/((bspv.sin_alpha_eff*A3 - bspv.cos_alpha_eff*A4)\
-                    + A2**2)**2)*norm_L_sq*(1.6*(0.8*U_inf)/omega)*Phi_pp,axis = 4) 
-        
+        mult       = ((omega/c_0)**2)*(c**2)*delta_r*(1/(32*np.pi**2))*(B/(2*np.pi))
+        int_x      = np.linspace(0,2*np.pi,num_azi)  
+        S_pp       = mult[:,:,:,:,0,:,:]*np.trapz(((Z/(X**2 + (1-M**2)*(Y**2 + Z**2)))**2)*norm_L_sq*\
+                                                  (1.6*(0.8*U_inf)/omega)*Phi_pp,x = int_x,axis = 4) 
+            
         # Sound Pressure Level
         SPL                        = 10*np.log10((2*np.pi*abs(S_pp))/((p_ref)**2)) 
         SPL[np.isinf(SPL)]         = 0   

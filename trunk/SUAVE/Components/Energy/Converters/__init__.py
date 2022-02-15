@@ -24,6 +24,7 @@ from .Shaft_Power_Off_Take       import Shaft_Power_Off_Take
 from .Gearbox                    import Gearbox
 from .Rotor                      import Rotor
 from .Lift_Rotor                 import Lift_Rotor
+from .Prop_Rotor                 import Prop_Rotor
 from .Propeller                  import Propeller
 from .Motor_HTS_Rotor            import Motor_HTS_Rotor
 from .Turboelectric              import Turboelectric
