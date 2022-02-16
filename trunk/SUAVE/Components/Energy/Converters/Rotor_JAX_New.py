@@ -266,11 +266,11 @@ class Rotor(Energy_Component):
         psi_2d      = np.repeat(psi_2d[None,:,:], ctrl_pts, axis=0)
 
         # Apply blade sweep to azimuthal position
-        if np.any(np.array([sweep])!=0):
-            use_2d_analysis     = True
-            sweep_2d            = np.repeat(sweep[:,None], (1,Na))
-            sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
-            psi_2d              += sweep_offset_angles
+        # if np.any(np.array([sweep])!=0):
+        #     use_2d_analysis     = True
+        #     sweep_2d            = np.repeat(sweep[:,None], (1,Na))
+        #     sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
+        #     psi_2d              += sweep_offset_angles
 
         def non_zero_sweep(sweep, Na, r_dim_2d, psi_2d):
 
@@ -284,6 +284,65 @@ class Rotor(Energy_Component):
                                            non_zero_sweep,
                                            lambda _ : use_2d_analysis, psi_2d,
                                            sweep, Na, r_dim_2d, psi_2d)
+
+        # Starting with uniform freestream
+        ua  = 0
+        ut  = 0
+        ur  = 0
+
+        # rotation = lax.cond(rotation == -1,
+        #                     lambda _ : -1,
+        #                     lambda _ : 1,
+        #                     None)
+
+        # Include velocities introduced by rotor incidence angles
+        if (np.any(abs(V_thrust[:,1]) > 1e-3) or np.any(abs(V_thrust[:,2]) > 1e-3)) and use_2d_analysis:
+
+            # y-component of freestream in the propeller Cartesian plane
+
+            Vy = V_thrust[:,1,None,None]
+            Vy = np.repeat(Vy, Nr, axis=1)
+            Vy = np.repeat(Vy, Na, axis=2)
+
+            # z-component of freestream in the propeller Cartesian plane
+
+            Vz = V_thrust[:,2,None,None]
+            Vz = np.repeat(Vz, Nr, axis=1)
+            Vz = np.repeat(Vz, Na, axis=2)
+
+            # Check for invalid rotation angle
+            if (rotation==1) or (rotation==-1):
+                pass
+            else:
+                print("Invalid rotation direction. Setting to 1.")
+                rotation = 1
+
+            # Compute resulting radial and tangential velocities in polar frame
+            utz = Vz*np.cos(psi_2d*rotation)
+            urz = Vz*np.sin(psi_2d*rotation)
+            uty = Vy*np.sin(psi_2d*rotation)
+            ury = Vy*np.cos(psi_2d*rotation)
+
+            ua += (utz + uty)
+            ut += (urz + ury)
+            ua += np.zeros_like(ut)
+
+        # Include external velocities introduced by user
+        if nonuniform_freestream:
+            use_2d_analysis = True
+
+            # Include additional influences specified at rotor sections, shape=(ctrl_pts,Nr,Na)
+            ua += self.axial_velocities_2d
+            ut += self.tangential_velocities_2d
+            ur += self.radial_velocities_2d
+
+        if use_2d_analysis:
+            # Make everything 2D with shape (ctrl_pts,Nr,Na)
+            size    = (ctrl_pts,Nr,Na)
+            PSI     = np.ones(size)
+            PSIold  = np.zeros(size)
+
+            # 2D freestream velocity and omega*r
 
 
 
