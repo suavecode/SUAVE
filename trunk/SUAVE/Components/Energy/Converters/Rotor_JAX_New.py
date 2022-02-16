@@ -249,9 +249,9 @@ class Rotor_JAX(Energy_Component):
         chi             = r_1d/R
         diff_r          = np.diff(r_1d)
         deltar          = np.zeros(len(r_1d))
-        deltar.at[1:-1].set(diff_r[0:-1]/2 + diff_r[1:]/2)
-        deltar.at[0].set(diff_r[0]/2)
-        deltar.at[-1].set(diff_r[-1]/2)
+        deltar          = deltar.at[1:-1].set(diff_r[0:-1]/2 + diff_r[1:]/2)
+        deltar          = deltar.at[0].set(diff_r[0]/2)
+        deltar          = deltar.at[-1].set(diff_r[-1]/2)
 
         # Calculating rotational parameters
         omegar  = np.outer(omega, r_1d)
@@ -458,7 +458,7 @@ class Rotor_JAX(Energy_Component):
         Cd      = ((1 / Tp_Tinf) * (1 / Rp_Rinf) ** 0.2) * Cdval
 
         epsilon = Cd/Cl
-        epsilon.at[epsilon==np.inf].set(10.)
+        epsilon = epsilon.at[epsilon==np.inf].set(10.)
 
         # Thrust and torque and their derivatives on the blade
         blade_T_distribution    = rho * (Gamma * (Wt - epsilon * Wa)) * deltar
@@ -537,25 +537,25 @@ class Rotor_JAX(Energy_Component):
         etap = V * thrust / power
 
         # Prevent things from breaking
-        Cq.at[Cq<0].set(0.)
-        Ct.at[Ct<0].set(0.)
-        Cp.at[Cp<0].set(0.)
-        thrust.at[conditions.propulsion.throttle[:,0] <=0.0].set(0.0)
-        power.at[conditions.propulsion.throttle[:,0]  <=0.0].set(0.0)
-        torque.at[conditions.propulsion.throttle[:,0]  <=0.0].set(0.0)
-        rotor_drag.at[conditions.propulsion.throttle[:,0]  <=0.0].set(0.0)
-        thrust.at[omega<0.0].set(-thrust[omega<0.0])
-        thrust.at[omega==0.0].set(0.0)
-        power.at[omega==0.0].set(0.0)
-        torque.at[omega==0.0].set(0.0)
-        rotor_drag.at[omega==0.0].set(0.0)
-        Ct.at[omega==0.0].set(0.0)
-        Cp.at[omega==0.0].set(0.0)
-        etap.at[omega==0.0].set(0.0)
+        Cq = Cq.at[Cq<0].set(0.)
+        Ct = Ct.at[Ct<0].set(0.)
+        Cp = Cp.at[Cp<0].set(0.)
+        thrust = thrust.at[conditions.propulsion.throttle[:,0] <=0.0].set(0.0)
+        power = power.at[conditions.propulsion.throttle[:,0]  <=0.0].set(0.0)
+        torque = torque.at[conditions.propulsion.throttle[:,0]  <=0.0].set(0.0)
+        rotor_drag = rotor_drag.at[conditions.propulsion.throttle[:,0]  <=0.0].set(0.0)
+        thrust = thrust.at[omega<0.0].set(-thrust[omega<0.0])
+        thrust = thrust.at[omega==0.0].set(0.0)
+        power = power.at[omega==0.0].set(0.0)
+        torque = torque.at[omega==0.0].set(0.0)
+        rotor_drag = rotor_drag.at[omega==0.0].set(0.0)
+        Ct = Ct.at[omega==0.0].set(0.0)
+        Cp = Cp.at[omega==0.0].set(0.0)
+        etap = etap.at[omega==0.0].set(0.0)
 
         # Make the thrust a 3D vector
-        thrust_prop_frame      = np.zeros((ctrl_pts,3))
-        thrust_prop_frame.at[:,0].set(thrust[:,0])
+        thrust_prop_frame       = np.zeros((ctrl_pts,3))
+        thrust_prop_frame       = thrust_prop_frame.at[:,0].set(thrust[:,0])
 
         thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
 
@@ -660,7 +660,7 @@ class Rotor_JAX(Energy_Component):
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
         rots    = np.array(self.orientation_euler_angles) * 1.
-        rots.at[1].set(rots[1] + self.inputs.y_axis_rotation)
+        rots = rots.at[1].set(rots[1] + self.inputs.y_axis_rotation)
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
 
         # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
@@ -769,18 +769,18 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,
     Cl1maxp     = Cl_max_ref * (Re / Re_ref) ** 0.1
 
     Cl          = 2.*np.pi*alpha
-    Cl.at[Cl > Cl1maxp].set(Cl1maxp[0][[Cl > Cl1maxp][0][0]])
-    Cl.at[alpha >= np.pi / 2].set(0.)
-    Cl.at[Ma[:, :] < 1.].set(Cl[Ma[:, :] < 1.] / ((1 - Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) ** 0.5 + (
+    Cl = Cl.at[Cl > Cl1maxp].set(Cl1maxp[0][[Cl > Cl1maxp][0][0]])
+    Cl = Cl.at[alpha >= np.pi / 2].set(0.)
+    Cl = Cl.at[Ma[:, :] < 1.].set(Cl[Ma[:, :] < 1.] / ((1 - Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) ** 0.5 + (
                 (Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) / (1 + (1 - Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) ** 0.5)) *
                                                   Cl[Ma < 1.] / 2))
-    Cl.at[Ma[:, :] >= 1.].set(Cl[Ma[:, :] >= 1.])
+    Cl = Cl.at[Ma[:, :] >= 1.].set(Cl[Ma[:, :] >= 1.])
 
     Cdval = (0.108 * (Cl * Cl * Cl * Cl) - 0.2612 * (Cl * Cl * Cl) + 0.181 * (Cl * Cl) - 0.0139 * Cl + 0.0278) * (
                 (50000. / Re) ** 0.2)
-    Cdval.at[alpha >= np.pi / 2].set(2.)
+    Cdval = Cdval.at[alpha >= np.pi / 2].set(2.)
 
-    Cl.at[Cl==0].set(1E-6)
+    Cl = Cl.at[Cl==0].set(1E-6)
 
     return Cl, Cdval, alpha, Ma, W
 
@@ -810,10 +810,10 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     """
 
     lamdaw = r * Wa / (R * Wt)
-    lamdaw.at[lamdaw<0.].set(0.)
+    lamdaw = lamdaw.at[lamdaw<0.].set(0.)
 
     f = (B/2.) * (1. - r/R) / lamdaw
-    f.at[f<0.].set(0.)
+    f = f.at[f<0.].set(0.)
 
     piece = np.exp(-f)
     F = 2. * np.arccos(piece) / np.pi
@@ -876,7 +876,7 @@ def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
                     r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U +
                     Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5)))
 
-    dR_dpsi.at[np.isnan(dR_dpsi)].set(0.1)
+    dR_dpsi = dR_dpsi.at[np.isnan(dR_dpsi)].set(0.1)
 
     return dR_dpsi
 
