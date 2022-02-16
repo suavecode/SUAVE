@@ -28,3 +28,4 @@ from .Propeller                  import Propeller
 from .Motor_HTS_Rotor            import Motor_HTS_Rotor
 from .Turboelectric              import Turboelectric
 from .Rotor_JAX_New              import Rotor_JAX
+from .Propeller_JAX_New          import Propeller_JAX

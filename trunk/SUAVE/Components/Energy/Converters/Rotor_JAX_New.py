@@ -180,10 +180,16 @@ class Rotor_JAX(Energy_Component):
         tc      = self.thickness_to_chord
 
         # Unpack rotor airfoil data
-        a_geo   = self.airfoil_geometry
-        a_loc   = self.airfoil_polar_surrogates
-        cl_sur  = self.airfoil_cl_surrogates
-        cd_sur  = self.airfoil_cd_surrogates
+        # a_geo   = self.airfoil_geometry
+        # a_loc   = self.airfoil_polar_surrogates
+        # cl_sur  = self.airfoil_cl_surrogates
+        # cd_sur  = self.airfoil_cd_surrogates
+
+        # Unpack rotor airfoil data
+        a_geo   = None
+        a_loc   = None
+        cl_sur  = None
+        cd_sur  = None
 
         # Unpack rotor inputs and conditions
         omega                   = self.inputs.omega
@@ -213,7 +219,7 @@ class Rotor_JAX(Energy_Component):
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[0,:,None]
-        Vv      = conditions.frames.inertia.velocity_vector
+        Vv      = conditions.frames.inertial.velocity_vector
         nu      = mu/rho
         rho_0   = rho
 
@@ -233,7 +239,7 @@ class Rotor_JAX(Energy_Component):
 
         # Check and correct for hover
         V               = V_thrust[:,0,None]
-        V.at[V==0.0].set(1e-6)
+        V[V==0.0] = 1e-6
 
         # Number of radial stations and segment control points
         Nr          = len(c)
@@ -243,9 +249,9 @@ class Rotor_JAX(Energy_Component):
         chi             = r_1d/R
         diff_r          = np.diff(r_1d)
         deltar          = np.zeros(len(r_1d))
-        deltar.at[1:-1] = diff_r[0:-1]/2 + diff_r[1:]/2
-        deltar.at[0]    = diff_r[0]/2
-        deltar.at[-1]   = diff_r[-1]/2
+        deltar.at[1:-1].set(diff_r[0:-1]/2 + diff_r[1:]/2)
+        deltar.at[0].set(diff_r[0]/2)
+        deltar.at[-1].set(diff_r[-1]/2)
 
         # Calculating rotational parameters
         omegar  = np.outer(omega, r_1d)
@@ -265,24 +271,24 @@ class Rotor_JAX(Energy_Component):
         psi_2d      = np.repeat(psi_2d[None,:,:], ctrl_pts, axis=0)
 
         # Apply blade sweep to azimuthal position
-        # if np.any(np.array([sweep])!=0):
-        #     use_2d_analysis     = True
-        #     sweep_2d            = np.repeat(sweep[:,None], (1,Na))
-        #     sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
-        #     psi_2d              += sweep_offset_angles
-
-        def non_zero_sweep(sweep, Na, r_dim_2d, psi_2d):
-
+        if np.any(np.array([sweep])!=0):
+            use_2d_analysis     = True
             sweep_2d            = np.repeat(sweep[:,None], (1,Na))
             sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
+            psi_2d              += sweep_offset_angles
 
-            return True, psi_2d+sweep_offset_angles
-
-
-        use_2d_analysis, psi_2d = lax.cond(np.any(np.array([sweep])!=0),
-                                           non_zero_sweep,
-                                           lambda _ : use_2d_analysis, psi_2d,
-                                           sweep, Na, r_dim_2d, psi_2d)
+        # def non_zero_sweep(sweep, Na, r_dim_2d, psi_2d):
+        #
+        #     sweep_2d            = np.repeat(sweep[:,None], (1,Na))
+        #     sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
+        #
+        #     return True, psi_2d+sweep_offset_angles
+        #
+        #
+        # use_2d_analysis, psi_2d = lax.cond(np.any(np.array([sweep])!=0),
+        #                                    non_zero_sweep,
+        #                                    lambda _ : use_2d_analysis, psi_2d,
+        #                                    sweep, Na, r_dim_2d, psi_2d)
 
         # Starting with uniform freestream
         ua  = 0
@@ -603,6 +609,69 @@ class Rotor_JAX(Energy_Component):
 
         return thrust_vector, torque, power, Cp, outputs, etap
 
+    def vec_to_vel(self):
+        """This rotates from the propellers vehicle frame to the propellers velocity frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+
+        rot_mat = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+
+        return rot_mat
+
+    def body_to_prop_vel(self):
+        """This rotates from the systems body frame to the propellers velocity frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+
+        # Go from body to vehicle frame
+        body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+
+        # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
+        rots    = np.array(self.orientation_euler_angles) * 1.
+        rots.at[1].set(rots[1] + self.inputs.y_axis_rotation)
+        vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
+
+        # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
+        prop_vec_2_prop_vel = self.vec_to_vel()
+
+        # Do all the matrix multiplies
+        rot1    = np.matmul(body_2_vehicle,vehicle_2_prop_vec)
+        rot_mat = np.matmul(rot1,prop_vec_2_prop_vel)
+
+        return rot_mat
+
 def compute_airfoil_aerodynamics(beta,c,r,R,B,
                                 Wa,Wt,a,nu,
                                 a_loc,a_geo,cl_sur,cd_sur,
@@ -711,7 +780,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,
                 (50000. / Re) ** 0.2)
     Cdval.at[alpha >= np.pi / 2].set(2.)
 
-    Cl.at[Cl==0] = 1E-6
+    Cl.at[Cl==0].set(1E-6)
 
     return Cl, Cdval, alpha, Ma, W
 
@@ -741,7 +810,7 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     """
 
     lamdaw = r * Wa / (R * Wt)
-    lambdaw.at[lamdaw<0.].set(0.)
+    lamdaw.at[lamdaw<0.].set(0.)
 
     f = (B/2.) * (1. - r/R) / lamdaw
     f.at[f<0.].set(0.)
