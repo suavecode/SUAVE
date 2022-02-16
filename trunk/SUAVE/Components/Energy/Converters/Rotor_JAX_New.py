@@ -12,8 +12,6 @@ from SUAVE.Core import Data, Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Geometry.Three_Dimensional \
     import orientation_product, orientation_transpose
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_HFW_inflow_velocties \
-    import compute_HFW_inflow_velocities
 
 import jax.numpy as np
 import jax.lax as lax
@@ -25,7 +23,7 @@ from copy import  deepcopy
 # Differentiable & Accelerable Rotor Class
 #-----------------------------------------------------------------------
 
-class Rotor(Energy_Component):
+class Rotor_JAX(Energy_Component):
     """This is a modification of SUAVE's basic rotor class made to be
     compatible with JAX's autodifferentiation and GPU acceleration
     capabilities. It is presenently maintained separately from the
@@ -387,7 +385,7 @@ class Rotor(Energy_Component):
         Ut  = omegar - ut
         U   = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
 
-        # Momentum Wake Method (TODO: Implement Helical Fixed Wake)
+        # Momentum Wake Method
 
         diff    = 1.
         tol     = 1E-6
@@ -410,7 +408,35 @@ class Rotor(Energy_Component):
                                                                        ctrl_pts,Nr,Na,tc,
                                                                        use_2d_analysis)
 
-            
+            # Compute inflow velocity and tip loss factor
+            lamdaw, F, piece            = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+
+            # Compute Newton residual on circulation
+            Gamma       = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
+            Rsquiggly   = Gamma - 0.5 * W * c * Cl
+
+            # Use analytical derivative to get dR_dpsi
+            dR_dpsi = compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece)
+
+            # Update inflow angle
+            dpsi    = -Rsquiggly / dR_dpsi
+            PSI     = PSI + dpsi
+            diff    = np.max(abs(PSIold - PSI))
+            PSIold  = PSI
+
+            # If its really not going to converge
+            if all(omega[:,0]) == 0.:
+                break
+
+            # If it's really not going to converge
+            if np.any(PSI > pi/2) and np.any(dpsi>0.0):
+                print("Rotor BEMT did not converge to a solution (Stall)")
+                break
+
+            ii += 1
+            if ii > 10000:
+                print("Rotor BEMT did not converge to a solution (Iteration Limit)")
+                break
 
 
 def compute_airfoil_aerodynamics(beta,c,r,R,B,
@@ -507,7 +533,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,
 
     Cl_max_ref  = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
     Re_ref      = 9E6
-    Cl1maxp     = Cl_max_ref * (Re/Re_ref)**0.1
+    Cl1maxp     = Cl_max_ref * (Re / Re_ref) ** 0.1
 
     Cl          = 2.*np.pi*alpha
     Cl.at[Cl > Cl1maxp].set(Cl1maxp[0][[Cl > Cl1maxp][0][0]])
@@ -521,9 +547,105 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,
                 (50000. / Re) ** 0.2)
     Cdval.at[alpha >= np.pi / 2].set(2.)
 
-    return Cl, Cdval
+    Cl.at[Cl==0] = 1E-6
 
+    return Cl, Cdval, alpha, Ma, W
 
+def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
+    """
+    Computes the inflow, lamdaw, and the tip loss factor, F.
+
+    Modified for use in JAX-based autodifferentiation and GPU acceleration.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+       r          radius distribution                                              [m]
+       R          tip radius                                                       [m]
+       Wa         axial velocity                                                   [m/s]
+       Wt         tangential velocity                                              [m/s]
+       B          number of rotor blades                                           [-]
+
+    Outputs:
+       lamdaw     inflow ratio                                                     [-]
+       F          tip loss factor                                                  [-]
+       piece      output of a step in tip loss calculation (needed for residual)   [-]
+    """
+
+    lamdaw = r * Wa / (R * Wt)
+    lambdaw.at[lamdaw<0.].set(0.)
+
+    f = (B/2.) * (1. - r/R) / lamdaw
+    f.at[f<0.].set(0.)
+
+    piece = np.exp(-f)
+    F = 2. * np.arccos(piece) / np.pi
+
+    return lamdaw, F, piece
+
+def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
+    """
+    Computes the analytical derivative for the BEMT iteration.
+
+    Modified for use with JAX-based autodifferentiation and GPU acceleration.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+       B                          number of rotor blades                          [-]
+       beta                       blade twist distribution                        [-]
+       r                          radius distribution                             [m]
+       R                          tip radius                                      [m]
+       Wt                         tangential velocity                             [m/s]
+       Wa                         axial velocity                                  [m/s]
+       U                          total velocity                                  [m/s]
+       Ut                         tangential velocity                             [m/s]
+       Ua                         axial velocity                                  [m/s]
+       cos_psi                    cosine of the inflow angle PSI                  [-]
+       sin_psi                    sine of the inflow angle PSI                    [-]
+       piece                      output of a step in tip loss calculation        [-]
+
+    Outputs:
+       dR_dpsi                    derivative of residual wrt inflow angle         [-]
+
+    """
+
+    # An analytical derivative for dR_dpsi used in the Newton iteration for the BEMT
+    # This was solved symbolically in Matlab and exported
+    pi          = np.pi
+    pi2         = np.pi**2
+    BB          = B*B
+    BBB         = BB*B
+    f_wt_2      = 4*Wt*Wt
+    f_wa_2      = 4*Wa*Wa
+    arccos_piece = np.arccos(piece)
+    Ucospsi     = U*cos_psi
+    Usinpsi     = U*sin_psi
+    Utcospsi    = Ut*cos_psi
+    Uasinpsi    = Ua*sin_psi
+    UapUsinpsi  = (Ua + Usinpsi)
+    utpUcospsi  = (Ut + Ucospsi)
+    utpUcospsi2 = utpUcospsi*utpUcospsi
+    UapUsinpsi2 = UapUsinpsi*UapUsinpsi
+    dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B -
+                   (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
+                   + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
+                   - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. -
+                    (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R -
+                    r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U +
+                    Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5)))
+
+    dR_dpsi.at[np.isnan(dR_dpsi)].set(0.1)
+
+    return dR_dpsi
 
 
 
