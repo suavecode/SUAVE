@@ -16,9 +16,11 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_HFW_inflow_vel
     import compute_HFW_inflow_velocities
 
 import jax.numpy as np
+import jax.lax as lax
 import numpy as onp
 import scipy as sp
 
+from copy import  deepcopy
 #-----------------------------------------------------------------------
 # Differentiable & Accelerable Rotor Class
 #-----------------------------------------------------------------------
@@ -194,16 +196,18 @@ class Rotor(Energy_Component):
         pitch_c                 = self.inputs.pitch_command
 
         # Check for variable pitch
-        """
-        
-        """
 
-        if np.any(pitch_c !=0) and not self.variable_pitch:
+        # if np.any(pitch_c !=0) and not self.variable_pitch:
+        #
+        #     print("Warning: Pitch commanded for a fixed-pitch rotor. \
+        #     Changing to variable pitch rotor for weights analysis.")
+        #
+        #     self.variable_pitch = True
 
-            print("Warning: Pitch commanded for a fixed-pitch rotor. \
-            Changing to variable pitch rotor for weights analysis.")
-
-            self.variable_pitch = True
+        self.variable_pitch = lax.cond(np.any(pitch_c !=0) and not self.variable_pitch,
+                                       lambda _: True,
+                                       lambda _: self.variable_pitch,
+                                       None)
 
         # Unpack freestream conditions
         rho     = conditions.freestream.density[:,0,None]
@@ -230,7 +234,7 @@ class Rotor(Energy_Component):
 
         # Check and correct for hover
         V               = V_thrust[:,0,None]
-        V.at[V==0.0]    = 1e-6
+        V.at[V==0.0].set(1e-6)
 
         # Number of radial stations and segment control points
         Nr          = len(c)
@@ -263,8 +267,27 @@ class Rotor(Energy_Component):
 
         # Apply blade sweep to azimuthal position
         if np.any(np.array([sweep])!=0):
-            print("This call to the rotor's spin function used non-zero sweep to trigger 2d analysis. If JIT compiled,\
-                  this version of the function will continue to use 2d analysis even with zero sweep.")
+            use_2d_analysis     = True
+            sweep_2d            = np.repeat(sweep[:,None], (1,Na))
+            sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
+            psi_2d              += sweep_offset_angles
+
+        def non_zero_sweep(sweep, Na, r_dim_2d, psi_2d):
+
+            sweep_2d            = np.repeat(sweep[:,None], (1,Na))
+            sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
+
+            return True, psi_2d+sweep_offset_angles
+
+
+        use_2d_analysis, psi_2d = lax.cond(np.any(np.array([sweep])!=0),
+                                           non_zero_sweep,
+                                           lambda _ : use_2d_analysis, psi_2d,
+                                           sweep, Na, r_dim_2d, psi_2d)
+
+
+
+
 
 
 
