@@ -438,6 +438,169 @@ class Rotor_JAX(Energy_Component):
                 print("Rotor BEMT did not converge to a solution (Iteration Limit)")
                 break
 
+        # Tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
+        va      = F * va
+        vt      = F * vt
+        lamdaw  = r * (va + Ua) / (R * (Ut - vt))
+
+        # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
+        Tw_Tinf = 1. + 1.78 * (Ma * Ma)
+        Tp_Tinf = 1. + 0.035 * (Ma * Ma) + 0.45 * (Tw_Tinf - 1.)
+        Tp      = (Tp_Tinf) * T
+        Rp_Rinf = (Tp_Tinf ** 2.5) * (Tp + 110.4) / (T + 110.4)
+        Cd      = ((1 / Tp_Tinf) * (1 / Rp_Rinf) ** 0.2) * Cdval
+
+        epsilon = Cd/Cl
+        epsilon.at[epsilon==np.inf].set(10.)
+
+        # Thrust and torque and their derivatives on the blade
+        blade_T_distribution    = rho * (Gamma * (Wt - epsilon * Wa)) * deltar
+        blade_Q_distribution    = rho * (Gamma * (Wa + epsilon * Wt) * r) * deltar
+        blade_dT_dr             = rho * (Gamma * (Wt - epsilon * Wa))
+        blade_dQ_dr             = rho * (Gamma * (Wa + epsilon * Wt) * r)
+
+        if use_2d_analysis:
+            blade_T_distribution_2d = blade_T_distribution
+            blade_Q_distribution_2d = blade_Q_distribution
+            blade_dT_dr_2d          = blade_dT_dr
+            blade_dQ_dr_2d          = blade_dQ_dr
+            blade_Gamma_2d          = Gamma
+            alpha_2d                = alpha
+
+            Va_2d = Wa
+            Vt_2d = Wt
+            Va_avg = np.average(Wa, axis=2)  # Averaged around the azimuth
+            Vt_avg = np.average(Wt, axis=2)  # Averaged around the azimuth
+
+            Va_ind_2d = va
+            Vt_ind_2d = vt
+            Vt_ind_avg = np.average(vt, axis=2)
+            Va_ind_avg = np.average(va, axis=2)
+
+            # Set 1D blade loadings to be the average:
+            blade_T_distribution = np.mean((blade_T_distribution_2d), axis=2)
+            blade_Q_distribution = np.mean((blade_Q_distribution_2d), axis=2)
+            blade_dT_dr = np.mean((blade_dT_dr_2d), axis=2)
+            blade_dQ_dr = np.mean((blade_dQ_dr_2d), axis=2)
+
+            # Compute the hub force / rotor drag distribution along the blade
+            dL_2d = 0.5 * rho * c_2d * Cd * omegar ** 2 * deltar
+            dD_2d = 0.5 * rho * c_2d * Cl * omegar ** 2 * deltar
+
+            rotor_drag_distribution = np.mean(dL_2d * np.sin(psi_2d) + dD_2d * np.cos(psi_2d), axis=2)
+
+        else:
+            Va_2d = np.repeat(Wa[:, :, None], Na, axis=2)
+            Vt_2d = np.repeat(Wt[:, :, None], Na, axis=2)
+
+            blade_T_distribution_2d = np.repeat(blade_T_distribution[:, :, None], Na, axis=2)
+            blade_Q_distribution_2d = np.repeat(blade_Q_distribution[:, :, None], Na, axis=2)
+            blade_dT_dr_2d = np.repeat(blade_dT_dr[:, :, None], Na, axis=2)
+            blade_dQ_dr_2d = np.repeat(blade_dQ_dr[:, :, None], Na, axis=2)
+            blade_Gamma_2d = np.repeat(Gamma[:, :, None], Na, axis=2)
+            alpha_2d = np.repeat(alpha[:, :, None], Na, axis=2)
+
+            Vt_avg = Wt
+            Va_avg = Wa
+            Vt_ind_avg = vt
+            Va_ind_avg = va
+            Va_ind_2d = np.repeat(va[:, :, None], Na, axis=2)
+            Vt_ind_2d = np.repeat(vt[:, :, None], Na, axis=2)
+
+            # Compute the hub force / rotor drag distribution along the blade
+            dL = 0.5 * rho * c * Cd * omegar ** 2 * deltar
+            dL_2d = np.repeat(dL[:, :, None], Na, axis=2)
+            dD = 0.5 * rho * c * Cl * omegar ** 2 * deltar
+            dD_2d = np.repeat(dD[:, :, None], Na, axis=2)
+
+            rotor_drag_distribution = np.mean(dL_2d * np.sin(psi_2d) + dD_2d * np.cos(psi_2d), axis=2)
+
+        # Forces
+        thrust = np.atleast_2d((B * np.sum(blade_T_distribution, axis=1))).T
+        torque = np.atleast_2d((B * np.sum(blade_Q_distribution, axis=1))).T
+        rotor_drag = np.atleast_2d((B * np.sum(rotor_drag_distribution, axis=1))).T
+        power = omega * torque
+
+        # Calculate coefficients
+        D = 2 * R
+        Cq = torque / (rho_0 * (n * n) * (D * D * D * D * D))
+        Ct = thrust / (rho_0 * (n * n) * (D * D * D * D))
+        Cp = power / (rho_0 * (n * n * n) * (D * D * D * D * D))
+        Crd = rotor_drag / (rho_0 * (n * n) * (D * D * D * D))
+        etap = V * thrust / power
+
+        # Prevent things from breaking
+        Cq.at[Cq<0].set(0.)
+        Ct.at[Ct<0].set(0.)
+        Cp.at[Cp<0].set(0.)
+        thrust.at[conditions.propulsion.throttle[:,0] <=0.0].set(0.0)
+        power.at[conditions.propulsion.throttle[:,0]  <=0.0].set(0.0)
+        torque.at[conditions.propulsion.throttle[:,0]  <=0.0].set(0.0)
+        rotor_drag.at[conditions.propulsion.throttle[:,0]  <=0.0].set(0.0)
+        thrust.at[omega<0.0].set(-thrust[omega<0.0])
+        thrust.at[omega==0.0].set(0.0)
+        power.at[omega==0.0].set(0.0)
+        torque.at[omega==0.0].set(0.0)
+        rotor_drag.at[omega==0.0].set(0.0)
+        Ct.at[omega==0.0].set(0.0)
+        Cp.at[omega==0.0].set(0.0)
+        etap.at[omega==0.0].set(0.0)
+
+        # Make the thrust a 3D vector
+        thrust_prop_frame      = np.zeros((ctrl_pts,3))
+        thrust_prop_frame.at[:,0].set(thrust[:,0])
+
+        thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
+
+        # Assign efficiency to network
+        conditions.propulsion.etap = etap
+
+        # Store data
+        self.azimuthal_distribution = psi
+        results_conditions = Data
+        outputs = results_conditions(
+            number_radial_stations              =Nr,
+            number_azimuthal_stations           =Na,
+            disc_radial_distribution            =r_dim_2d,
+            speed_of_sound                      =conditions.freestream.speed_of_sound,
+            density                             =conditions.freestream.density,
+            velocity                            =Vv,
+            blade_tangential_induced_velocity   =Vt_ind_avg,
+            blade_axial_induced_velocity        =Va_ind_avg,
+            blade_tangential_velocity           =Vt_avg,
+            blade_axial_velocity                =Va_avg,
+            disc_tangential_induced_velocity    =Vt_ind_2d,
+            disc_axial_induced_velocity         =Va_ind_2d,
+            disc_tangential_velocity            =Vt_2d,
+            disc_axial_velocity                 =Va_2d,
+            drag_coefficient                    =Cd,
+            lift_coefficient                    =Cl,
+            omega                               =omega,
+            disc_circulation                    =blade_Gamma_2d,
+            blade_dT_dr                         =blade_dT_dr,
+            disc_dT_dr                          =blade_dT_dr_2d,
+            blade_thrust_distribution           =blade_T_distribution,
+            disc_thrust_distribution            =blade_T_distribution_2d,
+            disc_effective_angle_of_attack      =alpha_2d,
+            thrust_per_blade                    =thrust / B,
+            thrust_coefficient                  =Ct,
+            disc_azimuthal_distribution         =psi_2d,
+            blade_dQ_dr                         =blade_dQ_dr,
+            disc_dQ_dr                          =blade_dQ_dr_2d,
+            blade_torque_distribution           =blade_Q_distribution,
+            disc_torque_distribution            =blade_Q_distribution_2d,
+            torque_per_blade                    =torque / B,
+            torque_coefficient                  =Cq,
+            power                               =power,
+            power_coefficient                   =Cp,
+            converged_inflow_ratio              =lamdaw,
+            propeller_efficiency                =etap,
+            blade_H_distribution                =rotor_drag_distribution,
+            rotor_drag                          =rotor_drag,
+            rotor_drag_coefficient              =Crd,
+        )
+
+        return thrust_vector, torque, power, Cp, outputs, etap
 
 def compute_airfoil_aerodynamics(beta,c,r,R,B,
                                 Wa,Wt,a,nu,
