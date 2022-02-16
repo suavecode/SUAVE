@@ -1,4 +1,4 @@
-## @ ingroup Component-Energy-Converters
+## @ingroup Component-Energy-Converters
 # Rotor_JAX.py
 #
 # Created:  Feb 2022, J. Smart
@@ -20,9 +20,10 @@ import scipy as sp
 
 from copy import  deepcopy
 #-----------------------------------------------------------------------
-# Differentiable & Accelerable Rotor Class
+# Differentiable Rotor Class
 #-----------------------------------------------------------------------
 
+## @ingroup Components-Energy-Converters
 class Rotor_JAX(Energy_Component):
     """This is a modification of SUAVE's basic rotor class made to be
     compatible with JAX's autodifferentiation and GPU acceleration
