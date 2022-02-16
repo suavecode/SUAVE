@@ -343,8 +343,185 @@ class Rotor(Energy_Component):
             PSIold  = np.zeros(size)
 
             # 2D freestream velocity and omega*r
+            V_2d    = V_thrust[:,0,None,None]
+            V_2d    = np.repeat(V_2d, Na, axis=2)
+            V_2d    = np.repeat(V_2d, Nr, axis=1)
+            omegar  = (np.repeat(np.outer(omega, r_1d)[:,:,None], Na, axis=2))
+
+            # Total velocities
+            Ua      = V_2d + ua
+
+            # 2D blade pitch and radial distributions
+            if np.size(pitch_c)>1:
+                # Control variable is the blade pitch, repeat around azimuth
+                beta = np.repeat(total_blade_pitch[:,:,None], Na, axis=2)
+            else:
+                beta = np.tile(total_blade_pitch[None,:,None], (ctrl_pts, 1, Na))
+
+            r       = np.tile(r_1d[None,:,None], (ctrl_pts, 1, Na))
+            c       = np.tile(c[None,:,None], (ctrl_pts, 1, Na))
+            deltar  = np.tile(deltar[None,:,None], (ctrl_pts, 1, Na))
+
+            # 2D atmospheric properties
+            a   = np.tile(np.atleast_2d(a), (1, Nr))
+            a   = np.repeat(a[:,:,None], Na, axis=2)
+            nu = np.tile(np.atleast_2d(nu), (1, Nr))
+            nu = np.repeat(nu[:, :, None], Na, axis=2)
+            rho = np.tile(np.atleast_2d(rho), (1, Nr))
+            rho = np.repeat(rho[:, :, None], Na, axis=2)
+            T = np.tile(np.atleast_2d(T), (1, Nr))
+            T = np.repeat(T[:, :, None], Na, axis=2)
+
+        else:
+            # Total velocities
+            r       = r_1d
+            Ua      = np.outer((V + ua), np.ones_like(r))
+            beta    = total_blade_pitch
+
+            # Things that will change with iteration
+            size    = (ctrl_pts, Nr)
+            PSI     = np.ones(size)
+            PSIold  = np.zeros(size)
+
+        # Total velocities
+        Ut  = omegar - ut
+        U   = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
+
+        # Momentum Wake Method (TODO: Implement Helical Fixed Wake)
+
+        diff    = 1.
+        tol     = 1E-6
+        ii      = 0
+
+        while (diff > tol):
+
+            # Compute velocities
+            sin_psi = np.sin(PSI)
+            cos_psi = np.cos(PSI)
+            Wa      = 0.5*Ua + 0.5*U*sin_psi
+            Wt      = 0.5*Ut + 0.5*U*cos_psi
+            va      = Wa - Ua
+            vt      = Ut - Wt
+
+            # Compute blade airfoil forces and properties
+            Cl, Cdval, alpha, Ma, W     = compute_airfoil_aerodynamics(beta,c,r,R,B,
+                                                                       Wa,Wt,a,nu,
+                                                                       a_loc,a_geo,cl_sur,cd_sur,
+                                                                       ctrl_pts,Nr,Na,tc,
+                                                                       use_2d_analysis)
+
+            
 
 
+def compute_airfoil_aerodynamics(beta,c,r,R,B,
+                                Wa,Wt,a,nu,
+                                a_loc,a_geo,cl_sur,cd_sur,
+                                ctrl_pts,Nr,Na,tc,
+                                use_2d_analysis):
+    """
+    Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
+                                              Wa,Wt,a,nu,
+                                              a_loc,a_geo,cl_sur,cd_sur,
+                                              ctrl_pts,Nr,Na,tc,use_2d_analysis )
+
+    Computes the aerodynamic forces at sectional blade locations. If airfoil
+    geometry and locations are specified, the forces are computed using the
+    airfoil polar lift and drag surrogates, accounting for the local Reynolds
+    number and local angle of attack.
+
+    If the airfoils are not specified, an approximation is used.
+
+    Modified for use in JAX-based autodifferentiation and GPU acceleration.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+       beta                       blade twist distribution                        [-]
+       c                          chord distribution                              [-]
+       r                          radius distribution                             [-]
+       R                          tip radius                                      [-]
+       B                          number of rotor blades                          [-]
+
+       Wa                         axial velocity                                  [-]
+       Wt                         tangential velocity                             [-]
+       a                          speed of sound                                  [-]
+       nu                         viscosity                                       [-]
+
+       a_loc                      Locations of specified airfoils                 [-]
+       a_geo                      Geometry of specified airfoil                   [-]
+       cl_sur                     Lift Coefficient Surrogates                     [-]
+       cd_sur                     Drag Coefficient Surrogates                     [-]
+       ctrl_pts                   Number of control points                        [-]
+       Nr                         Number of radial blade sections                 [-]
+       Na                         Number of azimuthal blade stations              [-]
+       tc                         Thickness to chord                              [-]
+       use_2d_analysis            Specifies 2d disc vs. 1d single angle analysis  [Boolean]
+
+    Outputs:
+       Cl                       Lift Coefficients                         [-]
+       Cdval                    Drag Coefficients  (before scaling)       [-]
+       alpha                    section local angle of attack             [rad]
+
+    """
+
+    alpha   = beta - np.arctan2(Wa,Wt)
+    W       = (Wa*Wa + Wt*Wt)**0.5
+    Ma      = W/a
+    Re      = (W*c)/nu
+
+    # If propeller airfoils are defined, use airfoil surrogate
+    if a_loc != None:
+
+        print("Use of specified airfoils for aerodynamics is currently unsupported. Defaulting to estimation method.")
+
+        # # Compute blade Cl and Cd distribution from the airfoil data
+        # dim_sur = len(cl_sur)
+        # if use_2d_analysis:
+        #     # Return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
+        #     Cl      = np.zeros((ctrl_pts, Nr, Na))
+        #     Cdval   = np.zeros((ctrl_pts, Nr, Na))
+        #     for jj in range(dim_sur):
+        #         Cl_af       = cl_sur[a_geo[jj]](Re, alpha, grid=False)
+        #         Cdval_af    = cd_sur[a_geo[jj]](Re, alpha, grid=False)
+        #         locs        = np.where(np.array(a_loc) == jj)
+        #
+        #         Cl.at[:,locs,:].set(Cl_af[:,locs,:])
+        #         Cdval.at[:,locs,:].set(Cdval_af[:,locs,:])
+        #
+        # else:
+        #     # Return the 1D Cl and CDval of shape (ctrl_pts, Nr)
+        #     Cl      = np.zeros((ctrl_pts, Nr))
+        #     Cdval   = np.zeros((ctrl_pts, Nr))
+        #
+        #     for jj in range(dim_sur):
+        #         Cl_af       = cl_sur[a_geo[jj]](Re, alpha, grid=False)
+        #         Cdval_af    = cd_sur[a_geo[jj]](Re, alpha, grid=False)
+        #         locs        = np.where(np.array(a_loc) == jj)
+        #
+        #         Cl.at[:,locs].set(Cl_af[:, locs])
+        #         Cdval.at[:,locs].set(Cdval_af[:,locs])
+
+    Cl_max_ref  = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+    Re_ref      = 9E6
+    Cl1maxp     = Cl_max_ref * (Re/Re_ref)**0.1
+
+    Cl          = 2.*np.pi*alpha
+    Cl.at[Cl > Cl1maxp].set(Cl1maxp[0][[Cl > Cl1maxp][0][0]])
+    Cl.at[alpha >= np.pi / 2].set(0.)
+    Cl.at[Ma[:, :] < 1.].set(Cl[Ma[:, :] < 1.] / ((1 - Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) ** 0.5 + (
+                (Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) / (1 + (1 - Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) ** 0.5)) *
+                                                  Cl[Ma < 1.] / 2))
+    Cl.at[Ma[:, :] >= 1.].set(Cl[Ma[:, :] >= 1.])
+
+    Cdval = (0.108 * (Cl * Cl * Cl * Cl) - 0.2612 * (Cl * Cl * Cl) + 0.181 * (Cl * Cl) - 0.0139 * Cl + 0.0278) * (
+                (50000. / Re) ** 0.2)
+    Cdval.at[alpha >= np.pi / 2].set(2.)
+
+    return Cl, Cdval
 
 
 
