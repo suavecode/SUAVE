@@ -314,7 +314,6 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*((1 - (1 + 1j)*(cc_1 - 1j*ss_1)) \
                         + ((np.exp(-1j*2*triangle))*(np.sqrt((((omega/(1 +  (Omega*r/c_0)*(X/R_s))) /(0.8*U_inf)) + mu*M + gamma)/(mu*X/epsilon +gamma))) \
                            *(1 + 1j)*(cc_2 - 1j*ss_2)) ))
-        norm_L_sq     = np.nan_to_num(norm_L_sq)
 
         # ------------------------------------------------------------
         # ****** EMPIRICAL WALL PRESSURE SPECTRUM ******
