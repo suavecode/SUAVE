@@ -160,9 +160,6 @@ class Vortex_Lattice(Aerodynamics):
             
         settings.use_surrogate              = use_surrogate
         settings.propeller_wake_model       = propeller_wake_model 
-        settings.initial_timestep_offset    = ito
-        settings.wake_development_time      = wdt
-        settings.number_of_wake_timesteps   = nwts
         settings.discretize_control_surfaces= dcs
         settings.model_fuselage             = mf
         settings.model_nacelle              = mn

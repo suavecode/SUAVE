@@ -121,9 +121,6 @@ def get_settings():
     settings.spanwise_cosine_spacing         = False
     settings.model_fuselage                  = True
     settings.model_nacelle                   = True
-    settings.initial_timestep_offset         = 0.0
-    settings.wake_development_time           = 0.0 
-    settings.number_of_wake_timesteps        = 0.0
     settings.leading_edge_suction_multiplier = 1. 
     settings.discretize_control_surfaces     = True
                 

@@ -202,10 +202,7 @@ def simulation_settings(vehicle):
     VLM_settings.propeller_wake_model            = False
     VLM_settings.model_fuselage                  = False
     VLM_settings.spanwise_cosine_spacing         = True
-    VLM_settings.number_of_wake_timesteps        = 0.
     VLM_settings.leading_edge_suction_multiplier = 1.
-    VLM_settings.initial_timestep_offset         = 0.
-    VLM_settings.wake_development_time           = 0.5
     
     return grid_settings, VLM_settings
 

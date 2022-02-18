@@ -72,9 +72,6 @@ class Supersonic_Zero(Markup):
         settings.begin_drag_rise_mach_number        = 0.95
         settings.end_drag_rise_mach_number          = 1.2
         settings.transonic_drag_multiplier          = 1.25 
-        settings.initial_timestep_offset            = 0.
-        settings.wake_development_time              = 0.05
-        settings.number_of_wake_timesteps           = 30
         settings.number_spanwise_vortices           = None 
         settings.number_chordwise_vortices          = None 
         settings.use_surrogate                      = True 
@@ -155,9 +152,6 @@ class Supersonic_Zero(Markup):
         propeller_wake_model      = self.settings.propeller_wake_model 
         n_sw                      = self.settings.number_spanwise_vortices    
         n_cw                      = self.settings.number_chordwise_vortices  
-        ito                       = self.settings.initial_timestep_offset
-        wdt                       = self.settings.wake_development_time
-        nwts                      = self.settings.number_of_wake_timesteps
         mf                        = self.settings.model_fuselage
         mn                        = self.settings.model_nacelle
         dcs                       = self.settings.discretize_control_surfaces
