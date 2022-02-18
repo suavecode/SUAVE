@@ -65,7 +65,6 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
     R             = rotor.tip_radius
     Rh            = rotor.hub_radius 
     design_thrust = rotor.design_thrust
-    alpha         = rotor.optimization_parameters.aeroacoustic_weight
     design_power  = rotor.design_power
     chi0          = Rh/R  
     chi           = np.linspace(chi0,1,N+1)  
@@ -114,39 +113,17 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
     
     # start optimization 
     ti = time.time()    
-    rotor.optimization_parameters.aeroacoustic_weight = 1.0 # first, run with alpha = 1 (only aerodynamic optimization) 
     optimization_problem = rotor_optimization_setup(rotor) 
     if use_pyoptsparse:
         output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
                                                       sense_step= 1E-3) 
     else: 
         output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
-                                         tolerance = 1E-3)    
-    
-    # if objective considers acoustics, use output of aerdynamic optimizer in aeroacoustic optimization
-    if alpha!= 1.0: 
-        rotor.chord_r  = output[0]
-        rotor.chord_p  = output[1]
-        rotor.chord_q  = output[2]
-        rotor.chord_t  = output[3]
-        rotor.twist_r  = output[4]
-        rotor.twist_p  = output[5]
-        rotor.twist_q  = output[6]
-        rotor.twist_t  = output[7]
-        
-        # reset alpha 
-        rotor.optimization_parameters.aeroacoustic_weight = alpha
-        optimization_problem = rotor_optimization_setup(rotor) 
-        if use_pyoptsparse:
-            output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
-                                                          sense_step= 1E-3) 
-        else: 
-            output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
-                                             tolerance = 1E-3)     
+                                         tolerance = 1E-3)
         
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
-    print('Rotor Otimization Simulation Time: ' + str(elapsed_time))   
+    print('Rotor Optimization Simulation Time: ' + str(elapsed_time))   
     
     # print optimization results 
     print (output)  
@@ -302,7 +279,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     ctrl_pts       = 1 
 
     # Run Conditions     
-    theta  = np.array([90,112.5,135,157.5])*Units.degrees + 1E-2
+    theta  = np.array([90,120,160])*Units.degrees + 1E-2
     S      = np.maximum(alt , 20*Units.feet)
 
     # microphone locations
@@ -529,7 +506,7 @@ def post_process(nexus):
     mu             = atmo_data.dynamic_viscosity[0]  
 
     # Define microphone locations
-    theta     = np.array([90,112.5,135,157.5])*Units.degrees + 1E-2
+    theta     = np.array([90,120,160])*Units.degrees + 1E-2
     S         = np.maximum(alt , 20*Units.feet)
     ctrl_pts  = 1 
     positions = np.zeros(( len(theta),3))
