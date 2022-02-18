@@ -125,7 +125,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts,mf,mn,dcs):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,mf,mn,dcs):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -139,9 +139,6 @@ class Vortex_Lattice(Aerodynamics):
         n_sw                   number of spanwise vortices  [int]
         n_cw                   number of chordwise vortices [int]
         propeller_wake_model                                [bool] 
-        ito                    initial timestep offset      [s]            
-        wdt                    wake development time        [s]
-        nwts                   number of wake timesteps     [int]
 
         Outputs:
         None
