@@ -74,15 +74,14 @@ def compute_bevw_induced_velocity(props,geometry,cpts,conditions,identical_flag,
         r  = prop_outputs.disc_radial_distribution[0,:,0]
         
         hub_y_center = prop.origin[0][1]
-        prop_y_min   = hub_y_center - r[-1]
-        prop_y_max   = hub_y_center + r[-1]
-        
-        ir = prop_y_min+r
-        ro = np.flipud(prop_y_max-r)
-        prop_y_range = np.append(ir, ro)
+        inboard_r    = np.flip(hub_y_center - r) 
+        outboard_r   = hub_y_center + r 
+        prop_y_range = np.append(inboard_r, outboard_r)
     
         # within this range, add an induced x- and z- velocity from propeller wake
-        bool_in_range = (abs(VD.YC)>ir[0])*(abs(VD.YC)<ro[-1])
+        bool_inboard  = ( VD.YC > inboard_r[0] )  * ( VD.YC < inboard_r[-1] )
+        bool_outboard = ( VD.YC > outboard_r[0] ) * ( VD.YC < outboard_r[-1] )
+        bool_in_range = bool_inboard + bool_outboard
         YC_in_range   = VD.YC[bool_in_range]
         
         va_y_range  = np.append(np.flipud(va), va)
@@ -92,26 +91,20 @@ def compute_bevw_induced_velocity(props,geometry,cpts,conditions,identical_flag,
         
         y_vals  = YC_in_range
         val_ids = np.where(bool_in_range==True)
-    
-        # check if y values are inboard of propeller axis
-        inboard_bools = abs(y_vals)<hub_y_center
         
         # preallocate va_new and vt_new
-        va_new = np.zeros(np.size(val_ids))
+        va_new = va_interp((y_vals))
         vt_new = np.zeros(np.size(val_ids))
-    
-        # take absolute y values (symmetry)
-        va_new = va_interp(abs(y_vals))
         
-        # inboard vt values
-        vt_new[inboard_bools]        = -vt_interp(abs(y_vals[inboard_bools]))
-        vt_new[inboard_bools==False] = vt_interp(abs(y_vals[inboard_bools==False]))
+        # invert inboard vt values
+        inboard_bools                = (y_vals < hub_y_center)
+        vt_new[inboard_bools]        = -vt_interp((y_vals[inboard_bools]))
+        vt_new[inboard_bools==False] = vt_interp((y_vals[inboard_bools==False]))
         
         prop_V_wake_ind[0,val_ids,0] = va_new  # axial induced velocity
         prop_V_wake_ind[0,val_ids,1] = 0       # spanwise induced velocity; in line with prop, so 0
-        prop_V_wake_ind[0,val_ids,2] = vt_new  # vertical induced velocity      
-    
-       
+        prop_V_wake_ind[0,val_ids,2] = vt_new  # vertical induced velocity     
+        
     return prop_V_wake_ind
   
   

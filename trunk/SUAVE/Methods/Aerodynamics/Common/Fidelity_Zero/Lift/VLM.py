@@ -317,7 +317,7 @@ def VLM(conditions,settings,geometry):
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
     COS_DL = (YBH-YAH)[LE_ind]/D
-    cos_DL  = np.broadcast_to(np.repeat(COS_DL,RNMAX[LE_ind]),np.shape(B2))
+    cos_DL = np.broadcast_to(np.repeat(COS_DL,RNMAX[LE_ind]),np.shape(B2))
     DCPSID = FORLAT * cos_DL *GLAT /(XIB - XIA)
     FACTOR = FORAXL + ONSET
     
@@ -506,14 +506,17 @@ def VLM(conditions,settings,geometry):
     results.CYMTOT     =  CYMTOT
     
     #other SUAVE outputs
-    results.CL_wing    =  CL_wing   
-    results.CDi_wing   =  CDi_wing 
-    results.cl_y       =  cl_y   
-    results.cdi_y      =  cdi_y       
-    results.alpha_i    =  alpha_i  
-    results.CP         =  np.array(CP    , dtype=precision)
-    results.gamma      =  np.array(GAMMA , dtype=precision)
-    results.VD = VD
+    results.CL_wing        =  CL_wing   
+    results.CDi_wing       =  CDi_wing 
+    results.cl_y           =  cl_y   
+    results.cdi_y          =  cdi_y       
+    results.alpha_i        =  alpha_i  
+    results.CP             =  np.array(CP    , dtype=precision)
+    results.gamma          =  np.array(GAMMA , dtype=precision)
+    results.VD             = VD
+    results.V_distribution = rhs.V_distribution
+    results.V_x            = rhs.Vx_ind_total
+    results.V_z            = rhs.Vz_ind_total
     
     return results
 

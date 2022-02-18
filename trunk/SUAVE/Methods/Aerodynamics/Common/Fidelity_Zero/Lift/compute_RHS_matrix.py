@@ -154,11 +154,13 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
             Vz_ind_total = Vz_ind_total + prop_V_wake_ind[:,:,2] + rot_V_wake_ind[:,:,2]
 
             rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
-                            Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)
+                            Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)           
+            
             return  rhs
 
     rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
                     Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)
+    
     return rhs
 
 
@@ -267,11 +269,10 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     Vy_rotation       = -YAWQ  *XGIRO + ROLLQ *ZGIRO
     Vz_rotation       = -ROLLQ *YGIRO + PITCHQ*XGIRO
 
-    Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) + Vx_rotation - Vx_ind_total
+    Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) + Vx_rotation + Vx_ind_total
     Vy                = V_distribution*np.cos(aoa_distribution)*np.sin(PSI_distribution) + Vy_rotation + Vy_ind_total
-    Vz                = V_distribution*np.sin(aoa_distribution)                          + Vz_rotation - Vz_ind_total    
-    V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 )
-
+    Vz                = V_distribution*np.sin(aoa_distribution)                          + Vz_rotation + Vz_ind_total    
+    
     aoa_distribution  = np.arctan(Vz/ np.sqrt(Vx**2 + Vy**2) )
     PSI_distribution  = np.arctan(Vy / Vx)
 

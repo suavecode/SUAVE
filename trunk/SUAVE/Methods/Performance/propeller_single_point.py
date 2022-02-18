@@ -114,6 +114,7 @@ def propeller_single_point(energy_network,
     conditions.freestream.dynamic_viscosity         = np.ones((ctrl_pts, 1)) * dynamic_viscosity
     conditions.freestream.speed_of_sound            = np.ones((ctrl_pts, 1)) * a
     conditions.freestream.temperature               = np.ones((ctrl_pts, 1)) * T
+    conditions.freestream.mach_number               = speed / a
     velocity_vector                                 = np.array([[speed, 0., 0.]])
     conditions.propulsion.throttle                  = np.ones((ctrl_pts, 1)) * 1.
     conditions.frames.inertial.velocity_vector      = np.tile(velocity_vector, (ctrl_pts, 1))

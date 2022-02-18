@@ -84,14 +84,14 @@ def regress_1a(results, configs):
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       = 0.43768245404502637    
-    sectional_lift_coeff_true   = np.array([ 4.57933495e-01,  3.31030791e-01,  3.72322963e-01,  3.25750054e-01,
-                                             6.30279073e-02,  4.57933511e-01,  3.31030802e-01,  3.72323014e-01,
-                                             3.25750268e-01,  6.30279328e-02, -5.76708908e-02, -5.54647407e-02,
-                                            -4.78313483e-02, -3.37720002e-02, -1.91780281e-02, -5.76709064e-02,
-                                            -5.54647633e-02, -4.78313797e-02, -3.37720401e-02, -1.91780399e-02,
-                                            -2.12104101e-15, -8.27709312e-16, -6.08914689e-16, -4.63674304e-16,
-                                            -2.94742692e-16])
+    lift_coefficient_true       = 0.43768245404117506 
+    sectional_lift_coeff_true   = np.array([ 4.41919007e-01,  3.93827770e-01,  3.57546216e-01,  3.00918376e-01,
+                                             5.79960717e-02,  4.41917288e-01,  3.93824393e-01,  3.57542776e-01,
+                                             3.00915725e-01,  5.79954677e-02, -7.85853716e-02, -7.53097786e-02,
+                                            -6.63201076e-02, -4.93176170e-02, -2.37638193e-02, -7.87696892e-02,
+                                            -7.58898897e-02, -6.76422138e-02, -5.24297298e-02, -3.72318746e-02,
+                                            -2.54534808e-12,  5.74924743e-13,  1.72850349e-12,  1.14500668e-12,
+                                            -4.03710776e-13])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -117,14 +117,14 @@ def regress_1b(results, configs):
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       = 0.43813579110326617   
-    sectional_lift_coeff_true   = np.array([ 4.17980236e-01,  6.35637114e-01,  3.48935801e-01,  2.65231869e-01,
-                                             5.06858059e-02,  3.89937920e-01,  4.10040539e-01,  2.94170309e-01,
-                                             2.40561453e-01,  4.58450189e-02, -1.14517416e-01, -1.10479319e-01,
-                                            -9.96857377e-02, -8.28741704e-02, -5.29456123e-02, -9.38371057e-02,
-                                            -8.94528128e-02, -8.26897370e-02, -6.62645031e-02, -4.09864507e-02,
-                                            -6.88346466e-07, -8.74875456e-10, -1.47356558e-08, -2.68471271e-08,
-                                            -1.54810930e-08])
+    lift_coefficient_true       = 0.43720524429260704  
+    sectional_lift_coeff_true   = np.array([ 4.67683276e-01,  1.12883286e-01,  3.67497433e-01,  3.42594108e-01,
+                                             6.64415291e-02,  4.99560900e-01,  3.80043777e-01,  4.29016392e-01,
+                                             3.70311329e-01,  7.18550260e-02, -3.38063646e-02, -3.21326225e-02,
+                                            -2.63780088e-02, -1.17284127e-02, -3.25131991e-03, -5.70295941e-02,
+                                            -5.54593464e-02, -4.52237700e-02, -3.05340112e-02, -1.69349332e-02,
+                                             1.08474217e-05,  1.26360234e-08,  2.55385553e-07,  4.56680287e-07,
+                                             2.60996394e-07])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -207,14 +207,17 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
 def regress_2(results):
 
-    CL_truth = 0.51255101
-    CM_truth = 0.40329122
+    CL_truth  = 0.41586599
+    CDi_truth = 0.01156243
+    CM_truth  = 0.32375648
     
-    CL = results.CL
-    CM = results.CM
+    CL  = results.CL
+    CDi = results.CDi
+    CM  = results.CM
     
-    assert(np.abs(CL_truth  - CL) < 1e-6)
-    assert(np.abs(CM_truth  - CM) < 1e-6)
+    assert(np.abs(CL_truth  - CL)  < 1e-6)
+    assert(np.abs(CDi_truth - CDi) < 1e-6)
+    assert(np.abs(CM_truth  - CM)  < 1e-6)
     
     return
 
