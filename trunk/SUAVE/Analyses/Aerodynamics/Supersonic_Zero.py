@@ -157,6 +157,6 @@ class Supersonic_Zero(Markup):
         dcs                       = self.settings.discretize_control_surfaces
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts,mf,mn,dcs)
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,mf,mn,dcs)
                 
     finalize = initialize        
