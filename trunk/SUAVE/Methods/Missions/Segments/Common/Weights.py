@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#         : Dec 2021, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -107,28 +108,62 @@ def update_weights(segment):
         Outputs:
         segment.state.conditions:
             weights.total_mass                   [kilograms]
+            weights.fuel_mass                    [kilograms]
+            weights.additional_fuel_mass         [kilograms]
             frames.inertial.gravity_force_vector [kilograms]
-
         Properties Used:
         N/A
                                 
     """          
     
     # unpack
-    conditions = segment.state.conditions
-    m0         = conditions.weights.total_mass[0,0]
-    mdot_fuel  = conditions.weights.vehicle_mass_rate
-    g          = conditions.freestream.gravity
-    I          = segment.state.numerics.time.integrate
+    conditions       = segment.state.conditions
+    
 
-    # calculate
-    m = m0 + np.dot(I, -mdot_fuel )
+    if conditions.weights.has_additional_fuel == True:
 
-    # weight
-    W = m*g
+        m0               = conditions.weights.total_mass[0,0]
+        mdot_total       = conditions.weights.vehicle_mass_rate
+        g                = conditions.freestream.gravity
+        I                = segment.state.numerics.time.integrate
+        mdot_fuel        = conditions.weights.vehicle_fuel_rate
+        mdot_additional  = conditions.weights.vehicle_additional_fuel_rate 
+        mf0              = conditions.weights.fuel_mass[0,0]
+        ma0              = conditions.weights.additional_fuel_mass[0,0]
 
-    # pack
-    conditions.weights.total_mass[1:,0]                  = m[1:,0] # don't mess with m0
-    conditions.frames.inertial.gravity_force_vector[:,2] = W[:,0]
+        # Keep track of the fuel and cryogen mass.
+        # As these values start as zero mass, the result will always be negative
+        mf = mf0 + np.dot(I, -mdot_fuel )
+        ma = ma0 + np.dot(I, -mdot_additional )
+
+        # calculate total aircraft mass change.
+        m = m0 + np.dot(I, -mdot_total )
+
+        # weight
+        W = m*g
+        
+        # pack
+        conditions.weights.total_mass[1:,0]                     = m[1:,0] # don't mess with m0
+        conditions.frames.inertial.gravity_force_vector[:,2]    = W[:,0]
+        conditions.weights.fuel_mass[1:,0]                      = mf[1:,0]
+        conditions.weights.additional_fuel_mass[1:,0]           = ma[1:,0]
+
+    else:
+        #unpack
+        conditions = segment.state.conditions
+        m0         = conditions.weights.total_mass[0,0]
+        mdot_fuel  = conditions.weights.vehicle_mass_rate
+        g          = conditions.freestream.gravity
+        I          = segment.state.numerics.time.integrate
+
+        # calculate
+        m = m0 + np.dot(I, -mdot_fuel )
+
+        # weight
+        W = m*g
+
+        # pack
+        conditions.weights.total_mass[1:,0]                  = m[1:,0] # don't mess with m0
+        conditions.frames.inertial.gravity_force_vector[:,2] = W[:,0]
 
     return

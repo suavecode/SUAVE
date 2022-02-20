@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 # jet_installation_effect.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -14,7 +14,7 @@ import numpy as np
 #   Jet Installation Effect
 # ---------------------------------------------------------------------- 
 
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 def jet_installation_effect (Xe,Ye,Ce,theta_s,Diameter_mixed):
     """This calculates the installation effect, in decibels, to be added to the predicted secondary jet noise level.
     

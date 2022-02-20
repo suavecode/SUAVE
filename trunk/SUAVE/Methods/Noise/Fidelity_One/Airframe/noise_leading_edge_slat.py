@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Airframe
+## @ingroup Methods-Noise-Fidelity_One-Airframe
 # noise_leading_edge_slat.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -15,7 +15,7 @@ from .noise_clean_wing import noise_clean_wing
 # Compute the slat leading edge noise
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Airframe
+## @ingroup Methods-Noise-Fidelity_One-Airframe
 def noise_leading_edge_slat(SPL_wing,Sw,bw,velocity,viscosity,M,phi,theta,distance,frequency):
     """ This calculates the noise from the slat leading edge as a 1/3 octave band sound pressure level. 
     
