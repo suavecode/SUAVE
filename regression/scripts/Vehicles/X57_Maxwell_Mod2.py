@@ -424,7 +424,7 @@ def vehicle_setup():
     prop.hub_radius             = 10.     * Units.inches
     prop.design_Cl              = 0.8
     prop.design_altitude        = 9000. * Units.feet  
-    prop.design_power           = 98 * 0.65  * Units.hp # assume 65 BHP at crise 
+    prop.design_power           = 98 * 0.65  * Units.hp # assume 65 BHP at cruise
     prop.origin                 = [[2.,2.5,0.784]]
     prop.rotation               = -1
     prop.symmetry               = True
