@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # noise_geometric.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -16,7 +16,7 @@ import numpy as np
 #   Noise Geometric
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 def noise_geometric(noise_segment,analyses,config):
     """ This computes the geometric parameters for the noise tools: distance and emission angles for 
     both polar and azimuthal angles.
