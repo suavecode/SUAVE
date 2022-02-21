@@ -254,13 +254,7 @@ def vehicle_setup():
     # Appending rotors with different origins
     origins                 = [[ 0.,2.,1.4],[ 0.0,-2.,1.4],
                                 [2.5,4.,1.4] ,[2.5,-4.,1.4],
-                                [5.0,2.,1.4] ,[5.0,-2.,1.4]] 
-    
-    from SUAVE.Methods.Propulsion import rotor_design
-    lift_rotor.hover_speed   = -5.
-    lift_rotor.forward_speed = 5.
-    lift_rotor.design_power  = None
-    rotor_design(lift_rotor)    
+                                [5.0,2.,1.4] ,[5.0,-2.,1.4]]  
     
     for ii in range(6):
         lift_rotor          = deepcopy(lift_rotor)

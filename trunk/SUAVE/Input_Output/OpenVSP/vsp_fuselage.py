@@ -23,7 +23,7 @@ except ImportError:
 # ----------------------------------------------------------------------
 
 ## @ingroup Input_Output-OpenVSP
-def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=True):
+def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=True, use_scaling=True):
     """This reads an OpenVSP fuselage geometry and writes it to a SUAVE fuselage format.
 
     Assumptions:
@@ -44,8 +44,10 @@ def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=Tr
     1. VSP 10-digit geom ID for fuselage.
     2. Units_type set to 'SI' (default) or 'Imperial'.
     3. Boolean for whether or not to compute fuselage finenesses (default = True).
+    4. Boolean for whether or not to use the scaling from OpenVSP (default = True).
 
     Outputs:
+
     Writes SUAVE fuselage, with these geometries:           (all defaults are SI, but user may specify Imperial)
 
     	Fuselages.Fuselage.			
@@ -93,10 +95,12 @@ def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=Tr
         fuselage.tag = vsp.GetGeomName(fuselage_id) + '_' + str(fux_idx+1)
     else: 
         fuselage.tag = 'FuselageGeom' + '_' + str(fux_idx+1)	
-    
-    scaling           = vsp.GetParmVal(fuselage_id, 'Scale', 'XForm')  
-    #unscaled_factor   = units_factor*1
-    #units_factor      = units_factor*scaling
+        
+    if use_scaling:
+        scaling       = vsp.GetParmVal(fuselage_id, 'Scale', 'XForm')  
+    else:
+        scaling       = 1.
+    units_factor      = units_factor*scaling
 
     fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Location', 'XForm') * units_factor
     fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Location', 'XForm') * units_factor*sym_flag
