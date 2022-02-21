@@ -13,7 +13,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
-from SUAVE.Methods.Dynamo_Supply.dynamo_supply_mass_estimation import dynamo_supply_mass_estimation
+
 
 
 
