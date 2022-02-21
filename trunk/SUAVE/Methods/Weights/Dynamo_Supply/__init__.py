@@ -1,4 +1,4 @@
-## @defgroup Methods-Dyanmo_Supply Dynamo_Supply
+## @defgroup Methods-Weights-Dyanmo_Supply Dynamo_Supply
 #Dynamo methods contain the functions for Dynamos
 # @ingroup Methods
 

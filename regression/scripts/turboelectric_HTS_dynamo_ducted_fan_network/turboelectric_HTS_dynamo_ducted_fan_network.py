@@ -16,7 +16,7 @@ import numpy as np
 from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Dynamo_Ducted_Fan import Turboelectric_HTS_Dynamo_Ducted_Fan   
 from SUAVE.Methods.Propulsion.serial_HTS_dynamo_turboelectric_sizing import serial_HTS_dynamo_turboelectric_sizing
 
-from SUAVE.Methods.Dynamo_Supply.dynamo_supply_mass_estimation import dynamo_supply_mass_estimation
+from SUAVE.Methods.Weights.Dynamo_Supply.dynamo_supply_mass_estimation import dynamo_supply_mass_estimation
 
 from SUAVE.Attributes.Gases import Air
 
