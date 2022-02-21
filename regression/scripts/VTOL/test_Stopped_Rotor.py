@@ -10,6 +10,7 @@
 import SUAVE
 from SUAVE.Core import Units , Data
 from SUAVE.Plots.Performance.Mission_Plots import *
+from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from SUAVE.Plots.Geometry import *
 import sys
 import numpy as np
@@ -67,7 +68,7 @@ def main():
     plot_mission(results,configs.base)
 
     # save, load and plot old results
-    save_stopped_rotor_results(results)
+    #save_stopped_rotor_results(results)
     old_results  = load_stopped_rotor_results()
     plot_mission(old_results,configs.base, 'k-')
 
@@ -92,7 +93,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.8043927973520482
+    lift_coefficient_true   = 0.828126216785489
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -218,14 +219,12 @@ def mission_setup(analyses,vehicle):
     base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
 
-    # VSTALL Calculation
-    m      = vehicle.mass_properties.max_takeoff
-    g      = 9.81
-    S      = vehicle.reference_area
-    atmo   = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    rho    = atmo.compute_values(1000.*Units.feet,0.).density
-    CLmax  = 1.2
-    Vstall = float(np.sqrt(2.*m*g/(rho*S*CLmax)))
+    # VSTALL Calculation  
+    vehicle_mass   = vehicle.mass_properties.max_takeoff
+    reference_area = vehicle.reference_area
+    altitude       = 0.0 
+    CL_max         = 1.2  
+    Vstall         = estimate_stall_speed(vehicle_mass,reference_area,altitude,CL_max)       
 
 
     # ------------------------------------------------------------------

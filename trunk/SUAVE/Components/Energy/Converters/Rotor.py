@@ -11,6 +11,7 @@
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
 #           Sep 2021, R. Erhard
+#           Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -65,8 +66,7 @@ class Rotor(Energy_Component):
         self.hub_radius                   = 0.0
         self.twist_distribution           = 0.0
         self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
-        self.chord_distribution           = 0.0
-        self.mid_chord_alignment          = 0.0
+        self.chord_distribution           = 0.0 
         self.thickness_to_chord           = 0.0
         self.blade_solidity               = 0.0
         self.design_power                 = None
@@ -100,8 +100,7 @@ class Rotor(Energy_Component):
         self.wake_settings.wake_development_time     = 0.05 # total simulation time required for wake development
         self.wake_settings.number_of_wake_timesteps  = 30   # total number of time steps in wake development
         self.start_angle                             = 0.0  # angle of first blade from vertical
-
-        self.inputs.y_axis_rotation    = 0.
+ 
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
 
@@ -758,8 +757,7 @@ class Rotor(Energy_Component):
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
-        rots    = np.array(self.orientation_euler_angles) * 1.
-        rots[1] = rots[1] + self.inputs.y_axis_rotation
+        rots    = np.array(self.orientation_euler_angles) * 1. 
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
 
         # GO from the propeller vehicle frame to the propeller velocity frame: rot 2

@@ -84,25 +84,14 @@ def main():
     noise                                                  = SUAVE.Analyses.Noise.Fidelity_One() 
     settings                                               = noise.settings   
     num_mic                                                = len(conditions.noise.total_microphone_locations[0] )  
-    conditions.noise.number_of_microphones                 = num_mic  
-    acoustic_outputs                                       = Data()
-    acoustic_outputs.propeller                             = noise_data
-    acoustic_outputs = Data()
-    acoustic_outputs.propeller = noise_data
+    conditions.noise.number_of_microphones                 = num_mic
     
     # Run Fidelity One    
-    propeller_noise                       = propeller_mid_fidelity(net,acoustic_outputs,segment,settings )    
-    F8745D4_blade_passing_frequencies     = propeller_noise.blade_passing_frequencies      
+    propeller_noise                       = propeller_mid_fidelity(net.propellers,noise_data,segment,settings )
     F8745D4_SPL                           = propeller_noise.SPL     
     F8745D4_SPL_harmonic                  = propeller_noise.SPL_harmonic 
     F8745D4_SPL_broadband                 = propeller_noise.SPL_broadband  
-    F8745D4_SPL_dBA                       = propeller_noise.SPL_dBA                        
-    F8745D4_SPL_harmonic_bpf_spectrum_dBA = propeller_noise.SPL_harmonic_bpf_spectrum_dBA  
     F8745D4_SPL_harmonic_bpf_spectrum     = propeller_noise.SPL_harmonic_bpf_spectrum      
-    F8745D4_SPL_1_3_spectrum              = propeller_noise.SPL_1_3_spectrum         
-    F8745D4_SPL_harmonic_1_3_spectrum     = propeller_noise.SPL_harmonic_1_3_spectrum      
-    F8745D4_SPL_broadband_1_3_spectrum    = propeller_noise.SPL_broadband_1_3_spectrum        
-    F8745D4_one_third_frequency_spectrum  = propeller_noise.one_third_frequency_spectrum     
 
     # ----------------------------------------------------------------------------------------------------------------------------------------
     #  Experimental Data
@@ -168,7 +157,7 @@ def main():
  
     PP = Data( 
         lw  = 2,                             # line_width               
-        m = 10,                            # markersize               
+        m = 10,                             # markersize               
         lf = 10,                            # legend_font_size         
         Slc = ['black','dimgray','silver' ], # SUAVE_line_colors        
         Slm = '^',                           # SUAVE_line_markers       
@@ -254,20 +243,7 @@ def main():
     axis.plot(theta*Units.degrees,F8745D4_SPL_broadband[0,:] , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw   )  
     axis.plot(-theta*Units.degrees,F8745D4_SPL_broadband[0,:] , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Broadband' )     
     axis.set_yticks(np.arange(50,150,25))     
-    axis.grid(True)     
-
-
-    fig34 = plt.figure('Test_Case_3_p4') 
-    fig34.set_size_inches(10, 8)       
-    axes = fig34.add_subplot(1,1,1)    
-    axes.semilogx(F8745D4_one_third_frequency_spectrum,F8745D4_SPL_1_3_spectrum[0,6,:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'Total SPL @ 60 deg')    
-    axes.semilogx(F8745D4_one_third_frequency_spectrum,F8745D4_SPL_harmonic_1_3_spectrum[0,6,:], color = PP.Slc[1] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Harmonic SPL @ 60 deg' )       
-    axes.semilogx(F8745D4_one_third_frequency_spectrum,F8745D4_SPL_broadband_1_3_spectrum[0,6,:]  , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'Broadband SPL @ 60 deg')    
-    axes.set_ylabel('SPL (dB)')
-    axes.set_xlabel('Frequency') 
-    plt.ylim((65,105)) 
-    axes.legend(loc='lower center', prop={'size': PP.lf}) 
-    axes.minorticks_on()     
+    axis.grid(True)  
 
     # Store errors 
     error = Data()
@@ -321,7 +297,7 @@ def design_F8745D4_prop():
     prop.airfoil_flag                     = True 
     prop.airfoil_cl_surrogates            = airfoil_cl_surs
     prop.airfoil_cd_surrogates            = airfoil_cd_surs    
-    prop.mid_chord_aligment               = np.zeros_like(prop.chord_distribution)
+    prop.mid_chord_alignment              = np.zeros_like(prop.chord_distribution)
     prop.number_of_airfoil_section_points = 102
     prop.airfoil_data                     = import_airfoil_geometry(prop.airfoil_geometry, npoints = prop.number_of_airfoil_section_points) 
 

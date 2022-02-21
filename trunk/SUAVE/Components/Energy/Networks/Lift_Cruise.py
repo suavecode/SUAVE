@@ -7,6 +7,7 @@
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
 #           Aug 2021, M. Clarke
+#           Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -79,11 +80,7 @@ class Lift_Cruise(Network):
         self.propeller_engine_length      = None
         self.number_of_lift_rotor_engines = 0
         self.number_of_propeller_engines  = 0
-        self.voltage                      = None
-        self.propeller_pitch_command      = 0.0
-        self.lift_rotor_pitch_command     = 0.0   
-        self.propeller_thrust_angle       = 0
-        self.lift_rotor_thrust_angle      = 0
+        self.voltage                      = None   
         self.tag                          = 'Lift_Cruise'
         self.generative_design_minimum    = 0
         self.identical_propellers         = True
@@ -213,9 +210,7 @@ class Lift_Cruise(Network):
                 motor.omega(conditions)
                 
                 # link
-                prop.inputs.omega           = motor.outputs.omega
-                prop.inputs.pitch_command   = self.propeller_pitch_command 
-                prop.inputs.y_axis_rotation = self.propeller_thrust_angle
+                prop.inputs.omega           = motor.outputs.omega 
                 
                 # Run the propeller
                 F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = prop.spin(conditions)
@@ -318,9 +313,7 @@ class Lift_Cruise(Network):
                 lift_rotor_motor.omega(konditions)
                 
                 # link
-                lift_rotor.inputs.omega           = lift_rotor_motor.outputs.omega
-                lift_rotor.inputs.pitch_command   = self.lift_rotor_pitch_command  
-                lift_rotor.inputs.y_axis_rotation = self.lift_rotor_thrust_angle
+                lift_rotor.inputs.omega           = lift_rotor_motor.outputs.omega   
                 
                 # Run the propeller
                 F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)
@@ -359,7 +352,7 @@ class Lift_Cruise(Network):
                     for i,p in enumerate(lift_rotors):
                         conditions.noise.sources.lift_rotors[p.tag]      = outputs_lift
                 else:
-                    conditions.noise.sources.lift_rotors[prop.tag]      = outputs_lift            
+                    conditions.noise.sources.lift_rotors[lift_rotor.tag] = outputs_lift            
                 
                 
             # link
@@ -810,9 +803,10 @@ class Lift_Cruise(Network):
         ones_row = segment.state.ones_row 
         
         # Count how many unknowns and residuals based on p
-        n_props    = len(self.propellers)
-        n_motors_p = len(self.propeller_motors)
-        n_eng_p    = self.number_of_propeller_engines
+        n_props       = len(self.propellers)
+        n_lift_rotors = len(self.lift_rotors)
+        n_motors_p    = len(self.propeller_motors)
+        n_eng_p       = self.number_of_propeller_engines
         
         if n_props!=n_motors_p!=n_eng_p:
             assert('The number of propellers is not the same as the number of motors')

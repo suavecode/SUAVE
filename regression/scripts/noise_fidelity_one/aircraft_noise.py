@@ -14,6 +14,7 @@ from SUAVE.Core import Units
 import numpy as np    
 from SUAVE.Core import Data 
 from SUAVE.Plots.Performance.Mission_Plots import *   
+from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Noise.Certification import sideline_noise, flyover_noise, approach_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import generate_building_microphone_points 
@@ -37,8 +38,8 @@ def main():
     # ----------------------------------------------------------------------
     # SUAVE Frequency Domain Propeller Aircraft Noise Model 
     # ---------------------------------------------------------------------- 
-    configs, analyses = X57_full_setup() 
- 
+    configs, analyses = X57_full_setup()  
+    
     configs.finalize()
     analyses.finalize()   
     
@@ -53,13 +54,13 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
     X57_SPL        = X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA[0][0]
-    X57_SPL_true   = 64.4597132685089
+    X57_SPL_true   = 66.42462666684563
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
     print(X57_diff_SPL)
-    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-6    
+    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-3   # lower tolerance for highly machine tolerance sensitive computation
     
     # ----------------------------------------------------------------------
     # SAE Turbofan Aircraft Noise Model 
@@ -96,6 +97,9 @@ def X57_full_setup():
 
     # vehicle data
     vehicle  = X57_vehicle_setup()
+    
+    # change identical propeller flag for regression coverage even though propellers are identical 
+    vehicle.networks.battery_propeller.identical_propellers = False
     
     # Set up configs
     configs  = X57_configs_setup(vehicle)
@@ -258,13 +262,11 @@ def X57_mission_setup(analyses,vehicle):
     
 
     # Determine Stall Speed 
-    m     = vehicle.mass_properties.max_takeoff
-    g     = 9.81
-    S     = vehicle.reference_area
-    atmo  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    rho   = atmo.compute_values(1000.*Units.feet,0.).density
-    CLmax = 1.2 
-    Vstall = float(np.sqrt(2.*m*g/(rho*S*CLmax))) 
+    vehicle_mass   = vehicle.mass_properties.max_takeoff
+    reference_area = vehicle.reference_area
+    altitude       = 0.0 
+    CL_max         = 1.2  
+    Vstall         = estimate_stall_speed(vehicle_mass,reference_area,altitude,CL_max)   
     
     # ------------------------------------------------------------------
     #   Initialize the Mission

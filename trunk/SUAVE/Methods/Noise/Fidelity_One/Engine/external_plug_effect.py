@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 # external+plug_effect.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -14,7 +14,7 @@ import numpy as np
 #   External Plug Effect
 # ---------------------------------------------------------------------- 
 
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 def external_plug_effect(Velocity_primary,Velocity_secondary, Velocity_mixed, Diameter_primary,
                          Diameter_secondary,Diameter_mixed, Plug_diameter, sound_ambient, theta_p,theta_s,theta_m):
     """This function calculates the adjustments, in decibels, to be added to the predicted jet noise levels due to
