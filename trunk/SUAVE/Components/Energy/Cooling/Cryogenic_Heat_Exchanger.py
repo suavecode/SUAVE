@@ -14,7 +14,7 @@ from scipy.optimize import fsolve
 
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Methods.Cooling.Cryogen.Consumption import Coolant_use
+from SUAVE.Methods.Weights.Cooling.Cryogen.Consumption import Coolant_use
 
 # ----------------------------------------------------------------------
 #  Cryogenic Heat Exchanger Component
