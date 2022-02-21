@@ -5,7 +5,7 @@
 # Modified:       
 
 import numpy as np
-
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
     """
     Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
@@ -55,10 +55,10 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
 
     """
 
-    alpha        = beta - np.arctan2(Wa,Wt)
-    W            = (Wa*Wa + Wt*Wt)**0.5
-    Ma           = W/a
-    Re           = (W*c)/nu
+    alpha    = beta - np.arctan2(Wa,Wt)
+    W        = (Wa*Wa + Wt*Wt)**0.5
+    Ma       = W/a
+    Re       = (W*c)/nu
 
     # If propeller airfoils are defined, use airfoil surrogate
     if a_loc != None:

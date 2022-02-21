@@ -1,5 +1,5 @@
 ## @ingroup Input_Output-VTK
-# save_fuselage_vtk.py
+# save_nacelle_vtk.py
 #
 # Created:    Jun 2021, R. Erhard
 # Modified:
@@ -14,11 +14,12 @@ import numpy as np
 
 
 #------------------------------
-# Fuselage VTK generation
+# Nacelle VTK generation
 #------------------------------
+## @ingroup Input_Output-VTK
 def save_nacelle_vtk(nacelle, filename, Results):
     """
-    Saves a SUAVE fuselage object as a VTK in legacy format.
+    Saves a SUAVE nacelle object as a VTK in legacy format.
 
     Inputs:
        vehicle        Data structure of SUAVE vehicle                [Unitless]
@@ -42,13 +43,13 @@ def save_nacelle_vtk(nacelle, filename, Results):
     nac_pts = generate_nacelle_points(nacelle)
     num_nac_segs = np.shape(nac_pts)[0]
     if num_nac_segs == 0:
-        print("No fuselage segments found!")
+        print("No nacelle segments found!")
     else:
         write_nacelle_data(nac_pts,filename)
 
     return
 
-
+## @ingroup Input_Output-VTK
 def generate_nacelle_points(nac,tessellation = 24):
     """ This generates the coordinate points on the surface of the nacelle
 
@@ -137,12 +138,13 @@ def generate_nacelle_points(nac,tessellation = 24):
 #------------------------------
 # Writing nacelle data
 #------------------------------
-def write_nacelle_data(fus_pts,filename):
+## @ingroup Input_Output-VTK
+def write_nacelle_data(nac_pts,filename):
     """
-    Writes data for a SUAVE fuselage object as a VTK in legacy format.
+    Writes data for a SUAVE nacelle object as a VTK in legacy format.
 
     Inputs:
-       fus_pts        Array of nodes making up the fuselage          [Unitless]
+       nac_pts        Array of nodes making up the nacelle          [Unitless]
        filename       Name of vtk file to save                       [String]
 
     Outputs:
@@ -165,7 +167,7 @@ def write_nacelle_data(fus_pts,filename):
         # Write header
         #---------------------
         header = ["# vtk DataFile Version 4.0"  ,     # File version and identifier
-                  "\nSUAVE Model of Fuselage"   ,     # Title
+                  "\nSUAVE Model of nacelage"   ,     # Title
                   "\nASCII"                     ,     # Data type
                   "\nDATASET UNSTRUCTURED_GRID" ]     # Dataset structure / topology
 
@@ -174,9 +176,9 @@ def write_nacelle_data(fus_pts,filename):
         #---------------------
         # Write Points:
         #---------------------
-        fuse_size = np.shape(fus_pts)
-        n_r       = fuse_size[0]
-        n_a       = fuse_size[1]
+        nac_size = np.shape(nac_pts)
+        n_r       = nac_size[0]
+        n_a       = nac_size[1]
         n_indices = (n_r)*(n_a)    # total number of cell vertices
         points_header = "\n\nPOINTS "+str(n_indices) +" float"
         f.write(points_header)
@@ -184,9 +186,9 @@ def write_nacelle_data(fus_pts,filename):
         for r in range(n_r):
             for a in range(n_a):
 
-                xp = round(fus_pts[r,a,0],4)
-                yp = round(fus_pts[r,a,1],4)
-                zp = round(fus_pts[r,a,2],4)
+                xp = round(nac_pts[r,a,0],4)
+                yp = round(nac_pts[r,a,1],4)
+                zp = round(nac_pts[r,a,2],4)
 
                 new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
                 f.write(new_point)

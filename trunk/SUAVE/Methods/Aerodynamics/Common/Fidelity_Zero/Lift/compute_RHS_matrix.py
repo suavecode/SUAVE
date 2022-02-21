@@ -99,16 +99,16 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                     # check for wake method
                     wake_method = props[p].Wake.wake_method
                     
-                    if wake_method == "PVW":
+                    if wake_method == "Fidelity_One":
                         #extract wake shape previously generated
-                        prop = props[p]
-                        wVD = prop.Wake.vortex_distribution
+                        prop                     = props[p]
+                        wake_vortex_distribution = prop.Wake.vortex_distribution
                     
                         # compute the induced velocity from the rotor wake on the lifting surfaces
-                        VD.Wake=wVD
-                        prop_V_wake_ind += compute_wake_induced_velocity(wVD,VD,num_ctrl_pts)
+                        VD.Wake          = wake_vortex_distribution
+                        prop_V_wake_ind += compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts)
                     
-                    elif wake_method =="VW":
+                    elif wake_method == "Fidelity_Zero":
                         # compute the wake induced velocities
                         identical_flag = network.identical_propellers
                         if network.number_of_propeller_engines == None:
@@ -128,16 +128,16 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                     # check for wake method
                     wake_method = rots[r].Wake.wake_method
                     
-                    if wake_method == "PVW":
+                    if wake_method == "Fidelity_One":
                         #extract wake shape previously generated
-                        rot = rots[r]
-                        wVD = rot.Wake.vortex_distribution
+                        rot                      = rots[r]
+                        wake_vortex_distribution = rot.Wake.vortex_distribution
                     
                         # compute the induced velocity from the rotor wake on the lifting surfaces
-                        VD.Wake=wVD
-                        prop_V_wake_ind += compute_wake_induced_velocity(wVD,VD,num_ctrl_pts)
+                        VD.Wake          = wake_vortex_distribution
+                        prop_V_wake_ind += compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts)
                     
-                    elif wake_method =="VW":
+                    elif wake_method == "Fidelity_Zero":
                         # compute the wake induced velocities
                         identical_flag = network.identical_propellers
                         if network.number_of_propeller_engines == None:

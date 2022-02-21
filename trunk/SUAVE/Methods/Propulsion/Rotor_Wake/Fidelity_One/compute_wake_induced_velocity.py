@@ -13,7 +13,7 @@ import numpy as np
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
 def compute_wake_induced_velocity(WD,VD,cpts,azi_start_idx=0,sigma=0.11,suppress_root=False):  
-    """ This computes the velocity induced by the semi-prescribed vortex wake (PVW)
+    """ This computes the velocity induced by the Fidelity One semi-prescribed vortex wake (PVW)
     on lifting surface control points
 
     Assumptions:  
@@ -91,7 +91,9 @@ def compute_wake_induced_velocity(WD,VD,cpts,azi_start_idx=0,sigma=0.11,suppress
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,WD=None,use_regularization_kernal=True):
     """ This computes the velocity induced on a control point by a segment
-    of a horseshoe vortex that points from point 1 to point 2 
+    of a horseshoe vortex that points from point 1 to point 2 for a filament with
+    positive vortex strength.
+    
     Assumptions:  
     None 
     

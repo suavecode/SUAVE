@@ -12,9 +12,8 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_wake_contraction_matrix import compute_wake_contraction_matrix
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_PVW_inflow_velocities import compute_PVW_inflow_velocities
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_fidelity_one_inflow_velocities import compute_fidelity_one_inflow_velocities
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_inflow_and_tip_loss
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics
 
 from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
 from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
@@ -61,8 +60,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         """
 
         self.tag                        = 'rotor_wake'
-        self.wake_method                = 'PVW'
-        self.Wake_VD                    = Data()
+        self.wake_method                = 'Fidelity_One'
+        self.wake_vortex_distribution   = Data()
         self.wake_method_fidelity       = 0
         self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
         self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
@@ -75,12 +74,31 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
         # flags for slipstream interaction
         self.slipstream                 = False
+        self.verbose                    = True
         
     def initialize(self,rotor,conditions):
         """
         Initializes the rotor by evaluating the BET once. This is required for generating the 
-        circulation strengths for the vortex distribution in the PVW, and the initial wake shape,
-        which relies on the axial inflow induced by the wake at the rotor disc.
+        circulation strengths for the vortex distribution in the prescribed vortex wake, and the 
+        initial wake shape, which relies on the axial inflow induced by the wake at the rotor disc.
+        
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+           self         - rotor wake
+           rotor        - SUAVE rotor
+           conditions   - conditions
+           
+           
+        Outputs:
+        None
+        
+        Properties Used:
+        None
         
         """
         # run the BET once using fidelity zero inflow
@@ -93,21 +111,48 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # match the azimuthal discretization betwen rotor and wake
         if self.wake_settings.number_steps_per_rotation  != rotor.number_azimuthal_stations:
             self.wake_settings.number_steps_per_rotation = rotor.number_azimuthal_stations
-            print("Wake azimuthal discretization does not match rotor discretization. \
-            Resetting wake to match rotor of Na="+str(rotor.number_azimuthal_stations))
+            
+            if self.verbose:
+                print("Wake azimuthal discretization does not match rotor discretization. \
+                Resetting wake to match rotor of Na="+str(rotor.number_azimuthal_stations))
         
         return
     
-    def evaluate(self,rotor,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions):
+    def evaluate(self,rotor,wake_inputs,conditions):
         """
         Wake evaluation is performed using a semi-prescribed vortex wake (PVW) method for Fidelity One.
         
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+           self         - rotor wake
+           rotor        - SUAVE rotor
+           wake_inputs.
+              Ua        - Axial velocity
+              Ut        - Tangential velocity
+              r         - radius distribution
+           conditions   - conditions
            
-        Outputs of this function include the inflow velocities induced by rotor wake:
+           
+        Outputs:
            va  - axially-induced velocity from rotor wake
            vt  - tangentially-induced velocity from rotor wake
         
+        Properties Used:
+        None
         """   
+        
+        # Unpack inputs
+        Ua = wake_inputs.Ua
+        Ut = wake_inputs.Ut
+        r  = wake_inputs.r
+        
+        R  = rotor.tip_radius
+        B  = rotor.number_of_blades
         
         # Initialize rotor with single pass of VW 
         self.initialize(rotor,conditions)
@@ -115,10 +160,12 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # converge on va for a semi-prescribed wake method
         va_diff, tol, ii = 1, 1e-2, 0
         if self.semi_prescribed_converge:
-            print("\tConverging on semi-prescribed wake shape...")
+            if self.verbose:
+                print("\tConverging on semi-prescribed wake shape...")
             ii_max = 10
         else:
-            print("\tGenerating fully-prescribed wake shape...")
+            if self.verbose:
+                print("\tGenerating fully-prescribed wake shape...")
             ii_max = 1
         
 
@@ -127,7 +174,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             WD  = self.generate_wake_shape(rotor)
             
             # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-            va, vt = compute_PVW_inflow_velocities(self,rotor, WD)
+            va, vt = compute_fidelity_one_inflow_velocities(self,rotor, WD)
 
             # compute new blade velocities
             Wa   = va + Ua
@@ -142,7 +189,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             
             ii+=1
             if ii>=ii_max and va_diff>tol:
-                if self.semi_prescribed_converge:
+                if self.semi_prescribed_converge and self.verbose:
                     print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
                 break
 
@@ -155,7 +202,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
     
     def generate_wake_shape(self,rotor):
         """
-        This generates the propeller wake control points and vortex distribution that make up the PVW. 
+        This generates the propeller wake control points and vortex distribution that make up the prescribed vortex wake. 
         All (x,y,z) coordinates are in the vehicle frame of reference (X points nose to tail).
         
         Assumptions:
@@ -391,22 +438,22 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         VD.Wake.GAMMA[:,:,0:B,:,:] = Gamma 
         
         # Append wake geometry and vortex strengths to each individual propeller
-        self.Wake_VD   = VD.Wake
+        self.wake_vortex_distribution   = VD.Wake
         
         # append trailing edge locations
-        self.Wake_VD.Xblades_te = X_pts[:,0,:,:,0]
-        self.Wake_VD.Yblades_te = Y_pts[:,0,:,:,0]
-        self.Wake_VD.Zblades_te = Z_pts[:,0,:,:,0]
+        self.wake_vortex_distribution.Xblades_te = X_pts[:,0,:,:,0]
+        self.wake_vortex_distribution.Yblades_te = Y_pts[:,0,:,:,0]
+        self.wake_vortex_distribution.Zblades_te = Z_pts[:,0,:,:,0]
 
         # append quarter chord lifting line point locations        
-        self.Wake_VD.Xblades_c_4 = x_c_4_rotor 
-        self.Wake_VD.Yblades_c_4 = y_c_4_rotor
-        self.Wake_VD.Zblades_c_4 = z_c_4_rotor
+        self.wake_vortex_distribution.Xblades_c_4 = x_c_4_rotor 
+        self.wake_vortex_distribution.Yblades_c_4 = y_c_4_rotor
+        self.wake_vortex_distribution.Zblades_c_4 = z_c_4_rotor
         
         # append three-quarter chord evaluation point locations        
-        self.Wake_VD.Xblades_cp = x_c_4 
-        self.Wake_VD.Yblades_cp = y_c_4 
-        self.Wake_VD.Zblades_cp = z_c_4 
+        self.wake_vortex_distribution.Xblades_cp = x_c_4 
+        self.wake_vortex_distribution.Yblades_cp = y_c_4 
+        self.wake_vortex_distribution.Zblades_cp = z_c_4 
     
         # Compress Data into 1D Arrays  
         mat6_size = (Na,m,nts*B*(Nr-1)) 
@@ -426,7 +473,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         WD.GAMMA  =  np.reshape(VD.Wake.GAMMA,mat6_size)
         
         rotor.wake_skew_angle = wake_skew_angle
-        WD.reshaped_wake = self.Wake_VD
+        WD.reshaped_wake = self.wake_vortex_distribution
                 
            
         return WD
@@ -447,7 +494,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             elif 'Z' in mat:
                 wVD.reshaped_wake[mat] += offset[2]        
         # update wake distribution
-        self.Wake_VD = wVD
+        self.wake_vortex_distribution = wVD
         self.vortex_distribution = wVD
         return
         
@@ -492,9 +539,9 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
                     save_vehicle_vtks(vehicle, Results=Data(), time_step=i,save_loc=save_loc)  
         
-                    Yb   = self.Wake_VD.Yblades_cp[i,0,0,:,0] 
-                    Zb   = self.Wake_VD.Zblades_cp[i,0,0,:,0] 
-                    Xb   = self.Wake_VD.Xblades_cp[i,0,0,:,0] 
+                    Yb   = self.wake_vortex_distribution.Yblades_cp[i,0,0,:,0] 
+                    Zb   = self.wake_vortex_distribution.Zblades_cp[i,0,0,:,0] 
+                    Xb   = self.wake_vortex_distribution.Xblades_cp[i,0,0,:,0] 
         
                     VD.YC = (Yb[1:] + Yb[:-1])/2
                     VD.ZC = (Zb[1:] + Zb[:-1])/2
@@ -509,11 +556,18 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                     points.induced_velocities.vt = rotor_outputs.disc_tangential_induced_velocity[0,:,i]
                     save_evaluation_points_vtk(points,filename=save_loc+"/eval_pts.vtk", time_step=i)
         return
-    
+
+## @ingroup Analyses-Propulsion
 def initialize_distributions(Nr, Na, B, n_wts, m, VD):
     """
-    Initialize the matrices
+    Initializes the matrices for the wake vortex distributions.
     
+    Assumptions:
+        None
+
+    Source:
+        N/A
+        
     Inputs:
        Nr    - number of radial blade elemnts
        Na    - number of azimuthal start positions
@@ -521,6 +575,14 @@ def initialize_distributions(Nr, Na, B, n_wts, m, VD):
        n_wts - total number of wake time steps in wake simulation
        m     - number of control points to evaluate
        VD    - vehicle vortex distribution
+       
+    Outputs:
+       VD  - Vortex distribution
+       WD  - Wake vortex distribution
+    
+    Properties:
+       N/A
+       
     """
     nmax = Nr - 1 # one less vortex ring than blade elements
     

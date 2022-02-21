@@ -253,7 +253,7 @@ class Lift_Cruise(Network):
                     conditions.noise.sources.propellers[p.tag]      = outputs_forward
                     
                     # Append wake to each identical propeller
-                    if p.Wake.wake_method=="PVW":
+                    if p.Wake.wake_method=="Fidelity_One":
                     
                         # make copy of prop wake and vortex distribution
                         base_wake = copy.deepcopy(prop.Wake)
@@ -373,7 +373,7 @@ class Lift_Cruise(Network):
                     conditions.noise.sources.propellers[r.tag]      = outputs_lift
                     
                     # Append wake to each identical propeller
-                    if r.Wake.wake_method=="PVW":
+                    if r.Wake.wake_method=="Fidelity_One":
                     
                         # make copy of prop wake and vortex distribution
                         base_wake = copy.deepcopy(lift_rotor.Wake)

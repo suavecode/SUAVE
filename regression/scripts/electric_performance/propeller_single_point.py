@@ -35,7 +35,7 @@ def main():
 
 def test_1():
     """
-    This tests the propeller_single_point function using the VW rotor wake inflow model.
+    This tests the propeller_single_point function using the Fidelity Zero rotor wake inflow model.
     """
     vehicle = vehicle_setup()
 
@@ -78,7 +78,7 @@ def test_1():
 
 def test_2():
     """
-    This tests the propeller_single_point function using the prescribed vortex wake (PVW) inflow model.
+    This tests the propeller_single_point function using the Fidelity One rotor inflow model.
     """    
     vehicle = vehicle_setup()
 

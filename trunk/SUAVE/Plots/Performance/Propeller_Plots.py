@@ -147,13 +147,6 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     ax0.set_yticklabels([])
     plt.colorbar(p0, ax=ax0)
     
-    # NORMALIZED PLOTS
-    #cmap = matplotlib.cm.jet
-    #norm = matplotlib.colors.Normalize()#vmin=0, vmax=1.0)   
-    #fig0.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap),ax=ax0, orientation='horizontal')
-
-    
-
     fig1 = plt.figure(figsize=(4,4)) 
     ax1  = fig1.add_subplot(111, polar=True)   
     p1   = ax1.contourf(psi, r, Q,lev,cmap=cm) 
@@ -161,13 +154,6 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     ax1.set_rorigin(0)
     ax1.set_yticklabels([])    
     plt.colorbar(p1, ax=ax1)
-    
-    # NORMALIZED PLOTS
-    #cmap = matplotlib.cm.jet
-    #norm = matplotlib.colors.Normalize()#vmin=0, vmax=0.035) 
-    #fig1.colorbar() #matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, orientation='horizontal')
-    
-    
     
     fig2 = plt.figure(figsize=(4,4)) 
     ax2  = fig2.add_subplot(111, polar=True)       
@@ -177,12 +163,6 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     ax2.set_yticklabels([])
     plt.colorbar(p2, ax=ax2)
 
-    # NORMALIZED PLOTS    
-    #cmap = matplotlib.cm.jet
-    #norm = matplotlib.colors.Normalize()#vmin=-5, vmax=5) 
-    #fig2.colorbar() #matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax2, orientation='horizontal')
-    
-    
     fig3 = plt.figure(figsize=(4,4)) 
     ax3  = fig3.add_subplot(111, polar=True)       
     p3   = ax3.contourf(psi, r, va,lev,cmap=cm) 
@@ -190,7 +170,6 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     ax3.set_rorigin(0)
     ax3.set_yticklabels([])
     plt.colorbar(p3, ax=ax3)    
-    
     
     fig4 = plt.figure(figsize=(4,4)) 
     ax4  = fig4.add_subplot(111, polar=True)       

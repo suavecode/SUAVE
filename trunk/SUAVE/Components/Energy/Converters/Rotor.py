@@ -354,7 +354,29 @@ class Rotor(Energy_Component):
         #---------------------------------------------------------------------------
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
-        va, vt = self.Wake.evaluate(self,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions)
+        # pack inputs
+        wake_inputs = Data()
+        wake_inputs.U  = U
+        wake_inputs.Ua = Ua
+        wake_inputs.Ut = Ut
+        wake_inputs.PSI = PSI
+        wake_inputs.omega = omega
+        wake_inputs.beta = beta
+        wake_inputs.c = c
+        wake_inputs.r = r
+        wake_inputs.a = a
+        wake_inputs.nu = nu
+        wake_inputs.a_loc = a_loc
+        wake_inputs.a_geo = a_geo
+        wake_inputs.cl_sur = cl_sur
+        wake_inputs.cd_sur = cd_sur
+        wake_inputs.ctrl_pts = ctrl_pts
+        wake_inputs.Nr = Nr
+        wake_inputs.Na = Na
+        wake_inputs.tc = tc
+        wake_inputs.use_2d_analysis = use_2d_analysis
+        
+        va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
         
         # compute new blade velocities
         Wa   = va + Ua

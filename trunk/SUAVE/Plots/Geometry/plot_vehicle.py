@@ -83,12 +83,12 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
         if "propellers" in net.keys():
             for prop in net.propellers:
                 # plot propeller wake
-                if prop.Wake.wake_method =="PVW":
+                if prop.Wake.wake_method =="Fidelity_One":
                     plot_propeller_wake(axes, prop, wake_face_color, wake_edge_color, wake_alpha)
         if "lift_rotors" in net.keys():
             for rot in net.lift_rotors:
                 # plot rotor wake
-                if rot.Wake.wake_method =="PVW":
+                if rot.Wake.wake_method =="Fidelity_One":
                     plot_propeller_wake(axes, rot, wake_face_color, wake_edge_color, wake_alpha)            
             
 

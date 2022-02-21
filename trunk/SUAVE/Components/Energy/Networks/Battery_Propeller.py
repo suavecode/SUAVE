@@ -242,7 +242,7 @@ class Battery_Propeller(Network):
                 else:    
                     conditions.noise.sources.lift_rotors[prop.tag]     = outputs
             
-            if identical_flag and prop.Wake.wake_method=="PVW":
+            if identical_flag and prop.Wake.wake_method=="Fidelity_One":
                 # append wakes to all propellers, shifted by new origin
                 for p in props:
                     # make copy of prop wake and vortex distribution

@@ -78,22 +78,22 @@ class Rotor_Wake_Fidelity_Two(Energy_Component):
             vt = np.atleast_3d(vt_external.T).T
             
             # interpolate the inflow to obtain values at each rotor station
-            inflow_shape = np.shape(va)
+            inflow_shape     = np.shape(va)
             rotor_disc_shape = (1,len(rotor.radius_distribution),rotor.number_azimuthal_stations)
             
-            Na = rotor_disc_shape[2]
+            Na          = rotor_disc_shape[2]
             Na_external = inflow_shape[2]
+            
             if Na_external != Na:
                 # interpolate along azimuth direction:
                 external_psi = np.linspace(0, 2*np.pi, Na_external+1)[:-1]
-                psi = np.linspace(0, 2*np.pi, Na+1)[:-1]
+                psi          = np.linspace(0, 2*np.pi, Na+1)[:-1]
                 
                 va_interp = interp1d(external_psi, va)
                 vt_interp = interp1d(external_psi, vt)
-                va = va_interp(psi)
-                vt = vt_interp(psi)
+                va        = va_interp(psi)
+                vt        = vt_interp(psi)
 
-            
         else:
             va = 0
             vt = 0  

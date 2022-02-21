@@ -63,10 +63,10 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         L_Results = deepcopy(Results)
 
         # number panels per half span
-        n_cp_R   = cps_per_wing_component[0]
-        n_cp_L   = cps_per_wing_component[0]
-        n_cw   = n_cw
-        n_sw   = n_sw
+        n_cp_R   = n_cp
+        n_cp_L   = n_cp
+        n_cw     = n_cw
+        n_sw     = n_sw
 
         # split wing into two separate wings
         Rwing = Data()
@@ -243,7 +243,7 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
             if 'vlm_results' in Results.keys():
                 # Check for results
                 try:
-                    cl = Results.vlm_results.cl_y[0] #Results['cl_y_DVE'][0]
+                    cl = Results.vlm_results.cl_y[0]
                     f.write("\nSCALARS cl float 1")
                     f.write("\nLOOKUP_TABLE default")
                     for i in range(n_cp):

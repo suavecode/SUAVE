@@ -1,5 +1,5 @@
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_PVW_inflow_velocities.py
+## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
+# compute_fidelity_one_inflow_velocities.py
 #
 # Created:  Sep 2021, R. Erhard
 # Modified: Jan 2022, R. Erhard
@@ -14,7 +14,8 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_veloc
 import numpy as np
 from scipy.interpolate import interp1d
 
-def compute_PVW_inflow_velocities( wake, prop, WD ):
+## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
+def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     """
     Assumptions:
         None
@@ -44,7 +45,7 @@ def compute_PVW_inflow_velocities( wake, prop, WD ):
     try:
         props = prop.propellers_in_network
     except:
-        props=Data()
+        props = Data()
         props.propeller = prop
 
     # compute radial blade section locations based on initial timestep offset
@@ -64,10 +65,10 @@ def compute_PVW_inflow_velocities( wake, prop, WD ):
         #Compute the wake-induced velocities at propeller blade
         #----------------------------------------------------------------
         #set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
-        r = prop.radius_distribution 
-        Yb   = wake.Wake_VD.Yblades_cp[i,0,0,:,0]
-        Zb   = wake.Wake_VD.Zblades_cp[i,0,0,:,0]
-        Xb   = wake.Wake_VD.Xblades_cp[i,0,0,:,0]
+        r    = prop.radius_distribution 
+        Yb   = wake.wake_vortex_distribution.Yblades_cp[i,0,0,:,0]
+        Zb   = wake.wake_vortex_distribution.Zblades_cp[i,0,0,:,0]
+        Xb   = wake.wake_vortex_distribution.Xblades_cp[i,0,0,:,0]
         
         VD.YC = (Yb[1:] + Yb[:-1])/2
         VD.ZC = (Zb[1:] + Zb[:-1])/2
@@ -87,15 +88,15 @@ def compute_PVW_inflow_velocities( wake, prop, WD ):
         
         # rotate from vehicle to prop frame:
         rot_to_prop = prop.vec_to_prop_body()
-        uprop = u*rot_to_prop[0,0] + w*rot_to_prop[0,2]
-        vprop = v
-        wprop = u*rot_to_prop[2,0] + w*rot_to_prop[2,2]      
+        uprop       = u*rot_to_prop[0,0] + w*rot_to_prop[0,2]
+        vprop       = v
+        wprop       = u*rot_to_prop[2,0] + w*rot_to_prop[2,2]      
         
         # interpolate to get values at rotor radial stations
         r_midpts = (r[1:] + r[:-1])/2
-        u_r = interp1d(r_midpts, uprop, fill_value="extrapolate")
-        v_r = interp1d(r_midpts, vprop, fill_value="extrapolate")
-        w_r = interp1d(r_midpts, wprop, fill_value="extrapolate")
+        u_r      = interp1d(r_midpts, uprop, fill_value="extrapolate")
+        v_r      = interp1d(r_midpts, vprop, fill_value="extrapolate")
+        w_r      = interp1d(r_midpts, wprop, fill_value="extrapolate")
         
         up = u_r(r)
         vp = v_r(r)

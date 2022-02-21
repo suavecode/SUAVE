@@ -48,21 +48,42 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         """
 
         self.tag            = 'rotor_wake'
-        self.wake_method    = 'VW'
+        self.wake_method    = 'Fidelity_Zero'
 
     
     def evaluate(self,rotor,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions):
         """
-        Wake evaluation is performed using a simplified vortex wake (VW) method for Fidelity Zero.
         
+        Wake evaluation is performed using a simplified vortex wake method for Fidelity Zero, 
+        following Helmholtz vortex theory.
+        
+        Assumptions:
+        None
+
+        Source:
+        Drela, M. "Qprop Formulation", MIT AeroAstro, June 2006
+        http://web.mit.edu/drela/Public/web/qprop/qprop_theory.pdf
+
+        Inputs:
+           self         - rotor wake
+           rotor        - SUAVE rotor
+           wake_inputs.
+              Ua        - Axial velocity
+              Ut        - Tangential velocity
+              r         - radius distribution
+           conditions   - conditions
            
-        Outputs of this function include the inflow velocities induced by rotor wake:
+           
+        Outputs:
            va  - axially-induced velocity from rotor wake
            vt  - tangentially-induced velocity from rotor wake
         
+        Properties Used:
+        None
+        
+        
         """
         
-        # Simplified vortex formulation
         # Setup a Newton iteration
         diff   = 1.
         tol    = 1e-6  # Convergence tolerance
@@ -116,7 +137,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
     
 
 
-
+## @ingroup Analyses-Propulsion
 def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
     """
     Computes the analytical derivative for the BEVW iteration.
