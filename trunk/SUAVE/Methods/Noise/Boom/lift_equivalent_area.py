@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Boom
+## @ingroup Methods-Noise-Boom
 # lift_equivalent_area.py
 # 
 # Created:  Sep 2020, E. Botero
@@ -15,7 +15,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
 # ----------------------------------------------------------------------
 #   Equivalent Area from lift for Sonic Boom
 # ----------------------------------------------------------------------
-## @ingroupMethods-Noise-Boom
+## @ingroup Methods-Noise-Boom
 def lift_equivalent_area(config,analyses,conditions):
     """ This method calculates the lift equivalent area for a vehicle for sonic boom analysis.
     

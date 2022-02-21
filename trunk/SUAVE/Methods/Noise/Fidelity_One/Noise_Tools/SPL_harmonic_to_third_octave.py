@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # SPL_harmonic_to_third_octave.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -15,7 +15,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
 #  dbA Noise
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
 def SPL_harmonic_to_third_octave(SPL,f,settings): 
     """This method converts the SPL spectrum from blade harmonic passing frequency
     to thrid octave spectrum

@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 # ground_proximity_effect.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -14,7 +14,7 @@ import numpy as np
 #   Ground Proximity Effect
 # ---------------------------------------------------------------------- 
 
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 def ground_proximity_effect (Velocity_mixed,sound_ambient,theta_m,engine_height,Diameter_mixed,frequency):
     """This function calculates the ground proximity effect, in decibels, and is used for full-scale 
     engine test stand.

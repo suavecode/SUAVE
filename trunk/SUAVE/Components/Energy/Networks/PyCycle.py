@@ -58,7 +58,6 @@ class PyCycle(Propulsor_Surrogate):
         self.input_file               = None
         self.sfc_surrogate            = None
         self.thrust_surrogate         = None
-        self.thrust_angle             = 0.0
         self.areas                    = Data()
         self.surrogate_type           = 'gaussian'
         self.altitude_input_scale     = 1.

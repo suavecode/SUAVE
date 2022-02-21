@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 # noise_source_location.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -14,7 +14,7 @@ import numpy as np
 #   Noise Source Location
 # ----------------------------------------------------------------------   
 
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 def noise_source_location(B,Xo,zk,Diameter_primary,theta_p,Area_primary,Area_secondary,distance_microphone,
                            Diameter_secondary,theta,theta_s,theta_m,Diameter_mixed,Velocity_primary,Velocity_secondary,
                            Velocity_mixed,Velocity_aircraft,sound_ambient,Str_m,Str_s):

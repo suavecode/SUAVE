@@ -1827,7 +1827,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     Span           = np.zeros((dim_mat,dim_gm)) 
     SPL_contour_bm = np.zeros((dim_mat,dim_bm))  
     Aircraft_pos   = np.zeros((dim_mat,3)) 
-    plot_data       = []
+    plot_data      = []
      
     for i in range(dim_segs):  
         if  results.segments[i].battery_discharge == False:
@@ -1853,10 +1853,12 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     # ---------------------------------------------------------------------------
     # Level ground contour 
     # ---------------------------------------------------------------------------
-    filename_1         = 'Level_Ground_' + save_filename
+    filename_1          = 'Level_Ground_' + save_filename
     fig                 = plt.figure(filename_1) 
-    fig.set_size_inches(10 ,10)    
-    levs                = np.linspace(40,120,25)   
+    fig.set_size_inches(10 ,10)     
+    min_SPL             = 30
+    max_SPL             = 100
+    levs                = np.linspace(min_SPL,max_SPL,25)   
     axes                = fig.add_subplot(1,1,1)   
     Range               = Range/Units.nmi
     Span                = Span/Units.nmi
@@ -1879,11 +1881,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
                                 line=dict(color='black',width=2))    
     plot_data.append(aircraft_trajectory)
      
-    # Define Colorbar Bounds 
-    min_gm_SPL  = np.min(SPL_contour_gm) 
-    max_gm_SPL  = np.max(SPL_contour_gm)
-    min_SPL     = min_gm_SPL 
-    max_SPL     = max_gm_SPL
+    # Define Colorbar Bounds  
     min_alt     = 0
     max_alt     = np.max(Aircraft_pos[:,2])
     
@@ -1892,14 +1890,14 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     building_loc  = results.segments[0].analyses.noise.settings.urban_canyon_building_locations
     num_buildings = len( building_loc)
     
-    if num_buildings >0:   
+    if num_buildings > 0:   
         max_alt     = np.maximum(max_alt, max((np.array(building_loc))[:,2]))
         min_bm_SPL  = np.min(SPL_contour_bm) 
         max_bm_SPL  = np.max(SPL_contour_bm)   
         min_SPL     = np.minimum(min_bm_SPL,min_SPL)
         max_SPL     = np.maximum(max_bm_SPL,max_SPL)
         
-        # Get SPL aon Building Surfaces
+        # Get SPL on Building Surfaces
         max_SPL_contour_bm       = np.max(SPL_contour_bm,axis=0)
         building_dimensions      = results.segments[0].analyses.noise.settings.urban_canyon_building_dimensions
         N_x                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_x_resolution 

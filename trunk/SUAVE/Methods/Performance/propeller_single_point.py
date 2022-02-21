@@ -169,9 +169,7 @@ def propeller_single_point(energy_network,
         plt.plot(r_BEMT, va_ind_BEMT, 'ro-', label='Axial')
         plt.plot(r_BEMT, vt_ind_BEMT, 'bo-', label='Tangential')
         plt.xlabel('Radial Location')
-        plt.ylabel('Induced Velocity')
-
-        plt.show()
+        plt.ylabel('Induced Velocity') 
 
     # Pack Results
 
