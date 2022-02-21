@@ -118,8 +118,8 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
         output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
                                                       sense_step= 1E-3) 
     else: 
-        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
-                                         tolerance = 1E-3)
+        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-5,
+                                         tolerance = 1E-4)
         
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
