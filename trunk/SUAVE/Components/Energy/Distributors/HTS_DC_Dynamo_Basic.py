@@ -1,7 +1,7 @@
 ## @ingroup Components-Energy-Distributors
 # HTS_DC_Dynamo_Basic.py
 #
-# Created:  Feb 2020,   K. Hamilton
+# Created:  Feb 2020,   K. Hamilton - Through New Zealand Ministry of Business Innovation and Employment Research Contract RTVU2004 
 # Modified: Jan 2022,   S. Claridge
 
 # ----------------------------------------------------------------------
@@ -82,10 +82,9 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
 
         # Create output arrays. The hts dynamo input power is assumed zero if the output power is zero, this may not be true for some dynamo configurations however the power required for zero output power will be very low.
         # Similarly, the cryo load will be zero if no dynamo effect is occuring.
-        power_in   = np.zeros_like(power_out)
-        cryo_load  = np.zeros_like(power_out)
-
-        power_in   = np.array(power_out/efficiency)
+        power_in = np.array(power_out/efficiency)
+        power_in[power_out==0.] = 0
+        
         cryo_load  = np.array(power_in - power_out)
 
         # Return basic results.

@@ -1,8 +1,8 @@
 ## @ingroup Components-Energy-Networks
 # Turboelectric_HTS_Ducted_Fan.py
 #
-# Created:  Mar 2020, K. Hamilton
-# Modified: Nov 2021, S. Claridge
+# Created:  Mar 2020,  K. Hamilton - Through New Zealand Ministry of Business Innovation and Employment Research Contract RTVU2004
+# Modified: Nov 2021,  S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports

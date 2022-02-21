@@ -1,7 +1,7 @@
 # @ingroup Methods-Propulsion
 # serial_HTS_turboelectric_sizing.py
 # 
-# Created:  K. Hamilton Mar 2020
+# Created:  K. Hamilton - Through New Zealand Ministry of Business Innovation and Employment Research Contract RTVU2004 Mar 2020
 # Modified: S. Claridge Nov 2021
 #        
 

@@ -16,6 +16,8 @@ import numpy as np
 from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Dynamo_Ducted_Fan import Turboelectric_HTS_Dynamo_Ducted_Fan   
 from SUAVE.Methods.Propulsion.serial_HTS_dynamo_turboelectric_sizing import serial_HTS_dynamo_turboelectric_sizing
 
+from SUAVE.Methods.Dynamo_Supply.dynamo_supply_mass_estimation import dynamo_supply_mass_estimation
+
 from SUAVE.Attributes.Gases import Air
 
 from SUAVE.Core import (
@@ -310,6 +312,8 @@ def energy_network():
     efan.hts_dynamo.rated_temp           = 77   #[K]
     efan.hts_dynamo.mass_properties.mass = 8.7 # [kg] Based on the Squirrel Cage HTS dynamo developed at Robinson Research Institute with eight HTS stators and four Nd-Fe-B permanent magnets.
 
+
+    
         # ------------------------------------------------------------------
     #  Component 7 -  HTS Dynamo speed controller
 
@@ -347,6 +351,10 @@ def energy_network():
     # Size powertrain components
     ducted_fan_sizing(efan.ducted_fan,mach_number,altitude)
     serial_HTS_dynamo_turboelectric_sizing(efan,mach_number,altitude, cryo_cold_temp = cryo_temp, cryo_amb_temp = amb_temp)
+    
+    #mass estimation of the dynamo esc
+    dynamo_supply_mass_estimation(efan.dynamo_esc)
+    
 
     print("Design thrust ",efan.ducted_fan.design_thrust)
     

@@ -1,7 +1,7 @@
 ## @ingroup Components-Energy-Cooling
 # Cryogenic_Heat_Exchanger.py
 #
-# Created:  Feb 2020, K. Hamilton
+# Created:  Feb 2020,  K. Hamilton - Through New Zealand Ministry of Business Innovation and Employment Research Contract RTVU2004
 
 # ----------------------------------------------------------------------
 #  Imports

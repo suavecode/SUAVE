@@ -1,7 +1,7 @@
 ## @ingroup Methods-Power-Turboelectric-Discharge
 # zero_fidelity.py
 #
-# Created : Nov 2019, K. Hamilton
+# Created : Nov 2019,   K. Hamilton - Through New Zealand Ministry of Business Innovation and Employment Research Contract RTVU2004
 # Modified: Nov 2021,   S. Claridge
 # ----------------------------------------------------------------------
 #  Zero Fidelity

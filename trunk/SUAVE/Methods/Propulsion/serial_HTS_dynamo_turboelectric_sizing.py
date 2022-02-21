@@ -1,8 +1,8 @@
 ## @ingroup Methods-Propulsion
 # Serial_HTS_dynamo_Turboelectric_Sizing.py
 # 
-# Created:  K. Hamilton, Apr 2020
-# Modified: S. Claridge, Feb 2022
+# Created:  Apr 2020,   K. Hamilton - Through New Zealand Ministry of Business Innovation and Employment Research Contract RTVU2004 
+# Modified: Feb 2022,   S. Claridge 
 #        
 
 
@@ -13,6 +13,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
+from SUAVE.Methods.Dynamo_Supply.dynamo_supply_mass_estimation import dynamo_supply_mass_estimation
 
 
 
@@ -20,7 +21,7 @@ from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initi
 def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):  
     """
     create and evaluate a serial hybrid network that follows the power flow:
-    Turboelectric Generators -> Motor Drivers -> Electric Poropulsion Motors
+    Turboelectric Generators -> Motor Drivers -> Electric Propulsion Motors
     where the electric motors have cryogenically cooled HTS rotors that follow the power flow:
     Turboelectric Generators -> HTS Dynamo -> HTS Rotor Coils
     and
@@ -108,7 +109,7 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, 
             conditions.freestream.velocity                    = conditions.freestream.mach_number*conditions.freestream.speed_of_sound
             
             # propulsion conditions
-            conditions.propulsion.throttle           =  np.atleast_1d(1.0)
+            conditions.propulsion.throttle                    =  np.atleast_1d(1.0)
     
     # Setup Components   
     ram                       = ducted_fan.ram
@@ -247,6 +248,7 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, 
     dynamo_input_power          = dynamo_powers[0]
     hts_dynamo_cooling_power    = dynamo_powers[1]
     dynamo_esc_input_power      = dynamo_esc.power_in(hts_dynamo, dynamo_input_power, HTS_current)
+
     
     # Rename dynamo cooling requirement as lead cooling requirement in order to limit code changes compared to non-dynamo powertrain model
     leads_cooling_power         = hts_dynamo_cooling_power
