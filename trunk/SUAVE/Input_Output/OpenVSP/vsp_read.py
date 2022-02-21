@@ -37,7 +37,7 @@ except ImportError:
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag, units_type='SI',specified_network=None): 
+def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True): 
     """This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
     Includes wings, fuselages, and propellers.
 
@@ -59,6 +59,7 @@ def vsp_read(tag, units_type='SI',specified_network=None):
     1. A tag for an XML file in format .vsp3.
     2. Units_type set to 'SI' (default) or 'Imperial'
     3. User-specified network
+    4. Boolean for whether or not to use the scaling from OpenVSP (default = True).
 
     Outputs:
     Writes SUAVE vehicle with these geometries from VSP:    (All values default to SI. Any other 2nd argument outputs Imperial.)
@@ -191,14 +192,14 @@ def vsp_read(tag, units_type='SI',specified_network=None):
             num_fus  = 1 
             sym_flag = [1] 
         for fux_idx in range(num_fus):	# loop through fuselages on aircraft 
-            fuselage = read_vsp_fuselage(fuselage_id,fux_idx,sym_flag[fux_idx],units_type)
+            fuselage = read_vsp_fuselage(fuselage_id,fux_idx,sym_flag[fux_idx],units_type,use_scaling)
             vehicle.append_component(fuselage)
         
     # --------------------------------------------------			    
     # Read Wings 
     # --------------------------------------------------			
     for wing_id in vsp_wings:
-        wing = read_vsp_wing(wing_id, units_type)
+        wing = read_vsp_wing(wing_id, units_type,use_scaling)
         vehicle.append_component(wing)		 
         
     # --------------------------------------------------			    

@@ -32,7 +32,7 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 # ----------------------------------------------------------------------
 
 ## @ingroup Input_Output-OpenVSP
-def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True): 	
+def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling=True): 	
     """This reads an OpenVSP wing vehicle geometry and writes it into a SUAVE wing format.
 
     Assumptions:
@@ -45,6 +45,8 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     Inputs:
     1. VSP 10-digit geom ID for wing.
     2. units_type set to 'SI' (default) or 'Imperial'.
+    3. Boolean for whether or not to write an airfoil file(default = True).
+    4. Boolean for whether or not to use the scaling from OpenVSP (default = True).
 
     Outputs:
     Writes SUAVE wing object, with these geometries, from VSP:
@@ -109,9 +111,12 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     else: 
         wing.tag = 'winggeom'
     
-    scaling           = vsp.GetParmVal(wing_id, 'Scale', 'XForm')  
-    #units_factor      = units_factor*scaling
-        
+    if use_scaling:
+        scaling       = vsp.GetParmVal(fuselage_id, 'Scale', 'XForm')  
+    else:
+        scaling       = 1.
+    units_factor      = units_factor*scaling
+    
     # Top level wing parameters
     # Wing origin
     wing.origin[0][0] = vsp.GetParmVal(wing_id, 'X_Location', 'XForm') * units_factor 
