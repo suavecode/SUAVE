@@ -93,7 +93,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.8044827375621505
+    lift_coefficient_true   = 0.828126216782719
 
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true)
