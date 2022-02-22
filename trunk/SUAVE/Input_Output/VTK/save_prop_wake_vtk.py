@@ -7,6 +7,7 @@
 from SUAVE.Core import Data      
 import numpy as np
 
+## @ingroup Input_Output-VTK
 def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx,rot=-1):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.

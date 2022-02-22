@@ -20,6 +20,7 @@ from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 from SUAVE.Core import Data
 import numpy as np
+
 ## @ingroup Input_Output-VTK
 def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                      wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", 

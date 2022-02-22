@@ -9,7 +9,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution import generate_vortex_distribution
 from copy import deepcopy
 
-
+## @ingroup Input_Output-VTK
 def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step):
     """
     Saves a SUAVE wing object as a VTK in legacy format.
@@ -138,7 +138,7 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
 
     return
 
-
+## @ingroup Input_Output-VTK
 def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
     # Create file
     with open(filename, 'w') as f:

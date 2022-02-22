@@ -15,7 +15,7 @@ from SUAVE.Core import Data
 import numpy as np
 import copy
 
-
+## @ingroup Input_Output-VTK
 def save_prop_vtk(prop, filename, Results, time_step):
     """
     Saves a SUAVE propeller object as a VTK in legacy format.
@@ -296,6 +296,7 @@ def save_prop_vtk(prop, filename, Results, time_step):
 
     return
 
+## @ingroup Input_Output-VTK
 def generate_lofted_propeller_points(prop):
     """
     Generates nodes on the lofted propeller.

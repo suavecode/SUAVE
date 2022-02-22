@@ -163,11 +163,24 @@ def row_reduction_summation(A):
 
 def regularization_kernel(COEF_in, sigma):
     """
+    Regularization kernel used to prevent singularities
+    
+    Assumptions
+    Spreads the vortex core over the radius sigma
+    
+    Source
+       Winckelmans, "Topics in Vortex Methods for the Computation of Three-and Two-dimensional 
+       Incompressible Unsteady Flows", 1989.
+    
     Inputs:
        COEF    Biot-Savart Kernel
        sigma   regularization radius
+    
     Outputs:
        KAPPA   Regularization Kernel
+       
+    Properties Used:
+    N/A
     
     """
     COEF       = COEF_in.astype(np.float32)

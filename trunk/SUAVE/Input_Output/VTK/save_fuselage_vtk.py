@@ -16,6 +16,7 @@ import numpy as np
 #------------------------------
 # Fuselage VTK generation
 #------------------------------
+## @ingroup Input_Output-VTK
 def save_fuselage_vtk(vehicle, filename, Results):
     """
     Saves a SUAVE fuselage object as a VTK in legacy format.
@@ -48,6 +49,7 @@ def save_fuselage_vtk(vehicle, filename, Results):
 
     return
 
+## @ingroup Input_Output-VTK
 def generate_fuselage_points(fus ,tessellation = 24 ):
     """ This generates the coordinate points on the surface of the fuselage
 
@@ -83,6 +85,7 @@ def generate_fuselage_points(fus ,tessellation = 24 ):
 #------------------------------
 # Writing fuselage data
 #------------------------------
+## @ingroup Input_Output-VTK
 def write_fuselage_data(fus_pts,filename):
     """
     Writes data for a SUAVE fuselage object as a VTK in legacy format.
