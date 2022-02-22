@@ -16,8 +16,6 @@
 # package imports
 import numpy as np
 from SUAVE.Core import Data
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_bevw_induced_velocity import compute_bevw_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model):
@@ -95,59 +93,19 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                 props           = network.propellers
                 prop_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
                 
-                for p in props.keys():
-                    # check for wake method
-                    wake_method = props[p].Wake.wake_method
+                for p in props:
+                    prop_V_wake_ind += p.Wake.evaluate_wake_velocities(p,network,geometry,conditions,VD,num_ctrl_pts)
                     
-                    if wake_method == "Fidelity_One":
-                        #extract wake shape previously generated
-                        prop                     = props[p]
-                        wake_vortex_distribution = prop.Wake.vortex_distribution
                     
-                        # compute the induced velocity from the rotor wake on the lifting surfaces
-                        VD.Wake          = wake_vortex_distribution
-                        prop_V_wake_ind += compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts)
-                    
-                    elif wake_method == "Fidelity_Zero":
-                        # compute the wake induced velocities
-                        identical_flag = network.identical_propellers
-                        if network.number_of_propeller_engines == None:
-                            pass
-                        else:                          
-                            if not network.identical_propellers:
-                                assert('This method currently only works with identical propellers')
-                            props = network.propellers
-                            prop_V_wake_ind = compute_bevw_induced_velocity(props,geometry,num_ctrl_pts,conditions,identical_flag)                        
-
             if 'lift_rotors' in network.keys(): 
                 # extract the rotor wake and compute resulting induced velocities data structure
                 rots           = network.lift_rotors
                 rot_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
                 
-                for r in rots.keys():
-                    # check for wake method
-                    wake_method = rots[r].Wake.wake_method
+                for r in rots:
+                    rot_V_wake_ind += r.Wake.evaluate_wake_velocities(r,network,geometry,conditions,VD,num_ctrl_pts)
                     
-                    if wake_method == "Fidelity_One":
-                        #extract wake shape previously generated
-                        rot                      = rots[r]
-                        wake_vortex_distribution = rot.Wake.vortex_distribution
                     
-                        # compute the induced velocity from the rotor wake on the lifting surfaces
-                        VD.Wake          = wake_vortex_distribution
-                        prop_V_wake_ind += compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts)
-                    
-                    elif wake_method == "Fidelity_Zero":
-                        # compute the wake induced velocities
-                        identical_flag = network.identical_propellers
-                        if network.number_of_propeller_engines == None:
-                            pass
-                        else:                          
-                            if not network.identical_propellers:
-                                assert('This method currently only works with identical lift rotors')
-                            rot_V_wake_ind = compute_bevw_induced_velocity(rots,geometry,num_ctrl_pts,conditions,identical_flag)                  
-
-        if propeller_wake_model:
             # update the total induced velocity distribution
             Vx_ind_total = Vx_ind_total + prop_V_wake_ind[:,:,0] + rot_V_wake_ind[:,:,0]
             Vy_ind_total = Vy_ind_total + prop_V_wake_ind[:,:,1] + rot_V_wake_ind[:,:,1]

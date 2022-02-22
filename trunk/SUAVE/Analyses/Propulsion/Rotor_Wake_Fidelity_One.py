@@ -10,13 +10,10 @@
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_fidelity_one_inflow_velocities import compute_fidelity_one_inflow_velocities
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.generate_fidelity_one_wake_shape import generate_fidelity_one_wake_shape
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_inflow_and_tip_loss
-
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.fidelity_one_wake_convergence import fidelity_one_wake_convergence
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 # package imports
-import numpy as np
 import copy
 
 # ----------------------------------------------------------------------
@@ -145,64 +142,74 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         None
         """   
         
-        # Unpack inputs
-        Ua = wake_inputs.velocity_axial
-        Ut = wake_inputs.velocity_tangential
-        r  = wake_inputs.radius_distribution
-        
-        R  = rotor.tip_radius
-        B  = rotor.number_of_blades
-        
         # Initialize rotor with single pass of VW 
         self.initialize(rotor,conditions)
         
-        # converge on va for a semi-prescribed wake method
-        va_diff, ii = 1, 0
-        tol = self.axial_velocity_convergence_tolerance
-        if self.semi_prescribed_converge:
-            if self.verbose:
-                print("\tConverging on semi-prescribed wake shape...")
-            ii_max = self.maximum_convergence_iteration
-        else:
-            if self.verbose:
-                print("\tGenerating fully-prescribed wake shape...")
-            ii_max = 1
+        # Converge on the Fidelity-One rotor wake shape
+        WD, va, vt = fidelity_one_wake_convergence(self,rotor,wake_inputs)
         
-
-        while va_diff > tol:  
-            # generate wake geometry for rotor
-            WD  = generate_fidelity_one_wake_shape(self,rotor)
-            
-            # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-            va, vt = compute_fidelity_one_inflow_velocities(self,rotor, WD)
-
-            # compute new blade velocities
-            Wa   = va + Ua
-            Wt   = Ut - vt
-
-            lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-
-            va_diff = np.max(abs(F*va - rotor.outputs.disc_axial_induced_velocity))
-
-            # update the axial disc velocity based on new va from HFW
-            rotor.outputs.disc_axial_induced_velocity = F*va 
-            
-            ii+=1
-            if ii>=ii_max and va_diff>tol:
-                if self.semi_prescribed_converge and self.verbose:
-                    print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
-                break
-
-            
-        # save converged wake:
-        WD  = generate_fidelity_one_wake_shape(self,rotor)
+        # Store wake shape
         self.vortex_distribution = WD
             
         return va, vt
     
+    def evaluate_wake_velocities(self,rotor,network,geometry,conditions,VD,num_ctrl_pts):
+        """
+        Links the rotor wake to compute the wake-induced velocities at the vortex distribution
+        control points.
+        
+        Assumptions:
+        None
 
+        Source:
+        N/A
+
+        Inputs:
+           self         - rotor wake
+           rotor        - rotor
+           network      - propulsion network
+           geometry     - vehicle geometry
+           conditions   - conditions
+           VD           - vortex distribution
+           num_ctrl_pts - number of analysis control points
+           
+        Outputs:
+           prop_V_wake_ind  - induced velocity from rotor wake at (VD.XC, VD.YC, VD.ZC)
+        
+        Properties Used:
+        None
+        """           
+        #extract wake shape previously generated
+        wake_vortex_distribution = rotor.Wake.vortex_distribution
+    
+        # compute the induced velocity from the rotor wake on the lifting surfaces
+        VD.Wake         = wake_vortex_distribution
+        rot_V_wake_ind  = compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts)        
+        
+        return rot_V_wake_ind
     
     def shift_wake_VD(self,wVD, offset):
+        """
+        This shifts the wake by the (x,y,z) coordinates of the offset. 
+        This is useful for rotors with identical wakes that can be reused and shifted without regeneration.
+        
+        Assumptions
+        None
+        
+        Source:
+        N/A
+        
+        Inputs:
+        wVD    - wake vortex distribution
+        offset - (x,y,z) offset distances
+        
+        Outputs
+        None
+        
+        Properties Used
+        None
+        
+        """
         for mat in wVD.keys():
             if 'X' in mat:
                 wVD[mat] += offset[0]
@@ -217,6 +224,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 wVD.reshaped_wake[mat] += offset[1]
             elif 'Z' in mat:
                 wVD.reshaped_wake[mat] += offset[2]        
+        
         # update wake distribution
         self.wake_vortex_distribution = wVD
         self.vortex_distribution = wVD

@@ -253,6 +253,9 @@ class Battery_Propeller(Network):
                     origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
                     p.Wake = base_wake
                     p.Wake.shift_wake_VD(wake_vd, origin_offset)
+            elif identical_flag and prop.Wake.wake_method=="Fidelity_Zero":
+                for p in props:
+                    p.outputs = outputs
                     
             # Run the avionics
             avionics.power()
