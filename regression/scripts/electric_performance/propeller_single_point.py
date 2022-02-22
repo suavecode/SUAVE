@@ -11,6 +11,7 @@ import SUAVE
 
 from SUAVE.Core import Units, Data
 from SUAVE.Methods.Performance.propeller_single_point import propeller_single_point
+import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -68,6 +69,7 @@ def test_1():
     Cp_r        = 0.26415547446901977
     etap_r      = 0.12406050076833969
 
+
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
     assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Propeller Single Point Regression Failed at Torque Test"
     assert (np.abs(power - power_r) / power_r < 1e-6), "Propeller Single Point Regression Failed at Power Test"
@@ -115,6 +117,7 @@ def test_2():
     Cp_r        = 0.25171231278193756
     etap_r      = 0.11801723883418497
 
+
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
     assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Propeller Single Point Regression Failed at Torque Test"
     assert (np.abs(power - power_r) / power_r < 1e-6), "Propeller Single Point Regression Failed at Power Test"
@@ -125,5 +128,6 @@ def test_2():
 
 if __name__ == '__main__':
     main()
+    plt.show()
 
     print('Propeller Single Point Regression Passed.')

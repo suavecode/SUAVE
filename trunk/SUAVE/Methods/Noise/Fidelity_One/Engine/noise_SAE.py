@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 # noise_SAE.py
 # 
 # Created:  May 2015, C. Ilario
@@ -34,7 +34,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import print_engine_output
 #   Noise SAE
 # ----------------------------------------------------------------------    
 
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 0):  
     """This method predicts the free-field 1/3 Octave Band SPL of coaxial subsonic
        jets for turbofan engines under the following conditions:

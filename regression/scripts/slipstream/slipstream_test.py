@@ -131,6 +131,7 @@ def regress_1b(results, configs):
     print(diff_CL)
 
     diff_Cl   = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
+
     print('Cl difference')
     print(diff_Cl)
     
@@ -389,6 +390,7 @@ def X57_mission_setup(analyses,vehicle):
 
     # post-process aerodynamic derivatives in cruise
     segment.process.finalize.post_process.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Static_Stability.compute_aero_derivatives
+    
     segment = vehicle.networks[net_tag].add_unknowns_and_residuals_to_segment(segment)
 
     # add to misison

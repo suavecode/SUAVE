@@ -2,8 +2,9 @@
 # plot_propeller.py
 # 
 # Created:  Mar 2020, M. Clarke
-#           Apr 2020, M. Clarke
+# Modified: Apr 2020, M. Clarke
 #           Jul 2020, M. Clarke
+#           Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -38,7 +39,7 @@ def plot_propeller(prop, face_color = 'red', edge_color = 'black' , save_figure 
     fig_1 = plt.figure(save_filename + '_3D') 
     fig_1.set_size_inches(8,8) 
     axes_1 = plt.axes(projection='3d')
-    axes_1.view_init(elev= 30, azim= 210)   
+    axes_1.view_init(elev= 30, azim= 30)   
     axes_1.set_xlim(-1,1)
     axes_1.set_ylim(-1,1)
     axes_1.set_zlim(-1,1) 

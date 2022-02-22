@@ -81,13 +81,12 @@ class Lift_Cruise(Network):
         self.propeller_engine_length      = None
         self.number_of_lift_rotor_engines = 0
         self.number_of_propeller_engines  = 0
-        self.voltage                      = None
-        self.propeller_pitch_command      = 0.0
-        self.lift_rotor_pitch_command     = 0.0   
+        self.voltage                      = None   
         self.tag                          = 'Lift_Cruise'
         self.generative_design_minimum    = 0
         self.identical_propellers         = True
         self.identical_lift_rotors        = True
+        
         pass
         
     def evaluate_thrust(self,state):
@@ -212,8 +211,7 @@ class Lift_Cruise(Network):
                 motor.omega(conditions)
                 
                 # link
-                prop.inputs.omega         = motor.outputs.omega
-                prop.inputs.pitch_command = self.propeller_pitch_command 
+                prop.inputs.omega           = motor.outputs.omega 
                 
                 # Run the propeller
                 F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = prop.spin(conditions)
@@ -329,8 +327,7 @@ class Lift_Cruise(Network):
                 lift_rotor_motor.omega(konditions)
                 
                 # link
-                lift_rotor.inputs.omega         = lift_rotor_motor.outputs.omega
-                lift_rotor.inputs.pitch_command = self.lift_rotor_pitch_command  
+                lift_rotor.inputs.omega           = lift_rotor_motor.outputs.omega   
                 
                 # Run the propeller
                 F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)
@@ -833,9 +830,10 @@ class Lift_Cruise(Network):
         ones_row = segment.state.ones_row 
         
         # Count how many unknowns and residuals based on p
-        n_props    = len(self.propellers)
-        n_motors_p = len(self.propeller_motors)
-        n_eng_p    = self.number_of_propeller_engines
+        n_props       = len(self.propellers)
+        n_lift_rotors = len(self.lift_rotors)
+        n_motors_p    = len(self.propeller_motors)
+        n_eng_p       = self.number_of_propeller_engines
         
         if n_props!=n_motors_p!=n_eng_p:
             assert('The number of propellers is not the same as the number of motors')
