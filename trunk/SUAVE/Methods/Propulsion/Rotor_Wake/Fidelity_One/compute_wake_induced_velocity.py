@@ -161,6 +161,7 @@ def row_reduction_summation(A):
     
     return sum_res
 
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
 def regularization_kernel(COEF_in, sigma):
     """
     Regularization kernel used to prevent singularities
