@@ -303,8 +303,6 @@ class Rotor(Energy_Component):
 
         if use_2d_analysis:
             # make everything 2D with shape (ctrl_pts,Nr,Na)
-            size   = (ctrl_pts,Nr,Na )
-            PSI    = np.ones(size)
 
             # 2-D freestream velocity and omega*r
             V_2d   = V_thrust[:,0,None,None]
@@ -342,10 +340,6 @@ class Rotor(Energy_Component):
             Ua     = np.outer((V + ua),np.ones_like(r))
             beta   = total_blade_pitch
 
-            # Things that will change with iteration
-            size   = (ctrl_pts,Nr)
-            PSI    = np.ones(size)
-
         # Total velocities
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
@@ -355,27 +349,20 @@ class Rotor(Energy_Component):
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
         # pack inputs
-        wake_inputs = Data()
-        wake_inputs.U  = U
-        wake_inputs.Ua = Ua
-        wake_inputs.Ut = Ut
-        wake_inputs.PSI = PSI
-        wake_inputs.omega = omega
-        wake_inputs.beta = beta
-        wake_inputs.c = c
-        wake_inputs.r = r
-        wake_inputs.a = a
-        wake_inputs.nu = nu
-        wake_inputs.a_loc = a_loc
-        wake_inputs.a_geo = a_geo
-        wake_inputs.cl_sur = cl_sur
-        wake_inputs.cd_sur = cd_sur
-        wake_inputs.ctrl_pts = ctrl_pts
-        wake_inputs.Nr = Nr
-        wake_inputs.Na = Na
-        wake_inputs.tc = tc
-        wake_inputs.use_2d_analysis = use_2d_analysis
-        
+        wake_inputs                       = Data()
+        wake_inputs.velocity_total        = U
+        wake_inputs.velocity_axial        = Ua
+        wake_inputs.velocity_tangential   = Ut
+        wake_inputs.ctrl_pts              = ctrl_pts
+        wake_inputs.Nr                    = Nr
+        wake_inputs.Na                    = Na        
+        wake_inputs.use_2d_analysis       = use_2d_analysis        
+        wake_inputs.twist_distribution    = beta
+        wake_inputs.chord_distribution    = c
+        wake_inputs.radius_distribution   = r
+        wake_inputs.speed_of_sounds       = a
+        wake_inputs.dynamic_viscosities   = nu
+
         va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
         
         # compute new blade velocities

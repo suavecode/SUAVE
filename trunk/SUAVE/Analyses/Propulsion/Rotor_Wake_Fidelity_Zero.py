@@ -51,7 +51,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         self.wake_method    = 'Fidelity_Zero'
 
     
-    def evaluate(self,rotor,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions):
+    def evaluate(self,rotor,wake_inputs,conditions):
         """
         
         Wake evaluation is performed using a simplified vortex wake method for Fidelity Zero, 
@@ -83,12 +83,42 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         
         
         """
+        # Unpack inputs to rotor wake fidelity zero
+        U               = wake_inputs.velocity_total
+        Ua              = wake_inputs.velocity_axial
+        Ut              = wake_inputs.velocity_tangential
+        use_2d_analysis = wake_inputs.use_2d_analysis        
+        beta            = wake_inputs.twist_distribution
+        c               = wake_inputs.chord_distribution
+        r               = wake_inputs.radius_distribution
+        a               = wake_inputs.speed_of_sounds
+        nu              = wake_inputs.dynamic_viscosities
+        ctrl_pts        = wake_inputs.ctrl_pts
+        Nr              = wake_inputs.Nr
+        Na              = wake_inputs.Na
+
+        # Unpack rotor data        
+        R        = rotor.tip_radius
+        B        = rotor.number_of_blades    
+        tc       = rotor.thickness_to_chord
+        a_geo    = rotor.airfoil_geometry
+        a_loc    = rotor.airfoil_polar_stations
+        cl_sur   = rotor.airfoil_cl_surrogates
+        cd_sur   = rotor.airfoil_cd_surrogates        
+        omega    = rotor.inputs.omega        
         
         # Setup a Newton iteration
         diff   = 1.
         tol    = 1e-6  # Convergence tolerance
         ii     = 0
+        
+        if use_2d_analysis:
+            PSI    = np.ones((ctrl_pts,Nr,Na))
+        else:
+            PSI     = np.ones((ctrl_pts,Nr))
+            
         PSIold = copy.deepcopy(PSI)*0
+        
         # BEVW Iteration
         while (diff>tol):
             # compute velocities
