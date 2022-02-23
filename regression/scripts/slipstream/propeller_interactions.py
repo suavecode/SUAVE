@@ -1,7 +1,7 @@
 # propeller_interactions.py
 # 
 # Created:  April 2021, R. Erhard
-# Modified: 
+# Modified: Feb 2022, R. Erhard
 
 #----------------------------------------------------------------------
 #   Imports
@@ -10,8 +10,8 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
+from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_grid import generate_propeller_grid
 from SUAVE.Plots.Performance.Propeller_Plots import *
@@ -26,7 +26,7 @@ from APC_10x7_thin_electric import propeller_geometry
 
 def main():
     '''
-    This example shows the influence of a propeller wake on another nearby propeller.
+    This example shows the influence of one propeller wake on another nearby propeller.
     A propeller produces a wake, which is accounted for in the analysis of another propeller.
     '''
     #--------------------------------------------------------------------
@@ -52,7 +52,7 @@ def main():
     #    ANALYSIS
     #--------------------------------------------------------------------    
     
-    # run the BEMT for upstream isolated propeller
+    # run the BEVW for upstream isolated propeller
     T_iso, Q_iso, P_iso, Cp_iso, outputs_iso , etap_iso = prop.spin(conditions)
     
     conditions.noise.sources.propellers[prop.tag] = outputs_iso
@@ -64,7 +64,7 @@ def main():
     T, Q, P, Cp, outputs , etap = run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=plot_flag)
     
     # compare regression results:
-    T_iso_true, Q_iso_true, P_iso_true, Cp_iso_true, etap_iso_true = 3.281295202686675, 0.07269631, 49.48280528, 0.04621697, 0.59288078
+    T_iso_true, Q_iso_true, P_iso_true, Cp_iso_true, etap_iso_true = 3.258258146104775, 0.07230456, 49.21615082, 0.04596791, 0.59190802
     
     assert(abs(np.linalg.norm(T_iso)-T_iso_true)<1e-6)
     assert(abs(Q_iso-Q_iso_true)<1e-6)
@@ -72,7 +72,7 @@ def main():
     assert(abs(Cp_iso-Cp_iso_true)<1e-6)
     assert(abs(etap_iso-etap_iso_true)<1e-6)
     
-    T_true, Q_true, P_true, Cp_true, etap_true = 3.2881167125820747,0.07272616,49.50312927,0.04623595,0.5938694
+    T_true, Q_true, P_true, Cp_true, etap_true = 3.481799966900316,0.072652,49.45264925,0.0461888,0.62949261
 
     assert(abs(np.linalg.norm(T)-T_true)<1e-6)
     assert(abs(Q-Q_true)<1e-6)
@@ -91,7 +91,7 @@ def run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=
     prop_copy = copy.deepcopy(prop)
     prop_copy.nonuniform_freestream = True
     prop_copy.origin = np.array([prop.origin[1] ])# only concerned with the impact the upstream prop has on this one
-    prop_copy.rotation = [prop.rotation[1]]
+    prop_copy.rotation = prop.rotation
     prop = compute_propeller_nonuniform_freestream(prop_copy, propeller_wake, conditions)
     
     # run the propeller in this nonuniform flow
@@ -108,24 +108,21 @@ def compute_propeller_wake_velocities(prop,grid_settings,grid_points, conditions
     
     # generate the propeller wake distribution for the upstream propeller
     prop_copy                = copy.deepcopy(prop)
-    VD                       = Data()
     cpts                     = 1 # only testing one condition
-    number_of_wake_timesteps = 100
-    init_timestep_offset     = 0
-    time                     = 10
     
     props = SUAVE.Core.Container()
     props.append(prop_copy)
     
-    identical_props = True
-    WD, dt, ts, B, Nr  = generate_propeller_wake_distribution(props,identical_props,cpts,VD,init_timestep_offset, time, number_of_wake_timesteps, conditions )
+    WD = prop.Wake.vortex_distribution
     prop.start_angle = prop_copy.start_angle
     
     # compute the wake induced velocities:
+    VD      = Data()
     VD.YC   = grid_points.ymesh
     VD.ZC   = grid_points.zmesh
     VD.XC   = x_plane*np.ones_like(VD.YC)
     VD.n_cp = np.size(VD.YC)
+    
     V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
     u       = V_ind[0,:,0]
     v       = V_ind[0,:,1]
@@ -178,7 +175,7 @@ def simulation_conditions(prop):
         
     # Set propeller operating conditions
     prop.inputs.omega = np.array([[6500 * Units.rpm]]) 
-    prop.rotation     = [-1,1]
+    prop.rotation     = -1
     prop.origin       = np.array([[0., 0., 0.],
                                   [0., 0.01+2*prop.tip_radius, 0.]])     
     
@@ -205,10 +202,7 @@ def simulation_settings(vehicle):
     VLM_settings.propeller_wake_model            = False
     VLM_settings.model_fuselage                  = False
     VLM_settings.spanwise_cosine_spacing         = True
-    VLM_settings.number_of_wake_timesteps        = 0.
     VLM_settings.leading_edge_suction_multiplier = 1.
-    VLM_settings.initial_timestep_offset         = 0.
-    VLM_settings.wake_development_time           = 0.5
     
     return grid_settings, VLM_settings
 
@@ -225,6 +219,10 @@ def vehicle_setup():
 
     prop = SUAVE.Components.Energy.Converters.Propeller()
     prop = propeller_geometry() 
+    
+    # assign wake fidelity
+    prop.Wake = Rotor_Wake_Fidelity_One()
+    prop.Wake.number_rotor_rotations = 1
     
     net.propeller = prop
     vehicle.append_component(net)
