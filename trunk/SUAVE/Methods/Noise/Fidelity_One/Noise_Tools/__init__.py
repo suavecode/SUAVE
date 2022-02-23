@@ -1,7 +1,7 @@
 ## @defgroup Methods-Noise-Fidelity_One-Noise_Tools Noise Tools
 # Various functions that are used to calculate noise using the fidelity one level
 # @ingroup Methods-Noise-Fidelity_One
-
+ 
 from .pnl_noise	                            import pnl_noise
 from .epnl_noise                            import epnl_noise
 from .atmospheric_attenuation               import atmospheric_attenuation
@@ -17,8 +17,7 @@ from .SPL_harmonic_to_third_octave          import SPL_harmonic_to_third_octave
 from .print_engine_output                   import print_engine_output
 from .print_airframe_output                 import print_airframe_output
 from .print_propeller_output                import print_propeller_output
-from .compute_point_source_coordinates      import compute_point_source_coordinates
 from .generate_microphone_points            import generate_building_microphone_points
 from .generate_microphone_points            import generate_ground_microphone_points
 from .compute_noise_evaluation_locations    import compute_ground_noise_evaluation_locations
-from .compute_noise_evaluation_locations    import compute_building_noise_evaluation_locations
+from .compute_noise_evaluation_locations    import compute_building_noise_evaluation_locations 

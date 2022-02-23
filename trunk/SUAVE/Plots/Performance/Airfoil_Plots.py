@@ -1,7 +1,8 @@
 ## @ingroup Plots
 # Airfoil_Plots.py
 #
-# Created: Mar 2021, M. Clarke
+# Created:  Mar 2021, M. Clarke
+# Modified: Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -79,11 +80,10 @@ def plot_airfoil_analysis_boundary_layer_properties(ap,show_legend = True ):
      
     mid = int(len(ap.x)/2)
     
-    for i in range(nRe): 
+    for i in range(nAoA):
+        for j in range(nRe): 
         
-        for j in range(nAoA):
-        
-            tag = 'AoA: ' + str(round(ap.AoA[j][0]/Units.degrees,2)) + '$\degree$, Re: ' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'
+            tag = 'AoA: ' + str(round(ap.AoA[i][0]/Units.degrees,2)) + '$\degree$, Re: ' + str(round(ap.Re[j][0]/1000000,2)) + 'E6'
             
             axis1.plot(ap.x[:,j,i], ap.y[:,j,i],'k-') 
             axis1.plot(ap.x_bl[:,j,i],ap.y_bl[:,j,i],color = colors[j], linestyle = '-' ,marker =  markers[j%9] , label = tag)            
@@ -211,25 +211,25 @@ def plot_airfoil_analysis_surface_forces(ap,show_legend= True,arrow_color = 'r')
         """        
     
     # determine dimension of angle of attack and reynolds number 
-    nAoA = len(ap.AoA)
-    nRe  = len(ap.Re)
-     
-    for i in range(nRe): 
-        for j in range(nAoA): 
-      
-            label =  '_AoA_' + str(round(ap.AoA[j][0]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'
+    nAoA   = len(ap.AoA)
+    nRe    = len(ap.Re)
+    n_cpts = len(ap.x[0,0,:])
+    
+
+    for i in range(nAoA):     
+        for j in range(nRe): 
+            label =  '_AoA_' + str(round(ap.AoA[i][0]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[j][0]/1000000,2)) + 'E6'
             fig   = plt.figure('Airfoil_Pressure_Normals' + label )
-            axis15 = fig.add_subplot(1,1,1)      
-            axis15.plot(ap.x[:,j,i], ap.y[:,j,i],'k-') 
-            
-            for k in range(len(ap.x)):
-                dx_val = ap.normals[k,0,j,i]*abs(ap.Cp[k,j,i])*0.1
-                dy_val = ap.normals[k,1,j,i]*abs(ap.Cp[k,j,i])*0.1
-                if ap.Cp[k,j,i] < 0:
-                    plt.arrow(x= ap.x[k,j,i], y=ap.y[k,j,i] , dx= dx_val , dy = dy_val , 
+            axis = fig.add_subplot(1,1,1) 
+            axis.plot(ap.x[0,0,:], ap.y[0,0,:],'k-')   
+            for k in range(n_cpts):
+                dx_val = ap.normals[i,j,k,0]*abs(ap.Cp[i,j,k])*0.1
+                dy_val = ap.normals[i,j,k,1]*abs(ap.Cp[i,j,k])*0.1
+                if ap.Cp[i,j,k] < 0:
+                    plt.arrow(x= ap.x[i,j,k], y=ap.y[i,j,k] , dx= dx_val , dy = dy_val , 
                               fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
                 else:
-                    plt.arrow(x= ap.x[k,j,i]+dx_val , y= ap.y[k,j,i]+dy_val , dx= -dx_val , dy = -dy_val , 
+                    plt.arrow(x= ap.x[i,j,k]+dx_val , y= ap.y[i,j,k]+dy_val , dx= -dx_val , dy = -dy_val , 
                               fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
     
     return   
@@ -261,7 +261,7 @@ def plot_airfoil_polar_files(airfoil_path, airfoil_polar_paths, line_color = 'k-
     
     if use_surrogate:
         # Compute airfoil surrogates
-        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths, use_pre_stall_data=False)
+        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=False)
         CL_sur = a_data.lift_coefficient_surrogates
         CD_sur = a_data.drag_coefficient_surrogates
         

@@ -140,14 +140,14 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     rid = vsp.ExecAnalysis( "BladeElement" )
     Nc  = len(vsp.GetDoubleResults(rid,"YSection_000"))
 
-    prop.number_points_around_airfoil = 2*Nc
+    prop.vtk_airfoil_points           = 2*Nc
     prop.CLi                          = vsp.GetParmVal(parm_id[parm_names.index('CLi')])
     prop.blade_solidity               = vsp.GetParmVal(parm_id[parm_names.index('Solidity')])
     prop.number_of_blades             = int(vsp.GetParmVal(parm_id[parm_names.index('NumBlade')]))
 
     prop.tip_radius                   = vsp.GetDoubleResults(rid, "Diameter" )[0] / 2 * units_factor
     prop.radius_distribution          = np.array(vsp.GetDoubleResults(rid, "Radius" )) * prop.tip_radius
-    prop.radius_distribution[-1]      = 0.99 * prop.tip_radius # BEMT requires max nondimensional radius to be less than 1.0
+    prop.radius_distribution[-1]      = 0.99 * prop.tip_radius # BEVW requires max nondimensional radius to be less than 1.0
     prop.hub_radius                   = prop.radius_distribution[0]
 
     prop.chord_distribution           = np.array(vsp.GetDoubleResults(rid, "Chord" ))  * prop.tip_radius # vsp gives c/R
@@ -158,7 +158,7 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     prop.max_thickness_distribution   = prop.thickness_to_chord*prop.chord_distribution * units_factor
     prop.Cl_distribution              = np.array(vsp.GetDoubleResults(rid, "CLi" )) 
 
-    # Extra data from VSP BEM for future use in BEMT
+    # Extra data from VSP BEM for future use in BEVW
     prop.beta34                       = vsp.GetDoubleResults(rid, "Beta34" )[0]  # pitch at 3/4 radius
     prop.pre_cone                     = vsp.GetDoubleResults(rid, "Pre_Cone")[0]
     prop.rake                         = np.array(vsp.GetDoubleResults(rid, "Rake"))

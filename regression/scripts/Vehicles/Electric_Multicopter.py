@@ -181,14 +181,14 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Network
     #------------------------------------------------------------------
-    net                      = SUAVE.Components.Energy.Networks.Battery_Propeller()
-    net.number_of_propeller_engines    = 6
-    net.nacelle_diameter     = 0.6 * Units.feet # need to check 
-    net.engine_length        = 0.5 * Units.feet
-    net.areas                = Data()
-    net.areas.wetted         = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
-    net.voltage              =  500.
-    net.identical_propellers = True
+    net                                 = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net.number_of_lift_rotor_engines    = 6
+    net.nacelle_diameter                = 0.6 * Units.feet # need to check 
+    net.engine_length                   = 0.5 * Units.feet
+    net.areas                           = Data()
+    net.areas.wetted                    = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
+    net.voltage                         =  500.
+    net.identical_lift_rotors           = True
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -239,7 +239,7 @@ def vehicle_setup():
     lift_rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/lift_rotor.tip_radius   
     lift_rotor.design_Cl              = 0.7
     lift_rotor.design_altitude        = 1000 * Units.feet                   
-    lift_rotor.design_thrust          = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
+    lift_rotor.design_thrust          = Hover_Load/(net.number_of_lift_rotor_engines-1) # contingency for one-engine-inoperative condition
 
     lift_rotor.airfoil_geometry       = ['../Vehicles/Airfoils/NACA_4412.txt'] 
     lift_rotor.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
@@ -260,7 +260,7 @@ def vehicle_setup():
         lift_rotor          = deepcopy(lift_rotor)
         lift_rotor.tag      = 'lift_rotor'
         lift_rotor.origin   = [origins[ii]]
-        net.propellers.append(lift_rotor)
+        net.lift_rotors.append(lift_rotor)
     
     #------------------------------------------------------------------
     # Design Motors
@@ -292,9 +292,9 @@ def vehicle_setup():
     
     # Appending motors with different origins    
     for ii in range(6):
-        propeller_motor = deepcopy(lift_motor)
-        propeller_motor.tag = 'motor'
-        net.propeller_motors.append(propeller_motor)        
+        lift_rotor_motor = deepcopy(lift_motor)
+        lift_rotor_motor.tag = 'motor'
+        net.lift_rotor_motors.append(lift_rotor_motor)        
 
     
     vehicle.append_component(net)

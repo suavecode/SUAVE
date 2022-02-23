@@ -6,6 +6,8 @@
 #           Jul 2020, M. Clarke
 #           Jul 2021, E. Botero
 #           Oct 2021, M. Clarke
+#           Dec 2021, M. Clarke
+#           Feb 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,7 +22,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distri
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 ## @ingroup Plots-Geometry
-def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,
+def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,plot_axis = False,
                  save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics
     Routine is initialized
@@ -72,13 +74,23 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
         axes.scatter(VD.XC,VD.YC,VD.ZC, c='r', marker = 'o' )
 
     # -------------------------------------------------------------------------
-    # PLOT WAKE
+    # PLOT WAKES
     # -------------------------------------------------------------------------
     wake_face_color = 'white'
     wake_edge_color = 'blue'
     wake_alpha      = 0.5
-    if'Wake' in VD:
-        plot_propeller_wake(axes, VD,wake_face_color,wake_edge_color,wake_alpha)
+    for net in vehicle.networks:
+        if "propellers" in net.keys():
+            for prop in net.propellers:
+                # plot propeller wake
+                if prop.Wake.wake_method =="Fidelity_One":
+                    plot_propeller_wake(axes, prop, wake_face_color, wake_edge_color, wake_alpha)
+        if "lift_rotors" in net.keys():
+            for rot in net.lift_rotors:
+                # plot rotor wake
+                if rot.Wake.wake_method =="Fidelity_One":
+                    plot_propeller_wake(axes, rot, wake_face_color, wake_edge_color, wake_alpha)            
+            
 
     # -------------------------------------------------------------------------
     # PLOT FUSELAGE
@@ -119,9 +131,10 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     axes.set_xlim(0,axis_limits*2)
     axes.set_ylim(-axis_limits,axis_limits)
     axes.set_zlim(-axis_limits,axis_limits)
-
-    plt.axis('off')
-    plt.grid(None)
+    
+    if not plot_axis:
+        plt.axis('off')
+        plt.grid(None)
     return
 
 def plot_wing(axes,VD,face_color,edge_color,alpha_val):
@@ -162,7 +175,7 @@ def plot_wing(axes,VD,face_color,edge_color,alpha_val):
 
     return
 
-def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
+def plot_propeller_wake(axes, prop,face_color,edge_color,alpha,ctrl_pt=0):
     """ This plots a helical wake of a propeller or rotor
 
     Assumptions:
@@ -181,32 +194,33 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     Properties Used:
     N/A
     """
-    num_prop = len(VD.Wake.XA1[0,:,0,0,0])
-    num_B    = len(VD.Wake.XA1[0,0,:,0,0])
-    dim_R    = len(VD.Wake.XA1[0,0,0,:,0])
-    nts      = len(VD.Wake.XA1[0,0,0,0,:])
-    for p_idx in range(num_prop):
-        for t_idx in range(nts):
-            for B_idx in range(num_B):
-                for loc in range(dim_R):
-                    X = [VD.Wake.XA1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.XB1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.XB2[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.XA2[0,p_idx,B_idx,loc,t_idx]]
-                    Y = [VD.Wake.YA1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.YB1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.YB2[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.YA2[0,p_idx,B_idx,loc,t_idx]]
-                    Z = [VD.Wake.ZA1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.ZB1[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.ZB2[0,p_idx,B_idx,loc,t_idx],
-                         VD.Wake.ZA2[0,p_idx,B_idx,loc,t_idx]]
-                    verts = [list(zip(X, Y, Z))]
-                    collection = Poly3DCollection(verts)
-                    collection.set_facecolor(face_color)
-                    collection.set_edgecolor(edge_color)
-                    collection.set_alpha(alpha)
-                    axes.add_collection3d(collection)
+    wVD = prop.Wake.vortex_distribution.reshaped_wake
+    num_cpts = len(wVD.XA1[0,:,0,0,0])
+    num_B    = len(wVD.XA1[0,0,:,0,0])
+    dim_R    = len(wVD.XA1[0,0,0,:,0])
+    nts      = len(wVD.XA1[0,0,0,0,:])
+    
+    for t_idx in range(nts):
+        for B_idx in range(num_B):
+            for loc in range(dim_R):
+                X = [wVD.XA1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.XB1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.XB2[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.XA2[0,ctrl_pt,B_idx,loc,t_idx]]
+                Y = [wVD.YA1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.YB1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.YB2[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.YA2[0,ctrl_pt,B_idx,loc,t_idx]]
+                Z = [wVD.ZA1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.ZB1[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.ZB2[0,ctrl_pt,B_idx,loc,t_idx],
+                     wVD.ZA2[0,ctrl_pt,B_idx,loc,t_idx]]
+                verts = [list(zip(X, Y, Z))]
+                collection = Poly3DCollection(verts)
+                collection.set_facecolor(face_color)
+                collection.set_edgecolor(edge_color)
+                collection.set_alpha(alpha)
+                axes.add_collection3d(collection)
     return
 
 
@@ -466,7 +480,7 @@ def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color='red'
     a_sec  = prop.airfoil_geometry
     a_secl = prop.airfoil_polar_stations
     beta   = prop.twist_distribution
-    a_o    = prop.azimuthal_offset_angle
+    a_o    = prop.start_angle
     b      = prop.chord_distribution
     r      = prop.radius_distribution
     MCA    = prop.mid_chord_alignment

@@ -39,13 +39,15 @@ def main():
     # ----------------------------------------------------------------------    
 
     # General Aviation Aircraft   
-    GA_RPM_true              = [974.8969699856285,974.8969700586878]
-    GA_lift_coefficient_true = [0.5473581960618454,0.5473581960618426]
+
+    GA_RPM_true              = [2309.141212595346,2309.14121251718]
+    GA_lift_coefficient_true = [0.547471696197573,0.547471696197573]
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2385.0695323649907,2385.06953270966]
-    EVTOL_lift_coefficient_true = [0.8075122900985718,0.8075122900986484]
+    EVTOL_RPM_true              = [2380.178696410079,2380.178696821923]
+
+    EVTOL_lift_coefficient_true = [0.8075115628618528,0.8075115628540404]
     
         
     for i in range(len(battery_chemistry)):
@@ -321,7 +323,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.altitude_end                     = 8012    * Units.feet 
     segment.air_speed                        = 96.4260 * Units['mph'] 
     segment.climb_rate                       = 700.034 * Units['ft/min']    
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment) 
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005) 
 
     # add to misison
     mission.append_segment(segment)
@@ -335,7 +337,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.altitude                  = 8012   * Units.feet
     segment.air_speed                 = 120.91 * Units['mph'] 
     segment.distance                  =  20.   * Units.nautical_mile   
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)   
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)   
 
     # add to misison
     mission.append_segment(segment)    
@@ -353,25 +355,11 @@ def GA_mission_setup(analyses,vehicle):
     segment.air_speed_end                                    = 110 * Units['mph']   
     segment.climb_rate                                       = -200 * Units['ft/min']  
     segment.state.unknowns.throttle                          = 0.8 * ones_row(1)  
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.1)   
-
-    # ------------------------------------------------------------------
-    #  Charge Segment:  
-    # ------------------------------------------------------------------  
-    segment                          = Segments.Ground.Battery_Charge_Discharge(base_segment)  
-    segment.tag                      = 'charge'  
-    segment.analyses.extend(analyses.base)                 
-    segment.battery_discharge        = False 
-    segment                          = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)   
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)   
     
     # add to misison
-    mission.append_segment(segment)     
+    mission.append_segment(segment)
     
-    # ------------------------------------------------------------------
-    #   Mission definition complete    
-    # ------------------------------------------------------------------ 
-    
-
     # ------------------------------------------------------------------
     #  Charge Segment: 
     # ------------------------------------------------------------------     
@@ -382,7 +370,10 @@ def GA_mission_setup(analyses,vehicle):
     segment.battery_discharge                               = False      
     segment.increment_battery_cycle_day                     = True            
     segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)    
-    mission.append_segment(segment)       
+    
+    # add to misison
+    mission.append_segment(segment)        
+
     return mission
 
 
@@ -546,6 +537,8 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.battery_discharge                                = False    
     segment.increment_battery_cycle_day                      = True         
     segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment)    
+    
+    # add to misison
     mission.append_segment(segment)        
     
     return mission

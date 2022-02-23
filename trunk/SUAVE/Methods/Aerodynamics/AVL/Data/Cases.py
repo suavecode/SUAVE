@@ -5,6 +5,7 @@
 # Modified: Jan 2016, E. Botero
 #           Jun 2017, M. Clarke
 #           Aug 2019, M. Clarke
+#           Dec 2021, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -73,7 +74,7 @@ class Run_Case(Data):
 
         aero.parasite_drag              = 0.0
         aero.angle_of_attack            = None
-        aero.flight_CL                  = None
+        aero.lift_coefficient           = None
         aero.side_slip_angle            = 0.0
 
         self.stability_and_control.control_surface_names     = None
