@@ -54,7 +54,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_se
 
     """
     if VLM_settings == None:
-        VLM_settings = Vortex_Lattice().settings # Data()
+        VLM_settings = Vortex_Lattice().settings
         VLM_settings.number_spanwise_vortices  = 25
         VLM_settings.number_chordwise_vortices = 5
         VLM_settings.spanwise_cosine_spacing   = False

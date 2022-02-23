@@ -23,7 +23,9 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     Source:
         N/A
     Inputs:
+        wake - rotor wake
         prop - rotor instance
+        WD   - wake vortex distribution
     Outputs:
         Va   - axial velocity, shape (ctrl_pts, Nr, Na); axis 2 in direction of rotation       [m/s]
         Vt   - tangential velocity, shape (ctrl_pts, Nr, Na); axis 2 in direction of rotation    [m/s]

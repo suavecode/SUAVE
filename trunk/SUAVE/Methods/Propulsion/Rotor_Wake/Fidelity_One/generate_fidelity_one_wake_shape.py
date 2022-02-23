@@ -29,7 +29,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
        None
     
     Inputs:
-       rotor  -  A SUAVE rotor component for which the rotor wake is generated
+       rotor  -  A SUAVE rotor component for which the wake is generated
     
     """
         

@@ -22,7 +22,7 @@ def save_nacelle_vtk(nacelle, filename, Results):
     Saves a SUAVE nacelle object as a VTK in legacy format.
 
     Inputs:
-       vehicle        Data structure of SUAVE vehicle                [Unitless]
+       nacelle        Data structure of SUAVE nacelle                [Unitless]
        filename       Name of vtk file to save                       [String]
        Results        Data structure of wing and propeller results   [Unitless]
 
@@ -60,6 +60,8 @@ def generate_nacelle_points(nac,tessellation = 24):
     None
 
     Inputs: 
+    nac   - nacelle
+    
     Properties Used:
     N/A 
     """

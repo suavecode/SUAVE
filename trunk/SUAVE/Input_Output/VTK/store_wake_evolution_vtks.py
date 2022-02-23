@@ -16,6 +16,27 @@ import numpy as np
 
 ## @ingroup Input_Output-VTK
 def store_wake_evolution_vtks(wake,rotor):
+    """
+    Saves evolution of rotor wake over single rotation. Outputs VTK files in legacy format.
+
+    Inputs:
+       wake                SUAVE Fidelity One rotor wake
+       rotor               SUAVE rotor                
+
+    Outputs:
+       N/A
+
+    Properties Used:
+       N/A
+
+    Assumptions:
+       Fidelity-One rotor wake
+
+    Source:
+       None
+
+    """
+    
     generate_vtks = wake.vtk_save_flag
     save_loc = wake.vtk_save_loc
 
