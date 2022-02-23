@@ -6,6 +6,7 @@
 #           Jan 2020, T. MacDonald
 #           Jul 2020, E. Botero
 #           May 2021, E. Botero
+#           Feb 2022, M. Cunningham
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -341,8 +342,11 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
                 else: 
                     CS = SUAVE.Components.Wings.Control_Surfaces.Flap()
         CS.tag                 = tags[cs_idx]
-        CS.span_fraction_start = span_fraction_starts[cs_idx]*3 - 1
-        CS.span_fraction_end   = span_fraction_ends[cs_idx]*3 - 1
+        CS.span_fraction_start = np.maximum((span_fraction_starts[cs_idx] * (segment_num + 1) - 1) / (segment_num - 1), 0)
+        CS.span_fraction_end   = np.minimum((span_fraction_ends[cs_idx] * (segment_num + 1) - 1) / (segment_num - 1), 1)
+        if CS.span_fraction_start > 1 or CS.span_fraction_end < 0:
+            raise AssertionError("SUAVE import of VSP files does not allow control surfaces defined for the wing caps.")
+            
         CS.chord_fraction      = chord_fractions[cs_idx]
         CS.span                = (CS.span_fraction_end - CS.span_fraction_start)*wing.spans.projected
         wing.append_control_surface(CS)
