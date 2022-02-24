@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # epnl_noise.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -14,7 +14,7 @@ import numpy as np
 #   EPNL Noise
 # ---------------------------------------------------------------------- 
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 def epnl_noise(PNLT):
     """This method calculates de effective perceived noise level (EPNL) based on a
     time history Perceived Noise Level with Tone Correction (PNLT).

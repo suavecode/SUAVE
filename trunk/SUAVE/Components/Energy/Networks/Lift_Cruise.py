@@ -7,6 +7,7 @@
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
 #           Aug 2021, M. Clarke
+#           Feb 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,6 +18,7 @@ import SUAVE
 
 # package imports
 import numpy as np
+import copy
 from SUAVE.Core import Units, Data
 from .Network import Network
 from SUAVE.Analyses.Mission.Segments.Conditions import Residuals
@@ -79,13 +81,12 @@ class Lift_Cruise(Network):
         self.propeller_engine_length      = None
         self.number_of_lift_rotor_engines = 0
         self.number_of_propeller_engines  = 0
-        self.voltage                      = None
-        self.propeller_pitch_command      = 0.0
-        self.lift_rotor_pitch_command     = 0.0   
+        self.voltage                      = None   
         self.tag                          = 'Lift_Cruise'
         self.generative_design_minimum    = 0
         self.identical_propellers         = True
         self.identical_lift_rotors        = True
+        
         pass
         
     def evaluate_thrust(self,state):
@@ -210,8 +211,7 @@ class Lift_Cruise(Network):
                 motor.omega(conditions)
                 
                 # link
-                prop.inputs.omega         = motor.outputs.omega
-                prop.inputs.pitch_command = self.propeller_pitch_command 
+                prop.inputs.omega           = motor.outputs.omega 
                 
                 # Run the propeller
                 F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = prop.spin(conditions)
@@ -243,13 +243,26 @@ class Lift_Cruise(Network):
                 conditions.propulsion.propeller_efficiency[:,ii]       = etap_forward[:,0]
                 conditions.propulsion.propeller_motor_efficiency[:,ii] = etam_prop[:,0]
                 
+                conditions.noise.sources.propellers[prop.tag]      = outputs_forward
                 
-                if n_evals==1:
-                    # Append outputs to each identical propeller
-                    for i,p in enumerate(propellers):
-                        conditions.noise.sources.propellers[p.tag]      = outputs_forward
-                else:
-                    conditions.noise.sources.propellers[prop.tag]      = outputs_forward            
+                
+            if self.identical_propellers :
+                for p in self.propellers:
+                    conditions.noise.sources.propellers[p.tag]      = outputs_forward
+                    
+                    # Append wake to each identical propeller
+                    if p.Wake.wake_method=="Fidelity_One":
+                    
+                        # make copy of prop wake and vortex distribution
+                        base_wake = copy.deepcopy(prop.Wake)
+                        wake_vd   = base_wake.vortex_distribution
+                        
+                        # apply offset 
+                        origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
+                        p.Wake = base_wake
+                        p.Wake.shift_wake_VD(wake_vd, origin_offset)                    
+                            
+                                
                 
             
             # link
@@ -314,8 +327,7 @@ class Lift_Cruise(Network):
                 lift_rotor_motor.omega(konditions)
                 
                 # link
-                lift_rotor.inputs.omega         = lift_rotor_motor.outputs.omega
-                lift_rotor.inputs.pitch_command = self.lift_rotor_pitch_command  
+                lift_rotor.inputs.omega           = lift_rotor_motor.outputs.omega   
                 
                 # Run the propeller
                 F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)
@@ -349,13 +361,26 @@ class Lift_Cruise(Network):
                 conditions.propulsion.lift_rotor_efficiency[:,ii]       = etap_lift[:,0]
                 conditions.propulsion.lift_rotor_motor_efficiency[:,ii] = etam_lift_rotor[:,0]
                 
-                if n_evals==1:
-                    # Append outputs to each identical propeller
-                    for i,p in enumerate(lift_rotors):
-                        conditions.noise.sources.lift_rotors[p.tag]      = outputs_lift
-                else:
-                    conditions.noise.sources.lift_rotors[prop.tag]      = outputs_lift            
                 
+                conditions.noise.sources.lift_rotors[lift_rotor.tag]      = outputs_lift
+                
+                
+            if self.identical_lift_rotors:
+                for r in self.lift_rotors:
+                    conditions.noise.sources.propellers[r.tag]      = outputs_lift
+                    
+                    # Append wake to each identical propeller
+                    if r.Wake.wake_method=="Fidelity_One":
+                    
+                        # make copy of prop wake and vortex distribution
+                        base_wake = copy.deepcopy(lift_rotor.Wake)
+                        wake_vd   = base_wake.vortex_distribution
+                        
+                        # apply offset 
+                        origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
+                        r.Wake = base_wake
+                        r.Wake.shift_wake_VD(wake_vd, origin_offset)  
+                        
                 
             # link
             lift_rotor_esc.inputs.currentout =  lift_rotor_motor.outputs.current     
@@ -418,7 +443,7 @@ class Lift_Cruise(Network):
         return results
     
     def unpack_unknowns_transition(self,segment):
-        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+        """ This is an extra set of unknowns which are unpacked from the mission solver and sent to the network.
             This uses all the motors.
     
             Assumptions:
@@ -557,7 +582,7 @@ class Lift_Cruise(Network):
         return    
     
     def residuals_transition(self,segment):
-        """ This packs the residuals to be send to the mission solver.
+        """ This packs the residuals to be sent to the mission solver.
             Use this if all motors are operational
     
             Assumptions:
@@ -598,7 +623,7 @@ class Lift_Cruise(Network):
     
     
     def residuals_cruise(self,segment):
-        """ This packs the residuals to be send to the mission solver.
+        """ This packs the residuals to be sent to the mission solver.
             Use this if only the forward motors are operational
     
             Assumptions:
@@ -635,7 +660,7 @@ class Lift_Cruise(Network):
         return    
     
     def residuals_lift(self,segment):
-        """ This packs the residuals to be send to the mission solver.
+        """ This packs the residuals to be sent to the mission solver.
             Only the lift motors are operational
     
             Assumptions:
@@ -805,9 +830,10 @@ class Lift_Cruise(Network):
         ones_row = segment.state.ones_row 
         
         # Count how many unknowns and residuals based on p
-        n_props    = len(self.propellers)
-        n_motors_p = len(self.propeller_motors)
-        n_eng_p    = self.number_of_propeller_engines
+        n_props       = len(self.propellers)
+        n_lift_rotors = len(self.lift_rotors)
+        n_motors_p    = len(self.propeller_motors)
+        n_eng_p       = self.number_of_propeller_engines
         
         if n_props!=n_motors_p!=n_eng_p:
             assert('The number of propellers is not the same as the number of motors')

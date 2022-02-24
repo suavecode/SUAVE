@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Airframe
+## @ingroup Methods-Noise-Fidelity_One-Airframe
 # noise_clean_wing.py
 # 
 # Created:  Jun 2015, C. Ilario
@@ -15,7 +15,7 @@ from SUAVE.Core import Units
 # Compute the clean wing noise
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Airframe
+## @ingroup Methods-Noise-Fidelity_One-Airframe
 def noise_clean_wing(S,b,ND,IsHorz,velocity,viscosity,M,phi,theta,distance,frequency):
     """ This computes the 1/3 octave band sound pressure level and the overall sound pressure level from the clean wing,
     for a wing with area S (sq.ft) and span b (ft).  ND is a constant set to 0 for clean wings and set to 1 for propeller

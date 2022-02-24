@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # approach_noise.py
 # 
 # Created:  Oct 2020, M. Clarke
@@ -16,7 +16,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import nois
 #   NOISE CALCULATION
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 def compute_noise(config,analyses,noise_segment,noise_settings):
     """This method computes the noise of a turbofan aircraft
             

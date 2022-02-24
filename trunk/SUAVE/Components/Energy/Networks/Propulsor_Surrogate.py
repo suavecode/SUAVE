@@ -4,22 +4,24 @@
 # Created:  Mar 2017, E. Botero
 # Modified: Jan 2020, T. MacDonald
 #           May 2021, E. Botero
+#           Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+from SUAVE.Core import Data
+from .Network   import Network
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Geometry.Three_Dimensional     import  orientation_product, orientation_transpose
 
 # package imports
 import numpy as np
+import scipy as sp
 from copy import deepcopy
-from .Network import Network
-from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
-
-from SUAVE.Core import Data
 from sklearn import gaussian_process
 from sklearn.gaussian_process.kernels import RationalQuadratic, ConstantKernel, RBF, Matern
 from sklearn import neighbors
-from sklearn import svm, linear_model
+from sklearn import svm, linear_model 
 
 # ----------------------------------------------------------------------
 #  Network
@@ -61,8 +63,8 @@ class Propulsor_Surrogate(Network):
         self.tag                      = 'Engine_Deck_Surrogate'
         self.input_file               = None
         self.sfc_surrogate            = None
-        self.thrust_surrogate         = None
-        self.thrust_angle             = 0.0
+        self.thrust_surrogate         = None 
+        self.orientation_euler_angles = [0.,0.,0.]
         self.areas                    = Data()
         self.surrogate_type           = 'gaussian'
         self.altitude_input_scale     = 1.
@@ -130,10 +132,19 @@ class Propulsor_Surrogate(Network):
         if self.negative_throttle_values == False:
             F[throttle<=0.]    = 0.
             mdot[throttle<=0.] = 0.
-           
-        # Save the output
-        results = Data()
-        results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]
+            
+        # Make thrust a 3D vector   
+        ctrl_pts               = len(F)
+        thrust_prop_frame      = np.zeros((ctrl_pts,3))
+        thrust_prop_frame[:,0] = F[:,0] 
+        rots                   = np.array(self.orientation_euler_angles) * 1. 
+        body2thrust            = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()     
+        T_body2thrust          = orientation_transpose(np.ones((len(F),3,3))*body2thrust)
+        thrust_force_vector    = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
+         
+        # Store Results
+        results                     = Data() 
+        results.thrust_force_vector = thrust_force_vector
         results.vehicle_mass_rate   = mdot
    
         return results          
@@ -357,4 +368,4 @@ class Propulsor_Surrogate(Network):
         if np.sum(mask_high) > 0:
             sfcs[mask_high] = sfc_surrogate.predict(cond_one_eta[mask_high])
             
-        return sfcs   
+        return sfcs
