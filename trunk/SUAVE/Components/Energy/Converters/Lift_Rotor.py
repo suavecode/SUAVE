@@ -50,7 +50,7 @@ class Lift_Rotor(Rotor):
 
         self.optimization_parameters                      = Data() 
         self.optimization_parameters.slack_constaint      = 1E-4 # slack constraint 
-        self.optimization_parameters.ideal_SPL_dBA        = 30. 
+        self.optimization_parameters.ideal_SPL_dBA        = 65. 
         self.optimization_parameters.aeroacoustic_weight  = 1.   # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization    
      
                 

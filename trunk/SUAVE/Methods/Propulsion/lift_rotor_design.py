@@ -118,8 +118,8 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
         output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
                                                       sense_step= 1E-3) 
     else: 
-        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
-                                         tolerance = 1E-3)
+        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-5,
+                                         tolerance = 1E-4)
         
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
@@ -159,7 +159,7 @@ def rotor_optimization_setup(rotor):
     # -------------------------------------------------------------------  
     R      = rotor.tip_radius  
     inputs = []
-    inputs.append([ 'chord_r'    , 0.1*R     , 0.05*R , 0.2*R    , 1.0     ,  1*Units.less])
+    inputs.append([ 'chord_r'    , 0.01*R   , 0.05*R , 0.2*R    , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_p'    , 2         , 0.25   , 2.0      , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_q'    , 1         , 0.25   , 1.5      , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_t'    , 0.05*R    , 0.05*R , 0.2*R    , 1.0     ,  1*Units.less])  
@@ -182,8 +182,8 @@ def rotor_optimization_setup(rotor):
     # -------------------------------------------------------------------  
     constraints = [] 
     constraints.append([ 'thrust_power_residual'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])  
-    constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.2 ,   1.0   , 1*Units.less]) 
-    constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.9 ,   1.0   , 1*Units.less])   
+    constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.3 ,   1.0   , 1*Units.less]) 
+    constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])   
     constraints.append([ 'max_sectional_cl'         ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])
     constraints.append([ 'chord_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])    
     constraints.append([ 'twist_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])   
@@ -279,7 +279,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     ctrl_pts       = 1 
 
     # Run Conditions     
-    theta  = np.array([90,120,160])*Units.degrees + 1E-4
+    theta  = np.array([90,135])*Units.degrees + 1E-4
     S      = np.maximum(alt , 20*Units.feet)  
 
     # microphone locations
@@ -506,7 +506,7 @@ def post_process(nexus):
     mu             = atmo_data.dynamic_viscosity[0]  
 
     # Define microphone locations
-    theta     = np.array([90,120,160])*Units.degrees + 1E-4
+    theta     = np.array([90,135])*Units.degrees + 1E-4
     S         = np.maximum(alt , 20*Units.feet) 
     ctrl_pts  = 1 
     positions = np.zeros(( len(theta),3))
@@ -583,7 +583,7 @@ def post_process(nexus):
     FM        = ((C_t_rot**1.5)/np.sqrt(2))/C_p_rot
     summary.figure_of_merit = FM
     
-    summary.Aero_Acoustic_Obj =  (LA.norm((ideal_FM-FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL*10))*(1-alpha)) 
+    summary.Aero_Acoustic_Obj =  LA.norm((ideal_FM-FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL))*(1-alpha) 
         
     # -------------------------------------------------------
     # PRINT ITERATION PERFOMRMANCE
