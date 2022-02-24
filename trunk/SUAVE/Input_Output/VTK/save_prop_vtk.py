@@ -339,7 +339,7 @@ def generate_lofted_propeller_points(prop):
         a_o = prop.start_angle
 
     n_r       = len(b)                               # number radial points
-    n_a_loft  = prop.number_points_around_airfoil    # number points around airfoil
+    n_a_loft  = prop.vtk_airfoil_points              # number points around airfoil
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]  # azimuthal stations
 
     # create empty data structure for storing propeller geometries
