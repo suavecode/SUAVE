@@ -110,7 +110,7 @@ class Container(Data):
             val.tag = tag + str(n_comps+1)
             
             # Check again, because theres an outside chance that its duplicate again. Then assign a random
-            if tag in keys:
+            if val.tag in keys:
                 val.tag = tag + str(n_comps+random.randint(0,1000))
         
         Data.append(self,val)
