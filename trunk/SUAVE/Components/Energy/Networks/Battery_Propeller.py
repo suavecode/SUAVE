@@ -8,7 +8,7 @@
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
 #           Aug 2021, M. Clarke
-#           Feb 2022, M. Clarke
+#           Feb 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -23,6 +23,7 @@ from SUAVE.Components.Physical_Component import Container
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
 from SUAVE.Core import Data , Units 
+import copy
 
 # ----------------------------------------------------------------------
 #  Network
@@ -235,7 +236,22 @@ class Battery_Propeller(Network):
                     conditions.noise.sources.propellers[prop.tag]      = outputs
                 else:    
                     conditions.noise.sources.lift_rotors[prop.tag]     = outputs
-    
+            
+            if identical_flag and prop.Wake.wake_method=="Fidelity_One":
+                # append wakes to all propellers, shifted by new origin
+                for p in props:
+                    # make copy of prop wake and vortex distribution
+                    base_wake = copy.deepcopy(prop.Wake)
+                    wake_vd   = base_wake.vortex_distribution
+                    
+                    # apply offset 
+                    origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
+                    p.Wake = base_wake
+                    p.Wake.shift_wake_VD(wake_vd, origin_offset)
+            elif identical_flag and prop.Wake.wake_method=="Fidelity_Zero":
+                for p in props:
+                    p.outputs = outputs
+                    
             # Run the avionics
             avionics.power()
     

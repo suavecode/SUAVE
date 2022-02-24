@@ -20,6 +20,8 @@ sys.path.append('../Vehicles')
 
 from X57_Maxwell_Mod2 import vehicle_setup
 
+from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
+
 #-------------------------------------------------------------------------------
 # Test Function
 #-------------------------------------------------------------------------------
@@ -34,9 +36,8 @@ def main():
 
 def test_1():
     """
-    This tests the propeller_single_point function using the BEMT model.
+    This tests the propeller_single_point function using the Fidelity Zero rotor wake inflow model.
     """
-    HFW = False
     vehicle = vehicle_setup()
 
     analyses = SUAVE.Analyses.Vehicle()
@@ -53,21 +54,21 @@ def test_1():
                                      delta_isa=0.,
                                      speed=10 * Units['m/s'],
                                      plots=True,
-                                     HFW=HFW,
                                      print_results=True
                                      )
-
+        
     thrust  = results.thrust
     torque  = results.torque
     power   = results.power
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 643.8390579239042
-    torque_r    = 130.76172993886766
-    power_r     = 30125.33994408687
-    Cp_r        = 0.03845761983322205
-    etap_r      = 0.2137200971404406
+    thrust_r    = 643.4365612076354
+    torque_r    = 130.6985065893255
+    power_r     = 30110.77432998669
+    Cp_r        = 0.03843902555841082
+    etap_r      = 0.21368980888905617
+
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
     assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Propeller Single Point Regression Failed at Torque Test"
@@ -79,11 +80,14 @@ def test_1():
 
 def test_2():
     """
-    This tests the propeller_single_point function using the helical fixed wake (HFW) + BET model.
+    This tests the propeller_single_point function using the Fidelity One rotor inflow model.
     """    
-    HFW = True
     vehicle = vehicle_setup()
 
+    # update the wake method used for each prop
+    for p in vehicle.networks.battery_propeller.propellers:
+        p.Wake = Rotor_Wake_Fidelity_One()
+        
     analyses = SUAVE.Analyses.Vehicle()
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = SUAVE.Analyses.Planets.Planet()
@@ -98,7 +102,6 @@ def test_2():
                                      delta_isa=0.,
                                      speed=10 * Units['m/s'],
                                      plots=True,
-                                     HFW=HFW,
                                      print_results=True
                                      )
 
@@ -108,11 +111,12 @@ def test_2():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 594.5337489082791
-    torque_r    = 129.9073779751413
-    power_r     = 29928.511381546534
-    Cp_r        = 0.03820635103278544
-    etap_r      = 0.19865129318622227
+    thrust_r    = 637.9402297052759
+    torque_r    = 129.07946679553763
+    power_r     = 29737.7743383709
+    Cp_r        = 0.03796285858728355
+    etap_r      = 0.21452184768317925
+
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
     assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Propeller Single Point Regression Failed at Torque Test"

@@ -9,7 +9,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution import generate_vortex_distribution
 from copy import deepcopy
 
-
+## @ingroup Input_Output-VTK
 def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step):
     """
     Saves a SUAVE wing object as a VTK in legacy format.
@@ -63,10 +63,10 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         L_Results = deepcopy(Results)
 
         # number panels per half span
-        n_cp_R   = cps_per_wing_component[i]
-        n_cp_L   = cps_per_wing_component[i+1]
-        n_cw   = n_cw
-        n_sw   = n_sw
+        n_cp_R   = n_cp
+        n_cp_L   = n_cp
+        n_cw     = n_cw
+        n_sw     = n_sw
 
         # split wing into two separate wings
         Rwing = Data()
@@ -98,10 +98,10 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Lwing.ZB1 = VD.ZB1[half_l:sec_end]
         Lwing.ZB2 = VD.ZB2[half_l:sec_end]
 
-
-        if 'vlm_results' in Results.keys():
-            R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]
-            L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
+        if Results is not None:
+            if 'vlm_results' in Results.keys():
+                R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]
+                L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
 
         sep  = filename.rfind('.')
 
@@ -138,7 +138,7 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
 
     return
 
-
+## @ingroup Input_Output-VTK
 def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
     # Create file
     with open(filename, 'w') as f:
@@ -238,66 +238,67 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
         for i in range(n_cp):
             new_idx = str(i)
             f.write("\n"+new_idx)
-
-        if 'vlm_results' in Results.keys():
-            # Check for results
-            try:
-                cl = Results.vlm_results.cl_y[0] #Results['cl_y_DVE'][0]
-                f.write("\nSCALARS cl float 1")
-                f.write("\nLOOKUP_TABLE default")
-                for i in range(n_cp):
-                    new_cl = str(cl[int(i/n_cw)])
-                    f.write("\n"+new_cl)
-            except:
-                print("No 'cl_y_DVE' in results. Skipping this scalar output.")
-
-            try:
-                cl = Results.vlm_results.cl_y[0]
-                CL = Results.vlm_results.CL[0][0]
-                f.write("\nSCALARS Cl/CL float 1")
-                f.write("\nLOOKUP_TABLE default")
-
-                for i in range(n_cp):
-                    new_cl_CL = str(cl[int(i/n_cw)]/CL)
-                    f.write("\n"+new_cl_CL)
-            except:
-                print("No 'CL' in Results.vlm_results. Skipping this scalar output.")
-
-            try:
-                cd = Results.vlm_results.cdi_y[0]
-                f.write("\nSCALARS cdi float 1")
-                f.write("\nLOOKUP_TABLE default")
-
-                for i in range(n_cp):
-                    new_cd = str(cd[int(i/n_cw)])
-                    f.write("\n"+new_cd)
-            except:
-                print("No 'cdi_y' in Results.vlm_results. Skipping this scalar output.")
-
-            try:
-                cd = Results.vlm_results.cdi_y[0]
-                CD = Results.vlm_results.CDi[0][0]
-
-                f.write("\nSCALARS cd_CD float 1")
-                f.write("\nLOOKUP_TABLE default")
-
-                for i in range(n_cp):
-                    new_cd_CD = str(cd[int(i/n_cw)]/CD)
-                    f.write("\n"+new_cd_CD)
-            except:
-                print("No 'CDi_wing_DVE' in results. Skipping this scalar output.")
-
-            try:
-                CP = Results.vlm_results.CP
-
-                f.write("\nSCALARS CP float 1")
-                f.write("\nLOOKUP_TABLE default")
-
-                for i in range(n_cp):
-                    new_CP = str(CP[i])
-                    f.write("\n"+new_CP)
-            except:
-                print("No 'CP' in results. Skipping this scalar output.")
+        
+        if Results is not None:
+            if 'vlm_results' in Results.keys():
+                # Check for results
+                try:
+                    cl = Results.vlm_results.cl_y[0]
+                    f.write("\nSCALARS cl float 1")
+                    f.write("\nLOOKUP_TABLE default")
+                    for i in range(n_cp):
+                        new_cl = str(cl[int(i/n_cw)])
+                        f.write("\n"+new_cl)
+                except:
+                    print("No 'cl_y_DVE' in results. Skipping this scalar output.")
+    
+                try:
+                    cl = Results.vlm_results.cl_y[0]
+                    CL = Results.vlm_results.CL[0][0]
+                    f.write("\nSCALARS Cl/CL float 1")
+                    f.write("\nLOOKUP_TABLE default")
+    
+                    for i in range(n_cp):
+                        new_cl_CL = str(cl[int(i/n_cw)]/CL)
+                        f.write("\n"+new_cl_CL)
+                except:
+                    print("No 'CL' in Results.vlm_results. Skipping this scalar output.")
+    
+                try:
+                    cd = Results.vlm_results.cdi_y[0]
+                    f.write("\nSCALARS cdi float 1")
+                    f.write("\nLOOKUP_TABLE default")
+    
+                    for i in range(n_cp):
+                        new_cd = str(cd[int(i/n_cw)])
+                        f.write("\n"+new_cd)
+                except:
+                    print("No 'cdi_y' in Results.vlm_results. Skipping this scalar output.")
+    
+                try:
+                    cd = Results.vlm_results.cdi_y[0]
+                    CD = Results.vlm_results.CDi[0][0]
+    
+                    f.write("\nSCALARS cd_CD float 1")
+                    f.write("\nLOOKUP_TABLE default")
+    
+                    for i in range(n_cp):
+                        new_cd_CD = str(cd[int(i/n_cw)]/CD)
+                        f.write("\n"+new_cd_CD)
+                except:
+                    print("No 'CDi_wing_DVE' in results. Skipping this scalar output.")
+    
+                try:
+                    CP = Results.vlm_results.CP
+    
+                    f.write("\nSCALARS CP float 1")
+                    f.write("\nLOOKUP_TABLE default")
+    
+                    for i in range(n_cp):
+                        new_CP = str(CP[i])
+                        f.write("\n"+new_CP)
+                except:
+                    print("No 'CP' in results. Skipping this scalar output.")
 
     f.close()
     return
