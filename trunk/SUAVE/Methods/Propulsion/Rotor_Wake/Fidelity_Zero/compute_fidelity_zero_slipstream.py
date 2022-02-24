@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_fidelity_zero_induced_velocity.py
+# compute_fidelity_zero_slipstream.py
 # 
 # Created:  Jun 2021, R. Erhard 
 
@@ -12,9 +12,9 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_fidelity_zero_induced_velocity(evaluation_points, ):  
-    """ This computes the velocity induced by the fidelity zero wake
-    on specified evaluation points.
+def compute_fidelity_zero_slipstream(props,geometry,cpts,conditions,identical_flag,wing_instance=None):  
+    """ This computes the velocity induced by the BEVW wake
+    on lifting surface control points
 
     Assumptions:  
        The wake contracts following formulation by McCormick.
@@ -23,11 +23,7 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, ):
        Contraction factor: McCormick 1969, Aerodynamics of V/STOL Flight
        
     Inputs: 
-       evaluation_points.
-          XC              - X-location of evaluation points (vehicle frame)             [m] 
-          YC              - Y-location of evaluation points (vehicle frame)             [m] 
-          ZC              - Z-location of evaluation points (vehicle frame)             [m] 
-          
+       prop        - propeller or rotor data structure             [Unitless] 
        geometry    - SUAVE vehicle                                 [Unitless] 
        cpts        - control points in segment                     [Unitless]
     Properties Used:
@@ -35,6 +31,7 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, ):
     """
 
     # extract vortex distribution
+    VD = geometry.vortex_distribution # this needs to be just for the wing_instance
     
     # initialize propeller wake induced velocities
     prop_V_wake_ind = np.zeros((cpts,VD.n_cp,3))
@@ -48,8 +45,9 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, ):
         prop_outputs = props[prop_key].outputs
         R            = prop.tip_radius
         
-        s  = evaluation_points.XC - prop.origin[0][0]
-        kd = 1 + s/(np.sqrt(s**2 + R**2))    
+        # contraction factor by McCormick
+        s  = wing_instance.origin[0][0] - prop.origin[0][0]
+        kd = 1 + s/(np.sqrt(s**2 + R**2))
 
         # extract radial and azimuthal velocities at blade
         va = kd*prop_outputs.blade_axial_induced_velocity[0]
@@ -62,10 +60,10 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, ):
         prop_y_range = np.append(inboard_r, outboard_r)
     
         # within this range, add an induced x- and z- velocity from propeller wake
-        bool_inboard  = ( evaluation_points.YC > inboard_r[0] )  * ( evaluation_points.YC < inboard_r[-1] )
-        bool_outboard = ( evaluation_points.YC > outboard_r[0] ) * ( evaluation_points.YC < outboard_r[-1] )
+        bool_inboard  = ( VD.YC > inboard_r[0] )  * ( VD.YC < inboard_r[-1] )
+        bool_outboard = ( VD.YC > outboard_r[0] ) * ( VD.YC < outboard_r[-1] )
         bool_in_range = bool_inboard + bool_outboard
-        YC_in_range   = evaluation_points.YC[bool_in_range]
+        YC_in_range   = VD.YC[bool_in_range]
         
         va_y_range  = np.append(np.flipud(va), va)
         vt_y_range  = np.append(np.flipud(vt), vt)*prop.rotation
@@ -89,5 +87,4 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, ):
         prop_V_wake_ind[0,val_ids,2] = vt_new  # vertical induced velocity     
         
     return prop_V_wake_ind
-  
   
