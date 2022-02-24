@@ -315,7 +315,7 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Omega,Beta_c):
     ctrl_pts       = 1 
 
     # Run Conditions      
-    theta  = np.array([90,120,160])*Units.degrees + 1E-2
+    theta  = np.array([90,120,160])*Units.degrees + 1E-4
     S      = np.maximum(alt , 20*Units.feet)
 
     # microphone locations
@@ -386,7 +386,7 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Omega,Beta_c):
     ctrl_pts       = 1 
 
     # Run Conditions     
-    theta     = np.array([90,120,160])*Units.degrees + 1E-2
+    theta     = np.array([90,120,160])*Units.degrees + 1E-4
     S         = np.maximum(alt , 20*Units.feet)
     ctrl_pts  = 1 
     positions = np.zeros(( len(theta),3))
@@ -639,7 +639,7 @@ def post_process(nexus):
     mu             = atmo_data.dynamic_viscosity[0]  
  
     # Run Conditions      
-    theta     = np.array([90,120,160])*Units.degrees + 1E-2
+    theta     = np.array([90,120,160])*Units.degrees + 1E-4
     S         = np.maximum(alt , 20*Units.feet)
     ctrl_pts  = 1 
  
@@ -711,7 +711,7 @@ def post_process(nexus):
     mu             = atmo_data.dynamic_viscosity[0]  
 
     # Define microphone locations
-    theta     = np.array([90,120,160])*Units.degrees + 1E-2
+    theta     = np.array([90,120,160])*Units.degrees + 1E-4
     S         = np.maximum(alt , 20*Units.feet)
     ctrl_pts  = 1 
     positions = np.zeros(( len(theta),3))

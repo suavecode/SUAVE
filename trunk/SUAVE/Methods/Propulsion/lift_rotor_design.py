@@ -118,8 +118,8 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
         output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
                                                       sense_step= 1E-3) 
     else: 
-        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-5,
-                                         tolerance = 1E-4)
+        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
+                                         tolerance = 1E-3)
         
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
@@ -145,7 +145,7 @@ def rotor_optimization_setup(rotor):
               
           Assumptions: 
             1) minimum allowable blade taper : 0.2  
-            1) maximum allowable blade taper : 0.7     
+            1) maximum allowable blade taper : 0.8     
         
           Source:
              None
@@ -182,8 +182,8 @@ def rotor_optimization_setup(rotor):
     # -------------------------------------------------------------------  
     constraints = [] 
     constraints.append([ 'thrust_power_residual'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])  
-    constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.2 ,   1.0   , 1*Units.less])  
-    constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.7 ,   1.0   , 1*Units.less])
+    constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.2 ,   1.0   , 1*Units.less]) 
+    constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.9 ,   1.0   , 1*Units.less])   
     constraints.append([ 'max_sectional_cl'         ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])
     constraints.append([ 'chord_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])    
     constraints.append([ 'twist_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])   
@@ -279,8 +279,8 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     ctrl_pts       = 1 
 
     # Run Conditions     
-    theta  = np.array([90,120,160])*Units.degrees + 1E-2
-    S      = np.maximum(alt , 20*Units.feet)
+    theta  = np.array([90,120,160])*Units.degrees + 1E-4
+    S      = np.maximum(alt , 20*Units.feet)  
 
     # microphone locations
     positions = np.zeros(( len(theta),3))
@@ -506,8 +506,8 @@ def post_process(nexus):
     mu             = atmo_data.dynamic_viscosity[0]  
 
     # Define microphone locations
-    theta     = np.array([90,120,160])*Units.degrees + 1E-2
-    S         = np.maximum(alt , 20*Units.feet)
+    theta     = np.array([90,120,160])*Units.degrees + 1E-4
+    S         = np.maximum(alt , 20*Units.feet) 
     ctrl_pts  = 1 
     positions = np.zeros(( len(theta),3))
     for i in range(len(theta)):
@@ -520,9 +520,9 @@ def post_process(nexus):
     conditions.freestream.dynamic_viscosity          = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound             = np.ones((ctrl_pts,1)) * a 
     conditions.freestream.temperature                = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V]]) # np.array([[V, 0. ,0.]])
+    conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V]])  
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
-    conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])  # np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+    conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
 
     # Run Propeller model 
     thrust , torque, power, Cp  , noise_data , etap  = rotor.spin(conditions) 
@@ -541,12 +541,12 @@ def post_process(nexus):
     conditions.noise.number_of_microphones           = num_mic
     
     # Run noise model    
-    if alpha != 1: 
+    if alpha != 1:  
         try: 
             propeller_noise  = propeller_mid_fidelity(lift_rotors,noise_data,segment,settings)   
-            Acoustic_Metric  = np.mean(propeller_noise.SPL_dBA)  
-        except:  
-            Acoustic_Metric  = 100.0
+            Acoustic_Metric  = np.mean(propeller_noise.SPL_dBA) 
+        except:
+            Acoustic_Metric  = 100            
     else:
         Acoustic_Metric  = 0  
    
@@ -583,11 +583,7 @@ def post_process(nexus):
     FM        = ((C_t_rot**1.5)/np.sqrt(2))/C_p_rot
     summary.figure_of_merit = FM
     
-    # -------------------------------------------------------
-    # OBJECTIVE FUNCTION
-    # -------------------------------------------------------      
-    summary.Aero_Acoustic_Obj =  LA.norm((FM - ideal_FM)/ideal_FM)*alpha \
-        + LA.norm((Acoustic_Metric - ideal_SPL)/ideal_SPL)*(1-alpha) 
+    summary.Aero_Acoustic_Obj =  (LA.norm((ideal_FM-FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL*10))*(1-alpha)) 
         
     # -------------------------------------------------------
     # PRINT ITERATION PERFOMRMANCE
@@ -597,7 +593,7 @@ def post_process(nexus):
     if rotor.design_thrust == None: 
         print("Power                   : " + str(power[0][0])) 
     if rotor.design_power == None: 
-        print("Thrust                  : " + str(thrust[0][0]))   
+        print("Thrust                  : " + str(-thrust[0][2]))   
     print("Average SPL             : " + str(Acoustic_Metric))  
     print("Thrust/Power Residual   : " + str(summary.thrust_power_residual)) 
     print("Blade Taper             : " + str(blade_taper))
