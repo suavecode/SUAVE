@@ -208,6 +208,7 @@ class Rotor(Energy_Component):
         Vv      = conditions.frames.inertial.velocity_vector
         nu      = mu/rho
         rho_0   = rho
+        T_0     = T
 
         # Helpful shorthands
         pi      = np.pi
@@ -472,7 +473,7 @@ class Rotor(Energy_Component):
         Crd      = rotor_drag/(rho_0*(n*n)*(D*D*D*D))
         etap     = V*thrust/power
         A        = np.pi*(R**2 - self.hub_radius**2)
-        FoM      = thrust*np.sqrt(T/(2*rho*A))    /power  
+        FoM      = thrust*np.sqrt(T_0/(2*rho_0*A))    /power  
 
         # prevent things from breaking
         Cq[Cq<0]                                               = 0.
