@@ -147,12 +147,14 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
 
     prop.tip_radius                   = vsp.GetDoubleResults(rid, "Diameter" )[0] / 2 * units_factor
     prop.radius_distribution          = np.array(vsp.GetDoubleResults(rid, "Radius" )) * prop.tip_radius
+
     prop.radius_distribution[-1]      = 0.99 * prop.tip_radius # BEMT requires max nondimensional radius to be less than 1.0
     if prop.radius_distribution[0] == 0.:
         start = 1
         prop.radius_distribution = prop.radius_distribution[start:]
     else:
         start = 0
+
     prop.hub_radius                   = prop.radius_distribution[0]
 
     prop.chord_distribution           = np.array(vsp.GetDoubleResults(rid, "Chord" ))[start:]  * prop.tip_radius # vsp gives c/R
@@ -163,7 +165,7 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     prop.max_thickness_distribution   = prop.thickness_to_chord*prop.chord_distribution * units_factor
     prop.Cl_distribution              = np.array(vsp.GetDoubleResults(rid, "CLi" ))[start:] 
 
-    # Extra data from VSP BEM for future use in BEMT
+    # Extra data from VSP BEM for future use in BEVW
     prop.beta34                       = vsp.GetDoubleResults(rid, "Beta34" )[0]  # pitch at 3/4 radius
     prop.pre_cone                     = vsp.GetDoubleResults(rid, "Pre_Cone")[0]
     prop.rake                         = np.array(vsp.GetDoubleResults(rid, "Rake"))[start:]

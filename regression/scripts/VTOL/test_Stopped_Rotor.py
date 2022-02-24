@@ -74,7 +74,7 @@ def main():
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[0][0]
-    RPM_true   = 2383.999687566465
+    RPM_true   = 2379.103576756637
     print(RPM)
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -83,7 +83,7 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.37412525e+08, 3.36777016e+08, 3.35686588e+08])
+    battery_energy_hover_to_transition_true = np.array([3.37413e+08, 3.36788424e+08, 3.35717487e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true)
@@ -93,7 +93,8 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.828126216785489
+    lift_coefficient_true   = 0.828126216782719
+
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
