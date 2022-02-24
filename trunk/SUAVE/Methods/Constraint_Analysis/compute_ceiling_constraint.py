@@ -75,7 +75,7 @@ def compute_ceiling_constraint(ca,vehicle):
             isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
 
             P_W  = np.zeros(len(W_S))
-            etap = ca.propeller.cruise_efficiency
+            etap = ca.propeller.ceiling_efficiency
             if etap == 0:
                 raise ValueError('Warning: Set the propeller efficiency at the ceiling')
 

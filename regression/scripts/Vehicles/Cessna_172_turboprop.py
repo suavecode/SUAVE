@@ -207,7 +207,7 @@ def vehicle_setup():
     #   Fuel
     # ------------------------------------------------------------------    
     # define fuel weight needed to size fuel system
-    fuel                                        = SUAVE.Attributes.Propellants.Aviation_Gasoline()
+    fuel                                        = SUAVE.Attributes.Propellants.Jet_A()
     fuel.mass_properties                        = SUAVE.Components.Mass_Properties() 
     fuel.number_of_tanks                        = 1.
     fuel.origin                                 = wing.origin

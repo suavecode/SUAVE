@@ -25,7 +25,7 @@ def main():
     # Sample jet airplane
     # ------------------------------------------------------------------
 
-    # Define the vehicle and required constrain analysis parameters
+    # Define the vehicle and required constraint analysis parameters
     ca = Constraint_Analysis.Constraint_Analysis()
 
     plot_tag = False
@@ -196,7 +196,7 @@ def main():
     ca.propeller.ceiling_efficiency   = 0.85
     ca.propeller.OEI_climb_efficiency = 0.5
 
-    # Define aerodynamics (an example case with max lift calculation for differnet flap settions)
+    # Define aerodynamics (an example case with max lift calculation for differnet flap settings)
     ca.aerodynamics.cd_takeoff     = 0.04
     ca.aerodynamics.cl_takeoff     = 0.6
     ca.aerodynamics.cd_min_clean   = 0.02

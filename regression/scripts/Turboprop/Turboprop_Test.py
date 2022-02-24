@@ -2,7 +2,7 @@
 # 
 # Created: Jan 2022, S. Karpuk 
  
-""" setup file for a mission with a Beech 99 with a turboprop energy network
+""" setup file for a mission with a Cessna 172 with a dummy turboprop engine network
 """
 
 # ----------------------------------------------------------------------
@@ -21,9 +21,8 @@ Data, Container,
 import sys
 
 sys.path.append('../Vehicles')
+
 # the analysis functions 
- 
-#from Beech_99  import vehicle_setup  
 from Cessna_172_turboprop  import vehicle_setup  
 # ----------------------------------------------------------------------
 #   Main

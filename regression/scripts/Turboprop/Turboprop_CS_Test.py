@@ -1,4 +1,4 @@
-# ICE_Test.py
+# Turboprop_CS_Test.py
 # 
 # Created: Feb 2020, M. Clarke 
  
@@ -21,8 +21,8 @@ Data, Container,
 import sys
 
 sys.path.append('../Vehicles')
+
 # the analysis functions 
- 
 from Cessna_172_turboprop     import vehicle_setup  
 from SUAVE.Methods.Propulsion import propeller_design
 

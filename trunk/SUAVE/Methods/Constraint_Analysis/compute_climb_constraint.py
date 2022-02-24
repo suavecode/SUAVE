@@ -83,11 +83,11 @@ def compute_climb_constraint(ca,vehicle):
 
             for i in range(len(W_S)):
                 error      = 1
-                tollerance = 1e-6
+                tolerance = 1e-6
                 M          = 0.5                            # Initial Mach number
                 q          = 0.5*rho*(M*a)**2               # Initial dynamic pressure
                 # Iterate the best propeller climb speed estimation until converged 
-                while abs(error) > tollerance:
+                while abs(error) > tolerance:
  
                     k,cd0 = compute_constraint_aero_values(W_S[i],M,q,vehicle,ca)
                     Vx    = np.sqrt(2/rho*W_S[i]*np.sqrt(k/(3*cd0)))
