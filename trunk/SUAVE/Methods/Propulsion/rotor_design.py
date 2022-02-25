@@ -1,5 +1,5 @@
 ## @ingroup Methods-Propulsion
-# lift_rotor_design.py 
+# rotor_design.py 
 #
 # Created: Feb 2022, M. Clarke
 
@@ -29,7 +29,7 @@ import time
 #  Rotor Design
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
-def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP',use_pyoptsparse=False):  
+def rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP',use_pyoptsparse=False):   
     """ Optimizes rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
@@ -102,28 +102,27 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
     rotor.number_of_airfoil_section_points = number_of_airfoil_section_points
     
     # assign intial conditions for twist and chord distribution functions
-    rotor.chord_r =  0.1*R    
-    rotor.chord_p =  2        
-    rotor.chord_q =  1        
-    rotor.chord_t =  0.05*R   
-    rotor.twist_r =  np.pi/6  
-    rotor.twist_p =  1        
-    rotor.twist_q =  0.5      
-    rotor.twist_t =  np.pi/10  
+    rotor.chord_r                          = 0.1*R     
+    rotor.chord_p                          = 1.0       
+    rotor.chord_q                          = 0.5       
+    rotor.chord_t                          = 0.05*R    
+    rotor.twist_r                          = np.pi/6   
+    rotor.twist_p                          = 1.0       
+    rotor.twist_q                          = 0.5       
+    rotor.twist_t                          = np.pi/10   
     
     # start optimization 
-    ti = time.time()    
+    ti = time.time()   
     optimization_problem = rotor_optimization_setup(rotor) 
     if use_pyoptsparse:
         output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
                                                       sense_step= 1E-3) 
     else: 
-        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-3,
-                                         tolerance = 1E-2)
-        
+        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
+                                         tolerance = 1E-3)    
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
-    print('Rotor Optimization Simulation Time: ' + str(elapsed_time))   
+    print('Rotor Optimization Simulation Time: ' + str(elapsed_time))
     
     # print optimization results 
     print (output)  
@@ -144,8 +143,8 @@ def rotor_optimization_setup(rotor):
               nexus    - SUAVE's optimization framework [None]
               
           Assumptions: 
-            1) minimum allowable blade taper : 0.2  
-            1) maximum allowable blade taper : 0.8     
+            1) minimum allowable blade taper : 0.3
+            1) maximum allowable blade taper : 0.7
         
           Source:
              None
@@ -159,7 +158,7 @@ def rotor_optimization_setup(rotor):
     # -------------------------------------------------------------------  
     R      = rotor.tip_radius  
     inputs = []
-    inputs.append([ 'chord_r'    , 0.01*R    , 0.05*R , 0.2*R    , 1.0     ,  1*Units.less])
+    inputs.append([ 'chord_r'    , 0.1*R     , 0.05*R , 0.2*R    , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_p'    , 2         , 0.25   , 2.0      , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_q'    , 1         , 0.25   , 1.5      , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_t'    , 0.05*R    , 0.05*R , 0.2*R    , 1.0     ,  1*Units.less])  
@@ -182,9 +181,9 @@ def rotor_optimization_setup(rotor):
     # -------------------------------------------------------------------  
     constraints = [] 
     constraints.append([ 'thrust_power_residual'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])  
-    constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.3 ,   1.0   , 1*Units.less]) 
-    constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])   
-    constraints.append([ 'max_sectional_cl'         ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])
+    constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.3 ,   1.0   , 1*Units.less])  
+    constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.7 ,   1.0   , 1*Units.less])
+    constraints.append([ 'max_sectional_cl'         ,  '<'  ,  0.7 ,   1.0   , 1*Units.less])
     constraints.append([ 'chord_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])    
     constraints.append([ 'twist_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])   
     problem.constraints =  np.array(constraints,dtype=object)                
@@ -193,14 +192,14 @@ def rotor_optimization_setup(rotor):
     #  Aliases
     # ------------------------------------------------------------------- 
     aliases = []
-    aliases.append([ 'chord_r'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.lift_rotor.chord_r' ])
-    aliases.append([ 'chord_p'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.lift_rotor.chord_p' ])
-    aliases.append([ 'chord_q'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.lift_rotor.chord_q' ])
-    aliases.append([ 'chord_t'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.lift_rotor.chord_t' ]) 
-    aliases.append([ 'twist_r'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.lift_rotor.twist_r' ])
-    aliases.append([ 'twist_p'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.lift_rotor.twist_p' ])
-    aliases.append([ 'twist_q'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.lift_rotor.twist_q' ])
-    aliases.append([ 'twist_t'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.lift_rotor.twist_t' ]) 
+    aliases.append([ 'chord_r'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.chord_r' ])
+    aliases.append([ 'chord_p'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.chord_p' ])
+    aliases.append([ 'chord_q'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.chord_q' ])
+    aliases.append([ 'chord_t'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.chord_t' ]) 
+    aliases.append([ 'twist_r'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.twist_r' ])
+    aliases.append([ 'twist_p'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.twist_p' ])
+    aliases.append([ 'twist_q'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.twist_q' ])
+    aliases.append([ 'twist_t'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.twist_t' ]) 
     aliases.append([ 'Aero_Acoustic_Obj'         , 'summary.Aero_Acoustic_Obj'       ])  
     aliases.append([ 'thrust_power_residual'     , 'summary.thrust_power_residual'   ]) 
     aliases.append([ 'blade_taper_constraint_1'  , 'summary.blade_taper_constraint_1'])  
@@ -262,7 +261,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     V                        = rotor.freestream_velocity  
     alt                      = rotor.design_altitude
     network                  = optimization_problem.vehicle_configurations.hover.networks.battery_propeller
-    rotor_opt                = network.lift_rotors.lift_rotor 
+    rotor_opt                = network.lift_rotors.rotor 
     rotor.chord_distribution = rotor_opt.chord_distribution
     rotor.twist_distribution = rotor_opt.twist_distribution
     c                        = rotor.chord_distribution
@@ -279,13 +278,16 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     ctrl_pts       = 1 
 
     # Run Conditions     
-    theta  = np.array([135])*Units.degrees 
-    S      = np.maximum(alt , 20*Units.feet)  
+    theta  = np.array([90,112.5,135])*Units.degrees + 1E-3
+    S      = np.maximum(alt , 20*Units.feet)  # 10.  
 
     # microphone locations
     positions = np.zeros(( len(theta),3))
     for i in range(len(theta)):
-        positions[i][:] = [0.0 , S*np.sin(theta[i])  ,S*np.cos(theta[i])] 
+        if theta[i]*Units.degrees < np.pi/2:
+            positions[i][:] = [-S*np.cos(theta[i]*Units.degrees)  ,S*np.sin(theta[i]*Units.degrees), 0.0]
+        else: 
+            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0] 
             
     # Set up for Propeller Model
     rotor.inputs.omega                                     = np.atleast_2d(omega).T
@@ -293,10 +295,11 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     conditions.freestream.density                          = np.ones((ctrl_pts,1)) * rho
     conditions.freestream.dynamic_viscosity                = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound                   = np.ones((ctrl_pts,1)) * a 
-    conditions.freestream.temperature                      = np.ones((ctrl_pts,1)) * T  
-    conditions.frames.inertial.velocity_vector             = np.array([[0, 0. ,V]]) 
+    conditions.freestream.temperature                      = np.ones((ctrl_pts,1)) * T 
+    conditions.frames.inertial.velocity_vector             = np.array([[V, 0. ,0.]])
     conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
-    conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])   
+    conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+
     # Run Propeller model 
     thrust , torque, power, Cp  , noise_data , etap        = rotor.spin(conditions)
 
@@ -319,7 +322,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     if rotor.design_power == None: 
         rotor.design_power = power[0][0]
     if rotor.design_thrust == None: 
-        rotor.design_thrust = -thrust[0][2]
+        rotor.design_thrust = thrust[0][0]
         
     design_torque = power[0][0]/omega
     
@@ -332,7 +335,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     airfoil_geometry_data = import_airfoil_geometry(a_geo) 
     t_max = np.take(airfoil_geometry_data.max_thickness,a_loc,axis=0)*c 
     t_c   =  np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)  
-    
+     
     rotor.design_torque              = design_torque
     rotor.max_thickness_distribution = t_max 
     rotor.radius_distribution        = r 
@@ -345,7 +348,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     rotor.design_performance         = noise_data
     rotor.design_acoustics           = propeller_noise
     rotor.blade_solidity             = sigma    
-    rotor.airfoil_flag               = True    
+    rotor.airfoil_flag               = True     
     
     return rotor 
 
@@ -413,8 +416,8 @@ def modify_blade_geometry(nexus):
              None
     """        
     # Pull out the vehicles
-    vehicle = nexus.vehicle_configurations.hover 
-    rotor   = vehicle.networks.battery_propeller.lift_rotors.lift_rotor 
+    vehicle = nexus.vehicle_configurations.hover
+    rotor   = vehicle.networks.battery_propeller.lift_rotors.rotor
     
     # Update geometry of blade
     c       = updated_blade_geometry(rotor.radius_distribution/rotor.tip_radius ,rotor.chord_r,rotor.chord_p,rotor.chord_q,rotor.chord_t)     
@@ -488,7 +491,7 @@ def post_process(nexus):
     # RUN AEROACOUSTICS MODELS
     # -------------------------------------------------------    
     # unpack rotor properties 
-    rotor         = lift_rotors.lift_rotor 
+    rotor         = lift_rotors.rotor 
     c             = rotor.chord_distribution 
     omega         = rotor.angular_velocity 
     V             = rotor.freestream_velocity   
@@ -506,12 +509,15 @@ def post_process(nexus):
     mu             = atmo_data.dynamic_viscosity[0]  
 
     # Define microphone locations
-    theta     = np.array([135])*Units.degrees  
-    S         = np.maximum(alt , 20*Units.feet) 
+    theta     = np.array([45,90,135])*Units.degrees + 1E-3
+    S         = np.maximum(alt , 20*Units.feet)  # 10. 
     ctrl_pts  = 1 
     positions = np.zeros(( len(theta),3))
     for i in range(len(theta)):
-        positions[i][:] = [0.0 , S*np.sin(theta[i])  ,S*np.cos(theta[i])] 
+        if theta[i]*Units.degrees < np.pi/2:
+            positions[i][:] = [-S*np.cos(theta[i]*Units.degrees)  ,S*np.sin(theta[i]*Units.degrees), 0.0]
+        else: 
+            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0] 
 
     # Define run conditions 
     rotor.inputs.omega                               = np.atleast_2d(omega).T
@@ -520,9 +526,9 @@ def post_process(nexus):
     conditions.freestream.dynamic_viscosity          = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound             = np.ones((ctrl_pts,1)) * a 
     conditions.freestream.temperature                = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V]])  
+    conditions.frames.inertial.velocity_vector       = np.array([[V, 0. ,0.]])
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
-    conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
+    conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
 
     # Run Propeller model 
     thrust , torque, power, Cp  , noise_data , etap  = rotor.spin(conditions) 
@@ -541,23 +547,26 @@ def post_process(nexus):
     conditions.noise.number_of_microphones           = num_mic
     
     # Run noise model    
-    if alpha != 1:  
-        try: 
-            propeller_noise  = propeller_mid_fidelity(lift_rotors,noise_data,segment,settings)   
-            Acoustic_Metric  = np.mean(propeller_noise.SPL_dBA) 
-        except:
-            Acoustic_Metric  = 100            
+    if alpha != 1: 
+        propeller_noise  = propeller_mid_fidelity(lift_rotors,noise_data,segment,settings)   
+        mean_SPL         = np.mean(propeller_noise.SPL_dBA) 
+        Acoustic_Metric  = mean_SPL 
     else:
-        Acoustic_Metric  = 0  
+        Acoustic_Metric  = 0 
+        mean_SPL         = 0
    
     # -------------------------------------------------------
     # CONTRAINTS
     # -------------------------------------------------------
     # thrust/power constraint
     if rotor.design_thrust == None:
-        summary.thrust_power_residual = epsilon*rotor.design_power - abs(power[0][0] - rotor.design_power) 
+        summary.thrust_power_residual = epsilon*rotor.design_power - abs(power[0][0] - rotor.design_power)
+        ideal_aero                    = (rotor.design_power/V)
+        Aerodynamic_Metric            = thrust[0][0]
     else: 
-        summary.thrust_power_residual = epsilon*rotor.design_thrust - abs(-thrust[0][2] - rotor.design_thrust) 
+        summary.thrust_power_residual = epsilon*rotor.design_thrust - abs(thrust[0][0] - rotor.design_thrust)
+        ideal_aero                    = rotor.design_thrust*V
+        Aerodynamic_Metric            = power[0][0]     
 
     # q to p ratios 
     summary.chord_p_to_q_ratio = rotor.chord_p/rotor.chord_q
@@ -571,34 +580,41 @@ def post_process(nexus):
     blade_taper = c[-1]/c[0]
     summary.blade_taper_constraint_1  = blade_taper 
     summary.blade_taper_constraint_2  = blade_taper
-    
-    # figure of merit 
+
+    # figure of merit
     C_t_UIUC  = noise_data.thrust_coefficient[0][0]
     C_t_rot   = C_t_UIUC*8/(np.pi**3)
-    C_p_UIUC  = Cp[0][0] 
-    C_q_UIUC  = C_p_UIUC/(2*np.pi) 
-    C_q_rot   = C_q_UIUC*16/(np.pi**3)   
-    C_p_rot   = C_q_rot 
+    C_p_UIUC  = Cp[0][0]
+    C_q_UIUC  = C_p_UIUC/(2*np.pi)
+    C_q_rot   = C_q_UIUC*16/(np.pi**3)
+    C_p_rot   = C_q_rot
     ideal_FM  = 1
     FM        = ((C_t_rot**1.5)/np.sqrt(2))/C_p_rot
     summary.figure_of_merit = FM
+
+
+    # -------------------------------------------------------
+    # OBJECTIVE FUNCTION
+    # -------------------------------------------------------     
+    summary.Aero_Acoustic_Obj =  LA.norm((Aerodynamic_Metric - ideal_aero)/ideal_aero)*alpha \
+                                + LA.norm((Acoustic_Metric - ideal_SPL)/ideal_SPL)*(1-alpha)
     
-    summary.Aero_Acoustic_Obj =  (LA.norm((ideal_FM-FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL))*(1-alpha) )*100
+    #summary.Aero_Acoustic_Obj =  (LA.norm((ideal_FM-FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL))*(1-alpha) )*100
         
     # -------------------------------------------------------
     # PRINT ITERATION PERFOMRMANCE
     # -------------------------------------------------------                
-    print("Aeroacoustic Objective  : " + str(summary.Aero_Acoustic_Obj))     
+    print("Aeroacoustic Objective  : " + str(summary.Aero_Acoustic_Obj))
     print("Aeroacoustic Weight     : " + str(alpha))
     if rotor.design_thrust == None: 
         print("Power                   : " + str(power[0][0])) 
     if rotor.design_power == None: 
-        print("Thrust                  : " + str(-thrust[0][2]))   
-    print("Average SPL             : " + str(Acoustic_Metric))  
+        print("Thrust                  : " + str(thrust[0][0]))   
+    print("Average SPL             : " + str(mean_SPL))  
     print("Thrust/Power Residual   : " + str(summary.thrust_power_residual)) 
     print("Blade Taper             : " + str(blade_taper))
-    print("Figure of Merit         : " + str(summary.figure_of_merit))  
-    print("Max Sectional Cl        : " + str(summary.max_sectional_cl))  
+    print("Figure of Merit         : " + str(summary.figure_of_merit))
+    print("Max Sectional Cl        : " + str(summary.max_sectional_cl))
     print("Blade CL                : " + str(mean_CL))  
     print("\n\n") 
     
