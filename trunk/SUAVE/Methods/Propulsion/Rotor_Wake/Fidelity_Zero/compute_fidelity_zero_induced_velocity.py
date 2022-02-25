@@ -48,14 +48,7 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, props, ctrl_pts, i
         prop_key     = list(props.keys())[idx]
         prop_outputs = props[prop_key].outputs
         R            = prop.tip_radius
-        
-        s  = evaluation_points.XC - prop.origin[0][0]
-        kd = 1 + s/(np.sqrt(s**2 + R**2))    
-
-        # extract radial and azimuthal velocities at blade
-        va = kd*prop_outputs.blade_axial_induced_velocity[0]
-        vt = kd*prop_outputs.blade_tangential_induced_velocity[0]
-        r  = prop_outputs.disc_radial_distribution[0,:,0]
+        r            = prop_outputs.disc_radial_distribution[0,:,0]
         
         # Ignore points within hub or outside tip radius
         hub_y_center = prop.origin[0][1]
@@ -69,23 +62,31 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, props, ctrl_pts, i
         bool_in_range = bool_inboard + bool_outboard
         YC_in_range   = evaluation_points.YC[bool_in_range]
 
+        y_vals  = YC_in_range
+        val_ids = np.where(bool_in_range==True)
+        
+        s  = evaluation_points.XC[val_ids] - prop.origin[0][0]
+        kd = 1 + s/(np.sqrt(s**2 + R**2))    
+
+        # extract radial and azimuthal velocities at blade
+        va = prop_outputs.blade_axial_induced_velocity[0]
+        vt = prop_outputs.blade_tangential_induced_velocity[0]
+        
         
         va_y_range  = np.append(np.flipud(va), va)
         vt_y_range  = np.append(np.flipud(vt), vt)*prop.rotation
         va_interp   = interp1d(prop_y_range, va_y_range)
         vt_interp   = interp1d(prop_y_range, vt_y_range)
         
-        y_vals  = YC_in_range
-        val_ids = np.where(bool_in_range==True)
         
         # preallocate va_new and vt_new
-        va_new = va_interp((y_vals))
+        va_new = kd*va_interp((y_vals))
         vt_new = np.zeros(np.size(val_ids))
         
         # invert inboard vt values
         inboard_bools                = (y_vals < hub_y_center)
-        vt_new[inboard_bools]        = -vt_interp((y_vals[inboard_bools]))
-        vt_new[inboard_bools==False] = vt_interp((y_vals[inboard_bools==False]))
+        vt_new[inboard_bools]        = -kd[inboard_bools]*vt_interp((y_vals[inboard_bools]))
+        vt_new[inboard_bools==False] = kd[inboard_bools==False]*vt_interp((y_vals[inboard_bools==False]))
         
         prop_V_wake_ind[0,val_ids,0] = va_new  # axial induced velocity
         prop_V_wake_ind[0,val_ids,1] = 0       # spanwise induced velocity; in line with prop, so 0

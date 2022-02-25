@@ -8,14 +8,17 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
+from SUAVE.Components import Wings
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.fidelity_one_wake_convergence import fidelity_one_wake_convergence
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
+
 # package imports
 import copy
-
+import numpy as np
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
@@ -153,7 +156,60 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             
         return va, vt
     
-    def evaluate_wake_velocities(self,rotor,network,geometry,conditions,VD,num_ctrl_pts):
+    def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
+        """
+        Evaluates the velocities induced by the rotor on a specified wing of the vehicle.
+        If no wing instance is specified, uses main wing or last available wing in geometry.
+        
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+           self         - rotor wake
+           rotor        - rotor
+           geometry     - vehicle geometry
+           
+        Outputs:
+           wake_V_ind   - induced velocity from rotor wake at (VD.XC, VD.YC, VD.ZC)
+        
+        Properties Used:
+        None
+        """
+        # Check for wing if wing instance is unspecified
+        if wing_instance == None:
+            nmw = 0
+            # check for main wing
+            for i,wing in enumerate(geometry.wings):
+                if not isinstance(wing,Wings.Main_Wing): continue
+                nmw +=1                
+                wing_instance = wing
+                wing_instance_idx = i
+            if nmw == 1:
+                pass
+            elif nmw>1:
+                print("No wing specified for slipstream analysis. Multiple main wings in vehicle, using the last one.")
+            else:
+                print("No wing specified for slipstream analysis. No main wing defined, using the last wing in vehicle.")
+                wing_instance = wing 
+                wing_instance_idx = i
+        
+        # Isolate the VD components corresponding to this wing instance
+        wing_CPs, slipstream_vd_ids = extract_wing_collocation_points(geometry, wing_instance_idx)
+        
+        # Evaluate rotor slipstream effect on specified wing instance
+        rot_V_wake_ind = self.evaluate_wake_velocities(rotor, wing_CPs, ctrl_pts)
+        
+        # Expand
+        wake_V_ind = np.zeros((ctrl_pts,geometry.vortex_distribution.n_cp,3))
+        wake_V_ind[:,slipstream_vd_ids,:] = rot_V_wake_ind
+        
+            
+        return wake_V_ind 
+    
+    def evaluate_wake_velocities(self,rotor,VD,num_ctrl_pts):
         """
         Links the rotor wake to compute the wake-induced velocities at the vortex distribution
         control points.
@@ -167,9 +223,6 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         Inputs:
            self         - rotor wake
            rotor        - rotor
-           network      - propulsion network
-           geometry     - vehicle geometry
-           conditions   - conditions
            VD           - vortex distribution
            num_ctrl_pts - number of analysis control points
            

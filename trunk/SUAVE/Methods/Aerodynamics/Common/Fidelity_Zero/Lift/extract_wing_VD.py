@@ -52,9 +52,10 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
             
         if idx == wing_instance_idx:
             # store the VD corresponding to this wing
-            VD_wing.XC = VD.XC[vd_i : vd_i + wing_cp_size]
-            VD_wing.YC = VD.YC[vd_i : vd_i + wing_cp_size]
-            VD_wing.ZC = VD.ZC[vd_i : vd_i + wing_cp_size]
+            VD_wing.XC   = VD.XC[vd_i : vd_i + wing_cp_size]
+            VD_wing.YC   = VD.YC[vd_i : vd_i + wing_cp_size]
+            VD_wing.ZC   = VD.ZC[vd_i : vd_i + wing_cp_size]
+            VD_wing.n_cp = len(VD_wing.XC)
             
             ids = (np.linspace(vd_i, vd_i+wing_cp_size-1,  wing_cp_size)).astype(int)
                    
