@@ -12,7 +12,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_fidelity_zero_induced_velocity(evaluation_points, ):  
+def compute_fidelity_zero_induced_velocity(evaluation_points, props, identical_flag=False):  
     """ This computes the velocity induced by the fidelity zero wake
     on specified evaluation points.
 
@@ -35,9 +35,10 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, ):
     """
 
     # extract vortex distribution
+    n_cp = len(evaluation_points.XC)
     
     # initialize propeller wake induced velocities
-    prop_V_wake_ind = np.zeros((cpts,VD.n_cp,3))
+    prop_V_wake_ind = np.zeros((1,n_cp,3))
     
     for i,prop in enumerate(props):
         if identical_flag:
@@ -56,6 +57,7 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, ):
         vt = kd*prop_outputs.blade_tangential_induced_velocity[0]
         r  = prop_outputs.disc_radial_distribution[0,:,0]
         
+        # Ignore points within hub or outside tip radius
         hub_y_center = prop.origin[0][1]
         inboard_r    = np.flip(hub_y_center - r) 
         outboard_r   = hub_y_center + r 
@@ -66,6 +68,7 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, ):
         bool_outboard = ( evaluation_points.YC > outboard_r[0] ) * ( evaluation_points.YC < outboard_r[-1] )
         bool_in_range = bool_inboard + bool_outboard
         YC_in_range   = evaluation_points.YC[bool_in_range]
+
         
         va_y_range  = np.append(np.flipud(va), va)
         vt_y_range  = np.append(np.flipud(vt), vt)*prop.rotation

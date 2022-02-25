@@ -94,7 +94,7 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                 prop_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
                 
                 for p in props:
-                    prop_V_wake_ind += p.Wake.evaluate_wake_velocities(p,network,geometry,conditions,VD,num_ctrl_pts)
+                    prop_V_wake_ind += p.Wake.evaluate_slipstream(p,geometry)
                     
                     
             if 'lift_rotors' in network.keys(): 
@@ -103,7 +103,7 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                 rot_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
                 
                 for r in rots:
-                    rot_V_wake_ind += r.Wake.evaluate_wake_velocities(r,network,geometry,conditions,VD,num_ctrl_pts)
+                    rot_V_wake_ind += r.Wake.evaluate_slipstream(r,geometry)
                     
                     
             # update the total induced velocity distribution
