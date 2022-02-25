@@ -12,7 +12,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_fidelity_zero_induced_velocity(evaluation_points, props, identical_flag=False):  
+def compute_fidelity_zero_induced_velocity(evaluation_points, props, ctrl_pts, identical_flag=False):  
     """ This computes the velocity induced by the fidelity zero wake
     on specified evaluation points.
 
@@ -38,7 +38,7 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, props, identical_f
     n_cp = len(evaluation_points.XC)
     
     # initialize propeller wake induced velocities
-    prop_V_wake_ind = np.zeros((1,n_cp,3))
+    prop_V_wake_ind = np.zeros((ctrl_pts,n_cp,3))
     
     for i,prop in enumerate(props):
         if identical_flag:
