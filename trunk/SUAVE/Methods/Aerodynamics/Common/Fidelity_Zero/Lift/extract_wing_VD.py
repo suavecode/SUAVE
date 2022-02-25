@@ -61,9 +61,6 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
                    
         vd_i += wing_cp_size
         
-    # extract VD elements for vd_ele
-
-    
 
     return VD_wing, ids
 
