@@ -132,7 +132,7 @@ def write_run_cases(avl_object,trim_aircraft):
                 if case.stability_and_control.number_control_surfaces != 0 :
                     # write control surface text in .run file if there is any
                     controls = make_controls_case_text(case.stability_and_control.control_surface_names,avl_object.geometry)
-                controls_text = ''.join(controls)
+                    controls_text = ''.join(controls)
  
             elif trim_aircraft: # trim is specified  
                 if CL is not None:  # if flight lift coefficient is specified with trim, the appropriate fields are filled with the trim CL

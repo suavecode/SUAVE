@@ -22,7 +22,7 @@ from .aero_coeff      import aero_coeff
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
 def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis = True, airfoil_stations = [0],
-                     initial_momentum_thickness=1E-5):
+                     initial_momentum_thickness=1E-5,tolerance = 1E0):
     """This computes the aerodynamic polars as well as the boundary layer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
 
@@ -135,7 +135,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis =
     L_BOT                          = X_BOT[-1,:,:]    
         
     # laminar boundary layer properties using thwaites method 
-    BOT_T_RESULTS  = thwaites_method(npanel,nalpha,nRe, L_BOT , RE_L_VALS, X_BOT, VE_BOT, DVE_BOT,batch_analysis,
+    BOT_T_RESULTS  = thwaites_method(npanel,nalpha,nRe, L_BOT , RE_L_VALS, X_BOT, VE_BOT, DVE_BOT,batch_analysis,tolerance,
                                      THETA_0=initial_momentum_thickness) 
     X_T_BOT          = BOT_T_RESULTS.X_T      
     THETA_T_BOT      = BOT_T_RESULTS.THETA_T     
@@ -165,7 +165,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis =
     
     # turbulent boundary layer properties using heads method 
     BOT_H_RESULTS     = heads_method(npanel,nalpha,nRe,DELTA_TR_BOT ,THETA_TR_BOT , DELTA_STAR_TR_BOT,
-                                   TURBULENT_SURF, RE_L_VALS,TURBULENT_COORD, VE_BOT, DVE_BOT, batch_analysis)
+                                   TURBULENT_SURF, RE_L_VALS,TURBULENT_COORD, VE_BOT, DVE_BOT, batch_analysis,tolerance)
     
     X_H_BOT          = BOT_H_RESULTS.X_H      
     THETA_H_BOT      = BOT_H_RESULTS.THETA_H   
@@ -276,7 +276,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis =
     L_TOP                          = X_TOP[-1,:,:]    
 
     # laminar boundary layer properties using thwaites method 
-    TOP_T_RESULTS    = thwaites_method(npanel,nalpha,nRe, L_TOP , RE_L_VALS,X_TOP,VE_TOP, DVE_TOP,batch_analysis,
+    TOP_T_RESULTS    = thwaites_method(npanel,nalpha,nRe, L_TOP , RE_L_VALS,X_TOP,VE_TOP, DVE_TOP,batch_analysis,tolerance,
                                      THETA_0=initial_momentum_thickness) 
     X_T_TOP          = TOP_T_RESULTS.X_T      
     THETA_T_TOP      = TOP_T_RESULTS.THETA_T     
@@ -306,7 +306,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis =
 
     # turbulent boundary layer properties using heads method 
     TOP_H_RESULTS     = heads_method(npanel,nalpha,nRe,DELTA_TR_TOP ,THETA_TR_TOP , DELTA_STAR_TR_TOP,
-                                   TURBULENT_SURF, RE_L_VALS,TURBULENT_COORD, VE_TOP, DVE_TOP, batch_analysis)
+                                   TURBULENT_SURF, RE_L_VALS,TURBULENT_COORD, VE_TOP, DVE_TOP, batch_analysis,tolerance)
 
     X_H_TOP          = TOP_H_RESULTS.X_H      
     THETA_H_TOP      = TOP_H_RESULTS.THETA_H   
@@ -477,21 +477,21 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis =
         Cl         = AERO_RES_BL.Cl,
         Cd         = AERO_RES_BL.Cd,
         Cm         = AERO_RES_BL.Cm,  
-        normals    = normals,
-        x          = X,
-        y          = Y,        
-        x_bl       = X_BL,
-        y_bl       = Y_BL,
-        Cp         = CP_BL,         
-        Ue_Vinf    = VE,         
-        dVe        = DVE,   
-        theta      = THETA,      
-        delta_star = DELTA_STAR, 
-        delta      = DELTA,
-        Re_theta   = RE_THETA,
-        Re_x       = RE_X,
-        H          = H,               
-        Cf         = CF,          
+        normals    = np.transpose(normals,(2,3,0,1)),
+        x          = np.transpose(X,(1,2,0)),
+        y          = np.transpose(Y,(1,2,0)),
+        x_bl       = np.transpose(X_BL ,(1,2,0)),
+        y_bl       = np.transpose(Y_BL ,(1,2,0)),
+        Cp         = np.transpose(CP_BL,(1,2,0)),         
+        Ue_Vinf    = np.transpose(VE   ,(1,2,0)),         
+        dVe        = np.transpose(DVE  ,(1,2,0)),   
+        theta      = np.transpose(THETA,(1,2,0)),      
+        delta_star = np.transpose(DELTA_STAR,(1,2,0)),  
+        delta      = np.transpose(DELTA,(1,2,0)),  
+        Re_theta   = np.transpose(RE_THETA,(1,2,0)),  
+        Re_x       = np.transpose(RE_X,(1,2,0)),  
+        H          = np.transpose(H,(1,2,0)),            
+        Cf         = np.transpose(CF,(1,2,0)),    
         )  
     
     if batch_analysis:
@@ -567,24 +567,24 @@ def extract_values(AP):
     Properties Used:
     N/A  
     '''
-    AP.Cl         = np.atleast_2d(np.diagonal(AP.Cl,axis1 = 0, axis2 = 1)).T
-    AP.Cd         = np.atleast_2d(np.diagonal(AP.Cd,axis1 = 0, axis2 = 1)).T
-    AP.Cm         = np.atleast_2d(np.diagonal(AP.Cm,axis1 = 0, axis2 = 1)).T
-    AP.normals    = np.atleast_2d(np.diagonal(AP.normals,axis1 = 2, axis2 = 3)) 
-    AP.x          = np.atleast_2d(np.diagonal(AP.x,axis1 = 1, axis2 = 2)).T
-    AP.y          = np.atleast_2d(np.diagonal(AP.y,axis1 = 1, axis2 = 2)).T
-    AP.x_bl       = np.atleast_2d(np.diagonal(AP.x_bl,axis1 = 1, axis2 = 2)).T
-    AP.y_bl       = np.atleast_2d(np.diagonal(AP.y_bl,axis1 = 1, axis2 = 2)).T
-    AP.Cp         = np.atleast_2d(np.diagonal(AP.Cp,axis1 = 1, axis2 = 2)).T        
-    AP.Ue_Vinf    = np.atleast_2d(np.diagonal(AP.Ue_Vinf,axis1 = 1, axis2 = 2)).T        
-    AP.dVe        = np.atleast_2d(np.diagonal(AP.dVe,axis1 = 1, axis2 = 2)).T   
-    AP.theta      = np.atleast_2d(np.diagonal(AP.theta,axis1 = 1, axis2 = 2)).T      
-    AP.delta_star = np.atleast_2d(np.diagonal(AP.delta_star,axis1 = 1, axis2 = 2)).T
-    AP.delta      = np.atleast_2d(np.diagonal(AP.delta,axis1 = 1, axis2 = 2)).T
-    AP.Re_theta   = np.atleast_2d(np.diagonal(AP.Re_theta,axis1 = 1, axis2 = 2)).T
-    AP.Re_x       = np.atleast_2d(np.diagonal(AP.Re_x,axis1 = 1, axis2 = 2)).T
-    AP.H          = np.atleast_2d(np.diagonal(AP.H,axis1 = 1, axis2 = 2)).T               
-    AP.Cf         = np.atleast_2d(np.diagonal(AP.Cf,axis1 = 1, axis2 = 2)).T
+    AP.Cl         = np.atleast_2d(np.diagonal(AP.Cl,axis1 = 0, axis2 = 1 )).T
+    AP.Cd         = np.atleast_2d(np.diagonal(AP.Cd,axis1 = 0, axis2 = 1 )).T
+    AP.Cm         = np.atleast_2d(np.diagonal(AP.Cm,axis1 = 0, axis2 = 1 )).T
+    AP.normals    = np.atleast_2d(np.diagonal(AP.normals,axis1 = 0, axis2 = 1)).T
+    AP.x          = np.atleast_2d(np.diagonal(AP.x,axis1 = 0, axis2 = 1)).T
+    AP.y          = np.atleast_2d(np.diagonal(AP.y,axis1 = 0, axis2 = 1)).T
+    AP.x_bl       = np.atleast_2d(np.diagonal(AP.x_bl,axis1 = 0, axis2 = 1)).T
+    AP.y_bl       = np.atleast_2d(np.diagonal(AP.y_bl,axis1 = 0, axis2 = 1)).T
+    AP.Cp         = np.atleast_2d(np.diagonal(AP.Cp,axis1 = 0, axis2 = 1)).T      
+    AP.Ue_Vinf    = np.atleast_2d(np.diagonal(AP.Ue_Vinf,axis1 = 0, axis2 = 1)).T       
+    AP.dVe        = np.atleast_2d(np.diagonal(AP.dVe,axis1 = 0, axis2 = 1)).T 
+    AP.theta      = np.atleast_2d(np.diagonal(AP.theta,axis1 = 0, axis2 = 1)).T     
+    AP.delta_star = np.atleast_2d(np.diagonal(AP.delta_star,axis1 = 0, axis2 = 1)).T
+    AP.delta      = np.atleast_2d(np.diagonal(AP.delta,axis1 = 0, axis2 = 1)).T
+    AP.Re_theta   = np.atleast_2d(np.diagonal(AP.Re_theta,axis1 = 0, axis2 = 1)).T
+    AP.Re_x       = np.atleast_2d(np.diagonal(AP.Re_x,axis1 = 0, axis2 = 1)).T
+    AP.H          = np.atleast_2d(np.diagonal(AP.H,axis1 = 0, axis2 = 1)).T             
+    AP.Cf         = np.atleast_2d(np.diagonal(AP.Cf,axis1 = 0, axis2 = 1)).T
     
     return AP
     

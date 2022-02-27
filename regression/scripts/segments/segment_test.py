@@ -590,6 +590,7 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.landing )
     segment.velocity_start           = 150 * Units.knots
     segment.velocity_end             = 100 * Units.knots
+    segment.state.unknowns.time      = 30.
     segment.friction_coefficient     = 0.4
     segment.altitude                 = 0.0
 
