@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_bemt_induced_velocity.py
+# compute_bevw_induced_velocity.py
 # 
 # Created:  Jun 2021, R. Erhard 
 
@@ -13,8 +13,8 @@ from scipy.interpolate import interp1d
 from SUAVE.Components import Wings
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_bemt_induced_velocity(props,geometry,cpts,conditions,identical_flag,wing_instance=None):  
-    """ This computes the velocity induced by the BEMT wake
+def compute_bevw_induced_velocity(props,geometry,cpts,conditions,identical_flag,wing_instance=None):  
+    """ This computes the velocity induced by the BEVW wake
     on lifting surface control points
 
     Assumptions:  
@@ -43,7 +43,7 @@ def compute_bemt_induced_velocity(props,geometry,cpts,conditions,identical_flag,
         else:
             idx = i
         prop_key     = list(props.keys())[idx]
-        prop_outputs = conditions.noise.sources.propellers[prop_key]
+        prop_outputs = props[prop_key].outputs
         R            = prop.tip_radius
         
         # contraction factor by McCormick
@@ -55,11 +55,12 @@ def compute_bemt_induced_velocity(props,geometry,cpts,conditions,identical_flag,
                 s  = wing.origin[0][0] - prop.origin[0][0]
                 kd = 1 + s/(np.sqrt(s**2 + R**2))
             if nmw ==1:
-                print("No wing specified for wake analysis in compute_bemt_induced_velocity. Main wing is used.")
+                pass
+                #print("No wing specified for wake analysis in compute_bevw_induced_velocity. Main wing is used.")
             elif nmw>1:
-                print("No wing specified for wake analysis in compute_bemt_induced_velocity. Multiple main wings, using the last one.")
+                print("No wing specified for wake analysis in compute_bevw_induced_velocity. Multiple main wings, using the last one.")
             else:
-                print("No wing specified for wake analysis in compute_bemt_induced_velocity. No main_wing defined! Using last wing found.")
+                print("No wing specified for wake analysis in compute_bevw_induced_velocity. No main_wing defined! Using last wing found.")
                 s  = wing.origin[0][0] - prop.origin[0][0]
                 kd = 1 + s/(np.sqrt(s**2 + R**2))            
                     
@@ -73,15 +74,14 @@ def compute_bemt_induced_velocity(props,geometry,cpts,conditions,identical_flag,
         r  = prop_outputs.disc_radial_distribution[0,:,0]
         
         hub_y_center = prop.origin[0][1]
-        prop_y_min   = hub_y_center - r[-1]
-        prop_y_max   = hub_y_center + r[-1]
-        
-        ir = prop_y_min+r
-        ro = np.flipud(prop_y_max-r)
-        prop_y_range = np.append(ir, ro)
+        inboard_r    = np.flip(hub_y_center - r) 
+        outboard_r   = hub_y_center + r 
+        prop_y_range = np.append(inboard_r, outboard_r)
     
         # within this range, add an induced x- and z- velocity from propeller wake
-        bool_in_range = (abs(VD.YC)>ir[0])*(abs(VD.YC)<ro[-1])
+        bool_inboard  = ( VD.YC > inboard_r[0] )  * ( VD.YC < inboard_r[-1] )
+        bool_outboard = ( VD.YC > outboard_r[0] ) * ( VD.YC < outboard_r[-1] )
+        bool_in_range = bool_inboard + bool_outboard
         YC_in_range   = VD.YC[bool_in_range]
         
         va_y_range  = np.append(np.flipud(va), va)
@@ -91,26 +91,20 @@ def compute_bemt_induced_velocity(props,geometry,cpts,conditions,identical_flag,
         
         y_vals  = YC_in_range
         val_ids = np.where(bool_in_range==True)
-    
-        # check if y values are inboard of propeller axis
-        inboard_bools = abs(y_vals)<hub_y_center
         
         # preallocate va_new and vt_new
-        va_new = np.zeros(np.size(val_ids))
+        va_new = va_interp((y_vals))
         vt_new = np.zeros(np.size(val_ids))
-    
-        # take absolute y values (symmetry)
-        va_new = va_interp(abs(y_vals))
         
-        # inboard vt values
-        vt_new[inboard_bools]        = -vt_interp(abs(y_vals[inboard_bools]))
-        vt_new[inboard_bools==False] = vt_interp(abs(y_vals[inboard_bools==False]))
+        # invert inboard vt values
+        inboard_bools                = (y_vals < hub_y_center)
+        vt_new[inboard_bools]        = -vt_interp((y_vals[inboard_bools]))
+        vt_new[inboard_bools==False] = vt_interp((y_vals[inboard_bools==False]))
         
         prop_V_wake_ind[0,val_ids,0] = va_new  # axial induced velocity
         prop_V_wake_ind[0,val_ids,1] = 0       # spanwise induced velocity; in line with prop, so 0
-        prop_V_wake_ind[0,val_ids,2] = vt_new  # vertical induced velocity      
-    
-       
+        prop_V_wake_ind[0,val_ids,2] = vt_new  # vertical induced velocity     
+        
     return prop_V_wake_ind
   
   
