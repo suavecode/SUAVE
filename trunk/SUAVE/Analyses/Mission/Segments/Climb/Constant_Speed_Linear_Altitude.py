@@ -63,8 +63,9 @@ class Constant_Speed_Linear_Altitude(Aerodynamic):
         self.altitude        = None
         self.air_speed       = 10. * Units['km/hr']
         self.distance        = 10. * Units.km
-        self.altitude_start = None
-        self.altitude_end   = None
+        self.altitude_start  = None
+        self.altitude_end    = None
+        self.true_course     = 0.0 * Units.degrees    
         
         
         # --------------------------------------------------------------

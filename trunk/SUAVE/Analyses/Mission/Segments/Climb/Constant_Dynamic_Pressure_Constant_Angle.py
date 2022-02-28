@@ -58,6 +58,7 @@ class Constant_Dynamic_Pressure_Constant_Angle(Unknown_Throttle):
         self.altitude_end     = 10.  * Units.km
         self.climb_angle      = 3.   * Units.degrees
         self.dynamic_pressure = 1600 * Units.pascals
+        self.true_course      = 0.0 * Units.degrees
         
         # --------------------------------------------------------------
         #   State
