@@ -33,7 +33,7 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 # ----------------------------------------------------------------------
 
 ## @ingroup Input_Output-OpenVSP
-def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True): 	
+def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling=True): 	
     """This reads an OpenVSP wing vehicle geometry and writes it into a SUAVE wing format.
 
     Assumptions:
@@ -46,6 +46,8 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     Inputs:
     1. VSP 10-digit geom ID for wing.
     2. units_type set to 'SI' (default) or 'Imperial'.
+    3. Boolean for whether or not to write an airfoil file(default = True).
+    4. Boolean for whether or not to use the scaling from OpenVSP (default = True).
 
     Outputs:
     Writes SUAVE wing object, with these geometries, from VSP:
@@ -110,9 +112,12 @@ def read_vsp_wing(wing_id, units_type='SI',write_airfoil_file=True):
     else: 
         wing.tag = 'winggeom'
     
-    scaling           = vsp.GetParmVal(wing_id, 'Scale', 'XForm')  
+    if use_scaling:
+        scaling       = vsp.GetParmVal(fuselage_id, 'Scale', 'XForm')  
+    else:
+        scaling       = 1.
     units_factor      = units_factor*scaling
-        
+    
     # Top level wing parameters
     # Wing origin
     wing.origin[0][0] = vsp.GetParmVal(wing_id, 'X_Location', 'XForm') * units_factor 
@@ -594,18 +599,36 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
             vsp.InsertXSec(wing_id,i_segs-1+adjust,vsp.XS_FOUR_SERIES)
 
         # Set the parms
-        vsp.SetParmVal( wing_id,'Span',x_secs[i_segs+adjust],span_i)
-        vsp.SetParmVal( wing_id,'Dihedral',x_secs[i_segs+adjust],dihedral_i)
-        vsp.SetParmVal( wing_id,'Sweep',x_secs[i_segs+adjust],sweep_i)
-        vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[i_segs+adjust],sweep_loc)      
-        vsp.SetParmVal( wing_id,'Root_Chord',x_secs[i_segs+adjust],chord_i)
+        
+        
+        # Find the id
+        x_sec_id  = vsp.GetXSec(vsp.GetXSecSurf(wing_id, 0),i_segs+adjust)
+        
+        # Find the parm strings
+        span_parm    = vsp.GetXSecParm(x_sec_id, 'Span')
+        dih_parm     = vsp.GetXSecParm(x_sec_id, 'Dihedral')
+        sweep_parm   = vsp.GetXSecParm(x_sec_id, 'Sweep')
+        swp_loc_parm = vsp.GetXSecParm(x_sec_id, 'Sweep_Location')        
+        rt_ch_parm   = vsp.GetXSecParm(x_sec_id, 'Root_Chord')    
+        tc_parm      = vsp.GetXSecParm(x_sec_id, 'ThickChord')
+        
+        # Set the parm values
+        vsp.SetParmVal(span_parm, span_i)
+        vsp.SetParmVal(dih_parm, dihedral_i)
+        vsp.SetParmVal(sweep_parm, sweep_i)
+        vsp.SetParmVal(swp_loc_parm, sweep_loc)
+        vsp.SetParmVal(rt_ch_parm, chord_i)
+        vsp.SetParmVal(tc_parm, tc_i)
+
         if not no_twist_flag:
-            vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs+adjust],twist_i)
-        vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+adjust],tc_i)
+            twist_parm    = vsp.GetXSecParm(x_sec_id, 'Twist')
+            vsp.SetParmVal(twist_parm,twist_i)
 
         if adjust and (i_segs == 1):
             vsp.Update()
-            vsp.SetParmVal( wing_id,'Twist',x_secs[1],wing.Segments[i_segs-1].twist / Units.deg)
+            x_sec_id = vsp.GetXSec(vsp.GetXSecSurf(wing_id, 0),1)
+            twist_parm    = vsp.GetXSecParm(x_sec_id, 'Twist')
+            vsp.SetParmVal(twist_parm,wing.Segments[i_segs-1].twist / Units.deg)
 
         vsp.Update()
 

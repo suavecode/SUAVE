@@ -254,7 +254,7 @@ def vehicle_setup():
     # Appending rotors with different origins
     origins                 = [[ 0.,2.,1.4],[ 0.0,-2.,1.4],
                                 [2.5,4.,1.4] ,[2.5,-4.,1.4],
-                                [5.0,2.,1.4] ,[5.0,-2.,1.4]] 
+                                [5.0,2.,1.4] ,[5.0,-2.,1.4]]  
     
     for ii in range(6):
         lift_rotor          = deepcopy(lift_rotor)
