@@ -118,8 +118,8 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
         output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
                                                       sense_step= 1E-3) 
     else: 
-        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-3,
-                                         tolerance = 1E-2)
+        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
+                                         tolerance = 1E-3)
         
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
@@ -556,8 +556,12 @@ def post_process(nexus):
     # thrust/power constraint
     if rotor.design_thrust == None:
         summary.thrust_power_residual = epsilon*rotor.design_power - abs(power[0][0] - rotor.design_power) 
+        ideal_aero                    = (rotor.design_power/V)
+        Aerodynamic_Metric            = thrust[0][0]
     else: 
         summary.thrust_power_residual = epsilon*rotor.design_thrust - abs(-thrust[0][2] - rotor.design_thrust) 
+        ideal_aero                    = rotor.design_thrust*V
+        Aerodynamic_Metric            = power[0][0]     
 
     # q to p ratios 
     summary.chord_p_to_q_ratio = rotor.chord_p/rotor.chord_q
@@ -583,8 +587,12 @@ def post_process(nexus):
     FM        = ((C_t_rot**1.5)/np.sqrt(2))/C_p_rot
     summary.figure_of_merit = FM
     
-    summary.Aero_Acoustic_Obj =  (LA.norm((ideal_FM-FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL))*(1-alpha) )*100
+    #summary.Aero_Acoustic_Obj =  (LA.norm((ideal_FM-FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL))*(1-alpha) )*100
         
+
+    summary.Aero_Acoustic_Obj =  LA.norm((Aerodynamic_Metric - ideal_aero)/ideal_aero)*alpha \
+                                + LA.norm((Acoustic_Metric - ideal_SPL)/ideal_SPL)*(1-alpha)
+    
     # -------------------------------------------------------
     # PRINT ITERATION PERFOMRMANCE
     # -------------------------------------------------------                

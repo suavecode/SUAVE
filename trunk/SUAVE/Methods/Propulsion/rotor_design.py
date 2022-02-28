@@ -287,19 +287,18 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
         if theta[i]*Units.degrees < np.pi/2:
             positions[i][:] = [-S*np.cos(theta[i]*Units.degrees)  ,S*np.sin(theta[i]*Units.degrees), 0.0]
         else: 
-            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0] 
-            
+            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0]  
+
     # Set up for Propeller Model
     rotor.inputs.omega                                     = np.atleast_2d(omega).T
     conditions                                             = Aerodynamics()   
     conditions.freestream.density                          = np.ones((ctrl_pts,1)) * rho
     conditions.freestream.dynamic_viscosity                = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound                   = np.ones((ctrl_pts,1)) * a 
-    conditions.freestream.temperature                      = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector             = np.array([[V, 0. ,0.]])
+    conditions.freestream.temperature                      = np.ones((ctrl_pts,1)) * T  
+    conditions.frames.inertial.velocity_vector             = np.array([[0, 0. ,V]]) 
     conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
-    conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
-
+    conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])   
     # Run Propeller model 
     thrust , torque, power, Cp  , noise_data , etap        = rotor.spin(conditions)
 
@@ -318,24 +317,24 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
 
     propeller_noise   = propeller_mid_fidelity(network.lift_rotors,noise_data,segment,settings)   
     mean_SPL          =  np.mean(propeller_noise.SPL_dBA) 
-    
+
     if rotor.design_power == None: 
         rotor.design_power = power[0][0]
     if rotor.design_thrust == None: 
-        rotor.design_thrust = thrust[0][0]
-        
+        rotor.design_thrust = -thrust[0][2]
+
     design_torque = power[0][0]/omega
-    
+
     # blade solidity
     r          = chi*R                    # Radial coordinate   
     blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
     sigma      = blade_area[-1]/(np.pi*R**2)   
-    
+
     MCA    = c/4. - c[0]/4.
     airfoil_geometry_data = import_airfoil_geometry(a_geo) 
     t_max = np.take(airfoil_geometry_data.max_thickness,a_loc,axis=0)*c 
     t_c   =  np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)  
-    
+
     rotor.design_torque              = design_torque
     rotor.max_thickness_distribution = t_max 
     rotor.radius_distribution        = r 
@@ -345,9 +344,11 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     rotor.mid_chord_alignment        = MCA
     rotor.thickness_to_chord         = t_c 
     rotor.design_SPL_dBA             = mean_SPL
-    rotor.blade_solidity             = sigma   
+    rotor.design_performance         = noise_data
+    rotor.design_acoustics           = propeller_noise
+    rotor.blade_solidity             = sigma    
     rotor.airfoil_flag               = True    
-    
+
     return rotor 
 
 def rotor_blade_setup(rotor): 
