@@ -69,6 +69,7 @@ class Basic(Conditions):
         self.frames.inertial.gravity_force_vector = ones_3col * 0
         self.frames.inertial.total_force_vector   = ones_3col * 0
         self.frames.inertial.time                 = ones_1col * 0
+        self.frames.inertial.aircraft_range       = ones_1col * 0
         
         # body conditions
         self.frames.body = Conditions()        

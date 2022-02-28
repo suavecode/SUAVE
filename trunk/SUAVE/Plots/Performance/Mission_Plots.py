@@ -804,14 +804,12 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
+     
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         airspeed = segment.conditions.freestream.velocity[:,0] /   Units['mph']  
-        theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg
-        
-        x        = segment.conditions.frames.inertial.position_vector[:,0]/ Units.nmi
-        y        = segment.conditions.frames.inertial.position_vector[:,1]
-        z        = segment.conditions.frames.inertial.position_vector[:,2]
+        theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg 
+        Range    = segment.conditions.frames.inertial.aircraft_range[:,0]/ Units.nmi 
         altitude = segment.conditions.freestream.altitude[:,0]/Units.feet
         
         axes = plt.subplot(2,2,1)
@@ -831,7 +829,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         set_axes(axes)   
         
         axes = plt.subplot(2,2,4)
-        axes.plot( time , x, 'bo-')
+        axes.plot( time , Range, 'bo-')
         axes.set_ylabel('Range (nmi)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)         
@@ -842,6 +840,77 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         
     return
 
+# ------------------------------------------------------------------
+#  Aircraft Trajectory
+# ------------------------------------------------------------------
+## @ingroup Plots
+def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Flight_Trajectory", file_type = ".png"):
+    """This plots the 3D flight trajectory of the aircraft.
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.
+         frames 
+             body.inertial_rotations
+             inertial.position_vector 
+         freestream.velocity
+         aerodynamics.
+             lift_coefficient
+             drag_coefficient
+             angle_of_attack
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	    
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(12, 10)
+     
+    for segment in results.segments.values(): 
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
+        x        = segment.conditions.frames.inertial.position_vector[:,0] 
+        y        = segment.conditions.frames.inertial.position_vector[:,1] 
+        z        = -segment.conditions.frames.inertial.position_vector[:,2] 
+        
+        axes = plt.subplot(2,2,1)
+        axes.plot( time , x , line_color )
+        axes.plot( time , y , line_color2 ) 
+        axes.set_xlabel('Distance (m)',axis_font)
+        axes.set_xlabel('Time (min)',axis_font)
+        set_axes(axes)            
+
+        axes = plt.subplot(2,2,2)
+        axes.plot(x, y , line_color)
+        axes.set_xlabel('x (m)',axis_font)
+        axes.set_ylabel('y (m)',axis_font)
+        set_axes(axes)
+
+        axes = plt.subplot(2,2,3)
+        axes.plot( time , z, line_color )
+        axes.set_ylabel('z (m)',axis_font)
+        axes.set_xlabel('Time (min)',axis_font)
+        set_axes(axes)   
+        
+        axes = plt.subplot(2,2,4, projection='3d') 
+        axes.scatter(x, y, z, marker='o',color = 'k')
+        axes.set_xlabel('x',axis_font)
+        axes.set_ylabel('y',axis_font)
+        axes.set_zlabel('z',axis_font) 
+        set_axes(axes)         
+    
+    plt.tight_layout()    
+    if save_figure:
+        plt.savefig(save_filename + file_type)
+        
+    return
 # ------------------------------------------------------------------
 #   Propulsion Conditions
 # ------------------------------------------------------------------
