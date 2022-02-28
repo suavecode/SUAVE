@@ -845,7 +845,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 # ------------------------------------------------------------------
 ## @ingroup Plots
 def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Flight_Trajectory", file_type = ".png"):
-    """This plots the flights the conditions 
+    """This plots the 3D flight trajectory of the aircraft.
 
     Assumptions:
     None

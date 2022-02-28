@@ -37,9 +37,9 @@ def initialize_from_circuit_configuration(battery,module_weight_factor = 1.42):
                           
     Outputs:              
      battery.             
-       max_energy         [joules]
+       max_energy         [watt-hours]
        max_power          [watts]
-       initial_max_energy [joules]
+       initial_max_energy [watt-hours]
        specific_energy    [watt-hours/kilogram]
        charging_voltage   [volts]
        charging_current   [amps]
@@ -50,8 +50,8 @@ def initialize_from_circuit_configuration(battery,module_weight_factor = 1.42):
     nominal_voltage              = battery.cell.nominal_voltage       
     total_battery_assemply_mass  = battery.cell.mass * battery.pack_config.series * battery.pack_config.parallel   
     battery.mass_properties.mass = total_battery_assemply_mass*module_weight_factor  
-    battery.specific_energy      = (amp_hour_rating*nominal_voltage)/battery.cell.mass   
-    battery.max_energy           = total_battery_assemply_mass*battery.specific_energy*(Units.Wh/Units.kg)      
+    battery.specific_energy      = (amp_hour_rating*nominal_voltage)/battery.cell.mass  * Units.Wh/Units.kg   
+    battery.max_energy           = total_battery_assemply_mass*battery.specific_energy    
     battery.specific_power       = battery.specific_energy/battery.cell.nominal_capacity 
     battery.max_power            = battery.specific_power*battery.mass_properties.mass  
     battery.max_voltage          = battery.cell.max_voltage  * battery.pack_config.series   
