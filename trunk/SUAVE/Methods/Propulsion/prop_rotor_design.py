@@ -663,8 +663,8 @@ def post_process(nexus):
         
 
     # Run Conditions     
-    theta  = np.array([90,112.5,135])*Units.degrees + 1E-1
-    S      = 10.  
+    theta     = np.array([90,112.5,135])*Units.degrees + 1E-1
+    S         = 10.  
     ctrl_pts  = 1 
     # microphone locations
     positions = np.zeros(( len(theta),3))
