@@ -32,7 +32,7 @@ def initialize_from_circuit_configuration(battery,module_weight_factor = 1.42):
     battery.cell
       nominal_capacity    [amp-hours]            
       nominal_voltage     [volts]
-      pack_config       [unitless]
+      pack_config         [unitless]
       mass                [kilograms]
                           
     Outputs:              
