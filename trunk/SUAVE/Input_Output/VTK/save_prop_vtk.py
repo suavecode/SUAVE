@@ -323,7 +323,6 @@ def generate_lofted_propeller_points(prop):
     beta   = prop.twist_distribution
     b      = prop.chord_distribution
     r      = prop.radius_distribution
-    MCA    = prop.mid_chord_alignment
     t      = prop.max_thickness_distribution
     origin = prop.origin
     
@@ -339,7 +338,7 @@ def generate_lofted_propeller_points(prop):
         a_o = prop.start_angle
 
     n_r       = len(b)                               # number radial points
-    n_a_loft  = prop.number_points_around_airfoil    # number points around airfoil
+    n_a_loft  = prop.vtk_airfoil_points              # number points around airfoil
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]  # azimuthal stations
 
     # create empty data structure for storing propeller geometries
@@ -350,7 +349,6 @@ def generate_lofted_propeller_points(prop):
     flip_1      = (np.pi/2)
     flip_2      = (np.pi/2)
 
-    MCA_2d = np.repeat(np.atleast_2d(MCA).T,n_a_loft,axis=1)
     b_2d   = np.repeat(np.atleast_2d(b).T  ,n_a_loft,axis=1)
     t_2d   = np.repeat(np.atleast_2d(t).T  ,n_a_loft,axis=1)
     r_2d   = np.repeat(np.atleast_2d(r).T  ,n_a_loft,axis=1)
@@ -378,7 +376,7 @@ def generate_lofted_propeller_points(prop):
         max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_a_loft,axis=1)
 
         airfoil_le_offset = ( - np.repeat(b[:,None], n_a_loft, axis=1)/2 ) # no sweep
-        xp      = (- MCA_2d + xpts*b_2d + airfoil_le_offset)  # x coord of airfoil
+        xp      = (xpts*b_2d + airfoil_le_offset)  # x coord of airfoil
         yp      = r_2d*np.ones_like(xp)                           # radial location
         zp      = zpts*(t_2d/max_t2d)                             # former airfoil y coord
 
