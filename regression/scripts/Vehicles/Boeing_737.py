@@ -17,7 +17,7 @@ import numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 
 from copy import deepcopy 
 
@@ -153,7 +153,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     # Fill out more segment properties automatically
-    wing = segment_properties(wing)    
+    wing = wing_segmented_planform(wing)    
 
     # control surfaces -------------------------------------------
     slat                          = SUAVE.Components.Wings.Control_Surfaces.Slat()
@@ -242,7 +242,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     # Fill out more segment properties automatically
-    wing = segment_properties(wing)        
+    wing = wing_segmented_planform(wing)        
 
     # control surfaces -------------------------------------------
     elevator                       = SUAVE.Components.Wings.Control_Surfaces.Elevator()
@@ -324,7 +324,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     # Fill out more segment properties automatically
-    wing = segment_properties(wing)        
+    wing = wing_segmented_planform(wing)        
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -513,10 +513,8 @@ def vehicle_setup():
     nacelle.diameter              = 2.05
     nacelle.areas.wetted          = 1.1*np.pi*nacelle.diameter*nacelle.length
     nacelle.origin                = [[13.72, -4.86,-1.9]]
-    nacelle.flow_through          = True  
-    nacelle_airfoil               = SUAVE.Components.Airfoils.Airfoil() 
-    nacelle_airfoil.naca_4_series_airfoil = '2410'
-    nacelle.append_airfoil(nacelle_airfoil)
+    nacelle.flow_through          = True   
+    nacelle.Airfoil.naca_4_series_airfoil = '2410' 
 
     nacelle_2                     = deepcopy(nacelle)
     nacelle_2.tag                 = 'nacelle_2'

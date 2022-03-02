@@ -3,9 +3,8 @@
 # Created:  Feb 2020, M. Clarke
 #           Apr 2020, M. Clarke
 # Modified: Dec 2020, S. Karpuk
-#         : Jan 2022, S. Claridge
 
-""" setup file for segment test regression with a Boeing 737 and a modified aircraft that uses additional cryogenic fuel """
+""" setup file for segment test regression with a Boeing 737"""
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -19,6 +18,7 @@ import pylab as plt
 
 
 from SUAVE.Core import Data
+
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 
 import sys
@@ -27,146 +27,114 @@ sys.path.append('../Vehicles')
 # the analysis functions
 
 from Boeing_737 import vehicle_setup, configs_setup
-
-from Additional_Fuel_Aircraft import vehicle_setup as cf_vehicle_setup
-from Additional_Fuel_Aircraft import configs_setup as cf_configs_setup
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
 
 def main(): 
-
-    # Truth values for Boeing 737 and cryogenic fuel aircraft
-    boeing_737_results = [["climb_throttle_1_true" , 1.076870435474248],
-                            ["climb_throttle_2_true", 1.0811705275252188],
-                            ["climb_throttle_3_true", 0.6708679936668738],
-                            ["climb_throttle_4_true", 1.1265503689284677], 
-                            ["climb_4_total_mass_true", 77954.17842536],
-                            ["climb_4_vehicle_additional_fuel_rate_true", 0.0],
-                            ["climb_throttle_5_true", 1.1770721802348285],
-                            ["climb_throttle_6_true", 0.7772366352514147], 
-                            ["climb_throttle_7_true", 0.9754619978463199], 
-                            ["climb_throttle_8_true", 1.2263494140483848],
-                            ["climb_throttle_9_true", 1.339647400470607], 
-                            ["climb_throttle_10_true", 1.0],
-                            ["cruise_CL_1_true", 0.6972564737884285],
-                            ["cruise_CL_2_true", 0.6975787113223217],
-                            ["cruise_CL_3_true", 0.7852502026240504],
-                            ["descent_throttle_1_true", 0.09102457856960339],
-                            ["descent_throttle_2_true", 0.24465051386674283], 
-                            ["single_pt_CL_1_true", 0.251138262389197],
-                            ["single_pt_CL_2_true", 0.25113968108269286],
-                            ["loiter_CL_true", 0.5114262749651366],
-                            ["descent_throttle_3_true", 0.17797156049307095],
-                            ["descent_3_total_mass_true", 72782.00046267 ],
-                            ["descent_3_vehicle_additional_fuel_rate_true", 0.0]]
-
-    boeing_737_vehicle  = vehicle_setup()
-    boening_737_configs = configs_setup(boeing_737_vehicle)
-
-    aircraft_using_cryogenic_fuel  = [["climb_throttle_1_true" , 2.09836518],
-                        ["climb_throttle_2_true", 1.81422613],
-                        ["climb_throttle_3_true", 1.01898036],
-                        ["climb_throttle_4_true", 1.48489388], 
-                        ["climb_4_total_mass_true", 78399.62679503],
-                        ["climb_4_vehicle_additional_fuel_rate", 0.01710773],
-                        ["climb_throttle_5_true", 1.47404658],
-                        ["climb_throttle_6_true", 0.9207219], 
-                        ["climb_throttle_7_true",  1.07734465], 
-                        ["climb_throttle_8_true", 1.29949068],
-                        ["climb_throttle_9_true", 1.29171816], 
-                        ["climb_throttle_10_true", 1.0],
-                        ["cruise_CL_1_true",  0.70703183],
-                        ["cruise_CL_2_true",  0.70770214],
-                        ["cruise_CL_3_true",  0.91800812],
-                        ["descent_throttle_1_true", 0.10790657],
-                        ["descent_throttle_2_true", 0.46200369], 
-                        ["single_pt_CL_1_true", 0.25615682 ],
-                        ["single_pt_CL_2_true", 0.25598024],
-                        ["loiter_CL_true", 0.52161734],
-                        ["descent_throttle_3_true",  0.35119837],
-                        ["descent_3_total_mass_true", 74129.2794989  ],
-                        ["descent_3_vehicle_additional_fuel_rate", 0.01710773]]   
-
-    vehicle_using_cryogenic_fuel         = cf_vehicle_setup()
-    vehicle_using_cryogenic_fuel_configs = cf_configs_setup(vehicle_using_cryogenic_fuel)
-
-    aircraft_results = [[boeing_737_vehicle, boening_737_configs, boeing_737_results], [vehicle_using_cryogenic_fuel, vehicle_using_cryogenic_fuel_configs, aircraft_using_cryogenic_fuel]]
-
-    for aircraft_result in aircraft_results:
-
-        vehicle         = aircraft_result[0]
-        config          = aircraft_result[1]
-        true_results    = aircraft_result[2]
-
-        results = get_results(vehicle, config)
-
-        # Extract sample values from computation 
-        climb_throttle_1                        = results.segments.climb_1.conditions.propulsion.throttle[3][0]
-        climb_throttle_2                        = results.segments.climb_2.conditions.propulsion.throttle[3][0]
-        climb_throttle_3                        = results.segments.climb_3.conditions.propulsion.throttle[3][0]
-        climb_throttle_4                        = results.segments.climb_4.conditions.propulsion.throttle[3][0]
-        climb_total_mass_4                      = results.segments.climb_4.conditions.weights.total_mass[0][0]
-        climb_vehicle_additional_fuel_rate_4    = results.segments.climb_4.conditions.weights.vehicle_additional_fuel_rate[0][0]
-        climb_throttle_5                        = results.segments.climb_5.conditions.propulsion.throttle[3][0]
-        climb_throttle_6                        = results.segments.climb_6.conditions.propulsion.throttle[3][0]
-        climb_throttle_7                        = results.segments.climb_7.conditions.propulsion.throttle[3][0] 
-        climb_throttle_8                        = results.segments.climb_8.conditions.propulsion.throttle[3][0] 
-        climb_throttle_9                        = results.segments.climb_9.conditions.propulsion.throttle[3][0] 
-        climb_throttle_10                       = results.segments.climb_10.conditions.propulsion.throttle[2][0] 
-        cruise_CL_1                             = results.segments.cruise_1.conditions.aerodynamics.lift_coefficient[2][0]
-        cruise_CL_2                             = results.segments.cruise_2.conditions.aerodynamics.lift_coefficient[2][0]
-        cruise_CL_3                             = results.segments.cruise_3.conditions.aerodynamics.lift_coefficient[2][0] 
-        descent_throttle_1                      = results.segments.descent_1.conditions.propulsion.throttle[3][0]
-        descent_throttle_2                      = results.segments.descent_2.conditions.propulsion.throttle[3][0]
-        single_pt_CL_1                          = results.segments.single_point_1.conditions.aerodynamics.lift_coefficient[0][0]
-        single_pt_CL_2                          = results.segments.single_point_2.conditions.aerodynamics.lift_coefficient[0][0]     
-        loiter_CL                               = results.segments.loiter.conditions.aerodynamics.lift_coefficient[2][0]
-        descent_throttle_3                      = results.segments.descent_3.conditions.propulsion.throttle[3][0]
-        descent_total_mass_3                    = results.segments.descent_3.conditions.weights.total_mass[0][0]
-        descent_vehicle_additional_fuel_rate_3  = results.segments.descent_3.conditions.weights.vehicle_additional_fuel_rate[0][0]
-
-
-        check_results = np.array([climb_throttle_1, climb_throttle_2, climb_throttle_3, climb_throttle_4, climb_total_mass_4, climb_vehicle_additional_fuel_rate_4, 
-                                climb_throttle_5, climb_throttle_6, climb_throttle_7, climb_throttle_8, climb_throttle_9, climb_throttle_10, cruise_CL_1, cruise_CL_2,
-                                cruise_CL_3, descent_throttle_1, descent_throttle_2, single_pt_CL_1, single_pt_CL_2, loiter_CL, descent_throttle_3,
-                                descent_total_mass_3, descent_vehicle_additional_fuel_rate_3 ])
-
-        #print values for resetting regression
-        print(*check_results, sep='\n')
-
-        #create array of truth values 
-        compare_true_results = np.array([item[1] for item in true_results])
-
-        #calculate error values 
-        error_val            = (compare_true_results - check_results) / compare_true_results
-        error_val            = np.where(np.isnan(error_val), 0, error_val) #incase there was any divison by 0 
-
-        assert(np.amax(error_val) < 1e-6)
-
-    plt.show()    
-
-
-def get_results(vehicle_setup, configs_setup):
-
     # -----------------------------------------
     # Multi-Point Mission Setup 
     # -----------------------------------------
-    configs, analyses = full_setup(vehicle_setup, configs_setup) 
+    configs, analyses = full_setup() 
     simple_sizing(configs, analyses) 
     configs.finalize()
     analyses.finalize()  
     mission = analyses.missions.base
     results = mission.evaluate()
+ 
+    # Extract sample values from computation 
+    climb_throttle_1   = results.segments.climb_1.conditions.propulsion.throttle[3][0]
+    climb_throttle_2   = results.segments.climb_2.conditions.propulsion.throttle[3][0]
+    climb_throttle_3   = results.segments.climb_3.conditions.propulsion.throttle[3][0]
+    climb_throttle_4   = results.segments.climb_4.conditions.propulsion.throttle[3][0]
+    climb_throttle_5   = results.segments.climb_5.conditions.propulsion.throttle[3][0]
+    climb_throttle_6   = results.segments.climb_6.conditions.propulsion.throttle[3][0]
+    climb_throttle_7   = results.segments.climb_7.conditions.propulsion.throttle[3][0] 
+    climb_throttle_8   = results.segments.climb_8.conditions.propulsion.throttle[3][0] 
+    climb_throttle_9   = results.segments.climb_9.conditions.propulsion.throttle[3][0] 
+    climb_throttle_10  = results.segments.climb_10.conditions.propulsion.throttle[2][0] 
+    cruise_CL_1        = results.segments.cruise_1.conditions.aerodynamics.lift_coefficient[2][0]
+    cruise_CL_2        = results.segments.cruise_2.conditions.aerodynamics.lift_coefficient[2][0]
+    cruise_CL_3        = results.segments.cruise_3.conditions.aerodynamics.lift_coefficient[2][0] 
+    descent_throttle_1 = results.segments.descent_1.conditions.propulsion.throttle[3][0]
+    descent_throttle_2 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
+    single_pt_CL_1     = results.segments.single_point_1.conditions.aerodynamics.lift_coefficient[0][0]
+    single_pt_CL_2     = results.segments.single_point_2.conditions.aerodynamics.lift_coefficient[0][0]     
+    loiter_CL          = results.segments.loiter.conditions.aerodynamics.lift_coefficient[2][0]
+    descent_throttle_3 = results.segments.descent_3.conditions.propulsion.throttle[3][0]
+    
+    #print values for resetting regression
+    show_vals = True
+    if show_vals:
+        data = [climb_throttle_1,   climb_throttle_2,   climb_throttle_3,   climb_throttle_4,   climb_throttle_5,  
+                climb_throttle_6,   climb_throttle_7,   climb_throttle_8,   climb_throttle_9,   climb_throttle_10, 
+                cruise_CL_1,        cruise_CL_2,        cruise_CL_3,        descent_throttle_1, descent_throttle_2,
+                single_pt_CL_1,     single_pt_CL_2,     loiter_CL,          descent_throttle_3]
+        for val in data:
+            print(val)
+    
+    # Truth values
+    climb_throttle_1_truth   = 1.0779171064877817
+    climb_throttle_2_truth   = 1.0825265840224687
+    climb_throttle_3_truth   = 0.674660268669148 
+    climb_throttle_4_truth   = 1.1315606426230955
+    climb_throttle_5_truth   = 1.1836691794281005
+    climb_throttle_6_truth   = 0.7820927446131135
+    climb_throttle_7_truth   = 0.9575782120087092
+    climb_throttle_8_truth   = 1.1806251177582514
+    climb_throttle_9_truth   = 1.2803044387670226
+    climb_throttle_10_truth  = 1.0 
+    cruise_CL_1_truth        = 0.697527528118587  
+    cruise_CL_2_truth        = 0.6978305032649874  
+    cruise_CL_3_truth        = 0.7853555716641899  
+    descent_throttle_1_truth = 0.09557733021666127  
+    descent_throttle_2_truth = 0.2467066714518043  
+    single_pt_CL_1_truth     = 0.25119411851114865  
+    single_pt_CL_2_truth     = 0.2511952953215362 
+    loiter_CL_truth          = 0.5115243029776504 
+    descent_throttle_3_truth = 0.17985343172510482 
+    
+    # Store errors 
+    error = Data()
+    error.climb_throttle_1   = np.max(np.abs(climb_throttle_1     - climb_throttle_1_truth))  
+    error.climb_throttle_2   = np.max(np.abs(climb_throttle_2     - climb_throttle_2_truth))   
+    error.climb_throttle_3   = np.max(np.abs(climb_throttle_3     - climb_throttle_3_truth))   
+    error.climb_throttle_4   = np.max(np.abs(climb_throttle_4     - climb_throttle_4_truth))   
+    error.climb_throttle_5   = np.max(np.abs(climb_throttle_5     - climb_throttle_5_truth))   
+    error.climb_throttle_6   = np.max(np.abs(climb_throttle_6     - climb_throttle_6_truth))   
+    error.climb_throttle_7   = np.max(np.abs(climb_throttle_7     - climb_throttle_7_truth))   
+    error.climb_throttle_8   = np.max(np.abs(climb_throttle_8     - climb_throttle_8_truth))  
+    error.climb_throttle_9   = np.max(np.abs(climb_throttle_9     - climb_throttle_9_truth)) 
+    error.climb_throttle_10  = np.max(np.abs(climb_throttle_10    - climb_throttle_10_truth))  
+    error.cruise_CL_1        = np.max(np.abs(cruise_CL_1          - cruise_CL_1_truth ))     
+    error.cruise_CL_2        = np.max(np.abs(cruise_CL_2          - cruise_CL_2_truth ))      
+    error.cruise_CL_3        = np.max(np.abs(cruise_CL_3          - cruise_CL_3_truth ))     
+    error.descent_throttle_1 = np.max(np.abs(descent_throttle_1   - descent_throttle_1_truth)) 
+    error.descent_throttle_2 = np.max(np.abs(descent_throttle_2   - descent_throttle_2_truth))
+    error.single_pt_CL_1     = np.max(np.abs(single_pt_CL_1       - single_pt_CL_1_truth ))     
+    error.single_pt_CL_2     = np.max(np.abs(single_pt_CL_2       - single_pt_CL_2_truth ))  
+    error.loiter_CL          = np.max(np.abs(loiter_CL            - loiter_CL_truth ))         
+    error.descent_throttle_3 = np.max(np.abs(descent_throttle_3   - descent_throttle_3_truth))  
+     
+    print('Errors:')
+    print(error)
+     
+    for k,v in list(error.items()):
+        assert(np.abs(v)<1e-6)  
+    
+    plt.show()    
+    return
 
-    return results
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup(vehicle, configs):
+def full_setup():
+
+    # vehicle data
+    vehicle  = vehicle_setup()
+    configs  = configs_setup(vehicle)
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
@@ -180,7 +148,7 @@ def full_setup(vehicle, configs):
     analyses.missions = missions_analyses
 
     return configs, analyses
-
+ 
 # ----------------------------------------------------------------------
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
@@ -622,6 +590,7 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.landing )
     segment.velocity_start           = 150 * Units.knots
     segment.velocity_end             = 100 * Units.knots
+    segment.state.unknowns.time      = 30.
     segment.friction_coefficient     = 0.4
     segment.altitude                 = 0.0
 
