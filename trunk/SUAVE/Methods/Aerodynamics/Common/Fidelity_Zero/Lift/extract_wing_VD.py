@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# extract_wing_collocation_points.py
+# extract_wing_VD.py
 #
 # Created:   Feb 2022, R. Erhard
 # Modified: 
