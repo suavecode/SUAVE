@@ -210,7 +210,7 @@ def regress_2(results):
 
     CL_truth  = 0.41618253
     CDi_truth = 0.00703032
-    CM_truth  = 0.32351636
+    CM_truth  = 0.0690942
 
     
     CL  = results.CL
