@@ -346,7 +346,7 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
         CL_sur = a_data.lift_coefficient_surrogates
         CD_sur = a_data.drag_coefficient_surrogates
         
-        alpha   = np.linspace(-16,16,100) #np.asarray(a_data.aoa_from_polar)
+        alpha   = np.linspace(-16,16,100)
         n_alpha = len(alpha.T)
         alpha   = np.reshape(alpha,(n_airfoils,1,n_alpha))
         alpha   = np.repeat(alpha, n_Re, axis=1)
