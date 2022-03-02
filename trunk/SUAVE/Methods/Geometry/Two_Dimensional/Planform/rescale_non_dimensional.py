@@ -138,6 +138,6 @@ def set_origin_dimensional(vehicle):
                 
                 origin[eng,1] = 0.
 
-        prop.origin = origin.tolist()  
+        net.origin = origin.tolist()  
         
     return vehicle

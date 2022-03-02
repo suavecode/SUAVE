@@ -1,7 +1,8 @@
 ## @ingroup Plots
 # Propeller_Plots.py
 #
-# Created: Mar 2021, R. Erhard
+# Created:  Mar 2021, R. Erhard
+# Modified: Feb 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,124 +12,8 @@ from SUAVE.Core import Units
 import matplotlib.patches as patches
 import pylab as plt
 import numpy as np
-import matplotlib
 
 ## @ingroup Plots
-def plot_propeller_performance(prop,outputs,conditions):
-    """This plots local velocities, blade angles, and blade loading
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    
-    Inputs:
-    
-       
-    Outputs: 
-    Plots
-    
-    Properties Used:
-    N/A	
-    """ 
-    # Setting Latex Font style
-    font = {'family' : 'normal',
-            'weight' : 'normal',
-            'size'   :  22}
-    
-    matplotlib.rc('font', **font)
-    matplotlib.rcParams['mathtext.fontset'] = 'stix'
-    matplotlib.rcParams['font.family'] = 'STIXGeneral'
-    matplotlib.rc('lines', lw=3)
-    
-    # plot results corresponding to the ith control point
-    i = 0
-    
-    # extracting outputs for plotting
-    psi         = outputs.disc_azimuthal_distribution[i,:,:]
-    r           = outputs.disc_radial_distribution[i,:,:]
-    Va_V_disc   = outputs.disc_axial_induced_velocity[i]/outputs.velocity[i][0]
-    Vt_V_disc   = outputs.disc_tangential_induced_velocity[i]/outputs.velocity[i][0]
-    thrust_disc = outputs.disc_thrust_distribution[i]
-    torque_disc = outputs.disc_torque_distribution[i]
-    
-    delta_alpha = (outputs.disc_effective_angle_of_attack[i] - 
-                   conditions.aerodynamics.angle_of_attack[i,0])/Units.deg  
-    
-    # completing the full revolution for the disc
-    psi          = np.append(psi,np.array([np.ones_like(psi[0])*2*np.pi]),axis=0)
-    r            = np.append(r,np.array([r[0]]),axis=0)
-    Va_V_disc    = np.append(Va_V_disc,np.array([Va_V_disc[0]]),axis=0)
-    Vt_V_disc    = np.append(Vt_V_disc,np.array([Vt_V_disc[0]]),axis=0)
-    thrust_disc  = np.append(thrust_disc,np.array([thrust_disc[0]]),axis=0)
-    torque_disc  = np.append(torque_disc,np.array([torque_disc[0]]),axis=0)
-    delta_alpha  = np.append(delta_alpha,np.array([delta_alpha[0]]),axis=0)
-    
-    # adjusting so that the hub is included in the plot:
-    rh = prop.hub_radius
-    
-    fig0, axis0 = plt.subplots(subplot_kw=dict(projection='polar'))
-    CS_0 = axis0.contourf(psi, r, Va_V_disc,20,cmap=plt.cm.jet)
-    cbar0 = plt.colorbar(CS_0, ax=axis0, format=matplotlib.ticker.FormatStrFormatter('%.2f'))
-    cbar0.ax.set_ylabel('$\dfrac{V_a}{V_\infty}$',rotation=0,labelpad=25)
-    axis0.set_title('Axial Velocity of Propeller',pad=15) 
-    thetaticks = np.arange(0,360,45)
-    axis0.set_thetagrids(thetaticks)   
-    axis0.set_rorigin(-rh)
-    axis0.set_yticklabels([])
-    
-    fig0, axis0 = plt.subplots(subplot_kw=dict(projection='polar'))
-    CS_0 = axis0.contourf(psi, r, Vt_V_disc,20,cmap=plt.cm.jet)
-    cbar0 = plt.colorbar(CS_0, ax=axis0,format=matplotlib.ticker.FormatStrFormatter('%.2f'))
-    cbar0.ax.set_ylabel('$\dfrac{V_t}{V_\infty}$',rotation=0,labelpad=25)
-    axis0.set_title('Tangential Velocity of Propeller',pad=15)   
-    thetaticks = np.arange(0,360,45)
-    axis0.set_thetagrids(thetaticks)
-    axis0.set_rorigin(-rh)
-    axis0.set_yticklabels([])
-    
-    fig0, axis0 = plt.subplots(subplot_kw=dict(projection='polar'))
-    CS_0 = axis0.contourf(psi, r, thrust_disc,20,cmap=plt.cm.jet)
-    cbar0 = plt.colorbar(CS_0, ax=axis0, format=matplotlib.ticker.FormatStrFormatter('%.2f'))
-    cbar0.ax.set_ylabel('Thrust (N)',labelpad=25)
-    axis0.set_title('Thrust Distribution of Propeller',pad=15)  
-    axis0.set_rorigin(-rh)
-    axis0.set_yticklabels([])
-    
-    fig0, axis0 = plt.subplots(subplot_kw=dict(projection='polar'))
-    CS_0 = axis0.contourf(psi, r, torque_disc,20,cmap=plt.cm.jet)
-    cbar0 = plt.colorbar(CS_0, ax=axis0, format=matplotlib.ticker.FormatStrFormatter('%.2f'))
-    cbar0.ax.set_ylabel('Torque (Nm)',labelpad=25)
-    axis0.set_title('Torque Distribution of Propeller',pad=15) 
-    axis0.set_rorigin(-rh)
-    axis0.set_yticklabels([])
-    
-    fig0, axis0 = plt.subplots(subplot_kw=dict(projection='polar'))
-    CS_0 = axis0.contourf(psi, r, delta_alpha,10,cmap=plt.cm.jet)
-    cbar0 = plt.colorbar(CS_0, ax=axis0, format=matplotlib.ticker.FormatStrFormatter('%.2f'))
-    cbar0.ax.set_ylabel('Angle of Attack (deg)',labelpad=25)
-    axis0.set_title('Blade Local Effective Angle of Attack',pad=15) 
-    axis0.set_rorigin(-rh)
-    axis0.set_yticklabels([])  
-    
-    
-    
-    
-    delta_u = (Va_V_disc**2 + Vt_V_disc**2)**0.5
-    Cp = -2*delta_u/np.linalg.norm(outputs.velocity)
-    
-    fig0, axis0 = plt.subplots(subplot_kw=dict(projection='polar'))
-    CS_0 = axis0.contourf(psi, r, Cp,10,cmap=plt.cm.jet)
-    cbar0 = plt.colorbar(CS_0, ax=axis0, format=matplotlib.ticker.FormatStrFormatter('%.3f'))
-    cbar0.ax.set_ylabel('$C_p$',labelpad=25)
-    axis0.set_title('Pressure Distribution',pad=15) 
-    axis0.set_rorigin(-rh)
-    axis0.set_yticklabels([])      
-    
-    return    
-
-
 def plot_propeller_disc_inflow(prop,velocities, grid_points):
     
     u = velocities.u_velocities
@@ -183,13 +68,13 @@ def plot_propeller_disc_inflow(prop,velocities, grid_points):
     style = "Simple, tail_width=0.5, head_width=4, head_length=8"
     kw    = dict(arrowstyle=style,color="k")
     
-    if prop.rotation[0]==1:
+    if prop.rotation==1:
         # Rotation direction is ccw
         arrow1 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
         arrow2 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
         arrow3 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
         arrow4 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
-    elif prop.rotation[0]==-1:
+    elif prop.rotation==-1:
         # Rotation direction is cw
         arrow1 = patches.FancyArrowPatch((0.8*R,-0.8*R),(-0.8*R,-0.8*R), connectionstyle="arc3,rad=-0.4", **kw)
         arrow2 = patches.FancyArrowPatch((0.8*R,-0.8*R),(-0.8*R,-0.8*R), connectionstyle="arc3,rad=-0.4", **kw)
@@ -239,36 +124,60 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     T    = outputs.disc_thrust_distribution[i]
     Q    = outputs.disc_torque_distribution[i]
     alf  = (outputs.disc_effective_angle_of_attack[i])/Units.deg
+    va   = outputs.disc_axial_induced_velocity[i]
+    vt   = outputs.disc_tangential_induced_velocity[i]
+        
     
     T    = np.append(T,np.atleast_2d(T[:,0]).T,axis=1)
     Q    = np.append(Q,np.atleast_2d(Q[:,0]).T,axis=1)
     alf  = np.append(alf,np.atleast_2d(alf[:,0]).T,axis=1)
     
-    rh  = prop.hub_radius
-    lev = 21
+    va = np.append(va, np.atleast_2d(va[:,0]).T, axis=1)
+    vt = np.append(vt, np.atleast_2d(vt[:,0]).T, axis=1)
+    
+    lev = 101
     cm  = 'jet'
     
     # plot the grid point velocities
-    fig = plt.figure(figsize=(8,4))
-    ax0 = fig.add_subplot(131, polar=True)
-    ax1 = fig.add_subplot(132, polar=True)
-    ax2 = fig.add_subplot(133, polar=True)
+    fig0 = plt.figure(figsize=(4,4))
+    ax0  = fig0.add_subplot(111, polar=True)
+    p0   = ax0.contourf(psi, r, T,lev,cmap=cm)
+    ax0.set_title('Thrust Distribution',pad=15)      
+    ax0.set_rorigin(0)
+    ax0.set_yticklabels([])
+    plt.colorbar(p0, ax=ax0)
     
-
-    CS_0 = ax0.contourf(psi, r, T,lev,cmap=cm)
-    plt.colorbar(CS_0, ax=ax0, orientation='horizontal')
-    ax0.set_title('Thrust Distribution',pad=15)  
-    ax0.set_rorigin(-rh)
-    
-    CS_1 = ax1.contourf(psi, r, Q,lev,cmap=cm) 
-    plt.colorbar(CS_1, ax=ax1, orientation='horizontal')
+    fig1 = plt.figure(figsize=(4,4)) 
+    ax1  = fig1.add_subplot(111, polar=True)   
+    p1   = ax1.contourf(psi, r, Q,lev,cmap=cm) 
     ax1.set_title('Torque Distribution',pad=15) 
-    ax1.set_rorigin(-rh)
+    ax1.set_rorigin(0)
+    ax1.set_yticklabels([])    
+    plt.colorbar(p1, ax=ax1)
     
-    CS_2 = ax2.contourf(psi, r, alf,lev,cmap=cm) 
-    plt.colorbar(CS_2, ax=ax2, orientation='horizontal')
+    fig2 = plt.figure(figsize=(4,4)) 
+    ax2  = fig2.add_subplot(111, polar=True)       
+    p2   = ax2.contourf(psi, r, alf,lev,cmap=cm) 
     ax2.set_title('Local Blade Angle (deg)',pad=15) 
-    ax2.set_rorigin(-rh)
-    fig.suptitle(title)
+    ax2.set_rorigin(0)
+    ax2.set_yticklabels([])
+    plt.colorbar(p2, ax=ax2)
+
+    fig3 = plt.figure(figsize=(4,4)) 
+    ax3  = fig3.add_subplot(111, polar=True)       
+    p3   = ax3.contourf(psi, r, va,lev,cmap=cm) 
+    ax3.set_title('Va',pad=15) 
+    ax3.set_rorigin(0)
+    ax3.set_yticklabels([])
+    plt.colorbar(p3, ax=ax3)    
+    
+    fig4 = plt.figure(figsize=(4,4)) 
+    ax4  = fig4.add_subplot(111, polar=True)       
+    p4   = ax4.contourf(psi, r, vt,lev,cmap=cm) 
+    ax4.set_title('Vt',pad=15) 
+    ax4.set_rorigin(0)
+    ax4.set_yticklabels([])
+    plt.colorbar(p4, ax=ax4)       
  
-    return
+ 
+    return fig0, fig1, fig2, fig3, fig4

@@ -8,6 +8,7 @@
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
 #           Aug 2021, M. Clarke
+#           Feb 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,10 +18,12 @@
 import SUAVE
 import numpy as np
 from .Network import Network
+from SUAVE.Analyses.Mission.Segments.Conditions import Residuals
 from SUAVE.Components.Physical_Component import Container 
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
 from SUAVE.Core import Data , Units 
+import copy
 
 # ----------------------------------------------------------------------
 #  Network
@@ -73,13 +76,10 @@ class Battery_Propeller(Network):
         self.number_of_lift_rotor_engines = None
         self.voltage                      = None
         self.tag                          = 'Battery_Propeller'
-        self.use_surrogate                = False
-        self.pitch_command                = 0.0
-        self.generative_design_minimum    = 0
-        self.pitch_command                = 0
+        self.use_surrogate                = False 
+        self.generative_design_minimum    = 0 
         self.identical_propellers         = True
-        self.identical_lift_rotors        = True
-        self.thrust_angle                 = 0. 
+        self.identical_lift_rotors        = True 
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -200,9 +200,7 @@ class Battery_Propeller(Network):
                 motor.omega(conditions)
                 
                 # link
-                prop.inputs.omega           = motor.outputs.omega
-                prop.inputs.pitch_command   = self.pitch_command
-                prop.inputs.y_axis_rotation = self.thrust_angle
+                prop.inputs.omega           = motor.outputs.omega 
                 
                 # step 4
                 F, Q, P, Cp, outputs, etap = prop.spin(conditions)
@@ -227,6 +225,7 @@ class Battery_Propeller(Network):
                 conditions.propulsion.propeller_motor_efficiency[:,ii] = etam[:,0]  
                 conditions.propulsion.propeller_motor_torque[:,ii]     = motor.outputs.torque[:,0]
                 conditions.propulsion.propeller_torque[:,ii]           = Q[:,0]
+                conditions.propulsion.propeller_thrust[:,ii]           = np.linalg.norm(total_thrust ,axis = 1) 
                 conditions.propulsion.propeller_rpm[:,ii]              = rpm[:,0]
                 conditions.propulsion.propeller_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
                 conditions.propulsion.disc_loading[:,ii]               = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
@@ -237,7 +236,22 @@ class Battery_Propeller(Network):
                     conditions.noise.sources.propellers[prop.tag]      = outputs
                 else:    
                     conditions.noise.sources.lift_rotors[prop.tag]     = outputs
-    
+            
+            if identical_flag and prop.Wake.wake_method=="Fidelity_One":
+                # append wakes to all propellers, shifted by new origin
+                for p in props:
+                    # make copy of prop wake and vortex distribution
+                    base_wake = copy.deepcopy(prop.Wake)
+                    wake_vd   = base_wake.vortex_distribution
+                    
+                    # apply offset 
+                    origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
+                    p.Wake = base_wake
+                    p.Wake.shift_wake_VD(wake_vd, origin_offset)
+            elif identical_flag and prop.Wake.wake_method=="Fidelity_Zero":
+                for p in props:
+                    p.outputs = outputs
+                    
             # Run the avionics
             avionics.power()
     
@@ -358,7 +372,7 @@ class Battery_Propeller(Network):
 
     def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, initial_power_coefficient = 0.02,
                                               initial_battery_cell_temperature = 283. , initial_battery_state_of_charge = 0.5,
-                                              initial_battery_cell_current = 5. ,initial_battery_cell_thevenin_voltage= 0.1):
+                                              initial_battery_cell_current = 5.):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -410,14 +424,14 @@ class Battery_Propeller(Network):
             n_props = 1   
 
         # Assign initial segment conditions to segment if missing
-        append_initial_battery_conditions(segment,initial_battery_cell_thevenin_voltage)      
+        battery = self.battery
+        append_initial_battery_conditions(segment,battery)          
         
         # add unknowns and residuals specific to battery cell 
-        segment.state.residuals.network  = Data()         
-        battery = self.battery
+        segment.state.residuals.network = Residuals()  
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage,
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
-                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage)  
+                                              initial_battery_cell_current)  
 
         if segment.battery_discharge: 
             segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)  
@@ -426,6 +440,7 @@ class Battery_Propeller(Network):
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_torque           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_thrust           = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_rpm              = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.disc_loading               = 0. * ones_row(n_props)                 
         segment.state.conditions.propulsion.power_loading              = 0. * ones_row(n_props)

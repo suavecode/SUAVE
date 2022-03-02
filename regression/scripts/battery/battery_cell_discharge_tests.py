@@ -70,37 +70,60 @@ def main():
     plot_ragone(battery_li_s,   'lithium sulfur') 
      
  
-    battery_chemistry     = ['LFP','NCA','NMC'] 
+    battery_chemistry     = ['NMC','LFP'] 
     marker                = [['s' ,'s' ,'s' ,'s','s'],['o' ,'o' ,'o' ,'o','o'],['P' ,'P' ,'P' ,'P','P']]
     linestyles            = [['-' ,'-' ,'-' ,'-','-'], ['--' ,'--' ,'--' ,'--'],[':' ,':' ,':' ,':']]
     linecolors            = [['green' , 'blue' , 'red' , 'orange' ],['darkgreen', 'darkblue' , 'darkred'  ,'brown'], ['limegreen', 'lightblue' , 'pink'  ,'yellow']]     
     curr                  = [1.5, 3, 6, 9 ] 
     C_rat                 = [0.5,1,2,3]   
     marker_size           = 8 
-    mAh                   = np.array([ 1500 , 3300  , 3550]) 
-    temperature           = [ 300 ,300  , 300 ,300  ]
-    temp_guess            = [301 , 303  , 312  , 318 ]  
+    mAh                   = np.array([3550,1500]) 
+    V_ul_true  = np.array([[3.9446784139104443,3.5590281079836554],
+                           [3.890187851174907,3.546414176818607],
+                           [3.698158733645092,3.5211734513546005],
+                           [3.5998397257546997,3.4959155684694325]])
+    bat_temp_true     = np.array([[290.88689276343854,289.1293674284379],
+                                  [295.39761123008685,290.03365301513804],
+                                  [307.85017179101123,291.84526567740375],
+                                  [319.69372384478675,293.66098235984754]])  
  
     plt.rcParams.update({'font.size': 12})
     fig1 = plt.figure('Cell Comparison') 
     fig1.set_size_inches(12,7)   
-    axes1 = fig1.add_subplot(2,4,1)
-    axes2 = fig1.add_subplot(2,4,2)    
-    axes3 = fig1.add_subplot(2,4,3)
-    axes4 = fig1.add_subplot(2,4,4) 
-    axes5 = fig1.add_subplot(2,4,5)
-    axes6 = fig1.add_subplot(2,4,6) 
-    axes7 = fig1.add_subplot(2,4,7)
-    axes8 = fig1.add_subplot(2,4,8)     
+    axes1  = fig1.add_subplot(2,4,1)
+    axes2  = fig1.add_subplot(2,4,2)    
+    axes3  = fig1.add_subplot(2,4,3)
+    axes4  = fig1.add_subplot(2,4,4) 
+    axes5  = fig1.add_subplot(2,4,5)
+    axes6  = fig1.add_subplot(2,4,6) 
+    axes7  = fig1.add_subplot(2,4,7)
+    axes8  = fig1.add_subplot(2,4,8)  
     
     for j in range(len(curr)):      
         for i in range(len(battery_chemistry)):   
-            configs, analyses = full_setup(curr[j],temperature[j],battery_chemistry[i],temp_guess[j],mAh[i] )
+            configs, analyses = full_setup(curr[j],battery_chemistry[i],mAh[i] )
             analyses.finalize()     
             mission = analyses.missions.base
-            results = mission.evaluate()  
-            plot_results(results,j,battery_chemistry[i], axes1, axes2, axes3, axes4, axes5, axes6, axes7, axes8,
-                         marker[i][j],marker_size,linecolors[i][j],linestyles[i][j],C_rat[j])  
+            results = mission.evaluate()   
+            
+            # Voltage Regression
+            V_ul        = results.segments[0].conditions.propulsion.battery_voltage_under_load[2][0]   
+            print('Under Load Voltage: ' + str(V_ul))
+            V_ul_diff   = np.abs(V_ul - V_ul_true[j,i])
+            print('Under Load voltage difference')
+            print(V_ul_diff)
+            assert np.abs((V_ul_diff)/V_ul_true[j,i]) < 1e-6 
+            
+            # Temperature Regression
+            bat_temp        = results.segments[1].conditions.propulsion.battery_cell_temperature[2][0]  
+            print('Cell Temperature: ' + str(bat_temp))
+            bat_temp_diff   = np.abs(bat_temp  - bat_temp_true[j,i]) 
+            print('Battery temperature difference')
+            print(bat_temp_diff)
+            assert np.abs((bat_temp_diff)/bat_temp_true[j,i]) < 1e-6    
+            
+            plot_results(results,j,battery_chemistry[i], axes1, axes2, axes3, axes4, axes5, axes6,
+                         axes7, axes8,marker[i][j],marker_size,linecolors[i][j],linestyles[i][j],C_rat[j])  
 
     legend_font_size = 12                     
     axes1.set_ylabel('Voltage $(V_{UL}$)')    
@@ -124,35 +147,33 @@ def main():
     axes5.set_ylabel(r'Temperature ($\degree$C)')    
     axes5.set_xlabel('Amp-Hours (A-hr)')        
     axes5.legend(loc='upper left', prop={'size': legend_font_size})
-    axes5.set_ylim([295,320])
-    axes5.set_xlim([0,7])
-     
+    axes5.set_ylim([273,320])
+    axes5.set_xlim([0,7]) 
     axes6.set_xlabel('Amp-Hours (A-hr)')     
     axes6.legend(loc='upper left', prop={'size': legend_font_size})  
-    axes6.set_ylim([295,320])
-    axes6.set_xlim([0,7])
-     
+    axes6.set_ylim([273,320])
+    axes6.set_xlim([0,7]) 
     axes7.set_xlabel('Amp-Hours (A-hr)')    
     axes7.legend(loc='upper left', prop={'size': legend_font_size})   
-    axes7.set_ylim([295,320])
-    axes7.set_xlim([0,7])
-     
+    axes7.set_ylim([273,320])
+    axes7.set_xlim([0,7]) 
     axes8.set_xlabel('Amp-Hours (A-hr)')    
     axes8.legend(loc='upper left', prop={'size': legend_font_size})      
-    axes8.set_ylim([295,320])
-    axes8.set_xlim([0,7])
+    axes8.set_ylim([273,320])
+    axes8.set_xlim([0,7]) 
+    
    
     plt.tight_layout()
     
     return 
 
-def plot_results(results,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, axes7, axes8,m,ms,lc,ls,C_rat): 
+def plot_results(results,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, axes7,axes8,m,ms,lc,ls,C_rat): 
     
     for segment in results.segments.values():
         time          = segment.conditions.frames.inertial.time[:,0]/60 
         volts         = segment.conditions.propulsion.battery_voltage_under_load[:,0]   
         cell_temp     = segment.conditions.propulsion.battery_cell_temperature[:,0]   
-        Amp_Hrs       = segment.conditions.propulsion.battery_cell_charge_throughput[:,0]    
+        Amp_Hrs       = segment.conditions.propulsion.battery_cell_charge_throughput[:,0]   
         
         use_amp_hrs = True
         
@@ -163,13 +184,13 @@ def plot_results(results,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, a
           
         if j == 0:
             axes1.plot(x_vals , volts , marker= m , linestyle = ls,  color= lc , markersize=ms   ,label = bat_chem + ': '+ str(C_rat) + ' C') 
-            axes5.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')    
+            axes5.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')   
         elif  j == 1: 
             axes2.plot(x_vals , volts , marker= m , linestyle = ls,  color= lc , markersize=ms   ,label = bat_chem + ': '+ str(C_rat) + ' C') 
-            axes6.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')                     
+            axes6.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')                   
         elif  j == 2: 
             axes3.plot(x_vals , volts , marker= m , linestyle = ls,  color= lc , markersize=ms   ,label = bat_chem + ': '+ str(C_rat) + ' C') 
-            axes7.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')               
+            axes7.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')            
         elif  j == 3: 
             axes4.plot(x_vals , volts , marker= m , linestyle = ls,  color= lc , markersize=ms   ,label = bat_chem + ': '+ str(C_rat) + ' C') 
             axes8.plot(x_vals , cell_temp, marker= m , linestyle = ls,  color= lc , markersize=ms,label = bat_chem + ': '+ str(C_rat) + ' C')    
@@ -180,17 +201,17 @@ def plot_results(results,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, a
 # ----------------------------------------------------------------------
 #   Analysis Setup
 # ----------------------------------------------------------------------
-def full_setup(current,temperature,battery_chemistry,temp_guess,mAh ):
+def full_setup(current,battery_chemistry,mAh ):
 
     # vehicle data
-    vehicle  = vehicle_setup(current,temperature,battery_chemistry,mAh)
+    vehicle  = vehicle_setup(current,battery_chemistry)
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
 
     # mission analyses
-    mission  = mission_setup(configs_analyses,vehicle,battery_chemistry,current,temp_guess,mAh )
+    mission  = mission_setup(configs_analyses,vehicle,battery_chemistry,current,mAh )
     missions_analyses = missions_setup(mission)
 
     analyses = SUAVE.Analyses.Analysis.Container()
@@ -204,27 +225,55 @@ def full_setup(current,temperature,battery_chemistry,temp_guess,mAh ):
 # ----------------------------------------------------------------------
 #   Build the Vehicle
 # ----------------------------------------------------------------------
-def vehicle_setup(current,temperature,battery_chemistry,mAh): 
+def vehicle_setup(current,battery_chemistry): 
 
     vehicle                       = SUAVE.Vehicle() 
-    vehicle.tag                   = 'battery'  
+    vehicle.tag                   = 'battery'   
+    vehicle.reference_area        = 1
+
+    # ------------------------------------------------------------------
+    #   Vehicle-level Properties
+    # ------------------------------------------------------------------    
+    # mass properties
+    vehicle.mass_properties.takeoff         = 0.048 * Units.kg 
+    vehicle.mass_properties.max_takeoff     = 0.048 * Units.kg 
+    
+    # basic parameters
+    vehicle.reference_area      = 1.    
+    # ------------------------------------------------------------------        
+    #   Main Wing
+    # ------------------------------------------------------------------   
+    wing                         = SUAVE.Components.Wings.Wing()
+    wing.tag                     = 'main_wing' 
+    wing.areas.reference         = 1.
+    wing.spans.projected         = 1.
+    wing.aspect_ratio            = 1.
+    wing.symmetric               = True
+    wing.thickness_to_chord      = 0.12
+    wing.taper                   = 1.
+    wing.dynamic_pressure_ratio  = 1.
+    wing.chords.mean_aerodynamic = 1.
+    wing.chords.root             = 1.
+    wing.chords.tip              = 1.
+    wing.origin                  = [[0.0,0.0,0.0]] # meters
+    wing.aerodynamic_center      = [0.0,0.0,0.0] # meters
+    
+    # add to vehicle
+    vehicle.append_component(wing)
+     
 
     net                           = SUAVE.Components.Energy.Networks.Battery_Cell_Cycler()
     net.tag                       ='battery_cell'   
     net.dischage_model_fidelity   = battery_chemistry
 
-    # Battery  
-    if battery_chemistry == 'NCA':
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNCA_18650()   
-    elif battery_chemistry == 'NMC': 
+    # Battery    
+    if battery_chemistry == 'NMC': 
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
-          
-    bat.ambient_temperature         = 300.  
-    bat.temperature                 = temperature
+        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650() 
     bat.charging_voltage            = bat.cell.nominal_voltage    
-    bat.charging_current            = current  
+    bat.charging_current            = current   
+    bat.convective_heat_transfer_coefficient = 7.17
     net.voltage                     = bat.cell.nominal_voltage 
     initialize_from_circuit_configuration(bat) 
     net.battery                     = bat  
@@ -251,20 +300,42 @@ def analyses_setup(configs):
     return analyses
 
 def base_analysis(vehicle):   
-    analyses = SUAVE.Analyses.Vehicle() 
-    
     # ------------------------------------------------------------------
-    #  Energy
-    energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.networks
-    analyses.append(energy) 
+    #   Initialize the Analyses
+    # ------------------------------------------------------------------     
+    analyses = SUAVE.Analyses.Vehicle()
+
+    # ------------------------------------------------------------------
+    #  Basic Geometry Relations
+    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing.features.vehicle = vehicle
+    analyses.append(sizing)
 
     # ------------------------------------------------------------------
     #  Weights
     weights = SUAVE.Analyses.Weights.Weights_eVTOL()
     weights.vehicle = vehicle
-    analyses.append(weights)    
-    
+    analyses.append(weights)
+
+    # ------------------------------------------------------------------
+    #  Aerodynamics Analysis
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics.geometry = vehicle
+    aerodynamics.settings.drag_coefficient_increment = 0.0000
+    analyses.append(aerodynamics)  
+
+    # ------------------------------------------------------------------	
+    #  Stability Analysis	
+    stability = SUAVE.Analyses.Stability.Fidelity_Zero()    	
+    stability.geometry = vehicle	
+    analyses.append(stability) 
+
+    # ------------------------------------------------------------------
+    #  Energy
+    energy= SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.networks 
+    analyses.append(energy)
+
     # ------------------------------------------------------------------
     #  Planet Analysis
     planet = SUAVE.Analyses.Planets.Planet()
@@ -274,9 +345,9 @@ def base_analysis(vehicle):
     #  Atmosphere Analysis
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
-    analyses.append(atmosphere)
-    
-    
+    analyses.append(atmosphere)   
+
+    # done!
     return analyses    
 
 
@@ -288,7 +359,7 @@ def configs_setup(vehicle):
     configs.append(base_config)   
     return configs
 
-def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
+def mission_setup(analyses,vehicle,battery_chemistry,current,mAh):
 
     # ------------------------------------------------------------------
     #   Initialize the Mission
@@ -303,14 +374,8 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
     # base segment
     base_segment                                                              = Segments.Segment()
     ones_row                                                                  = base_segment.state.ones_row
-    base_segment.state.numerics.number_control_points                         = 20
-    base_segment.process.iterate.initials.initialize_battery                  = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery 
-    base_segment.process.finalize.post_process.update_battery_state_of_health = SUAVE.Methods.Missions.Segments.Common.Energy.update_battery_state_of_health   
-    base_segment.process.iterate.conditions.stability                         = SUAVE.Methods.skip
-    base_segment.process.finalize.post_process.stability                      = SUAVE.Methods.skip 
-    base_segment.process.iterate.conditions.aerodynamics                      = SUAVE.Methods.skip
-    base_segment.process.finalize.post_process.aerodynamics                   = SUAVE.Methods.skip     
-    base_segment.process.iterate.conditions.planet_position                   = SUAVE.Methods.skip
+    base_segment.process.initialize.initialize_battery                        = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery 
+    base_segment.process.finalize.post_process.update_battery_state_of_health = SUAVE.Methods.Missions.Segments.Common.Energy.update_battery_state_of_health    
     
    
     bat                                                      = vehicle.networks.battery_cell.battery    
@@ -318,33 +383,30 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,temp_guess,mAh  ):
     base_segment.charging_SOC_cutoff                         = bat.cell.charging_SOC_cutoff 
     base_segment.charging_current                            = bat.charging_current
     base_segment.charging_voltage                            = bat.charging_voltage 
-    base_segment.initial_battery_resistance_growth_factor    = 1
-    base_segment.initial_battery_capacity_fade_factor        = 1            
-    base_segment.temperature_deviation                       = 15
     discharge_time                                           = 0.9 * (mAh/1000)/current * Units.hrs
     
-    segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)
-    segment.tag                                         = "LFP_Discharge" 
+    if battery_chemistry == 'LFP':
+        discharge_tag = 'LFP_Discharge'   
+        charge_tag    = 'LFP_Charge'   
+    elif battery_chemistry == 'NMC':
+        discharge_tag = 'NMC_Discharge'  
+        charge_tag    = 'NMC_Charge'  
+    
+    # Discharge Segment 
+    segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment) 
     segment.analyses.extend(analyses.base)       
+    segment.tag                                         = discharge_tag
     segment.time                                        = discharge_time 
-    segment.battery_pack_temperature                    = 300  
-    segment.ambient_temperature                         = 300    
     segment.battery_energy                              = bat.max_energy * 1.
-    segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)    
+    segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature = 295 )    
     mission.append_segment(segment)         
     
-    # Charge Model 
-    segment                                             = Segments.Ground.Battery_Charge_Discharge(base_segment)     
-    
-    if battery_chemistry == 'LFP':
-        segment.tag                                         = 'LFP_Charge'  
-    elif battery_chemistry == 'NCA':
-        segment.tag                                         = 'NCA_Charge'  
-    elif battery_chemistry == 'NMC':
-        segment.tag                                         = 'NMC_Charge' 
-    segment.battery_discharge                           = False 
-    segment.analyses.extend(analyses.base)        
-    segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment)      
+    # Charge Segment 
+    segment                   = Segments.Ground.Battery_Charge_Discharge(base_segment)      
+    segment.analyses.extend(analyses.base) 
+    segment.tag               = charge_tag
+    segment.battery_discharge = False        
+    segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature = 303 )      
     mission.append_segment(segment) 
          
 

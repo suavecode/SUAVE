@@ -23,3 +23,4 @@ from .Liquid_Rocket                                import Liquid_Rocket
 from .Internal_Combustion_Propeller_Constant_Speed import Internal_Combustion_Propeller_Constant_Speed
 from .PyCycle                                      import PyCycle
 from .Network                                      import Network
+from .Turboelectric_HTS_Ducted_Fan                 import Turboelectric_HTS_Ducted_Fan

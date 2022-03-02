@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Airframe
+## @ingroup Methods-Noise-Fidelity_One-Airframe
 # noise_airframe_Fink.py
 # 
 # Created:  Jun 2015, Carlos Ilario
@@ -31,7 +31,7 @@ import numpy as np
 #  Noise Airframce Fink
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Airframe
+## @ingroup Methods-Noise-Fidelity_One-Airframe
 def noise_airframe_Fink(segment,analyses,config,settings,ioprint = 0, filename=0):  
     """ This computes the noise from different sources of the airframe for a given vehicle for a constant altitude flight. 
 

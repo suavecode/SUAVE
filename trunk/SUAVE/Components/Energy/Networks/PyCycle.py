@@ -51,15 +51,13 @@ class PyCycle(Propulsor_Surrogate):
             
             Properties Used:
             N/A
-        """          
-        self.nacelle_diameter         = None
+        """           
         self.engine_length            = None
         self.number_of_engines        = None
         self.tag                      = 'PyCycle_Engine'
         self.input_file               = None
         self.sfc_surrogate            = None
         self.thrust_surrogate         = None
-        self.thrust_angle             = 0.0
         self.areas                    = Data()
         self.surrogate_type           = 'gaussian'
         self.altitude_input_scale     = 1.

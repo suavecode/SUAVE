@@ -74,7 +74,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
             wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic + mac_le_offset
             
             
-    # Go through all the networkss
+    # Go through all the networks
     network_moment = 0.
     network_mass   = 0.
     for net in vehicle.networks:

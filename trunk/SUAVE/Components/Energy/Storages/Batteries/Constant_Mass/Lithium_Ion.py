@@ -67,9 +67,8 @@ class Lithium_Ion(Battery):
         self.module_config.normal_spacing                  = 0.02
         self.module_config.parallel_spacing                = 0.02 
         
-        self.cooling_fluid                                 = Air()   
-        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.01   
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.01       
+        self.cooling_fluid                                 = Air()    
+        self.cooling_fluid.cooling_flowspeed               = 0.01       
         
         # defaults that are overwritten if specific cell chemistry is used 
         self.specific_energy                               = 200.    *Units.Wh/Units.kg    
@@ -125,7 +124,6 @@ class Lithium_Ion(Battery):
                   load_power                                               [Watts]
                   current                                                  [Amps]
                   battery_voltage_open_circuit                             [Volts]
-                  battery_thevenin_voltage                                 [Volts]
                   cell_charge_throughput                                   [Amp-hrs]
                   internal_resistance                                      [Ohms]
                   battery_state_of_charge                                  [unitless]
@@ -147,21 +145,24 @@ class Lithium_Ion(Battery):
         Q_prior           = battery.cell_charge_throughput 
         R_growth_factor   = battery.R_growth_factor
         E_growth_factor   = battery.E_growth_factor 
-        I                 = numerics.time.integrate  
+        I                 = numerics.time.integrate
+        D                 = numerics.time.differentiate
 
         if not battery_discharge_flag:   
             I_bat = -I_bat  
         # ---------------------------------------------------------------------------------
         # Compute battery electrical properties 
         # --------------------------------------------------------------------------------- 
-        n_parallel        = battery.pack_config.parallel  
          
         # Update battery capacitance (energy) with aging factor
         E_max = E_max*E_growth_factor
         
         # Compute state of charge and depth of discarge of the battery
         initial_discharge_state = np.dot(I,P_bat) + E_current[0]
-        SOC_old                 = np.divide(initial_discharge_state,E_max)  
+        SOC_old                 = np.divide(initial_discharge_state,E_max)
+        
+        SOC_old[SOC_old>1] = 1.
+        SOC_old[SOC_old<0] = 0.
         
         # Compute internal resistance
         R_bat = -0.0169*(SOC_old**4) + 0.0418*(SOC_old**3) - 0.0273*(SOC_old**2) + 0.0069*(SOC_old) + 0.0043
@@ -178,6 +179,21 @@ class Lithium_Ion(Battery):
         dT_dt     = Q_heat_gen /(bat_mass*bat_Cp)
         T_current = T_current[0] + np.dot(I,dT_dt)
         
+        # Possible Energy going into the battery:
+        energy_unmodified = np.dot(I,P)
+    
+        # Available capacity
+        capacity_available = E_max - battery.current_energy[0]
+    
+        # How much energy the battery could be overcharged by
+        delta           = energy_unmodified -capacity_available
+        delta[delta<0.] = 0.
+    
+        # Power that shouldn't go in
+        ddelta = np.dot(D,delta) 
+    
+        # Power actually going into the battery
+        P[P>0.] = P[P>0.] - ddelta[P>0.]
         E_bat = np.dot(I,P)
         E_bat = np.reshape(E_bat,np.shape(E_current)) #make sure it's consistent
         
@@ -226,7 +242,6 @@ class Lithium_Ion(Battery):
         battery.cell_entropy_heat_fraction         = np.zeros_like(V_ul)  
         battery.cell_voltage_open_circuit          = np.zeros_like(V_ul)
         battery.cell_current                       = np.zeros_like(V_ul)
-        battery.thevenin_voltage                   = np.zeros_like(V_ul)
         battery.heat_energy_generated              = Q_heat_gen 
         battery.internal_resistance                = R_0 
         battery.cell_voltage_under_load            = V_ul 
@@ -283,13 +298,13 @@ class Lithium_Ion(Battery):
         v_max     = network.voltage
         
         # Return the residuals
-        segment.state.residuals.network.voltage = (v_predict[:,0] - v_actual[:,0])/v_max
+        segment.state.residuals.network.voltage = (v_predict - v_actual)/v_max
         
         return 
     
     def append_battery_unknowns_and_residuals_to_segment(self,segment,initial_voltage, 
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
-                                              initial_battery_cell_current,initial_battery_cell_thevenin_voltage): 
+                                              initial_battery_cell_current): 
         """ Sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -303,7 +318,6 @@ class Lithium_Ion(Battery):
             initial_battery_cell_temperature      [Kelvin]
             initial_battery_state_of_charge       [unitless]
             initial_battery_cell_current          [Amperes]
-            initial_battery_cell_thevenin_voltage [Volts]
             
             Outputs
             None
@@ -329,7 +343,6 @@ class Lithium_Ion(Battery):
             N/A
     
             Inputs:  
-                self    - battery data structure             [unitless]
                 state   - segment unknowns to define voltage [unitless]
             
             Outputs
@@ -338,16 +351,8 @@ class Lithium_Ion(Battery):
             Properties Used:
             N/A
         """              
-        # Unpack battery properties
-        battery                          = self 
-        
-        # Set battery properties
-        battery.battery_thevenin_voltage = 0     
-        battery.temperature              = state.conditions.propulsion.battery_pack_temperature 
-        
-        # Voltage under load
-        V_ul                             = state.unknowns.battery_voltage_under_load
-        return V_ul  
+
+        return state.conditions.propulsion.battery_voltage_under_load 
     
     def update_battery_state_of_health(self,segment,increment_battery_cycle_day = False):   
         print(' No aging model currently implemented for LFP cells. Pristine condition of \n '

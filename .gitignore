@@ -19,6 +19,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+.vsptime
 lib
 lib64
 __pycache__
@@ -77,3 +78,5 @@ ide/Wing/SUAVE.wpr
 /doc/latex
 
 !/doc/suave_logo.png
+/trunk/SUAVE/version.py
+

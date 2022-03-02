@@ -80,7 +80,7 @@ def vehicle_setup():
     fuselage.differential_pressure              = 0. 
     
     # Segment  
-    segment                          = SUAVE.Components.Fuselages.Segment() 
+    segment                          = SUAVE.Components.Lofted_Body_Segment.Segment() 
     segment.tag                      = 'segment_1'  
     segment.origin                   = [0., 0. ,0.]  
     segment.percent_x_location       = 0.  
@@ -92,7 +92,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                   
-    segment                         = SUAVE.Components.Fuselages.Segment()
+    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_2'  
     segment.origin                  = [4.*0.3048 , 0. ,0.1*0.3048 ]  
     segment.percent_x_location      = 0.25  
@@ -104,7 +104,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                   
-    segment                         = SUAVE.Components.Fuselages.Segment()
+    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_3'  
     segment.origin                  = [8.*0.3048 , 0. ,0.34*0.3048 ]  
     segment.percent_x_location      = 0.5  
@@ -116,7 +116,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                  
-    segment                         = SUAVE.Components.Fuselages.Segment()
+    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_4'  
     segment.origin                  = [12.*0.3048 , 0. ,0.77*0.3048 ] 
     segment.percent_x_location      = 0.75 
@@ -128,7 +128,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                   
-    segment                         = SUAVE.Components.Fuselages.Segment()
+    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_5'  
     segment.origin                  = [16.*0.3048 , 0. ,2.02*0.3048 ] 
     segment.percent_x_location      = 1.0
@@ -140,19 +140,55 @@ def vehicle_setup():
     fuselage.append_segment(segment)             
                                                 
     # add to vehicle
-    vehicle.append_component(fuselage)   
+    vehicle.append_component(fuselage)    
        
+    # -----------------------------------------------------------------
+    # Design the Nacelle
+    # ----------------------------------------------------------------- 
+    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter        =  0.6 * Units.feet # need to check 
+    nacelle.length          =  0.5 * Units.feet  
+    nacelle.tag             = 'nacelle_1'
+    nacelle.areas.wetted    =  np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
+    nacelle.origin          =  [[ 0.,2.,1.4]]
+    vehicle.append_component(nacelle)  
+    
+    nacelle_2          = deepcopy(nacelle)
+    nacelle_2.tag      = 'nacelle_2'
+    nacelle_2.origin   = [[ 0.0,-2.,1.4]]
+    vehicle.append_component(nacelle_2)     
+
+    nacelle_3          = deepcopy(nacelle)
+    nacelle_3.tag      = 'nacelle_3'
+    nacelle_3.origin   = [[2.5,4.,1.4]]
+    vehicle.append_component(nacelle_3)   
+
+    nacelle_4          = deepcopy(nacelle)
+    nacelle_4.tag      = 'nacelle_4'
+    nacelle_4.origin   = [[2.5,-4.,1.4]]
+    vehicle.append_component(nacelle_4)   
+
+    nacelle_5          = deepcopy(nacelle)
+    nacelle_5.tag      = 'nacelle_5'
+    nacelle_5.origin   = [[5.0,2.,1.4]]
+    vehicle.append_component(nacelle_5)     
+
+    nacelle_6          = deepcopy(nacelle)
+    nacelle_6.tag      = 'nacelle_6'
+    nacelle_6.origin   =  [[5.0,-2.,1.4]]
+    vehicle.append_component(nacelle_6)     
+    
     #------------------------------------------------------------------
     # Network
     #------------------------------------------------------------------
-    net                      = SUAVE.Components.Energy.Networks.Battery_Propeller()
-    net.number_of_propeller_engines    = 6
-    net.nacelle_diameter     = 0.6 * Units.feet # need to check 
-    net.engine_length        = 0.5 * Units.feet
-    net.areas                = Data()
-    net.areas.wetted         = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
-    net.voltage              =  500.
-    net.identical_propellers = True
+    net                                 = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net.number_of_lift_rotor_engines    = 6
+    net.nacelle_diameter                = 0.6 * Units.feet # need to check 
+    net.engine_length                   = 0.5 * Units.feet
+    net.areas                           = Data()
+    net.areas.wetted                    = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
+    net.voltage                         =  500.
+    net.identical_lift_rotors           = True
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -203,7 +239,7 @@ def vehicle_setup():
     lift_rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/lift_rotor.tip_radius   
     lift_rotor.design_Cl              = 0.7
     lift_rotor.design_altitude        = 1000 * Units.feet                   
-    lift_rotor.design_thrust          = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
+    lift_rotor.design_thrust          = Hover_Load/(net.number_of_lift_rotor_engines-1) # contingency for one-engine-inoperative condition
 
     lift_rotor.airfoil_geometry       = ['../Vehicles/Airfoils/NACA_4412.txt'] 
     lift_rotor.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
@@ -218,13 +254,13 @@ def vehicle_setup():
     # Appending rotors with different origins
     origins                 = [[ 0.,2.,1.4],[ 0.0,-2.,1.4],
                                 [2.5,4.,1.4] ,[2.5,-4.,1.4],
-                                [5.0,2.,1.4] ,[5.0,-2.,1.4]] 
+                                [5.0,2.,1.4] ,[5.0,-2.,1.4]]  
     
     for ii in range(6):
         lift_rotor          = deepcopy(lift_rotor)
         lift_rotor.tag      = 'lift_rotor'
         lift_rotor.origin   = [origins[ii]]
-        net.propellers.append(lift_rotor)
+        net.lift_rotors.append(lift_rotor)
     
     #------------------------------------------------------------------
     # Design Motors
@@ -256,9 +292,9 @@ def vehicle_setup():
     
     # Appending motors with different origins    
     for ii in range(6):
-        propeller_motor = deepcopy(lift_motor)
-        propeller_motor.tag = 'motor'
-        net.propeller_motors.append(propeller_motor)        
+        lift_rotor_motor = deepcopy(lift_motor)
+        lift_rotor_motor.tag = 'motor'
+        net.lift_rotor_motors.append(lift_rotor_motor)        
 
     
     vehicle.append_component(net)

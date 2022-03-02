@@ -15,7 +15,7 @@ from SUAVE.Core import Data
 import numpy as np
 import copy
 
-
+## @ingroup Input_Output-VTK
 def save_prop_vtk(prop, filename, Results, time_step):
     """
     Saves a SUAVE propeller object as a VTK in legacy format.
@@ -43,6 +43,8 @@ def save_prop_vtk(prop, filename, Results, time_step):
     # Generate propeller point geometry
     n_blades = prop.number_of_blades
     n_r      = len(prop.chord_distribution)
+    rot      = prop.rotation   
+    
 
     try:
         # Check if propeller lofted geometry has already been saved
@@ -73,7 +75,7 @@ def save_prop_vtk(prop, filename, Results, time_step):
         G = Gprops[B_idx]
 
         sep  = filename.rfind('.')
-        file = filename[0:sep]+"_blade"+str(B_idx)+"_t"+str(time_step)+filename[sep:]
+        file = filename[0:sep]+"_blade"+str(B_idx)+"_t."+str(time_step)+filename[sep:]
 
         # Create file for each blade
         with open(file, 'w') as f:
@@ -294,6 +296,7 @@ def save_prop_vtk(prop, filename, Results, time_step):
 
     return
 
+## @ingroup Input_Output-VTK
 def generate_lofted_propeller_points(prop):
     """
     Generates nodes on the lofted propeller.
@@ -320,20 +323,22 @@ def generate_lofted_propeller_points(prop):
     beta   = prop.twist_distribution
     b      = prop.chord_distribution
     r      = prop.radius_distribution
-    MCA    = prop.mid_chord_alignment
     t      = prop.max_thickness_distribution
-    ta     = prop.orientation_euler_angles[1]
     origin = prop.origin
+    
+    
+    if prop.rotation==1:
+        # negative chord and twist to give opposite rotation direction
+        b = -b
+        beta = -beta   
 
     try:
-        a_o = -prop.start_angle[0]
+        a_o = prop.start_angle[0]
     except:
-        # default is no azimuthal offset (blade 1 starts vertical)
-        a_o = 0.0
+        a_o = prop.start_angle
 
     n_r       = len(b)                               # number radial points
-    n_a_loft  = prop.number_points_around_airfoil    # number points around airfoil
-    n_a_cw    = n_a_loft//2                          # number of airfoil chordwise points
+    n_a_loft  = prop.vtk_airfoil_points              # number points around airfoil
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]  # azimuthal stations
 
     # create empty data structure for storing propeller geometries
@@ -341,11 +346,9 @@ def generate_lofted_propeller_points(prop):
     Gprops      = Data()
     Gprops.n_af = n_a_loft
 
-    rot         = prop.rotation
     flip_1      = (np.pi/2)
     flip_2      = (np.pi/2)
 
-    MCA_2d = np.repeat(np.atleast_2d(MCA).T,n_a_loft,axis=1)
     b_2d   = np.repeat(np.atleast_2d(b).T  ,n_a_loft,axis=1)
     t_2d   = np.repeat(np.atleast_2d(t).T  ,n_a_loft,axis=1)
     r_2d   = np.repeat(np.atleast_2d(r).T  ,n_a_loft,axis=1)
@@ -356,7 +359,7 @@ def generate_lofted_propeller_points(prop):
         if a_sec != None:
             airfoil_data   = import_airfoil_geometry(a_sec,npoints=n_a_loft)
 
-            xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
+            xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0) 
             zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0)
             max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0)
 
@@ -365,15 +368,15 @@ def generate_lofted_propeller_points(prop):
             camber_loc   = 0.4
             thickness    = 0.10
             airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_a_loft - 2))
-            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,n_r,axis=0)
+            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,n_r,axis=0) 
             zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,n_r,axis=0)
             max_t        = np.repeat(airfoil_data.thickness_to_chord,n_r,axis=0)
 
         # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
         max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_a_loft,axis=1)
 
-        airfoil_le_offset = (b[0]/4 - np.repeat(b[:,None], n_a_loft, axis=1)/4 ) # no sweep
-        xp      = rot*(- MCA_2d + xpts*b_2d + airfoil_le_offset)  # x coord of airfoil
+        airfoil_le_offset = ( - np.repeat(b[:,None], n_a_loft, axis=1)/2 ) # no sweep
+        xp      = (xpts*b_2d + airfoil_le_offset)  # x coord of airfoil
         yp      = r_2d*np.ones_like(xp)                           # radial location
         zp      = zpts*(t_2d/max_t2d)                             # former airfoil y coord
 
@@ -386,23 +389,20 @@ def generate_lofted_propeller_points(prop):
         # ROTATION MATRICES FOR INNER SECTION
         # rotation about y axis to create twist and position blade upright
         trans_1 = np.zeros((n_r,3,3))
-        trans_1[:,0,0] = np.cos(rot*flip_1 - rot*beta)
-        trans_1[:,0,2] = -np.sin(rot*flip_1 - rot*beta)
+        trans_1[:,0,0] = np.cos(flip_1 - beta)
+        trans_1[:,0,2] = -np.sin(flip_1 - beta)
         trans_1[:,1,1] = 1
-        trans_1[:,2,0] = np.sin(rot*flip_1 - rot*beta)
-        trans_1[:,2,2] = np.cos(rot*flip_1 - rot*beta)
+        trans_1[:,2,0] = np.sin(flip_1 - beta)
+        trans_1[:,2,2] = np.cos(flip_1 - beta)
 
         # rotation about x axis to create azimuth locations
         trans_2 = np.array([[1 , 0 , 0],
-                            [0 , np.cos(theta[i] + rot*a_o + flip_2 ), -np.sin(theta[i] + rot*a_o + flip_2)],
-                            [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]   ])
+                            [0 , np.cos(theta[i] + a_o + flip_2 ), -np.sin(theta[i] + a_o + flip_2)],
+                            [0,np.sin(theta[i] + a_o + flip_2), np.cos(theta[i] + a_o + flip_2)]   ])
         trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],n_r,axis=0)
 
-        # rotation about y to orient propeller/rotor to thrust angle
-        trans_3 = prop.body_to_prop_vel() #prop.prop_vel_to_body()
-        trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],n_r,axis=0)
 
-        trans   = np.matmul(trans_3,np.matmul(trans_2,trans_1))
+        trans   = np.matmul(trans_2,trans_1) 
         rot_mat = np.repeat(trans[:, np.newaxis,:,:],n_a_loft,axis=1)
 
         # ---------------------------------------------------------------------------------------------

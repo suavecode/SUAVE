@@ -6,6 +6,7 @@
 #           Mar 2020, M. Clarke 
 #           Apr 2021, M. Clarke
 #           Jun 2021, A. Blaufox
+#           Nov 2021, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -106,12 +107,15 @@ class Aerodynamics(Basic):
         self.aerodynamics.drag_breakdown.induced      = Conditions()
 
         # stability conditions
-        self.stability         = Conditions()        
-        self.stability.static  = Conditions()
-        self.stability.dynamic = Conditions()
-        self.stability.dynamic.pitch_rate   = ones_1col * 0
-        self.stability.dynamic.roll_rate    = ones_1col * 0
-        self.stability.dynamic.yaw_rate     = ones_1col * 0     
+        self.stability                       = Conditions()        
+        self.stability.static                = Conditions()
+        self.stability.dynamic               = Conditions() 
+        self.stability.static.CM             = ones_1col * 0
+        self.stability.static.Cm_alpha       = ones_1col * 0
+        self.stability.static.static_margin  = ones_1col * 0
+        self.stability.dynamic.pitch_rate    = ones_1col * 0
+        self.stability.dynamic.roll_rate     = ones_1col * 0
+        self.stability.dynamic.yaw_rate      = ones_1col * 0     
         
         # aerodynamic derivative conditions
         self.aero_derivatives = Conditions()
@@ -128,13 +132,10 @@ class Aerodynamics(Basic):
         self.propulsion = Conditions()
         self.propulsion.throttle                             = ones_1col * 0
         self.propulsion.battery_energy                       = ones_1col * 0
-        self.propulsion.battery_voltage                      = ones_1col * 0
         self.propulsion.battery_voltage_under_load           = ones_1col * 0
         self.propulsion.battery_voltage_open_circuit         = ones_1col * 0
         self.propulsion.battery_state_of_charge              = ones_1col * 0
         self.propulsion.thrust_breakdown                     = Conditions() 
-        self.propulsion.voltage_under_load                   = ones_1col * 0
-        self.propulsion.voltage_open_circuit                 = ones_1col * 0 
         self.propulsion.battery_pack_temperature             = ones_1col * 0
         self.propulsion.battery_cell_temperature             = ones_1col * 0 
         self.propulsion.battery_cell_charge_throughput       = ones_1col * 0    
@@ -147,7 +148,10 @@ class Aerodynamics(Basic):
         self.energies.propulsion_power     = ones_1col * 0
         
         # weights conditions
-        self.weights.vehicle_mass_rate     = ones_1col * 0
+        self.weights.vehicle_mass_rate                = ones_1col * 0
+        self.weights.vehicle_fuel_rate                = ones_1col * 0
+        self.weights.vehicle_additional_fuel_rate     = ones_1col * 0
+        self.weights.has_additional_fuel              = False
         
         # noise conditions
         self.noise                             = Conditions()

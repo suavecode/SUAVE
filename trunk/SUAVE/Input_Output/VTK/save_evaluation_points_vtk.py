@@ -5,7 +5,8 @@
 # Modified: 
 #           
 
-def save_evaluation_points_vtk(points,filename,time_step):
+## @ingroup Input_Output-VTK
+def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
@@ -29,22 +30,27 @@ def save_evaluation_points_vtk(points,filename,time_step):
     
     """
     # Extract wake properties of the ith propeller
-    xp = points.XC
-    yp = points.YC
-    zp = points.ZC
+    if len(points.XC) == 1:
+        xp = points.XC[0]
+        yp = points.YC[0]
+        zp = points.ZC[0]
+    else:
+        xp = points.XC
+        yp = points.YC
+        zp = points.ZC        
     
     try:
         velocities = points.induced_velocities
         vt = velocities.vt
         va = velocities.va
-        vr = velocities.vr
+        vr = velocities.vt*0
         wake=True
     except:
         print("No velocities specified at evaluation points.")
         wake=False
     
     # Create file
-    sep  = filename.find('.')
+    sep  = filename.rfind('.')
     file = filename[0:sep]+"."+str(time_step)+filename[sep:]
     with open(file, 'w') as f:
     

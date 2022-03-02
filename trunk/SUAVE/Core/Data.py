@@ -168,7 +168,10 @@ class Data(dict):
                 
         # fill in defaults trunk to leaf
         for klass in klasses[::-1]:
-            klass.__defaults__(self)
+            try:
+                klass.__defaults__(self)
+            except:
+                pass
             
         return self
     
@@ -470,7 +473,7 @@ class Data(dict):
             
             # Check if v is an array and if k is a key in self
             if isinstance(v,array_type) and hasattr(self,k):
-                self[k] = copy(append_array(self[k],v))
+                self[k] = append_array(self[k],v)
             else:
                 try:
                     self[k].append_or_update(v)

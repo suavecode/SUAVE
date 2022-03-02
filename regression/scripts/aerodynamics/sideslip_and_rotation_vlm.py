@@ -95,13 +95,10 @@ def get_settings():
     settings = SUAVE.Analyses.Aerodynamics.Vortex_Lattice().settings
     settings.number_spanwise_vortices        = 7 
     settings.number_chordwise_vortices       = 4   
-    settings.use_bemt_wake_model             = False
     settings.propeller_wake_model            = None
     settings.spanwise_cosine_spacing         = False
     settings.model_fuselage                  = True
-    settings.initial_timestep_offset         = 0.0
-    settings.wake_development_time           = 0.0 
-    settings.number_of_wake_timesteps        = 0.0
+    settings.model_nacelle                   = False
     settings.leading_edge_suction_multiplier = 1. 
     settings.discretize_control_surfaces     = False
     settings.use_VORLAX_matrix_calculation   = False    

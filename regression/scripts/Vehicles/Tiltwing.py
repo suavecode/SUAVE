@@ -119,7 +119,7 @@ def vehicle_setup():
     fuselage.differential_pressure              = 0.
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_0'
     segment.percent_x_location                  = 0.
     segment.percent_z_location                  = 0.
@@ -130,7 +130,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_1'
     segment.percent_x_location                  = 0.97675/6.1
     segment.percent_z_location                  = 0.21977/6.1
@@ -140,7 +140,7 @@ def vehicle_setup():
 
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_2'
     segment.percent_x_location                  = 1.93556/6.1
     segment.percent_z_location                  = 0.39371/6.1
@@ -150,7 +150,7 @@ def vehicle_setup():
 
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_3'
     segment.percent_x_location                  = 3.44137/6.1
     segment.percent_z_location                  = 0.57143/6.1
@@ -159,7 +159,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_4'
     segment.percent_x_location                  = 4.61031/6.1
     segment.percent_z_location                  = 0.81577/6.1
@@ -168,7 +168,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment                                     = SUAVE.Components.Lofted_Body_Segment.Segment()
     segment.tag                                 = 'segment_5'
     segment.percent_x_location                  = 1.
     segment.percent_z_location                  = 1.19622/6.1
@@ -230,6 +230,25 @@ def vehicle_setup():
     # Component 9 Miscellaneous Systems
     sys = SUAVE.Components.Systems.System()
     sys.mass_properties.mass = 5 # kg
+
+    #------------------------------------------------------------------
+    # Nacelles
+    #------------------------------------------------------------------  
+    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter        = 0.2921
+    nacelle.length          = 0.95 
+    nacelle_origins         = [[-0.2, 1.347, 0.0], [-0.2, 3.2969999999999997, 0.0],
+                               [-0.2, -1.347, 0.0], [-0.2, -3.2969999999999997, 0.0], 
+                               [4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54],
+                               [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
+    nacelle.areas.wetted    =  np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
+
+    for idx in range(8):
+        nacelle          = deepcopy(nacelle)
+        nacelle.tag      = 'nacelle_' +  str(idx)
+        nacelle.origin   = [nacelle_origins[idx]] 
+        vehicle.append_component(nacelle)       
+
 
     #------------------------------------------------------------------
     # Design Rotors
@@ -357,12 +376,13 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover'
     vector_angle                                      = 90.0 * Units.degrees
-    config.networks.battery_propeller.thrust_angle  = vector_angle
+    for prop in config.networks.battery_propeller.propellers: 
+        prop.orientation_euler_angles                 = [0,vector_angle,0]
+        prop.inputs.pitch_command                     = 0.  * Units.degrees
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle
-    config.networks.battery_propeller.pitch_command = 0.  * Units.degrees
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -370,13 +390,14 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_climb'
-    vector_angle                                      = 90.0 * Units.degrees
-    config.networks.battery_propeller.thrust_angle    = vector_angle
+    vector_angle                                      = 90.0 * Units.degrees 
+    for prop in config.networks.battery_propeller.propellers: 
+        prop.orientation_euler_angles                 = [0,vector_angle,0]
+        prop.inputs.pitch_command                     = -5.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
-    config.wings.canard_wing.twists.tip               = vector_angle
-    config.networks.battery_propeller.pitch_command = -5.  * Units.degrees
+    config.wings.canard_wing.twists.tip               = vector_angle 
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -385,12 +406,13 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     vector_angle                                      = 45.0  * Units.degrees
     config.tag                                        = 'transition_seg_1_4'
-    config.networks.battery_propeller.thrust_angle  = vector_angle
+    for prop in config.networks.battery_propeller.propellers: 
+        prop.orientation_euler_angles                 = [0,vector_angle,0]
+        prop.inputs.pitch_command                     = 3.  * Units.degrees
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
-    config.wings.canard_wing.twists.tip               = vector_angle
-    config.networks.battery_propeller.pitch_command = 3.  * Units.degrees
+    config.wings.canard_wing.twists.tip               = vector_angle 
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -399,12 +421,14 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'transition_seg_2_3'
     vector_angle                                      = 15.0  * Units.degrees
-    config.networks.battery_propeller.thrust_angle  = vector_angle
+
+    for prop in config.networks.battery_propeller.propellers: 
+        prop.orientation_euler_angles                 = [0,vector_angle,0]
+        prop.inputs.pitch_command                     = 5.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
-    config.wings.canard_wing.twists.tip               = vector_angle
-    config.networks.battery_propeller.pitch_command = 5.  * Units.degrees
+    config.wings.canard_wing.twists.tip               = vector_angle 
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -412,13 +436,14 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'cruise'
-    vector_angle                                      = 0.0 * Units.degrees
-    config.networks.battery_propeller.thrust_angle  = vector_angle
+    vector_angle                                      = 0.0 * Units.degrees 
+    for prop in config.networks.battery_propeller.propellers: 
+        prop.orientation_euler_angles                 = [0,vector_angle,0]
+        prop.inputs.pitch_command                     = 10.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
-    config.wings.canard_wing.twists.tip               = vector_angle
-    config.networks.battery_propeller.pitch_command = 10.  * Units.degrees
+    config.wings.canard_wing.twists.tip               = vector_angle 
     configs.append(config)
 
 
@@ -428,13 +453,14 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_descent'
-    vector_angle                                      = 90.0  * Units.degrees
-    config.networks.battery_propeller.thrust_angle  = vector_angle
+    vector_angle                                      = 90.0  * Units.degrees 
+    for prop in config.networks.battery_propeller.propellers: 
+        prop.orientation_euler_angles                 = [0,vector_angle,0]
+        prop.inputs.pitch_command                     = -5.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
-    config.wings.canard_wing.twists.tip               = vector_angle
-    config.networks.battery_propeller.pitch_command = -5.  * Units.degrees
+    config.wings.canard_wing.twists.tip               = vector_angle 
     configs.append(config)
 
     return configs

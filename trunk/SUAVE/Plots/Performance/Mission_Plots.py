@@ -5,6 +5,7 @@
 #           Apr 2020, M. Clarke
 #           Sep 2020, M. Clarke 
 #           Apr 2021, M. Clarke
+#           Dec 2021, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -181,8 +182,94 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
         plt.savefig(save_filename + file_type)          
         
     return
+    
+# ------------------------------------------------------------------
+#   Plot Fuel Use
+# ------------------------------------------------------------------
+
+def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Fuel_Burnt", file_type = ".png"):
+    """This plots aircraft fuel usage
+    Assumptions:
+    None
+    Source:
+    None
+    Inputs:
+    results.segments.condtions.
+        frames.inertial.time
+        weights.fuel_mass
+        weights.additional_fuel_mass
+        weights.total_mass
+    Outputs: 
+    Plots
+    Properties Used:
+    N/A	"""
+
+    axis_font = {'size':'14'}  
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8) 
+
+    prev_seg_fuel       = 0
+    prev_seg_extra_fuel = 0
+    total_fuel          = 0
+
+    axes = plt.subplot(1,1,1)
+            
+    for i in range(len(results.segments)):
+
+        segment  = results.segments[i]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+
+        if "has_additional_fuel" in segment.conditions.weights and segment.conditions.weights.has_additional_fuel == True:
 
 
+            fuel     = segment.conditions.weights.fuel_mass[:,0]
+            alt_fuel = segment.conditions.weights.additional_fuel_mass[:,0]
+
+            if i == 0:
+
+                plot_fuel     = np.negative(fuel)
+                plot_alt_fuel = np.negative(alt_fuel)
+
+                axes.plot( time , plot_fuel , 'ro-' , label = 'fuel')
+                axes.plot( time , plot_alt_fuel , 'bo-', label = 'additional fuel' )
+                axes.plot( time , np.add(plot_fuel, plot_alt_fuel), 'go-', label = 'total fuel' )
+
+                axes.legend(loc='center right')   
+
+            else:
+                prev_seg_fuel       += results.segments[i-1].conditions.weights.fuel_mass[-1]
+                prev_seg_extra_fuel += results.segments[i-1].conditions.weights.additional_fuel_mass[-1]
+
+                current_fuel         = np.add(fuel, prev_seg_fuel)
+                current_alt_fuel     = np.add(alt_fuel, prev_seg_extra_fuel)
+
+                axes.plot( time , np.negative(current_fuel)  , 'ro-' )
+                axes.plot( time , np.negative(current_alt_fuel ), 'bo-')
+                axes.plot( time , np.negative(current_fuel + current_alt_fuel), 'go-')
+
+        else:
+            
+            initial_weight  = results.segments[0].conditions.weights.total_mass[:,0][0]
+            
+            for i in range(len(results.segments) ) :
+                segment     = results.segments[i]
+                fuel        = segment.conditions.weights.total_mass[:,0]
+                time        = segment.conditions.frames.inertial.time[:,0] / Units.min 
+                total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight )
+                axes.plot( time, total_fuel, 'mo-')
+
+    axes.set_ylabel('Fuel (kg)',axis_font)
+    axes.set_xlabel('Time (min)',axis_font)
+
+    set_axes(axes)
+
+
+    plt.tight_layout()  
+
+    if save_figure:
+        plt.savefig(save_filename + file_type)  
+        
+    return
 # ------------------------------------------------------------------
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
@@ -393,8 +480,8 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
     results.segments.conditions.propulsion
          battery_power_draw 
          battery_energy    
-         voltage_under_load    
-         voltage_open_circuit    
+         battery_voltage_under_load    
+         battery_voltage_open_circuit    
          current        
         
     Outputs: 
@@ -417,11 +504,11 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         pack_volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]     
         pack_current        = results.segments[i].conditions.propulsion.battery_current[:,0]   
         pack_SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]   
-        pack_temp           = results.segments[i].conditions.propulsion.battery_pack_temperature[:,0]      
-        pack_current         = results.segments[i].conditions.propulsion.battery_current[:,0]
+        pack_current        = results.segments[i].conditions.propulsion.battery_current[:,0]
         
         pack_battery_amp_hr = (pack_energy/ Units.Wh )/pack_volts  
-        pack_C_rating       = pack_current/pack_battery_amp_hr
+        pack_C_instant      = pack_current/pack_battery_amp_hr
+        pack_C_nominal      = pack_current/np.max(pack_battery_amp_hr)
         
     
         axes = plt.subplot(3,3,1)
@@ -451,10 +538,16 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         axes.legend(loc='upper right')  
         
         axes = plt.subplot(3,3,5)
-        axes.plot(time, pack_C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('C-Rate (C)',axis_font)  
+        axes.set_ylabel('C-Rate (C)',axis_font)          
         set_axes(axes)  
+        if i == 0:
+            axes.plot(time, pack_C_instant, line_color,label='Instantaneous')
+            axes.plot(time, pack_C_nominal, line_color2,label='Nominal')
+        else:
+            axes.plot(time, pack_C_instant, line_color)
+            axes.plot(time, pack_C_nominal, line_color2)
+        axes.legend(loc='upper right')  
 
         axes = plt.subplot(3,3,6)
         axes.plot(time, pack_current, line_color)
@@ -462,12 +555,15 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         axes.set_ylabel('Current (A)',axis_font)  
         set_axes(axes) 
         
-        axes = plt.subplot(3,3,7)
-        axes.plot(time, pack_temp, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Temperature (K)',axis_font)  
-        set_axes(axes) 
-         
+        
+    # Set limits
+    for i in range(1,7):
+        ax         = plt.subplot(3,3,i)
+        y_lo, y_hi = ax.get_ylim()
+        if y_lo>0: y_lo = 0
+        y_hi       = y_hi*1.1
+        ax.set_ylim(y_lo,y_hi)    
+     
         
     plt.tight_layout() 
     if save_figure:
@@ -520,7 +616,10 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
         cell_charge         = results.segments[i].conditions.propulsion.battery_cell_charge_throughput[:,0] 
         cell_current        = results.segments[i].conditions.propulsion.battery_cell_current[:,0]        
         cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts  
-        cell_C_rating       = cell_current/cell_battery_amp_hr        
+        
+        cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts  
+        cell_C_instant      = cell_current/cell_battery_amp_hr
+        cell_C_nominal      = cell_current/np.max(cell_battery_amp_hr)        
         
         
         axes = plt.subplot(3,3,1)
@@ -552,10 +651,18 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
             axes.plot(time,cell_volts_oc, line_color2) 
             
         axes = plt.subplot(3,3,5)
-        axes.plot(time, cell_C_rating, line_color) 
-        axes.set_ylabel('C-Rate (C)',axis_font)  
-        set_axes(axes)      
-
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('C-Rate (C)',axis_font)          
+        set_axes(axes)  
+        if i == 0:
+            axes.plot(time, cell_C_instant, line_color,label='Instantaneous')
+            axes.plot(time, cell_C_nominal, line_color2,label='Nominal')
+            axes.legend(loc='upper right')
+        else:
+            axes.plot(time, cell_C_instant, line_color)
+            axes.plot(time, cell_C_nominal, line_color2)
+  
+        
         axes = plt.subplot(3,3,6)
         axes.plot(time, cell_charge, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
@@ -573,12 +680,96 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Temperature (K)',axis_font)  
         set_axes(axes) 
+        
+        
+    # Set limits
+    for i in range(1,9):
+        ax         = plt.subplot(3,3,i)
+        y_lo, y_hi = ax.get_ylim()
+        if y_lo>0: y_lo = 0
+        y_hi       = y_hi*1.1
+        ax.set_ylim(y_lo,y_hi)       
 
     plt.tight_layout()    
     if save_figure:    
         fig.savefig(save_filename + file_type) 
     
     return
+
+# ------------------------------------------------------------------
+#   Battery Degradation
+# ------------------------------------------------------------------
+## @ingroup Plots
+def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png"):
+    """This plots the battery cell degradation 
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.propulsion    
+        battery_cycle_day                     [unitless]
+        battery_capacity_fade_factor          [-]
+        battery_resistance_growth_factor      [-]
+        battery_cell_charge_throughput        [Ah]
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	  
+    
+    axis_font = {'size':'14'}   
+    
+    fig  = plt.figure(save_filename)
+    fig.set_size_inches(12, 10)   
+    fig.suptitle('Battery Cell Degradation')
+    
+    num_segs          = len(results.segments)
+    time_hrs          = np.zeros(num_segs)
+    capacity_fade     = np.zeros_like(time_hrs)
+    resistance_growth = np.zeros_like(time_hrs)
+    cycle_day         = np.zeros_like(time_hrs)
+    charge_throughput = np.zeros_like(time_hrs)
+    
+    for i in range(num_segs):
+        time_hrs[i]            = results.segments[i].conditions.frames.inertial.time[-1,0] / Units.hour
+        cycle_day[i]           = results.segments[i].conditions.propulsion.battery_cycle_day 
+        capacity_fade[i]       = results.segments[i].conditions.propulsion.battery_capacity_fade_factor 
+        resistance_growth[i]   = results.segments[i].conditions.propulsion.battery_resistance_growth_factor 
+        charge_throughput[i]   =  results.segments[i].conditions.propulsion.battery_cell_charge_throughput[-1,0]  
+         
+    axes = plt.subplot(2,2,1)
+    axes.plot(charge_throughput, capacity_fade, line_color)
+    axes.plot(charge_throughput, resistance_growth, line_color2) 
+    axes.set_ylabel('% Capacity Fade/Resistance Growth',axis_font)
+    axes.set_xlabel('Time (hrs)',axis_font)
+    set_axes(axes)      
+
+    axes = plt.subplot(2,2,2)
+    axes.plot(time_hrs, capacity_fade, line_color)
+    axes.plot(time_hrs, resistance_growth, line_color2) 
+    axes.set_ylabel('% Capacity Fade/Resistance Growth',axis_font)
+    axes.set_xlabel('Time (hrs)',axis_font)
+    set_axes(axes)     
+
+    axes = plt.subplot(2,2,3)
+    axes.plot(cycle_day, capacity_fade, line_color)
+    axes.plot(cycle_day, resistance_growth, line_color2) 
+    axes.set_ylabel('% Capacity Fade/Resistance Growth',axis_font)
+    axes.set_xlabel('Time (days)',axis_font)
+    set_axes(axes)     
+    
+    plt.tight_layout()    
+    if save_figure:    
+        fig.savefig(save_filename + file_type) 
+    
+    return
+
 
 # ------------------------------------------------------------------
 #   Flight Conditions
@@ -613,14 +804,12 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
+     
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         airspeed = segment.conditions.freestream.velocity[:,0] /   Units['mph']  
-        theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg
-        
-        x        = segment.conditions.frames.inertial.position_vector[:,0]/ Units.nmi
-        y        = segment.conditions.frames.inertial.position_vector[:,1]
-        z        = segment.conditions.frames.inertial.position_vector[:,2]
+        theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg 
+        Range    = segment.conditions.frames.inertial.aircraft_range[:,0]/ Units.nmi 
         altitude = segment.conditions.freestream.altitude[:,0]/Units.feet
         
         axes = plt.subplot(2,2,1)
@@ -640,7 +829,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         set_axes(axes)   
         
         axes = plt.subplot(2,2,4)
-        axes.plot( time , x, 'bo-')
+        axes.plot( time , Range, 'bo-')
         axes.set_ylabel('Range (nmi)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)         
@@ -651,6 +840,77 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         
     return
 
+# ------------------------------------------------------------------
+#  Aircraft Trajectory
+# ------------------------------------------------------------------
+## @ingroup Plots
+def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Flight_Trajectory", file_type = ".png"):
+    """This plots the 3D flight trajectory of the aircraft.
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.
+         frames 
+             body.inertial_rotations
+             inertial.position_vector 
+         freestream.velocity
+         aerodynamics.
+             lift_coefficient
+             drag_coefficient
+             angle_of_attack
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	    
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(12, 10)
+     
+    for segment in results.segments.values(): 
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
+        x        = segment.conditions.frames.inertial.position_vector[:,0] 
+        y        = segment.conditions.frames.inertial.position_vector[:,1] 
+        z        = -segment.conditions.frames.inertial.position_vector[:,2] 
+        
+        axes = plt.subplot(2,2,1)
+        axes.plot( time , x , line_color )
+        axes.plot( time , y , line_color2 ) 
+        axes.set_xlabel('Distance (m)',axis_font)
+        axes.set_xlabel('Time (min)',axis_font)
+        set_axes(axes)            
+
+        axes = plt.subplot(2,2,2)
+        axes.plot(x, y , line_color)
+        axes.set_xlabel('x (m)',axis_font)
+        axes.set_ylabel('y (m)',axis_font)
+        set_axes(axes)
+
+        axes = plt.subplot(2,2,3)
+        axes.plot( time , z, line_color )
+        axes.set_ylabel('z (m)',axis_font)
+        axes.set_xlabel('Time (min)',axis_font)
+        set_axes(axes)   
+        
+        axes = plt.subplot(2,2,4, projection='3d') 
+        axes.scatter(x, y, z, marker='o',color = 'k')
+        axes.set_xlabel('x',axis_font)
+        axes.set_ylabel('y',axis_font)
+        axes.set_zlabel('z',axis_font) 
+        set_axes(axes)         
+    
+    plt.tight_layout()    
+    if save_figure:
+        plt.savefig(save_filename + file_type)
+        
+    return
 # ------------------------------------------------------------------
 #   Propulsion Conditions
 # ------------------------------------------------------------------
@@ -696,6 +956,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.plot(time, thrust, line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
         set_axes(axes)
+
         
         axes = plt.subplot(2,3,2)
         axes.plot(time, rpm, line_color)
@@ -724,6 +985,16 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Tip Mach',axis_font)
         set_axes(axes)
+        
+    # Set limits
+    for i in range(1,7):
+        ax         = plt.subplot(2,3,i)
+        y_lo, y_hi = ax.get_ylim()
+        if y_lo>0: y_lo = 0
+        y_hi       = y_hi*1.1
+        ax.set_ylim(y_lo,y_hi)
+            
+        
     
     plt.tight_layout()    
     if save_figure:
@@ -1586,8 +1857,12 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
 
     return
 
-def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour",show_figure = True):
-    """This plots the A-weighted Sound Pressure Level contour of the surface directly under an aircraft  
+
+
+def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Noise_Contour",show_figure = True):
+    """This plots two contour surface of the maximum A-weighted Sound Pressure Level in the defined computational domain. 
+    The first contour is the that of radiated noise on level ground only while the second contains radiated noise on buildings
+    as well as the aircraft trajectory.
     
     Assumptions:
     None
@@ -1621,11 +1896,8 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     Span           = np.zeros((dim_mat,dim_gm)) 
     SPL_contour_bm = np.zeros((dim_mat,dim_bm))  
     Aircraft_pos   = np.zeros((dim_mat,3)) 
-    
-    # initialize plot data 
-    plot_data = []
-    
-    # Get SPL at Ground Level (z = 0)
+    plot_data      = []
+     
     for i in range(dim_segs):  
         if  results.segments[i].battery_discharge == False:
             pass
@@ -1646,6 +1918,28 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     ground_surface      = np.zeros(Range.shape) 
     max_SPL_contour_gm  = np.max(SPL_contour_gm,axis=0)
     SPL_gm              = max_SPL_contour_gm.reshape(gm_N_x,gm_N_y)
+    
+    # ---------------------------------------------------------------------------
+    # Level ground contour 
+    # ---------------------------------------------------------------------------
+    filename_1          = 'Level_Ground_' + save_filename
+    fig                 = plt.figure(filename_1) 
+    fig.set_size_inches(10 ,10)     
+    min_SPL             = 30
+    max_SPL             = 100
+    levs                = np.linspace(min_SPL,max_SPL,25)   
+    axes                = fig.add_subplot(1,1,1)   
+    Range               = Range/Units.nmi
+    Span                = Span/Units.nmi
+    CS                  = axes.contourf(Range , Span,SPL_gm, levels  = levs, cmap=plt.cm.jet, extend='both')     
+    cbar = fig.colorbar(CS)
+    cbar.ax.set_ylabel('SPL (dBA)', rotation =  90)     
+    axes.set_ylabel('Spanwise $x_{fp}$ (nmi)',labelpad = 15)
+    axes.set_xlabel('Streamwise $x_{fp}$ (nmi)') 
+    
+    # ---------------------------------------------------------------------------
+    # Comprehensive contour including buildings 
+    # ---------------------------------------------------------------------------
     ground_contour      = contour_surface_slice(Range,Span, ground_surface , SPL_gm)
     plot_data.append(ground_contour)
     
@@ -1656,30 +1950,23 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
                                 line=dict(color='black',width=2))    
     plot_data.append(aircraft_trajectory)
      
-    # Define Colorbar Bounds 
-    min_gm_SPL  = np.min(SPL_contour_gm) 
-    max_gm_SPL  = np.max(SPL_contour_gm)
-    min_SPL     = min_gm_SPL 
-    max_SPL     = max_gm_SPL
+    # Define Colorbar Bounds  
     min_alt     = 0
     max_alt     = np.max(Aircraft_pos[:,2])
     
     # Adjust Plot Camera 
-    camera = dict(up=dict(x=0, y=0, z=1),
-                 center=dict(x=0, y=0, z=0),
-                 eye=dict(x=-1., y=-1., z=.25))     
+    camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=-1., y=-1., z=.25))    
+    building_loc  = results.segments[0].analyses.noise.settings.urban_canyon_building_locations
+    num_buildings = len( building_loc)
     
-    building_loc             = results.segments[0].analyses.noise.settings.urban_canyon_building_locations
-    num_buildings            = len( building_loc)
-    
-    if num_buildings >0:   
+    if num_buildings > 0:   
         max_alt     = np.maximum(max_alt, max((np.array(building_loc))[:,2]))
         min_bm_SPL  = np.min(SPL_contour_bm) 
         max_bm_SPL  = np.max(SPL_contour_bm)   
         min_SPL     = np.minimum(min_bm_SPL,min_SPL)
         max_SPL     = np.maximum(max_bm_SPL,max_SPL)
         
-        # Get SPL aon Building Surfaces
+        # Get SPL on Building Surfaces
         max_SPL_contour_bm       = np.max(SPL_contour_bm,axis=0)
         building_dimensions      = results.segments[0].analyses.noise.settings.urban_canyon_building_dimensions
         N_x                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_x_resolution 
@@ -1745,7 +2032,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     
     fig = go.Figure(data=plot_data)
     fig.update_layout(
-             title_text='Aircraft Noise Contour', 
+             title_text= 'Flight_Profile_' + save_filename, 
              title_x = 0.5,
              width   = 750,
              height  = 750,

@@ -53,8 +53,7 @@ class Battery_Ducted_Fan(Network):
         self.battery                   = None
         self.motor_efficiency          = 0.0
         self.tag                       = 'Battery_Ducted_Fan'
-        self.number_of_engines         = 0.
-        self.nacelle_diameter          = 0.
+        self.number_of_engines         = 0. 
         self.esc                       = None
         self.avionics                  = None
         self.payload                   = None

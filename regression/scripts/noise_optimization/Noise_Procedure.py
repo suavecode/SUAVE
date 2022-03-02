@@ -14,6 +14,7 @@ import numpy as np
 import copy
 from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
 
 # noise imports  
@@ -90,7 +91,8 @@ def initial_sizing(nexus):
         conditions.freestream = freestream 
         
         turbofan_sizing(config.networks['turbofan'], mach_number, altitude)
-        compute_turbofan_geometry(config.networks['turbofan'], conditions)
+        for nac in config.nacelles: 
+            compute_turbofan_geometry(config.networks['turbofan'],nac)
         
         # diff the new data
         config.store_diff()  
@@ -249,11 +251,11 @@ def estimate_clmax(nexus):
     config.store_diff()  
         
     # compute V2 speed for noise, based in MTOW   
-    config          = nexus.vehicle_configurations.takeoff       
-    weight          = config.mass_properties.max_takeoff
+    config          = nexus.vehicle_configurations.takeoff    
     reference_area  = config.wings.main_wing.areas.reference
-    max_CL_takeoff  = config.maximum_lift_coefficient
-    stall_speed     = (2 * 9.81 * weight / (1.225 * reference_area * max_CL_takeoff)) ** 0.5
+    max_CL_takeoff  = config.maximum_lift_coefficient 
+    altitude        = 0.0    
+    stall_speed     = estimate_stall_speed(config.mass_properties.max_takeoff,reference_area,altitude,max_CL_takeoff)
     V2_speed        = 1.20 * stall_speed            
     speed_for_noise = V2_speed + nexus.noise_V2_increase
      
@@ -277,9 +279,8 @@ def estimate_clmax(nexus):
     maximum_lift_coefficient,CDi     = compute_max_lift_coeff(state,settings,landing)
     landing.maximum_lift_coefficient = maximum_lift_coefficient 
     
-    # compute approach speed
-    weight      = landing.mass_properties.landing
-    stall_speed = (2 * 9.81 * weight / (1.225 * reference_area * maximum_lift_coefficient)) ** 0.5
+    # compute approach speed 
+    stall_speed = estimate_stall_speed(landing.mass_properties.landing,reference_area,altitude,max_CL_takeoff) 
     Vref_speed  = 1.23 * stall_speed  
     nexus.missions.landing.segments.descent.air_speed = Vref_speed  + 10. * Units.knots    
     
@@ -488,6 +489,9 @@ def noise_sideline_init(nexus):
     nexus.npoints_sideline_sign = np.sign(n_points)
     
     nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points = int(np.minimum(200, np.abs(n_points))[0])
+    
+    # Force the state to reset the number of points
+    nexus.missions.sideline_takeoff.segments.climb.state.expand_rows(nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points,override=True)
  
     return nexus
 
@@ -505,6 +509,8 @@ def noise_takeoff_init(nexus):
     nexus.npoints_takeoff_sign=np.sign(n_points)
 
     nexus.missions.takeoff.segments.climb.state.numerics.number_control_points = int(np.minimum(200, np.abs(n_points))[0])
+    
+    nexus.missions.takeoff.segments.climb.state.expand_rows(nexus.missions.takeoff.segments.climb.state.numerics.number_control_points,override=True)
 
     return nexus
 
