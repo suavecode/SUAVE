@@ -8,7 +8,7 @@
      # Chordwise = 10   # Spanwise = 30     First strip =  1
      Surface area =   63.968842       Ave. chord =    3.715026
      CLsurf  =   0.38444     Clsurf  =  -0.07487
-     CYsurf  =  -0.02071     Cmsurf  =  -0.34427
+     CYsurf  =  -0.02071     Cmsurf  =  -0.32490
      CDsurf  =   0.01268     Cnsurf  =  -0.00711
      CDisurf =   0.01268     CDvsurf =   0.00000
 
@@ -53,7 +53,7 @@
      # Chordwise = 10   # Spanwise = 30     First strip = 31
      Surface area =   63.968842       Ave. chord =    3.715026
      CLsurf  =   0.38444     Clsurf  =   0.07487
-     CYsurf  =   0.02071     Cmsurf  =  -0.34427
+     CYsurf  =   0.02071     Cmsurf  =  -0.32490
      CDsurf  =   0.01268     Cnsurf  =   0.00711
      CDisurf =   0.01268     CDvsurf =   0.00000
 
@@ -98,7 +98,7 @@
      # Chordwise = 10   # Spanwise = 30     First strip = 61
      Surface area =   20.744604       Ave. chord =    2.848572
      CLsurf  =   0.04154     Clsurf  =  -0.00435
-     CYsurf  =  -0.00659     Cmsurf  =  -0.20329
+     CYsurf  =  -0.00659     Cmsurf  =  -0.19185
      CDsurf  =   0.00315     Cnsurf  =   0.00364
      CDisurf =   0.00315     CDvsurf =   0.00000
 
@@ -143,7 +143,7 @@
      # Chordwise = 10   # Spanwise = 30     First strip = 91
      Surface area =   20.744604       Ave. chord =    2.848572
      CLsurf  =   0.04154     Clsurf  =   0.00435
-     CYsurf  =   0.00659     Cmsurf  =  -0.20329
+     CYsurf  =   0.00659     Cmsurf  =  -0.19185
      CDsurf  =   0.00315     Cnsurf  =  -0.00364
      CDisurf =   0.00315     CDvsurf =   0.00000
 
@@ -233,7 +233,7 @@
      # Chordwise = 10   # Spanwise = 10     First strip =151
      Surface area =  123.841202       Ave. chord =   33.112617
      CLsurf  =   0.01081     Clsurf  =   0.00000
-     CYsurf  =  -0.00000     Cmsurf  =   0.06652
+     CYsurf  =  -0.00000     Cmsurf  =   0.06278
      CDsurf  =  -0.00024     Cnsurf  =  -0.00000
      CDisurf =  -0.00024     CDvsurf =   0.00000
 

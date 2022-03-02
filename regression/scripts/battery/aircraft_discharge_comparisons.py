@@ -47,7 +47,7 @@ def main():
     # EVTOL Aircraft      
     EVTOL_RPM_true              = [2380.178696410079,2380.178696821923]
 
-    EVTOL_lift_coefficient_true = [0.8075115628618528,0.8075115628540404]
+    EVTOL_lift_coefficient_true = [0.8075309358242124,0.8075309358160647]
     
         
     for i in range(len(battery_chemistry)):
