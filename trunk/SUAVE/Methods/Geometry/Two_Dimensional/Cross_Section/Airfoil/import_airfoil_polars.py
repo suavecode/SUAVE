@@ -39,8 +39,8 @@ def  import_airfoil_polars(airfoil_polar_files):
     num_polars   = 0
     for i in range(num_airfoils): 
         n_p = len(airfoil_polar_files[i])
-        if n_p < 3:
-            raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+        #if n_p < 3:
+            #raise AttributeError('Provide three or more airfoil polars to compute surrogate')
         
         num_polars = max(num_polars, n_p)       
     
