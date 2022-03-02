@@ -1690,9 +1690,9 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
                 SPL[i,j,:] = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm].reshape(N_gm_x,N_gm_y)  
     max_SPL = np.max(np.max(SPL,axis=0),axis=0)   
     for k in range(N_gm_y):    
-        axes.plot(gm_x[:,0]/Units.nmi, max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
+        axes.plot(gm_x[:,0], max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
     axes.set_ylabel('SPL (dBA)',axis_font)
-    axes.set_xlabel('Range (nmi)',axis_font)  
+    axes.set_xlabel('Range (m)',axis_font)  
     set_axes(axes)
     axes.legend(loc='upper right')         
     if save_figure:
@@ -1748,9 +1748,9 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
         else:     
             for j in range(dim_ctrl_pts):  
                 idx                    = i*dim_ctrl_pts + j
-                Aircraft_pos[idx ,0]   = results.segments[i].conditions.frames.inertial.position_vector[j,0]
+                Aircraft_pos[idx ,0]   = results.segments[i].conditions.frames.inertial.position_vector[j,0] 
                 Aircraft_pos[idx ,2]   = -results.segments[i].conditions.frames.inertial.position_vector[j,2] 
-                SPL_contour_gm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm]
+                SPL_contour_gm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm] 
                 
                 if dim_bm > 0:
                     SPL_contour_bm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,-dim_bm:] 
@@ -1771,8 +1771,8 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     fig.set_size_inches(8,4)
     levs                = np.linspace(40,100,25)
     axes                = fig.add_subplot(1,1,1)   
-    Range               = Range/Units.nmi
-    Span                = Span/Units.nmi
+    Range               = Range 
+    Span                = Span 
     CS                  = axes.contourf(Range , Span,SPL_gm, levels  = levs, cmap=plt.cm.jet, extend='both')     
     cbar = fig.colorbar(CS)
     cbar.ax.set_ylabel('SPL (dBA)', rotation =  90)     
