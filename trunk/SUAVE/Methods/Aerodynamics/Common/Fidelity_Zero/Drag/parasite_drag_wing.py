@@ -21,7 +21,7 @@ from SUAVE.Core import Data
 import numpy as np
 
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_segmented_planform import segment_properties
 
 
 # ----------------------------------------------------------------------
