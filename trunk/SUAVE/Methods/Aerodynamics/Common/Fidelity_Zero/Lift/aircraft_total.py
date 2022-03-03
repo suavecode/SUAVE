@@ -10,7 +10,6 @@
 # ----------------------------------------------------------------------
 #  Aircraft Total
 # ----------------------------------------------------------------------
-
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
 def aircraft_total(state,settings,geometry):
     """Returns total aircraft lift and stores values

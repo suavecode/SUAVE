@@ -157,14 +157,10 @@ def get_settings():
     settings.fuselage_spanwise_vortices      = 5
     settings.fuselage_chordwise_vortices     = 4
         
-    settings.use_bemt_wake_model             = False
     settings.propeller_wake_model            = None
     settings.spanwise_cosine_spacing         = False
     settings.model_fuselage                  = True
     settings.model_nacelle                   = True
-    settings.initial_timestep_offset         = 0.0
-    settings.wake_development_time           = 0.0 
-    settings.number_of_wake_timesteps        = 0.0
     settings.leading_edge_suction_multiplier = 1. 
     settings.discretize_control_surfaces     = True
     settings.use_VORLAX_matrix_calculation   = False    

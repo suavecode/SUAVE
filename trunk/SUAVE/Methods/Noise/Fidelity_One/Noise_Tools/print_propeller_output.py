@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # print_propeller_output.py
 # 
 # Created:  Oct 2020, M. Clarke 
@@ -9,7 +9,7 @@
 import numpy as np
 from SUAVE.Core            import Units  
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 def print_propeller_output(speed,nsteps,time,altitude, RPM,theta ,dist ,PNL,PNL_dBA): 
     """This prints the noise of a propeller aircraft using SAE noise analysis methods
 

@@ -13,7 +13,7 @@
 import numpy as np 
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution       import generate_vortex_distribution, compute_panel_area, compute_unit_normal
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution       import generate_vortex_distribution 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
 
 # ----------------------------------------------------------------------
@@ -127,10 +127,6 @@ def VLM(conditions,settings,geometry):
     """ 
     # unpack settings----------------------------------------------------------------
     pwm        = settings.propeller_wake_model
-    bemt_wake  = settings.use_bemt_wake_model
-    ito        = settings.initial_timestep_offset
-    nts        = settings.number_of_wake_timesteps 
-    wdt        = settings.wake_development_time   
     K_SPC      = settings.leading_edge_suction_multiplier
     Sref       = geometry.reference_area              
 
@@ -241,7 +237,7 @@ def VLM(conditions,settings,geometry):
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
     # Build the RHS vector    
-    rhs = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm,bemt_wake,ito,wdt,nts ) 
+    rhs = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm) 
     RHS     = rhs.RHS*1
     ONSET   = rhs.ONSET*1
 
@@ -321,7 +317,7 @@ def VLM(conditions,settings,geometry):
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
     COS_DL = (YBH-YAH)[LE_ind]/D
-    cos_DL  = np.broadcast_to(np.repeat(COS_DL,RNMAX[LE_ind]),np.shape(B2))
+    cos_DL = np.broadcast_to(np.repeat(COS_DL,RNMAX[LE_ind]),np.shape(B2))
     DCPSID = FORLAT * cos_DL *GLAT /(XIB - XIA)
     FACTOR = FORAXL + ONSET
     
@@ -510,14 +506,17 @@ def VLM(conditions,settings,geometry):
     results.CYMTOT     =  CYMTOT
     
     #other SUAVE outputs
-    results.CL_wing    =  CL_wing   
-    results.CDi_wing   =  CDi_wing 
-    results.cl_y       =  cl_y   
-    results.cdi_y      =  cdi_y       
-    results.alpha_i    =  alpha_i  
-    results.CP         =  np.array(CP    , dtype=precision)
-    results.gamma      =  np.array(GAMMA , dtype=precision)
-    results.VD = VD
+    results.CL_wing        =  CL_wing   
+    results.CDi_wing       =  CDi_wing 
+    results.cl_y           =  cl_y   
+    results.cdi_y          =  cdi_y       
+    results.alpha_i        =  alpha_i  
+    results.CP             =  np.array(CP    , dtype=precision)
+    results.gamma          =  np.array(GAMMA , dtype=precision)
+    results.VD             = VD
+    results.V_distribution = rhs.V_distribution
+    results.V_x            = rhs.Vx_ind_total
+    results.V_z            = rhs.Vz_ind_total
     
     return results
 

@@ -15,7 +15,7 @@ from SUAVE.Core import Units
 from SUAVE.Core import Data, Container
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 
 from copy import deepcopy
 
@@ -179,7 +179,7 @@ def vehicle_setup():
     wing.Segments.append(segment)  
     
     # Fill out more segment properties automatically
-    wing = segment_properties(wing)        
+    wing = wing_segmented_planform(wing)        
 
     # add to vehicle
     vehicle.append_component(wing)

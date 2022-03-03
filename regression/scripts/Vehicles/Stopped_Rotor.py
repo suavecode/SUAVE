@@ -15,7 +15,7 @@ from SUAVE.Methods.Propulsion.electric_motor_sizing                       import
 from SUAVE.Methods.Propulsion                                             import propeller_design
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 
 
 import numpy as np
@@ -110,7 +110,7 @@ def vehicle_setup():
     wing.Segments.append(segment)
     
     # Fill out more segment properties automatically
-    wing = segment_properties(wing)        
+    wing = wing_segmented_planform(wing)        
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -592,7 +592,7 @@ def vehicle_setup():
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
     propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    propeller                        = propeller_design(propeller)
+    propeller                        = propeller_design(propeller,number_of_airfoil_section_points = 50)
     propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
     net.propellers.append(propeller)
 

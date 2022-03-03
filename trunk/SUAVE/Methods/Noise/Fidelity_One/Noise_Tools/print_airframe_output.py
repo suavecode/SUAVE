@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # print_airframe_output.py
 # 
 # Created:  Oct 2020, M. Clarke
@@ -10,7 +10,7 @@
 import numpy as np
 from SUAVE.Core            import Units  
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 def print_airframe_output(SAE_Airframe_Noise_Outputs): 
     """This prints the airframe noise of a turbofan aircraft
 
