@@ -113,7 +113,7 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
         wing.tag = 'winggeom'
     
     if use_scaling:
-        scaling       = vsp.GetParmVal(fuselage_id, 'Scale', 'XForm')  
+        scaling       = vsp.GetParmVal(wing_id, 'Scale', 'XForm')
     else:
         scaling       = 1.
     units_factor      = units_factor*scaling
