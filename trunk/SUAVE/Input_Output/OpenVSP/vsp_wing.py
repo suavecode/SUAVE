@@ -622,7 +622,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
     if 'control_surfaces' in wing:
         for ctrl_surf in wing.control_surfaces:
-            write_vsp_control_surface(wing_id,ctrl_surf)
+            write_vsp_control_surface(wing_id,ctrl_surf,n_segments)
 
 
     if 'Fuel_Tanks' in wing:
@@ -635,7 +635,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
 
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_control_surface(wing_id,ctrl_surf):
+def write_vsp_control_surface(wing_id,ctrl_surf,n_segments):
     """This writes a control surface in a wing.
     
     Assumptions:
@@ -647,6 +647,7 @@ def write_vsp_control_surface(wing_id,ctrl_surf):
     Inputs:
     wind_id              <str>
     ctrl_surf            [-]
+    n_segments           int, number of wing segments
     
     Outputs:
     Operates on the active OpenVSP model, no direct output
@@ -663,9 +664,9 @@ def write_vsp_control_surface(wing_id,ctrl_surf):
             else:
                 vsp.SetParmVal( param_names[p_idx], 0.0)
         if 'UStart' == vsp.GetParmName(param_names[p_idx]):
-            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_start+1)/3)
+            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_start*(n_segments-1)+1)/(n_segments+1))
         if 'UEnd' ==vsp.GetParmName(param_names[p_idx]):
-            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_end+1)/3)
+            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_end*(n_segments-1)+1)/(n_segments+1))
         if 'Length_C_Start' == vsp.GetParmName(param_names[p_idx]):
             vsp.SetParmVal(param_names[p_idx], ctrl_surf.chord_fraction)
         if 'Length_C_End' == vsp.GetParmName(param_names[p_idx]):
