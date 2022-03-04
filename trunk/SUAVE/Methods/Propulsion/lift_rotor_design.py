@@ -279,22 +279,13 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
 
 
     # Run Conditions     
-    theta  = np.array([45,90,135])*Units.degrees + 1E-1
-    S      = 10. # np.maximum(alt , 20*Units.feet) 
+    theta  = np.array([135])*Units.degrees + 1E-1
+    S      = np.maximum(alt , 20*Units.feet) 
 
     # microphone locations
-    positions2 = np.zeros(( len(theta),3))
+    positions  = np.zeros(( len(theta),3))
     for i in range(len(theta)):
-        positions2[i][:] = [0.0 , S*np.sin(theta[i])  ,S*np.cos(theta[i])]  
-
-
-    # microphone locations
-    positions = np.zeros(( len(theta),3))
-    for i in range(len(theta)):
-        if theta[i]*Units.degrees < np.pi/2:
-            positions[i][:] = [-S*np.cos(theta[i]*Units.degrees)  ,S*np.sin(theta[i]*Units.degrees), 0.0]
-        else: 
-            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0]  
+        positions [i][:] = [0.0 , S*np.sin(theta[i])  ,S*np.cos(theta[i])]   
 
     # Set up for Propeller Model
     rotor.inputs.omega                                     = np.atleast_2d(omega).T
@@ -303,7 +294,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     conditions.freestream.dynamic_viscosity                = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound                   = np.ones((ctrl_pts,1)) * a 
     conditions.freestream.temperature                      = np.ones((ctrl_pts,1)) * T  
-    conditions.frames.inertial.velocity_vector             = np.array([[V, 0. ,0]]) 
+    conditions.frames.inertial.velocity_vector             = np.array([[0, 0. ,V]]) 
     conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])   
     
@@ -516,15 +507,12 @@ def post_process(nexus):
     mu             = atmo_data.dynamic_viscosity[0]  
 
     # Define microphone locations
-    theta     = np.array([45,90,135])*Units.degrees + 1E-1
-    S         = 10. 
-    ctrl_pts  = 1 
+    theta     = np.array([135])*Units.degrees + 1E-1
+    S         = np.maximum(alt , 20*Units.feet) 
+    ctrl_pts  = 1  
     positions = np.zeros(( len(theta),3))
     for i in range(len(theta)):
-        if theta[i]*Units.degrees < np.pi/2:
-            positions[i][:] = [-S*np.cos(theta[i]*Units.degrees)  ,S*np.sin(theta[i]*Units.degrees), 0.0]
-        else: 
-            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0] 
+        positions [i][:] = [0.0 , S*np.sin(theta[i])  ,S*np.cos(theta[i])]  
 
     # Define run conditions 
     rotor.inputs.omega                               = np.atleast_2d(omega).T
@@ -533,9 +521,10 @@ def post_process(nexus):
     conditions.freestream.dynamic_viscosity          = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound             = np.ones((ctrl_pts,1)) * a 
     conditions.freestream.temperature                = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector       = np.array([[V, 0. ,0.]])
+    conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V]])
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
-    conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+    #conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+    conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])  
 
     # Run Propeller model 
     thrust , torque, power, Cp  , noise_data , etap  = rotor.spin(conditions) 
@@ -590,14 +579,17 @@ def post_process(nexus):
 
 
     # figure of merit 
-    C_t_UIUC  = noise_data.thrust_coefficient[0][0]
-    C_t_rot   = C_t_UIUC*8/(np.pi**3)
-    C_p_UIUC  = Cp[0][0] 
-    C_q_UIUC  = C_p_UIUC/(2*np.pi) 
-    C_q_rot   = C_q_UIUC*16/(np.pi**3)   
-    C_p_rot   = C_q_rot 
-    ideal_FM  = 1
-    FM        = ((C_t_rot**1.5)/np.sqrt(2))/C_p_rot
+
+    # figure of merit for hover 
+    C_t_UIUC        = noise_data.thrust_coefficient[0][0]
+    C_t_rot         = C_t_UIUC*8/(np.pi**3)
+    C_p_UIUC        = Cp[0][0] 
+    C_q_UIUC        = C_p_UIUC/(2*np.pi) 
+    C_q_rot         = C_q_UIUC*16/(np.pi**3)   
+    C_p_rot         = C_q_rot 
+    ideal_FM        = 1
+    FM              = ((C_t_rot**1.5)/np.sqrt(2))/C_p_rot 
+     
     summary.figure_of_merit = FM
  
 
@@ -605,8 +597,8 @@ def post_process(nexus):
     # OBJECTIVE FUNCTION
     # -------------------------------------------------------     
 
-    #summary.Aero_Acoustic_Obj =  LA.norm((FM - ideal_FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL))*(1-alpha) 
-    summary.Aero_Acoustic_Obj =  LA.norm((Aerodynamic_Metric - ideal_aero)/ideal_aero)*alpha  + LA.norm((Acoustic_Metric - ideal_SPL)/ideal_SPL)*(1-alpha)
+    summary.Aero_Acoustic_Obj =  LA.norm((FM - ideal_FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL))*(1-alpha) 
+    #summary.Aero_Acoustic_Obj =  LA.norm((Aerodynamic_Metric - ideal_aero)/ideal_aero)*alpha  + LA.norm((Acoustic_Metric - ideal_SPL)/ideal_SPL)*(1-alpha)
         
     # -------------------------------------------------------
     # PRINT ITERATION PERFOMRMANCE
@@ -614,10 +606,13 @@ def post_process(nexus):
     print("Aero_Acoustic_Obj       : " + str(summary.Aero_Acoustic_Obj))     
     print("Aero_Acoustic_Weight    : " + str(alpha))
     if rotor.design_thrust == None: 
-        print("Power                   : " + str(power[0][0])) 
+        print("Thrust (N)              : " + str(-thrust[0][2]))   
+        print("Power (kW)              : " + str(power[0][0]/1000)) 
     if rotor.design_power == None: 
-        print("Thrust                  : " + str(-thrust[0][2]))   
+        print("Thrust (N)              : " + str(-thrust[0][2]))   
+        print("Power (kW)              : " + str(power[0][0]/1000)) 
     print("Average SPL             : " + str(mean_SPL))  
+    print("Figure of Merit         : " + str(FM))  
     print("Thrust/Power Residual   : " + str(summary.thrust_power_residual)) 
     print("Blade Taper             : " + str(blade_taper))
     print("Max Sectional Cl        : " + str(summary.max_sectional_cl))  
