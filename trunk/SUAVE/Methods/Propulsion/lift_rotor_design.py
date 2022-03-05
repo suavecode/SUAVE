@@ -152,12 +152,18 @@ def rotor_optimization_setup(rotor):
     nexus                      = Nexus()
     problem                    = Data()
     nexus.optimization_problem = problem
+    
+    
 
     # -------------------------------------------------------------------
     # Inputs
     # -------------------------------------------------------------------  
     R      = rotor.tip_radius  
+    tm_ll  = rotor.design_tip_mach_range[0]
+    tm_ul  = rotor.design_tip_mach_range[1]    
+    tm_0   = (tm_ul + tm_ll)/2
     inputs = []
+    inputs.append([ 'tip_mach'   , tm_0      , tm_ll  , tm_ul    , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_r'    , 0.1*R     , 0.05*R , 0.2*R    , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_p'    , 2         , 0.25   , 2.0      , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_q'    , 1         , 0.25   , 1.5      , 1.0     ,  1*Units.less])
@@ -183,7 +189,7 @@ def rotor_optimization_setup(rotor):
     constraints.append([ 'thrust_power_residual'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])  
     constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.3 ,   1.0   , 1*Units.less])  
     constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.7 ,   1.0   , 1*Units.less])
-    constraints.append([ 'max_sectional_cl'         ,  '<'  ,  0.7 ,   1.0   , 1*Units.less])
+    constraints.append([ 'max_sectional_cl'         ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])
     constraints.append([ 'chord_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])    
     constraints.append([ 'twist_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])   
     problem.constraints =  np.array(constraints,dtype=object)                
@@ -192,6 +198,7 @@ def rotor_optimization_setup(rotor):
     #  Aliases
     # ------------------------------------------------------------------- 
     aliases = []
+    aliases.append([ 'tip_mach'                  , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.design_tip_mach' ])
     aliases.append([ 'chord_r'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.chord_r' ])
     aliases.append([ 'chord_p'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.chord_p' ])
     aliases.append([ 'chord_q'                   , 'vehicle_configurations.*.networks.battery_propeller.lift_rotors.rotor.chord_q' ])
@@ -253,15 +260,18 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
           Source:
              None
     """    
+    network                  = optimization_problem.vehicle_configurations.rotor_testbench.networks.battery_propeller
+    rotor_opt                = network.lift_rotors.rotor 
     r                        = rotor.radius_distribution
     R                        = rotor.tip_radius     
     chi                      = r/R 
-    B                        = rotor.number_of_blades 
-    omega                    = rotor.angular_velocity
+    B                        = rotor.number_of_blades  
+    rotor.design_tip_mach    = rotor_opt.design_tip_mach
+    omega                    = rotor.design_tip_mach* 343 /rotor.tip_radius 
+    rotor.angular_velocity   = omega  
+    rotor.freestream_velocity= rotor.inflow_ratio*rotor.angular_velocity*rotor.tip_radius      
     V                        = rotor.freestream_velocity  
     alt                      = rotor.design_altitude
-    network                  = optimization_problem.vehicle_configurations.rotor_testbench.networks.battery_propeller
-    rotor_opt                = network.lift_rotors.rotor 
     rotor.chord_distribution = rotor_opt.chord_distribution
     rotor.twist_distribution = rotor_opt.twist_distribution
     c                        = rotor.chord_distribution
@@ -294,9 +304,9 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     conditions.freestream.dynamic_viscosity                = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound                   = np.ones((ctrl_pts,1)) * a 
     conditions.freestream.temperature                      = np.ones((ctrl_pts,1)) * T  
-    conditions.frames.inertial.velocity_vector             = np.array([[0, 0. ,V]]) 
+    conditions.frames.inertial.velocity_vector             = np.array([[0, 0. ,V]])
     conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
-    conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])   
+    conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
     
     # Run Propeller model 
     thrust , torque, power, Cp  , noise_data , etap        = rotor.spin(conditions)
@@ -491,8 +501,8 @@ def post_process(nexus):
     # unpack rotor properties 
     rotor         = lift_rotors.rotor 
     c             = rotor.chord_distribution 
-    omega         = rotor.angular_velocity 
-    V             = rotor.freestream_velocity   
+    omega         = rotor.design_tip_mach* 343 /rotor.tip_radius   
+    V             = rotor.inflow_ratio*omega*rotor.tip_radius    
     alt           = rotor.design_altitude
     alpha         = rotor.optimization_parameters.aeroacoustic_weight
     epsilon       = rotor.optimization_parameters.slack_constaint 
@@ -523,7 +533,6 @@ def post_process(nexus):
     conditions.freestream.temperature                = np.ones((ctrl_pts,1)) * T 
     conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V]])
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
-    #conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
     conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])  
 
     # Run Propeller model 
@@ -611,6 +620,7 @@ def post_process(nexus):
     if rotor.design_power == None: 
         print("Thrust (N)              : " + str(-thrust[0][2]))   
         print("Power (kW)              : " + str(power[0][0]/1000)) 
+    print("Tip Mach                : " + str(rotor.design_tip_mach))  
     print("Average SPL             : " + str(mean_SPL))  
     print("Figure of Merit         : " + str(FM))  
     print("Thrust/Power Residual   : " + str(summary.thrust_power_residual)) 
