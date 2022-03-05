@@ -15,6 +15,7 @@ from SUAVE.Core import Data
 import numpy as np
 import copy
 
+
 ## @ingroup Input_Output-VTK
 def save_prop_vtk(prop, filename, Results, time_step):
     """
@@ -401,8 +402,19 @@ def generate_lofted_propeller_points(prop):
                             [0,np.sin(theta[i] + a_o + flip_2), np.cos(theta[i] + a_o + flip_2)]   ])
         trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],n_r,axis=0)
 
-
-        trans   = np.matmul(trans_2,trans_1) 
+        trans_3 =  prop.prop_vel_to_body()
+        trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],n_r,axis=0) 
+        
+        
+        # rotation 180 degrees 
+        trans_4 = np.zeros((n_r,3,3))
+        trans_4[:,0,0] = np.cos(np.pi)
+        trans_4[:,0,2] = -np.sin(np.pi)
+        trans_4[:,1,1] = 1
+        trans_4[:,2,0] = np.sin(np.pi)
+        trans_4[:,2,2] = np.cos(np.pi)
+        
+        trans   = np.matmul(trans_4,np.matmul(trans_3,np.matmul(trans_2,trans_1) ))
         rot_mat = np.repeat(trans[:, np.newaxis,:,:],n_a_loft,axis=1)
 
         # ---------------------------------------------------------------------------------------------
