@@ -8,6 +8,9 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution import generate_vortex_distribution
 from copy import deepcopy
+import numpy as np
+
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
 
 ## @ingroup Input_Output-VTK
 def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step):
@@ -43,75 +46,62 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         wing_vehicle.append_component(wing_instance)
         VD = generate_vortex_distribution(wing_vehicle,settings)
     
-    span_breaks            = VD.spanwise_breaks
-    symmetric              = vehicle.wings[wing_instance.tag].symmetric
-    wing_origin            = wing_instance.origin
-    cps_per_wing_component = VD.n_cw*VD.n_sw
-
-    # which wing this is
-    count = 0
-    for wing in vehicle.wings:
-        sym = wing.symmetric
+    for i,wing in enumerate(vehicle.wings):
         if wing == wing_instance:
-            ids = range(count, count + 1 + int(sym))
-            idx_start = count
-        else:
-            count += (1 + int(sym))
+            wing_instance_idx = i
             
-    i = idx_start
-
-    n_cw      = VD.n_cw[i]  # number of chordwise panels per half wing
-    n_sw      = VD.n_sw[i]  # number of spanwise panels per half wing
-    n_cp      = cps_per_wing_component[i]   # VD.n_cp     # number of control points and panels per wing section
-
-    sec_start = i*sum(cps_per_wing_component[0:i-1])
-
+    VD_wing, ids = extract_wing_collocation_points(vehicle, wing_instance_idx)
+    symmetric = wing_instance.symmetric
+    
     if symmetric:
-        half_l    = sec_start+n_cp
-        sec_end   = sec_start + n_cp*2
-        R_Results = deepcopy(Results)
-        L_Results = deepcopy(Results)
+        # Split into half wings for plotting
+        sec_start = 0
+        sec_end   = len(VD_wing.XA1)
+        half_l    =  sec_end // 2
+        
+        n_cw_L = VD_wing.n_cw[0]
+        n_sw_L = VD_wing.n_sw[0]
+        n_cp_L = n_cw_L*n_sw_L
 
-        # number panels per half span
-        n_cp_R   = n_cp
-        n_cp_L   = n_cp
-        n_cw     = n_cw
-        n_sw     = n_sw
+        n_cw_R = VD_wing.n_cw[1]
+        n_sw_R = VD_wing.n_sw[1]    
+        n_cp_R = n_cw_R*n_sw_R
 
         # split wing into two separate wings
         Rwing = Data()
         Lwing = Data()
 
-        Rwing.XA1 = VD.XA1[sec_start:half_l]
-        Rwing.XA2 = VD.XA2[sec_start:half_l]
-        Rwing.XB1 = VD.XB1[sec_start:half_l]
-        Rwing.XB2 = VD.XB2[sec_start:half_l]
-        Rwing.YA1 = VD.YA1[sec_start:half_l]
-        Rwing.YA2 = VD.YA2[sec_start:half_l]
-        Rwing.YB1 = VD.YB1[sec_start:half_l]
-        Rwing.YB2 = VD.YB2[sec_start:half_l]
-        Rwing.ZA1 = VD.ZA1[sec_start:half_l]
-        Rwing.ZA2 = VD.ZA2[sec_start:half_l]
-        Rwing.ZB1 = VD.ZB1[sec_start:half_l]
-        Rwing.ZB2 = VD.ZB2[sec_start:half_l]
+        Rwing.XA1 = VD_wing.XA1[sec_start:half_l]
+        Rwing.XA2 = VD_wing.XA2[sec_start:half_l]
+        Rwing.XB1 = VD_wing.XB1[sec_start:half_l]
+        Rwing.XB2 = VD_wing.XB2[sec_start:half_l]
+        Rwing.YA1 = VD_wing.YA1[sec_start:half_l]
+        Rwing.YA2 = VD_wing.YA2[sec_start:half_l]
+        Rwing.YB1 = VD_wing.YB1[sec_start:half_l]
+        Rwing.YB2 = VD_wing.YB2[sec_start:half_l]
+        Rwing.ZA1 = VD_wing.ZA1[sec_start:half_l]
+        Rwing.ZA2 = VD_wing.ZA2[sec_start:half_l]
+        Rwing.ZB1 = VD_wing.ZB1[sec_start:half_l]
+        Rwing.ZB2 = VD_wing.ZB2[sec_start:half_l]
+        
+        Lwing.XA1 = VD_wing.XA1[half_l:sec_end]
+        Lwing.XA2 = VD_wing.XA2[half_l:sec_end]
+        Lwing.XB1 = VD_wing.XB1[half_l:sec_end]
+        Lwing.XB2 = VD_wing.XB2[half_l:sec_end]
+        Lwing.YA1 = VD_wing.YA1[half_l:sec_end]
+        Lwing.YA2 = VD_wing.YA2[half_l:sec_end]
+        Lwing.YB1 = VD_wing.YB1[half_l:sec_end]
+        Lwing.YB2 = VD_wing.YB2[half_l:sec_end]
+        Lwing.ZA1 = VD_wing.ZA1[half_l:sec_end]
+        Lwing.ZA2 = VD_wing.ZA2[half_l:sec_end]
+        Lwing.ZB1 = VD_wing.ZB1[half_l:sec_end]
+        Lwing.ZB2 = VD_wing.ZB2[half_l:sec_end]
 
-        Lwing.XA1 = VD.XA1[half_l:sec_end]
-        Lwing.XA2 = VD.XA2[half_l:sec_end]
-        Lwing.XB1 = VD.XB1[half_l:sec_end]
-        Lwing.XB2 = VD.XB2[half_l:sec_end]
-        Lwing.YA1 = VD.YA1[half_l:sec_end]
-        Lwing.YA2 = VD.YA2[half_l:sec_end]
-        Lwing.YB1 = VD.YB1[half_l:sec_end]
-        Lwing.YB2 = VD.YB2[half_l:sec_end]
-        Lwing.ZA1 = VD.ZA1[half_l:sec_end]
-        Lwing.ZA2 = VD.ZA2[half_l:sec_end]
-        Lwing.ZB1 = VD.ZB1[half_l:sec_end]
-        Lwing.ZB2 = VD.ZB2[half_l:sec_end]
-
-        if Results is not None:
-            if 'vlm_results' in Results.keys():
-                R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]
-                L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
+        R_Results = deepcopy(Results)
+        L_Results = deepcopy(Results)
+        if 'vlm_results' in Results.keys():
+            R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]
+            L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
 
         sep  = filename.rfind('.')
 
@@ -119,37 +109,25 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Rfile = filename[0:sep]+"_R"+"_t"+str(time_step)+filename[sep:]
 
         # write vtks for each half wing
-        write_wing_vtk(Lwing,wing_origin,n_cw,n_sw,n_cp_L,L_Results,Lfile)
-        write_wing_vtk(Rwing,wing_origin,n_cw,n_sw,n_cp_R,R_Results,Rfile)
-
+        write_wing_vtk(Lwing,n_cw_L,n_sw_L,n_cp_L,L_Results,Lfile)
+        write_wing_vtk(Rwing,n_cw_R,n_sw_R,n_cp_R,R_Results,Rfile)        
     else:
-        sec_end = sec_start + n_cp
-        wing = Data()
-        wing.XA1 = VD.XA1[sec_start:sec_end]
-        wing.XA2 = VD.XA2[sec_start:sec_end]
-        wing.XB1 = VD.XB1[sec_start:sec_end]
-        wing.XB2 = VD.XB2[sec_start:sec_end]
-        wing.YA1 = VD.YA1[sec_start:sec_end]
-        wing.YA2 = VD.YA2[sec_start:sec_end]
-        wing.YB1 = VD.YB1[sec_start:sec_end]
-        wing.YB2 = VD.YB2[sec_start:sec_end]
-        wing.ZA1 = VD.ZA1[sec_start:sec_end]
-        wing.ZA2 = VD.ZA2[sec_start:sec_end]
-        wing.ZB1 = VD.ZB1[sec_start:sec_end]
-        wing.ZB2 = VD.ZB2[sec_start:sec_end]
-
+        n_cw = VD.n_cw[0]
+        n_sw = VD.n_sw[0]
+        n_cp = n_cw*n_sw
         sep  = filename.rfind('.')
         file = filename[0:sep]+"_t"+str(time_step)+filename[sep:]
 
         if 'vlm_results' in Results.keys():
             Results.vlm_results.CP = Results.vlm_results.CP[0]
 
-        write_wing_vtk(wing,wing_origin,n_cw,n_sw,n_cp,Results,file)
-
+        write_wing_vtk(VD_wing,n_cw,n_sw,n_cp,Results,file)    
+    
+    
     return
 
 ## @ingroup Input_Output-VTK
-def write_wing_vtk(wing,origin,n_cw,n_sw,n_cp,Results,filename):
+def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
     # Create file
     with open(filename, 'w') as f:
 
