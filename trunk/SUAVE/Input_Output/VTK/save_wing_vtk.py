@@ -34,21 +34,31 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
 
     """
 
-    # generate VD for this wing alone
-    wing_vehicle = SUAVE.Vehicle()
-    wing_vehicle.append_component(wing_instance)
 
     try:
         VD = vehicle.vortex_distribution
     except:
+        # generate VD for this wing alone
+        wing_vehicle = SUAVE.Vehicle()
+        wing_vehicle.append_component(wing_instance)
         VD = generate_vortex_distribution(wing_vehicle,settings)
-    symmetric = vehicle.wings[wing_instance.tag].symmetric
-
-    n_wing_components      = len(VD.wing_areas)
+    
+    span_breaks            = VD.spanwise_breaks
+    symmetric              = vehicle.wings[wing_instance.tag].symmetric
+    wing_origin            = wing_instance.origin
     cps_per_wing_component = VD.n_cw*VD.n_sw
 
     # which wing this is
-    i = list(vehicle.wings.keys()).index(wing_instance.tag)
+    count = 0
+    for wing in vehicle.wings:
+        sym = wing.symmetric
+        if wing == wing_instance:
+            ids = range(count, count + 1 + int(sym))
+            idx_start = count
+        else:
+            count += (1 + int(sym))
+            
+    i = idx_start
 
     n_cw      = VD.n_cw[i]  # number of chordwise panels per half wing
     n_sw      = VD.n_sw[i]  # number of spanwise panels per half wing
@@ -57,8 +67,8 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
     sec_start = i*sum(cps_per_wing_component[0:i-1])
 
     if symmetric:
-        half_l = sec_start+n_cp
-        sec_end = sec_start + n_cp*2
+        half_l    = sec_start+n_cp
+        sec_end   = sec_start + n_cp*2
         R_Results = deepcopy(Results)
         L_Results = deepcopy(Results)
 
@@ -109,8 +119,8 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Rfile = filename[0:sep]+"_R"+"_t"+str(time_step)+filename[sep:]
 
         # write vtks for each half wing
-        write_wing_vtk(Lwing,n_cw,n_sw,n_cp_L,L_Results,Lfile)
-        write_wing_vtk(Rwing,n_cw,n_sw,n_cp_R,R_Results,Rfile)
+        write_wing_vtk(Lwing,wing_origin,n_cw,n_sw,n_cp_L,L_Results,Lfile)
+        write_wing_vtk(Rwing,wing_origin,n_cw,n_sw,n_cp_R,R_Results,Rfile)
 
     else:
         sec_end = sec_start + n_cp
@@ -134,12 +144,12 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         if 'vlm_results' in Results.keys():
             Results.vlm_results.CP = Results.vlm_results.CP[0]
 
-        write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,file)
+        write_wing_vtk(wing,wing_origin,n_cw,n_sw,n_cp,Results,file)
 
     return
 
 ## @ingroup Input_Output-VTK
-def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
+def write_wing_vtk(wing,origin,n_cw,n_sw,n_cp,Results,filename):
     # Create file
     with open(filename, 'w') as f:
 
@@ -196,7 +206,7 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
 
             new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
             f.write(new_point)
-
+        
         #---------------------
         # Write Cells:
         #---------------------
