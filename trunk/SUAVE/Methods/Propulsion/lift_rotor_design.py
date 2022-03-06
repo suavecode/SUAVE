@@ -118,8 +118,8 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
         output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
                                                       sense_step= 1E-3) 
     else: 
-        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
-                                         tolerance = 1E-3)    
+        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-5,
+                                         tolerance = 1E-4)    
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
     print('Rotor Optimization Simulation Time: ' + str(elapsed_time))   
@@ -268,8 +268,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     B                        = rotor.number_of_blades  
     rotor.design_tip_mach    = rotor_opt.design_tip_mach
     omega                    = rotor.design_tip_mach* 343 /rotor.tip_radius 
-    rotor.angular_velocity   = omega  
-    rotor.freestream_velocity= rotor.inflow_ratio*rotor.angular_velocity*rotor.tip_radius      
+    rotor.angular_velocity   = omega      
     V                        = rotor.freestream_velocity  
     alt                      = rotor.design_altitude
     rotor.chord_distribution = rotor_opt.chord_distribution
@@ -502,7 +501,7 @@ def post_process(nexus):
     rotor         = lift_rotors.rotor 
     c             = rotor.chord_distribution 
     omega         = rotor.design_tip_mach* 343 /rotor.tip_radius   
-    V             = rotor.inflow_ratio*omega*rotor.tip_radius    
+    V             = rotor.freestream_velocity     
     alt           = rotor.design_altitude
     alpha         = rotor.optimization_parameters.aeroacoustic_weight
     epsilon       = rotor.optimization_parameters.slack_constaint 
@@ -552,10 +551,12 @@ def post_process(nexus):
     conditions.noise.number_of_microphones           = num_mic
     
     # Run noise model    
-    if alpha != 1: 
-        propeller_noise  = propeller_mid_fidelity(lift_rotors,noise_data,segment,settings)   
-        mean_SPL         = np.mean(propeller_noise.SPL_dBA) 
-        Acoustic_Metric  = mean_SPL 
+    if alpha != 1:  
+        try: 
+            propeller_noise   =  propeller_mid_fidelity(lift_rotors,noise_data,segment,settings)    
+            Acoustic_Metric   = np.mean(propeller_noise.SPL_dBA) 
+        except:
+            Acoustic_Metric = 100        
     else:
         Acoustic_Metric  = 0 
         mean_SPL         = 0
@@ -621,7 +622,7 @@ def post_process(nexus):
         print("Thrust (N)              : " + str(-thrust[0][2]))   
         print("Power (kW)              : " + str(power[0][0]/1000)) 
     print("Tip Mach                : " + str(rotor.design_tip_mach))  
-    print("Average SPL             : " + str(mean_SPL))  
+    print("Average SPL             : " + str(Acoustic_Metric))  
     print("Figure of Merit         : " + str(FM))  
     print("Thrust/Power Residual   : " + str(summary.thrust_power_residual)) 
     print("Blade Taper             : " + str(blade_taper))
