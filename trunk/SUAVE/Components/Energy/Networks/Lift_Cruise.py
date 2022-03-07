@@ -383,7 +383,7 @@ class Lift_Cruise(Network):
                         
                 
             # link
-            lift_rotor_esc.inputs.currentout =  lift_rotor_motor.outputs.current     
+            lift_rotor_esc.inputs.currentout = total_lift_rotor_motor_current
             
             # Run the lift_rotor esc
             lift_rotor_esc.currentin(konditions)          

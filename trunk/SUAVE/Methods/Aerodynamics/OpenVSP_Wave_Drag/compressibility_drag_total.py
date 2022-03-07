@@ -90,7 +90,7 @@ def compressibility_drag_total(state,settings,geometry):
 
         # Calculate compressibility drag at Mach 0.99 and 1.05 for interpolation between
         # dummy variables are unused function outputs
-        (drag99,dummy1,dummy2) = drag_div(np.array([[0.99]] * len(Mc)),wing,k,cl,Sref_main)
+        (drag99,dummy1,dummy2) = drag_div(np.array([[0.99]] * len(Mc)),wing,cl,Sref_main)
         cdc_l = lift_wave_drag(conditions, 
                                   configuration, 
                                   wing, 
