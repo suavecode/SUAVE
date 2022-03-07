@@ -559,10 +559,8 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     if n_segments>0:
         if wing.Segments[0].percent_span_location==0.:
             x_secs[-1] = [] # remove extra section tag (for clarity)
-            segment_0_is_root_flag = True
             adjust = 0 # used for indexing
         else:
-            segment_0_is_root_flag = False
             adjust = 1
     else:
         adjust = 1
@@ -617,11 +615,16 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
         # Set the parm values
         vsp.SetParmVal(span_parm, span_i)
-        vsp.SetParmVal(dih_parm, dihedral_i)
         vsp.SetParmVal(sweep_parm, sweep_i)
         vsp.SetParmVal(swp_loc_parm, sweep_loc)
         vsp.SetParmVal(rt_ch_parm, chord_i)
         vsp.SetParmVal(tc_parm, tc_i)
+        
+        # OpenVSP's rotation on vertical segmented wings is opposite of SUAVE's
+        if not wing.vertical:
+            vsp.SetParmVal(dih_parm, dihedral_i)
+        else:
+            vsp.SetParmVal(dih_parm, -dihedral_i)
 
         if not no_twist_flag:
             twist_parm    = vsp.GetXSecParm(x_sec_id, 'Twist')
