@@ -296,6 +296,7 @@ class Battery_Propeller(Network):
         results = Data()
         results.thrust_force_vector = total_thrust
         results.vehicle_mass_rate   = state.ones_row(1)*0.0     
+        results.propeller_orientation_euler_angles = p.orientation_euler_angles
      
         return results
      

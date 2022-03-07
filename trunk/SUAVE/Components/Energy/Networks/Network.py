@@ -129,6 +129,7 @@ class Container(Physical_Component.Container):
         results = Data()
         results.thrust_force_vector = 0.*ones_row(3)
         results.vehicle_mass_rate   = 0.*ones_row(1)
+        results.propeller_orientation_euler_angles = 0.*ones_row(3)
 
         for net in self.values():
 
