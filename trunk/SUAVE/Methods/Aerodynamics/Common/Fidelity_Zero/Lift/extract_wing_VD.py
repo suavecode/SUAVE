@@ -2,7 +2,7 @@
 # extract_wing_VD.py
 #
 # Created:   Feb 2022, R. Erhard
-# Modified: 
+# Modified:  Mar 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
