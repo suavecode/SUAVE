@@ -136,7 +136,9 @@ class Serial_Hybrid_Ducted_Fan(Network):
         avionics_payload_current = avionics_payload_power/self.voltage
 
         # link to the battery
-        battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
+        battery.inputs.current  = esc.outputs.currentin + avionics_payload_current - \
+            generator.outputs.power_generated/self.voltage
+            
         battery.inputs.power_in = -((esc.inputs.voltagein)*esc.outputs.currentin + avionics_payload_power) + (
                 generator.outputs.power_generated)
         
