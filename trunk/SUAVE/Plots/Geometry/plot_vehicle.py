@@ -510,6 +510,23 @@ def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color='red'
     return
 
 def get_blade_coordinates(prop,n_points,dim,i):
+    """ This generates the coordinates of the blade surface for plotting
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    prop          - SUAVE rotor
+    n_points      - number of points around airfoils of each blade section
+    dim           - number for radial dimension
+    i             - blade number
+
+    Properties Used:
+    N/A
+    """    
     # unpack
     num_B  = prop.number_of_blades
     a_sec  = prop.airfoil_geometry
