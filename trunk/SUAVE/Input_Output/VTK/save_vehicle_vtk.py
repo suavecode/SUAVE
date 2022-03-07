@@ -54,7 +54,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(), time_step=0,VLM_
        None
 
     """
-    if not os.path.exists(save_loc):
+    if (save_loc is not None) and (not os.path.exists(save_loc)):
         os.makedirs(save_loc)
         print("Directory "+save_loc+" created.") 
         
