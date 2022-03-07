@@ -12,8 +12,11 @@ from . import write
 try:
     import vsp as vsp
 except ImportError:
-    # This allows SUAVE to build without OpenVSP
-    pass
+    try:
+        import openvsp as vsp
+    except ImportError:
+        # This allows SUAVE to build without OpenVSP
+        pass
 import numpy as np
 
 # ----------------------------------------------------------------------

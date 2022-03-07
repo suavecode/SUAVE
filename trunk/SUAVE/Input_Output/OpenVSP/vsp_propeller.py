@@ -17,8 +17,11 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 try:
     import vsp as vsp
 except ImportError:
-    # This allows SUAVE to build without OpenVSP
-    pass
+    try:
+        import openvsp as vsp
+    except ImportError:
+        # This allows SUAVE to build without OpenVSP
+        pass
 
 # This enforces lowercase names
 chars = string.punctuation + string.whitespace

@@ -10,7 +10,11 @@
 try:
     import vsp as vsp
 except ImportError:
-    pass # This allows SUAVE to build without OpenVSP
+    try:
+        import openvsp as vsp
+    except ImportError:
+        # This allows SUAVE to build without OpenVSP
+        pass
 import numpy as np
 
 ## @ingroup Input_Output-OpenVSP
