@@ -544,9 +544,7 @@ def get_blade_coordinates(prop,n_points,dim,i):
         b = -b
         beta = -beta       
     
-    theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]
-
-
+    theta  = np.linspace(0,2*np.pi,num_B+1)[:-1]
     rot    = prop.rotation 
     flip_1 =  (np.pi/2)
     flip_2 =  (np.pi/2)
@@ -577,17 +575,17 @@ def get_blade_coordinates(prop,n_points,dim,i):
     max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
 
     xp      = (- MCA_2d + xpts*b_2d - airfoil_le_offset)     # x-coord of airfoil
-    yp      = r_2d*np.ones_like(xp)       # radial location
-    zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord
+    yp      = r_2d*np.ones_like(xp)                          # radial location
+    zp      = zpts*(t_2d/max_t2d)                            # former airfoil y coord
 
-    matrix = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
+    matrix        = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
     matrix[:,:,0] = xp*rot
     matrix[:,:,1] = yp
     matrix[:,:,2] = zp
 
     # ROTATION MATRICES FOR INNER SECTION
     # rotation about y axis to create twist and position blade upright
-    trans_1 = np.zeros((dim,3,3))
+    trans_1        = np.zeros((dim,3,3))
     trans_1[:,0,0] = np.cos(flip_1 - beta)
     trans_1[:,0,2] = -np.sin(flip_1 - beta)
     trans_1[:,1,1] = 1
