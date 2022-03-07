@@ -6,6 +6,7 @@
 #           Jan 2020, T. MacDonald
 #           Jul 2020, E. Botero
 #           May 2021, E. Botero
+#           Feb 2022, M. Cunningham
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,8 +21,11 @@ import string
 try:
     import vsp as vsp
 except ImportError:
-    # This allows SUAVE to build without OpenVSP
-    pass 
+    try:
+        import openvsp as vsp
+    except ImportError:
+        # This allows SUAVE to build without OpenVSP
+        pass
 # This enforces lowercase names
 chars = string.punctuation + string.whitespace
 t_table = str.maketrans( chars          + string.ascii_uppercase , 
@@ -112,7 +116,7 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
         wing.tag = 'winggeom'
     
     if use_scaling:
-        scaling       = vsp.GetParmVal(fuselage_id, 'Scale', 'XForm')  
+        scaling       = vsp.GetParmVal(wing_id, 'Scale', 'XForm')
     else:
         scaling       = 1.
     units_factor      = units_factor*scaling
@@ -350,8 +354,11 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
                 else: 
                     CS = SUAVE.Components.Wings.Control_Surfaces.Flap()
         CS.tag                 = tags[cs_idx]
-        CS.span_fraction_start = span_fraction_starts[cs_idx]*3 - 1
-        CS.span_fraction_end   = span_fraction_ends[cs_idx]*3 - 1
+        CS.span_fraction_start = np.maximum((span_fraction_starts[cs_idx] * (segment_num + 1) - 1) / (segment_num - 1), 0)
+        CS.span_fraction_end   = np.minimum((span_fraction_ends[cs_idx] * (segment_num + 1) - 1) / (segment_num - 1), 1)
+        if CS.span_fraction_start > 1 or CS.span_fraction_end < 0:
+            raise AssertionError("SUAVE import of VSP files does not allow control surfaces defined for the wing caps.")
+            
         CS.chord_fraction      = chord_fractions[cs_idx]
         CS.span                = (CS.span_fraction_end - CS.span_fraction_start)*wing.spans.projected
         wing.append_control_surface(CS)
@@ -645,7 +652,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
     if 'control_surfaces' in wing:
         for ctrl_surf in wing.control_surfaces:
-            write_vsp_control_surface(wing_id,ctrl_surf)
+            write_vsp_control_surface(wing_id,ctrl_surf,n_segments)
 
 
     if 'Fuel_Tanks' in wing:
@@ -658,7 +665,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
 
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_control_surface(wing_id,ctrl_surf):
+def write_vsp_control_surface(wing_id,ctrl_surf,n_segments):
     """This writes a control surface in a wing.
     
     Assumptions:
@@ -670,6 +677,7 @@ def write_vsp_control_surface(wing_id,ctrl_surf):
     Inputs:
     wind_id              <str>
     ctrl_surf            [-]
+    n_segments           int, number of wing segments
     
     Outputs:
     Operates on the active OpenVSP model, no direct output
@@ -686,9 +694,9 @@ def write_vsp_control_surface(wing_id,ctrl_surf):
             else:
                 vsp.SetParmVal( param_names[p_idx], 0.0)
         if 'UStart' == vsp.GetParmName(param_names[p_idx]):
-            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_start+1)/3)
+            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_start*(n_segments-1)+1)/(n_segments+1))
         if 'UEnd' ==vsp.GetParmName(param_names[p_idx]):
-            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_end+1)/3)
+            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_end*(n_segments-1)+1)/(n_segments+1))
         if 'Length_C_Start' == vsp.GetParmName(param_names[p_idx]):
             vsp.SetParmVal(param_names[p_idx], ctrl_surf.chord_fraction)
         if 'Length_C_End' == vsp.GetParmName(param_names[p_idx]):
