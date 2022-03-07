@@ -607,7 +607,7 @@ def post_process(nexus):
     # OBJECTIVE FUNCTION
     # -------------------------------------------------------     
 
-    summary.Aero_Acoustic_Obj =  LA.norm((FM - ideal_FM)/ideal_FM)*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL))*(1-alpha) 
+    summary.Aero_Acoustic_Obj =  LA.norm((FM - ideal_FM)*100/(ideal_FM*100))*alpha + LA.norm((Acoustic_Metric - ideal_SPL)/(ideal_SPL))*(1-alpha) 
     #summary.Aero_Acoustic_Obj =  LA.norm((Aerodynamic_Metric - ideal_aero)/ideal_aero)*alpha  + LA.norm((Acoustic_Metric - ideal_SPL)/ideal_SPL)*(1-alpha)
         
     # -------------------------------------------------------
