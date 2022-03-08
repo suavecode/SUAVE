@@ -189,6 +189,7 @@ class Rotor(Energy_Component):
         nonuniform_freestream = self.nonuniform_freestream
         use_2d_analysis       = self.use_2d_analysis
         pitch_c               = self.inputs.pitch_command
+        y_rotation            = self.inputs.y_axis_rotation
         
         
         # 2d analysis required for wake fid1
@@ -223,6 +224,7 @@ class Rotor(Energy_Component):
         body2thrust     = self.body_to_prop_vel()
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body)
+        
 
         # Check and correct for hover
         V         = V_thrust[:,0,None]
@@ -604,7 +606,7 @@ class Rotor(Energy_Component):
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
-        rots    = np.array(self.orientation_euler_angles) * 1. 
+        rots    = np.array(self.orientation_euler_angles) * 1. + np.array([0, self.inputs.y_axis_rotation, 0])
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
 
         # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
