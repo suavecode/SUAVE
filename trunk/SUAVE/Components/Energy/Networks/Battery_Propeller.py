@@ -63,21 +63,20 @@ class Battery_Propeller(Network):
             N/A
         """         
         
-        self.rotor_motors                 = Container()
+        self.propeller_motors             = Container()
         self.propellers                   = Container()
-        self.lift_rotors                  = Container()
         self.esc                          = None
         self.avionics                     = None
         self.payload                      = None
         self.battery                      = None
         self.nacelle_diameter             = None
         self.engine_length                = None
-        self.number_of_rotor_engines      = None
+        self.number_of_propeller_engines  = None
         self.voltage                      = None
         self.tag                          = 'Battery_Propeller'
         self.use_surrogate                = False 
         self.generative_design_minimum    = 0 
-        self.identical_rotors             = True
+        self.identical_propellers         = True
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -117,10 +116,10 @@ class Battery_Propeller(Network):
         payload      = self.payload
         battery      = self.battery 
         
-        num_engines    = self.number_of_rotor_engines
-        identical_flag = self.identical_rotors
-        motors         = self.rotor_motors
-        props          = self.rotors
+        num_engines    = self.number_of_propeller_engines
+        identical_flag = self.identical_propellers
+        motors         = self.propeller_motors
+        props          = self.propellers
 
         
         # Set battery energy
@@ -178,12 +177,8 @@ class Battery_Propeller(Network):
                 prop_key  = list(props.keys())[ii]
                 
         
-                if self.number_of_propeller_engines  != None: 
-                    motor     = self.propeller_motors[motor_key]
-                    prop      = self.propellers[prop_key]
-                else:                
-                    motor     = self.lift_rotor_motors[motor_key]
-                    prop      = self.lift_rotors[prop_key]
+                motor     = self.propeller_motors[motor_key]
+                prop      = self.propellers[prop_key]
                 
                 # link 
                 motor.inputs.voltage      = esc.outputs.voltageout
@@ -426,10 +421,10 @@ class Battery_Propeller(Network):
             N/A
         """           
 
-        n_eng          = int(self.number_of_rotor_engines)
-        identical_flag = self.identical_rotors
-        n_props        = len(self.rotors)
-        n_motors       = len(self.rotor_motors)
+        n_eng          = int(self.number_of_propeller_engines)
+        identical_flag = self.identical_propellers
+        n_props        = len(self.propellers)
+        n_motors       = len(self.propeller_motors)
             
         # unpack the ones function
         ones_row = segment.state.ones_row
@@ -507,10 +502,10 @@ class Battery_Propeller(Network):
             N/A
         """           
 
-        n_eng          = int(self.number_of_rotor_engines)
-        identical_flag = self.identical_rotors
-        n_props        = len(self.rotors)
-        n_motors       = len(self.rotor_motors)
+        n_eng          = int(self.number_of_propeller_engines)
+        identical_flag = self.identical_propellers
+        n_props        = len(self.propellers)
+        n_motors       = len(self.propeller_motors)
             
         # unpack the ones function
         ones_row = segment.state.ones_row
