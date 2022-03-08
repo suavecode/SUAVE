@@ -64,7 +64,7 @@ def main():
     results_SR              = mission_SR.evaluate()
     results_SR              = results_SR.merged()
     
-    distance_regression_SR = 102672.78664186322
+    distance_regression_SR = 102049.04865285615
 
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc_SR = ', distance_calc_SR)
@@ -335,7 +335,7 @@ def mission_setup_SR(vehicle,analyses):
     
     segment.altitude  = 1000.0 * Units.ft    
     segment.air_speed = 110.   * Units['mph']
-    segment.distance  = 60.    * Units.miles     
+    segment.distance  = 40.    * Units.miles     
     segment.state.unknowns.throttle = 0.80 * ones_row(1)
     
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16)

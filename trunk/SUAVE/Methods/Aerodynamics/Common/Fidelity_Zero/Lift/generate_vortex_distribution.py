@@ -189,6 +189,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.n_cw             = np.array([], dtype=np.int16) # array of the number of chordwise panels per strip in each wing
     VD.chordwise_breaks = np.array([], dtype=np.int32) # indices of the first panel in every strip      (given a list of all panels)
     VD.spanwise_breaks  = np.array([], dtype=np.int32) # indices of the first strip of panels in a wing (given chordwise_breaks)    
+    VD.symmetric_wings  = np.array([], dtype=np.int32)
     
     VD.leading_edge_indices      = np.array([], dtype=bool)      # bool array of leading  edge indices (all false except for panels at leading  edge)
     VD.trailing_edge_indices     = np.array([], dtype=bool)      # bool array of trailing edge indices (all false except for panels at trailing edge)    
@@ -952,7 +953,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.CS     = np.append(VD.CS   , np.array(cs_w , dtype=precision)) 
         VD.DY     = np.append(VD.DY   , np.array(del_y, dtype=precision))      
     #End symmetry loop
-    
+    VD.symmetric_wings = np.append(VD.symmetric_wings, int(sym_para))
     return VD
     
 

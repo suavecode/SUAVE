@@ -12,6 +12,8 @@
 from SUAVE.Input_Output.VTK.write_azimuthal_cell_values import write_azimuthal_cell_values
 import numpy as np
 
+from SUAVE.Plots.Geometry.plot_vehicle import generate_nacelle_points
+
 
 #------------------------------
 # Nacelle VTK generation
@@ -48,93 +50,6 @@ def save_nacelle_vtk(nacelle, filename, Results):
         write_nacelle_data(nac_pts,filename)
 
     return
-
-## @ingroup Input_Output-VTK
-def generate_nacelle_points(nac,tessellation = 24):
-    """ This generates the coordinate points on the surface of the nacelle
-
-    Assumptions:
-    None
-
-    Source:
-    None
-
-    Inputs: 
-    nac   - nacelle
-    
-    Properties Used:
-    N/A 
-    """
-     
-    
-    num_nac_segs = len(nac.Segments.keys())   
-    theta        = np.linspace(0,2*np.pi,tessellation)
-    n_points     = 20
-    
-    if num_nac_segs == 0:
-        num_nac_segs = int(n_points/2)
-        nac_pts      = np.zeros((num_nac_segs,tessellation,3))
-        naf          = nac.Airfoil
-        
-        if naf.naca_4_series_airfoil != None: 
-            # use mean camber surface of airfoil
-            camber       = float(naf.naca_4_series_airfoil[0])/100
-            camber_loc   = float(naf.naca_4_series_airfoil[1])/10
-            thickness    = float(naf.naca_4_series_airfoil[2:])/100 
-            airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
-            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
-            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
-        
-        elif naf.coordinate_file != None: 
-            a_sec        = naf.coordinate_file
-            a_secl       = [0]
-            airfoil_data = import_airfoil_geometry(a_sec,npoints=num_nac_segs)
-            xpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.x_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
-            zpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.y_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
-        
-        else:
-            # if no airfoil defined, use super ellipse as default
-            a =  nac.length/2 
-            b =  (nac.diameter - nac.inlet_diameter)/2 
-            b = np.maximum(b,1E-3) # ensure 
-            xpts =  np.repeat(np.atleast_2d(np.linspace(-a,a,num_nac_segs)).T,tessellation,axis = 1) 
-            zpts = (np.sqrt((b**2)*(1 - (xpts**2)/(a**2) )))*nac.length 
-            xpts = (xpts+a)*nac.length  
-
-        if nac.flow_through: 
-            zpts = zpts + nac.inlet_diameter/2  
-                
-        # create geometry 
-        theta_2d = np.repeat(np.atleast_2d(theta),num_nac_segs,axis =0) 
-        nac_pts[:,:,0] =  xpts
-        nac_pts[:,:,1] =  zpts*np.cos(theta_2d)
-        nac_pts[:,:,2] =  zpts*np.sin(theta_2d)  
-                
-    else:
-        nac_pts = np.zeros((num_nac_segs,tessellation,3)) 
-        for i_seg in range(num_nac_segs):
-            a        = nac.Segments[i_seg].width/2
-            b        = nac.Segments[i_seg].height/2
-            r        = np.sqrt((b*np.sin(theta))**2  + (a*np.cos(theta))**2)
-            nac_ypts = r*np.cos(theta)
-            nac_zpts = r*np.sin(theta)
-            nac_pts[i_seg,:,0] = nac.Segments[i_seg].percent_x_location*nac.length
-            nac_pts[i_seg,:,1] = nac_ypts + nac.Segments[i_seg].percent_y_location*nac.length 
-            nac_pts[i_seg,:,2] = nac_zpts + nac.Segments[i_seg].percent_z_location*nac.length  
-            
-    # rotation about y to orient propeller/rotor to thrust angle
-    rot_trans =  nac.nac_vel_to_body()
-    rot_trans =  np.repeat( np.repeat(rot_trans[ np.newaxis,:,: ],tessellation,axis=0)[ np.newaxis,:,:,: ],num_nac_segs,axis=0)    
-    
-    NAC_PTS  =  np.matmul(rot_trans,nac_pts[...,None]).squeeze()  
-     
-    # translate to body 
-    NAC_PTS[:,:,0] = NAC_PTS[:,:,0] + nac.origin[0][0]
-    NAC_PTS[:,:,1] = NAC_PTS[:,:,1] + nac.origin[0][1]
-    NAC_PTS[:,:,2] = NAC_PTS[:,:,2] + nac.origin[0][2]
-    return NAC_PTS
-
-
 
 
 #------------------------------
