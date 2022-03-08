@@ -8,6 +8,7 @@
 #           Oct 2021, M. Clarke
 #           Dec 2021, M. Clarke
 #           Feb 2022, R. Erhard
+#           Mar 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -135,6 +136,9 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     if not plot_axis:
         plt.axis('off')
         plt.grid(None)
+    
+    if save_figure:
+        fig.savefig(save_filename)
     return
 
 def plot_wing(axes,VD,face_color,edge_color,alpha_val):
@@ -474,117 +478,13 @@ def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color='red'
     Properties Used:
     N/A
     """
-
-    # unpack
-    num_B  = prop.number_of_blades
-    a_sec  = prop.airfoil_geometry
-    a_secl = prop.airfoil_polar_stations
-    beta   = prop.twist_distribution
-    a_o    = prop.start_angle
-    b      = prop.chord_distribution
-    r      = prop.radius_distribution
-    MCA    = prop.mid_chord_alignment
-    t      = prop.max_thickness_distribution
-    origin = prop.origin
- 
+    num_B     = prop.number_of_blades
     n_points  = 20
     af_pts    = n_points-1
-    dim       = len(b)
-    theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]
-
-    # create empty data structure for storing geometry
-    G = Data()
-
-
-    rot    = prop.rotation 
-    flip_1 =  (np.pi/2)
-    flip_2 =  (np.pi/2)
-
-    MCA_2d = np.repeat(np.atleast_2d(MCA).T,n_points,axis=1)
-    b_2d   = np.repeat(np.atleast_2d(b).T  ,n_points,axis=1)
-    t_2d   = np.repeat(np.atleast_2d(t).T  ,n_points,axis=1)
-    r_2d   = np.repeat(np.atleast_2d(r).T  ,n_points,axis=1)
-    shift  = np.repeat(np.atleast_2d(np.ones_like(b)*b[0]).T  ,n_points,axis=1)
+    dim       = len(prop.radius_distribution)
 
     for i in range(num_B):
-        # get airfoil coordinate geometry
-        if a_sec != None:
-            airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)
-            xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
-            zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0)
-            max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0)
-
-        else:
-            camber       = 0.02
-            camber_loc   = 0.4
-            thickness    = 0.10
-            airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
-            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
-            zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
-            max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
-
-        # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
-        max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
-
-        xp      = (- MCA_2d + xpts*b_2d - shift/2 )     # x-coord of airfoil
-        yp      = r_2d*np.ones_like(xp)       # radial location
-        zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord
-
-        matrix = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
-        matrix[:,:,0] = xp*rot
-        matrix[:,:,1] = yp
-        matrix[:,:,2] = zp
-
-        # ROTATION MATRICES FOR INNER SECTION
-        # rotation about y axis to create twist and position blade upright
-        trans_1 = np.zeros((dim,3,3))
-        trans_1[:,0,0] = np.cos(flip_1 - rot*beta)
-        trans_1[:,0,2] = -np.sin(flip_1 - rot*beta)
-        trans_1[:,1,1] = 1
-        trans_1[:,2,0] = np.sin(flip_1 - rot*beta)
-        trans_1[:,2,2] = np.cos(flip_1 - rot*beta)
-
-        # rotation about x axis to create azimuth locations
-        trans_2 = np.array([[1 , 0 , 0],
-                       [0 , np.cos(theta[i] + a_o + flip_2 ), -np.sin(theta[i] +a_o +  flip_2)],
-                       [0,np.sin(theta[i] + a_o + flip_2), np.cos(theta[i] + a_o + flip_2)]])
-        trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
-
-        # rotation about y to orient propeller/rotor to thrust angle
-        trans_3 =  prop.prop_vel_to_body()
-        trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0) 
-        
-        # rotation 180 degrees 
-        trans_4 = np.zeros((dim,3,3))
-        trans_4[:,0,0] = np.cos(np.pi)
-        trans_4[:,0,2] = -np.sin(np.pi)
-        trans_4[:,1,1] = 1
-        trans_4[:,2,0] = np.sin(np.pi)
-        trans_4[:,2,2] = np.cos(np.pi)
-        
-        trans     = np.matmul(trans_4,np.matmul(trans_3,np.matmul(trans_2,trans_1)))
-        rot_mat   = np.repeat(trans[:, np.newaxis,:,:],n_points,axis=1)
-
-        # ---------------------------------------------------------------------------------------------
-        # ROTATE POINTS
-        mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze()
-
-        # ---------------------------------------------------------------------------------------------
-        # store points
-        G.XA1  = mat[:-1,:-1,0] + origin[0][0]
-        G.YA1  = mat[:-1,:-1,1] + origin[0][1]
-        G.ZA1  = mat[:-1,:-1,2] + origin[0][2]
-        G.XA2  = mat[:-1,1:,0]  + origin[0][0]
-        G.YA2  = mat[:-1,1:,1]  + origin[0][1]
-        G.ZA2  = mat[:-1,1:,2]  + origin[0][2]
-
-        G.XB1  = mat[1:,:-1,0] + origin[0][0]
-        G.YB1  = mat[1:,:-1,1] + origin[0][1]
-        G.ZB1  = mat[1:,:-1,2] + origin[0][2]
-        G.XB2  = mat[1:,1:,0]  + origin[0][0]
-        G.YB2  = mat[1:,1:,1]  + origin[0][1]
-        G.ZB2  = mat[1:,1:,2]  + origin[0][2]
-
+        G = get_blade_coordinates(prop,n_points,dim,i)
         # ------------------------------------------------------------------------
         # Plot Propeller Blade
         # ------------------------------------------------------------------------
@@ -609,3 +509,129 @@ def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color='red'
                 prop_collection.set_alpha(prop_alpha)
                 axes.add_collection3d(prop_collection)
     return
+
+def get_blade_coordinates(prop,n_points,dim,i):
+    """ This generates the coordinates of the blade surface for plotting
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    prop          - SUAVE rotor
+    n_points      - number of points around airfoils of each blade section
+    dim           - number for radial dimension
+    i             - blade number
+
+    Properties Used:
+    N/A
+    """    
+    # unpack
+    num_B  = prop.number_of_blades
+    a_sec  = prop.airfoil_geometry
+    a_secl = prop.airfoil_polar_stations
+    beta   = prop.twist_distribution
+    a_o    = prop.start_angle
+    b      = prop.chord_distribution
+    r      = prop.radius_distribution
+    MCA    = prop.mid_chord_alignment
+    t      = prop.max_thickness_distribution
+    origin = prop.origin
+    
+    if prop.rotation==1:
+        # negative chord and twist to give opposite rotation direction
+        b = -b
+        beta = -beta       
+    
+    theta  = np.linspace(0,2*np.pi,num_B+1)[:-1]
+    rot    = prop.rotation 
+    flip_1 =  (np.pi/2)
+    flip_2 =  (np.pi/2)
+
+    MCA_2d             = np.repeat(np.atleast_2d(MCA).T,n_points,axis=1)
+    b_2d               = np.repeat(np.atleast_2d(b).T  ,n_points,axis=1)
+    t_2d               = np.repeat(np.atleast_2d(t).T  ,n_points,axis=1)
+    r_2d               = np.repeat(np.atleast_2d(r).T  ,n_points,axis=1)
+    airfoil_le_offset  = np.repeat(b[:,None], n_points, axis=1)/2  
+
+    # get airfoil coordinate geometry
+    if a_sec != None:
+        airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)
+        xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
+        zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0)
+        max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0)
+
+    else:
+        camber       = 0.02
+        camber_loc   = 0.4
+        thickness    = 0.10
+        airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
+        xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
+        zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
+        max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
+
+    # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
+    max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
+
+    xp      = (- MCA_2d + xpts*b_2d - airfoil_le_offset)     # x-coord of airfoil
+    yp      = r_2d*np.ones_like(xp)                          # radial location
+    zp      = zpts*(t_2d/max_t2d)                            # former airfoil y coord
+
+    matrix        = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
+    matrix[:,:,0] = xp*rot
+    matrix[:,:,1] = yp
+    matrix[:,:,2] = zp
+
+    # ROTATION MATRICES FOR INNER SECTION
+    # rotation about y axis to create twist and position blade upright
+    trans_1        = np.zeros((dim,3,3))
+    trans_1[:,0,0] = np.cos(flip_1 - beta)
+    trans_1[:,0,2] = -np.sin(flip_1 - beta)
+    trans_1[:,1,1] = 1
+    trans_1[:,2,0] = np.sin(flip_1 - beta)
+    trans_1[:,2,2] = np.cos(flip_1 - beta)
+
+    # rotation about x axis to create azimuth locations
+    trans_2 = np.array([[1 , 0 , 0],
+                   [0 , np.cos(theta[i] + a_o + flip_2 ), -np.sin(theta[i] +a_o +  flip_2)],
+                   [0,np.sin(theta[i] + a_o + flip_2), np.cos(theta[i] + a_o + flip_2)]])
+    trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
+
+    # rotation about y to orient propeller/rotor to thrust angle
+    trans_3 =  prop.prop_vel_to_body()
+    trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0) 
+    
+    trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
+    rot_mat   = np.repeat(trans[:, np.newaxis,:,:],n_points,axis=1)
+
+    # ---------------------------------------------------------------------------------------------
+    # ROTATE POINTS
+    mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze()
+
+    # ---------------------------------------------------------------------------------------------
+    # create empty data structure for storing geometry
+    G = Data()
+    
+    # store node points
+    G.X  = mat[:,:,0] + origin[0][0]
+    G.Y  = mat[:,:,1] + origin[0][1]
+    G.Z  = mat[:,:,2] + origin[0][2]
+    
+    # store points
+    G.XA1  = mat[:-1,:-1,0] + origin[0][0]
+    G.YA1  = mat[:-1,:-1,1] + origin[0][1]
+    G.ZA1  = mat[:-1,:-1,2] + origin[0][2]
+    G.XA2  = mat[:-1,1:,0]  + origin[0][0]
+    G.YA2  = mat[:-1,1:,1]  + origin[0][1]
+    G.ZA2  = mat[:-1,1:,2]  + origin[0][2]
+
+    G.XB1  = mat[1:,:-1,0] + origin[0][0]
+    G.YB1  = mat[1:,:-1,1] + origin[0][1]
+    G.ZB1  = mat[1:,:-1,2] + origin[0][2]
+    G.XB2  = mat[1:,1:,0]  + origin[0][0]
+    G.YB2  = mat[1:,1:,1]  + origin[0][1]
+    G.ZB2  = mat[1:,1:,2]  + origin[0][2]
+    
+    return G
