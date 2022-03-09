@@ -118,8 +118,8 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
         output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
                                                       sense_step= 1E-3) 
     else: 
-        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-5,
-                                         tolerance = 1E-4)    
+        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
+                                         tolerance = 1E-3)    
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
     print('Rotor Optimization Simulation Time: ' + str(elapsed_time))   
@@ -189,6 +189,7 @@ def rotor_optimization_setup(rotor):
     constraints.append([ 'thrust_power_residual'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])  
     constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.3 ,   1.0   , 1*Units.less])  
     constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.7 ,   1.0   , 1*Units.less])
+    constraints.append([ 'blade_twist_constraint'   ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])
     constraints.append([ 'max_sectional_cl'         ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])
     constraints.append([ 'chord_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])    
     constraints.append([ 'twist_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])   
@@ -211,6 +212,7 @@ def rotor_optimization_setup(rotor):
     aliases.append([ 'thrust_power_residual'     , 'summary.thrust_power_residual'   ]) 
     aliases.append([ 'blade_taper_constraint_1'  , 'summary.blade_taper_constraint_1'])  
     aliases.append([ 'blade_taper_constraint_2'  , 'summary.blade_taper_constraint_2'])   
+    aliases.append([ 'blade_twist_constraint'    , 'summary.blade_twist_constraint'])   
     aliases.append([ 'max_sectional_cl'          , 'summary.max_sectional_cl'])  
     aliases.append([ 'chord_p_to_q_ratio'        , 'summary.chord_p_to_q_ratio'    ])  
     aliases.append([ 'twist_p_to_q_ratio'        , 'summary.twist_p_to_q_ratio'    ])     
@@ -500,6 +502,7 @@ def post_process(nexus):
     # unpack rotor properties 
     rotor         = lift_rotors.rotor 
     c             = rotor.chord_distribution 
+    beta          = rotor.twist_distribution 
     omega         = rotor.design_tip_mach* 343 /rotor.tip_radius   
     V             = rotor.freestream_velocity     
     alt           = rotor.design_altitude
@@ -586,7 +589,10 @@ def post_process(nexus):
     blade_taper = c[-1]/c[0]
     summary.blade_taper_constraint_1  = blade_taper 
     summary.blade_taper_constraint_2  = blade_taper
-
+     
+    # blade twist consraint 
+    blade_twist = beta[0] - beta[-1] 
+    summary.blade_twist_constraint = blade_twist
 
     # figure of merit 
 
