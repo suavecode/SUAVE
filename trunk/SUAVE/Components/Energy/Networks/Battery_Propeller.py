@@ -77,6 +77,7 @@ class Battery_Propeller(Network):
         self.use_surrogate                = False 
         self.generative_design_minimum    = 0 
         self.identical_propellers         = True
+        self.y_axis_rotation              = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -145,6 +146,10 @@ class Battery_Propeller(Network):
         
         # Predict voltage based on battery  
         volts = battery.compute_voltage(state)  
+        
+        # Set rotor y-axis rotation
+        for p in self.propellers:
+            p.inputs.y_axis_rotation = conditions.propulsion.y_axis_rotation #self.y_axis_rotation
             
         # --------------------------------------------------------------------------------
         # Run Motor, Avionics and Systems (Discharge Model)
@@ -181,8 +186,8 @@ class Battery_Propeller(Network):
                 prop      = self.propellers[prop_key]
                 
                 # link 
-                motor.inputs.voltage      = esc.outputs.voltageout
-                motor.inputs.propeller_CP = np.atleast_2d(conditions.propulsion.propeller_power_coefficient[:,ii]).T
+                motor.inputs.voltage        = esc.outputs.voltageout
+                motor.inputs.propeller_CP   = np.atleast_2d(conditions.propulsion.propeller_power_coefficient[:,ii]).T
                 
                 # step 3
                 motor.omega(conditions)
@@ -284,7 +289,7 @@ class Battery_Propeller(Network):
         results = Data()
         results.thrust_force_vector = total_thrust
         results.vehicle_mass_rate   = state.ones_row(1)*0.0     
-        results.propeller_orientation_euler_angles = p.orientation_euler_angles
+        results.propeller_y_axis_rotation = conditions.propulsion.y_axis_rotation
      
         return results
      
@@ -315,10 +320,13 @@ class Battery_Propeller(Network):
         # Here we are going to unpack the unknowns (Cp) provided for this network
         ss = segment.state 
         if segment.battery_discharge:
-            ss.conditions.propulsion.propeller_power_coefficient = ss.unknowns.propeller_power_coefficient  
+            ss.conditions.propulsion.propeller_power_coefficient = ss.unknowns.propeller_power_coefficient   
         else: 
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
-            
+        
+        # fixed y axis rotation
+        ss.conditions.propulsion.y_axis_rotation = self.y_axis_rotation * ones_row(1)
+        
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
         
@@ -351,14 +359,16 @@ class Battery_Propeller(Network):
         # Here we are going to unpack the unknowns (Cp) provided for this network
         ss = segment.state 
         if segment.battery_discharge:
-            ss.conditions.propulsion.propeller_power_coefficient = ss.unknowns.propeller_power_coefficient  
-            ss.conditions.propulsion.propeller_y_axis_rotation = ss.unknowns.propeller_y_axis_rotation
+            ss.conditions.propulsion.propeller_power_coefficient = ss.unknowns.propeller_power_coefficient       
+            ss.conditions.propulsion.throttle                    = ss.unknowns.throttle
         else: 
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
-            ss.conditions.propulsion.propeller_y_axis_rotation = 0. * ones_row(1)
             
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
+        
+        # set y-axis rotation
+        ss.conditions.propulsion.y_axis_rotation = ss.unknowns.propeller_y_axis_rotation 
         
         return      
     
@@ -425,6 +435,9 @@ class Battery_Propeller(Network):
         identical_flag = self.identical_propellers
         n_props        = len(self.propellers)
         n_motors       = len(self.propeller_motors)
+        
+        net = list(segment.analyses.energy.network.keys())[0]
+        self.y_axis_rotation = segment.analyses.energy.network[net].y_axis_rotation
             
         # unpack the ones function
         ones_row = segment.state.ones_row
@@ -474,7 +487,7 @@ class Battery_Propeller(Network):
     
 
     def add_tiltrotor_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
-                                                        initial_propeller_y_axis_rotation = 0.0,
+                                                        initial_y_axis_rotation = 0.0,
                                                         initial_power_coefficient = 0.02,
                                                         initial_battery_cell_temperature = 283. , 
                                                         initial_battery_state_of_charge = 0.5,
@@ -506,7 +519,11 @@ class Battery_Propeller(Network):
         identical_flag = self.identical_propellers
         n_props        = len(self.propellers)
         n_motors       = len(self.propeller_motors)
-            
+        
+
+        net = list(segment.analyses.energy.network.keys())[0]
+        self.y_axis_rotation = segment.analyses.energy.network[net].y_axis_rotation
+        
         # unpack the ones function
         ones_row = segment.state.ones_row
         
@@ -535,7 +552,8 @@ class Battery_Propeller(Network):
 
         if segment.battery_discharge: 
             segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)  
-            segment.state.unknowns.propeller_y_axis_rotation   = initial_propeller_y_axis_rotation * ones_row(n_props) 
+        
+        segment.state.unknowns.propeller_y_axis_rotation   = initial_y_axis_rotation * ones_row(1)  
         
         # Setup the conditions
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
