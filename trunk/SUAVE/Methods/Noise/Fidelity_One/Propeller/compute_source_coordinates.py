@@ -47,7 +47,7 @@ def compute_point_source_coordinates(conditions,rotors,mls,settings):
     rot_origins = np.array(rot_origins)  
         
     # Get the rotation matrix
-    prop2body   = rotor.prop_vel_to_body()
+    prop2body   = rotor.prop_vel_to_body()[0,:,:]
 
     # [control point, microphone , propeller , 2D geometry matrix ]
     # rotation of propeller about y axis by thurst angle (one extra dimension for translations)

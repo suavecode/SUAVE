@@ -188,7 +188,7 @@ def vehicle_setup():
     net.areas                           = Data()
     net.areas.wetted                    = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
     net.voltage                         =  500.
-    net.identical_rotors                = True
+    net.identical_propellers            = True
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
