@@ -590,9 +590,8 @@ def post_process(nexus):
     summary.blade_taper_constraint_1  = blade_taper 
     summary.blade_taper_constraint_2  = blade_taper
      
-    # blade twist consraint 
-    blade_twist = beta[0] - beta[-1] 
-    summary.blade_twist_constraint = blade_twist
+    # blade twist consraint  
+    summary.blade_twist_constraint = beta[0] - beta[-1] 
 
     # figure of merit 
 
