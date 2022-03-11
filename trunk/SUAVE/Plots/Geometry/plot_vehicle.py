@@ -600,7 +600,7 @@ def get_blade_coordinates(prop,n_points,dim,i):
     trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
 
     # rotation about y to orient propeller/rotor to thrust angle
-    trans_3 =  prop.prop_vel_to_body()
+    trans_3 =  prop.prop_vel_to_body()[0,:,:]
     trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0) 
     
     trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))

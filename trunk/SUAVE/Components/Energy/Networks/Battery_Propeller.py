@@ -282,8 +282,8 @@ class Battery_Propeller(Network):
         
          # Create the outputs
         results = Data()
-        results.thrust_force_vector = total_thrust
-        results.vehicle_mass_rate   = state.ones_row(1)*0.0     
+        results.thrust_force_vector       = total_thrust
+        results.vehicle_mass_rate         = state.ones_row(1)*0.0     
         results.propeller_y_axis_rotation = conditions.propulsion.y_axis_rotation
      
         return results

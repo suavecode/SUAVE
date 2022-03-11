@@ -91,8 +91,7 @@ class Rotor(Energy_Component):
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
         
         self.start_angle               = 0.0      # angle of first blade from vertical
-        #self.inputs.y_axis_rotation    = 0.
-
+        self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
         
@@ -606,9 +605,10 @@ class Rotor(Energy_Component):
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
+        cpts      = len(np.atleast_1d(self.inputs.y_axis_rotation))
         rots      = np.array(self.orientation_euler_angles) * 1.
-        rots      = np.repeat(rots[None,:], len(self.inputs.omega), axis=0)
-        rots[:,1] = self.inputs.y_axis_rotation[:,0]
+        rots      = np.repeat(rots[None,:], cpts, axis=0)
+        rots[:,1] = np.atleast_2d(self.inputs.y_axis_rotation)[:,0]
         
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
 

@@ -438,8 +438,10 @@ class Lift_Cruise(Network):
         F_total = total_prop_thrust + total_lift_rotor_thrust
 
         results = Data()
-        results.thrust_force_vector = F_total
-        results.vehicle_mass_rate   = state.ones_row(1)*0.0 
+        results.thrust_force_vector       = F_total
+        results.vehicle_mass_rate         = state.ones_row(1)*0.0 
+        results.propeller_y_axis_rotation = state.ones_row(1)*0.0
+        
         return results
     
     def unpack_unknowns_transition(self,segment):

@@ -79,6 +79,7 @@ class Propulsor_Surrogate(Network):
         self.use_extended_surrogate   = False
         self.sealevel_static_thrust   = 0.0
         self.negative_throttle_values = False
+        self.y_axis_rotation          = 0.0
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -143,9 +144,10 @@ class Propulsor_Surrogate(Network):
         thrust_force_vector    = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
          
         # Store Results
-        results                     = Data() 
-        results.thrust_force_vector = thrust_force_vector
-        results.vehicle_mass_rate   = mdot
+        results                           = Data() 
+        results.thrust_force_vector       = thrust_force_vector
+        results.vehicle_mass_rate         = mdot
+        results.propeller_y_axis_rotation = self.y_axis_rotation * state.ones_row(1)
    
         return results          
     
