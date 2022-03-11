@@ -126,8 +126,8 @@ def prop_rotor_design(prop_rotor,number_of_stations = 20, number_of_airfoil_sect
                                                       sense_step= 1E-3)   
         Beta_c = np.array([output[10],output[11]])        
     else: 
-        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-3,
-                                         tolerance = 1E-2)   
+        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
+                                         tolerance = 1E-3)   
         Beta_c    = np.array([output[10],output[11]])      
         
     tf           = time.time()
@@ -188,8 +188,8 @@ def rotor_optimization_setup(prop_rotor):
     inputs.append([ 'twist_t'          ,  np.pi/10 ,  0         , np.pi/4   , 1.0     ,  1*Units.less]) 
     inputs.append([ 'tip_mach_hover'   , tm_0_h    , tm_ll_h    , tm_ul_h   , 1.0     ,  1*Units.less])
     inputs.append([ 'tip_mach_cruise'  , tm_0_c    , tm_ll_c    , tm_ul_c   , 1.0     ,  1*Units.less]) 
-    inputs.append([ 'pitch_cmd_hover'  , PC_h      , -np.pi/5   , np.pi/5   , 1.0     ,  1*Units.less])
-    inputs.append([ 'pitch_cmd_cruise' , PC_cr     , -np.pi/5   , np.pi/5   , 1.0     ,  1*Units.less]) 
+    inputs.append([ 'pitch_cmd_hover'  , PC_h      , -np.pi/6   , np.pi/6   , 1.0     ,  1*Units.less])
+    inputs.append([ 'pitch_cmd_cruise' , PC_cr     , -np.pi/6   , np.pi/6   , 1.0     ,  1*Units.less]) 
     problem.inputs = np.array(inputs,dtype=object)   
 
     # -------------------------------------------------------------------
