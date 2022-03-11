@@ -211,6 +211,10 @@ class Rotor(Energy_Component):
         rho_0   = rho
         T_0     = T
 
+        # Number of radial stations and segment control points
+        Nr       = len(c)
+        ctrl_pts = len(Vv)
+        
         # Helpful shorthands
         pi      = np.pi
 
@@ -223,21 +227,15 @@ class Rotor(Energy_Component):
         V_body          = orientation_product(T_inertial2body,Vv)
         body2thrust     = self.body_to_prop_vel()
         
-        # rotate by y-axis rotations (vector of length ctrl_pts)
         y_axis_rot = self.inputs.y_axis_rotation
         print(y_axis_rot)
         print(omega)
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body)
-        
 
         # Check and correct for hover
         V         = V_thrust[:,0,None]
         V[V==0.0] = 1E-6
-
-        # Number of radial stations and segment control points
-        Nr       = len(c)
-        ctrl_pts = len(Vv)
 
         # Non-dimensional radial distribution and differential radius
         chi           = r_1d/R
@@ -611,12 +609,9 @@ class Rotor(Energy_Component):
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
-        rots    = np.array(self.orientation_euler_angles) * 1.
-        
-        # Now include y-axis rotation for each control point
-        rots = np.repeat(rots[None,:],5,axis=0) 
-        rots[:,1] += self.inputs.y_axis_rotation[:,0]
-        
+        rots      = np.array(self.orientation_euler_angles) * 1.
+        rots      = np.repeat(rots[None,:], len(self.inputs.omega), axis=0)
+        rots[:,1] = self.inputs.y_axis_rotation[:,0]
         
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
 

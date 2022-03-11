@@ -482,7 +482,7 @@ class Lift_Cruise(Network):
             ss.conditions.propulsion.throttle_lift                = segment.state.unknowns.throttle_lift        
             ss.conditions.propulsion.throttle                     = segment.state.unknowns.throttle  
         else: 
-            ss.conditions.propulsion.propeller_power_coefficientb = 0. * ones_row(1)
+            ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
             
         battery = self.battery 
         battery.append_battery_unknowns(segment)  

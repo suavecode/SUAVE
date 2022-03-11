@@ -9,6 +9,7 @@
 #           Jul 2021, R. Erhard
 #           Aug 2021, M. Clarke
 #           Feb 2022, R. Erhard
+#           Mar 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -110,13 +111,12 @@ class Battery_Propeller(Network):
         """          
     
         # unpack  
-        conditions   = state.conditions
-        numerics     = state.numerics
-        esc          = self.esc
-        avionics     = self.avionics
-        payload      = self.payload
-        battery      = self.battery 
-        
+        conditions     = state.conditions
+        numerics       = state.numerics
+        esc            = self.esc
+        avionics       = self.avionics
+        payload        = self.payload
+        battery        = self.battery 
         num_engines    = self.number_of_propeller_engines
         identical_flag = self.identical_propellers
         motors         = self.propeller_motors
@@ -149,7 +149,7 @@ class Battery_Propeller(Network):
         
         # Set rotor y-axis rotation
         for p in self.propellers:
-            p.inputs.y_axis_rotation = conditions.propulsion.y_axis_rotation #self.y_axis_rotation
+            p.inputs.y_axis_rotation = conditions.propulsion.y_axis_rotation
             
         # --------------------------------------------------------------------------------
         # Run Motor, Avionics and Systems (Discharge Model)
@@ -158,7 +158,7 @@ class Battery_Propeller(Network):
             # Step 1 battery power
             esc.inputs.voltagein = volts
             
-            # Step 2
+            # Step 2 throttle the voltage
             esc.voltageout(conditions)
             
             # How many evaluations to do
@@ -180,8 +180,6 @@ class Battery_Propeller(Network):
                 # Unpack the motor and props
                 motor_key = list(motors.keys())[ii]
                 prop_key  = list(props.keys())[ii]
-                
-        
                 motor     = self.propeller_motors[motor_key]
                 prop      = self.propellers[prop_key]
                 
@@ -222,13 +220,10 @@ class Battery_Propeller(Network):
                 conditions.propulsion.propeller_rpm[:,ii]              = rpm[:,0]
                 conditions.propulsion.propeller_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
                 conditions.propulsion.disc_loading[:,ii]               = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
-                conditions.propulsion.power_loading[:,ii]              = (F_mag[:,0])/(P[:,0])      # N/W      
+                conditions.propulsion.power_loading[:,ii]              = (F_mag[:,0])/(P[:,0])       # N/W      
                 conditions.propulsion.propeller_efficiency[:,ii]       = etap[:,0]      
                 
-                if self.number_of_propeller_engines  != None: 
-                    conditions.noise.sources.propellers[prop.tag]      = outputs
-                else:    
-                    conditions.noise.sources.lift_rotors[prop.tag]     = outputs
+                conditions.noise.sources.propellers[prop.tag]      = outputs
             
             if identical_flag and prop.Wake.wake_method=="Fidelity_One":
                 # append wakes to all propellers, shifted by new origin
@@ -325,6 +320,8 @@ class Battery_Propeller(Network):
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
         
         # fixed y axis rotation
+        net   = list(segment.analyses.energy.network.keys())[0]
+        y_rot = segment.analyses.energy.network[net].y_axis_rotation
         ss.conditions.propulsion.y_axis_rotation = self.y_axis_rotation * ones_row(1)
         
         battery = self.battery 
@@ -361,14 +358,13 @@ class Battery_Propeller(Network):
         if segment.battery_discharge:
             ss.conditions.propulsion.propeller_power_coefficient = ss.unknowns.propeller_power_coefficient       
             ss.conditions.propulsion.throttle                    = ss.unknowns.throttle
+            ss.conditions.propulsion.y_axis_rotation             = ss.unknowns.propeller_y_axis_rotation 
         else: 
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
             
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
         
-        # set y-axis rotation
-        ss.conditions.propulsion.y_axis_rotation = ss.unknowns.propeller_y_axis_rotation 
         
         return      
     
@@ -394,14 +390,14 @@ class Battery_Propeller(Network):
            N/A
        """           
            
-        network       = self
-        battery       = self.battery 
-        battery.append_battery_residuals(segment,network)   
-    
         if segment.battery_discharge:    
             q_motor   = segment.state.conditions.propulsion.propeller_motor_torque
             q_prop    = segment.state.conditions.propulsion.propeller_torque                
             segment.state.residuals.network.propellers = q_motor - q_prop
+            
+        network       = self
+        battery       = self.battery 
+        battery.append_battery_residuals(segment,network)           
          
         return     
 
@@ -436,6 +432,7 @@ class Battery_Propeller(Network):
         n_props        = len(self.propellers)
         n_motors       = len(self.propeller_motors)
         
+        # Initialize y-axis rotations
         net = list(segment.analyses.energy.network.keys())[0]
         self.y_axis_rotation = segment.analyses.energy.network[net].y_axis_rotation
             
@@ -521,8 +518,8 @@ class Battery_Propeller(Network):
         n_motors       = len(self.propeller_motors)
         
 
-        net = list(segment.analyses.energy.network.keys())[0]
-        self.y_axis_rotation = segment.analyses.energy.network[net].y_axis_rotation
+        #net = list(segment.analyses.energy.network.keys())[0]
+        #self.y_axis_rotation = segment.analyses.energy.network[net].y_axis_rotation
         
         # unpack the ones function
         ones_row = segment.state.ones_row
@@ -552,8 +549,8 @@ class Battery_Propeller(Network):
 
         if segment.battery_discharge: 
             segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)  
-        
-        segment.state.unknowns.propeller_y_axis_rotation   = initial_y_axis_rotation * ones_row(1)  
+            segment.state.unknowns.propeller_y_axis_rotation   = initial_y_axis_rotation * ones_row(1)  
+            segment.state.unknowns.throttle                    = 0.7 * ones_row(1)
         
         # Setup the conditions
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)

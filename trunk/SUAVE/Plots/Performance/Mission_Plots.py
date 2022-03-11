@@ -999,7 +999,20 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     plt.tight_layout()    
     if save_figure:
         plt.savefig(save_filename + file_type)  
-            
+    
+    
+    # Also plot propeller y-axis rotation for tiltrotor cases
+
+    fig2 = plt.figure()
+    fig2.set_size_inches(8, 5) 
+    for s in results.segments:
+        y_rot = s.conditions.propulsion.y_axis_rotation / Units.deg
+        time  = s.conditions.frames.inertial.time[:,0] / Units.min
+        
+        plt.plot(time, y_rot, line_color)
+    plt.xlabel('Time (mins)', axis_font)
+    plt.ylabel('Network Y-Axis Rotation (deg)', axis_font)
+    
     return
 
 # ------------------------------------------------------------------
