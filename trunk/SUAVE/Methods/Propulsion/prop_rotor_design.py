@@ -166,14 +166,15 @@ def rotor_optimization_setup(prop_rotor):
     # -------------------------------------------------------------------
     # Inputs
     # -------------------------------------------------------------------  
-    R      = prop_rotor.tip_radius  
-    tm_ll  = prop_rotor.design_tip_mach_range[0]
-    tm_ul  = prop_rotor.design_tip_mach_range[1]    
-    tm_0   = (tm_ul + tm_ll)/2 
-    PC_h  = prop_rotor.inputs.pitch_command_hover
-    PC_cr = prop_rotor.inputs.pitch_command_cruise 
-    DO    = prop_rotor.design_tip_mach*343 /prop_rotor.tip_radius     
-    DO
+    R       = prop_rotor.tip_radius  
+    tm_ll_h  = prop_rotor.design_tip_mach_range_hover[0]
+    tm_ul_h  = prop_rotor.design_tip_mach_range_hover[1]    
+    tm_0_h   = (tm_ul_h + tm_ll_h)/2 
+    tm_ll_c  = prop_rotor.design_tip_mach_range_cruise[0]
+    tm_ul_c  = prop_rotor.design_tip_mach_range_cruise[1]    
+    tm_0_c   = (tm_ul_c + tm_ll_c)/2 
+    PC_h     = prop_rotor.inputs.pitch_command_hover
+    PC_cr    = prop_rotor.inputs.pitch_command_cruise  
 
     #  tag , initial, [lb,ub], scaling, units
     inputs    = [] 
@@ -185,8 +186,8 @@ def rotor_optimization_setup(prop_rotor):
     inputs.append([ 'twist_p'          ,  1        , 0.25       , 2.0       , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_q'          ,  0.5      , 0.25       , 1.5       , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_t'          ,  np.pi/10 ,  0         , np.pi/4   , 1.0     ,  1*Units.less]) 
-    inputs.append([ 'tip_mach_hover'   , tm_0      , tm_ll      , tm_ul     , 1.0     ,  1*Units.less])
-    inputs.append([ 'tip_mach_cruise'  , tm_0      , tm_ll      , tm_ul     , 1.0     ,  1*Units.less]) 
+    inputs.append([ 'tip_mach_hover'   , tm_0_h    , tm_ll_h    , tm_ul_h   , 1.0     ,  1*Units.less])
+    inputs.append([ 'tip_mach_cruise'  , tm_0_c    , tm_ll_c    , tm_ul_c   , 1.0     ,  1*Units.less]) 
     inputs.append([ 'pitch_cmd_hover'  , PC_h      , -np.pi/5   , np.pi/5   , 1.0     ,  1*Units.less])
     inputs.append([ 'pitch_cmd_cruise' , PC_cr     , -np.pi/5   , np.pi/5   , 1.0     ,  1*Units.less]) 
     problem.inputs = np.array(inputs,dtype=object)   
@@ -205,8 +206,8 @@ def rotor_optimization_setup(prop_rotor):
     constraints = [] 
     constraints.append([ 'thrust_power_residual_hover'  ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])  
     constraints.append([ 'thrust_power_residual_cruise' ,  '>'  ,  0.0 ,   1.0   , 1*Units.less]) 
-    constraints.append([ 'blade_taper_constraint_1'     ,  '>'  ,  0.3 ,   1.0   , 1*Units.less])  
-    constraints.append([ 'blade_taper_constraint_2'     ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])
+    constraints.append([ 'blade_taper_constraint_1'     ,  '>'  ,  0.2 ,   1.0   , 1*Units.less])  
+    constraints.append([ 'blade_taper_constraint_2'     ,  '<'  ,  0.9 ,   1.0   , 1*Units.less])
     constraints.append([ 'blade_twist_constraint'       ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])
     constraints.append([ 'max_sectional_cl_hover'       ,  '<'  ,  1.0 ,   1.0   , 1*Units.less])
     constraints.append([ 'max_sectional_cl_cruise'      ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])
@@ -237,7 +238,7 @@ def rotor_optimization_setup(prop_rotor):
     aliases.append([ 'blade_taper_constraint_2'      , 'summary.blade_taper_constraint_2'])   
     aliases.append([ 'max_sectional_cl_hover'        , 'summary.max_sectional_cl_hover'])    
     aliases.append([ 'max_sectional_cl_cruise'       , 'summary.max_sectional_cl_cruise'])  
-    aliases.append([ 'blade_twist_constraint'    , 'summary.blade_twist_constraint'])   
+    aliases.append([ 'blade_twist_constraint'        , 'summary.blade_twist_constraint'])   
     aliases.append([ 'chord_p_to_q_ratio'            , 'summary.chord_p_to_q_ratio'    ])  
     aliases.append([ 'twist_p_to_q_ratio'            , 'summary.twist_p_to_q_ratio'    ])     
     
