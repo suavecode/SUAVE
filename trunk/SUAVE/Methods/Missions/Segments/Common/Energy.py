@@ -90,7 +90,7 @@ def update_thrust(segment):
     conditions = segment.state.conditions
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
-    conditions.propulsion.y_axis_rotation      = results.propeller_y_axis_rotation
+    conditions.propulsion.propeller_y_axis_rotation      = results.propeller_y_axis_rotation
 
     if "vehicle_additional_fuel_rate" in results:
 

@@ -49,12 +49,12 @@ class Internal_Combustion_Propeller(Network):
             Properties Used:
             N/A
         """        
-        self.engines              = Container()
-        self.propellers           = Container()
-        self.engine_length        = None
-        self.number_of_engines    = None
-        self.identical_propellers = True
-        self.y_axis_rotation      = 0.0
+        self.engines                   = Container()
+        self.propellers                = Container()
+        self.engine_length             = None
+        self.number_of_engines         = None
+        self.identical_propellers      = True
+        self.propeller_y_axis_rotation = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -153,7 +153,7 @@ class Internal_Combustion_Propeller(Network):
         results = Data()
         results.thrust_force_vector       = total_thrust
         results.vehicle_mass_rate         = mdot
-        results.propeller_y_axis_rotation = self.y_axis_rotation * state.ones_row(1)
+        results.propeller_y_axis_rotation = self.propeller_y_axis_rotation * state.ones_row(1)
         
         return results
     

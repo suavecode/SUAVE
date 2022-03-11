@@ -486,6 +486,7 @@ class Lift_Cruise(Network):
         else: 
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
             
+            
         battery = self.battery 
         battery.append_battery_unknowns(segment)  
 
@@ -529,8 +530,8 @@ class Lift_Cruise(Network):
             ss.conditions.propulsion.propeller_power_coefficient         = segment.state.unknowns.propeller_power_coefficient
             ss.conditions.propulsion.throttle                            = segment.state.unknowns.throttle   
         else: 
-            ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
-            
+            ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)   
+        
         battery = self.battery 
         battery.append_battery_unknowns(segment)  
         
@@ -971,6 +972,7 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.propeller_tip_mach         = 0. * ones_row(n_props)   
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_y_axis_rotation  = 0. * ones_row(n_props)
 
         # Setup the conditions for the lift_rotors
         segment.state.conditions.propulsion.lift_rotor_motor_torque      = 0. * ones_row(n_lift_rotors)
@@ -982,6 +984,7 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_efficiency        = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_motor_efficiency  = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_y_axis_rotation   = 0. * ones_row(n_lift_rotors)
 
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns_lift

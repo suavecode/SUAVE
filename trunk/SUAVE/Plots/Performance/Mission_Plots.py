@@ -1006,7 +1006,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     #fig2 = plt.figure()
     #fig2.set_size_inches(8, 5) 
     #for s in results.segments:
-        #y_rot = s.conditions.propulsion.y_axis_rotation / Units.deg
+        #y_rot = s.conditions.propulsion.propeller_y_axis_rotation / Units.deg
         #time  = s.conditions.frames.inertial.time[:,0] / Units.min
         
         #plt.plot(time, y_rot, line_color)

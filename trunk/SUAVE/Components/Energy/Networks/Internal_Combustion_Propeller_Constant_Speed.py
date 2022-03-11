@@ -54,7 +54,7 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
         self.number_of_engines    = None
         self.rated_speed          = 0.0
         self.identical_propellers = True
-        self.y_axis_rotation      = 0.0
+        self.propeller_y_axis_rotation      = 0.0
         
     
     # manage process with a driver function
@@ -154,7 +154,6 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
         results = Data()
         results.thrust_force_vector       = F
         results.vehicle_mass_rate         = mdot
-        results.propeller_y_axis_rotation = self.y_axis_rotation * state.ones_row(1)
         
         return results
 
