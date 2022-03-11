@@ -322,7 +322,8 @@ class Battery_Propeller(Network):
         # fixed y axis rotation
         net   = list(segment.analyses.energy.network.keys())[0]
         y_rot = segment.analyses.energy.network[net].y_axis_rotation
-        ss.conditions.propulsion.y_axis_rotation = self.y_axis_rotation * ones_row(1)
+        ss.conditions.propulsion.y_axis_rotation = y_rot * ones_row(1)
+        self.y_axis_rotation = y_rot
         
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
@@ -351,7 +352,7 @@ class Battery_Propeller(Network):
         """                          
         
         # unpack the ones function
-        ones_row = segment.state.ones_row
+        ones_row = segment.state.ones_row   
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
         ss = segment.state 
@@ -361,7 +362,10 @@ class Battery_Propeller(Network):
             ss.conditions.propulsion.y_axis_rotation             = ss.unknowns.propeller_y_axis_rotation 
         else: 
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
-            
+        
+        # update y axis rotation
+        self.y_axis_rotation = ss.conditions.propulsion.y_axis_rotation 
+        
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
         
@@ -432,10 +436,6 @@ class Battery_Propeller(Network):
         n_props        = len(self.propellers)
         n_motors       = len(self.propeller_motors)
         
-        # Initialize y-axis rotations
-        net = list(segment.analyses.energy.network.keys())[0]
-        self.y_axis_rotation = segment.analyses.energy.network[net].y_axis_rotation
-            
         # unpack the ones function
         ones_row = segment.state.ones_row
         
@@ -516,10 +516,6 @@ class Battery_Propeller(Network):
         identical_flag = self.identical_propellers
         n_props        = len(self.propellers)
         n_motors       = len(self.propeller_motors)
-        
-
-        #net = list(segment.analyses.energy.network.keys())[0]
-        #self.y_axis_rotation = segment.analyses.energy.network[net].y_axis_rotation
         
         # unpack the ones function
         ones_row = segment.state.ones_row

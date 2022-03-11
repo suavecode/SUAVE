@@ -227,9 +227,6 @@ class Rotor(Energy_Component):
         V_body          = orientation_product(T_inertial2body,Vv)
         body2thrust     = self.body_to_prop_vel()
         
-        y_axis_rot = self.inputs.y_axis_rotation
-        print(y_axis_rot)
-        print(omega)
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body)
 
