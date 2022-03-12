@@ -78,7 +78,7 @@ class Battery_Propeller(Network):
         self.use_surrogate                = False 
         self.generative_design_minimum    = 0 
         self.identical_propellers         = True
-        self.propeller_y_axis_rotation    = 0.
+        self.y_axis_rotation    = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -284,7 +284,7 @@ class Battery_Propeller(Network):
         results = Data()
         results.thrust_force_vector       = total_thrust
         results.vehicle_mass_rate         = state.ones_row(1)*0.0     
-        results.propeller_y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation
+        results.network_y_axis_rotation   = conditions.propulsion.propeller_y_axis_rotation
      
         return results
      
@@ -321,9 +321,9 @@ class Battery_Propeller(Network):
         
         # fixed y axis rotation
         net   = list(segment.analyses.energy.network.keys())[0]
-        y_rot = segment.analyses.energy.network[net].propeller_y_axis_rotation
+        y_rot = segment.analyses.energy.network[net].y_axis_rotation
         ss.conditions.propulsion.propeller_y_axis_rotation = y_rot * ones_row(1)
-        self.propeller_y_axis_rotation = y_rot
+        self.y_axis_rotation = y_rot
         
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
@@ -364,7 +364,7 @@ class Battery_Propeller(Network):
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
         
         # update y axis rotation
-        self.propeller_y_axis_rotation = ss.conditions.propulsion.propeller_y_axis_rotation 
+        self.y_axis_rotation = ss.conditions.propulsion.propeller_y_axis_rotation 
         
         battery = self.battery 
         battery.append_battery_unknowns(segment)          

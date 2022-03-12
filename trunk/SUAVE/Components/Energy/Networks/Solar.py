@@ -69,6 +69,7 @@ class Solar(Network):
         self.use_surrogate             = False
         self.generative_design_minimum = 0
         self.identical_propellers      = True
+        self.y_axis_rotation           = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -246,8 +247,9 @@ class Solar(Network):
 
         # Create the outputs
         results = Data()
-        results.thrust_force_vector = total_thrust
-        results.vehicle_mass_rate   = state.ones_row(1)*0.0
+        results.thrust_force_vector     = total_thrust
+        results.vehicle_mass_rate       = state.ones_row(1)*0.0
+        results.network_y_axis_rotation = state.ones_row(1)*0.0
 
         return results
     

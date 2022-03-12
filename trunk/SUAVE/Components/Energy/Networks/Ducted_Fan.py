@@ -57,7 +57,7 @@ class Ducted_Fan(Network):
         self.engine_length     = 1.0
         self.bypass_ratio      = 0.0
         self.areas             = Data()
-        self.propeller_y_axis_rotation   = 0.0
+        self.y_axis_rotation   = 0.0
         
     _component_root_map = None
 
@@ -155,7 +155,7 @@ class Ducted_Fan(Network):
         results.thrust_force_vector       = F
         results.vehicle_mass_rate         = mdot
         results.power                     = np.divide(output_power[:,0],propulsive_efficiency[:,0])
-        results.propeller_y_axis_rotation = self.propeller_y_axis_rotation
+        results.network_y_axis_rotation   = self.y_axis_rotation
         
         # store data
         results_conditions = Data

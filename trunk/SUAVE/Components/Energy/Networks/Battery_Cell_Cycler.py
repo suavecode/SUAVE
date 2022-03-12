@@ -140,7 +140,7 @@ class Battery_Cell_Cycler(Network):
         results                           = Data()
         results.thrust_force_vector       = F
         results.vehicle_mass_rate         = mdot  
-        results.propeller_y_axis_rotation = y_rot
+        results.network_y_axis_rotation   = y_rot
         
         return results 
     

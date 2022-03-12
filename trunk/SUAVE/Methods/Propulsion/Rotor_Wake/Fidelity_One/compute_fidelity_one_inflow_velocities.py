@@ -89,7 +89,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         w       = V_ind[0,:,2]   # velocity in vehicle z-frame
         
         # rotate from vehicle to prop frame:
-        rot_to_prop = prop.vec_to_prop_body()
+        rot_to_prop = prop.vec_to_prop_body()[0,:,:]
         uprop       = u*rot_to_prop[0,0] + w*rot_to_prop[0,2]
         vprop       = v
         wprop       = u*rot_to_prop[2,0] + w*rot_to_prop[2,2]      
