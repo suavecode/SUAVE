@@ -359,7 +359,7 @@ class Battery_Propeller(Network):
         if segment.battery_discharge:
             ss.conditions.propulsion.propeller_power_coefficient = ss.unknowns.propeller_power_coefficient       
             ss.conditions.propulsion.throttle                    = ss.unknowns.throttle
-            ss.conditions.propulsion.propeller_y_axis_rotation             = ss.unknowns.propeller_y_axis_rotation 
+            ss.conditions.propulsion.propeller_y_axis_rotation   = ss.unknowns.propeller_y_axis_rotation 
         else: 
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
         

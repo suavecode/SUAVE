@@ -69,7 +69,6 @@ class Solar(Network):
         self.use_surrogate             = False
         self.generative_design_minimum = 0
         self.identical_propellers      = True
-        self.y_axis_rotation           = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

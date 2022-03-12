@@ -79,7 +79,6 @@ class Propulsor_Surrogate(Network):
         self.use_extended_surrogate   = False
         self.sealevel_static_thrust   = 0.0
         self.negative_throttle_values = False
-        self.y_axis_rotation          = 0.0
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -147,7 +146,7 @@ class Propulsor_Surrogate(Network):
         results                           = Data() 
         results.thrust_force_vector       = thrust_force_vector
         results.vehicle_mass_rate         = mdot
-        results.network_y_axis_rotation   = self.y_axis_rotation * np.ones((ctrl_pts,1))
+        results.network_y_axis_rotation   = np.ones((ctrl_pts,1)) * 0.0
    
         return results          
     
