@@ -332,14 +332,14 @@ def plot_network(axes,network,prop_face_color,prop_edge_color,prop_alpha):
         for prop in network.propellers:
 
             # Generate And Plot Propeller/Rotor Geometry
-            plot_propeller_geometry(axes,prop,network,'propeller',prop_face_color,prop_edge_color,prop_alpha)
+            plot_propeller_geometry(axes,prop,0,prop_face_color,prop_edge_color,prop_alpha)
 
     if ('lift_rotors' in network.keys()):
 
         for rotor in network.lift_rotors:
 
             # Generate and Plot Propeller/Rotor Geometry
-            plot_propeller_geometry(axes,rotor,network,'lift_rotor',prop_face_color,prop_edge_color,prop_alpha)
+            plot_propeller_geometry(axes,rotor,0,prop_face_color,prop_edge_color,prop_alpha)
 
     return 
 
@@ -463,7 +463,7 @@ def plot_nacelle_geometry(axes,NAC_SURF_PTS,face_color,edge_color,alpha):
 
     return
 
-def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color='red',prop_edge_color='darkred',prop_alpha=1):
+def plot_propeller_geometry(axes,prop,cpt=0,prop_face_color='red',prop_edge_color='darkred',prop_alpha=1):
     """ This plots a 3D surface of the  propeller
 
     Assumptions:
@@ -473,7 +473,9 @@ def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color='red'
     None
 
     Inputs:
-    network            - network data structure
+    prop           - SUAVE propeller for which to plot the geometry
+    cpt            - control point at which to plot the propeller
+    
 
     Properties Used:
     N/A
@@ -490,18 +492,18 @@ def plot_propeller_geometry(axes,prop,network,network_name,prop_face_color='red'
         # ------------------------------------------------------------------------
         for sec in range(dim-1):
             for loc in range(af_pts):
-                X = [G.XA1[sec,loc],
-                     G.XB1[sec,loc],
-                     G.XB2[sec,loc],
-                     G.XA2[sec,loc]]
-                Y = [G.YA1[sec,loc],
-                     G.YB1[sec,loc],
-                     G.YB2[sec,loc],
-                     G.YA2[sec,loc]]
-                Z = [G.ZA1[sec,loc],
-                     G.ZB1[sec,loc],
-                     G.ZB2[sec,loc],
-                     G.ZA2[sec,loc]]
+                X = [G.XA1[cpt,sec,loc],
+                     G.XB1[cpt,sec,loc],
+                     G.XB2[cpt,sec,loc],
+                     G.XA2[cpt,sec,loc]]
+                Y = [G.YA1[cpt,sec,loc],
+                     G.YB1[cpt,sec,loc],
+                     G.YB2[cpt,sec,loc],
+                     G.YA2[cpt,sec,loc]]
+                Z = [G.ZA1[cpt,sec,loc],
+                     G.ZB1[cpt,sec,loc],
+                     G.ZB2[cpt,sec,loc],
+                     G.ZA2[cpt,sec,loc]]
                 prop_verts = [list(zip(X, Y, Z))]
                 prop_collection = Poly3DCollection(prop_verts)
                 prop_collection.set_facecolor(prop_face_color)
@@ -579,59 +581,66 @@ def get_blade_coordinates(prop,n_points,dim,i):
     yp      = r_2d*np.ones_like(xp)                          # radial location
     zp      = zpts*(t_2d/max_t2d)                            # former airfoil y coord
 
+    prop_vel_to_body = prop.prop_vel_to_body()
+    cpts             = len(prop_vel_to_body[:,0,0])
+    
     matrix        = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
     matrix[:,:,0] = xp*rot
     matrix[:,:,1] = yp
     matrix[:,:,2] = zp
+    matrix        = np.repeat(matrix[None,:,:,:], cpts, axis=0)
 
+    
     # ROTATION MATRICES FOR INNER SECTION
     # rotation about y axis to create twist and position blade upright
-    trans_1        = np.zeros((dim,3,3))
+    trans_1          = np.zeros((dim,3,3))
     trans_1[:,0,0] = np.cos(flip_1 - beta)
     trans_1[:,0,2] = -np.sin(flip_1 - beta)
     trans_1[:,1,1] = 1
     trans_1[:,2,0] = np.sin(flip_1 - beta)
     trans_1[:,2,2] = np.cos(flip_1 - beta)
+    trans_1        = np.repeat(trans_1[None,:,:,:], cpts, axis=0)
 
     # rotation about x axis to create azimuth locations
     trans_2 = np.array([[1 , 0 , 0],
                    [0 , np.cos(theta[i] + a_o + flip_2 ), -np.sin(theta[i] +a_o +  flip_2)],
                    [0,np.sin(theta[i] + a_o + flip_2), np.cos(theta[i] + a_o + flip_2)]])
-    trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
+    trans_2 = np.repeat(trans_2[None,:,:], dim, axis=0)
+    trans_2 = np.repeat(trans_2[None,:,:,:], cpts, axis=0)
 
     # rotation about y to orient propeller/rotor to thrust angle
-    trans_3 =  prop.prop_vel_to_body()[0,:,:]
-    trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0) 
+    trans_3 =  prop_vel_to_body
+    trans_3 =  np.repeat(trans_3[:, None,:,: ],dim,axis=1) 
     
     trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
-    rot_mat   = np.repeat(trans[:, np.newaxis,:,:],n_points,axis=1)
+    rot_mat   = np.repeat(trans[:,:, None,:,:],n_points,axis=2)
 
     # ---------------------------------------------------------------------------------------------
     # ROTATE POINTS
-    mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze()
+    mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze(axis=-1)
 
     # ---------------------------------------------------------------------------------------------
     # create empty data structure for storing geometry
     G = Data()
     
     # store node points
-    G.X  = mat[:,:,0] + origin[0][0]
-    G.Y  = mat[:,:,1] + origin[0][1]
-    G.Z  = mat[:,:,2] + origin[0][2]
+    G.X  = mat[:,:,:,0] + origin[0][0]
+    G.Y  = mat[:,:,:,1] + origin[0][1]
+    G.Z  = mat[:,:,:,2] + origin[0][2]
     
     # store points
-    G.XA1  = mat[:-1,:-1,0] + origin[0][0]
-    G.YA1  = mat[:-1,:-1,1] + origin[0][1]
-    G.ZA1  = mat[:-1,:-1,2] + origin[0][2]
-    G.XA2  = mat[:-1,1:,0]  + origin[0][0]
-    G.YA2  = mat[:-1,1:,1]  + origin[0][1]
-    G.ZA2  = mat[:-1,1:,2]  + origin[0][2]
+    G.XA1  = mat[:,:-1,:-1,0] + origin[0][0]
+    G.YA1  = mat[:,:-1,:-1,1] + origin[0][1]
+    G.ZA1  = mat[:,:-1,:-1,2] + origin[0][2]
+    G.XA2  = mat[:,:-1,1:,0]  + origin[0][0]
+    G.YA2  = mat[:,:-1,1:,1]  + origin[0][1]
+    G.ZA2  = mat[:,:-1,1:,2]  + origin[0][2]
 
-    G.XB1  = mat[1:,:-1,0] + origin[0][0]
-    G.YB1  = mat[1:,:-1,1] + origin[0][1]
-    G.ZB1  = mat[1:,:-1,2] + origin[0][2]
-    G.XB2  = mat[1:,1:,0]  + origin[0][0]
-    G.YB2  = mat[1:,1:,1]  + origin[0][1]
-    G.ZB2  = mat[1:,1:,2]  + origin[0][2]
+    G.XB1  = mat[:,1:,:-1,0] + origin[0][0]
+    G.YB1  = mat[:,1:,:-1,1] + origin[0][1]
+    G.ZB1  = mat[:,1:,:-1,2] + origin[0][2]
+    G.XB2  = mat[:,1:,1:,0]  + origin[0][0]
+    G.YB2  = mat[:,1:,1:,1]  + origin[0][1]
+    G.ZB2  = mat[:,1:,1:,2]  + origin[0][2]
     
     return G

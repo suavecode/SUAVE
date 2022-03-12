@@ -84,15 +84,15 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         V_ind   = compute_wake_induced_velocity(WD, VD, cpts, azi_start_idx=i)
         
         # velocities in vehicle frame
-        u       = V_ind[0,:,0]   # velocity in vehicle x-frame
-        v       = V_ind[0,:,1]   # velocity in vehicle y-frame
-        w       = V_ind[0,:,2]   # velocity in vehicle z-frame
+        u       = V_ind[:,:,0]   # velocity in vehicle x-frame
+        v       = V_ind[:,:,1]    # velocity in vehicle y-frame
+        w       = V_ind[:,:,2]    # velocity in vehicle z-frame
         
         # rotate from vehicle to prop frame:
-        rot_to_prop = prop.vec_to_prop_body()[0,:,:]
-        uprop       = u*rot_to_prop[0,0] + w*rot_to_prop[0,2]
+        rot_to_prop = prop.vec_to_prop_body()
+        uprop       = u*rot_to_prop[:,0,0][:,None] + w*rot_to_prop[:,0,2][:,None]
         vprop       = v
-        wprop       = u*rot_to_prop[2,0] + w*rot_to_prop[2,2]      
+        wprop       = u*rot_to_prop[:,2,0][:,None] + w*rot_to_prop[:,2,2][:,None]     
         
         # interpolate to get values at rotor radial stations
         r_midpts = (r[1:] + r[:-1])/2
