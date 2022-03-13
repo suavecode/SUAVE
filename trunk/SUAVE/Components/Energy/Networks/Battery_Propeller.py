@@ -78,7 +78,7 @@ class Battery_Propeller(Network):
         self.use_surrogate                = False 
         self.generative_design_minimum    = 0 
         self.identical_propellers         = True
-        self.y_axis_rotation    = 0.
+        self.y_axis_rotation              = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -149,7 +149,7 @@ class Battery_Propeller(Network):
         
         # Set rotor y-axis rotation
         for p in self.propellers:
-            p.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation
+            p.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation         
             
         # --------------------------------------------------------------------------------
         # Run Motor, Avionics and Systems (Discharge Model)
@@ -370,7 +370,53 @@ class Battery_Propeller(Network):
         battery.append_battery_unknowns(segment)          
         
         
-        return      
+        return    
+    
+    
+    def unpack_tiltrotor_transition_unknowns(self,segment):
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient [None] 
+            unknowns specific to the battery cell 
+    
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None] 
+            conditions specific to the battery cell
+    
+            Properties Used:
+            N/A
+        """                          
+        
+        # unpack the ones function
+        ones_row = segment.state.ones_row   
+        
+        # Here we are going to unpack the unknowns (Cp) provided for this network
+        ss = segment.state 
+        if segment.battery_discharge:
+            ss.conditions.propulsion.propeller_power_coefficient = ss.unknowns.propeller_power_coefficient       
+            ss.conditions.propulsion.throttle                    = ss.unknowns.throttle
+            ss.conditions.frames.body.inertial_rotations[:,1]    = ss.unknowns.body_angle[:,0]             
+        else: 
+            ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
+        
+        # update y axis rotation
+        #self.y_axis_rotation = ss.conditions.propulsion.propeller_y_axis_rotation
+
+        
+        battery = self.battery 
+        battery.append_battery_unknowns(segment)          
+        
+        
+        return        
+    
+    
     
     def residuals(self,segment):
         """ This packs the residuals to be sent to the mission solver.
@@ -483,7 +529,7 @@ class Battery_Propeller(Network):
         return segment
     
 
-    def add_tiltrotor_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
+    def add_transition_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
                                                         initial_y_axis_rotation = 0.0,
                                                         initial_power_coefficient = 0.02,
                                                         initial_battery_cell_temperature = 283. , 
@@ -561,6 +607,86 @@ class Battery_Propeller(Network):
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_tiltrotor_unknowns
+        segment.process.iterate.residuals.network = self.residuals        
+
+        return segment    
+    
+    def add_tiltrotor_transition_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
+                                                        initial_power_coefficient = 0.02,
+                                                        initial_battery_cell_temperature = 283. , 
+                                                        initial_battery_state_of_charge = 0.5,
+                                                        initial_battery_cell_current = 5.):
+        """ This function sets up the information that the mission needs to run a mission segment using this network
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            segment
+            initial_voltage                   [v]
+            initial_power_coefficient         [float]s
+            
+            Outputs:
+            segment.state.unknowns.battery_voltage_under_load
+            segment.state.unknowns.propeller_power_coefficient
+            segment.state.conditions.propulsion.propeller_motor_torque
+            segment.state.conditions.propulsion.propeller_torque   
+    
+            Properties Used:
+            N/A
+        """           
+
+        n_eng          = int(self.number_of_propeller_engines)
+        identical_flag = self.identical_propellers
+        n_props        = len(self.propellers)
+        n_motors       = len(self.propeller_motors)
+        
+        # unpack the ones function
+        ones_row = segment.state.ones_row
+        
+        # unpack the initial values if the user doesn't specify
+        if initial_voltage==None:
+            initial_voltage = self.battery.max_voltage
+        
+        # Count how many unknowns and residuals based on p) 
+        
+        if n_props!=n_motors!=n_eng:
+            print('The number of propellers is not the same as the number of motors')
+            
+        # Now check if the propellers are all identical, in this case they have the same of residuals and unknowns
+        if identical_flag:
+            n_props = 1   
+
+        # Assign initial segment conditions to segment if missing
+        battery = self.battery
+        append_initial_battery_conditions(segment,battery)          
+        
+        # add unknowns and residuals specific to battery cell 
+        segment.state.residuals.network = Residuals()  
+        battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage,
+                                              initial_battery_cell_temperature , initial_battery_state_of_charge,
+                                              initial_battery_cell_current)  
+
+        if segment.battery_discharge: 
+            segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)  
+            segment.state.unknowns.throttle                    = 0.7 * ones_row(1)
+        
+        # Setup the conditions
+        segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_torque           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_thrust           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_rpm              = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.disc_loading               = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.power_loading              = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_tip_mach         = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)        
+        
+        # Ensure the mission knows how to pack and unpack the unknowns and residuals
+        segment.process.iterate.unknowns.network  = self.unpack_tiltrotor_transition_unknowns
         segment.process.iterate.residuals.network = self.residuals        
 
         return segment    
