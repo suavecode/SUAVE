@@ -41,7 +41,7 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     # --- Conditions        
-    ones_1col = np.ones([1,1])    
+    ones_1col = np.ones([2,1])    
     
     # setup conditions
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
