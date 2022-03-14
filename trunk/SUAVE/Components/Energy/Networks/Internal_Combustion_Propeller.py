@@ -142,6 +142,7 @@ class Internal_Combustion_Propeller(Network):
             conditions.propulsion.disc_loading[:,ii]       = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
             conditions.propulsion.power_loading[:,ii]      = (F_mag[:,0])/(P[:,0])      # N/W   
             conditions.propulsion.propeller_efficiency     = etap[:,0]
+            conditions.propulsion.figure_of_merit          = outputs.figure_of_merit[:,0]
             
             conditions.noise.sources.propellers[prop.tag]  = outputs
 
@@ -266,6 +267,7 @@ class Internal_Combustion_Propeller(Network):
         segment.state.conditions.propulsion.power_loading          = 0. * ones_row(n_props)    
         segment.state.conditions.propulsion.propeller_tip_mach     = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_efficiency   = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.figure_of_merit        = 0. * ones_row(n_props)
         
 
         # Ensure the mission knows how to pack and unpack the unknowns and residuals

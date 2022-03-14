@@ -803,7 +803,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
     """	    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)
+    fig.set_size_inches(8, 5)
      
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -941,7 +941,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)  
+    fig.set_size_inches(8, 5)  
     
     for segment in results.segments.values():  
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -1005,8 +1005,8 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
 
     fig2 = plt.figure()
     fig2.set_size_inches(8, 5) 
-    for s in results.segments:
-        y_rot = s.conditions.propulsion.propeller_y_axis_rotation / Units.deg
+    for s in results.segments.values():
+        y_rot = s.conditions.propulsion.propeller_y_axis_rotation[:,0] / Units.deg
         time  = s.conditions.frames.inertial.time[:,0] / Units.min
         
         plt.plot(time, y_rot, line_color)
@@ -1041,18 +1041,23 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
     """	   
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)  
-    for segment in results.segments.values():
+    fig.set_size_inches(8, 5)  
+    for s,segment in enumerate(results.segments.values()):
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         effp   = segment.conditions.propulsion.propeller_efficiency[:,0]
+        fom    = segment.conditions.propulsion.figure_of_merit[:,0]
         effm   = segment.conditions.propulsion.propeller_motor_efficiency[:,0]
         
         axes = plt.subplot(1,2,1)
-        axes.plot(time, effp, line_color )
+        axes.plot(time, effp, line_color, label=r'$\eta_p$')
+        axes.plot(time, fom, 'ro-', label='FoM')
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel(r'Propeller Efficiency ($\eta_p$)',axis_font)
+
         set_axes(axes)         
         plt.ylim((0,1))
+        if s==0:
+            plt.legend()
         
         axes = plt.subplot(1,2,2)
         axes.plot(time, effm, line_color )
@@ -1096,7 +1101,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
     """	    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)
+    fig.set_size_inches(8, 5)
     
     for segment in results.segments.values():
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -1161,7 +1166,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
     
     axis_font = {'size':'14'} 
     fig       = plt.figure(save_filename) 
-    fig.set_size_inches(8, 6)
+    fig.set_size_inches(8, 5)
     
     for segment in results.segments.values():               
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -1224,7 +1229,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     #   Electronic Conditions
     # ------------------------------------------------------------------
     fig = plt.figure("Lift_Cruise_Battery_Pack_Conditions")
-    fig.set_size_inches(16, 8)
+    fig.set_size_inches(8, 5)
     for i in range(len(results.segments)):          
         time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         eta            = results.segments[i].conditions.propulsion.throttle[:,0]
@@ -1279,7 +1284,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     #   Propulsion Conditions
     # ------------------------------------------------------------------
     fig = plt.figure("Prop-Rotor Network")
-    fig.set_size_inches(16, 8)
+    fig.set_size_inches(8, 5)
     for i in range(len(results.segments)):          
         time         = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         prop_rpm     = results.segments[i].conditions.propulsion.propeller_rpm[:,0] 
@@ -1348,7 +1353,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     #   Propulsion Conditions
     # ------------------------------------------------------------------
     fig = plt.figure("Lift_Rotor")
-    fig.set_size_inches(16, 8)
+    fig.set_size_inches(8, 5)
     for i in range(len(results.segments)):          
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         rpm    = results.segments[i].conditions.propulsion.lift_rotor_rpm [:,0] 
@@ -1405,7 +1410,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     #   Propulsion Conditions
     # ------------------------------------------------------------------
     fig = plt.figure("Propeller")
-    fig.set_size_inches(16, 8)
+    fig.set_size_inches(8, 5)
     for i in range(len(results.segments)):          
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         rpm    = results.segments[i].conditions.propulsion.propeller_rpm [:,0] 
