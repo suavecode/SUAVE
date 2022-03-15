@@ -47,7 +47,7 @@ def main():
     plot_mission(results)
 
     # Generate vtks for animation of the tiltrotor through the transition segment
-    save_transition_animation_paraview(results,configs)       
+    #save_transition_animation_paraview(results,configs,save_path=None)       
 
     # Check throttles
     departure_throttle     = results.segments.departure.conditions.propulsion.throttle[:,0]
@@ -311,12 +311,15 @@ def plot_mission(results,line_style = 'bo-'):
     return
 
 
-def save_transition_animation_paraview(results,configs):
+def save_transition_animation_paraview(results,configs,save_path=None):
    
     # create store location
-    base_path = os.path.dirname(os.path.abspath(__file__)) 
-    dirname   = base_path + "/Tiltrotor_VTKs/"
-
+    if save_path == None:
+        base_path = os.path.dirname(os.path.abspath(__file__)) 
+        dirname   = base_path + "/Tiltrotor_VTKs/"
+    else:
+        dirname = save_path + "/Tiltrotor_VTKs/"
+        
     if not os.path.exists(dirname):
         os.makedirs(dirname)
         print("Directory " + dirname + " created.")        
