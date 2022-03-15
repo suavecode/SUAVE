@@ -341,7 +341,8 @@ class Battery_Propeller(Network):
             N/A
     
             Inputs:
-            state.unknowns.propeller_power_coefficient [None] 
+            state.unknowns.propeller_y_axis_rotation      [rad] 
+            state.unknowns.propeller_power_coefficient    [None] 
             unknowns specific to the battery cell 
     
             Outputs:
@@ -495,7 +496,7 @@ class Battery_Propeller(Network):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
-            Network of tilt-rotors used to converge on transition residuals
+            Network of tiltrotors used to converge on transition residuals, all rotors having same tilt angle
     
             Source:
             N/A

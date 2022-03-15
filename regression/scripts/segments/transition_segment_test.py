@@ -45,6 +45,7 @@ def main():
     
     # Plot results
     plot_mission(results)
+    
 
     # Generate vtks for animation of the tiltrotor through the transition segment
     #save_transition_animation_paraview(results,configs,save_path=None)       
@@ -144,14 +145,12 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
-    #aerodynamics.settings.number_spanwise_vortices   = 5
-    #aerodynamics.settings.number_chordwise_vortices  = 2       
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------
