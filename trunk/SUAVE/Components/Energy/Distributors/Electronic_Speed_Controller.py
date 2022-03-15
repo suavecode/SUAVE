@@ -104,6 +104,6 @@ class Electronic_Speed_Controller(Energy_Component):
         
         # Pack
         self.outputs.currentin = currentin
-        self.outputs.power_in  = self.outputs.voltageout*currentin
+        self.outputs.power_in  = self.inputs.voltagein*currentin
         
         return currentin
