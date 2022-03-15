@@ -100,7 +100,7 @@ class Electronic_Speed_Controller(Energy_Component):
         eta = (conditions.propulsion.throttle[:,0,None])*1.0        
         eff        = self.efficiency
         currentout = self.inputs.currentout
-        currentin  = currentout*eta/eff
+        currentin  = currentout*eta/eff # The inclusion of eta satisfies a power balance: p_in = p_out/eff
         
         # Pack
         self.outputs.currentin = currentin
