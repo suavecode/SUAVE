@@ -45,7 +45,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
     """	  
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8) 
+    fig.set_size_inches(8, 5) 
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
         mass     = segment.conditions.weights.total_mass[:,0] / Units.lb
@@ -103,7 +103,7 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
     """	
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8) 
+    fig.set_size_inches(8, 5) 
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
         velocity = segment.conditions.freestream.velocity[:,0] 
@@ -159,7 +159,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
     """	   
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10) 
+    fig.set_size_inches(8, 5) 
     
     for i in range(len(results.segments)): 
         time  = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
@@ -206,7 +206,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
 
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8) 
+    fig.set_size_inches(8, 5) 
 
     prev_seg_fuel       = 0
     prev_seg_extra_fuel = 0
@@ -297,7 +297,7 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
     """	    
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)
+    fig.set_size_inches(8, 5)
     
     for segment in results.segments.values(): 
         time = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -361,7 +361,7 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
     """	   
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)
+    fig.set_size_inches(8, 5)
     
     for segment in results.segments.values():
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -494,7 +494,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
     axis_font = {'size':'14'}  
     
     fig = plt.figure(save_filename) 
-    fig.set_size_inches(12, 10)   
+    fig.set_size_inches(8, 5)   
     fig.suptitle('Battery Pack Conditions')  
     for i in range(len(results.segments)):     
         time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
@@ -511,23 +511,24 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         pack_C_nominal      = pack_current/np.max(pack_battery_amp_hr)
         
     
-        axes = plt.subplot(3,3,1)
+        axes = plt.subplot(2,3,1)
         axes.plot(time, pack_SOC , line_color)
         axes.set_ylabel('SOC',axis_font)
         set_axes(axes)    
 
-        axes = plt.subplot(3,3,2)
+        axes = plt.subplot(2,3,2)
         axes.plot(time, (pack_energy/Units.Wh)/1000, line_color)
         axes.set_ylabel('Energy (kW-hr)',axis_font)
         set_axes(axes)              
     
-        axes = plt.subplot(3,3,3)
+        axes = plt.subplot(2,3,3)
         axes.plot(time, -pack_power/1000, line_color)
         axes.set_ylabel('Power (kW)',axis_font)
         set_axes(axes)       
         
-        axes = plt.subplot(3,3,4) 
+        axes = plt.subplot(2,3,4) 
         axes.set_ylabel('Voltage (V)',axis_font) 
+        axes.set_xlabel('Time (mins)',axis_font)
         set_axes(axes) 
         if i == 0:
             axes.plot(time, pack_volts, line_color,label='Under Load')
@@ -535,9 +536,9 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         else:
             axes.plot(time, pack_volts, line_color)
             axes.plot(time,pack_volts_oc,line_color2) 
-        axes.legend(loc='upper right')  
+        axes.legend(loc='best')  
         
-        axes = plt.subplot(3,3,5)
+        axes = plt.subplot(2,3,5)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rate (C)',axis_font)          
         set_axes(axes)  
@@ -547,9 +548,9 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         else:
             axes.plot(time, pack_C_instant, line_color)
             axes.plot(time, pack_C_nominal, line_color2)
-        axes.legend(loc='upper right')  
+        axes.legend(loc='best')  
 
-        axes = plt.subplot(3,3,6)
+        axes = plt.subplot(2,3,6)
         axes.plot(time, pack_current, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Current (A)',axis_font)  
@@ -558,7 +559,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         
     # Set limits
     for i in range(1,7):
-        ax         = plt.subplot(3,3,i)
+        ax         = plt.subplot(2,3,i)
         y_lo, y_hi = ax.get_ylim()
         if y_lo>0: y_lo = 0
         y_hi       = y_hi*1.1
@@ -602,7 +603,7 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
     axis_font = {'size':'14'}   
     
     fig  = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)   
+    fig.set_size_inches(8, 5)   
     fig.suptitle('Battery Cell Conditions')
     for i in range(len(results.segments)):
         time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
@@ -957,7 +958,6 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.set_ylabel('Thrust (N)',axis_font)
         set_axes(axes)
 
-        
         axes = plt.subplot(2,3,2)
         axes.plot(time, rpm, line_color)
         axes.set_ylabel('RPM',axis_font)
@@ -993,26 +993,53 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         if y_lo>0: y_lo = 0
         y_hi       = y_hi*1.1
         ax.set_ylim(y_lo,y_hi)
-            
-        
     
     plt.tight_layout()    
     if save_figure:
         plt.savefig(save_filename + file_type)  
     
-    
-    # Also plot propeller y-axis rotation for tiltrotor cases
+    return
 
-    fig2 = plt.figure()
-    fig2.set_size_inches(8, 5) 
-    for s in results.segments.values():
-        y_rot = s.conditions.propulsion.propeller_y_axis_rotation[:,0] / Units.deg
-        time  = s.conditions.frames.inertial.time[:,0] / Units.min
+## @ingroup Plots
+def plot_tiltrotor_conditions(results,line_color='bo-',save_figure=False, save_filename="Tiltrotor", file_type=".png"):
+    """This plots the tiltrotor conditions
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions. 
+        frames.inertial.time 
+        propulsion.propeller_y_axis_rotation
         
-        plt.plot(time, y_rot, line_color)
-    plt.xlabel('Time (mins)', axis_font)
-    plt.ylabel('Network Y-Axis Rotation (deg)', axis_font)
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	 
     
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(8, 5)  
+    
+    for segment in results.segments.values():      
+        y_rot = segment.conditions.propulsion.propeller_y_axis_rotation[:,0] / Units.deg
+        time  = segment.conditions.frames.inertial.time[:,0] / Units.min
+        
+        axes = plt.subplot(1,1,1)
+        axes.plot(time, y_rot, line_color)
+        axes.set_xlabel('Time (mins)', axis_font)
+        axes.set_ylabel('Network Y-Axis Rotation (deg)', axis_font)  
+        set_axes(axes)
+
+    plt.tight_layout()    
+    if save_figure:
+        plt.savefig(save_filename + file_type)  
+        
     return
 
 # ------------------------------------------------------------------

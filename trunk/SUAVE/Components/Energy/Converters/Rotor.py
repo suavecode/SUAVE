@@ -189,8 +189,6 @@ class Rotor(Energy_Component):
         use_2d_analysis       = self.use_2d_analysis
         pitch_c               = self.inputs.pitch_command
         
-        
-        
         # 2d analysis required for wake fid1
         if isinstance(self.Wake, Rotor_Wake_Fidelity_One):
             use_2d_analysis=True

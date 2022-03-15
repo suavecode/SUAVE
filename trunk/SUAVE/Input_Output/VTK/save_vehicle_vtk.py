@@ -86,6 +86,8 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(), time_step=0,VLM_
             for i in range(n_props):
                 propi = propellers[list(propellers.keys())[i]]
                 
+                propi.inputs.y_axis_rotation = network.y_axis_rotation
+                
                 start_angle = propi.start_angle
                 Na = propi.number_azimuthal_stations
                 angles = np.linspace(0,2*np.pi,Na+1)[:-1]
