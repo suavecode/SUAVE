@@ -1001,7 +1001,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     return
 
 ## @ingroup Plots
-def plot_tiltrotor_conditions(results,line_color='bo-',save_figure=False, save_filename="Tiltrotor", file_type=".png"):
+def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False, save_filename="Tiltrotor", file_type=".png"):
     """This plots the tiltrotor conditions
 
     Assumptions:
@@ -1026,19 +1026,89 @@ def plot_tiltrotor_conditions(results,line_color='bo-',save_figure=False, save_f
     fig = plt.figure(save_filename)
     fig.set_size_inches(8, 5)  
     
-    for segment in results.segments.values():      
-        y_rot = segment.conditions.propulsion.propeller_y_axis_rotation[:,0] / Units.deg
-        time  = segment.conditions.frames.inertial.time[:,0] / Units.min
+    config = configs[list(configs.keys())[0]]
+    net    = config.networks[list(config.networks.keys())[0]]
+    props  = net.propellers
+    D      = 2 * props[list(props.keys())[0]].tip_radius    
+    
+    for s, segment in enumerate(results.segments.values()):    
+
+        Vx      = segment.state.conditions.frames.inertial.velocity_vector[:,0]
+        Vz      = segment.state.conditions.frames.inertial.velocity_vector[:,2]
         
-        axes = plt.subplot(1,1,1)
+        body_angle = segment.state.conditions.frames.body.inertial_rotations[:,1] / Units.deg
+        y_rot      = segment.conditions.propulsion.propeller_y_axis_rotation[:,0] / Units.deg
+        time       = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Vinf       = segment.conditions.freestream.velocity[:,0]
+        
+        
+        thrust_vector = segment.conditions.frames.body.thrust_force_vector
+        Tx = thrust_vector[:,0]
+        Tz = thrust_vector[:,2]
+        thrust_angle  = np.arccos(Tx / np.sqrt(Tx**2 + Tz**2))
+        velocity_angle = np.arctan(-Vz / Vx)
+        
+        n     = segment.conditions.propulsion.propeller_rpm[:,0] / 60
+        J     = Vinf/(n*D)
+        
+        prop_incidence_angles =  thrust_angle - velocity_angle
+        
+        axes = plt.subplot(2,2,1)
         axes.plot(time, y_rot, line_color)
         axes.set_xlabel('Time (mins)', axis_font)
         axes.set_ylabel('Network Y-Axis Rotation (deg)', axis_font)  
         set_axes(axes)
-
-    plt.tight_layout()    
+        
+        axes = plt.subplot(2,2,2)
+        axes.plot(time, body_angle, line_color)
+        axes.set_xlabel('Time (mins)', axis_font)
+        axes.set_ylabel('Aircraft Pitch', axis_font)  
+        set_axes(axes)        
+        
+        axes = plt.subplot(2,2,3)
+        axes.plot(time, J, line_color)
+        axes.set_xlabel('Time (mins)', axis_font)
+        axes.set_ylabel('Advance Ratio (J=V/nD)', axis_font)  
+        set_axes(axes)      
+        
+        axes = plt.subplot(2,2,4)
+        axes.plot(time, prop_incidence_angles/Units.deg, line_color)
+        axes.set_xlabel('Time (mins)', axis_font)
+        axes.set_ylabel('Propeller Incidence', axis_font)  
+        set_axes(axes)       
+    plt.tight_layout() 
     if save_figure:
         plt.savefig(save_filename + file_type)  
+        
+        
+    fig2 = plt.figure("Rotor Operation")
+    fig2.set_size_inches(8,5)    
+    #marks = ['bs', 'oo', 'go', 'r^', 'ms','k-','ro','gs','yo']
+    for s, segment in enumerate(results.segments.values()):    
+
+        Vx      = segment.state.conditions.frames.inertial.velocity_vector[:,0]
+        Vz      = segment.state.conditions.frames.inertial.velocity_vector[:,2]
+        Vinf    = segment.conditions.freestream.velocity[:,0]
+        
+        thrust_vector = segment.conditions.frames.body.thrust_force_vector
+        Tx = thrust_vector[:,0]
+        Tz = thrust_vector[:,2]
+        thrust_angle  = np.arccos(Tx / np.sqrt(Tx**2 + Tz**2))
+        velocity_angle = np.arctan(-Vz / Vx)
+        
+        n     = segment.conditions.propulsion.propeller_rpm[:,0] / 60
+        J     = Vinf/(n*D)
+        
+        prop_incidence_angles =  thrust_angle - velocity_angle
+        
+        axes = plt.subplot(1,1,1)
+        axes.scatter(prop_incidence_angles/Units.deg, J, label=segment.tag)
+        axes.set_xlabel("Propeller Incidence Angle [deg]")
+        axes.set_ylabel("Advance Ratio, J=V/nD")
+        set_axes(axes)  
+        
+    plt.legend(bbox_to_anchor=(1.04,0.5), loc="center left", borderaxespad=0)
+    plt.tight_layout()    
         
     return
 
