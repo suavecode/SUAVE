@@ -66,11 +66,11 @@ def mach_area(area_ratio, gamma, subsonic):
     """
     func = lambda Me : (area_ratio**2. - ((1./Me)**2.)*(((2./(gamma+1.))*(1.+((gamma-1.)/2.)*Me**2.))**((gamma+1.)/((gamma-1.)))))[:,0]
     if subsonic:
-        Me_initial_guess = 0.01
+        Me_initial_guess = np.ones_like(gamma)*0.01
     else:
-        Me_initial_guess = 2.0         
+        Me_initial_guess = np.ones_like(gamma)*2.0         
         
-    Me = fsolve(func,Me_initial_guess, factor = 0.1)
+    Me = np.atleast_2d(fsolve(func,Me_initial_guess, factor = 0.1)).T
 
     return Me
 
