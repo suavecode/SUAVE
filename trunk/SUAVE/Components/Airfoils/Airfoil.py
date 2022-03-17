@@ -17,7 +17,7 @@ from SUAVE.Components import Lofted_Body
 #   Airfoil
 # ------------------------------------------------------------
 
-## @ingroup Components-Wings-Airfoils
+## @ingroup Components-Airfoils
 class Airfoil(Lofted_Body.Section):
     def __defaults__(self):
         """This sets the default values of a airfoil defined in SUAVE.

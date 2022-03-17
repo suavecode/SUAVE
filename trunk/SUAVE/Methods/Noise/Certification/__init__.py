@@ -1,5 +1,5 @@
 ## @defgroup Methods-Noise-Certification Certification
-# @ingroup Methods-Noise-Correlation 
+# @ingroup Methods-Noise
 
 from .approach_noise   import approach_noise
 from .flyover_noise    import flyover_noise
