@@ -1,4 +1,4 @@
-## @defgroup Methods-Noise-Correlation Correlation 
+## @defgroup Methods-Noise-Certification Certification
 # @ingroup Methods-Noise-Correlation 
 
 from .approach_noise   import approach_noise

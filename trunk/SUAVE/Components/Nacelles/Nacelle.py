@@ -1,4 +1,4 @@
-## @defgroup Components-Energy-Nacelles Nacelles
+## @defgroup Components-Energy-Nacelles
 # Nacelle.py
 # 
 # Created:  Jul 2021, M. Clarke  
