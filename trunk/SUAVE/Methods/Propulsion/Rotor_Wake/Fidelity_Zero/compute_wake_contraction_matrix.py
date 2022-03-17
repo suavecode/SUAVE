@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 # compute_wake_contraction_matrix.py
 # 
 # Created:  Sep 2020, M. Clarke 
@@ -11,7 +11,7 @@
 # package imports
 import numpy as np 
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
+## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 def compute_wake_contraction_matrix(prop,Nr,m,nts,X_pts,prop_outputs):
     """ This computes slipstream development factor for all points 
     along slipstream

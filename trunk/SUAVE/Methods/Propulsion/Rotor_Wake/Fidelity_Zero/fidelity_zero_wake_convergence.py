@@ -1,4 +1,4 @@
-## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 # fidelity_zero_wake_convergence.py
 #
 # Created:  Feb 2022, R. Erhard
@@ -8,7 +8,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations impor
 import numpy as np
 import copy
 
-## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     """
     Wake evaluation is performed using a simplified vortex wake method for Fidelity Zero, 
@@ -119,7 +119,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     
     return va, vt
 
-## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
     """
     Computes the analytical derivative for the BEVW iteration.
