@@ -8,6 +8,7 @@
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
 #           Aug 2021, M. Clarke
+#           Feb 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -22,6 +23,7 @@ from SUAVE.Components.Physical_Component import Container
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
 from SUAVE.Core import Data , Units 
+import copy
 
 # ----------------------------------------------------------------------
 #  Network
@@ -74,13 +76,10 @@ class Battery_Propeller(Network):
         self.number_of_lift_rotor_engines = None
         self.voltage                      = None
         self.tag                          = 'Battery_Propeller'
-        self.use_surrogate                = False
-        self.pitch_command                = 0.0
-        self.generative_design_minimum    = 0
-        self.pitch_command                = 0
+        self.use_surrogate                = False 
+        self.generative_design_minimum    = 0 
         self.identical_propellers         = True
-        self.identical_lift_rotors        = True
-        self.thrust_angle                 = 0. 
+        self.identical_lift_rotors        = True 
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -201,9 +200,7 @@ class Battery_Propeller(Network):
                 motor.omega(conditions)
                 
                 # link
-                prop.inputs.omega           = motor.outputs.omega
-                prop.inputs.pitch_command   = self.pitch_command
-                prop.inputs.y_axis_rotation = self.thrust_angle
+                prop.inputs.omega           = motor.outputs.omega 
                 
                 # step 4
                 F, Q, P, Cp, outputs, etap = prop.spin(conditions)
@@ -239,7 +236,22 @@ class Battery_Propeller(Network):
                     conditions.noise.sources.propellers[prop.tag]      = outputs
                 else:    
                     conditions.noise.sources.lift_rotors[prop.tag]     = outputs
-    
+            
+            if identical_flag and prop.Wake.wake_method=="Fidelity_One":
+                # append wakes to all propellers, shifted by new origin
+                for p in props:
+                    # make copy of prop wake and vortex distribution
+                    base_wake = copy.deepcopy(prop.Wake)
+                    wake_vd   = base_wake.vortex_distribution
+                    
+                    # apply offset 
+                    origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
+                    p.Wake = base_wake
+                    p.Wake.shift_wake_VD(wake_vd, origin_offset)
+            elif identical_flag and prop.Wake.wake_method=="Fidelity_Zero":
+                for p in props:
+                    p.outputs = outputs
+                    
             # Run the avionics
             avionics.power()
     
@@ -259,8 +271,8 @@ class Battery_Propeller(Network):
             avionics_payload_current = avionics_payload_power/self.voltage 
         
             # link
-            battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
-            battery.inputs.power_in = -(esc.outputs.voltageout *esc.outputs.currentin + avionics_payload_power)
+            battery.inputs.current  =   esc.outputs.currentin + avionics_payload_current
+            battery.inputs.power_in = -(esc.outputs.power_in  + avionics_payload_power)
             battery.energy_calc(numerics,discharge_flag)         
              
         # --------------------------------------------------------------------------------
@@ -270,7 +282,7 @@ class Battery_Propeller(Network):
             # link 
             battery.inputs.current  = -battery.cell.charging_current*n_parallel * np.ones_like(volts)
             battery.inputs.voltage  =  battery.cell.charging_voltage*n_series * np.ones_like(volts)
-            battery.inputs.power_in =  -battery.inputs.current * battery.inputs.voltage             
+            battery.inputs.power_in = -battery.inputs.current * battery.inputs.voltage             
             battery.energy_calc(numerics,discharge_flag)        
             
             avionics_payload_power   = np.zeros((len(volts),1)) 

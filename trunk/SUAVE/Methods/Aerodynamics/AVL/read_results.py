@@ -5,6 +5,7 @@
 # Modified: Jan 2016, E. Botero
 #           Dec 2017, M. Clarke
 #           Aug 2019, M. Clarke
+#           Dec 2021, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -58,7 +59,7 @@ def read_results(avl_object):
             case_res.Y_ref                                                  = float(lines[9][31:37].strip())
             case_res.Z_ref                                                  = float(lines[9][52:58].strip())  
                                                                             
-            case_res.aerodynamics.AoA                                       = float(lines[15][11:19].strip())
+            case_res.aerodynamics.AoA                                       = float(lines[15][10:19].strip())
             case_res.aerodynamics.CX                                        = float(lines[19][11:19].strip())
             case_res.aerodynamics.CY                                        = float(lines[20][11:19].strip()) 
             case_res.aerodynamics.CZ                                        = float(lines[21][11:19].strip())
@@ -107,7 +108,7 @@ def read_results(avl_object):
                 for ctrl_idx in range(num_ctrl):
                     ctrl_surf = Control_Surface_Results()
                     ctrl_surf.tag                 = str(lines[29+ctrl_idx][2:11].strip())
-                    ctrl_surf.deflection          = float(lines[29+ctrl_idx][21:29].strip())
+                    ctrl_surf.deflection          = float(lines[29+ctrl_idx][21:32].strip())
                     ctrl_surf.CL                  = float(lines[52+num_ctrl][(20*ctrl_idx + 23):(20*ctrl_idx + 34)].strip())
                     ctrl_surf.CY                  = float(lines[53+num_ctrl][(20*ctrl_idx + 23):(20*ctrl_idx + 34)].strip())
                     ctrl_surf.Cl                  = float(lines[54+num_ctrl][(20*ctrl_idx + 23):(20*ctrl_idx + 34)].strip())
@@ -117,6 +118,7 @@ def read_results(avl_object):
                     ctrl_surf.e                   = float(lines[58+num_ctrl][(20*ctrl_idx + 23):(20*ctrl_idx + 34)].strip())
                     case_res.stability.control_surfaces.append_control_surface_result(ctrl_surf)             
             case_res.stability.neutral_point      = float(lines[50+12*(num_ctrl>0)+num_ctrl][22:33].strip())    
+            case_res.stability.spiral_criteria    = float(lines[52+12*(num_ctrl>0)+num_ctrl][22:33].strip())    
         
         # get number of wings, spanwise discretization for surface and strip force result extraction
         n_sw    = avl_object.settings.number_spanwise_vortices

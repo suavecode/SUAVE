@@ -2,6 +2,7 @@
 # Description
 # @ingroup Methods
 
+from . import Rotor_Wake
 from .ducted_fan_sizing import ducted_fan_sizing
 from .propeller_design import propeller_design
 from .turbofan_emission_index import turbofan_emission_index
@@ -16,3 +17,4 @@ from .rayleigh import rayleigh
 from .nozzle_calculations import exit_Mach_shock, mach_area, normal_shock, pressure_ratio_isentropic, pressure_ratio_shock_in_nozzle
 from . import electric_motor_sizing
 from .liquid_rocket_sizing import liquid_rocket_sizing
+from .serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing

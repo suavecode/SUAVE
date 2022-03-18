@@ -12,8 +12,11 @@ from . import write
 try:
     import vsp as vsp
 except ImportError:
-    # This allows SUAVE to build without OpenVSP
-    pass
+    try:
+        import openvsp as vsp
+    except ImportError:
+        # This allows SUAVE to build without OpenVSP
+        pass
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -54,7 +57,7 @@ def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 99):
     X_locs_all       = []
     slice_areas_all = []
     
-    for ii in len(mach):
+    for ii in range(len(mach)):
         
         m   = mach[ii] 
         
