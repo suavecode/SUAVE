@@ -79,6 +79,7 @@ class Battery_Propeller(Network):
         self.generative_design_minimum    = 0 
         self.identical_propellers         = True
         self.y_axis_rotation              = 0.
+        self.pitch_command                = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -149,7 +150,8 @@ class Battery_Propeller(Network):
         
         # Set rotor y-axis rotation
         for p in self.propellers:
-            p.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation         
+            p.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation 
+            p.inputs.pitch_command   = self.pitch_command
             
         # --------------------------------------------------------------------------------
         # Run Motor, Avionics and Systems (Discharge Model)

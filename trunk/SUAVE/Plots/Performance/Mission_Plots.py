@@ -1041,7 +1041,6 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
         time       = segment.conditions.frames.inertial.time[:,0] / Units.min
         Vinf       = segment.conditions.freestream.velocity[:,0]
         
-        
         thrust_vector = segment.conditions.frames.body.thrust_force_vector
         Tx = thrust_vector[:,0]
         Tz = thrust_vector[:,2]

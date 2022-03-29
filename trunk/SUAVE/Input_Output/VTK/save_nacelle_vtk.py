@@ -19,7 +19,7 @@ from SUAVE.Plots.Geometry.plot_vehicle import generate_nacelle_points
 # Nacelle VTK generation
 #------------------------------
 ## @ingroup Input_Output-VTK
-def save_nacelle_vtk(nacelle, filename, Results):
+def save_nacelle_vtk(nacelle, filename, Results, origin_offset):
     """
     Saves a SUAVE nacelle object as a VTK in legacy format.
 
@@ -47,7 +47,7 @@ def save_nacelle_vtk(nacelle, filename, Results):
     if num_nac_segs == 0:
         print("No nacelle segments found!")
     else:
-        write_nacelle_data(nac_pts,filename)
+        write_nacelle_data(nac_pts,filename,origin_offset)
 
     return
 
@@ -56,7 +56,7 @@ def save_nacelle_vtk(nacelle, filename, Results):
 # Writing nacelle data
 #------------------------------
 ## @ingroup Input_Output-VTK
-def write_nacelle_data(nac_pts,filename):
+def write_nacelle_data(nac_pts,filename,origin_offset):
     """
     Writes data for a SUAVE nacelle object as a VTK in legacy format.
 
@@ -103,9 +103,9 @@ def write_nacelle_data(nac_pts,filename):
         for r in range(n_r):
             for a in range(n_a):
 
-                xp = round(nac_pts[r,a,0],4)
-                yp = round(nac_pts[r,a,1],4)
-                zp = round(nac_pts[r,a,2],4)
+                xp = round(nac_pts[r,a,0],4) + origin_offset[0]
+                yp = round(nac_pts[r,a,1],4) + origin_offset[1]
+                zp = round(nac_pts[r,a,2],4) + origin_offset[2]
 
                 new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
                 f.write(new_point)
