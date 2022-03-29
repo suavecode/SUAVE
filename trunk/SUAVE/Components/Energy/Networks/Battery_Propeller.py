@@ -79,7 +79,6 @@ class Battery_Propeller(Network):
         self.generative_design_minimum    = 0 
         self.identical_propellers         = True
         self.y_axis_rotation              = 0.
-        self.pitch_command                = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -147,11 +146,6 @@ class Battery_Propeller(Network):
         
         # Predict voltage based on battery  
         volts = battery.compute_voltage(state)  
-        
-        # Set rotor y-axis rotation
-        for p in self.propellers:
-            p.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation 
-            p.inputs.pitch_command   = self.pitch_command
             
         # --------------------------------------------------------------------------------
         # Run Motor, Avionics and Systems (Discharge Model)
@@ -184,6 +178,9 @@ class Battery_Propeller(Network):
                 prop_key  = list(props.keys())[ii]
                 motor     = self.propeller_motors[motor_key]
                 prop      = self.propellers[prop_key]
+
+                # Set rotor y-axis rotation                
+                prop.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation                    
                 
                 # link 
                 motor.inputs.voltage        = esc.outputs.voltageout
@@ -409,7 +406,8 @@ class Battery_Propeller(Network):
         battery.append_battery_residuals(segment,network)           
          
         return     
-
+    
+    ## @ingroup Components-Energy-Networks
     def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, initial_power_coefficient = 0.02,
                                               initial_battery_cell_temperature = 283. , initial_battery_state_of_charge = 0.5,
                                               initial_battery_cell_current = 5.):
@@ -448,7 +446,7 @@ class Battery_Propeller(Network):
         if initial_voltage==None:
             initial_voltage = self.battery.max_voltage
         
-        # Count how many unknowns and residuals based on p) 
+        # Count how many unknowns and residuals based on p
         
         if n_props!=n_motors!=n_eng:
             print('The number of propellers is not the same as the number of motors')
@@ -488,7 +486,7 @@ class Battery_Propeller(Network):
 
         return segment
     
-
+    ## @ingroup Components-Energy-Networks
     def add_tiltrotor_transition_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
                                                         initial_y_axis_rotation = 0.0,
                                                         initial_power_coefficient = 0.02,

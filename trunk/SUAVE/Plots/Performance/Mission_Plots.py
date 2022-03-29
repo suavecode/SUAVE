@@ -21,7 +21,8 @@ import matplotlib.ticker as ticker
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, save_filename = "Altitude_SFC_Weight" , file_type = ".png"):
+def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, save_filename = "Altitude_SFC_Weight" , file_type = ".png",
+                             width=8, height=5):
     """This plots the altitude, speficic fuel comsumption and vehicle weight 
 
     Assumptions:
@@ -45,7 +46,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
     """	  
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5) 
+    fig.set_size_inches(width, height) 
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
         mass     = segment.conditions.weights.total_mass[:,0] / Units.lb
@@ -80,7 +81,8 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
 #   Aircraft Velocities
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities", file_type = ".png"):
+def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities", file_type = ".png",
+                             width=8, height=5):
     """This plots aircraft velocity, mach , true air speed 
 
     Assumptions:
@@ -103,7 +105,7 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
     """	
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5) 
+    fig.set_size_inches(width, height) 
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
         velocity = segment.conditions.freestream.velocity[:,0] 
@@ -137,7 +139,8 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
 #   Disc and Power Loadings
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, save_filename = "Disc_Power_Loading", file_type = ".png"):
+def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, save_filename = "Disc_Power_Loading", file_type = ".png",
+                            width=8, height=5):
     """This plots the propeller disc and power loadings
 
     Assumptions:
@@ -159,7 +162,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
     """	   
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5) 
+    fig.set_size_inches(width, height) 
     
     for i in range(len(results.segments)): 
         time  = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
@@ -187,7 +190,8 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
 #   Plot Fuel Use
 # ------------------------------------------------------------------
 
-def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Fuel_Burnt", file_type = ".png"):
+def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Fuel_Burnt", file_type = ".png",
+                  width=8, height=5):
     """This plots aircraft fuel usage
     Assumptions:
     None
@@ -206,7 +210,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
 
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5) 
+    fig.set_size_inches(width, height) 
 
     prev_seg_fuel       = 0
     prev_seg_extra_fuel = 0
@@ -274,7 +278,8 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Coefficients", file_type = ".png"):
+def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Coefficients", file_type = ".png",
+                                  width=8, height=5):
     """This plots the aerodynamic coefficients 
 
     Assumptions:
@@ -297,7 +302,7 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
     """	    
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(width, height)
     
     for segment in results.segments.values(): 
         time = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -338,7 +343,8 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
 #   Aerodynamic Forces
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Forces", file_type = ".png"):
+def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Forces", file_type = ".png",
+                            width=8, height=5):
     """This plots the aerodynamic forces
 
     Assumptions:
@@ -361,7 +367,7 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
     """	   
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(width, height)
     
     for segment in results.segments.values():
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -402,7 +408,8 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
 #   Drag Components
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components", file_type = ".png"):
+def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components", file_type = ".png",
+                         width=8, height=5):
     """This plots the drag components of the aircraft
 
     Assumptions:
@@ -426,7 +433,7 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
     """	  
     axis_font = {'size':'14'} 
     fig    = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)     
+    fig.set_size_inches(width, height)     
     axes = plt.subplot(1,1,1) 
     
     for i, segment in enumerate(results.segments.values()):
@@ -467,7 +474,8 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 #   Electronic Conditions
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Pack_Conditions", file_type = ".png"):
+def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Pack_Conditions", file_type = ".png",
+                                 width=8, height=5):
     """This plots the battery pack conditions of the network
 
     Assumptions:
@@ -494,7 +502,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
     axis_font = {'size':'14'}  
     
     fig = plt.figure(save_filename) 
-    fig.set_size_inches(8, 5)   
+    fig.set_size_inches(width, height)   
     fig.suptitle('Battery Pack Conditions')  
     for i in range(len(results.segments)):     
         time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
@@ -576,7 +584,8 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
 #   Electronic Conditions
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png"):
+def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png",
+                                 width=8, height=5):
     """This plots the battery pack conditions of the network
 
     Assumptions:
@@ -603,7 +612,7 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
     axis_font = {'size':'14'}   
     
     fig  = plt.figure(save_filename)
-    fig.set_size_inches(8, 5)   
+    fig.set_size_inches(width, height)   
     fig.suptitle('Battery Cell Conditions')
     for i in range(len(results.segments)):
         time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
@@ -701,7 +710,8 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
 #   Battery Degradation
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png"):
+def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png",
+                             width=8, height=5):
     """This plots the battery cell degradation 
 
     Assumptions:
@@ -727,7 +737,7 @@ def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', s
     axis_font = {'size':'14'}   
     
     fig  = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)   
+    fig.set_size_inches(width, height)   
     fig.suptitle('Battery Cell Degradation')
     
     num_segs          = len(results.segments)
@@ -776,7 +786,8 @@ def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', s
 #   Flight Conditions
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Flight_Conditions", file_type = ".png"):
+def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Flight_Conditions", file_type = ".png",
+                           width=8, height=5):
     """This plots the flights the conditions 
 
     Assumptions:
@@ -804,7 +815,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
     """	    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(width, height)
      
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -844,8 +855,9 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 # ------------------------------------------------------------------
 #  Aircraft Trajectory
 # ------------------------------------------------------------------
-## @ingroup Plots
-def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Flight_Trajectory", file_type = ".png"):
+## @ingroup Plots-Performance
+def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Flight_Trajectory", file_type = ".png",
+                           width=8, height=5):
     """This plots the 3D flight trajectory of the aircraft.
 
     Assumptions:
@@ -873,7 +885,7 @@ def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', sa
     """	    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)
+    fig.set_size_inches(width, height)
      
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -916,7 +928,8 @@ def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', sa
 #   Propulsion Conditions
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propeller", file_type = ".png"):
+def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propeller", file_type = ".png",
+                              width=8, height=5):
     """This plots the propeller performance
 
     Assumptions:
@@ -942,7 +955,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5)  
+    fig.set_size_inches(width, height)  
     
     for segment in results.segments.values():  
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -1001,7 +1014,8 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     return
 
 ## @ingroup Plots
-def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False, save_filename="Tiltrotor", file_type=".png"):
+def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False, save_filename="Tiltrotor", file_type=".png",
+                              width=8, height=5):
     """This plots the tiltrotor conditions
 
     Assumptions:
@@ -1024,7 +1038,7 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
     
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5)  
+    fig.set_size_inches(width, height)  
     
     config = configs[list(configs.keys())[0]]
     net    = config.networks[list(config.networks.keys())[0]]
@@ -1081,7 +1095,7 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
         
         
     fig2 = plt.figure("Rotor Operation")
-    fig2.set_size_inches(8,5)    
+    fig2.set_size_inches(width, height)    
     #marks = ['bs', 'oo', 'go', 'r^', 'ms','k-','ro','gs','yo']
     for s, segment in enumerate(results.segments.values()):    
 
@@ -1115,7 +1129,8 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
 #   Electric Propulsion efficiencies
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = False, save_filename = "eMotor_Prop_Propulsor", file_type = ".png"):
+def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = False, save_filename = "eMotor_Prop_Propulsor", file_type = ".png",
+                                  width=8, height=5):
     """This plots the electric driven network propeller efficiencies 
 
     Assumptions:
@@ -1137,7 +1152,7 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
     """	   
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5)  
+    fig.set_size_inches(width, height)  
     for s,segment in enumerate(results.segments.values()):
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         effp   = segment.conditions.propulsion.propeller_efficiency[:,0]
@@ -1172,7 +1187,8 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
 #   Stability Coefficients
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Stability_Coefficients", file_type = ".png"):
+def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Stability_Coefficients", file_type = ".png",
+                                width=8, height=5):
     """This plots the static stability characteristics of an aircraft
 
     Assumptions:
@@ -1197,7 +1213,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
     """	    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(width, height)
     
     for segment in results.segments.values():
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -1238,7 +1254,8 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
 #   Solar Flux
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filename = "Solar_Flux", file_type = ".png"):
+def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filename = "Solar_Flux", file_type = ".png",
+                    width=8, height=5):
     """This plots the solar flux and power train performance of an solar powered aircraft 
 
     Assumptions:
@@ -1262,7 +1279,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
     
     axis_font = {'size':'14'} 
     fig       = plt.figure(save_filename) 
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(width, height)
     
     for segment in results.segments.values():               
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -1296,7 +1313,8 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
 #   Lift-Cruise Network
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', save_figure = False, save_filename = "Lift_Cruise_Network", file_type = ".png"):
+def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', save_figure = False, save_filename = "Lift_Cruise_Network", file_type = ".png",
+                             width=8, height=5):
     """This plots the electronic and propulsor performance of a vehicle with a lift cruise network
 
     Assumptions:
@@ -1325,7 +1343,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     #   Electronic Conditions
     # ------------------------------------------------------------------
     fig = plt.figure("Lift_Cruise_Battery_Pack_Conditions")
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(width, height)
     for i in range(len(results.segments)):          
         time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         eta            = results.segments[i].conditions.propulsion.throttle[:,0]
@@ -1380,7 +1398,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     #   Propulsion Conditions
     # ------------------------------------------------------------------
     fig = plt.figure("Prop-Rotor Network")
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(width, height)
     for i in range(len(results.segments)):          
         time         = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         prop_rpm     = results.segments[i].conditions.propulsion.propeller_rpm[:,0] 
@@ -1449,7 +1467,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     #   Propulsion Conditions
     # ------------------------------------------------------------------
     fig = plt.figure("Lift_Rotor")
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(width, height)
     for i in range(len(results.segments)):          
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         rpm    = results.segments[i].conditions.propulsion.lift_rotor_rpm [:,0] 
@@ -1506,7 +1524,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     #   Propulsion Conditions
     # ------------------------------------------------------------------
     fig = plt.figure("Propeller")
-    fig.set_size_inches(8, 5)
+    fig.set_size_inches(width, height)
     for i in range(len(results.segments)):          
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         rpm    = results.segments[i].conditions.propulsion.propeller_rpm [:,0] 
