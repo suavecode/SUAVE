@@ -229,7 +229,6 @@ class Solar(Network):
         
         # link
         solar_logic.inputs.currentesc  = esc.outputs.currentin
-        solar_logic.inputs.volts_motor = esc.outputs.voltageout 
         solar_logic.logic(conditions,numerics)
         
         # link

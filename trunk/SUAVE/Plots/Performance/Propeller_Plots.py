@@ -1,4 +1,4 @@
-## @ingroup Plots
+## @defgroup Plots-Performance
 # Propeller_Plots.py
 #
 # Created:  Mar 2021, R. Erhard
@@ -13,7 +13,7 @@ import matplotlib.patches as patches
 import pylab as plt
 import numpy as np
 
-## @ingroup Plots
+## @defgroup Plots-Performance
 def plot_propeller_disc_inflow(prop,velocities, grid_points):
     
     u = velocities.u_velocities
@@ -107,6 +107,7 @@ def plot_propeller_disc_inflow(prop,velocities, grid_points):
     
     return
 
+## @defgroup Plots-Performance
 def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     """
     Inputs
