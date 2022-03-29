@@ -1,4 +1,4 @@
-## @ingroup Plots
+## @ingroup Plots-Performance
 # Mission_Plots.py
 # 
 # Created:  Mar 2020, M. Clarke
@@ -20,7 +20,7 @@ import matplotlib.ticker as ticker
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, save_filename = "Altitude_SFC_Weight" , file_type = ".png",
                              width=8, height=5):
     """This plots the altitude, speficic fuel comsumption and vehicle weight 
@@ -80,7 +80,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
 # ------------------------------------------------------------------
 #   Aircraft Velocities
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities", file_type = ".png",
                              width=8, height=5):
     """This plots aircraft velocity, mach , true air speed 
@@ -138,7 +138,7 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
 # ------------------------------------------------------------------
 #   Disc and Power Loadings
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, save_filename = "Disc_Power_Loading", file_type = ".png",
                             width=8, height=5):
     """This plots the propeller disc and power loadings
@@ -277,7 +277,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
 # ------------------------------------------------------------------
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Coefficients", file_type = ".png",
                                   width=8, height=5):
     """This plots the aerodynamic coefficients 
@@ -342,7 +342,7 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
 # ------------------------------------------------------------------
 #   Aerodynamic Forces
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Forces", file_type = ".png",
                             width=8, height=5):
     """This plots the aerodynamic forces
@@ -407,7 +407,7 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
 # ------------------------------------------------------------------
 #   Drag Components
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components", file_type = ".png",
                          width=8, height=5):
     """This plots the drag components of the aircraft
@@ -473,7 +473,7 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 # ------------------------------------------------------------------
 #   Electronic Conditions
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Pack_Conditions", file_type = ".png",
                                  width=8, height=5):
     """This plots the battery pack conditions of the network
@@ -583,7 +583,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
 # ------------------------------------------------------------------
 #   Electronic Conditions
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png",
                                  width=8, height=5):
     """This plots the battery pack conditions of the network
@@ -709,7 +709,7 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
 # ------------------------------------------------------------------
 #   Battery Degradation
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png",
                              width=8, height=5):
     """This plots the battery cell degradation 
@@ -785,7 +785,7 @@ def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', s
 # ------------------------------------------------------------------
 #   Flight Conditions
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Flight_Conditions", file_type = ".png",
                            width=8, height=5):
     """This plots the flights the conditions 
@@ -927,7 +927,7 @@ def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', sa
 # ------------------------------------------------------------------
 #   Propulsion Conditions
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propeller", file_type = ".png",
                               width=8, height=5):
     """This plots the propeller performance
@@ -1013,7 +1013,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     
     return
 
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False, save_filename="Tiltrotor", file_type=".png",
                               width=8, height=5):
     """This plots the tiltrotor conditions
@@ -1128,7 +1128,7 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
 # ------------------------------------------------------------------
 #   Electric Propulsion efficiencies
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = False, save_filename = "eMotor_Prop_Propulsor", file_type = ".png",
                                   width=8, height=5):
     """This plots the electric driven network propeller efficiencies 
@@ -1186,7 +1186,7 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
 # ------------------------------------------------------------------
 #   Stability Coefficients
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Stability_Coefficients", file_type = ".png",
                                 width=8, height=5):
     """This plots the static stability characteristics of an aircraft
@@ -1253,7 +1253,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
 # ------------------------------------------------------------------    
 #   Solar Flux
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filename = "Solar_Flux", file_type = ".png",
                     width=8, height=5):
     """This plots the solar flux and power train performance of an solar powered aircraft 
@@ -1312,7 +1312,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
 # ------------------------------------------------------------------
 #   Lift-Cruise Network
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', save_figure = False, save_filename = "Lift_Cruise_Network", file_type = ".png",
                              width=8, height=5):
     """This plots the electronic and propulsor performance of a vehicle with a lift cruise network
@@ -2196,7 +2196,7 @@ def colorax(vmin, vmax):
 # ------------------------------------------------------------------
 #   Set Axis Parameters 
 # ------------------------------------------------------------------
-## @ingroup Plots
+## @ingroup Plots-Performance
 def set_axes(axes):
     """This sets the axis parameters for all plots
 
