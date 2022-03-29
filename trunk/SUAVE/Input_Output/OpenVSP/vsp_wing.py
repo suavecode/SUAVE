@@ -655,7 +655,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
     if 'control_surfaces' in wing:
         for ctrl_surf in wing.control_surfaces:
-            write_vsp_control_surface(wing_id,ctrl_surf,n_segments)
+            write_vsp_control_surface(wing,wing_id,ctrl_surf)
 
 
     if 'Fuel_Tanks' in wing:
@@ -668,7 +668,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
 
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_control_surface(wing_id,ctrl_surf,n_segments):
+def write_vsp_control_surface(wing,wing_id,ctrl_surf):
     """This writes a control surface in a wing.
 
     Assumptions:
@@ -688,6 +688,27 @@ def write_vsp_control_surface(wing_id,ctrl_surf,n_segments):
     Properties Used:
     N/A
     """
+    
+    # determine the number of segments and where the breaks are
+    if len(wing.Segments.keys())>0:
+        N = len(wing.Segments.keys())-1
+        
+        # Do a for loop to find the location of breaks
+        breaks = []
+        for seg in wing.Segments:
+            breaks.append(seg.percent_span_location)
+        
+    else:
+        N = 1
+        # Location of breaks
+        breaks = [0.,1.]
+        
+    breaks = np.array(breaks)    
+    
+    span_start = ctrl_surf.span_fraction_start
+    span_end   = ctrl_surf.span_fraction_end
+        
+
     cs_id =  vsp.AddSubSurf( wing_id, vsp.SS_CONTROL)
     param_names = vsp.GetSubSurfParmIDs(cs_id)
     for p_idx in range(len(param_names)):
@@ -696,10 +717,36 @@ def write_vsp_control_surface(wing_id,ctrl_surf,n_segments):
                 vsp.SetParmVal(param_names[p_idx], 1.0)
             else:
                 vsp.SetParmVal( param_names[p_idx], 0.0)
+                
+        # U values are only linear about the section in which they are defined
+        
+        # Identify the segments they start and end with, if there are no segments there is one segment
+        segment_start = np.where(breaks<span_start)[0][-1]
+        segment_end   = np.where(breaks>=span_end)[0][0] -1
+        
+        # Find where in the segment it starts and ends (normalized)
+        start_span   = breaks[segment_start+1] - breaks[segment_start]
+        end_span     = breaks[segment_end+1]   - breaks[segment_end]
+        
+        start_offset = breaks[segment_start]
+        end_offset   =  breaks[segment_end]
+        
+        segment_normalized_start = (span_start - start_offset)/start_span
+        segment_normalized_end   = (span_end   - end_offset  )/end_span
+        
+        # Find the scaling for those segments
+        U_scale = 1/(N + 2)
+
+        # Used the normalized positions and the U_scaling to find the U location
+        U_start = U_scale*segment_normalized_start + (segment_start + 1) * U_scale
+        U_end   = U_scale*segment_normalized_end   + (segment_end   + 1) * U_scale
+        
+        # Voila!
+        
         if 'UStart' == vsp.GetParmName(param_names[p_idx]):
-            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_start*(n_segments-1)+1)/(n_segments+1))
+            vsp.SetParmVal(param_names[p_idx], U_start)
         if 'UEnd' ==vsp.GetParmName(param_names[p_idx]):
-            vsp.SetParmVal(param_names[p_idx], (ctrl_surf.span_fraction_end*(n_segments-1)+1)/(n_segments+1))
+            vsp.SetParmVal(param_names[p_idx], U_end)
         if 'Length_C_Start' == vsp.GetParmName(param_names[p_idx]):
             vsp.SetParmVal(param_names[p_idx], ctrl_surf.chord_fraction)
         if 'Length_C_End' == vsp.GetParmName(param_names[p_idx]):
