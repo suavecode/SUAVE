@@ -287,7 +287,7 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
         x_sec_1_taper_parm     = vsp.GetXSecParm(x_sec_1,'Taper')
         x_sec_1_rc_parm        = vsp.GetXSecParm(x_sec_1,'Root_Chord')
         x_sec_1_tc_parm        = vsp.GetXSecParm(x_sec_1,'Tip_Chord')
-        x_sec_1_t_parm        = vsp.GetXSecParm(x_sec_1,'ThickChord')
+        x_sec_1_t_parm         = vsp.GetXSecParm(x_sec_1,'ThickChord')
 
         # Calcs
         sweep     = vsp.GetParmVal(x_sec_1_sweep_parm) * Units.deg
@@ -315,9 +315,25 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
     # check if control surface (sub surfaces) are defined
     tags                 = []
     LE_flags             = []
-    span_fraction_starts = []
-    span_fraction_ends   = []
+    U_starts             = []
+    U_ends               = []
     chord_fractions      = []
+    
+    # determine the number of segments and where the breaks are
+    if len(wing.Segments.keys())>0:
+        N = len(wing.Segments.keys())-1
+        
+        # Do a for loop to find the location of breaks
+        breaks = []
+        for seg in wing.Segments:
+            breaks.append(seg.percent_span_location)
+        
+    else:
+        N = 1
+        # Location of breaks
+        breaks = [0.,1.]    
+    
+    
 
     num_cs = vsp.GetNumSubSurf(wing_id)
 
@@ -330,9 +346,9 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
             if 'LE_Flag' == vsp.GetParmName(param_names[p_idx]):
                 LE_flags.append(vsp.GetParmVal(param_names[p_idx]))
             if 'UStart' == vsp.GetParmName(param_names[p_idx]):
-                span_fraction_starts.append(vsp.GetParmVal(param_names[p_idx]))
+                U_starts.append(vsp.GetParmVal(param_names[p_idx]))
             if 'UEnd' == vsp.GetParmName(param_names[p_idx]):
-                span_fraction_ends.append(vsp.GetParmVal(param_names[p_idx]))
+                U_ends.append(vsp.GetParmVal(param_names[p_idx]))
             if 'Length_C_Start' == vsp.GetParmName(param_names[p_idx]):
                 chord_fractions.append(vsp.GetParmVal(param_names[p_idx]))
 
@@ -340,7 +356,7 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
     for cs_idx in range(num_cs):
         aileron_present = False
         if num_cs > 1:
-            aileron_loc = np.argmax(np.array(span_fraction_starts))
+            aileron_loc = np.argmax(np.array(U_starts))
             if cs_idx == aileron_loc:
                 aileron_present = True
         if LE_flags[cs_idx] == 1.0:
@@ -354,8 +370,31 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
                 else:
                     CS = SUAVE.Components.Wings.Control_Surfaces.Flap()
         CS.tag                 = tags[cs_idx]
-        CS.span_fraction_start = np.maximum((span_fraction_starts[cs_idx] * (segment_num + 1) - 1) / (segment_num - 1), 0)
-        CS.span_fraction_end   = np.minimum((span_fraction_ends[cs_idx] * (segment_num + 1) - 1) / (segment_num - 1), 1)
+        
+        # Do some math to get U into a span fraction
+        U_scale = 1/(N+2) # U scaling
+        
+        # Determine which segment the control surfaces begin and end, use floor
+        segment_start = int(np.floor(U_starts[cs_idx]/U_scale)) - 1
+        segment_end   = int(np.floor(U_ends[cs_idx]/U_scale)) - 1
+        
+        segment_normalized_start = U_starts[cs_idx]/U_scale - (segment_start+1)
+        segment_normalized_end   = U_ends[cs_idx]/U_scale   - (segment_end+1)
+        
+        # calculate segment spans
+        start_span   = breaks[segment_start+1] - breaks[segment_start]
+        end_span     = breaks[segment_end+1]   - breaks[segment_end]
+        
+        # Calculate the offsets
+        start_offset = breaks[segment_start]
+        end_offset   = breaks[segment_end]
+        
+        # Calculate the end points
+        span_start = segment_normalized_start * start_span - start_offset
+        span_end   = segment_normalized_end   * end_span   - end_offset
+
+        CS.span_fraction_start = np.max([span_start, 0])
+        CS.span_fraction_end   = np.min([span_end,1])
         if CS.span_fraction_start > 1 or CS.span_fraction_end < 0:
             raise AssertionError("SUAVE import of VSP files does not allow control surfaces defined for the wing caps.")
 
@@ -729,7 +768,7 @@ def write_vsp_control_surface(wing,wing_id,ctrl_surf):
         end_span     = breaks[segment_end+1]   - breaks[segment_end]
         
         start_offset = breaks[segment_start]
-        end_offset   =  breaks[segment_end]
+        end_offset   = breaks[segment_end]
         
         segment_normalized_start = (span_start - start_offset)/start_span
         segment_normalized_end   = (span_end   - end_offset  )/end_span
