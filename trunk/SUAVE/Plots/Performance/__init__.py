@@ -1,5 +1,6 @@
-## @defgroup Plots  
+## @defgroup Plots-Performance Performance
 # Plots contains functions for generating common figures
+# @ingroup Plots
 
 from .Mission_Plots       import plot_flight_conditions 
 from .Mission_Plots       import plot_aerodynamic_coefficients

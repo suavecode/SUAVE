@@ -260,8 +260,8 @@ class Battery_Propeller(Network):
             avionics_payload_current = avionics_payload_power/self.voltage 
         
             # link
-            battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
-            battery.inputs.power_in = -(esc.outputs.voltageout *esc.outputs.currentin + avionics_payload_power)
+            battery.inputs.current  =   esc.outputs.currentin + avionics_payload_current
+            battery.inputs.power_in = -(esc.outputs.power_in  + avionics_payload_power)
             battery.energy_calc(numerics,discharge_flag)         
              
         # --------------------------------------------------------------------------------
@@ -271,7 +271,7 @@ class Battery_Propeller(Network):
             # link 
             battery.inputs.current  = -battery.cell.charging_current*n_parallel * np.ones_like(volts)
             battery.inputs.voltage  =  battery.cell.charging_voltage*n_series * np.ones_like(volts)
-            battery.inputs.power_in =  -battery.inputs.current * battery.inputs.voltage             
+            battery.inputs.power_in = -battery.inputs.current * battery.inputs.voltage             
             battery.energy_calc(numerics,discharge_flag)        
             
             avionics_payload_power   = np.zeros((len(volts),1)) 
