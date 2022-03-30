@@ -390,8 +390,8 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
         end_offset   = breaks[segment_end]
         
         # Calculate the end points
-        span_start = segment_normalized_start * start_span - start_offset
-        span_end   = segment_normalized_end   * end_span   - end_offset
+        span_start = segment_normalized_start * start_span + start_offset
+        span_end   = segment_normalized_end   * end_span   + end_offset
 
         CS.span_fraction_start = np.max([span_start, 0])
         CS.span_fraction_end   = np.min([span_end,1])
