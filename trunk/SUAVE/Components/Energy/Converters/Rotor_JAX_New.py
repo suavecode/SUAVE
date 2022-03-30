@@ -2,7 +2,7 @@
 # Rotor_JAX.py
 #
 # Created:  Feb 2022, J. Smart
-# Modified:
+# Modified: Mar 2002, J. Smart
 
 #-----------------------------------------------------------------------
 # Imports
@@ -103,8 +103,8 @@ class Rotor_JAX(Energy_Component):
 
     def spin(self, conditions):
         """Analyzes a general rotor given geometry and operating conditions.
-        Numerically modified from basic SUAVE rotor.
-
+        Numerically modified from basic SUAVE rotor. Ignores non-uniform freestream
+        or other 2D velocity contributions including blade sweep.
         Assumptions:
         per source
 
@@ -179,7 +179,7 @@ class Rotor_JAX(Energy_Component):
         r_1d    = self.radius_distribution
         tc      = self.thickness_to_chord
 
-        # Unpack rotor airfoil data
+        # Unpack rotor airfoil data (Currently Disable Due to Incompatibility w/ JAX and SciPy Surrogates)
         # a_geo   = self.airfoil_geometry
         # a_loc   = self.airfoil_polar_surrogates
         # cl_sur  = self.airfoil_cl_surrogates
@@ -194,10 +194,10 @@ class Rotor_JAX(Energy_Component):
         # Unpack rotor inputs and conditions
         omega                   = self.inputs.omega
         Na                      = self.number_azimuthal_stations
-        nonuniform_freestream   = self.nonuniform_freestream
-        use_2d_analysis         = self.use_2d_analysis
-        wake_method             = self.wake_method
-        rotation                = self.rotation
+        # nonuniform_freestream   = self.nonuniform_freestream
+        # use_2d_analysis         = self.use_2d_analysis
+        # wake_method             = self.wake_method
+        # rotation                = self.rotation
         pitch_c                 = self.inputs.pitch_command
 
         # Check for variable pitch
@@ -218,7 +218,7 @@ class Rotor_JAX(Energy_Component):
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         a       = conditions.freestream.speed_of_sound[:,0,None]
-        T       = conditions.freestream.temperature[0,:,None]
+        T       = conditions.freestream.temperature[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector
         nu      = mu/rho
         rho_0   = rho
@@ -238,15 +238,15 @@ class Rotor_JAX(Energy_Component):
         V_thrust            = orientation_product(T_body2thrust, V_body)
 
         # Check and correct for hover
-        V               = V_thrust[:,0,None]
-        V[V==0.0] = 1e-6
+        V           = V_thrust[:,0,None]
+        V           = np.maximum(V, 1e-6)
 
         # Number of radial stations and segment control points
         Nr          = len(c)
         ctrl_pts    = len(Vv)
 
         # Non-dimensional radial distribution and differential radius
-        chi             = r_1d/R
+        # chi             = r_1d/R
         diff_r          = np.diff(r_1d)
         deltar          = np.zeros(len(r_1d))
         deltar          = deltar.at[1:-1].set(diff_r[0:-1]/2 + diff_r[1:]/2)
@@ -258,8 +258,8 @@ class Rotor_JAX(Energy_Component):
         n       = omega/(2.*pi)             # Rotations per second
 
         # 2 dimensional radial distribution non-dimensionalized
-        chi_2d      = np.tile(chi[:,None], (1,Na))
-        chi_2d      = np.repeat(chi_2d[None,:,:], ctrl_pts, axis=0)
+        # chi_2d      = np.tile(chi[:,None], (1,Na))
+        # chi_2d      = np.repeat(chi_2d[None,:,:], ctrl_pts, axis=0)
         r_dim_2d    = np.tile(r_1d[:,None], (1,Na))
         r_dim_2d    = np.repeat(r_dim_2d[None,:,:], ctrl_pts, axis=0)
         c_2d        = np.tile(c[:,None], (1,Na))
@@ -270,12 +270,12 @@ class Rotor_JAX(Energy_Component):
         psi_2d      = np.tile(np.atleast_2d(psi), (Nr,1))
         psi_2d      = np.repeat(psi_2d[None,:,:], ctrl_pts, axis=0)
 
-        # Apply blade sweep to azimuthal position
-        if np.any(np.array([sweep])!=0):
-            use_2d_analysis     = True
-            sweep_2d            = np.repeat(sweep[:,None], (1,Na))
-            sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
-            psi_2d              += sweep_offset_angles
+        # # Apply blade sweep to azimuthal position
+        # if np.any(np.array([sweep])!=0):
+        #     use_2d_analysis     = True
+        #     sweep_2d            = np.repeat(sweep[:,None], (1,Na))
+        #     sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
+        #     psi_2d              += sweep_offset_angles
 
         # def non_zero_sweep(sweep, Na, r_dim_2d, psi_2d):
         #
@@ -295,98 +295,106 @@ class Rotor_JAX(Energy_Component):
         ut  = 0
         ur  = 0
 
-        # rotation = lax.cond(rotation == -1,
-        #                     lambda _ : -1,
-        #                     lambda _ : 1,
-        #                     None)
-
         # Include velocities introduced by rotor incidence angles
-        if (np.any(abs(V_thrust[:,1]) > 1e-3) or np.any(abs(V_thrust[:,2]) > 1e-3)) and use_2d_analysis:
+        # if (np.any(abs(V_thrust[:,1]) > 1e-3) or np.any(abs(V_thrust[:,2]) > 1e-3)) and use_2d_analysis:
+        #
+        #     # y-component of freestream in the propeller Cartesian plane
+        #
+        #     Vy = V_thrust[:,1,None,None]
+        #     Vy = np.repeat(Vy, Nr, axis=1)
+        #     Vy = np.repeat(Vy, Na, axis=2)
+        #
+        #     # z-component of freestream in the propeller Cartesian plane
+        #
+        #     Vz = V_thrust[:,2,None,None]
+        #     Vz = np.repeat(Vz, Nr, axis=1)
+        #     Vz = np.repeat(Vz, Na, axis=2)
+        #
+        #     # Check for invalid rotation angle
+        #     if (rotation==1) or (rotation==-1):
+        #         pass
+        #     else:
+        #         print("Invalid rotation direction. Setting to 1.")
+        #         rotation = 1
+        #
+        #     # Compute resulting radial and tangential velocities in polar frame
+        #     utz = Vz*np.cos(psi_2d*rotation)
+        #     urz = Vz*np.sin(psi_2d*rotation)
+        #     uty = Vy*np.sin(psi_2d*rotation)
+        #     ury = Vy*np.cos(psi_2d*rotation)
+        #
+        #     ua += (utz + uty)
+        #     ut += (urz + ury)
+        #     ua += np.zeros_like(ut)
+        #
+        # # Include external velocities introduced by user
+        # if nonuniform_freestream:
+        #     use_2d_analysis = True
+        #
+        #     # Include additional influences specified at rotor sections, shape=(ctrl_pts,Nr,Na)
+        #     ua += self.axial_velocities_2d
+        #     ut += self.tangential_velocities_2d
+        #     ur += self.radial_velocities_2d
+        #
+        # if use_2d_analysis:
+        #     # Make everything 2D with shape (ctrl_pts,Nr,Na)
+        #     size    = (ctrl_pts,Nr,Na)
+        #     PSI     = np.ones(size)
+        #     PSIold  = np.zeros(size)
+        #
+        #     # 2D freestream velocity and omega*r
+        #     V_2d    = V_thrust[:,0,None,None]
+        #     V_2d    = np.repeat(V_2d, Na, axis=2)
+        #     V_2d    = np.repeat(V_2d, Nr, axis=1)
+        #     omegar  = (np.repeat(np.outer(omega, r_1d)[:,:,None], Na, axis=2))
+        #
+        #     # Total velocities
+        #     Ua      = V_2d + ua
+        #
+        #     # 2D blade pitch and radial distributions
+        #     if np.size(pitch_c)>1:
+        #         # Control variable is the blade pitch, repeat around azimuth
+        #         beta = np.repeat(total_blade_pitch[:,:,None], Na, axis=2)
+        #     else:
+        #         beta = np.tile(total_blade_pitch[None,:,None], (ctrl_pts, 1, Na))
+        #
+        #     r       = np.tile(r_1d[None,:,None], (ctrl_pts, 1, Na))
+        #     c       = np.tile(c[None,:,None], (ctrl_pts, 1, Na))
+        #     deltar  = np.tile(deltar[None,:,None], (ctrl_pts, 1, Na))
+        #
+        #     # 2D atmospheric properties
+        #     a   = np.tile(np.atleast_2d(a), (1, Nr))
+        #     a   = np.repeat(a[:,:,None], Na, axis=2)
+        #     nu = np.tile(np.atleast_2d(nu), (1, Nr))
+        #     nu = np.repeat(nu[:, :, None], Na, axis=2)
+        #     rho = np.tile(np.atleast_2d(rho), (1, Nr))
+        #     rho = np.repeat(rho[:, :, None], Na, axis=2)
+        #     T = np.tile(np.atleast_2d(T), (1, Nr))
+        #     T = np.repeat(T[:, :, None], Na, axis=2)
+        #
+        # else:
 
-            # y-component of freestream in the propeller Cartesian plane
+        # Total velocities
+        r       = r_1d
+        Ua      = np.outer((V + ua), np.ones_like(r))
+        beta    = total_blade_pitch
 
-            Vy = V_thrust[:,1,None,None]
-            Vy = np.repeat(Vy, Nr, axis=1)
-            Vy = np.repeat(Vy, Na, axis=2)
-
-            # z-component of freestream in the propeller Cartesian plane
-
-            Vz = V_thrust[:,2,None,None]
-            Vz = np.repeat(Vz, Nr, axis=1)
-            Vz = np.repeat(Vz, Na, axis=2)
-
-            # Check for invalid rotation angle
-            if (rotation==1) or (rotation==-1):
-                pass
-            else:
-                print("Invalid rotation direction. Setting to 1.")
-                rotation = 1
-
-            # Compute resulting radial and tangential velocities in polar frame
-            utz = Vz*np.cos(psi_2d*rotation)
-            urz = Vz*np.sin(psi_2d*rotation)
-            uty = Vy*np.sin(psi_2d*rotation)
-            ury = Vy*np.cos(psi_2d*rotation)
-
-            ua += (utz + uty)
-            ut += (urz + ury)
-            ua += np.zeros_like(ut)
-
-        # Include external velocities introduced by user
-        if nonuniform_freestream:
-            use_2d_analysis = True
-
-            # Include additional influences specified at rotor sections, shape=(ctrl_pts,Nr,Na)
-            ua += self.axial_velocities_2d
-            ut += self.tangential_velocities_2d
-            ur += self.radial_velocities_2d
-
-        if use_2d_analysis:
-            # Make everything 2D with shape (ctrl_pts,Nr,Na)
-            size    = (ctrl_pts,Nr,Na)
-            PSI     = np.ones(size)
-            PSIold  = np.zeros(size)
-
-            # 2D freestream velocity and omega*r
-            V_2d    = V_thrust[:,0,None,None]
-            V_2d    = np.repeat(V_2d, Na, axis=2)
-            V_2d    = np.repeat(V_2d, Nr, axis=1)
-            omegar  = (np.repeat(np.outer(omega, r_1d)[:,:,None], Na, axis=2))
-
-            # Total velocities
-            Ua      = V_2d + ua
-
-            # 2D blade pitch and radial distributions
-            if np.size(pitch_c)>1:
-                # Control variable is the blade pitch, repeat around azimuth
-                beta = np.repeat(total_blade_pitch[:,:,None], Na, axis=2)
-            else:
-                beta = np.tile(total_blade_pitch[None,:,None], (ctrl_pts, 1, Na))
-
-            r       = np.tile(r_1d[None,:,None], (ctrl_pts, 1, Na))
-            c       = np.tile(c[None,:,None], (ctrl_pts, 1, Na))
-            deltar  = np.tile(deltar[None,:,None], (ctrl_pts, 1, Na))
-
-            # 2D atmospheric properties
-            a   = np.tile(np.atleast_2d(a), (1, Nr))
-            a   = np.repeat(a[:,:,None], Na, axis=2)
-            nu = np.tile(np.atleast_2d(nu), (1, Nr))
-            nu = np.repeat(nu[:, :, None], Na, axis=2)
-            rho = np.tile(np.atleast_2d(rho), (1, Nr))
-            rho = np.repeat(rho[:, :, None], Na, axis=2)
-            T = np.tile(np.atleast_2d(T), (1, Nr))
-            T = np.repeat(T[:, :, None], Na, axis=2)
-
-        else:
-            # Total velocities
-            r       = r_1d
-            Ua      = np.outer((V + ua), np.ones_like(r))
-            beta    = total_blade_pitch
-
-            # Things that will change with iteration
-            size    = (ctrl_pts, Nr)
-            PSI     = np.ones(size)
-            PSIold  = np.zeros(size)
+        # Things that will change with iteration
+        size    = (ctrl_pts, Nr)
+        PSI     = np.ones(size)
+        PSIold  = np.zeros(size)
+        Wa      = np.ones_like(Ua)
+        Wt      = np.ones_like(omegar)
+        va      = np.ones_like(Wa)
+        vt      = np.ones_like(Wt)
+        Cl      = np.ones_like(Wa)
+        Cdval   = np.ones_like(Cl)
+        alpha   = np.ones_like(Cl)
+        Ma      = np.ones_like(Wa)
+        lamdaw  = np.ones_like(Wa)
+        F       = np.ones_like(lamdaw)
+        Gamma   = np.ones_like(lamdaw)
+        dpsi    = np.ones_like(lamdaw)
 
         # Total velocities
         Ut  = omegar - ut
@@ -398,7 +406,30 @@ class Rotor_JAX(Energy_Component):
         tol     = 1E-6
         ii      = 0
 
-        while (diff > tol):
+        # while (diff > tol):
+
+        def BEMT_iterator(val):
+
+            #Unpack
+
+            Wa      = val[0]
+            Wt      = val[1]
+            va      = val[2]
+            vt      = val[3]
+            Cl      = val[4]
+            Cdval   = val[5]
+            alpha   = val[6]
+            Ma      = val[7]
+            lamdaw  = val[8]
+            F       = val[9]
+            Gamma   = val[10]
+            PSI     = val[11]
+            PSIold  = val[12]
+            dpsi    = val[13]
+            diff    = val[14]
+            omega   = val[15]
+            ii      = val[16]
+
 
             # Compute velocities
             sin_psi = np.sin(PSI)
@@ -413,7 +444,7 @@ class Rotor_JAX(Energy_Component):
                                                                        Wa,Wt,a,nu,
                                                                        a_loc,a_geo,cl_sur,cd_sur,
                                                                        ctrl_pts,Nr,Na,tc,
-                                                                       use_2d_analysis)
+                                                                       False)
 
             # Compute inflow velocity and tip loss factor
             lamdaw, F, piece            = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
@@ -431,19 +462,37 @@ class Rotor_JAX(Energy_Component):
             diff    = np.max(abs(PSIold - PSI))
             PSIold  = PSI
 
-            # If its really not going to converge
-            if all(omega[:,0]) == 0.:
-                break
+            return (Wa, Wt, va, vt, Cl, Cdval, alpha, Ma, lamdaw, F, Gamma, PSI, PSIold, dpsi, diff, omega, ii)
 
-            # If it's really not going to converge
-            if np.any(PSI > pi/2) and np.any(dpsi>0.0):
-                print("Rotor BEMT did not converge to a solution (Stall)")
-                break
 
-            ii += 1
-            if ii > 10000:
-                print("Rotor BEMT did not converge to a solution (Iteration Limit)")
-                break
+
+            # # If its really not going to converge
+            # if all(omega[:,0]) == 0.:
+            #     break
+            #
+            # # If it's really not going to converge
+            # if np.any(PSI > pi/2) and np.any(dpsi>0.0):
+            #     print("Rotor BEMT did not converge to a solution (Stall)")
+            #     break
+            #
+            # ii += 1
+            # if ii > 10000:
+            #     print("Rotor BEMT did not converge to a solution (Iteration Limit)")
+            #     break
+
+        def break_check(val):
+            return (val[14] > tol)                            #In place of break statements, the while loop
+                    # and all(val[14][:,0]) != 0.             #loop continues so long as any of the
+                    # and (np.any((val[10] +val[12])> pi/2))  #break conditions are not true. The values
+                    # and val[15] > 10000 > val[15])          #checked are val[14]:diff, val[15]:omega, val[11]:PSI,
+
+        init_val = (Wa, Wt, va, vt, Cl, Cdval, alpha, Ma, lamdaw, F, Gamma, PSI, PSIold, dpsi, diff, omega, ii)
+
+        Wa, Wt, va, vt, Cl, Cdval, alpha, Ma, lamdaw, F, Gamma, PSI, PSIold, dpsi, diff, omega, ii = lax.while_loop(
+            break_check,
+            BEMT_iterator,
+            init_val
+        )
 
         # Tip loss correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
         va      = F * va
@@ -466,61 +515,62 @@ class Rotor_JAX(Energy_Component):
         blade_dT_dr             = rho * (Gamma * (Wt - epsilon * Wa))
         blade_dQ_dr             = rho * (Gamma * (Wa + epsilon * Wt) * r)
 
-        if use_2d_analysis:
-            blade_T_distribution_2d = blade_T_distribution
-            blade_Q_distribution_2d = blade_Q_distribution
-            blade_dT_dr_2d          = blade_dT_dr
-            blade_dQ_dr_2d          = blade_dQ_dr
-            blade_Gamma_2d          = Gamma
-            alpha_2d                = alpha
+        # if use_2d_analysis:
+        #     blade_T_distribution_2d = blade_T_distribution
+        #     blade_Q_distribution_2d = blade_Q_distribution
+        #     blade_dT_dr_2d          = blade_dT_dr
+        #     blade_dQ_dr_2d          = blade_dQ_dr
+        #     blade_Gamma_2d          = Gamma
+        #     alpha_2d                = alpha
+        #
+        #     Va_2d = Wa
+        #     Vt_2d = Wt
+        #     Va_avg = np.average(Wa, axis=2)  # Averaged around the azimuth
+        #     Vt_avg = np.average(Wt, axis=2)  # Averaged around the azimuth
+        #
+        #     Va_ind_2d = va
+        #     Vt_ind_2d = vt
+        #     Vt_ind_avg = np.average(vt, axis=2)
+        #     Va_ind_avg = np.average(va, axis=2)
+        #
+        #     # Set 1D blade loadings to be the average:
+        #     blade_T_distribution = np.mean((blade_T_distribution_2d), axis=2)
+        #     blade_Q_distribution = np.mean((blade_Q_distribution_2d), axis=2)
+        #     blade_dT_dr = np.mean((blade_dT_dr_2d), axis=2)
+        #     blade_dQ_dr = np.mean((blade_dQ_dr_2d), axis=2)
+        #
+        #     # Compute the hub force / rotor drag distribution along the blade
+        #     dL_2d = 0.5 * rho * c_2d * Cd * omegar ** 2 * deltar
+        #     dD_2d = 0.5 * rho * c_2d * Cl * omegar ** 2 * deltar
+        #
+        #     rotor_drag_distribution = np.mean(dL_2d * np.sin(psi_2d) + dD_2d * np.cos(psi_2d), axis=2)
 
-            Va_2d = Wa
-            Vt_2d = Wt
-            Va_avg = np.average(Wa, axis=2)  # Averaged around the azimuth
-            Vt_avg = np.average(Wt, axis=2)  # Averaged around the azimuth
+        # else:
 
-            Va_ind_2d = va
-            Vt_ind_2d = vt
-            Vt_ind_avg = np.average(vt, axis=2)
-            Va_ind_avg = np.average(va, axis=2)
+        Va_2d = np.repeat(Wa[:, :, None], Na, axis=2)
+        Vt_2d = np.repeat(Wt[:, :, None], Na, axis=2)
 
-            # Set 1D blade loadings to be the average:
-            blade_T_distribution = np.mean((blade_T_distribution_2d), axis=2)
-            blade_Q_distribution = np.mean((blade_Q_distribution_2d), axis=2)
-            blade_dT_dr = np.mean((blade_dT_dr_2d), axis=2)
-            blade_dQ_dr = np.mean((blade_dQ_dr_2d), axis=2)
+        blade_T_distribution_2d = np.repeat(blade_T_distribution[:, :, None], Na, axis=2)
+        blade_Q_distribution_2d = np.repeat(blade_Q_distribution[:, :, None], Na, axis=2)
+        blade_dT_dr_2d = np.repeat(blade_dT_dr[:, :, None], Na, axis=2)
+        blade_dQ_dr_2d = np.repeat(blade_dQ_dr[:, :, None], Na, axis=2)
+        blade_Gamma_2d = np.repeat(Gamma[:, :, None], Na, axis=2)
+        alpha_2d = np.repeat(alpha[:, :, None], Na, axis=2)
 
-            # Compute the hub force / rotor drag distribution along the blade
-            dL_2d = 0.5 * rho * c_2d * Cd * omegar ** 2 * deltar
-            dD_2d = 0.5 * rho * c_2d * Cl * omegar ** 2 * deltar
+        Vt_avg = Wt
+        Va_avg = Wa
+        Vt_ind_avg = vt
+        Va_ind_avg = va
+        Va_ind_2d = np.repeat(va[:, :, None], Na, axis=2)
+        Vt_ind_2d = np.repeat(vt[:, :, None], Na, axis=2)
 
-            rotor_drag_distribution = np.mean(dL_2d * np.sin(psi_2d) + dD_2d * np.cos(psi_2d), axis=2)
+        # Compute the hub force / rotor drag distribution along the blade
+        dL = 0.5 * rho * c * Cd * omegar ** 2 * deltar
+        dL_2d = np.repeat(dL[:, :, None], Na, axis=2)
+        dD = 0.5 * rho * c * Cl * omegar ** 2 * deltar
+        dD_2d = np.repeat(dD[:, :, None], Na, axis=2)
 
-        else:
-            Va_2d = np.repeat(Wa[:, :, None], Na, axis=2)
-            Vt_2d = np.repeat(Wt[:, :, None], Na, axis=2)
-
-            blade_T_distribution_2d = np.repeat(blade_T_distribution[:, :, None], Na, axis=2)
-            blade_Q_distribution_2d = np.repeat(blade_Q_distribution[:, :, None], Na, axis=2)
-            blade_dT_dr_2d = np.repeat(blade_dT_dr[:, :, None], Na, axis=2)
-            blade_dQ_dr_2d = np.repeat(blade_dQ_dr[:, :, None], Na, axis=2)
-            blade_Gamma_2d = np.repeat(Gamma[:, :, None], Na, axis=2)
-            alpha_2d = np.repeat(alpha[:, :, None], Na, axis=2)
-
-            Vt_avg = Wt
-            Va_avg = Wa
-            Vt_ind_avg = vt
-            Va_ind_avg = va
-            Va_ind_2d = np.repeat(va[:, :, None], Na, axis=2)
-            Vt_ind_2d = np.repeat(vt[:, :, None], Na, axis=2)
-
-            # Compute the hub force / rotor drag distribution along the blade
-            dL = 0.5 * rho * c * Cd * omegar ** 2 * deltar
-            dL_2d = np.repeat(dL[:, :, None], Na, axis=2)
-            dD = 0.5 * rho * c * Cl * omegar ** 2 * deltar
-            dD_2d = np.repeat(dD[:, :, None], Na, axis=2)
-
-            rotor_drag_distribution = np.mean(dL_2d * np.sin(psi_2d) + dD_2d * np.cos(psi_2d), axis=2)
+        rotor_drag_distribution = np.mean(dL_2d * np.sin(psi_2d) + dD_2d * np.cos(psi_2d), axis=2)
 
         # Forces
         thrust = np.atleast_2d((B * np.sum(blade_T_distribution, axis=1))).T
@@ -608,6 +658,12 @@ class Rotor_JAX(Energy_Component):
         )
 
         return thrust_vector, torque, power, Cp, outputs, etap
+
+    def spin_2D(self, conditions):
+
+        #TODO: Implement 2D BEMT
+
+        return
 
     def vec_to_vel(self):
         """This rotates from the propellers vehicle frame to the propellers velocity frame
@@ -769,18 +825,18 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,
     Cl1maxp     = Cl_max_ref * (Re / Re_ref) ** 0.1
 
     Cl          = 2.*np.pi*alpha
-    Cl = Cl.at[Cl > Cl1maxp].set(Cl1maxp[0][[Cl > Cl1maxp][0][0]])
-    Cl = Cl.at[alpha >= np.pi / 2].set(0.)
-    Cl = Cl.at[Ma[:, :] < 1.].set(Cl[Ma[:, :] < 1.] / ((1 - Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) ** 0.5 + (
-                (Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) / (1 + (1 - Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) ** 0.5)) *
-                                                  Cl[Ma < 1.] / 2))
-    Cl = Cl.at[Ma[:, :] >= 1.].set(Cl[Ma[:, :] >= 1.])
+    Cl = np.minimum(Cl, Cl1maxp)
+    # Cl = Cl.at[alpha >= np.pi / 2].set(0.)
+    # Cl = Cl.at[Ma[:, :] < 1.].set(Cl[Ma[:, :] < 1.] / ((1 - Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) ** 0.5 + (
+    #             (Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) / (1 + (1 - Ma[Ma[:, :] < 1.] * Ma[Ma[:, :] < 1.]) ** 0.5)) *
+    #                                               Cl[Ma < 1.] / 2))
+    # Cl = Cl.at[Ma[:, :] >= 1.].set(Cl[Ma[:, :] >= 1.])
 
     Cdval = (0.108 * (Cl * Cl * Cl * Cl) - 0.2612 * (Cl * Cl * Cl) + 0.181 * (Cl * Cl) - 0.0139 * Cl + 0.0278) * (
                 (50000. / Re) ** 0.2)
-    Cdval = Cdval.at[alpha >= np.pi / 2].set(2.)
+    Cdval = np.minimum(Cdval, 2.)
 
-    Cl = Cl.at[Cl==0].set(1E-6)
+    Cl = np.maximum(Cl, 1E-6)
 
     return Cl, Cdval, alpha, Ma, W
 
@@ -810,10 +866,10 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     """
 
     lamdaw = r * Wa / (R * Wt)
-    lamdaw = lamdaw.at[lamdaw<0.].set(0.)
+    lamdaw = np.maximum(lamdaw, 0.)
 
     f = (B/2.) * (1. - r/R) / lamdaw
-    f = f.at[f<0.].set(0.)
+    f = np.maximum(f, 0.)
 
     piece = np.exp(-f)
     F = 2. * np.arccos(piece) / np.pi
@@ -876,7 +932,9 @@ def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
                     r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U +
                     Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5)))
 
-    dR_dpsi = dR_dpsi.at[np.isnan(dR_dpsi)].set(0.1)
+    # dR_dpsi = dR_dpsi.at[np.isnan(dR_dpsi)].set(0.1)
+
+    dR_dpsi = np.nan_to_num(dR_dpsi, nan = 0.1)
 
     return dR_dpsi
 
