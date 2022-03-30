@@ -44,7 +44,7 @@ def main():
     results = mission.evaluate()
     
     # Plot results
-    plot_mission(results)
+    plot_mission(results,configs)
     
 
     # Generate vtks for animation of the tiltrotor through the transition segment
@@ -60,9 +60,9 @@ def main():
 
 
     # Truth values
-    departure_throttle_truth      = np.array([0.66098974, 0.66107676, 0.66126222, 0.66136066])
-    transition_1_throttle_truth   = np.array([0.66484481, 0.65716272, 0.51769106, 0.57680246])
-    cruise_throttle_truth         = np.array([0.45997804, 0.46013403, 0.46044663, 0.46060326])
+    departure_throttle_truth      = np.array([0.66098974, 0.66121694, 0.66168772, 0.66193132])
+    transition_1_throttle_truth   = np.array([0.66541847, 0.65808227, 0.51905603, 0.57855735])
+    cruise_throttle_truth         = np.array([0.4611946 , 0.46154123, 0.46223633, 0.46258481])
     
     transition_y_axis_rotations_truth = np.array([1.36961133, 1.34327318, 1.10250854, 0.06580108])
 
@@ -281,7 +281,7 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results,line_style = 'bo-'):  
+def plot_mission(results,configs,line_style = 'bo-'):  
     
     # Plot Flight Conditions 
     plot_flight_conditions(results, line_style) 
@@ -302,7 +302,7 @@ def plot_mission(results,line_style = 'bo-'):
     plot_eMotor_Prop_efficiencies(results, line_style)
     
     # Plot tiltrotor conditions
-    plot_tiltrotor_conditions(results,line_style)
+    plot_tiltrotor_conditions(results,configs,line_style)
 
     # Plot propeller Disc and Power Loading
     plot_disc_power_loading(results, line_style)  
