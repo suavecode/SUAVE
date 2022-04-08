@@ -46,7 +46,7 @@ def unpack_unknowns(segment):
     return 
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Integrate Velocity
 # ---------------------------------------------------------------------- 
 
 def integrate_velocity(segment):
@@ -170,7 +170,7 @@ def solve_residuals(segment):
     a  = conditions.frames.inertial.acceleration_vector
 
     segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
-    segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] #- a[:,2]   
+    segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] 
     segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
 
     return
