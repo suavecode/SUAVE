@@ -231,23 +231,35 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, 
 
     # Get total power required by the main powertrain stream by applying power loss of each component in sequence
     # Each component is considered as one instance, i.e. one engine
+
     motor_input_power           = shaft_power/(motor.motor_efficiency * motor.gearbox_efficiency)
-    esc_input_power             = esc.power(motor_current, motor_input_power)
+    esc.inputs.power_out        = motor_input_power
+    esc_input_power             = esc.power(conditions)
     drive_power                 = esc_input_power
 
     # Get power required by the cryogenic rotor stream
     # The sizing conditions here are ground level conditions as this is highest cryocooler demand
     HTS_current                 = rotor.current
-    rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
+    rotor.inputs.hts_current    = HTS_current
+    rotor.inputs.ambient_temp   = rotor.skin_temp
+    rotor_input_power           = rotor.power(conditions)
 
 
     # -------------- Current Supply Dynamo ---------------
     # Here the HTS dynamo could be sized, however for now this just calculates the heating and power used by the basic dynamo as there is no sizing required for the basic dynamo model that has constant performance
     # Get the shaft power required by the hts dynamo, and the heat load produced by the dynamo
-    dynamo_powers               = hts_dynamo.shaft_power(cryo_cold_temp, HTS_current, rotor_input_power)
+    hts_dynamo.inputs.hts_current   = HTS_current  
+    hts_dynamo.inputs.power_out     = rotor_input_power
+
+    dynamo_powers               = hts_dynamo.shaft_power(conditions)
     dynamo_input_power          = dynamo_powers[0]
     hts_dynamo_cooling_power    = dynamo_powers[1]
-    dynamo_esc_input_power      = dynamo_esc.power_in(hts_dynamo, dynamo_input_power, HTS_current)
+
+    dynamo_esc.inputs.dynamo         = hts_dynamo
+    dynamo_esc.inputs.power_out      = dynamo_input_power
+    dynamo_esc.inputs.hts_current    =  HTS_current
+
+    dynamo_esc_input_power      = dynamo_esc.power_in(conditions)
 
     
     # Rename dynamo cooling requirement as lead cooling requirement in order to limit code changes compared to non-dynamo powertrain model

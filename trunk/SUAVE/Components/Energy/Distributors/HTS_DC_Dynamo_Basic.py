@@ -12,6 +12,7 @@
 import SUAVE
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Methods.Cryogenics.Dynamo.dynamo_efficiency import efficiency_curve
 import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------
@@ -48,13 +49,18 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             None
             """         
         
-        self.efficiency             =   0.0      # [W/W]
-        self.mass_properties.mass   =   0.0      # [kg] 
-        self.rated_current          =   0.0      # [A]
-        self.rated_RPM              =   0.0      # [RPM]
-        self.rated_temp             =   0.0      # [K]
+        self.outputs.efficiency             =   0.0      # [W/W]
+        self.mass_properties.mass           =   0.0      # [kg] 
+        self.rated_current                  =   0.0      # [A]
+        self.rated_RPM                      =   0.0      # [RPM]
+        self.rated_temp                     =   0.0      # [K]
+        self.inputs.hts_current             =   0.0      # [A]
+        self.inputs.power_out               =   0.0      # [W]
+        self.outputs.cryo_load              =   0.0      # [W]
+        self.outputs.power_in               =   0.0      # [W]
+
     
-    def shaft_power(self, cryo_temp, hts_current, power_out):
+    def shaft_power(self, conditions):
         """ The shaft power that must be supplied to the DC Dynamo supply to power the HTS coils.
             Assumptions:
                 HTS Dynamo is operating at rated temperature.
@@ -75,10 +81,13 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
                 None
         """
 
+        hts_current = self.inputs.hts_current 
+
+        power_out   = self.inputs.power_out 
 
         #Adjust efficiency according to the rotor current 
         current    = np.array(hts_current)
-        efficiency = self.efficiency_curve(current)
+        efficiency = efficiency_curve(self, current)
 
         # Create output arrays. The hts dynamo input power is assumed zero if the output power is zero, this may not be true for some dynamo configurations however the power required for zero output power will be very low.
         # Similarly, the cryo load will be zero if no dynamo effect is occuring.
@@ -88,40 +97,12 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         cryo_load  = np.array(power_in - power_out)
 
         # Return basic results.
+
+        self.outputs.cryo_load              =   cryo_load
+        self.outputs.power_in               =   power_in
+
         return [power_in, cryo_load]
 
-
-    def efficiency_curve(self, current):
-
-        """ This sets the default values.
-
-        Assumptions:
-            The efficiency curve of the Dynamo is a parabola 
-
-        Source:
-            "Practical Estimation of HTS Dynamo Losses" - Kent Hamilton, Member, IEEE, Ratu Mataira-Cole, Jianzhao Geng, Chris Bumby, Dale Carnegie, and Rod Badcock, Senior Member, IEEE
-
-        Inputs:
-            current        [A]
-
-        Outputs:
-            efficiency      [W/W]
-
-        Properties Used:
-            None
-        """     
-
-        x = np.array(current)
-
-        if np.any(x > self.rated_current * 1.8 ) or np.any(x < self.rated_current * 0.2): #Plus minus 80
-            print("Current out of range")
-            return 0 
-
-        a          = ( self.efficiency ) / np.square(self.rated_current) #one point on the graph is assumed to be  (0, 2 * current), 0  = a (current ^ 2) + efficiency 
-        
-        efficiency = -a * (np.square( x - self.rated_current) ) +  self.efficiency # y = -a(x - current)^2 + efficieny 
-
-        return   efficiency
 
 
 

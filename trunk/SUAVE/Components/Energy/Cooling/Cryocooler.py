@@ -29,12 +29,16 @@ class Cryocooler(Energy_Component):
     def __defaults__(self):
         
         # Initialise cryocooler properties as null values
-        self.cooler_type        =  ''
-        self.rated_power        =  0.0
-        self.min_cryo_temp      =  0.0 
-        self.ambient_temp       =  300.0
+        self.cooler_type                    =  ''
+        self.rated_power                    =  0.0
+        self.min_cryo_temp                  =  0.0 
+        self.ambient_temp                   =  300.0
+        self.inputs.cooling_power           = 0.0
+        self.inputs.cryo_temp               = 0.0
+        self.outputs.mass_properties.mass   = 0.0
+        self.outputs.rated_power            = 0.0
 
-    def energy_calc(self, cooling_power, cryo_temp, amb_temp):
+    def energy_calc(self, conditions):
 
         """ Calculate the power required by the cryocooler based on the cryocooler type, the required cooling power, and the temperature conditions.
     
@@ -63,6 +67,12 @@ class Cryocooler(Energy_Component):
     Properties Used:
         N/A
     """      
+
+        amb_temp        = conditions.freestream.temperature
+        cooling_power   = self.inputs.cooling_power
+        cryo_temp       = self.inputs.cryo_temp 
+
+
         # Prevent unrealistic temperature changes.
         if np.amin(cryo_temp) < 1.:
 
@@ -135,10 +145,11 @@ class Cryocooler(Energy_Component):
 
             print("Warning: The required cryogenic temperature of " + str(cryo_temp) + " is not achievable using a " + self.cooler_type + " cryocooler at an ambient temperature of " + str(amb_temp) + ". The minimum temperature achievable is " + str(temp_min))
 
-        self.mass_properties.mass     = mass
-        self.rated_power              = input_power
+        self.outputs.mass_properties.mass     = mass
+        self.outputs.rated_power              = input_power
+
+
 
         return [input_power, mass]
-
 
 

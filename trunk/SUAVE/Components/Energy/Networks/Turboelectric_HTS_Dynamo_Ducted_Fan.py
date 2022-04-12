@@ -116,7 +116,6 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         numerics        = state.numerics
 
         amb_temp        = conditions.freestream.temperature
-
         # Solve the thrust using the other network (i.e. the ducted fan network)
         results = ducted_fan.evaluate_thrust(state)
 
@@ -139,18 +138,26 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         rotor_current       = np.full_like(motor_power_in, rotor.current)
 
         # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
-        single_rotor_power  = rotor.power(rotor_current, skin_temp)
+        rotor.inputs.hts_current  = rotor_current
+        rotor.inputs.ambient_temp = skin_temp
+        single_rotor_power  = rotor.power(conditions)
         rotor_power_in      = single_rotor_power * ducted_fan.number_of_engines
 
         # --------  Current Supply Dynamo --------------------
 
         # Calculate the power loss in the HTS Dynamo.
-        dynamo_powers           = hts_dynamo.shaft_power(rotor.temperature, rotor_current, single_rotor_power)
+        hts_dynamo.inputs.hts_current = rotor_current
+        hts_dynamo.inputs.power_out = single_rotor_power
+        dynamo_powers           = hts_dynamo.shaft_power(conditions)
         dynamo_shaft_power      = dynamo_powers[0]
 
         # Calculate the power used by the HTS Dynamo powertrain, i.e. the esc, motor, and gearbox.
-        dynamo_esc_power        = dynamo_esc.power_in(hts_dynamo, dynamo_shaft_power, rotor_current)
+        dynamo_esc.inputs.dynamo = hts_dynamo
+        dynamo_esc.inputs.hts_current = rotor_current
+        dynamo_esc.inputs.power_out    = dynamo_shaft_power
+        dynamo_esc_power        = dynamo_esc.power_in(conditions)
 
+        
         # Retreive the cryogenic load due to the dynamo
         dynamo_cryo_load        = dynamo_powers[1]
 
@@ -177,13 +184,16 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
 
         if cooling_share_cryocooler != 0.0:
             cryocooler_load         = cooling_share_cryocooler * rotor_cryo_load
-            cryocooler_power        = cryocooler.energy_calc(cryocooler_load, rotor.temperature, amb_temp)
+            cryocooler.inputs.cooling_power = cryocooler_load
+            cryocooler.inputs.cryo_temp  = rotor.temperature
+            cryocooler_power        = cryocooler.energy_calc(conditions)
 
         # Calculate the cryogen use required for cooling (if used)
         cryogen_mdot = 0.0
         if cooling_share_cryogen != 0.0:
             cryogen_load            = cooling_share_cryogen * rotor_cryo_load
-            cryogen_mdot            = heat_exchanger.energy_calc(cryogen_load, conditions)
+            heat_exchanger.inputs.cooling_power  = cryogen_load
+            cryogen_mdot            = heat_exchanger.energy_calc(conditions)
 
         # Sum all the power users to get the power required to be supplied by each powersupply, i.e. the turboelectric generators
         powersupply.inputs.power_in = (motor_power_in + esc_power + rotor_power_in + all_leads_power + all_ccs_power + cryocooler_power) / number_of_supplies

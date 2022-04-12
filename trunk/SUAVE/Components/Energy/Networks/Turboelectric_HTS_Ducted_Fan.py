@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
+from re import X
 import SUAVE
 
 # package imports
@@ -134,7 +135,11 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         rotor_currents       = np.full_like(motor_power_in, rotor.current)
 
         # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
-        single_rotor_power  = rotor.power(rotor_currents, skin_temp)
+
+        rotor.inputs.hts_current  = rotor_currents
+        rotor.inputs.ambient_temp = skin_temp
+        single_rotor_power  = rotor.power(conditions)
+
         rotor_power_in      = single_rotor_power * ducted_fan.number_of_engines
 
         # -------- Rotor Current Supply ---------------------------------
@@ -142,11 +147,11 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         # Calculate the power loss in the rotor current supply leads.
         # The cryogenic loading due to the leads is also calculated here.
 
-        lead_power      =  np.where(rotor_currents[:,0] > 0, lead.Q_offdesign(rotor_currents[:,0])[:,1], 0.0 )
-        lead_cryo_load  =  np.where(rotor_currents[:,0] > 0,  lead.Q_offdesign(rotor_currents[:,0])[:,0], lead.unpowered_Q )
 
-        lead_power      = np.reshape(lead_power, (len(lead_power),1))
-        lead_cryo_load  = np.reshape(lead_cryo_load, (len(lead_power),1))
+        lead.inputs.current = rotor_currents
+
+        lead_power = lead.Q_offdesign(conditions)[:,1]
+        lead_cryo_load = lead.Q_offdesign(conditions)[:,0]
 
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads
@@ -171,14 +176,17 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         
         if cooling_share_cryocooler != 0.0:
             cryocooler_load         = cooling_share_cryocooler * rotor_cryo_load
-            cryocooler_power        = cryocooler.energy_calc(cryocooler_load, rotor.temperature, amb_temp)
+            cryocooler.inputs.cooling_power = cryocooler_load
+            cryocooler.inputs.cryo_temp  = rotor.temperature
+            cryocooler_power        = cryocooler.energy_calc(conditions)
 
         # Calculate the cryogen use required for cooling (if used)
         cryogen_mdot = 0.0
 
         if cooling_share_cryogen != 0.0:
             cryogen_load            = cooling_share_cryogen * rotor_cryo_load
-            cryogen_mdot            = heat_exchanger.energy_calc(cryogen_load, conditions)
+            heat_exchanger.inputs.cooling_power  = cryogen_load
+            cryogen_mdot            = heat_exchanger.energy_calc(conditions)
 
         # Sum all the power users to get the power required to be supplied by each powersupply, i.e. the turboelectric generators
         powersupply.inputs.power_in = (motor_power_in + esc_power + rotor_power_in + all_leads_power + all_ccs_power + cryocooler_power) / number_of_supplies

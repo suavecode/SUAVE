@@ -222,21 +222,27 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     # Get total power required by the main powertrain stream by applying power loss of each component in sequence
     # Each component is considered as one instance, i.e. one engine
     motor_input_power           = shaft_power/(motor.motor_efficiency * motor.gearbox_efficiency)
-    esc_input_power             = esc.power(motor_current, motor_input_power)
+    esc.inputs.power_out        = motor_input_power
+    esc_input_power             = esc.power(conditions)
     drive_power                 = esc_input_power
 
     # Get power required by the cryogenic rotor stream
     # The sizing conditions here are ground level conditions as this is highest cryocooler demand
     HTS_current                 = np.array([rotor.current])
-    rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
+
+    rotor.inputs.hts_current    = HTS_current
+    rotor.inputs.ambient_temp   = rotor.skin_temp
+    rotor_input_power           = rotor.power(conditions)
     
     # initialize copper lead optimses the leads for the conditions set elsewhere, i.e. the lead is not sized here as it should be sized for the maximum ambient temperature
-    current_lead.initialize_material_lead()
-    current_lead_powers         = current_lead.Q_offdesign(HTS_current)
+    current_lead.initialize_material_lead(conditions)
+    current_lead.inputs.current = HTS_current
+    current_lead_powers         = current_lead.Q_offdesign(conditions)
     lead_power                  = current_lead_powers[0,1]
     leads_power                 = 2 * lead_power             # multiply lead loss by number of leads to get total loss
     ccs_output_power            = leads_power + rotor_input_power
-    ccs_input_power             = ccs.power(HTS_current, ccs_output_power)
+    ccs.inputs.power_out        = ccs_output_power
+    ccs_input_power             = ccs.power(conditions)
 
     # The cryogenic components are also part of the rotor power stream
     lead_cooling_power          = current_lead_powers[0,0]
