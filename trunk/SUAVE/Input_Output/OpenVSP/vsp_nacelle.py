@@ -13,8 +13,11 @@ import numpy as np
 try:
     import vsp as vsp
 except ImportError:
-    # This allows SUAVE to build without OpenVSP
-    pass 
+    try:
+        import openvsp as vsp
+    except ImportError:
+        # This allows SUAVE to build without OpenVSP
+        pass
 # ----------------------------------------------------------------------
 #  vsp_nacelle
 # ----------------------------------------------------------------------
@@ -304,9 +307,9 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
         nacelle.length = abs_x_location_vec[-1]  
         segs = nacelle.Segments
         for seg in range(num_segs):    
-            segs[seg].percent_x_location = np.array(abs_x_location_vec)/abs_x_location_vec[-1]
-            segs[seg].percent_y_location = np.array(abs_y_location_vec)/abs_x_location_vec[-1]
-            segs[seg].percent_z_location = np.array(abs_z_location_vec)/abs_x_location_vec[-1] 
+            segs[seg].percent_x_location = np.array(abs_x_location_vec[seg])/abs_x_location_vec[-1]
+            segs[seg].percent_y_location = np.array(abs_y_location_vec[seg])/abs_x_location_vec[-1]
+            segs[seg].percent_z_location = np.array(abs_z_location_vec[seg])/abs_x_location_vec[-1] 
           
  
     elif vsp_nacelle_type =='BodyOfRevolution':  

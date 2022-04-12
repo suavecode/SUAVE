@@ -2,27 +2,30 @@
 # vsp_propeller.py
 
 # Created:  Sep 2021, R. Erhard
-# Modified: 
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
-# ---------------------------------------------------------------------- 
+# ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units , Data 
+from SUAVE.Core import Units , Data
 import numpy as np
 import scipy as sp
-import string 
+import string
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 try:
     import vsp as vsp
 except ImportError:
-    # This allows SUAVE to build without OpenVSP
-    pass 
+    try:
+        import openvsp as vsp
+    except ImportError:
+        # This allows SUAVE to build without OpenVSP
+        pass
 
 # This enforces lowercase names
 chars = string.punctuation + string.whitespace
-t_table = str.maketrans( chars          + string.ascii_uppercase , 
+t_table = str.maketrans( chars          + string.ascii_uppercase ,
                          '_'*len(chars) + string.ascii_lowercase )
 
 # ----------------------------------------------------------------------
@@ -61,8 +64,8 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     		max_thickness_distribution		[m]
     		thickness_to_chord			[-]
     		blade_solidity				[-]
-    		rotation			        [-]  
-    		thickness_to_chord                      [-] 
+    		rotation			        [-]
+    		thickness_to_chord                      [-]
                 beta34                                  [radians]
                 pre_cone                                [radians]
                 rake                                    [radians]
@@ -109,13 +112,13 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
         tag = vsp.GetGeomName(prop_id)
         tag = tag.translate(t_table)
         prop.tag = tag
-    else: 
+    else:
         prop.tag = 'propgeom'
 
-    
-    scaling           = vsp.GetParmVal(prop_id, 'Scale', 'XForm')  
+
+    scaling           = vsp.GetParmVal(prop_id, 'Scale', 'XForm')
     units_factor      = units_factor*scaling
-        
+
     # Propeller location (absolute)
     prop.origin 	= [[0.0,0.0,0.0]]
     prop.origin[0][0] 	= vsp.GetParmVal(prop_id, 'X_Location', 'XForm') * units_factor
@@ -147,24 +150,31 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
 
     prop.tip_radius                   = vsp.GetDoubleResults(rid, "Diameter" )[0] / 2 * units_factor
     prop.radius_distribution          = np.array(vsp.GetDoubleResults(rid, "Radius" )) * prop.tip_radius
-    prop.radius_distribution[-1]      = 0.99 * prop.tip_radius # BEVW requires max nondimensional radius to be less than 1.0
+
+    prop.radius_distribution[-1]      = 0.99 * prop.tip_radius # BEMT requires max nondimensional radius to be less than 1.0
+    if prop.radius_distribution[0] == 0.:
+        start = 1
+        prop.radius_distribution = prop.radius_distribution[start:]
+    else:
+        start = 0
+
     prop.hub_radius                   = prop.radius_distribution[0]
 
-    prop.chord_distribution           = np.array(vsp.GetDoubleResults(rid, "Chord" ))  * prop.tip_radius # vsp gives c/R
-    prop.twist_distribution           = np.array(vsp.GetDoubleResults(rid, "Twist" ))  * Units.degrees
-    prop.sweep_distribution           = np.array(vsp.GetDoubleResults(rid, "Sweep" ))
+    prop.chord_distribution           = np.array(vsp.GetDoubleResults(rid, "Chord" ))[start:]  * prop.tip_radius # vsp gives c/R
+    prop.twist_distribution           = np.array(vsp.GetDoubleResults(rid, "Twist" ))[start:]  * Units.degrees
+    prop.sweep_distribution           = np.array(vsp.GetDoubleResults(rid, "Sweep" ))[start:]
     prop.mid_chord_alignment          = np.tan(prop.sweep_distribution*Units.degrees)  * prop.radius_distribution
-    prop.thickness_to_chord           = np.array(vsp.GetDoubleResults(rid, "Thick" ))
+    prop.thickness_to_chord           = np.array(vsp.GetDoubleResults(rid, "Thick" ))[start:]
     prop.max_thickness_distribution   = prop.thickness_to_chord*prop.chord_distribution * units_factor
-    prop.Cl_distribution              = np.array(vsp.GetDoubleResults(rid, "CLi" )) 
+    prop.Cl_distribution              = np.array(vsp.GetDoubleResults(rid, "CLi" ))[start:]
 
     # Extra data from VSP BEM for future use in BEVW
     prop.beta34                       = vsp.GetDoubleResults(rid, "Beta34" )[0]  # pitch at 3/4 radius
     prop.pre_cone                     = vsp.GetDoubleResults(rid, "Pre_Cone")[0]
-    prop.rake                         = np.array(vsp.GetDoubleResults(rid, "Rake"))
-    prop.skew                         = np.array(vsp.GetDoubleResults(rid, "Skew"))
-    prop.axial                        = np.array(vsp.GetDoubleResults(rid, "Axial"))
-    prop.tangential                   = np.array(vsp.GetDoubleResults(rid, "Tangential"))
+    prop.rake                         = np.array(vsp.GetDoubleResults(rid, "Rake"))[start:]
+    prop.skew                         = np.array(vsp.GetDoubleResults(rid, "Skew"))[start:]
+    prop.axial                        = np.array(vsp.GetDoubleResults(rid, "Axial"))[start:]
+    prop.tangential                   = np.array(vsp.GetDoubleResults(rid, "Tangential"))[start:]
 
     # Set prop rotation
     prop.rotation = 1
@@ -173,10 +183,10 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     # Rotor Airfoil
     # ---------------------------------------------
     if write_airfoil_file:
-        print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for propeller cross section.") 
+        print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for propeller cross section.")
 
-    return prop 
- 
+    return prop
+
 ## @ingroup Input_Output-OpenVSP
 def write_vsp_propeller_bem(vsp_bem_filename,propeller):
     """   This functions writes a .bem file for OpenVSP
@@ -187,19 +197,19 @@ def write_vsp_propeller_bem(vsp_bem_filename,propeller):
         None
     Inputs:
         OpenVSP .bem filename
-        SUAVE Propeller Data Structure 
+        SUAVE Propeller Data Structure
     Outputs:
-        OpenVSP .bem file 
+        OpenVSP .bem file
     Properties Used:
         N/A
-    """   
-    vsp_bem = open(vsp_bem_filename,'w') 
+    """
+    vsp_bem = open(vsp_bem_filename,'w')
     with open(vsp_bem_filename,'w') as vsp_bem:
         make_header_text(vsp_bem, propeller)
 
         make_section_text(vsp_bem,propeller)
 
-        make_airfoil_text(vsp_bem,propeller)  
+        make_airfoil_text(vsp_bem,propeller)
 
     # Now import this prop
     vsp.ImportFile(vsp_bem_filename,vsp.IMPORT_BEM,'')
@@ -209,7 +219,7 @@ def write_vsp_propeller_bem(vsp_bem_filename,propeller):
 
 
 ## @ingroup Input_Output-OpenVSP
-def make_header_text(vsp_bem,prop):  
+def make_header_text(vsp_bem,prop):
     """This function writes the header of the OpenVSP .bem file
     Assumptions:
         None
@@ -217,16 +227,16 @@ def make_header_text(vsp_bem,prop):
     Source:
         None
     Inputs:
-        vsp_bem - OpenVSP .bem file 
-        prop    - SUAVE propeller data structure 
+        vsp_bem - OpenVSP .bem file
+        prop    - SUAVE propeller data structure
 
     Outputs:
-        NA                
+        NA
     Properties Used:
         N/A
-    """      
+    """
     header_base = \
-'''...{0}... 
+'''...{0}...
 Num_Sections: {1}
 Num_Blade: {2}
 Diameter: {3}
@@ -235,16 +245,16 @@ Feather (deg): 0.00000000
 Pre_Cone (deg): 0.00000000
 Center: {5}, {6}, {7}
 Normal: {8}, {9}, {10}
-''' 
-    # Unpack inputs 
+'''
+    # Unpack inputs
     name      = prop.tag
     N         = len(prop.radius_distribution)
     B         = int(prop.number_of_blades)
     D         = np.round(prop.tip_radius*2,5)
     beta      = np.round(prop.twist_distribution/Units.degrees,5)
     X         = np.round(prop.origin[0][0],5)
-    Y         = np.round(prop.origin[0][1],5)    
-    Z         = np.round(prop.origin[0][2],5)    
+    Y         = np.round(prop.origin[0][1],5)
+    Z         = np.round(prop.origin[0][2],5)
     rotations = np.dot(prop.body_to_prop_vel(),np.array([-1,0,0])) # The sign is because props point opposite flow
     Xn        = np.round(rotations[0],5)
     Yn        = np.round(rotations[1],5)
@@ -253,37 +263,37 @@ Normal: {8}, {9}, {10}
     beta_3_4  = np.interp(prop.tip_radius*0.75,prop.radius_distribution,beta)
 
     # Insert inputs into the template
-    header_text = header_base.format(name,N,B,D,beta_3_4,X,Y,Z,Xn,Yn,Zn) 
-    vsp_bem.write(header_text)    
+    header_text = header_base.format(name,N,B,D,beta_3_4,X,Y,Z,Xn,Yn,Zn)
+    vsp_bem.write(header_text)
 
-    return   
+    return
 
 ## @ingroup Input_Output-OpenVSP
 def make_section_text(vsp_bem,prop):
-    """This function writes the sectional information of the propeller 
+    """This function writes the sectional information of the propeller
     Assumptions:
         None
 
     Source:
         None
     Inputs:
-        vsp_bem - OpenVSP .bem file 
-        prop    - SUAVE propeller data structure 
+        vsp_bem - OpenVSP .bem file
+        prop    - SUAVE propeller data structure
 
     Outputs:
-        NA                                                
+        NA
     Properties Used:
         N/A
-    """  
+    """
     header = \
-        '''Radius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi, Axial, Tangential\n''' 
+        '''Radius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi, Axial, Tangential\n'''
 
     N          = len(prop.radius_distribution)
     r_R        = np.zeros(N)
-    c_R        = np.zeros(N) 
+    c_R        = np.zeros(N)
     r_R        = prop.radius_distribution/prop.tip_radius
     c_R        = prop.chord_distribution/prop.tip_radius
-    beta_deg   = prop.twist_distribution/Units.degrees 
+    beta_deg   = prop.twist_distribution/Units.degrees
     Rake_R     = np.zeros(N)
     Skew_R     = np.zeros(N)
     Sweep      = np.arctan(prop.mid_chord_alignment/prop.radius_distribution)
@@ -293,18 +303,18 @@ def make_section_text(vsp_bem,prop):
     Tangential = np.zeros(N)
 
     # Write propeller station imformation
-    vsp_bem.write(header)       
+    vsp_bem.write(header)
     for i in range(N):
         section_text = format(r_R[i], '.7f')+ ", " + format(c_R[i], '.7f')+ ", " + format(beta_deg[i], '.7f')+ ", " +\
             format( Rake_R[i], '.7f')+ ", " + format(Skew_R[i], '.7f')+ ", " + format(Sweep[i], '.7f')+ ", " +\
             format(t_c[i], '.7f')+ ", " + format(CLi[i], '.7f') + ", "+ format(Axial[i], '.7f') + ", " +\
-            format(Tangential[i], '.7f') + "\n"  
-        vsp_bem.write(section_text)      
+            format(Tangential[i], '.7f') + "\n"
+        vsp_bem.write(section_text)
 
-    return   
+    return
 
 ## @ingroup Input_Output-OpenVSP
-def make_airfoil_text(vsp_bem,prop):   
+def make_airfoil_text(vsp_bem,prop):
     """This function writes the airfoil geometry into the vsp file
     Assumptions:
         None
@@ -312,26 +322,26 @@ def make_airfoil_text(vsp_bem,prop):
     Source:
         None
     Inputs:
-        vsp_bem - OpenVSP .bem file 
-        prop    - SUAVE propeller data structure 
+        vsp_bem - OpenVSP .bem file
+        prop    - SUAVE propeller data structure
 
     Outputs:
-        NA                
+        NA
     Properties Used:
         N/A
-    """ 
+    """
 
-    N             = len(prop.radius_distribution)  
+    N             = len(prop.radius_distribution)
     airfoil_data  = import_airfoil_geometry(prop.airfoil_geometry)
     a_sec         = prop.airfoil_polar_stations
     for i in range(N):
-        airfoil_station_header = '\nSection ' + str(i) + ' X, Y\n'  
-        vsp_bem.write(airfoil_station_header)   
+        airfoil_station_header = '\nSection ' + str(i) + ' X, Y\n'
+        vsp_bem.write(airfoil_station_header)
 
-        airfoil_x     = airfoil_data.x_coordinates[int(a_sec[i])] 
-        airfoil_y     = airfoil_data.y_coordinates[int(a_sec[i])] 
+        airfoil_x     = airfoil_data.x_coordinates[int(a_sec[i])]
+        airfoil_y     = airfoil_data.y_coordinates[int(a_sec[i])]
 
-        for j in range(len(airfoil_x)): 
-            section_text = format(airfoil_x[j], '.7f')+ ", " + format(airfoil_y[j], '.7f') + "\n"  
-            vsp_bem.write(section_text)      
-    return 
+        for j in range(len(airfoil_x)):
+            section_text = format(airfoil_x[j], '.7f')+ ", " + format(airfoil_y[j], '.7f') + "\n"
+            vsp_bem.write(section_text)
+    return

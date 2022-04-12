@@ -57,6 +57,7 @@ def oblique_shock_relations(M0,gamma,theta,beta):
     
     return M1,Pr,Tr,Ptr
 
+## @ingroup Methods-Aerodynamics-Common-Gas_Dynamics
 def theta_beta_mach(M0,gamma,theta,n=0):
     """Computes shock angle of an oblique shock
     

@@ -1,6 +1,7 @@
 ## @defgroup Methods-Propulsion Propulsion
 # Description
 # @ingroup Methods
+
 from . import Rotor_Wake
 from .ducted_fan_sizing import ducted_fan_sizing
 from .propeller_design import propeller_design
@@ -18,3 +19,4 @@ from . import electric_motor_sizing
 from .liquid_rocket_sizing import liquid_rocket_sizing
 from .serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
 from .serial_HTS_dynamo_turboelectric_sizing import serial_HTS_dynamo_turboelectric_sizing
+

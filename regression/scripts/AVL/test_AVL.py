@@ -67,11 +67,11 @@ def main():
     if run_new_regression: 
         # append AVL aerodynamic analysis 
         aerodynamics.settings.regression_flag         = False  
-        aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name  = '/Users/matthewclarke/Documents/AVL/avl3.35' # 'CHANGE/TO/AVL/PATH'       
+        aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name  = 'CHANGE/TO/AVL/PATH'       
         aerodynamics.settings.save_regression_results = True    
         stability.settings.regression_flag            = False  
         stability.settings.save_regression_results    = True   
-        stability.settings.filenames.avl_bin_name     = '/Users/matthewclarke/Documents/AVL/avl3.35' # 'CHANGE/TO/AVL/PATH'            
+        stability.settings.filenames.avl_bin_name     = 'CHANGE/TO/AVL/PATH'            
          
     else:    
         aerodynamics.settings.regression_flag         = True   
@@ -141,7 +141,7 @@ def main():
 
     # lift coefficient check
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.6124907500926255
+    lift_coefficient_true         = 0.6124936427552575
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -151,7 +151,7 @@ def main():
     
     # moment coefficient check
     moment_coefficient            = results.segments.cruise.conditions.stability.static.CM[0][0]
-    moment_coefficient_true       = -0.6107860836585127
+    moment_coefficient_true       = -0.5764235338199974
     
     print(moment_coefficient)
     diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)

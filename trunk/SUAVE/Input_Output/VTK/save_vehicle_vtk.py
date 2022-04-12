@@ -20,9 +20,10 @@ from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 from SUAVE.Core import Data
 import numpy as np
+import os
 
 ## @ingroup Input_Output-VTK
-def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
+def save_vehicle_vtks(vehicle, conditions=None, Results=Data(), time_step=0,VLM_settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                      wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", 
                      fuselage_filename="fuselage.vtk", nacelle_filename="nacelle.vtk", save_loc=None):
     """
@@ -53,6 +54,10 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=None, time_step=0,VLM_se
        None
 
     """
+    if (save_loc is not None) and (not os.path.exists(save_loc)):
+        os.makedirs(save_loc)
+        print("Directory "+save_loc+" created.") 
+        
     if VLM_settings == None:
         VLM_settings = Vortex_Lattice().settings
         VLM_settings.number_spanwise_vortices  = 25

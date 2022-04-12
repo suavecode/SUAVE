@@ -35,6 +35,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             number of blades               
             number of stations
             design lift coefficient
+            design_altitude                  [m]
             airfoil data
             
           Outputs:
