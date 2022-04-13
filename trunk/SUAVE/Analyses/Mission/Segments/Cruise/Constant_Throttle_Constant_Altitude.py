@@ -5,6 +5,7 @@
 # Modified: Feb 2016, Andrew Wendorff
 #           Mar 2020, M. Clarke
 #           Aug 2021, R. Erhard
+#           Apr 2022, A. Blaufox
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -78,7 +79,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.body_angle            = ones_row(1) * 0.0
-        self.state.unknowns.velocity_x            = ones_row(1) * 0.0
+        self.state.unknowns.accel_x               = ones_row(1) * 1.
         self.state.unknowns.time                  = 100.
         self.state.residuals.final_velocity_error = 0.0
         self.state.residuals.forces               = ones_row(2) * 0.0
@@ -122,6 +123,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         # Update Conditions
         iterate.conditions = Process()
         iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time
+        iterate.conditions.velocity        = Methods.Cruise.Constant_Throttle_Constant_Altitude.integrate_velocity                                                                                    
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
