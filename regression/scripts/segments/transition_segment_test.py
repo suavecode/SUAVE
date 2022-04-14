@@ -232,7 +232,6 @@ def mission_setup(analyses,vehicle):
     segment.pitch_initial                               = 0.0  * Units.degrees  
     segment.pitch_final                                 = 3.6  * Units.degrees   
     segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
-    segment.process.iterate.unknowns.mission            = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
@@ -254,7 +253,6 @@ def mission_setup(analyses,vehicle):
     segment.pitch_initial                               = 3.6  * Units.degrees  
     segment.pitch_final                                 = 4.0  * Units.degrees   
     segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
-    segment.process.iterate.unknowns.mission            = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
@@ -276,7 +274,6 @@ def mission_setup(analyses,vehicle):
     segment.pitch_initial                               = 4.0  * Units.degrees  
     segment.pitch_final                                 = 3.6  * Units.degrees   
     segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
-    segment.process.iterate.unknowns.mission            = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 

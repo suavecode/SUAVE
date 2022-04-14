@@ -571,7 +571,8 @@ class Battery_Propeller(Network):
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_tiltrotor_transition_unknowns
-        segment.process.iterate.residuals.network = self.residuals        
+        segment.process.iterate.residuals.network = self.residuals   
+        segment.process.iterate.unknowns.mission  = SUAVE.Methods.skip
 
         return segment    
        
