@@ -534,20 +534,20 @@ def get_blade_coordinates(prop,n_points,dim,i):
     num_B  = prop.number_of_blades
     a_sec  = prop.airfoil_geometry
     a_secl = prop.airfoil_polar_stations
-    beta   = prop.twist_distribution
+    twist  = prop.twist_distribution
     a_o    = prop.start_angle
     b      = prop.chord_distribution
     r      = prop.radius_distribution
     MCA    = prop.mid_chord_alignment
     t      = prop.max_thickness_distribution
     origin = prop.origin
+    beta   = twist + prop.inputs.pitch_command
     
-    if prop.rotation==-1:
-        # negative chord and twist to give opposite rotation direction
-        b = -b
-        beta = -beta       
+    # Apply rotation correction 
+    beta *= -prop.rotation
+    b    *= prop.rotation
     
-    theta  = np.linspace(0,2*np.pi,num_B+1)[:-1]
+    theta  = (np.linspace(0,2*np.pi,num_B+1)[:-1] + np.pi)%(2*np.pi)
     rot    = prop.rotation 
     flip_1 =  (np.pi/2)
     flip_2 =  (np.pi/2)

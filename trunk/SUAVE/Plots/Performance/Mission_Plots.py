@@ -1637,7 +1637,6 @@ def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_fi
     """
     VD         = vehicle.vortex_distribution
     n_cw       = VD.n_cw
-    n_cw       = VD.n_cw
     n_sw       = VD.n_sw
     n_w        = VD.n_w
     b_pts      = np.concatenate(([0],np.cumsum(VD.n_sw*VD.n_cw)))
