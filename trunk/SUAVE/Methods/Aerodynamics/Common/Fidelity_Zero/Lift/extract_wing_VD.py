@@ -36,21 +36,18 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
     """
     # unpack vortex distribution properties
     VD           = geometry.vortex_distribution
-    span_breaks  = VD.spanwise_breaks
     sym          = VD.symmetric_wings
     
-    VD_wing  = Data()       
+    VD_wing      = Data()       
     semispan_idx = wing_instance_idx + np.sum(sym[0:wing_instance_idx])
-    id_start = span_breaks[semispan_idx]
-    id_end   = id_start + (1+sym[wing_instance_idx])*VD.n_sw[semispan_idx]
+    ids          = range(semispan_idx, semispan_idx + 1 + sym[wing_instance_idx])
     
-    ids      = range(semispan_idx, semispan_idx + 1 + sym[wing_instance_idx])
-    n_cw     = VD.n_cw[ids]
-
+    pts = VD.n_cw*VD.n_sw
+    
     if bool(sym[wing_instance_idx]):
-        pt_ids   = range(id_start*n_cw[0],id_end*n_cw[1])
+        pt_ids   = range(np.sum(pts[0:ids[0]]), np.sum(pts[0:ids[1]+1]))
     else:
-        pt_ids   = range(id_start*n_cw[0],id_end*n_cw[0])
+        pt_ids   = range(np.sum(pts[0:ids[0]]), np.sum(pts[0:ids[0]+1]))
         
     
     VD_wing.XC   = VD.XC[pt_ids]

@@ -541,7 +541,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             #format camber vars for wings vs control surface wings
             nondim_camber_x_coords = break_camber_xs[i_break] *1
             nondim_camber          = break_camber_zs[i_break] *1
-            if wing.is_a_control_surface: #rescale so that airfoils get cut properly
+            if wing.is_a_control_surface: #rescale so that airfoils gets cut properly
                 if not wing.is_slat:
                     nondim_camber_x_coords -= 1 - wing.chord_fraction
                 nondim_camber_x_coords /= wing.chord_fraction

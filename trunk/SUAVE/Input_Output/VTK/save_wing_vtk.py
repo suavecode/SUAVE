@@ -105,9 +105,9 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step,
         R_Results = deepcopy(Results)
         L_Results = deepcopy(Results)
         if 'vlm_results' in Results.keys():
-            if Results.vlm_results is not None:
-                R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]
-                L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
+            if Results.vlm_results is not None:           
+                R_Results.vlm_results.CP = Results.vlm_results.CP[0][ids][0:half_l]
+                L_Results.vlm_results.CP = Results.vlm_results.CP[0][ids][half_l:]
 
         sep  = filename.rfind('.')
 
