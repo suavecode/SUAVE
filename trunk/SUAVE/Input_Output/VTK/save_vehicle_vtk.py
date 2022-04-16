@@ -109,8 +109,8 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 
                 try:
                     # check if rotor has wake present
-                    gamma = propi.Wake.wake_vortex_distribution.GAMMA[start_angle_idx,:,:,:,:]
-                    wVD = propi.Wake.wake_vortex_distribution
+                    gamma = propi.Wake.vortex_distribution.reshaped_wake.GAMMA[start_angle_idx,:,:,:,:]
+                    wVD = propi.Wake.vortex_distribution.reshaped_wake
                     wake_present = True
                 except:
                     wake_present = False
@@ -169,8 +169,8 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 
                 try:
                     # check if rotor has wake present
-                    gamma = roti.wake_vortex_distribution.GAMMA
-                    wVD = propi.wake_vortex_distribution
+                    gamma = roti.Wake.vortex_distribution.reshaped_wake.GAMMA
+                    wVD   = roti.Wake.vortex_distribution.reshaped_wake
                     wake_present = True
                 except:
                     wake_present = False
@@ -192,15 +192,22 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                     Results['prop_outputs'] = Results['all_prop_outputs'][roti_key]
                     
                     # save prop wake
-                    wVD = roti.wake_vortex_distribution
+                    wVD = roti.Wake.vortex_distribution.reshaped_wake
                     save_prop_wake_vtk(wVD, gamma, file, Results,origin_offset,rot=roti.rotation)      
 
     
     #---------------------------
     # Save wing results to vtk
     #---------------------------
-    wing_names = list(vehicle.wings.keys())
-    n_wings    = len(wing_names)
+    if 'VLM_wings' in vehicle.vortex_distribution.keys():
+        wings      = vehicle.vortex_distribution.VLM_wings
+        wing_names = list(wings.keys())
+        n_wings    = len(wing_names)        
+    else:
+        wings      = vehicle.wings
+        wing_names = list(wings.keys())
+        n_wings    = len(wing_names)
+    
     for i in range(n_wings):
         if save_loc ==None:
             filename = wing_filename
@@ -213,7 +220,9 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
         sep  = filename.rfind('.')
         file = filename[0:sep]+str(wing_names[i])+filename[sep:]
         file2 = filename2[0:sep]+str(wing_names[i])+filename2[sep:]
-        save_wing_vtk(vehicle, vehicle.wings[wing_names[i]], VLM_settings, file, Results,time_step,origin_offset)
+        
+            
+        save_wing_vtk(vehicle, wings[wing_names[i]], VLM_settings, file, Results,time_step,origin_offset)
         
         if conditions != None:
             # evaluate vortex strengths and same vortex distribution

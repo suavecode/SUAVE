@@ -30,14 +30,9 @@ def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
     
     """
     # Extract wake properties of the ith propeller
-    if len(points.XC) == 1:
-        xp = points.XC[0]
-        yp = points.YC[0]
-        zp = points.ZC[0]
-    else:
-        xp = points.XC
-        yp = points.YC
-        zp = points.ZC        
+    xp = points.XC
+    yp = points.YC
+    zp = points.ZC        
     
     try:
         velocities = points.induced_velocities
