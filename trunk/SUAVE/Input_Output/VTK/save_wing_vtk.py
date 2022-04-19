@@ -13,7 +13,7 @@ import numpy as np
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
 
 ## @ingroup Input_Output-VTK
-def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step):
+def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step,origin_offset):
     """
     Saves a SUAVE wing object as a VTK in legacy format.
 
@@ -71,31 +71,31 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
         Rwing = Data()
         Lwing = Data()
 
-        Rwing.XA1 = VD_wing.XA1[sec_start:half_l]
-        Rwing.XA2 = VD_wing.XA2[sec_start:half_l]
-        Rwing.XB1 = VD_wing.XB1[sec_start:half_l]
-        Rwing.XB2 = VD_wing.XB2[sec_start:half_l]
-        Rwing.YA1 = VD_wing.YA1[sec_start:half_l]
-        Rwing.YA2 = VD_wing.YA2[sec_start:half_l]
-        Rwing.YB1 = VD_wing.YB1[sec_start:half_l]
-        Rwing.YB2 = VD_wing.YB2[sec_start:half_l]
-        Rwing.ZA1 = VD_wing.ZA1[sec_start:half_l]
-        Rwing.ZA2 = VD_wing.ZA2[sec_start:half_l]
-        Rwing.ZB1 = VD_wing.ZB1[sec_start:half_l]
-        Rwing.ZB2 = VD_wing.ZB2[sec_start:half_l]
+        Rwing.XA1 = VD_wing.XA1[sec_start:half_l] + origin_offset[0]
+        Rwing.XA2 = VD_wing.XA2[sec_start:half_l] + origin_offset[0]
+        Rwing.XB1 = VD_wing.XB1[sec_start:half_l] + origin_offset[0]
+        Rwing.XB2 = VD_wing.XB2[sec_start:half_l] + origin_offset[0]
+        Rwing.YA1 = VD_wing.YA1[sec_start:half_l] + origin_offset[1]
+        Rwing.YA2 = VD_wing.YA2[sec_start:half_l] + origin_offset[1]
+        Rwing.YB1 = VD_wing.YB1[sec_start:half_l] + origin_offset[1]
+        Rwing.YB2 = VD_wing.YB2[sec_start:half_l] + origin_offset[1]
+        Rwing.ZA1 = VD_wing.ZA1[sec_start:half_l] + origin_offset[2]
+        Rwing.ZA2 = VD_wing.ZA2[sec_start:half_l] + origin_offset[2]
+        Rwing.ZB1 = VD_wing.ZB1[sec_start:half_l] + origin_offset[2]
+        Rwing.ZB2 = VD_wing.ZB2[sec_start:half_l] + origin_offset[2]
         
-        Lwing.XA1 = VD_wing.XA1[half_l:sec_end]
-        Lwing.XA2 = VD_wing.XA2[half_l:sec_end]
-        Lwing.XB1 = VD_wing.XB1[half_l:sec_end]
-        Lwing.XB2 = VD_wing.XB2[half_l:sec_end]
-        Lwing.YA1 = VD_wing.YA1[half_l:sec_end]
-        Lwing.YA2 = VD_wing.YA2[half_l:sec_end]
-        Lwing.YB1 = VD_wing.YB1[half_l:sec_end]
-        Lwing.YB2 = VD_wing.YB2[half_l:sec_end]
-        Lwing.ZA1 = VD_wing.ZA1[half_l:sec_end]
-        Lwing.ZA2 = VD_wing.ZA2[half_l:sec_end]
-        Lwing.ZB1 = VD_wing.ZB1[half_l:sec_end]
-        Lwing.ZB2 = VD_wing.ZB2[half_l:sec_end]
+        Lwing.XA1 = VD_wing.XA1[half_l:sec_end] + origin_offset[0]
+        Lwing.XA2 = VD_wing.XA2[half_l:sec_end] + origin_offset[0]
+        Lwing.XB1 = VD_wing.XB1[half_l:sec_end] + origin_offset[0]
+        Lwing.XB2 = VD_wing.XB2[half_l:sec_end] + origin_offset[0]
+        Lwing.YA1 = VD_wing.YA1[half_l:sec_end] + origin_offset[1]
+        Lwing.YA2 = VD_wing.YA2[half_l:sec_end] + origin_offset[1]
+        Lwing.YB1 = VD_wing.YB1[half_l:sec_end] + origin_offset[1]
+        Lwing.YB2 = VD_wing.YB2[half_l:sec_end] + origin_offset[1]
+        Lwing.ZA1 = VD_wing.ZA1[half_l:sec_end] + origin_offset[2]
+        Lwing.ZA2 = VD_wing.ZA2[half_l:sec_end] + origin_offset[2]
+        Lwing.ZB1 = VD_wing.ZB1[half_l:sec_end] + origin_offset[2]
+        Lwing.ZB2 = VD_wing.ZB2[half_l:sec_end] + origin_offset[2]
 
         R_Results = deepcopy(Results)
         L_Results = deepcopy(Results)
@@ -114,6 +114,20 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
     else:
         n_cw = VD.n_cw[0]
         n_sw = VD.n_sw[0]
+        
+        VD_wing.XA1 += origin_offset[0]
+        VD_wing.XA2 += origin_offset[0]
+        VD_wing.XB1 += origin_offset[0]
+        VD_wing.XB2 += origin_offset[0]
+        VD_wing.YA1 += origin_offset[1]
+        VD_wing.YA2 += origin_offset[1]
+        VD_wing.YB1 += origin_offset[1]
+        VD_wing.YB2 += origin_offset[1]
+        VD_wing.ZA1 += origin_offset[2]
+        VD_wing.ZA2 += origin_offset[2]
+        VD_wing.ZB1 += origin_offset[2]
+        VD_wing.ZB2 += origin_offset[2]
+        
         n_cp = n_cw*n_sw
         sep  = filename.rfind('.')
         file = filename[0:sep]+"_t"+str(time_step)+filename[sep:]
