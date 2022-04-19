@@ -78,7 +78,4 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
             break
     
         
-    # save converged wake:
-    WD  = generate_fidelity_one_wake_shape(wake,rotor)
-    
     return WD, va, vt

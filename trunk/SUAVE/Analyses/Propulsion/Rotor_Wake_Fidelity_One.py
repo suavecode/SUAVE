@@ -56,7 +56,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
         self.tag                        = 'rotor_wake'
         self.wake_method                = 'Fidelity_One'
-        self.wake_vortex_distribution   = Data()
+        self.vortex_distribution        = Data()
         self.wake_method_fidelity       = 0
         self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
         self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
@@ -73,7 +73,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # flags for slipstream interaction
         self.slipstream                 = False
-        self.verbose                    = True
+        self.verbose                    = False
         
     def initialize(self,rotor,conditions):
         """
@@ -156,7 +156,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             
         return va, vt
     
-    def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
+    def evaluate_slipstream(self,rotor,geometry,ctrl_pts):
         """
         Evaluates the velocities induced by the rotor on a specified wing of the vehicle.
         If no wing instance is specified, uses main wing or last available wing in geometry.
@@ -178,8 +178,15 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         Properties Used:
         None
         """
-        # Check for wing if wing instance is unspecified
-        if wing_instance == None:
+        # Check if any wings are specified as interaction components
+        try:
+            wing_instance_tags = self.interaction_components
+        except:
+            wing_instance_tags=None
+            
+            
+        # If no wing is specified, default to the main wing
+        if wing_instance_tags == None:
             nmw = 0
             # check for main wing
             for i,wing in enumerate(geometry.wings):
@@ -188,24 +195,50 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 wing_instance = wing
                 wing_instance_idx = i
             if nmw == 1:
+                print("No wing specified for slipstream analysis. Using '"+ wing_instance.tag +"'.")
                 pass
             elif nmw>1:
-                print("No wing specified for slipstream analysis. Multiple main wings in vehicle, using the last one.")
+                print("No wing specified for slipstream analysis. Multiple main wings in vehicle, using '"+ wing_instance.tag +"'.")             
             else:
-                print("No wing specified for slipstream analysis. No main wing defined, using the last wing in vehicle.")
+                print("No wing specified for slipstream analysis. No main wing defined, using '"+ wing.tag +"'.")
                 wing_instance = wing 
-                wing_instance_idx = i
-        
-        # Isolate the VD components corresponding to this wing instance
-        wing_CPs, slipstream_vd_ids = extract_wing_collocation_points(geometry, wing_instance_idx)
-        
-        # Evaluate rotor slipstream effect on specified wing instance
-        rot_V_wake_ind = self.evaluate_wake_velocities(rotor, wing_CPs, ctrl_pts)
-        
-        # Expand
-        wake_V_ind = np.zeros((ctrl_pts,geometry.vortex_distribution.n_cp,3))
-        wake_V_ind[:,slipstream_vd_ids,:] = rot_V_wake_ind
-        
+                
+                
+            # Isolate the VD components corresponding to this wing instance
+            wing_CPs, slipstream_vd_ids = extract_wing_collocation_points(geometry, wing_instance_idx)
+            
+            # Evaluate rotor slipstream effect on specified wing instance
+            rot_V_wake_ind = self.evaluate_wake_velocities(rotor, wing_CPs, ctrl_pts)
+            
+            # Expand
+            wake_V_ind = np.zeros((ctrl_pts,geometry.vortex_distribution.n_cp,3))
+            wake_V_ind[:,slipstream_vd_ids,:] = rot_V_wake_ind  
+            
+        else:
+            #Check for VLM_wings to include control surfaces
+            if "VLM_wings" in geometry.vortex_distribution.keys():
+                wings = geometry.vortex_distribution.VLM_wings
+            else:
+                wings = geometry.wings
+    
+            # Initialize influences            
+            rot_V_wake_ind = []
+            wake_V_ind = np.zeros((ctrl_pts,geometry.vortex_distribution.n_cp,3))
+            for i,w in enumerate(wings):
+                
+                if w.tag in wing_instance_tags:
+                    wing_instance_idx = i     
+                    
+                    # Isolate the VD components corresponding to this wing instance
+                    wing_CPs, slipstream_vd_ids = extract_wing_collocation_points(geometry, wing_instance_idx)
+                   
+                    if self.verbose:
+                        print("Computing effect of '"+rotor.tag+"' on '"+w.tag+"'.")
+                    # Evaluate rotor slipstream effect on specified wing instance
+                    rot_V_wake_ind = self.evaluate_wake_velocities(rotor, wing_CPs, ctrl_pts)
+                    
+                    # Add effects
+                    wake_V_ind[:,slipstream_vd_ids,:] += rot_V_wake_ind                    
             
         return wake_V_ind 
     
@@ -237,7 +270,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
     
         # compute the induced velocity from the rotor wake on the lifting surfaces
         VD.Wake         = wake_vortex_distribution
-        rot_V_wake_ind  = compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts)        
+        start_angle_idx = rotor.start_angle_idx
+        rot_V_wake_ind  = compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts,azi_start_idx=start_angle_idx)        
         
         return rot_V_wake_ind
     
