@@ -228,11 +228,6 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
             
         save_wing_vtk(vehicle, wings[wing_names[i]], VLM_settings, file, Results,time_step,origin_offset)
         
-        if conditions != None:
-            # evaluate vortex strengths and same vortex distribution
-            VLM_outputs   = VLM(conditions, VLM_settings, vehicle) 
-            gamma         = VLM_outputs.gamma
-            save_vortex_distribution_vtk(vehicle,conditions,VD,gamma,vehicle.wings[wing_names[i]], file2, time_step)
 
     #------------------------------
     # Save fuselage results to vtk
