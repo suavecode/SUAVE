@@ -17,7 +17,7 @@ import numpy as np
 # Fuselage VTK generation
 #------------------------------
 ## @ingroup Input_Output-VTK
-def save_fuselage_vtk(vehicle, filename, Results):
+def save_fuselage_vtk(vehicle, filename, Results, origin_offset):
     """
     Saves a SUAVE fuselage object as a VTK in legacy format.
 
@@ -45,7 +45,7 @@ def save_fuselage_vtk(vehicle, filename, Results):
         if num_fus_segs == 0:
             print("No fuselage segments found!")
         else:
-            write_fuselage_data(fus_pts,filename)
+            write_fuselage_data(fus_pts,filename,origin_offset)
 
     return
 
@@ -86,7 +86,7 @@ def generate_fuselage_points(fus ,tessellation = 24 ):
 # Writing fuselage data
 #------------------------------
 ## @ingroup Input_Output-VTK
-def write_fuselage_data(fus_pts,filename):
+def write_fuselage_data(fus_pts,filename,origin_offset):
     """
     Writes data for a SUAVE fuselage object as a VTK in legacy format.
 
@@ -133,9 +133,9 @@ def write_fuselage_data(fus_pts,filename):
         for r in range(n_r):
             for a in range(n_a):
 
-                xp = round(fus_pts[r,a,0],4)
-                yp = round(fus_pts[r,a,1],4)
-                zp = round(fus_pts[r,a,2],4)
+                xp = round(fus_pts[r,a,0],4) + origin_offset[0]
+                yp = round(fus_pts[r,a,1],4) + origin_offset[1]
+                zp = round(fus_pts[r,a,2],4) + origin_offset[2]
 
                 new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
                 f.write(new_point)

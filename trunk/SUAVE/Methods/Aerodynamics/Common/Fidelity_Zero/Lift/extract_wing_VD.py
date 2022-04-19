@@ -42,7 +42,7 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
     VD_wing  = Data()       
     semispan_idx = wing_instance_idx + np.sum(sym[0:wing_instance_idx])
     id_start = span_breaks[semispan_idx]
-    id_end   = span_breaks[semispan_idx + 1 + sym[wing_instance_idx]]
+    id_end   = id_start + (1+sym[wing_instance_idx])*VD.n_sw[semispan_idx]
     
     ids      = range(semispan_idx, semispan_idx + 1 + sym[wing_instance_idx])
     n_cw     = VD.n_cw[ids]

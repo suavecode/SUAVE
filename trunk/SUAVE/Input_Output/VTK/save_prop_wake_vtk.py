@@ -8,7 +8,7 @@ from SUAVE.Core import Data
 import numpy as np
 
 ## @ingroup Input_Output-VTK
-def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx,rot=-1):
+def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx,origin_offset,rot=-1):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
@@ -61,32 +61,32 @@ def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx,rot=-1):
         
         if rot ==1:
             # Flip around to use A's as right-side of panel, 1=LE, 2=TE
-            XA2 = wVD.XB2 # bottom left corner of panel
-            XB2 = wVD.XA2 # bottom right corner of panel
-            XA1 = wVD.XB1 # top left corner of panel
-            XB1 = wVD.XA1 # top right corner of panel    
-            YA2 = wVD.YB2 # bottom left corner of panel
-            YB2 = wVD.YA2 # bottom right corner of panel
-            YA1 = wVD.YB1 # top left corner of panel
-            YB1 = wVD.YA1 # top right corner of panel   
-            ZA2 = wVD.ZB2 # bottom left corner of panel
-            ZB2 = wVD.ZA2 # bottom right corner of panel
-            ZA1 = wVD.ZB1 # top left corner of panel
-            ZB1 = wVD.ZA1 # top right corner of panel               
+            XA2 = wVD.XB2  + origin_offset[0]  # bottom left corner of panel
+            XB2 = wVD.XA2  + origin_offset[0]  # bottom right corner of panel
+            XA1 = wVD.XB1  + origin_offset[0]  # top left corner of panel
+            XB1 = wVD.XA1  + origin_offset[0]  # top right corner of panel    
+            YA2 = wVD.YB2  + origin_offset[1]  # bottom left corner of panel
+            YB2 = wVD.YA2  + origin_offset[1]  # bottom right corner of panel
+            YA1 = wVD.YB1  + origin_offset[1]  # top left corner of panel
+            YB1 = wVD.YA1  + origin_offset[1]  # top right corner of panel   
+            ZA2 = wVD.ZB2  + origin_offset[2]  # bottom left corner of panel
+            ZB2 = wVD.ZA2  + origin_offset[2]  # bottom right corner of panel
+            ZA1 = wVD.ZB1  + origin_offset[2]  # top left corner of panel
+            ZB1 = wVD.ZA1  + origin_offset[2]  # top right corner of panel               
         else:
             # Use B's as rightmost panel
-            XA2 = wVD.XA2 # bottom left corner of panel
-            XB2 = wVD.XB2 # bottom right corner of panel
-            XA1 = wVD.XA1 # top left corner of panel
-            XB1 = wVD.XB1 # top right corner of panel    
-            YA2 = wVD.YA2 # bottom left corner of panel
-            YB2 = wVD.YB2 # bottom right corner of panel
-            YA1 = wVD.YA1 # top left corner of panel
-            YB1 = wVD.YB1 # top right corner of panel   
-            ZA2 = wVD.ZA2 # bottom left corner of panel
-            ZB2 = wVD.ZB2 # bottom right corner of panel
-            ZA1 = wVD.ZA1 # top left corner of panel
-            ZB1 = wVD.ZB1 # top right corner of panel              
+            XA2 = wVD.XA2  + origin_offset[0]   # bottom left corner of panel
+            XB2 = wVD.XB2  + origin_offset[0]   # bottom right corner of panel
+            XA1 = wVD.XA1  + origin_offset[0]   # top left corner of panel
+            XB1 = wVD.XB1  + origin_offset[0]   # top right corner of panel    
+            YA2 = wVD.YA2  + origin_offset[1]   # bottom left corner of panel
+            YB2 = wVD.YB2  + origin_offset[1]   # bottom right corner of panel
+            YA1 = wVD.YA1  + origin_offset[1]   # top left corner of panel
+            YB1 = wVD.YB1  + origin_offset[1]   # top right corner of panel   
+            ZA2 = wVD.ZA2  + origin_offset[2]   # bottom left corner of panel
+            ZB2 = wVD.ZB2  + origin_offset[2]   # bottom right corner of panel
+            ZA1 = wVD.ZA1  + origin_offset[2]   # top left corner of panel
+            ZB1 = wVD.ZB1  + origin_offset[2]   # top right corner of panel              
            
         
         # Loop over number of rotor blades
