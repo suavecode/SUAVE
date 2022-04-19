@@ -693,4 +693,4 @@ def calculate_VLM(conditions,settings,geometry):
             wing_induced_angle[wing.tag] = alpha_i[i]
         i+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, wing_induced_angle, CPi,CYMTOT,CRMTOT, CM
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, wing_induced_angle, CPi,CYMTOT,CRMTOT, CM, results

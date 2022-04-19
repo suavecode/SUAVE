@@ -27,7 +27,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                       time_step=0,origin_offset=np.array([0.,0.,0.]),VLM_settings=None, 
                       prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                       wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", 
-                      fuselage_filename="fuselage.vtk", nacelle_filename="nacelle.vtk", save_loc=None):
+                      fuselage_filename="fuselage.vtk", nacelle_filename="nacelle.vtk", save_loc=None, verbose=False):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
 
@@ -74,14 +74,16 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
     #---------------------------
     for network in vehicle.networks:
         try:
-            print("Attempting to save propeller.")
+            if verbose:
+                print("Attempting to save propeller.")
             propellers = network.propellers
             try:
                 n_props = int(network.number_of_propeller_engines)
             except:
                 n_props   = int(network.number_of_engines)
         except:
-            print("No propellers.")
+            if verbose:
+                print("No propellers.")
             n_props = 0
 
         if n_props>0:
@@ -135,14 +137,16 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 
                     
         try:
-            print("Attempting to save rotor.")
+            if verbose:
+                print("Attempting to save rotor.")
             lift_rotors = network.lift_rotors
             if network.number_of_lift_rotor_engines is not None:
                 n_rots = int(network.number_of_lift_rotor_engines)
             else:
                 n_rots = 0
         except:
-            print("No lift rotors.")
+            if verbose:
+                print("No lift rotors.")
             n_rots = 0
 
 

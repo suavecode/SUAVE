@@ -32,7 +32,12 @@ def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
     # Extract wake properties of the ith propeller
     xp = points.XC
     yp = points.YC
-    zp = points.ZC        
+    zp = points.ZC   
+    
+    try:
+        data = points.data
+    except:
+        data = None
     
     try:
         velocities = points.induced_velocities
@@ -41,7 +46,6 @@ def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
         vr = velocities.vt*0
         wake=True
     except:
-        print("No velocities specified at evaluation points.")
         wake=False
     
     # Create file
@@ -82,6 +86,14 @@ def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
         for i in range(len(xp)):
             f.write("\n"+str(i))      
             
+        if data is not None:
+            # For each scalar element in d, write the scalar value
+            for d in data.keys():
+                # more scalar values for each data elemenet
+                f.write("\nSCALARS "+d+" float")
+                f.write("\nLOOKUP_TABLE default")   
+                f.write("\n"+str(data[d]))
+                
         
         if wake:
             # Second scalar value
