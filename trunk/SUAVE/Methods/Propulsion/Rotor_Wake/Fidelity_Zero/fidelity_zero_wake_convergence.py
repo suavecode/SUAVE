@@ -7,6 +7,8 @@
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 import numpy as np
 import scipy as sp
+import jax.numpy as jnp
+from jax import jacobian, jit, lax
 import copy
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
@@ -49,16 +51,19 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
         PSI    = np.ones((ctrl_pts,Nr,Na))
     else:
         PSI     = np.ones((ctrl_pts,Nr))
+        
 
-    PSI_final,infodict,ier,msg = sp.optimize.fsolve(iteration,PSI,args=(wake_inputs,rotor),full_output = 1)
+    jit_jac = jit(jacobian(iteration))
+    jit_it  = jit(iteration)
+
+    PSI_final, infodict, ier, msg = sp.optimize.fsolve(jit_it,PSI,fprime=jit_jac,args=(wake_inputs,rotor),full_output = 1)
     
     if ier!=1:
         print("Rotor BEVW did not converge to a solution (Stall)")
     
     # Calculate the velocities given PSI
-    va, vt = va_vt(PSI_final, wake_inputs, rotor)
+    va, vt = va_vt(np.array(PSI_final), wake_inputs, rotor)
 
-    
     return va, vt
 
 
@@ -116,14 +121,14 @@ def iteration(PSI, wake_inputs, rotor):
     cd_sur   = rotor.airfoil_cd_surrogates    
     
     # Reshape PSI because the solver gives it flat
-    if wake_inputs.use_2d_analysis:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
-    else:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr))
+    
+    PSI = lax.cond(use_2d_analysis,
+                   lambda _: jnp.reshape(PSI,(ctrl_pts,Nr,Na)),
+                   lambda _: jnp.reshape(PSI,(ctrl_pts,Nr)))
     
     # compute velocities
-    sin_psi      = np.sin(PSI)
-    cos_psi      = np.cos(PSI)
+    sin_psi      = jnp.sin(PSI)
+    cos_psi      = jnp.cos(PSI)
     Wa           = 0.5*Ua + 0.5*U*sin_psi
     Wt           = 0.5*Ut + 0.5*U*cos_psi
     vt           = Ut - Wt
@@ -195,59 +200,59 @@ def va_vt(PSI, wake_inputs, rotor):
 
     return va, vt
 
-## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
-    """
-    Computes the analytical derivative for the BEVW iteration.
+### @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+#def compute_dR_dpsi(B,beta,r,R,Wt,Wa,U,Ut,Ua,cos_psi,sin_psi,piece):
+    #"""
+    #Computes the analytical derivative for the BEVW iteration.
 
-    Assumptions:
-    N/A
+    #Assumptions:
+    #N/A
 
-    Source:
-    N/A
+    #Source:
+    #N/A
 
-    Inputs:
-       B                          number of rotor blades                          [-]
-       beta                       blade twist distribution                        [-]
-       r                          radius distribution                             [m]
-       R                          tip radius                                      [m]
-       Wt                         tangential velocity                             [m/s]
-       Wa                         axial velocity                                  [m/s]
-       U                          total velocity                                  [m/s]
-       Ut                         tangential velocity                             [m/s]
-       Ua                         axial velocity                                  [m/s]
-       cos_psi                    cosine of the inflow angle PSI                  [-]
-       sin_psi                    sine of the inflow angle PSI                    [-]
-       piece                      output of a step in tip loss calculation        [-]
+    #Inputs:
+       #B                          number of rotor blades                          [-]
+       #beta                       blade twist distribution                        [-]
+       #r                          radius distribution                             [m]
+       #R                          tip radius                                      [m]
+       #Wt                         tangential velocity                             [m/s]
+       #Wa                         axial velocity                                  [m/s]
+       #U                          total velocity                                  [m/s]
+       #Ut                         tangential velocity                             [m/s]
+       #Ua                         axial velocity                                  [m/s]
+       #cos_psi                    cosine of the inflow angle PSI                  [-]
+       #sin_psi                    sine of the inflow angle PSI                    [-]
+       #piece                      output of a step in tip loss calculation        [-]
 
-    Outputs:
-       dR_dpsi                    derivative of residual wrt inflow angle         [-]
+    #Outputs:
+       #dR_dpsi                    derivative of residual wrt inflow angle         [-]
 
-    """
-    # An analytical derivative for dR_dpsi used in the Newton iteration for the BEVW
-    # This was solved symbolically in Matlab and exported
-    pi          = np.pi
-    pi2         = np.pi**2
-    BB          = B*B
-    BBB         = BB*B
-    f_wt_2      = 4*Wt*Wt
-    f_wa_2      = 4*Wa*Wa
-    arccos_piece = np.arccos(piece)
-    Ucospsi     = U*cos_psi
-    Usinpsi     = U*sin_psi
-    Utcospsi    = Ut*cos_psi
-    Uasinpsi    = Ua*sin_psi
-    UapUsinpsi  = (Ua + Usinpsi)
-    utpUcospsi  = (Ut + Ucospsi)
-    utpUcospsi2 = utpUcospsi*utpUcospsi
-    UapUsinpsi2 = UapUsinpsi*UapUsinpsi
-    dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B -
-                   (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
-                   + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
-                   - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. -
-                    (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R -
-                    r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U +
-                    Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5)))
+    #"""
+    ## An analytical derivative for dR_dpsi used in the Newton iteration for the BEVW
+    ## This was solved symbolically in Matlab and exported
+    #pi          = np.pi
+    #pi2         = np.pi**2
+    #BB          = B*B
+    #BBB         = BB*B
+    #f_wt_2      = 4*Wt*Wt
+    #f_wa_2      = 4*Wa*Wa
+    #arccos_piece = np.arccos(piece)
+    #Ucospsi     = U*cos_psi
+    #Usinpsi     = U*sin_psi
+    #Utcospsi    = Ut*cos_psi
+    #Uasinpsi    = Ua*sin_psi
+    #UapUsinpsi  = (Ua + Usinpsi)
+    #utpUcospsi  = (Ut + Ucospsi)
+    #utpUcospsi2 = utpUcospsi*utpUcospsi
+    #UapUsinpsi2 = UapUsinpsi*UapUsinpsi
+    #dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B -
+                   #(pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
+                   #+ (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
+                   #- (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. -
+                    #(Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R -
+                    #r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U +
+                    #Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5)))
 
-    dR_dpsi[np.isnan(dR_dpsi)] = 0.1
-    return dR_dpsi
+    #dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+    #return dR_dpsi
