@@ -92,7 +92,6 @@ class Rotor(Energy_Component):
         
         self.start_angle               = 0.0      # angle of first blade from vertical
         self.inputs.y_axis_rotation    = 0.
-
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
         
@@ -190,7 +189,6 @@ class Rotor(Energy_Component):
         use_2d_analysis       = self.use_2d_analysis
         pitch_c               = self.inputs.pitch_command
         
-        
         # 2d analysis required for wake fid1
         if isinstance(self.Wake, Rotor_Wake_Fidelity_One):
             use_2d_analysis=True
@@ -210,6 +208,10 @@ class Rotor(Energy_Component):
         rho_0   = rho
         T_0     = T
 
+        # Number of radial stations and segment control points
+        Nr       = len(c)
+        ctrl_pts = len(Vv)
+        
         # Helpful shorthands
         pi      = np.pi
 
@@ -221,16 +223,13 @@ class Rotor(Energy_Component):
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
         body2thrust     = self.body_to_prop_vel()
+        
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body)
 
         # Check and correct for hover
         V         = V_thrust[:,0,None]
         V[V==0.0] = 1E-6
-
-        # Number of radial stations and segment control points
-        Nr       = len(c)
-        ctrl_pts = len(Vv)
 
         # Non-dimensional radial distribution and differential radius
         chi           = r_1d/R
@@ -604,7 +603,11 @@ class Rotor(Energy_Component):
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
-        rots    = np.array(self.orientation_euler_angles) * 1. 
+        cpts       = len(np.atleast_1d(self.inputs.y_axis_rotation))
+        rots       = np.array(self.orientation_euler_angles) * 1.
+        rots       = np.repeat(rots[None,:], cpts, axis=0)
+        rots[:,1] += np.atleast_2d(self.inputs.y_axis_rotation)[:,0]
+        
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
 
         # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
