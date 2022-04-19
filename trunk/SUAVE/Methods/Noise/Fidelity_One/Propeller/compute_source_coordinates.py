@@ -50,10 +50,12 @@ def compute_point_source_coordinates(conditions,rotors,mls,settings):
     prop2body   = rotor.prop_vel_to_body()
 
     # [control point, microphone , propeller , 2D geometry matrix ]
-    # rotation of propeller about y axis by thurst angle (one extra dimension for translations)
-    rotation_1                = np.zeros((num_cpt,num_mic,num_rot,4,4))
-    rotation_1[:,:,:,0:3,0:3] = prop2body   
-    rotation_1[:,:,:,3,3]     = 1     
+    # rotation of propeller about y axis by thrust angle (one extra dimension for translations)
+    rotation_1            = np.zeros((num_cpt,4,4))
+    rotation_1[:,0:3,0:3] = prop2body   
+    rotation_1[:,3,3]     = 1     
+    rotation_1            = np.repeat(rotation_1[:,None,:,:], num_rot, axis=1)
+    rotation_1            = np.repeat(rotation_1[:,None,:,:,:], num_mic, axis=1)
 
     # translation to location on propeller
     I                         = np.atleast_3d(np.eye(4)).T

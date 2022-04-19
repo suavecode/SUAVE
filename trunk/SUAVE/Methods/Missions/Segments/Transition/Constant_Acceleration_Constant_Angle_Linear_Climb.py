@@ -14,6 +14,7 @@ def initialize_conditions(segment):
 
     Assumptions:
     Constant acceleration and constant altitude
+    Velocities specified in the aircraft velocity frame (x-forward, z-down)
 
     Source:
     N/A
@@ -87,8 +88,8 @@ def initialize_conditions(segment):
     
     # Figure out vx
     V  = (vf_mag-v0_mag) 
-    vx = t_nondim *  V  * np.cos(climb_angle) + v0 * np.cos(climb_angle) 
-    vz = t_nondim *  V  * np.sin(climb_angle) + v0 * np.sin(climb_angle)  
+    vx = t_nondim *  V  * np.cos(climb_angle) + v0[0] * np.cos(climb_angle) 
+    vz = t_nondim *  V  * np.sin(climb_angle) + v0[2] * np.sin(climb_angle)  
     
     # set the body angle
     body_angle =time*(Tf-T0)/(t_final-t_initial) + T0

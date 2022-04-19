@@ -281,7 +281,6 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.base )
     segment.altitude_start                              = 40.0 * Units.ft
     segment.altitude_end                                = 50.0 * Units.ft
-    segment.air_speed                                   = 0.8 * Vstall
     segment.climb_angle                                 = 1 * Units.degrees
     segment.acceleration                                = 0.5 * Units['m/s/s']
     segment.pitch_initial                               = 5. * Units.degrees

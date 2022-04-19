@@ -16,7 +16,7 @@ import copy
 from SUAVE.Plots.Geometry.plot_vehicle import get_blade_coordinates
 
 ## @ingroup Input_Output-VTK
-def save_prop_vtk(prop, filename, Results, time_step):
+def save_prop_vtk(prop, filename, Results, time_step, origin_offset):
     """
     Saves a SUAVE propeller object as a VTK in legacy format.
 
@@ -99,9 +99,9 @@ def save_prop_vtk(prop, filename, Results, time_step):
             # Loop over all nodes
             for r_idx in range(n_r):
                 for c_idx in range(n_af):
-                    xp = round(G.X[r_idx,c_idx],4)
-                    yp = round(G.Y[r_idx,c_idx],4)
-                    zp = round(G.Z[r_idx,c_idx],4)
+                    xp = round(G.X[0,r_idx,c_idx],4) + origin_offset[0]
+                    yp = round(G.Y[0,r_idx,c_idx],4) + origin_offset[1]
+                    zp = round(G.Z[0,r_idx,c_idx],4) + origin_offset[2]
 
                     new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
                     f.write(new_point)

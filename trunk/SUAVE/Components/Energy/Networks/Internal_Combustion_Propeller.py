@@ -49,11 +49,11 @@ class Internal_Combustion_Propeller(Network):
             Properties Used:
             N/A
         """        
-        self.engines              = Container()
-        self.propellers           = Container()
-        self.engine_length        = None
-        self.number_of_engines    = None
-        self.identical_propellers = True
+        self.engines                   = Container()
+        self.propellers                = Container()
+        self.engine_length             = None
+        self.number_of_engines         = None
+        self.identical_propellers      = True
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -142,6 +142,7 @@ class Internal_Combustion_Propeller(Network):
             conditions.propulsion.disc_loading[:,ii]       = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
             conditions.propulsion.power_loading[:,ii]      = (F_mag[:,0])/(P[:,0])      # N/W   
             conditions.propulsion.propeller_efficiency     = etap[:,0]
+            conditions.propulsion.figure_of_merit          = outputs.figure_of_merit[:,0]
             
             conditions.noise.sources.propellers[prop.tag]  = outputs
 
@@ -150,8 +151,9 @@ class Internal_Combustion_Propeller(Network):
         conditions.propulsion.power = total_power
         
         results = Data()
-        results.thrust_force_vector = total_thrust
-        results.vehicle_mass_rate   = mdot
+        results.thrust_force_vector       = total_thrust
+        results.vehicle_mass_rate         = mdot
+        results.network_y_axis_rotation   = state.ones_row(1) * 0.0
         
         return results
     
@@ -265,6 +267,7 @@ class Internal_Combustion_Propeller(Network):
         segment.state.conditions.propulsion.power_loading          = 0. * ones_row(n_props)    
         segment.state.conditions.propulsion.propeller_tip_mach     = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_efficiency   = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.figure_of_merit        = 0. * ones_row(n_props)
         
 
         # Ensure the mission knows how to pack and unpack the unknowns and residuals

@@ -84,14 +84,14 @@ def regress_1a(results, configs):
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       = 0.4376824540411817
-    sectional_lift_coeff_true   = np.array([ 4.41918141e-01,  3.93826079e-01,  3.57544475e-01,  3.00916953e-01,
-                                             5.79957579e-02,  4.41918156e-01,  3.93826087e-01,  3.57544519e-01,
-                                             3.00917150e-01,  5.79957818e-02, -7.86775230e-02, -7.55998225e-02,
-                                            -6.69811421e-02, -5.08736530e-02, -3.04987429e-02, -7.86775380e-02,
-                                            -7.55998465e-02, -6.69811824e-02, -5.08737077e-02, -3.04987532e-02,
-                                            -1.97703006e-15, -7.67234643e-16, -5.67115097e-16, -4.37274419e-16,
-                                            -2.80981158e-16])
+    lift_coefficient_true       = 0.6021342379985749
+    sectional_lift_coeff_true   = np.array([ 5.77234192e-01,  5.23424701e-01,  4.85117608e-01,  4.19066081e-01,
+                                             8.17527532e-02,  5.77234189e-01,  5.23424707e-01,  4.85117732e-01,
+                                             4.19066382e-01,  8.17527978e-02,  3.46155791e-03,  1.86978089e-03,
+                                             5.24101436e-04,  6.01240333e-04,  6.29838507e-04,  3.46156312e-03,
+                                             1.86978968e-03,  5.24113979e-04,  6.01256772e-04,  6.29846414e-04,
+                                             3.70758346e-16, -3.20030721e-16, -3.68491317e-16, -3.00336901e-16,
+                                            -1.90343233e-16])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -112,19 +112,19 @@ def regress_1a(results, configs):
     return
 
 def regress_1b(results, configs):
-    # Regression for Stopped Rotor Test (using Fidelity Zero wake model)
+    # Regression for Stopped Rotor Test (using Fidelity One wake model)
     lift_coefficient            = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       = 0.4375488183038649
-    sectional_lift_coeff_true   = np.array([ 4.40783757e-01,  3.58418562e-01,  3.53731760e-01,  3.05377937e-01,
-                                             5.87221694e-02,  4.49249431e-01,  3.95108678e-01,  3.67248531e-01,
-                                             3.11383276e-01,  5.98984459e-02, -6.58338027e-02, -6.26213368e-02,
-                                            -5.53134061e-02, -4.11543787e-02, -2.42887821e-02, -7.24163428e-02,
-                                            -7.02015173e-02, -6.15927784e-02, -4.62903782e-02, -2.76006293e-02,
-                                             3.50584012e-07,  1.98446996e-09,  1.57066442e-09,  4.03406510e-09,
-                                             2.45046628e-09])
+    lift_coefficient_true       = 0.6020071656425107
+    sectional_lift_coeff_true   = np.array([5.75876551e-01, 5.01920673e-01, 4.82777380e-01, 4.20984308e-01,
+                                            8.19140852e-02, 5.81700844e-01, 5.26612869e-01, 4.91430415e-01,
+                                            4.24659492e-01, 8.26413607e-02, 1.02991812e-02, 8.89869082e-03,
+                                            6.82582945e-03, 5.86520719e-03, 4.00088557e-03, 5.80596026e-03,
+                                            3.70587430e-03, 2.51726549e-03, 2.34955563e-03, 1.73816232e-03,
+                                            4.34284999e-07, 2.40473125e-09, 1.90738864e-09, 4.83668119e-09,
+                                            2.92287821e-09])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -385,7 +385,7 @@ def X57_mission_setup(analyses,vehicle):
     segment.analyses.extend(analyses.base)
     segment.battery_energy            = vehicle.networks[net_tag].battery.max_energy* 0.7
     segment.altitude                  = 8012 * Units.feet
-    segment.air_speed                 = 135. * Units['mph']
+    segment.air_speed                 = 115. * Units['mph']
     segment.distance                  = 20.  * Units.nautical_mile
     segment.state.unknowns.throttle   = 0.85 * ones_row(1)
 

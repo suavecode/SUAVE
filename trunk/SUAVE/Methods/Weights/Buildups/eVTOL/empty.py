@@ -229,30 +229,23 @@ def empty(config,
             rots          = network.lift_rotors
             prop_motors   = network.propeller_motors
             rot_motors    = network.lift_rotor_motors
-
+            
+            nProps  = int(nLiftRotors + nThrustProps)
 
         elif isinstance(network, Battery_Propeller):
             # Total number of rotors and propellers
+            nProps = network.number_of_propeller_engines
+            props  = network.propellers
+            prop_motors = network.propeller_motors
             
-            if network.number_of_lift_rotor_engines == None:
-                nLiftRotors = 0 
-            else:
-                nLiftRotors   = network.number_of_lift_rotor_engines
-                rots          = network.lift_rotors
-                rot_motors    = network.lift_rotor_motors
-                
-            if  network.number_of_propeller_engines == None:
-                nThrustProps  = 0
-            else:
-                nThrustProps  = network.number_of_propeller_engines 
-                props         = network.propellers
-                prop_motors   = network.propeller_motors 
+            nThrustProps  = nProps
+            nLiftRotors   = 0
 
         else:
             raise NotImplementedError("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
             Weight buildup will not return information on propulsion system.""",RuntimeWarning)
 
-        nProps  = int(nLiftRotors + nThrustProps)
+        
         if nProps > 1:
             prop_BRS_weight     = 16.   * Units.kg
         else:
