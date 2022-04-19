@@ -3,6 +3,7 @@
 #
 # Created:   Feb 2022, R. Erhard
 # Modified:  Mar 2022, R. Erhard
+#            Apr 2022, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -36,23 +37,26 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
     """
     # unpack vortex distribution properties
     VD           = geometry.vortex_distribution
-    span_breaks  = VD.spanwise_breaks
     sym          = VD.symmetric_wings
     
-    VD_wing  = Data()       
-    semispan_idx = wing_instance_idx + np.sum(sym[0:wing_instance_idx])
-    id_start = span_breaks[semispan_idx]
-    id_end   = id_start + (1+sym[wing_instance_idx])*VD.n_sw[semispan_idx]
+    # Find the beginning and end indices of the wing
+    # all breaks
+    breaks = np.hstack([0,np.cumsum(VD.n_cw*VD.n_sw)])
     
-    ids      = range(semispan_idx, semispan_idx + 1 + sym[wing_instance_idx])
-    n_cw     = VD.n_cw[ids]
+    # Find the initial index of the wing
+    semispan_idx     = wing_instance_idx + np.sum(sym[0:wing_instance_idx])
+    start_pt         = breaks[semispan_idx]
+    
+    # Find the final index of the wing
+    end_semispan_idx = semispan_idx + 1 + sym[wing_instance_idx]
+    end_pt              = breaks[end_semispan_idx]
+    
+    # Make ranges of points
+    ids              = range(semispan_idx, end_semispan_idx)
+    pt_ids           = range(start_pt,end_pt)
 
-    if bool(sym[wing_instance_idx]):
-        pt_ids   = range(id_start*n_cw[0],id_end*n_cw[1])
-    else:
-        pt_ids   = range(id_start*n_cw[0],id_end*n_cw[0])
-        
-    
+    # Pack the wing level resultss
+    VD_wing  = Data()
     VD_wing.XC   = VD.XC[pt_ids]
     VD_wing.YC   = VD.YC[pt_ids]
     VD_wing.ZC   = VD.ZC[pt_ids]
