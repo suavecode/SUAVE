@@ -18,8 +18,31 @@ from scipy import interpolate
 from scipy.misc import derivative
 import numpy as np
 
-
+# ----------------------------------------------------------------------
+#  Lead calculation functions
+# ----------------------------------------------------------------------
+## @ingroup Methods-Cryogenics-Leads
 def Q_min(material, cold_temp, hot_temp, current):
+    """Calculate minimum electrical power
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+        material
+        cold_temp    [K]
+        hot_temp     [K]
+        current      [A]
+
+    Outputs:
+        power        [W]    
+
+    Properties Used:
+    N/A
+    """    
 
     # Estimate the area under the thermal:electrical conductivity vs temperature plot for the temperature range of the current lead.
     integral = integrate.quad(lambda T: material.thermal_conductivity(T)/material.electrical_conductivity(T), cold_temp, hot_temp)
@@ -29,21 +52,69 @@ def Q_min(material, cold_temp, hot_temp, current):
 
     # Solve the heat flux at the cold end. This is both the load on the cryocooler and the power loss in the current lead.
     minimum_Q = current * (2*average_ratio*(hot_temp-cold_temp))**0.5
+
     # This represents the special case where all the electrical power is delivered to the cryogenic environment as this optimised the lead for reduced cryogenic load. Q = electrical power
     power = minimum_Q
 
-    return [minimum_Q, power]
+    return power
 
 def LARatio( material, cold_temp, hot_temp, current, minimum_Q):
+    """Calculate the optimum length to cross-sectional area ratio
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+        material
+        cold_temp    [K]
+        hot_temp     [K]
+        current      [A]
+        minimum_Q    [W]
+
+    Outputs:
+        la_ratio
+
+    Properties Used:
+    N/A
+    """  
     # Calculate the optimum length to cross-sectional area ratio
     # Taken directly from McFee
     sigTL = material.electrical_conductivity(cold_temp)
-    inte = integrate.quad(lambda T: Q_min(material,T,hot_temp,current)[0]*derivative(material.electrical_conductivity,T), cold_temp, hot_temp)[0]
+    inte = integrate.quad(lambda T: Q_min(material,T,hot_temp,current)*derivative(material.electrical_conductivity,T), cold_temp, hot_temp)[0]
     la_ratio = (sigTL * minimum_Q + inte)/(current**2)
 
     return la_ratio
 
 def calc_current(Cryogenic_Lead, current):
+
+    """Estimates the heat flow into the cryogenic environment when a current other than the current the lead was optimised for is flowing. Assumes the temperature difference remains constant.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    Cryogenic_Lead. 
+        outputs.optimum_current     [A]
+        outputs.minimum_Q           [W]
+        outputs.unpowered_Q         [W]
+        cold_temp                   [K]
+        hot_temp                    [K]
+        outputs.cross_section       [m2]
+        length                      [m]
+        material
+
+    Outputs:
+        [lead cooling power, cryogenic loading due to lead]     [w,w]
+
+    Properties Used:
+    N/A
+    """  
 
     c_l = Cryogenic_Lead
 

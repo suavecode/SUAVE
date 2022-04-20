@@ -147,7 +147,6 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         # Calculate the power loss in the rotor current supply leads.
         # The cryogenic loading due to the leads is also calculated here.
 
-
         lead.inputs.current = rotor_currents
 
         lead_power = lead.Q_offdesign(conditions)[:,1]
@@ -175,18 +174,18 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         cryocooler_power = 0.0
         
         if cooling_share_cryocooler != 0.0:
-            cryocooler_load         = cooling_share_cryocooler * rotor_cryo_load
+            cryocooler_load                 = cooling_share_cryocooler * rotor_cryo_load
             cryocooler.inputs.cooling_power = cryocooler_load
-            cryocooler.inputs.cryo_temp  = rotor.temperature
-            cryocooler_power        = cryocooler.energy_calc(conditions)
+            cryocooler.inputs.cryo_temp     = rotor.temperature
+            cryocooler_power                = cryocooler.energy_calc(conditions)
 
         # Calculate the cryogen use required for cooling (if used)
         cryogen_mdot = 0.0
 
         if cooling_share_cryogen != 0.0:
-            cryogen_load            = cooling_share_cryogen * rotor_cryo_load
+            cryogen_load                         = cooling_share_cryogen * rotor_cryo_load
             heat_exchanger.inputs.cooling_power  = cryogen_load
-            cryogen_mdot            = heat_exchanger.energy_calc(conditions)
+            cryogen_mdot                         = heat_exchanger.energy_calc(conditions)
 
         # Sum all the power users to get the power required to be supplied by each powersupply, i.e. the turboelectric generators
         powersupply.inputs.power_in = (motor_power_in + esc_power + rotor_power_in + all_leads_power + all_ccs_power + cryocooler_power) / number_of_supplies

@@ -312,8 +312,6 @@ def energy_network():
     efan.hts_dynamo.rated_temp           = 77   #[K]
     efan.hts_dynamo.mass_properties.mass = 8.7 # [kg] Based on the Squirrel Cage HTS dynamo developed at Robinson Research Institute with eight HTS stators and four Nd-Fe-B permanent magnets.
 
-
-    
         # ------------------------------------------------------------------
     #  Component 7 -  HTS Dynamo speed controller
 

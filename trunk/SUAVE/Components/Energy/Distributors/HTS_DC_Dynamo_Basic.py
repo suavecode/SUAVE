@@ -49,7 +49,7 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             None
             """         
         
-        self.outputs.efficiency             =   0.0      # [W/W]
+        self.efficiency                     =   0.0      # [W/W]
         self.mass_properties.mass           =   0.0      # [kg] 
         self.rated_current                  =   0.0      # [A]
         self.rated_RPM                      =   0.0      # [RPM]
@@ -69,16 +69,20 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
                 N/A
 
             Inputs:
-                cryo_temp           [K]
-                current             [A]
-                power_out           [W]
+            self.inputs
+                hts_current     [A]
+                power_out       [W]
 
             Outputs:
+            self.outputs.
                 power_in            [W]
                 cryo_load           [W]
 
             Properties Used:
-                None
+            self. 
+                rated_current       [A]
+                efficiency          
+
         """
 
         hts_current = self.inputs.hts_current 

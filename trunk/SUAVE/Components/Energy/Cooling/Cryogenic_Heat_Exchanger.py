@@ -72,11 +72,6 @@ class Cryogenic_Heat_Exchanger(Energy_Component):
         N/A
 
         Inputs:
-        cryogenic_heat_exchanger.
-            cryogen_inlet_temperature       [K]
-            cryogen_outlet_temperature      [K]
-            cryogen_pressure                [Pa]
-
         self.inputs
             cooling_power      [W]
 
@@ -85,6 +80,11 @@ class Cryogenic_Heat_Exchanger(Energy_Component):
             mdot                   [kg/s]
 
         Properties Used:
+        self.
+            cryogen_inlet_temperature       [K]
+            cryogen_outlet_temperature      [K]
+            cryogen_pressure                [Pa]
+
         
         """         
         # unpack the values from self

@@ -6,14 +6,16 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-    
 
 # suave imports
 import SUAVE
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-    
-    
+
+# ----------------------------------------------------------------------
+#  Estimated efficiency of HTS Dynamo 
+# ----------------------------------------------------------------------
+## @ingroup Methods-Cryogenic-Dynamos
 def efficiency_curve(Dynamo, current):
 
     """ This sets the default values.

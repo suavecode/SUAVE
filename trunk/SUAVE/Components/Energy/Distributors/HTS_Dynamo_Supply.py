@@ -76,7 +76,8 @@ class HTS_Dynamo_Supply(Energy_Component):
                 power_in            [W]
 
             Properties Used:
-                None
+            self.
+                rated_RPM
         """
         # Unpack
         RPM         = self.inputs.RPM

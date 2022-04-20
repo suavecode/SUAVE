@@ -274,7 +274,8 @@ def energy_network():
     efan.powersupply.mass_density           = efan.powersupply.mass_properties.mass /efan.powersupply.volume 
 
     # ------------------------------------------------------------------
-    
+    #  Component 4 - Electronic Speed Controller (ESC)
+
     efan.esc = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()     # Could make this where the ESC is defined as a Siemens SD104
     efan.esc.tag = 'esc'
 

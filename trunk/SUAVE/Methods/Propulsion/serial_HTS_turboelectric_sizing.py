@@ -12,6 +12,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
+from SUAVE.Methods.Cryogenics.Cryocooler.cryocooler_model import cryocooler_model
 
 
 ## @ingroup Methods-Propulsion
@@ -252,8 +253,16 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     cooling_power               = rotor_cooling_power + leads_cooling_power  # Cryocooler must cool both rotor and supply leads
     cryocooler_input_power      = 0.0
 
+
+    cryocooler.inputs.cooling_power  = cooling_power
+    cryocooler.inputs.cryo_temp      = cryo_cold_temp
+    
+    cryocooler_sizing = cryocooler_model(cryocooler)
+
+    cryocooler.mass_properties.mass     = cryocooler_sizing[1]
+    cryocooler.rated_power              = cryocooler_sizing[0]
+
     if Turboelectric_HTS_Ducted_Fan.cryogen_proportion < 1.0:
-        cryocooler.size_cryocooler(cooling_power, cryo_cold_temp, cryo_amb_temp)
         cryocooler_input_power  = cryocooler.rated_power
 
     rotor_power                 = ccs_input_power + cryocooler_input_power

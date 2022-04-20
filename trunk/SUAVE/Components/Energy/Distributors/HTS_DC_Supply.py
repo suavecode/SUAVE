@@ -60,10 +60,14 @@ class HTS_DC_Supply(Energy_Component):
             self.inputs
                 current             [A]
                 power_out           [W]
-                self.efficiency
 
             Outputs:
-            power_in            [W]
+            self.outputs
+                power_in            [W]
+
+            Properties Used:
+            self. 
+                efficiency 
 
         """
         # Unpack
