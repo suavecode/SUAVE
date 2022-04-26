@@ -42,7 +42,6 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     U               = wake_inputs.velocity_total
     Ua              = wake_inputs.velocity_axial
     Ut              = wake_inputs.velocity_tangential
-    use_2d_analysis = wake_inputs.use_2d_analysis        
     beta            = wake_inputs.twist_distribution
     c               = wake_inputs.chord_distribution
     r               = wake_inputs.radius_distribution
@@ -67,10 +66,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     tol    = 1e-6  # Convergence tolerance
     ii     = 0
     
-    if use_2d_analysis:
-        PSI    = np.ones((ctrl_pts,Nr,Na))
-    else:
-        PSI     = np.ones((ctrl_pts,Nr))
+    PSI    = np.ones((ctrl_pts,Nr,Na))
         
     PSIold = copy.deepcopy(PSI)*0
     
@@ -85,7 +81,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
         vt           = Ut - Wt
 
         # compute blade airfoil forces and properties
-        Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc)
 
         # compute inflow velocity and tip loss factor
         lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)

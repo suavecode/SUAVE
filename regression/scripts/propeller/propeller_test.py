@@ -111,6 +111,7 @@ def main():
     prop.design_altitude          = 1. * Units.km     
     prop.origin                   = [[16.*0.3048 , 0. ,2.02*0.3048 ]]    
     prop.design_power             = gearbox.outputs.power  
+    prop.number_azimuthal_stations= 1
     prop                          = propeller_design(prop)      
     
     # Design a Rotor with airfoil  geometry defined  
