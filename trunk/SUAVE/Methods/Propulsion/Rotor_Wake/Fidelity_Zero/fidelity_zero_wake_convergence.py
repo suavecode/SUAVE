@@ -45,10 +45,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     Nr              = wake_inputs.Nr
     Na              = wake_inputs.Na    
 
-    if wake_inputs.use_2d_analysis:
-        PSI    = np.ones((ctrl_pts,Nr,Na))
-    else:
-        PSI     = np.ones((ctrl_pts,Nr))
+    PSI    = np.ones((ctrl_pts,Nr,Na))
 
     PSI_final,infodict,ier,msg = sp.optimize.fsolve(iteration,PSI,args=(wake_inputs,rotor),full_output = 1)
     
@@ -174,10 +171,7 @@ def va_vt(PSI, wake_inputs, rotor):
     Na              = wake_inputs.Na
     
     # Reshape PSI because the solver gives it flat
-    if wake_inputs.use_2d_analysis:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
-    else:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr))
+    PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
     
     # compute velocities
     sin_psi      = np.sin(PSI)
@@ -233,10 +227,7 @@ def compute_dR_dpsi(PSI,wake_inputs,rotor):
     B        = rotor.number_of_blades      
     
     # Reshape PSI because the solver gives it flat
-    if wake_inputs.use_2d_analysis:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
-    else:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr))    
+    PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
     
     
     # An analytical derivative for dR_dpsi used in the Newton iteration for the BEVW
