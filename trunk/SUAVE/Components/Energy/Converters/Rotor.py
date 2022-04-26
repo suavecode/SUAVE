@@ -323,12 +323,6 @@ class Rotor(Energy_Component):
         T   = np.tile(np.atleast_2d(T),(1,Nr))
         T   = np.repeat(T[:, :, None], Na, axis=2)
 
-        #else:
-            ## total velocities
-            #r      = r_1d
-            #Ua     = np.outer((V + ua),np.ones_like(r))
-            #beta   = total_blade_pitch
-
         # Total velocities
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)

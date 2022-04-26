@@ -111,7 +111,7 @@ def iteration(PSI, wake_inputs, rotor):
     cl_sur   = rotor.airfoil_cl_surrogates
     cd_sur   = rotor.airfoil_cd_surrogates    
     
-    PSI    = np.ones((ctrl_pts,Nr,Na))
+    PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
 
     # compute velocities
     sin_psi      = np.sin(PSI)
@@ -129,7 +129,7 @@ def iteration(PSI, wake_inputs, rotor):
     # compute Newton residual on circulation
     Gamma       = vt*(4.*np.pi*r/B)*F*(1.+(4.*lamdaw*R/(np.pi*B*r))*(4.*lamdaw*R/(np.pi*B*r)))**0.5
     Rsquiggly   = Gamma - 0.5*W*c*Cl
-    
+
     return Rsquiggly.flatten()
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
@@ -228,7 +228,6 @@ def compute_dR_dpsi(PSI,wake_inputs,rotor):
     
     # Reshape PSI because the solver gives it flat
     PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
-    
     
     # An analytical derivative for dR_dpsi used in the Newton iteration for the BEVW
     # This was solved symbolically in Matlab and exported
