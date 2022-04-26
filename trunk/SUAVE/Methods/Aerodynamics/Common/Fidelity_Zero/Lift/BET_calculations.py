@@ -67,8 +67,8 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         Cl      = np.zeros((ctrl_pts,Nr,Na))
         Cdval   = np.zeros((ctrl_pts,Nr,Na))
         for jj in range(dim_sur):
-            Cl_af           = cl_sur[a_geo[jj]](Re,alpha,grid=False)
-            Cdval_af        = cd_sur[a_geo[jj]](Re,alpha,grid=False)
+            Cl_af           = cl_sur[a_geo[jj]]((Re,alpha))
+            Cdval_af        = cd_sur[a_geo[jj]]((Re,alpha))
             locs            = np.where(np.array(a_loc) == jj )
             Cl[:,locs,:]    = Cl_af[:,locs,:]
             Cdval[:,locs,:] = Cdval_af[:,locs,:]
