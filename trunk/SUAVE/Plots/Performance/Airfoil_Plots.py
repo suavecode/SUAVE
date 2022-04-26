@@ -265,7 +265,7 @@ def plot_airfoil_polar_files(airfoil_path, airfoil_polar_paths, line_color = 'k-
         CL_sur = a_data.lift_coefficient_surrogates
         CD_sur = a_data.drag_coefficient_surrogates
         
-        alpha   = np.asarray(a_data.aoa_from_polar)
+        alpha   = np.asarray(a_data.aoa_from_polar) * Units.degrees
         n_alpha = len(alpha.T)
         alpha   = np.reshape(alpha,(n_airfoils,1,n_alpha))
         alpha   = np.repeat(alpha, n_Re, axis=1)
@@ -292,8 +292,8 @@ def plot_airfoil_polar_files(airfoil_path, airfoil_polar_paths, line_color = 'k-
     for i in range(n_airfoils):
         airfoil_name = os.path.basename(airfoil_path[i][0])
         if use_surrogate:
-            CL[i,:,:] = CL_sur[airfoil_path[i]](Re[i,:,:],alpha[i,:,:],grid=False)
-            CD[i,:,:] = CD_sur[airfoil_path[i]](Re[i,:,:],alpha[i,:,:],grid=False)
+            CL[i,:,:] = CL_sur[airfoil_path[i]]((Re[i,:,:],alpha[i,:,:]))
+            CD[i,:,:] = CD_sur[airfoil_path[i]]((Re[i,:,:],alpha[i,:,:]))
             
         # plot all Reynolds number polars for ith airfoil
         fig  = plt.figure(save_filename +'_'+ str(i))
