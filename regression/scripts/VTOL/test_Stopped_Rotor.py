@@ -74,7 +74,7 @@ def main():
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[0][0]
-    RPM_true   = 2403.0042142186653
+    RPM_true   = 2403.004214209376
     print(RPM)
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -266,8 +266,6 @@ def mission_setup(analyses,vehicle):
     segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
     segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
-                                                         initial_prop_power_coefficient = 0.2,
-                                                         initial_lift_rotor_power_coefficient = 0.01,
                                                          initial_throttle_lift = 0.9,)
 
     # add to misison
