@@ -47,7 +47,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
 
     PSI    = np.ones((ctrl_pts,Nr,Na))
 
-    PSI_final,infodict,ier,msg = sp.optimize.fsolve(iteration,PSI,args=(wake_inputs,rotor),full_output = 1)
+    PSI_final,infodict,ier,msg = sp.optimize.fsolve(iteration,PSI,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
     
     if ier!=1:
         print("Rotor BEVW did not converge to a solution (Stall)")
