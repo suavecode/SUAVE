@@ -67,7 +67,7 @@ class Data(dict):
             N/A    
         """          
         children = self.values() 
-        aux_data = None
+        aux_data = self.keys()
         return (children, aux_data)
   
     @classmethod
@@ -89,7 +89,13 @@ class Data(dict):
             Properties Used:
             N/A    
         """          
-        return cls(*children)
+        recreated = cls()
+        length    = len(aux_data)
+        keys      = list(aux_data)
+        for ii in range(length):
+            recreated.append(children[ii],keys[ii])
+
+        return recreated
         
         
     
@@ -380,7 +386,8 @@ class Data(dict):
         input_data = Data.__base__(*args,**kwarg)
         
         # update this data with inputs
-        self.update(input_data)    
+        self.update(input_data)          
+            
 
     def __iter__(self):
         """ Returns all the iterable values. Can be used in a for loop.
