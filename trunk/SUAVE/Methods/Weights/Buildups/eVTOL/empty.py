@@ -212,7 +212,7 @@ def empty(config,
         #-------------------------------------------------------------------------------
 
         lift_rotor_hub_weight   = 4.   * Units.kg
-        prop_hub_weight         = MTOW * 0.04  * Units.kg
+        prop_hub_weight         = MTOW *(-7E-06*MTOW + 0.045)
 
         lift_rotor_BRS_weight   = 16.  * Units.kg
 
