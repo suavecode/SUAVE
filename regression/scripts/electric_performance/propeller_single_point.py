@@ -111,11 +111,11 @@ def test_2():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 645.8624436654369
-    torque_r    = 127.10005358627888
-    power_r     = 29281.750271951667
-    Cp_r        = 0.037380704154712806
-    etap_r      = 0.22056825075927722
+    thrust_r    = 645.8643152096909
+    torque_r    = 127.10023264665021
+    power_r     = 29281.791524499793
+    Cp_r        = 0.03738075681718287
+    etap_r      = 0.22056857916951647
 
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"

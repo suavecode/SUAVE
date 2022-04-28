@@ -78,6 +78,7 @@ def main():
                     [677.94878779, 589.51079809, 503.24817575, 418.7527992 , 335.57780983]]
 
 
+
     assert (np.all(np.nan_to_num(np.abs(climb_rate-climb_rate_r)/climb_rate_r) < 1e-6)), "Electric V_h Diagram Regression Failed"
 
     return
