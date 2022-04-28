@@ -3,7 +3,7 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
-from SUAVE.Methods.Performance  import V_n_diagram
+from SUAVE.Methods.Performance import V_n_diagram
 from SUAVE.Core import (
     Data, Container,
 )

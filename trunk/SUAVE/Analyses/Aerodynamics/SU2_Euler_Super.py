@@ -74,6 +74,10 @@ class SU2_Euler_Super(Markup):
         settings.parallel                           = False
         settings.processors                         = 1
         settings.vsp_mesh_growth_ratio              = 1.3
+        settings.vsp_mesh_growth_limiting_flag      = False
+        settings.recalculate_total_wetted_area      = False
+        
+        
         
         # Build the evaluation process
         compute = self.process.compute
@@ -92,15 +96,15 @@ class SU2_Euler_Super(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
+        compute.drag.parasite.nacelles             = Process_Geometry('nacelles')
+        compute.drag.parasite.nacelles.nacelle     = Methods.Drag.parasite_drag_nacelle
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # currently unavailable for supersonic
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
+        compute.drag.induced                       = Common.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
-        compute.drag.spoiler                       = FZ_Methods.Drag.spoiler_drag
+        compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft
         
         

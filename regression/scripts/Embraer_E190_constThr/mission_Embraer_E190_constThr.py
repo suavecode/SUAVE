@@ -15,7 +15,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import *  
+from SUAVE.Plots.Performance.Mission_Plots import *  
 import matplotlib.pyplot as plt  
 import numpy as np  
 
@@ -27,7 +27,6 @@ sys.path.append('../Vehicles')
 # the analysis functions
 
 from Embraer_190 import vehicle_setup, configs_setup
-from SUAVE.Methods.Performance  import payload_range
 
 
 
@@ -159,8 +158,9 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    aerodynamics.settings.number_spanwise_vortices   = 4
+    aerodynamics.settings.number_chordwise_vortices  = 2       
     aerodynamics.settings.drag_coefficient_increment = 0.0000
-    aerodynamics.settings.aircraft_span_efficiency_factor = 1.0
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
@@ -172,7 +172,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy Analysis
     energy  = SUAVE.Analyses.Energy.Energy()
-    energy.network=vehicle.propulsors
+    energy.network=vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -312,7 +312,8 @@ def mission_setup(analyses):
 
     segment.air_speed  = 450. * Units.knots #230.  * Units['m/s'] 
     segment.distance   = 2100. * Units.nmi
-
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg 
+    
     # add to mission
     mission.append_segment(segment)
 

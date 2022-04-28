@@ -133,6 +133,7 @@ def induced_drag_aircraft(state,settings,geometry):
         for wing in wings:
             if wing.areas.reference>S:
                 AR = wing.aspect_ratio
+                S  = wing.areas.reference 
                 
         # Calculate the induced drag       
         total_induced_drag = CL **2 / (np.pi*AR*e_osw)

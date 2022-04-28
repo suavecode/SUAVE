@@ -3,11 +3,14 @@
 # 
 # Created:  Mar 2019, M. Clarke
 #           Mar 2020, M. Clarke
+#           Sep 2020, M. Clarke 
+#           May 2021, R. Erhard
+#           Nov 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data , Units
+from SUAVE.Core import Data  
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
@@ -31,44 +34,68 @@ def  import_airfoil_polars(airfoil_polar_files):
     """      
     
     # number of airfoils 
-    num_airfoils = len(airfoil_polar_files) 
+    num_airfoils = len(airfoil_polar_files)  
+    
+    num_polars   = 0
+    for i in range(num_airfoils): 
+        n_p = len(airfoil_polar_files[i])
+        if n_p < 3:
+            raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+        
+        num_polars = max(num_polars, n_p)       
     
     # create empty data structures 
     airfoil_data = Data()
-    AoA = []
-    CL  = []
-    CD  = []
-
-    for i in range(num_airfoils):   
-        # Open file and read column names and data block
-        f = open(airfoil_polar_files[i]) 
-        
-        # Ignore header
-        for header_line in range(12):
-            f.readline()     
+    dim_aoa      = 89 # this is done to get an AoA discretization of 0.25
+    CL           = np.zeros((num_airfoils,num_polars,dim_aoa))
+    CD           = np.zeros((num_airfoils,num_polars,dim_aoa)) 
+    Re           = np.zeros((num_airfoils,num_polars))
     
-        data_block = f.readlines()
-        f.close()
+    AoA_interp = np.linspace(-6,16,dim_aoa) 
     
-        data_len = len(data_block)
-        airfoil_aoa= np.zeros(data_len)
-        airfoil_cl = np.zeros(data_len)
-        airfoil_cd = np.zeros(data_len)     
+    for i in range(num_airfoils): 
     
-        # Loop through each value: append to each column
-        for line_count , line in enumerate(data_block):
-            airfoil_aoa[line_count] = float(data_block[line_count][2:8].strip())
-            airfoil_cl[line_count]  = float(data_block[line_count][10:17].strip())
-            airfoil_cd[line_count]  = float(data_block[line_count][20:27].strip())   
+        for j in range(len(airfoil_polar_files[i])):   
+            # Open file and read column names and data block
+            f = open(airfoil_polar_files[i][j]) 
+            data_block = f.readlines()
+            f.close()
             
-        AoA.append(airfoil_aoa)
-        CL.append(airfoil_cl)
-        CD.append(airfoil_cd)
-       
-    airfoil_data.angle_of_attacks   = AoA
-    airfoil_data.lift_coefficients  = CL 
-    airfoil_data.drag_coefficients  = CD 
-       
-    return airfoil_data
-
+            # Ignore header
+            for header_line in range(len(data_block)):
+                line = data_block[header_line]   
+                if 'Re =' in line:    
+                    Re[i,j] = float(line[25:40].strip().replace(" ", ""))
+                if '---' in line:
+                    data_block = data_block[header_line+1:]
+                    break
+                
+            # Remove any extra lines at end of file:
+            last_line = False
+            while last_line == False:
+                if data_block[-1]=='\n':
+                    data_block = data_block[0:-1]
+                else:
+                    last_line = True
+            
+            data_len = len(data_block)
+            airfoil_aoa= np.zeros(data_len)
+            airfoil_cl = np.zeros(data_len)
+            airfoil_cd = np.zeros(data_len)     
+        
+            # Loop through each value: append to each column
+            for line_count , line in enumerate(data_block):
+                airfoil_aoa[line_count] = float(data_block[line_count][0:8].strip())
+                airfoil_cl[line_count]  = float(data_block[line_count][10:17].strip())
+                airfoil_cd[line_count]  = float(data_block[line_count][20:27].strip())   
+          
+            CL[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cl)
+            CD[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cd)       
+                 
+        airfoil_data.angle_of_attacks  = AoA_interp
+        airfoil_data.reynolds_number   = Re
+        airfoil_data.lift_coefficients = CL
+        airfoil_data.drag_coefficients = CD      
+     
+    return airfoil_data 
 

@@ -38,7 +38,9 @@ def main():
         
         
     # initalize the aero model
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()      
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics.settings.number_spanwise_vortices  = 5
+    aerodynamics.settings.number_chordwise_vortices = 2
     aerodynamics.geometry = vehicle
         
     aerodynamics.initialize()    
@@ -174,19 +176,10 @@ def main():
     #compute_aircraft_lift(conditions, configuration, geometry) 
     
     lift   = state.conditions.aerodynamics.lift_coefficient
-    lift_r =  np.array([-1.22715059, -0.48562864, -0.4312893 , -0.3442654 , -0.19773265,
-                        0.12732151,  0.37221063,  0.60102923,  0.90031948,  1.26978863,
-                        1.2846731 ])[:,None] 
-     
-    print('lift = ', lift)
     
-    lift_test = np.abs((lift-lift_r)/lift)
-    
+    print('lift = \n', lift)
     print('\nCompute Lift Test Results\n')
     #print lift_test
-        
-    assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'    
-    
     
     # --------------------------------------------------------------------
     # Test compute drag 
@@ -208,79 +201,85 @@ def main():
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
    
-    print('cd_m =', cd_m)
+    print('cd_m =\n', cd_m)
     
-   
-    (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
-    
-    drag_tests = Data()
-    drag_tests.cd_c = np.abs((cd_c-cd_c_r)/cd_c)
-    for ii,cd in enumerate(drag_tests.cd_c):
-        if np.isnan(cd):
-            drag_tests.cd_c[ii] = np.abs((cd_c[ii]-cd_c_r[ii])/np.min(cd_c[cd_c!=0]))
-    drag_tests.cd_i = np.abs((cd_i-cd_i_r)/cd_i)
-    drag_tests.cd_m = np.abs((cd_m-cd_m_r)/cd_m)
+    #drag_tests = Data()
     ## Commented lines represent values not set by current drag functions, but to be recreated in the future
     # Line below is not normalized since regression values are 0, insert commented line if this changes
     # drag_tests.cd_m_fuse_base = np.abs((cd_m_fuse_base-cd_m_fuse_base_r)) # np.abs((cd_m_fuse_base-cd_m_fuse_base_r)/cd_m_fuse_base)
     # drag_tests.cd_m_fuse_up   = np.abs((cd_m_fuse_up - cd_m_fuse_up_r)/cd_m_fuse_up)
     # drag_tests.cd_m_ctrl      = np.abs((cd_m_ctrl - cd_m_ctrl_r)/cd_m_ctrl)
-    drag_tests.cd_p_fuse      = np.abs((cd_p_fuse - cd_p_fuse_r)/cd_p_fuse)
-    drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
-    drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
     print('\nCompute Drag Test Results\n')    
     print('cd_tot=', cd_tot)
-   
-    for i, tests in list(drag_tests.items()): 
-       
-        assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
-        
+    
+    # --------------------------------------------------------------------
+    # Process All Results 
+    # --------------------------------------------------------------------
+    results            = make_results_object(lift, cd_c, cd_i, cd_m, cd_p_fuse, cd_p_wing, cd_tot)
+    
+    save_results(results, SAVE=False)
+    results_regression = load_results()
+    
+    test_results(results, results_regression)
+    
     #return conditions, configuration, geometry, test_num
+    return
+        
       
+# ----------------------------------------------------------------------
+#   Make/Test Results Utility Functions
+# ----------------------------------------------------------------------
+def make_results_object(lift, cd_c, cd_i, cd_m, cd_p_fuse, cd_p_wing, cd_tot):
+    results = Data()
+    results.lift      = lift
+    results.cd_c      = cd_c
+    results.cd_i      = cd_i     
+    results.cd_m      = cd_m     
+    results.cd_p_fuse = cd_p_fuse
+    results.cd_p_wing = cd_p_wing
+    results.cd_tot    = cd_tot 
+    return results
 
-def reg_values():
-    cd_c_r = np.array([[6.07511040e-06, 2.48815674e-08, 1.58158014e-22, 2.66842458e-09,
-                        2.34666021e-04, 3.06409892e-05, 1.30164975e-09, 2.23624811e-11,
-                        4.15720623e-05, 3.55554227e-03, 6.56586001e-14]]).T   
-    
-    cd_i_r = np.array([[0.02238827, 0.0085205 , 0.00763381, 0.00501302, 0.00170646,
-                        0.00111235, 0.00494403, 0.01190705, 0.02291917, 0.03944343,
-                        0.05096542]]).T   
-    
-    cd_m_r = np.array([[ 0.0011752,0.0011752,0.0011752,0.0011752,0.0011752,
-                         0.0011752,0.0011752,0.0011752,0.0011752,0.0011752,
-                         0.0011752]]).T
-                         
-    cd_m_fuse_base_r = np.array([[ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]]).T
+def test_results(results, results_regression):
+    max_errors = [1e-6, 1e-4]
+    for key in results.keys():
+        #get values
+        vals    = results[key]
+        vals_tr = results_regression[key]
+        
+        #get error
+        if key in ['cd_c']:
+            for ii,val in enumerate(vals):
+                if np.isnan(val):
+                    vals[ii] = np.abs((vals[ii]-vals_tr[ii])/np.min(vals[vals!=0]))        
+        else:
+            errors     = (vals-vals_tr)/vals_tr
+        
+        #check error
+        max_error = max_errors[0] if key in ['lift'] else max_errors[1]
+        assert np.max(np.abs(errors)) < max_error, 'Failed at {} test, case {}'.format(key, np.argmax(np.abs(errors))+1)
+        
+    return
 
-    cd_m_fuse_up_r   = np.array([[  4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
-                                    4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
-                                    4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
-                                    4.80530506e-05,   4.80530506e-05]]).T
+# ----------------------------------------------------------------------
+#   Save/Load Utility Functions
+# ----------------------------------------------------------------------
+def regression_results_filename():
+    return 'aerodynamics_results.res'
 
-    cd_m_nac_base_r = np.array([[ 0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
-                                  0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
-                                  0.00033128]]).T
+def load_results():
+    return SUAVE.Input_Output.SUAVE.load(regression_results_filename())
 
-    cd_m_ctrl_r     = np.array([[ 0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,
-                                  0.0001,  0.0001,  0.0001,  0.0001]]).T
+def save_results(results, SAVE=False):
+    if SAVE==True:
+        print('!####! SAVING NEW REGRESSION RESULTS !####!')
+        SUAVE.Input_Output.SUAVE.archive(results,regression_results_filename())        
+    return
 
-    cd_p_fuse_r     = np.array([[ 0.00573221,0.00669671,0.01034335,0.00656387,0.00669973,
-                                  0.00560398,0.00687499,0.0085221 ,0.00669252,0.0060046 ,
-                                  0.00697051]]).T
-
-    cd_p_wing_r     = np.array([[ 0.00579887,0.00592795,0.00942986,0.0057326 ,
-                                  0.00653004,0.00501665,0.00599058,0.00759737,
-                                  0.00600963,0.00556283,0.00602578]]).T
-           
-    cd_tot_r        = np.array([[0.04087955, 0.02697717, 0.03597939, 0.02294249, 0.02140734,
-                                 0.01670983, 0.02365267, 0.03525366, 0.04181656, 0.06078852,
-                                 0.07076369]]).T 
-    
-    return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, \
-           cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
-
+# ----------------------------------------------------------------------
+#   Call Main
+# ----------------------------------------------------------------------
 if __name__ == '__main__':
 
     main()

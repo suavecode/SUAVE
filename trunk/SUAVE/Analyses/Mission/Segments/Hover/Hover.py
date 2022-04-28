@@ -3,6 +3,7 @@
 # 
 # Created:  Jan 2016, E. Botero
 # Modified: Mar 2020, M. Clarke
+#           Aug 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,6 +14,7 @@ from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
+from SUAVE.Methods.skip import skip
 
 from SUAVE.Analyses import Process
 
@@ -56,8 +58,9 @@ class Hover(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude = None
-        self.time     = 1.0 * Units.seconds
+        self.altitude     = None
+        self.time         = 1.0 * Units.seconds
+        self.true_course  = 0.0 * Units.degrees 
         
         # --------------------------------------------------------------
         #   State
@@ -69,7 +72,7 @@ class Hover(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.residuals.forces    = ones_row(1) * 0.0
+        self.state.residuals.force     = ones_row(1) * 0.0 
         
         
         # --------------------------------------------------------------
@@ -134,6 +137,8 @@ class Hover(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.aero_derivatives  = skip
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise 
         
         return
 

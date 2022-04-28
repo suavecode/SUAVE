@@ -4,6 +4,7 @@
 # Created:  Jun 2014, E. Botero
 # Modified: Jan 2016, T. MacDonald 
 #           Mar 2020, M. Clarke
+#           Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -48,13 +49,15 @@ class Motor(Energy_Component):
         Properties Used:
         None
         """           
+        self.tag                = 'motor'
         self.resistance         = 0.0
         self.no_load_current    = 0.0
         self.speed_constant     = 0.0
         self.propeller_radius   = 0.0
         self.propeller_Cp       = 0.0
-        self.gear_ratio         = 0.0
-        self.gearbox_efficiency = 0.0
+        self.efficiency         = 1.0
+        self.gear_ratio         = 1.0
+        self.gearbox_efficiency = 1.0
         self.expected_current   = 0.0
         self.interpolated_func  = None
     
@@ -92,7 +95,6 @@ class Motor(Energy_Component):
         # Unpack
         V     = conditions.freestream.velocity[:,0,None]
         rho   = conditions.freestream.density[:,0,None]
-        Cp    = conditions.propulsion.propeller_power_coefficient[:,0,None]
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
@@ -101,6 +103,8 @@ class Motor(Energy_Component):
         Kv    = self.speed_constant/G
         R     = self.propeller_radius
         v     = self.inputs.voltage
+        Cp    = self.inputs.propeller_CP
+        
     
         # Omega
         # This is solved by setting the torque of the motor equal to the torque of the prop

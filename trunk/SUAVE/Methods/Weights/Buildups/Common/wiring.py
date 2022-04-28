@@ -5,6 +5,7 @@
 # Created: Jun, 2017, J. Smart
 # Modified: Feb, 2018, J. Smart
 #           Mar 2020, M. Clarke
+#           May 2021, M. Clarke
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -19,13 +20,11 @@ import numpy as np
 #-------------------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Buildups-Common
-def wiring(config,
-           motor_spanwise_locations,
-           max_power_draw):
+def wiring(wing, config, cablePower):
     """ weight = SUAVE.Methods.Weights.Buildups.Common.wiring(
-            config,
-            motor_spanwise_locations,
-            max_power_draw)
+            wing,
+            config, 
+            cablePower)
         
         Assumptions:
         Calculates mass of wiring required for a wing, including DC power
@@ -62,35 +61,34 @@ def wiring(config,
     #---------------------------------------------------------------------------
     # Unpack Inputs
     #---------------------------------------------------------------------------
-    
-    fLength     = config.fuselages.fuselage.lengths.total
-    fHeight     = config.fuselages.fuselage.heights.maximum
-    wingspan    = config.wings['main_wing'].spans.projected
-
-    nMotors = max(len(motor_spanwise_locations),1)    # No. of motors on each half-wing, defaults to 1
-
-    #---------------------------------------------------------------------------
-    # Determine mass of Power Cables
-    #---------------------------------------------------------------------------
-
-    cablePower      = max_power_draw/nMotors      # Power draw through each cable
-    cableLength     = 2 * (nMotors * (fLength/2 + fHeight/2) + np.sum(motor_spanwise_locations) * wingspan/2)
-    cableDensity    = 1e-5
-    massCables      = cableDensity * cablePower * cableLength
-
-    #---------------------------------------------------------------------------
-    # Determine mass of sensor/communication wires
-    #---------------------------------------------------------------------------
-
-    wiresPerBundle  = 6
-    wireDensity     = 460e-5
-    wireLength      = cableLength + (10 * fLength) +  wingspan
-    massWires       = 2 * wireDensity * wiresPerBundle * wireLength
-
-    #---------------------------------------------------------------------------
-    # Sum Total
-    #---------------------------------------------------------------------------
-
-    weight = massCables + massWires
-
+    if 'motor_spanwise_locations' in config.wings[wing.tag]:
+        fLength     = config.fuselages.fuselage.lengths.total
+        fHeight     = config.fuselages.fuselage.heights.maximum
+        MSL         = config.wings[wing.tag].motor_spanwise_locations
+        wingspan    = wing.spans.projected 
+        nMotors     = max(len(MSL),1)    # No. of motors on each half-wing, defaults to 1
+        
+        #---------------------------------------------------------------------------
+        # Determine mass of Power Cables
+        #--------------------------------------------------------------------------- 
+        cableLength     = (nMotors * (fLength/2 + fHeight/2)) + (np.sum(abs(MSL)) * wingspan/2) 
+        cableDensity    = 5.7e-6
+        massCables      = cableDensity * cablePower * cableLength
+        
+        #---------------------------------------------------------------------------
+        # Determine mass of sensor/communication wires
+        #---------------------------------------------------------------------------
+        
+        wiresPerBundle  = 6
+        wireDensity     = 460e-5
+        wireLength      = cableLength + (10 * fLength) +  4*wingspan
+        massWires       = 2 * wireDensity * wiresPerBundle * wireLength
+        
+        #---------------------------------------------------------------------------
+        # Sum Total
+        #---------------------------------------------------------------------------
+        
+        weight = massCables + massWires
+    else:
+        weight = 0.0
     return weight

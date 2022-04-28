@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 # noise_source_location.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -7,17 +7,58 @@
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
-
+from SUAVE.Core  import  Data 
 import numpy as np
 
 # ----------------------------------------------------------------------        
 #   Noise Source Location
 # ----------------------------------------------------------------------   
 
-## @ingroupMethods-Noise-Fidelity_One-Engine
-def noise_source_location (B,Xo,zk,Diameter_primary,theta_p,Area_primary,Area_secondary,distance_microphone,Diameter_secondary,theta,theta_s,theta_m,Diameter_mixed,Velocity_primary,Velocity_secondary,Velocity_mixed,Velocity_aircraft,sound_ambient,Str_m,Str_s):
+## @ingroup Methods-Noise-Fidelity_One-Engine
+def noise_source_location(B,Xo,zk,Diameter_primary,theta_p,Area_primary,Area_secondary,distance_microphone,
+                           Diameter_secondary,theta,theta_s,theta_m,Diameter_mixed,Velocity_primary,Velocity_secondary,
+                           Velocity_mixed,Velocity_aircraft,sound_ambient,Str_m,Str_s):
+    """This function calculates the noise source location
     
-    #Primary jet source location
+    Assumptions:
+        None
+
+    Source:
+        None
+
+    Inputs: 
+        B                         [-]
+        Xo                        [-]
+        zk                        [-]
+        Diameter_primary          [m]
+        theta_p                   [rad]
+        Area_primary              [m^2]
+        Area_secondary            [m^2]
+        distance_microphone       [m]
+        Diameter_secondary        [m]
+        theta                     [rad]
+        theta_s                   [rad]
+        theta_m                   [rad]
+        Diameter_mixed            [m]
+        Velocity_primary          [m/s]
+        Velocity_secondary        [m/s]
+        Velocity_mixed            [m/s]
+        Velocity_aircraft         [m/s]
+        sound_ambient             [dB]
+        Str_m                     [-]
+        Str_s                     [-]
+
+    Outputs: 
+        theta_p  [rad]
+        theta_s  [rad]
+        theta_m  [rad]
+    
+    Properties Used:
+        N/A 
+    
+    """
+    
+    # P rimary jet source location
     XJ = np.zeros(24)
     
     for i in range(24):
@@ -47,7 +88,7 @@ def noise_source_location (B,Xo,zk,Diameter_primary,theta_p,Area_primary,Area_se
             XJ[i]      = (zk*Diameter_primary)*(4.+4.*np.arctan((18.*theta_p[i]/np.pi)-9.)+(Area_secondary/Area_primary))
             residual   = np.abs(XJ_old-XJ[i])
 
-        #Secondary jet source location
+        # Secondary jet source location
         residual = Diameter_secondary
         XJ_old   = 0.0
         XJ[i]    = (zk*Diameter_secondary)*(2.+1.6*np.arctan((4.5*theta_s[i]/np.pi)-2.25))*(1.+0.5/np.sqrt(Str_s[i])) \
@@ -114,5 +155,11 @@ def noise_source_location (B,Xo,zk,Diameter_primary,theta_p,Area_primary,Area_se
                 *(Velocity_mixed/(Velocity_mixed-Velocity_aircraft))
             
             residual   = abs(XJ_old-XJ[i])
-
-    return(theta_p,theta_s,theta_m)
+   
+   
+    source_location = Data()
+    source_location.theta_p = theta_p
+    source_location.theta_s = theta_s
+    source_location.theta_m = theta_m
+    
+    return source_location

@@ -8,3 +8,5 @@ from . import BWB
 from . import Human_Powered
 from . import UAV
 from . import Common
+from . import FLOPS
+from . import Raymer

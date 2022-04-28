@@ -22,7 +22,7 @@ from sklearn.gaussian_process.kernels import ExpSineSquared
 # Package imports
 import numpy as np
 import time
-import pylab as plt
+import matplotlib.pyplot as plt  
 import sklearn
 from sklearn import gaussian_process
 from sklearn import neighbors

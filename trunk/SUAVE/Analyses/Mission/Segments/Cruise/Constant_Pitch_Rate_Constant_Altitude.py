@@ -3,6 +3,7 @@
 # 
 # Created:  Jan 2016, E. Botero
 #           Apr 2020, M. Clarke
+#           Aug 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,6 +14,7 @@ from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
+from SUAVE.Methods.skip import skip
 
 from SUAVE.Analyses import Process
 
@@ -61,7 +63,7 @@ class Constant_Pitch_Rate_Constant_Altitude(Aerodynamic):
         self.pitch_rate    = 1.  * Units['rad/s/s']
         self.pitch_initial = None
         self.pitch_final   = 0.0 * Units['rad']
-        
+        self.true_course   = 0.0 * Units.degrees  
         
         # --------------------------------------------------------------
         #   State
@@ -141,6 +143,8 @@ class Constant_Pitch_Rate_Constant_Altitude(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.aero_derivatives  = skip
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
         
         return
 
