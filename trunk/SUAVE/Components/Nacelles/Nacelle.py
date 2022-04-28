@@ -1,4 +1,4 @@
-## @defgroup Components-Energy-Nacelles Nacelles
+## @defgroup Components-Nacelles
 # Nacelle.py
 # 
 # Created:  Jul 2021, M. Clarke  
@@ -16,7 +16,7 @@ import numpy as np
 #  Nacalle
 # ------------------------------------------------------------
 
-## @ingroup components-nacelles
+## @ingroup Components-Nacelles
 class Nacelle(Lofted_Body):
     """ This is a nacelle for a generic aircraft.
     

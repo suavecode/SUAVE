@@ -205,28 +205,28 @@ def main():
     plot_results(outputr, rot,'black','-','P')
     
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3292.329536278088
-    Q_a_truth       = 972.34064682
-    P_a_truth       = 201431.64880664   
-    Cplast_a_truth  = 0.10382277
+    F_a_truth       = 3352.366469630676
+    Q_a_truth       = 978.76113592
+    P_a_truth       = 202761.72763161
+    Cplast_a_truth  = 0.10450832
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2625.8994118273345
-    Q_truth         = 791.38901131 
-    P_truth         = 163945.41760311 
-    Cplast_truth    = 0.08450145
+    F_truth         = 2629.013537561697
+    Q_truth         = 787.38469662
+    P_truth         = 163115.87734548
+    Cplast_truth    = 0.08407389
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1488.2325452858663
-    Qr_a_truth      = 141.16099499
-    Pr_a_truth      = 29243.13825682
-    Cplastr_a_truth = 0.045998
+    Fr_a_truth      = 1499.6766372165007
+    Qr_a_truth      = 139.1060306
+    Pr_a_truth      = 28817.42853679
+    Cplastr_a_truth = 0.04532838
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1249.520886459983  
-    Qr_truth        = 122.9096106
-    Pr_truth        = 25462.15217793
-    Cplastr_truth   = 0.0400507
+    Fr_truth        = 1250.1858821890885
+    Qr_truth        = 121.95416738
+    Pr_truth        = 25264.22102656
+    Cplastr_truth   = 0.03973936
     
     # Store errors 
     error = Data()

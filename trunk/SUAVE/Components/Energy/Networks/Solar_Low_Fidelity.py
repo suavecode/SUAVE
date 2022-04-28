@@ -162,7 +162,6 @@ class Solar_Low_Fidelity(Network):
         esc.currentin(conditions)
         # link
         solar_logic.inputs.currentesc  = esc.outputs.currentin*num_engines
-        solar_logic.inputs.volts_motor = esc.outputs.voltageout 
         
         # Adjust power usage for magic thrust
         solar_logic.inputs.currentesc[eta>1.0] = solar_logic.inputs.currentesc[eta>1.0]*eta[eta>1.0]

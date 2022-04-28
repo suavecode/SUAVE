@@ -61,9 +61,10 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude  = None
-        self.air_speed = 10. * Units['km/hr']
-        self.distance  = 10. * Units.km
+        self.altitude    = None
+        self.air_speed   = 10. * Units['km/hr']
+        self.distance    = 10. * Units.km
+        self.true_course = 0.0 * Units.degrees  
         
         
         # --------------------------------------------------------------

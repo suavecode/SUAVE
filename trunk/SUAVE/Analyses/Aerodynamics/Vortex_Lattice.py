@@ -80,11 +80,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.model_fuselage                  = False
         self.settings.model_nacelle                   = False
         self.settings.leading_edge_suction_multiplier = 1.0
-        self.settings.initial_timestep_offset         = 0
-        self.settings.wake_development_time           = 0.05
-        self.settings.number_of_wake_timesteps        = 30
         self.settings.propeller_wake_model            = False
-        self.settings.use_bemt_wake_model             = False
         self.settings.discretize_control_surfaces     = False
         self.settings.use_VORLAX_matrix_calculation   = False
         self.settings.floating_point_precision        = np.float32
@@ -129,7 +125,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model, use_bemt_wake_model,ito,wdt,nwts,mf,mn,dcs):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,mf,mn,dcs):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -143,9 +139,6 @@ class Vortex_Lattice(Aerodynamics):
         n_sw                   number of spanwise vortices  [int]
         n_cw                   number of chordwise vortices [int]
         propeller_wake_model                                [bool] 
-        ito                    initial timestep offset      [s]            
-        wdt                    wake development time        [s]
-        nwts                   number of wake timesteps     [int]
 
         Outputs:
         None
@@ -164,10 +157,6 @@ class Vortex_Lattice(Aerodynamics):
             
         settings.use_surrogate              = use_surrogate
         settings.propeller_wake_model       = propeller_wake_model 
-        settings.use_bemt_wake_model        = use_bemt_wake_model
-        settings.initial_timestep_offset    = ito
-        settings.wake_development_time      = wdt
-        settings.number_of_wake_timesteps   = nwts
         settings.discretize_control_surfaces= dcs
         settings.model_fuselage             = mf
         settings.model_nacelle              = mn

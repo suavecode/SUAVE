@@ -140,9 +140,6 @@ class Ramjet(Network):
         mdot         = thrust.outputs.fuel_flow_rate
         Isp          = thrust.outputs.specific_impulse
         output_power = thrust.outputs.power
-        F_vec        = conditions.ones_row(3) * 0.0
-        F_vec[:,0]   = F[:,0]
-        F            = F_vec
 
         results                     = Data()
         results.thrust_force_vector = F

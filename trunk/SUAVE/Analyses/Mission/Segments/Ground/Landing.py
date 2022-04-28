@@ -3,7 +3,6 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
-#           Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,7 +12,6 @@
 # SUAVE imports
 from .Ground import Ground
 from SUAVE.Methods.Missions import Segments as Methods
-from SUAVE.Analyses import Process
 
 # Units
 from SUAVE.Core import Units
@@ -70,6 +68,7 @@ class Landing(Ground):
         self.friction_coefficient = 0.4
         self.throttle             = 0.0
         self.altitude             = 0.0
+        self.true_course          = 0.0 * Units.degrees 
         
         # initials and unknowns
         ones_row_m1 = self.state.ones_row_m1
@@ -84,17 +83,5 @@ class Landing(Ground):
     
         initialize = self.process.initialize
         initialize.conditions_ground = Methods.Ground.Landing.initialize_conditions
-
-        # --------------------------------------------------------------
-        #   Finalize - after iteration
-        # --------------------------------------------------------------
-        finalize = self.process.finalize
-
-        # Post Processing
-        finalize.post_process = Process()
-        finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
-        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
-
-
 
         return

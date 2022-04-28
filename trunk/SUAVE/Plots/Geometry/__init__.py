@@ -1,6 +1,6 @@
 ## @defgroup Plots-Geometry Geometry
 # Description
-# @ingroup Plots-Geometry
+# @ingroup Plots
 
 from .plot_airfoil                  import plot_airfoil
 from .plot_propeller                import plot_propeller

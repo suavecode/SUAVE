@@ -6,10 +6,13 @@
 #           Jan 2020, T. MacDonald
 #           Jul 2020, E. Botero
 #           Sep 2021, R. Erhard
+#           Dec 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+
+from copy import deepcopy
 
 import SUAVE
 from SUAVE.Input_Output.OpenVSP.vsp_propeller import read_vsp_propeller
@@ -20,12 +23,15 @@ from SUAVE.Input_Output.OpenVSP.vsp_nacelle   import read_vsp_nacelle
 from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
 from SUAVE.Components.Energy.Networks.Battery_Propeller        import Battery_Propeller
 
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units, Data, Container
 try:
     import vsp as vsp
 except ImportError:
-    # This allows SUAVE to build without OpenVSP
-    pass
+    try:
+        import openvsp as vsp
+    except ImportError:
+        # This allows SUAVE to build without OpenVSP
+        pass
 
 
 # ----------------------------------------------------------------------
@@ -34,7 +40,7 @@ except ImportError:
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag, units_type='SI',specified_network=None): 
+def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True): 
     """This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
     Includes wings, fuselages, and propellers.
 
@@ -56,6 +62,7 @@ def vsp_read(tag, units_type='SI',specified_network=None):
     1. A tag for an XML file in format .vsp3.
     2. Units_type set to 'SI' (default) or 'Imperial'
     3. User-specified network
+    4. Boolean for whether or not to use the scaling from OpenVSP (default = True).
 
     Outputs:
     Writes SUAVE vehicle with these geometries from VSP:    (All values default to SI. Any other 2nd argument outputs Imperial.)
@@ -188,14 +195,14 @@ def vsp_read(tag, units_type='SI',specified_network=None):
             num_fus  = 1 
             sym_flag = [1] 
         for fux_idx in range(num_fus):	# loop through fuselages on aircraft 
-            fuselage = read_vsp_fuselage(fuselage_id,fux_idx,sym_flag[fux_idx],units_type)
+            fuselage = read_vsp_fuselage(fuselage_id,fux_idx,sym_flag[fux_idx],units_type,use_scaling)
             vehicle.append_component(fuselage)
         
     # --------------------------------------------------			    
     # Read Wings 
     # --------------------------------------------------			
     for wing_id in vsp_wings:
-        wing = read_vsp_wing(wing_id, units_type)
+        wing = read_vsp_wing(wing_id, units_type,use_scaling)
         vehicle.append_component(wing)		 
         
     # --------------------------------------------------			    
@@ -211,17 +218,30 @@ def vsp_read(tag, units_type='SI',specified_network=None):
     # Initialize rotor network elements
     number_of_lift_rotor_engines = 0
     number_of_propeller_engines  = 0
-    lift_rotors = Data()
-    propellers  = Data() 
+    lift_rotors = Container()
+    propellers  = Container() 
     for prop_id in vsp_props:
         prop = read_vsp_propeller(prop_id,units_type)
         prop.tag = vsp.GetGeomName(prop_id)
         if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
             lift_rotors.append(prop)
             number_of_lift_rotor_engines += 1 
+            
+            if vsp.GetParmVal(prop_id, 'Sym_Planar_Flag', 'Sym')== 2.0:
+                number_of_lift_rotor_engines += 1 
+                prop_sym = deepcopy(prop)
+                prop_sym.origin[0][1] = - prop_sym.origin[0][1]
+                lift_rotors.append(prop_sym)
+            
         else:
             propellers.append(prop)
             number_of_propeller_engines += 1  
+            
+            if vsp.GetParmVal(prop_id, 'Sym_Planar_Flag', 'Sym')== 2.0:
+                number_of_propeller_engines += 1      
+                prop_sym = deepcopy(prop)
+                prop_sym.origin[0][1] = - prop_sym.origin[0][1]   
+                propellers.append(prop_sym)
 
     if specified_network == None:
         # If no network specified, assign a network

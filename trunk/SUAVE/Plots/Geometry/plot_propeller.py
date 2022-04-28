@@ -51,7 +51,7 @@ def plot_propeller(prop, face_color = 'red', edge_color = 'black' , save_figure 
     network = Battery_Propeller() 
     
     # plot propeller geometry
-    plot_propeller_geometry(axes_1,prop,network,prop.tag) 
+    plot_propeller_geometry(axes_1,prop) 
     
     if save_figure:
         plt.savefig(save_filename + '_3D' + file_type)  

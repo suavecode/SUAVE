@@ -27,7 +27,7 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-## @ingroup Analyses-Mission-Segments-Cruise
+## @ingroup Analyses-Mission-Segments-Transition
 class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
     """ Vehicle accelerates at a constant rate between two airspeeds.
     
@@ -66,6 +66,7 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         self.air_speed_end      = 1.0 * Units['m/s']        
         self.pitch_initial      = None
         self.pitch_final        = 0.0 * Units['rad']
+        self.true_course        = 0.0 * Units.degrees 
         
 
         # --------------------------------------------------------------

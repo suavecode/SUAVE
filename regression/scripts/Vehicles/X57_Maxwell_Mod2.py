@@ -16,11 +16,11 @@ from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion                           import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing                 import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing     import size_optimal_motor
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 
 import numpy as np 
 from copy import deepcopy
-
+import os
 # ----------------------------------------------------------------------
 #   Define the Vehicle
 # ----------------------------------------------------------------------
@@ -83,7 +83,10 @@ def vehicle_setup():
     wing.winglet_fraction                 = 0.0  
     wing.dynamic_pressure_ratio           = 1.0  
     airfoil                               = SUAVE.Components.Airfoils.Airfoil()
-    airfoil.coordinate_file               = '../Vehicles/Airfoils/NACA_63_412.txt'
+    
+
+    base = os.path.dirname(os.path.abspath(__file__))    
+    airfoil.coordinate_file               = base+'/Airfoils/NACA_63_412.txt'
     
     cg_x = wing.origin[0][0] + 0.25*wing.chords.mean_aerodynamic
     cg_z = wing.origin[0][2] - 0.2*wing.chords.mean_aerodynamic
@@ -136,7 +139,7 @@ def vehicle_setup():
     wing.append_segment(segment)    
     
     # Fill out more segment properties automatically
-    wing = segment_properties(wing)           
+    wing = wing_segmented_planform(wing)           
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -424,17 +427,18 @@ def vehicle_setup():
     prop.hub_radius             = 10.     * Units.inches
     prop.design_Cl              = 0.8
     prop.design_altitude        = 9000. * Units.feet  
-    prop.design_power           = 98 * 0.65  * Units.hp # assume 65 BHP at crise 
+    prop.design_power           = 98 * 0.65  * Units.hp # assume 65 BHP at cruise
     prop.origin                 = [[2.,2.5,0.784]]
     prop.rotation               = -1
     prop.symmetry               = True
     prop.variable_pitch         = True 
-    prop.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    prop.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+    
+    prop.airfoil_geometry       =  [base + '/Airfoils/NACA_4412.txt']
+    prop.airfoil_polars         = [[base + '/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                    base + '/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                    base + '/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                    base + '/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                    base + '/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     prop                        = propeller_design(prop,number_of_airfoil_section_points = 102)

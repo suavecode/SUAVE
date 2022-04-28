@@ -35,6 +35,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             number of blades               
             number of stations
             design lift coefficient
+            design_altitude                  [m]
             airfoil data
             
           Outputs:
@@ -161,7 +162,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             # query surrogate for sectional Cls at stations 
             Cdval    = np.zeros_like(RE) 
             for j in range(len(airfoil_cd_surs)):                 
-                Cdval_af    = airfoil_cd_surs[a_geo[j]](RE,alpha,grid=False)  
+                Cdval_af    = airfoil_cd_surs[a_geo[j]]((RE,alpha))
                 locs        = np.where(np.array(a_loc) == j )
                 Cdval[locs] = Cdval_af[locs]    
                 
@@ -294,7 +295,7 @@ def objective(x, airfoil_cl_surs, RE , a_geo ,a_loc, Cl ,N):
     # query surrogate for sectional Cls at stations 
     Cl_vals = np.zeros(N)     
     for j in range(len(airfoil_cl_surs)):                 
-        Cl_af         = airfoil_cl_surs[a_geo[j]](RE,x,grid=False)   
+        Cl_af         = airfoil_cl_surs[a_geo[j]]((RE,x))
         locs          = np.where(np.array(a_loc) == j )
         Cl_vals[locs] = Cl_af[locs] 
         

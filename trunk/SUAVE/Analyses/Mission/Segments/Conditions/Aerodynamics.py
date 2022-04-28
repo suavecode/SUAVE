@@ -6,6 +6,7 @@
 #           Mar 2020, M. Clarke 
 #           Apr 2021, M. Clarke
 #           Jun 2021, A. Blaufox
+#           Nov 2021, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -141,13 +142,18 @@ class Aerodynamics(Basic):
         self.propulsion.battery_cycle_day                    = 0
         self.propulsion.battery_resistance_growth_factor     = 1.
         self.propulsion.battery_capacity_fade_factor         = 1. 
+        self.propulsion.propeller_y_axis_rotation            = ones_1col * 0
+        self.propulsion.lift_rotor_y_axis_rotation           = ones_1col * 0
          
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
         self.energies.propulsion_power     = ones_1col * 0
         
         # weights conditions
-        self.weights.vehicle_mass_rate     = ones_1col * 0
+        self.weights.vehicle_mass_rate                = ones_1col * 0
+        self.weights.vehicle_fuel_rate                = ones_1col * 0
+        self.weights.vehicle_additional_fuel_rate     = ones_1col * 0
+        self.weights.has_additional_fuel              = False
         
         # noise conditions
         self.noise                             = Conditions()

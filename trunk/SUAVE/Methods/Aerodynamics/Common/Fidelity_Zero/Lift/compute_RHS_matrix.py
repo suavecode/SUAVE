@@ -7,6 +7,7 @@
 #           Jul 2021, A. Blaufox
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
+#           Feb 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,12 +16,9 @@
 # package imports
 import numpy as np
 from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_bemt_induced_velocity import compute_bemt_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model,bemt_wake,initial_timestep_offset,wake_development_time,number_of_wake_timesteps):
+def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model):
 
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included
@@ -86,73 +84,41 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
 
     dt               = 0
     num_ctrl_pts     = len(aoa) # number of control points
-
+    num_eval_pts     = len(VD.XC)
     for network in geometry.networks:
         if propeller_wake_model:
+            # include the propeller wake effect on the wing
             if 'propellers' in network.keys(): 
-                if network.number_of_propeller_engines == None:
-                    pass
-                else:          
-                    # extract the propeller data structure
-                    identical_props = network.identical_propellers
-                    props           = network.propellers
-    
-                    # generate the geometry of the propeller helical wake
-                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(props,identical_props,num_ctrl_pts,\
-                                                                                                                            VD,initial_timestep_offset,wake_development_time,\
-                                                                                                                            number_of_wake_timesteps,conditions)
-                    # compute the induced velocity
-                    prop_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
-
+                # extract the propeller wake and compute resulting induced velocities data structure
+                props           = network.propellers
+                prop_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
+                
+                for p in props:
+                    prop_V_wake_ind += p.Wake.evaluate_slipstream(p,geometry,num_ctrl_pts)
+                    
+                    
             if 'lift_rotors' in network.keys(): 
-                if network.number_of_lift_rotor_engines == None:
-                    pass
-                else:  
-                    # extract the propeller data structure
-                    identical_rots = network.identical_lift_rotors
-                    lift_rotors    = network.rotors
-    
-                    # generate the geometry of the propeller helical wake
-                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(lift_rotors,identical_rots,num_ctrl_pts,\
-                                                                                                                            VD,initial_timestep_offset,wake_development_time,\
-                                                                                                                            number_of_wake_timesteps,conditions)
-                    # compute the induced velocity
-                    rot_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
-
-        elif bemt_wake:
-            # adapt the RHS matrix with the BEMT induced velocities
-            if 'propellers' in network.keys():  
-                identical_flag = network.identical_propellers
-                if network.number_of_propeller_engines == None:
-                    pass
-                else:                          
-                    if not network.identical_propellers:
-                        assert('This method currently only works with identical propellers')
-                    props = network.propellers
-                    prop_V_wake_ind = compute_bemt_induced_velocity(props,geometry,num_ctrl_pts,conditions,identical_flag)
-
-            if 'lift_rotors' in network.keys(): 
-                identical_flag = network.identical_lift_rotors
-                if network.number_of_lift_rotor_engines == None:
-                    pass
-                else:                  
-                    if not network.identical_lift_rotors:
-                        assert('This method currently only works with identical rotors')
-                    rotors = network.rotors
-                    rot_V_wake_ind = compute_bemt_induced_velocity(rotors,geometry,num_ctrl_pts,conditions,identical_flag)
-
-        if propeller_wake_model or bemt_wake:
+                # extract the rotor wake and compute resulting induced velocities data structure
+                rots           = network.lift_rotors
+                rot_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
+                
+                for r in rots:
+                    rot_V_wake_ind += r.Wake.evaluate_slipstream(r,geometry,num_ctrl_pts)
+                    
+                    
             # update the total induced velocity distribution
             Vx_ind_total = Vx_ind_total + prop_V_wake_ind[:,:,0] + rot_V_wake_ind[:,:,0]
             Vy_ind_total = Vy_ind_total + prop_V_wake_ind[:,:,1] + rot_V_wake_ind[:,:,1]
             Vz_ind_total = Vz_ind_total + prop_V_wake_ind[:,:,2] + rot_V_wake_ind[:,:,2]
 
             rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
-                            Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)
+                            Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)           
+            
             return  rhs
 
     rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
                     Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)
+    
     return rhs
 
 
@@ -261,11 +227,10 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     Vy_rotation       = -YAWQ  *XGIRO + ROLLQ *ZGIRO
     Vz_rotation       = -ROLLQ *YGIRO + PITCHQ*XGIRO
 
-    Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) + Vx_rotation - Vx_ind_total
+    Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) + Vx_rotation + Vx_ind_total
     Vy                = V_distribution*np.cos(aoa_distribution)*np.sin(PSI_distribution) + Vy_rotation + Vy_ind_total
-    Vz                = V_distribution*np.sin(aoa_distribution)                          + Vz_rotation - Vz_ind_total    
-    V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 )
-
+    Vz                = V_distribution*np.sin(aoa_distribution)                          + Vz_rotation + Vz_ind_total    
+    
     aoa_distribution  = np.arctan(Vz/ np.sqrt(Vx**2 + Vy**2) )
     PSI_distribution  = np.arctan(Vy / Vx)
 

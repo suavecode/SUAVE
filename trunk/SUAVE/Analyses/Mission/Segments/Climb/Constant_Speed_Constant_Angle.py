@@ -58,6 +58,7 @@ class Constant_Speed_Constant_Angle(Unknown_Throttle):
         self.altitude_end   = 10. * Units.km
         self.climb_angle    = 3.  * Units.deg
         self.air_speed      = 100 * Units.m / Units.s
+        self.true_course    = 0.0 * Units.degrees    
         
         # --------------------------------------------------------------
         #   The Solving Process
