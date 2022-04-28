@@ -80,6 +80,7 @@ def initialize_conditions(segment):
     ground_distance = (altf-alt0)/np.tan(climb_angle)
     true_distance   = np.sqrt((altf-alt0)**2 + ground_distance**2)
     t_initial       = conditions.frames.inertial.time[0,0]    
+    elapsed_time    = (-v0_mag + np.sqrt(v0_mag**2 + 2*ax*true_distance))/(ax)   
     vf_mag          = v0_mag + ax*(elapsed_time)   
     
     # dimensionalize time        
