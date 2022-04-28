@@ -3,6 +3,7 @@ branches:
   only:
   - master
   - develop
+  - jax-develop
 image: Ubuntu2004
 build: off
 
@@ -22,6 +23,7 @@ install:
     - pip3 install --upgrade scikit-learn
     - pip3 install --upgrade matplotlib
     - pip3 install --upgrade plotly
+    - pip3 install --upgrade "jax[cpu]"
     - PATH=$PATH:/home/appveyor/.local/bin
     - pip3 install coveralls==3.2.0
     - python3 setup.py develop --user
