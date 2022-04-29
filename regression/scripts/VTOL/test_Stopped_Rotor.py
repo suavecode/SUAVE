@@ -74,7 +74,7 @@ def main():
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[0][0]
-    RPM_true   = 2379.103576756637
+    RPM_true   = 2403.004214209376
     print(RPM)
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -83,7 +83,7 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.37413e+08, 3.36788424e+08, 3.35717487e+08])
+    battery_energy_hover_to_transition_true = np.array([3.36372833e+08, 3.34188971e+08, 3.32108816e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true)
@@ -93,7 +93,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.828126216782719
+    lift_coefficient_true   = 0.8281462046145501
 
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true)
@@ -266,8 +266,6 @@ def mission_setup(analyses,vehicle):
     segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
     segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
-                                                         initial_prop_power_coefficient = 0.2,
-                                                         initial_lift_rotor_power_coefficient = 0.01,
                                                          initial_throttle_lift = 0.9,)
 
     # add to misison
@@ -281,7 +279,6 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.base )
     segment.altitude_start                              = 40.0 * Units.ft
     segment.altitude_end                                = 50.0 * Units.ft
-    segment.air_speed                                   = 0.8 * Vstall
     segment.climb_angle                                 = 1 * Units.degrees
     segment.acceleration                                = 0.5 * Units['m/s/s']
     segment.pitch_initial                               = 5. * Units.degrees

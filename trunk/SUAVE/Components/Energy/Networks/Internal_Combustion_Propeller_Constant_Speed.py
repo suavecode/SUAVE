@@ -151,8 +151,9 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
         conditions.propulsion.power = total_power
         
         results = Data()
-        results.thrust_force_vector = F
-        results.vehicle_mass_rate   = mdot
+        results.thrust_force_vector       = F
+        results.vehicle_mass_rate         = mdot
+        results.network_y_axis_rotation   = state.ones_row(1) * 0.0
         
         return results
 

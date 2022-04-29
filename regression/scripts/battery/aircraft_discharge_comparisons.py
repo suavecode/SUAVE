@@ -40,12 +40,12 @@ def main():
 
     # General Aviation Aircraft   
 
-    GA_RPM_true              = [2309.141212595346,2309.14121251718]
+    GA_RPM_true              = [2285.7997780675864,2285.799778062956]
     GA_lift_coefficient_true = [0.547471696197573,0.547471696197573]
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2380.178696410079,2380.178696821923]
+    EVTOL_RPM_true              = [2404.364318280946,2404.364318342303]
 
     EVTOL_lift_coefficient_true = [0.8075309358242124,0.8075309358160647]
     
@@ -465,7 +465,6 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.base )
     segment.altitude_start                          = 40.0 * Units.ft
     segment.altitude_end                            = 50.0 * Units.ft
-    segment.air_speed                               = 0.8 * Vstall
     segment.climb_angle                             = 1 * Units.degrees
     segment.acceleration                            = 0.5 * Units['m/s/s']
     segment.pitch_initial                           = 5. * Units.degrees

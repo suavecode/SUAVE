@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 # compute_fidelity_zero_induced_velocity.py
 # 
 # Created:  Jun 2021, R. Erhard 
@@ -11,7 +11,7 @@
 import numpy as np 
 from scipy.interpolate import interp1d
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
+## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 def compute_fidelity_zero_induced_velocity(evaluation_points, props, ctrl_pts, identical_flag=False):  
     """ This computes the velocity induced by the fidelity zero wake
     on specified evaluation points.

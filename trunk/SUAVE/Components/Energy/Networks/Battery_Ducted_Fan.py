@@ -112,7 +112,7 @@ class Battery_Ducted_Fan(Network):
         esc.voltageout(conditions)
         esc.inputs.currentout   = motor_power/esc.outputs.voltageout
         esc.currentin(conditions)
-        esc_power               = esc.inputs.voltagein*esc.outputs.currentin
+        esc_power               = esc.outputs.power_in
         
         # Run the avionics
         avionics.power()

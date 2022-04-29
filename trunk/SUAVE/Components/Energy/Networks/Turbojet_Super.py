@@ -241,8 +241,9 @@ class Turbojet_Super(Network):
         F            = F_vec
 
         results = Data()
-        results.thrust_force_vector = F
-        results.vehicle_mass_rate   = mdot
+        results.thrust_force_vector         = F
+        results.vehicle_mass_rate           = mdot
+        results.network_y_axis_rotation     = conditions.ones_row(1) * 0.0
 
         return results
 

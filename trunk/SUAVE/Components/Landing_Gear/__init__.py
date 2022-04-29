@@ -1,4 +1,4 @@
-## @defgroup components-landing_gear Landing Gear
+## @defgroup Components-Landing_Gear Landing Gear
 # Components considered are the Main and Nose Landing Gear
 ## @ingroup Components
 

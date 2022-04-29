@@ -2,7 +2,8 @@
 # extract_wing_VD.py
 #
 # Created:   Feb 2022, R. Erhard
-# Modified: 
+# Modified:  Mar 2022, R. Erhard
+#            Apr 2022, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,6 +11,7 @@
 
 # package imports
 from SUAVE.Core import Data
+import numpy as np
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def extract_wing_collocation_points(geometry, wing_instance_idx):
@@ -34,21 +36,49 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
     N/A
     """
     # unpack vortex distribution properties
-    VD          = geometry.vortex_distribution
-    span_breaks = VD.spanwise_breaks
-    wing        = list(geometry.wings.keys())[wing_instance_idx]
-    sym         = geometry.wings[wing].symmetric
+    VD           = geometry.vortex_distribution
+    sym          = VD.symmetric_wings
     
-    VD_wing  = Data()       
-    id_start = span_breaks[wing_instance_idx]
-    id_end   = span_breaks[wing_instance_idx + 1 + int(sym)]
-    ids      = range(id_start,id_end)
+    # Find the beginning and end indices of the wing
+    # all breaks
+    breaks = np.hstack([0,np.cumsum(VD.n_cw*VD.n_sw)])
     
-    VD_wing.XC   = VD.XC[ids]
-    VD_wing.YC   = VD.YC[ids]
-    VD_wing.ZC   = VD.ZC[ids]
-    VD_wing.n_cp = len(VD_wing.XC)
+    # Find the initial index of the wing
+    semispan_idx     = wing_instance_idx + np.sum(sym[0:wing_instance_idx])
+    start_pt         = breaks[semispan_idx]
+    
+    # Find the final index of the wing
+    end_semispan_idx = semispan_idx + 1 + sym[wing_instance_idx]
+    end_pt              = breaks[end_semispan_idx]
+    
+    # Make ranges of points
+    ids              = range(semispan_idx, end_semispan_idx)
+    pt_ids           = range(start_pt,end_pt)
 
-    return VD_wing, ids
+    # Pack the wing level resultss
+    VD_wing  = Data()
+    VD_wing.XC   = VD.XC[pt_ids]
+    VD_wing.YC   = VD.YC[pt_ids]
+    VD_wing.ZC   = VD.ZC[pt_ids]
+    
+    VD_wing.XA1  = VD.XA1[pt_ids]
+    VD_wing.XA2  = VD.XA2[pt_ids]
+    VD_wing.XB1  = VD.XB1[pt_ids]
+    VD_wing.XB2  = VD.XB2[pt_ids]
+    VD_wing.YA1  = VD.YA1[pt_ids]
+    VD_wing.YA2  = VD.YA2[pt_ids]
+    VD_wing.YB1  = VD.YB1[pt_ids]
+    VD_wing.YB2  = VD.YB2[pt_ids]
+    VD_wing.ZA1  = VD.ZA1[pt_ids]
+    VD_wing.ZA2  = VD.ZA2[pt_ids]
+    VD_wing.ZB1  = VD.ZB1[pt_ids]
+    VD_wing.ZB2  = VD.ZB2[pt_ids]    
+    
+    
+    VD_wing.n_cp = len(VD_wing.XC)
+    VD_wing.n_cw = VD.n_cw[ids]
+    VD_wing.n_sw = VD.n_sw[ids]
+
+    return VD_wing, pt_ids
 
 
