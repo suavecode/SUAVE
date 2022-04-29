@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Airframe
+## @ingroup Methods-Noise-Fidelity_One-Airframe
 # noise_clean_wing.py
 # 
 # Created:  Jun 2015, C. Ilario
@@ -15,8 +15,8 @@ from SUAVE.Core import Units
 # Compute the clean wing noise
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Airframe
-def noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,M,phi,theta,distance,frequency):
+## @ingroup Methods-Noise-Fidelity_One-Airframe
+def noise_clean_wing(S,b,ND,IsHorz,velocity,viscosity,M,phi,theta,distance,frequency):
     """ This computes the 1/3 octave band sound pressure level and the overall sound pressure level from the clean wing,
     for a wing with area S (sq.ft) and span b (ft).  ND is a constant set to 0 for clean wings and set to 1 for propeller
     airplanes, jet transports with numerous large trailing edge flap tracks, flaps extended, or slats extended. ISHORZ must be set to 1.
@@ -66,12 +66,11 @@ def noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,M,phi,theta,distanc
         SPL = np.zeros(24)
     else:
 
-        fmax  = 0.1*(velocity/Units.ft)/(delta*(1-M*np.cos(theta)))
-        fmaxw = 0.1*(velocity/Units.ft)/deltaw
+        fmax  = 0.1*(velocity/Units.ft)/(delta*(1-M*np.cos(theta))) 
 
         OASPL = 50*np.log10((velocity/Units.kts)/100.0)+10*np.log10(delta*b/(distance**2.0))+8*ND+ \
             20*np.log10(DIR*np.sin(theta)*np.cos(theta/2.0))+104.3
 
-        SPL   = OASPL+10.0*np.log10(0.613*(frequency/fmax)**4*((frequency/fmax)**1.5+0.5)**(-4))-0.03*np.abs(((frequency/fmaxw)-1))**1.5
+        SPL   = OASPL+10.0*np.log10(0.613*(frequency/fmax)**4*((frequency/fmax)**1.5+0.5)**(-4))-0.03*np.abs(((frequency/fmax)-1))**1.5
 
     return SPL

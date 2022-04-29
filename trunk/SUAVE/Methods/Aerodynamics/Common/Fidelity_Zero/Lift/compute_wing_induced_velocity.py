@@ -86,7 +86,7 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # ------------------------------------------------------------------------------------------- 
     # If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
-    boolean = YBH<0. 
+    boolean = YAH>YBH
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
     YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]
     ZA1[boolean], ZB1[boolean] = ZB1[boolean], ZA1[boolean]
@@ -209,8 +209,7 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
         
         EW = (W*COS1-V*SIN1)*WEIGHT
     else:
-        # Assume and warn that this function is being used outside of VLM, EW is not needed
-        print('NOTE: EW is not computed outside of VLM() unless specified.')
+        # Assume that this function is being used outside of VLM, EW is not needed
         EW = np.nan
         
 

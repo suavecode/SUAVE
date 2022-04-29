@@ -62,10 +62,6 @@ def pre_stall_coefficients(state,settings,geometry):
     if wing.vertical == True:
         alpha = 0. * np.ones_like(alpha)
         
-        
-    
-        
-        
     # Equation 6c
     RCL1          = S1*(ACL1-A0)-CL1max
     RCL1[RCL1<=0] = 1.e-16

@@ -63,13 +63,22 @@ class AVL(Markup):
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
+        settings.recalculate_total_wetted_area      = False
         
         # ------
-        settings.number_spanwise_vortices           = None
-        settings.number_chordwise_vortices          = None        
+        settings.number_spanwise_vortices           = 20
+        settings.number_chordwise_vortices          = 10    
+        settings.keep_files                         = False
+        settings.save_regression_results            = False          
+        settings.regression_flag                    = False   
+        settings.trim_aircraft                      = False 
+        settings.print_output                       = False   
         
-        settings.maximum_lift_coefficient           = np.inf 
-        
+        settings.maximum_lift_coefficient           = np.inf  
+        settings.side_slip_angle                    = 0.0
+        settings.roll_rate_coefficient              = 0.0
+        settings.pitch_rate_coefficient             = 0.0
+        settings.lift_coefficient                   = None
                 
         # Build the evaluation process
         compute = self.process.compute
@@ -86,8 +95,8 @@ class AVL(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
-        compute.drag.parasite.propulsors           = Process_Geometry('networks')
-        compute.drag.parasite.propulsors.propulsor = Common.Drag.parasite_drag_propulsor
+        compute.drag.parasite.nacelles             = Process_Geometry('nacelles')
+        compute.drag.parasite.nacelles.nacelle     = Common.Drag.parasite_drag_nacelle 
         compute.drag.parasite.pylons               = Common.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.compressibility               = Process()
@@ -121,13 +130,22 @@ class AVL(Markup):
         """  
         super(AVL, self).initialize()
         # unpack
-        sv = self.settings.number_spanwise_vortices
-        cv = self.settings.number_chordwise_vortices 
+        sv  = self.settings.number_spanwise_vortices
+        cv  = self.settings.number_chordwise_vortices 
+        kf  = self.settings.keep_files
+        srr = self.settings.save_regression_results
+        rf  = self.settings.regression_flag
+        po  = self.settings.print_output 
+        ta  = self.settings.trim_aircraft
+        ssa = self.settings.side_slip_angle
+        rrc = self.settings.roll_rate_coefficient
+        pra = self.settings.pitch_rate_coefficient
+        lc  = self.settings.lift_coefficient              
         
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         # Generate the surrogate
-        self.process.compute.lift.inviscid.initialize(sv,cv)
+        self.process.compute.lift.inviscid.initialize(sv,cv,kf,srr,rf,po,ta,ssa,rrc,pra,lc)
         
     finalize = initialize
     

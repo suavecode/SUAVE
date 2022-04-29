@@ -5,14 +5,13 @@
 # Modified: Jan 2016, E. Botero
 #           May 2019, T. MacDonald
 #           Mar 2020, M. Clarke
+#           Apr 2022, A. Blaufox
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Methods.Geometry.Three_Dimensional \
-     import angles_to_dcms, orientation_product, orientation_transpose
 
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
@@ -23,27 +22,49 @@ def unpack_unknowns(segment):
     
     # unpack unknowns
     unknowns   = segment.state.unknowns
-    velocity_x = unknowns.velocity_x
-    time       = unknowns.time
     theta      = unknowns.body_angle
+    accel_x    = unknowns.accel_x
+    time       = unknowns.time
     
-    # unpack givens
-    v0         = segment.air_speed_start  
-    vf         = segment.air_speed_end  
+    # rescale time
     t_initial  = segment.state.conditions.frames.inertial.time[0,0]
-    t_nondim   = segment.state.numerics.dimensionless.control_points
-    
-    # time
     t_final    = t_initial + time  
+    t_nondim   = segment.state.numerics.dimensionless.control_points
     time       = t_nondim * (t_final-t_initial) + t_initial     
 
-    #apply unknowns
+    # build acceleration
+    N          = segment.state.numerics.number_control_points
+    a          = np.zeros((N, 3))
+    a[:, 0]    = accel_x[:,0]
+    
+    # apply unknowns
     conditions = segment.state.conditions
-    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
-    conditions.frames.inertial.velocity_vector[0,0] = v0
     conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]  
+    conditions.frames.inertial.acceleration_vector  = a
     conditions.frames.inertial.time[:,0]            = time[:,0]
     
+    return 
+
+# ----------------------------------------------------------------------
+#  Integrate Velocity
+# ---------------------------------------------------------------------- 
+
+def integrate_velocity(segment):
+    
+    # unpack 
+    conditions = segment.state.conditions
+    v0         = segment.air_speed_start
+    I          = segment.state.numerics.time.integrate
+    a          = conditions.frames.inertial.acceleration_vector
+    
+    # compute x-velocity
+    velocity_x = v0 + np.dot(I, a)[:,0]   
+
+    # pack velocity
+    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
+    
+    return
+
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------    
@@ -104,9 +125,6 @@ def initialize_conditions(segment):
     segment.air_speed_start = v0
     segment.air_speed_end   = vf
     
-    # Initialize the x velocity unknowns to speed convergence:
-    segment.state.unknowns.velocity_x = np.linspace(v0,vf,N)
-    
     # pack conditions  
     segment.state.conditions.propulsion.throttle[:,0] = throttle  
     segment.state.conditions.freestream.altitude[:,0] = alt
@@ -148,17 +166,11 @@ def solve_residuals(segment):
     FT = conditions.frames.inertial.total_force_vector
     vf = segment.air_speed_end
     v  = conditions.frames.inertial.velocity_vector
-    D  = segment.state.numerics.time.differentiate
     m  = conditions.weights.total_mass
-
-    # process and pack
-    acceleration = np.dot(D , v)
-    conditions.frames.inertial.acceleration_vector = acceleration
-    
-    a  = segment.state.conditions.frames.inertial.acceleration_vector
+    a  = conditions.frames.inertial.acceleration_vector
 
     segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
-    segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] #- a[:,2]   
+    segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] 
     segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
 
     return

@@ -17,6 +17,7 @@ from . import Fuselages
 from . import Payloads
 from . import Energy
 from . import Systems
+from . import Nacelles
 from . import Configs
 from . import Landing_Gear
 from . import Costs

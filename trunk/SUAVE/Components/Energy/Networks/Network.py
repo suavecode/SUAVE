@@ -5,6 +5,7 @@
 # Modified: Feb 2016, T. MacDonald
 #           May 2020, E. Botero
 #           Jul 2021, E. Botero
+#           Dec 2021, S. CLaridge
 
 
 # ----------------------------------------------------------------------
@@ -55,8 +56,7 @@ class Network(Physical_Component):
         self.tag = 'network'
         self.generative_design_max_per_vehicle = 1
         self.non_dimensional_origin = [[0.0,0.0,0.0]]
-        self.number_of_engines = 1.0
-        self.nacelle_diameter  = 1.0
+        self.number_of_engines = 1
         self.engine_length     = 1.0
         self.wing_mounted      = True
         
@@ -127,10 +127,19 @@ class Container(Physical_Component.Container):
         ones_row = state.ones_row
         
         results = Data()
-        results.thrust_force_vector = 0.*ones_row(3)
-        results.vehicle_mass_rate   = 0.*ones_row(1)
+        results.thrust_force_vector       = 0.*ones_row(3)
+        results.vehicle_mass_rate         = 0.*ones_row(1)
+        results.network_y_axis_rotation   = 0.*ones_row(1)
 
         for net in self.values():
+
+            if hasattr(net, 'has_additional_fuel_type'):
+                
+                if net.has_additional_fuel_type: #Check if Network has additional fuel
+
+                    results.vehicle_additional_fuel_rate  =  0.*ones_row(1) #fuel rate for additional fuel types, eg cryogenic fuel
+                    results.vehicle_fuel_rate             =  0.*ones_row(1)    
+
             results_p = net.evaluate_thrust(state) 
             
             for key in results.keys():

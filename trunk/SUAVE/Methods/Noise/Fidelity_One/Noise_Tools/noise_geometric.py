@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # noise_geometric.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -16,7 +16,7 @@ import numpy as np
 #   Noise Geometric
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 def noise_geometric(noise_segment,analyses,config):
     """ This computes the geometric parameters for the noise tools: distance and emission angles for 
     both polar and azimuthal angles.
@@ -151,8 +151,8 @@ def noise_geometric(noise_segment,analyses,config):
         theta[flag] = (np.pi - np.arccos(np.abs((x0-s)/dist)))[flag]
         
         # append and update microphone locations to conditions
-        num_mic              = noise_segment.state.conditions.noise.number_of_microphones
-        mic_locations        = noise_segment.state.conditions.noise.microphone_locations 
+        num_mic              = noise_segment.state.conditions.noise.total_number_of_microphones
+        mic_locations        = noise_segment.state.conditions.noise.total_microphone_locations 
         mic_locations        = np.zeros((n_steps,num_mic,3))   
         mic_locations[:,:,0] = np.repeat(np.atleast_2d(s-x0).T, num_mic, axis =1)
         mic_locations[:,:,1] = np.repeat(np.atleast_2d(y0).T, num_mic, axis =1)

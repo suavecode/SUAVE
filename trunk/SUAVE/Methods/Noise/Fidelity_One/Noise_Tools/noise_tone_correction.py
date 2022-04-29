@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # noise_tone_correction.py
 #
 # Created:  Jul 2015, C. Ilario
@@ -14,7 +14,7 @@ import numpy as np
 #  Noise Tone Correction
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 def noise_tone_correction(SPL):
     """This method calculates de correction for spectral irregularities by means of
         a correction tone factor
@@ -69,9 +69,9 @@ def noise_tone_correction(SPL):
         step3b = np.zeros(23)
         for i in range(3,23):
             if delta_slope[i]==1 and slope[i]>0 and slope[i]>slope[i-1]:
-                step3a[i] = 1
+                step3a[i]   = 1
             if  delta_slope[i]==1 and slope[i]<=0 and slope[i-1]>0:
-                step3b[i] = 1
+                step3b[i-1] = 1
         step3 = step3a + step3b
         
         #------------------------------------------------------------
@@ -81,7 +81,7 @@ def noise_tone_correction(SPL):
         for i in range(1,23):
             if step3[i]!=0 and i<23:
                 step4[i] = (SPL[j][i-1]+SPL[j][i+1])/2
-            if step3[i]!=0 and i==23:
+            if step3[i]!=0 and i==22:
                 step4[i] = SPL[j][i-1]+slope[i-1]
             if step3[i]==0:
                 step4[i] = SPL[j][i]
@@ -143,25 +143,25 @@ def noise_tone_correction(SPL):
         tone_correction = np.zeros(23)
         for i in range(2,9):
             if step8[i]>=1.5 and step8[i]<3:
-                tone_correction = (step8[i]/3)-0.5
+                tone_correction[i] = (step8[i]/3)-0.5
             if step8[i]>=3 and step8[i]<20:
-                tone_correction = step8[i]/6.
+                tone_correction[i] = step8[i]/6.
             if step8[i]>20:
-                tone_correction = 3+(1/3)
+                tone_correction[i] = 3+(1/3)
         for i in range(10,20):
             if step8[i]>=1.5 and step8[i]<3:
-                tone_correction = (2/3)*(step8[i])-1
+                tone_correction[i] = (2/3)*(step8[i])-1
             if step8[i]>=3 and step8[i]<20:
-                tone_correction = step8[i]/3.
+                tone_correction[i] = step8[i]/3.
             if step8[i]>20:
-                tone_correction = 6+(2/3)
+                tone_correction[i] = 6+(2/3)
         for i in range(21,23):
             if step8[i]>=1.5 and step8[i]<3:
-                tone_correction = (step8[i]/3)-(1/2)
+                tone_correction[i] = (step8[i]/3)-(1/2)
             if step8[i]>=3 and step8[i]<20:
-                tone_correction = step8[i]/6.
+                tone_correction[i] = step8[i]/6.
             if step8[i]>20:
-                tone_correction = 3+(1/3)
+                tone_correction[i] = 3+(1/3)
                 
         #------------------------------------------------------------
         #STEP 10 - Largest tone correction factor

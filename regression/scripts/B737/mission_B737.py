@@ -6,6 +6,7 @@
 #           Mar 2020, M. Clarke
 #           Apr 2020, M. Clarke
 #           Apr 2020, E. Botero
+#           Aug 2021, R. Erhard
 
 """ setup file for a mission with a 737
 """
@@ -17,8 +18,8 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import *
-from SUAVE.Plots.Geometry_Plots import * 
+from SUAVE.Plots.Performance.Mission_Plots import *
+from SUAVE.Plots.Geometry import * 
 import matplotlib.pyplot as plt  
 import numpy as np 
 
@@ -57,17 +58,20 @@ def main():
     # load older results
     #save_results(results)
     old_results = load_results()   
-
-    # plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-')
-    #plt.show(block=True)
     
     # check the results
     check_results(results,old_results) 
     
+    # plt the old results
+    plot_mission(results)
+    plot_mission(old_results,'k-')
+    #plt.show(block=True)    
+    
     # print weights breakdown
     print_weight_breakdown(configs.cruise)
+
+    #print mission breakdown
+    print_mission_breakdown(results)
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
@@ -149,6 +153,7 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry                            = vehicle
+    aerodynamics.settings.use_surrogate              = True
     aerodynamics.settings.number_spanwise_vortices   = 5
     aerodynamics.settings.number_chordwise_vortices  = 2    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
@@ -350,6 +355,9 @@ def mission_setup(analyses):
     segment.distance  = (3933.65 + 770 - 92.6) * Units.km
     
     segment.state.numerics.number_control_points = 10
+    
+    # post-process aerodynamic derivatives in cruise
+    segment.process.finalize.post_process.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Static_Stability.compute_aero_derivatives
 
     # add to mission
     mission.append_segment(segment)
@@ -514,6 +522,8 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.stability.static.Cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
+        'segments.cruise.conditions.aero_derivatives.dCL_dAlpha',
+        'segments.cruise.conditions.aero_derivatives.dCn_dBeta'
     ]
 
     # do the check

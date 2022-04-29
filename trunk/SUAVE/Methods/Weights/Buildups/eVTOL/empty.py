@@ -19,8 +19,6 @@ from SUAVE.Components.Energy.Networks import Battery_Propeller
 from SUAVE.Components.Energy.Networks import Lift_Cruise
 
 import numpy as np
-from warnings import  warn
-
 
 #-------------------------------------------------------------------------------
 # Empty
@@ -164,7 +162,7 @@ def empty(config,
     if len(config.fuselages) == 0.:
         for w  in config.wings:
             if isinstance(w ,C.Wings.Main_Wing):
-                b = wing.chords.root
+                b = w.chords.root
                 if b>length_scale:
                     length_scale = b
                     nose_length  = 0.25*b
@@ -231,20 +229,23 @@ def empty(config,
             rots          = network.lift_rotors
             prop_motors   = network.propeller_motors
             rot_motors    = network.lift_rotor_motors
-
+            
+            nProps  = int(nLiftRotors + nThrustProps)
 
         elif isinstance(network, Battery_Propeller):
             # Total number of rotors and propellers
+            nProps = network.number_of_propeller_engines
+            props  = network.propellers
+            prop_motors = network.propeller_motors
+            
+            nThrustProps  = nProps
             nLiftRotors   = 0
-            nThrustProps  = network.number_of_propeller_engines
-            props         = network.propellers
-            prop_motors   = network.propeller_motors
 
         else:
-            warn("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
-            Weight buildup will not return information on propulsion system.""", stacklevel=1)
+            raise NotImplementedError("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
+            Weight buildup will not return information on propulsion system.""",RuntimeWarning)
 
-        nProps  = int(nLiftRotors + nThrustProps)
+        
         if nProps > 1:
             prop_BRS_weight     = 16.   * Units.kg
         else:

@@ -27,16 +27,15 @@ def windmilling_drag(geometry,state):
 
     Source:
     http://www.dept.aoe.vt.edu/~mason/Mason_f/AskinThesis2002_13.pdf
-    
+
     Inputs:
     geometry.
       max_mach_operational        [Unitless]
       reference_area              [m^2]
       wings.sref                  [m^2]
-      networks. 
+      networks.
         areas.wetted              [m^2]
-        nacelle_diameter          [m^2]
-        engine_length             [m^2]
+        length                    [m]
 
     Outputs:
     windmilling_drag_coefficient  [Unitless]
@@ -45,13 +44,13 @@ def windmilling_drag(geometry,state):
     N/A
     """    
     # ==============================================
-	# Unpack
+        # Unpack
     # ==============================================
     vehicle = geometry
 
     # Defining reference area
     if vehicle.reference_area:
-            reference_area = vehicle.reference_area
+        reference_area = vehicle.reference_area
     else:
         n_wing = 0
         for wing in vehicle.wings:
@@ -68,24 +67,9 @@ def windmilling_drag(geometry,state):
                 break
 
     # getting geometric data from engine (estimating when not available)
-    for idx,network in enumerate(vehicle.networks):
-        try:
-            swet_nac = network.areas.wetted
-        except:
-            try:
-                D_nac = network.nacelle_diameter
-                if network.engine_length != 0.:
-                    l_nac = network.engine_length
-                else:
-                    try:
-                        MMO = vehicle.max_mach_operational
-                    except:
-                        MMO = 0.84
-                    D_nac_in = D_nac / Units.inches
-                    l_nac = (2.36 * D_nac_in - 0.01*(D_nac_in*MMO)**2) * Units.inches
-            except AttributeError:
-                print('Error calculating windmilling drag. Engine dimensions missing.')
-            swet_nac = 5.62 * D_nac * l_nac
+    swet_nac = 0
+    for nacelle in vehicle.nacelles: 
+        swet_nac += nacelle.areas.wetted
 
     # Compute
     windmilling_drag_coefficient = 0.007274 * swet_nac / reference_area

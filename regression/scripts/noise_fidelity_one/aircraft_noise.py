@@ -13,11 +13,11 @@ import SUAVE
 from SUAVE.Core import Units 
 import numpy as np    
 from SUAVE.Core import Data 
-from SUAVE.Plots.Mission_Plots import *   
+from SUAVE.Plots.Performance.Mission_Plots import *   
+from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Noise.Certification import sideline_noise, flyover_noise, approach_noise
-
-
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import generate_building_microphone_points 
 import matplotlib.pyplot as plt 
 
 import sys
@@ -38,8 +38,8 @@ def main():
     # ----------------------------------------------------------------------
     # SUAVE Frequency Domain Propeller Aircraft Noise Model 
     # ---------------------------------------------------------------------- 
-    configs, analyses = X57_full_setup() 
- 
+    configs, analyses = X57_full_setup()  
+    
     configs.finalize()
     analyses.finalize()   
     
@@ -53,13 +53,15 @@ def main():
     
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
-    X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-    X57_SPL_true   = 81.49359840432146
+
+    X57_SPL        = X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA[0][0]
+    X57_SPL_true   = 66.26047007599651
+    
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
     print(X57_diff_SPL)
-    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-6    
+    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-3   # lower tolerance for highly machine tolerance sensitive computation
     
     # ----------------------------------------------------------------------
     # SAE Turbofan Aircraft Noise Model 
@@ -81,7 +83,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SAE Turbofan Aircraft Noise Model')
     B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
-    B737_SPL_true   = 27.767647082406157
+    B737_SPL_true   = 27.760627174951193
     print(B737_SPL) 
     B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
     print('SPL difference')
@@ -96,6 +98,9 @@ def X57_full_setup():
 
     # vehicle data
     vehicle  = X57_vehicle_setup()
+    
+    # change identical propeller flag for regression coverage even though propellers are identical 
+    vehicle.networks.battery_propeller.identical_propellers = False
     
     # Set up configs
     configs  = X57_configs_setup(vehicle)
@@ -164,13 +169,22 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry = vehicle
-    aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.drag_coefficient_increment = 0.0000 
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
     #  Noise Analysis
     noise = SUAVE.Analyses.Noise.Fidelity_One()   
     noise.geometry = vehicle  
+    urban_canyon_microphone_array,building_locations,building_dimensions,N_x,N_y,N_z = urban_canyon_microphone_setup() 
+    noise.settings.urban_canyon_microphone_locations    = urban_canyon_microphone_array
+    noise.settings.urban_canyon_building_locations      = building_locations
+    noise.settings.urban_canyon_building_dimensions     = building_dimensions
+    noise.settings.urban_canyon_microphone_x_resolution = N_x 
+    noise.settings.urban_canyon_microphone_y_resolution = N_y
+    noise.settings.urban_canyon_microphone_z_resolution = N_z  
+    noise.settings.level_ground_microphone_x_resolution = 2
+    noise.settings.level_ground_microphone_y_resolution = 2        
     analyses.append(noise)
 
     # ------------------------------------------------------------------
@@ -230,7 +244,30 @@ def simple_sizing(configs):
 #   Define the Mission
 # ----------------------------------------------------------------------
 
+def urban_canyon_microphone_setup():  
+    
+    # define building locations 
+    building_locations  = [[200,150,0],[400,-200,0]] # [[x,y,z]]     
+     
+    # define building dimensions  
+    building_dimensions = [[100,200,75],[160,160,90]] # [[length,width,height]]     
+    
+    N_X = 2
+    N_Y = 2
+    N_Z = 2
+    mic_locations  = generate_building_microphone_points(building_locations,building_dimensions,N_x = N_X ,N_y = N_Y ,N_z = N_Z ) 
+     
+    return mic_locations,building_locations ,building_dimensions,N_X ,N_Y ,N_Z 
+
 def X57_mission_setup(analyses,vehicle):  
+    
+
+    # Determine Stall Speed 
+    vehicle_mass   = vehicle.mass_properties.max_takeoff
+    reference_area = vehicle.reference_area
+    altitude       = 0.0 
+    CL_max         = 1.2  
+    Vstall         = estimate_stall_speed(vehicle_mass,reference_area,altitude,CL_max)   
     
     # ------------------------------------------------------------------
     #   Initialize the Mission
@@ -251,31 +288,26 @@ def X57_mission_setup(analyses,vehicle):
     
     # base segment
     base_segment                                             = Segments.Segment()
-    ones_row                                                 = base_segment.state.ones_row
-    base_segment.use_Jacobian                                = False  
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    ones_row                                                 = base_segment.state.ones_row 
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.state.numerics.number_control_points        = 4  
+    base_segment.state.numerics.number_control_points        = 4   
     
     # ------------------------------------------------------------------
-    #   Initial Climb Area Segment Flight 1  
+    #   Departure End of Runway Segment Flight 1 : 
     # ------------------------------------------------------------------ 
     segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
-    segment.tag = 'ICA' 
-    segment.analyses.extend( analyses.base )  
-    segment.battery_energy                                   = vehicle.networks.battery_propeller.battery.max_energy  
-    segment.state.unknowns.throttle                          = 0.85  * ones_row(1)  
-    segment.altitude_start                                   = 50.0 * Units.feet
-    segment.altitude_end                                     = 500.0 * Units.feet
-    segment.air_speed_start                                  = 45  * Units['m/s']   
-    segment.air_speed_end                                    = 50 * Units['m/s']   
-    segment.climb_rate                                       = 600 * Units['ft/min']    
-    
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
-    
+    segment.tag = 'Departure_End_of_Runway'    
+    segment.analyses.extend( analyses.base )      
+    segment.altitude_start                                   = 0.0 * Units.feet
+    segment.altitude_end                                     = 50.0 * Units.feet
+    segment.air_speed_start                                  = Vstall*1.1 
+    segment.air_speed_end                                    = Vstall*1.2       
+    segment.climb_rate                                       = 600 * Units['ft/min']  
+    segment.state.unknowns.throttle                          = 0.75 * ones_row(1)  
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)  
     mission.append_segment(segment) 
-              
-    
+
     return mission
 
 def B737_mission_setup(analyses): 
@@ -617,10 +649,10 @@ def B737_missions_setup(base_mission,analyses):
 def plot_results(results,filename):   
     
     # Plot noise level
-    plot_noise_level(results,save_filename = filename)
+    plot_ground_noise_levels(results,save_filename = filename)
     
     # Plot noise contour
-    plot_flight_profile_noise_contour(results,save_filename = filename + 'contour') 
+    plot_flight_profile_noise_contours(results,save_filename = filename + 'contour',show_figure=False)  # show figure set to false for regression.
                         
     return  
 

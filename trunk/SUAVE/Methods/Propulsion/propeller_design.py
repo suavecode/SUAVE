@@ -6,6 +6,7 @@
 #           Jul 2017, M. Clarke
 #           Mar 2020, M. Clarke
 #           Sep 2020, M. Clarke
+#           Feb 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,19 +14,15 @@
 
 import SUAVE
 import numpy as np
-import scipy as sp
-from SUAVE.Core import Units , Data
-from scipy.optimize import root
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
-     import import_airfoil_geometry
-
+import scipy as sp 
+from scipy.optimize import root 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
 
-def propeller_design(prop,number_of_stations=20):
+def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points = 100):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
@@ -38,6 +35,7 @@ def propeller_design(prop,number_of_stations=20):
             number of blades               
             number of stations
             design lift coefficient
+            design_altitude                  [m]
             airfoil data
             
           Outputs:
@@ -123,7 +121,15 @@ def propeller_design(prop,number_of_stations=20):
         print('\nDefaulting to scaled DAE51')
         airfoil_flag    = False   
         airfoil_cl_surs = None
-        airfoil_cd_surs = None
+        airfoil_cd_surs = None 
+        
+        
+    # Step 4, determine epsilon and alpha from airfoil data  
+    if airfoil_flag:   
+        # compute airfoil polars for airfoils 
+        airfoil_data    = compute_airfoil_polars(a_geo, a_pol,npoints = number_of_airfoil_section_points)  
+        airfoil_cl_surs = airfoil_data.lift_coefficient_surrogates 
+        airfoil_cd_surs = airfoil_data.drag_coefficient_surrogates          
      
     while diff>tol:      
         # assign chord distribution
@@ -144,13 +150,8 @@ def propeller_design(prop,number_of_stations=20):
         Ma      = Wc/speed_of_sound
         RE      = Wc/nu
 
-        # Step 4, determine epsilon and alpha from airfoil data  
+
         if airfoil_flag:   
-            # compute airfoil polars for airfoils 
-            airfoil_polars  = compute_airfoil_polars(a_geo, a_pol)  
-            airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates 
-            airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates  
-            
             # assign initial values 
             alpha0   = np.ones(N)*0.05
             
@@ -161,7 +162,7 @@ def propeller_design(prop,number_of_stations=20):
             # query surrogate for sectional Cls at stations 
             Cdval    = np.zeros_like(RE) 
             for j in range(len(airfoil_cd_surs)):                 
-                Cdval_af    = airfoil_cd_surs[a_geo[j]](RE,alpha,grid=False)  
+                Cdval_af    = airfoil_cd_surs[a_geo[j]]((RE,alpha))
                 locs        = np.where(np.array(a_loc) == j )
                 Cdval[locs] = Cdval_af[locs]    
                 
@@ -251,15 +252,14 @@ def propeller_design(prop,number_of_stations=20):
     # compute max thickness distribution  
     t_max  = np.zeros(N)    
     t_c    = np.zeros(N)   
-    if airfoil_flag:     
-        airfoil_geometry_data = import_airfoil_geometry(a_geo) 
-        t_max = np.take(airfoil_geometry_data.max_thickness,a_loc,axis=0)*c 
-        t_c   =  np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)  
+    if airfoil_flag:      
+        t_max                 = np.take(airfoil_data.max_thickness,a_loc,axis=0)*c 
+        t_c                   = np.take(airfoil_data.thickness_to_chord,a_loc,axis=0)  
     else:     
-        c_blade  = np.repeat(np.atleast_2d(np.linspace(0,1,N)),N, axis = 0)* np.repeat(np.atleast_2d(c).T,N, axis = 1)
-        t        = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
-        t_max    = np.max(t,axis = 1) 
-        t_c      = np.max(t,axis = 1) /c 
+        c_blade                    = np.repeat(np.atleast_2d(np.linspace(0,1,N)),N, axis = 0)* np.repeat(np.atleast_2d(c).T,N, axis = 1)
+        t                          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
+        t_max                      = np.max(t,axis = 1) 
+        t_c                        = np.max(t,axis = 1) /c  
             
     # Nondimensional thrust
     if prop.design_power == None: 
@@ -272,20 +272,21 @@ def propeller_design(prop,number_of_stations=20):
     blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
     sigma      = blade_area[-1]/(np.pi*R**2)   
     
-    prop.design_torque              = Power[0]/omega
-    prop.max_thickness_distribution = t_max
-    prop.twist_distribution         = beta
-    prop.chord_distribution         = c
-    prop.radius_distribution        = r 
-    prop.number_of_blades           = int(B) 
-    prop.design_power_coefficient   = Cp 
-    prop.design_thrust_coefficient  = Ct 
-    prop.mid_chord_alignment        = MCA
-    prop.thickness_to_chord         = t_c 
-    prop.blade_solidity             = sigma  
-    prop.airfoil_cl_surrogates      = airfoil_cl_surs
-    prop.airfoil_cd_surrogates      = airfoil_cd_surs 
-    prop.airfoil_flag               = airfoil_flag
+    prop.design_torque                    = Power[0]/omega
+    prop.max_thickness_distribution       = t_max
+    prop.twist_distribution               = beta
+    prop.chord_distribution               = c
+    prop.radius_distribution              = r 
+    prop.number_of_blades                 = int(B) 
+    prop.design_power_coefficient         = Cp 
+    prop.design_thrust_coefficient        = Ct 
+    prop.mid_chord_alignment              = MCA
+    prop.thickness_to_chord               = t_c 
+    prop.blade_solidity                   = sigma  
+    prop.airfoil_cl_surrogates            = airfoil_cl_surs
+    prop.airfoil_cd_surrogates            = airfoil_cd_surs 
+    prop.airfoil_flag                     = airfoil_flag 
+    prop.number_of_airfoil_section_points = number_of_airfoil_section_points
 
     return prop
 
@@ -294,7 +295,7 @@ def objective(x, airfoil_cl_surs, RE , a_geo ,a_loc, Cl ,N):
     # query surrogate for sectional Cls at stations 
     Cl_vals = np.zeros(N)     
     for j in range(len(airfoil_cl_surs)):                 
-        Cl_af         = airfoil_cl_surs[a_geo[j]](RE,x,grid=False)   
+        Cl_af         = airfoil_cl_surs[a_geo[j]]((RE,x))
         locs          = np.where(np.array(a_loc) == j )
         Cl_vals[locs] = Cl_af[locs] 
         

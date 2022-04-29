@@ -54,7 +54,6 @@ class Ducted_Fan(Network):
         #setting the default values
         self.tag = 'Ducted_Fan'
         self.number_of_engines = 1.0
-        self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
         self.bypass_ratio      = 0.0
         self.areas             = Data()
@@ -152,9 +151,10 @@ class Ducted_Fan(Network):
       
         #pack outputs
         results = Data()
-        results.thrust_force_vector = F
-        results.vehicle_mass_rate   = mdot
-        results.power               = np.divide(output_power[:,0],propulsive_efficiency[:,0])
+        results.thrust_force_vector       = F
+        results.vehicle_mass_rate         = mdot
+        results.power                     = np.divide(output_power[:,0],propulsive_efficiency[:,0])
+        results.network_y_axis_rotation   = conditions.ones_row(1) * 0.0
         
         # store data
         results_conditions = Data

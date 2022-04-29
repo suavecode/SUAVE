@@ -5,6 +5,7 @@
 # Modified: Mar 2020, M. Clarke
 #           Jan 2021, E. Botero
 #           Jan 2021, R. Erhard
+#           Nov 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,15 +17,17 @@ from SUAVE.Methods.Aerodynamics.AERODAS.pre_stall_coefficients import pre_stall_
 from SUAVE.Methods.Aerodynamics.AERODAS.post_stall_coefficients import post_stall_coefficients 
 from .import_airfoil_geometry import import_airfoil_geometry 
 from .import_airfoil_polars   import import_airfoil_polars 
-from scipy.interpolate        import RectBivariateSpline
 import numpy as np
 
+from scipy.interpolate import RegularGridInterpolator
+
+
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
+def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
-    are obtained in the from of a text file of airfoil polar data obtained from airfoiltools.com
+    are obtained in the form of a text file of airfoil polar data obtained from airfoiltools.com
     
     Assumptions:
     Uses AERODAS formulation for post stall characteristics 
@@ -50,12 +53,18 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     """  
     
     num_airfoils = len(a_geo)
-    num_polars   = len(a_polar[0])
-    if num_polars < 3:
-        raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+    
+    # check number of polars per airfoil in batch
+    num_polars   = 0
+    for i in range(num_airfoils): 
+        n_p = len(a_polar[i])
+        if n_p < 3:
+            raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+        
+        num_polars = max(num_polars, n_p)        
 
     # read airfoil geometry  
-    airfoil_data = import_airfoil_geometry(a_geo)
+    airfoil_data = import_airfoil_geometry(a_geo, npoints = npoints)
 
     # Get all of the coefficients for AERODAS wings
     AoA_sweep_deg = np.linspace(-14,90,105)
@@ -91,7 +100,7 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
         # Modify the "wing" slightly:
         geometry.thickness_to_chord = airfoil_data.thickness_to_chord[i]
         
-        for j in range(num_polars):
+        for j in range(len(a_polar[i])):
             # Extract from polars
             airfoil_cl         = airfoil_polar_data.lift_coefficients[i,j] 
             airfoil_cd         = airfoil_polar_data.drag_coefficients[i,j] 
@@ -161,9 +170,14 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
             
             if use_pre_stall_data == True:
                 CL[i,j,:], CD[i,j,:] = apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL[i,j,:], CD[i,j,:])
-                
-        CL_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CL[i,:,:])  
-        CD_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CD[i,:,:])   
+        
+        # remove placeholder values (for airfoils that have different number of polars)
+        n_p      = len(a_polar[i])
+        RE_data  = airfoil_polar_data.reynolds_number[i][0:n_p]
+        aoa_data = AoA_sweep_radians
+        
+        CL_sur = RegularGridInterpolator((RE_data, aoa_data), CL[i,0:n_p,:],bounds_error=False,fill_value=None)  
+        CD_sur = RegularGridInterpolator((RE_data, aoa_data), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
         
         CL_surs[a_geo[i]]  = CL_sur
         CD_surs[a_geo[i]]  = CD_sur   

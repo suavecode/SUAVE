@@ -5,12 +5,18 @@
 # Modified: Jan 2020, M. Clarke
 #           May 2020, E. Botero
 #           Jul 2021, E. Botero
+#           Oct 2021, E. Botero
 
 
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
+
+import numpy as np
+from .Arrays import atleast_2d_col, array_type, matrix_type, append_array
+
+from copy import copy
 
 # for enforcing attribute style access names
 import string
@@ -162,7 +168,10 @@ class Data(dict):
                 
         # fill in defaults trunk to leaf
         for klass in klasses[::-1]:
-            klass.__defaults__(self)
+            try:
+                klass.__defaults__(self)
+            except:
+                pass
             
         return self
     
@@ -435,7 +444,42 @@ class Data(dict):
                 self[k].update(v)
             except:
                 self[k] = v
-        return         
+        return
+    
+    def append_or_update(self,other):
+        """ Appends an array or updates the internal values of a dictionary with given data
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            other
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """           
+        if not isinstance(other,dict):
+            raise TypeError('input is not a dictionary type')
+        for k,v in other.items():
+            # recurse only if self's value is a Dict()
+            if k.startswith('_'):
+                continue
+            
+            # Check if v is an array and if k is a key in self
+            if isinstance(v,array_type) and hasattr(self,k):
+                self[k] = append_array(self[k],v)
+            else:
+                try:
+                    self[k].append_or_update(v)
+                except:
+                    self[k] = copy(v)
+        return          
     
     def get_bases(self):
         """ Finds the higher classes that may be built off of data
@@ -589,9 +633,6 @@ class Data(dict):
         
         """
         
-        # dont require dict to have numpy
-        import numpy as np
-        from .Arrays import atleast_2d_col, array_type, matrix_type
         
         # check output type
         if not output in ('vector','array'): raise Exception('output type must be "vector" or "array"')        

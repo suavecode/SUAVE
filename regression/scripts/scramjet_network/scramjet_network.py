@@ -125,8 +125,7 @@ def energy_network():
     
     # setup
     scramjet.number_of_engines = 1.0
-    scramjet.engine_length     = 4.0
-    scramjet.nacelle_diameter  = 0.3  * Units.meter
+    scramjet.engine_length     = 4.0 
     scramjet.inlet_diameter    = 0.21 * Units.meter
     
     # working fluid

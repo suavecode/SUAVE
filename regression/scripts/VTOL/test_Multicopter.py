@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Performance.Mission_Plots import *
 import numpy as np
 import sys
 
@@ -50,7 +50,7 @@ def main():
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.propeller_rpm[0][0]
-    RPM_true   = 1583.6527092402382
+    RPM_true   = 1573.7516164319331
 
     print(RPM)
     diff_RPM = np.abs(RPM - RPM_true)
@@ -60,13 +60,13 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([3.77518368e+08, 3.74165045e+08, 3.70802756e+08])
+    battery_energy_transition_true    = np.array([2.01217616e+08, 1.92155752e+08, 1.83082139e+08])
 
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true)
     print('battery energy of transition')
     print(diff_battery_energy_transition)
-    assert all(np.abs((battery_energy_transition - battery_energy_transition_true)/battery_energy_transition) < 1e-3)
+    assert all(np.abs((battery_energy_transition - battery_energy_transition_true)/battery_energy_transition_true) < 1e-3)
 
 
     return
@@ -123,22 +123,6 @@ def configs_setup(vehicle):
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
-
-    # ------------------------------------------------------------------
-    #   Hover Configuration
-    # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'hover'
-    config.networks.battery_propeller.pitch_command            = 0.  * Units.degrees
-    configs.append(config)
-
-    # ------------------------------------------------------------------
-    #    Configuration
-    # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'climb'
-    config.networks.battery_propeller.pitch_command            = 0. * Units.degrees
-    configs.append(config)
 
     return configs
 
@@ -211,7 +195,7 @@ def mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     segment                                               = Segments.Hover.Climb(base_segment)
     segment.tag                                           = "Climb"
-    segment.analyses.extend( analyses.climb)
+    segment.analyses.extend( analyses.base)
     segment.altitude_start                                = 0.0  * Units.ft
     segment.altitude_end                                  = 40.  * Units.ft
     segment.climb_rate                                    = 300. * Units['ft/min']
@@ -219,8 +203,7 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                       = 0.9 * ones_row(1)
     segment.process.iterate.conditions.stability          = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability       = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
-                                                                                         initial_power_coefficient = 0.01)
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient=0.02)
 
     # add to misison
     mission.append_segment(segment)
@@ -230,7 +213,7 @@ def mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     segment                                                 = Segments.Hover.Hover(base_segment)
     segment.tag                                             = "Hover"
-    segment.analyses.extend( analyses.hover )
+    segment.analyses.extend( analyses.base)
     segment.altitude                                        = 40.  * Units.ft
     segment.time                                            = 2*60
     segment.process.iterate.conditions.stability            = SUAVE.Methods.skip
@@ -275,7 +258,7 @@ def plot_mission(results,line_style='bo-'):
     plot_aircraft_velocities(results, line_style)
 
     # Plot Aircraft Electronics
-    plot_electronic_conditions(results, line_style)
+    plot_battery_pack_conditions(results, line_style)
 
     # Plot Propeller Conditions
     plot_propeller_conditions(results, line_style)

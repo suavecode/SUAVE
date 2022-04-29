@@ -18,7 +18,7 @@
 import SUAVE
 # Units allow any units to be specificied with SUAVE then automatically converting them the standard
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import * 
+from SUAVE.Plots.Performance.Mission_Plots import * 
 
 # Numpy is use extensively throughout SUAVE
 import numpy as np
@@ -134,15 +134,18 @@ def equivalent_area(vehicle,analyses,conditions):
     
     X_locs, AE_x, _ = lift_equivalent_area(vehicle,analyses,conditions)
     
-    regression_X_locs = np.array([ 0.         , 30.0744302 , 36.06867764, 40.19106341, 42.87922798, 43.75864575,
-                                   44.46766888, 44.75288937, 45.40259517, 45.75309872, 45.83545016, 50.60861803,
-                                   53.90976954, 55.43400893, 56.10861803, 56.78777765, 57.28419734, 57.49949357,
-                                   57.99040541, 58.61763071, 58.94738099, 77.075     ])
-    
-    regression_AE_x   = np.array([ 0.         , 8.40446297 , 12.77123494, 18.13723062, 20.1479308 , 24.54590694,
-                                   25.03871393, 27.58775842, 34.74216303, 36.52107847, 37.03881103, 37.03881102,
-                                   37.03881102, 37.03881102, 37.03881102, 37.03881102, 37.03881102, 37.03881102,
-                                   37.03881102, 37.03881102, 37.03881102, 37.03881102])
+    regression_X_locs = np.array([ 0.        , 30.0744302 , 36.06867764, 40.19118129, 42.87929299,
+                                   43.75864575, 44.46769982, 44.75288937, 45.40283952, 45.75323347,
+                                   45.83551432, 50.60861803, 53.90976954, 55.43400893, 56.10861803,
+                                   56.78777765, 57.28419734, 57.49949357, 57.99040541, 58.61763071,
+                                   58.94738099, 77.075     ])
+
+    regression_AE_x   = np.array([ 0.        ,  8.33633745, 12.66771286, 17.73998778, 19.62571335,
+                                   23.97243778, 24.43285069, 26.98196968, 34.56874444, 36.48647208,
+                                   37.03624936, 37.03624582, 37.03624514, 37.03624415, 37.03624431,
+                                   37.03624381, 37.03624383, 37.03624373, 37.03624376, 37.03624377,
+                                   37.03624377, 37.03624377])
+
     
     assert (np.abs((X_locs[1:] - regression_X_locs[1:] )/regression_X_locs[1:] ) < 1e-6).all() 
     assert (np.abs((AE_x[1:] - regression_AE_x[1:])/regression_AE_x[1:]) < 1e-6).all()

@@ -15,7 +15,7 @@ import numpy as np
 import SUAVE
 from SUAVE.Core                                                     import Data, Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift           import VLM as VLM
-from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization       import plot_vehicle_vlm_panelization
+from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization             import plot_vehicle_vlm_panelization
 
 sys.path.append('../Vehicles')
 
@@ -61,7 +61,7 @@ def main():
                 
         max_err    = np.max(   np.abs(errors))
         argmax_err = np.argmax(np.abs(errors))
-        assert max_err < 1e-6 , 'Failed at {} test, case {}'.format(key, argmax_err+1)
+        assert max_err < 1e-6 , print('Failed at {} test, case {}'.format(key, argmax_err+1))
     
     return
 
@@ -71,7 +71,7 @@ def main():
 def get_conditions():
     machs      = np.array([0.4  ,0.4  ,0.4  ,0.4  ,0.4  ,1.4  ,])
     altitudes  = np.array([5000 ,5000 ,5000 ,5000 ,5000 ,5000 ,])  *Units.ft
-    aoas       = np.array([-6.  ,0.   ,6.   ,0.   ,0.   ,6    ,])  *Units.degrees #angle of attack in degrees
+    aoas       = np.array([-6.  ,1.   ,6.   ,1.   ,1.   ,6    ,])  *Units.degrees #angle of attack in degrees
     PSIs       = np.array([-5.  ,3.   ,5.   ,5.   ,0.   ,5.   ,])  *Units.degrees #sideslip angle  in degrees
     PITCHQs    = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees #pitch rate      in degrees/s   
     ROLLQs     = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees #roll  rate      in degrees/s
@@ -95,13 +95,10 @@ def get_settings():
     settings = SUAVE.Analyses.Aerodynamics.Vortex_Lattice().settings
     settings.number_spanwise_vortices        = 7 
     settings.number_chordwise_vortices       = 4   
-    settings.use_bemt_wake_model             = False
     settings.propeller_wake_model            = None
     settings.spanwise_cosine_spacing         = False
     settings.model_fuselage                  = True
-    settings.initial_timestep_offset         = 0.0
-    settings.wake_development_time           = 0.0 
-    settings.number_of_wake_timesteps        = 0.0
+    settings.model_nacelle                   = False
     settings.leading_edge_suction_multiplier = 1. 
     settings.discretize_control_surfaces     = False
     settings.use_VORLAX_matrix_calculation   = False    

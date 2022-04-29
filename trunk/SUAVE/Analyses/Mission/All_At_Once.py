@@ -70,8 +70,3 @@ class All_At_Once(Mission):
         self.process.iterate.unpack                   = Methods.Segments.Common.Sub_Segments.unpack_subsegments
         self.process.iterate.sub_segments             = Methods.Segments.Common.Sub_Segments.update_sub_segments
         self.process.iterate.merge_sub_segment_states = Methods.Segments.Common.Sub_Segments.merge_sub_segment_states
-
-        # --------------------------------------------------------------
-        #   Finalize
-        # --------------------------------------------------------------        
-        self.process.finalize.sub_segments          = Methods.Segments.Common.Sub_Segments.finalize_sub_segments

@@ -13,7 +13,7 @@
 import numpy as np 
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution       import generate_vortex_distribution, compute_panel_area, compute_unit_normal
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution       import generate_vortex_distribution 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
 
 # ----------------------------------------------------------------------
@@ -127,10 +127,6 @@ def VLM(conditions,settings,geometry):
     """ 
     # unpack settings----------------------------------------------------------------
     pwm        = settings.propeller_wake_model
-    bemt_wake  = settings.use_bemt_wake_model
-    ito        = settings.initial_timestep_offset
-    nts        = settings.number_of_wake_timesteps 
-    wdt        = settings.wake_development_time   
     K_SPC      = settings.leading_edge_suction_multiplier
     Sref       = geometry.reference_area              
 
@@ -229,9 +225,9 @@ def VLM(conditions,settings,geometry):
     
     # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
     XBAR    = np.ones(sum(LE_ind)) * x_m
-    ZBAR    = np.ones(sum(LE_ind)) * z_m   
+    ZBAR    = np.ones(sum(LE_ind)) * z_m
     VD.XBAR = XBAR
-    VD.ZBAR = ZBAR    
+    VD.ZBAR = ZBAR
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Generate A and RHS matrices from VD and geometry
@@ -241,11 +237,10 @@ def VLM(conditions,settings,geometry):
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
     # Build the RHS vector    
-    rhs = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm,bemt_wake,ito,wdt,nts ) 
+    rhs = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm) 
     RHS     = rhs.RHS*1
     ONSET   = rhs.ONSET*1
 
-    
     # Build induced velocity matrix, C_mn
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = np.unique(mach,return_inverse=True)
@@ -294,7 +289,7 @@ def VLM(conditions,settings,geometry):
     
     # reshape CHORD
     CHORD  = CHORD[0,:]
-    CHORD_strip = CHORD[LE_ind]     
+    CHORD_strip = CHORD[LE_ind]
 
     # COMPUTE EFFECT OF SIDESLIP on DCP intermediate variables. needs change if cosine chorwise spacing added
     FORAXL = COSCOS
@@ -309,7 +304,6 @@ def VLM(conditions,settings,geometry):
     
     TNL    = TAN_LE * 1 # VORLAX's SIGN variable not needed, as these are taken directly from geometry
     TNT    = TAN_TE * 1
-    
     XIA    = np.broadcast_to((RK-1)/RNMAX, np.shape(B2))
     XIB    = np.broadcast_to((RK  )/RNMAX, np.shape(B2))
     TANA   = TNL *(1. - XIA) + TNT *XIA
@@ -323,10 +317,9 @@ def VLM(conditions,settings,geometry):
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
     COS_DL = (YBH-YAH)[LE_ind]/D
-    cos_DL  = np.broadcast_to(np.repeat(COS_DL,RNMAX[LE_ind]),np.shape(B2))
+    cos_DL = np.broadcast_to(np.repeat(COS_DL,RNMAX[LE_ind]),np.shape(B2))
     DCPSID = FORLAT * cos_DL *GLAT /(XIB - XIA)
     FACTOR = FORAXL + ONSET
-    
     
     # COMPUTE LOAD COEFFICIENT
     GNET = GAMMA*FACTOR
@@ -358,6 +351,7 @@ def VLM(conditions,settings,geometry):
     # DL IS THE DIHEDRAL ANGLE (WITH RESPECT TO THE X-Y PLANE) OF
     # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES. 
     COD = np.cos(phi[0,LE_ind])  # Just the LE values
+    
     SID = np.sin(phi[0,LE_ind])  # Just the LE values
 
     # Now on to each strip
@@ -393,14 +387,13 @@ def VLM(conditions,settings,geometry):
     TX    = SLOPE - ZETA
     CAXL  = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
     BMLE  = (XLE-XX)*SINF        # These are moment on each panel
-
+    
     # Sum onto the panel
     CAXL = np.add.reduceat(CAXL,chord_breaks,axis=1)
     BMLE = np.add.reduceat(BMLE,chord_breaks,axis=1)
     
     SICPLE *= (-1) * COSIN * COD * GAF
     DCP_LE = DCP[:,LE_ind]
-       
     
     # COMPUTE LEADING EDGE THRUST COEFF. (CSUC) BY CALCULATING
     # THE TOTAL INDUCED FLOW AT THE LEADING EDGE. THIS COMPUTATION
@@ -422,10 +415,11 @@ def VLM(conditions,settings,geometry):
     SPC           = SPC * exposed_leading_edge_flag
     
     CLE  = CLE + 0.5* DCP_LE *np.sqrt(XLE[LE_ind])
-    CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
+    CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB 
 
     # TFX AND TFZ ARE THE COMPONENTS OF LEADING EDGE FORCE VECTOR ALONG
     # ALONG THE X AND Z BODY AXES.   
+    
     SLE  = SLOPE[LE_ind]
     ZETA = ZETA[LE_ind]
     XCOS = np.broadcast_to(np.cos(SLE-ZETA),np.shape(DCP_LE))
@@ -438,15 +432,15 @@ def VLM(conditions,settings,geometry):
     TFZ[SPC<0] = np.abs(XCOS)[SPC<0]*np.sign(DCP_LE)[SPC<0]
 
     CAXL = CAXL - TFX*CSUC
-
+    
     # Add a dimension into the suction to be chordwise
     CNC   = CNC + CSUC*np.sqrt(1+T2)*TFZ
-
+    
     # FCOS AND FSIN ARE THE COSINE AND SINE OF THE ANGLE BETWEEN
     # THE CHORDLINE OF THE IR-STRIP AND THE X-AXIS    
     FCOS = np.cos(ZETA)
     FSIN = np.sin(ZETA)
-
+    
     # BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP FORCE CONTRIBUTION.
     BFX = -  CNC *FSIN + CAXL *FCOS
@@ -467,11 +461,11 @@ def VLM(conditions,settings,geometry):
     BMY    = BMLE * COD + BFX * (Z - ZBAR) - BFZ * (X - XBAR)
     BMZ    = BMLE * SID - BFX * Y + BFY * (X - XBAR)
     CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) * COSALF
-    CDC    = CDC * CHORD_strip
+    CDC    = CDC * CHORD_strip 
 
     ES     = 2*s[0,LE_ind]
     STRIP  = ES *CHORD_strip
-    LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
+    LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP   
     DRAG   = CDC*ES 
     MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  
     FY     = (BFY *COPSI - BFX *SINPSI) *STRIP
@@ -483,13 +477,12 @@ def VLM(conditions,settings,geometry):
     cdi_y    = DRAG/CHORD_strip/ES
     CL_wing  = np.add.reduceat(LIFT,span_breaks,axis=1)/SURF
     CDi_wing = np.add.reduceat(DRAG,span_breaks,axis=1)/SURF
-    alpha_i = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
+    alpha_i  = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
     
     # Now calculate total coefficients
     CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T          # CLTOT in VORLAX
     CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T          # CDTOT in VORLAX
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar  # CMTOT in VORLAX
-
     CYTOT    = np.atleast_2d(np.sum(FY,axis=1)/SREF).T   # total y force coeff
     CRTOT    = np.atleast_2d(np.sum(RM,axis=1)/SREF).T   # rolling moment coeff (unscaled)
     CRMTOT   = CRTOT/w_span*(-1)                         # rolling moment coeff
@@ -513,13 +506,17 @@ def VLM(conditions,settings,geometry):
     results.CYMTOT     =  CYMTOT
     
     #other SUAVE outputs
-    results.CL_wing    =  CL_wing   
-    results.CDi_wing   =  CDi_wing 
-    results.cl_y       =  cl_y     
-    results.cdi_y      =  cdi_y     
-    results.alpha_i    =  alpha_i  
-    results.CP         =  np.array(CP    , dtype=precision)
-    results.gamma      =  np.array(GAMMA , dtype=precision)
+    results.CL_wing        =  CL_wing   
+    results.CDi_wing       =  CDi_wing 
+    results.cl_y           =  cl_y   
+    results.cdi_y          =  cdi_y       
+    results.alpha_i        =  alpha_i  
+    results.CP             =  np.array(CP    , dtype=precision)
+    results.gamma          =  np.array(GAMMA , dtype=precision)
+    results.VD             = VD
+    results.V_distribution = rhs.V_distribution
+    results.V_x            = rhs.Vx_ind_total
+    results.V_z            = rhs.Vz_ind_total
     
     return results
 

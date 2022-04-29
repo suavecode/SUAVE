@@ -94,7 +94,6 @@ class Solar_Logic(Energy_Component):
                     powerin
                     pavionics
                     ppayload
-                    volts_motor
                     currentesc
                 numerics.time.integrate
 
@@ -112,14 +111,13 @@ class Solar_Logic(Energy_Component):
         pin         = self.inputs.powerin[:,0,None]
         pavionics   = self.inputs.pavionics
         ppayload    = self.inputs.ppayload
-        volts_motor = self.inputs.volts_motor
         esccurrent  = self.inputs.currentesc
         volts       = self.voltage()
         I           = numerics.time.integrate
         
         pavail = pin*self.MPPT_efficiency
         
-        plevel = pavail -pavionics -ppayload - volts_motor*esccurrent
+        plevel = pavail -pavionics -ppayload - volts*esccurrent
         
         # Integrate the plevel over time to assess the energy consumption
         # or energy storage
