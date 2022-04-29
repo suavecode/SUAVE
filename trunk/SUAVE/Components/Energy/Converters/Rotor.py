@@ -87,21 +87,22 @@ class Rotor(Energy_Component):
         self.design_power_coefficient     = 0.01
 
 
-        self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
-        self.nonuniform_freestream     = False
-        self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
-        self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
-        self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
-        
-        self.start_angle               = 0.0      # angle of first blade from vertical
-        self.inputs.y_axis_rotation    = 0.
-        self.inputs.pitch_command      = 0.
-        self.variable_pitch            = False
+        self.use_2d_analysis              = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream        = False
+        self.axial_velocities_2d          = None     # user input for additional velocity influences at the rotor
+        self.tangential_velocities_2d     = None     # user input for additional velocity influences at the rotor
+        self.radial_velocities_2d         = None     # user input for additional velocity influences at the rotor
+           
+        self.start_angle                  = 0.0      # angle of first blade from vertical
+        self.inputs.y_axis_rotation       = 0.
+        self.inputs.pitch_command         = 0.
+        self.variable_pitch               = False
         
         # Initialize the default wake set to Fidelity Zero
-        self.Wake                      = Rotor_Wake_Fidelity_Zero()
+        self.Wake                         = Rotor_Wake_Fidelity_Zero()
     
-        self.optimization_parameters                     = Data() 
+        self.optimization_parameters                     = Data()   
+        self.optimization_parameters.microphone_angle    = 0.75*np.pi # 135 degrees  
         self.optimization_parameters.slack_constaint     = 1E-3 # slack constraint 
         self.optimization_parameters.ideal_SPL_dBA       = 45 
         self.optimization_parameters.aeroacoustic_weight = 1.   

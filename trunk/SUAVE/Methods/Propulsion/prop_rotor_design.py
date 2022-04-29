@@ -11,8 +11,7 @@ import SUAVE
 from SUAVE.Core                                                                           import Units, Data  
 from SUAVE.Analyses.Mission.Segments.Segment                                              import Segment 
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                    import propeller_mid_fidelity
-import SUAVE.Optimization.Package_Setups.scipy_setup                                      as scipy_setup
-import SUAVE.Optimization.Package_Setups.pyoptsparse_setup                                as pyoptsparse_setup
+import SUAVE.Optimization.Package_Setups.scipy_setup                                      as scipy_setup 
 from SUAVE.Optimization                                                                   import Nexus      
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry  
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars  import compute_airfoil_polars 
@@ -29,7 +28,7 @@ import time
 #  Rotor Design
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
-def prop_rotor_design(prop_rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP',use_pyoptsparse=False):  
+def prop_rotor_design(prop_rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP'):  
     """ Optimizes prop-rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
@@ -120,16 +119,10 @@ def prop_rotor_design(prop_rotor,number_of_stations = 20, number_of_airfoil_sect
     
     # start optimization   
     ti = time.time()     
-    optimization_problem = rotor_optimization_setup(prop_rotor) 
-    if use_pyoptsparse:
-        output = pyoptsparse_setup.Pyoptsparse_Solve(optimization_problem,solver='SNOPT',FD='parallel',
-                                                      sense_step= 1E-3)   
-        Beta_c = np.array([output[10],output[11]])        
-    else: 
-        output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
-                                         tolerance = 1E-3)   
-        Beta_c    = np.array([output[10],output[11]])      
-        
+    optimization_problem = rotor_optimization_setup(prop_rotor)  
+    output = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = 1E-4,
+                                     tolerance = 1E-3)   
+    Beta_c    = np.array([output[10],output[11]])    
     tf           = time.time()
     elapsed_time = round((tf-ti)/60,2)
     print('Rotor Otimization Simulation Time: ' + str(elapsed_time))   
@@ -154,7 +147,7 @@ def rotor_optimization_setup(prop_rotor):
               
           Assumptions: 
             1) minimum allowable blade taper : 0.2  
-            1) maximum allowable blade taper : 0.7     
+            1) maximum allowable blade taper : 0.9     
         
           Source:
              None
@@ -206,7 +199,7 @@ def rotor_optimization_setup(prop_rotor):
     constraints = [] 
     constraints.append([ 'thrust_power_residual_hover'  ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])  
     constraints.append([ 'thrust_power_residual_cruise' ,  '>'  ,  0.0 ,   1.0   , 1*Units.less]) 
-    constraints.append([ 'blade_taper_constraint_1'     ,  '>'  ,  0.2 ,   1.0   , 1*Units.less])  
+    constraints.append([ 'blade_taper_constraint_1'     ,  '>'  ,  0.3 ,   1.0   , 1*Units.less])  
     constraints.append([ 'blade_taper_constraint_2'     ,  '<'  ,  0.9 ,   1.0   , 1*Units.less])
     constraints.append([ 'blade_twist_constraint'       ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])
     constraints.append([ 'max_sectional_cl_hover'       ,  '<'  ,  1.0 ,   1.0   , 1*Units.less])
@@ -281,8 +274,7 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
              prop-rotor                - prop-rotor data structure                   [None]
               
           Assumptions: 
-             1) Noise measurements are taken at 90, 112.5 and 135 degrees from prop-rotor plane
-             2) Distances from microphone and prop-rotor are all 10m
+             1) Default noise measurements are taken 135 degrees from prop-rotor plane 
         
           Source:
              None
@@ -298,7 +290,8 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     omega_hover                     = prop_rotor_opt_hover.design_tip_mach_hover* 343 /prop_rotor.tip_radius 
     prop_rotor.inputs.pitch_command = Beta_c[0] 
     V                               = prop_rotor.freestream_velocity_hover  
-    alt                             = prop_rotor.design_altitude_hover 
+    alt                             = prop_rotor.design_altitude_hover  
+    theta                           = prop_rotor_opt_hover.optimization_parameters.microphone_angle    
     prop_rotor.chord_distribution   = prop_rotor_opt_hover.chord_distribution
     prop_rotor.twist_distribution   = prop_rotor_opt_hover.twist_distribution
     c                               = prop_rotor.chord_distribution
@@ -314,8 +307,7 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     mu             = atmo_data.dynamic_viscosity[0]  
     ctrl_pts       = 1 
     
-    # Run Conditions     
-    theta  = np.array([135])*Units.degrees + 1E-4
+    # Run Conditions      
     S      = np.maximum(alt , 20*Units.feet) 
 
     # microphone locations
@@ -335,7 +327,7 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
 
     # Run Propeller model 
-    thrust , torque, power, Cp_hover  , noise_data_hover , etap        = prop_rotor.spin(conditions)
+    thrust , torque, power, Cp_hover  , noise_data_hover , etap = prop_rotor.spin(conditions)
 
     # Prepare Inputs for Noise Model  
     conditions.noise.total_microphone_locations            = np.repeat(positions[ np.newaxis,:,: ],1,axis=0)
@@ -375,6 +367,7 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     c                               = prop_rotor.chord_distribution
     a_geo                           = prop_rotor.airfoil_geometry 
     a_loc                           = prop_rotor.airfoil_polar_stations  
+    theta                           = prop_rotor.optimization_parameters.microphone_angle   
 
     # Calculate atmospheric properties
     atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -385,8 +378,7 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     mu             = atmo_data.dynamic_viscosity[0]  
     ctrl_pts       = 1 
 
-    # Run Conditions     
-    theta     = np.array([135])*Units.degrees + 1E-4
+    # Run Conditions      
     S         = np.maximum(alt , 20*Units.feet)
     ctrl_pts  = 1 
     positions = np.zeros(( len(theta),3))
@@ -428,18 +420,14 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     if prop_rotor.design_thrust_cruise == None: 
         prop_rotor.design_thrust_cruise = -thrust[0][2]
 
-    design_torque_cruise = power[0][0]/omega_cruise  
-    
-    
-    # blade solidity
-    r          = chi*R                    # Radial coordinate   
-    blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
-    sigma      = blade_area[-1]/(np.pi*R**2)   
-    
-    MCA    = c/4. - c[0]/4.
+    design_torque_cruise  = power[0][0]/omega_cruise   
+    r                     = chi*R                 
+    blade_area            = sp.integrate.cumtrapz(B*c, r-r[0])
+    sigma                 = blade_area[-1]/(np.pi*R**2)    
+    MCA                   = c/4. - c[0]/4.
     airfoil_geometry_data = import_airfoil_geometry(a_geo) 
-    t_max = np.take(airfoil_geometry_data.max_thickness,a_loc,axis=0)*c 
-    t_c   =  np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)  
+    t_max                 = np.take(airfoil_geometry_data.max_thickness,a_loc,axis=0)*c 
+    t_c                   =  np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)  
     
     prop_rotor.design_torque_hover               = design_torque_hover
     prop_rotor.design_torque_cruise              = design_torque_cruise
@@ -627,6 +615,7 @@ def post_process(nexus):
     omega_hover         = prop_rotor_hover.design_tip_mach_hover* 343 /prop_rotor_hover.tip_radius  
     V                   = prop_rotor_hover.freestream_velocity_hover   
     alt                 = prop_rotor_hover.design_altitude_hover
+    theta               = prop_rotor_cruise.optimization_parameters.microphone_angle
     alpha               = prop_rotor_hover.optimization_parameters.aeroacoustic_weight
     epsilon             = prop_rotor_hover.optimization_parameters.slack_constaint 
     ideal_SPL           = prop_rotor_hover.optimization_parameters.ideal_SPL_dBA  
@@ -640,8 +629,7 @@ def post_process(nexus):
     mu             = atmo_data.dynamic_viscosity[0] 
     ctrl_pts       = 1   
 
-    # Run Conditions     
-    theta  = np.array([135])*Units.degrees + 1E-4
+    # Run Conditions      
     S      = np.maximum(alt , 20*Units.feet) 
 
     # microphone locations
@@ -682,7 +670,7 @@ def post_process(nexus):
             propeller_noise       = propeller_mid_fidelity(propellers_hover,noise_data_hover,segment,settings)   
             Acoustic_Metric_hover = np.mean(propeller_noise.SPL_dBA)  
         except:
-            Acoustic_Metric_hover = 100
+            Acoustic_Metric_hover = 100 # large penalty
     else:
         Acoustic_Metric_hover  = 0  
     
@@ -697,6 +685,7 @@ def post_process(nexus):
     omega_cruise        = prop_rotor_cruise.design_tip_mach_cruise* 343 /prop_rotor_cruise.tip_radius      
     V                   = prop_rotor_cruise.freestream_velocity_cruise   
     alt                 = prop_rotor_cruise.design_altitude_cruise
+    theta               = prop_rotor_cruise.optimization_parameters.microphone_angle
     alpha               = prop_rotor_cruise.optimization_parameters.aeroacoustic_weight
     beta                = prop_rotor_cruise.optimization_parameters.multiobjective_performance_weight
     gamma               = prop_rotor_cruise.optimization_parameters.multiobjective_acoustic_weight
@@ -711,8 +700,7 @@ def post_process(nexus):
     a              = atmo_data.speed_of_sound[0]
     mu             = atmo_data.dynamic_viscosity[0]  
 
-    # Run Conditions     
-    theta     = np.array([135])*Units.degrees + 1E-4
+    # Run Conditions      
     S         = np.maximum(alt , 20*Units.feet)
     ctrl_pts  = 1 
     positions = np.zeros(( len(theta),3))
@@ -738,22 +726,18 @@ def post_process(nexus):
     # -------------------------------------------------------
     # thrust/power constraints
     if prop_rotor_hover.design_thrust_hover == None:
-        summary.thrust_power_residual_hover = epsilon*prop_rotor_hover.design_power_hover - abs(power_hover[0][0] - prop_rotor_hover.design_power_hover)
-        ideal_aero_hover                    = (prop_rotor_hover.design_power_hover/V)
-        Aerodynamic_Metric_hover            = thrust_hover[0][0] 
+        summary.thrust_power_residual_hover = epsilon*prop_rotor_hover.design_power_hover \
+            - abs(power_hover[0][0] - prop_rotor_hover.design_power_hover)
     else: 
-        summary.thrust_power_residual_hover = epsilon*prop_rotor_hover.design_thrust_hover - abs(-thrust_hover[0][2] - prop_rotor_hover.design_thrust_hover) 
-        ideal_aero_hover                    = prop_rotor_hover.design_thrust_hover*V
-        Aerodynamic_Metric_hover            = power_hover[0][0]     
-
+        summary.thrust_power_residual_hover = epsilon*prop_rotor_hover.design_thrust_hover \
+            - abs(-thrust_hover[0][2] - prop_rotor_hover.design_thrust_hover) 
     if prop_rotor_hover.design_thrust_cruise == None:
-        summary.thrust_power_residual_cruise = epsilon*prop_rotor_cruise.design_power_cruise - abs(power_cruise[0][0] - prop_rotor_cruise.design_power_cruise) 
-        ideal_aero_cruise                    = (prop_rotor_hover.design_power_cruise/V)
-        Aerodynamic_Metric_cruise            = thrust_cruise[0][0] 
+        summary.thrust_power_residual_cruise = epsilon*prop_rotor_cruise.design_power_cruise \
+            - abs(power_cruise[0][0] - prop_rotor_cruise.design_power_cruise) 
     else: 
-        summary.thrust_power_residual_cruise = epsilon*prop_rotor_cruise.design_thrust_cruise - abs(thrust_cruise[0][0] - prop_rotor_cruise.design_thrust_cruise)
-        ideal_aero_cruise                    = prop_rotor_hover.design_thrust_cruise*V
-        Aerodynamic_Metric_cruise            = power_cruise[0][0]      
+        summary.thrust_power_residual_cruise = epsilon*prop_rotor_cruise.design_thrust_cruise \
+            - abs(thrust_cruise[0][0] - prop_rotor_cruise.design_thrust_cruise)
+       
         
     # q to p ratios 
     summary.chord_p_to_q_ratio = prop_rotor_cruise.chord_p/prop_rotor_cruise.chord_q
@@ -790,8 +774,8 @@ def post_process(nexus):
     # -------------------------------------------------------
     # OBJECTIVE FUNCTION
     # ------------------------------------------------------- 
-    aero_objective  = LA.norm((FM_hover - ideal_FM_hover)*100/(ideal_FM_hover*100))*beta     +  LA.norm((eta_cruise - ideal_eta_cruise)*100/(ideal_eta_cruise*100))*(1-beta)
-    #aero_objective  = LA.norm((Aerodynamic_Metric_hover - ideal_aero_hover )/ideal_aero_hover)*beta     +  LA.norm((Aerodynamic_Metric_cruise- ideal_aero_cruise)/ideal_aero_cruise)*(1-beta)
+    aero_objective  = LA.norm((FM_hover - ideal_FM_hover)*100/(ideal_FM_hover*100))*beta \
+        +  LA.norm((eta_cruise - ideal_eta_cruise)*100/(ideal_eta_cruise*100))*(1-beta) 
     
     acous_objective = LA.norm((Acoustic_Metric_hover - ideal_SPL)/ideal_SPL)
     summary.Aero_Acoustic_Obj =  aero_objective*10*alpha + acous_objective*10*(1-alpha)
