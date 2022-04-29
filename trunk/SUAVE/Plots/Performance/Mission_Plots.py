@@ -1928,7 +1928,7 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
                 plt.savefig(save_filename + '_' + str(img_idx) + file_type)
             img_idx += 1
         seg_idx +=1
-        
+
 # ------------------------------------------------------------------
 #   Rotor/Propeller Acoustics
 # ------------------------------------------------------------------
@@ -2187,10 +2187,11 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
                             colorbar_ypad=60,
                             colorbar_len= 0.75,
                             **colorax(min_SPL, max_SPL)),
-             scene_camera=camera) 
+             scene_camera=camera)
     if show_figure:
         fig.show()
-    return  
+    return
+
 
 def contour_surface_slice(x,y,z,values):
     return go.Surface(x=x,y=y,z=z,surfacecolor=values,coloraxis='coloraxis')

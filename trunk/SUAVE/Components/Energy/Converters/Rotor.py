@@ -101,11 +101,13 @@ class Rotor(Energy_Component):
         # Initialize the default wake set to Fidelity Zero
         self.Wake                         = Rotor_Wake_Fidelity_Zero()
     
-        self.optimization_parameters                     = Data()   
-        self.optimization_parameters.microphone_angle    = 0.75*np.pi # 135 degrees  
-        self.optimization_parameters.slack_constaint     = 1E-3 # slack constraint 
-        self.optimization_parameters.ideal_SPL_dBA       = 45 
-        self.optimization_parameters.aeroacoustic_weight = 1.   
+        self.optimization_parameters                                   = Data()   
+        self.optimization_parameters.microphone_angle                  = np.array([0.75*np.pi]) # 135 degrees   
+        self.optimization_parameters.slack_constaint                   = 1E-3                   # slack constraint  
+        self.optimization_parameters.ideal_SPL_dBA                     = 45  
+        self.optimization_parameters.aeroacoustic_weight               = 1.                     # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization     
+        self.optimization_parameters.multiobjective_performance_weight = 0.5 
+        self.optimization_parameters.multiobjective_acoustic_weight    = 0.5          
 
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.

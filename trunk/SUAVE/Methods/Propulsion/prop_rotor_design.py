@@ -145,7 +145,7 @@ def rotor_optimization_setup(prop_rotor):
               nexus    - SUAVE's optimization framework   [None]
               
           Assumptions: 
-            1) minimum allowable blade taper : 0.2  
+            1) minimum allowable blade taper : 0.3  
             1) maximum allowable blade taper : 0.9     
         
           Source:
@@ -284,33 +284,35 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     prop_rotor_opt_cruise           = network_cruise.propellers.prop_rotor 
     r                               = prop_rotor.radius_distribution
     R                               = prop_rotor.tip_radius     
-    chi                             = r/R 
     B                               = prop_rotor.number_of_blades  
-    omega_hover                     = prop_rotor_opt_hover.design_tip_mach_hover* 343 /prop_rotor.tip_radius 
-    prop_rotor.inputs.pitch_command = Beta_c[0] 
-    V                               = prop_rotor.freestream_velocity_hover  
-    alt_hover                       = prop_rotor.design_altitude_hover  
     theta                           = prop_rotor_opt_hover.optimization_parameters.microphone_angle    
     prop_rotor.chord_distribution   = prop_rotor_opt_hover.chord_distribution
     prop_rotor.twist_distribution   = prop_rotor_opt_hover.twist_distribution
     c                               = prop_rotor.chord_distribution
     a_geo                           = prop_rotor.airfoil_geometry 
     a_loc                           = prop_rotor.airfoil_polar_stations  
-  
-    # Calculate atmospheric properties
-    atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data      = atmosphere.compute_values(alt_hover)   
-    T              = atmo_data.temperature[0]
-    rho            = atmo_data.density[0]
-    a              = atmo_data.speed_of_sound[0]
-    mu             = atmo_data.dynamic_viscosity[0]  
-    ctrl_pts       = 1  
+    theta                           = prop_rotor.optimization_parameters.microphone_angle   
+
+    # ------------------------------------------------------------------
+    # PROP ROTOR HOVER ANALYSIS
+    # ------------------------------------------------------------------  
+    prop_rotor.inputs.pitch_command = Beta_c[0] 
+    V_hover                         = prop_rotor.freestream_velocity_hover   
+    alt_hover                       = prop_rotor.design_altitude_hover  
+    atmosphere                      = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data                       = atmosphere.compute_values(alt_hover)   
+    T                               = atmo_data.temperature[0]
+    rho                             = atmo_data.density[0]
+    a                               = atmo_data.speed_of_sound[0]
+    mu                              = atmo_data.dynamic_viscosity[0]  
+    ctrl_pts                        = 1  
+    omega_hover                     = prop_rotor_opt_hover.design_tip_mach_hover*a/prop_rotor.tip_radius 
     
     # Microphone locations
-    S      = np.maximum(alt_hover , 20*Units.feet) 
-    positions  = np.zeros(( len(theta),3))
+    S_hover              = np.maximum(alt_hover , 20*Units.feet) 
+    mic_positions_hover  = np.zeros(( len(theta),3))
     for i in range(len(theta)):
-        positions [i][:] = [0.0 , S*np.sin(theta[i])  ,S*np.cos(theta[i])]   
+        mic_positions_hover[i][:] = [0.0 , S_hover*np.sin(theta[i])  ,S_hover*np.cos(theta[i])]   
                 
     # Set up for Propeller Model
     prop_rotor.inputs.omega                          = np.atleast_2d(omega_hover).T
@@ -319,106 +321,85 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     conditions.freestream.dynamic_viscosity          = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound             = np.ones((ctrl_pts,1)) * a 
     conditions.freestream.temperature                = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V]]) 
+    conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V_hover]]) 
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
 
-    # Run Propeller model 
-    thrust , torque, power, Cp_hover  , noise_data_hover , etap = prop_rotor.spin(conditions)
+    # Run rotor model 
+    thrust_hover, _, power_hover, Cp_hover,noise_data_hover, _ = prop_rotor.spin(conditions)
 
-    # Prepare Inputs for Noise Model  
-    conditions.noise.total_microphone_locations            = np.repeat(positions[ np.newaxis,:,: ],1,axis=0)
-    conditions.aerodynamics.angle_of_attack                = np.ones((ctrl_pts,1))* 0. * Units.degrees 
-    segment                                                = Segment() 
-    segment.state.conditions                               = conditions
-    segment.state.conditions.expand_rows(ctrl_pts) 
-
-    # Store Noise Data 
-    noise                                                  = SUAVE.Analyses.Noise.Fidelity_One() 
-    settings                                               = noise.settings   
-    num_mic                                                = len(conditions.noise.total_microphone_locations[0])  
-    conditions.noise.number_of_microphones                 = num_mic   
-
-    propeller_noise_hover   = propeller_mid_fidelity(network_hover.propellers,noise_data_hover,segment,settings)   
-    mean_SPL_hover          = np.mean(propeller_noise_hover.SPL_dBA) 
-    
-    if prop_rotor.design_power_hover == None: 
-        prop_rotor.design_power_hover = power[0][0]
-    if prop_rotor.design_thrust_hover == None: 
-        prop_rotor.design_thrust_hover = thrust[0][0]
-        
-    design_torque_hover = power[0][0]/omega_hover
+    # Run noise model  
+    conditions.noise.total_microphone_locations      = np.repeat(mic_positions_hover[ np.newaxis,:,: ],1,axis=0)
+    conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
+    segment                                          = Segment() 
+    segment.state.conditions                         = conditions
+    segment.state.conditions.expand_rows(ctrl_pts)  
+    noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
+    settings                                         = noise.settings   
+    num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
+    conditions.noise.number_of_microphones           = num_mic   
+    propeller_noise_hover                            = propeller_mid_fidelity(network_hover.propellers,noise_data_hover,segment,settings)   
+    mean_SPL_hover                                   = np.mean(propeller_noise_hover.SPL_dBA) 
     
     
     # ------------------------------------------------------------------
-    # CRUISE PERFORMANCE
+    # PROP ROTOR CRUISE ANALYSIS
     # ------------------------------------------------------------------ 
-    omega_cruise                    = prop_rotor_opt_cruise.design_tip_mach_cruise* 343 /prop_rotor.tip_radius  
     prop_rotor.inputs.pitch_command = Beta_c[1]
-    V                               = prop_rotor.freestream_velocity_cruise  
-    alt_cruise                      = prop_rotor.design_altitude_cruise
-    network                         = optimization_problem.vehicle_configurations.cruise.networks.battery_propeller
-    rotor_opt                       = network.propellers.prop_rotor 
-    prop_rotor.chord_distribution   = rotor_opt.chord_distribution
-    prop_rotor.twist_distribution   = rotor_opt.twist_distribution
-    c                               = prop_rotor.chord_distribution
-    a_geo                           = prop_rotor.airfoil_geometry 
-    a_loc                           = prop_rotor.airfoil_polar_stations  
-    theta                           = prop_rotor.optimization_parameters.microphone_angle   
-
-    # Calculate atmospheric properties
-    atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data      = atmosphere.compute_values(alt_cruise)   
-    T              = atmo_data.temperature[0]
-    rho            = atmo_data.density[0]
-    a              = atmo_data.speed_of_sound[0]
-    mu             = atmo_data.dynamic_viscosity[0]  
-    ctrl_pts       = 1 
+    V_cruise                        = prop_rotor.freestream_velocity_cruise  
+    alt_cruise                      = prop_rotor.design_altitude_cruise 
+    atmosphere                      = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data                       = atmosphere.compute_values(alt_cruise)   
+    T                               = atmo_data.temperature[0]
+    rho                             = atmo_data.density[0]
+    a                               = atmo_data.speed_of_sound[0]
+    mu                              = atmo_data.dynamic_viscosity[0]   
+    omega_cruise                    = prop_rotor_opt_cruise.design_tip_mach_cruise*a/prop_rotor.tip_radius  
 
     # Microphone locations    
-    S         = np.maximum(alt_cruise , 20*Units.feet)
-    ctrl_pts  = 1 
-    positions = np.zeros(( len(theta),3))
+    S_cruise             = np.maximum(alt_cruise , 20*Units.feet) 
+    mic_positions_cruise = np.zeros(( len(theta),3))
     for i in range(len(theta)):
-        positions[i][:] = [1E-3,S*np.cos(theta[i]),S*np.sin(theta[i])] # sideline 
+        mic_positions_cruise[i][:] = [1E-3,S_cruise*np.cos(theta[i]),S_cruise*np.sin(theta[i])]  
 
-    # Set up for Propeller Model
-    prop_rotor.inputs.omega                                     = np.atleast_2d(omega_cruise).T
+    # Set up for rotor model
+    prop_rotor.inputs.omega                                = np.atleast_2d(omega_cruise).T
     conditions                                             = Aerodynamics()   
     conditions.freestream.density                          = np.ones((ctrl_pts,1)) * rho
     conditions.freestream.dynamic_viscosity                = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound                   = np.ones((ctrl_pts,1)) * a 
     conditions.freestream.temperature                      = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector             = np.array([[V, 0. ,0.]])
+    conditions.frames.inertial.velocity_vector             = np.array([[V_cruise, 0. ,0.]])
     conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
 
-    # Run Propeller model 
-    thrust , torque, power, Cp_cruise  , noise_data_cruise , etap  = prop_rotor.spin(conditions)
+    # Run rotor model 
+    thrust_cruise , _, power_cruise, Cp_cruise  , noise_data_cruise , _ = prop_rotor.spin(conditions)
 
-    # Prepare Inputs for Noise Model  
-    conditions.noise.total_microphone_locations            = np.repeat(positions[ np.newaxis,:,: ],1,axis=0)
+    # Run noise Model 
+    conditions.noise.total_microphone_locations            = np.repeat(mic_positions_cruise[ np.newaxis,:,: ],1,axis=0)
     conditions.aerodynamics.angle_of_attack                = np.ones((ctrl_pts,1))* 0. * Units.degrees 
     segment                                                = Segment() 
     segment.state.conditions                               = conditions
-    segment.state.conditions.expand_rows(ctrl_pts) 
-
-    # Store Noise Data 
+    segment.state.conditions.expand_rows(ctrl_pts)  
     noise                                                  = SUAVE.Analyses.Noise.Fidelity_One() 
     settings                                               = noise.settings   
     num_mic                                                = len(conditions.noise.total_microphone_locations[0])  
-    conditions.noise.number_of_microphones                 = num_mic   
+    conditions.noise.number_of_microphones                 = num_mic    
+    propeller_noise_cruise                                 = propeller_mid_fidelity(network_cruise.propellers,noise_data_cruise,segment,settings)   
+    mean_SPL_cruise                                        = np.mean(propeller_noise_cruise.SPL_dBA)
 
-    propeller_noise_cruise   = propeller_mid_fidelity(network_cruise.propellers,noise_data_cruise,segment,settings)   
-    mean_SPL_cruise          = np.mean(propeller_noise_cruise.SPL_dBA) 
 
-    if prop_rotor.design_power_cruise == None: 
-        prop_rotor.design_power_cruise = power[0][0]
-    if prop_rotor.design_thrust_cruise == None: 
-        prop_rotor.design_thrust_cruise = -thrust[0][2]
-
-    design_torque_cruise  = power[0][0]/omega_cruise   
-    r                     = chi*R                 
+    if prop_rotor.design_power_hover   == None: 
+        prop_rotor.design_power_hover  = power_hover[0][0]
+    if prop_rotor.design_thrust_hover  == None: 
+        prop_rotor.design_thrust_hover = thrust_hover[0][0] 
+        
+    if prop_rotor.design_power_cruise   == None: 
+        prop_rotor.design_power_cruise  = power_cruise[0][0]
+    if prop_rotor.design_thrust_cruise  == None: 
+        prop_rotor.design_thrust_cruise = -thrust_cruise[0][2]
+                  
     blade_area            = sp.integrate.cumtrapz(B*c, r-r[0])
     sigma                 = blade_area[-1]/(np.pi*R**2)    
     MCA                   = c/4. - c[0]/4.
@@ -426,8 +407,9 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     t_max                 = np.take(airfoil_geometry_data.max_thickness,a_loc,axis=0)*c 
     t_c                   =  np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)  
     
-    prop_rotor.design_torque_hover               = design_torque_hover
-    prop_rotor.design_torque_cruise              = design_torque_cruise
+    prop_rotor.design_torque_hover               = power_hover[0][0]/omega_hover
+    prop_rotor.design_torque_cruise              = power_cruise[0][0]/omega_cruise 
+    prop_rotor.design_torque                     = power_hover[0][0]/omega_hover  
     prop_rotor.max_thickness_distribution        = t_max 
     prop_rotor.radius_distribution               = r 
     prop_rotor.number_of_blades                  = int(B) 
@@ -446,8 +428,9 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     prop_rotor.blade_solidity                    = sigma   
     prop_rotor.inputs.pitch_command_hover        = Beta_c[0]      
     prop_rotor.inputs.pitch_command_cruise       = Beta_c[1]
-    prop_rotor.angular_velocity_hover            = omega_hover      
-    prop_rotor.angular_velocity_cruise           = omega_cruise
+    prop_rotor.angular_velocity_hover            = omega_hover       
+    prop_rotor.angular_velocity_cruise           = omega_cruise 
+    prop_rotor.angular_velocity                  = omega_hover  
     prop_rotor.airfoil_flag                      = True    
     
     return prop_rotor 
@@ -456,10 +439,10 @@ def rotor_blade_setup(prop_rotor):
     """ Defines a dummy vehicle for prop-rotor blade optimization.
           
           Inputs:  
-             prop-rotor   - prop-rotor data structure                  [None] 
+             prop-rotor   - prop-rotor data structure             [None] 
               
           Outputs:  
-             configs - configuration used in optimization    [None]
+             configs      - configuration used in optimization    [None]
               
           Assumptions: 
              N/A 
@@ -513,8 +496,8 @@ def modify_blade_geometry(nexus):
           Inputs:  
              nexus     - SUAVE optmization framework with prop-rotor blade data structure [None]
               
-          Outputs:  
-             procedure - optimization methodology                                    [None]
+          Outputs:   
+             procedure - optimization methodology                                         [None]
               
           Assumptions: 
              N/A 
@@ -556,13 +539,13 @@ def updated_blade_geometry(chi,c_r,p,q,c_t):
           
           Inputs:  
              chi - prop-rotor radius distribution [None]
-             c_r - hyperparameter no. 1      [None]
-             p   - hyperparameter no. 2      [None]
-             q   - hyperparameter no. 3      [None]
-             c_t - hyperparameter no. 4      [None]
-              
-          Outputs:  
-             x_lin  - function distribution  [None]
+             c_r - hyperparameter no. 1           [None]
+             p   - hyperparameter no. 2           [None]
+             q   - hyperparameter no. 3           [None]
+             c_t - hyperparameter no. 4           [None]
+                   
+          Outputs:       
+             x_lin  - function distribution       [None]
               
           Assumptions: 
              N/A 
@@ -604,33 +587,35 @@ def post_process(nexus):
     # RUN AEROACOUSTICS MODELS IN HOVER 
     # -------------------------------------------------------    
     # unpack prop-rotor properties 
-    vehicle_hover       = nexus.vehicle_configurations.hover  
-    propellers_hover    = vehicle_hover.networks.battery_propeller.propellers
-    prop_rotor_hover    = propellers_hover.prop_rotor  
-    beta_blade          = prop_rotor_hover.twist_distribution 
-    c                   = prop_rotor_hover.chord_distribution  
-    omega_hover         = prop_rotor_hover.design_tip_mach_hover* 343 /prop_rotor_hover.tip_radius  
-    V                   = prop_rotor_hover.freestream_velocity_hover   
-    alt_hover           = prop_rotor_hover.design_altitude_hover
-    theta               = prop_rotor_cruise.optimization_parameters.microphone_angle
-    alpha               = prop_rotor_hover.optimization_parameters.aeroacoustic_weight
-    epsilon             = prop_rotor_hover.optimization_parameters.slack_constaint 
-    ideal_SPL           = prop_rotor_hover.optimization_parameters.ideal_SPL_dBA  
+    vehicle_hover        = nexus.vehicle_configurations.hover  
+    propellers_hover     = vehicle_hover.networks.battery_propeller.propellers
+    prop_rotor_hover     = propellers_hover.prop_rotor  
+    beta_blade           = prop_rotor_hover.twist_distribution 
+    c                    = prop_rotor_hover.chord_distribution  
+    theta                = prop_rotor_hover.optimization_parameters.microphone_angle
+    alpha                = prop_rotor_hover.optimization_parameters.aeroacoustic_weight
+    beta                 = prop_rotor_hover.optimization_parameters.multiobjective_performance_weight
+    gamma                = prop_rotor_hover.optimization_parameters.multiobjective_acoustic_weight
+    epsilon              = prop_rotor_hover.optimization_parameters.slack_constaint 
+    ideal_SPL            = prop_rotor_hover.optimization_parameters.ideal_SPL_dBA  
+    atmosphere           = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     
     # Calculate atmospheric properties
-    atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data      = atmosphere.compute_values(alt_hover)   
-    T              = atmo_data.temperature[0]
-    rho            = atmo_data.density[0]
-    a              = atmo_data.speed_of_sound[0]
-    mu             = atmo_data.dynamic_viscosity[0] 
-    ctrl_pts       = 1   
+    V_hover              = prop_rotor_hover.freestream_velocity_hover   
+    alt_hover            = prop_rotor_hover.design_altitude_hover
+    atmo_data            = atmosphere.compute_values(alt_hover)   
+    T                    = atmo_data.temperature[0]
+    rho                  = atmo_data.density[0]
+    a                    = atmo_data.speed_of_sound[0]
+    mu                   = atmo_data.dynamic_viscosity[0] 
+    ctrl_pts             = 1   
+    omega_hover          = prop_rotor_hover.design_tip_mach_hover*a/prop_rotor_hover.tip_radius  
  
     # microphone locations
-    S      = np.maximum(alt_hover , 20*Units.feet) 
-    positions  = np.zeros(( len(theta),3))
+    S_hover              = np.maximum(alt_hover , 20*Units.feet) 
+    mic_positions_hover  = np.zeros(( len(theta),3))
     for i in range(len(theta)):
-        positions [i][:] = [0.0 , S*np.sin(theta[i])  ,S*np.cos(theta[i])]   
+        mic_positions_hover[i][:] = [0.0 , S_hover*np.sin(theta[i])  ,S_hover*np.cos(theta[i])]   
                 
     # Define run conditions 
     prop_rotor_hover.inputs.omega                    = np.atleast_2d(omega_hover).T
@@ -639,27 +624,25 @@ def post_process(nexus):
     conditions.freestream.dynamic_viscosity          = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound             = np.ones((ctrl_pts,1)) * a 
     conditions.freestream.temperature                = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V]]) 
+    conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V_hover]]) 
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])  
 
-    # Run Propeller model 
-    thrust_hover , torque_hover, power_hover, Cp_hover  , noise_data_hover , etap_hover  = prop_rotor_hover.spin(conditions) 
+    # Run rotor model 
+    thrust_hover,_, power_hover, Cp_hover,noise_data_hover, _ = prop_rotor_hover.spin(conditions) 
 
-    # Prepare Inputs for Noise Model  
-    conditions.noise.total_microphone_locations      = np.repeat(positions[ np.newaxis,:,: ],1,axis=0)
+    # Set up noise model
+    conditions.noise.total_microphone_locations      = np.repeat(mic_positions_hover[ np.newaxis,:,: ],1,axis=0)
     conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
     segment                                          = Segment() 
     segment.state.conditions                         = conditions
-    segment.state.conditions.expand_rows(ctrl_pts) 
-
-    # Store Noise Data 
+    segment.state.conditions.expand_rows(ctrl_pts)  
     noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
     settings                                         = noise.settings   
     num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
     conditions.noise.number_of_microphones           = num_mic
     
-    # Run noise model    
+    # Run noise model if necessary    
     if alpha != 1.0: 
         try: 
             propeller_noise       = propeller_mid_fidelity(propellers_hover,noise_data_hover,segment,settings)   
@@ -673,49 +656,61 @@ def post_process(nexus):
     # RUN AEROACOUSTICS MODELS IN CRUISE
     # -------------------------------------------------------    
     # unpack prop-rotor properties 
-    vehicle_cruise      = nexus.vehicle_configurations.cruise
-    propellers_cruise   = vehicle_cruise.networks.battery_propeller.propellers
-    prop_rotor_cruise   = propellers_cruise.prop_rotor  
-    c                   = prop_rotor_cruise.chord_distribution  
-    omega_cruise        = prop_rotor_cruise.design_tip_mach_cruise* 343 /prop_rotor_cruise.tip_radius      
-    V                   = prop_rotor_cruise.freestream_velocity_cruise   
-    alt_cruise          = prop_rotor_cruise.design_altitude_cruise
-    theta               = prop_rotor_cruise.optimization_parameters.microphone_angle
-    alpha               = prop_rotor_cruise.optimization_parameters.aeroacoustic_weight
-    beta                = prop_rotor_cruise.optimization_parameters.multiobjective_performance_weight
-    gamma               = prop_rotor_cruise.optimization_parameters.multiobjective_acoustic_weight
-    epsilon             = prop_rotor_cruise.optimization_parameters.slack_constaint 
-    ideal_SPL           = prop_rotor_cruise.optimization_parameters.ideal_SPL_dBA  
-    
-    # Calculate atmospheric properties
-    atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data      = atmosphere.compute_values(alt_cruise)   
-    T              = atmo_data.temperature[0]
-    rho            = atmo_data.density[0]
-    a              = atmo_data.speed_of_sound[0]
-    mu             = atmo_data.dynamic_viscosity[0]  
+    vehicle_cruise       = nexus.vehicle_configurations.cruise
+    propellers_cruise    = vehicle_cruise.networks.battery_propeller.propellers
+    prop_rotor_cruise    = propellers_cruise.prop_rotor     
+    V_cruise             = prop_rotor_cruise.freestream_velocity_cruise   
+    alt_cruise           = prop_rotor_cruise.design_altitude_cruise  
+    atmo_data            = atmosphere.compute_values(alt_cruise)   
+    T                    = atmo_data.temperature[0]
+    rho                  = atmo_data.density[0]
+    a                    = atmo_data.speed_of_sound[0]
+    mu                   = atmo_data.dynamic_viscosity[0]   
+    omega_cruise         = prop_rotor_cruise.design_tip_mach_cruise*a/prop_rotor_cruise.tip_radius   
 
     # Microhpone locations  
-    S         = np.maximum(alt_cruise , 20*Units.feet)
-    ctrl_pts  = 1 
-    positions = np.zeros(( len(theta),3))
+    S_cruise             = np.maximum(alt_cruise, 20*Units.feet)
+    ctrl_pts             = 1 
+    mic_positions_cruise = np.zeros(( len(theta),3))
     for i in range(len(theta)):
-        positions[i][:] = [1E-3,S*np.cos(theta[i]) ,S*np.sin(theta[i])]
+        mic_positions_cruise[i][:] = [1E-3,S_cruise*np.cos(theta[i]) ,S_cruise*np.sin(theta[i])]
 
     # Define run conditions 
-    prop_rotor_cruise.inputs.omega                    = np.atleast_2d(omega_cruise).T
+    prop_rotor_cruise.inputs.omega                   = np.atleast_2d(omega_cruise).T
     conditions                                       = Aerodynamics()   
     conditions.freestream.density                    = np.ones((ctrl_pts,1)) * rho
     conditions.freestream.dynamic_viscosity          = np.ones((ctrl_pts,1)) * mu
     conditions.freestream.speed_of_sound             = np.ones((ctrl_pts,1)) * a 
     conditions.freestream.temperature                = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector       = np.array([[V, 0. ,0.]])
+    conditions.frames.inertial.velocity_vector       = np.array([[V_cruise, 0. ,0.]])
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
 
     # Run Propeller model 
-    thrust_cruise , torque_cruise, power_cruise, Cp_cruise  , noise_data_cruise , etap_cruise  = prop_rotor_cruise.spin(conditions)  
-      
+    thrust_cruise ,_, power_cruise, Cp_cruise  , noise_data_cruise , etap_cruise  = prop_rotor_cruise.spin(conditions)  
+
+    # Set up noise model
+    conditions.noise.total_microphone_locations      = np.repeat(mic_positions_cruise[ np.newaxis,:,: ],1,axis=0)
+    conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
+    segment                                          = Segment() 
+    segment.state.conditions                         = conditions
+    segment.state.conditions.expand_rows(ctrl_pts)   
+    noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
+    settings                                         = noise.settings   
+    num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
+    conditions.noise.number_of_microphones           = num_mic     
+    
+    # Run noise model if necessary 
+    if alpha != 1.0: 
+        if gamma != 1: 
+            try: 
+                propeller_noise_cruise = propeller_mid_fidelity(propellers_cruise,noise_data_cruise,segment,settings)  
+                Acoustic_Metric_cruise = np.mean(propeller_noise_cruise.SPL_dBA) 
+            except:
+                Acoustic_Metric_cruise = 100 
+    else:
+        Acoustic_Metric_cruise = 0    
+        
     # -------------------------------------------------------
     # CONTRAINTS
     # -------------------------------------------------------
@@ -731,8 +726,7 @@ def post_process(nexus):
             - abs(power_cruise[0][0] - prop_rotor_cruise.design_power_cruise) 
     else: 
         summary.thrust_power_residual_cruise = epsilon*prop_rotor_cruise.design_thrust_cruise \
-            - abs(thrust_cruise[0][0] - prop_rotor_cruise.design_thrust_cruise)
-       
+            - abs(thrust_cruise[0][0] - prop_rotor_cruise.design_thrust_cruise) 
         
     # q to p ratios 
     summary.chord_p_to_q_ratio = prop_rotor_cruise.chord_p/prop_rotor_cruise.chord_q
@@ -772,7 +766,9 @@ def post_process(nexus):
     aero_objective  = LA.norm((FM_hover - ideal_FM_hover)*100/(ideal_FM_hover*100))*beta \
         +  LA.norm((eta_cruise - ideal_eta_cruise)*100/(ideal_eta_cruise*100))*(1-beta) 
     
-    acous_objective = LA.norm((Acoustic_Metric_hover - ideal_SPL)/ideal_SPL)
+    acous_objective = LA.norm((Acoustic_Metric_hover - ideal_SPL)/ideal_SPL)*gamma + \
+         LA.norm((Acoustic_Metric_cruise - ideal_SPL)/ideal_SPL)*(1-gamma)
+        
     summary.Aero_Acoustic_Obj =  aero_objective*10*alpha + acous_objective*10*(1-alpha)
         
     # -------------------------------------------------------

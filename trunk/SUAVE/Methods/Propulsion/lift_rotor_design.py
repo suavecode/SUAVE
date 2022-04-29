@@ -257,12 +257,9 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     network                  = optimization_problem.vehicle_configurations.rotor_testbench.networks.battery_propeller
     rotor_opt                = network.lift_rotors.rotor 
     r                        = rotor.radius_distribution
-    R                        = rotor.tip_radius     
-    chi                      = r/R 
+    R                        = rotor.tip_radius      
     B                        = rotor.number_of_blades  
     rotor.design_tip_mach    = rotor_opt.design_tip_mach
-    omega                    = rotor.design_tip_mach* 343 /rotor.tip_radius 
-    rotor.angular_velocity   = omega      
     V                        = rotor.freestream_velocity  
     alt                      = rotor.design_altitude 
     theta                    = rotor.optimization_parameters.microphone_angle    
@@ -280,9 +277,10 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     a              = atmo_data.speed_of_sound[0]
     mu             = atmo_data.dynamic_viscosity[0]  
     ctrl_pts       = 1  
+    omega          = rotor.design_tip_mach*a/rotor.tip_radius 
 
     # microphone locations
-    S      = np.maximum(alt , 20*Units.feet) 
+    S          = np.maximum(alt , 20*Units.feet) 
     positions  = np.zeros(( len(theta),3))
     for i in range(len(theta)):
         positions [i][:] = [0.0 , S*np.sin(theta[i])  ,S*np.cos(theta[i])]   
@@ -322,8 +320,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     if rotor.design_thrust == None: 
         rotor.design_thrust = -thrust[0][2]
 
-    design_torque         = power[0][0]/omega 
-    r                     = chi*R                     
+    design_torque         = power[0][0]/omega           
     blade_area            = sp.integrate.cumtrapz(B*c, r-r[0])
     sigma                 = blade_area[-1]/(np.pi*R**2)   
     MCA                   = c/4. - c[0]/4.
@@ -331,6 +328,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     t_max                 = np.take(airfoil_geometry_data.max_thickness,a_loc,axis=0)*c 
     t_c                   =  np.take(airfoil_geometry_data.thickness_to_chord,a_loc,axis=0)  
 
+    rotor.angular_velocity           = omega      
     rotor.design_torque              = design_torque
     rotor.max_thickness_distribution = t_max 
     rotor.radius_distribution        = r 
@@ -479,23 +477,22 @@ def post_process(nexus):
              N/A
     """    
     summary       = nexus.summary 
-    vehicle       = nexus.vehicle_configurations.rotor_testbench  
-    lift_rotors   = vehicle.networks.battery_propeller.lift_rotors
     
     # -------------------------------------------------------
     # RUN AEROACOUSTICS MODELS
     # -------------------------------------------------------    
     # unpack rotor properties 
-    rotor         = lift_rotors.rotor 
-    c             = rotor.chord_distribution 
-    beta          = rotor.twist_distribution 
-    omega         = rotor.design_tip_mach* 343 /rotor.tip_radius   
-    V             = rotor.freestream_velocity     
-    alt           = rotor.design_altitude
-    theta         = rotor.optimization_parameters.microphone_angle 
-    alpha         = rotor.optimization_parameters.aeroacoustic_weight
-    epsilon       = rotor.optimization_parameters.slack_constaint 
-    ideal_SPL     = rotor.optimization_parameters.ideal_SPL_dBA  
+    vehicle        = nexus.vehicle_configurations.rotor_testbench  
+    lift_rotors    = vehicle.networks.battery_propeller.lift_rotors
+    rotor          = lift_rotors.rotor 
+    c              = rotor.chord_distribution 
+    beta           = rotor.twist_distribution 
+    V              = rotor.freestream_velocity     
+    alt            = rotor.design_altitude
+    theta          = rotor.optimization_parameters.microphone_angle 
+    alpha          = rotor.optimization_parameters.aeroacoustic_weight
+    epsilon        = rotor.optimization_parameters.slack_constaint 
+    ideal_SPL      = rotor.optimization_parameters.ideal_SPL_dBA  
     
     # Calculate atmospheric properties
     atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -504,6 +501,7 @@ def post_process(nexus):
     rho            = atmo_data.density[0]
     a              = atmo_data.speed_of_sound[0]
     mu             = atmo_data.dynamic_viscosity[0]  
+    omega          = rotor.design_tip_mach*a/rotor.tip_radius   
 
     # Define microphone locations 
     S         = np.maximum(alt , 20*Units.feet) 
@@ -523,23 +521,21 @@ def post_process(nexus):
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])  
 
-    # Run Propeller model 
-    thrust , torque, power, Cp  , noise_data , etap  = rotor.spin(conditions) 
+    # Run rotor model 
+    thrust ,_, power, Cp  , noise_data , _ = rotor.spin(conditions) 
 
-    # Prepare Inputs for Noise Model  
+    # Set up noise model
     conditions.noise.total_microphone_locations      = np.repeat(positions[ np.newaxis,:,: ],1,axis=0)
     conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
     segment                                          = Segment() 
     segment.state.conditions                         = conditions
-    segment.state.conditions.expand_rows(ctrl_pts) 
-
-    # Store Noise Data 
+    segment.state.conditions.expand_rows(ctrl_pts)  
     noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
     settings                                         = noise.settings   
     num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
     conditions.noise.number_of_microphones           = num_mic
     
-    # Run noise model    
+    # Run noise model if necessary    
     if alpha != 1:  
         try: 
             propeller_noise   =  propeller_mid_fidelity(lift_rotors,noise_data,segment,settings)    
