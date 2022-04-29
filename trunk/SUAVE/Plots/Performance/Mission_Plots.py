@@ -189,7 +189,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
 # ------------------------------------------------------------------
 #   Plot Fuel Use
 # ------------------------------------------------------------------
-
+## @ingroup Plots-Performance
 def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Fuel_Burnt", file_type = ".png",
                   width=8, height=5):
     """This plots aircraft fuel usage
@@ -1610,7 +1610,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
 # ------------------------------------------------------------------
 #   Pressure Coefficient
 # ------------------------------------------------------------------
-## @defgroup Plots-Performance
+## @ingroup Plots-Performance
 def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_filename = "Surface_Pressure", file_type = ".png"):
     """This plots the surface pressure distrubtion at all control points
     on all lifting surfaces of the aircraft
@@ -1702,7 +1702,7 @@ def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_fi
 # ------------------------------------------------------------------
 #   Sectional Lift Distribution
 # ------------------------------------------------------------------
-## @defgroup Plots-Performance
+## @ingroup Plots-Performance
 def plot_lift_distribution(results,vehicle, save_figure = False, save_filename = "Sectional_Lift", file_type = ".png"):
     """This plots the sectional lift distrubtion at all control points
     on all lifting surfaces of the aircraft
@@ -1758,7 +1758,7 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
 # ------------------------------------------------------------------
 #   VLM Video
 # ------------------------------------------------------------------
-## @defgroup Plots-Performance
+## @ingroup Plots-Performance
 def create_video_frames(results,vehicle, save_figure = True ,flight_profile = True,  save_filename = "Flight_Mission_Frame", file_type = ".png"):
     """This creates video frames of the aerodynamic conditions of the vehicle as well as the
     surface pressure coefficient throughout a mission
@@ -1930,7 +1930,7 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
 # ------------------------------------------------------------------
 #   Rotor/Propeller Acoustics
 # ------------------------------------------------------------------
-## @defgroup Plots-Performance
+## @ingroup Plots-Performance
 def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, save_filename = "Sideline Noise Levels"):
     """This plots the A-weighted Sound Pressure Level as a function of time at various aximuthal angles
     on the ground
@@ -1993,7 +1993,7 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     return
 
 
-## @defgroup Plots-Performance
+## @ingroup Plots-Performance
 def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Noise_Contour",show_figure = True):
     """This plots two contour surface of the maximum A-weighted Sound Pressure Level in the defined computational domain.
     The first contour is the that of radiated noise on level ground only while the second contains radiated noise on buildings

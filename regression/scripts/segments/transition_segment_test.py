@@ -60,10 +60,9 @@ def main():
 
 
     # Truth values
-    departure_throttle_truth      = np.array([0.66098974, 0.66121694, 0.66168772, 0.66193132])
-    transition_1_throttle_truth   = np.array([0.66541847, 0.65808227, 0.51905603, 0.57855735])
-    cruise_throttle_truth         = np.array([0.4611946 , 0.46154123, 0.46223633, 0.46258481])
-    
+    departure_throttle_truth          = np.array([0.65161054, 0.65183868, 0.65231039, 0.65255397])
+    transition_1_throttle_truth       = np.array([0.65434873, 0.64834806, 0.52075861, 0.58035428])
+    cruise_throttle_truth             = np.array([0.46376169, 0.46409995, 0.4647782 , 0.4651182 ])
     transition_y_axis_rotations_truth = np.array([1.36961133, 1.34327318, 1.10250854, 0.06580108])
 
     # Store errors 
@@ -201,7 +200,7 @@ def mission_setup(analyses,vehicle):
     base_segment.process.initialize.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
 
     # -------------------------------------------------------------------------
-    #   Segment 1: Takeoff Vertically
+    #   Segment 0: Takeoff Vertically
     # -------------------------------------------------------------------------
     segment                                            = Segments.Hover.Climb(base_segment)
     segment.tag                                        = "Departure" 
@@ -219,7 +218,7 @@ def mission_setup(analyses,vehicle):
     mission.append_segment(segment)
 
     # --------------------------------------------------------------------------
-    #   Segment 2: First Transition Segment: Linear Speed, Constant Climb Rate
+    #   Segment 1: First Transition Segment: Linear Speed, Constant Climb Rate
     # --------------------------------------------------------------------------
     # Use original transition segment, converge on rotor y-axis rotation and throttle
     segment                                             = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
@@ -232,13 +231,54 @@ def mission_setup(analyses,vehicle):
     segment.pitch_initial                               = 0.0  * Units.degrees  
     segment.pitch_final                                 = 3.6  * Units.degrees   
     segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
-    segment.process.iterate.unknowns.mission            = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
                                                                                                             initial_power_coefficient = 0.03)
     # add to misison
     mission.append_segment(segment)
+    
+    # --------------------------------------------------------------------------
+    #   Segment 2a: Transition Segment: Linear Speed, Linear Climb
+    # --------------------------------------------------------------------------
+    # Use original transition segment, converge on rotor y-axis rotation and throttle
+    segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
+    segment.tag                                         = "Transition_2a"
+    segment.analyses.extend( analyses.transition_1 )
+    segment.altitude_start                              = 40.0 * Units.ft
+    segment.altitude_end                                = 100.0 * Units.ft
+    segment.acceleration                                = 0.5  * Units['m/s/s']
+    segment.climb_angle                                 = 7. * Units.deg
+    segment.pitch_initial                               = 3.6  * Units.degrees  
+    segment.pitch_final                                 = 4.0  * Units.degrees   
+    segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
+    segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
+    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
+                                                                                                            initial_power_coefficient = 0.03)
+    # add to misison
+    mission.append_segment(segment)
+    
+    # --------------------------------------------------------------------------
+    #   Segment 2b: Transition Segment: Linear Speed, Linear Climb
+    # --------------------------------------------------------------------------
+    # Use original transition segment, converge on rotor y-axis rotation and throttle
+    segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
+    segment.tag                                         = "Transition_2b"
+    segment.analyses.extend( analyses.transition_1 )
+    segment.altitude_start                              = 100.0 * Units.ft
+    segment.altitude_end                                = 40.0 * Units.ft 
+    segment.acceleration                                = -0.25  * Units['m/s/s']
+    segment.climb_angle                                 = 7. * Units.deg
+    segment.pitch_initial                               = 4.0  * Units.degrees  
+    segment.pitch_final                                 = 3.6  * Units.degrees   
+    segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
+    segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
+    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
+                                                                                                            initial_power_coefficient = 0.03)
+    # add to misison
+    mission.append_segment(segment)    
     
     # ------------------------------------------------------------------
     #   Segment 3: Mini Cruise; Constant Acceleration, Constant Altitude

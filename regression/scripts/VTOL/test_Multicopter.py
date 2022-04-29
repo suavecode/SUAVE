@@ -50,7 +50,7 @@ def main():
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.propeller_rpm[0][0]
-    RPM_true   = 1583.6527082169848
+    RPM_true   = 1573.7516164319331
 
     print(RPM)
     diff_RPM = np.abs(RPM - RPM_true)
@@ -60,7 +60,7 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([2.01278052e+08, 1.92663331e+08, 1.84037484e+08])
+    battery_energy_transition_true    = np.array([2.01217616e+08, 1.92155752e+08, 1.83082139e+08])
 
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true)
@@ -203,8 +203,7 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                       = 0.9 * ones_row(1)
     segment.process.iterate.conditions.stability          = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability       = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
-                                                                                         initial_power_coefficient = 0.01)
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient=0.02)
 
     # add to misison
     mission.append_segment(segment)

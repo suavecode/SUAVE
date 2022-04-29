@@ -408,7 +408,7 @@ class Battery_Propeller(Network):
         return     
     
     ## @ingroup Components-Energy-Networks
-    def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, initial_power_coefficient = 0.02,
+    def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, initial_power_coefficient = None,
                                               initial_battery_cell_temperature = 283. , initial_battery_state_of_charge = 0.5,
                                               initial_battery_cell_current = 5.):
         """ This function sets up the information that the mission needs to run a mission segment using this network
@@ -445,9 +445,12 @@ class Battery_Propeller(Network):
         # unpack the initial values if the user doesn't specify
         if initial_voltage==None:
             initial_voltage = self.battery.max_voltage
-        
+            
+        if initial_power_coefficient==None:
+            prop_key = list(self.propellers.keys())[0] # Use the first propeller
+            initial_power_coefficient = float(self.propellers[prop_key].design_power_coefficient)
+
         # Count how many unknowns and residuals based on p
-        
         if n_props!=n_motors!=n_eng:
             print('The number of propellers is not the same as the number of motors')
             
@@ -489,7 +492,7 @@ class Battery_Propeller(Network):
     ## @ingroup Components-Energy-Networks
     def add_tiltrotor_transition_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
                                                         initial_y_axis_rotation = 0.0,
-                                                        initial_power_coefficient = 0.02,
+                                                        initial_power_coefficient = None,
                                                         initial_battery_cell_temperature = 283. , 
                                                         initial_battery_state_of_charge = 0.5,
                                                         initial_battery_cell_current = 5.):
@@ -532,9 +535,12 @@ class Battery_Propeller(Network):
         # unpack the initial values if the user doesn't specify
         if initial_voltage==None:
             initial_voltage = self.battery.max_voltage
+            
+        if initial_power_coefficient==None:
+            prop_key = list(self.propellers.keys())[0] # Use the first propeller
+            initial_power_coefficient = float(self.propellers[prop_key].design_power_coefficient)
         
-        # Count how many unknowns and residuals based on p) 
-        
+        # Count how many unknowns and residuals based on p)         
         if n_props!=n_motors!=n_eng:
             print('The number of propellers is not the same as the number of motors')
             
@@ -571,7 +577,8 @@ class Battery_Propeller(Network):
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_tiltrotor_transition_unknowns
-        segment.process.iterate.residuals.network = self.residuals        
+        segment.process.iterate.residuals.network = self.residuals   
+        segment.process.iterate.unknowns.mission  = SUAVE.Methods.skip
 
         return segment    
        
