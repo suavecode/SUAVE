@@ -310,7 +310,7 @@ class Solar(Network):
     
     
     
-    def add_unknowns_and_residuals_to_segment(self, segment, initial_power_coefficient = 0.005):
+    def add_unknowns_and_residuals_to_segment(self, segment, initial_power_coefficient = None):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -340,13 +340,18 @@ class Solar(Network):
         n_props  = len(self.propellers)
         n_motors = len(self.motors)
         n_eng    = self.number_of_engines
-        
+    
         if n_props!=n_motors!=n_eng:
             print('The number of propellers is not the same as the number of motors')
             
         # Now check if the propellers are all identical, in this case they have the same of residuals and unknowns
         if self.identical_propellers:
             n_props = 1
+            
+        # unpack the initial values if the user doesn't specify
+        if initial_power_coefficient==None:
+            prop_key = list(self.propellers.keys())[0] # Use the first propeller
+            initial_power_coefficient = float(self.propellers[prop_key].design_power_coefficient)        
             
         # number of residuals, props plus the battery voltage
         n_res = n_props 

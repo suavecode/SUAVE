@@ -412,6 +412,7 @@ def vehicle_setup():
     prop.design_thrust          = (1.1*Hover_Load)/net.number_of_propeller_engines
     prop.origin                 = [[2.,5.7,0.784]]
     prop.rotation               = -1
+    prop.sol_tolerance          = 1e-4
     prop.symmetry               = True
     prop.variable_pitch         = True 
     prop.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']

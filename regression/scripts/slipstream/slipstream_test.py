@@ -117,14 +117,14 @@ def regress_1b(results, configs):
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       = 0.6020071656425107
-    sectional_lift_coeff_true   = np.array([5.75876551e-01, 5.01920673e-01, 4.82777380e-01, 4.20984308e-01,
-                                            8.19140852e-02, 5.81700844e-01, 5.26612869e-01, 4.91430415e-01,
-                                            4.24659492e-01, 8.26413607e-02, 1.02991812e-02, 8.89869082e-03,
-                                            6.82582945e-03, 5.86520719e-03, 4.00088557e-03, 5.80596026e-03,
-                                            3.70587430e-03, 2.51726549e-03, 2.34955563e-03, 1.73816232e-03,
-                                            4.34284999e-07, 2.40473125e-09, 1.90738864e-09, 4.83668119e-09,
-                                            2.92287821e-09])
+    lift_coefficient_true       = 0.6020199509181722
+    sectional_lift_coeff_true   = np.array([5.75825225e-01, 5.03609037e-01, 4.82878210e-01, 4.20669704e-01,
+                                            8.18479207e-02, 5.81360461e-01, 5.26912059e-01, 4.91028610e-01,
+                                            4.24111367e-01, 8.25293666e-02, 9.65711342e-03, 8.26280064e-03,
+                                            6.24871089e-03, 5.37980406e-03, 3.68930551e-03, 5.38757795e-03,
+                                            3.32372973e-03, 2.14969732e-03, 2.03871211e-03, 1.54056974e-03,
+                                            3.89612411e-07, 2.15707788e-09, 1.68896942e-09, 4.29216228e-09,
+                                            2.59497274e-09])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -208,9 +208,10 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
 def regress_2(results):
 
-    CL_truth  = 0.41621508
-    CDi_truth = 0.00701825
-    CM_truth  = 0.06947841
+    CL_truth  = 0.41607938
+    CDi_truth = 0.00895905
+    CM_truth  = 0.06956314
+    
 
     
     CL  = results.CL
