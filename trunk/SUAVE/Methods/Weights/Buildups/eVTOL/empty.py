@@ -14,7 +14,7 @@ from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
 from SUAVE.Methods.Weights.Buildups.Common.wing import wing
-
+from SUAVE.Components.Energy.Converters import Propeller
 from SUAVE.Components.Energy.Networks import Battery_Propeller
 from SUAVE.Components.Energy.Networks import Lift_Cruise
 
@@ -212,11 +212,9 @@ def empty(config,
         #-------------------------------------------------------------------------------
 
         lift_rotor_hub_weight   = 4.   * Units.kg
-        prop_hub_weight         = MTOW *(-7E-06*MTOW + 0.045)
+        prop_hub_weight         = MTOW * 0.02
 
-        lift_rotor_BRS_weight   = 16.  * Units.kg
-
-
+        lift_rotor_BRS_weight   = 16.  * Units.kg 
 
         #-------------------------------------------------------------------------------
         # Rotor, Propeller, parameters for sizing
@@ -228,18 +226,24 @@ def empty(config,
             props         = network.propellers
             rots          = network.lift_rotors
             prop_motors   = network.propeller_motors
-            rot_motors    = network.lift_rotor_motors
-            
-            nProps  = int(nLiftRotors + nThrustProps)
+            rot_motors    = network.lift_rotor_motors 
+            nProps        = int(nLiftRotors + nThrustProps)
 
         elif isinstance(network, Battery_Propeller):
             # Total number of rotors and propellers
-            nProps = network.number_of_propeller_engines
-            props  = network.propellers
-            prop_motors = network.propeller_motors
-            
-            nThrustProps  = nProps
-            nLiftRotors   = 0
+            prop_key = list(network.propellers.keys())[0]
+            if type(network.propellers[prop_key]) == Propeller:
+                nProps        = network.number_of_propeller_engines
+                props         = network.propellers
+                prop_motors   = network.propeller_motors 
+                nThrustProps  = nProps
+                nLiftRotors   = 0 
+            else:  
+                nProps        = network.number_of_propeller_engines
+                rots          = network.propellers
+                rot_motors    = network.propeller_motors 
+                nThrustProps  = 0
+                nLiftRotors   = nProps 
 
         else:
             raise NotImplementedError("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
@@ -290,8 +294,8 @@ def empty(config,
         if nLiftRotors > 0:
             if network.identical_lift_rotors:
                 # Get reference properties for sizing from first lift_rotor (assumes identical)
-                liftrotor = rots[list(rots.keys())[0]]
-                liftmotor = rot_motors[list(rot_motors.keys())[0]]
+                liftrotor    = rots[list(rots.keys())[0]]
+                liftmotor    = rot_motors[list(rot_motors.keys())[0]]
                 rTip_ref     = liftrotor.tip_radius
                 bladeSol_ref = liftrotor.blade_solidity
 
