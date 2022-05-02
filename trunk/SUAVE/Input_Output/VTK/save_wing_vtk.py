@@ -114,20 +114,19 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step,
                 
                 span_ids_R = range(spanwise_start_idx, spanwise_mid_idx)
                 span_ids_L = range(spanwise_mid_idx, spanwise_end_idx)
-                    
-                R_Results.vlm_results.CP     = Results.vlm_results.CP[0][ids][0:half_l]
-                R_Results.vlm_results.cl_y   = Results.vlm_results.cl_y[0][span_ids_R]
-                R_Results.vlm_results.cdi_y  = Results.vlm_results.cdi_y[0][span_ids_R]
-                #R_Results.vlm_results.LIFT   = Results.vlm_results.LIFT[0][span_ids]
-                #R_Results.vlm_results.DRAG   = Results.vlm_results.DRAG[0][span_ids]
-                #R_Results.vlm_results.MOMENT = Results.vlm_results.CM_y[0][span_ids]
                 
-                L_Results.vlm_results.CP     = Results.vlm_results.CP[0][ids][half_l:]
-                L_Results.vlm_results.cl_y   = Results.vlm_results.cl_y[0][span_ids_L]
-                L_Results.vlm_results.cdi_y  = Results.vlm_results.cdi_y[0][span_ids_L]
-                #L_Results.vlm_results.LIFT   = Results.vlm_results.LIFT[0][span_ids]
-                #L_Results.vlm_results.DRAG   = Results.vlm_results.DRAG[0][span_ids]
-                #L_Results.vlm_results.MOMENT = Results.vlm_results.CM_y[0][span_ids]
+
+                # for panel-wise
+                panel_tags    = ['CP','vx_induced','vy_induced','vz_induced']
+                for tag in panel_tags:
+                    R_Results.vlm_results[tag] = Results.vlm_results[tag][0][ids][0:half_l]
+                    L_Results.vlm_results[tag] = Results.vlm_results[tag][0][ids][half_l:]                    
+                
+                # for spanwise parameters
+                spanwise_tags = ['cl_y', 'cdi_y','LIFT','DRAG','MOMENT_X','MOMENT_Y','MOMENT_Z']        
+                for tag in spanwise_tags:
+                    R_Results.vlm_results[tag] = Results.vlm_results[tag][0][span_ids_R]
+                    L_Results.vlm_results[tag] = Results.vlm_results[tag][0][span_ids_L]                     
                 
                 # Check for isolated 
                 R_Results.vlm_results.CP_ISO = Results.vlm_results.iso.CP[0][ids][0:half_l]
@@ -164,13 +163,18 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step,
 
         if 'vlm_results' in Results.keys():
             span_ids = range(VD.spanwise_breaks[wing_instance_idx], VD.spanwise_breaks[wing_instance_idx]+VD.n_sw[wing_instance_idx])    
+           
+            # for panel-wise
+            panel_tags    = ['CP','vx_induced','vy_induced','vz_induced']
+            for tag in panel_tags:
+                Results.vlm_results[tag] = Results.vlm_results[tag][0][ids]
+                Results.vlm_results[tag] = Results.vlm_results[tag][0][ids]                   
             
-            Results.vlm_results.CP     = Results.vlm_results.CP[0][ids]
-            Results.vlm_results.cl_y   = Results.vlm_results.cl_y[0][span_ids]
-            Results.vlm_results.cdi_y  = Results.vlm_results.cdi_y[0][span_ids]
-            #Results.vlm_results.LIFT   = Results.vlm_results.LIFT[0][span_ids]
-            #Results.vlm_results.DRAG   = Results.vlm_results.DRAG[0][span_ids]
-            #Results.vlm_results.MOMENT = Results.vlm_results.CM_y[0][span_ids]
+            # for spanwise parameters
+            spanwise_tags = ['cl_y', 'cdi_y','LIFT','DRAG','MOMENT_X','MOMENT_Y','MOMENT_Z']        
+            for tag in spanwise_tags:
+                R_Results.vlm_results[tag] = Results.vlm_results[tag][0][span_ids]
+                L_Results.vlm_results[tag] = Results.vlm_results[tag][0][span_ids]       
 
         write_wing_vtk(VD_wing,n_cw,n_sw,n_cp,Results,file)    
     
@@ -281,14 +285,48 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
         if Results is not None:
             if 'vlm_results' in Results.keys():
                 # for spanwise elements, repeat along chord
+                spanwise_tags = ['cl_y', 'cdi_y','LIFT','DRAG','MOMENT_X','MOMENT_Y','MOMENT_Z']
+                
+                for tag in spanwise_tags:
 
-                cl = Results.vlm_results.cl_y
-                f.write("\nSCALARS cl float 1")
+                    param = Results.vlm_results[tag]
+                    f.write("\nSCALARS "+tag+" float 1")
+                    f.write("\nLOOKUP_TABLE default")
+                    for i in range(n_cp):
+                        new_val = str(param[i//n_cw])
+                        f.write("\n"+new_val)
+
+                # for panel-wise
+                panel_tags = ['CP','vx_induced','vy_induced','vz_induced']
+                
+                for tag in panel_tags:
+                    param = Results.vlm_results[tag]
+                    
+                    f.write("\nSCALARS "+tag+" float 1")
+                    f.write("\nLOOKUP_TABLE default")
+                    for i in range(n_cp):
+                        new_val = str(param[i])
+                        f.write("\n"+new_val)                    
+                
+                # Extras
+                Vx_ind     = Results.vlm_results.vx_induced
+                Vy_ind     = Results.vlm_results.vy_induced
+                Vz_ind     = Results.vlm_results.vz_induced
+                CP         = Results.vlm_results.CP
+                CP_iso     = Results.vlm_results.CP_ISO
+    
+                f.write("\nSCALARS CP_diff float 1")
                 f.write("\nLOOKUP_TABLE default")
                 for i in range(n_cp):
-                    new_cl = str(cl[i//n_cw])
-                    f.write("\n"+new_cl)
-                
+                    new_CP = str(CP[i] - CP_iso[i])
+                    f.write("\n"+new_CP)              
+    
+                f.write("\nSCALARS v_tot_induced float 1")
+                f.write("\nLOOKUP_TABLE default")
+                for i in range(n_cp):
+                    new_V = str(np.sqrt(Vx_ind[i]**2 + Vy_ind[i]**2 + Vz_ind[i]**2))
+                    f.write("\n"+new_V)                        
+    
                 cl = Results.vlm_results.cl_y
                 CL = Results.vlm_results.CL[0][0]
                 f.write("\nSCALARS Cl/CL float 1")
@@ -296,16 +334,8 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
 
                 for i in range(n_cp):
                     new_cl_CL = str(cl[i//n_cw]/CL)
-                    f.write("\n"+new_cl_CL)
-                
-                cd = Results.vlm_results.cdi_y
-                f.write("\nSCALARS cdi float 1")
-                f.write("\nLOOKUP_TABLE default")
-
-                for i in range(n_cp):
-                    new_cd = str(cd[i//n_cw])
-                    f.write("\n"+new_cd)
-
+                    f.write("\n"+new_cl_CL)   
+                    
                 cd = Results.vlm_results.cdi_y
                 CD = Results.vlm_results.CDi[0][0]
 
@@ -314,47 +344,6 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
 
                 for i in range(n_cp):
                     new_cd_CD = str(cd[i//n_sw]/CD)
-                    f.write("\n"+new_cd_CD)
- 
-                
-                CP     = Results.vlm_results.CP
-                CP_iso = Results.vlm_results.CP_ISO
-                #LIFT   = Results.vlm_results.LIFT
-                #DRAG   = Results.vlm_results.DRAG
-                #MOMENT = Results.vlm_results.MOMENT
-
-                f.write("\nSCALARS CP float 1")
-                f.write("\nLOOKUP_TABLE default")
-                for i in range(n_cp):
-                    new_CP = str(CP[i])
-                    f.write("\n"+new_CP)
-                    
-    
-                f.write("\nSCALARS CP_diff float 1")
-                f.write("\nLOOKUP_TABLE default")
-                for i in range(n_cp):
-                    new_CP = str(CP[i] - CP_iso[i])
-                    f.write("\n"+new_CP)
-                                        
-                #f.write("\nSCALARS LIFT float 1")
-                #f.write("\nLOOKUP_TABLE default")
-                #for i in range(n_cp):
-                    #new_val = str(LIFT[i//n_cw])
-                    #f.write("\n"+new_val)      
-                
-                #f.write("\nSCALARS DRAG float 1")
-                #f.write("\nLOOKUP_TABLE default")
-                #for i in range(n_cp):
-                    #new_val = str(DRAG[i//n_cw])
-                    #f.write("\n"+new_val)   
-                    
-                #f.write("\nSCALARS MOMENT float 1")
-                #f.write("\nLOOKUP_TABLE default")
-                #for i in range(n_cp):
-                    #new_val = str(MOMENT[i//n_cw])
-                    #f.write("\n"+new_val)   
-                                
-                
-
+                    f.write("\n"+new_cd_CD)                    
     f.close()
     return
