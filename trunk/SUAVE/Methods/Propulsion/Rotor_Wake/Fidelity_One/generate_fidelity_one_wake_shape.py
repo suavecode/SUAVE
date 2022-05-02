@@ -43,7 +43,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     rotor_outputs    = rotor.outputs
     Na               = rotor_outputs.number_azimuthal_stations
     Nr               = rotor_outputs.number_radial_stations
-    omega            = rotor_outputs.omega                               
+    omega            = rotor_outputs.omega       
     va               = rotor_outputs.disc_axial_induced_velocity 
     V_inf            = rotor_outputs.velocity
     gamma            = rotor_outputs.disc_circulation   
@@ -55,7 +55,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     # dimensions for analysis                      
     Nr   = len(r)                   # number of radial stations
-    m    = len(omega)                         # number of control points
+    m    = len(omega)               # number of control points
 
     # Compute blade angles starting from each of Na azimuthal stations, shape: (Na,B)
     azi          = np.linspace(0,2*np.pi,Na+1)[:-1]
@@ -308,6 +308,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
             
     
     return WD
+
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
 def initialize_distributions(Nr, Na, B, n_wts, m, VD):

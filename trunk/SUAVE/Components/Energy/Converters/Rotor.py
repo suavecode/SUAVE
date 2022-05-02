@@ -511,6 +511,7 @@ class Rotor(Energy_Component):
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,
                     disc_radial_distribution          = r_dim_2d,
+                    azimuthal_distribution            = psi,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
                     velocity                          = Vv,
