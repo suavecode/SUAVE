@@ -701,8 +701,8 @@ class Lift_Cruise(Network):
     
     
     def add_transition_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
-                                                         initial_prop_power_coefficient = 0.005,
-                                                         initial_lift_rotor_power_coefficient = 0.005,
+                                                         initial_prop_power_coefficient = None,
+                                                         initial_lift_rotor_power_coefficient = None,
                                                          initial_throttle_lift = 0.9,
                                                          initial_battery_cell_temperature = 283. ,
                                                          initial_battery_state_of_charge = 0.5,
@@ -746,6 +746,18 @@ class Lift_Cruise(Network):
             
         if n_lift_rotors!=n_motors_r!=n_eng_r:
             assert('The number of lift_rotors is not the same as the number of motors')
+            
+        # unpack the initial values if the user doesn't specify
+        if initial_voltage==None:
+            initial_voltage = self.battery.max_voltage
+            
+        if initial_prop_power_coefficient==None:
+            prop_key = list(self.propellers.keys())[0] # Use the first propeller
+            initial_prop_power_coefficient = float(self.propellers[prop_key].design_power_coefficient)          
+            
+        if initial_lift_rotor_power_coefficient==None:
+            prop_key = list(self.lift_rotors.keys())[0] # Use the first propeller
+            initial_lift_rotor_power_coefficient = float(self.lift_rotors[prop_key].design_power_coefficient)                
             
         # Now check if the props/lift_rotors are all identical, in this case they have the same of residuals and unknowns
         if self.identical_propellers:
@@ -804,7 +816,7 @@ class Lift_Cruise(Network):
     
     
     def add_cruise_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
-                                                         initial_prop_power_coefficient = 0.005,
+                                                         initial_prop_power_coefficient = None,
                                                          initial_battery_cell_temperature = 283.,
                                                          initial_battery_state_of_charge = 0.5,
                                                          initial_battery_cell_current = 5.):
@@ -854,6 +866,14 @@ class Lift_Cruise(Network):
         else:
             self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)  
             
+        # unpack the initial values if the user doesn't specify
+        if initial_voltage==None:
+            initial_voltage = self.battery.max_voltage
+            
+        if initial_prop_power_coefficient==None:
+            prop_key = list(self.propellers.keys())[0] # Use the first propeller
+            initial_prop_power_coefficient = float(self.propellers[prop_key].design_power_coefficient)          
+
         # Assign initial segment conditions to segment if missing  
         battery = self.battery
         append_initial_battery_conditions(segment,battery)          
@@ -897,7 +917,7 @@ class Lift_Cruise(Network):
     
     
     def add_lift_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None,
-                                                   initial_lift_rotor_power_coefficient = 0.005,
+                                                   initial_lift_rotor_power_coefficient = None,
                                                          initial_throttle_lift = 0.9,
                                                          initial_battery_cell_temperature = 283.,
                                                          initial_battery_state_of_charge = 0.5,
@@ -930,8 +950,12 @@ class Lift_Cruise(Network):
 
         # unpack the initial values if the user doesn't specify
         if initial_voltage==None:
-            initial_voltage = self.battery.max_voltage
-
+            initial_voltage = self.battery.max_voltage    
+            
+        if initial_lift_rotor_power_coefficient==None:
+            prop_key = list(self.lift_rotors.keys())[0] # Use the first propeller
+            initial_lift_rotor_power_coefficient = float(self.lift_rotors[prop_key].design_power_coefficient)     
+            
         # Count how many unknowns and residuals based on p
         n_lift_rotors   = len(self.lift_rotors)
         n_motors_r = len(self.lift_rotor_motors)

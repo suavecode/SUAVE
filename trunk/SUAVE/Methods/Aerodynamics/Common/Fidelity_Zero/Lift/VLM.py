@@ -325,8 +325,13 @@ def VLM(conditions,settings,geometry):
     GNET = GAMMA*FACTOR
     GNET = GNET *RNMAX /CHORD
     DCP  = 2*GNET + DCPSID
-    CP   = DCP
-
+    
+    # Re-dimensionalize to be normalized by the freestream instead of local dynamic pressure 
+    V_freestream = rhs.V_distribution
+    V_local      = rhs.V_distribution_local 
+    DCP          = DCP * (V_local**2) / (V_freestream**2)
+    CP           = DCP
+    
     # ---------------------------------------------------------------------------------------
     # STEP 12: Compute aerodynamic coefficients 
     # ------------------ -------------------------------------------------------------------- 
@@ -417,7 +422,7 @@ def VLM(conditions,settings,geometry):
     CLE  = CLE + 0.5* DCP_LE *np.sqrt(XLE[LE_ind])
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB 
 
-    # TFX AND TFZ ARE THE COMPONENTS OF LEADING EDGE FORCE VECTOR ALONG
+    # TFX AND TFZ ARE THE COMPONENTS OF LEADING EDGE FORCE VECTOR
     # ALONG THE X AND Z BODY AXES.   
     
     SLE  = SLOPE[LE_ind]
@@ -463,8 +468,8 @@ def VLM(conditions,settings,geometry):
     CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) * COSALF
     CDC    = CDC * CHORD_strip 
 
-    ES     = 2*s[0,LE_ind]
-    STRIP  = ES *CHORD_strip
+    ES     = 2*s[0,LE_ind]       # length of bound vortices (assumed constant along the chord)
+    STRIP  = ES *CHORD_strip     # area of each spanwise strip
     LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP   
     DRAG   = CDC*ES 
     MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  
@@ -473,11 +478,12 @@ def VLM(conditions,settings,geometry):
     YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)
 
     # Now calculate the coefficients for each wing
-    cl_y     = LIFT/CHORD_strip/ES
-    cdi_y    = DRAG/CHORD_strip/ES
+    cl_y     = LIFT/STRIP
+    cdi_y    = DRAG/STRIP
     CL_wing  = np.add.reduceat(LIFT,span_breaks,axis=1)/SURF
     CDi_wing = np.add.reduceat(DRAG,span_breaks,axis=1)/SURF
     alpha_i  = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
+    
     
     # Now calculate total coefficients
     CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T          # CLTOT in VORLAX
@@ -488,6 +494,8 @@ def VLM(conditions,settings,geometry):
     CRMTOT   = CRTOT/w_span*(-1)                         # rolling moment coeff
     CNTOT    = np.atleast_2d(np.sum(YM,axis=1)/SREF).T   # yawing  moment coeff (unscaled)
     CYMTOT   = CNTOT/w_span*(-1)                         # yawing  moment coeff
+    
+    
 
     # ---------------------------------------------------------------------------------------
     # STEP 13: Pack outputs
@@ -504,6 +512,16 @@ def VLM(conditions,settings,geometry):
     results.CRMTOT     =  CRMTOT
     results.CNTOT      =  CNTOT
     results.CYMTOT     =  CYMTOT
+      
+      
+    results.MOMENT_X     =  RM  
+    results.MOMENT_Y     =  MOMENT  
+    results.MOMENT_Z     =  YM
+    results.LIFT         =  LIFT         
+    results.DRAG         =  DRAG   
+    results.F_Y          =  FY
+    results.strip_chord_length  =  CHORD_strip
+    results.strip_span_length   =  ES
     
     #other SUAVE outputs
     results.CL_wing        =  CL_wing   
@@ -515,8 +533,10 @@ def VLM(conditions,settings,geometry):
     results.gamma          =  np.array(GAMMA , dtype=precision)
     results.VD             = VD
     results.V_distribution = rhs.V_distribution
-    results.V_x            = rhs.Vx_ind_total
-    results.V_z            = rhs.Vz_ind_total
+    results.V_distribution_local = rhs.V_distribution_local
+    results.vx_induced     = rhs.Vx_ind_total
+    results.vy_induced     = rhs.Vy_ind_total
+    results.vz_induced     = rhs.Vz_ind_total
     
     return results
 
