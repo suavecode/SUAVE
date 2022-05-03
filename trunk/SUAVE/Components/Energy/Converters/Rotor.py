@@ -85,7 +85,7 @@ class Rotor(Energy_Component):
         self.profile_drag_coefficient     = .03
         self.sol_tolerance                = 1e-8
         self.design_power_coefficient     = 0.01
-
+        self.mid_chord_alignment          = 0.
 
         self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream     = False
@@ -376,7 +376,7 @@ class Rotor(Energy_Component):
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
         Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-        
+        alpha_freestream   = beta - np.arctan2(Ua,Ut)
         
         # compute HFW circulation at the blade
         Gamma = 0.5*W*c*Cl  
@@ -466,7 +466,10 @@ class Rotor(Energy_Component):
         torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
         rotor_drag              = np.atleast_2d((B * np.sum(rotor_drag_distribution, axis=1))).T
         power                   = omega*torque
-
+        
+        Cfz = thrust / (rho_0 * np.pi * R**4 * omega**2)
+        Cmz = -torque / (rho_0 * np.pi * R**5 * omega**2)
+        
         # calculate coefficients
         D        = 2*R
         Cq       = torque/(rho_0*(n*n)*(D*D*D*D*D))
@@ -478,9 +481,9 @@ class Rotor(Energy_Component):
         FoM      = thrust*np.sqrt(T_0/(2*rho_0*A))    /power  
 
         # prevent things from breaking
-        Cq[Cq<0]                                               = 0.
-        Ct[Ct<0]                                               = 0.
-        Cp[Cp<0]                                               = 0.
+        #Cq[Cq<0]                                               = 0.
+        #Ct[Ct<0]                                               = 0.
+        #Cp[Cp<0]                                               = 0.
         thrust[conditions.propulsion.throttle[:,0] <=0.0]      = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0
         torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
@@ -508,10 +511,10 @@ class Rotor(Energy_Component):
         self.azimuthal_distribution                   = psi
         results_conditions                            = Data
         outputs                                       = results_conditions(
+                    azimuthal_distribution            = psi,
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,
                     disc_radial_distribution          = r_dim_2d,
-                    azimuthal_distribution            = psi,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
                     velocity                          = Vv,
@@ -532,6 +535,7 @@ class Rotor(Energy_Component):
                     blade_thrust_distribution         = blade_T_distribution,
                     disc_thrust_distribution          = blade_T_distribution_2d,
                     disc_effective_angle_of_attack    = alpha_2d,
+                    disc_freestream_alpha             = alpha_freestream,
                     thrust_per_blade                  = thrust/B,
                     thrust_coefficient                = Ct,
                     disc_azimuthal_distribution       = psi_2d,
@@ -542,6 +546,8 @@ class Rotor(Energy_Component):
                     torque_per_blade                  = torque/B,
                     torque_coefficient                = Cq,
                     power                             = power,
+                    thrust                            = thrust,
+                    torque                            = torque,
                     power_coefficient                 = Cp,
                     converged_inflow_ratio            = lamdaw,
                     propeller_efficiency              = etap,
@@ -549,6 +555,8 @@ class Rotor(Energy_Component):
                     rotor_drag                        = rotor_drag,
                     rotor_drag_coefficient            = Crd,
                     figure_of_merit                   = FoM,
+                    Cfz = Cfz,
+                    Cmz = Cmz,
                     tip_mach                          = omega * R / conditions.freestream.speed_of_sound
             )
         self.outputs = outputs
