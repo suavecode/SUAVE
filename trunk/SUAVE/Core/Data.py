@@ -18,6 +18,8 @@ from .Arrays import atleast_2d_col, array_type, matrix_type, append_array
 
 from copy import copy
 
+from jax.tree_util import register_pytree_node_class
+
 # for enforcing attribute style access names
 import string
 from warnings import warn
@@ -33,6 +35,7 @@ objgetattrib = object.__getattribute__
 # ----------------------------------------------------------------------        
 
 ## @ingroup Core
+@register_pytree_node_class
 class Data(dict):
     """ An extension of the Python dict which allows for both tag and '.' usage.
         This is an unordered dictionary. So indexing it will not produce deterministic results.
@@ -44,6 +47,57 @@ class Data(dict):
         Source:
         N/A
     """
+    
+    def tree_flatten(self):
+        """ Returns a list of objects for tree operations.
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            method  - name of the method to access
+    
+            Outputs:
+            Result  - the results of the method
+    
+            Properties Used:
+            N/A    
+        """          
+        children = self.values() 
+        aux_data = self.keys()
+        return (children, aux_data)
+  
+    @classmethod
+    def tree_unflatten(cls, aux_data, children):
+        """ Rebuilds the Data class.
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            method  - name of the method to access
+    
+            Outputs:
+            Result  - the results of the method
+    
+            Properties Used:
+            N/A    
+        """          
+        recreated = cls()
+        length    = len(aux_data)
+        keys      = list(aux_data)
+        for ii in range(length):
+            recreated.append(children[ii],keys[ii])
+
+        return recreated
+        
+        
     
     def __getattribute__(self, k):
         """ Retrieves an attribute set by a key k
@@ -332,7 +386,8 @@ class Data(dict):
         input_data = Data.__base__(*args,**kwarg)
         
         # update this data with inputs
-        self.update(input_data)    
+        self.update(input_data)          
+            
 
     def __iter__(self):
         """ Returns all the iterable values. Can be used in a for loop.
@@ -852,3 +907,5 @@ class Data(dict):
         do_operation(self,other,result)    
     
         return result
+
+    
