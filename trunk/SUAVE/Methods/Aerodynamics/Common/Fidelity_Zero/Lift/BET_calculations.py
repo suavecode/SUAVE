@@ -62,37 +62,36 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
     Ma       = W/a
     Re       = (W*c)/nu
 
-    ## If propeller airfoils are defined, use airfoil surrogate
-    #if a_loc != None:
-        ## Compute blade Cl and Cd distribution from the airfoil data
-        #dim_sur = len(cl_sur)
-        #if use_2d_analysis:
-            ## return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
-            #Cl      = np.zeros((ctrl_pts,Nr,Na))
-            #Cdval   = np.zeros((ctrl_pts,Nr,Na))
-            #for jj in range(dim_sur):
-                #Cl_af           = cl_sur[a_geo[jj]](Re,alpha,grid=False)
-                #Cdval_af        = cd_sur[a_geo[jj]](Re,alpha,grid=False)
-                #locs            = np.where(np.array(a_loc) == jj )
-                #Cl[:,locs,:]    = Cl_af[:,locs,:]
-                #Cdval[:,locs,:] = Cdval_af[:,locs,:]
-        #else:
-            ## return the 1D Cl and CDval of shape (ctrl_pts, Nr)
-            #Cl      = np.zeros((ctrl_pts,Nr))
-            #Cdval   = np.zeros((ctrl_pts,Nr))
+    # If propeller airfoils are defined, use airfoil surrogate
+    if a_loc != None:
+        # Compute blade Cl and Cd distribution from the airfoil data
+        dim_sur = len(cl_sur)
+        if use_2d_analysis:
+            # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
+            Cl      = np.zeros((ctrl_pts,Nr,Na))
+            Cdval   = np.zeros((ctrl_pts,Nr,Na))
+            for jj in range(dim_sur):
+                Cl_af           = cl_sur[a_geo[jj]]((Re,alpha))
+                Cdval_af        = cd_sur[a_geo[jj]]((Re,alpha))
+                locs            = np.where(np.array(a_loc) == jj )
+                Cl[:,locs,:]    = Cl_af[:,locs,:]
+                Cdval[:,locs,:] = Cdval_af[:,locs,:]
+        else:
+            # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
+            Cl      = np.zeros((ctrl_pts,Nr))
+            Cdval   = np.zeros((ctrl_pts,Nr))
 
-            #for jj in range(dim_sur):
-                #Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)
-                #Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)
-                #locs          = np.where(np.array(a_loc) == jj )
-                #Cl[:,locs]    = Cl_af[:,locs]
-                #Cdval[:,locs] = Cdval_af[:,locs]
-    #else:
-    
-    # Estimate Cl max
-    Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-    Re_ref     = 9.*10**6
-    Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+            for jj in range(dim_sur):
+                Cl_af         = cl_sur[a_geo[jj]]((Re,alpha))
+                Cdval_af      = cd_sur[a_geo[jj]]((Re,alpha))
+                locs          = np.where(np.array(a_loc) == jj )
+                Cl[:,locs]    = Cl_af[:,locs]
+                Cdval[:,locs] = Cdval_af[:,locs]
+    else:
+        # Estimate Cl max
+        Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+        Re_ref     = 9.*10**6
+        Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
 
     # If not airfoil polar provided, use 2*pi as lift curve slope
     Cl = 2.*np.pi*alpha

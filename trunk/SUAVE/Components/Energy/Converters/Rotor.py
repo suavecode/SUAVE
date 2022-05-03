@@ -83,6 +83,9 @@ class Rotor(Energy_Component):
         self.vtk_airfoil_points           = 40
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
+        self.sol_tolerance                = 1e-8
+        self.design_power_coefficient     = 0.01
+
 
         self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream     = False
