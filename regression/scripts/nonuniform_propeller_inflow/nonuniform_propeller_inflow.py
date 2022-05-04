@@ -46,7 +46,7 @@ def case_1(vehicle, conditions):
     prop = vehicle.networks.prop_net.propeller
     prop.inputs.omega = np.ones_like(conditions.aerodynamics.angle_of_attack)*prop.angular_velocity
     prop.orientation_euler_angles  = [0.,20.*Units.degrees,0]
-    prop.use_2d_analysis           = True
+    prop.number_azimuthal_stations = 24
     
     # spin propeller in nonuniform flow
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)

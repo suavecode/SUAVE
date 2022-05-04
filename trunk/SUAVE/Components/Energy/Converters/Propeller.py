@@ -43,6 +43,5 @@ class Propeller(Rotor):
 
         self.tag                       = 'propeller'
         self.orientation_euler_angles  = [0.,0.,0.] # This is X-direction thrust in vehicle frame
-        self.use_2d_analysis           = False       
         self.variable_pitch            = False
         

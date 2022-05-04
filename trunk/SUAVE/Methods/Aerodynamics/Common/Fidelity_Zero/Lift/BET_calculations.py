@@ -8,12 +8,12 @@ import numpy as np
 import jax.numpy as jnp
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc):
     """
     Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
                                               Wa,Wt,a,nu,
                                               a_loc,a_geo,cl_sur,cd_sur,
-                                              ctrl_pts,Nr,Na,tc,use_2d_analysis )
+                                              ctrl_pts,Nr,Na,tc )
 
     Computes the aerodynamic forces at sectional blade locations. If airfoil
     geometry and locations are specified, the forces are computed using the
@@ -48,7 +48,6 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
        Nr                         Number of radial blade sections                 [-]
        Na                         Number of azimuthal blade stations              [-]
        tc                         Thickness to chord                              [-]
-       use_2d_analysis            Specifies 2d disc vs. 1d single angle analysis  [Boolean]
 
     Outputs:
        Cl                       Lift Coefficients                         [-]
@@ -66,30 +65,19 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
     if a_loc != None:
         # Compute blade Cl and Cd distribution from the airfoil data
         dim_sur = len(cl_sur)
-        if use_2d_analysis:
-            # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
-            Cl      = np.zeros((ctrl_pts,Nr,Na))
-            Cdval   = np.zeros((ctrl_pts,Nr,Na))
-            for jj in range(dim_sur):
-                Cl_af           = cl_sur[a_geo[jj]]((Re,alpha))
-                Cdval_af        = cd_sur[a_geo[jj]]((Re,alpha))
-                locs            = np.where(np.array(a_loc) == jj )
-                Cl[:,locs,:]    = Cl_af[:,locs,:]
-                Cdval[:,locs,:] = Cdval_af[:,locs,:]
-        else:
-            # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
-            Cl      = np.zeros((ctrl_pts,Nr))
-            Cdval   = np.zeros((ctrl_pts,Nr))
+        # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
+        Cl      = np.zeros((ctrl_pts,Nr,Na))
+        Cdval   = np.zeros((ctrl_pts,Nr,Na))
+        for jj in range(dim_sur):
+            Cl_af           = cl_sur[a_geo[jj]]((Re,alpha))
+            Cdval_af        = cd_sur[a_geo[jj]]((Re,alpha))
+            locs            = np.where(np.array(a_loc) == jj )
+            Cl[:,locs,:]    = Cl_af[:,locs,:]
+            Cdval[:,locs,:] = Cdval_af[:,locs,:]
 
-            for jj in range(dim_sur):
-                Cl_af         = cl_sur[a_geo[jj]]((Re,alpha))
-                Cdval_af      = cd_sur[a_geo[jj]]((Re,alpha))
-                locs          = np.where(np.array(a_loc) == jj )
-                Cl[:,locs]    = Cl_af[:,locs]
-                Cdval[:,locs] = Cdval_af[:,locs]
     else:
         # Estimate Cl max
-        Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+        Cl_max_ref = np.atleast_2d(-0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005).T
         Re_ref     = 9.*10**6
         Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
 

@@ -47,16 +47,12 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     Nr              = wake_inputs.Nr
     Na              = wake_inputs.Na    
 
-    if wake_inputs.use_2d_analysis:
-        PSI    = np.ones((ctrl_pts,Nr,Na))
-    else:
-        PSI     = np.ones((ctrl_pts,Nr))
-        
+    PSI    = np.ones((ctrl_pts,Nr,Na))
 
     jit_jac = jit(jacobian(iteration))
     jit_it  = jit(iteration)
 
-    PSI_final,infodict,ier,msg = sp.optimize.fsolve(iteration,PSI,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
+    PSI_final,infodict,ier,msg = sp.optimize.fsolve(jit_it,PSI,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
     
     if ier!=1:
         print("Rotor BEVW did not converge to a solution (Stall)")
@@ -101,7 +97,6 @@ def iteration(PSI, wake_inputs, rotor):
     U               = wake_inputs.velocity_total
     Ua              = wake_inputs.velocity_axial
     Ut              = wake_inputs.velocity_tangential
-    use_2d_analysis = wake_inputs.use_2d_analysis        
     beta            = wake_inputs.twist_distribution
     c               = wake_inputs.chord_distribution
     r               = wake_inputs.radius_distribution
@@ -119,13 +114,9 @@ def iteration(PSI, wake_inputs, rotor):
     a_loc    = rotor.airfoil_polar_stations
     cl_sur   = rotor.airfoil_cl_surrogates
     cd_sur   = rotor.airfoil_cd_surrogates    
-    
-    # Reshape PSI because the solver gives it flat
-    
-    PSI = lax.cond(use_2d_analysis,
-                   lambda _: jnp.reshape(PSI,(ctrl_pts,Nr,Na)),
-                   lambda _: jnp.reshape(PSI,(ctrl_pts,Nr)))
-    
+
+    PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
+
     # compute velocities
     sin_psi      = jnp.sin(PSI)
     cos_psi      = jnp.cos(PSI)
@@ -134,7 +125,7 @@ def iteration(PSI, wake_inputs, rotor):
     vt           = Ut - Wt
 
     # compute blade airfoil forces and properties
-    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc)
 
     # compute inflow velocity and tip loss factor
     lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
@@ -142,7 +133,7 @@ def iteration(PSI, wake_inputs, rotor):
     # compute Newton residual on circulation
     Gamma       = vt*(4.*np.pi*r/B)*F*(1.+(4.*lamdaw*R/(np.pi*B*r))*(4.*lamdaw*R/(np.pi*B*r)))**0.5
     Rsquiggly   = Gamma - 0.5*W*c*Cl
-    
+
     return Rsquiggly.flatten()
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
@@ -184,10 +175,7 @@ def va_vt(PSI, wake_inputs, rotor):
     Na              = wake_inputs.Na
     
     # Reshape PSI because the solver gives it flat
-    if wake_inputs.use_2d_analysis:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
-    else:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr))
+    PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
     
     # compute velocities
     sin_psi      = np.sin(PSI)
@@ -244,11 +232,7 @@ def compute_dR_dpsi(PSI,wake_inputs,rotor):
     B        = rotor.number_of_blades      
     
     # Reshape PSI because the solver gives it flat
-    if wake_inputs.use_2d_analysis:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
-    else:
-        PSI    = np.reshape(PSI,(ctrl_pts,Nr))    
-    
+    PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
     
     # An analytical derivative for dR_dpsi used in the Newton iteration for the BEVW
     # This was solved symbolically in Matlab and exported
