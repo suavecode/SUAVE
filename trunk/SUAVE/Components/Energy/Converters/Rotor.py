@@ -28,11 +28,13 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 # package imports
 import numpy as np
 import scipy as sp
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Converters
+@register_pytree_node_class
 class Rotor(Energy_Component):
     """This is a general rotor component.
 

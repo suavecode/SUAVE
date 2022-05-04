@@ -51,8 +51,11 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
 
     jit_jac = jit(jacobian(iteration))
     jit_it  = jit(iteration)
+    
+    del rotor.tag
+    del rotor.Wake.tag
 
-    PSI_final,infodict,ier,msg = sp.optimize.fsolve(jit_it,PSI,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
+    PSI_final,infodict,ier,msg = sp.optimize.fsolve(jit_it,PSI,fprime=jit_jac,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
     
     if ier!=1:
         print("Rotor BEVW did not converge to a solution (Stall)")
@@ -115,7 +118,7 @@ def iteration(PSI, wake_inputs, rotor):
     cl_sur   = rotor.airfoil_cl_surrogates
     cd_sur   = rotor.airfoil_cd_surrogates    
 
-    PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
+    PSI    = jnp.reshape(PSI,jnp.shape(U))
 
     # compute velocities
     sin_psi      = jnp.sin(PSI)

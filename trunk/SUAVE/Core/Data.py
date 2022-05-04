@@ -93,7 +93,7 @@ class Data(dict):
         length    = len(aux_data)
         keys      = list(aux_data)
         for ii in range(length):
-            recreated.append(children[ii],keys[ii])
+            recreated[keys[ii]] = children[ii]
 
         return recreated
         

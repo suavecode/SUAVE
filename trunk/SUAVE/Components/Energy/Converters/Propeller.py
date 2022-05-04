@@ -8,11 +8,13 @@
 #  Imports
 # ----------------------------------------------------------------------
 from .Rotor import Rotor
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Propeller Class
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
+@register_pytree_node_class
 class Propeller(Rotor):
     """This is a propeller component, and is a sub-class of rotor.
     
