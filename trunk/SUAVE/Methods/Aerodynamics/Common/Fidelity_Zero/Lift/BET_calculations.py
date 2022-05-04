@@ -81,26 +81,26 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         Re_ref     = 9.*10**6
         Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
 
-    # If not airfoil polar provided, use 2*pi as lift curve slope
-    Cl = 2.*np.pi*alpha
-
-    # By 90 deg, it's totally stalled.
-    Cl = jnp.minimum(Cl, Cl1maxp)
-    Cl.at[alpha>=np.pi/2].set(0.)
-
-
-    # Scale for Mach, this is Karmen_Tsien
-    #Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-    Cl.at[Ma[:,:]<1.].set(Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2))
-
-
-    #This is an atrocious fit of DAE51 data at RE=50k for Cd
-    Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-    Cdval.at[alpha>=np.pi/2].set(2)
-
-
-    # prevent zero Cl to keep Cd/Cl from breaking in BET
-    Cl.at[Cl==0].set(1e-6)
+        # If not airfoil polar provided, use 2*pi as lift curve slope
+        Cl = 2.*np.pi*alpha
+    
+        # By 90 deg, it's totally stalled.
+        Cl = jnp.minimum(Cl, Cl1maxp)
+        Cl.at[alpha>=np.pi/2].set(0.)
+    
+    
+        # Scale for Mach, this is Karmen_Tsien
+        #Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+        Cl.at[Ma[:,:]<1.].set(Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2))
+    
+    
+        #This is an atrocious fit of DAE51 data at RE=50k for Cd
+        Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        Cdval.at[alpha>=np.pi/2].set(2)
+    
+    
+        # prevent zero Cl to keep Cd/Cl from breaking in BET
+        Cl.at[Cl==0].set(1e-6)
 
     return Cl, Cdval, alpha, Ma, W
 
