@@ -60,20 +60,19 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
     W        = (Wa*Wa + Wt*Wt)**0.5
     Ma       = W/a
     Re       = (W*c)/nu
+    
 
     # If propeller airfoils are defined, use airfoil surrogate
     if a_loc != None:
+        aloc  = jnp.atleast_3d(jnp.array(a_loc))
+        aloc  = jnp.broadcast_to(aloc,jnp.shape(Wa))
         # Compute blade Cl and Cd distribution from the airfoil data
-        dim_sur = len(cl_sur)
         # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
-        Cl      = jnp.zeros((ctrl_pts,Nr,Na))
-        Cdval   = jnp.zeros((ctrl_pts,Nr,Na))
-        for jj in range(dim_sur):
-            Cl_af           = cl_sur[a_geo[jj]]((Re,alpha))
-            Cdval_af        = cd_sur[a_geo[jj]]((Re,alpha))
-            locs            = np.where(np.array(a_loc) == jj )
-            Cl[:,locs,:]    = Cl_af[:,locs,:]
-            Cdval[:,locs,:] = Cdval_af[:,locs,:]
+        Cl      = jnp.zeros(jnp.shape(Wa))
+        Cdval   = jnp.zeros(jnp.shape(Wa))
+        for jj, (cl, cd) in enumerate(zip(cl_sur,cd_sur)):
+            Cl    = jnp.where(aloc==jj,cl((Re,alpha)),Cl)
+            Cdval = jnp.where(aloc==jj,cd((Re,alpha)),Cdval)
 
     else:
         # Estimate Cl max
@@ -90,17 +89,13 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
     
         # Scale for Mach, this is Karmen_Tsien
         Cl = jnp.where(Ma[:,:]<1.,Cl/((1-Ma*Ma)**0.5+((Ma*Ma)/(1+(1-Ma*Ma)**0.5))*Cl/2),Cl)
-        #Cl.at[Ma[:,:]<1.].set(Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2))
-    
+        
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-        Cdval = jnp.where(alpha>=np.pi/2,2,Cdval)
-        #Cdval.at[alpha>=np.pi/2].set(2)
-    
+        Cdval = jnp.where(alpha>=np.pi/2,2,Cdval)    
     
         # prevent zero Cl to keep Cd/Cl from breaking in BET
         Cl = jnp.where(Cl==0,1e-6,Cl)
-        #Cl.at[Cl==0].set(1e-6)
 
     return Cl, Cdval, alpha, Ma, W
 

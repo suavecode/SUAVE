@@ -10,10 +10,13 @@
 from .Rotor import Rotor
 import numpy as np
 
+from jax.tree_util import register_pytree_node_class
+
 # ----------------------------------------------------------------------
 #  Lift Rotor Class
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
+@register_pytree_node_class
 class Lift_Rotor(Rotor):
     """This is a lift rotor component, and is a sub-class of rotor.
     

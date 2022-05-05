@@ -54,8 +54,10 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     
     del rotor.tag
     del rotor.Wake.tag
+    del rotor.airfoil_polars
+    
 
-    PSI_final,infodict,ier,msg = sp.optimize.fsolve(jit_it,PSI,fprime=jit_jac,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
+    PSI_final,infodict,ier,msg = sp.optimize.fsolve(jit_it,PSI,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
     
     if ier!=1:
         print("Rotor BEVW did not converge to a solution (Stall)")
