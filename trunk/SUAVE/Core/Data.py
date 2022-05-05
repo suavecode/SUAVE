@@ -66,19 +66,27 @@ class Data(dict):
             Properties Used:
             N/A    
         """          
-        if hasattr(self,'tag'):
-            tag = self.pop('tag')
-        else:
-            tag = ''
             
-        children = self.values() 
-        aux_keys = list(self.keys())  
-        aux_data = [aux_keys,tag]
+        #Get all keys and values from the data class
+        keys   = list(self.keys())
+        values = self.values()         
+
+        # Make a dictionary of the strings in self
+        aux_dict = dict()
+        for key, value in zip(keys,values):
+            if type(value) is str:
+                aux_dict[key] = self.pop(key)
+
+        #Get all keys and values from the data class, now that they don't have strings
+        stringless_keys = list(self.keys())
+        children        = self.values()   
         
-        if not tag=='':            
-            # Put the tag back
-            self['tag'] = tag
+        # Put back what I have taken away
+        self.update(aux_dict)
         
+        # Pack up the results
+        aux_data        = [stringless_keys,aux_dict] 
+
         return (children, aux_data)
   
     @classmethod
@@ -103,9 +111,8 @@ class Data(dict):
         # Create the class
         recreated = cls()
         
-        # set the tag
-        if not aux_data[1]=='':
-            recreated['tag'] = aux_data[1]
+        # add an string data
+        recreated.update(aux_data[1])
         
         # keys
         keys      = aux_data[0]
