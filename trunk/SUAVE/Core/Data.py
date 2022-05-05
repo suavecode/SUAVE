@@ -75,8 +75,9 @@ class Data(dict):
         aux_keys = list(self.keys())  
         aux_data = [aux_keys,tag]
         
-        # Put the tag back
-        self['tag'] = tag
+        if not tag=='':            
+            # Put the tag back
+            self['tag'] = tag
         
         return (children, aux_data)
   
@@ -103,7 +104,8 @@ class Data(dict):
         recreated = cls()
         
         # set the tag
-        recreated['tag'] = aux_data[1]
+        if not aux_data[1]=='':
+            recreated['tag'] = aux_data[1]
         
         # keys
         keys      = aux_data[0]
