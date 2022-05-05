@@ -66,8 +66,18 @@ class Data(dict):
             Properties Used:
             N/A    
         """          
+        if hasattr(self,'tag'):
+            tag = self.pop('tag')
+        else:
+            tag = ''
+            
         children = self.values() 
-        aux_data = self.keys()
+        aux_keys = list(self.keys())  
+        aux_data = [aux_keys,tag]
+        
+        # Put the tag back
+        self['tag'] = tag
+        
         return (children, aux_data)
   
     @classmethod
@@ -88,10 +98,17 @@ class Data(dict):
     
             Properties Used:
             N/A    
-        """          
+        """
+        # Create the class
         recreated = cls()
-        length    = len(aux_data)
-        keys      = list(aux_data)
+        
+        # set the tag
+        recreated['tag'] = aux_data[1]
+        
+        # keys
+        keys      = aux_data[0]
+        length    = len(keys)
+        keys      = list(keys)
         for ii in range(length):
             recreated[keys[ii]] = children[ii]
 
