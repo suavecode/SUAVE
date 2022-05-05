@@ -49,10 +49,13 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
 
     PSI    = np.ones((ctrl_pts,Nr,Na))
 
-    jit_jac = jit(jacobian(iteration))
+    #jit_jac = jit(jacobian(iteration))
     jit_it  = jit(iteration)
 
-    del rotor.airfoil_polars
+    try:
+        del rotor.airfoil_polars
+    except:
+        pass
 
     PSI_final,infodict,ier,msg = sp.optimize.fsolve(jit_it,PSI,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
     
