@@ -18,7 +18,8 @@ import scipy as sp
 from scipy.optimize import root 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
-from jax import jit
+from jax import jit, jacobian
+import jax.numpy as jnp
 
 from SUAVE.Core import Data
 
@@ -146,6 +147,8 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             
         for ii, a_g in enumerate(a_geo):
             a_geo[ii] = ii
+            
+        jac       = jacobian(objective)
      
     while diff>tol:      
         # assign chord distribution
@@ -172,7 +175,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             alpha0   = np.ones(N)*0.05
             
             # solve for optimal alpha to meet design Cl target
-            sol      = root(objective, x0 = alpha0 , args=(airfoil_cl_surs, RE , a_geo ,a_loc, Cl ,N))  
+            sol      = root(objective, x0 = alpha0 , jac=jac, args=(airfoil_cl_surs, RE , a_geo ,a_loc, Cl))  
             alpha    = sol.x
             
             # query surrogate for sectional Cls at stations 
@@ -304,8 +307,8 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
         prop.airfoil_cl_surrogates            = airfoil_data.lift_coefficient_surrogates
         prop.airfoil_cd_surrogates            = airfoil_data.drag_coefficient_surrogates
     except:
-        prop.airfoil_cl_surrogates            = {}
-        prop.airfoil_cd_surrogates            = {}      
+        prop.airfoil_cl_surrogates            = None
+        prop.airfoil_cd_surrogates            = None     
         
     prop.airfoil_flag                     = airfoil_flag 
     prop.number_of_airfoil_section_points = number_of_airfoil_section_points
@@ -313,13 +316,12 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     return prop
 
     
-def objective(x, airfoil_cl_surs, RE , a_geo ,a_loc, Cl ,N):  
+def objective(x, airfoil_cl_surs, RE , a_geo ,a_loc, Cl):  
     # query surrogate for sectional Cls at stations 
-    Cl_vals = np.zeros(N)     
-    for j in range(len(airfoil_cl_surs)):                 
-        Cl_af         = airfoil_cl_surs[str(a_geo[j])]((RE,x))
-        locs          = np.where(np.array(a_loc) == j )
-        Cl_vals[locs] = Cl_af[locs] 
+    Cl_vals = jnp.zeros_like(RE)     
+    aloc    = jnp.array(a_loc)
+    for jj, cl in enumerate(airfoil_cl_surs):
+        Cl_vals = jnp.where(aloc==jj,cl((RE,x)),Cl_vals)
         
     # compute Cl residual    
     Cl_residuals = Cl_vals - Cl 
