@@ -8,7 +8,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations impor
 import numpy as np
 import scipy as sp
 import jax.numpy as jnp
-from jax import jacobian, jit, lax
+from jax import jacobian, jit, lax, hessian, grad, vmap
 import copy
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
@@ -47,20 +47,25 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     Nr              = wake_inputs.Nr
     Na              = wake_inputs.Na    
 
-    PSI    = np.ones((ctrl_pts,Nr,Na))
+    PSI    = np.ones((ctrl_pts,Nr,Na)).flatten()
 
-    #jit_jac = jit(jacobian(iteration))
-    jit_it  = jit(iteration)
+    jit_it   = jit(iteration)
+    jit_jac  = jit(jacobian(iteration,0))
+    #jit_hess = jit(hessian(iteration))
+    #jit_3    = jit(jacobian(hessian(iteration)))
 
     try:
         del rotor.airfoil_polars
     except:
         pass
-
-    PSI_final,infodict,ier,msg = sp.optimize.fsolve(jit_it,PSI,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
     
-    if ier!=1:
-        print("Rotor BEVW did not converge to a solution (Stall)")
+    
+    PSI_final = simple_newton(jit_it,jit_jac,PSI,args=(wake_inputs,rotor))
+
+    #PSI_final,infodict,ier,msg = sp.optimize.fsolve(jit_it,PSI,fprime=jit_jac,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
+    
+    #if ier!=1:
+        #print("Rotor BEVW did not converge to a solution (Stall)")
     
     # Calculate the velocities given PSI
     va, vt = va_vt(np.array(PSI_final), wake_inputs, rotor)
@@ -193,90 +198,126 @@ def va_vt(PSI, wake_inputs, rotor):
     return va, vt
 
 
-## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-def compute_dR_dpsi(PSI,wake_inputs,rotor):
-    """
-    Computes the analytical derivative for the BEVW iteration.
 
-    #Assumptions:
-    #N/A
-
-    #Source:
-    #N/A
-
-    #Inputs:
-       #B                          number of rotor blades                          [-]
-       #beta                       blade twist distribution                        [-]
-       #r                          radius distribution                             [m]
-       #R                          tip radius                                      [m]
-       #Wt                         tangential velocity                             [m/s]
-       #Wa                         axial velocity                                  [m/s]
-       #U                          total velocity                                  [m/s]
-       #Ut                         tangential velocity                             [m/s]
-       #Ua                         axial velocity                                  [m/s]
-       #cos_psi                    cosine of the inflow angle PSI                  [-]
-       #sin_psi                    sine of the inflow angle PSI                    [-]
-       #piece                      output of a step in tip loss calculation        [-]
-
-    #Outputs:
-       #dR_dpsi                    derivative of residual wrt inflow angle         [-]
-
-    """
-    # Unpack inputs to rotor wake fidelity zero
-    U               = wake_inputs.velocity_total
-    Ua              = wake_inputs.velocity_axial
-    Ut              = wake_inputs.velocity_tangential
-    beta            = wake_inputs.twist_distribution
-    r               = wake_inputs.radius_distribution
-    ctrl_pts        = wake_inputs.ctrl_pts
-    Nr              = wake_inputs.Nr
-    Na              = wake_inputs.Na    
-
-    # Unpack rotor data        
-    R        = rotor.tip_radius
-    B        = rotor.number_of_blades      
+def simple_newton(function,jac,intial_x,tol=1e-8,args=()):
     
-    # Reshape PSI because the solver gives it flat
-    PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
+    ii = 0
     
-    # An analytical derivative for dR_dpsi used in the Newton iteration for the BEVW
-    # This was solved symbolically in Matlab and exported
-    # compute velocities
-    sin_psi      = np.sin(PSI)
-    cos_psi      = np.cos(PSI)
-    Wa           = 0.5*Ua + 0.5*U*sin_psi
-    Wt           = 0.5*Ut + 0.5*U*cos_psi
+    Xn   = intial_x.flatten()
+    Xnp1 = 1
+    R    = 1
+    damping_factor = 1
     
-    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-    
-    pi          = np.pi
-    pi2         = np.pi**2
-    BB          = B*B
-    BBB         = BB*B
-    f_wt_2      = 4*Wt*Wt
-    f_wa_2      = 4*Wa*Wa
-    arccos_piece = np.arccos(piece)
-    Ucospsi     = U*cos_psi
-    Usinpsi     = U*sin_psi
-    Utcospsi    = Ut*cos_psi
-    Uasinpsi    = Ua*sin_psi
-    UapUsinpsi  = (Ua + Usinpsi)
-    utpUcospsi  = (Ut + Ucospsi)
-    utpUcospsi2 = utpUcospsi*utpUcospsi
-    UapUsinpsi2 = UapUsinpsi*UapUsinpsi
-    dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B -
-                   (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
-                   + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
-                   - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. -
-                    (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R -
-                    r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U +
-                    Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5)))
+    while np.max(R)>=tol:
+        
+        f    = np.array(function(Xn,*args)).flatten()
+        fp   = np.diagonal(np.array(jac(Xn,*args))).flatten()
+        #fp   = np.array(jac(Xn,*args))
+        #fpp  = np.array(hess(Xn,*args))
+        #fpp  = np.diagonal(np.diagonal(fpp)).flatten()
+        #fppp = np.diagonal(np.diagonal(np.diagonal(f3(Xn,*args)))).flatten()
+        
+        Xnp1 = Xn - damping_factor*f/fp
+        #Xnp1 = Xn - (2.*f*fp)/(2.*(fp**2.)-f*fpp)
+        #Xnp1 = Xn - damping_factor*((6*f*(fp**2)-3*(f**2)*fpp)/(6*fp**3-6*f*fp*fpp+(f**2)*(fppp)))
+        
+        
+        R  = np.abs(Xnp1-Xn)
+        Xn = Xnp1*1
+        
+        if np.max(R)<1e-4 or ii>8:
+           damping_factor/=2 
+        
+        ii+=1
 
-    dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+    return Xnp1
     
-    # This needs to be made into a jacobian
-    dR_dpsi = dR_dpsi.flatten()
-    L       = np.size(PSI)
-    jac     = np.eye(L)*dR_dpsi
+
+
+### @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+#def compute_dR_dpsi(PSI,wake_inputs,rotor):
+    #"""
+    #Computes the analytical derivative for the BEVW iteration.
+
+    ##Assumptions:
+    ##N/A
+
+    ##Source:
+    ##N/A
+
+    ##Inputs:
+       ##B                          number of rotor blades                          [-]
+       ##beta                       blade twist distribution                        [-]
+       ##r                          radius distribution                             [m]
+       ##R                          tip radius                                      [m]
+       ##Wt                         tangential velocity                             [m/s]
+       ##Wa                         axial velocity                                  [m/s]
+       ##U                          total velocity                                  [m/s]
+       ##Ut                         tangential velocity                             [m/s]
+       ##Ua                         axial velocity                                  [m/s]
+       ##cos_psi                    cosine of the inflow angle PSI                  [-]
+       ##sin_psi                    sine of the inflow angle PSI                    [-]
+       ##piece                      output of a step in tip loss calculation        [-]
+
+    ##Outputs:
+       ##dR_dpsi                    derivative of residual wrt inflow angle         [-]
+
+    #"""
+    ## Unpack inputs to rotor wake fidelity zero
+    #U               = wake_inputs.velocity_total
+    #Ua              = wake_inputs.velocity_axial
+    #Ut              = wake_inputs.velocity_tangential
+    #beta            = wake_inputs.twist_distribution
+    #r               = wake_inputs.radius_distribution
+    #ctrl_pts        = wake_inputs.ctrl_pts
+    #Nr              = wake_inputs.Nr
+    #Na              = wake_inputs.Na    
+
+    ## Unpack rotor data        
+    #R        = rotor.tip_radius
+    #B        = rotor.number_of_blades      
     
-    return jac
+    ## Reshape PSI because the solver gives it flat
+    #PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
+    
+    ## An analytical derivative for dR_dpsi used in the Newton iteration for the BEVW
+    ## This was solved symbolically in Matlab and exported
+    ## compute velocities
+    #sin_psi      = np.sin(PSI)
+    #cos_psi      = np.cos(PSI)
+    #Wa           = 0.5*Ua + 0.5*U*sin_psi
+    #Wt           = 0.5*Ut + 0.5*U*cos_psi
+    
+    #lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+    
+    #pi          = np.pi
+    #pi2         = np.pi**2
+    #BB          = B*B
+    #BBB         = BB*B
+    #f_wt_2      = 4*Wt*Wt
+    #f_wa_2      = 4*Wa*Wa
+    #arccos_piece = np.arccos(piece)
+    #Ucospsi     = U*cos_psi
+    #Usinpsi     = U*sin_psi
+    #Utcospsi    = Ut*cos_psi
+    #Uasinpsi    = Ua*sin_psi
+    #UapUsinpsi  = (Ua + Usinpsi)
+    #utpUcospsi  = (Ut + Ucospsi)
+    #utpUcospsi2 = utpUcospsi*utpUcospsi
+    #UapUsinpsi2 = UapUsinpsi*UapUsinpsi
+    #dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B -
+                   #(pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
+                   #+ (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
+                   #- (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. -
+                    #(Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R -
+                    #r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U +
+                    #Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5)))
+
+    #dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+    
+    ## This needs to be made into a jacobian
+    #dR_dpsi = dR_dpsi.flatten()
+    #L       = np.size(PSI)
+    #jac     = np.eye(L)*dR_dpsi
+    
+    #return jac
