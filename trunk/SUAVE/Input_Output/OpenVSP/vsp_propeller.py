@@ -256,9 +256,9 @@ Normal: {8}, {9}, {10}
     Y         = np.round(prop.origin[0][1],5)
     Z         = np.round(prop.origin[0][2],5)
     rotations = np.dot(prop.body_to_prop_vel(),np.array([-1,0,0])) # The sign is because props point opposite flow
-    Xn        = np.round(rotations[0],5)
-    Yn        = np.round(rotations[1],5)
-    Zn        = np.round(rotations[2],5)
+    Xn        = np.round(rotations[0,0],5)
+    Yn        = np.round(rotations[0,1],5)
+    Zn        = np.round(rotations[0,2],5)
 
     beta_3_4  = np.interp(prop.tip_radius*0.75,prop.radius_distribution,beta)
 

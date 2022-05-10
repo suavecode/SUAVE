@@ -349,6 +349,11 @@ class Rotor(Energy_Component):
         wake_inputs.radius_distribution   = r
         wake_inputs.speed_of_sounds       = a
         wake_inputs.dynamic_viscosities   = nu
+        
+        try:
+            del self.airfoil_polars
+        except:
+            pass        
 
         va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
         
@@ -370,6 +375,10 @@ class Rotor(Energy_Component):
         W      = np.array(W)
         lamdaw = np.array(lamdaw)
         F      = np.array(F)
+        va     = np.array(va)
+        vt     = np.array(vt)
+        Wa     = np.array(Wa)
+        Wt     = np.array(Wt)
         ########
         
         # compute HFW circulation at the blade
