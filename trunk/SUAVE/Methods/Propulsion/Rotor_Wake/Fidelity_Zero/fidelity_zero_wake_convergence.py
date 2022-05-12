@@ -270,9 +270,9 @@ def inner_newton(Full_vector,function,jac,*args):
     true_fun  = lambda df: df/2
     false_fun = lambda df: df
     cond1     = R<1e-4
-    #cond2     = ii>8
-    #conds     = cond1 or cond2
-    df = lax.cond(cond1, true_fun, false_fun, df)
+    cond2     = ii>8
+    conds     = cond1 | cond2
+    df = lax.cond(conds, true_fun, false_fun, df)
 
     ii+=1    
     

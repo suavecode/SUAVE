@@ -188,12 +188,6 @@ def main():
     # propeller with airfoil results 
     prop_a.inputs.pitch_command                = 0.0*Units.degree
     
-    
-    try:
-        del prop_a.airfoil_polars
-    except:
-        pass      
-    
     import time
     t1 = time.time()
     F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  

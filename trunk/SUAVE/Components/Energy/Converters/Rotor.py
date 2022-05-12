@@ -103,7 +103,7 @@ class Rotor(Energy_Component):
         self.variable_pitch            = False
         
         # JAX static args
-        self.static_keys               = ['number_azimuthal_stations']
+        self.static_keys               = ['number_azimuthal_stations','nonuniform_freestream','airfoil_geometry','airfoil_polars']
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
@@ -260,41 +260,44 @@ class Rotor(Energy_Component):
         psi            = jnp.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = jnp.tile(jnp.atleast_2d(psi),(Nr,1))
         psi_2d         = jnp.repeat(psi_2d[None, :, :], ctrl_pts, axis=0)
-    
-        # apply blade sweep to azimuthal position
-        if jnp.any(jnp.array([sweep])!=0):
-            sweep_2d            = jnp.repeat(sweep[:, None], (1,Na))
-            sweep_offset_angles = jnp.tan(sweep_2d/r_dim_2d)
-            psi_2d             += sweep_offset_angles
+
+        # apply blade sweep to azimuthal position, if it's zero it will add zero
+        sweep               = jnp.atleast_3d(sweep)
+        sweep_2d            = jnp.repeat(sweep,Na,axis=2)
+        sweep_offset_angles = jnp.tan(sweep_2d/r_dim_2d)
+        psi_2d             += sweep_offset_angles      
     
         # Starting with uniform freestream
         ua       = 0
         ut       = 0
         ur       = 0
     
-        # Include velocities introduced by rotor incidence angles
-        if (jnp.any(abs(V_thrust[:,1]) >1e-3) or jnp.any(abs(V_thrust[:,2]) >1e-3)):
+        ## Include velocities introduced by rotor incidence angles
+        #cond1 = jnp.any(abs(V_thrust[:,1]) >1e-3)
+        #cond2 = jnp.any(abs(V_thrust[:,2]) >1e-3)
+
+        #if jnp.bitwise_or(cond1,cond2):
     
-            # y-component of freestream in the propeller cartesian plane
-            Vy  = V_thrust[:,1,None,None]
-            Vy  = jnp.repeat(Vy, Nr,axis=1)
-            Vy  = jnp.repeat(Vy, Na,axis=2)
-    
-            # z-component of freestream in the propeller cartesian plane
-            Vz  = V_thrust[:,2,None,None]
-            Vz  = jnp.repeat(Vz, Nr,axis=1)
-            Vz  = jnp.repeat(Vz, Na,axis=2)
-    
-            # compute resulting radial and tangential velocities in polar frame
-            utz =  -Vz*jnp.sin(psi_2d)
-            urz =   Vz*jnp.cos(psi_2d)
-            uty =  -Vy*jnp.cos(psi_2d)
-            ury =   Vy*jnp.sin(psi_2d)
-    
-            ut +=  (utz + uty)  # tangential velocity in direction of rotor rotation
-            ur +=  (urz + ury)  # radial velocity (positive toward tip)
-            ua +=  jnp.zeros_like(ut)
-            
+        # y-component of freestream in the propeller cartesian plane
+        Vy  = V_thrust[:,1,None,None]
+        Vy  = jnp.repeat(Vy, Nr,axis=1)
+        Vy  = jnp.repeat(Vy, Na,axis=2)
+
+        # z-component of freestream in the propeller cartesian plane
+        Vz  = V_thrust[:,2,None,None]
+        Vz  = jnp.repeat(Vz, Nr,axis=1)
+        Vz  = jnp.repeat(Vz, Na,axis=2)
+
+        # compute resulting radial and tangential velocities in polar frame
+        utz =  -Vz*jnp.sin(psi_2d)
+        urz =   Vz*jnp.cos(psi_2d)
+        uty =  -Vy*jnp.cos(psi_2d)
+        ury =   Vy*jnp.sin(psi_2d)
+
+        ut +=  (utz + uty)  # tangential velocity in direction of rotor rotation
+        ur +=  (urz + ury)  # radial velocity (positive toward tip)
+        ua +=  jnp.zeros_like(ut)
+        
     
         # Include external velocities introduced by user
         if nonuniform_freestream:
@@ -325,18 +328,18 @@ class Rotor(Energy_Component):
         deltar = jnp.tile(deltar[None,:,None], (ctrl_pts, 1, Na))
     
         # 2-D atmospheric properties
-        a   = jnp.tile(np.atleast_2d(a),(1,Nr))
+        a   = jnp.tile(jnp.atleast_2d(a),(1,Nr))
         a   = jnp.repeat(a[:, :, None], Na, axis=2)
-        nu  = jnp.tile(np.atleast_2d(nu),(1,Nr))
+        nu  = jnp.tile(jnp.atleast_2d(nu),(1,Nr))
         nu  = jnp.repeat(nu[:,  :, None], Na, axis=2)
-        rho = jnp.tile(np.atleast_2d(rho),(1,Nr))
+        rho = jnp.tile(jnp.atleast_2d(rho),(1,Nr))
         rho = jnp.repeat(rho[:,  :, None], Na, axis=2)
-        T   = jnp.tile(np.atleast_2d(T),(1,Nr))
+        T   = jnp.tile(jnp.atleast_2d(T),(1,Nr))
         T   = jnp.repeat(T[:, :, None], Na, axis=2)
     
         # Total velocities
         Ut     = omegar - ut
-        U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
+        U      = jnp.sqrt(Ua*Ua + Ut*Ut + ur*ur)
         
         
         #---------------------------------------------------------------------------
@@ -367,21 +370,6 @@ class Rotor(Energy_Component):
         # Compute aerodynamic forces based on specified input airfoil or surrogate
         Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc)
         
-        #########
-        ## THIS WILL NEED TO BE REMOVED FOR FULL JAX
-        #Cl     = np.array(Cl)
-        #Cdval  = np.array(Cdval)
-        #alpha  = np.array(alpha)
-        #Ma     = np.array(Ma)
-        #W      = np.array(W)
-        #lamdaw = np.array(lamdaw)
-        #F      = np.array(F)
-        #va     = np.array(va)
-        #vt     = np.array(vt)
-        #Wa     = np.array(Wa)
-        #Wt     = np.array(Wt)
-        #########
-        
         # compute HFW circulation at the blade
         Gamma = 0.5*W*c*Cl  
     
@@ -400,7 +388,7 @@ class Rotor(Energy_Component):
         Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
     
         epsilon                  = Cd/Cl
-        epsilon[epsilon==np.inf] = 10.
+        epsilon                  = jnp.where(epsilon==jnp.inf,10.,epsilon)
     
         # thrust and torque and their derivatives on the blade.
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar
@@ -417,13 +405,13 @@ class Rotor(Energy_Component):
     
         Va_2d = Wa
         Vt_2d = Wt
-        Va_avg = np.average(Wa, axis=2)      # averaged around the azimuth
-        Vt_avg = np.average(Wt, axis=2)      # averaged around the azimuth
+        Va_avg = jnp.average(Wa, axis=2)      # averaged around the azimuth
+        Vt_avg = jnp.average(Wt, axis=2)      # averaged around the azimuth
     
         Va_ind_2d  = va
         Vt_ind_2d  = vt
-        Vt_ind_avg = np.average(vt, axis=2)
-        Va_ind_avg = np.average(va, axis=2)
+        Vt_ind_avg = jnp.average(vt, axis=2)
+        Va_ind_avg = jnp.average(va, axis=2)
     
         # set 1d blade loadings to be the average:
         blade_T_distribution    = jnp.mean((blade_T_distribution_2d), axis = 2)
@@ -450,30 +438,30 @@ class Rotor(Energy_Component):
         Cp       = power/(rho_0*(n*n*n)*(D*D*D*D*D))
         Crd      = rotor_drag/(rho_0*(n*n)*(D*D*D*D))
         etap     = V*thrust/power
-        A        = np.pi*(R**2 - self.hub_radius**2)
-        FoM      = thrust*np.sqrt(T_0/(2*rho_0*A))    /power  
+        A        = jnp.pi*(R**2 - self.hub_radius**2)
+        FoM      = thrust*jnp.sqrt(thrust/(2*rho_0*A))    /power  
     
-        # prevent things from breaking
-        Cq[Cq<0]                                               = 0.
-        Ct[Ct<0]                                               = 0.
-        Cp[Cp<0]                                               = 0.
-        thrust[conditions.propulsion.throttle[:,0] <=0.0]      = 0.0
-        power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0
-        torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
-        rotor_drag[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0]                                      = -thrust[omega<0.0]
-        thrust[omega==0.0]                                     = 0.0
-        power[omega==0.0]                                      = 0.0
-        torque[omega==0.0]                                     = 0.0
-        rotor_drag[omega==0.0]                                 = 0.0
-        Ct[omega==0.0]                                         = 0.0
-        Cp[omega==0.0]                                         = 0.0
-        etap[omega==0.0]                                       = 0.0
+        ## prevent things from breaking
+        #Cq[Cq<0]                                               = 0.
+        #Ct[Ct<0]                                               = 0.
+        #Cp[Cp<0]                                               = 0.
+        #thrust[conditions.propulsion.throttle[:,0] <=0.0]      = 0.0
+        #power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0
+        #torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
+        #rotor_drag[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
+        #thrust[omega<0.0]                                      = -thrust[omega<0.0]
+        #thrust[omega==0.0]                                     = 0.0
+        #power[omega==0.0]                                      = 0.0
+        #torque[omega==0.0]                                     = 0.0
+        #rotor_drag[omega==0.0]                                 = 0.0
+        #Ct[omega==0.0]                                         = 0.0
+        #Cp[omega==0.0]                                         = 0.0
+        #etap[omega==0.0]                                       = 0.0
     
     
         # Make the thrust a 3D vector
         thrust_prop_frame      = jnp.zeros((ctrl_pts,3))
-        thrust_prop_frame[:,0] = thrust[:,0]
+        thrust_prop_frame.at[:,0].set(thrust[:,0])
         thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
     
         # Assign efficiency to network
