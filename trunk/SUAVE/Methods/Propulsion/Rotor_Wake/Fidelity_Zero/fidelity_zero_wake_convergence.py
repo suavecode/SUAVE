@@ -6,13 +6,10 @@
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 import numpy as np
-import scipy as sp
 import jax.numpy as jnp
-from jax import jacobian, jit, lax, hessian, grad, vmap
-import copy
+from jax import jacobian, lax
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-@jit
 def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     """
     Wake evaluation is performed using a simplified vortex wake method for Fidelity Zero, 
@@ -273,9 +270,9 @@ def inner_newton(Full_vector,function,jac,*args):
     true_fun  = lambda df: df/2
     false_fun = lambda df: df
     cond1     = R<1e-4
-    cond2     = ii>8
+    #cond2     = ii>8
     #conds     = cond1 or cond2
-    df = lax.cond(cond2, true_fun, false_fun, df)
+    df = lax.cond(cond1, true_fun, false_fun, df)
 
     ii+=1    
     

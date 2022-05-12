@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Orientation Product
@@ -40,9 +40,9 @@ def orientation_product(T,Bb):
     assert T.ndim == 3
     
     if Bb.ndim == 3:
-        C = np.einsum('aij,ajk->aik', T, Bb )
+        C = jnp.einsum('aij,ajk->aik', T, Bb )
     elif Bb.ndim == 2:
-        C = np.einsum('aij,aj->ai', T, Bb )
+        C = jnp.einsum('aij,aj->ai', T, Bb )
     else:
         raise Exception('bad B rank')
         

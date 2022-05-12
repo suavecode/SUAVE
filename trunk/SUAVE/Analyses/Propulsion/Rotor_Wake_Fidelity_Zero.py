@@ -19,6 +19,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import
 
 import numpy as np
 from jax.tree_util import register_pytree_node_class
+from jax import jit
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -55,7 +56,6 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
 
         self.wake_method    = 0
 
-    
     def evaluate(self,rotor,wake_inputs,conditions):
         """
         

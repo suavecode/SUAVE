@@ -29,6 +29,8 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 import numpy as np
 import scipy as sp
 from jax.tree_util import register_pytree_node_class
+from jax import jit, lax
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -102,7 +104,7 @@ class Rotor(Energy_Component):
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
         
-
+    @jit
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
 
@@ -193,9 +195,8 @@ class Rotor(Energy_Component):
         pitch_c               = self.inputs.pitch_command
 
         # Check for variable pitch
-        if np.any(pitch_c !=0) and not self.variable_pitch:
-            print("Warning: pitch commanded for a fixed-pitch rotor. Changing to variable pitch rotor for weights analysis.")
-            self.variable_pitch = True
+        vp_cond = jnp.any(pitch_c !=0)
+        self.variable_pitch = lax.cond(vp_cond,lambda:True,lambda:False)
 
         # Unpack freestream conditions
         rho     = conditions.freestream.density[:,0,None]
@@ -212,7 +213,7 @@ class Rotor(Energy_Component):
         ctrl_pts = len(Vv)
         
         # Helpful shorthands
-        pi      = np.pi
+        pi      = jnp.pi
 
         # Calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c
@@ -223,42 +224,42 @@ class Rotor(Energy_Component):
         V_body          = orientation_product(T_inertial2body,Vv)
         body2thrust     = self.body_to_prop_vel()
         
-        T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        T_body2thrust   = orientation_transpose(jnp.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body)
 
         # Check and correct for hover
-        V         = V_thrust[:,0,None]
-        V[V==0.0] = 1E-6
+        V = V_thrust[:,0,None]
+        V = jnp.where(V==0.0,1E-6,V)
 
         # Non-dimensional radial distribution and differential radius
         chi           = r_1d/R
-        diff_r        = np.diff(r_1d)
-        deltar        = np.zeros(len(r_1d))
-        deltar[1:-1]  = diff_r[0:-1]/2 + diff_r[1:]/2
-        deltar[0]     = diff_r[0]/2
-        deltar[-1]    = diff_r[-1]/2
+        diff_r        = jnp.diff(r_1d)
+        deltar        = jnp.zeros(len(r_1d))
+        deltar.at[1:-1].set(diff_r[0:-1]/2 + diff_r[1:]/2)
+        deltar.at[0].set(diff_r[0]/2)
+        deltar.at[-1].set(diff_r[-1]/2)
 
         # Calculating rotational parameters
-        omegar   = np.outer(omega,r_1d)
+        omegar   = jnp.outer(omega,r_1d)
         n        = omega/(2.*pi)   # Rotations per second
 
         # 2 dimensional radial distribution non dimensionalized
-        chi_2d         = np.tile(chi[:, None],(1,Na))
-        chi_2d         = np.repeat(chi_2d[None,:,:], ctrl_pts, axis=0)
-        r_dim_2d       = np.tile(r_1d[:, None] ,(1,Na))
-        r_dim_2d       = np.repeat(r_dim_2d[None,:,:], ctrl_pts, axis=0)
-        c_2d           = np.tile(c[:, None] ,(1,Na))
-        c_2d           = np.repeat(c_2d[None,:,:], ctrl_pts, axis=0)
+        chi_2d         = jnp.tile(chi[:, None],(1,Na))
+        chi_2d         = jnp.repeat(chi_2d[None,:,:], ctrl_pts, axis=0)
+        r_dim_2d       = jnp.tile(r_1d[:, None] ,(1,Na))
+        r_dim_2d       = jnp.repeat(r_dim_2d[None,:,:], ctrl_pts, axis=0)
+        c_2d           = jnp.tile(c[:, None] ,(1,Na))
+        c_2d           = jnp.repeat(c_2d[None,:,:], ctrl_pts, axis=0)
 
         # Azimuthal distribution of stations (in direction of rotation)
-        psi            = np.linspace(0,2*pi,Na+1)[:-1]
-        psi_2d         = np.tile(np.atleast_2d(psi),(Nr,1))
-        psi_2d         = np.repeat(psi_2d[None, :, :], ctrl_pts, axis=0)
+        psi            = jnp.linspace(0,2*pi,Na+1)[:-1]
+        psi_2d         = jnp.tile(np.atleast_2d(psi),(Nr,1))
+        psi_2d         = jnp.repeat(psi_2d[None, :, :], ctrl_pts, axis=0)
 
         # apply blade sweep to azimuthal position
-        if np.any(np.array([sweep])!=0):
-            sweep_2d            = np.repeat(sweep[:, None], (1,Na))
-            sweep_offset_angles = np.tan(sweep_2d/r_dim_2d)
+        if jnp.any(np.array([sweep])!=0):
+            sweep_2d            = jnp.repeat(sweep[:, None], (1,Na))
+            sweep_offset_angles = jnp.tan(sweep_2d/r_dim_2d)
             psi_2d             += sweep_offset_angles
 
         # Starting with uniform freestream
@@ -348,12 +349,7 @@ class Rotor(Energy_Component):
         wake_inputs.chord_distribution    = c
         wake_inputs.radius_distribution   = r
         wake_inputs.speed_of_sounds       = a
-        wake_inputs.dynamic_viscosities   = nu
-        
-        try:
-            del self.airfoil_polars
-        except:
-            pass        
+        wake_inputs.dynamic_viscosities   = nu      
 
         va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
         
@@ -366,20 +362,20 @@ class Rotor(Energy_Component):
         # Compute aerodynamic forces based on specified input airfoil or surrogate
         Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc)
         
-        ########
-        # THIS WILL NEED TO BE REMOVED FOR FULL JAX
-        Cl     = np.array(Cl)
-        Cdval  = np.array(Cdval)
-        alpha  = np.array(alpha)
-        Ma     = np.array(Ma)
-        W      = np.array(W)
-        lamdaw = np.array(lamdaw)
-        F      = np.array(F)
-        va     = np.array(va)
-        vt     = np.array(vt)
-        Wa     = np.array(Wa)
-        Wt     = np.array(Wt)
-        ########
+        #########
+        ## THIS WILL NEED TO BE REMOVED FOR FULL JAX
+        #Cl     = np.array(Cl)
+        #Cdval  = np.array(Cdval)
+        #alpha  = np.array(alpha)
+        #Ma     = np.array(Ma)
+        #W      = np.array(W)
+        #lamdaw = np.array(lamdaw)
+        #F      = np.array(F)
+        #va     = np.array(va)
+        #vt     = np.array(vt)
+        #Wa     = np.array(Wa)
+        #Wt     = np.array(Wt)
+        #########
         
         # compute HFW circulation at the blade
         Gamma = 0.5*W*c*Cl  
@@ -581,19 +577,38 @@ class Rotor(Energy_Component):
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
-        cpts       = len(np.atleast_1d(self.inputs.y_axis_rotation))
-        rots       = np.array(self.orientation_euler_angles) * 1.
-        rots       = np.repeat(rots[None,:], cpts, axis=0)
-        rots[:,1] += np.atleast_2d(self.inputs.y_axis_rotation)[:,0]
+        cpts       = len(jnp.atleast_1d(self.inputs.y_axis_rotation))
+        rots       = jnp.array(self.orientation_euler_angles) * 1.
+        rots       = jnp.repeat(rots[None,:], cpts, axis=0)
+        rots.at[:,1].add(jnp.atleast_2d(self.inputs.y_axis_rotation)[:,0])
         
-        vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
+        #vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
+        T1 = rots[:,0]
+        T2 = rots[:,1]
+        T3 = rots[:,2]
+        
+        Z   = jnp.zeros_like(T1)
+        O   = jnp.ones_like(T1)
+        CT1 = jnp.cos(T1)
+        CT2 = jnp.cos(T2)
+        CT3 = jnp.cos(T3)
+        ST1 = jnp.sin(T1)
+        ST2 = jnp.sin(T2)
+        ST3 = jnp.sin(T3)
+        
+        R1  = jnp.array([[O,Z,Z],[Z,CT1,-ST1],[Z,ST1,CT1]]).T
+        R2  = jnp.array([[CT2,Z,ST2],[Z,O,Z],[-ST2,Z,CT2]]).T
+        R3  = jnp.array([[CT3,-ST3,Z],[ST3,CT3,Z],[Z,Z,O]]).T
+        
+        R2_R1 = jnp.matmul(R2,R1)
+        vehicle_2_prop_vec = jnp.matmul(R3,R2_R1)
 
-        # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
+        # Go from the propeller vehicle frame to the propeller velocity frame: rot 2
         prop_vec_2_prop_vel = self.vec_to_vel()
 
         # Do all the matrix multiplies
-        rot1    = np.matmul(body_2_vehicle,vehicle_2_prop_vec)
-        rot_mat = np.matmul(rot1,prop_vec_2_prop_vel)
+        rot1    = jnp.matmul(body_2_vehicle,vehicle_2_prop_vec)
+        rot_mat = jnp.matmul(rot1,prop_vec_2_prop_vel)
 
 
         return rot_mat
