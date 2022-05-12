@@ -31,6 +31,7 @@ import scipy as sp
 from jax.tree_util import register_pytree_node_class
 from jax import jit, lax
 import jax.numpy as jnp
+from functools import partial
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -101,23 +102,27 @@ class Rotor(Energy_Component):
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
         
+        # JAX static args
+        self.static_keys               = ['number_azimuthal_stations']
+        
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
+
         
     @jit
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
-
+    
         Assumptions:
         per source
-
+    
         Source:
         Drela, M. "Qprop Formulation", MIT AeroAstro, June 2006
         http://web.mit.edu/drela/Public/web/qprop/qprop_theory.pdf
-
+    
         Leishman, Gordon J. Principles of helicopter aerodynamics
         Cambridge university press, 2006.
-
+    
         Inputs:
         self.inputs.omega                    [radian/s]
         conditions.freestream.
@@ -130,7 +135,7 @@ class Rotor(Energy_Component):
           inertial.velocity_vector           [m/s]
         conditions.propulsion.
           throttle                           [-]
-
+    
         Outputs:
         conditions.propulsion.outputs.
            number_radial_stations            [-]
@@ -163,7 +168,7 @@ class Rotor(Energy_Component):
            torque_coefficient                [-]
            power                             [W]
            power_coefficient                 [-]
-
+    
         Properties Used:
         self.
           number_of_blades                   [-]
@@ -172,7 +177,7 @@ class Rotor(Energy_Component):
           chord_distribution                 [m]
           orientation_euler_angles           [rad, rad, rad]
         """
-
+    
         # Unpack rotor blade parameters
         B       = self.number_of_blades
         R       = self.tip_radius
@@ -181,23 +186,23 @@ class Rotor(Energy_Component):
         sweep   = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
         r_1d    = self.radius_distribution
         tc      = self.thickness_to_chord
-
+    
         # Unpack rotor airfoil data
         a_geo   = self.airfoil_geometry
         a_loc   = self.airfoil_polar_stations
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates
-
+    
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega
         Na                    = self.number_azimuthal_stations
         nonuniform_freestream = self.nonuniform_freestream
         pitch_c               = self.inputs.pitch_command
-
+    
         # Check for variable pitch
         vp_cond = jnp.any(pitch_c !=0)
         self.variable_pitch = lax.cond(vp_cond,lambda:True,lambda:False)
-
+    
         # Unpack freestream conditions
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
@@ -207,17 +212,17 @@ class Rotor(Energy_Component):
         nu      = mu/rho
         rho_0   = rho
         T_0     = T
-
+    
         # Number of radial stations and segment control points
         Nr       = len(c)
         ctrl_pts = len(Vv)
         
         # Helpful shorthands
         pi      = jnp.pi
-
+    
         # Calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c
-
+    
         # Velocity in the rotor frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
@@ -226,11 +231,11 @@ class Rotor(Energy_Component):
         
         T_body2thrust   = orientation_transpose(jnp.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body)
-
+    
         # Check and correct for hover
         V = V_thrust[:,0,None]
         V = jnp.where(V==0.0,1E-6,V)
-
+    
         # Non-dimensional radial distribution and differential radius
         chi           = r_1d/R
         diff_r        = jnp.diff(r_1d)
@@ -238,11 +243,11 @@ class Rotor(Energy_Component):
         deltar.at[1:-1].set(diff_r[0:-1]/2 + diff_r[1:]/2)
         deltar.at[0].set(diff_r[0]/2)
         deltar.at[-1].set(diff_r[-1]/2)
-
+    
         # Calculating rotational parameters
         omegar   = jnp.outer(omega,r_1d)
         n        = omega/(2.*pi)   # Rotations per second
-
+    
         # 2 dimensional radial distribution non dimensionalized
         chi_2d         = jnp.tile(chi[:, None],(1,Na))
         chi_2d         = jnp.repeat(chi_2d[None,:,:], ctrl_pts, axis=0)
@@ -250,85 +255,85 @@ class Rotor(Energy_Component):
         r_dim_2d       = jnp.repeat(r_dim_2d[None,:,:], ctrl_pts, axis=0)
         c_2d           = jnp.tile(c[:, None] ,(1,Na))
         c_2d           = jnp.repeat(c_2d[None,:,:], ctrl_pts, axis=0)
-
+    
         # Azimuthal distribution of stations (in direction of rotation)
         psi            = jnp.linspace(0,2*pi,Na+1)[:-1]
-        psi_2d         = jnp.tile(np.atleast_2d(psi),(Nr,1))
+        psi_2d         = jnp.tile(jnp.atleast_2d(psi),(Nr,1))
         psi_2d         = jnp.repeat(psi_2d[None, :, :], ctrl_pts, axis=0)
-
+    
         # apply blade sweep to azimuthal position
-        if jnp.any(np.array([sweep])!=0):
+        if jnp.any(jnp.array([sweep])!=0):
             sweep_2d            = jnp.repeat(sweep[:, None], (1,Na))
             sweep_offset_angles = jnp.tan(sweep_2d/r_dim_2d)
             psi_2d             += sweep_offset_angles
-
+    
         # Starting with uniform freestream
         ua       = 0
         ut       = 0
         ur       = 0
-
+    
         # Include velocities introduced by rotor incidence angles
-        if (np.any(abs(V_thrust[:,1]) >1e-3) or np.any(abs(V_thrust[:,2]) >1e-3)):
-
+        if (jnp.any(abs(V_thrust[:,1]) >1e-3) or jnp.any(abs(V_thrust[:,2]) >1e-3)):
+    
             # y-component of freestream in the propeller cartesian plane
             Vy  = V_thrust[:,1,None,None]
-            Vy  = np.repeat(Vy, Nr,axis=1)
-            Vy  = np.repeat(Vy, Na,axis=2)
-
+            Vy  = jnp.repeat(Vy, Nr,axis=1)
+            Vy  = jnp.repeat(Vy, Na,axis=2)
+    
             # z-component of freestream in the propeller cartesian plane
             Vz  = V_thrust[:,2,None,None]
-            Vz  = np.repeat(Vz, Nr,axis=1)
-            Vz  = np.repeat(Vz, Na,axis=2)
-
+            Vz  = jnp.repeat(Vz, Nr,axis=1)
+            Vz  = jnp.repeat(Vz, Na,axis=2)
+    
             # compute resulting radial and tangential velocities in polar frame
-            utz =  -Vz*np.sin(psi_2d)
-            urz =   Vz*np.cos(psi_2d)
-            uty =  -Vy*np.cos(psi_2d)
-            ury =   Vy*np.sin(psi_2d)
-
+            utz =  -Vz*jnp.sin(psi_2d)
+            urz =   Vz*jnp.cos(psi_2d)
+            uty =  -Vy*jnp.cos(psi_2d)
+            ury =   Vy*jnp.sin(psi_2d)
+    
             ut +=  (utz + uty)  # tangential velocity in direction of rotor rotation
             ur +=  (urz + ury)  # radial velocity (positive toward tip)
-            ua +=  np.zeros_like(ut)
+            ua +=  jnp.zeros_like(ut)
             
-
+    
         # Include external velocities introduced by user
         if nonuniform_freestream:
-
+    
             # include additional influences specified at rotor sections, shape=(ctrl_pts,Nr,Na)
             ua += self.axial_velocities_2d
             ut += self.tangential_velocities_2d
             ur += self.radial_velocities_2d
-
+    
         # 2-D freestream velocity and omega*r
         V_2d   = V_thrust[:,0,None,None]
-        V_2d   = np.repeat(V_2d, Na,axis=2)
-        V_2d   = np.repeat(V_2d, Nr,axis=1)
-        omegar = (np.repeat(np.outer(omega,r_1d)[:,:,None], Na, axis=2))
-
+        V_2d   = jnp.repeat(V_2d, Na,axis=2)
+        V_2d   = jnp.repeat(V_2d, Nr,axis=1)
+        omegar = (jnp.repeat(jnp.outer(omega,r_1d)[:,:,None], Na, axis=2))
+    
         # total velocities
         Ua     = V_2d + ua
-
+    
         # 2-D blade pitch and radial distributions
         if np.size(pitch_c)>1:
             # control variable is the blade pitch, repeat around azimuth
-            beta = np.repeat(total_blade_pitch[:,:,None], Na, axis=2)
+            beta = jnp.repeat(total_blade_pitch[:,:,None], Na, axis=2)
         else:
-            beta = np.tile(total_blade_pitch[None,:,None],(ctrl_pts,1,Na ))
-
-        r    = np.tile(r_1d[None,:,None], (ctrl_pts, 1, Na))
-        c    = np.tile(c[None,:,None], (ctrl_pts, 1, Na))
-        deltar = np.tile(deltar[None,:,None], (ctrl_pts, 1, Na))
-
+            beta = jnp.tile(total_blade_pitch[None,:,None],(ctrl_pts,1,Na ))
+    
+        r    = jnp.tile(r_1d[None,:,None], (ctrl_pts, 1, Na))
+        c    = jnp.tile(c[None,:,None], (ctrl_pts, 1, Na))
+        deltar = jnp.tile(deltar[None,:,None], (ctrl_pts, 1, Na))
+    
         # 2-D atmospheric properties
-        a   = np.tile(np.atleast_2d(a),(1,Nr))
-        a   = np.repeat(a[:, :, None], Na, axis=2)
-        nu  = np.tile(np.atleast_2d(nu),(1,Nr))
-        nu  = np.repeat(nu[:,  :, None], Na, axis=2)
-        rho = np.tile(np.atleast_2d(rho),(1,Nr))
-        rho = np.repeat(rho[:,  :, None], Na, axis=2)
-        T   = np.tile(np.atleast_2d(T),(1,Nr))
-        T   = np.repeat(T[:, :, None], Na, axis=2)
-
+        a   = jnp.tile(np.atleast_2d(a),(1,Nr))
+        a   = jnp.repeat(a[:, :, None], Na, axis=2)
+        nu  = jnp.tile(np.atleast_2d(nu),(1,Nr))
+        nu  = jnp.repeat(nu[:,  :, None], Na, axis=2)
+        rho = jnp.tile(np.atleast_2d(rho),(1,Nr))
+        rho = jnp.repeat(rho[:,  :, None], Na, axis=2)
+        T   = jnp.tile(np.atleast_2d(T),(1,Nr))
+        T   = jnp.repeat(T[:, :, None], Na, axis=2)
+    
         # Total velocities
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
@@ -350,15 +355,15 @@ class Rotor(Energy_Component):
         wake_inputs.radius_distribution   = r
         wake_inputs.speed_of_sounds       = a
         wake_inputs.dynamic_viscosities   = nu      
-
+    
         va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
         
         # compute new blade velocities
         Wa   = va + Ua
         Wt   = Ut - vt
-
+    
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-
+    
         # Compute aerodynamic forces based on specified input airfoil or surrogate
         Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc)
         
@@ -379,65 +384,65 @@ class Rotor(Energy_Component):
         
         # compute HFW circulation at the blade
         Gamma = 0.5*W*c*Cl  
-
+    
         #---------------------------------------------------------------------------            
                 
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BET iteration
         va     = F*va
         vt     = F*vt
         lamdaw = r*(va+Ua)/(R*(Ut-vt))
-
+    
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
         Tp_Tinf     = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
         Tp          = (Tp_Tinf)*T
         Rp_Rinf     = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
-
+    
         epsilon                  = Cd/Cl
         epsilon[epsilon==np.inf] = 10.
-
+    
         # thrust and torque and their derivatives on the blade.
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar
         blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa))
         blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r)
-
+    
         blade_T_distribution_2d = blade_T_distribution
         blade_Q_distribution_2d = blade_Q_distribution
         blade_dT_dr_2d          = blade_dT_dr
         blade_dQ_dr_2d          = blade_dQ_dr
         blade_Gamma_2d          = Gamma
         alpha_2d                = alpha
-
+    
         Va_2d = Wa
         Vt_2d = Wt
         Va_avg = np.average(Wa, axis=2)      # averaged around the azimuth
         Vt_avg = np.average(Wt, axis=2)      # averaged around the azimuth
-
+    
         Va_ind_2d  = va
         Vt_ind_2d  = vt
         Vt_ind_avg = np.average(vt, axis=2)
         Va_ind_avg = np.average(va, axis=2)
-
+    
         # set 1d blade loadings to be the average:
-        blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 2)
-        blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 2)
-        blade_dT_dr             = np.mean((blade_dT_dr_2d), axis = 2)
-        blade_dQ_dr             = np.mean((blade_dQ_dr_2d), axis = 2)
-
+        blade_T_distribution    = jnp.mean((blade_T_distribution_2d), axis = 2)
+        blade_Q_distribution    = jnp.mean((blade_Q_distribution_2d), axis = 2)
+        blade_dT_dr             = jnp.mean((blade_dT_dr_2d), axis = 2)
+        blade_dQ_dr             = jnp.mean((blade_dQ_dr_2d), axis = 2)
+    
         # compute the hub force / rotor drag distribution along the blade
         dL_2d    = 0.5*rho*c_2d*Cd*omegar**2*deltar
         dD_2d    = 0.5*rho*c_2d*Cl*omegar**2*deltar
-
-        rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=2)
-
+    
+        rotor_drag_distribution = jnp.mean(dL_2d*jnp.sin(psi_2d) + dD_2d*jnp.cos(psi_2d),axis=2)
+    
         # forces
-        thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T
-        torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
-        rotor_drag              = np.atleast_2d((B * np.sum(rotor_drag_distribution, axis=1))).T
+        thrust                  = jnp.atleast_2d((B * jnp.sum(blade_T_distribution, axis = 1))).T
+        torque                  = jnp.atleast_2d((B * jnp.sum(blade_Q_distribution, axis = 1))).T
+        rotor_drag              = jnp.atleast_2d((B * jnp.sum(rotor_drag_distribution, axis=1))).T
         power                   = omega*torque
-
+    
         # calculate coefficients
         D        = 2*R
         Cq       = torque/(rho_0*(n*n)*(D*D*D*D*D))
@@ -447,7 +452,7 @@ class Rotor(Energy_Component):
         etap     = V*thrust/power
         A        = np.pi*(R**2 - self.hub_radius**2)
         FoM      = thrust*np.sqrt(T_0/(2*rho_0*A))    /power  
-
+    
         # prevent things from breaking
         Cq[Cq<0]                                               = 0.
         Ct[Ct<0]                                               = 0.
@@ -464,17 +469,17 @@ class Rotor(Energy_Component):
         Ct[omega==0.0]                                         = 0.0
         Cp[omega==0.0]                                         = 0.0
         etap[omega==0.0]                                       = 0.0
-
-
+    
+    
         # Make the thrust a 3D vector
-        thrust_prop_frame      = np.zeros((ctrl_pts,3))
+        thrust_prop_frame      = jnp.zeros((ctrl_pts,3))
         thrust_prop_frame[:,0] = thrust[:,0]
         thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
-
+    
         # Assign efficiency to network
         conditions.propulsion.etap = etap
-
-
+    
+    
         # Store data
         self.azimuthal_distribution                   = psi
         results_conditions                            = Data
@@ -522,9 +527,11 @@ class Rotor(Energy_Component):
                     tip_mach                          = omega * R / conditions.freestream.speed_of_sound
             )
         self.outputs = outputs
-
-        return thrust_vector, torque, power, Cp, outputs , etap
     
+        return thrust_vector, torque, power, Cp, outputs , etap
+        
+        
+
     
     def vec_to_vel(self):
         """This rotates from the propellers vehicle frame to the propellers velocity frame

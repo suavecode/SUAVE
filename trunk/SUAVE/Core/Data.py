@@ -77,7 +77,15 @@ class Data(dict):
             if type(value) is str:
                 aux_dict[key] = self.pop(key)
 
-        #Get all keys and values from the data class, now that they don't have strings
+        # Some children classes might have "static_keys" that are marked as immutable
+        if hasattr(self,'static_keys'):
+            for k in self.static_keys:
+                aux_dict[k] = self.pop(k)
+                
+            # static_keys is also a static key...
+            aux_dict['static_keys'] = self.pop('static_keys')            
+
+        #Get all keys and values from the data class, now that they don't have strings or static_keys
         stringless_keys = list(self.keys())
         children        = self.values()   
         
