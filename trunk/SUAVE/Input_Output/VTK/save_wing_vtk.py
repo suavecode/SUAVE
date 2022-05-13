@@ -200,66 +200,51 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
         #---------------------
         # Write Points:
         #---------------------
-        n_indices = (n_cw+1)*(n_sw+1)    # total number of cell vertices
+        n_indices = n_cp*4    # total number of cell vertices
         points_header = "\n\nPOINTS "+str(n_indices) +" float"
         f.write(points_header)
-
-        cw_laps =0
-        for i in range(n_indices):
-
-            if i == n_indices-1:
-                # Last index; use B2 to get rightmost TE node
-                xp = round(wing.XB2[i-cw_laps-n_cw-1],4)
-                yp = round(wing.YB2[i-cw_laps-n_cw-1],4)
-                zp = round(wing.ZB2[i-cw_laps-n_cw-1],4)
-            elif i > (n_indices-1-(n_cw+1)):
-                # Last spanwise set; use B1 to get rightmost node indices
-                xp = round(wing.XB1[i-cw_laps-n_cw],4)
-                yp = round(wing.YB1[i-cw_laps-n_cw],4)
-                zp = round(wing.ZB1[i-cw_laps-n_cw],4)
-            elif i==0:
-                # first point
-                xp = round(wing.XA1[i],4)
-                yp = round(wing.YA1[i],4)
-                zp = round(wing.ZA1[i],4)
-
-            elif i//(n_cw+cw_laps*(n_cw+1))==1:
-                # Last chordwise station for this spanwise location; use A2 to get left TE node
-                cw_laps = cw_laps +1
-                xp = round(wing.XA2[i-cw_laps],4)
-                yp = round(wing.YA2[i-cw_laps],4)
-                zp = round(wing.ZA2[i-cw_laps],4)
-
-
-            else:
-                # print the point index (Left LE --> Left TE --> Right LE --> Right TE)
-                xp = round(wing.XA1[i-cw_laps],4)
-                yp = round(wing.YA1[i-cw_laps],4)
-                zp = round(wing.ZA1[i-cw_laps],4)
-
-            new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
-            f.write(new_point)
+        
+        count = 0
+        for i in range(n_cp):
+            xp1 = round(wing.XA1[i],4)
+            yp1 = round(wing.YA1[i],4)
+            zp1 = round(wing.ZA1[i],4)
+            xp2 = round(wing.XA2[i],4)
+            yp2 = round(wing.YA2[i],4)
+            zp2 = round(wing.ZA2[i],4)      
+            xp3 = round(wing.XB2[i],4)
+            yp3 = round(wing.YB2[i],4)
+            zp3 = round(wing.ZB2[i],4)  
+            xp4 = round(wing.XB1[i],4)
+            yp4 = round(wing.YB1[i],4)
+            zp4 = round(wing.ZB1[i],4)            
+            
+            new_point = "\n"+str(xp1)+" "+str(yp1)+" "+str(zp1)
+            f.write(new_point)        
+            new_point = "\n"+str(xp2)+" "+str(yp2)+" "+str(zp2)
+            f.write(new_point)    
+            new_point = "\n"+str(xp3)+" "+str(yp3)+" "+str(zp3)
+            f.write(new_point)    
+            new_point = "\n"+str(xp4)+" "+str(yp4)+" "+str(zp4)
+            f.write(new_point)      
+            
         
         #---------------------
         # Write Cells:
         #---------------------
-        n            = n_cp # total number of cells
-        v_per_cell   = 4 # quad cells
+        n            = n_cp             # total number of cells
+        v_per_cell   = 4                # quad cells
         size         = n*(1+v_per_cell) # total number of integer values required to represent the list
         cell_header  = "\n\nCELLS "+str(n)+" "+str(size)
         f.write(cell_header)
 
-
+        count = 0
         for i in range(n_cp):
-            if i==0:
-                node = i
-            elif i%n_cw ==0:
-                node = node+1
-            new_cell = "\n4 "+str(node)+" "+str(node+1)+" "+str(node+n_cw+2)+" "+str(node+n_cw+1)
+            new_cell = "\n4 "+str(count)+" "+str(count+1)+" "+str(count+2)+" "+str(count+3)
             f.write(new_cell)
 
             # update node:
-            node = node+1
+            count += 4
 
         #---------------------
         # Write Cell Types:
