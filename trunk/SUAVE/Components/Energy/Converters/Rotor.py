@@ -431,25 +431,23 @@ class Rotor(Energy_Component):
         A        = jnp.pi*(R**2 - self.hub_radius**2)
         FoM      = thrust*jnp.sqrt(thrust/(2*rho_0*A))    /power  
     
-        ## prevent things from breaking
-        #T_cond = jnp.where(conditions.propulsion.throttle[:,0] <=0.0)
-        #O_cond = jnp.where(omega==0.0)        
-        
-        #Cq.at[jnp.where(Cq<0)].set(0.)
-        #Ct.at[jnp.where(Ct<0)].set(0.)
-        #Cp.at[jnp.where(Cp<0)].set(0.)
-        #thrust    .at[T_cond].set(0.)
-        #power     .at[T_cond].set(0.)
-        #torque    .at[T_cond].set(0.)
-        #rotor_drag.at[T_cond].set(0.)
-        #thrust    .at[O_cond].set(0.)
-        #power     .at[O_cond].set(0.)
-        #torque    .at[O_cond].set(0.)
-        #rotor_drag.at[O_cond].set(0.)
-        #Ct        .at[O_cond].set(0.)
-        #Cp        .at[O_cond].set(0.)
-        #etap      .at[O_cond].set(0.)
-        #thrust.at[jnp.where(omega<0.)].set(-thrust[omega<0.])
+        # prevent things from breaking
+        O_cond     = omega==0.0
+        T_cond     = conditions.propulsion.throttle<=0.0
+        Cq         = jnp.where(Cq<0,0,Cq)
+        Ct         = jnp.where(Ct<0,0,Ct)
+        Cp         = jnp.where(Cp<0,0,Cp)
+        power      = jnp.where(T_cond,0,power)
+        thrust     = jnp.where(T_cond,0,thrust)
+        torque     = jnp.where(T_cond,0,torque)
+        rotor_drag = jnp.where(T_cond,0,rotor_drag )
+        thrust     = jnp.where(O_cond,0,thrust)
+        torque     = jnp.where(O_cond,0,torque)
+        rotor_drag = jnp.where(O_cond,0,rotor_drag)
+        Cp         = jnp.where(O_cond,0,Cp)
+        Ct         = jnp.where(O_cond,0,Ct)        
+        etap       = jnp.where(O_cond,0,etap)      
+        thrust     = jnp.where(omega<0.,-thrust,thrust)        
         
         # Make the thrust a 3D vector
         thrust_prop_frame      = jnp.repeat(jnp.atleast_2d([1,0,0]),repeats=ctrl_pts,axis=0)*thrust
