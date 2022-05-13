@@ -124,6 +124,8 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             # step 4
             F, Q, P, Cp, outputs, etap = prop.spin(conditions)
             
+            F, Q, P, Cp, etap = np.array(F), np.array(Q), np.array(P), np.array(Cp), np.array(etap) 
+            
             # Run the engine to calculate the throttle setting and the fuel burn
             engine.inputs.power = P
             engine.calculate_throttle(conditions)

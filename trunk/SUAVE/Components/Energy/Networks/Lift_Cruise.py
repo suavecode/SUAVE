@@ -215,6 +215,8 @@ class Lift_Cruise(Network):
                 
                 # Run the propeller
                 F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = prop.spin(conditions)
+                
+                F_forward, Q_forward, P_forward, Cp_forward, etap_forward = np.array(F_forward), np.array(Q_forward), np.array(P_forward), np.array(Cp_forward), np.array(etap_forward) 
                     
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta                       = conditions.propulsion.throttle[:,0,None]
@@ -332,6 +334,8 @@ class Lift_Cruise(Network):
                 
                 # Run the propeller
                 F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)
+                
+                F_lift, Q_lift, P_lift, Cp_lift, etap_lift = np.array(F_lift), np.array(Q_lift), np.array(P_lift), np.array(Cp_lift), np.array(etap_lift) 
                 
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta                       = conditions.propulsion.throttle_lift[:,0,None]

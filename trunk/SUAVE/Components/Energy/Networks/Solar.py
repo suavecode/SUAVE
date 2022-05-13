@@ -180,6 +180,8 @@ class Solar(Network):
             
             # step 6
             F, Q, P, Cplast ,  outputs  , etap   = prop.spin(conditions)
+            
+            F, Q, P, Cp, etap = np.array(F), np.array(Q), np.array(P), np.array(Cp), np.array(etap) 
          
             # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
             eta = conditions.propulsion.throttle[:,0,None]

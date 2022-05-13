@@ -23,7 +23,7 @@ from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelit
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
      import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 from SUAVE.Methods.Geometry.Three_Dimensional \
-     import  orientation_product, orientation_transpose
+     import  orientation_product_jax, orientation_transpose
 
 # package imports
 import numpy as np
@@ -225,11 +225,11 @@ class Rotor(Energy_Component):
         # Velocity in the rotor frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
-        V_body          = orientation_product(T_inertial2body,Vv)
+        V_body          = orientation_product_jax(T_inertial2body,Vv)
         body2thrust     = self.body_to_prop_vel()
         
         T_body2thrust   = orientation_transpose(jnp.ones_like(T_body2inertial[:])*body2thrust)
-        V_thrust        = orientation_product(T_body2thrust,V_body)
+        V_thrust        = orientation_product_jax(T_body2thrust,V_body)
     
         # Check and correct for hover
         V = V_thrust[:,0,None]
@@ -420,7 +420,7 @@ class Rotor(Energy_Component):
         torque                  = jnp.atleast_2d((B * jnp.sum(blade_Q_distribution, axis = 1))).T
         rotor_drag              = jnp.atleast_2d((B * jnp.sum(rotor_drag_distribution, axis=1))).T
         power                   = omega*torque
-        
+
         # calculate coefficients
         D        = 2*R
         Cq       = torque/(rho_0*(n*n)*(D*D*D*D*D))
@@ -431,26 +431,29 @@ class Rotor(Energy_Component):
         A        = jnp.pi*(R**2 - self.hub_radius**2)
         FoM      = thrust*jnp.sqrt(thrust/(2*rho_0*A))    /power  
     
-        # prevent things from breaking
-        Cq = jnp.where(Cq<0,0.,Cq)
-        Ct = jnp.where(Ct<0,0.,Ct)
-        Cp = jnp.where(Ct<0,0.,Cp)
-        thrust     = jnp.where(conditions.propulsion.throttle[:,0] <=0.0,0,thrust)
-        power      = jnp.where(conditions.propulsion.throttle[:,0] <=0.0,0,power) 
-        torque     = jnp.where(conditions.propulsion.throttle[:,0] <=0.0,0,torque)
-        rotor_drag = jnp.where(conditions.propulsion.throttle[:,0] <=0.0,0,rotor_drag)
-        thrust     = jnp.where(omega<0.0,-thrust,thrust)
-        thrust     = jnp.where(omega==0.0,0.0,thrust)
-        power      = jnp.where(omega==0.0,0.0,power)
-        torque     = jnp.where(omega==0.0,0.0,torque)
-        rotor_drag = jnp.where(omega==0.0,0.0,rotor_drag)
-        Ct         = jnp.where(omega==0.0,0.0,Ct)
-        Cp         = jnp.where(omega==0.0,0.0,Cp)
-        etap       = jnp.where(omega==0.0,0.0,etap)    
-    
+        ## prevent things from breaking
+        #T_cond = jnp.where(conditions.propulsion.throttle[:,0] <=0.0)
+        #O_cond = jnp.where(omega==0.0)        
+        
+        #Cq.at[jnp.where(Cq<0)].set(0.)
+        #Ct.at[jnp.where(Ct<0)].set(0.)
+        #Cp.at[jnp.where(Cp<0)].set(0.)
+        #thrust    .at[T_cond].set(0.)
+        #power     .at[T_cond].set(0.)
+        #torque    .at[T_cond].set(0.)
+        #rotor_drag.at[T_cond].set(0.)
+        #thrust    .at[O_cond].set(0.)
+        #power     .at[O_cond].set(0.)
+        #torque    .at[O_cond].set(0.)
+        #rotor_drag.at[O_cond].set(0.)
+        #Ct        .at[O_cond].set(0.)
+        #Cp        .at[O_cond].set(0.)
+        #etap      .at[O_cond].set(0.)
+        #thrust.at[jnp.where(omega<0.)].set(-thrust[omega<0.])
+        
         # Make the thrust a 3D vector
-        thrust_prop_frame      = jnp.repeat(jnp.atleast_2d([1,0,0]),repeats=ctrl_pts,axis=1)*thrust
-        thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
+        thrust_prop_frame      = jnp.repeat(jnp.atleast_2d([1,0,0]),repeats=ctrl_pts,axis=0)*thrust
+        thrust_vector          = orientation_product_jax(orientation_transpose(T_body2thrust),thrust_prop_frame)
     
         # Assign efficiency to network
         conditions.propulsion.etap = etap
