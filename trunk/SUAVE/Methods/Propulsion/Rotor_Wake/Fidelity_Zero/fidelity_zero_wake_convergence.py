@@ -48,7 +48,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     jac = jacobian(iteration)
     
     PSI_final, ii = simple_newton(iteration,jac,PSI,args=(wake_inputs,rotor))
-    
+
     # Calculate the velocities given PSI
     va, vt = va_vt(PSI_final, wake_inputs, rotor)
 
@@ -269,15 +269,13 @@ def inner_newton(Full_vector,function,jac,*args):
     # Update the state
     true_fun  = lambda df: df/2
     false_fun = lambda df: df
-    cond1     = R<1e-4
-    cond2     = ii>8
-    conds     = cond1 | cond2
-    df = lax.cond(conds, true_fun, false_fun, df)
+    df = lax.cond((R<1e-4)|(ii>8), true_fun, false_fun, df)
 
     ii+=1    
     
     # Pack the full vector
     Full_vector = [Xn,Xnp1,R,ii,df]
+
     
     return Full_vector
     
