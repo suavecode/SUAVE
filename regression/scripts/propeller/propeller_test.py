@@ -188,6 +188,10 @@ def main():
     # propeller with airfoil results 
     prop_a.inputs.pitch_command                = 0.0*Units.degree
     
+    from jax import jacfwd
+    conditions.tree_flatten()
+    print(jacfwd(prop_a.spin)(conditions))        
+    
     import time
     t1 = time.time()
     F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  
@@ -200,10 +204,14 @@ def main():
     print(t3-t2)
     #plot_results(output_a, prop_a,'blue','-','s')
     
+
+    
     # propeller without airfoil results 
     prop.inputs.pitch_command           = 0.0*Units.degree
     F, Q, P, Cplast ,output , etap      = prop.spin(conditions)
     #plot_results(output, prop,'red','-','o')
+    
+
     
     # rotor with airfoil results 
     rot_a.inputs.pitch_command                     = 0.0*Units.degree
