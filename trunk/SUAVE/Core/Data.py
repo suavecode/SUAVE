@@ -76,6 +76,9 @@ class Data(dict):
         for key, value in zip(keys,values):
             if type(value) is str:
                 aux_dict[key] = self.pop(key)
+            elif isinstance(value,dict):
+                if not bool(value):
+                    aux_dict[key] = self.pop(key)
 
         # Some children classes might have "static_keys" that are marked as immutable
         if hasattr(self,'static_keys'):
