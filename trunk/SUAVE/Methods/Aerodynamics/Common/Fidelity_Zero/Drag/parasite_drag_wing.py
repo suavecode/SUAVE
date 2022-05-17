@@ -23,6 +23,9 @@ import numpy as np
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_segmented_planform import segment_properties
 
+import jax.numpy as jnp
+from jax import jit
+
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Wing
@@ -116,6 +119,8 @@ def parasite_drag_wing(state,settings,geometry):
             # compute parasite drag coef., form factor, skin friction coef., compressibility factor and reynolds number for segments
             segment_parasite_drag , segment_k_w, segment_cf_w_u, segment_cf_w_l, segment_k_comp_u, segment_k_comp_l, k_reyn_u ,k_reyn_l = compute_parasite_drag(re,mac_seg,Mc,Tc,xtu,xtl,sweep_seg,t_c_w,Sref_seg,Swet_seg,C)    
             
+            segment_parasite_drag , segment_k_w, segment_cf_w_u, segment_cf_w_l, segment_k_comp_u, segment_k_comp_l, k_reyn_u ,k_reyn_l = np.array(segment_parasite_drag), np.array(segment_k_w), np.array(segment_cf_w_u), np.array(segment_cf_w_l), np.array(segment_k_comp_u), np.array(segment_k_comp_l), np.array(k_reyn_u), np.array(k_reyn_l) 
+            
             total_segment_parasite_drag  += segment_parasite_drag*Sref_seg   
             total_segment_k_w            += segment_k_w*Sref_seg 
             total_segment_cf_w_u         += segment_cf_w_u*Sref_seg 
@@ -144,7 +149,7 @@ def parasite_drag_wing(state,settings,geometry):
         
         chord_root = wing.chords.root
         chord_tip  = wing.chords.tip
-        wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_w)
+        wing_root  = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_w)
         
         if recalculate_total_wetted_area or wing.areas.wetted==0.:  
             
@@ -164,7 +169,9 @@ def parasite_drag_wing(state,settings,geometry):
             Swet              = wing.areas.wetted                         
 
         # compute parasite drag coef., form factor, skin friction coef., compressibility factor and reynolds number for wing
-        wing_parasite_drag , k_w, cf_w_u, cf_w_l, k_comp_u, k_comp_l, k_reyn_u, k_reyn_l = compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C)             
+        wing_parasite_drag , k_w, cf_w_u, cf_w_l, k_comp_u, k_comp_l, k_reyn_u, k_reyn_l = compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C)
+        
+        wing_parasite_drag , k_w, cf_w_u, cf_w_l, k_comp_u, k_comp_l, k_reyn_u, k_reyn_l = np.array(wing_parasite_drag) , np.array(k_w), np.array(cf_w_u), np.array(cf_w_l), np.array(k_comp_u), np.array(k_comp_l), np.array(k_reyn_u), np.array(k_reyn_l)
 
     # dump data to conditions
     wing_result = Data(
@@ -183,6 +190,7 @@ def parasite_drag_wing(state,settings,geometry):
 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
+@jit
 def compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C):
     """Computes the parasite drag due to wings
 
@@ -229,19 +237,15 @@ def compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C):
     # skin friction  coefficient, lower
     cf_w_l, k_comp_l, k_reyn_l = compressible_mixed_flat_plate(Re_w,Mc,Tc,xtl) 
     
-    cf_w_u, k_comp_u, k_reyn_u = np.array(cf_w_u), np.array(k_comp_u), np.array(k_reyn_u)
-    cf_w_l, k_comp_l, k_reyn_l = np.array(cf_w_l), np.array(k_comp_l), np.array(k_reyn_l)
-    
     # correction for airfoils
-    cos_sweep = np.cos(sweep_w)
+    cos_sweep = jnp.cos(sweep_w)
     cos2      = cos_sweep*cos_sweep
     
-    ind = Mc <= 1.
-    
-    k_w = np.ones_like(Mc)
-    k_w[ind] = 1. + ( 2.* C * (t_c_w * cos2) ) / ( np.sqrt(1.- Mc[ind]*Mc[ind] * cos2) )  \
-            + ( C*C * cos2 * t_c_w*t_c_w * (1. + 5.*(cos2)) ) \
-            / (2.*(1.-(Mc[ind]*cos_sweep)**2.))             
+    k_w = 1. + ( 2.* C * (t_c_w * cos2) ) / ( jnp.sqrt(1.- Mc*Mc * cos2) )  \
+            + ( C*C * cos2 * t_c_w*t_c_w * (1. + 5.*cos2) ) \
+            / (2.*(1.-(Mc*cos_sweep)**2.))
+
+    k_w = jnp.where(Mc <= 1.,k_w,1.)
     
     spline = Cubic_Spline_Blender(.95,1.0)
     h00 = lambda M:spline.compute(M)

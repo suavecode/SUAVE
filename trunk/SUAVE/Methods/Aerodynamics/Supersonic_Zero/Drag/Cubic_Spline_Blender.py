@@ -4,7 +4,7 @@
 # Created:  Feb 2019, T. MacDonald
 #
 
-import numpy as np
+import jax.numpy as jnp
 
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 class Cubic_Spline_Blender():
@@ -62,8 +62,9 @@ class Cubic_Spline_Blender():
         eta = self.eta_transform(x)
     
         y = 2*eta*eta*eta-3*eta*eta+1
-        y[eta<0] = 1
-        y[eta>1] = 0
+        y = jnp.where(eta<0,1.,y)
+        y = jnp.where(eta>1,1.,y)
+        
         return y
 
     def eta_transform(self,x):
