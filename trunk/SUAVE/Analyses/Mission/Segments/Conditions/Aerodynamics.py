@@ -156,7 +156,6 @@ class Aerodynamics(Basic):
         self.weights.vehicle_fuel_rate                = ones_1col * 0
         self.weights.vehicle_additional_fuel_rate     = ones_1col * 0
         self.weights.has_additional_fuel              = False
-        self.weights.static_keys                      = ['has_additional_fuel']
         
         # noise conditions
         self.noise                             = Conditions()

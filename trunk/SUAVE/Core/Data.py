@@ -6,6 +6,7 @@
 #           May 2020, E. Botero
 #           Jul 2021, E. Botero
 #           Oct 2021, E. Botero
+#           May 2022, E. Botero
 
 
 
@@ -124,15 +125,16 @@ class Data(dict):
         # Create the class
         recreated = cls()
         
-        # add an string data
+        # add the static data, strings/bools, and static_keys
         recreated.update(aux_data[1])
         
         # keys
         keys      = aux_data[0]
         length    = len(keys)
         keys      = list(keys)
-        for ii in range(length):
-            recreated[keys[ii]] = children[ii]
+        dictionary = dict(zip(keys,children))
+        
+        recreated.update(dictionary)
 
         return recreated
         

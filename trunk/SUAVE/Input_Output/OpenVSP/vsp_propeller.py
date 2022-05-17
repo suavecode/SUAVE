@@ -146,7 +146,7 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     prop.vtk_airfoil_points           = 2*Nc
     prop.CLi                          = vsp.GetParmVal(parm_id[parm_names.index('CLi')])
     prop.blade_solidity               = vsp.GetParmVal(parm_id[parm_names.index('Solidity')])
-    prop.number_of_blades             = int(vsp.GetParmVal(parm_id[parm_names.index('NumBlade')]))
+    prop.number_of_blades             = float(vsp.GetParmVal(parm_id[parm_names.index('NumBlade')]))
 
     prop.tip_radius                   = vsp.GetDoubleResults(rid, "Diameter" )[0] / 2 * units_factor
     prop.radius_distribution          = np.array(vsp.GetDoubleResults(rid, "Radius" )) * prop.tip_radius

@@ -105,13 +105,13 @@ class Rotor(Energy_Component):
         self.variable_pitch            = False
         
         # JAX static args
-        self.static_keys               = ['number_azimuthal_stations','airfoil_geometry','airfoil_polars','number_of_blades','vtk_airfoil_points']
+        self.static_keys               = ['number_azimuthal_stations','airfoil_geometry','airfoil_polars','vtk_airfoil_points']
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
 
         
-    #@jit
+    @jit
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     
