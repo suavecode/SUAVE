@@ -79,6 +79,8 @@ class Data(dict):
             elif isinstance(value,dict):
                 if not bool(value):
                     aux_dict[key] = self.pop(key)
+            elif isinstance(value,bool):
+                aux_dict[key] = self.pop(key)
 
         # Some children classes might have "static_keys" that are marked as immutable
         if hasattr(self,'static_keys'):

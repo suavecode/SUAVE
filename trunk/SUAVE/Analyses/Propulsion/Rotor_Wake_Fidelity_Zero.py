@@ -54,7 +54,8 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         None
         """
 
-        self.wake_method    = 0
+        self.wake_method    = 0.
+
 
     def evaluate(self,rotor,wake_inputs,conditions):
         """

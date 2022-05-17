@@ -190,7 +190,9 @@ def main():
     
     from jax import jacfwd
     conditions.tree_flatten()
-    print(jacfwd(prop_a.spin)(conditions))        
+    jac = jacfwd(prop_a.spin)(conditions) 
+    
+    print(jac)
     
     import time
     t1 = time.time()
