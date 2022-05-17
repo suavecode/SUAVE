@@ -10,7 +10,8 @@
 # ----------------------------------------------------------------------
 
 # package imports
-import numpy as np
+from jax import jit
+import jax.numpy as np
 
 
 # ----------------------------------------------------------------------
@@ -18,6 +19,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Helper_Functions
+@jit
 def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     """Computes the coefficient of friction for a flat plate given the 
     input parameters. Also returns the correction terms used in the
@@ -45,15 +47,8 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     N/A
     """     
     
-    if xt < 0.0 or xt > 1.0:
-        raise ValueError("Turbulent transition must be between 0 and 1")
-    
-    #if np.any(Re > 10**9) or np.any(Re < 10**5):
-        ##print 'Warning: Reynolds number outside expected range - in file compressible_mixed_flat_plate.py'
-        #pass
-    
     Rex = Re*xt
-    Rex[Rex==0.0] = 0.0001
+    Rex = np.maximum(Rex,0.0001)
 
     theta = 0.671*xt/(Rex**0.5)
     xeff  = (27.78*theta*Re**0.2)**1.25
@@ -62,10 +57,11 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     cf_turb  = 0.455/(np.log10(Rext)**2.58)
     cf_lam   = 1.328/(Rex**0.5)
     
-    if xt > 0.0:
-        cf_start = 0.455/(np.log10(Re*xeff)**2.58)
-    else:
-        cf_start = 0.0
+    xt = np.ones_like(Re)*xt
+    cf_start = 0.455/(np.log10(Re*xeff)**2.58)
+    cf_start = np.where(xt==0.,0,cf_start)
+    
+    
     
     cf_inc = cf_lam*xt + cf_turb*(1-xt+xeff) - cf_start*xeff
     

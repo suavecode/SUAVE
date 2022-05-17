@@ -229,6 +229,9 @@ def compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C):
     # skin friction  coefficient, lower
     cf_w_l, k_comp_l, k_reyn_l = compressible_mixed_flat_plate(Re_w,Mc,Tc,xtl) 
     
+    cf_w_u, k_comp_u, k_reyn_u = np.array(cf_w_u), np.array(k_comp_u), np.array(k_reyn_u)
+    cf_w_l, k_comp_l, k_reyn_l = np.array(cf_w_l), np.array(k_comp_l), np.array(k_reyn_l)
+    
     # correction for airfoils
     cos_sweep = np.cos(sweep_w)
     cos2      = cos_sweep*cos_sweep
