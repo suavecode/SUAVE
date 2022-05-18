@@ -309,7 +309,7 @@ class Rotor(Energy_Component):
         Ua     = V_2d + ua
     
         # 2-D blade pitch and radial distributions
-        if np.size(pitch_c)>1:
+        if jnp.size(pitch_c)>1:
             # control variable is the blade pitch, repeat around azimuth
             beta = jnp.repeat(total_blade_pitch[:,:,None], Na, axis=2)
         else:
