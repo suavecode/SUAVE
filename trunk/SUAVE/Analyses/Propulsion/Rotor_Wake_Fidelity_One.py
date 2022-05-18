@@ -13,6 +13,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.fidelity_one_wake_convergence import fidelity_one_wake_convergence
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.update_wake_position_under_wing_interaction import update_wake_position_under_wing_interaction
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
 
@@ -275,6 +276,33 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         return rot_V_wake_ind
     
+    def evolve_wake_interaction(self,wing,VD_component):
+        """
+        Takes the vortex distribution of a wing component and evolves the rotor
+        wake's vortex filament positions to account for the presence of the nearby component interaction.
+        
+        This is an approximation method intended to account for first order effects of interactions that
+        will change the rotor wake shape. 
+        
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+        
+        Inputs:
+           wing           - a SUAVE wing component, the interaction of which is being computed
+           VD_component   - Vortex distribution associated with the component of interest
+        
+        Outputs:
+           VD_wake        - Updated vortex distribution of the rotor wake due to component interaction
+        
+        """
+        
+        # update the position of the wake vortex filaments due to VD_component
+        update_wake_position_under_wing_interaction(self,wing,VD_component)
+        
+        return
     def shift_wake_VD(self,wVD, offset):
         """
         This shifts the wake by the (x,y,z) coordinates of the offset. 
