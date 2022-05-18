@@ -276,7 +276,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         return rot_V_wake_ind
     
-    def evolve_wake_interaction(self,wing,VD_component):
+    def evolve_wake_interaction(self,rotor,wing,vehicle,VD_component,wing_vlm_outputs):
         """
         Takes the vortex distribution of a wing component and evolves the rotor
         wake's vortex filament positions to account for the presence of the nearby component interaction.
@@ -300,7 +300,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         """
         
         # update the position of the wake vortex filaments due to VD_component
-        update_wake_position_under_wing_interaction(self,wing,VD_component)
+        update_wake_position_under_wing_interaction(self,rotor,wing,vehicle,VD_component,wing_vlm_outputs)
         
         return
     def shift_wake_VD(self,wVD, offset):
