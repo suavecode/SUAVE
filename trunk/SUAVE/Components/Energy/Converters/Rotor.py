@@ -19,7 +19,6 @@
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
-from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
      import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 from SUAVE.Methods.Geometry.Three_Dimensional \
@@ -31,7 +30,6 @@ import scipy as sp
 from jax.tree_util import register_pytree_node_class
 from jax import jit, lax
 import jax.numpy as jnp
-from functools import partial
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -90,7 +88,7 @@ class Rotor(Energy_Component):
         self.vtk_airfoil_points           = 40
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
-        self.sol_tolerance                = 1e-8
+        self.sol_tolerance                = 1e-10
         self.design_power_coefficient     = 0.01
 
 
@@ -219,7 +217,7 @@ class Rotor(Energy_Component):
         ctrl_pts = len(Vv)
         
         # Helpful shorthands
-        pi      = jnp.pi
+        pi       = jnp.pi
     
         # Calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c
@@ -382,26 +380,14 @@ class Rotor(Energy_Component):
         epsilon                  = Cd/Cl
         epsilon                  = jnp.where(epsilon==jnp.inf,10.,epsilon)
     
-        # thrust and torque and their derivatives on the blade.
-        blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar
-        blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar
-        blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa))
-        blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r)
- 
-        blade_T_distribution_2d = blade_T_distribution
-        blade_Q_distribution_2d = blade_Q_distribution
-        blade_dT_dr_2d          = blade_dT_dr
-        blade_dQ_dr_2d          = blade_dQ_dr
-        blade_Gamma_2d          = Gamma
-        alpha_2d                = alpha
-    
-        Va_2d = Wa
-        Vt_2d = Wt
-        Va_avg = jnp.average(Wa, axis=2)      # averaged around the azimuth
-        Vt_avg = jnp.average(Wt, axis=2)      # averaged around the azimuth
-    
-        Va_ind_2d  = va
-        Vt_ind_2d  = vt
+        # thrust and torque and their derivatives on the blade 
+        blade_dT_dr_2d          = rho*(Gamma*(Wt-epsilon*Wa))
+        blade_dQ_dr_2d          = rho*(Gamma*(Wa+epsilon*Wt)*r)
+        blade_T_distribution_2d = blade_dT_dr_2d*deltar
+        blade_Q_distribution_2d = blade_dQ_dr_2d*deltar        
+
+        Va_avg     = jnp.average(Wa, axis=2)      # averaged around the azimuth
+        Vt_avg     = jnp.average(Wt, axis=2)      # averaged around the azimuth
         Vt_ind_avg = jnp.average(vt, axis=2)
         Va_ind_avg = jnp.average(va, axis=2)
     
@@ -430,15 +416,15 @@ class Rotor(Energy_Component):
         Cp       = power/(rho_0*(n*n*n)*(D*D*D*D*D))
         Crd      = rotor_drag/(rho_0*(n*n)*(D*D*D*D))
         etap     = V*thrust/power
-        A        = jnp.pi*(R**2 - self.hub_radius**2)
-        FoM      = thrust*jnp.sqrt(thrust/(2*rho_0*A))    /power  
+        A        = pi*(R**2 - self.hub_radius**2)
+        FoM      = thrust*jnp.sqrt(thrust/(2*rho_0*A))/power  
     
         # prevent things from breaking
         O_cond     = omega==0.0
         T_cond     = conditions.propulsion.throttle<=0.0
-        Cq         = jnp.where(Cq<0,0,Cq)
-        Ct         = jnp.where(Ct<0,0,Ct)
-        Cp         = jnp.where(Cp<0,0,Cp)
+        Cq         = jnp.maximum(Cq,0)
+        Ct         = jnp.maximum(Ct,0)
+        Cp         = jnp.maximum(Cp,0)        
         power      = jnp.where(T_cond,0,power)
         thrust     = jnp.where(T_cond,0,thrust)
         torque     = jnp.where(T_cond,0,torque)
@@ -458,7 +444,6 @@ class Rotor(Energy_Component):
         # Assign efficiency to network
         conditions.propulsion.etap = etap
     
-    
         # Store data
         self.azimuthal_distribution                   = psi
         results_conditions                            = Data
@@ -473,19 +458,19 @@ class Rotor(Energy_Component):
                     blade_axial_induced_velocity      = Va_ind_avg,
                     blade_tangential_velocity         = Vt_avg,
                     blade_axial_velocity              = Va_avg,
-                    disc_tangential_induced_velocity  = Vt_ind_2d,
-                    disc_axial_induced_velocity       = Va_ind_2d,
-                    disc_tangential_velocity          = Vt_2d,
-                    disc_axial_velocity               = Va_2d,
+                    disc_tangential_induced_velocity  = vt,
+                    disc_axial_induced_velocity       = va,
+                    disc_tangential_velocity          = Wt,
+                    disc_axial_velocity               = Wa,
                     drag_coefficient                  = Cd,
                     lift_coefficient                  = Cl,
                     omega                             = omega,
-                    disc_circulation                  = blade_Gamma_2d,
+                    disc_circulation                  = Gamma,
                     blade_dT_dr                       = blade_dT_dr,
                     disc_dT_dr                        = blade_dT_dr_2d,
                     blade_thrust_distribution         = blade_T_distribution,
                     disc_thrust_distribution          = blade_T_distribution_2d,
-                    disc_effective_angle_of_attack    = alpha_2d,
+                    disc_effective_angle_of_attack    = alpha,
                     thrust_per_blade                  = thrust/B,
                     thrust_coefficient                = Ct,
                     disc_azimuthal_distribution       = psi_2d,

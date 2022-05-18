@@ -192,10 +192,9 @@ def main():
     prop_a.inputs.pitch_command                = 0.0*Units.degree
     
     from jax import jacfwd
-    conditions.tree_flatten()
-    jac = jacfwd(prop_a.spin)(conditions) 
+    #jac = jacfwd(prop_a.spin)(conditions) 
     
-    print(jac)
+    #print(jac)
     
     import time
     t1 = time.time()
