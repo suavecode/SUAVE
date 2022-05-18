@@ -57,26 +57,42 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
 
     # Pack the wing level resultss
     VD_wing  = Data()
-    VD_wing.XC   = VD.XC[pt_ids]
-    VD_wing.YC   = VD.YC[pt_ids]
-    VD_wing.ZC   = VD.ZC[pt_ids]
+        
+    VD_wing.XC    = VD.XC[pt_ids]
+    VD_wing.YC    = VD.YC[pt_ids]
+    VD_wing.ZC    = VD.ZC[pt_ids]
 
-    VD_wing.XA1  = VD.XA1[pt_ids]
-    VD_wing.XA2  = VD.XA2[pt_ids]
-    VD_wing.XB1  = VD.XB1[pt_ids]
-    VD_wing.XB2  = VD.XB2[pt_ids]
-    VD_wing.YA1  = VD.YA1[pt_ids]
-    VD_wing.YA2  = VD.YA2[pt_ids]
-    VD_wing.YB1  = VD.YB1[pt_ids]
-    VD_wing.YB2  = VD.YB2[pt_ids]
-    VD_wing.ZA1  = VD.ZA1[pt_ids]
-    VD_wing.ZA2  = VD.ZA2[pt_ids]
-    VD_wing.ZB1  = VD.ZB1[pt_ids]
-    VD_wing.ZB2  = VD.ZB2[pt_ids]
+    VD_wing.XA1   = VD.XA1[pt_ids]
+    VD_wing.XA2   = VD.XA2[pt_ids]
+    VD_wing.XB1   = VD.XB1[pt_ids]
+    VD_wing.XB2   = VD.XB2[pt_ids]
+    VD_wing.YA1   = VD.YA1[pt_ids]
+    VD_wing.YA2   = VD.YA2[pt_ids]
+    VD_wing.YB1   = VD.YB1[pt_ids]
+    VD_wing.YB2   = VD.YB2[pt_ids]
+    VD_wing.ZA1   = VD.ZA1[pt_ids]
+    VD_wing.ZA2   = VD.ZA2[pt_ids]
+    VD_wing.ZB1   = VD.ZB1[pt_ids]
+    VD_wing.ZB2   = VD.ZB2[pt_ids]
+    
+    VD_wing.XAH   = VD.XAH[pt_ids]
+    VD_wing.XBH   = VD.XBH[pt_ids]
+    VD_wing.YAH   = VD.YAH[pt_ids]
+    VD_wing.YBH   = VD.YBH[pt_ids]
+    VD_wing.ZAH   = VD.ZAH[pt_ids]
+    VD_wing.ZBH   = VD.ZBH[pt_ids]   
+    
+    VD_wing.XA_TE   = VD.XA_TE[pt_ids]
+    VD_wing.XB_TE   = VD.XB_TE[pt_ids]   
+    
+    VD_wing.leading_edge_indices  = VD.leading_edge_indices[pt_ids]
+    VD_wing.trailing_edge_indices = VD.trailing_edge_indices[pt_ids]
 
-
-    VD_wing.n_cp = len(VD_wing.XC)
-    VD_wing.n_cw = VD.n_cw[ids]
-    VD_wing.n_sw = VD.n_sw[ids]
+    VD_wing.n_cp  = len(VD_wing.XC)
+    VD_wing.n_cw  = VD.n_cw[ids]
+    VD_wing.n_sw  = VD.n_sw[ids]
+    
+    VD_wing.panels_per_strip = VD.panels_per_strip[pt_ids]
+    VD_wing.chord_lengths    = VD.chord_lengths[:,pt_ids]
 
     return VD_wing, pt_ids
