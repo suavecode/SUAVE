@@ -18,7 +18,7 @@ from SUAVE.Components.Physical_Component import Container
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
 
-from SUAVE.Core import Data , Units
+from SUAVE.Core import Data , Units, to_numpy
 
 # ----------------------------------------------------------------------
 #  Network
@@ -179,9 +179,7 @@ class Solar(Network):
             prop.inputs.omega =  motor.outputs.omega
             
             # step 6
-            F, Q, P, Cplast ,  outputs  , etap   = prop.spin(conditions)
-            
-            F, Q, P, Cp, etap = np.array(F), np.array(Q), np.array(P), np.array(Cp), np.array(etap) 
+            F, Q, P, Cplast ,  outputs  , etap   = to_numpy(prop.spin(conditions))
          
             # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
             eta = conditions.propulsion.throttle[:,0,None]
