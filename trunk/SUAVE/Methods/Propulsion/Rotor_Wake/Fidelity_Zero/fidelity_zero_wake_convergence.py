@@ -229,8 +229,15 @@ def cond(Full_vector,tol,function,jac,*args):
     
     Full_vector = inner_newton(Full_vector,function,jac,*args)
     R           = Full_vector[2]
+    ii          = Full_vector[3]
     
-    return R>tol
+    # The other condition is that there have been too many iterations
+    cond1 = R<tol
+    cond2 = ii>1000
+    
+    full_cond = jnp.logical_not(cond1 | cond2)
+    
+    return full_cond
     
 
 def inner_newton(Full_vector,function,jac,*args):

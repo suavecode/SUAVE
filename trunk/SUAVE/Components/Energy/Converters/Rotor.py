@@ -31,6 +31,9 @@ from jax.tree_util import register_pytree_node_class
 from jax import jit, lax
 import jax.numpy as jnp
 
+from jax.config import config
+config.update("jax_enable_x64", True)
+
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
@@ -238,6 +241,8 @@ class Rotor(Energy_Component):
         # Non-dimensional radial distribution and differential radius
         chi    = r_1d/R
         deltar = jnp.gradient(r_1d)
+        deltar = deltar.at[0].set(deltar[0]/2)
+        deltar = deltar.at[-1].set(deltar[-1]/2)
         
         # Calculating rotational parameters
         omegar   = jnp.outer(omega,r_1d)
@@ -551,12 +556,12 @@ class Rotor(Energy_Component):
         cpts       = len(jnp.atleast_1d(self.inputs.y_axis_rotation))
         rots       = jnp.array(self.orientation_euler_angles) * 1.
         rots       = jnp.repeat(rots[None,:], cpts, axis=0)
-        rots.at[:,1].add(jnp.atleast_2d(self.inputs.y_axis_rotation)[:,0])
+        rots       = rots.at[:,1].add(jnp.atleast_2d(self.inputs.y_axis_rotation)[:,0])
         
         #vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
-        T1 = rots[:,0]
-        T2 = rots[:,1]
-        T3 = rots[:,2]
+        T1 = jnp.atleast_2d(rots[:,0]).T
+        T2 = jnp.atleast_2d(rots[:,1]).T
+        T3 = jnp.atleast_2d(rots[:,2]).T
         
         Z   = jnp.zeros_like(T1)
         O   = jnp.ones_like(T1)
@@ -567,12 +572,12 @@ class Rotor(Energy_Component):
         ST2 = jnp.sin(T2)
         ST3 = jnp.sin(T3)
         
-        R1  = jnp.array([[O,Z,Z],[Z,CT1,-ST1],[Z,ST1,CT1]]).T
-        R2  = jnp.array([[CT2,Z,ST2],[Z,O,Z],[-ST2,Z,CT2]]).T
-        R3  = jnp.array([[CT3,-ST3,Z],[ST3,CT3,Z],[Z,Z,O]]).T
+        R1  = jnp.moveaxis(jnp.array([[O,Z,Z],[Z,CT1,-ST1],[Z,ST1,CT1]])[:,:,:,0],2,0)
+        R2  = jnp.moveaxis(jnp.array([[CT2,Z,ST2],[Z,O,Z],[-ST2,Z,CT2]])[:,:,:,0],2,0)
+        R3  = jnp.moveaxis(jnp.array([[CT3,-ST3,Z],[ST3,CT3,Z],[Z,Z,O]])[:,:,:,0],2,0)
         
-        R2_R1 = jnp.matmul(R2,R1)
-        vehicle_2_prop_vec = jnp.matmul(R3,R2_R1)
+        R3_R2 = jnp.matmul(R3,R2)
+        vehicle_2_prop_vec = jnp.matmul(R3_R2,R1)
 
         # Go from the propeller vehicle frame to the propeller velocity frame: rot 2
         prop_vec_2_prop_vel = self.vec_to_vel()

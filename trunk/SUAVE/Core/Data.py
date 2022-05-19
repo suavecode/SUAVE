@@ -129,9 +129,7 @@ class Data(dict):
         recreated.update(aux_data[1])
         
         # keys
-        keys      = aux_data[0]
-        length    = len(keys)
-        keys      = list(keys)
+        keys       = aux_data[0]
         dictionary = dict(zip(keys,children))
         
         recreated.update(dictionary)
