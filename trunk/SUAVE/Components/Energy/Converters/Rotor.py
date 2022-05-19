@@ -423,7 +423,7 @@ class Rotor(Energy_Component):
         etap     = V*thrust/power
         A        = pi*(R**2 - self.hub_radius**2)
         FoM      = thrust*jnp.sqrt(thrust/(2*rho_0*A))/power  
-    
+
         # prevent things from breaking
         O_cond     = omega==0.0
         T_cond     = conditions.propulsion.throttle<=0.0
