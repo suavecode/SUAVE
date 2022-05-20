@@ -106,7 +106,7 @@ class Rotor(Energy_Component):
         self.variable_pitch            = False
         
         # JAX static args
-        self.static_keys               = ['number_azimuthal_stations','airfoil_geometry','airfoil_polars','vtk_airfoil_points']
+        self.static_keys               = ['number_azimuthal_stations','airfoil_polar_stations','airfoil_geometry','airfoil_polars','vtk_airfoil_points']
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
@@ -453,8 +453,8 @@ class Rotor(Energy_Component):
         self.azimuthal_distribution                   = psi
         results_conditions                            = Data
         outputs                                       = results_conditions(
-                    number_radial_stations            = Nr,
-                    number_azimuthal_stations         = Na,
+                    number_radial_stations            = float(Nr),
+                    number_azimuthal_stations         = float(Na),
                     disc_radial_distribution          = r_dim_2d,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
@@ -612,10 +612,8 @@ class Rotor(Energy_Component):
         """
 
         body2propvel = self.body_to_prop_vel()
-
-        r = sp.spatial.transform.Rotation.from_matrix(body2propvel)
-        r = r.inv()
-        rot_mat = r.as_matrix()
+        
+        rot_mat      = jnp.linalg.inv(body2propvel)
 
         return rot_mat
     

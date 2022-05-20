@@ -20,7 +20,7 @@ from .import_airfoil_polars   import import_airfoil_polars
 import numpy as np
 
 from jax.scipy.interpolate import RegularGridInterpolator
-#from scipy.interpolate import RegularGridInterpolator
+import jax.numpy as jnp
 
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil

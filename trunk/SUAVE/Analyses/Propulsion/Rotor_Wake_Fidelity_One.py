@@ -19,10 +19,13 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import
 # package imports
 import copy
 import numpy as np
+from jax.tree_util import register_pytree_node_class
+
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Propulsion
+@register_pytree_node_class
 class Rotor_Wake_Fidelity_One(Energy_Component):
     """ SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One()
     
@@ -54,21 +57,21 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         None
         """
 
-        self.tag                        = 'rotor_wake'
+        self.tag                        = 'rotor_wake_1'
         self.wake_method                = 'Fidelity_One'
         self.wake_vortex_distribution   = Data()
-        self.wake_method_fidelity       = 0
+        self.wake_method_fidelity       = 0.
         self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
         self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
         self.vtk_save_loc               = None       # location to save vtk outputs of wake
         
         self.wake_settings              = Data()
-        self.wake_settings.number_rotor_rotations     = 5
-        self.wake_settings.number_steps_per_rotation  = 72
-        self.wake_settings.initial_timestep_offset    = 0    # initial timestep
+        self.wake_settings.number_rotor_rotations     = 5.
+        self.wake_settings.number_steps_per_rotation  = 72.
+        self.wake_settings.initial_timestep_offset    = 0.    # initial timestep
         
         # wake convergence criteria
-        self.maximum_convergence_iteration            = 10
+        self.maximum_convergence_iteration            = 10.
         self.axial_velocity_convergence_tolerance     = 1e-2
         
         # flags for slipstream interaction
