@@ -177,12 +177,16 @@ def va_vt(PSI, wake_inputs, rotor):
     ctrl_pts        = wake_inputs.ctrl_pts
     Nr              = wake_inputs.Nr
     Na              = wake_inputs.Na
+
+    r = rotor.radius_distribution
     
     # Reshape PSI because the solver gives it flat
     if wake_inputs.use_2d_analysis:
         PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
+        r      = np.repeat(np.repeat(r[None,:],ctrl_pts,axis=1)[:,:,None],Na,axis=2)
     else:
         PSI    = np.reshape(PSI,(ctrl_pts,Nr))
+        r      = np.repeat(r[None,:],ctrl_pts,axis=0)
     
     # compute velocities
     sin_psi      = np.sin(PSI)
@@ -191,8 +195,70 @@ def va_vt(PSI, wake_inputs, rotor):
     Wt           = 0.5*Ut + 0.5*U*cos_psi
     va           = Wa - Ua
     vt           = Ut - Wt
+    
+    # interpolate between and replace outliers
+    m = 5.
+    d = np.abs(va - np.median(va))
+    d2 = np.abs(va - np.median(vt))
+    mdev = np.median(d)
+    mdev2 = np.median(d2)
+    s = d/mdev if mdev else 0.
+    s2 = d2/mdev2 if mdev else 0.
+    d_fun = sp.interpolate.interp1d(r[s<m], va[s<m])
+    d2_fun = sp.interpolate.interp1d(r[s2<m], vt[s2<m])
+    
+    #------------------------------------------------------------
+    debug=False
+    if debug:
+        import pylab as plt
+        vt_uncorrected = vt
+        va_uncorrected = va
+        va_new = d_fun(r)
+        vt_new = d2_fun(r)
+        
+        fig1,ax1=plt.subplots(figsize=(5,3))
+        fig2,ax2=plt.subplots(figsize=(5,3))
+        for i in range(Na):
+            vt_i          = vt_uncorrected[0,:,i]
+            va_i          = va_uncorrected[0,:,i]
+            va_new_i = va_new[0,:,i]
+            vt_new_i = vt_new[0,:,i]
+            
+            blue_color = colorFader("green","blue",mix=(1/Na)*i)
+            red_color = colorFader("purple","red",mix=(1/Na)*i)
+            ax1.plot(r[0,:,i],va_i,color=red_color)
+            ax1.plot(r[0,:,i],va_new_i,color=blue_color)
+            
+            ax2.plot(r[0,:,i],vt_i,color=red_color)
+            ax2.plot(r[0,:,i],vt_new_i,color=blue_color)        
+        ax1.plot([],[],color='r', label='Uncorrected')     
+        ax1.plot([],[],color='b', label='Outliers Removed') 
+        ax2.plot([],[],color='r', label='Uncorrected')     
+        ax2.plot([],[],color='b', label='Outliers Removed')
+        ax1.set_xlabel('r')
+        ax1.set_ylabel('va')
+        ax2.set_xlabel('r')
+        ax2.set_ylabel('vt')    
+        ax1.legend()
+        ax2.legend()
+        plt.show()    
+
+    #------------------------------------------------------------    
+    
+    
+    
+    va = d_fun(r)
+    vt = d2_fun(r)
+    
+    
 
     return va, vt
+
+def colorFader(c1,c2,mix=0):
+    import matplotlib as mpl
+    c1 = np.array(mpl.colors.to_rgb(c1))
+    c2 = np.array(mpl.colors.to_rgb(c2))
+    return mpl.colors.to_hex((1-mix)*c1 + mix*c2)
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 def compute_dR_dpsi(PSI,wake_inputs,rotor):
