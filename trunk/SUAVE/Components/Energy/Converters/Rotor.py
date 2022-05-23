@@ -112,7 +112,7 @@ class Rotor(Energy_Component):
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
 
         
-    @jit
+    #@jit
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     

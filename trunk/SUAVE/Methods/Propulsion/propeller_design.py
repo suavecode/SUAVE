@@ -139,14 +139,11 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
         
         for ii, key in enumerate(airfoil_data.lift_coefficient_surrogates.keys()):
             cl = airfoil_data.lift_coefficient_surrogates[key]
-            airfoil_cl_surs[str(ii)] = jit(cl)
+            airfoil_cl_surs[key] = jit(cl)
         
         for ii, key in enumerate(airfoil_data.drag_coefficient_surrogates.keys()):
             cd = airfoil_data.drag_coefficient_surrogates[key]
-            airfoil_cd_surs[str(ii)] = jit(cd)
-            
-        for ii, a_g in enumerate(a_geo):
-            a_geo[ii] = ii
+            airfoil_cd_surs[key] = jit(cd)
             
         jac       = jacobian(objective)
      

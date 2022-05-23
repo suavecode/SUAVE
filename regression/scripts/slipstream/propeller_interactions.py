@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units, Data, to_numpy
 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
@@ -53,7 +53,7 @@ def main():
     #--------------------------------------------------------------------    
     
     # run the BEVW for upstream isolated propeller
-    T_iso, Q_iso, P_iso, Cp_iso, outputs_iso , etap_iso = prop.spin(conditions)
+    T_iso, Q_iso, P_iso, Cp_iso, outputs_iso , etap_iso = to_numpy(prop.spin(conditions))
     
     conditions.noise.sources.propellers[prop.tag] = outputs_iso
     
@@ -95,7 +95,7 @@ def run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=
     prop = compute_propeller_nonuniform_freestream(prop_copy, propeller_wake, conditions)
     
     # run the propeller in this nonuniform flow
-    T, Q, P, Cp, outputs , etap = prop.spin(conditions)
+    T, Q, P, Cp, outputs , etap = to_numpy(prop.spin(conditions))
     
     if plot_performance:
         plot_propeller_disc_performance(prop,outputs)
