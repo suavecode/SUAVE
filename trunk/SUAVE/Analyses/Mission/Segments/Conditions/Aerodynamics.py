@@ -79,6 +79,7 @@ class Aerodynamics(Basic):
         self.frames.planet.start_time      = None
         self.frames.planet.latitude        = ones_1col * 0
         self.frames.planet.longitude       = ones_1col * 0
+        self.frames.planet.static_keys     = ['start_time']
 
         # freestream conditions
         self.freestream = Conditions()        

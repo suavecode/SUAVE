@@ -67,8 +67,11 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         self.wake_settings              = Data()
         self.wake_settings.number_rotor_rotations     = 5.
-        self.wake_settings.number_steps_per_rotation  = 72.
+        self.wake_settings.number_steps_per_rotation  = 24
         self.wake_settings.initial_timestep_offset    = 0.    # initial timestep
+        
+        self.wake_settings.static_keys                = ['number_steps_per_rotation']
+        
         
         # wake convergence criteria
         self.maximum_convergence_iteration            = 10.
@@ -77,6 +80,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # flags for slipstream interaction
         self.slipstream                 = False
         self.verbose                    = True
+        
+        
         
     def initialize(self,rotor,conditions):
         """

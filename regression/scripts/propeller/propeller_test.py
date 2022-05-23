@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units, to_numpy
 from SUAVE.Plots.Geometry import plot_propeller
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
@@ -191,64 +191,48 @@ def main():
     # propeller with airfoil results 
     prop_a.inputs.pitch_command                = 0.0*Units.degree
     
-    from jax import jacfwd
-    #jac = jacfwd(prop_a.spin)(conditions) 
-    
-    #print(jac)
-    
-    import time
-    t1 = time.time()
-    F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  
-    t2 = time.time()
-    F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  
-    t3 = time.time()
-    print('1st time:')
-    print(t2-t1)
-    print('2nd time:')
-    print(t3-t2)
-    #plot_results(output_a, prop_a,'blue','-','s')
-    
-
+    F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = to_numpy(prop_a.spin(conditions))
+    plot_results(output_a, prop_a,'blue','-','s')
     
     # propeller without airfoil results 
     prop.inputs.pitch_command           = 0.0*Units.degree
-    F, Q, P, Cplast ,output , etap      = prop.spin(conditions)
-    #plot_results(output, prop,'red','-','o')
+    F, Q, P, Cplast ,output , etap      = to_numpy(prop.spin(conditions))
+    plot_results(output, prop,'red','-','o')
     
 
     
     # rotor with airfoil results 
     rot_a.inputs.pitch_command                     = 0.0*Units.degree
-    Fr_a, Qr_a, Pr_a, Cplastr_a ,outputr_a , etapr = rot_a.spin(conditions_r)
-    #plot_results(outputr_a, rot_a,'green','-','^')
+    Fr_a, Qr_a, Pr_a, Cplastr_a ,outputr_a , etapr = to_numpy(rot_a.spin(conditions_r))
+    plot_results(outputr_a, rot_a,'green','-','^')
     
     # rotor with out airfoil results 
     rot.inputs.pitch_command              = 0.0*Units.degree
-    Fr, Qr, Pr, Cplastr ,outputr , etapr  = rot.spin(conditions_r)
-    #plot_results(outputr, rot,'black','-','P')
+    Fr, Qr, Pr, Cplastr ,outputr , etapr  = to_numpy(rot.spin(conditions_r))
+    plot_results(outputr, rot,'black','-','P')
     
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3352.366469630676
-    Q_a_truth       = 978.76113592
-    P_a_truth       = 202761.72763161
+    F_a_truth       = 3352.3664499896327
+    Q_a_truth       = 978.76113189
+    P_a_truth       = 202761.72679672
     Cplast_a_truth  = 0.10450832
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2629.013537561697
+    F_truth         = 2629.0135375646137
     Q_truth         = 787.38469662
-    P_truth         = 163115.87734548
+    P_truth         = 163115.87734575
     Cplast_truth    = 0.08407389
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1579.2361567172945
-    Qr_a_truth      = 146.35419545
-    Pr_a_truth      = 30318.96999793
+    Fr_a_truth      = 1579.2361899379314
+    Qr_a_truth      = 146.35419614
+    Pr_a_truth      = 30318.97014144
     Cplastr_a_truth = 0.04769023
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1321.295706277528
-    Qr_truth        = 128.70336507
-    Pr_truth        = 26662.39565033
+    Fr_truth        = 1321.2957050593654
+    Qr_truth        = 128.70336152
+    Pr_truth        = 26662.39491513
     Cplastr_truth   = 0.04193862
     
     # Store errors 

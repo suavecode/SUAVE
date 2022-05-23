@@ -7,9 +7,10 @@
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 import numpy as np
 import jax.numpy as jnp
-from jax import jacobian, lax
+from jax import jacobian, lax, jit
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+@jit
 def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     """
     Wake evaluation is performed using a simplified vortex wake method for Fidelity Zero, 
