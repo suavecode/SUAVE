@@ -26,6 +26,8 @@ from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append
 from SUAVE.Core import Data , Units, to_numpy
 import copy
 
+from SUAVE.Components.Energy.Converters import Rotor as rotor_class
+
 
 # ----------------------------------------------------------------------
 #  Network
@@ -194,7 +196,7 @@ class Battery_Propeller(Network):
                 prop.inputs.omega           = motor.outputs.omega 
                 
                 # step 4
-                F, Q, P, Cp, outputs, etap = to_numpy(prop.spin(conditions))
+                F, Q, P, Cp, outputs, etap = to_numpy(rotor_class.spin(prop,conditions))
                 
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta        = conditions.propulsion.throttle[:,0,None]

@@ -14,6 +14,7 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_wake_contraction_
 
 # package imports
 from jax import numpy as jnp
+from jax.lax import cond
 
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
@@ -55,8 +56,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     # dimensions for analysis                      
     Nr   = len(r)                   # number of radial stations
-    m    = len(omega)                # number of control points
-    B    = int(B)
+    m    = len(omega)               # number of control points
 
     # Compute blade angles starting from each of Na azimuthal stations, shape: (Na,B)
     azi          = jnp.linspace(0,2*jnp.pi,Na+1)[:-1]
@@ -71,7 +71,6 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # Calculate additional wake properties
     dt    = (azi[1]-azi[0])/omega[0][0]
     nts   = int(tsteps_per_rot*n_rotations)
-    dt    = int(dt)
     
     # Compute properties for each wake timestep
     ts                = jnp.linspace(0,dt*(nts-1),nts) 
@@ -173,7 +172,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     y_c_4_twisted = jnp.sin(beta)*x_c_4_airfoils + jnp.cos(beta)*y_c_4_airfoils  
     
     # transform coordinates from airfoil frame to rotor frame
-    xte = jnp.tile(jnp.atleast_2d(yte_twisted), (B,1))
+    xte       = jnp.tile(jnp.atleast_2d(yte_twisted), (B,1))
     xte_rotor = jnp.tile(xte[None,:,:,None], (m,1,1,nts))  
     yte_rotor = -jnp.tile(xte_twisted[None,None,:,None],(m,B,1,1))*jnp.cos(panel_azimuthal_positions)
     zte_rotor = jnp.tile(xte_twisted[None,None,:,None],(m,B,1,1))*jnp.sin(panel_azimuthal_positions)
@@ -224,35 +223,9 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     VD, WD = initialize_distributions(Nr, Na, B, nts, m,VD)
     
     # ( azimuthal start index, control point  , blade number , location on blade, time step )
-    if rot==-1:
-        # panels ordered root to tip, A for inner-most panel edge
-        VD.Wake.XA1 = VD.Wake.XA1.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1 , :-1 ])
-        VD.Wake.YA1 = VD.Wake.YA1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1 , :-1 ])
-        VD.Wake.ZA1 = VD.Wake.ZA1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1 , :-1 ])
-        VD.Wake.XA2 = VD.Wake.XA2.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1 ,  1: ])
-        VD.Wake.YA2 = VD.Wake.YA2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1 ,  1: ])
-        VD.Wake.ZA2 = VD.Wake.ZA2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1 ,  1: ])
-        VD.Wake.XB1 = VD.Wake.XB1.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1:  , :-1 ])
-        VD.Wake.YB1 = VD.Wake.YB1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1:  , :-1 ])
-        VD.Wake.ZB1 = VD.Wake.ZB1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1:  , :-1 ])
-        VD.Wake.XB2 = VD.Wake.XB2.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1:  ,  1: ])
-        VD.Wake.YB2 = VD.Wake.YB2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1:  ,  1: ])
-        VD.Wake.ZB2 = VD.Wake.ZB2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1:  ,  1: ])
-    else:            
-        # positive rotation reverses the A,B nomenclature of the panel
-        VD.Wake.XA1 = VD.Wake.XA1.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1: , :-1 ])
-        VD.Wake.YA1 = VD.Wake.YA1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1: , :-1 ])
-        VD.Wake.ZA1 = VD.Wake.ZA1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1: , :-1 ])
-        VD.Wake.XA2 = VD.Wake.XA2.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1: ,  1: ])
-        VD.Wake.YA2 = VD.Wake.YA2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1: ,  1: ])
-        VD.Wake.ZA2 = VD.Wake.ZA2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1: ,  1: ])
-        VD.Wake.XB1 = VD.Wake.XB1.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1  , :-1 ])
-        VD.Wake.YB1 = VD.Wake.YB1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1  , :-1 ])
-        VD.Wake.ZB1 = VD.Wake.ZB1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1  , :-1 ])
-        VD.Wake.XB2 = VD.Wake.XB2.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1  ,  1: ])
-        VD.Wake.YB2 = VD.Wake.YB2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1  ,  1: ])
-        VD.Wake.ZB2 = VD.Wake.ZB2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1  ,  1: ])
-        
+    true_fun  = lambda VD: true(VD,B,X_pts,Y_pts,Z_pts)
+    false_fun = lambda VD: false(VD,B,X_pts,Y_pts,Z_pts)
+    VD        = cond(rot==-1,true_fun,false_fun,VD)
 
     VD.Wake.GAMMA = VD.Wake.GAMMA.at[:,:,0:B,:,:].set(Gamma) 
     
@@ -359,3 +332,42 @@ def initialize_distributions(Nr, Na, B, n_wts, m, VD):
 
  
     return VD, WD
+
+
+def true(VD,B,X_pts,Y_pts,Z_pts):
+    
+    # panels ordered root to tip, A for inner-most panel edge
+    VD.Wake.XA1 = VD.Wake.XA1.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1 , :-1 ])
+    VD.Wake.YA1 = VD.Wake.YA1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1 , :-1 ])
+    VD.Wake.ZA1 = VD.Wake.ZA1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1 , :-1 ])
+    VD.Wake.XA2 = VD.Wake.XA2.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1 ,  1: ])
+    VD.Wake.YA2 = VD.Wake.YA2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1 ,  1: ])
+    VD.Wake.ZA2 = VD.Wake.ZA2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1 ,  1: ])
+    VD.Wake.XB1 = VD.Wake.XB1.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1:  , :-1 ])
+    VD.Wake.YB1 = VD.Wake.YB1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1:  , :-1 ])
+    VD.Wake.ZB1 = VD.Wake.ZB1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1:  , :-1 ])
+    VD.Wake.XB2 = VD.Wake.XB2.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1:  ,  1: ])
+    VD.Wake.YB2 = VD.Wake.YB2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1:  ,  1: ])
+    VD.Wake.ZB2 = VD.Wake.ZB2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1:  ,  1: ])    
+    
+    
+    return VD
+
+def false(VD,B,X_pts,Y_pts,Z_pts):
+    
+    # positive rotation reverses the A,B nomenclature of the panel
+    VD.Wake.XA1 = VD.Wake.XA1.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1: , :-1 ])
+    VD.Wake.YA1 = VD.Wake.YA1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1: , :-1 ])
+    VD.Wake.ZA1 = VD.Wake.ZA1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1: , :-1 ])
+    VD.Wake.XA2 = VD.Wake.XA2.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1: ,  1: ])
+    VD.Wake.YA2 = VD.Wake.YA2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1: ,  1: ])
+    VD.Wake.ZA2 = VD.Wake.ZA2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1: ,  1: ])
+    VD.Wake.XB1 = VD.Wake.XB1.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1  , :-1 ])
+    VD.Wake.YB1 = VD.Wake.YB1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1  , :-1 ])
+    VD.Wake.ZB1 = VD.Wake.ZB1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1  , :-1 ])
+    VD.Wake.XB2 = VD.Wake.XB2.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1  ,  1: ])
+    VD.Wake.YB2 = VD.Wake.YB2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1  ,  1: ])
+    VD.Wake.ZB2 = VD.Wake.ZB2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1  ,  1: ])    
+    
+    
+    return VD

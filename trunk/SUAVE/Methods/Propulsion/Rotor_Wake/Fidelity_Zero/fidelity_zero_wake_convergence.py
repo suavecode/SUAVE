@@ -4,10 +4,18 @@
 # Created:  Feb 2022, R. Erhard
 # Modified: 
 
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
-import numpy as np
 import jax.numpy as jnp
 from jax import jacobian, lax, jit
+from SUAVE.Methods.Propulsion.Rotor_Wake.Common import simple_newton
+
+# ----------------------------------------------------------------------
+# Wake Convergence
+# ----------------------------------------------------------------------
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 @jit
@@ -41,13 +49,11 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     
     """        
     
-    # Unpack some wake inputs
-    U      = wake_inputs.velocity_total
-
-    PSI    = jnp.ones_like(U).flatten()
+    # Setup
+    PSI    = jnp.ones_like(wake_inputs.velocity_total).flatten()
+    jac    = jacobian(iteration)
     
-    jac = jacobian(iteration)
-    
+    # Solve!
     PSI_final, ii = simple_newton(iteration,jac,PSI,args=(wake_inputs,rotor))
 
     # Calculate the velocities given PSI
@@ -108,7 +114,7 @@ def iteration(PSI, wake_inputs, rotor):
     cl_sur   = rotor.airfoil_cl_surrogates
     cd_sur   = rotor.airfoil_cd_surrogates    
 
-    PSI    = jnp.reshape(PSI,jnp.shape(U))
+    PSI      = jnp.reshape(PSI,jnp.shape(U))
 
     # compute velocities
     sin_psi      = jnp.sin(PSI)
@@ -124,7 +130,7 @@ def iteration(PSI, wake_inputs, rotor):
     lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
     # compute Newton residual on circulation
-    Gamma       = vt*(4.*np.pi*r/B)*F*(1.+(4.*lamdaw*R/(np.pi*B*r))*(4.*lamdaw*R/(np.pi*B*r)))**0.5
+    Gamma       = vt*(4.*jnp.pi*r/B)*F*(1.+(4.*lamdaw*R/(jnp.pi*B*r))*(4.*lamdaw*R/(jnp.pi*B*r)))**0.5
     Rsquiggly   = Gamma - 0.5*W*c*Cl
 
     return Rsquiggly.flatten()
@@ -172,118 +178,6 @@ def va_vt(PSI, wake_inputs, rotor):
     return va, vt
 
 
-def simple_newton(function,jac,intial_x,tol=1e-8,args=()):
-    """
-    Performs the inside of the while loop in a newton iteration
-
-    Assumptions:
-    N/A
-
-    Source:
-    N/A
-
-    Inputs:
-
-
-    Outputs:
-
-
-    """             
-    
-    # Set initials and pack into list
-    ii   = 1
-    Xn   = intial_x.flatten()
-    Xnp1 = intial_x.flatten()
-    damping_factor = 1.
-    R    = 1.
-    Full_vector = [Xn,Xnp1,R,ii,damping_factor]
-    
-    cond_fun = lambda Full_vector:cond(Full_vector,tol,function,jac,*args)
-    inner_newton_fun = lambda Full_vector:inner_newton(Full_vector,function,jac,*args)
-    
-    Full_vector = lax.while_loop(cond_fun, inner_newton_fun, Full_vector)
-
-    # Unpack the final versioon
-    Xnp1 = Full_vector[1]
-    ii   = Full_vector[3]
-
-    return Xnp1, ii
-
-
-def cond(Full_vector,tol,function,jac,*args):
-    """
-    Performs the inside of the while loop in a newton iteration
-
-    Assumptions:
-    N/A
-
-    Source:
-    N/A
-
-    Inputs:
-
-
-    Outputs:
-
-
-    """      
-    
-    Full_vector = inner_newton(Full_vector,function,jac,*args)
-    R           = Full_vector[2]
-    ii          = Full_vector[3]
-    
-    # The other condition is that there have been too many iterations
-    cond1 = R<tol
-    cond2 = ii>1000
-    
-    full_cond = jnp.logical_not(cond1 | cond2)
-    
-    return full_cond
-    
-
-def inner_newton(Full_vector,function,jac,*args):
-    """
-    Performs the inside of the while loop in a newton iteration
-
-    Assumptions:
-    N/A
-
-    Source:
-    N/A
-
-    Inputs:
-
-
-    Outputs:
-
-
-    """       
-    
-    # Unpack the full vector
-    df = Full_vector[4] # damping factor
-    Xn = Full_vector[1] # The newest one!
-    ii = Full_vector[3] # number of iterations
-    
-    # Calculate the functional value and the derivative
-    f    = jnp.array(function(Xn,*args)).flatten()
-    fp   = jnp.diagonal(jnp.array(jac(Xn,*args))).flatten()
-    
-    # Update to the new point
-    Xnp1 = Xn - df*f/fp
-
-    # Take the residual
-    R  = jnp.max(jnp.abs(Xnp1-Xn))
-    
-    # Update the state
-    true_fun  = lambda df: df/2
-    false_fun = lambda df: df
-    df = lax.cond((R<1e-4)|(ii>8), true_fun, false_fun, df)
-
-    ii+=1    
-    
-    # Pack the full vector
-    Full_vector = [Xn,Xnp1,R,ii,df]
 
     
-    return Full_vector
-    
+

@@ -11,7 +11,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 # package imports
-import numpy as np
+import jax.numpy as jnp
 from scipy.interpolate import interp1d
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
@@ -51,17 +51,17 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         props.propeller = prop
 
     # compute radial blade section locations based on initial timestep offset
-    azi_step = 2*np.pi/(Na+1)
+    azi_step = 2*jnp.pi/(Na+1)
     dt       = azi_step/omega[0][0]
     t0       = dt*init_timestep_offset
 
     # set shape of velocitie arrays
-    Va = np.zeros((cpts,Nr,Na))
-    Vt = np.zeros((cpts,Nr,Na))
+    Va = jnp.zeros((cpts,Nr,Na))
+    Vt = jnp.zeros((cpts,Nr,Na))
     
     for i in range(Na):
         # increment blade angle to new azimuthal position 
-        blade_angle   = -rot*(omega[0]*t0 + i*(2*np.pi/(Na)))  # axial view of rotor, negative rotation --> positive blade angle
+        blade_angle   = -rot*(omega[0]*t0 + i*(2*jnp.pi/(Na)))  # axial view of rotor, negative rotation --> positive blade angle
     
         #----------------------------------------------------------------
         #Compute the wake-induced velocities at propeller blade
@@ -76,7 +76,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         VD.ZC = (Zb[1:] + Zb[:-1])/2
         VD.XC = (Xb[1:] + Xb[:-1])/2
          
-        VD.n_cp = np.size(VD.YC)
+        VD.n_cp = jnp.size(VD.YC)
 
         # Compute induced velocities at blade from the helical fixed wake
         VD.Wake_collapsed = WD
@@ -105,8 +105,8 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         wp = w_r(r)       
 
         # Update velocities at the disc
-        Va[:,:,i]  = up
-        Vt[:,:,i]  = -rot*(vp*(np.cos(blade_angle)) - wp*(np.sin(blade_angle)) )  # velocity component in direction of rotation     
+        Va = Va.at[:,:,i].set(up)
+        Vt = Vt.at[:,:,i].set(rot*(vp*(jnp.cos(blade_angle)) - wp*(jnp.sin(blade_angle)) ))  # velocity component in direction of rotation     
     
     prop.vortex_distribution = VD
     

@@ -20,6 +20,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import
 import copy
 import numpy as np
 from jax.tree_util import register_pytree_node_class
+from jax import jit
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -60,6 +61,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.tag                        = 'rotor_wake_1'
         self.wake_method                = 'Fidelity_One'
         self.wake_vortex_distribution   = Data()
+        self.vortex_distribution        = Data()
         self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
         self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
         self.vtk_save_loc               = None       # location to save vtk outputs of wake
@@ -69,18 +71,15 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings.number_steps_per_rotation  = 24
         self.wake_settings.initial_timestep_offset    = 0.    # initial timestep
         
-        self.wake_settings.static_keys                = ['number_steps_per_rotation']
-        
+        self.wake_settings.static_keys                = ['number_steps_per_rotation','number_rotor_rotations']
         
         # wake convergence criteria
         self.maximum_convergence_iteration            = 10.
         self.axial_velocity_convergence_tolerance     = 1e-2
         
         # flags for slipstream interaction
-        self.slipstream                 = False
-        self.verbose                    = True
-        
-        
+        self.slipstream                               = False
+
         
     def initialize(self,rotor,conditions):
         """
@@ -117,13 +116,10 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # match the azimuthal discretization betwen rotor and wake
         if self.wake_settings.number_steps_per_rotation  != rotor.number_azimuthal_stations:
             self.wake_settings.number_steps_per_rotation = rotor.number_azimuthal_stations
-            
-            if self.verbose:
-                print("Wake azimuthal discretization does not match rotor discretization. \
-                Resetting wake to match rotor of Na="+str(rotor.number_azimuthal_stations))
         
         return
     
+    @jit
     def evaluate(self,rotor,wake_inputs,conditions):
         """
         Wake evaluation is performed using a semi-prescribed vortex wake (PVW) method for Fidelity One.
@@ -211,7 +207,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # Expand
         wake_V_ind = np.zeros((ctrl_pts,geometry.vortex_distribution.n_cp,3))
-        wake_V_ind[:,slipstream_vd_ids,:] = rot_V_wake_ind
+        wake_V_ind = wake_V_ind.at[:,slipstream_vd_ids,:].set(rot_V_wake_ind)
         
             
         return wake_V_ind 

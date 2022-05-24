@@ -28,7 +28,7 @@ from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelit
 
 def main():
 
-    test_1()
+    #test_1()
     test_2()
 
     return
