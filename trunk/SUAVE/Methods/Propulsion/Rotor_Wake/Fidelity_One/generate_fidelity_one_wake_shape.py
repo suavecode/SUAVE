@@ -214,8 +214,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     Z_pts = np.append(z_c_4[:,:,:,:,0][:,:,:,:,None], Z_pts, axis=4)
     
     # Rotate from prop frame to body frame
-    alpha = rotor.orientation_euler_angles[1] + rotor.inputs.y_axis_rotation
-    rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
+    rots = rotor.body_to_prop_vel()[0]
     x_o = X_pts - rotor.origin[0][0]
     y_o = Y_pts - rotor.origin[0][1]
     z_o = Z_pts - rotor.origin[0][2]

@@ -195,12 +195,15 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 wing_instance = wing
                 wing_instance_idx = i
             if nmw == 1:
-                print("No wing specified for slipstream analysis. Using '"+ wing_instance.tag +"'.")
+                if self.verbose:
+                    print("No wing specified for slipstream analysis. Using '"+ wing_instance.tag +"'.")
                 pass
             elif nmw>1:
-                print("No wing specified for slipstream analysis. Multiple main wings in vehicle, using '"+ wing_instance.tag +"'.")             
+                if self.verbose:
+                    print("No wing specified for slipstream analysis. Multiple main wings in vehicle, using '"+ wing_instance.tag +"'.")             
             else:
-                print("No wing specified for slipstream analysis. No main wing defined, using '"+ wing.tag +"'.")
+                if self.verbose:
+                    print("No wing specified for slipstream analysis. No main wing defined, using '"+ wing.tag +"'.")
                 wing_instance = wing 
                 
                 
