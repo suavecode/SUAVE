@@ -17,6 +17,7 @@ from jax import jit
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
 #@jit
 def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
+
     """
     Assumptions:
         None
@@ -43,6 +44,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     Nr            = len(prop.chord_distribution)
     r             = prop.radius_distribution
     rot           = prop.rotation
+    WD            = wake.vortex_distribution
 
     # compute radial blade section locations based on initial timestep offset
     azi_step = 2*jnp.pi/(Na+1)
@@ -69,9 +71,9 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         #----------------------------------------------------------------
         #set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
         r    = prop.radius_distribution 
-        Yb   = wake.wake_vortex_distribution.Yblades_cp[i,0,0,:,0]
-        Zb   = wake.wake_vortex_distribution.Zblades_cp[i,0,0,:,0]
-        Xb   = wake.wake_vortex_distribution.Xblades_cp[i,0,0,:,0]
+        Yb   = wake.vortex_distribution.reshaped_wake.Yblades_cp[i,0,0,:,0]
+        Zb   = wake.vortex_distribution.reshaped_wake.Zblades_cp[i,0,0,:,0]
+        Xb   = wake.vortex_distribution.reshaped_wake.Xblades_cp[i,0,0,:,0]
         
         VD.YC = (Yb[1:] + Yb[:-1])/2
         VD.ZC = (Zb[1:] + Zb[:-1])/2

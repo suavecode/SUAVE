@@ -94,13 +94,13 @@ class Rotor(Energy_Component):
         self.sol_tolerance                = 1e-10
         self.design_power_coefficient     = 0.01
 
-
         self.nonuniform_freestream     = False
         self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
         self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
         
         self.start_angle               = 0.0      # angle of first blade from vertical
+        self.start_angle_idx           = 0        # azimuthal index at which the blade is started
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False

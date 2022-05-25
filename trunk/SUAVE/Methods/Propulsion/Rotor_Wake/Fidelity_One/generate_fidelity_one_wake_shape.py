@@ -38,16 +38,15 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     R                = rotor.tip_radius
     r                = rotor.radius_distribution 
     c                = rotor.chord_distribution 
-    beta             = rotor.twist_distribution
+    beta             = rotor.twist_distribution + rotor.inputs.pitch_command
     B                = rotor.number_of_blades  
-    
     rotor_outputs    = rotor.outputs
     Na               = int(rotor.number_azimuthal_stations)
     Nr               = int(rotor.outputs.number_radial_stations)
     omega            = rotor_outputs.omega                               
-    va               = rotor_outputs.disc_axial_induced_velocity 
+    va               = rotor_outputs.disc_axial_induced_velocity
     V_inf            = rotor_outputs.velocity
-    gamma            = rotor_outputs.disc_circulation   
+    gamma            = rotor_outputs.disc_circulation
     rot              = rotor.rotation
     
     # apply rotation direction to twist and chord distribution
@@ -220,7 +219,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # Initialize vortex distribution and arrays with required matrix sizes
     VD = Data()
     rotor.vortex_distribution = VD        
-    VD, WD = initialize_distributions(Nr, Na, B, nts, m,VD)
+    VD = initialize_distributions(Nr, Na, B, nts, m,VD)
     
     # ( azimuthal start index, control point  , blade number , location on blade, time step )
     true_fun  = lambda VD: true(VD,B,X_pts,Y_pts,Z_pts)
@@ -230,22 +229,22 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     VD.Wake.GAMMA = VD.Wake.GAMMA.at[:,:,0:B,:,:].set(Gamma) 
     
     # Append wake geometry and vortex strengths to each individual propeller
-    wake.wake_vortex_distribution   = VD.Wake
+    wake.vortex_distribution.reshaped_wake   = VD.Wake
     
     # append trailing edge locations
-    wake.wake_vortex_distribution.Xblades_te = X_pts[:,0,:,:,0]
-    wake.wake_vortex_distribution.Yblades_te = Y_pts[:,0,:,:,0]
-    wake.wake_vortex_distribution.Zblades_te = Z_pts[:,0,:,:,0]
+    wake.vortex_distribution.reshaped_wake.Xblades_te = X_pts[:,0,:,:,0]
+    wake.vortex_distribution.reshaped_wake.Yblades_te = Y_pts[:,0,:,:,0]
+    wake.vortex_distribution.reshaped_wake.Zblades_te = Z_pts[:,0,:,:,0]
 
     # append quarter chord lifting line point locations        
-    wake.wake_vortex_distribution.Xblades_c_4 = x_c_4_rotor 
-    wake.wake_vortex_distribution.Yblades_c_4 = y_c_4_rotor
-    wake.wake_vortex_distribution.Zblades_c_4 = z_c_4_rotor
+    wake.vortex_distribution.reshaped_wake.Xblades_c_4 = x_c_4_rotor
+    wake.vortex_distribution.reshaped_wake.Yblades_c_4 = y_c_4_rotor
+    wake.vortex_distribution.reshaped_wake.Zblades_c_4 = z_c_4_rotor
     
     # append three-quarter chord evaluation point locations        
-    wake.wake_vortex_distribution.Xblades_cp = x_c_4 
-    wake.wake_vortex_distribution.Yblades_cp = y_c_4 
-    wake.wake_vortex_distribution.Zblades_cp = z_c_4 
+    wake.vortex_distribution.reshaped_wake.Xblades_cp = x_c_4 
+    wake.vortex_distribution.reshaped_wake.Yblades_cp = y_c_4 
+    wake.vortex_distribution.reshaped_wake.Zblades_cp = z_c_4 
 
     # Compress Data into 1D Arrays  
     mat6_size = (Na,m,nts*B*(Nr-1)) 
@@ -265,10 +264,8 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     WD.GAMMA  =  jnp.reshape(VD.Wake.GAMMA,mat6_size)
     
     rotor.wake_skew_angle = wake_skew_angle
-    WD.reshaped_wake = wake.wake_vortex_distribution
-            
-       
-    return WD
+    
+    return wake, rotor
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
 def initialize_distributions(Nr, Na, B, n_wts, m, VD):
@@ -350,7 +347,6 @@ def true(VD,B,X_pts,Y_pts,Z_pts):
     VD.Wake.YB2 = VD.Wake.YB2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1:  ,  1: ])
     VD.Wake.ZB2 = VD.Wake.ZB2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1:  ,  1: ])    
     
-    
     return VD
 
 def false(VD,B,X_pts,Y_pts,Z_pts):
@@ -368,6 +364,5 @@ def false(VD,B,X_pts,Y_pts,Z_pts):
     VD.Wake.XB2 = VD.Wake.XB2.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1  ,  1: ])
     VD.Wake.YB2 = VD.Wake.YB2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1  ,  1: ])
     VD.Wake.ZB2 = VD.Wake.ZB2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1  ,  1: ])    
-    
     
     return VD

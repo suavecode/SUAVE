@@ -63,12 +63,12 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     rotor.outputs.disc_axial_induced_velocity = jnp.reshape(Fva_final,jnp.shape(rotor.outputs.disc_axial_induced_velocity))     
         
     # save converged wake:
-    WD  = generate_fidelity_one_wake_shape(wake,rotor)
+    wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
     
     # Use the converged solution
     va, vt, F = va_vt(wake, wake_inputs, rotor)
     
-    return WD, va, vt
+    return wake.vortex_distribution, va, vt
 
 
 # ----------------------------------------------------------------------
