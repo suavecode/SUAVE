@@ -203,14 +203,21 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
     #---------------------------
     # Save wing results to vtk
     #---------------------------
-    if 'VLM_wings' in vehicle.vortex_distribution.keys():
-        wings      = vehicle.vortex_distribution.VLM_wings
-        wing_names = list(wings.keys())
-        n_wings    = len(wing_names)        
-    else:
-        wings      = vehicle.wings
-        wing_names = list(wings.keys())
-        n_wings    = len(wing_names)
+    try:
+        VD = vehicle.vortex_distribution
+        vdPresent = True
+    except:
+        vdPresent = False
+        
+    wings      = vehicle.wings
+    wing_names = list(wings.keys())
+    n_wings    = len(wing_names)        
+    if vdPresent:
+        if 'VLM_wings' in vehicle.vortex_distribution.keys():
+            wings      = vehicle.vortex_distribution.VLM_wings
+            wing_names = list(wings.keys())
+            n_wings    = len(wing_names)
+
     
     for i in range(n_wings):
         if save_loc ==None:
@@ -223,9 +230,6 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
 
         sep  = filename.rfind('.')
         file = filename[0:sep]+str(wing_names[i])+filename[sep:]
-        file2 = filename2[0:sep]+str(wing_names[i])+filename2[sep:]
-        
-            
         save_wing_vtk(vehicle, wings[wing_names[i]], VLM_settings, file, Results,time_step,origin_offset)
         
 
