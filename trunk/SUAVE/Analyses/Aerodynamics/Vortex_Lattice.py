@@ -33,6 +33,9 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import
 import numpy as np 
 from scipy.interpolate import RectBivariateSpline, RegularGridInterpolator
 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution       import generate_vortex_distribution 
+
+
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
@@ -160,6 +163,11 @@ class Vortex_Lattice(Aerodynamics):
         settings.discretize_control_surfaces= dcs
         settings.model_fuselage             = mf
         settings.model_nacelle              = mn
+        
+        # build the vortex distribution
+        # generate vortex distribution (VLM steps 1-9)
+        geometry           = self.geometry
+        self.geometry.VD   = generate_vortex_distribution(geometry,settings)          
         
         # If we are using the surrogate
         if use_surrogate == True: 

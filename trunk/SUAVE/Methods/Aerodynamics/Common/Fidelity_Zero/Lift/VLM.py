@@ -13,7 +13,6 @@
 import numpy as np 
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution       import generate_vortex_distribution 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
 
 # ----------------------------------------------------------------------
@@ -184,10 +183,10 @@ def VLM(conditions,settings,geometry):
     # ---------------------------------------------------------------------------------------
     # STEPS 1-9: Generate Panelization and Vortex Distribution
     # ------------------ --------------------------------------------------------------------    
-    # generate vortex distribution (VLM steps 1-9)
-    VD   = generate_vortex_distribution(geometry,settings)  
+    
     
     # Unpack vortex distribution
+    VD           = geometry.VD
     n_cp         = VD.n_cp 
     n_sw         = VD.n_sw
     CHORD        = VD.chord_lengths
