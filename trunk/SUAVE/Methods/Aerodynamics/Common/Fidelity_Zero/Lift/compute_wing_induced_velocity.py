@@ -14,6 +14,7 @@
 #import numpy as np 
 import jax.numpy as jnp
 from jax.numpy import where as w
+from jax.numpy import newaxis as na
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_wing_induced_velocity(VD,mach,compute_EW=False):
@@ -182,9 +183,9 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     if jnp.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
         U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)
-        U = w(sub,U_sub,U)
-        V = w(sub,V_sub,V)
-        W = w(sub,W_sub,W)
+        U = w(sub[:,na,na],U_sub,U)
+        V = w(sub[:,na,na],V_sub,V)
+        W = w(sub[:,na,na],W_sub,W)
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX. some values computed in a preprocessing section in VLM
     sup         = (B2>=0)[:,0,0]

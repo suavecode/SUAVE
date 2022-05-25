@@ -14,6 +14,7 @@
 import numpy as np
 import jax.numpy as jnp
 from jax.numpy import where as w
+from jax.numpy import newaxis as na
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
@@ -315,7 +316,7 @@ def VLM(conditions,settings,geometry):
     GFX    = jnp.tile((1 /CHORD), (len_mach,1))
     GANT   = strip_cumsum(GFX*GAMMA, chord_breaks, RNMAX[LE_ind])
     GANT   = jnp.roll(GANT,1)
-    GANT[:,LE_ind]   = 0 
+    GANT   = w(LE_ind[na,:],0,GANT) 
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
     COS_DL = (YBH-YAH)[LE_ind]/D
@@ -348,7 +349,7 @@ def VLM(conditions,settings,geometry):
     B2_LE = B2[:,LE_ind]
     T2    = TLE*TLE
     STB   = jnp.zeros_like(B2_LE)
-    STB[B2_LE<T2] = jnp.sqrt(T2[B2_LE<T2]-B2_LE[B2_LE<T2])
+    STB   = w(B2_LE<T2,np.sqrt(T2-B2_LE),STB)
     
     # DL IS THE DIHEDRAL ANGLE (WITH RESPECT TO THE X-Y PLANE) OF
     # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES. 
@@ -410,14 +411,14 @@ def VLM(conditions,settings,geometry):
     SPC  = K_SPC*jnp.ones_like(DCP_LE)
     
     # If the vehicle is subsonic and there is vortex lift enabled then SPC changes to -1
-    VL   = jnp.repeat(VD.vortex_lift,n_sw)
-    m_b  = jnp.atleast_2d(mach[:,0]<1.)
-    SPC_cond      = VL*m_b.T
-    SPC  = w(SPC_cond,-1.,SPC)
-    SPC           = SPC * exposed_leading_edge_flag
+    VL       = jnp.repeat(jnp.array(VD.vortex_lift),n_sw)
+    m_b      = jnp.atleast_2d(mach[:,0]<1.)
+    SPC_cond = VL*m_b.T
+    SPC      = w(SPC_cond,-1.,SPC)
+    SPC      = SPC * exposed_leading_edge_flag
     
-    CLE  = CLE + 0.5* DCP_LE *jnp.sqrt(XLE[LE_ind])
-    CSUC = 0.5*jnp.pi*jnp.abs(SPC)*(CLE**2)*STB 
+    CLE      = CLE + 0.5* DCP_LE *jnp.sqrt(XLE[LE_ind])
+    CSUC     = 0.5*jnp.pi*jnp.abs(SPC)*(CLE**2)*STB 
 
     # TFX AND TFZ ARE THE COMPONENTS OF LEADING EDGE FORCE VECTOR ALONG
     # ALONG THE X AND Z BODY AXES.   
@@ -430,8 +431,8 @@ def VLM(conditions,settings,geometry):
     TFZ  = -1.*XSIN
 
     # If a negative number is used for SPC a different correction is used. See VORLAX documentation for Lan reference
-    TFX  = w(SPC<0,XSIN[SPC<0]*jnp.sign(DCP_LE)[SPC<0],TFX)
-    TFZ  = w(SPC<0,jnp.abs(XCOS)[SPC<0]*jnp.sign(DCP_LE)[SPC<0],TFZ)
+    TFX  = w(SPC<0,XSIN*jnp.sign(DCP_LE),TFX)
+    TFZ  = w(SPC<0,jnp.abs(XCOS)*jnp.sign(DCP_LE),TFZ)
 
     CAXL = CAXL - TFX*CSUC
     
@@ -477,8 +478,8 @@ def VLM(conditions,settings,geometry):
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES
     cdi_y    = DRAG/CHORD_strip/ES
-    CL_wing  = jnp.add.reduceat(LIFT,span_breaks,axis=1)/SURF
-    CDi_wing = jnp.add.reduceat(DRAG,span_breaks,axis=1)/SURF
+    CL_wing  = np.add.reduceat(LIFT,span_breaks,axis=1)/SURF
+    CDi_wing = np.add.reduceat(DRAG,span_breaks,axis=1)/SURF
     alpha_i  = jnp.hsplit(jnp.arctan(cdi_y/cl_y),span_breaks[1:])
     
     # Now calculate total coefficients
