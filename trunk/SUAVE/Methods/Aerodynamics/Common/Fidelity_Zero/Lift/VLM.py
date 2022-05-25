@@ -11,8 +11,9 @@
 # ----------------------------------------------------------------------
 
 # package imports 
-import jax.numpy as jnp
 import numpy as np
+import jax.numpy as jnp
+from jax.numpy import where as w
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
@@ -412,7 +413,7 @@ def VLM(conditions,settings,geometry):
     VL   = jnp.repeat(VD.vortex_lift,n_sw)
     m_b  = jnp.atleast_2d(mach[:,0]<1.)
     SPC_cond      = VL*m_b.T
-    SPC[SPC_cond] = -1.
+    SPC  = w(SPC_cond,-1.,SPC)
     SPC           = SPC * exposed_leading_edge_flag
     
     CLE  = CLE + 0.5* DCP_LE *jnp.sqrt(XLE[LE_ind])
@@ -429,8 +430,8 @@ def VLM(conditions,settings,geometry):
     TFZ  = -1.*XSIN
 
     # If a negative number is used for SPC a different correction is used. See VORLAX documentation for Lan reference
-    TFX[SPC<0] = XSIN[SPC<0]*jnp.sign(DCP_LE)[SPC<0]
-    TFZ[SPC<0] = jnp.abs(XCOS)[SPC<0]*jnp.sign(DCP_LE)[SPC<0]
+    TFX  = w(SPC<0,XSIN[SPC<0]*jnp.sign(DCP_LE)[SPC<0],TFX)
+    TFZ  = w(SPC<0,jnp.abs(XCOS)[SPC<0]*jnp.sign(DCP_LE)[SPC<0],TFZ)
 
     CAXL = CAXL - TFX*CSUC
     
@@ -547,7 +548,7 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     # pick leading edge strip values for EW and reshape GAMMA -> gamma accordingly
     EW    = EW_small[: ,LE_ind, :]
     n_tot_strips = EW.shape[1]
-    gamma = np.array(np.split(np.repeat(GAMMA, n_tot_strips, axis=0), len_mach))
+    gamma = jnp.array(jnp.split(jnp.repeat(GAMMA, n_tot_strips, axis=0), len_mach))
     CLE = (EW*gamma).sum(axis=2)
     
     # Up till EFFINC, some of the following values were computed in compute_RHS_matrix().
@@ -555,7 +556,7 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
     # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
     # ARE XGIRO, YGIRO, AND ZGIRO. 
-    XGIRO = X - CHORD*XLE - np.repeat(XBAR, RNMAX[LE_ind])
+    XGIRO = X - CHORD*XLE - jnp.repeat(XBAR, RNMAX[LE_ind])
     YGIRO = rhs.YGIRO
     ZGIRO = rhs.ZGIRO
     
@@ -572,7 +573,7 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     #          LEADING EDGE.
     EFFINC = VX *rhs.SCNTL + VY *rhs.CCNTL *rhs.SID - VZ *rhs.CCNTL *rhs.COD 
     CLE = CLE - EFFINC[:,LE_ind] 
-    CLE = np.where(STB > 0, CLE /RNMAX[LE_ind] /STB, CLE)
+    CLE = jnp.where(STB > 0, CLE /RNMAX[LE_ind] /STB, CLE)
     
     return CLE
 
@@ -586,8 +587,8 @@ def strip_cumsum(arr, chord_breaks, strip_lengths):
     Assumptions:
     chordwise_breaks always starts at 0
     """    
-    cumsum  = np.cumsum(arr, axis=1)
+    cumsum  = jnp.cumsum(arr, axis=1)
     offsets = cumsum[:,chord_breaks-1]
-    offsets[:,0]  = 0
-    offsets = np.repeat(offsets, strip_lengths, axis=1)
+    offsets.at[:,0].set(0)
+    offsets = jnp.repeat(offsets, strip_lengths, axis=1)
     return cumsum - offsets

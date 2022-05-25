@@ -20,7 +20,7 @@
 # SUAVE imports
 import SUAVE
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data, to_numpy
 from SUAVE.Core import Units
  
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
@@ -668,7 +668,7 @@ def calculate_VLM(conditions,settings,geometry):
     wing_drags         = Data()
     wing_induced_angle = Data()
         
-    results = VLM(conditions,settings,geometry)
+    results = to_numpy(VLM(conditions,settings,geometry))
     total_lift_coeff          = results.CL
     total_induced_drag_coeff  = results.CDi
     CL_wing                   = results.CL_wing  

@@ -13,6 +13,7 @@
 # package imports 
 #import numpy as np 
 import jax.numpy as jnp
+from jax.numpy import where as w
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_wing_induced_velocity(VD,mach,compute_EW=False):
@@ -82,24 +83,24 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     D      = jnp.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
     COS_DL = (YBH-YAH)/D    
     DL     = jnp.arccos(COS_DL)
-    DL[DL>jnp.pi/2] = DL[DL>jnp.pi/2] - jnp.pi # This flips the dihedral angle for the other side of the wing
+    DL     = w(DL>(jnp.pi/2),DL - jnp.pi,DL) # This flips the dihedral angle for the other side of the wing
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # ------------------------------------------------------------------------------------------- 
     # If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
-    boolean = YAH>YBH
-    XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
-    YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]
-    ZA1[boolean], ZB1[boolean] = ZB1[boolean], ZA1[boolean]
-    XA2[boolean], XB2[boolean] = XB2[boolean], XA2[boolean]
-    YA2[boolean], YB2[boolean] = YB2[boolean], YA2[boolean]
-    ZA2[boolean], ZB2[boolean] = ZB2[boolean], ZA2[boolean]    
-    XAH[boolean], XBH[boolean] = XBH[boolean], XAH[boolean]
-    YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean] 
-    ZAH[boolean], ZBH[boolean] = ZBH[boolean], ZAH[boolean]
-
-    XA_TE[boolean], XB_TE[boolean] = XB_TE[boolean], XA_TE[boolean]
+    b = YAH>YBH
+    XA1, XB1= w(b,XB1,XA1), w(b,XA1,XB1)
+    YA1, YB1= w(b,YB1,YA1), w(b,YA1,YB1)
+    ZA1, ZB1= w(b,ZB1,ZA1), w(b,ZA1,ZB1)
+    XA2, XB2= w(b,XB2,XA2), w(b,XA2,XB2)
+    YA2, YB2= w(b,YB2,YA2), w(b,YA2,YB2)
+    ZA2, ZB2= w(b,ZB2,ZA2), w(b,ZA2,ZB2)
+    XAH, XBH= w(b,XBH,XAH), w(b,XAH,XBH)
+    YAH, YBH= w(b,YBH,YAH), w(b,YAH,YBH)
+    ZAH, ZBH= w(b,ZBH,ZAH), w(b,ZAH,ZBH)
+    
+    XA_TE, XB_TE= w(b,XB_TE,XA_TE), w(b,XA_TE,XB_TE)
     
     # These vortices will use AH and BH, rather than the typical location
     xa = XAH
@@ -180,8 +181,10 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     
     if jnp.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
-        U[sub], V[sub], W[sub] = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)   
-
+        U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)
+        U = w(sub,U_sub,U)
+        V = w(sub,V_sub,V)
+        W = w(sub,W_sub,W)
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX. some values computed in a preprocessing section in VLM
     sup         = (B2>=0)[:,0,0]
@@ -194,8 +197,14 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     RFLAG       = jnp.ones((n_mach,shape_1),dtype=jnp.int8)
     
     if jnp.sum(sup)>0:
-        U[sup], V[sup], W[sup], RFLAG[sup,:] = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
+        U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
                                                     X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)
+        U = w(sup,U_sup,U)
+        V = w(sup,V_sup,V)
+        W = w(sup,W_sup,W)
+        RFLAG[sup,:] = 1 # This one needs to be done too
+        
+        
          
     
     # Rotate into the vehicle frame and pack into a velocity matrix
@@ -267,22 +276,22 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     
     TOLSQ = jnp.broadcast_to(TOLSQ,jnp.shape(DENOM))
     
-    DENOM[DENOM<TOLSQ] = TOLSQ[DENOM<TOLSQ]
+    DENOM = w(DENOM<TOLSQ,TOLSQ,DENOM)
     
     FB1 = (T *X1 - B2 *Y1) /RAD1
     FT1 = (X1 + RAD1) /(RAD1 *RTV1)
-    FT1[RTV1<TOLSQ] = 0.
+    FT1 = w(RTV1<TOLSQ,0.,FT1)
     
     FB2 = (T *X2 - B2 *Y2) /RAD2
     FT2 = (X2 + RAD2) /(RAD2 *RTV2)
-    FT2[RTV2<TOLSQ] = 0.
+    FT2 = w(RTV2<TOLSQ,0.,FT2)
     
     QB = (FB1 - FB2) /DENOM
     ZETAPI = Z /CPI
     U = ZETAPI *QB
-    U[ZSQ<TOLSQ] = 0.
+    U = w(ZSQ<TOLSQ,0.,U)
     V = ZETAPI * (FT1 - FT2 - QB *T)
-    V[ZSQ<TOLSQ] = 0.
+    V = w(ZSQ<TOLSQ,0.,V)
     W = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI
     
     return U, V, W
@@ -343,15 +352,15 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     RAD1   = jnp.sqrt(XSQ1 - RO1)
     RAD2   = jnp.sqrt(XSQ2 - RO2)
     
-    RAD1[jnp.isnan(RAD1)] = 0. 
-    RAD2[jnp.isnan(RAD2)] = 0. 
+    RAD1    = w(jnp.isnan(RAD1),0.,RAD1) 
+    RAD2    = w(jnp.isnan(RAD2),0.,RAD2) 
     
     DENOM             = XTY * XTY + (T2 - B2) *ZSQ # The last part of this is the TBZ term
     SIGN              = jnp.ones(shape,dtype=jnp.int8)
-    SIGN[DENOM<0]     = -1.
+    SIGN              = w(DENOM<0,-1.,SIGN)
     TOLSQ             = jnp.broadcast_to(TOLSQ,shape)
     DENOM_COND        = jnp.abs(DENOM)<TOLSQ
-    DENOM[DENOM_COND] = SIGN[DENOM_COND]*TOLSQ[DENOM_COND]
+    DENOM             = w(DENOM_COND,SIGN[DENOM_COND]*TOLSQ[DENOM_COND],DENOM)
     
     # Create a boolean for various conditions for F1 that goes to zero
     bool1           = jnp.ones(shape,dtype=jnp.bool8)
@@ -365,13 +374,13 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     bool1[RO1>REPS] = False
     FB1 = (T*X1-B2*Y1)/FRAD
     FT1 = X1/(FRAD*RTV1)
-    FT1[RTV1<TOLSQ] = 0.
+    FT1 = w(RTV1<TOLSQ,0.,FT1)
     
     # Use the boolean to turn things off
-    FB1[jnp.isnan(FB1)] = 1.
-    FT1[jnp.isnan(FT1)] = 1.
-    FB1[jnp.isinf(FB1)] = 1.
-    FT1[jnp.isinf(FT1)] = 1.    
+    FB1 = w(jnp.isnan(FB1),1.,FB1)
+    FT1 = w(jnp.isnan(FT1),1.,FB1)
+    FB1 = w(jnp.isinf(FB1),1.,FB1)
+    FT1 = w(jnp.isinf(FT1),1.,FT1)
     FB1 = FB1*bool1
     FT1 = FT1*bool1
     
@@ -388,7 +397,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     bool2[RO2>REPS] = False
     FB2 = (T *X2 - B2 *Y2)/FRAD
     FT2 = X2 /(FRAD *RTV2)
-    FT2[RTV2<TOLSQ] = 0.
+    FT2 = w(RTV2<TOLSQ,0.,FT2)
     
     # Use the boolean to turn things off
     FB2[jnp.isnan(FB2)] = 1.
@@ -417,18 +426,18 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     else:
         W_in = []
 
-    U[in_plane] = 0.
-    V[in_plane] = 0.
-    W[in_plane] = W_in
+    U = w(in_plane, 0., U)
+    V = w(in_plane, 0., V)
+    W = w(in_plane, W_in, W)
     
     # DETERMINE IF TRANSVERSE VORTEX LEG OF HORSESHOE ASSOCIATED TO THE
     # CONTROL POINT UNDER CONSIDERATION IS SONIC (SWEPT PARALLEL TO MACH
     # LINE)? IF SO THEN RFLAG = 0.0, OTHERWISE RFLAG = 1.0.
     size   = shape[1]
     n_mach = shape[0]    
-    T2S = jnp.atleast_2d(T2[0,:])*jnp.ones((n_mach,1))
-    T2F = jnp.zeros((n_mach,size))
-    T2A = jnp.zeros((n_mach,size))
+    T2S    = jnp.atleast_2d(T2[0,:])*jnp.ones((n_mach,1))
+    T2F    = jnp.zeros((n_mach,size))
+    T2A    = jnp.zeros((n_mach,size))
     
     # Setup masks
     F_mask = jnp.ones((n_mach,size),dtype=jnp.bool8)
