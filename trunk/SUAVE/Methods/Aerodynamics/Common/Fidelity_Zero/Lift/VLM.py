@@ -162,10 +162,10 @@ def VLM(conditions,settings,geometry):
         z_m = z_cg
         
     # unpack conditions--------------------------------------------------------------
-    aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
-    mach = conditions.freestream.mach_number         # mach number
-    ones = jnp.atleast_2d(jnp.ones_like(mach)) 
-    len_mach = len(mach)
+    aoa       = conditions.aerodynamics.angle_of_attack   # angle of attack  
+    mach      = conditions.freestream.mach_number         # mach number
+    ones      = jnp.atleast_2d(jnp.ones_like(mach)) 
+    len_mach  = len(mach)
     
     #For angular values, VORLAX uses degrees by default to radians via DTR (degrees to rads). 
     #SUAVE uses radians and its Units system. All algular variables will be in radians or var*Units.degrees
@@ -341,8 +341,8 @@ def VLM(conditions,settings,geometry):
 
     # Flip coordinates on the other side of the wing
     boolean = YBH<0. 
-    XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
-    YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
+    XA1, XB1= w(boolean,XB1,XA1), w(boolean,XA1,XB1)
+    YAH, YBH= w(boolean,YBH,YAH), w(boolean,YAH,YBH)
 
     # Leading edge sweep. VORLAX does it panel by panel. This will be spanwise.
     TLE   = TAN_LE[:,LE_ind]

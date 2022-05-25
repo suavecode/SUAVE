@@ -203,11 +203,8 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
         U = w(sup,U_sup,U)
         V = w(sup,V_sup,V)
         W = w(sup,W_sup,W)
-        RFLAG[sup,:] = 1 # This one needs to be done too
-        
-        
-         
-    
+        RFLAG = w(sup[na,:], 1,RFLAG)
+
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
     
@@ -287,13 +284,13 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     FT2 = (X2 + RAD2) /(RAD2 *RTV2)
     FT2 = w(RTV2<TOLSQ,0.,FT2)
     
-    QB = (FB1 - FB2) /DENOM
+    QB     = (FB1 - FB2) /DENOM
     ZETAPI = Z /CPI
-    U = ZETAPI *QB
-    U = w(ZSQ<TOLSQ,0.,U)
-    V = ZETAPI * (FT1 - FT2 - QB *T)
-    V = w(ZSQ<TOLSQ,0.,V)
-    W = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI
+    U      = ZETAPI *QB
+    U      = w(ZSQ<TOLSQ,0.,U)
+    V      = ZETAPI * (FT1 - FT2 - QB *T)
+    V      = w(ZSQ<TOLSQ,0.,V)
+    W      = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI
     
     return U, V, W
 
@@ -352,16 +349,15 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     shape  = jnp.shape(RO1)
     RAD1   = jnp.sqrt(XSQ1 - RO1)
     RAD2   = jnp.sqrt(XSQ2 - RO2)
+    RAD1   = w(jnp.isnan(RAD1),0.,RAD1) 
+    RAD2   = w(jnp.isnan(RAD2),0.,RAD2) 
     
-    RAD1    = w(jnp.isnan(RAD1),0.,RAD1) 
-    RAD2    = w(jnp.isnan(RAD2),0.,RAD2) 
-    
-    DENOM             = XTY * XTY + (T2 - B2) *ZSQ # The last part of this is the TBZ term
-    SIGN              = jnp.ones(shape,dtype=jnp.int8)
-    SIGN              = w(DENOM<0,-1.,SIGN)
-    TOLSQ             = jnp.broadcast_to(TOLSQ,shape)
-    DENOM_COND        = jnp.abs(DENOM)<TOLSQ
-    DENOM             = w(DENOM_COND,SIGN[DENOM_COND]*TOLSQ[DENOM_COND],DENOM)
+    DENOM           = XTY * XTY + (T2 - B2) *ZSQ # The last part of this is the TBZ term
+    SIGN            = jnp.ones(shape,dtype=jnp.int8)
+    SIGN            = w(DENOM<0,-1.,SIGN)
+    TOLSQ           = jnp.broadcast_to(TOLSQ,shape)
+    DENOM_COND      = jnp.abs(DENOM)<TOLSQ
+    DENOM           = w(DENOM_COND,SIGN[DENOM_COND]*TOLSQ[DENOM_COND],DENOM)
     
     # Create a boolean for various conditions for F1 that goes to zero
     bool1           = jnp.ones(shape,dtype=jnp.bool8)
@@ -451,17 +447,17 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     T2A[F_mask] = T2S[A_mask]
     
     # Zero out terms on the LE and TE
-    T2F[:,TE_ind] = 0.
-    T2A[:,LE_ind]        = 0.
+    T2F = w(TE_ind[:,na],0.,T2F)
+    T2A = w(LE_ind[:,na],0.,T2A)
 
     TRANS = (B2[:,:,0]-T2F)*(B2[:,:,0]-T2A)
     
     RFLAG = jnp.ones((n_mach,size),dtype=jnp.int8)
-    RFLAG[TRANS<0] = 0.
+    RFLAG = w(TRANS<0,0.,RFLAG)
     
-    FLAG_bool          = jnp.zeros_like(TRANS,dtype=bool)
-    FLAG_bool[TRANS<0] = True
-    FLAG_bool          = jnp.reshape(FLAG_bool,(n_mach,size,-1))
+    FLAG_bool = jnp.zeros_like(TRANS,dtype=bool)
+    FLAG_bool = w(TRANS<0,True,FLAG_bool)
+    FLAG_bool = jnp.reshape(FLAG_bool,(n_mach,size,-1))
     
 
     # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
@@ -472,7 +468,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     T2      = jnp.broadcast_to(T2,shape)*eye
     B2_full = jnp.broadcast_to(B2,shape)*eye
     COX     = jnp.broadcast_to(COX,shape)*eye
-    WWAVE[B2_full>T2] = - 0.5 *jnp.sqrt(B2_full[B2_full>T2] -T2[B2_full>T2] )/COX[B2_full>T2] 
+    WWAVE   = w(B2_full>T2,- 0.5 *jnp.sqrt(B2_full -T2 )/COX,WWAVE)
 
     W = W + WWAVE    
     
@@ -484,7 +480,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     
     # Zero out the row
     FLAG_bool_rep     = jnp.broadcast_to(FLAG_bool,shape)
-    W[FLAG_bool_rep]  = 0. # Default to zero
+    W                 = w(FLAG_bool_rep,0.,W) # Default to zero
 
     # The self velocity goes to 2
     FLAG_bool_split   = jnp.array(jnp.split(FLAG_bool.ravel(),n_mach))
@@ -500,8 +496,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # The panels before and after go to -1
     FLAG_bool_bef = FLAG_bool_self - 1
     FLAG_bool_aft = FLAG_bool_self + 1
-    W[FLAG_bool_bef] = -1.
-    W[FLAG_bool_aft] = -1.
+    W             = w(FLAG_bool_bef,-1.,W)
+    W             = w(FLAG_bool_aft,-1.,W)
     
     W = jnp.reshape(W,shape)
 
@@ -550,10 +546,10 @@ def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
     TOL = jnp.tile(TOL,reps)
     XTY = jnp.tile(XTY,reps)
     
-    F1[jnp.abs(Y1)>TOL] = RAD1[jnp.abs(Y1)>TOL]/Y1[jnp.abs(Y1)>TOL]
-    F2[jnp.abs(Y2)>TOL] = RAD2[jnp.abs(Y2)>TOL]/Y2[jnp.abs(Y2)>TOL]
+    F1  = w(jnp.abs(Y1)>TOL,RAD1/Y1,F1)
+    F2  = w(jnp.abs(Y2)>TOL,RAD2/Y2,F2)
     
     W = jnp.zeros(shape)
-    W[jnp.abs(XTY)>TOL] = (-F1[jnp.abs(XTY)>TOL] + F2[jnp.abs(XTY)>TOL])/(XTY[jnp.abs(XTY)>TOL]*CPI)
+    W = w(jnp.abs(XTY)>TOL,(-F1+ F2)/(XTY*CPI),W)
 
     return W
