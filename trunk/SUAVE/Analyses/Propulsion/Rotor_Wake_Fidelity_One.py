@@ -148,8 +148,12 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # Initialize rotor with single pass of VW 
         rotor = self.initialize(rotor,conditions)
         
+        print('going into cconvergence')
+        
         # Converge on the Fidelity-One rotor wake shape
         WD, va, vt = fidelity_one_wake_convergence(self,rotor,wake_inputs)
+        
+        print('finished cconvergence')
         
         # Store wake shape
         self.vortex_distribution = WD

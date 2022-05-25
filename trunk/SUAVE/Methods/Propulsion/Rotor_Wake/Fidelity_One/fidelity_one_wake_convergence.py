@@ -46,19 +46,25 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     
     # converge on va for a semi-prescribed wake method
     
+    print('starting F1 Convergence')
+    
     # Pull out the newton end conditions
     tol   = wake.axial_velocity_convergence_tolerance
     limit = lax.cond(wake.semi_prescribed_converge,lambda : wake.maximum_convergence_iteration, lambda : 0.) 
         
     # assume a va by running once
-    va, vt, F = va_vt(wake, wake_inputs, rotor)
+    va, vt, F, rotor = va_vt(wake, wake_inputs, rotor)
     Fva       = F*va
 
     # Take the jacobian of the iteration loop
     jac = jacobian(iteration)
     
+    print('Jacobian is taken. Starting solver')
+    
     # Solve!
     Fva_final, ii = simple_newton(iteration,jac,Fva, tol=tol, limit=limit, args=(wake,wake_inputs,rotor))  
+    
+    print('Solution has been found')
     
     rotor.outputs.disc_axial_induced_velocity = jnp.reshape(Fva_final,jnp.shape(rotor.outputs.disc_axial_induced_velocity))     
         
@@ -67,6 +73,9 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     
     # Use the converged solution
     va, vt, F = va_vt(wake, wake_inputs, rotor)
+    
+    print('F1 Convergence Complete')
+        
     
     return wake.vortex_distribution, va, vt
 
@@ -93,6 +102,8 @@ def iteration(Fva,wake,wake_inputs,rotor):
 
     """    
     
+    print('Starting Iteration')
+    
     # update the axial disc velocity based on new va from HFW
     rotor.outputs.disc_axial_induced_velocity = jnp.reshape(Fva,jnp.shape(rotor.outputs.disc_axial_induced_velocity))     
     
@@ -108,7 +119,7 @@ def iteration(Fva,wake,wake_inputs,rotor):
     WD  = generate_fidelity_one_wake_shape(wake,rotor)
     
     # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-    va, vt = compute_fidelity_one_inflow_velocities(wake,rotor, WD)
+    va, vt, rotor = compute_fidelity_one_inflow_velocities(wake,rotor, WD)
 
     # compute new blade velocities
     Wa   = va + Ua
@@ -119,6 +130,8 @@ def iteration(Fva,wake,wake_inputs,rotor):
     F_va = F*va
     
     print(F_va)
+    
+    print('Finished Iteration')
     
     return F_va.flatten()
 
@@ -161,7 +174,7 @@ def va_vt(wake, wake_inputs, rotor):
     WD  = generate_fidelity_one_wake_shape(wake,rotor)
     
     # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-    va, vt, = compute_fidelity_one_inflow_velocities(wake, rotor, WD)
+    va, vt, rotor = compute_fidelity_one_inflow_velocities(wake, rotor, WD)
     
     # compute new blade velocities
     Wa   = va + Ua
@@ -169,4 +182,4 @@ def va_vt(wake, wake_inputs, rotor):
 
     _, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)    
     
-    return va, vt, F
+    return va, vt, F, rotor

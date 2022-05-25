@@ -98,7 +98,7 @@ def main():
     prop_a                         = propeller_design(prop_a)  
     
     # plot propeller 
-    #plot_propeller(prop_a)
+    plot_propeller(prop_a)
  
     # Design the Propeller with airfoil  geometry defined 
     prop                          = SUAVE.Components.Energy.Converters.Propeller()

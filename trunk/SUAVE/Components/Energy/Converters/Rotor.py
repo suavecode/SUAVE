@@ -355,8 +355,12 @@ class Rotor(Energy_Component):
         wake_inputs.speed_of_sounds       = a
         wake_inputs.dynamic_viscosities   = nu      
     
+        print('starting wake evaluation')
+    
         Wake, va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
         self.Wake = Wake
+        
+        print('finished wake evaluation')
         
         # compute new blade velocities
         Wa   = va + Ua
@@ -500,6 +504,8 @@ class Rotor(Energy_Component):
                     static_keys                       = ['number_radial_stations']
             )
         self.outputs = outputs
+        
+        print('finished rotor')
     
         return thrust_vector, torque, power, Cp, outputs , etap
         

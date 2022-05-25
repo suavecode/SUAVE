@@ -33,6 +33,8 @@ def generate_fidelity_one_wake_shape(wake,rotor):
        rotor  -  A SUAVE rotor component for which the wake is generated
     
     """
+    
+    print('Starting gen f1 wake shape')
         
     # Unpack rotor
     R                = rotor.tip_radius
@@ -249,21 +251,23 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # Compress Data into 1D Arrays  
     mat6_size = (Na,m,nts*B*(Nr-1)) 
 
-    WD.XA1    =  jnp.reshape(VD.Wake.XA1,mat6_size)
-    WD.YA1    =  jnp.reshape(VD.Wake.YA1,mat6_size)
-    WD.ZA1    =  jnp.reshape(VD.Wake.ZA1,mat6_size)
-    WD.XA2    =  jnp.reshape(VD.Wake.XA2,mat6_size)
-    WD.YA2    =  jnp.reshape(VD.Wake.YA2,mat6_size)
-    WD.ZA2    =  jnp.reshape(VD.Wake.ZA2,mat6_size)
-    WD.XB1    =  jnp.reshape(VD.Wake.XB1,mat6_size)
-    WD.YB1    =  jnp.reshape(VD.Wake.YB1,mat6_size)
-    WD.ZB1    =  jnp.reshape(VD.Wake.ZB1,mat6_size)
-    WD.XB2    =  jnp.reshape(VD.Wake.XB2,mat6_size)
-    WD.YB2    =  jnp.reshape(VD.Wake.YB2,mat6_size)
-    WD.ZB2    =  jnp.reshape(VD.Wake.ZB2,mat6_size)
-    WD.GAMMA  =  jnp.reshape(VD.Wake.GAMMA,mat6_size)
+    wake.vortex_distribution.XA1   =  jnp.reshape(VD.Wake.XA1,mat6_size)
+    wake.vortex_distribution.YA1   =  jnp.reshape(VD.Wake.YA1,mat6_size)
+    wake.vortex_distribution.ZA1   =  jnp.reshape(VD.Wake.ZA1,mat6_size)
+    wake.vortex_distribution.XA2   =  jnp.reshape(VD.Wake.XA2,mat6_size)
+    wake.vortex_distribution.YA2   =  jnp.reshape(VD.Wake.YA2,mat6_size)
+    wake.vortex_distribution.ZA2   =  jnp.reshape(VD.Wake.ZA2,mat6_size)
+    wake.vortex_distribution.XB1   =  jnp.reshape(VD.Wake.XB1,mat6_size)
+    wake.vortex_distribution.YB1   =  jnp.reshape(VD.Wake.YB1,mat6_size)
+    wake.vortex_distribution.ZB1   =  jnp.reshape(VD.Wake.ZB1,mat6_size)
+    wake.vortex_distribution.XB2   =  jnp.reshape(VD.Wake.XB2,mat6_size)
+    wake.vortex_distribution.YB2   =  jnp.reshape(VD.Wake.YB2,mat6_size)
+    wake.vortex_distribution.ZB2   =  jnp.reshape(VD.Wake.ZB2,mat6_size)
+    wake.vortex_distribution.GAMMA =  jnp.reshape(VD.Wake.GAMMA,mat6_size)
     
     rotor.wake_skew_angle = wake_skew_angle
+    
+    print('Finished gen f1 wake shape')
     
     return wake, rotor
 
@@ -288,7 +292,6 @@ def initialize_distributions(Nr, Na, B, n_wts, m, VD):
        
     Outputs:
        VD  - Vortex distribution
-       WD  - Wake vortex distribution
     
     Properties:
        N/A
@@ -311,24 +314,8 @@ def initialize_distributions(Nr, Na, B, n_wts, m, VD):
     VD.Wake.YB2   = jnp.zeros(mat1_size) 
     VD.Wake.ZB2   = jnp.zeros(mat1_size) 
     VD.Wake.GAMMA = jnp.zeros(mat1_size)  
-      
-    WD        = Data()
-    mat2_size = (Na,m*n_wts*B*nmax)
-    WD.XA1    = jnp.zeros(mat2_size)
-    WD.YA1    = jnp.zeros(mat2_size)
-    WD.ZA1    = jnp.zeros(mat2_size)
-    WD.XA2    = jnp.zeros(mat2_size)
-    WD.YA2    = jnp.zeros(mat2_size)
-    WD.ZA2    = jnp.zeros(mat2_size)   
-    WD.XB1    = jnp.zeros(mat2_size)
-    WD.YB1    = jnp.zeros(mat2_size)
-    WD.ZB1    = jnp.zeros(mat2_size)
-    WD.XB2    = jnp.zeros(mat2_size)
-    WD.YB2    = jnp.zeros(mat2_size)
-    WD.ZB2    = jnp.zeros(mat2_size) 
-
  
-    return VD, WD
+    return VD
 
 
 def true(VD,B,X_pts,Y_pts,Z_pts):

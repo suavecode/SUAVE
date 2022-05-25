@@ -123,6 +123,8 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
        F          tip loss factor                                                  [-]
        piece      output of a step in tip loss calculation (needed for residual)   [-]
     """
+    print('Starting inflow and tip loss')
+    
     lamdaw            = jnp.array(r*Wa/(R*Wt))
     lamdaw            = jnp.where(lamdaw<0.,0,lamdaw)
     f                 = (B/2.)*(1.-r/R)/lamdaw
@@ -138,6 +140,8 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     Ftip = 2.*jnp.arccos(jnp.exp(-tipfactor))/jnp.pi
     
     F = Ftip
+    
+    print('Finished inflow and tip loss')
     
 
     return lamdaw, F, piece
