@@ -7,14 +7,15 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 # package imports
 import jax.numpy as jnp
-from scipy.interpolate import interp1d
+
+from jax import jit
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
+#@jit
 def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     """
     Assumptions:
@@ -43,21 +44,21 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     r             = prop.radius_distribution
     rot           = prop.rotation
 
-
-    try:
-        props = prop.propellers_in_network
-    except:
-        props = Data()
-        props.propeller = prop
-
     # compute radial blade section locations based on initial timestep offset
     azi_step = 2*jnp.pi/(Na+1)
     dt       = azi_step/omega[0][0]
     t0       = dt*init_timestep_offset
 
-    # set shape of velocitie arrays
+    # set shape of velocity arrays
     Va = jnp.zeros((cpts,Nr,Na))
     Vt = jnp.zeros((cpts,Nr,Na))
+    
+    r_midpts = (r[1:] + r[:-1])/2
+    r_midpts = r_midpts[jnp.newaxis,...]
+    r_midpts = jnp.broadcast_to(r_midpts,(cpts,Nr-1))    
+    
+    r_eval   = r[jnp.newaxis,...]
+    r_eval   = jnp.broadcast_to(r_eval,(cpts,Nr))
     
     for i in range(Na):
         # increment blade angle to new azimuthal position 
@@ -84,7 +85,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         V_ind   = compute_wake_induced_velocity(WD, VD, cpts, azi_start_idx=i)
         
         # velocities in vehicle frame
-        u       = V_ind[:,:,0]   # velocity in vehicle x-frame
+        u       = V_ind[:,:,0]    # velocity in vehicle x-frame
         v       = V_ind[:,:,1]    # velocity in vehicle y-frame
         w       = V_ind[:,:,2]    # velocity in vehicle z-frame
         
@@ -95,14 +96,23 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         wprop       = u*rot_to_prop[:,2,0][:,None] + w*rot_to_prop[:,2,2][:,None]     
         
         # interpolate to get values at rotor radial stations
-        r_midpts = (r[1:] + r[:-1])/2
-        u_r      = interp1d(r_midpts, uprop, fill_value="extrapolate")
-        v_r      = interp1d(r_midpts, vprop, fill_value="extrapolate")
-        w_r      = interp1d(r_midpts, wprop, fill_value="extrapolate")
+        #u_r      = RegularGridInterpolator((r_midpts[0],r_midpts[1]), uprop,bounds_error=False,fill_value=None)
+        #v_r      = RegularGridInterpolator((r_midpts[0],r_midpts[1]), vprop,bounds_error=False,fill_value=None)
+        #w_r      = RegularGridInterpolator((r_midpts[0],r_midpts[1]), wprop,bounds_error=False,fill_value=None)
         
-        up = u_r(r)
-        vp = v_r(r)
-        wp = w_r(r)       
+
+        #up = u_r((r_eval[0],r_eval[1]))
+        #vp = v_r((r_eval[0],r_eval[1]))
+        #wp = w_r((r_eval[0],r_eval[1]))
+        
+        up = jnp.zeros((cpts,Nr))
+        vp = jnp.zeros((cpts,Nr))
+        wp = jnp.zeros((cpts,Nr))
+        
+        for j in range(cpts):
+            up = up.at[j,:].set(jnp.interp(r_eval[j,:],r_midpts[j,:],uprop[j,:]))
+            vp = vp.at[j,:].set(jnp.interp(r_eval[j,:],r_midpts[j,:],vprop[j,:]))
+            wp = wp.at[j,:].set(jnp.interp(r_eval[j,:],r_midpts[j,:],wprop[j,:]))
 
         # Update velocities at the disc
         Va = Va.at[:,:,i].set(up)
@@ -112,4 +122,3 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     
 
     return Va, Vt
-

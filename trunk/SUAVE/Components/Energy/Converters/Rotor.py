@@ -334,8 +334,8 @@ class Rotor(Energy_Component):
         T   = jnp.repeat(T[:, :, None], Na, axis=2)
     
         # Total velocities
-        Ut     = omegar - ut
-        U      = jnp.sqrt(Ua*Ua + Ut*Ut + ur*ur)
+        Ut  = omegar - ut
+        U   = jnp.sqrt(Ua*Ua + Ut*Ut + ur*ur)
         
         
         #---------------------------------------------------------------------------
@@ -355,7 +355,8 @@ class Rotor(Energy_Component):
         wake_inputs.speed_of_sounds       = a
         wake_inputs.dynamic_viscosities   = nu      
     
-        va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
+        Wake, va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
+        self.Wake = Wake
         
         # compute new blade velocities
         Wa   = va + Ua
@@ -494,7 +495,9 @@ class Rotor(Energy_Component):
                     rotor_drag                        = rotor_drag,
                     rotor_drag_coefficient            = Crd,
                     figure_of_merit                   = FoM,
-                    tip_mach                          = omega * R / conditions.freestream.speed_of_sound
+                    tip_mach                          = omega * R / conditions.freestream.speed_of_sound,
+                    wake                              = self.Wake,
+                    static_keys                       = ['number_radial_stations']
             )
         self.outputs = outputs
     

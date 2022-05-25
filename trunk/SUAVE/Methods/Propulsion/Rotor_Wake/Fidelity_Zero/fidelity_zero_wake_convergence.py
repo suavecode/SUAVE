@@ -10,7 +10,7 @@
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 import jax.numpy as jnp
-from jax import jacobian, lax, jit
+from jax import jacobian, jit
 from SUAVE.Methods.Propulsion.Rotor_Wake.Common import simple_newton
 
 # ----------------------------------------------------------------------

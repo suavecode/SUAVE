@@ -81,7 +81,7 @@ def cond(Full_vector,tol,limit,function,jac,*args):
     
     # The other condition is that there have been too many iterations
     cond1 = R<tol
-    cond2 = ii>limit
+    cond2 = ii>=limit
     
     full_cond = jnp.logical_not(cond1 | cond2)
     

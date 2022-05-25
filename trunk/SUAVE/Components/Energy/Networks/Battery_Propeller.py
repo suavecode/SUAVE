@@ -197,6 +197,7 @@ class Battery_Propeller(Network):
                 
                 # step 4
                 F, Q, P, Cp, outputs, etap = to_numpy(rotor_class.spin(prop,conditions))
+                prop.Wake                  = outputs.wake
                 
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta        = conditions.propulsion.throttle[:,0,None]

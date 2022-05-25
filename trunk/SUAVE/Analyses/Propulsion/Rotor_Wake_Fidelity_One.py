@@ -20,7 +20,6 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import
 import copy
 import numpy as np
 from jax.tree_util import register_pytree_node_class
-from jax import jit
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -60,7 +59,6 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
         self.tag                        = 'rotor_wake_1'
         self.wake_method                = 'Fidelity_One'
-        self.wake_vortex_distribution   = Data()
         self.vortex_distribution        = Data()
         self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
         self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
@@ -74,7 +72,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings.static_keys                = ['number_steps_per_rotation','number_rotor_rotations']
         
         # wake convergence criteria
-        self.maximum_convergence_iteration            = 10.
+        self.maximum_convergence_iteration            = 0.
         self.axial_velocity_convergence_tolerance     = 1e-2
         
         # flags for slipstream interaction
@@ -117,9 +115,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         if self.wake_settings.number_steps_per_rotation  != rotor.number_azimuthal_stations:
             self.wake_settings.number_steps_per_rotation = rotor.number_azimuthal_stations
         
-        return
+        return rotor
     
-    @jit
     def evaluate(self,rotor,wake_inputs,conditions):
         """
         Wake evaluation is performed using a semi-prescribed vortex wake (PVW) method for Fidelity One.
@@ -149,7 +146,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         """   
         
         # Initialize rotor with single pass of VW 
-        self.initialize(rotor,conditions)
+        rotor = self.initialize(rotor,conditions)
         
         # Converge on the Fidelity-One rotor wake shape
         WD, va, vt = fidelity_one_wake_convergence(self,rotor,wake_inputs)
@@ -157,7 +154,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # Store wake shape
         self.vortex_distribution = WD
             
-        return va, vt
+        return self, va, vt
     
     def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
         """
@@ -282,8 +279,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 wVD.reshaped_wake[mat] += offset[2]        
         
         # update wake distribution
-        self.wake_vortex_distribution = wVD
         self.vortex_distribution = wVD
+        
         return
         
         

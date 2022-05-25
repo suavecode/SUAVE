@@ -42,8 +42,8 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     B                = rotor.number_of_blades  
     
     rotor_outputs    = rotor.outputs
-    Na               = int(rotor_outputs.number_azimuthal_stations)
-    Nr               = int(rotor_outputs.number_radial_stations)
+    Na               = int(rotor.number_azimuthal_stations)
+    Nr               = int(rotor.outputs.number_radial_stations)
     omega            = rotor_outputs.omega                               
     va               = rotor_outputs.disc_axial_induced_velocity 
     V_inf            = rotor_outputs.velocity
