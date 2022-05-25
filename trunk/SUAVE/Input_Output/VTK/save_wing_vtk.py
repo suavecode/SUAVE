@@ -186,9 +186,9 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
     # Create file
     with open(filename, 'w') as f:
 
-        #---------------------
+        #---------------------------------------------------------------
         # Write header
-        #---------------------
+        #---------------------------------------------------------------
         l1 = "# vtk DataFile Version 4.0"     # File version and identifier
         l2 = "\nSUAVE Model of PROWIM Wing "  # Title
         l3 = "\nASCII"                        # Data type
@@ -197,14 +197,13 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
         header = [l1, l2, l3, l4]
         f.writelines(header)
 
-        #---------------------
+        #---------------------------------------------------------------
         # Write Points:
-        #---------------------
+        #---------------------------------------------------------------
         n_indices = n_cp*4    # total number of cell vertices
         points_header = "\n\nPOINTS "+str(n_indices) +" float"
         f.write(points_header)
         
-        count = 0
         for i in range(n_cp):
             xp1 = round(wing.XA1[i],4)
             yp1 = round(wing.YA1[i],4)
@@ -219,19 +218,15 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
             yp4 = round(wing.YB1[i],4)
             zp4 = round(wing.ZB1[i],4)            
             
-            new_point = "\n"+str(xp1)+" "+str(yp1)+" "+str(zp1)
-            f.write(new_point)        
-            new_point = "\n"+str(xp2)+" "+str(yp2)+" "+str(zp2)
-            f.write(new_point)    
-            new_point = "\n"+str(xp3)+" "+str(yp3)+" "+str(zp3)
-            f.write(new_point)    
-            new_point = "\n"+str(xp4)+" "+str(yp4)+" "+str(zp4)
-            f.write(new_point)      
+            f.write("\n"+str(xp1)+" "+str(yp1)+" "+str(zp1))
+            f.write("\n"+str(xp2)+" "+str(yp2)+" "+str(zp2))   
+            f.write("\n"+str(xp3)+" "+str(yp3)+" "+str(zp3))    
+            f.write("\n"+str(xp4)+" "+str(yp4)+" "+str(zp4))      
             
         
-        #---------------------
+        #---------------------------------------------------------------
         # Write Cells:
-        #---------------------
+        #---------------------------------------------------------------
         n            = n_cp             # total number of cells
         v_per_cell   = 4                # quad cells
         size         = n*(1+v_per_cell) # total number of integer values required to represent the list
@@ -246,17 +241,17 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
             # update node:
             count += 4
 
-        #---------------------
+        #---------------------------------------------------------------
         # Write Cell Types:
-        #---------------------
+        #---------------------------------------------------------------
         cell_type_header  = "\n\nCELL_TYPES "+str(n)
         f.write(cell_type_header)
         for i in range(n_cp):
             f.write("\n9")
 
-        #--------------------------
+        #--------------------------------------------------------------------
         # Write Scalar Cell Data:
-        #--------------------------
+        #--------------------------------------------------------------------
         cell_data_header  = "\n\nCELL_DATA "+str(n)
         f.write(cell_data_header)
 
