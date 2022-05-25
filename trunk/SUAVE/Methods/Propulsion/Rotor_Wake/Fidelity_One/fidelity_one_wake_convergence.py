@@ -54,10 +54,8 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
         
 
     while va_diff > tol:  
-        # check if wake exists
-        if len(wake.vortex_distribution)==0:
-            # generate wake geometry for rotor
-            wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
+        # generate wake geometry for rotor
+        wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
         
         # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
         va, vt = compute_fidelity_one_inflow_velocities(wake,rotor)
@@ -78,6 +76,8 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
             if wake.semi_prescribed_converge and wake.verbose:
                 print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
             break
-    
         
+    # save converged wake:
+    wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
+    
     return wake.vortex_distribution, va, vt
