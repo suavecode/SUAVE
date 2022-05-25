@@ -31,11 +31,13 @@ def generate_propeller_grid(prop, grid_settings, plot_grid=True):
     """    
     R         = grid_settings.radius
     grid_mode = grid_settings.grid_mode
-    influencing_prop = prop.origin[0]
-    influenced_prop  = prop.origin[1]
+    alpha_p   = prop.orientation_euler_angles[1]
     
-    y_offset         = influenced_prop[1] - influencing_prop[1] 
-    z_offset         = influenced_prop[2] - influencing_prop[2] 
+    #influencing_prop = prop.origin[0]
+    #influenced_prop  = prop.origin[1]
+    x_offset         = prop.origin[0][0]
+    y_offset         = prop.origin[0][1] #influenced_prop[1] - influencing_prop[1] 
+    z_offset         = prop.origin[0][2] #influenced_prop[2] - influencing_prop[2] 
     
     grid_points = Data()
     Na          = grid_settings.Na    
@@ -55,7 +57,10 @@ def generate_propeller_grid(prop, grid_settings, plot_grid=True):
         zmesh = r*np.sin(psi_2d)
         
         grid_points.Nr     = Nr
-        grid_points.Na     = Na        
+        grid_points.Na     = Na      
+        grid_points.X      = x_offset + zmesh*np.sin(alpha_p)
+        grid_points.Y      = y_offset + ymesh
+        grid_points.Z      = z_offset + zmesh*np.cos(alpha_p)
         
     elif grid_mode == 'cartesian':
         Ny    = grid_settings.Ny

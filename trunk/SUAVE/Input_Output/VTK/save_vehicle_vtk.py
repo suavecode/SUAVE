@@ -203,30 +203,33 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
     #---------------------------
     # Save wing results to vtk
     #---------------------------
-    if 'VLM_wings' in vehicle.vortex_distribution.keys():
-        wings      = vehicle.vortex_distribution.VLM_wings
-        wing_names = list(wings.keys())
-        n_wings    = len(wing_names)        
-    else:
-        wings      = vehicle.wings
-        wing_names = list(wings.keys())
-        n_wings    = len(wing_names)
-    
-    for i in range(n_wings):
-        if save_loc ==None:
-            filename = wing_filename
-            filename2 = wing_vlm_filename
-        else:
-            filename = save_loc + wing_filename
-            filename2 = save_loc + wing_vlm_filename
-
-
-        sep  = filename.rfind('.')
-        file = filename[0:sep]+str(wing_names[i])+filename[sep:]
-        file2 = filename2[0:sep]+str(wing_names[i])+filename2[sep:]
+    # check for vortex distribution
+    if 'vortex_distribution' in vehicle.keys():
         
+        if 'VLM_wings' in vehicle.vortex_distribution.keys():
+            wings      = vehicle.vortex_distribution.VLM_wings
+            wing_names = list(wings.keys())
+            n_wings    = len(wing_names)        
+        else:
+            wings      = vehicle.wings
+            wing_names = list(wings.keys())
+            n_wings    = len(wing_names)
+    
+        for i in range(n_wings):
+            if save_loc ==None:
+                filename = wing_filename
+                filename2 = wing_vlm_filename
+            else:
+                filename = save_loc + wing_filename
+                filename2 = save_loc + wing_vlm_filename
+    
+    
+            sep  = filename.rfind('.')
+            file = filename[0:sep]+str(wing_names[i])+filename[sep:]
+            file2 = filename2[0:sep]+str(wing_names[i])+filename2[sep:]
             
-        save_wing_vtk(vehicle, wings[wing_names[i]], VLM_settings, file, Results,time_step,origin_offset)
+                
+            save_wing_vtk(vehicle, wings[wing_names[i]], VLM_settings, file, Results,time_step,origin_offset)
         
 
     #------------------------------

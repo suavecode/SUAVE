@@ -128,16 +128,12 @@ def update_wake_position_under_wing_interaction(wake, rotor, wing, vehicle, VD_w
         # store vtks for debugging
         # ------------------------------------------------------------------------------------------- 
         # ------------------------------------------------------------------------------------------- 
-        from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
-        save_vehicle_vtks(vehicle,time_step=t,save_loc='/Users/rerha/Desktop/Wake_Evolution/')
+        #from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
+        #save_vehicle_vtks(vehicle,time_step=t,save_loc='/Users/rerha/Desktop/Wake_Evolution/')
         
 
         # ------------------------------------------------------------------------------------------- 
         # -------------------------------------------------------------------------------------------     
-    
-    
-    # control point, time step , blade number , location on blade 
-    num_vortex_pts = len(WD.XA1[0,0,:])    # number of vortex points
 
 
     return 
