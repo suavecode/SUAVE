@@ -85,7 +85,8 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     axial_induced_velocity = np.mean(va,axis = 2) # radial inflow, averaged around the azimuth
     mean_induced_velocity  = np.mean( axial_induced_velocity,axis = 1)   
     
-    rots = rotor.body_to_prop_vel()[0]
+    alpha = rotor.orientation_euler_angles[1]
+    rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
     
     lambda_tot   = np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 99 Leishman)
     mu_prop      = np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
@@ -213,19 +214,6 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     Y_pts = np.append(y_c_4[:,:,:,:,0][:,:,:,:,None], Y_pts, axis=4)
     Z_pts = np.append(z_c_4[:,:,:,:,0][:,:,:,:,None], Z_pts, axis=4)
     
-    # Rotate from prop frame to body frame
-    rots = rotor.body_to_prop_vel()[0]
-    x_o = X_pts - rotor.origin[0][0]
-    y_o = Y_pts - rotor.origin[0][1]
-    z_o = Z_pts - rotor.origin[0][2]
-    X_new = rotor.origin[0][0] + (x_o*rots[0][0] + y_o*rots[0][1] + z_o*rots[0][2] )
-    Y_new = rotor.origin[0][1] + (x_o*rots[1][0] + y_o*rots[1][1] + z_o*rots[1][2] )
-    Z_new = rotor.origin[0][2] + (x_o*rots[2][0] + y_o*rots[2][1] + z_o*rots[2][2] )
-    
-    X_pts = X_new
-    Y_pts = Y_new
-    Z_pts = Z_new
-
     #------------------------------------------------------
     # Store points  
     #------------------------------------------------------
@@ -276,9 +264,9 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     wake.vortex_distribution.reshaped_wake.Zblades_te = Z_pts[:,0,:,:,0]
 
     # append quarter chord lifting line point locations        
-    wake.vortex_distribution.reshaped_wake.Xblades_c_4 = x_c_4_rotor + rotor.origin[0][0]
-    wake.vortex_distribution.reshaped_wake.Yblades_c_4 = y_c_4_rotor + rotor.origin[0][1]
-    wake.vortex_distribution.reshaped_wake.Zblades_c_4 = z_c_4_rotor + rotor.origin[0][2]
+    wake.vortex_distribution.reshaped_wake.Xblades_c_4 = x_c_4_rotor
+    wake.vortex_distribution.reshaped_wake.Yblades_c_4 = y_c_4_rotor
+    wake.vortex_distribution.reshaped_wake.Zblades_c_4 = z_c_4_rotor
     
     # append three-quarter chord evaluation point locations        
     wake.vortex_distribution.reshaped_wake.Xblades_cp = x_c_4 
