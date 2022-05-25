@@ -289,24 +289,23 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # Compress Data into 1D Arrays  
     mat6_size = (Na,m,nts*B*(Nr-1)) 
 
-    WD.XA1    =  np.reshape(VD.Wake.XA1,mat6_size)
-    WD.YA1    =  np.reshape(VD.Wake.YA1,mat6_size)
-    WD.ZA1    =  np.reshape(VD.Wake.ZA1,mat6_size)
-    WD.XA2    =  np.reshape(VD.Wake.XA2,mat6_size)
-    WD.YA2    =  np.reshape(VD.Wake.YA2,mat6_size)
-    WD.ZA2    =  np.reshape(VD.Wake.ZA2,mat6_size)
-    WD.XB1    =  np.reshape(VD.Wake.XB1,mat6_size)
-    WD.YB1    =  np.reshape(VD.Wake.YB1,mat6_size)
-    WD.ZB1    =  np.reshape(VD.Wake.ZB1,mat6_size)
-    WD.XB2    =  np.reshape(VD.Wake.XB2,mat6_size)
-    WD.YB2    =  np.reshape(VD.Wake.YB2,mat6_size)
-    WD.ZB2    =  np.reshape(VD.Wake.ZB2,mat6_size)
-    WD.GAMMA  =  np.reshape(VD.Wake.GAMMA,mat6_size)
+    wake.vortex_distribution.XA1    =  np.reshape(VD.Wake.XA1,mat6_size)
+    wake.vortex_distribution.YA1    =  np.reshape(VD.Wake.YA1,mat6_size)
+    wake.vortex_distribution.ZA1    =  np.reshape(VD.Wake.ZA1,mat6_size)
+    wake.vortex_distribution.XA2    =  np.reshape(VD.Wake.XA2,mat6_size)
+    wake.vortex_distribution.YA2    =  np.reshape(VD.Wake.YA2,mat6_size)
+    wake.vortex_distribution.ZA2    =  np.reshape(VD.Wake.ZA2,mat6_size)
+    wake.vortex_distribution.XB1    =  np.reshape(VD.Wake.XB1,mat6_size)
+    wake.vortex_distribution.YB1    =  np.reshape(VD.Wake.YB1,mat6_size)
+    wake.vortex_distribution.ZB1    =  np.reshape(VD.Wake.ZB1,mat6_size)
+    wake.vortex_distribution.XB2    =  np.reshape(VD.Wake.XB2,mat6_size)
+    wake.vortex_distribution.YB2    =  np.reshape(VD.Wake.YB2,mat6_size)
+    wake.vortex_distribution.ZB2    =  np.reshape(VD.Wake.ZB2,mat6_size)
+    wake.vortex_distribution.GAMMA  =  np.reshape(VD.Wake.GAMMA,mat6_size)
     
     rotor.wake_skew_angle = wake_skew_angle
-    WD.reshaped_wake = wake.vortex_distribution.reshaped_wake
     
-    return WD
+    return wake, rotor
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
 def initialize_distributions(Nr, Na, B, n_wts, m, VD):
