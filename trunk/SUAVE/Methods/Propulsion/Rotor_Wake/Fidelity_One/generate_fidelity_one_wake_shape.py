@@ -220,7 +220,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # Initialize vortex distribution and arrays with required matrix sizes
     VD = Data()
     rotor.vortex_distribution = VD        
-    VD, WD = initialize_distributions(Nr, Na, B, nts, m,VD)
+    VD = initialize_distributions(Nr, Na, B, nts, m,VD)
     
     # ( azimuthal start index, control point  , blade number , location on blade, time step )
     if rot==-1:
@@ -338,21 +338,5 @@ def initialize_distributions(Nr, Na, B, n_wts, m, VD):
     VD.Wake.YB2   = np.zeros(mat1_size) 
     VD.Wake.ZB2   = np.zeros(mat1_size) 
     VD.Wake.GAMMA  = np.zeros(mat1_size)  
-      
-    WD        = Data()
-    mat2_size = (Na,m*n_wts*B*nmax)
-    WD.XA1    = np.zeros(mat2_size)
-    WD.YA1    = np.zeros(mat2_size)
-    WD.ZA1    = np.zeros(mat2_size)
-    WD.XA2    = np.zeros(mat2_size)
-    WD.YA2    = np.zeros(mat2_size)
-    WD.ZA2    = np.zeros(mat2_size)   
-    WD.XB1    = np.zeros(mat2_size)
-    WD.YB1    = np.zeros(mat2_size)
-    WD.ZB1    = np.zeros(mat2_size)
-    WD.XB2    = np.zeros(mat2_size)
-    WD.YB2    = np.zeros(mat2_size)
-    WD.ZB2    = np.zeros(mat2_size) 
-
  
-    return VD, WD
+    return VD
