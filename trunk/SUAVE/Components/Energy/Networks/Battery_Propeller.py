@@ -27,6 +27,7 @@ from SUAVE.Core import Data , Units, to_numpy
 import copy
 
 from SUAVE.Components.Energy.Converters import Rotor as rotor_class
+from SUAVE.Analyses.Propulsion import Rotor_Wake_Fidelity_One
 
 
 # ----------------------------------------------------------------------
@@ -238,7 +239,7 @@ class Battery_Propeller(Network):
                     
                     # apply offset 
                     origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
-                    p.Wake = base_wake
+                    p.Wake = Rotor_Wake_Fidelity_One(base_wake)
                     p.Wake.shift_wake_VD(wake_vd, origin_offset)
             elif identical_flag and prop.Wake.wake_method=="Fidelity_Zero":
                 for p in props:

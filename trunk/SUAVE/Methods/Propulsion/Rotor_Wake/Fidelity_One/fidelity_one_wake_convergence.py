@@ -72,7 +72,7 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
     
     # Use the converged solution
-    va, vt, F = va_vt(wake, wake_inputs, rotor)
+    va, vt, F, rotor = va_vt(wake, wake_inputs, rotor)
     
     print('F1 Convergence Complete')
         
@@ -128,6 +128,8 @@ def iteration(Fva,wake,wake_inputs,rotor):
     _, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
     F_va = F*va
+    
+    #F_va = F*rotor.outputs.disc_axial_induced_velocity
     
     print(F_va)
     

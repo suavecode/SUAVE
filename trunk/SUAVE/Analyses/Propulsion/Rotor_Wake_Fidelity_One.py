@@ -208,7 +208,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # Expand
         wake_V_ind = np.zeros((ctrl_pts,geometry.vortex_distribution.n_cp,3))
-        wake_V_ind = wake_V_ind.at[:,slipstream_vd_ids,:].set(rot_V_wake_ind)
+        wake_V_ind[:,slipstream_vd_ids,:] = rot_V_wake_ind
         
             
         return wake_V_ind 
