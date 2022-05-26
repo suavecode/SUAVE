@@ -12,12 +12,16 @@
 
 # package imports 
 import numpy as np
+from jax import lax
 import jax.numpy as jnp
 from jax.numpy import where as w
 from jax.numpy import newaxis as na
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
+
+#from jax.config import config
+#config.update("jax_enable_x64", True)
 
 # ----------------------------------------------------------------------
 #  Vortex Lattice
@@ -133,33 +137,6 @@ def VLM(conditions,settings,geometry):
     K_SPC      = settings.leading_edge_suction_multiplier
     Sref       = geometry.reference_area              
 
-    # unpack geometry----------------------------------------------------------------
-    # define point about which moment coefficient is computed
-    if 'main_wing' in geometry.wings:
-        c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
-        x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
-        z_mac      = geometry.wings['main_wing'].aerodynamic_center[2] + geometry.wings['main_wing'].origin[0][2]
-        w_span     = geometry.wings['main_wing'].spans.projected
-    else:
-        c_bar  = 0.
-        x_mac  = 0.
-        w_span = 0.
-        for wing in geometry.wings:
-            if wing.vertical == False:
-                if c_bar <= wing.chords.mean_aerodynamic:
-                    c_bar  = wing.chords.mean_aerodynamic
-                    x_mac  = wing.aerodynamic_center[0] + wing.origin[0][0]
-                    z_mac  = wing.aerodynamic_center[2] + wing.origin[0][2]
-                    w_span = wing.spans.projected
-
-    x_cg       = geometry.mass_properties.center_of_gravity[0][0]
-    z_cg       = geometry.mass_properties.center_of_gravity[0][2]
-    if x_cg == 0.0:
-        x_m = x_mac 
-        z_m = z_mac
-    else:
-        x_m = x_cg
-        z_m = z_cg
         
     # unpack conditions--------------------------------------------------------------
     aoa       = conditions.aerodynamics.angle_of_attack   # angle of attack  
@@ -176,18 +153,12 @@ def VLM(conditions,settings,geometry):
     VINF      = conditions.freestream.velocity    
        
     #freestream 0 velocity safeguard
-    if not conditions.freestream.velocity.all():
-        if settings.use_surrogate:
-            velocity                       = conditions.freestream.velocity
-            velocity[velocity==0]          = np.ones(len(velocity[velocity==0])) * 1e-6
-            conditions.freestream.velocity = velocity
-        else:
-            raise AssertionError("VLM requires that conditions.freestream.velocity be specified and non-zero")    
+    VINF                           = w(VINF==0,1e-6,VINF)
+    conditions.freestream.velocity = VINF
 
     # ---------------------------------------------------------------------------------------
     # STEPS 1-9: Generate Panelization and Vortex Distribution
     # ------------------ --------------------------------------------------------------------    
-    
     
     # Unpack vortex distribution
     VD           = geometry.VD
@@ -200,7 +171,11 @@ def VLM(conditions,settings,geometry):
     LE_ind       = VD.leading_edge_indices
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
-    
+    x_m          = VD.x_m
+    z_m          = VD.z_m
+    w_span       = VD.w_span
+    c_bar        = VD.c_bar
+
     exposed_leading_edge_flag = VD.exposed_leading_edge_flag
     
     YAH = VD.YAH*1.  
@@ -259,12 +234,13 @@ def VLM(conditions,settings,geometry):
     
     # Build Aerodynamic Influence Coefficient Matrix
     use_VORLAX_induced_velocity = settings.use_VORLAX_matrix_calculation
-    if not use_VORLAX_induced_velocity:
-        A =   jnp.multiply(C_mn[:,:,:,0],jnp.atleast_3d(jnp.sin(delta)*jnp.cos(phi))) \
-            + jnp.multiply(C_mn[:,:,:,1],jnp.atleast_3d(jnp.cos(delta)*jnp.sin(phi))) \
-            - jnp.multiply(C_mn[:,:,:,2],jnp.atleast_3d(jnp.cos(phi)*jnp.cos(delta)))   # validated from book eqn 7.42 
-    else:
-        A = EW
+    SUAVE_form = lambda : jnp.multiply(C_mn[:,:,:,0],jnp.atleast_3d(jnp.sin(delta)*jnp.cos(phi))) \
+                        + jnp.multiply(C_mn[:,:,:,1],jnp.atleast_3d(jnp.cos(delta)*jnp.sin(phi))) \
+                        - jnp.multiply(C_mn[:,:,:,2],jnp.atleast_3d(jnp.cos(phi)*jnp.cos(delta)))   # validated from book eqn 7.42 
+    vor_form   = lambda : EW
+    
+    A          = lax.cond(use_VORLAX_induced_velocity,vor_form,SUAVE_form)    
+
 
     # Compute vortex strength
     GAMMA  = jnp.linalg.solve(A,RHS)

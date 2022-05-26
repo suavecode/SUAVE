@@ -129,9 +129,47 @@ def generate_vortex_distribution(geometry,settings):
         pass
     
     # ---------------------------------------------------------------------------------------
+    # STEP 0.5: Setup High level parameters
+    # ---------------------------------------------------------------------------------------    
+    VD = Data()
+    
+    
+    # unpack geometry----------------------------------------------------------------
+    # define point about which moment coefficient is computed
+    if 'main_wing' in geometry.wings:
+        c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
+        x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
+        z_mac      = geometry.wings['main_wing'].aerodynamic_center[2] + geometry.wings['main_wing'].origin[0][2]
+        w_span     = geometry.wings['main_wing'].spans.projected
+    else:
+        c_bar  = 0.
+        x_mac  = 0.
+        w_span = 0.
+        for wing in geometry.wings:
+            if wing.vertical == False:
+                if c_bar <= wing.chords.mean_aerodynamic:
+                    c_bar  = wing.chords.mean_aerodynamic
+                    x_mac  = wing.aerodynamic_center[0] + wing.origin[0][0]
+                    z_mac  = wing.aerodynamic_center[2] + wing.origin[0][2]
+                    w_span = wing.spans.projected
+
+    x_cg       = geometry.mass_properties.center_of_gravity[0][0]
+    z_cg       = geometry.mass_properties.center_of_gravity[0][2]
+    if x_cg == 0.0:
+        x_m = x_mac 
+        z_m = z_mac
+    else:
+        x_m = x_cg
+        z_m = z_cg    
+        
+    VD.x_m    = x_m
+    VD.z_m    = z_m
+    VD.w_span = w_span
+    VD.c_bar  = c_bar
+    
+    # ---------------------------------------------------------------------------------------
     # STEP 1: Define empty vectors for coordinates of panes, control points and bound vortices
     # ---------------------------------------------------------------------------------------
-    VD = Data()
 
     VD.XAH    = np.empty(shape=[0,1], dtype=precision)
     VD.YAH    = np.empty(shape=[0,1], dtype=precision)
@@ -264,6 +302,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.SLOPE = SLOPE
     VD.SLE   = SLE
     VD.D     = D
+    
     
     # pack VD into geometry
     geometry.vortex_distribution = VD
