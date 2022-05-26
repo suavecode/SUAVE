@@ -223,7 +223,7 @@ def VLM(conditions,settings,geometry):
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = jnp.unique(mach,return_inverse=True)
     m_unique      = jnp.atleast_2d(m_unique).T
-    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique,compute_EW=True)
+    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique)
     
     C_mn  = C_mn_small[inv,:,:,:]
     RFLAG = RFLAG_small[inv,:]

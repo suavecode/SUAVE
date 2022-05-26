@@ -17,7 +17,7 @@ from jax.numpy import where as w
 from jax.numpy import newaxis as na
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity(VD,mach,compute_EW=False):
+def compute_wing_induced_velocity(VD,mach):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
     Assumptions: 
@@ -209,18 +209,14 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
     
     
-    if compute_EW == True:
-        # Calculate the W velocity in the VORLAX frame for later calcs
-        # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
-        COS1   = jnp.cos(DL.T - DL)
-        SIN1   = jnp.sin(DL.T - DL) 
-        WEIGHT = 1
-        
-        EW = (W*COS1-V*SIN1)*WEIGHT
-    else:
-        # Assume that this function is being used outside of VLM, EW is not needed
-        EW = jnp.nan
-        
+    # EW is calculated whether its needed or not. JAX will not support scalar or array outputs
+    # Calculate the W velocity in the VORLAX frame for later calcs
+    # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
+    COS1   = jnp.cos(DL.T - DL)
+    SIN1   = jnp.sin(DL.T - DL) 
+    WEIGHT = 1
+    EW     = (W*COS1-V*SIN1)*WEIGHT
+
 
     return C_mn, s, RFLAG, EW
     
@@ -357,21 +353,21 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     SIGN            = w(DENOM<0,-1.,SIGN)
     TOLSQ           = jnp.broadcast_to(TOLSQ,shape)
     DENOM_COND      = jnp.abs(DENOM)<TOLSQ
-    DENOM           = w(DENOM_COND,SIGN[DENOM_COND]*TOLSQ[DENOM_COND],DENOM)
+    DENOM           = w(DENOM_COND,SIGN*TOLSQ,DENOM)
     
     # Create a boolean for various conditions for F1 that goes to zero
-    bool1           = jnp.ones(shape,dtype=jnp.bool8)
-    bool1[:,X1<TOL] = False
-    bool1[RAD1==0.] = False
-    RAD1[:,X1<TOL]  = 0.0
+    bool1           = jnp.ones(shape,dtype=jnp.int8)
+    bool1           = w((X1<TOL)[na,:], 0,bool1)
+    bool1           = w(RAD1==0.,0,bool1)
+    RAD1            = w((X1<TOL)[na,:], 0.,RAD1)
     
     REPS = CUTOFF*XSQ1
     FRAD = RAD1
 
-    bool1[RO1>REPS] = False
-    FB1 = (T*X1-B2*Y1)/FRAD
-    FT1 = X1/(FRAD*RTV1)
-    FT1 = w(RTV1<TOLSQ,0.,FT1)
+    bool1 = w(RO1>REPS,0,bool1)
+    FB1   = (T*X1-B2*Y1)/FRAD
+    FT1   = X1/(FRAD*RTV1)
+    FT1   = w(RTV1<TOLSQ,0.,FT1)
     
     # Use the boolean to turn things off
     FB1 = w(jnp.isnan(FB1),1.,FB1)
@@ -383,24 +379,24 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     
     # Round 2
     # Create a boolean for various conditions for F2 that goes to zero
-    bool2           = jnp.ones(shape,dtype=jnp.bool8)
-    bool2[:,X2<TOL] = False
-    bool2[RAD2==0.] = False
-    RAD2[:,X2<TOL]  = 0.0
+    bool2           = jnp.ones(shape,dtype=jnp.int8)
+    bool2           = w((X2<TOL)[na,:], 0,bool2)
+    bool2           = w(RAD2==0.,0,bool2)
+    RAD2            = w((X2<TOL)[na,:], 0.,RAD2)
     
     REPS = CUTOFF *XSQ2
     FRAD = RAD2    
     
-    bool2[RO2>REPS] = False
-    FB2 = (T *X2 - B2 *Y2)/FRAD
-    FT2 = X2 /(FRAD *RTV2)
-    FT2 = w(RTV2<TOLSQ,0.,FT2)
+    bool2 = w(RO2>REPS, 0, bool2)
+    FB2   = (T *X2 - B2 *Y2)/FRAD
+    FT2   = X2 /(FRAD *RTV2)
+    FT2   = w(RTV2<TOLSQ,0.,FT2)
     
     # Use the boolean to turn things off
-    FB2[jnp.isnan(FB2)] = 1.
-    FT2[jnp.isnan(FT2)] = 1.
-    FB2[jnp.isinf(FB2)] = 1.
-    FT2[jnp.isinf(FT2)] = 1.    
+    FB2 = w(jnp.isnan(FB2),1.,FB2)
+    FT2 = w(jnp.isnan(FT2),1.,FT2)
+    FB2 = w(jnp.isinf(FB2),1.,FB2)
+    FT2 = w(jnp.isinf(FT2),1.,FT2)
     FB2 = FB2*bool2
     FT2 = FT2*bool2
     
@@ -437,10 +433,10 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     T2A    = jnp.zeros((n_mach,size))
     
     # Setup masks
-    F_mask = jnp.ones((n_mach,size),dtype=jnp.bool8)
-    A_mask = jnp.ones((n_mach,size),dtype=jnp.bool8)
-    F_mask[:,TE_ind] = False
-    A_mask[:,LE_ind] = False
+    F_mask = jnp.ones((n_mach,size),dtype=jnp.int8)
+    A_mask = jnp.ones((n_mach,size),dtype=jnp.int8)
+    F_mask[:,TE_ind] = 0
+    A_mask[:,LE_ind] = 0
     
     # Apply the mask
     T2F[A_mask] = T2S[F_mask]
