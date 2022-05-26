@@ -183,9 +183,9 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     if jnp.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
         U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)
-        U = w(sub[:,na,na],U_sub,U)
-        V = w(sub[:,na,na],V_sub,V)
-        W = w(sub[:,na,na],W_sub,W)
+        U = U.at[sub.nonzero()].set(U_sub[sub.nonzero()])
+        V = V.at[sub.nonzero()].set(V_sub[sub.nonzero()])
+        W = W.at[sub.nonzero()].set(W_sub[sub.nonzero()])
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX. some values computed in a preprocessing section in VLM
     sup         = (B2>=0)[:,0,0]
@@ -200,10 +200,10 @@ def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     if jnp.sum(sup)>0:
         U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
                                                     X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)
-        U = w(sup,U_sup,U)
-        V = w(sup,V_sup,V)
-        W = w(sup,W_sup,W)
-        RFLAG = w(sup[na,:], 1,RFLAG)
+        U = U.at[sup.nonzero()].set(U_sup[sup.nonzero()])
+        V = V.at[sup.nonzero()].set(V_sup[sup.nonzero()])
+        W = W.at[sup.nonzero()].set(W_sup[sup.nonzero()])
+        RFLAG = RFLAG.at[sup.nonzero()].set(1)
 
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
