@@ -15,6 +15,7 @@
 import jax.numpy as jnp
 from jax.numpy import where as w
 from jax.numpy import newaxis as na
+from jax import lax
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_wing_induced_velocity(VD,mach):
@@ -208,15 +209,15 @@ def compute_wing_induced_velocity(VD,mach):
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
     
-    
-    # EW is calculated whether its needed or not. JAX will not support scalar or array outputs
     # Calculate the W velocity in the VORLAX frame for later calcs
     # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
     COS1   = jnp.cos(DL.T - DL)
     SIN1   = jnp.sin(DL.T - DL) 
     WEIGHT = 1
-    EW     = (W*COS1-V*SIN1)*WEIGHT
-
+    limit_W = W[:,:n_cp,:n_cp] # This limiter is necessary to maintain array shapes.
+    limit_V = V[:,:n_cp,:n_cp] # Overflowed shapes would only occur in something like nonuniform prop inflow and it's not used
+    
+    EW     = (limit_W*COS1-limit_V*SIN1)*WEIGHT    
 
     return C_mn, s, RFLAG, EW
     

@@ -137,7 +137,6 @@ def VLM(conditions,settings,geometry):
     K_SPC      = settings.leading_edge_suction_multiplier
     Sref       = geometry.reference_area              
 
-        
     # unpack conditions--------------------------------------------------------------
     aoa       = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach      = conditions.freestream.mach_number         # mach number
@@ -329,8 +328,7 @@ def VLM(conditions,settings,geometry):
     
     # DL IS THE DIHEDRAL ANGLE (WITH RESPECT TO THE X-Y PLANE) OF
     # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES. 
-    COD = jnp.cos(phi[0,LE_ind])  # Just the LE values
-    
+    COD = jnp.cos(phi[0,LE_ind])  # Just the LE values    
     SID = jnp.sin(phi[0,LE_ind])  # Just the LE values
 
     # Now on to each strip
