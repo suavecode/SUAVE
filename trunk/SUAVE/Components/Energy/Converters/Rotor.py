@@ -87,6 +87,7 @@ class Rotor(Energy_Component):
         self.rotation                     = 1.        
         self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                       = False
+        self.wake_skew_angle              = None
         self.number_azimuthal_stations    = 1
         self.vtk_airfoil_points           = 40
         self.induced_power_factor         = 1.48         # accounts for interference effects
@@ -111,10 +112,18 @@ class Rotor(Energy_Component):
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
         self.outputs                   = Data()
+        
+        
+    def spin(self,conditions):
+        
+        thrust_vector, torque, power, Cp, outputs , etap, self.Wake = self.__spin(conditions)
+        
+        
+        return thrust_vector, torque, power, Cp, outputs , etap
 
         
     #@jit
-    def spin(self,conditions):
+    def __spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     
         Assumptions:
@@ -358,7 +367,6 @@ class Rotor(Energy_Component):
         print('starting wake evaluation')
     
         Wake, va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
-        self.Wake = Wake
         
         print('finished wake evaluation')
         
@@ -507,7 +515,7 @@ class Rotor(Energy_Component):
         
         print('finished rotor')
     
-        return thrust_vector, torque, power, Cp, outputs , etap
+        return thrust_vector, torque, power, Cp, outputs , etap, Wake
         
         
 

@@ -14,6 +14,7 @@ import jax.numpy as jnp
 from jax import jit
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
+@jit
 def compute_wake_induced_velocity(WD,VD,cpts,azi_start_idx=0,sigma=0.11,suppress_root=False):  
     """ This computes the velocity induced by the Fidelity One semi-prescribed vortex wake (PVW)
     on lifting surface control points

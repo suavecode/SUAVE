@@ -33,8 +33,6 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         Vt   - tangential velocity, shape (ctrl_pts, Nr, Na); axis 2 in direction of rotation    [m/s]
     """
     
-    print('Starting f1 inflow velocities')
-    
     VD                       = prop.vortex_distribution
     omega                    = prop.inputs.omega
     init_timestep_offset     = wake.wake_settings.initial_timestep_offset
@@ -64,25 +62,24 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     r_eval   = r[jnp.newaxis,...]
     r_eval   = jnp.broadcast_to(r_eval,(cpts,Nr))
     
-    inits    = (Va,Vt,VD)
+    # Clear the XC, YC, and ZC values
+    VD.XC   = jnp.zeros((Nr-1))
+    VD.YC   = jnp.zeros((Nr-1))
+    VD.ZC   = jnp.zeros((Nr-1))
+    VD.n_cp = Nr-1
+
+    VD.Wake_collapsed = WD    
     
-    VD.XC   = None
-    VD.YC   = None
-    VD.ZC   = None
-    VD.n_cp = None
+    prop.vortex_distribution = VD
     
     # Compute induced velocities at blade from the helical fixed wake
-    VD.Wake_collapsed = WD    
+    inits   = (Va,Vt,VD)
+       
     
     function = lambda i, inits: Na_loop(i,inits,rot,omega,t0,Na,prop,wake,cpts,WD,Nr,r_eval,r_midpts)
     
     outnits = fori(0,Na,function,inits)
-    Va, Vt, VD = outnits
-    
-    prop.vortex_distribution = VD
-    
-    print('Finished f1 inflow velocities')
-    
+    Va, Vt, VD = outnits    
 
     return Va, Vt, prop
 

@@ -57,12 +57,11 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         None
         """
 
-        self.tag                        = 'rotor_wake_1'
-        self.wake_method                = 'Fidelity_One'
-        self.vortex_distribution        = Data()
-        self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
-        self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
-        self.vtk_save_loc               = None       # location to save vtk outputs of wake
+        self.tag                               = 'rotor_wake_1'
+        self.wake_method                       = 'Fidelity_One'
+        self.semi_prescribed_converge          = False      # flag for convergence on semi-prescribed wake shape
+        self.vtk_save_flag                     = False      # flag for saving vtk outputs of wake
+        self.vtk_save_loc                      = None       # location to save vtk outputs of wake
         
         self.wake_settings              = Data()
         self.wake_settings.number_rotor_rotations     = 5.
@@ -77,6 +76,35 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # flags for slipstream interaction
         self.slipstream                               = False
+        
+        # Vortex distribution
+        self.vortex_distribution               = Data()
+        VD = self.vortex_distribution
+        VD.XA1   = None
+        VD.YA1   = None
+        VD.ZA1   = None
+        VD.XA2   = None
+        VD.YA2   = None
+        VD.ZA2   = None
+        VD.XB1   = None
+        VD.YB1   = None
+        VD.ZB1   = None
+        VD.XB2   = None
+        VD.YB2   = None
+        VD.ZB2   = None
+        VD.GAMMA = None 
+        
+        self.vortex_distribution.reshaped_wake = Data()  
+        reshaped_wake             = self.vortex_distribution.reshaped_wake
+        reshaped_wake.Xblades_te  = None
+        reshaped_wake.Yblades_te  = None
+        reshaped_wake.Zblades_te  = None
+        reshaped_wake.Xblades_c_4 = None
+        reshaped_wake.Yblades_c_4 = None
+        reshaped_wake.Zblades_c_4 = None
+        reshaped_wake.Xblades_cp  = None
+        reshaped_wake.Yblades_cp  = None
+        reshaped_wake.Zblades_cp  = None
 
         
     def initialize(self,rotor,conditions):
@@ -148,12 +176,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # Initialize rotor with single pass of VW 
         rotor = self.initialize(rotor,conditions)
         
-        print('going into cconvergence')
-        
         # Converge on the Fidelity-One rotor wake shape
         WD, va, vt = fidelity_one_wake_convergence(self,rotor,wake_inputs)
-        
-        print('finished cconvergence')
         
         # Store wake shape
         self.vortex_distribution = WD
