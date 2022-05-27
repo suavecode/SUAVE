@@ -33,8 +33,6 @@ def generate_fidelity_one_wake_shape(wake,rotor):
        rotor  -  A SUAVE rotor component for which the wake is generated
     
     """
-    
-    print('Starting gen f1 wake shape')
         
     # Unpack rotor
     R                = rotor.tip_radius
@@ -266,8 +264,6 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     wake.vortex_distribution.GAMMA =  jnp.reshape(VD.Wake.GAMMA,mat6_size)
     
     rotor.wake_skew_angle = wake_skew_angle
-    
-    print('Finished gen f1 wake shape')
     
     return wake, rotor
 

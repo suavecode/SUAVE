@@ -2,10 +2,18 @@
 # BET_calculations.py
 # 
 # Created:  Jan 2022, R. Erhard
-# Modified:       
+# Modified: May 2022, E. Botero
 
-import numpy as np
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
+
 import jax.numpy as jnp
+
+
+# ----------------------------------------------------------------------
+#   Compute Airfoil Aerodynamics
+# ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc):
@@ -81,7 +89,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
 
         # If not airfoil polar provided, use 2*pi as lift curve slope
-        Cl = 2.*np.pi*alpha
+        Cl = 2.*jnp.pi*alpha
     
         # By 90 deg, it's totally stalled.
         Cl = jnp.minimum(Cl, Cl1maxp)
@@ -92,7 +100,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-        Cdval = jnp.where(alpha>=np.pi/2,2,Cdval)    
+        Cdval = jnp.where(alpha>=jnp.pi/2,2,Cdval)    
     
         # prevent zero Cl to keep Cd/Cl from breaking in BET
         Cl = jnp.where(Cl==0,1e-6,Cl)
@@ -123,7 +131,6 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
        F          tip loss factor                                                  [-]
        piece      output of a step in tip loss calculation (needed for residual)   [-]
     """
-    print('Starting inflow and tip loss')
     
     lamdaw            = jnp.array(r*Wa/(R*Wt))
     lamdaw            = jnp.where(lamdaw<0.,0,lamdaw)
@@ -137,11 +144,9 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     et1, et2, et3, maxat = 1,1,1,-jnp.inf
     tipfactor = jnp.array( B/2.0*(  (Rtip/r)**et1 - 1  )**et2/lamdaw**et3)
     tipfactor = jnp.where(tipfactor<0,0,tipfactor)
-    Ftip = 2.*jnp.arccos(jnp.exp(-tipfactor))/jnp.pi
+    Ftip      = 2.*jnp.arccos(jnp.exp(-tipfactor))/jnp.pi
     
     F = Ftip
-    
-    print('Finished inflow and tip loss')
     
 
     return lamdaw, F, piece

@@ -15,7 +15,6 @@ from jax.lax import fori_loop as fori
 from jax import jit
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-@jit
 def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
 
     """

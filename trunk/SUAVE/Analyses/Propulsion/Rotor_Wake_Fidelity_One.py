@@ -20,6 +20,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import
 import copy
 import numpy as np
 from jax.tree_util import register_pytree_node_class
+from jax import jit
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -66,9 +67,9 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings              = Data()
         self.wake_settings.number_rotor_rotations     = 5.
         self.wake_settings.number_steps_per_rotation  = 24
-        self.wake_settings.initial_timestep_offset    = 0.    # initial timestep
+        self.wake_settings.initial_timestep_offset    = 0   # initial timestep
         
-        self.wake_settings.static_keys                = ['number_steps_per_rotation','number_rotor_rotations']
+        self.wake_settings.static_keys                = ['number_steps_per_rotation','number_rotor_rotations','initial_timestep_offset']
         
         # wake convergence criteria
         self.maximum_convergence_iteration            = 0.
@@ -145,6 +146,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         return rotor
     
+    @jit
     def evaluate(self,rotor,wake_inputs,conditions):
         """
         Wake evaluation is performed using a semi-prescribed vortex wake (PVW) method for Fidelity One.

@@ -9,12 +9,11 @@
 # ----------------------------------------------------------------------
 
 import jax.numpy as jnp
-from jax import lax
+from jax import lax, jit
 
 # ----------------------------------------------------------------------
 #  Newton Function
 # ----------------------------------------------------------------------
-
 def simple_newton(function,jac,intial_x,tol=1e-8,limit=1000.,args=()):
     """
     Performs the inside of the while loop in a newton iteration
@@ -43,13 +42,9 @@ def simple_newton(function,jac,intial_x,tol=1e-8,limit=1000.,args=()):
     
     cond_fun         = lambda Full_vector:cond(Full_vector,tol,limit,function,jac,*args)
     inner_newton_fun = lambda Full_vector:inner_newton(Full_vector,function,jac,*args)
-    
-    print('Going into while loop')
-    
+        
     Full_vector = lax.while_loop(cond_fun, inner_newton_fun, Full_vector)
     
-    print('Done while loop')
-
     # Unpack the final versioon
     Xnp1 = Full_vector[1]
     ii   = Full_vector[3]
@@ -60,7 +55,6 @@ def simple_newton(function,jac,intial_x,tol=1e-8,limit=1000.,args=()):
 # ----------------------------------------------------------------------
 #   Cond
 # ----------------------------------------------------------------------
-
 def cond(Full_vector,tol,limit,function,jac,*args):
     """
     Conditions to terminate the newton solver
@@ -79,8 +73,6 @@ def cond(Full_vector,tol,limit,function,jac,*args):
 
     """      
     
-    print('Starting Cond')
-    
     #Full_vector = inner_newton(Full_vector,function,jac,*args)
     R           = Full_vector[2]
     ii          = Full_vector[3]
@@ -91,14 +83,11 @@ def cond(Full_vector,tol,limit,function,jac,*args):
     
     full_cond = jnp.logical_not(cond1 | cond2)
     
-    print('Cond Done')
-    
     return full_cond
 
 # ----------------------------------------------------------------------
 #  Conditions to terminate the newton solver
 # ----------------------------------------------------------------------
-
 def inner_newton(Full_vector,function,jac,*args):
     """
     Performs the inside of the while loop in a newton iteration
@@ -116,9 +105,6 @@ def inner_newton(Full_vector,function,jac,*args):
 
 
     """       
-    
-    print('Starting Inner Newton')
-    
     # Unpack the full vector
     df = Full_vector[4] # damping factor
     Xn = Full_vector[1] # The newest one!
@@ -143,8 +129,5 @@ def inner_newton(Full_vector,function,jac,*args):
     
     # Pack the full vector
     Full_vector = [Xn,Xnp1,R,ii,df]
-    
-    print('Finished Inner Newton')
-
     
     return Full_vector

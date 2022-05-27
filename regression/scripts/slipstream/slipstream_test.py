@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units, Data, to_numpy
 
 import numpy as np
 import pylab as plt
@@ -39,9 +39,9 @@ import time
 
 def main():
     # fidelity zero wakes
-    #t0=time.time()
-    #Propeller_Slipstream(wake_fidelity=0,identical_props=True)
-    #print((time.time()-t0)/60)
+    t0=time.time()
+    Propeller_Slipstream(wake_fidelity=0,identical_props=True)
+    print((time.time()-t0)/60)
     
     # fidelity one wakes
     t0=time.time()
@@ -105,9 +105,9 @@ def regress_1a(results, configs):
     assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
 
     # plot results, vehicle, and vortex distribution
-    plot_mission(results,configs.base)
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    #plot_mission(results,configs.base)
+    #plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
+    #plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
               
     return
 
@@ -117,14 +117,14 @@ def regress_1b(results, configs):
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       = 0.6020347530670039
-    sectional_lift_coeff_true   = np.array([5.75800595e-01, 5.05089698e-01, 4.83107189e-01, 4.20350179e-01,
-                                            8.17757113e-02, 5.81152022e-01, 5.27309372e-01, 4.90693979e-01,
-                                            4.23546280e-01, 8.24174329e-02, 8.81510057e-03, 7.44974730e-03,
-                                            5.51782236e-03, 4.78175085e-03, 3.31169788e-03, 4.68328621e-03,
-                                            2.66071955e-03, 1.54125075e-03, 1.54694635e-03, 1.23424664e-03,
-                                            3.61408325e-07, 2.03352047e-09, 1.49484625e-09, 3.84428995e-09,
-                                            2.32789513e-09])
+    lift_coefficient_true       =0.6020120527032662
+    sectional_lift_coeff_true   = np.array([5.76051875e-01, 5.03685771e-01, 4.83148056e-01, 4.21010488e-01,
+                                            8.19425866e-02, 5.81396069e-01, 5.25806872e-01, 4.90806417e-01,
+                                            4.24278252e-01, 8.25974009e-02, 9.84584227e-03, 8.43693123e-03,
+                                            6.42054996e-03, 5.52292652e-03, 3.77862142e-03, 5.71173407e-03,
+                                            3.64465544e-03, 2.44216238e-03, 2.28990145e-03, 1.70373522e-03,
+                                            3.64536828e-07, 2.10134887e-09, 1.46275907e-09, 3.81171505e-09,
+                                            2.31267338e-09])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -135,13 +135,13 @@ def regress_1b(results, configs):
     print('Cl difference')
     print(diff_Cl)
     
-    #assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
-    #assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
+    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
+    assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
 
     # plot results, vehicle, and vortex distribution
-    plot_mission(results,configs.base)
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    #plot_mission(results,configs.base)
+    #plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
+    #plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
               
     return
 
@@ -178,7 +178,7 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
     prop = vehicle.networks.lift_cruise.propellers.propeller
     prop.inputs.omega = np.ones((1,1)) * 1200.
-    F, Q, P, Cp ,  outputs , etap = prop.spin(state.conditions) 
+    F, Q, P, Cp ,  outputs , etap = to_numpy(prop.spin(state.conditions) )
     prop.outputs = outputs
     
     rot = vehicle.networks.lift_cruise.lift_rotors.lift_rotor
@@ -187,11 +187,13 @@ def Lift_Rotor_Slipstream(wake_fidelity):
     # =========================================================================================================
     # Run Propeller model 
     # =========================================================================================================
-    F, Q, P, Cp ,  outputs , etap = rot.spin(state.conditions) 
+    F, Q, P, Cp ,  outputs , etap = to_numpy(rot.spin(state.conditions))
+    # convert the rotor to numpy
+    rot = to_numpy(rot)
     
     # append outputs for identical rotors
     for r in vehicle.networks.lift_cruise.lift_rotors:
-        r.outputs = outputs 
+        r.outputs = outputs
 
     # =========================================================================================================
     # Run VLM with slipstream
