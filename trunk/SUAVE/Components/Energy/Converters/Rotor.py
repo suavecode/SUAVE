@@ -24,6 +24,8 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
      import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_grid \
+     import generate_propeller_grid
 
 # package imports
 import numpy as np
@@ -94,6 +96,7 @@ class Rotor(Energy_Component):
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
         
         self.start_angle               = 0.0      # angle of first blade from vertical
+        self.start_angle_idx           = 0
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
@@ -321,6 +324,7 @@ class Rotor(Energy_Component):
                 # control variable is the blade pitch, repeat around azimuth
                 beta = np.repeat(total_blade_pitch[:,:,None], Na, axis=2)
             else:
+                # blade pitch command is scalar
                 beta = np.tile(total_blade_pitch[None,:,None],(ctrl_pts,1,Na ))
 
             r    = np.tile(r_1d[None,:,None], (ctrl_pts, 1, Na))
@@ -379,9 +383,7 @@ class Rotor(Energy_Component):
         alpha_freestream   = beta - np.arctan2(Ua,Ut)
         
         # compute HFW circulation at the blade
-        Gamma = 0.5*W*c*Cl  
-
-        #---------------------------------------------------------------------------            
+        Gamma = 0.5*W*c*Cl           
                 
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BET iteration
         va     = F*va
@@ -563,7 +565,26 @@ class Rotor(Energy_Component):
 
         return thrust_vector, torque, power, Cp, outputs , etap
     
-    
+    def generate_evaluation_points(self, offset=np.array([0,0,0]), grid_settings=None):
+        """Generates the (X,Y,Z) point locations of each radial and azimuthal station
+        in the propeller plane.
+        """
+        if grid_settings is None:
+            # Default: use propeller plane directly
+            grid_settings = Data()
+            grid_settings.grid_mode = 'radial'
+            grid_settings.radius = self.tip_radius
+            grid_settings.hub_radius = self.hub_radius
+            grid_settings.Nr = len(self.radius_distribution)
+            grid_settings.Na = self.number_azimuthal_stations
+            
+        # Generate the grid points at which to evaluate
+        grid_settings.offset = offset
+        grid_points = generate_propeller_grid(self,grid_settings)
+        
+        
+        return grid_points
+        
     def vec_to_vel(self):
         """This rotates from the propellers vehicle frame to the propellers velocity frame
 

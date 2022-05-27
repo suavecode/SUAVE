@@ -40,7 +40,11 @@ def store_wake_evolution_vtks(vehicle,vlm_results=None,save_loc=None,generate_vt
     # Unpack rotor
     prop_keys = vehicle.networks.battery_propeller.propellers.keys()
     Na        = vehicle.networks.battery_propeller.propellers[list(prop_keys)[0]].outputs.number_azimuthal_stations
-    VD_wing   = vehicle.vortex_distribution
+    try:
+        VD_wing   = vehicle.vortex_distribution
+        wingPresent = True
+    except:
+        wingPresent = False
     if time_step == None:
         time_steps=Na
         time_step = 0
@@ -57,16 +61,18 @@ def store_wake_evolution_vtks(vehicle,vlm_results=None,save_loc=None,generate_vt
             # after converged, store vtks for final wake shape for each of Na starting positions
             for i in range(time_steps):
                 for rotor in vehicle.networks.battery_propeller.propellers:
+                    rotor.start_angle = i*2*np.pi / time_steps   
                     wake = rotor.Wake
+                    
                     # extract rotor outputs
-                    rotor_outputs = rotor.outputs
-                    VD_rot        = rotor.vortex_distribution      
+                    rotor_outputs = rotor.outputs   
                     
                     # Store evaluation points on this prop
                     Yb   = wake.vortex_distribution.reshaped_wake.Yblades_cp[i,0,0,:,0] 
                     Zb   = wake.vortex_distribution.reshaped_wake.Zblades_cp[i,0,0,:,0] 
                     Xb   = wake.vortex_distribution.reshaped_wake.Xblades_cp[i,0,0,:,0] 
                     
+                    VD_rot = Data()
                     VD_rot.YC = (Yb[1:] + Yb[:-1])/2
                     VD_rot.ZC = (Zb[1:] + Zb[:-1])/2
                     VD_rot.XC = (Xb[1:] + Xb[:-1])/2
@@ -89,13 +95,13 @@ def store_wake_evolution_vtks(vehicle,vlm_results=None,save_loc=None,generate_vt
                 
                 save_vehicle_vtks(vehicle, None, Results, time_step=time_step,save_loc=save_loc)  
     
-                
-                # wing collocation points
-                points=Data()
-                points.XC = VD_wing.XC
-                points.YC = VD_wing.YC
-                points.ZC = VD_wing.ZC
-                save_evaluation_points_vtk(points,filename=save_loc+"wing_collocation_pts.vtk",time_step=time_step)
+                if wingPresent:
+                    # store wing collocation points
+                    points=Data()
+                    points.XC = VD_wing.XC
+                    points.YC = VD_wing.YC
+                    points.ZC = VD_wing.ZC
+                    save_evaluation_points_vtk(points,filename=save_loc+"wing_collocation_pts.vtk",time_step=time_step)
                 
                 
                 # save CG Location
