@@ -13,6 +13,7 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_wake_contraction_
 
 
 # package imports
+from scipy.signal import savgol_filter
 import numpy as np
 
 
@@ -48,10 +49,10 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     #va               = rotor_outputs.disc_axial_induced_velocity 
 
     omega            = rotor_outputs.omega                               
-    va               = calc_va(rotor)    #rotor_outputs.disc_axial_induced_velocity #
+    #va               = rotor_outputs.disc_axial_induced_velocity #
 
     V_inf            = rotor_outputs.velocity
-    gamma            = calc_gamma(rotor) #rotor_outputs.disc_circulation   # 
+    gamma,va         = calc_va_gamma(rotor) #rotor_outputs.disc_circulation   # 
     rot              = rotor.rotation
     
     # apply rotation direction to twist and chord distribution
@@ -86,7 +87,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     rotor.start_angle = start_angle[0]
     
     # extract mean inflow velocities
-    axial_induced_velocity = va #np.mean(va,axis = 2) # radial inflow, averaged around the azimuth #va #
+    axial_induced_velocity = np.mean(va,axis = 2) # radial inflow, averaged around the azimuth #va #
     mean_induced_velocity  = np.mean(axial_induced_velocity) #np.mean( axial_induced_velocity,axis = 1)   
 
     #alpha = rotor.orientation_euler_angles[1]
@@ -297,25 +298,23 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # Compress Data into 1D Arrays  
     mat6_size = (Na,m,nts*B*(Nr-1)) 
 
-    WD.XA1    =  np.reshape(VD.Wake.XA1,mat6_size)
-    WD.YA1    =  np.reshape(VD.Wake.YA1,mat6_size)
-    WD.ZA1    =  np.reshape(VD.Wake.ZA1,mat6_size)
-    WD.XA2    =  np.reshape(VD.Wake.XA2,mat6_size)
-    WD.YA2    =  np.reshape(VD.Wake.YA2,mat6_size)
-    WD.ZA2    =  np.reshape(VD.Wake.ZA2,mat6_size)
-    WD.XB1    =  np.reshape(VD.Wake.XB1,mat6_size)
-    WD.YB1    =  np.reshape(VD.Wake.YB1,mat6_size)
-    WD.ZB1    =  np.reshape(VD.Wake.ZB1,mat6_size)
-    WD.XB2    =  np.reshape(VD.Wake.XB2,mat6_size)
-    WD.YB2    =  np.reshape(VD.Wake.YB2,mat6_size)
-    WD.ZB2    =  np.reshape(VD.Wake.ZB2,mat6_size)
-    WD.GAMMA  =  np.reshape(VD.Wake.GAMMA,mat6_size)
+    wake.vortex_distribution.XA1    =  np.reshape(VD.Wake.XA1,mat6_size)
+    wake.vortex_distribution.YA1    =  np.reshape(VD.Wake.YA1,mat6_size)
+    wake.vortex_distribution.ZA1    =  np.reshape(VD.Wake.ZA1,mat6_size)
+    wake.vortex_distribution.XA2    =  np.reshape(VD.Wake.XA2,mat6_size)
+    wake.vortex_distribution.YA2    =  np.reshape(VD.Wake.YA2,mat6_size)
+    wake.vortex_distribution.ZA2    =  np.reshape(VD.Wake.ZA2,mat6_size)
+    wake.vortex_distribution.XB1    =  np.reshape(VD.Wake.XB1,mat6_size)
+    wake.vortex_distribution.YB1    =  np.reshape(VD.Wake.YB1,mat6_size)
+    wake.vortex_distribution.ZB1    =  np.reshape(VD.Wake.ZB1,mat6_size)
+    wake.vortex_distribution.XB2    =  np.reshape(VD.Wake.XB2,mat6_size)
+    wake.vortex_distribution.YB2    =  np.reshape(VD.Wake.YB2,mat6_size)
+    wake.vortex_distribution.ZB2    =  np.reshape(VD.Wake.ZB2,mat6_size)
+    wake.vortex_distribution.GAMMA  =  np.reshape(VD.Wake.GAMMA,mat6_size)
     
     rotor.wake_skew_angle = wake_skew_angle
-    WD.reshaped_wake = wake.vortex_distribution.reshaped_wake
             
-    
-    return WD
+    return wake
 
 
 def calc_va(rotor):
@@ -325,94 +324,93 @@ def calc_va(rotor):
     Na = len(rotor.outputs.azimuthal_distribution)
     #plt.show()
     
-    va_uncorrected = np.mean(rotor.outputs.disc_axial_induced_velocity,axis=2)[0]
-    va_uncorrected_new = np.concatenate((np.ones(5)*va_uncorrected[0], va_uncorrected, np.ones(10)*va_uncorrected[-1]),axis=0)
-    r_new = np.concatenate((np.ones(5)*r[0], r, np.ones(10)*r[-1]),axis=0)
+    va = rotor.outputs.disc_axial_induced_velocity
+    va_new = np.zeros_like(va)
     
-    va_poly = np.polyfit(r_new,va_uncorrected_new,deg=2)
-    va = np.polyval(va_poly,r)
+    for i in range(Na):
+
+        va_uncorrected = va[0,:,i]      
+        va_uncorrected_new = np.concatenate((np.ones(5)*va_uncorrected[0], va_uncorrected, np.ones(10)*va_uncorrected[-1]),axis=0)
+        r_new = np.concatenate((np.ones(5)*r[0], r, np.ones(10)*r[-1]),axis=0)
+        
+        va_poly = np.polyfit(r_new,va_uncorrected_new,deg=2)
+        va_new[0,:,i] = np.polyval(va_poly,r)    
+    
+    #va_uncorrected = np.mean(rotor.outputs.disc_axial_induced_velocity,axis=2)[0]
+    #va_uncorrected_new = np.concatenate((np.ones(5)*va_uncorrected[0], va_uncorrected, np.ones(10)*va_uncorrected[-1]),axis=0)
+    #r_new = np.concatenate((np.ones(5)*r[0], r, np.ones(10)*r[-1]),axis=0)
+    
+    #va_poly = np.polyfit(r_new,va_uncorrected_new,deg=2)
+    #va = np.polyval(va_poly,r)
     
     Vinf = 15
-    debug_plot=False
+    debug_plot=True
     if debug_plot:
         fig,ax= plt.subplots(figsize=(5,3))
-        va = rotor.outputs.disc_axial_induced_velocity
-        
-
         
         for i in range(Na):
-    
-            va_uncorrected = va[0,:,i]      
-            va_uncorrected_new = np.concatenate((np.ones(5)*va_uncorrected[0], va_uncorrected, np.ones(10)*va_uncorrected[-1]),axis=0)
-            r_new = np.concatenate((np.ones(5)*r[0], r, np.ones(10)*r[-1]),axis=0)
-            
-            va_poly = np.polyfit(r_new,va_uncorrected_new,deg=2)
-            va_new = np.polyval(va_poly,r)
-            
-            
             blue_color = colorFader("blue","green",mix=(1/Na)*i) 
             red_color = colorFader("red","purple",mix=(1/Na)*i)
-            ax.plot(r,va_new,color=blue_color)
-            #ax.plot(r,va,color=red_color)
+            ax.plot(r,va_new[0,:,i],color=blue_color)
+            ax.plot(r,va[0,:,i],color=red_color)
         ax.set_ylabel('$v_a(\\psi)$')
         ax.set_xlabel('r')   
         ax.set_title('V='+str(Vinf))
         
-        fig,ax= plt.subplots(figsize=(5,3))
-        vt = rotor.outputs.disc_tangential_induced_velocity
-        for i in range(Na):
-            blue_color = colorFader("blue","green",mix=(1/Na)*i) 
-            red_color = colorFader("red","purple",mix=(1/Na)*i)
-            ax.plot(r,vt[0,:,i],color=red_color)
-        ax.set_ylabel('$v_t(\\psi)$')
-        ax.set_xlabel('r')  
-        ax.set_title('V='+str(Vinf))
+        #fig,ax= plt.subplots(figsize=(5,3))
+        #vt = rotor.outputs.disc_tangential_induced_velocity
+        #for i in range(Na):
+            #blue_color = colorFader("blue","green",mix=(1/Na)*i) 
+            #red_color = colorFader("red","purple",mix=(1/Na)*i)
+            #ax.plot(r,vt[0,:,i],color=red_color)
+        #ax.set_ylabel('$v_t(\\psi)$')
+        #ax.set_xlabel('r')  
+        #ax.set_title('V='+str(Vinf))
         
         plt.show()
 
 
-    return va_uncorrected#va
+    return va_new #va_uncorrected#va
 
-def calc_gamma(rotor):
+def calc_va_gamma(rotor):
     import scipy as sp
     import pylab as plt
     r  = rotor.radius_distribution
     Na = len(rotor.outputs.azimuthal_distribution)
-    #plt.show()
     
+    gamma = rotor.outputs.disc_circulation
+    va    = rotor.outputs.disc_axial_induced_velocity
 
-    gamma = np.zeros_like(rotor.outputs.disc_circulation)
-    
-    debug_plot=False
-    if debug_plot:
-        fig,ax= plt.subplots()
-    
+    # Least squares to regress window of data onto polynomial 
+    # (https://stackoverflow.com/questions/20618804/how-to-smooth-a-curve-in-the-right-way)
+    gamma_new = np.zeros_like(gamma)
+    va_new = np.zeros_like(va)
     for i in range(Na):
-        gamma_uncorrected = rotor.outputs.disc_circulation[0,:,i]
-        gamma_uncorrected_new = np.concatenate((np.ones(5)*gamma_uncorrected[0], gamma_uncorrected, np.ones(10)*0),axis=0)
-        r_new = np.concatenate((np.ones(5)*r[0], r, np.ones(10)*r[-1]),axis=0)
+        gamma_new[0,:,i] = savgol_filter(gamma[0,:,i], 21,2)
+        va_new[0,:,i] = savgol_filter(va[0,:,i], 21,2)
         
-        g_max = np.max(gamma_uncorrected)
-        g_max_loc = np.argmax(gamma_uncorrected)
-        
-        f = np.polyfit(np.array([r[0], r[g_max_loc//2], r[g_max_loc], r[g_max_loc+(len(r)-g_max_loc)//2], r[-1]]), np.array([0, 0.7*g_max, g_max, 0.7*g_max, 0]), deg=2)
-        gamma[0,:,i] = np.polyval(f,r)
-        
-        
-        #gamma_poly   = np.polyfit(r_new,gamma_uncorrected_new,deg=2)
-        #gamma[0,:,i] = np.polyval(gamma_poly,r)
-        if debug_plot:
-            blue_color = colorFader("blue","green",mix=(1/Na)*i) 
-            red_color = colorFader("red","purple",mix=(1/Na)*i)
-            ax.plot(r,gamma_uncorrected,color=blue_color)
-            ax.plot(r,gamma[0,:,i],color=red_color)
-    if debug_plot:
-        ax.set_ylabel('gamma')
-        ax.set_xlabel('r')    
-        plt.show()
+        ## DEBUG PLOT
+        #blue_color = colorFader("blue","green",mix=(1/Na)*i) 
+        #red_color = colorFader("red","purple",mix=(1/Na)*i)
+        #plt.figure(5)
+        #plt.plot(r,gamma_new[0,:,i],color=blue_color)
+        #plt.plot(r,gamma[0,:,i],color=red_color)        
+        #plt.figure(6)
+        #plt.plot(r,va_new[0,:,i],color=blue_color)
+        #plt.plot(r,va[0,:,i],color=red_color)                
+    
+    #plt.figure(5)
+    #plt.ylabel('gamma')
+    #plt.xlabel('r') 
+    
+    #plt.figure(6)
+    #plt.ylabel('va')
+    #plt.xlabel('r')        
+    ##plt.show()       
 
-
-    return gamma #rotor.outputs.disc_circulation #
+    #rotor.outputs.disc_circulation = gamma_new
+    #rotor.outputs.disc_axial_induced_velocity = va_new
+    return gamma_new, va_new
 
 def colorFader(c1,c2,mix=0):
     import matplotlib as mpl
