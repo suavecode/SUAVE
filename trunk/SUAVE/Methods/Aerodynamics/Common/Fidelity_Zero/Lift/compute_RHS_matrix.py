@@ -17,7 +17,8 @@
 # package imports
 #import numpy as np
 import jax.numpy as jnp
-from SUAVE.Core import Data
+from jax import lax
+from SUAVE.Core import Data, to_jnumpy
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model):
@@ -85,30 +86,18 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
     dt               = 0
     num_ctrl_pts     = len(aoa) # number of control points
     num_eval_pts     = len(VD.XC)
-    for network in geometry.networks:
-        if propeller_wake_model:
-            # include the propeller and rotor wake effect on the wing
-            rotor_props = Data()
-            
-            try: # Add in the propellers
-                rotor_props.update(network.propellers)
-            except:
-                pass
-            
-            try:
-                rotor_props.update(network.lift_rotors)
-            except:
-                pass
+
+    r_p_V_wake_ind   = jnp.zeros((num_ctrl_pts,num_eval_pts,3))
+    
+    # If we have a propeller wake attached
+    #wake_model_false = lambda _: r_p_V_wake_ind 
+    #cond_inputs      = to_jnumpy((geometry,num_ctrl_pts, r_p_V_wake_ind))
+    #r_p_V_wake_ind   = lax.cond(propeller_wake_model,wake_model_true,wake_model_false,cond_inputs)
                 
-            # Loop over all the rotors and props
-            r_p_V_wake_ind = jnp.zeros((num_ctrl_pts,num_eval_pts,3))
-            for r_p in rotor_props:
-                r_p_V_wake_ind += r_p.Wake.evaluate_slipstream(r_p,geometry,num_ctrl_pts)
-                
-            # update the total induced velocity distribution
-            Vx_ind_total = Vx_ind_total + r_p_V_wake_ind[:,:,0]
-            Vy_ind_total = Vy_ind_total + r_p_V_wake_ind[:,:,1]
-            Vz_ind_total = Vz_ind_total + r_p_V_wake_ind[:,:,2]
+    # update the total induced velocity distribution
+    Vx_ind_total = Vx_ind_total + r_p_V_wake_ind[:,:,0]
+    Vy_ind_total = Vy_ind_total + r_p_V_wake_ind[:,:,1]
+    Vz_ind_total = Vz_ind_total + r_p_V_wake_ind[:,:,2]
 
 
     rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
@@ -255,3 +244,33 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     rhs.SID    = SID
 
     return rhs
+
+def wake_model_true(cond_inputs):
+
+    # Unpacks
+    geometry, num_ctrl_pts, r_p_V_wake_ind = cond_inputs[0], cond_inputs[1], cond_inputs[2]
+
+    nets             = list(geometry.networks.keys())
+    n_nets           = len(nets)    
+
+    for ii in range(0,n_nets):
+        network = geometry.networks[nets[ii]]
+
+        # include the propeller and rotor wake effect on the wing
+        rotor_props = Data()
+
+        try: # Add in the propellers
+            rotor_props.update(network.propellers)
+        except:
+            pass
+
+        try:  # Add in the rotors
+            rotor_props.update(network.lift_rotors)
+        except:
+            pass
+
+        # Loop over all the rotors and props
+        for r_p in rotor_props:
+            r_p_V_wake_ind += r_p.Wake.evaluate_slipstream(r_p,geometry,num_ctrl_pts)
+
+    return r_p_V_wake_ind

@@ -296,13 +296,26 @@ def generate_vortex_distribution(geometry,settings):
     Z2c   = (VD.ZA2+VD.ZB2)/2
     SLOPE = (Z2c - Z1c)/(X2c - X1c)
     SLE   = SLOPE[LE_ind]    
-    D    = np.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
+    D     = np.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
     
     # Pack VORLAX variables
     VD.SLOPE = SLOPE
     VD.SLE   = SLE
     VD.D     = D
     
+    # Do some final calculations for segmented breaks
+    chord_arange   = np.arange(0,len(VD.chordwise_breaks))
+    chord_breaksp1 = np.hstack((VD.chordwise_breaks,VD.n_cp))
+    chord_repeats  = np.diff(chord_breaksp1)
+    chord_segs     = np.repeat(chord_arange,chord_repeats)    
+    
+    span_arange   = np.arange(0,len(VD.spanwise_breaks))
+    span_breaksp1 = np.hstack((VD.spanwise_breaks,sum(VD.n_sw)))
+    span_repeats  = np.diff(span_breaksp1)
+    span_segs     = np.repeat(span_arange,span_repeats)    
+        
+    VD.chord_segs = chord_segs
+    VD.span_segs  = span_segs
     
     # pack VD into geometry
     geometry.vortex_distribution = VD

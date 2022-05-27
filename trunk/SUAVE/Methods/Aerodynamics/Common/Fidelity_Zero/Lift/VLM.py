@@ -12,6 +12,7 @@
 
 # package imports 
 import numpy as np
+from jax.ops import segment_sum
 from jax import lax
 import jax.numpy as jnp
 from jax.numpy import where as w
@@ -166,6 +167,8 @@ def VLM(conditions,settings,geometry):
     CHORD        = VD.chord_lengths
     chord_breaks = VD.chordwise_breaks
     span_breaks  = VD.spanwise_breaks
+    chord_segs   = VD.chord_segs
+    span_segs    = VD.span_segs    
     RNMAX        = VD.panels_per_strip    
     LE_ind       = VD.leading_edge_indices
     ZETA         = VD.tangent_incidence_angle
@@ -354,9 +357,9 @@ def VLM(conditions,settings,geometry):
 
     # Split into chordwise strengths and sum into strips    
     # SICPLE = COUPLE (ABOUT STRIP CENTERLINE) DUE TO SIDESLIP.
-    CNC    = np.add.reduceat(SINF       ,chord_breaks,axis=1)
-    SICPLE = np.add.reduceat(SINF*CORMED,chord_breaks,axis=1)
-
+    CNC    = segment_sum(SINF.T,          chord_segs).T
+    SICPLE = segment_sum((SINF*CORMED).T, chord_segs).T
+    
     # COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
     # POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
     # INCIDENCE.    
@@ -366,8 +369,9 @@ def VLM(conditions,settings,geometry):
     BMLE  = (XLE-XX)*SINF        # These are moment on each panel
     
     # Sum onto the panel
-    CAXL = np.add.reduceat(CAXL,chord_breaks,axis=1)
-    BMLE = np.add.reduceat(BMLE,chord_breaks,axis=1)
+    CAXL = segment_sum(CAXL.T,chord_segs).T
+    BMLE = segment_sum(BMLE.T,chord_segs).T
+    
     
     SICPLE *= (-1) * COSIN * COD * GAF
     DCP_LE = DCP[:,LE_ind]
@@ -452,8 +456,9 @@ def VLM(conditions,settings,geometry):
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES
     cdi_y    = DRAG/CHORD_strip/ES
-    CL_wing  = np.add.reduceat(LIFT,span_breaks,axis=1)/SURF
-    CDi_wing = np.add.reduceat(DRAG,span_breaks,axis=1)/SURF
+    CL_wing  = segment_sum(LIFT.T,span_segs).T/SURF
+    CDi_wing = segment_sum(DRAG.T,span_segs).T/SURF    
+    
     alpha_i  = jnp.hsplit(jnp.arctan(cdi_y/cl_y),span_breaks[1:])
     
     # Now calculate total coefficients
