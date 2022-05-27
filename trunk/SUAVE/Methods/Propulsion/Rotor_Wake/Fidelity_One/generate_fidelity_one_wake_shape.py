@@ -316,66 +316,11 @@ def generate_fidelity_one_wake_shape(wake,rotor):
             
     return wake
 
-
-def calc_va(rotor):
-    import scipy as sp
-    import pylab as plt
-    r  = rotor.radius_distribution
-    Na = len(rotor.outputs.azimuthal_distribution)
-    #plt.show()
-    
-    va = rotor.outputs.disc_axial_induced_velocity
-    va_new = np.zeros_like(va)
-    
-    for i in range(Na):
-
-        va_uncorrected = va[0,:,i]      
-        va_uncorrected_new = np.concatenate((np.ones(5)*va_uncorrected[0], va_uncorrected, np.ones(10)*va_uncorrected[-1]),axis=0)
-        r_new = np.concatenate((np.ones(5)*r[0], r, np.ones(10)*r[-1]),axis=0)
-        
-        va_poly = np.polyfit(r_new,va_uncorrected_new,deg=2)
-        va_new[0,:,i] = np.polyval(va_poly,r)    
-    
-    #va_uncorrected = np.mean(rotor.outputs.disc_axial_induced_velocity,axis=2)[0]
-    #va_uncorrected_new = np.concatenate((np.ones(5)*va_uncorrected[0], va_uncorrected, np.ones(10)*va_uncorrected[-1]),axis=0)
-    #r_new = np.concatenate((np.ones(5)*r[0], r, np.ones(10)*r[-1]),axis=0)
-    
-    #va_poly = np.polyfit(r_new,va_uncorrected_new,deg=2)
-    #va = np.polyval(va_poly,r)
-    
-    Vinf = 15
-    debug_plot=True
-    if debug_plot:
-        fig,ax= plt.subplots(figsize=(5,3))
-        
-        for i in range(Na):
-            blue_color = colorFader("blue","green",mix=(1/Na)*i) 
-            red_color = colorFader("red","purple",mix=(1/Na)*i)
-            ax.plot(r,va_new[0,:,i],color=blue_color)
-            ax.plot(r,va[0,:,i],color=red_color)
-        ax.set_ylabel('$v_a(\\psi)$')
-        ax.set_xlabel('r')   
-        ax.set_title('V='+str(Vinf))
-        
-        #fig,ax= plt.subplots(figsize=(5,3))
-        #vt = rotor.outputs.disc_tangential_induced_velocity
-        #for i in range(Na):
-            #blue_color = colorFader("blue","green",mix=(1/Na)*i) 
-            #red_color = colorFader("red","purple",mix=(1/Na)*i)
-            #ax.plot(r,vt[0,:,i],color=red_color)
-        #ax.set_ylabel('$v_t(\\psi)$')
-        #ax.set_xlabel('r')  
-        #ax.set_title('V='+str(Vinf))
-        
-        plt.show()
-
-
-    return va_new #va_uncorrected#va
-
 def calc_va_gamma(rotor):
     import scipy as sp
     import pylab as plt
     r  = rotor.radius_distribution
+    Nr = len(r)
     Na = len(rotor.outputs.azimuthal_distribution)
     
     gamma = rotor.outputs.disc_circulation
@@ -386,8 +331,8 @@ def calc_va_gamma(rotor):
     gamma_new = np.zeros_like(gamma)
     va_new = np.zeros_like(va)
     for i in range(Na):
-        gamma_new[0,:,i] = savgol_filter(gamma[0,:,i], 21,2)
-        va_new[0,:,i] = savgol_filter(va[0,:,i], 21,2)
+        gamma_new[0,:,i] = savgol_filter(gamma[0,:,i], Nr//2,2)
+        va_new[0,:,i] = savgol_filter(va[0,:,i], Nr//2,2)
         
         ## DEBUG PLOT
         #blue_color = colorFader("blue","green",mix=(1/Na)*i) 

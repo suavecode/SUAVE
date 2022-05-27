@@ -12,6 +12,7 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_veloc
 
 # package imports
 import numpy as np
+from scipy.signal import savgol_filter
 from scipy.interpolate import interp1d
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
@@ -103,13 +104,17 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         up = u_r(r)
         vp = v_r(r)
         wp = w_r(r)       
+        
+        # filter points
+        up = savgol_filter(up, Nr//2,2)
+        vp = savgol_filter(vp, Nr//2,2)
+        wp = savgol_filter(wp, Nr//2,2)
 
         # Update velocities at the disc
         Va[:,:,i]  = up
         Vt[:,:,i]  = -rot*(vp*(np.cos(blade_angle)) - wp*(np.sin(blade_angle)) )  # velocity component in direction of rotation     
     
     prop.vortex_distribution = VD
-    
 
     return Va, Vt
 

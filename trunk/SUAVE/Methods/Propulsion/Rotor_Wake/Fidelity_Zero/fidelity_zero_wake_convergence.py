@@ -198,26 +198,13 @@ def va_vt(PSI, wake_inputs, rotor):
     vt           = Ut - Wt
     
     
-    # Least squares to regress window of data onto polynomial 
-    # (https://stackoverflow.com/questions/20618804/how-to-smooth-a-curve-in-the-right-way)
+    # Filtering: Least squares to regress window of data onto polynomial 
     va_new = np.zeros_like(va)
     vt_new = np.zeros_like(vt)
     for i in range(Na):
-        va_new[0,:,i] = savgol_filter(va[0,:,i], 21,2)
-        vt_new[0,:,i] = savgol_filter(vt[0,:,i], 21,2)
+        va_new[0,:,i] = savgol_filter(va[0,:,i], Nr//2,2)
+        vt_new[0,:,i] = savgol_filter(vt[0,:,i], Nr//2,2)
     
-    import pylab as plt    
-    #plt.figure(2)
-    #plt.plot(rotor.radius_distribution,va_new[0,:,i],label='smoothed')
-    #plt.plot(rotor.radius_distribution,va[0,:,i],label='original')
-    #plt.legend()
-
-    #plt.figure(5)
-    #plt.plot(rotor.radius_distribution,vt_new[0,:,i],label='smoothed')
-    #plt.plot(rotor.radius_distribution,vt[0,:,i],label='original')
-    #plt.legend()
-    #plt.show()    
-
     return va_new, vt_new
 
 def colorFader(c1,c2,mix=0):
