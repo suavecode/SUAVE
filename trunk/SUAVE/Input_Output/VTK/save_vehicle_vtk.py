@@ -23,10 +23,10 @@ import numpy as np
 import os
 
 ## @ingroup Input_Output-VTK
-def save_vehicle_vtks(vehicle, conditions=None, Results=Data(), 
-                      time_step=0,origin_offset=np.array([0.,0.,0.]),VLM_settings=None, 
+def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
+                      time_step=0,origin_offset=np.array([0.,0.,0.]),VLM_settings=None,
                       prop_filename="propeller.vtk", rot_filename="rotor.vtk",
-                      wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk", 
+                      wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk",
                       fuselage_filename="fuselage.vtk", nacelle_filename="nacelle.vtk", save_loc=None, verbose=False):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
@@ -58,8 +58,8 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
     """
     if (save_loc is not None) and (not os.path.exists(save_loc)):
         os.makedirs(save_loc)
-        print("Directory "+save_loc+" created.") 
-        
+        print("Directory "+save_loc+" created.")
+
     if VLM_settings == None:
         VLM_settings = Vortex_Lattice().settings
         VLM_settings.number_spanwise_vortices  = 25
@@ -89,26 +89,26 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
         if n_props>0:
             for i in range(n_props):
                 propi = propellers[list(propellers.keys())[i]]
-                
+
                 propi.inputs.y_axis_rotation = network.y_axis_rotation
-                
+
                 start_angle = propi.start_angle
                 Na = propi.number_azimuthal_stations
                 angles = np.linspace(0,2*np.pi,Na+1)[:-1]
                 start_angle_idx = np.where(np.isclose(abs(start_angle),angles))[0][0]
-                
-                
+
+
                 # save the ith propeller
                 if save_loc==None:
                     filename = prop_filename
                 else:
                     filename = save_loc + prop_filename
-                    
+
                 sep  = filename.rfind('.')
                 file = filename[0:sep]+str(i)+filename[sep:]
 
                 save_prop_vtk(propi, file, Results, time_step, origin_offset)
-                
+
                 try:
                     # check if rotor has wake present
                     gamma = propi.Wake.vortex_distribution.reshaped_wake.GAMMA[start_angle_idx,:,:,:,:]
@@ -117,7 +117,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 except:
                     wake_present = False
                     pass
-                
+
                 if wake_present:
                     #---------------------------
                     # Save propeller wake to vtk
@@ -129,13 +129,13 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                         filename = save_loc + wake_filename
                     sep  = filename.rfind('.')
                     file = filename[0:sep]+str(i)+"_t."+str(time_step)+filename[sep:]
-                
+
                     Results['prop_outputs'] = propi.outputs
-                    
+
                     # save prop wake
-                    save_prop_wake_vtk(wVD, gamma, file, Results,start_angle_idx,origin_offset,rot=propi.rotation) 
-                
-                    
+                    save_prop_wake_vtk(wVD, gamma, file, Results,start_angle_idx,origin_offset,rot=propi.rotation)
+
+
         try:
             if verbose:
                 print("Attempting to save rotor.")
@@ -153,14 +153,14 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
         if n_rots > 0:
             for i in range(n_rots):
                 roti = lift_rotors[list(lift_rotors.keys())[i]]
-                
+
 
                 start_angle = roti.start_angle
                 Na = roti.number_azimuthal_stations
                 angles = np.linspace(0,2*np.pi,Na+1)[1:]
                 start_angle_idx = np.where(start_angle==angles)
-                
-                
+
+
                 # save the ith rotor
                 if save_loc ==None:
                     filename = prop_filename
@@ -170,7 +170,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 file = filename[0:sep]+str(i)+filename[sep:]
 
                 save_prop_vtk(roti, file, Results,i,time_step, origin_offset)
-                
+
                 try:
                     # check if rotor has wake present
                     gamma = roti.Wake.vortex_distribution.reshaped_wake.GAMMA
@@ -179,8 +179,8 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 except:
                     wake_present = False
                     pass
-                
-                if wake_present:                    
+
+                if wake_present:
                     #---------------------------
                     # Save propeller wake to vtk
                     #---------------------------
@@ -191,15 +191,15 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                         filename = save_loc + wake_filename
                     sep  = filename.rfind('.')
                     file = filename[0:sep]+str(i)+"_t."+str(time_step)+filename[sep:]
-                
+
                     roti_key = list(Results['all_prop_outputs'].keys())[i]
                     Results['prop_outputs'] = Results['all_prop_outputs'][roti_key]
-                    
+
                     # save prop wake
                     wVD = roti.Wake.vortex_distribution.reshaped_wake
-                    save_prop_wake_vtk(wVD, gamma, file, Results,origin_offset,rot=roti.rotation)      
+                    save_prop_wake_vtk(wVD, gamma, file, Results,origin_offset,rot=roti.rotation)
 
-    
+
     #---------------------------
     # Save wing results to vtk
     #---------------------------
@@ -208,17 +208,17 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
         vdPresent = True
     except:
         vdPresent = False
-        
+
     wings      = vehicle.wings
     wing_names = list(wings.keys())
-    n_wings    = len(wing_names)        
+    n_wings    = len(wing_names)
     if vdPresent:
         if 'VLM_wings' in vehicle.vortex_distribution.keys():
             wings      = vehicle.vortex_distribution.VLM_wings
             wing_names = list(wings.keys())
             n_wings    = len(wing_names)
 
-    
+
     for i in range(n_wings):
         if save_loc ==None:
             filename = wing_filename
@@ -231,7 +231,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
         sep  = filename.rfind('.')
         file = filename[0:sep]+str(wing_names[i])+filename[sep:]
         save_wing_vtk(vehicle, wings[wing_names[i]], VLM_settings, file, Results,time_step,origin_offset)
-        
+
 
     #------------------------------
     # Save fuselage results to vtk
@@ -248,7 +248,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
 
         save_fuselage_vtk(vehicle, file, Results, origin_offset)
 
-    
+
     #------------------------------
     # Save nacelles to vtk
     #------------------------------
