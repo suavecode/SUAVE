@@ -5,6 +5,7 @@
 # Modified: 
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
+from scipy.signal import savgol_filter
 import numpy as np
 import scipy as sp
 import copy
@@ -130,7 +131,7 @@ def iteration(PSI, wake_inputs, rotor):
 
     # compute blade airfoil forces and properties
     Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-
+    
     # compute inflow velocity and tip loss factor
     lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
@@ -196,63 +197,28 @@ def va_vt(PSI, wake_inputs, rotor):
     va           = Wa - Ua
     vt           = Ut - Wt
     
-    # interpolate between and replace outliers
-    m = 5.
-    d = np.abs(va - np.median(va))
-    d2 = np.abs(va - np.median(vt))
-    mdev = np.median(d)
-    mdev2 = np.median(d2)
-    s = d/mdev if mdev else 0.
-    s2 = d2/mdev2 if mdev else 0.
-    d_fun = sp.interpolate.interp1d(r[s<m], va[s<m])
-    d2_fun = sp.interpolate.interp1d(r[s2<m], vt[s2<m])
     
-    #------------------------------------------------------------
-    debug=False
-    if debug:
-        import pylab as plt
-        vt_uncorrected = vt
-        va_uncorrected = va
-        va_new = d_fun(r)
-        vt_new = d2_fun(r)
-        
-        fig1,ax1=plt.subplots(figsize=(5,3))
-        fig2,ax2=plt.subplots(figsize=(5,3))
-        for i in range(Na):
-            vt_i          = vt_uncorrected[0,:,i]
-            va_i          = va_uncorrected[0,:,i]
-            va_new_i = va_new[0,:,i]
-            vt_new_i = vt_new[0,:,i]
-            
-            blue_color = colorFader("green","blue",mix=(1/Na)*i)
-            red_color = colorFader("purple","red",mix=(1/Na)*i)
-            ax1.plot(r[0,:,i],va_i,color=red_color)
-            ax1.plot(r[0,:,i],va_new_i,color=blue_color)
-            
-            ax2.plot(r[0,:,i],vt_i,color=red_color)
-            ax2.plot(r[0,:,i],vt_new_i,color=blue_color)        
-        ax1.plot([],[],color='r', label='Uncorrected')     
-        ax1.plot([],[],color='b', label='Outliers Removed') 
-        ax2.plot([],[],color='r', label='Uncorrected')     
-        ax2.plot([],[],color='b', label='Outliers Removed')
-        ax1.set_xlabel('r')
-        ax1.set_ylabel('va')
-        ax2.set_xlabel('r')
-        ax2.set_ylabel('vt')    
-        ax1.legend()
-        ax2.legend()
-        plt.show()    
+    # Least squares to regress window of data onto polynomial 
+    # (https://stackoverflow.com/questions/20618804/how-to-smooth-a-curve-in-the-right-way)
+    va_new = np.zeros_like(va)
+    vt_new = np.zeros_like(vt)
+    for i in range(Na):
+        va_new[0,:,i] = savgol_filter(va[0,:,i], 21,2)
+        vt_new[0,:,i] = savgol_filter(vt[0,:,i], 21,2)
+    
+    import pylab as plt    
+    #plt.figure(2)
+    #plt.plot(rotor.radius_distribution,va_new[0,:,i],label='smoothed')
+    #plt.plot(rotor.radius_distribution,va[0,:,i],label='original')
+    #plt.legend()
 
-    #------------------------------------------------------------    
-    
-    
-    
-    va = d_fun(r)
-    vt = d2_fun(r)
-    
-    
+    #plt.figure(5)
+    #plt.plot(rotor.radius_distribution,vt_new[0,:,i],label='smoothed')
+    #plt.plot(rotor.radius_distribution,vt[0,:,i],label='original')
+    #plt.legend()
+    #plt.show()    
 
-    return va, vt
+    return va_new, vt_new
 
 def colorFader(c1,c2,mix=0):
     import matplotlib as mpl
