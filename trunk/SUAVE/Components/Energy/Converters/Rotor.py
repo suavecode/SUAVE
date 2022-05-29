@@ -19,6 +19,7 @@
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
+from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
      import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 from SUAVE.Methods.Geometry.Three_Dimensional \
@@ -84,6 +85,7 @@ class Rotor(Energy_Component):
         self.airfoil_cl_surrogates        = None
         self.airfoil_cd_surrogates        = None
         self.radius_distribution          = None
+        self.azimuthal_distribution       = None
         self.rotation                     = 1.        
         self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                       = False
@@ -116,16 +118,15 @@ class Rotor(Energy_Component):
         
     def spin(self,conditions):
         
-        thrust_vector, torque, power, Cp, outputs , etap, Wake = self.__spin(conditions)
-        
-        self.Wake = Wake
-        
+        # Split into 3 different functions, pre_wake, wkae, and post_wake
+        wake_inputs                                      = self._prewake(conditions)
+        self.Wake, va, vt                                = self.Wake.evaluate(self,wake_inputs,conditions)
+        thrust_vector, torque, power, Cp, outputs , etap = self._postwake(va, vt, wake_inputs, conditions)
         
         return thrust_vector, torque, power, Cp, outputs , etap
 
-        
-    #@jit
-    def __spin(self,conditions):
+    @jit
+    def _prewake(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     
         Assumptions:
@@ -200,14 +201,7 @@ class Rotor(Energy_Component):
         c       = self.chord_distribution
         sweep   = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
         r_1d    = self.radius_distribution
-        tc      = self.thickness_to_chord
-    
-        # Unpack rotor airfoil data
-        a_geo   = self.airfoil_geometry
-        a_loc   = self.airfoil_polar_stations
-        cl_sur  = self.airfoil_cl_surrogates
-        cd_sur  = self.airfoil_cd_surrogates
-    
+
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega
         Na                    = self.number_azimuthal_stations
@@ -225,7 +219,6 @@ class Rotor(Energy_Component):
         T       = conditions.freestream.temperature[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector
         nu      = mu/rho
-        rho_0   = rho
     
         # Number of radial stations and segment control points
         Nr       = len(c)
@@ -258,7 +251,6 @@ class Rotor(Energy_Component):
         
         # Calculating rotational parameters
         omegar   = jnp.outer(omega,r_1d)
-        n        = omega/(2.*pi)   # Rotations per second
     
         # 2 dimensional radial distribution non dimensionalized
         chi_2d         = jnp.tile(chi[:, None],(1,Na))
@@ -352,6 +344,8 @@ class Rotor(Energy_Component):
         #---------------------------------------------------------------------------
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
+        
+        self.azimuthal_distribution       = psi
         # pack inputs
         wake_inputs                       = Data()
         wake_inputs.velocity_total        = U
@@ -359,15 +353,138 @@ class Rotor(Energy_Component):
         wake_inputs.velocity_tangential   = Ut
         wake_inputs.ctrl_pts              = ctrl_pts
         wake_inputs.Nr                    = Nr
-        wake_inputs.Na                    = Na        
+        wake_inputs.Na                    = Na 
+        wake_inputs.static_keys           = ['Na','Nr']
         wake_inputs.twist_distribution    = beta
         wake_inputs.chord_distribution    = c
         wake_inputs.radius_distribution   = r
         wake_inputs.speed_of_sounds       = a
         wake_inputs.dynamic_viscosities   = nu      
+        wake_inputs.deltar                = deltar  
+        wake_inputs.psi_2d                = psi_2d
+        wake_inputs.r_dim_2d              = r_dim_2d
+        wake_inputs.Vv                    = Vv
+        wake_inputs.T_body2thrust         = T_body2thrust
+        wake_inputs.V                     = V
+
+        return wake_inputs
+    
+    @jit
+    def _postwake(self,va,vt,wake_inputs,conditions):
+        """Analyzes a general rotor given geometry and operating conditions.
+    
+        Assumptions:
+        per source
+    
+        Source:
+        Drela, M. "Qprop Formulation", MIT AeroAstro, June 2006
+        http://web.mit.edu/drela/Public/web/qprop/qprop_theory.pdf
+    
+        Leishman, Gordon J. Principles of helicopter aerodynamics
+        Cambridge university press, 2006.
+    
+        Inputs:
+        self.inputs.omega                    [radian/s]
+        conditions.freestream.
+          density                            [kg/m^3]
+          dynamic_viscosity                  [kg/(m-s)]
+          speed_of_sound                     [m/s]
+          temperature                        [K]
+        conditions.frames.
+          body.transform_to_inertial         (rotation matrix)
+          inertial.velocity_vector           [m/s]
+        conditions.propulsion.
+          throttle                           [-]
+    
+        Outputs:
+        conditions.propulsion.outputs.
+           number_radial_stations            [-]
+           number_azimuthal_stations         [-]
+           disc_radial_distribution          [m]
+           speed_of_sound                    [m/s]
+           density                           [kg/m-3]
+           velocity                          [m/s]
+           disc_tangential_induced_velocity  [m/s]
+           disc_axial_induced_velocity       [m/s]
+           disc_tangential_velocity          [m/s]
+           disc_axial_velocity               [m/s]
+           drag_coefficient                  [-]
+           lift_coefficient                  [-]
+           omega                             [rad/s]
+           disc_circulation                  [-]
+           blade_dQ_dR                       [N/m]
+           blade_dT_dr                       [N]
+           blade_thrust_distribution         [N]
+           disc_thrust_distribution          [N]
+           thrust_per_blade                  [N]
+           thrust_coefficient                [-]
+           azimuthal_distribution            [rad]
+           disc_azimuthal_distribution       [rad]
+           blade_dQ_dR                       [N]
+           blade_dQ_dr                       [Nm]
+           blade_torque_distribution         [Nm]
+           disc_torque_distribution          [Nm]
+           torque_per_blade                  [Nm]
+           torque_coefficient                [-]
+           power                             [W]
+           power_coefficient                 [-]
+    
+        Properties Used:
+        self.
+          number_of_blades                   [-]
+          tip_radius                         [m]
+          twist_distribution                 [radians]
+          chord_distribution                 [m]
+          orientation_euler_angles           [rad, rad, rad]
+        """
         
-        Wake, va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
-                
+        # Unpack rotor blade parameters
+        B       = self.number_of_blades
+        R       = self.tip_radius        
+        r_1d    = self.radius_distribution
+        
+        # unpack wake inputs
+        U        = wake_inputs.velocity_total      
+        Ua       = wake_inputs.velocity_axial
+        Ut       = wake_inputs.velocity_tangential  
+        beta     = wake_inputs.twist_distribution  
+        c        = wake_inputs.chord_distribution 
+        r        = wake_inputs.radius_distribution 
+        a        = wake_inputs.speed_of_sounds   
+        nu       = wake_inputs.dynamic_viscosities 
+        deltar   = wake_inputs.deltar 
+        psi_2d   = wake_inputs.psi_2d      
+        r_dim_2d = wake_inputs.r_dim_2d     
+        Vv       = wake_inputs.Vv      
+        T_body2thrust = wake_inputs.T_body2thrust
+        V        = wake_inputs.V
+        
+        # Number of radial stations and segment control points
+        Nr       = c.shape[1]
+        Na       = c.shape[2]
+        ctrl_pts = len(Vv)        
+
+    
+        # Unpack rotor airfoil data
+        tc      = self.thickness_to_chord
+        a_geo   = self.airfoil_geometry
+        a_loc   = self.airfoil_polar_stations
+        cl_sur  = self.airfoil_cl_surrogates
+        cd_sur  = self.airfoil_cd_surrogates
+        
+        # Unpack rotor inputs and conditions
+        omega   = self.inputs.omega        
+        
+        # Unpack freestream conditions
+        rho     = np.reshape(conditions.freestream.density[:,0,None],(ctrl_pts,1,1))
+        T       = np.reshape(conditions.freestream.temperature[:,0,None],(ctrl_pts,1,1))
+        rho_0   = rho[:,:,0]
+        
+        # Calculating rotational parameters
+        pi       = jnp.pi
+        omegar   = np.reshape(jnp.outer(omega,r_1d),(ctrl_pts,Nr,1))
+        n        = omega/(2.*pi)   # Rotations per second        
+
         # compute new blade velocities
         Wa   = va + Ua
         Wt   = Ut - vt
@@ -393,9 +510,8 @@ class Rotor(Energy_Component):
         Tp          = (Tp_Tinf)*T
         Rp_Rinf     = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
-    
-        epsilon                  = Cd/Cl
-        epsilon                  = jnp.where(epsilon==jnp.inf,10.,epsilon)
+        epsilon     = Cd/Cl
+        epsilon     = jnp.where(epsilon==jnp.inf,10.,epsilon)
     
         # thrust and torque and their derivatives on the blade 
         blade_dT_dr_2d          = rho*(Gamma*(Wt-epsilon*Wa))
@@ -415,8 +531,8 @@ class Rotor(Energy_Component):
         blade_dQ_dr             = jnp.mean((blade_dQ_dr_2d), axis = 2)
     
         # compute the hub force / rotor drag distribution along the blade
-        dL_2d    = 0.5*rho*c_2d*Cd*omegar**2*deltar
-        dD_2d    = 0.5*rho*c_2d*Cl*omegar**2*deltar
+        dL_2d    = 0.5*rho*c*Cd*omegar**2*deltar
+        dD_2d    = 0.5*rho*c*Cl*omegar**2*deltar
     
         rotor_drag_distribution = jnp.mean(dL_2d*jnp.sin(psi_2d) + dD_2d*jnp.cos(psi_2d),axis=2)
     
@@ -462,7 +578,6 @@ class Rotor(Energy_Component):
         conditions.propulsion.etap = etap
     
         # Store data
-        self.azimuthal_distribution                   = psi
         results_conditions                            = Data
         outputs                                       = results_conditions(
                     number_radial_stations            = float(Nr),
@@ -506,14 +621,11 @@ class Rotor(Energy_Component):
                     rotor_drag_coefficient            = Crd,
                     figure_of_merit                   = FoM,
                     tip_mach                          = omega * R / conditions.freestream.speed_of_sound,
-                    wake                              = self.Wake,
                     static_keys                       = ['number_radial_stations']
             )
         self.outputs = outputs
     
-        return thrust_vector, torque, power, Cp, outputs , etap, Wake
-        
-        
+        return thrust_vector, torque, power, Cp, outputs , etap
 
     
     def vec_to_vel(self):

@@ -79,7 +79,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.slipstream                               = False
         
         # Vortex distribution
-        self.vortex_distribution               = Data()
+        self.vortex_distribution                     = Data()
         VD = self.vortex_distribution
         VD.XA1   = None
         VD.YA1   = None
@@ -134,7 +134,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         """
         # run the BET once using fidelity zero inflow
-        rotor_temp = copy.deepcopy(rotor)
+        rotor_temp      = copy.deepcopy(rotor)
         rotor_temp.Wake = Rotor_Wake_Fidelity_Zero()
         _,_,_,_,outputs,_ = rotor_temp.spin(conditions)
         
@@ -146,7 +146,6 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         return rotor
     
-    @jit
     def evaluate(self,rotor,wake_inputs,conditions):
         """
         Wake evaluation is performed using a semi-prescribed vortex wake (PVW) method for Fidelity One.

@@ -79,6 +79,8 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     
     outnits = fori(0,Na,function,inits)
     Va, Vt, VD = outnits    
+    
+    prop.vortex_distribution = VD
 
     return Va, Vt, prop
 
