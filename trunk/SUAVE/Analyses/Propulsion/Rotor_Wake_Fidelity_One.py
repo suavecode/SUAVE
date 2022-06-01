@@ -72,8 +72,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings.static_keys                = ['number_steps_per_rotation','number_rotor_rotations','initial_timestep_offset']
         
         # wake convergence criteria
-        self.maximum_convergence_iteration            = 0.
-        self.axial_velocity_convergence_tolerance     = 1e-2
+        self.maximum_convergence_iteration            = 10.
+        self.axial_velocity_convergence_tolerance     = 1.e-2
         
         # flags for slipstream interaction
         self.slipstream                               = False
@@ -176,6 +176,10 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # Initialize rotor with single pass of VW 
         rotor = self.initialize(rotor,conditions)
+        
+        # This is a local import because F1 recquires higher precision
+        from jax.config import config
+        config.update("jax_enable_x64", True)        
         
         # Converge on the Fidelity-One rotor wake shape
         WD, va, vt = fidelity_one_wake_convergence(self,rotor,wake_inputs)

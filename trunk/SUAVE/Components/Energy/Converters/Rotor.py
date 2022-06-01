@@ -32,8 +32,7 @@ from jax.tree_util import register_pytree_node_class
 from jax import jit, lax
 import jax.numpy as jnp
 
-from jax.config import config
-config.update("jax_enable_x64", True)
+
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -369,7 +368,7 @@ class Rotor(Energy_Component):
 
         return wake_inputs
     
-    @jit
+    #@jit
     def _postwake(self,va,vt,wake_inputs,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     

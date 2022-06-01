@@ -45,6 +45,7 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     None
     """    
     
+    
     # converge on va for a semi-prescribed wake method
 
     
@@ -55,13 +56,12 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     # assume a va by running once
     va, vt, F, rotor = va_vt(wake, wake_inputs, rotor)
     Fva       = F*va   
-
+    
     # Take the jacobian of the iteration loop
     jac = jacobian(iteration)
     
     # Solve!
     Fva_final, ii = simple_newton(iteration,jac,Fva, tol=tol, limit=limit, args=(wake,wake_inputs,rotor))  
-    
     
     rotor.outputs.disc_axial_induced_velocity = jnp.reshape(Fva_final,jnp.shape(rotor.outputs.disc_axial_induced_velocity))     
         
@@ -70,7 +70,6 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     
     # Use the converged solution
     va, vt, F, rotor = va_vt(wake, wake_inputs, rotor)
-    
     
     return wake.vortex_distribution, va, vt
 

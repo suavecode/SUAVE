@@ -12,7 +12,6 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_veloc
 # package imports
 import jax.numpy as jnp
 from jax.lax import fori_loop as fori
-from jax import jit
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
 def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
