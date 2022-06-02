@@ -29,6 +29,11 @@ from Stopped_Rotor       import configs_setup as   EVTOL_configs_setup
 # ----------------------------------------------------------------------
 
 def main():     
+
+    # This is a local import because this test requires higher precision
+    from jax.config import config
+    config.update("jax_enable_x64", True)        
+    
     
     battery_chemistry  =  ['NMC','LFP']
     line_style_new     =  ['bo-','ro-','ko-']

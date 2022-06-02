@@ -38,15 +38,15 @@ import time
 # ----------------------------------------------------------------------
 
 def main():
-    #fidelity zero wakes
-    t0=time.time()
-    Propeller_Slipstream(wake_fidelity=0,identical_props=True)
-    print((time.time()-t0)/60)
+    ##fidelity zero wakes
+    #t0=time.time()
+    #Propeller_Slipstream(wake_fidelity=0,identical_props=True)
+    #print((time.time()-t0)/60)
     
-    # fidelity one wakes
-    t0=time.time()
-    Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
-    print((time.time()-t0)/60)
+    ## fidelity one wakes
+    #t0=time.time()
+    #Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
+    #print((time.time()-t0)/60)
     
     t0=time.time()
     Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
@@ -117,14 +117,14 @@ def regress_1b(results, configs):
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       =0.6020120527032662
-    sectional_lift_coeff_true   = np.array([5.76051875e-01, 5.03685771e-01, 4.83148056e-01, 4.21010488e-01,
-                                            8.19425866e-02, 5.81396069e-01, 5.25806872e-01, 4.90806417e-01,
-                                            4.24278252e-01, 8.25974009e-02, 9.84584227e-03, 8.43693123e-03,
-                                            6.42054996e-03, 5.52292652e-03, 3.77862142e-03, 5.71173407e-03,
-                                            3.64465544e-03, 2.44216238e-03, 2.28990145e-03, 1.70373522e-03,
-                                            3.64536828e-07, 2.10134887e-09, 1.46275907e-09, 3.81171505e-09,
-                                            2.31267338e-09])
+    lift_coefficient_true       = 0.6021635609485746
+    sectional_lift_coeff_true   = np.array([ 5.74660175e-01,  5.18704156e-01,  4.83064023e-01,  4.16629178e-01,
+                                             8.10071238e-02,  5.78455537e-01,  5.33629660e-01,  4.87836955e-01,
+                                             4.18541243e-01,  8.13947681e-02,  2.72027276e-03,  1.49212292e-03,
+                                             6.66987693e-05,  2.08345343e-04,  3.86910176e-04, -2.07408995e-04,
+                                            -1.92698697e-03, -2.77872183e-03, -2.08956618e-03, -1.08109148e-03,
+                                             1.70506491e-07,  9.57154268e-10,  6.29930067e-10,  1.65174034e-09,
+                                             1.00408741e-09])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -210,9 +210,9 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
 def regress_2(results):
 
-    CL_truth  = 0.41613339
-    CDi_truth = 0.00818944
-    CM_truth  = 0.0694829
+    CL_truth  = 0.41598738
+    CDi_truth = 0.01027763
+    CM_truth  = 0.06962641
     
 
     
