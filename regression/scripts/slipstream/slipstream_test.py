@@ -38,7 +38,7 @@ import time
 # ----------------------------------------------------------------------
 
 def main():
-    # fidelity zero wakes
+    #fidelity zero wakes
     t0=time.time()
     Propeller_Slipstream(wake_fidelity=0,identical_props=True)
     print((time.time()-t0)/60)
@@ -156,7 +156,7 @@ def Lift_Rotor_Slipstream(wake_fidelity):
     AoA                                                 = 4 * Units.deg*np.ones((1,1))  
     state.conditions.freestream.mach_number             = 0.15      * np.ones_like(AoA) 
     state.conditions.freestream.density                 = 1.21      * np.ones_like(AoA) 
-    state.conditions.freestream.dynamic_viscosity       = 1.79      * np.ones_like(AoA) 
+    state.conditions.freestream.dynamic_viscosity       = 1.79e-5      * np.ones_like(AoA) 
     state.conditions.freestream.temperature             = 288.      * np.ones_like(AoA) 
     state.conditions.freestream.pressure                = 99915.9   * np.ones_like(AoA) 
     state.conditions.freestream.reynolds_number         = 3453930.8 * np.ones_like(AoA)

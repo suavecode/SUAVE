@@ -19,7 +19,6 @@
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
-from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
      import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 from SUAVE.Methods.Geometry.Three_Dimensional \
@@ -368,7 +367,7 @@ class Rotor(Energy_Component):
 
         return wake_inputs
     
-    #@jit
+    @jit
     def _postwake(self,va,vt,wake_inputs,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     

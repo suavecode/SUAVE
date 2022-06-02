@@ -15,8 +15,9 @@ from jax.lax import fori_loop as fori
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
 def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
-
     """
+    Computs the inflow velocities
+    
     Assumptions:
         None
 
@@ -72,11 +73,11 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     
     # Compute induced velocities at blade from the helical fixed wake
     inits   = (Va,Vt,VD)
-       
     
     function = lambda i, inits: Na_loop(i,inits,rot,omega,t0,Na,prop,wake,cpts,WD,Nr,r_eval,r_midpts)
     
     outnits = fori(0,Na,function,inits)
+    
     Va, Vt, VD = outnits    
     
     prop.vortex_distribution = VD
@@ -122,15 +123,55 @@ def Na_loop(i,inits,rot,omega,t0,Na,prop,wake,cpts,WD,Nr,r_eval,r_midpts):
     vp = jnp.zeros((cpts,Nr))
     wp = jnp.zeros((cpts,Nr))
     
-    for j in range(cpts):
-        up = up.at[j,:].set(jnp.interp(r_eval[j,:],r_midpts[j,:],uprop[j,:]))
-        vp = vp.at[j,:].set(jnp.interp(r_eval[j,:],r_midpts[j,:],vprop[j,:]))
-        wp = wp.at[j,:].set(jnp.interp(r_eval[j,:],r_midpts[j,:],wprop[j,:]))
+    up = interp1d_rotor(r_eval, r_midpts,uprop)
+    vp = interp1d_rotor(r_eval, r_midpts,vprop)
+    wp = interp1d_rotor(r_eval, r_midpts,wprop)
+
 
     # Update velocities at the disc
     Va = Va.at[:,:,i].set(up)
-    Vt = Vt.at[:,:,i].set(rot*(vp*(jnp.cos(blade_angle)) - wp*(jnp.sin(blade_angle)) ))  # velocity component in direction of rotation       
-    
-    
+    Vt = Vt.at[:,:,i].set(-rot*(vp*(jnp.cos(blade_angle)) - wp*(jnp.sin(blade_angle)) ))  # velocity component in direction of rotation       
+
     
     return (Va, Vt, VD)
+
+
+# Interpolator
+
+def interp1d_rotor(eval_x,x_i,y_i):
+    
+    """
+    Does a 1D interpolation on 2D data. The second index is the one that is interpolated on. This really only works on
+    the rotor
+    
+    Assumptions:
+        X IS ALREADY SORTED!!!
+
+    Inputs:
+        x_i   - input x vector to use for interpolation
+        y_i   - input y vector to use for interpolation
+    Outputs:
+       eval_y - interpolated Y values of shape eval_x
+    """
+    
+    # find the inidices less than x_eval, closest point
+    i = jnp.clip(jnp.apply_along_axis(jnp.searchsorted,1,x_i,eval_x,side='right')-1,0,x_i.shape[1]-1)[0,0,:]
+    
+    # Evaluate the points
+    eval_y = y_i[:,i] + (eval_x[:,:]-x_i[:,i])*(y_i[:,i+1]-y_i[:,i])/(x_i[:,i+1]-x_i[:,i])
+    
+    
+    # if the values are outside the range extrapolate
+    # above
+    max_x   = x_i[:,-1]
+    max_y   = y_i[:,-1]
+    max_xm1 = x_i[:,-2]
+    max_ym1 = y_i[:,-2]
+    slope   = (max_y-max_ym1)/(max_x-max_xm1)
+    
+    eval_y = eval_y.at[:,-1].set(max_y+(eval_x[:,-1]-max_x)*slope)
+
+    return eval_y    
+    
+    
+    
