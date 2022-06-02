@@ -38,15 +38,15 @@ import time
 # ----------------------------------------------------------------------
 
 def main():
-    ##fidelity zero wakes
-    #t0=time.time()
-    #Propeller_Slipstream(wake_fidelity=0,identical_props=True)
-    #print((time.time()-t0)/60)
+    #fidelity zero wakes
+    t0=time.time()
+    Propeller_Slipstream(wake_fidelity=0,identical_props=True)
+    print((time.time()-t0)/60)
     
-    ## fidelity one wakes
-    #t0=time.time()
-    #Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
-    #print((time.time()-t0)/60)
+    # fidelity one wakes
+    t0=time.time()
+    Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
+    print((time.time()-t0)/60)
     
     t0=time.time()
     Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
@@ -105,9 +105,9 @@ def regress_1a(results, configs):
     assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
 
     # plot results, vehicle, and vortex distribution
-    #plot_mission(results,configs.base)
-    #plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-    #plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    plot_mission(results,configs.base)
+    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
+    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
               
     return
 
@@ -139,9 +139,9 @@ def regress_1b(results, configs):
     assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
 
     # plot results, vehicle, and vortex distribution
-    #plot_mission(results,configs.base)
-    #plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-    #plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    plot_mission(results,configs.base)
+    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
+    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
               
     return
 
