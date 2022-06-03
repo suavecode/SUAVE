@@ -206,9 +206,9 @@ class Rotor(Energy_Component):
         nonuniform_freestream = self.nonuniform_freestream
         pitch_c               = self.inputs.pitch_command
     
-        # Check for variable pitch
-        vp_cond = jnp.any(pitch_c !=0)
-        self.variable_pitch = lax.cond(vp_cond,lambda:True,lambda:False)
+        ## Check for variable pitch
+        #vp_cond = jnp.any(pitch_c !=0)
+        #self.variable_pitch = lax.cond(vp_cond,lambda:True,lambda:False)
     
         # Unpack freestream conditions
         rho     = conditions.freestream.density[:,0,None]

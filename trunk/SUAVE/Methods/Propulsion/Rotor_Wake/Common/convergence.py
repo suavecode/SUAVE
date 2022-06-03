@@ -40,9 +40,12 @@ def simple_newton(function,jac,intial_x,tol=1e-8,limit=1000.,args=()):
     damping_factor = 1.
     Full_vector    = [Xn,Xnp1,R,ii,damping_factor]
     
-    cond_fun         = lambda Full_vector:cond(Full_vector,tol,limit,function,jac,*args)
-    inner_newton_fun = lambda Full_vector:inner_newton(Full_vector,function,jac,*args)
+    def cond_fun(Full_vector):
+        return cond(Full_vector, tol, limit, function, jac,*args)
         
+    def inner_newton_fun(Full_vector):
+        return inner_newton(Full_vector,function,jac,*args)
+            
     Full_vector = lax.while_loop(cond_fun, inner_newton_fun, Full_vector)
     
     # Unpack the final versioon
@@ -120,10 +123,8 @@ def inner_newton(Full_vector,function,jac,*args):
     # Take the residual
     R  = jnp.max(jnp.abs(Xnp1-Xn))
     
-    # Update the state
-    true_fun  = lambda df: df/2
-    false_fun = lambda df: df
-    df        = lax.cond((R<1e-4)|(ii>8), true_fun, false_fun, df)
+    # scale if necesssary
+    df = jnp.where(((R<1e-4)|(ii>8)),df/2,df)
 
     ii+=1    
     

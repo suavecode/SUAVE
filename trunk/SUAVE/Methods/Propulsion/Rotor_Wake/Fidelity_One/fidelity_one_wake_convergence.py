@@ -51,17 +51,18 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     
     # Pull out the newton end conditions
     tol   = wake.axial_velocity_convergence_tolerance
-    limit = lax.cond(wake.semi_prescribed_converge,lambda : wake.maximum_convergence_iteration, lambda : 0.) 
+    limit = wake.semi_prescribed_converge*wake.maximum_convergence_iteration
         
     # assume a Fva by pulling from the rotor
     Fva   = jnp.array(rotor.outputs.disc_axial_induced_velocity, dtype=jnp.float64)
     
     # Take the jacobian of the iteration loop
-    jac = jacobian(iteration)
+    jac   = jacobian(iteration)
     
     # Solve!
     Fva_final, ii = simple_newton(iteration,jac,Fva, tol=tol, limit=limit, args=(wake,wake_inputs,rotor))  
     
+    # Reshape from 1-D back
     rotor.outputs.disc_axial_induced_velocity = jnp.reshape(Fva_final,jnp.shape(rotor.outputs.disc_axial_induced_velocity))     
         
     # save converged wake:
@@ -78,7 +79,6 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
 # ----------------------------------------------------------------------
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-@jit
 def iteration(Fva,wake,wake_inputs,rotor):
     """
     Computes the BEVW iteration.
@@ -125,7 +125,6 @@ def iteration(Fva,wake,wake_inputs,rotor):
 
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-#@jit
 def va_vt(wake, wake_inputs, rotor):
     """
     Computes the inflow velocities from the inflow angle

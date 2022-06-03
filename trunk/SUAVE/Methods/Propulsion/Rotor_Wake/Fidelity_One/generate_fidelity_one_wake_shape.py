@@ -222,9 +222,12 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     VD = initialize_distributions(Nr, Na, B, nts, m,VD)
     
     # ( azimuthal start index, control point  , blade number , location on blade, time step )
-    true_fun  = lambda VD: true(VD,B,X_pts,Y_pts,Z_pts)
-    false_fun = lambda VD: false(VD,B,X_pts,Y_pts,Z_pts)
-    VD        = cond(rot==-1,true_fun,false_fun,VD)
+    def true_fun(VD):
+        return true(VD,B,X_pts,Y_pts,Z_pts)
+    def false_fun(VD):
+        return false(VD,B,X_pts,Y_pts,Z_pts)
+    
+    VD            = cond(rot==-1,true_fun,false_fun,VD)
 
     VD.Wake.GAMMA = VD.Wake.GAMMA.at[:,:,0:B,:,:].set(Gamma) 
     
