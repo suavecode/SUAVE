@@ -4,18 +4,14 @@
 # Modified:  Feb 2022, R. Erhard
 
 import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units, Data, to_numpy
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Plots.Performance.Propeller_Plots import *
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_wake import compute_wing_wake
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 
-
-from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 import numpy as np
 import pylab as plt
-
-
 
 def main():
     '''
@@ -46,10 +42,10 @@ def case_1(vehicle, conditions):
     prop = vehicle.networks.prop_net.propeller
     prop.inputs.omega = np.ones_like(conditions.aerodynamics.angle_of_attack)*prop.angular_velocity
     prop.orientation_euler_angles  = [0.,20.*Units.degrees,0]
-    prop.use_2d_analysis           = True
+    prop.number_azimuthal_stations = 24
     
     # spin propeller in nonuniform flow
-    thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
+    thrust, torque, power, Cp, outputs , etap = to_numpy(prop.spin(conditions))
 
     # plot velocities at propeller plane and resulting performance
     plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
@@ -98,7 +94,7 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
     prop.radial_velocities_2d     = vr
 
     # spin propeller in nonuniform flow
-    thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
+    thrust, torque, power, Cp, outputs , etap = to_numpy(prop.spin(conditions))
 
     # plot velocities at propeller plane and resulting performance
     plot_propeller_disc_performance(prop,outputs,title='Case 2: Arbitrary Freestream')
@@ -149,7 +145,7 @@ def case_3(vehicle,conditions):
     #--------------------------------------------------------------------------------------
     prop = compute_propeller_nonuniform_freestream(vehicle.networks.prop_net.propeller, wing_wake,conditions)
     prop.nonuniform_freestream = True
-    thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
+    thrust, torque, power, Cp, outputs , etap = to_numpy(prop.spin(conditions))
 
     thrust   = np.linalg.norm(thrust)
     thrust_r, torque_r, power_r, Cp_r, etap_r = 1670.6463962249322, 742.03161805, 101016.98013317, 0.46513985, 0.73932696
@@ -205,7 +201,7 @@ def test_conditions():
     velocity_vector = np.zeros([len(aoa), 3])
     velocity_vector[:, 0] = Vv
     conditions.frames.inertial.velocity_vector = velocity_vector
-    conditions.propulsion.throttle = np.ones_like(velocity_vector)
+    conditions.propulsion.throttle = np.ones_like(conditions.freestream.density)
 
     return conditions
 

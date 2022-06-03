@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units, Data, to_numpy
 
 import numpy as np
 import pylab as plt
@@ -38,7 +38,7 @@ import time
 # ----------------------------------------------------------------------
 
 def main():
-    # fidelity zero wakes
+    #fidelity zero wakes
     t0=time.time()
     Propeller_Slipstream(wake_fidelity=0,identical_props=True)
     print((time.time()-t0)/60)
@@ -117,14 +117,14 @@ def regress_1b(results, configs):
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       = 0.6020199509181722
-    sectional_lift_coeff_true   = np.array([5.75825225e-01, 5.03609037e-01, 4.82878210e-01, 4.20669704e-01,
-                                            8.18479207e-02, 5.81360461e-01, 5.26912059e-01, 4.91028610e-01,
-                                            4.24111367e-01, 8.25293666e-02, 9.65711342e-03, 8.26280064e-03,
-                                            6.24871089e-03, 5.37980406e-03, 3.68930551e-03, 5.38757795e-03,
-                                            3.32372973e-03, 2.14969732e-03, 2.03871211e-03, 1.54056974e-03,
-                                            3.89612411e-07, 2.15707788e-09, 1.68896942e-09, 4.29216228e-09,
-                                            2.59497274e-09])
+    lift_coefficient_true       = 0.6021635609485746
+    sectional_lift_coeff_true   = np.array([ 5.74660175e-01,  5.18704156e-01,  4.83064023e-01,  4.16629178e-01,
+                                             8.10071238e-02,  5.78455537e-01,  5.33629660e-01,  4.87836955e-01,
+                                             4.18541243e-01,  8.13947681e-02,  2.72027276e-03,  1.49212292e-03,
+                                             6.66987693e-05,  2.08345343e-04,  3.86910176e-04, -2.07408995e-04,
+                                            -1.92698697e-03, -2.77872183e-03, -2.08956618e-03, -1.08109148e-03,
+                                             1.70506491e-07,  9.57154268e-10,  6.29930067e-10,  1.65174034e-09,
+                                             1.00408741e-09])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -156,7 +156,7 @@ def Lift_Rotor_Slipstream(wake_fidelity):
     AoA                                                 = 4 * Units.deg*np.ones((1,1))  
     state.conditions.freestream.mach_number             = 0.15      * np.ones_like(AoA) 
     state.conditions.freestream.density                 = 1.21      * np.ones_like(AoA) 
-    state.conditions.freestream.dynamic_viscosity       = 1.79      * np.ones_like(AoA) 
+    state.conditions.freestream.dynamic_viscosity       = 1.79e-5      * np.ones_like(AoA) 
     state.conditions.freestream.temperature             = 288.      * np.ones_like(AoA) 
     state.conditions.freestream.pressure                = 99915.9   * np.ones_like(AoA) 
     state.conditions.freestream.reynolds_number         = 3453930.8 * np.ones_like(AoA)
@@ -178,7 +178,7 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
     prop = vehicle.networks.lift_cruise.propellers.propeller
     prop.inputs.omega = np.ones((1,1)) * 1200.
-    F, Q, P, Cp ,  outputs , etap = prop.spin(state.conditions) 
+    F, Q, P, Cp ,  outputs , etap = to_numpy(prop.spin(state.conditions) )
     prop.outputs = outputs
     
     rot = vehicle.networks.lift_cruise.lift_rotors.lift_rotor
@@ -187,11 +187,13 @@ def Lift_Rotor_Slipstream(wake_fidelity):
     # =========================================================================================================
     # Run Propeller model 
     # =========================================================================================================
-    F, Q, P, Cp ,  outputs , etap = rot.spin(state.conditions) 
+    F, Q, P, Cp ,  outputs , etap = to_numpy(rot.spin(state.conditions))
+    # convert the rotor to numpy
+    rot = to_numpy(rot)
     
     # append outputs for identical rotors
     for r in vehicle.networks.lift_cruise.lift_rotors:
-        r.outputs = outputs 
+        r.outputs = outputs
 
     # =========================================================================================================
     # Run VLM with slipstream
@@ -208,9 +210,9 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
 def regress_2(results):
 
-    CL_truth  = 0.41607938
-    CDi_truth = 0.00895905
-    CM_truth  = 0.06956314
+    CL_truth  = 0.41598738
+    CDi_truth = 0.01027763
+    CM_truth  = 0.06962641
     
 
     

@@ -12,14 +12,14 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core               import Data , Units
+from SUAVE.Core               import Data , Units, to_jnumpy
 from SUAVE.Methods.Aerodynamics.AERODAS.pre_stall_coefficients import pre_stall_coefficients
 from SUAVE.Methods.Aerodynamics.AERODAS.post_stall_coefficients import post_stall_coefficients 
 from .import_airfoil_geometry import import_airfoil_geometry 
 from .import_airfoil_polars   import import_airfoil_polars 
 import numpy as np
 
-from scipy.interpolate import RegularGridInterpolator
+from jax.scipy.interpolate import RegularGridInterpolator
 
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
@@ -173,10 +173,10 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
         
         # remove placeholder values (for airfoils that have different number of polars)
         n_p      = len(a_polar[i])
-        RE_data  = airfoil_polar_data.reynolds_number[i][0:n_p]
-        aoa_data = AoA_sweep_radians
+        RE_data  = to_jnumpy(airfoil_polar_data.reynolds_number[i][0:n_p])
+        aoa_data = to_jnumpy(AoA_sweep_radians)
         
-        CL_sur = RegularGridInterpolator((RE_data, aoa_data), CL[i,0:n_p,:],bounds_error=False,fill_value=None)  
+        CL_sur = RegularGridInterpolator((RE_data, aoa_data), CL[i,0:n_p,:],bounds_error=False,fill_value=None)
         CD_sur = RegularGridInterpolator((RE_data, aoa_data), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
         
         CL_surs[a_geo[i]]  = CL_sur

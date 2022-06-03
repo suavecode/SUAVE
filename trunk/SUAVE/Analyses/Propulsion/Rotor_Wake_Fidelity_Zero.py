@@ -18,10 +18,14 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_fidelity_zero_ind
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
 
 import numpy as np
+from jax.tree_util import register_pytree_node_class
+from jax import jit
+
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Propulsion
+@register_pytree_node_class
 class Rotor_Wake_Fidelity_Zero(Energy_Component):
     """This is a general rotor wake component. 
 
@@ -50,10 +54,10 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         None
         """
 
-        self.tag            = 'rotor_wake'
-        self.wake_method    = 'Fidelity_Zero'
-
-    
+        self.tag                           = 'rotor_wake'
+        self.wake_method                   = 'Fidelity_Zero'
+        self.maximum_convergence_iteration = 1000.
+        
     def evaluate(self,rotor,wake_inputs,conditions):
         """
         
@@ -89,7 +93,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         
         va, vt = fidelity_zero_wake_convergence(self, rotor, wake_inputs)
             
-        return va, vt
+        return self, va, vt
     
     def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
         """
