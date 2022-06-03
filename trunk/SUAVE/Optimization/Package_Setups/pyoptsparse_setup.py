@@ -144,7 +144,10 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
         outputs = opt(opt_prob, sens='FD',sensMode='pgc')
         
     elif solver == 'SNOPT' or solver == 'SLSQP':
-        outputs = opt(opt_prob, sens='FD', sensStep = sense_step)
+        if problem.use_jax_derivatives:
+            outputs = opt(opt_prob, sens=PyOpt_Problem_grads)
+        else:
+            outputs = opt(opt_prob, sens='FD', sensStep = sense_step)
   
     else:
         outputs = opt(opt_prob)        
@@ -198,6 +201,56 @@ def PyOpt_Problem(problem,xdict):
         
     for ii, con in enumerate(const):
         funcs[problem.optimization_problem.constraints[ii,0]] = con
+
+       
+    print('Inputs')
+    print(x)
+    print('Obj')
+    print(obj)
+    print('Con')
+    print(const)
+   
+    return funcs,fail
+
+
+## @ingroup Optimization-Package_Setups
+def PyOpt_Problem_grads(problem,xdict):
+    """ This wrapper runs the SUAVE problem and is called by the PyOpt solver.
+        Prints the inputs (x) as well as the objective values and constraints.
+        If any values produce NaN then a fail flag is thrown.
+
+        Assumptions:
+        The procedure is jaxable!
+
+        Source:
+        N/A
+
+        Inputs:
+        problem   [nexus()]
+        x         [array]
+
+        Outputs:
+        obj       [float]
+        cons      [array]
+        fail      [bool]
+
+        Properties Used:
+        None
+    """      
+   
+    x = xdict.values()
+   
+    obj   = problem.grad_objective(x)
+    const = problem.jacobian_all_constraints(x).tolist()
+    fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
+    
+    funcs = {}
+    
+    objectives  = dict(zip(problem.optimization_problem.objective[:,0],obj))
+    constraints = dict(zip(problem.optimization_problem.constraints[:,0],const))
+    
+    funcs.update(objectives)
+    funcs.update(constraints)
 
        
     print('Inputs')

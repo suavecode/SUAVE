@@ -19,6 +19,8 @@ from copy import deepcopy
 from . import helper_functions as help_fun
 import numpy as np
 
+from jax import grad, jacfwd
+
 # ----------------------------------------------------------------------
 #  Nexus Class
 # ----------------------------------------------------------------------
@@ -71,6 +73,7 @@ class Nexus(Data):
         self.evaluation_count       = 0
         self.force_evaluate         = False
         self.hard_bounded_inputs    = False
+        self.use_jax_derivatives    = False
     
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
@@ -166,7 +169,33 @@ class Nexus(Data):
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
-        return scaled_objective.astype(np.double) 
+        return scaled_objective.astype(np.double)
+    
+    def grad_objective(self,x = None):
+        """Retrieve the objective gradient for your function using JAX
+    
+            Assumptions:
+            Your procedure must contain totally jaxable code, not all of SUAVE is jax-ed
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x       [vector]
+    
+            Outputs:
+            scaled_objective [float]
+    
+            Properties Used:
+            None
+        """
+        
+        
+        grad_function = grad(self.objective)
+        
+        return grad_function(x)
+        
+    
     
     def inequality_constraint(self,x = None):
         """Retrieve the inequality constraint values for your function
@@ -191,7 +220,6 @@ class Nexus(Data):
         
         aliases     = self.optimization_problem.aliases
         constraints = self.optimization_problem.constraints
-        results     = self.results
         
         # Setup constraints  
         indices = []
@@ -219,7 +247,33 @@ class Nexus(Data):
             # coorect constaints based on sign 
             constraint_evaluations[iqconstraints[:,1]=='<'] = -constraint_evaluations[iqconstraints[:,1]=='<']
             
-        return constraint_evaluations       
+        return constraint_evaluations    
+    
+    
+    def jaobian_inequality_constraint(self,x = None):
+        """Retrieve the inequality constraint jacobian for your function using JAX
+    
+            Assumptions:
+            Your procedure must contain totally jaxable code, not all of SUAVE is jax-ed
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x       [vector]
+    
+            Outputs:
+            scaled_objective [float]
+    
+            Properties Used:
+            None
+        """
+        
+        
+        jaobian_function = jacfwd(self.inequality_constraint)
+        
+        return jaobian_function(x)
+        
     
     def equality_constraint(self,x = None):
         """Retrieve the equality constraint values for your function
@@ -261,6 +315,31 @@ class Nexus(Data):
             scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values) - help_fun.scale_const_bnds(eqconstraints)
 
         return scaled_constraints   
+    
+    
+    def jaobian_equality_constraint(self,x = None):
+        """Retrieve the equality constraint jacobian for your function using JAX
+    
+            Assumptions:
+            Your procedure must contain totally jaxable code, not all of SUAVE is jax-ed
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x       [vector]
+    
+            Outputs:
+            scaled_objective [float]
+    
+            Properties Used:
+            None
+        """
+        
+        
+        jaobian_function = jacfwd(self.equality_constraint)
+        
+        return jaobian_function(x)
         
     def all_constraints(self,x = None):
         """Returns both the inequality and equality constraint values for your function
@@ -290,6 +369,31 @@ class Nexus(Data):
         scaled_constraints = help_fun.scale_const_values(constraints,constraint_values) 
 
         return scaled_constraints     
+    
+    
+    def jaobian_all_constraints(self,x = None):
+        """Retrieve the all constraints jacobian for your function using JAX
+    
+            Assumptions:
+            Your procedure must contain totally jaxable code, not all of SUAVE is jax-ed
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x       [vector]
+    
+            Outputs:
+            scaled_objective [float]
+    
+            Properties Used:
+            None
+        """
+        
+        
+        jaobian_function = jacfwd(self.all_constraints)
+        
+        return jaobian_function(x)    
     
     
     def unpack_inputs(self,x = None):
