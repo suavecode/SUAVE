@@ -331,8 +331,9 @@ def calc_va_gamma(rotor):
     gamma_new = np.zeros_like(gamma)
     va_new = np.zeros_like(va)
     for i in range(Na):
-        gamma_new[0,:,i] = savgol_filter(gamma[0,:,i], Nr//2,2)
-        va_new[0,:,i] = savgol_filter(va[0,:,i], Nr//2,2)
+        window_size = (Nr//2) + (1-(Nr//2)%2)
+        gamma_new[0,:,i] = savgol_filter(gamma[0,:,i], window_size,2)
+        va_new[0,:,i] = savgol_filter(va[0,:,i], window_size,2)
         
         ## DEBUG PLOT
         #blue_color = colorFader("blue","green",mix=(1/Na)*i) 

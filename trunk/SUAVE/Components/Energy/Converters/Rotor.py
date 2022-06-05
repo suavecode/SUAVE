@@ -559,6 +559,7 @@ class Rotor(Energy_Component):
                     figure_of_merit                   = FoM,
                     Cfz = Cfz,
                     Cmz = Cmz,
+                    deltar = deltar,
                     tip_mach                          = omega * R / conditions.freestream.speed_of_sound
             )
         self.outputs = outputs

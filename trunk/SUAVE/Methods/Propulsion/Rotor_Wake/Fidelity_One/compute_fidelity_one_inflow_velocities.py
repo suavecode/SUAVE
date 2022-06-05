@@ -106,9 +106,10 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         wp = w_r(r)       
         
         # filter points
-        up = savgol_filter(up, Nr//2,2)
-        vp = savgol_filter(vp, Nr//2,2)
-        wp = savgol_filter(wp, Nr//2,2)
+        window_size = (Nr//2) + (1-(Nr//2)%2)
+        up = savgol_filter(up, window_size,2)
+        vp = savgol_filter(vp, window_size,2)
+        wp = savgol_filter(wp, window_size,2)
 
         # Update velocities at the disc
         Va[:,:,i]  = up

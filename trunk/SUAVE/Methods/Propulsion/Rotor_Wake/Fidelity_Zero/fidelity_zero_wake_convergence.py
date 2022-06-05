@@ -202,8 +202,9 @@ def va_vt(PSI, wake_inputs, rotor):
     va_new = np.zeros_like(va)
     vt_new = np.zeros_like(vt)
     for i in range(Na):
-        va_new[0,:,i] = savgol_filter(va[0,:,i], Nr//2,2)
-        vt_new[0,:,i] = savgol_filter(vt[0,:,i], Nr//2,2)
+        window_size = (Nr//2) + (1-(Nr//2)%2)
+        va_new[0,:,i] = savgol_filter(va[0,:,i], window_size,2)
+        vt_new[0,:,i] = savgol_filter(vt[0,:,i], window_size,2)
     
     return va_new, vt_new
 

@@ -359,8 +359,8 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
         CD = np.zeros_like(Re)
     
         for i in range(n_airfoils):
-            CL[i,:,:] = CL_sur[airfoil_path[i]](Re[i,:,:],alpha[i,:,:]* Units.deg,grid=False)
-            CD[i,:,:] = CD_sur[airfoil_path[i]](Re[i,:,:],alpha[i,:,:]* Units.deg,grid=False)        
+            CL[i,:,:] = CL_sur[airfoil_path[i]]((Re[i,:,:],alpha[i,:,:]* Units.deg))
+            CD[i,:,:] = CD_sur[airfoil_path[i]]((Re[i,:,:],alpha[i,:,:]* Units.deg))      
     
     # Get raw data polars
     airfoil_polar_data = import_airfoil_polars(airfoil_polar_paths)
