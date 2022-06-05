@@ -221,16 +221,29 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     rotor.vortex_distribution = VD        
     VD = initialize_distributions(Nr, Na, B, nts, m,VD)
     
-    # ( azimuthal start index, control point  , blade number , location on blade, time step )
-    def true_fun(VD):
-        return true(VD,B,X_pts,Y_pts,Z_pts)
-    def false_fun(VD):
-        return false(VD,B,X_pts,Y_pts,Z_pts)
+    rot_cond     = rot==-1
+    not_rot_cond = rot==1
+    here         = jnp.s_[:,:,0:B,:,:]
+    neg_neg      = jnp.s_[:, : , :,  :-1 ,  :-1 ]
+    neg_pos      = jnp.s_[:, : , :,  :-1 , 1:   ]
+    pos_neg      = jnp.s_[:, : , :, 1:   ,  :-1 ]
+    pos_pos      = jnp.s_[:, : , :, 1:   , 1:   ]
+        
+    VD.Wake.XA1 = VD.Wake.XA1.at[here].set(X_pts[neg_neg]*rot_cond+X_pts[pos_neg]*not_rot_cond)    
+    VD.Wake.YA1 = VD.Wake.YA1.at[here].set(Y_pts[neg_neg]*rot_cond+Y_pts[pos_neg]*not_rot_cond)
+    VD.Wake.ZA1 = VD.Wake.ZA1.at[here].set(Z_pts[neg_neg]*rot_cond+Z_pts[pos_neg]*not_rot_cond)    
+    VD.Wake.XA2 = VD.Wake.XA2.at[here].set(X_pts[neg_pos]*rot_cond+X_pts[pos_pos]*not_rot_cond)
+    VD.Wake.YA2 = VD.Wake.YA2.at[here].set(Y_pts[neg_pos]*rot_cond+Y_pts[pos_pos]*not_rot_cond)
+    VD.Wake.ZA2 = VD.Wake.ZA2.at[here].set(Z_pts[neg_pos]*rot_cond+Z_pts[pos_pos]*not_rot_cond)    
+    VD.Wake.XB1 = VD.Wake.XB1.at[here].set(X_pts[pos_neg]*rot_cond+X_pts[neg_neg]*not_rot_cond)
+    VD.Wake.YB1 = VD.Wake.YB1.at[here].set(Y_pts[pos_neg]*rot_cond+Y_pts[neg_neg]*not_rot_cond)
+    VD.Wake.ZB1 = VD.Wake.ZB1.at[here].set(Z_pts[pos_neg]*rot_cond+Z_pts[neg_neg]*not_rot_cond)    
+    VD.Wake.XB2 = VD.Wake.XB2.at[here].set(X_pts[pos_pos]*rot_cond+X_pts[neg_pos]*not_rot_cond)
+    VD.Wake.YB2 = VD.Wake.YB2.at[here].set(Y_pts[pos_pos]*rot_cond+Y_pts[neg_pos]*not_rot_cond)
+    VD.Wake.ZB2 = VD.Wake.ZB2.at[here].set(Z_pts[pos_pos]*rot_cond+Z_pts[neg_pos]*not_rot_cond)    
     
-    VD            = cond(rot==-1,true_fun,false_fun,VD)
+    VD.Wake.GAMMA = VD.Wake.GAMMA.at[here].set(Gamma) 
 
-    VD.Wake.GAMMA = VD.Wake.GAMMA.at[:,:,0:B,:,:].set(Gamma) 
-    
     # Append wake geometry and vortex strengths to each individual propeller
     wake.vortex_distribution.reshaped_wake   = VD.Wake
     
@@ -314,41 +327,4 @@ def initialize_distributions(Nr, Na, B, n_wts, m, VD):
     VD.Wake.ZB2   = jnp.zeros(mat1_size) 
     VD.Wake.GAMMA = jnp.zeros(mat1_size)  
  
-    return VD
-
-
-def true(VD,B,X_pts,Y_pts,Z_pts):
-    
-    # panels ordered root to tip, A for inner-most panel edge
-    VD.Wake.XA1 = VD.Wake.XA1.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1 , :-1 ])
-    VD.Wake.YA1 = VD.Wake.YA1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1 , :-1 ])
-    VD.Wake.ZA1 = VD.Wake.ZA1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1 , :-1 ])
-    VD.Wake.XA2 = VD.Wake.XA2.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1 ,  1: ])
-    VD.Wake.YA2 = VD.Wake.YA2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1 ,  1: ])
-    VD.Wake.ZA2 = VD.Wake.ZA2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1 ,  1: ])
-    VD.Wake.XB1 = VD.Wake.XB1.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1:  , :-1 ])
-    VD.Wake.YB1 = VD.Wake.YB1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1:  , :-1 ])
-    VD.Wake.ZB1 = VD.Wake.ZB1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1:  , :-1 ])
-    VD.Wake.XB2 = VD.Wake.XB2.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1:  ,  1: ])
-    VD.Wake.YB2 = VD.Wake.YB2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1:  ,  1: ])
-    VD.Wake.ZB2 = VD.Wake.ZB2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1:  ,  1: ])    
-    
-    return VD
-
-def false(VD,B,X_pts,Y_pts,Z_pts):
-    
-    # positive rotation reverses the A,B nomenclature of the panel
-    VD.Wake.XA1 = VD.Wake.XA1.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1: , :-1 ])
-    VD.Wake.YA1 = VD.Wake.YA1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1: , :-1 ])
-    VD.Wake.ZA1 = VD.Wake.ZA1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1: , :-1 ])
-    VD.Wake.XA2 = VD.Wake.XA2.at[:,:,0:B,:,:].set(X_pts[:, : , :, 1: ,  1: ])
-    VD.Wake.YA2 = VD.Wake.YA2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, 1: ,  1: ])
-    VD.Wake.ZA2 = VD.Wake.ZA2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, 1: ,  1: ])
-    VD.Wake.XB1 = VD.Wake.XB1.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1  , :-1 ])
-    VD.Wake.YB1 = VD.Wake.YB1.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1  , :-1 ])
-    VD.Wake.ZB1 = VD.Wake.ZB1.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1  , :-1 ])
-    VD.Wake.XB2 = VD.Wake.XB2.at[:,:,0:B,:,:].set(X_pts[:, : , :, :-1  ,  1: ])
-    VD.Wake.YB2 = VD.Wake.YB2.at[:,:,0:B,:,:].set(Y_pts[:, : , :, :-1  ,  1: ])
-    VD.Wake.ZB2 = VD.Wake.ZB2.at[:,:,0:B,:,:].set(Z_pts[:, : , :, :-1  ,  1: ])    
-    
     return VD
