@@ -104,19 +104,19 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     time_idx  = jnp.arange(nts)
     Gamma     = jnp.zeros((Na,m,B,Nr-1,nts))
     
-    # generate Gamma for each start angle
-    for ito in range(Na):
-        t_idx     = jnp.atleast_2d(time_idx).T 
-        B_idx     = jnp.arange(B) 
-        B_loc     = (ito + B_idx*num - t_idx )%Na 
-        Gamma1    = gamma_new[:,:,B_loc]  
-        Gamma1    = Gamma1.transpose(0,3,1,2) 
-        Gamma     = Gamma.at[ito,:,:,:,:].set(Gamma1)
+    # generate Gamma for each start angle        
+    ito       = jnp.atleast_3d(jnp.arange(Na)).swapaxes(0,1)
+    t_idx     = jnp.atleast_3d(time_idx)
+    B_idx     = jnp.arange(B) 
+    B_loc     = (ito + B_idx*num - t_idx )%Na 
+    Gamma1    = gamma_new[:,:,B_loc]  
+    Gamma1    = Gamma1.transpose(2,0,4,1,3)
+    Gamma     = Gamma.at[:,:,:,:,:].set(Gamma1)        
   
     # --------------------------------------------------------------------------------------------------------------
     #    ( control point , blade number , radial location on blade , time step )
     # --------------------------------------------------------------------------------------------------------------
-    V_p = jnp.repeat(V_prop[:,:,None],len(ts),axis=2)
+    V_p                = jnp.repeat(V_prop[:,:,None],len(ts),axis=2)
                     
     sx_inf0            = jnp.multiply(V_p*jnp.cos(wake_skew_angle), jnp.repeat(jnp.atleast_2d(ts)[:,None,:],Nr,axis=1))
     sx_inf             = jnp.tile(sx_inf0[None,:, None, :,:], (Na,1,B,1,1))
