@@ -12,6 +12,7 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_veloc
 # package imports
 import jax.numpy as jnp
 from jax.lax import fori_loop as fori
+from jax import jit
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
 def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
@@ -74,8 +75,9 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     # Compute induced velocities at blade from the helical fixed wake
     inits   = (Va,Vt,VD)
     
-    function = lambda i, inits: Na_loop(i,inits,rot,omega,t0,Na,prop,wake,cpts,WD,Nr,r_eval,r_midpts)
-    
+    def function(i,inits):
+        return Na_loop(i,inits,rot,omega,t0,Na,prop,wake,cpts,WD,Nr,r_eval,r_midpts)
+
     outnits = fori(0,Na,function,inits)
     
     Va, Vt, VD = outnits    
@@ -126,7 +128,6 @@ def Na_loop(i,inits,rot,omega,t0,Na,prop,wake,cpts,WD,Nr,r_eval,r_midpts):
     up = interp1d_rotor(r_eval, r_midpts,uprop)
     vp = interp1d_rotor(r_eval, r_midpts,vprop)
     wp = interp1d_rotor(r_eval, r_midpts,wprop)
-
 
     # Update velocities at the disc
     Va = Va.at[:,:,i].set(up)

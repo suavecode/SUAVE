@@ -18,7 +18,6 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Common import simple_newton
 # ----------------------------------------------------------------------
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-@jit
 def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     """
     Wake evaluation is performed using a simplified vortex wake method for Fidelity Zero, 

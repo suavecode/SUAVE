@@ -22,7 +22,6 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Common import simple_newton
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-@jit
 def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     """
     This converges on the wake shape for the fidelity-one rotor wake.
@@ -108,7 +107,7 @@ def iteration(Fva,wake,wake_inputs,rotor):
     B  = rotor.number_of_blades      
 
     # generate wake geometry for rotor
-    WD  = generate_fidelity_one_wake_shape(wake,rotor)
+    WD, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
     
     # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
     va, vt, rotor = compute_fidelity_one_inflow_velocities(wake,rotor, WD)

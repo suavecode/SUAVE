@@ -14,8 +14,7 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_wake_contraction_
 
 # package imports
 from jax import numpy as jnp
-from jax.lax import cond
-
+from jax import jit
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
 def generate_fidelity_one_wake_shape(wake,rotor):

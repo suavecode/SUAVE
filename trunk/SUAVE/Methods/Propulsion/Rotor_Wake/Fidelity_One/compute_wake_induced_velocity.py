@@ -11,7 +11,6 @@
 
 # package imports
 import jax.numpy as jnp
-from jax import jit
 
 # ----------------------------------------------------------------------
 #  Compute Wake Induced Velocity
