@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------
 
 import jax.numpy as jnp
+from jax import jit
 
 
 # ----------------------------------------------------------------------
@@ -108,7 +109,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
     return Cl, Cdval, alpha, Ma, W
 
 
-
+@jit
 def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     """
     Computes the inflow, lamdaw, and the tip loss factor, F.

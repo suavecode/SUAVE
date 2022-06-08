@@ -63,6 +63,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
 
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+@jit
 def iteration(PSI, wake_inputs, rotor):
     """
     Computes the BEVW iteration.
@@ -136,6 +137,7 @@ def iteration(PSI, wake_inputs, rotor):
     return Rsquiggly.flatten()
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+@jit
 def va_vt(PSI, wake_inputs, rotor):
     """
     Computes the inflow velocities from the inflow angle

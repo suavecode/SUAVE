@@ -116,10 +116,22 @@ class Rotor(Energy_Component):
         
     def spin(self,conditions):
         
-        # Split into 3 different functions, pre_wake, wkae, and post_wake
+        # Split into 3 different functions, pre_wake, wake, and post_wake
+        
+        import time
+        T1 = time.time()
         wake_inputs                                      = self._prewake(conditions)
+        T2 = time.time()
+        print("Pre-Wake time")
+        print(T2-T1)
         self.Wake, va, vt                                = self.Wake.evaluate(self,wake_inputs,conditions)
+        T3 = time.time()
+        print('Wake Time')
+        print(T3-T2)
         thrust_vector, torque, power, Cp, outputs , etap = self._postwake(va, vt, wake_inputs, conditions)
+        T4 = time.time()
+        print('Post-Wake time')
+        print(T4-T3)
         
         return thrust_vector, torque, power, Cp, outputs , etap
 
@@ -248,7 +260,7 @@ class Rotor(Energy_Component):
         deltar = deltar.at[-1].set(deltar[-1]/2)
         
         # Calculating rotational parameters
-        omegar   = jnp.outer(omega,r_1d)
+        omegar = jnp.outer(omega,r_1d)
     
         # 2 dimensional radial distribution non dimensionalized
         chi_2d         = jnp.tile(chi[:, None],(1,Na))
@@ -442,20 +454,20 @@ class Rotor(Energy_Component):
         r_1d    = self.radius_distribution
         
         # unpack wake inputs
-        U        = wake_inputs.velocity_total      
-        Ua       = wake_inputs.velocity_axial
-        Ut       = wake_inputs.velocity_tangential  
-        beta     = wake_inputs.twist_distribution  
-        c        = wake_inputs.chord_distribution 
-        r        = wake_inputs.radius_distribution 
-        a        = wake_inputs.speed_of_sounds   
-        nu       = wake_inputs.dynamic_viscosities 
-        deltar   = wake_inputs.deltar 
-        psi_2d   = wake_inputs.psi_2d      
-        r_dim_2d = wake_inputs.r_dim_2d     
-        Vv       = wake_inputs.Vv      
+        U             = wake_inputs.velocity_total      
+        Ua            = wake_inputs.velocity_axial
+        Ut            = wake_inputs.velocity_tangential  
+        beta          = wake_inputs.twist_distribution  
+        c             = wake_inputs.chord_distribution 
+        r             = wake_inputs.radius_distribution 
+        a             = wake_inputs.speed_of_sounds   
+        nu            = wake_inputs.dynamic_viscosities 
+        deltar        = wake_inputs.deltar 
+        psi_2d        = wake_inputs.psi_2d      
+        r_dim_2d      = wake_inputs.r_dim_2d     
+        Vv            = wake_inputs.Vv      
+        V             = wake_inputs.V
         T_body2thrust = wake_inputs.T_body2thrust
-        V        = wake_inputs.V
         
         # Number of radial stations and segment control points
         Nr       = c.shape[1]
