@@ -44,10 +44,6 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     None
     """    
     
-    
-    # converge on va for a semi-prescribed wake method
-
-    
     # Pull out the newton end conditions
     tol   = wake.axial_velocity_convergence_tolerance
     limit = wake.semi_prescribed_converge*wake.maximum_convergence_iteration

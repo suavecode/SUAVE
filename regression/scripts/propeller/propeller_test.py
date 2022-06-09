@@ -21,9 +21,6 @@ import copy, time
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 
-#from jax.config import config
-#config.update("jax_enable_x64", True)
-
 def main():
     
     # This script could fail if either the design or analysis scripts fail,

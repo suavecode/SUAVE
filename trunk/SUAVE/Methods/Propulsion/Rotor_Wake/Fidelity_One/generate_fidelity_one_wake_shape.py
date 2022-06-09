@@ -221,28 +221,28 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     rotor.vortex_distribution = VD        
     VD = initialize_distributions(Nr, Na, B, nts, m,VD)
     
-    rot_cond     = rot==-1
-    not_rot_cond = rot==1
-    here         = jnp.s_[:,:,0:B,:,:]
-    neg_neg      = jnp.s_[:, : , :,  :-1 ,  :-1 ]
-    neg_pos      = jnp.s_[:, : , :,  :-1 , 1:   ]
-    pos_neg      = jnp.s_[:, : , :, 1:   ,  :-1 ]
-    pos_pos      = jnp.s_[:, : , :, 1:   , 1:   ]
+    rot_cond       = rot==-1
+    not_rot_cond   = rot==1
+    blade_data_idx = jnp.s_[:,:,0:B,:,:]
+    neg_neg        = jnp.s_[:, : , :,  :-1 ,  :-1 ]
+    neg_pos        = jnp.s_[:, : , :,  :-1 , 1:   ]
+    pos_neg        = jnp.s_[:, : , :, 1:   ,  :-1 ]
+    pos_pos        = jnp.s_[:, : , :, 1:   , 1:   ]
         
-    VD.Wake.XA1 = VD.Wake.XA1.at[here].set(X_pts[neg_neg]*rot_cond+X_pts[pos_neg]*not_rot_cond)    
-    VD.Wake.YA1 = VD.Wake.YA1.at[here].set(Y_pts[neg_neg]*rot_cond+Y_pts[pos_neg]*not_rot_cond)
-    VD.Wake.ZA1 = VD.Wake.ZA1.at[here].set(Z_pts[neg_neg]*rot_cond+Z_pts[pos_neg]*not_rot_cond)    
-    VD.Wake.XA2 = VD.Wake.XA2.at[here].set(X_pts[neg_pos]*rot_cond+X_pts[pos_pos]*not_rot_cond)
-    VD.Wake.YA2 = VD.Wake.YA2.at[here].set(Y_pts[neg_pos]*rot_cond+Y_pts[pos_pos]*not_rot_cond)
-    VD.Wake.ZA2 = VD.Wake.ZA2.at[here].set(Z_pts[neg_pos]*rot_cond+Z_pts[pos_pos]*not_rot_cond)    
-    VD.Wake.XB1 = VD.Wake.XB1.at[here].set(X_pts[pos_neg]*rot_cond+X_pts[neg_neg]*not_rot_cond)
-    VD.Wake.YB1 = VD.Wake.YB1.at[here].set(Y_pts[pos_neg]*rot_cond+Y_pts[neg_neg]*not_rot_cond)
-    VD.Wake.ZB1 = VD.Wake.ZB1.at[here].set(Z_pts[pos_neg]*rot_cond+Z_pts[neg_neg]*not_rot_cond)    
-    VD.Wake.XB2 = VD.Wake.XB2.at[here].set(X_pts[pos_pos]*rot_cond+X_pts[neg_pos]*not_rot_cond)
-    VD.Wake.YB2 = VD.Wake.YB2.at[here].set(Y_pts[pos_pos]*rot_cond+Y_pts[neg_pos]*not_rot_cond)
-    VD.Wake.ZB2 = VD.Wake.ZB2.at[here].set(Z_pts[pos_pos]*rot_cond+Z_pts[neg_pos]*not_rot_cond)    
+    VD.Wake.XA1 = VD.Wake.XA1.at[blade_data_idx].set(X_pts[neg_neg]*rot_cond+X_pts[pos_neg]*not_rot_cond)    
+    VD.Wake.YA1 = VD.Wake.YA1.at[blade_data_idx].set(Y_pts[neg_neg]*rot_cond+Y_pts[pos_neg]*not_rot_cond)
+    VD.Wake.ZA1 = VD.Wake.ZA1.at[blade_data_idx].set(Z_pts[neg_neg]*rot_cond+Z_pts[pos_neg]*not_rot_cond)    
+    VD.Wake.XA2 = VD.Wake.XA2.at[blade_data_idx].set(X_pts[neg_pos]*rot_cond+X_pts[pos_pos]*not_rot_cond)
+    VD.Wake.YA2 = VD.Wake.YA2.at[blade_data_idx].set(Y_pts[neg_pos]*rot_cond+Y_pts[pos_pos]*not_rot_cond)
+    VD.Wake.ZA2 = VD.Wake.ZA2.at[blade_data_idx].set(Z_pts[neg_pos]*rot_cond+Z_pts[pos_pos]*not_rot_cond)    
+    VD.Wake.XB1 = VD.Wake.XB1.at[blade_data_idx].set(X_pts[pos_neg]*rot_cond+X_pts[neg_neg]*not_rot_cond)
+    VD.Wake.YB1 = VD.Wake.YB1.at[blade_data_idx].set(Y_pts[pos_neg]*rot_cond+Y_pts[neg_neg]*not_rot_cond)
+    VD.Wake.ZB1 = VD.Wake.ZB1.at[blade_data_idx].set(Z_pts[pos_neg]*rot_cond+Z_pts[neg_neg]*not_rot_cond)    
+    VD.Wake.XB2 = VD.Wake.XB2.at[blade_data_idx].set(X_pts[pos_pos]*rot_cond+X_pts[neg_pos]*not_rot_cond)
+    VD.Wake.YB2 = VD.Wake.YB2.at[blade_data_idx].set(Y_pts[pos_pos]*rot_cond+Y_pts[neg_pos]*not_rot_cond)
+    VD.Wake.ZB2 = VD.Wake.ZB2.at[blade_data_idx].set(Z_pts[pos_pos]*rot_cond+Z_pts[neg_pos]*not_rot_cond)    
     
-    VD.Wake.GAMMA = VD.Wake.GAMMA.at[here].set(Gamma) 
+    VD.Wake.GAMMA = VD.Wake.GAMMA.at[blade_data_idx].set(Gamma) 
 
     # Append wake geometry and vortex strengths to each individual propeller
     wake.vortex_distribution.reshaped_wake   = VD.Wake

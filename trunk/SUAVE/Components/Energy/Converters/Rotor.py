@@ -28,7 +28,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 import numpy as np
 import scipy as sp
 from jax.tree_util import register_pytree_node_class
-from jax import jit, lax
+from jax import jit
 import jax.numpy as jnp
 
 
@@ -215,10 +215,6 @@ class Rotor(Energy_Component):
         Na                    = self.number_azimuthal_stations
         nonuniform_freestream = self.nonuniform_freestream
         pitch_c               = self.inputs.pitch_command
-    
-        # Check for variable pitch
-        #vp_cond = jnp.any(pitch_c !=0)
-        #self.variable_pitch = lax.cond(vp_cond,lambda:True,lambda:False)
     
         # Unpack freestream conditions
         rho     = conditions.freestream.density[:,0,None]
