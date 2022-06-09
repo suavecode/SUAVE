@@ -197,7 +197,6 @@ class Rotor(Energy_Component):
     
         Properties Used:
         self.
-          number_of_blades                   [-]
           tip_radius                         [m]
           twist_distribution                 [radians]
           chord_distribution                 [m]
@@ -205,7 +204,6 @@ class Rotor(Energy_Component):
         """
     
         # Unpack rotor blade parameters
-        B       = self.number_of_blades
         R       = self.tip_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
@@ -491,9 +489,9 @@ class Rotor(Energy_Component):
         rho_0   = rho[:,:,0]
         
         # Calculating rotational parameters
-        pi       = jnp.pi
-        omegar   = np.reshape(jnp.outer(omega,r_1d),(ctrl_pts,Nr,1))
-        n        = omega/(2.*pi)   # Rotations per second        
+        pi      = jnp.pi
+        omegar  = np.reshape(jnp.outer(omega,r_1d),(ctrl_pts,Nr,1))
+        n       = omega/(2.*pi)   # Rotations per second        
 
         # compute new blade velocities
         Wa   = va + Ua
@@ -694,7 +692,6 @@ class Rotor(Energy_Component):
         rots       = jnp.repeat(rots[None,:], cpts, axis=0)
         rots       = rots.at[:,1].add(jnp.atleast_2d(self.inputs.y_axis_rotation)[:,0])
         
-        #vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
         T1 = jnp.atleast_2d(rots[:,0]).T
         T2 = jnp.atleast_2d(rots[:,1]).T
         T3 = jnp.atleast_2d(rots[:,2]).T
