@@ -13,6 +13,8 @@
 # package imports
 import jax.numpy as jnp
 
+from jax.lax import scan
+
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 def compute_wake_contraction_matrix(prop,Nr,m,nts,X_pts,prop_outputs):
     """ This computes slipstream development factor for all points 
@@ -29,7 +31,7 @@ def compute_wake_contraction_matrix(prop,Nr,m,nts,X_pts,prop_outputs):
     Inputs: 
     prop     - propeller/rotor data structure       
     Nr       - discretization on propeller/rotor [Unitless] 
-    m        - control points in segemnt         [Unitless] 
+    m        - control points in segment         [Unitless] 
     nts      - number of timesteps               [Unitless] 
     X_pts    - location of wake points           [meters] 
 
@@ -46,7 +48,7 @@ def compute_wake_contraction_matrix(prop,Nr,m,nts,X_pts,prop_outputs):
     s2                = 1 + s/(jnp.sqrt(s**2 + R_p**2))
     Kd                = jnp.repeat(jnp.atleast_2d(s2)[:, None, :], rdim , axis = 1)  
     
-    # TO DO: UPDATE FOR ANGLES SO THAT VELOCITY IS COMPONENT IN ROTOR AXIS FRAME
+    # TO DO: UPDATE FOR ANGLES SO THAT VELOCITY COMPONENT IS IN ROTOR AXIS FRAME
     VX                = jnp.repeat(jnp.repeat(jnp.atleast_2d(prop_outputs.velocity[:,0]).T, rdim, axis = 1)[:, :, None], nts , axis = 2) # dimension (num control points, propeller distribution, wake points )
    
     prop_dif          = jnp.atleast_2d(va[:,1:] +  va[:,:-1])
@@ -58,10 +60,17 @@ def compute_wake_contraction_matrix(prop,Nr,m,nts,X_pts,prop_outputs):
     r_diff            = jnp.repeat(jnp.atleast_2d(r_diff)[:, :, None], nts, axis = 2) 
     r_prime           = jnp.zeros((m,Nr,nts))                
     r_prime           = r_prime.at[:,0,:].set(R0)
-    for j in range(rdim):
-        r_prime = r_prime.at[:,1+j,:].set(jnp.sqrt(r_prime[:,j,:]**2 + (r_diff*Kv)[:,j,:]))                       
     
+    def scan_func(carry,x):
+        
+        y = jnp.sqrt(carry**2 + x)
+        
+        return y, y
+    
+    xs      = (r_diff*Kv).swapaxes(0,1)
+    _, y    = scan(scan_func,r_prime[:,0,:],xs)
+    r_prime = r_prime.at[:,1:,:].set(y.swapaxes(0,1))
+        
     wake_contraction  = jnp.repeat((r_prime/jnp.repeat(jnp.atleast_2d(r)[:, :, None], nts, axis = 2))[:,None,:,:], B, axis = 1)            
     
     return wake_contraction 
-            

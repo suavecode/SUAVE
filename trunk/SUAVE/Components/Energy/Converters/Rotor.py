@@ -28,7 +28,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 import numpy as np
 import scipy as sp
 from jax.tree_util import register_pytree_node_class
-from jax import jit, lax
+from jax import jit
 import jax.numpy as jnp
 
 
@@ -116,10 +116,22 @@ class Rotor(Energy_Component):
         
     def spin(self,conditions):
         
-        # Split into 3 different functions, pre_wake, wkae, and post_wake
+        # Split into 3 different functions, pre_wake, wake, and post_wake
+        
+        import time
+        T1 = time.time()
         wake_inputs                                      = self._prewake(conditions)
+        T2 = time.time()
+        print("Pre-Wake time")
+        print(T2-T1)
         self.Wake, va, vt                                = self.Wake.evaluate(self,wake_inputs,conditions)
+        T3 = time.time()
+        print('Wake Time')
+        print(T3-T2)
         thrust_vector, torque, power, Cp, outputs , etap = self._postwake(va, vt, wake_inputs, conditions)
+        T4 = time.time()
+        print('Post-Wake time')
+        print(T4-T3)
         
         return thrust_vector, torque, power, Cp, outputs , etap
 
@@ -185,7 +197,6 @@ class Rotor(Energy_Component):
     
         Properties Used:
         self.
-          number_of_blades                   [-]
           tip_radius                         [m]
           twist_distribution                 [radians]
           chord_distribution                 [m]
@@ -193,7 +204,6 @@ class Rotor(Energy_Component):
         """
     
         # Unpack rotor blade parameters
-        B       = self.number_of_blades
         R       = self.tip_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
@@ -205,10 +215,6 @@ class Rotor(Energy_Component):
         Na                    = self.number_azimuthal_stations
         nonuniform_freestream = self.nonuniform_freestream
         pitch_c               = self.inputs.pitch_command
-    
-        ## Check for variable pitch
-        #vp_cond = jnp.any(pitch_c !=0)
-        #self.variable_pitch = lax.cond(vp_cond,lambda:True,lambda:False)
     
         # Unpack freestream conditions
         rho     = conditions.freestream.density[:,0,None]
@@ -248,7 +254,7 @@ class Rotor(Energy_Component):
         deltar = deltar.at[-1].set(deltar[-1]/2)
         
         # Calculating rotational parameters
-        omegar   = jnp.outer(omega,r_1d)
+        omegar = jnp.outer(omega,r_1d)
     
         # 2 dimensional radial distribution non dimensionalized
         chi_2d         = jnp.tile(chi[:, None],(1,Na))
@@ -442,20 +448,20 @@ class Rotor(Energy_Component):
         r_1d    = self.radius_distribution
         
         # unpack wake inputs
-        U        = wake_inputs.velocity_total      
-        Ua       = wake_inputs.velocity_axial
-        Ut       = wake_inputs.velocity_tangential  
-        beta     = wake_inputs.twist_distribution  
-        c        = wake_inputs.chord_distribution 
-        r        = wake_inputs.radius_distribution 
-        a        = wake_inputs.speed_of_sounds   
-        nu       = wake_inputs.dynamic_viscosities 
-        deltar   = wake_inputs.deltar 
-        psi_2d   = wake_inputs.psi_2d      
-        r_dim_2d = wake_inputs.r_dim_2d     
-        Vv       = wake_inputs.Vv      
+        U             = wake_inputs.velocity_total      
+        Ua            = wake_inputs.velocity_axial
+        Ut            = wake_inputs.velocity_tangential  
+        beta          = wake_inputs.twist_distribution  
+        c             = wake_inputs.chord_distribution 
+        r             = wake_inputs.radius_distribution 
+        a             = wake_inputs.speed_of_sounds   
+        nu            = wake_inputs.dynamic_viscosities 
+        deltar        = wake_inputs.deltar 
+        psi_2d        = wake_inputs.psi_2d      
+        r_dim_2d      = wake_inputs.r_dim_2d     
+        Vv            = wake_inputs.Vv      
+        V             = wake_inputs.V
         T_body2thrust = wake_inputs.T_body2thrust
-        V        = wake_inputs.V
         
         # Number of radial stations and segment control points
         Nr       = c.shape[1]
@@ -479,9 +485,9 @@ class Rotor(Energy_Component):
         rho_0   = rho[:,:,0]
         
         # Calculating rotational parameters
-        pi       = jnp.pi
-        omegar   = np.reshape(jnp.outer(omega,r_1d),(ctrl_pts,Nr,1))
-        n        = omega/(2.*pi)   # Rotations per second        
+        pi      = jnp.pi
+        omegar  = np.reshape(jnp.outer(omega,r_1d),(ctrl_pts,Nr,1))
+        n       = omega/(2.*pi)   # Rotations per second        
 
         # compute new blade velocities
         Wa   = va + Ua
@@ -682,7 +688,6 @@ class Rotor(Energy_Component):
         rots       = jnp.repeat(rots[None,:], cpts, axis=0)
         rots       = rots.at[:,1].add(jnp.atleast_2d(self.inputs.y_axis_rotation)[:,0])
         
-        #vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
         T1 = jnp.atleast_2d(rots[:,0]).T
         T2 = jnp.atleast_2d(rots[:,1]).T
         T3 = jnp.atleast_2d(rots[:,2]).T

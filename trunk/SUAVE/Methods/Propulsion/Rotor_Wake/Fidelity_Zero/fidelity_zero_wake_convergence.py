@@ -18,7 +18,6 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Common import simple_newton
 # ----------------------------------------------------------------------
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-@jit
 def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     """
     Wake evaluation is performed using a simplified vortex wake method for Fidelity Zero, 
@@ -64,6 +63,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
 
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+@jit
 def iteration(PSI, wake_inputs, rotor):
     """
     Computes the BEVW iteration.
@@ -86,7 +86,6 @@ def iteration(PSI, wake_inputs, rotor):
        Ua                         axial velocity                                  [m/s]
        cos_psi                    cosine of the inflow angle PSI                  [-]
        sin_psi                    sine of the inflow angle PSI                    [-]
-       piece                      output of a step in tip loss calculation        [-]
 
     Outputs:
        dR_dpsi                    derivative of residual wrt inflow angle         [-]
@@ -128,7 +127,7 @@ def iteration(PSI, wake_inputs, rotor):
     Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc)
 
     # compute inflow velocity and tip loss factor
-    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+    lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
     # compute Newton residual on circulation
     Gamma       = vt*(4.*jnp.pi*r/B)*F*(1.+(4.*lamdaw*R/(jnp.pi*B*r))*(4.*lamdaw*R/(jnp.pi*B*r)))**0.5
@@ -137,6 +136,7 @@ def iteration(PSI, wake_inputs, rotor):
     return Rsquiggly.flatten()
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+@jit
 def va_vt(PSI, wake_inputs, rotor):
     """
     Computes the inflow velocities from the inflow angle

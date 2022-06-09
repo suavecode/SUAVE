@@ -11,7 +11,6 @@
 
 # package imports
 import jax.numpy as jnp
-from jax import jit
 
 # ----------------------------------------------------------------------
 #  Compute Wake Induced Velocity
@@ -164,7 +163,6 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,sigma, GAMMA = 1, bv=False,WD=None,use_regula
 
 def row_reduction_summation(A):
     # sum along last axis
-    #sum_res = A.dot(jnp.ones(A.shape[-1])) # sum along axis
     sum_res = jnp.dot(A,jnp.ones(A.shape[-1])) # sum along axis
     
     return sum_res

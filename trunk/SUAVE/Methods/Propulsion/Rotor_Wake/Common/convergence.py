@@ -9,14 +9,14 @@
 # ----------------------------------------------------------------------
 
 import jax.numpy as jnp
-from jax import lax, jit
+from jax.lax import while_loop
 
 # ----------------------------------------------------------------------
 #  Newton Function
 # ----------------------------------------------------------------------
 def simple_newton(function,jac,intial_x,tol=1e-8,limit=1000.,args=()):
     """
-    Performs the inside of the while loop in a newton iteration
+    This is the simple newton solver that rotors use
 
     Assumptions:
     N/A
@@ -46,13 +46,36 @@ def simple_newton(function,jac,intial_x,tol=1e-8,limit=1000.,args=()):
     def inner_newton_fun(Full_vector):
         return inner_newton(Full_vector,function,jac,*args)
             
-    Full_vector = lax.while_loop(cond_fun, inner_newton_fun, Full_vector)
+    Full_vector = while_loop(cond_fun, inner_newton_fun, Full_vector)
     
     # Unpack the final versioon
     Xnp1 = Full_vector[1]
     ii   = Full_vector[3]
 
     return Xnp1, ii
+
+
+def while_loop(cond_fun, body_fun, init_val):
+    """
+    This is the Python equivalent of a LAX While
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+
+
+    Outputs:
+
+
+    """       
+    val = init_val
+    while cond_fun(val):
+        val = body_fun(val)
+    return val
 
 
 # ----------------------------------------------------------------------

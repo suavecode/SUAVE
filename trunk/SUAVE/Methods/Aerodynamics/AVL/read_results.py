@@ -140,7 +140,7 @@ def read_results(avl_object):
         alpha_i              = np.zeros((n_wings,n_sw))
         wing_cd              = np.zeros((n_wings,n_sw))   
         
-        # Extract resulst from surface forces result file
+        # Extract results from surface forces result file
         with open(case.aero_result_filename_2,'r') as aero_res_file:
             aero_lines   = aero_res_file.readlines()
             line_idx     = 0
@@ -154,7 +154,7 @@ def read_results(avl_object):
             case_res.aerodynamics.wing_CLs   = wing_CL 
             case_res.aerodynamics.wing_CDs   = wing_CD
             
-        # Extract resulst from  strip forces result file
+        # Extract results from  strip forces result file
         with open(case.aero_result_filename_3,'r') as aero_res_file_2:
             aero_lines_2     = aero_res_file_2.readlines()
             line_idx         = 0
