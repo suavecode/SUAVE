@@ -13,19 +13,21 @@
 
 # suave imports
 import SUAVE 
-from SUAVE.Core import Data, DataOrdered
+from SUAVE.Core import Data
 from SUAVE.Analyses import Process
 from copy import deepcopy
 from . import helper_functions as help_fun
 import numpy as np
 
-from jax import grad, jacfwd
+from jax import jacfwd
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Nexus Class
 # ----------------------------------------------------------------------
 
 ## @ingroup Optimization
+@register_pytree_node_class
 class Nexus(Data):
     """noun (plural same or nexuses)
         -a connection or series of connections linking two or more things
@@ -67,10 +69,10 @@ class Nexus(Data):
         self.results                = Data()
         self.summary                = Data()
         self.optimization_problem   = None
-        self.fidelity_level         = 1
+        self.fidelity_level         = 1.
         self.last_inputs            = None
         self.last_fidelity          = None
-        self.evaluation_count       = 0
+        self.evaluation_count       = 0.
         self.force_evaluate         = False
         self.hard_bounded_inputs    = False
         self.use_jax_derivatives    = False
@@ -104,7 +106,7 @@ class Nexus(Data):
             pass
         else:
             self._really_evaluate()
-        
+
     
     def _really_evaluate(self):
         """Tricky little function you're not supposed to use. Doesn't check if the last inputs were already run.
@@ -140,6 +142,8 @@ class Nexus(Data):
         # Store to cache
         self.last_inputs   = deepcopy(self.optimization_problem.inputs)
         self.last_fidelity = self.fidelity_level
+        
+        return self
           
     
     def objective(self,x = None):
@@ -169,7 +173,7 @@ class Nexus(Data):
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
-        return scaled_objective.astype(np.double)
+        return scaled_objective.astype(np.double)  
     
     def grad_objective(self,x = None):
         """Retrieve the objective gradient for your function using JAX
@@ -189,11 +193,14 @@ class Nexus(Data):
             Properties Used:
             None
         """
+        # X cannot be None for grad
         
         
-        grad_function = grad(self.objective)
+        grad_function = jacfwd(self._really_evaluate)
         
-        return grad_function(x)
+        grad = grad_function(self)
+        
+        return grad
         
     
     
@@ -391,9 +398,9 @@ class Nexus(Data):
         """
         
         
-        jaobian_function = jacfwd(self.all_constraints)
+        jacobian_function = jacfwd(self.all_constraints)
         
-        return jaobian_function(x)    
+        return jacobian_function(x)    
     
     
     def unpack_inputs(self,x = None):
@@ -431,6 +438,7 @@ class Nexus(Data):
         aliases = self.optimization_problem.aliases
         
         self    = help_fun.set_values(self,inputs,converted_values,aliases)     
+               
 
     
     def constraints_individual(self,x = None):

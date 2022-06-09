@@ -14,6 +14,7 @@
 
 from SUAVE.Components import Physical_Component
 from SUAVE.Core import Data
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Network
@@ -54,9 +55,9 @@ class Network(Physical_Component):
                 N/A
         """
         self.tag = 'network'
-        self.generative_design_max_per_vehicle = 1
+        self.generative_design_max_per_vehicle = 1.0
         self.non_dimensional_origin = [[0.0,0.0,0.0]]
-        self.number_of_engines = 1
+        self.number_of_engines = 1.0
         self.engine_length     = 1.0
         self.wing_mounted      = True
         
@@ -67,6 +68,7 @@ class Network(Physical_Component):
         self.areas.inflow      = 0.0
         
 ## @ingroup Components-Energy-Networks
+@register_pytree_node_class        
 class Container(Physical_Component.Container):
     """ SUAVE.Components.Energy.Networks.Network.Container()
         

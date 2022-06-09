@@ -10,6 +10,8 @@
 
 from SUAVE.Core import Data
 from .Component import Component
+from jax.tree_util import register_pytree_node_class
+
 
 
 # ----------------------------------------------------------------------
@@ -17,6 +19,7 @@ from .Component import Component
 # ----------------------------------------------------------------------
 
 ## @ingroup Components
+@register_pytree_node_class    
 class Envelope(Component):
     """ Flight envelope for a vehicle
     
@@ -62,22 +65,22 @@ class Envelope(Component):
         self.maneuver = Data()
         self.maneuver.load_alleviation_factor = 0.0
         self.maneuver.equivalent_speed = Data()
-        self.maneuver.equivalent_speed.velocity_max_gust   = 0
-        self.maneuver.equivalent_speed.velocity_max_cruise = 0
-        self.maneuver.equivalent_speed.velocity_max_dive   = 0
+        self.maneuver.equivalent_speed.velocity_max_gust   = 0.
+        self.maneuver.equivalent_speed.velocity_max_cruise = 0.
+        self.maneuver.equivalent_speed.velocity_max_dive   = 0.
         self.maneuver.load_factor = Data()
-        self.maneuver.load_factor.velocity_max_gust   = 0
-        self.maneuver.load_factor.velocity_max_cruise = 0
-        self.maneuver.load_factor.velocity_max_dive   = 0
+        self.maneuver.load_factor.velocity_max_gust   = 0.
+        self.maneuver.load_factor.velocity_max_cruise = 0.
+        self.maneuver.load_factor.velocity_max_dive   = 0.
 
         self.gust = Data()
         self.gust.load_alleviation_factor = 0.0
         self.gust.equivalent_speed = Data()
-        self.gust.equivalent_speed.velocity_max_gust   = 0
-        self.gust.equivalent_speed.velocity_max_cruise = 0
-        self.gust.equivalent_speed.velocity_max_dive   = 0
+        self.gust.equivalent_speed.velocity_max_gust   = 0.
+        self.gust.equivalent_speed.velocity_max_cruise = 0.
+        self.gust.equivalent_speed.velocity_max_dive   = 0.
 
         self.gust.load_factor = Data()
-        self.gust.load_factor.velocity_max_gust   = 0
-        self.gust.load_factor.velocity_max_cruise = 0
-        self.gust.load_factor.velocity_max_dive   = 0
+        self.gust.load_factor.velocity_max_gust   = 0.
+        self.gust.load_factor.velocity_max_cruise = 0.
+        self.gust.load_factor.velocity_max_dive   = 0.

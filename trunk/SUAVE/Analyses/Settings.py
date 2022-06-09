@@ -10,12 +10,14 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses
+@register_pytree_node_class
 class Settings(Data):
     """ SUAVE.Analyses.Settings()
     

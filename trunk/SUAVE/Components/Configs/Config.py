@@ -10,12 +10,14 @@
 
 from SUAVE.Core    import Diffed_Data
 from SUAVE.Vehicle import Vehicle
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Config
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Configs
+@register_pytree_node_class
 class Config(Diffed_Data,Vehicle):
     """ SUAVE.Components.Config()
     

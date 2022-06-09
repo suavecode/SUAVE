@@ -21,6 +21,8 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
                             '_'*len(chars) + string.ascii_lowercase )
 
 import numpy as np
+from jax.tree_util import register_pytree_node_class
+import types
 
 # ----------------------------------------------------------------------
 #   Property Class
@@ -124,6 +126,7 @@ class Property(object):
 # ----------------------------------------------------------------------        
 
 ## @ingroup Core
+@register_pytree_node_class
 class DataOrdered(OrderedDict):
     """ An extension of the Python dict which allows for both tag and '.' usage.
         This is an ordered dictionary. So indexing it will produce deterministic results.
@@ -137,7 +140,100 @@ class DataOrdered(OrderedDict):
     
     
     _root = Property('_root')
-    _map  = Property('_map')    
+    _map  = Property('_map') 
+    
+    
+    def tree_flatten(self):
+        """ Returns a list of objects for tree operations.
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            method  - name of the method to access
+    
+            Outputs:
+            Result  - the results of the method
+    
+            Properties Used:
+            N/A    
+        """          
+            
+        #Get all keys and values from the data class
+        keys   = list(self.keys())
+        values = self.values()         
+
+        # Make a dictionary of the strings in self
+        aux_dict = dict()
+        for key, value in zip(keys,values):
+            if type(value) is str:
+                aux_dict[key] = self.pop(key)
+            elif isinstance(value,dict):
+                if not bool(value):
+                    aux_dict[key] = self.pop(key)
+            elif isinstance(value,bool):
+                aux_dict[key] = self.pop(key)
+            elif isinstance(value,types.FunctionType): # a function
+                aux_dict[key] = self.get(key)
+                self.__delattr__(key)
+                
+
+        # Some children classes might have "static_keys" that are marked as immutable
+        if hasattr(self,'static_keys'):
+            for k in self.static_keys:
+                aux_dict[k] = self.pop(k)
+                
+            # static_keys is also a static key...
+            aux_dict['static_keys'] = self.pop('static_keys')            
+
+        #Get all keys and values from the data class, now that they don't have strings or static_keys
+        stringless_keys = list(self.keys())
+        children        = self.values()   
+        
+        # Put back what I have taken away
+        self.update(aux_dict)
+        
+        # Pack up the results
+        aux_data        = [stringless_keys,aux_dict] 
+
+        return (children, aux_data)
+  
+    @classmethod
+    def tree_unflatten(cls, aux_data, children):
+        """ Rebuilds the Data class.
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            method  - name of the method to access
+    
+            Outputs:
+            Result  - the results of the method
+    
+            Properties Used:
+            N/A    
+        """
+        # Create the class
+        recreated = cls()
+        
+        # add the static data, strings/bools, and static_keys
+        recreated.update(aux_data[1])
+        
+        # keys
+        keys       = aux_data[0]
+        dictionary = dict(zip(keys,children))
+        
+        recreated.update(dictionary)
+
+        return recreated
+        
     
     def append(self,value,key=None):
         """ Adds new values to the classes. Can also change an already appended key

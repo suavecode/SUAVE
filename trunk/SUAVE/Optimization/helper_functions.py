@@ -142,7 +142,7 @@ def scale_input_values(inputs,x):
     """    
     
     provided_scale = inputs[:,-2]
-    inputs[:,1] =  x*provided_scale
+    inputs[:,1]    = x*provided_scale
     
     return inputs
 

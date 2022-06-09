@@ -9,12 +9,14 @@
 # ----------------------------------------------------------------------
 
 from .Conditions import Conditions
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Unknowns
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission-Segments-Conditions
+@register_pytree_node_class
 class Unknowns(Conditions):
     """ Creates the data structure for the unknowns that solved in a mission
     

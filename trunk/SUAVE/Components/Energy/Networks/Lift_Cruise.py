@@ -79,11 +79,11 @@ class Lift_Cruise(Network):
         self.battery                      = None 
         self.lift_rotor_engine_length     = None
         self.propeller_engine_length      = None
-        self.number_of_lift_rotor_engines = 0
-        self.number_of_propeller_engines  = 0
+        self.number_of_lift_rotor_engines = 0.
+        self.number_of_propeller_engines  = 0.
         self.voltage                      = None   
         self.tag                          = 'Lift_Cruise'
-        self.generative_design_minimum    = 0
+        self.generative_design_minimum    = 0.
         self.identical_propellers         = True
         self.identical_lift_rotors        = True
         

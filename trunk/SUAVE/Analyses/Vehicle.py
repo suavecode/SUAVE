@@ -10,13 +10,14 @@
 
 import SUAVE
 from .Analysis import Analysis
-
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Vehicle Analysis
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses
+@register_pytree_node_class
 class Vehicle(Analysis.Container):
     """ SUAVE.Analyses.Vehicle()
     

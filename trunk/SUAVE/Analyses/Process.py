@@ -8,13 +8,15 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import ContainerOrdered, DataOrdered, Data
+from SUAVE.Core import ContainerOrdered, Data
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Process
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses
+@register_pytree_node_class
 class Process(ContainerOrdered):
     """ SUAVE.Analyses.Process()
     

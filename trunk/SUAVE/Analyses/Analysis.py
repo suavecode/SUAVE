@@ -10,12 +10,14 @@
 
 from SUAVE.Core import Data
 from SUAVE.Core import Container as ContainerBase
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses
+@register_pytree_node_class
 class Analysis(Data):
     """ SUAVE.Analyses.Analysis()
     
@@ -160,6 +162,7 @@ class Analysis(Data):
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses
+@register_pytree_node_class
 class Container(ContainerBase):
     """ SUAVE.Analyses.Analysis.Container()
     

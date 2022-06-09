@@ -31,8 +31,6 @@ from jax.tree_util import register_pytree_node_class
 from jax import jit
 import jax.numpy as jnp
 
-
-
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
@@ -107,7 +105,7 @@ class Rotor(Energy_Component):
         self.variable_pitch            = False
         
         # JAX static args
-        self.static_keys               = ['number_azimuthal_stations','airfoil_polar_stations','airfoil_geometry','airfoil_polars','vtk_airfoil_points','number_of_blades']
+        self.static_keys               = ['number_azimuthal_stations','airfoil_polar_stations','airfoil_geometry','airfoil_polars','vtk_airfoil_points','number_of_blades','start_angle_idx']
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()

@@ -13,6 +13,7 @@
 import SUAVE
 from SUAVE.Core import Container as ContainerBase
 from . import Segments
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #   Class
@@ -78,6 +79,7 @@ class Mission(Segments.Simple.Container):
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission
+@register_pytree_node_class
 class Container(ContainerBase):
     """ Container for mission
     

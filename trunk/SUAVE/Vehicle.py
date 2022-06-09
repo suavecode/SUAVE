@@ -15,6 +15,7 @@ from SUAVE.Core import Data, DataOrdered
 from SUAVE import Components
 from SUAVE.Components import Physical_Component
 import numpy as np
+from jax.tree_util import register_pytree_node_class
 
 from warnings import warn
 import string
@@ -27,6 +28,7 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 # ----------------------------------------------------------------------
 
 ## @ingroup Vehicle
+@register_pytree_node_class    
 class Vehicle(Data):
     """SUAVE Vehicle container class with database + input / output functionality
     
@@ -294,14 +296,16 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.center_of_gravity = [[0.0,0.0,0.0]]
         self.zero_fuel_center_of_gravity = np.array([[0.0,0.0,0.0]])
 
-        self.generative_design_max_per_vehicle = 1
+        self.generative_design_max_per_vehicle = 1.
         self.generative_design_special_parent  = None
         self.generative_design_characteristics = ['max_takeoff','max_zero_fuel']
-        self.generative_design_minimum         = 1
-        self.generative_design_char_min_bounds = [1,1]   
+        self.static_keys                       = ['generative_design_characteristics']
+        self.generative_design_minimum         = 1.
+        self.generative_design_char_min_bounds = [1.,1.]   
         self.generative_design_char_max_bounds = [np.inf,np.inf]        
 
 ## @ingroup Vehicle
+@register_pytree_node_class            
 class Costs(Data):
     """ Costs class for organizing the costs of things
 
@@ -333,7 +337,7 @@ class Costs(Data):
         self.industrial = Components.Costs.Industrial_Costs()
         self.operating  = Components.Costs.Operating_Costs()
         
-        
+@register_pytree_node_class    
 class Vehicle_Mass_Container(Components.Physical_Component.Container,Vehicle_Mass_Properties):
         
     def append(self,value,key=None):
