@@ -15,7 +15,8 @@ from jax.lax import fori_loop as fori
 from jax import jit
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
+@jit
+def compute_fidelity_one_inflow_velocities( wake, prop ):
     """
     Computs the inflow velocities
     
@@ -82,6 +83,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     
     Va, Vt, VD = outnits    
     
+    # Saving the updated vortex distribution from the loop
     prop.vortex_distribution = VD
 
     return Va, Vt, prop

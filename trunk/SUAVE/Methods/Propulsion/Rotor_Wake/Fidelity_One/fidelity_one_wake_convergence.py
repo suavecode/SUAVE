@@ -78,7 +78,7 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
 # ----------------------------------------------------------------------
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-@jit
+#@jit
 def iteration(Fva,wake,wake_inputs,rotor):
     """
     Computes the BEVW iteration.
@@ -108,10 +108,10 @@ def iteration(Fva,wake,wake_inputs,rotor):
     B  = rotor.number_of_blades      
 
     # generate wake geometry for rotor
-    WD, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
+    wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
     
     # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-    va, vt, rotor = compute_fidelity_one_inflow_velocities(wake,rotor, WD)
+    va, vt, rotor = compute_fidelity_one_inflow_velocities(wake,rotor)
 
     # compute new blade velocities
     Wa   = va + Ua
@@ -125,7 +125,7 @@ def iteration(Fva,wake,wake_inputs,rotor):
 
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-@jit
+#@jit
 def va_vt(wake, wake_inputs, rotor):
     """
     Computes the inflow velocities from the inflow angle
@@ -160,10 +160,10 @@ def va_vt(wake, wake_inputs, rotor):
     B  = rotor.number_of_blades      
 
     # generate wake geometry for rotor
-    WD  = generate_fidelity_one_wake_shape(wake,rotor)
+    wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
     
     # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-    va, vt, rotor = compute_fidelity_one_inflow_velocities(wake, rotor, WD)
+    va, vt, rotor = compute_fidelity_one_inflow_velocities(wake, rotor)
     
     # compute new blade velocities
     Wa   = va + Ua

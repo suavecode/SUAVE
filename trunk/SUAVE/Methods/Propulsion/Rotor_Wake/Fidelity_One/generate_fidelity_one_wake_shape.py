@@ -17,6 +17,7 @@ from jax import numpy as jnp
 from jax import jit
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
+@jit
 def generate_fidelity_one_wake_shape(wake,rotor):
     """
     This generates the propeller wake control points and vortex distribution that make up the prescribed vortex wake. 
