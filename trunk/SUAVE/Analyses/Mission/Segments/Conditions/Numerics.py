@@ -52,7 +52,7 @@ class Numerics(Conditions):
         self.tag = 'numerics'
         
         self.number_control_points = 16
-        self.static_keys           = ['number_control_points']
+        self.static_keys           = ['number_control_points','discretization_method']
         self.discretization_method = chebyshev_data
         
         self.solver_jacobian                  = "none"

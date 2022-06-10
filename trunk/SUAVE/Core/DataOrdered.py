@@ -170,12 +170,15 @@ class DataOrdered(OrderedDict):
         aux_dict = dict()
         for key, value in zip(keys,values):
             if type(value) is str:
-                aux_dict[key] = self.pop(key)
+                aux_dict[key] = self.get(key)
+                self.__delattr__(key)
             elif isinstance(value,dict):
                 if not bool(value):
-                    aux_dict[key] = self.pop(key)
+                    aux_dict[key] = self.get(key)
+                    self.__delattr__(key)
             elif isinstance(value,bool):
-                aux_dict[key] = self.pop(key)
+                aux_dict[key] = self.get(key)
+                self.__delattr__(key)
             elif isinstance(value,types.FunctionType): # a function
                 aux_dict[key] = self.get(key)
                 self.__delattr__(key)

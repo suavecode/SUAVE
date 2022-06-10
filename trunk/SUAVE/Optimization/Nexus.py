@@ -62,13 +62,12 @@ class Nexus(Data):
             Properties Used:
             None
         """          
-        self.vehicle_configurations = SUAVE.Components.Configs.Config.Container()
+        self.vehicle_configurations = None
         self.analyses               = SUAVE.Analyses.Analysis.Container()
         self.missions               = None
         self.procedure              = Process()
         self.results                = Data()
         self.summary                = Data()
-        self.optimization_problem   = None
         self.fidelity_level         = 1.
         self.last_inputs            = None
         self.last_fidelity          = None
@@ -76,6 +75,14 @@ class Nexus(Data):
         self.force_evaluate         = False
         self.hard_bounded_inputs    = False
         self.use_jax_derivatives    = False
+        self.static_keys            = ['last_inputs']
+
+        self.optimization_problem             = Data()
+        self.optimization_problem.inputs      = None     
+        self.optimization_problem.objective   = None
+        self.optimization_problem.constraints = None
+        self.optimization_problem.aliases     = None
+        self.optimization_problem.static_keys = ['inputs','objective','constraints','aliases'] # this may need to change in the future
     
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
@@ -130,7 +137,7 @@ class Nexus(Data):
         
         nexus = self
         
-        self.evaluation_count += 1
+        self.evaluation_count += 1.
         
         for key,step in nexus.procedure.items():
             if hasattr(step,'evaluate'):
@@ -193,12 +200,14 @@ class Nexus(Data):
             Properties Used:
             None
         """
-        # X cannot be None for grad
+        # Unpack the inputs
+        self.unpack_inputs(x)
         
-        
-        grad_function = jacfwd(self._really_evaluate)
+        grad_function = jacfwd(Nexus._really_evaluate)
         
         grad = grad_function(self)
+        
+        # Need to make a function that retrieves the grad value from the full jacobian
         
         return grad
         
