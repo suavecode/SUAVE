@@ -23,6 +23,11 @@ from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 
 def main():
     
+    # This is a local import because this test requires higher precision
+    from jax.config import config
+    config.update("jax_enable_x64", True)        
+        
+    
     # This script could fail if either the design or analysis scripts fail,
     # in case of failure check both. The design and analysis powers will 
     # differ because of karman-tsien compressibility corrections in the 
@@ -209,27 +214,27 @@ def main():
     plot_results(outputr, rot,'black','-','P')
     
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3352.3667
-    Q_a_truth       = 978.7612
-    P_a_truth       = 202761.75
-    Cplast_a_truth  = 0.04769024
+    F_a_truth       = 3352.3664597724883
+    Q_a_truth       = 978.76113388
+    P_a_truth       = 202761.72720908
+    Cplast_a_truth  = 0.10450832
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2629.0134
-    Q_truth         = 787.38464
-    P_truth         = 163115.86
-    Cplast_truth    = 0.0840739
+    F_truth         = 2629.0135375646205
+    Q_truth         = 787.38469662
+    P_truth         = 163115.87734575
+    Cplast_truth    = 0.08407389
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1579.2361
-    Qr_a_truth      = 146.3542
-    Pr_a_truth      = 30318.97
-    Cplastr_a_truth = 0.04769024
+    Fr_a_truth      = 1579.2361899390073
+    Qr_a_truth      = 146.35419614
+    Pr_a_truth      = 30318.97014145
+    Cplastr_a_truth = 0.04769023
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1321.2957
-    Qr_truth        = 128.70335
-    Pr_truth        = 26662.393
+    Fr_truth        = 1321.2957050670902
+    Qr_truth        = 128.70336151
+    Pr_truth        = 26662.39491376
     Cplastr_truth   = 0.04193862
     
     # Store errors 
