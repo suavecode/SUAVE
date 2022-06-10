@@ -11,6 +11,7 @@
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 import jax.numpy as jnp
 from jax import jacobian, jit
+from jax.lax import while_loop
 from SUAVE.Methods.Propulsion.Rotor_Wake.Common import simple_newton
 
 # ----------------------------------------------------------------------
@@ -18,6 +19,7 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Common import simple_newton
 # ----------------------------------------------------------------------
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
+@jit
 def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     """
     Wake evaluation is performed using a simplified vortex wake method for Fidelity Zero, 
@@ -53,7 +55,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     limit = wake.maximum_convergence_iteration
     
     # Solve!       
-    PSI_final, ii = simple_newton(iteration,jacobian_iteration,PSI,args=(wake_inputs,rotor),limit=limit)
+    PSI_final, ii = simple_newton(iteration,jacobian_iteration,PSI,while_loop,args=(wake_inputs,rotor),limit=limit)
 
     # Calculate the velocities given PSI
     va, vt = va_vt(PSI_final, wake_inputs, rotor)
@@ -62,7 +64,6 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
 
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-@jit
 def iteration(PSI, wake_inputs, rotor):
     """
     Computes the BEVW iteration.
@@ -134,7 +135,6 @@ def iteration(PSI, wake_inputs, rotor):
 
     return Rsquiggly.flatten()
 
-@jit
 @jacobian
 def jacobian_iteration(PSI, wake_inputs, rotor):
     return iteration(PSI, wake_inputs, rotor)
