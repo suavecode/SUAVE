@@ -210,7 +210,7 @@ class Nexus(Data):
         # Need to make a function that retrieves the grad value from the full jacobian
         aliases     = self.optimization_problem.aliases
         objective   = self.optimization_problem.objective
-        inputs      = self.optimization_problem.i
+        inputs      = self.optimization_problem.inputs
     
         objective_value  = help_fun.get_jacobian_values(grad,inputs,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)

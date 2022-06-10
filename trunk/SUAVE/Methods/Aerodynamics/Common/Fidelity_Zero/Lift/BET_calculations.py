@@ -142,8 +142,9 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     Rtip = R
     et1, et2, et3, maxat = 1,1,1,-jnp.inf
     tipfactor = jnp.array( B/2.0*(  (Rtip/r)**et1 - 1  )**et2/lamdaw**et3)
-    tipfactor = jnp.where(tipfactor<0,0,tipfactor)
-    Ftip      = 2.*jnp.arccos(jnp.exp(-tipfactor))/jnp.pi
+    tipfactor = jnp.where(tipfactor<=0,0,tipfactor) # This is also needed
+    Ftip      = jnp.where(tipfactor<=0,0,2.*jnp.arccos(jnp.exp(-tipfactor))/jnp.pi) # this extra where is for grad to keep from nan-ing
+
     
     F = Ftip
     

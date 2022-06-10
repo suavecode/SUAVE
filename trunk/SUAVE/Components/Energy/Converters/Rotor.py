@@ -109,7 +109,6 @@ class Rotor(Energy_Component):
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
-        self.outputs                   = Data()
         
         
     def spin(self,conditions):
@@ -446,7 +445,6 @@ class Rotor(Energy_Component):
         r_1d    = self.radius_distribution
         
         # unpack wake inputs
-        U             = wake_inputs.velocity_total      
         Ua            = wake_inputs.velocity_axial
         Ut            = wake_inputs.velocity_tangential  
         beta          = wake_inputs.twist_distribution  
