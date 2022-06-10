@@ -208,8 +208,14 @@ class Nexus(Data):
         grad = grad_function(self)
         
         # Need to make a function that retrieves the grad value from the full jacobian
-        
-        return grad
+        aliases     = self.optimization_problem.aliases
+        objective   = self.optimization_problem.objective
+        inputs      = self.optimization_problem.i
+    
+        objective_value  = help_fun.get_jacobian_values(grad,inputs,objective,aliases)  
+        scaled_objective = help_fun.scale_obj_values(objective,objective_value)
+                
+        return scaled_objective
         
     
     
@@ -286,9 +292,7 @@ class Nexus(Data):
         """
         
         
-        jaobian_function = jacfwd(self.inequality_constraint)
-        
-        return jaobian_function(x)
+        pass
         
     
     def equality_constraint(self,x = None):
@@ -353,9 +357,7 @@ class Nexus(Data):
         """
         
         
-        jaobian_function = jacfwd(self.equality_constraint)
-        
-        return jaobian_function(x)
+        pass
         
     def all_constraints(self,x = None):
         """Returns both the inequality and equality constraint values for your function
@@ -407,9 +409,7 @@ class Nexus(Data):
         """
         
         
-        jacobian_function = jacfwd(self.all_constraints)
-        
-        return jacobian_function(x)    
+        pass 
     
     
     def unpack_inputs(self,x = None):

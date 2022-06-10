@@ -255,6 +255,54 @@ def get_values(dictionary,outputs,aliases):
     return values
 
 ## @ingroup Optimization
+def get_jacobian_values(dictionary,inputs,outputs,aliases):
+    """ Retrieves values saved in a dictionary 
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    dictionary       [Data()]
+    outputs          [Data()]
+    aliases          [list of str]
+
+    Outputs:
+    values           [float]
+
+    Properties Used:
+    N/A
+    """     
+    
+    npoutputs    = np.array(outputs)
+    npinputs     = np.array(inputs)
+    output_names = npoutputs[:,0]
+    input_names  = npinputs[:,0]
+        
+    # Correspond aliases to outputs
+    pointer_outputs = []
+    for ii in range(0,len(output_names)):
+        for jj in range(0,len(aliases)):
+            if output_names[ii] == aliases[jj][0]:
+                pointer_outputs.append(aliases[jj][1])    
+                
+    pointer_inputs = []
+    for ii in range(0,len(input_names)):
+        for jj in range(0,len(aliases)):
+            if input_names[ii] == aliases[jj][0]:
+                pointer_inputs.append(aliases[jj][1])                    
+                
+    values = np.zeros((len(outputs),len(inputs)))
+    for ii in range(0,len(outputs)):
+        for jj in range(0,len(inputs)):
+            splitstring = pointer_outputs[ii].split('.')+pointer_inputs[ii].split('.')
+            values[ii,jj]  = eval('dictionary.'+'.'.join(splitstring[0:]))
+    
+    return values
+
+## @ingroup Optimization
 def scale_obj_values(inputs,x):
     """ Rescales an objective based on Nexus inputs scale
 
