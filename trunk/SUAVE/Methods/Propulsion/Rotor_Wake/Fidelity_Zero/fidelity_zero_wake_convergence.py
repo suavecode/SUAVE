@@ -49,12 +49,11 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     """        
     
     # Setup
-    PSI    = jnp.ones_like(wake_inputs.velocity_total).flatten()
-    jac    = jacobian(iteration)
-    limit  = wake.maximum_convergence_iteration
+    PSI   = jnp.ones_like(wake_inputs.velocity_total).flatten()
+    limit = wake.maximum_convergence_iteration
     
-    # Solve!
-    PSI_final, ii = simple_newton(iteration,jac,PSI,args=(wake_inputs,rotor),limit=limit)
+    # Solve!       
+    PSI_final, ii = simple_newton(iteration,jacobian_iteration,PSI,args=(wake_inputs,rotor),limit=limit)
 
     # Calculate the velocities given PSI
     va, vt = va_vt(PSI_final, wake_inputs, rotor)
@@ -134,6 +133,11 @@ def iteration(PSI, wake_inputs, rotor):
     Rsquiggly   = Gamma - 0.5*W*c*Cl
 
     return Rsquiggly.flatten()
+
+@jit
+@jacobian
+def jacobian_iteration(PSI, wake_inputs, rotor):
+    return iteration(PSI, wake_inputs, rotor)
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 @jit

@@ -117,21 +117,9 @@ class Rotor(Energy_Component):
     def spin(self,conditions):
         
         # Split into 3 different functions, pre_wake, wake, and post_wake
-        
-        import time
-        T1 = time.time()
         wake_inputs                                      = self._prewake(conditions)
-        T2 = time.time()
-        print("Pre-Wake time")
-        print(T2-T1)
         self.Wake, va, vt                                = self.Wake.evaluate(self,wake_inputs,conditions)
-        T3 = time.time()
-        print('Wake Time')
-        print(T3-T2)
         thrust_vector, torque, power, Cp, outputs , etap = self._postwake(va, vt, wake_inputs, conditions)
-        T4 = time.time()
-        print('Post-Wake time')
-        print(T4-T3)
         
         return thrust_vector, torque, power, Cp, outputs , etap
 
