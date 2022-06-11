@@ -39,15 +39,10 @@ def test_1():
     This tests the propeller_single_point function using the Fidelity Zero rotor wake inflow model.
     """
     vehicle = vehicle_setup()
+    prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
+    prop = vehicle.networks.battery_propeller.propellers[prop_key]
 
-    analyses = SUAVE.Analyses.Vehicle()
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere.features.planet = SUAVE.Analyses.Planets.Planet()
-    analyses.append(atmosphere)
-
-
-    results = propeller_single_point(vehicle.networks.battery_propeller,
-                                     analyses,
+    results = propeller_single_point(prop,
                                      pitch=0.,
                                      omega=2200. * Units.rpm,
                                      altitude= 5000. * Units.ft,
@@ -83,19 +78,13 @@ def test_2():
     This tests the propeller_single_point function using the Fidelity One rotor inflow model.
     """    
     vehicle = vehicle_setup()
-
+    prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
+    prop = vehicle.networks.battery_propeller.propellers[prop_key]
+    
     # update the wake method used for each prop
-    for p in vehicle.networks.battery_propeller.propellers:
-        p.Wake = Rotor_Wake_Fidelity_One()
-        
-    analyses = SUAVE.Analyses.Vehicle()
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere.features.planet = SUAVE.Analyses.Planets.Planet()
-    analyses.append(atmosphere)
+    prop.Wake = Rotor_Wake_Fidelity_One()
 
-
-    results = propeller_single_point(vehicle.networks.battery_propeller,
-                                     analyses,
+    results = propeller_single_point(prop,
                                      pitch=0.,
                                      omega=2200. * Units.rpm,
                                      altitude= 5000. * Units.ft,

@@ -3,6 +3,7 @@
 #
 # Created:  Jan 2021, J. Smart
 # Modified: Feb 2022, R. Erhard
+#           Jun 2022, R. Erhard
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -10,7 +11,7 @@
 
 import SUAVE
 
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Data
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,23 +21,22 @@ import numpy as np
 # ------------------------------------------------------------------------------
 
 ## @ingroup Methods-Performance
-def propeller_single_point(energy_network,
-                           analyses,
+def propeller_single_point(prop,
                            pitch,
                            omega,
                            altitude,
                            delta_isa,
                            speed,
-                           i_prop=0,
+                           analyses=None,
                            plots=False,
                            print_results=False):
-    """propeller_single_point(energy_network,
-                              analyses,
+    """propeller_single_point(prop,
                               pitch,
                               omega,
                               altitude,
                               delta_isa,
                               speed,
+                              analyses=None,
                               plots=False,
                               print_results=False):
 
@@ -54,18 +54,15 @@ def propeller_single_point(energy_network,
 
         Inputs:
 
-            energy_network       SUAVE Energy Network
-                .propeller       SUAVE Propeller Data Structure
-
-            analyses             SUAVE Analyses Structure
-                .atmosphere      SUAVE Atmosphere Analysis Object
-
+            prop                 SUAVE Propeller Data Structure
             pitch                Propeller Pitch/Collective                    [User Set]
             omega                Test Angular Velocity                         [User Set]
             altitude             Test Altitude                                 [User Set]
             delta_isa            Atmosphere Temp Offset                        [K]
             speed                Propeller Intake Speed                        [User Set]
             HFW                  Flag for use of helical fixed wake for rotor  [Boolean]
+            analyses             SUAVE Analyses Structure
+                .atmosphere      SUAVE Atmosphere Analysis Object
             plots                Flag for Plot Generation                      [Boolean]
             print_results        Flag for Terminal Output                      [Boolean]
 
@@ -85,12 +82,15 @@ def propeller_single_point(energy_network,
                 .tangential_velocity            BEVW V_t Prediction         [m/s]
                 .axial_velocity                 BEVW V_a Prediction         [m/s]
     """
-
+    # Set atmosphere
+    if analyses==None:
+        # setup standard US 1976 atmosphere
+        analyses   = SUAVE.Analyses.Vehicle()
+        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        analyses.append(atmosphere)           
+        
     # Unpack Inputs
-    prop_key                    = list(energy_network.propellers.keys())[i_prop]
-    prop                        = energy_network.propellers[prop_key]
     prop.inputs.pitch_command   = pitch
-    energy_network.propeller    = prop
 
     atmo_data           = analyses.atmosphere.compute_values(altitude, delta_isa)
     T                   = atmo_data.temperature
