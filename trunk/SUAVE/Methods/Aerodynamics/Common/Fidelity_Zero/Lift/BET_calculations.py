@@ -140,19 +140,11 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     """
     lamdaw            = r*Wa/(R*Wt)
     lamdaw[lamdaw<0.] = 0.
-    f                 = (B/2.)*(1.-r/R)/lamdaw
-    f[f<0.]           = 0.
-    
-    piece             = np.exp(-f)
-    F                 = 2.*np.arccos(piece)/np.pi
 
-    Rtip = R
     et1, et2, et3, maxat = 1,1,1,-np.inf
-    tipfactor = B/2.0*(  (Rtip/r)**et1 - 1  )**et2/lamdaw**et3
+    tipfactor = B/2.0*(  (R/r)**et1 - 1  )**et2/lamdaw**et3
     tipfactor[tipfactor<0.]   = 0.
-    Ftip = 2.*np.arccos(np.exp(-tipfactor))/np.pi
-    
-    F = Ftip
-    
+    piece = np.exp(-tipfactor)
+    Ftip = 2.*np.arccos(piece)/np.pi
 
-    return lamdaw, F, piece
+    return lamdaw, Ftip, piece
