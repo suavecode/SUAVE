@@ -85,8 +85,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     axial_induced_velocity = np.mean(va,axis = 2) # radial inflow, averaged around the azimuth
     mean_induced_velocity  = np.mean( axial_induced_velocity,axis = 1)   
     
-    alpha = rotor.orientation_euler_angles[1]
-    rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
+    rots = rotor.body_to_prop_vel()[0]
     
     lambda_tot   = np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 99 Leishman)
     mu_prop      = np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
@@ -144,9 +143,12 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
 
     # extract airfoil trailing edge coordinates for initial location of vortex wake
-    a_sec        = rotor.airfoil_geometry   
-    a_secl       = rotor.airfoil_polar_stations
-    airfoil_data = import_airfoil_geometry(a_sec,npoints=100)  
+    if rotor.airfoil_data == None:
+        a_sec        = rotor.airfoil_geometry   
+        a_secl       = rotor.airfoil_polar_stations
+        rotor.airfoil_data = import_airfoil_geometry(a_sec,npoints=100) 
+        
+    airfoil_data = rotor.airfoil_data
    
     # trailing edge points in airfoil coordinates
     xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)
