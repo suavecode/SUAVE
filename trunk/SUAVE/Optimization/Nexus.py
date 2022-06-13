@@ -78,7 +78,7 @@ class Nexus(Data):
         self.hard_bounded_inputs    = False
         self.use_jax_derivatives    = False
         self.jitable                = False
-        self.static_keys            = ['last_inputs','last_jacobian_inputs']
+        self.static_keys            = ['last_inputs','last_jacobian_inputs','last_jacobians']
 
         self.optimization_problem             = Data()
         self.optimization_problem.inputs      = None     
@@ -219,7 +219,7 @@ class Nexus(Data):
         if np.all(self.optimization_problem.inputs==self.last_jacobian_inputs):
             grad = self.last_jacobians
         else:
-            self.last_jacobian_inputs = self.optimization_problem.inputs
+            self.last_jacobian_inputs = deepcopy(self.optimization_problem.inputs)
             grad = grad_function(self)
             self.last_jacobians = grad            
 
