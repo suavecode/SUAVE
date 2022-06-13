@@ -19,7 +19,7 @@ from copy import deepcopy
 from . import helper_functions as help_fun
 import numpy as np
 
-from jax import jacfwd
+from jax import jacfwd, jit
 from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
@@ -71,11 +71,14 @@ class Nexus(Data):
         self.fidelity_level         = 1.
         self.last_inputs            = None
         self.last_fidelity          = None
+        self.last_jacobian_inputs   = None
+        self.last_jacobians         = None
         self.evaluation_count       = 0.
         self.force_evaluate         = False
         self.hard_bounded_inputs    = False
         self.use_jax_derivatives    = False
-        self.static_keys            = ['last_inputs']
+        self.jitable                = False
+        self.static_keys            = ['last_inputs','last_jacobian_inputs']
 
         self.optimization_problem             = Data()
         self.optimization_problem.inputs      = None     
@@ -203,10 +206,18 @@ class Nexus(Data):
         # Unpack the inputs
         self.unpack_inputs(x)
         
-        grad_function = jacfwd(Nexus._really_evaluate)
-        
-        grad = grad_function(self)
-        
+        if self.jitable:
+            grad_function = jit(jacfwd(Nexus._really_evaluate))
+        else:
+            grad_function = jacfwd(Nexus._really_evaluate)
+            
+        if np.all(self.optimization_problem.inputs==self.last_jacobian_inputs):
+            grad = self.last_jacobians
+        else:
+            self.last_jacobian_inputs = self.optimization_problem.inputs
+            grad = grad_function(self)
+            self.last_jacobians = grad            
+
         # Need to make a function that retrieves the grad value from the full jacobian
         aliases     = self.optimization_problem.aliases
         objective   = self.optimization_problem.objective
@@ -292,7 +303,7 @@ class Nexus(Data):
         """
         
         
-        pass
+        raise NotImplementedError
         
     
     def equality_constraint(self,x = None):
@@ -357,7 +368,7 @@ class Nexus(Data):
         """
         
         
-        pass
+        raise NotImplementedError
         
     def all_constraints(self,x = None):
         """Returns both the inequality and equality constraint values for your function
@@ -389,7 +400,7 @@ class Nexus(Data):
         return scaled_constraints     
     
     
-    def jaobian_all_constraints(self,x = None):
+    def jacobian_all_constraints(self,x = None):
         """Retrieve the all constraints jacobian for your function using JAX
     
             Assumptions:
@@ -407,9 +418,30 @@ class Nexus(Data):
             Properties Used:
             None
         """
+        # Unpack the inputs
+        self.unpack_inputs(x)
         
+        if self.jitable:
+            grad_function = jit(jacfwd(Nexus._really_evaluate))
+        else:
+            grad_function = jacfwd(Nexus._really_evaluate)   
         
-        pass 
+        if np.all(self.optimization_problem.inputs==self.last_jacobian_inputs):
+            grad = self.last_jacobians
+        else:
+            self.last_jacobian_inputs = self.optimization_problem.inputs
+            grad = grad_function(self)
+            self.last_jacobians = grad
+        
+        # Need to make a function that retrieves the grad value from the full jacobian
+        aliases      = self.optimization_problem.aliases
+        contstraints = self.optimization_problem.constraints
+        inputs       = self.optimization_problem.inputs
+    
+        constraint_values  = help_fun.get_jacobian_values(grad,inputs,contstraints,aliases)  
+        scaled_constraints = help_fun.scale_const_values(contstraints,constraint_values)
+                
+        return scaled_constraints
     
     
     def unpack_inputs(self,x = None):
@@ -468,7 +500,7 @@ class Nexus(Data):
             Properties Used:
             None
         """           
-        pass     
+        raise NotImplementedError
 
     def finite_difference(self,x,diff_interval=1e-8):
         """Finite difference gradients and jacobians of the problem.

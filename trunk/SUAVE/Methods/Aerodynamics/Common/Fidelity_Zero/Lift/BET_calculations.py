@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import jax.numpy as jnp
-from jax import jit, lax
+from jax import jit
 
 
 # ----------------------------------------------------------------------
@@ -136,6 +136,16 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     f      = (B/2.)*(R/r - 1.)/lamdaw
     f      = jnp.where(f<=0.,0,f)
     piece  = jnp.exp(-f)
-    F      = 2.*jnp.arccos(piece)/jnp.pi
+
+    lamdaw            = jnp.array(r*Wa/(R*Wt))
+    lamdaw            = jnp.where(lamdaw<0.,0,lamdaw)
+
+    Rtip = R
+    et1, et2, et3, maxat = 1,1,1,-jnp.inf
+    tipfactor = jnp.array( B/2.0*(  (Rtip/r)**et1 - 1  )**et2/lamdaw**et3)
+    tipfactor = jnp.where(tipfactor<=0,0,tipfactor) # This is also needed
+    Ftip      = jnp.where(tipfactor<=0,0,2.*jnp.arccos(jnp.exp(-tipfactor))/jnp.pi) # this extra where is for grad to keep from nan-ing    
+    
+    F = Ftip
 
     return lamdaw, F, piece

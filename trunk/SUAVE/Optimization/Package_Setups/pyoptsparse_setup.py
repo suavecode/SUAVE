@@ -43,7 +43,8 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     """      
    
     # Have the optimizer call the wrapper
-    mywrap = lambda x:PyOpt_Problem(problem,x)
+    mywrap       = lambda x:PyOpt_Problem(problem,x)
+    my_grad_wrap = lambda x,y:PyOpt_Problem_grads(problem,x,y)
    
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
@@ -145,7 +146,7 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
         
     elif solver == 'SNOPT' or solver == 'SLSQP':
         if problem.use_jax_derivatives:
-            outputs = opt(opt_prob, sens=PyOpt_Problem_grads)
+            outputs = opt(opt_prob, sens=my_grad_wrap)
         else:
             outputs = opt(opt_prob, sens='FD', sensStep = sense_step)
   
@@ -214,7 +215,7 @@ def PyOpt_Problem(problem,xdict):
 
 
 ## @ingroup Optimization-Package_Setups
-def PyOpt_Problem_grads(problem,xdict):
+def PyOpt_Problem_grads(problem,xdict,ydict):
     """ This wrapper runs the SUAVE problem and is called by the PyOpt solver.
         Prints the inputs (x) as well as the objective values and constraints.
         If any values produce NaN then a fail flag is thrown.
@@ -238,26 +239,39 @@ def PyOpt_Problem_grads(problem,xdict):
         None
     """      
    
-    x = xdict.values()
+    x = list(xdict.values())[0]
+    y = list(ydict.values())   # These are the current value of the function
    
-    obj   = problem.grad_objective(x)
+    obj   = problem.grad_objective(x).tolist()
     const = problem.jacobian_all_constraints(x).tolist()
-    fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
+    fail  = np.array(np.isnan(obj or np.isnan(np.array(const).any())).astype(int))
     
+    # Name of inputs
+    inpnam  = problem.optimization_problem.inputs[:,0] # Names
+    objname = problem.optimization_problem.objective[:,0]
+    conname = problem.optimization_problem.constraints[:,0]
+    
+    # Need two for loops. Possibly zips could be used later
     funcs = {}
     
-    objectives  = dict(zip(problem.optimization_problem.objective[:,0],obj))
-    constraints = dict(zip(problem.optimization_problem.constraints[:,0],const))
+    # Loop over Objectives
+    for ii, o_name in enumerate(objname):
+        for jj, i_name in enumerate(inpnam):
+            funcs[o_name] = {}
+            funcs[o_name][i_name] = obj[ii][jj]
     
-    funcs.update(objectives)
-    funcs.update(constraints)
+    # Loop over Objectives
+    for ii, c_name in enumerate(conname):
+        for jj, i_name in enumerate(inpnam):
+            funcs[c_name] = {}
+            funcs[c_name][i_name] = obj[ii][jj]
 
-       
+
     print('Inputs')
     print(x)
-    print('Obj')
+    print('Obj Gradient')
     print(obj)
-    print('Con')
+    print('Constraint Jacobian')
     print(const)
    
     return funcs,fail
