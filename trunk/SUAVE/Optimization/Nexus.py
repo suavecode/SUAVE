@@ -115,7 +115,12 @@ class Nexus(Data):
            and self.force_evaluate == False:
             pass
         else:
-            self._really_evaluate()
+            if (self.jitable==True) and (self.last_inputs is not None):
+                jit_eval = jit(self._really_evaluate)
+                jit_eval()
+                
+            else:
+                self._really_evaluate()
 
     
     def _really_evaluate(self):
@@ -552,6 +557,36 @@ class Nexus(Data):
         jac_con  = jac_con.astype(float)
         
         return grad_obj, jac_con
+    
+    
+    def add_array_inputs(self, full_path, lower_bound, upper_bound, star=None):
+        
+        # go to the full path and figure out the array shape
+        array  = eval('self.'+full_path)
+        shape  = array.shape
+        ndim   = array.ndim
+        size   = array.size
+        name   = full_path.split('.')[-1]
+        
+        # create an input array
+        new_inputs  = np.zeros((size,6),dtype=object)
+        # create an alias list
+        new_aliases = []
+        
+        # loop over the array dimension by dimension
+        for ii,val in enumerate(array.flatten()):
+            # setup the inputs
+            alias_name       = name+'_'+str(ii)
+            new_inputs[ii,:] = np.array([alias_name,val,lower_bound,upper_bound,1.,1.],dtype=object)
+            # setup the aliases            
+            new_aliases.append([alias_name,full_path+'['+str(ii)+']'])
+
+        # append the aliases and the inputs to the Nexus
+        self.optimization_problem.inputs  = np.vstack((self.optimization_problem.inputs,new_inputs))
+        self.optimization_problem.aliases = self.optimization_problem.aliases + new_aliases
+        
+        
+        return self
     
     
     def translate(self,x = None):

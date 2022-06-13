@@ -297,8 +297,16 @@ def get_jacobian_values(dictionary,inputs,outputs,aliases):
     values = np.zeros((len(outputs),len(inputs)))
     for ii in range(0,len(outputs)):
         for jj in range(0,len(inputs)):
-            splitstring = pointer_outputs[ii].split('.')+pointer_inputs[ii].split('.')
-            values[ii,jj]  = eval('dictionary.'+'.'.join(splitstring[0:]))
+            splitstring = pointer_outputs[ii].split('.')+pointer_inputs[jj].split('.')
+            try:
+                values[ii,jj]  = eval('dictionary.'+'.'.join(splitstring[0:]))
+            except:
+                new_string    = 'dictionary.'+'.'.join(splitstring[0:])
+                split         = new_string.split('[')
+                split[-1]     = split[-1][:-1]
+                index         = int(split[-1])
+                flatarray     = eval(split[0]).flatten()
+                values[ii,jj] = flatarray[index]
     
     return values
 

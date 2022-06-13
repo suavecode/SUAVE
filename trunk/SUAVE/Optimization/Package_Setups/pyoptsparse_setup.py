@@ -244,7 +244,7 @@ def PyOpt_Problem_grads(problem,xdict,ydict):
    
     obj   = problem.grad_objective(x).tolist()
     const = problem.jacobian_all_constraints(x).tolist()
-    fail  = np.array(np.isnan(obj or np.isnan(np.array(const).any())).astype(int))
+    fail  = np.array(np.isnan(obj).any() or np.isnan(np.array(const).any())).astype(int)
     
     # Name of inputs
     inpnam  = problem.optimization_problem.inputs[:,0] # Names
@@ -256,14 +256,14 @@ def PyOpt_Problem_grads(problem,xdict,ydict):
     
     # Loop over Objectives
     for ii, o_name in enumerate(objname):
+        funcs[o_name] = {}
         for jj, i_name in enumerate(inpnam):
-            funcs[o_name] = {}
             funcs[o_name][i_name] = obj[ii][jj]
     
     # Loop over Objectives
     for ii, c_name in enumerate(conname):
+        funcs[c_name] = {}
         for jj, i_name in enumerate(inpnam):
-            funcs[c_name] = {}
             funcs[c_name][i_name] = obj[ii][jj]
 
 
