@@ -11,6 +11,7 @@
 
 import numpy as np
 from SUAVE.Core import Data
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------        
 #   Set_values
@@ -43,14 +44,12 @@ def set_values(dictionary,input_dictionary,converted_values,aliases):
     N/A
     """      
     
-    provided_names = input_dictionary[:,0]
+    provided_names = list(input_dictionary.keys())
         
     # Correspond aliases to inputs
     pointer = []
-    for ii in range(0,len(provided_names)):
-        for jj in range(0,len(aliases)):
-            if provided_names[ii] == aliases[jj][0]:
-                pointer.append(aliases[jj][1])
+    for name in provided_names:
+        pointer.append(aliases[name])
 
     for ii in range(0,len(pointer)):
         pointers = pointer[ii][:]
@@ -140,9 +139,14 @@ def scale_input_values(inputs,x):
     Properties Used:
     N/A
     """    
+    full_inputs     = inputs.pack_array()
     
-    provided_scale = inputs[:,-2]
-    inputs[:,1]    = x*provided_scale
+    provided_scale  = full_inputs[3::5]
+    adjusted_inputs = x*provided_scale
+    
+    full_inputs = full_inputs.at[3::5].set(adjusted_inputs)
+    
+    inputs.unpack_array(full_inputs)
     
     return inputs
 
@@ -199,12 +203,11 @@ def convert_values(inputs):
     Properties Used:
     N/A
     """    
+    inputs_packed = inputs.pack_array()
     
-    provided_values  = inputs[:,1] 
+    provided_values  = inputs_packed[::5]
     
-    # Most important 2 lines of these functions
-    provided_units   = inputs[:,-1]*1.0
-    inputs[:,-1]     = provided_units
+    provided_units   = inputs_packed[4::5]*1.0
     
     converted_values = provided_values*provided_units
     
@@ -237,20 +240,17 @@ def get_values(dictionary,outputs,aliases):
     N/A
     """     
     
-    npoutputs   = np.array(outputs)
-    output_names = npoutputs[:,0]
+    output_names = list(outputs.keys())
         
     # Correspond aliases to outputs
     pointer = []
-    for ii in range(0,len(output_names)):
-        for jj in range(0,len(aliases)):
-            if output_names[ii] == aliases[jj][0]:
-                pointer.append(aliases[jj][1])    
+    for name in output_names:
+        pointer.append(aliases[name])
                 
-    values = np.zeros(len(outputs))
+    values = jnp.zeros(len(outputs))
     for ii in range(0,len(outputs)):
         splitstring = pointer[ii].split('.')
-        values[ii]  = eval('dictionary.'+'.'.join(splitstring[0:]))
+        values = values.at[ii].set(eval('dictionary.'+'.'.join(splitstring[0:])).flatten()[0])
     
     return values
 
@@ -276,37 +276,31 @@ def get_jacobian_values(dictionary,inputs,outputs,aliases):
     N/A
     """     
     
-    npoutputs    = np.array(outputs)
-    npinputs     = np.array(inputs)
-    output_names = npoutputs[:,0]
-    input_names  = npinputs[:,0]
+    output_names = list(outputs.keys())
+    input_names  = list(inputs.keys())
         
     # Correspond aliases to outputs
     pointer_outputs = []
-    for ii in range(0,len(output_names)):
-        for jj in range(0,len(aliases)):
-            if output_names[ii] == aliases[jj][0]:
-                pointer_outputs.append(aliases[jj][1])    
+    for name in output_names:
+        pointer_outputs.append(aliases[name])
                 
     pointer_inputs = []
-    for ii in range(0,len(input_names)):
-        for jj in range(0,len(aliases)):
-            if input_names[ii] == aliases[jj][0]:
-                pointer_inputs.append(aliases[jj][1])                    
-                
-    values = np.zeros((len(outputs),len(inputs)))
+    for name in input_names:
+        pointer_inputs.append(aliases[name])
+            
+    values = jnp.zeros((len(outputs),len(inputs)))
     for ii in range(0,len(outputs)):
         for jj in range(0,len(inputs)):
             splitstring = pointer_outputs[ii].split('.')+pointer_inputs[jj].split('.')
             try:
-                values[ii,jj]  = eval('dictionary.'+'.'.join(splitstring[0:]))
+                values = values.at[ii,jj].set(eval('dictionary.'+'.'.join(splitstring[0:])))
             except:
                 new_string    = 'dictionary.'+'.'.join(splitstring[0:])
                 split         = new_string.split('[')
                 split[-1]     = split[-1][:-1]
                 index         = int(split[-1])
                 flatarray     = eval(split[0]).flatten()
-                values[ii,jj] = flatarray[index]
+                values        = values.at[ii,jj].set(flatarray[index])
     
     return values
 
@@ -331,9 +325,8 @@ def scale_obj_values(inputs,x):
     N/A
     """     
     
-    provided_scale = inputs[:,1]
-    provided_units = inputs[:,-1]*1.0
-    inputs[:,-1]   = provided_units
+    provided_scale = inputs.pack_array()[0::2]
+    provided_units = inputs.pack_array()[1::2]
     
     scaled =  x/(provided_scale*provided_units)
     
@@ -360,7 +353,7 @@ def scale_const_values(inputs,x):
     N/A
     """        
     
-    provided_scale = np.array(inputs[:,3],dtype = float)
+    provided_scale = inputs.pack_array()[2::4]
     scaled =  x/provided_scale
     
     return scaled
@@ -385,11 +378,8 @@ def scale_const_bnds(inputs):
     N/A
     """     
     
-    provided_bounds = np.array(inputs[:,2],dtype = float)
-    
-    # Most important 2 lines of these functions
-    provided_units  = inputs[:,-1]*1.0
-    inputs[:,-1]    = provided_units
+    provided_bounds = inputs.pack_array()[1::4]
+    provided_units  = inputs.pack_array()[3::4]
     
     converted_values = provided_bounds*provided_units
     

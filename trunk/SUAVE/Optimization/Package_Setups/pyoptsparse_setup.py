@@ -64,16 +64,17 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
         
     
     opt_prob = pyOpt.Optimization('SUAVE',mywrap)
-    for ii in range(len(obj)):
-        opt_prob.addObj(obj[ii,0])    
+    for key in obj.keys():
+        opt_prob.addObj(key)    
        
     # Set inputs
-    nam  = inp[:,0] # Names
-    ini  = inp[:,1] # Initials
-    bndl = inp[:,2] # Bounds
-    bndu = inp[:,3] # Bounds
-    scl  = inp[:,4] # Scale
-    typ  = inp[:,5] # Type
+    nam  = list(inp.keys())
+    inpa = inp.pack_array()
+    ini  = inpa[0::5] # Initials
+    bndl = inpa[1::5] # Bounds
+    bndu = inpa[2::5]  # Bounds
+    scl  = inpa[3::5] # Scale
+    typ  = inpa[4::5]  # Type
         
     # Pull out the constraints and scale them
     bnd_constraints = help_fun.scale_const_bnds(con)
@@ -90,15 +91,15 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
         opt_prob.addVar(nam[ii],vartype,lower=lbd,upper=ubd,value=x[ii])
        
     # Setup constraints  
-    for ii in range(0,len(con)):
-        name = con[ii][0]
+    for ii, name in enumerate(con.keys()):
+        constraint = con[name]
         edge = scaled_constraints[ii]
        
-        if con[ii][1]=='<':
+        if constraint[0]==-1.:
             opt_prob.addCon(name, upper=edge)
-        elif con[ii][1]=='>':
+        elif constraint[0]==1.:
             opt_prob.addCon(name, lower=edge)
-        elif con[ii][1]=='=':
+        elif constraint[0]==0.:
             opt_prob.addCon(name, lower=edge,upper=edge)
 
     # Finalize problem statement and run  
@@ -197,13 +198,12 @@ def PyOpt_Problem(problem,xdict):
     
     funcs = {}
     
-    for ii, obj in enumerate(obj):
-        funcs[problem.optimization_problem.objective[ii,0]] = obj
+    for ii, obj_name in enumerate(problem.optimization_problem.objective.keys()):
+        funcs[obj_name] = obj[ii]
         
-    for ii, con in enumerate(const):
-        funcs[problem.optimization_problem.constraints[ii,0]] = con
-
-       
+    for ii, con_name in enumerate(problem.optimization_problem.constraints.keys()):
+        funcs[con_name] = const[ii]
+   
     print('Inputs')
     print(x)
     print('Obj')
@@ -247,9 +247,9 @@ def PyOpt_Problem_grads(problem,xdict,ydict):
     fail  = np.array(np.isnan(obj).any() or np.isnan(np.array(const).any())).astype(int)
     
     # Name of inputs
-    inpnam  = problem.optimization_problem.inputs[:,0] # Names
-    objname = problem.optimization_problem.objective[:,0]
-    conname = problem.optimization_problem.constraints[:,0]
+    inpnam  = list(problem.optimization_problem.inputs.keys()) # Names
+    objname = list(problem.optimization_problem.objective.keys())
+    conname = list(problem.optimization_problem.constraints.keys())
     
     # Need two for loops. Possibly zips could be used later
     funcs = {}

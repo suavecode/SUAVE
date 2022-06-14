@@ -15,6 +15,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import jax.numpy as jnp
 from .Arrays import atleast_2d_col, array_type, matrix_type, append_array
 
 from copy import copy
@@ -665,7 +666,12 @@ class Data(dict):
                 index    = int(splitkey[ii][:-1])
                 thing = thing[index]
             index    = int(splitkey[-1][:-1])
-            thing[index] = val
+            try:
+                thing[index] = val
+            except:
+                if isinstance(val,jnp.ndarray):
+                    thing = jnp.array(thing)
+                thing = thing.at[index].set(val)
         else:
             data[ keys[-1] ] = val
             
@@ -738,7 +744,8 @@ class Data(dict):
         # valid types for output
         valid_types = ( int, float,
                         array_type,
-                        matrix_type )
+                        matrix_type,
+                        jnp.ndarray)
         
         # initialize array row size (for array output)
         size = [False]
@@ -778,7 +785,7 @@ class Data(dict):
         
         # pack into final array
         if M:
-            M = np.hstack(M)
+            M = jnp.hstack(M)
         else:
             # empty result
             if vector:
@@ -821,7 +828,8 @@ class Data(dict):
         # valid types for output
         valid_types = ( int, float,
                         array_type,
-                        matrix_type )
+                        matrix_type,
+                        jnp.array)
         
         # counter for unpacking
         _index = [0]
@@ -859,7 +867,7 @@ class Data(dict):
                 elif rank == 1:
                     n = len(v)
                     if vector:
-                        D[k][:] = M[index:(index+n)]
+                        D[k] = M[index:(index+n)]
                         index += n
                     else:#array
                         D[k][:] = M[:,index]

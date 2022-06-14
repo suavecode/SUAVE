@@ -11,6 +11,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 import numpy as np
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #   Array
@@ -85,7 +86,7 @@ def atleast_2d(A,oned_as='row'):
     if not isinstance(A,(array_type,matrix_type)):
         if not isinstance(A,(list,tuple)):
             A = [A]
-        A = np.array(A)
+        A = jnp.array(A)
         
     # check rank
     if A.ndim < 2:

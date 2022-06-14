@@ -21,6 +21,7 @@ import numpy as np
 
 from jax import jacfwd, jit
 from jax.tree_util import register_pytree_node_class
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Nexus Class
@@ -69,16 +70,16 @@ class Nexus(Data):
         self.results                = Data()
         self.summary                = Data()
         self.fidelity_level         = 1.
-        self.last_inputs            = None
+        self.last_inputs            = Data()
         self.last_fidelity          = None
-        self.last_jacobian_inputs   = None
+        self.last_jacobian_inputs   = Data()
         self.last_jacobians         = None
         self.evaluation_count       = 0.
         self.force_evaluate         = False
         self.hard_bounded_inputs    = False
         self.use_jax_derivatives    = False
         self.jitable                = False
-        self.static_keys            = ['last_inputs','last_jacobian_inputs','last_jacobians']
+        self.static_keys            = ['last_jacobians']
 
         self.optimization_problem             = Data()
         self.optimization_problem.inputs      = None     
@@ -110,17 +111,19 @@ class Nexus(Data):
         self.unpack_inputs(x)
         
         # Check if last call was the same
-        if np.all(self.optimization_problem.inputs==self.last_inputs) \
-           and self.last_fidelity == self.fidelity_level \
-           and self.force_evaluate == False:
-            pass
+        #if np.all(self.optimization_problem.inputs.pack_array()==self.last_inputs.pack_array()) \
+           #and self.last_fidelity == self.fidelity_level \
+           #and self.force_evaluate == False:
+            #pass
+        #else:
+        if (self.jitable==True) and (self.last_inputs is not None):
+            jit_eval = jit(self._really_evaluate)
+            jit_eval()
+            
         else:
-            if (self.jitable==True) and (self.last_inputs is not None):
-                jit_eval = jit(self._really_evaluate)
-                jit_eval()
-                
-            else:
-                self._really_evaluate()
+            self = self._really_evaluate()
+            
+        return self
 
     
     def _really_evaluate(self):
@@ -180,7 +183,7 @@ class Nexus(Data):
             None
         """           
     
-        self.evaluate(x)
+        self = self.evaluate(x)
         
         aliases     = self.optimization_problem.aliases
         objective   = self.optimization_problem.objective
@@ -188,7 +191,7 @@ class Nexus(Data):
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
-        return scaled_objective.astype(np.double)  
+        return scaled_objective.astype(jnp.double)  
     
     def grad_objective(self,x = None):
         """Retrieve the objective gradient for your function using JAX
@@ -208,30 +211,29 @@ class Nexus(Data):
             Properties Used:
             None
         """
-        # Unpack the inputs
-        self.unpack_inputs(x)
+        if x is None:
+            x = self.optimization_problem.inputs.pack_array()[0::5]
         
-        if self.jitable:
-            grad_function = jit(jacfwd(Nexus._really_evaluate))
-        else:
-            grad_function = jacfwd(Nexus._really_evaluate)
+        #if self.jitable:
+            #grad_function = jit(jacfwd(Nexus._really_evaluate))
+        #else:
+        grad_function = jacfwd(self.objective)
             
-        if np.all(self.optimization_problem.inputs==self.last_jacobian_inputs):
-            grad = self.last_jacobians
-        else:
-            self.last_jacobian_inputs = deepcopy(self.optimization_problem.inputs)
-            grad = grad_function(self)
-            self.last_jacobians = grad            
+        #if np.all(self.optimization_problem.inputs.pack_array()==self.last_jacobian_inputs.pack_array()):
+            #grad = self.last_jacobians
+        #else:
+        #self.last_jacobian_inputs = deepcopy(self.optimization_problem.inputs)
+        grad = grad_function(x)   
 
-        # Need to make a function that retrieves the grad value from the full jacobian
-        aliases     = self.optimization_problem.aliases
-        objective   = self.optimization_problem.objective
-        inputs      = self.optimization_problem.inputs
+        ## Need to make a function that retrieves the grad value from the full jacobian
+        #aliases     = self.optimization_problem.aliases
+        #objective   = self.optimization_problem.objective
+        #inputs      = self.optimization_problem.inputs
     
-        objective_value  = help_fun.get_jacobian_values(grad,inputs,objective,aliases)  
-        scaled_objective = help_fun.scale_obj_values(objective,objective_value)
+        #objective_value  = help_fun.get_jacobian_values(grad,inputs,objective,aliases)  
+        #scaled_objective = help_fun.scale_obj_values(objective,objective_value)
                 
-        return scaled_objective
+        return grad
         
     
     
@@ -429,9 +431,9 @@ class Nexus(Data):
         if self.jitable:
             grad_function = jit(jacfwd(Nexus._really_evaluate))
         else:
-            grad_function = jacfwd(Nexus._really_evaluate)   
+            grad_function = jacfwd(Nexus.objective)   
         
-        if np.all(self.optimization_problem.inputs==self.last_jacobian_inputs):
+        if np.all(self.optimization_problem.inputs.pack_array()==self.last_jacobian_inputs.pack_array()):
             grad = self.last_jacobians
         else:
             self.last_jacobian_inputs = self.optimization_problem.inputs
@@ -506,6 +508,66 @@ class Nexus(Data):
             None
         """           
         raise NotImplementedError
+    
+    
+    def convert_problem_arrays(self):
+        """ Go through each part of the problem and convert to a Data structure instead of an np array
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """                   
+
+        # unpack
+        inputs = self.optimization_problem.inputs
+        obj    = self.optimization_problem.objective
+        cons   = self.optimization_problem.constraints
+        alias  = np.array(self.optimization_problem.aliases,dtype=object)
+        
+        # split the inputs
+        in_nam  = inputs[:,0]
+        in_arr  = inputs[:,1:].astype(float)
+        inputs  = Data(dict(zip(in_nam,in_arr)))
+        
+        # do the objectives
+        obj_nam = obj[:,0]
+        obj_arr = obj[:,1:].astype(float)
+        obj     = Data(dict(zip(obj_nam,obj_arr)))
+        
+        # constraints
+        con_nam     = cons[:,0]
+        cons[cons=='>']  =  1.
+        cons[cons=='>='] =  1.
+        cons[cons=='<']  = -1.
+        cons[cons=='<='] = -1.
+        cons[cons=='=']  =  0.
+        con_arr = cons[:,1:].astype(float)
+        cons        = Data(dict(zip(con_nam,con_arr)))
+        
+        # aliases
+        ali_nam = alias[:,0]
+        ali_arr = alias[:,1].flatten()
+        alias   = Data(dict(zip(ali_nam,ali_arr)))
+        
+        # pack
+        self.optimization_problem.inputs      = inputs
+        self.optimization_problem.objective   = obj
+        self.optimization_problem.constraints = cons 
+        self.optimization_problem.aliases     = alias
+        
+        
+        
 
     def finite_difference(self,x,diff_interval=1e-8):
         """Finite difference gradients and jacobians of the problem.
