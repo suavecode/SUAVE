@@ -87,8 +87,8 @@ class Nexus(Data):
         self.optimization_problem.objective   = None
         self.optimization_problem.constraints = None
         self.optimization_problem.aliases     = None
-        #self.optimization_problem.static_keys = ['objective','constraints','aliases'] # this may need to change in the future
-    
+        
+    @jit
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
             If the last time you ran this the inputs were the same, a cache is used.
@@ -110,19 +110,6 @@ class Nexus(Data):
         """          
         
         self = self.unpack_inputs(x)
-        
-        # Check if last call was the same
-        #if np.all(self.optimization_problem.inputs.pack_array()==self.last_inputs.pack_array()) \
-           #and self.last_fidelity == self.fidelity_level \
-           #and self.force_evaluate == False:
-            #pass
-        #else:
-        #if (self.jitable==True) and (self.last_inputs is not None):
-            #jit_eval = jit(self._really_evaluate)
-            #with jax.checking_leaks():
-                #jit_eval()
-            
-        #else:
         self = self._really_evaluate()
             
         return self
@@ -161,8 +148,8 @@ class Nexus(Data):
         #self.last_fidelity = self.fidelity_level
         
         return self
-          
     
+    @jit
     def objective(self,x = None):
         """Retrieve the objective value for your function
     
@@ -181,7 +168,6 @@ class Nexus(Data):
             Properties Used:
             None
         """           
-    
         self = self.evaluate(x)
         
         aliases     = self.optimization_problem.aliases
@@ -213,14 +199,8 @@ class Nexus(Data):
         if x is None:
             x = self.optimization_problem.inputs.pack_array()[0::5]
             
-        if self.jitable:
-            grad_function = jit_jac_nexus_objective_wrapper
-        else:
-            grad_function = jac_nexus_objective_wrapper
-            
-        grad = grad_function(x,self)   
+        grad = jit_jac_nexus_objective_wrapper(x,self)   
 
-                
         return grad
         
     
@@ -679,8 +659,15 @@ class Nexus(Data):
         print(const_table)
         
         return inpu,const_table
-                               
         
+@jit
+def jit_nexus_objective_wrapper(x,nexus):
+    return Nexus.objective(nexus,x)
+
+@jit
+def jit_nexus_all_constraint_wrapper(x,nexus):
+    return Nexus.all_constraints(nexus,x)
+
 @jacfwd
 def jac_nexus_objective_wrapper(x,nexus):
     return Nexus.objective(nexus,x)

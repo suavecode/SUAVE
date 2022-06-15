@@ -22,6 +22,7 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 
 import numpy as np
 from jax.tree_util import register_pytree_node_class
+import jaxlib
 import types
 
 # ----------------------------------------------------------------------
@@ -182,6 +183,9 @@ class DataOrdered(OrderedDict):
             elif isinstance(value,types.FunctionType): # a function
                 aux_dict[key] = self.get(key)
                 self.__delattr__(key)
+            elif isinstance(value,jaxlib.xla_extension.CompiledFunction):
+                aux_dict[key] = self.get(key)
+                self.__delattr__(key)           
                 
 
         # Some children classes might have "static_keys" that are marked as immutable

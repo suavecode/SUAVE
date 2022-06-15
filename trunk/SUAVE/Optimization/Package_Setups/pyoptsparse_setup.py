@@ -12,6 +12,7 @@
 # suave imports
 import numpy as np
 from SUAVE.Optimization import helper_functions as help_fun
+from SUAVE.Optimization.Nexus import jit_nexus_objective_wrapper, jit_nexus_all_constraint_wrapper
 from SUAVE.Core import to_numpy
 
 # ----------------------------------------------------------------------

@@ -16,6 +16,7 @@
 
 import numpy as np
 import jax.numpy as jnp
+import jaxlib
 from .Arrays import atleast_2d_col, array_type, matrix_type, append_array
 
 from copy import copy
@@ -82,6 +83,8 @@ class Data(dict):
                 if not bool(value):
                     aux_dict[key] = self.pop(key)
             elif isinstance(value,bool):
+                aux_dict[key] = self.pop(key)
+            elif isinstance(value,jaxlib.xla_extension.CompiledFunction):
                 aux_dict[key] = self.pop(key)
 
         # Some children classes might have "static_keys" that are marked as immutable
