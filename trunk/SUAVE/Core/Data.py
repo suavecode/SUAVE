@@ -672,6 +672,8 @@ class Data(dict):
                 if isinstance(val,jnp.ndarray):
                     thing = jnp.array(thing)
                 thing = thing.at[index].set(val)
+            # Explicitly writng back
+            data[splitkey[0]] = thing
         else:
             data[ keys[-1] ] = val
             

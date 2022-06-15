@@ -139,14 +139,14 @@ def scale_input_values(inputs,x):
     Properties Used:
     N/A
     """    
-    full_inputs     = inputs.pack_array()
+    full_inputs     = pack_array(inputs)
     
     provided_scale  = full_inputs[3::5]
     adjusted_inputs = x*provided_scale
     
-    full_inputs = full_inputs.at[3::5].set(adjusted_inputs)
+    full_inputs = full_inputs.at[0::5].set(adjusted_inputs)
     
-    inputs.unpack_array(full_inputs)
+    inputs      = unpack_array(inputs,full_inputs)
     
     return inputs
 
@@ -203,11 +203,11 @@ def convert_values(inputs):
     Properties Used:
     N/A
     """    
-    inputs_packed = inputs.pack_array()
+    inputs_packed = pack_array(inputs)
     
     provided_values  = inputs_packed[::5]
     
-    provided_units   = inputs_packed[4::5]*1.0
+    provided_units   = inputs_packed[3::5]*1.0
     
     converted_values = provided_values*provided_units
     
@@ -325,8 +325,8 @@ def scale_obj_values(inputs,x):
     N/A
     """     
     
-    provided_scale = inputs.pack_array()[0::2]
-    provided_units = inputs.pack_array()[1::2]
+    provided_scale = pack_array(inputs)[0::2]
+    provided_units = pack_array(inputs)[1::2]
     
     scaled =  x/(provided_scale*provided_units)
     
@@ -353,7 +353,7 @@ def scale_const_values(inputs,x):
     N/A
     """        
     
-    provided_scale = inputs.pack_array()[2::4]
+    provided_scale = pack_array(inputs)[2::4]
     scaled =  x/provided_scale
     
     return scaled
@@ -378,8 +378,8 @@ def scale_const_bnds(inputs):
     N/A
     """     
     
-    provided_bounds = inputs.pack_array()[1::4]
-    provided_units  = inputs.pack_array()[3::4]
+    provided_bounds = pack_array(inputs)[1::4]
+    provided_units  = pack_array(inputs)[3::4]
     
     converted_values = provided_bounds*provided_units
     
@@ -411,3 +411,28 @@ def unscale_const_values(inputs,x):
     scaled =  x*provided_scale/provided_units
     
     return scaled
+
+def pack_array(dictionary):
+    """"""
+    
+    list_items = list(dictionary.values())
+    array      = jnp.array(list_items).flatten()
+
+    return array
+    
+    
+def unpack_array(dictionary, array):
+    """"""
+    index = 0
+    
+    for key in list(dictionary.keys()):
+        existing_array  = dictionary[key]
+        length          = jnp.size(existing_array)
+        dictionary[key] = array[index:(index+length)]
+        index           = index + length
+
+
+
+    return dictionary
+    
+    

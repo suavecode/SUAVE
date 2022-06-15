@@ -86,7 +86,7 @@ class Nexus(Data):
         self.optimization_problem.objective   = None
         self.optimization_problem.constraints = None
         self.optimization_problem.aliases     = None
-        self.optimization_problem.static_keys = ['inputs','objective','constraints','aliases'] # this may need to change in the future
+        #self.optimization_problem.static_keys = ['objective','constraints','aliases'] # this may need to change in the future
     
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
@@ -108,7 +108,7 @@ class Nexus(Data):
             None
         """          
         
-        self.unpack_inputs(x)
+        self = self.unpack_inputs(x)
         
         # Check if last call was the same
         #if np.all(self.optimization_problem.inputs.pack_array()==self.last_inputs.pack_array()) \
@@ -214,24 +214,12 @@ class Nexus(Data):
         if x is None:
             x = self.optimization_problem.inputs.pack_array()[0::5]
         
-        #if self.jitable:
-            #grad_function = jit(jacfwd(Nexus._really_evaluate))
-        #else:
-        grad_function = jacfwd(self.objective)
+        if self.jitable:
+            grad_function = jit(jacfwd(self.objective))
+        else:
+            grad_function = jacfwd(self.objective)
             
-        #if np.all(self.optimization_problem.inputs.pack_array()==self.last_jacobian_inputs.pack_array()):
-            #grad = self.last_jacobians
-        #else:
-        #self.last_jacobian_inputs = deepcopy(self.optimization_problem.inputs)
         grad = grad_function(x)   
-
-        ## Need to make a function that retrieves the grad value from the full jacobian
-        #aliases     = self.optimization_problem.aliases
-        #objective   = self.optimization_problem.objective
-        #inputs      = self.optimization_problem.inputs
-    
-        #objective_value  = help_fun.get_jacobian_values(grad,inputs,objective,aliases)  
-        #scaled_objective = help_fun.scale_obj_values(objective,objective_value)
                 
         return grad
         
@@ -396,7 +384,7 @@ class Nexus(Data):
             None
         """         
         
-        self.evaluate(x)
+        self = self.evaluate(x)
         
         aliases     = self.optimization_problem.aliases
         constraints = self.optimization_problem.constraints
@@ -425,30 +413,17 @@ class Nexus(Data):
             Properties Used:
             None
         """
-        # Unpack the inputs
-        self.unpack_inputs(x)
+        if x is None:
+            x = self.optimization_problem.inputs.pack_array()[0::5]
         
         if self.jitable:
-            grad_function = jit(jacfwd(Nexus._really_evaluate))
+            grad_function = jit(jacfwd(self.all_constraints))
         else:
-            grad_function = jacfwd(Nexus.objective)   
-        
-        if np.all(self.optimization_problem.inputs.pack_array()==self.last_jacobian_inputs.pack_array()):
-            grad = self.last_jacobians
-        else:
-            self.last_jacobian_inputs = self.optimization_problem.inputs
-            grad = grad_function(self)
-            self.last_jacobians = grad
-        
-        # Need to make a function that retrieves the grad value from the full jacobian
-        aliases      = self.optimization_problem.aliases
-        contstraints = self.optimization_problem.constraints
-        inputs       = self.optimization_problem.inputs
-    
-        constraint_values  = help_fun.get_jacobian_values(grad,inputs,contstraints,aliases)  
-        scaled_constraints = help_fun.scale_const_values(contstraints,constraint_values)
+            grad_function = jacfwd(self.all_constraints)
+            
+        grad = grad_function(x)   
                 
-        return scaled_constraints
+        return grad
     
     
     def unpack_inputs(self,x = None):
@@ -486,6 +461,8 @@ class Nexus(Data):
         aliases = self.optimization_problem.aliases
         
         self    = help_fun.set_values(self,inputs,converted_values,aliases)     
+        
+        return self
                
 
     
