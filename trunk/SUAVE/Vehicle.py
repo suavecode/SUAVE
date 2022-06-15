@@ -6,12 +6,13 @@
 #           Feb 2016, E. Botero
 #           Apr 2017, M. Clarke 
 #           Apr 2020, E. Botero
+#           Jan 2022, S. Karpuk
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, DataOrdered
+from SUAVE.Core import Data, DataOrdered, Units
 from SUAVE import Components
 from SUAVE.Components import Physical_Component
 import numpy as np
@@ -378,3 +379,6 @@ class Vehicle_Mass_Container(Components.Physical_Component.Container,Vehicle_Mas
         """       
         
         return [Vehicle_Mass_Properties]
+
+
+    

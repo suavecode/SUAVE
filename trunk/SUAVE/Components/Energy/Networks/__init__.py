@@ -24,3 +24,5 @@ from .Internal_Combustion_Propeller_Constant_Speed import Internal_Combustion_Pr
 from .PyCycle                                      import PyCycle
 from .Network                                      import Network
 from .Turboelectric_HTS_Ducted_Fan                 import Turboelectric_HTS_Ducted_Fan
+from .Turboprop                                    import Turboprop
+from .Turboprop_Constant_Speed                     import Turboprop_Constant_Speed
