@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+from jax import numpy as jnp
 from warnings import warn
 
 import SUAVE
@@ -116,23 +116,23 @@ class US_Standard_1976(Atmospheric):
         # convert input if necessary
         zs = atleast_2d_col(zs)
 
-        # get model altitude bounds
-        zmin = self.breaks.altitude[0]
-        zmax = self.breaks.altitude[-1]   
+        ## get model altitude bounds
+        #zmin = self.breaks.altitude[0]
+        #zmax = self.breaks.altitude[-1]   
         
         # convert geometric to geopotential altitude
         zs = zs/(1 + zs/Rad)
         
-        # check ranges
-        if np.amin(zs) < zmin:
-            print("Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km")
-            zs[zs < zmin] = zmin
-        if np.amax(zs) > zmax:
-            print("Warning: altitude requested above maximum for this atmospheric model; returning values for h = 86.0 km")   
-            zs[zs > zmax] = zmax        
+        ## check ranges
+        #if jnp.amin(zs) < zmin:
+            #print("Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km")
+            #zs[zs < zmin] = zmin
+        #if jnp.amax(zs) > zmax:
+            #print("Warning: altitude requested above maximum for this atmospheric model; returning values for h = 86.0 km")   
+            #zs[zs > zmax] = zmax        
 
         # initialize return data
-        zeros = np.zeros_like(zs)
+        zeros = jnp.zeros_like(zs)
         p     = zeros * 0.0
         T     = zeros * 0.0
         rho   = zeros * 0.0
@@ -143,22 +143,27 @@ class US_Standard_1976(Atmospheric):
         p0    = zeros * 0.0
         alpha = zeros * 0.0
         
-        # populate the altitude breaks
-        # this uses >= and <= to capture both edges and because values should be the same at the edges
+        #populate the altitude breaks
+        #this uses >= and <= to capture both edges and because values should be the same at the edges
         for i in range( len(self.breaks.altitude)-1 ): 
             i_inside = (zs >= self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])
-            z0[ i_inside ]    = self.breaks.altitude[i]
-            T0[ i_inside ]    = self.breaks.temperature[i]
-            p0[ i_inside ]    = self.breaks.pressure[i]
-            alpha[ i_inside ] = -(self.breaks.temperature[i+1] - self.breaks.temperature[i])/ \
-                                 (self.breaks.altitude[i+1]    - self.breaks.altitude[i])
-        
-        # interpolate the breaks
+            z0       =  jnp.where(i_inside,self.breaks.altitude[i],z0)
+            T0       =  jnp.where(i_inside,self.breaks.temperature[i],T0)
+            p0       =  jnp.where(i_inside,self.breaks.pressure[i],p0)
+            alpha    =  jnp.where(i_inside,-(self.breaks.temperature[i+1] - self.breaks.temperature[i])/ \
+                                 (self.breaks.altitude[i+1]    - self.breaks.altitude[i]),alpha)
+
+       
+       # interpolate the breaks
         dz = zs-z0
         i_isoth = (alpha == 0.)
         i_adiab = (alpha != 0.)
-        p[i_isoth] = p0[i_isoth] * np.exp(-1.*dz[i_isoth]*grav/(R*T0[i_isoth]))
-        p[i_adiab] = p0[i_adiab] * ( (1.-alpha[i_adiab]*dz[i_adiab]/T0[i_adiab]) **(1.*grav/(alpha[i_adiab]*R)) )
+        P_isoth = (p0* jnp.exp(-1.*dz*grav/(R*T0)))*i_isoth
+        P_adiab = (p0 * ( (1.-alpha*dz/T0) **(1.*grav/(alpha*R)) ))*i_adiab
+        p       = P_isoth + P_adiab
+        
+        #p[i_isoth] = p0[i_isoth] * jnp.exp(-1.*dz[i_isoth]*grav/(R*T0[i_isoth]))
+        #p[i_adiab] = p0[i_adiab] * ( (1.-alpha[i_adiab]*dz[i_adiab]/T0[i_adiab]) **(1.*grav/(alpha[i_adiab]*R)) )
         
         T   = T0 - dz*alpha + delta_isa
         rho = gas.compute_density(T,p)

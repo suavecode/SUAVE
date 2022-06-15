@@ -120,7 +120,7 @@ class Rotor(Energy_Component):
         
         return thrust_vector, torque, power, Cp, outputs , etap
 
-    @jit
+    #@jit
     def _prewake(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     
@@ -358,7 +358,7 @@ class Rotor(Energy_Component):
 
         return wake_inputs
     
-    @jit
+    #@jit
     def _postwake(self,va,vt,wake_inputs,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     

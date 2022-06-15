@@ -59,12 +59,12 @@ def set_values(dictionary,input_dictionary,converted_values,aliases):
                 for jj in range(0,len(newstrings)):
                     localstrs = newstrings[jj].split('.')
                     correctname = '.'.join(localstrs[0:])
-                    dictionary.deep_set(correctname,converted_values[ii])
+                    dictionary = dictionary.deep_set(correctname,converted_values[ii])
                     
             elif '*' not in pointers:
                 localstrs = pointers.split('.')
                 correctname = '.'.join(localstrs[0:])
-                dictionary.deep_set(correctname,converted_values[ii])              
+                dictionary = dictionary.deep_set(correctname,converted_values[ii])              
         else:
             for zz in range(1,len(pointers)+1):
                 if '*' in pointers[zz-1]:
@@ -72,12 +72,12 @@ def set_values(dictionary,input_dictionary,converted_values,aliases):
                     for jj in range(0,len(newstrings)):
                         localstrs = newstrings[jj].split('.')
                         correctname = '.'.join(localstrs[0:])
-                        dictionary.deep_set(correctname,converted_values[ii])
+                        dictionary = dictionary.deep_set(correctname,converted_values[ii])
                         
                 elif '*' not in pointers[zz-1]:
                     localstrs = pointers[zz-1].split('.')
                     correctname = '.'.join(localstrs[0:])
-                    dictionary.deep_set(correctname,converted_values[ii])            
+                    dictionary = dictionary.deep_set(correctname,converted_values[ii])            
             
     return dictionary
         
@@ -249,8 +249,10 @@ def get_values(dictionary,outputs,aliases):
                 
     values = jnp.zeros(len(outputs))
     for ii in range(0,len(outputs)):
-        splitstring = pointer[ii].split('.')
-        values = values.at[ii].set(eval('dictionary.'+'.'.join(splitstring[0:])).flatten()[0])
+        #splitstring = pointer[ii].split('.')
+        #values = values.at[ii].set(eval('dictionary.'+'.'.join(splitstring[0:])).flatten()[0])
+        values = dictionary.deep_get(pointer[ii])
+        
     
     return values
 

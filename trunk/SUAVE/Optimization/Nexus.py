@@ -22,6 +22,7 @@ import numpy as np
 from jax import jacfwd, jit
 from jax.tree_util import register_pytree_node_class
 import jax.numpy as jnp
+import jax
 
 # ----------------------------------------------------------------------
 #  Nexus Class
@@ -116,12 +117,13 @@ class Nexus(Data):
            #and self.force_evaluate == False:
             #pass
         #else:
-        if (self.jitable==True) and (self.last_inputs is not None):
-            jit_eval = jit(self._really_evaluate)
-            jit_eval()
+        #if (self.jitable==True) and (self.last_inputs is not None):
+            #jit_eval = jit(self._really_evaluate)
+            #with jax.checking_leaks():
+                #jit_eval()
             
-        else:
-            self = self._really_evaluate()
+        #else:
+        self = self._really_evaluate()
             
         return self
 
@@ -145,21 +147,18 @@ class Nexus(Data):
             Properties Used:
             None
         """          
-        
-        nexus = self
-        
+                
         self.evaluation_count += 1.
         
-        for key,step in nexus.procedure.items():
+        for key,step in self.procedure.items():
             if hasattr(step,'evaluate'):
-                self = step.evaluate(nexus)
+                self = step.evaluate(self)
             else:
-                nexus = step(nexus)
-            self = nexus
+                self = step(self)
                 
-        # Store to cache
-        self.last_inputs   = deepcopy(self.optimization_problem.inputs)
-        self.last_fidelity = self.fidelity_level
+        ## Store to cache
+        #self.last_inputs   = deepcopy(self.optimization_problem.inputs)
+        #self.last_fidelity = self.fidelity_level
         
         return self
           
@@ -215,9 +214,9 @@ class Nexus(Data):
             x = self.optimization_problem.inputs.pack_array()[0::5]
             
         if self.jitable:
-            grad_function = jit(jacfwd(nexus_objective_wrapper))
+            grad_function = jit_jac_nexus_objective_wrapper
         else:
-            grad_function = jacfwd(nexus_objective_wrapper)
+            grad_function = jac_nexus_objective_wrapper
             
         grad = grad_function(x,self)   
 
@@ -418,11 +417,11 @@ class Nexus(Data):
             x = self.optimization_problem.inputs.pack_array()[0::5]
         
         if self.jitable:
-            grad_function = jit(jacfwd(nexus_all_constraint_wrapper))
+            grad_function = jit_jac_nexus_all_constraint_wrapper
         else:
-            grad_function = jacfwd(nexus_all_constraint_wrapper)
+            grad_function = jac_nexus_all_constraint_wrapper
             
-        grad = grad_function(self,x)   
+        grad = grad_function(x,self)   
                 
         return grad
     
@@ -446,8 +445,8 @@ class Nexus(Data):
             None
         """                 
          
-        # Scale the inputs if given
-        inputs = self.optimization_problem.inputs
+        #Scale the inputs if given
+        inputs = deepcopy(self.optimization_problem.inputs)
         if x is not None:
             inputs = help_fun.scale_input_values(inputs,x)
             
@@ -682,10 +681,20 @@ class Nexus(Data):
         return inpu,const_table
                                
         
-    
- 
-def nexus_objective_wrapper(x,nexus):
+@jacfwd
+def jac_nexus_objective_wrapper(x,nexus):
     return Nexus.objective(nexus,x)
 
-def nexus_all_constraint_wrapper(x,nexus):
+@jacfwd
+def jac_nexus_all_constraint_wrapper(x,nexus):
+    return Nexus.all_constraints(nexus,x)
+
+@jit
+@jacfwd
+def jit_jac_nexus_objective_wrapper(x,nexus):
+    return Nexus.objective(nexus,x)
+
+@jit
+@jacfwd
+def jit_jac_nexus_all_constraint_wrapper(x,nexus):
     return Nexus.all_constraints(nexus,x)

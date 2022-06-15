@@ -11,9 +11,7 @@
 # ----------------------------------------------------------------------
 
 from .Gas import Gas
-from SUAVE.Core import Data , Units
-import numpy as np
-from scipy import interpolate
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Air Gas Class
@@ -104,9 +102,9 @@ class Air(Gas):
         if variable_gamma:
             g = self.compute_gamma(T,p)
         else:
-            g = 1.4*np.ones_like(T)
+            g = 1.4*jnp.ones_like(T)
             
-        return np.sqrt(g*self.gas_specific_constant*T)
+        return jnp.sqrt(g*self.gas_specific_constant*T)
 
     def compute_cp(self,T=300.,p=101325.):
         """Computes Cp by 3rd-order polynomial data fit:

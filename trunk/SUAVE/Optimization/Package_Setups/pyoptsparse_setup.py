@@ -12,6 +12,7 @@
 # suave imports
 import numpy as np
 from SUAVE.Optimization import helper_functions as help_fun
+from SUAVE.Core import to_numpy
 
 # ----------------------------------------------------------------------
 #  Pyopt_Solve
@@ -46,9 +47,9 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     mywrap       = lambda x:PyOpt_Problem(problem,x)
     my_grad_wrap = lambda x,y:PyOpt_Problem_grads(problem,x,y)
    
-    inp = problem.optimization_problem.inputs
-    obj = problem.optimization_problem.objective
-    con = problem.optimization_problem.constraints
+    inp = to_numpy(problem.optimization_problem.inputs)
+    obj = to_numpy(problem.optimization_problem.objective)
+    con = to_numpy(problem.optimization_problem.constraints)
    
     if FD == 'parallel':
         from mpi4py import MPI
@@ -72,22 +73,18 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     inpa = inp.pack_array()
     ini  = inpa[0::5] # Initials
     bndl = inpa[1::5] # Bounds
-    bndu = inpa[2::5]  # Bounds
+    bndu = inpa[2::5] # Bounds
     scl  = inpa[3::5] # Scale
-    typ  = inpa[4::5]  # Type
         
     # Pull out the constraints and scale them
-    bnd_constraints = help_fun.scale_const_bnds(con)
-    scaled_constraints = help_fun.scale_const_values(con,bnd_constraints)
+    bnd_constraints = to_numpy(help_fun.scale_const_bnds(con))
+    scaled_constraints = to_numpy(help_fun.scale_const_values(con,bnd_constraints))
     x   = ini/scl
    
     for ii in range(0,len(inp)):
         lbd = (bndl[ii]/scl[ii])
         ubd = (bndu[ii]/scl[ii])
-        #if typ[ii] == 'continuous':
         vartype = 'c'
-        #if typ[ii] == 'integer':
-            #vartype = 'i'
         opt_prob.addVar(nam[ii],vartype,lower=lbd,upper=ubd,value=x[ii])
        
     # Setup constraints  
@@ -191,7 +188,8 @@ def PyOpt_Problem(problem,xdict):
     for key, val in xdict.items():
         x.append(float(val))
         
-   
+    x = np.array(x)
+
     obj   = problem.objective(x)
     const = problem.all_constraints(x).tolist()
     fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
@@ -239,11 +237,13 @@ def PyOpt_Problem_grads(problem,xdict,ydict):
         None
     """      
    
-    x = list(xdict.values())[0]
+    x = list(xdict.values())
     y = list(ydict.values())   # These are the current value of the function
+    
+    x = np.array(x)
    
-    obj   = problem.grad_objective(x).tolist()
-    const = problem.jacobian_all_constraints(x).tolist()
+    obj   = np.atleast_2d(problem.grad_objective(x).tolist())[0]
+    const = np.atleast_2d(problem.jacobian_all_constraints(x).tolist())
     fail  = np.array(np.isnan(obj).any() or np.isnan(np.array(const).any())).astype(int)
     
     # Name of inputs

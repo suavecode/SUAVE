@@ -672,12 +672,15 @@ class Data(dict):
                 if isinstance(val,jnp.ndarray):
                     thing = jnp.array(thing)
                 thing = thing.at[index].set(val)
-            # Explicitly writng back
+            # Explicitly writing back
             data[splitkey[0]] = thing
         else:
             data[ keys[-1] ] = val
             
-        return data
+        return self
+    
+    
+            
 
     def deep_get(self,keys):
         """ Regresses through a list of keys to pull a specific value out
@@ -787,7 +790,7 @@ class Data(dict):
         
         # pack into final array
         if M:
-            M = jnp.hstack(M)
+            M = np.hstack(M)
         else:
             # empty result
             if vector:
