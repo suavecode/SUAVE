@@ -213,13 +213,14 @@ class Nexus(Data):
         """
         if x is None:
             x = self.optimization_problem.inputs.pack_array()[0::5]
-        
-        if self.jitable:
-            grad_function = jit(jacfwd(self.objective))
-        else:
-            grad_function = jacfwd(self.objective)
             
-        grad = grad_function(x)   
+        if self.jitable:
+            grad_function = jit(jacfwd(nexus_objective_wrapper))
+        else:
+            grad_function = jacfwd(nexus_objective_wrapper)
+            
+        grad = grad_function(x,self)   
+
                 
         return grad
         
@@ -417,11 +418,11 @@ class Nexus(Data):
             x = self.optimization_problem.inputs.pack_array()[0::5]
         
         if self.jitable:
-            grad_function = jit(jacfwd(self.all_constraints))
+            grad_function = jit(jacfwd(nexus_all_constraint_wrapper))
         else:
-            grad_function = jacfwd(self.all_constraints)
+            grad_function = jacfwd(nexus_all_constraint_wrapper)
             
-        grad = grad_function(x)   
+        grad = grad_function(self,x)   
                 
         return grad
     
@@ -683,3 +684,8 @@ class Nexus(Data):
         
     
  
+def nexus_objective_wrapper(x,nexus):
+    return Nexus.objective(nexus,x)
+
+def nexus_all_constraint_wrapper(x,nexus):
+    return Nexus.all_constraints(nexus,x)
