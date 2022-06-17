@@ -14,6 +14,7 @@ import numpy as np
 from SUAVE.Optimization import helper_functions as help_fun
 from SUAVE.Optimization.Nexus import jit_nexus_objective_wrapper, jit_nexus_all_constraint_wrapper
 from SUAVE.Core import to_numpy
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Pyopt_Solve
@@ -241,9 +242,9 @@ def PyOpt_Problem_grads(problem,xdict,ydict):
     x = list(xdict.values())
     y = list(ydict.values())   # These are the current value of the function
     
-    x = np.array(x)
+    x = jnp.array(x)
    
-    obj   = np.atleast_2d(problem.grad_objective(x).tolist())[0]
+    obj   = np.atleast_2d(problem.grad_objective(x).tolist())
     const = np.atleast_2d(problem.jacobian_all_constraints(x).tolist())
     fail  = np.array(np.isnan(obj).any() or np.isnan(np.array(const).any())).astype(int)
     
@@ -261,11 +262,11 @@ def PyOpt_Problem_grads(problem,xdict,ydict):
         for jj, i_name in enumerate(inpnam):
             funcs[o_name][i_name] = obj[ii][jj]
     
-    # Loop over Objectives
+    # Loop over constraints
     for ii, c_name in enumerate(conname):
         funcs[c_name] = {}
         for jj, i_name in enumerate(inpnam):
-            funcs[c_name][i_name] = obj[ii][jj]
+            funcs[c_name][i_name] = const[ii][jj]
 
 
     print('Inputs')

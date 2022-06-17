@@ -249,11 +249,8 @@ def get_values(dictionary,outputs,aliases):
                 
     values = jnp.zeros(len(outputs))
     for ii in range(0,len(outputs)):
-        #splitstring = pointer[ii].split('.')
-        #values = values.at[ii].set(eval('dictionary.'+'.'.join(splitstring[0:])).flatten()[0])
         values = dictionary.deep_get(pointer[ii])
-        
-    
+
     return values
 
 ## @ingroup Optimization

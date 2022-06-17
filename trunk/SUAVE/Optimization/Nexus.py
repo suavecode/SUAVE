@@ -6,6 +6,7 @@
 #           Apr 2017, T. MacDonald
 #           Jul 2020, M. Clarke
 #           May 2021, E. Botero 
+#           Jun 2022, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,10 +20,11 @@ from copy import deepcopy
 from . import helper_functions as help_fun
 import numpy as np
 
-from jax import jacfwd, jit
+from jax import jacfwd, jit, grad
 from jax.tree_util import register_pytree_node_class
 import jax.numpy as jnp
 import jax
+from functools import partial
 
 # ----------------------------------------------------------------------
 #  Nexus Class
@@ -88,7 +90,6 @@ class Nexus(Data):
         self.optimization_problem.constraints = None
         self.optimization_problem.aliases     = None
         
-    @jit
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
             If the last time you ran this the inputs were the same, a cache is used.
@@ -109,8 +110,8 @@ class Nexus(Data):
             None
         """          
         
-        self = self.unpack_inputs(x)
-        self = self._really_evaluate()
+        self = unpack_inputs(self,x)
+        self = really_evaluate(self)
             
         return self
 
@@ -142,14 +143,13 @@ class Nexus(Data):
                 self = step.evaluate(self)
             else:
                 self = step(self)
-                
-        ## Store to cache
-        #self.last_inputs   = deepcopy(self.optimization_problem.inputs)
-        #self.last_fidelity = self.fidelity_level
+        
+        # Store to cache
+        self.last_inputs   = deepcopy(self.optimization_problem.inputs)
+        self.last_fidelity = self.fidelity_level
         
         return self
     
-    @jit
     def objective(self,x = None):
         """Retrieve the objective value for your function
     
@@ -167,8 +167,40 @@ class Nexus(Data):
     
             Properties Used:
             None
-        """           
-        self = self.evaluate(x)
+        """     
+        
+        if x is None:
+            x = self.optimization_problem.inputs.pack_array()[0::5]        
+        
+        
+        if self.jitable:
+            scaled_objective, self = jit_nexus_objective_wrapper(x,self)
+        else:
+            scaled_objective, self = self._objective(x)
+        
+
+        return scaled_objective
+    
+    def _objective(self,x):
+        """ Really retrieve the objective value for your function
+    
+            Assumptions:
+            Your procedure must contain totally jaxable code, not all of SUAVE is jax-ed
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x       [vector]
+    
+            Outputs:
+            scaled_objective [float]
+    
+            Properties Used:
+            None
+        """        
+        
+        self  = self.evaluate(x)
         
         aliases     = self.optimization_problem.aliases
         objective   = self.optimization_problem.objective
@@ -176,7 +208,9 @@ class Nexus(Data):
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
-        return scaled_objective.astype(jnp.double)  
+        return scaled_objective, self        
+        
+
     
     def grad_objective(self,x = None):
         """Retrieve the objective gradient for your function using JAX
@@ -198,8 +232,14 @@ class Nexus(Data):
         """
         if x is None:
             x = self.optimization_problem.inputs.pack_array()[0::5]
-            
-        grad = jit_jac_nexus_objective_wrapper(x,self)   
+        
+        if self.jitable:
+            grad_function = jit_jac_nexus_objective_wrapper
+            grad, problem = grad_function(x,self)  
+        else:
+            grad_function = jac_nexus_objective_wrapper
+            grad, problem = grad_function(x,self)  
+            self.append_or_update(problem)
 
         return grad
         
@@ -258,7 +298,7 @@ class Nexus(Data):
         return constraint_evaluations    
     
     
-    def jaobian_inequality_constraint(self,x = None):
+    def jacobian_inequality_constraint(self,x = None):
         """Retrieve the inequality constraint jacobian for your function using JAX
     
             Assumptions:
@@ -323,7 +363,7 @@ class Nexus(Data):
         return scaled_constraints   
     
     
-    def jaobian_equality_constraint(self,x = None):
+    def jacobian_equality_constraint(self,x = None):
         """Retrieve the equality constraint jacobian for your function using JAX
     
             Assumptions:
@@ -363,6 +403,31 @@ class Nexus(Data):
             Properties Used:
             None
         """         
+
+        scaled_constraints, self = self._all_constraints(x)
+
+
+        return scaled_constraints     
+    
+    
+    def _all_constraints(self,x):
+        """Really returns both the inequality and equality constraint values for your function
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+    
+            Outputs:
+            scaled_constraints [vector]
+    
+            Properties Used:
+            None
+        """         
         
         self = self.evaluate(x)
         
@@ -372,7 +437,7 @@ class Nexus(Data):
         constraint_values  = help_fun.get_values(self,constraints,aliases) 
         scaled_constraints = help_fun.scale_const_values(constraints,constraint_values) 
 
-        return scaled_constraints     
+        return scaled_constraints, self        
     
     
     def jacobian_all_constraints(self,x = None):
@@ -398,10 +463,11 @@ class Nexus(Data):
         
         if self.jitable:
             grad_function = jit_jac_nexus_all_constraint_wrapper
+            grad, problem = grad_function(x,self)  
         else:
             grad_function = jac_nexus_all_constraint_wrapper
-            
-        grad = grad_function(x,self)   
+            grad, problem = grad_function(x,self)  
+            self.append_or_update(problem) 
                 
         return grad
     
@@ -659,29 +725,38 @@ class Nexus(Data):
         print(const_table)
         
         return inpu,const_table
+    
+
+# Below is a list of wrappers that are used fo JAX. They don't require docstrings
         
 @jit
 def jit_nexus_objective_wrapper(x,nexus):
-    return Nexus.objective(nexus,x)
+    return Nexus._objective(nexus,x)
 
 @jit
 def jit_nexus_all_constraint_wrapper(x,nexus):
-    return Nexus.all_constraints(nexus,x)
+    return Nexus._all_constraints(nexus,x)
 
-@jacfwd
+@partial(jacfwd,has_aux=True)
 def jac_nexus_objective_wrapper(x,nexus):
-    return Nexus.objective(nexus,x)
+    return Nexus._objective(nexus,x)
 
-@jacfwd
+@partial(jacfwd,has_aux=True)
 def jac_nexus_all_constraint_wrapper(x,nexus):
-    return Nexus.all_constraints(nexus,x)
+    return Nexus._all_constraints(nexus,x)
 
 @jit
-@jacfwd
+@partial(jacfwd,has_aux=True)
 def jit_jac_nexus_objective_wrapper(x,nexus):
-    return Nexus.objective(nexus,x)
+    return Nexus._objective(nexus,x)
 
 @jit
-@jacfwd
+@partial(jacfwd,has_aux=True)
 def jit_jac_nexus_all_constraint_wrapper(x,nexus):
-    return Nexus.all_constraints(nexus,x)
+    return Nexus._all_constraints(nexus,x)
+
+def really_evaluate(nexus):
+    return Nexus._really_evaluate(nexus)
+
+def unpack_inputs(nexus,x):
+    return Nexus.unpack_inputs(nexus,x)
