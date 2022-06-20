@@ -144,11 +144,11 @@ def generate_fidelity_one_wake_shape(wake,rotor):
 
     # extract airfoil trailing edge coordinates for initial location of vortex wake
     if rotor.airfoil_data == None:
-        a_sec        = rotor.airfoil_geometry   
-        a_secl       = rotor.airfoil_polar_stations
+        a_sec              = rotor.airfoil_geometry   
         rotor.airfoil_data = import_airfoil_geometry(a_sec,npoints=100) 
         
     airfoil_data = rotor.airfoil_data
+    a_secl       = rotor.airfoil_polar_stations
    
     # trailing edge points in airfoil coordinates
     xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)

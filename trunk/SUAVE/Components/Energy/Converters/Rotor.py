@@ -73,6 +73,7 @@ class Rotor(Energy_Component):
         self.design_power                 = None
         self.design_thrust                = None
         self.airfoil_geometry             = None
+        self.airfoil_data                 = None
         self.airfoil_polars               = None
         self.airfoil_polar_stations       = None
         self.radius_distribution          = None
@@ -557,12 +558,13 @@ class Rotor(Energy_Component):
     
     
     def vec_to_vel(self):
-        """This rotates from the propellers vehicle frame to the propellers velocity frame
+        """This rotates from the propeller's vehicle frame to the propeller's velocity frame
 
         Assumptions:
-        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
-        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
-        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+        There are two propeller frames, the propeller vehicle frame and the propeller velocity frame. When propeller
+        is axially aligned with the vehicle body:
+           - The velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+           - The vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
@@ -583,12 +585,12 @@ class Rotor(Energy_Component):
     
 
     def body_to_prop_vel(self):
-        """This rotates from the systems body frame to the propellers velocity frame
+        """This rotates from the system's body frame to the propeller's velocity frame
 
         Assumptions:
-        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
-        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
-        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame.
+        Velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        Vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
