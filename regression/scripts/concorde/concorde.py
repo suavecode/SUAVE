@@ -27,7 +27,7 @@ import numpy as np
 import pylab as plt
 
 # More basic SUAVE function
-from SUAVE.Core import Data
+from SUAVE.Core import Data, to_numpy
 
 import sys
 sys.path.append('../Vehicles')
