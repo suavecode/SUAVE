@@ -444,8 +444,11 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     T2A = T2A.at[F_mask].set(T2S[A_mask])
     
     # Zero out terms on the LE and TE
-    T2F = w(TE_ind[:,na],0.,T2F)
-    T2A = w(LE_ind[:,na],0.,T2A)
+    T2F = T2F.at[TE_ind[:, na]].set(0)
+    T2A = T2A.at[LE_ind[:, na]].set(0)
+
+    # T2F = w(TE_ind[:,na],0.,T2F)
+    # T2A = w(LE_ind[:,na],0.,T2A)
 
     TRANS = (B2[:,:,0]-T2F)*(B2[:,:,0]-T2A)
     
