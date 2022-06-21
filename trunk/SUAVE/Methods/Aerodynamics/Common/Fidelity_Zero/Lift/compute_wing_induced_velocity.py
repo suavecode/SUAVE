@@ -496,8 +496,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # The panels before and after go to -1
     FLAG_bool_bef = FLAG_bool_self - 1
     FLAG_bool_aft = FLAG_bool_self + 1
-    W             = w(FLAG_bool_bef,-1.,W)
-    W             = w(FLAG_bool_aft,-1.,W)
+    W             = W.at[FLAG_bool_bef].set(-1.)
+    W             = W.at[FLAG_bool_aft].set(-1.)
     
     W = jnp.reshape(W,shape)
 
