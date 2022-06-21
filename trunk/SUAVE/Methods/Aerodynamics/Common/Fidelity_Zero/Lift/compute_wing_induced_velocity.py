@@ -436,12 +436,12 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # Setup masks
     F_mask = jnp.ones((n_mach,size),dtype=jnp.int8)
     A_mask = jnp.ones((n_mach,size),dtype=jnp.int8)
-    F_mask[:,TE_ind] = 0
-    A_mask[:,LE_ind] = 0
+    F_mask = F_mask.at[:,TE_ind].set(0)
+    A_mask = A_mask.at[:,LE_ind].set(0)
     
     # Apply the mask
-    T2F[A_mask] = T2S[F_mask]
-    T2A[F_mask] = T2S[A_mask]
+    T2F = T2F.at[A_mask].set(T2S[F_mask])
+    T2A = T2A.at[F_mask].set(T2S[A_mask])
     
     # Zero out terms on the LE and TE
     T2F = w(TE_ind[:,na],0.,T2F)
