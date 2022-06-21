@@ -8,9 +8,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units , Data
+from SUAVE.Core import Units
 import numpy as np
-import scipy as sp
 import string
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
@@ -27,6 +26,7 @@ except ImportError:
 chars = string.punctuation + string.whitespace
 t_table = str.maketrans( chars          + string.ascii_uppercase ,
                          '_'*len(chars) + string.ascii_lowercase )
+
 
 # ----------------------------------------------------------------------
 #  vsp read prop
@@ -177,13 +177,14 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     prop.tangential                   = np.array(vsp.GetDoubleResults(rid, "Tangential"))[start:]
 
     # Set prop rotation
-    prop.rotation = 1.
+    prop.rotation = 1. # This needs updating
 
     # ---------------------------------------------
     # Rotor Airfoil
     # ---------------------------------------------
     if write_airfoil_file:
-        print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for propeller cross section.")
+        print("Airfoil write not yet implemented. Using default airfoil.")
+    
 
     return prop
 
@@ -209,7 +210,10 @@ def write_vsp_propeller_bem(vsp_bem_filename,propeller):
 
         make_section_text(vsp_bem,propeller)
 
-        make_airfoil_text(vsp_bem,propeller)
+        try:
+            make_airfoil_text(vsp_bem,propeller)
+        except:
+            print('No Airfoil Provided')
 
     # Now import this prop
     vsp.ImportFile(vsp_bem_filename,vsp.IMPORT_BEM,'')
@@ -298,7 +302,10 @@ def make_section_text(vsp_bem,prop):
     Skew_R     = np.zeros(N)
     Sweep      = np.arctan(prop.mid_chord_alignment/prop.radius_distribution)
     t_c        = prop.thickness_to_chord
-    CLi        = np.ones(N)*prop.design_Cl
+    try:
+        CLi        = np.ones(N)*prop.design_Cl
+    except:
+        CLi    = np.ones(N)
     Axial      = np.zeros(N)
     Tangential = np.zeros(N)
 

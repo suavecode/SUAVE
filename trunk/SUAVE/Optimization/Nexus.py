@@ -239,7 +239,7 @@ class Nexus(Data):
         else:
             grad_function = jac_nexus_objective_wrapper
             grad, problem = grad_function(x,self)  
-            self.append_or_update(problem)
+            self.update(problem,hard=True)
 
         return grad
         
@@ -467,7 +467,7 @@ class Nexus(Data):
         else:
             grad_function = jac_nexus_all_constraint_wrapper
             grad, problem = grad_function(x,self)  
-            self.append_or_update(problem) 
+            self.update(problem,hard=True)
                 
         return grad
     

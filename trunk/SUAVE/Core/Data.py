@@ -513,7 +513,7 @@ class Data(dict):
         """           
         return [self[key] for key in super(Data,self).__iter__()]    
     
-    def update(self,other):
+    def update(self,other,hard=False):
         """ Updates the internal values of a dictionary with given data
     
             Assumptions:
@@ -538,9 +538,12 @@ class Data(dict):
             if k.startswith('_'):
                 continue
         
-            try:
-                self[k].update(v)
-            except:
+            if hard==False:                
+                try:
+                    self[k].update(v)
+                except:
+                    self[k] = v
+            else:
                 self[k] = v
         return
     
