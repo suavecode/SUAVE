@@ -486,12 +486,12 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     FLAG_bool_split   = jnp.array(jnp.split(FLAG_bool.ravel(),n_mach))
     FLAG_ind          = jnp.array(jnp.where(FLAG_bool_split))
     squares           = jnp.zeros((size,size,n_mach))
-    squares[FLAG_ind[1],FLAG_ind[1],FLAG_ind[0]] = 1
+    squares           = squares.at[FLAG_ind[1],FLAG_ind[1],FLAG_ind[0]].set(1)
     squares           = jnp.ravel(squares,order='F')
     
     FLAG_bool_self    = jnp.where(squares==1)[0]
     W                 = W.ravel()
-    W[FLAG_bool_self] = 2. # It's own value, -2
+    W                 = W.at[FLAG_bool_self].set(2.) # It's own value, -2
     
     # The panels before and after go to -1
     FLAG_bool_bef = FLAG_bool_self - 1
