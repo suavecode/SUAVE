@@ -420,10 +420,10 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     else:
         W_in = []
 
-    U = w(in_plane, 0., U)
-    V = w(in_plane, 0., V)
-    W = w(in_plane, W_in, W)
-    
+    U = U.at[in_plane].set(0)
+    V = V.at[in_plane].set(0)
+    W = W.at[in_plane].set(W_in)
+
     # DETERMINE IF TRANSVERSE VORTEX LEG OF HORSESHOE ASSOCIATED TO THE
     # CONTROL POINT UNDER CONSIDERATION IS SONIC (SWEPT PARALLEL TO MACH
     # LINE)? IF SO THEN RFLAG = 0.0, OTHERWISE RFLAG = 1.0.
