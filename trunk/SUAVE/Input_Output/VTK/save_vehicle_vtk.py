@@ -109,8 +109,8 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 
                 try:
                     # check if rotor has wake present
-                    gamma = propi.Wake.wake_vortex_distribution.GAMMA[start_angle_idx,:,:,:,:]
-                    wVD = propi.Wake.wake_vortex_distribution
+                    gamma = propi.Wake.vortex_distribution.reshaped_wake.GAMMA[start_angle_idx,:,:,:,:]
+                    wVD = propi.Wake.vortex_distribution.reshaped_wake
                     wake_present = True
                 except:
                     wake_present = False
@@ -169,8 +169,8 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 
                 try:
                     # check if rotor has wake present
-                    gamma = roti.wake_vortex_distribution.GAMMA
-                    wVD = propi.wake_vortex_distribution
+                    gamma = roti.vortex_distribution.reshaped_wake.GAMMA
+                    wVD = propi.vortex_distribution.reshaped_wake
                     wake_present = True
                 except:
                     wake_present = False
@@ -192,7 +192,6 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                     Results['prop_outputs'] = Results['all_prop_outputs'][roti_key]
                     
                     # save prop wake
-                    wVD = roti.wake_vortex_distribution
                     save_prop_wake_vtk(wVD, gamma, file, Results,origin_offset,rot=roti.rotation)      
 
     

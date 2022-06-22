@@ -542,10 +542,11 @@ def get_blade_coordinates(prop,n_points,dim,i):
     t      = prop.max_thickness_distribution
     origin = prop.origin
     
-    if prop.rotation==-1:
+    if prop.rotation==1:
         # negative chord and twist to give opposite rotation direction
-        b = -b
-        beta = -beta       
+        b = -b    
+    else:
+        beta = -beta
     
     theta  = np.linspace(0,2*np.pi,num_B+1)[:-1]
     rot    = prop.rotation 
@@ -612,15 +613,15 @@ def get_blade_coordinates(prop,n_points,dim,i):
     trans_3 =  prop_vel_to_body
     trans_3 =  np.repeat(trans_3[:, None,:,: ],dim,axis=1) 
     
-    ## rotation 180 degrees about x-axis to align airfoil with vehicle frame
-    trans_4 = np.zeros((dim,3,3))
-    trans_4[:,2,2] = np.cos(np.pi)
-    trans_4[:,2,1] = -np.sin(np.pi)
-    trans_4[:,0,0] = 1
-    trans_4[:,1,2] = np.sin(np.pi)
-    trans_4[:,1,1] = np.cos(np.pi)    
+    ### rotation 180 degrees about x-axis to align airfoil with vehicle frame
+    #trans_4 = np.zeros((dim,3,3))
+    #trans_4[:,2,2] = np.cos(np.pi)
+    #trans_4[:,2,1] = -np.sin(np.pi)
+    #trans_4[:,0,0] = 1
+    #trans_4[:,1,2] = np.sin(np.pi)
+    #trans_4[:,1,1] = np.cos(np.pi)    
     
-    trans     = np.matmul(trans_4[None,:,:,:],np.matmul(trans_3,np.matmul(trans_2,trans_1)))
+    trans     = np.matmul(trans_2,np.matmul(trans_3,trans_1))
     rot_mat   = np.repeat(trans[:,:, None,:,:],n_points,axis=2)    
 
     # ---------------------------------------------------------------------------------------------
