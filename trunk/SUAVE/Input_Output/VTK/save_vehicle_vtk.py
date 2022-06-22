@@ -77,7 +77,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
             print("Attempting to save propeller.")
             propellers = network.propellers
             try:
-                n_props = int(network.number_of_propeller_engines)
+                n_props = len(propellers)
             except:
                 n_props   = int(network.number_of_engines)
         except:
@@ -87,8 +87,6 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
         if n_props>0:
             for i in range(n_props):
                 propi = propellers[list(propellers.keys())[i]]
-                
-                propi.inputs.y_axis_rotation = network.y_axis_rotation
                 
                 start_angle = propi.start_angle
                 Na = propi.number_azimuthal_stations

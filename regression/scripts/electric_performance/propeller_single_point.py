@@ -42,7 +42,7 @@ def test_1():
     prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
     prop = vehicle.networks.battery_propeller.propellers[prop_key]
 
-    results = propeller_single_point(prop,
+    _, results = propeller_single_point(prop,
                                      pitch=0.,
                                      omega=2200. * Units.rpm,
                                      altitude= 5000. * Units.ft,

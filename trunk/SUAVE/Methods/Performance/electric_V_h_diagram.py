@@ -131,7 +131,7 @@ def electric_V_h_diagram(vehicle,
 
                 # Determine Propeller Power at Altitude and Speed
                 prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
-                P = propeller_single_point(vehicle.networks.battery_propeller.propellers[prop_key],
+                _,P = propeller_single_point(vehicle.networks.battery_propeller.propellers[prop_key],
                                            analyses=analyses,
                                            pitch=0.,
                                            omega=test_omega,
