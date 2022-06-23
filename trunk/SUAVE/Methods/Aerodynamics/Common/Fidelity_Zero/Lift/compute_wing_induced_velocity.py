@@ -201,10 +201,10 @@ def compute_wing_induced_velocity(VD,mach):
     if jnp.sum(sup)>0:
         U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
                                                     X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)
-        U = U.at[sup.nonzero()].set(U_sup[sup.nonzero()])
-        V = V.at[sup.nonzero()].set(V_sup[sup.nonzero()])
-        W = W.at[sup.nonzero()].set(W_sup[sup.nonzero()])
-        RFLAG = RFLAG.at[sup.nonzero()].set(1)
+        U = U.at[sup].set(U_sup)
+        V = V.at[sup].set(V_sup)
+        W = W.at[sup].set(W_sup)
+        RFLAG = RFLAG.at[sup].set(1)
 
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
