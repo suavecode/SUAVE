@@ -2,7 +2,7 @@
 # lift_equivalent_area.py
 # 
 # Created:  Sep 2020, E. Botero
-# Modified: 
+# Modified: Jun 2022, J. Smart
 
 # ----------------------------------------------------------------------
 #  Imports
