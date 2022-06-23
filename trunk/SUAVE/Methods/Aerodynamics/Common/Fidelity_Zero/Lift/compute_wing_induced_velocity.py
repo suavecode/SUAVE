@@ -372,7 +372,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     
     # Use the boolean to turn things off
     FB1 = w(jnp.isnan(FB1),1.,FB1)
-    FT1 = w(jnp.isnan(FT1),1.,FB1)
+    FT1 = w(jnp.isnan(FT1),1.,FT1)
     FB1 = w(jnp.isinf(FB1),1.,FB1)
     FT1 = w(jnp.isinf(FT1),1.,FT1)
     FB1 = FB1*bool1
