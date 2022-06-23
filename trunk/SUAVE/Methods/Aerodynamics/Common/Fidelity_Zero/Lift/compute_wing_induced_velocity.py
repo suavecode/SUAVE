@@ -447,9 +447,6 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     T2F = T2F.at[:, TE_ind].set(0)
     T2A = T2A.at[:, LE_ind].set(0)
 
-    # T2F = w(TE_ind[:,na],0.,T2F)
-    # T2A = w(LE_ind[:,na],0.,T2A)
-
     TRANS = (B2[:,:,0]-T2F)*(B2[:,:,0]-T2A)
     
     RFLAG = jnp.ones((n_mach,size),dtype=jnp.int8)
