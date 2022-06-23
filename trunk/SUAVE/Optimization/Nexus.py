@@ -236,6 +236,7 @@ class Nexus(Data):
         if self.jitable:
             grad_function = jit_jac_nexus_objective_wrapper
             grad, problem = grad_function(x,self)  
+            self.update(problem,hard=True)
         else:
             grad_function = jac_nexus_objective_wrapper
             grad, problem = grad_function(x,self)  
@@ -464,6 +465,7 @@ class Nexus(Data):
         if self.jitable:
             grad_function = jit_jac_nexus_all_constraint_wrapper
             grad, problem = grad_function(x,self)  
+            self.update(problem,hard=True)
         else:
             grad_function = jac_nexus_all_constraint_wrapper
             grad, problem = grad_function(x,self)  

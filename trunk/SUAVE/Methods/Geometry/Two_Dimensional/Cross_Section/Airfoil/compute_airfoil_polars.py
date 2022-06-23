@@ -19,8 +19,8 @@ from .import_airfoil_geometry import import_airfoil_geometry
 from .import_airfoil_polars   import import_airfoil_polars 
 import numpy as np
 
-from jax.scipy.interpolate import RegularGridInterpolator
-
+#from jax.scipy.interpolate import RegularGridInterpolator
+import jax.numpy as jnp
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True):
@@ -176,8 +176,15 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
         RE_data  = to_jnumpy(airfoil_polar_data.reynolds_number[i][0:n_p])
         aoa_data = to_jnumpy(AoA_sweep_radians)
         
-        CL_sur = RegularGridInterpolator((RE_data, aoa_data), CL[i,0:n_p,:],bounds_error=False,fill_value=None)
-        CD_sur = RegularGridInterpolator((RE_data, aoa_data), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
+        CL_sur = Data()
+        CD_sur = Data()
+        CL_sur.RE_data  = RE_data
+        CD_sur.RE_data  = RE_data
+        CL_sur.aoa_data = aoa_data
+        CD_sur.aoa_data = aoa_data
+        CL_sur.CL_data  = CL[i,0:n_p,:]
+        CD_sur.CD_data  = CD[i,0:n_p,:]
+        
         
         CL_surs[a_geo[i]]  = CL_sur
         CD_surs[a_geo[i]]  = CD_sur   

@@ -79,8 +79,10 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         Cl      = jnp.zeros(jnp.shape(Wa))
         Cdval   = jnp.zeros(jnp.shape(Wa))
         for jj, (cl, cd) in enumerate(zip(cl_sur,cd_sur)):
-            Cl    = jnp.where(aloc==jj,cl((Re,alpha)),Cl)
-            Cdval = jnp.where(aloc==jj,cd((Re,alpha)),Cdval)
+            sub_cl = interp2d(Re, alpha, cl.RE_data, cl.aoa_data, cl.CL_data)
+            sub_cd = interp2d(Re, alpha, cd.RE_data, cd.aoa_data, cd.CD_data)
+            Cl    = jnp.where(aloc==jj,sub_cl,Cl)
+            Cdval = jnp.where(aloc==jj,sub_cd,Cdval)
 
     else:
         # Estimate Cl max
@@ -138,7 +140,7 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     piece  = jnp.exp(-f)
 
     lamdaw            = jnp.array(r*Wa/(R*Wt))
-    lamdaw            = jnp.where(lamdaw<0.,0,lamdaw)
+    lamdaw            = jnp.where(lamdaw<=0.,1e-12,lamdaw) # Zero causes Nans when differentiated
 
     Rtip = R
     et1, et2, et3, maxat = 1,1,1,-jnp.inf
@@ -149,3 +151,51 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     F = Ftip
 
     return lamdaw, F, piece
+
+@jit
+def interp2d(x,y,xp,yp,zp,fill_value= None):
+    """
+    Bilinear interpolation on a grid. ``CartesianGrid`` is much faster if the data
+    lies on a regular grid.
+    Args:
+        x, y: 1D arrays of point at which to interpolate. Any out-of-bounds
+            coordinates will be clamped to lie in-bounds.
+        xp, yp: 1D arrays of points specifying grid points where function values
+            are provided.
+        zp: 2D array of function values. For a function `f(x, y)` this must
+            satisfy `zp[i, j] = f(xp[i], yp[j])`
+    Returns:
+        1D array `z` satisfying `z[i] = f(x[i], y[i])`.
+    """
+    #if xp.ndim != 1 or yp.ndim != 1:
+        #raise ValueError("xp and yp must be 1D arrays")
+    #if zp.shape != (xp.shape + yp.shape):
+        #raise ValueError("zp must be a 2D array with shape xp.shape + yp.shape")
+
+    ix = jnp.clip(jnp.searchsorted(xp, x, side="right"), 1, len(xp) - 1)
+    iy = jnp.clip(jnp.searchsorted(yp, y, side="right"), 1, len(yp) - 1)
+
+    # Using Wikipedia's notation (https://en.wikipedia.org/wiki/Bilinear_interpolation)
+    z_11 = zp[ix - 1, iy - 1]
+    z_21 = zp[ix, iy - 1]
+    z_12 = zp[ix - 1, iy]
+    z_22 = zp[ix, iy]
+
+    z_xy1 = (xp[ix] - x) / (xp[ix] - xp[ix - 1]) * z_11 + (x - xp[ix - 1]) / (
+        xp[ix] - xp[ix - 1]
+    ) * z_21
+    z_xy2 = (xp[ix] - x) / (xp[ix] - xp[ix - 1]) * z_12 + (x - xp[ix - 1]) / (
+        xp[ix] - xp[ix - 1]
+    ) * z_22
+
+    z = (yp[iy] - y) / (yp[iy] - yp[iy - 1]) * z_xy1 + (y - yp[iy - 1]) / (
+        yp[iy] - yp[iy - 1]
+    ) * z_xy2
+
+    if fill_value is not None:
+        oob = jnp.logical_or(
+            x < xp[0], jnp.logical_or(x > xp[-1], jnp.logical_or(y < yp[0], y > yp[-1]))
+        )
+        z = jnp.where(oob, fill_value, z)
+
+    return z

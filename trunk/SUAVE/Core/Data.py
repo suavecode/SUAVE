@@ -930,8 +930,6 @@ class Data(dict):
     
         # result data structure
         klass = self.__class__
-        if isinstance(klass,Data):
-            klass = Data
         result = klass()
     
         # the update function
@@ -947,7 +945,7 @@ class Data(dict):
                     b = B
                 # recursion
                 if isinstance(a,Data):
-                    c = klass()
+                    c = a.__class__()
                     C[k] = c
                     do_operation(a,b,c)
                 # method
