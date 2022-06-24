@@ -135,9 +135,10 @@ def VLM(conditions,settings,geometry):
     N/A
     """ 
     # unpack settings----------------------------------------------------------------
-    pwm        = settings.propeller_wake_model
-    K_SPC      = settings.leading_edge_suction_multiplier
-    Sref       = geometry.reference_area              
+    pwm       = settings.propeller_wake_model
+    K_SPC     = settings.leading_edge_suction_multiplier
+    precision = settings.floating_point_precision    
+    Sref      = geometry.reference_area              
 
     # unpack conditions--------------------------------------------------------------
     aoa       = conditions.aerodynamics.angle_of_attack   # angle of attack  
@@ -152,6 +153,7 @@ def VLM(conditions,settings,geometry):
     ROLLQ     = conditions.stability.dynamic.roll_rate             
     YAWQ      = conditions.stability.dynamic.yaw_rate 
     VINF      = conditions.freestream.velocity    
+    
        
     #freestream 0 velocity safeguard
     VINF                           = w(VINF==0,1e-6,VINF)
@@ -226,7 +228,7 @@ def VLM(conditions,settings,geometry):
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = jnp.unique(mach,return_inverse=True)
     m_unique      = jnp.atleast_2d(m_unique).T
-    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique)
+    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique,precision=precision)
     
     C_mn  = C_mn_small[inv,:,:,:]
     RFLAG = RFLAG_small[inv,:]
@@ -570,6 +572,6 @@ def strip_cumsum(arr, chord_breaks, strip_lengths):
     """    
     cumsum  = jnp.cumsum(arr, axis=1)
     offsets = cumsum[:,chord_breaks-1]
-    offsets.at[:,0].set(0)
+    offsets = offsets.at[:,0].set(0)
     offsets = jnp.repeat(offsets, strip_lengths, axis=1)
     return cumsum - offsets

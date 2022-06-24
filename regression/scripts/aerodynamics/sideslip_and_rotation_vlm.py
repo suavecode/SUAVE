@@ -13,7 +13,7 @@ import sys
 import numpy as np 
 
 import SUAVE
-from SUAVE.Core                                                     import Data, Units
+from SUAVE.Core                                                     import Data, Units, to_numpy
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift           import VLM, generate_vortex_distribution
 from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization             import plot_vehicle_vlm_panelization
 
@@ -33,7 +33,7 @@ def main():
     # run VLM
     geometry    = b737_setup()
     geometry.VD = generate_vortex_distribution(geometry, settings)
-    data        = VLM(conditions, settings, geometry)
+    data        = to_numpy(VLM(conditions, settings, geometry))
     
     plot_title  = geometry.tag
     plot_vehicle_vlm_panelization(geometry, plot_control_points=False, save_filename=plot_title)

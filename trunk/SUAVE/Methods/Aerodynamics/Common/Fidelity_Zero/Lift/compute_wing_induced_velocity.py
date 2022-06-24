@@ -19,7 +19,7 @@ from jax.numpy import newaxis as na
 from jax import lax
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity(VD,mach):
+def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
     Assumptions: 
@@ -54,32 +54,32 @@ def compute_wing_induced_velocity(VD,mach):
     TE_ind       = VD.trailing_edge_indices
     n_cp         = VD.n_cp
     n_mach       = len(mach)
-    mach         = jnp.array(mach,dtype=jnp.float32)
+    mach         = jnp.array(mach,dtype=precision)
 
     # Control points from the VLM 
-    XAH   = jnp.array(jnp.atleast_2d(VD.XAH*1.),dtype=jnp.float32)
-    YAH   = jnp.array(jnp.atleast_2d(VD.YAH*1.),dtype=jnp.float32)
-    ZAH   = jnp.array(jnp.atleast_2d(VD.ZAH*1.),dtype=jnp.float32)
-    XBH   = jnp.array(jnp.atleast_2d(VD.XBH*1.),dtype=jnp.float32)
-    YBH   = jnp.array(jnp.atleast_2d(VD.YBH*1.),dtype=jnp.float32)
-    ZBH   = jnp.array(jnp.atleast_2d(VD.ZBH*1.),dtype=jnp.float32)
-    XA1   = jnp.array(jnp.atleast_2d(VD.XA1*1.),dtype=jnp.float32)
-    YA1   = jnp.array(jnp.atleast_2d(VD.YA1*1.),dtype=jnp.float32)
-    ZA1   = jnp.array(jnp.atleast_2d(VD.ZA1*1.),dtype=jnp.float32)
-    XB1   = jnp.array(jnp.atleast_2d(VD.XB1*1.),dtype=jnp.float32)
-    YB1   = jnp.array(jnp.atleast_2d(VD.YB1*1.),dtype=jnp.float32)
-    ZB1   = jnp.array(jnp.atleast_2d(VD.ZB1*1.),dtype=jnp.float32)
-    XA2   = jnp.array(jnp.atleast_2d(VD.XA2*1.),dtype=jnp.float32)
-    YA2   = jnp.array(jnp.atleast_2d(VD.YA2*1.),dtype=jnp.float32)
-    ZA2   = jnp.array(jnp.atleast_2d(VD.ZA2*1.),dtype=jnp.float32)
-    XB2   = jnp.array(jnp.atleast_2d(VD.XB2*1.),dtype=jnp.float32)
-    YB2   = jnp.array(jnp.atleast_2d(VD.YB2*1.),dtype=jnp.float32)
-    ZB2   = jnp.array(jnp.atleast_2d(VD.ZB2*1.),dtype=jnp.float32)
-    XC    = jnp.array(jnp.atleast_2d(VD.XC*1.),dtype=jnp.float32)
-    YC    = jnp.array(jnp.atleast_2d(VD.YC*1.),dtype=jnp.float32)
-    ZC    = jnp.array(jnp.atleast_2d(VD.ZC*1.),dtype=jnp.float32)
-    XA_TE = jnp.array(jnp.atleast_2d(VD.XA_TE*1.),dtype=jnp.float32)
-    XB_TE = jnp.array(jnp.atleast_2d(VD.XB_TE*1.),dtype=jnp.float32)
+    XAH   = jnp.array(jnp.atleast_2d(VD.XAH*1.),dtype=precision)
+    YAH   = jnp.array(jnp.atleast_2d(VD.YAH*1.),dtype=precision)
+    ZAH   = jnp.array(jnp.atleast_2d(VD.ZAH*1.),dtype=precision)
+    XBH   = jnp.array(jnp.atleast_2d(VD.XBH*1.),dtype=precision)
+    YBH   = jnp.array(jnp.atleast_2d(VD.YBH*1.),dtype=precision)
+    ZBH   = jnp.array(jnp.atleast_2d(VD.ZBH*1.),dtype=precision)
+    XA1   = jnp.array(jnp.atleast_2d(VD.XA1*1.),dtype=precision)
+    YA1   = jnp.array(jnp.atleast_2d(VD.YA1*1.),dtype=precision)
+    ZA1   = jnp.array(jnp.atleast_2d(VD.ZA1*1.),dtype=precision)
+    XB1   = jnp.array(jnp.atleast_2d(VD.XB1*1.),dtype=precision)
+    YB1   = jnp.array(jnp.atleast_2d(VD.YB1*1.),dtype=precision)
+    ZB1   = jnp.array(jnp.atleast_2d(VD.ZB1*1.),dtype=precision)
+    XA2   = jnp.array(jnp.atleast_2d(VD.XA2*1.),dtype=precision)
+    YA2   = jnp.array(jnp.atleast_2d(VD.YA2*1.),dtype=precision)
+    ZA2   = jnp.array(jnp.atleast_2d(VD.ZA2*1.),dtype=precision)
+    XB2   = jnp.array(jnp.atleast_2d(VD.XB2*1.),dtype=precision)
+    YB2   = jnp.array(jnp.atleast_2d(VD.YB2*1.),dtype=precision)
+    ZB2   = jnp.array(jnp.atleast_2d(VD.ZB2*1.),dtype=precision)
+    XC    = jnp.array(jnp.atleast_2d(VD.XC*1.),dtype=precision)
+    YC    = jnp.array(jnp.atleast_2d(VD.YC*1.),dtype=precision)
+    ZC    = jnp.array(jnp.atleast_2d(VD.ZC*1.),dtype=precision)
+    XA_TE = jnp.array(jnp.atleast_2d(VD.XA_TE*1.),dtype=precision)
+    XB_TE = jnp.array(jnp.atleast_2d(VD.XB_TE*1.),dtype=precision)
     
     
     # Panel Dihedral Angle, using AH and BH location
@@ -178,9 +178,9 @@ def compute_wing_induced_velocity(VD,mach):
     RO2_sub  = B2_sub*RTV2
     
     # ZERO-OUT PERTURBATION VELOCITY COMPONENTS
-    U = jnp.zeros((n_mach,shape_0,shape_1),dtype=jnp.float32)
-    V = jnp.zeros((n_mach,shape_0,shape_1),dtype=jnp.float32)
-    W = jnp.zeros((n_mach,shape_0,shape_1),dtype=jnp.float32)    
+    U = jnp.zeros((n_mach,shape_0,shape_1),dtype=precision)
+    V = jnp.zeros((n_mach,shape_0,shape_1),dtype=precision)
+    W = jnp.zeros((n_mach,shape_0,shape_1),dtype=precision)    
     
     if jnp.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
@@ -201,11 +201,11 @@ def compute_wing_induced_velocity(VD,mach):
     
     if jnp.sum(sup)>0:
         U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
-                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)
+                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind,precision)
         U = U.at[sup].set(U_sup)
         V = V.at[sup].set(V_sup)
         W = W.at[sup].set(W_sup)
-        RFLAG = RFLAG.at[sup].set(1)
+        RFLAG = RFLAG.at[sup].set(RFLAG_sup)
 
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
@@ -292,7 +292,7 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     
     return U, V, W
 
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind, LE_ind):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind, LE_ind,precision=jnp.float32):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
 
@@ -460,7 +460,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
 
     # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
-    WWAVE   = jnp.zeros(shape,dtype=jnp.float32)
+    WWAVE   = jnp.zeros(shape,dtype=precision)
     COX     = CHORD /RNMAX
     eye     = jnp.eye(n_cp,dtype=jnp.int8)
     T2      = jnp.broadcast_to(T2,shape)*eye

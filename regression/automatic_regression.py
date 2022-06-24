@@ -95,7 +95,7 @@ modules = [
     'scripts/rocket_network/Rocketdyne_J2.py',
     'scripts/segments/segment_test.py',
     'scripts/segments/transition_segment_test.py',
-    #'scripts/slipstream/slipstream_test.py',
+    'scripts/slipstream/slipstream_test.py',
     'scripts/slipstream/propeller_interactions.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
@@ -184,7 +184,7 @@ def test_module(module_path):
         module = __import__(name)
 
         # run main function
-        module.main()
+        module.main()        
 
         passed = True
 
