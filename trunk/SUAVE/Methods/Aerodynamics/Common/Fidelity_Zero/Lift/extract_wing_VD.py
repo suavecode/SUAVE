@@ -13,6 +13,10 @@
 from SUAVE.Core import Data
 import numpy as np
 
+from SUAVE.Analyses.Aerodynamics.Vortex_Lattice import Vortex_Lattice
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import generate_vortex_distribution
+
+
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def extract_wing_collocation_points(geometry, wing_instance_idx):
 
@@ -36,7 +40,18 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
     N/A
     """
     # unpack vortex distribution properties
-    VD           = geometry.vortex_distribution
+    try:
+        VD           = geometry.vortex_distribution
+    except:
+        print("No vortex distribution defined. Creating default vortex distribution from vehicle.")
+        settings = Vortex_Lattice().settings
+        #settings.number_spanwise_vortices  = 25
+        #settings.number_chordwise_vortices = 5
+        #settings.spanwise_cosine_spacing   = False
+        #settings.model_fuselage            = False
+        #settings.model_nacelle             = False
+        VD = generate_vortex_distribution(geometry,settings)        
+        
     sym          = VD.symmetric_wings
     
     # Find the beginning and end indices of the wing
