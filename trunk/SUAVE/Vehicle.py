@@ -17,7 +17,6 @@ from SUAVE.Components import Physical_Component
 import numpy as np
 from jax.tree_util import register_pytree_node_class
 
-from warnings import warn
 import string
 chars = string.punctuation + string.whitespace
 t_table = str.maketrans( chars          + string.ascii_uppercase , 
@@ -28,7 +27,7 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 # ----------------------------------------------------------------------
 
 ## @ingroup Vehicle
-@register_pytree_node_class    
+@register_pytree_node_class
 class Vehicle(Data):
     """SUAVE Vehicle container class with database + input / output functionality
     

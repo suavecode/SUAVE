@@ -20,7 +20,7 @@
 # SUAVE imports
 import SUAVE
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data, to_numpy
 from SUAVE.Core import Units
  
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
@@ -32,6 +32,9 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import
 # package imports
 import numpy as np 
 from scipy.interpolate import RectBivariateSpline, RegularGridInterpolator
+
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution       import generate_vortex_distribution 
+
 
 # ----------------------------------------------------------------------
 #  Class
@@ -160,6 +163,11 @@ class Vortex_Lattice(Aerodynamics):
         settings.discretize_control_surfaces= dcs
         settings.model_fuselage             = mf
         settings.model_nacelle              = mn
+        
+        # build the vortex distribution
+        # generate vortex distribution (VLM steps 1-9)
+        geometry           = self.geometry
+        self.geometry.VD   = generate_vortex_distribution(geometry,settings)          
         
         # If we are using the surrogate
         if use_surrogate == True: 
@@ -660,7 +668,7 @@ def calculate_VLM(conditions,settings,geometry):
     wing_drags         = Data()
     wing_induced_angle = Data()
         
-    results = VLM(conditions,settings,geometry)
+    results = to_numpy(VLM(conditions,settings,geometry))
     total_lift_coeff          = results.CL
     total_induced_drag_coeff  = results.CDi
     CL_wing                   = results.CL_wing  

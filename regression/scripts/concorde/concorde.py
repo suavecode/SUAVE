@@ -6,6 +6,7 @@
 #           Aug 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
 #           May 2021, E. Botero
+#           Jun 2022, J, Smart
 
 """ setup file for a mission with Concorde
 """
@@ -27,7 +28,7 @@ import numpy as np
 import pylab as plt
 
 # More basic SUAVE function
-from SUAVE.Core import Data
+from SUAVE.Core import Data, to_numpy
 
 import sys
 sys.path.append('../Vehicles')
@@ -90,9 +91,9 @@ def main():
     
 
     # plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-')
-    plt.show()
+    # plot_mission(results)
+    # plot_mission(old_results,'k-')
+    # plt.show()
 
     # check the results
     check_results(results,old_results)

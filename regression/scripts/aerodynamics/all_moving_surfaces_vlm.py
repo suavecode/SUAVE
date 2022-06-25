@@ -14,7 +14,7 @@ import numpy as np
 
 import SUAVE
 from SUAVE.Core                                                     import Data, Units
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift           import VLM as VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift           import VLM, generate_vortex_distribution
 from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization             import plot_vehicle_vlm_panelization
 
 sys.path.append('../Vehicles')
@@ -47,6 +47,7 @@ def main():
     # run VLM
     for i,deflection_config in enumerate(deflection_configs):
         geometry    = test_bench_setup(deflection_config=deflection_config)
+        geometry.VD = generate_vortex_distribution(geometry, settings)
         data        = VLM(conditions, settings, geometry)
         
         plot_title  = "Deflection Configuration #{}".format(i+1)
