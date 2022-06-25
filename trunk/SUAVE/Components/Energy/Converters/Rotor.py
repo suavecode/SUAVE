@@ -69,6 +69,7 @@ class Rotor(Energy_Component):
         self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
         self.chord_distribution           = 0.0 
         self.thickness_to_chord           = 0.0
+        self.mid_chord_alignment          = 0.0 
         self.blade_solidity               = 0.0
         self.design_power                 = None
         self.design_thrust                = None
