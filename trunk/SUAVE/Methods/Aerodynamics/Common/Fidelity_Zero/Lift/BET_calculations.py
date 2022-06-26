@@ -142,9 +142,9 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     lamdaw[lamdaw<0.] = 0.
 
     et1, et2, et3, maxat = 1,1,1,-np.inf
-    tipfactor = B/2.0*(  (R/r)**et1 - 1  )**et2/lamdaw**et3
+    tipfactor = B/2.0*(  (R/r)**et1 - 1  )**et2/lamdaw**et3 + 1e-3 # tolerance to prevent nan
     tipfactor[tipfactor<0.]   = 0.
     piece = np.exp(-tipfactor)
-    Ftip = 2.*np.arccos(piece)/np.pi
+    Ftip = 2.*np.arccos(piece)/np.pi  
 
     return lamdaw, Ftip, piece
