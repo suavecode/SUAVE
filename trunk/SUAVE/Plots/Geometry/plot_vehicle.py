@@ -548,7 +548,6 @@ def get_blade_coordinates(prop,n_points,dim,i):
         beta = -beta
     
     theta  = np.linspace(0,2*np.pi,num_B+1)[:-1]
-    rot    = prop.rotation 
     flip_1 =  (np.pi/2)
     flip_2 =  (np.pi/2)
 
@@ -573,7 +572,7 @@ def get_blade_coordinates(prop,n_points,dim,i):
         xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
         zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
         max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
-
+            
     # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
     max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
 
@@ -585,7 +584,7 @@ def get_blade_coordinates(prop,n_points,dim,i):
     cpts             = len(prop_vel_to_body[:,0,0])
     
     matrix        = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
-    matrix[:,:,0] = xp*rot
+    matrix[:,:,0] = xp
     matrix[:,:,1] = yp
     matrix[:,:,2] = zp
     matrix        = np.repeat(matrix[None,:,:,:], cpts, axis=0)
