@@ -140,7 +140,7 @@ def jacobian_iteration(PSI, wake_inputs, rotor):
     return iteration(PSI, wake_inputs, rotor)
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-@jit
+#@jit
 def va_vt(PSI, wake_inputs, rotor):
     """
     Computes the inflow velocities from the inflow angle

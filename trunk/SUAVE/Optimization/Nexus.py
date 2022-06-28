@@ -170,11 +170,12 @@ class Nexus(Data):
         """     
         
         if x is None:
-            x = self.optimization_problem.inputs.pack_array()[0::5]        
-        
+            input_array = self.optimization_problem.inputs.pack_array()
+            x = input_array[0::5]/input_array[3::5]        
         
         if self.jitable:
-            scaled_objective, self = jit_nexus_objective_wrapper(x,self)
+            scaled_objective, problem = jit_nexus_objective_wrapper(x,self)
+            self.update(problem,hard=True)
         else:
             scaled_objective, self = self._objective(x)
         
@@ -231,7 +232,8 @@ class Nexus(Data):
             None
         """
         if x is None:
-            x = self.optimization_problem.inputs.pack_array()[0::5]
+            input_array = self.optimization_problem.inputs.pack_array()
+            x = input_array[0::5]/input_array[3::5]       
         
         if self.jitable:
             grad_function = jit_jac_nexus_objective_wrapper
@@ -404,8 +406,16 @@ class Nexus(Data):
             Properties Used:
             None
         """         
-
-        scaled_constraints, self = self._all_constraints(x)
+        
+        if x is None:
+            input_array = self.optimization_problem.inputs.pack_array()
+            x = input_array[0::5]/input_array[3::5]       
+            
+        if self.jitable:
+            scaled_constraints, problem = jit_nexus_all_constraint_wrapper(x,self)
+            self.update(problem,hard=True)
+        else:
+            scaled_constraints, self = self._all_constraints(x)
 
 
         return scaled_constraints     
@@ -707,7 +717,7 @@ class Nexus(Data):
         # Print the objective value
         obj         = self.optimization_problem.objective
         obj_val     = self.objective(x)
-        obj_scale   = help_fun.unscale_const_values(obj,obj_val)
+        obj_scale   = help_fun.unscale_obj_values(obj,obj_val)
         obj_table   = np.array(obj)
         obj_table   = np.insert(obj_table,1,obj_scale)
         

@@ -77,11 +77,11 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     bndl = inpa[1::5] # Bounds
     bndu = inpa[2::5] # Bounds
     scl  = inpa[3::5] # Scale
+    uni  = inpa[4::5] # units
         
     # Pull out the constraints and scale them
     bnd_constraints = to_numpy(help_fun.scale_const_bnds(con))
-    scaled_constraints = to_numpy(help_fun.scale_const_values(con,bnd_constraints))
-    x   = ini/scl
+    x               = ini/scl
    
     for ii in range(0,len(inp)):
         lbd = (bndl[ii]/scl[ii])
@@ -92,7 +92,7 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     # Setup constraints  
     for ii, name in enumerate(con.keys()):
         constraint = con[name]
-        edge = scaled_constraints[ii]
+        edge = bnd_constraints[ii]
        
         if constraint[0]==-1.:
             opt_prob.addCon(name, upper=edge)

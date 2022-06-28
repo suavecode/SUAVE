@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt  
 import matplotlib.cm as cm
 import os
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import interp2d
 
 ## @ingroup Plots
 def plot_airfoil_analysis_boundary_layer_properties(ap,show_legend = True ):  
@@ -338,15 +339,15 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
     n_airfoils = shape[0]
     n_Re       = shape[1]
 
-    col_raw = ['m-', 'b-', 'r-', 'g-', 'o-','p-']    
+    col_raw = ['m-', 'b-', 'r-', 'g-', 'k-','y-','m-', 'b-']    
     if use_surrogate:
-        col_sur = ['m--', 'b--', 'r--', 'g--', 'o--','p--']
+        col_sur = ['m--', 'b--', 'r--', 'g--', 'k--', 'y--', 'm--', 'b-']
         # Compute airfoil surrogates
-        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=False)
+        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=True)
         CL_sur = a_data.lift_coefficient_surrogates
         CD_sur = a_data.drag_coefficient_surrogates
         
-        alpha   = np.linspace(-16,16,100)
+        alpha   = np.linspace(-90,90,100) * Units.degrees
         n_alpha = len(alpha.T)
         alpha   = np.reshape(alpha,(n_airfoils,1,n_alpha))
         alpha   = np.repeat(alpha, n_Re, axis=1)
@@ -358,16 +359,17 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
         CL = np.zeros_like(Re)
         CD = np.zeros_like(Re)
     
-        for i in range(n_airfoils):
-            CL[i,:,:] = CL_sur[airfoil_path[i]](Re[i,:,:],alpha[i,:,:]* Units.deg,grid=False)
-            CD[i,:,:] = CD_sur[airfoil_path[i]](Re[i,:,:],alpha[i,:,:]* Units.deg,grid=False)        
-    
+        for i, (cl, cd) in enumerate(zip(CL_sur,CD_sur)):
+            CL[i,:,:] = interp2d(Re[i,:,:], alpha[i,:,:], cl.RE_data, cl.aoa_data, cl.CL_data)
+            CD[i,:,:] = interp2d(Re[i,:,:], alpha[i,:,:], cd.RE_data, cd.aoa_data, cd.CD_data)
+
     # Get raw data polars
     airfoil_polar_data = import_airfoil_polars(airfoil_polar_paths)
     CL_raw      = airfoil_polar_data.lift_coefficients
     CD_raw      = airfoil_polar_data.drag_coefficients
     alpha_raw   = airfoil_polar_data.angle_of_attacks
     n_alpha_raw = len(alpha_raw)        
+    alpha       = alpha / Units.degrees
     
     # reshape into Re and n_airfoils
     alpha_raw  = np.tile(alpha_raw, (n_airfoils,n_Re,1))
@@ -383,22 +385,27 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
         fig  = plt.figure(airfoil_name[:-4], figsize=(8,2*n_Re))
           
         for j in range(n_Re):
-            ax1    = fig.add_subplot(n_Re,2,1+2*j)
-            ax2    = fig.add_subplot(n_Re,2,2+2*j)  
+            ax1    = fig.add_subplot(n_Re,3,1+3*j)
+            ax2    = fig.add_subplot(n_Re,3,2+3*j)  
+            ax3    = fig.add_subplot(n_Re,3,3+3*j)  
             
             Re_val = str(round(Re[i,j,0])/1e6)+'e6'
             ax1.plot(alpha_raw[i,j,:], CL_raw[i,j,:], col_raw[j], label='Re='+Re_val)
             ax2.plot(alpha_raw[i,j,:], CD_raw[i,j,:], col_raw[j], label='Re='+Re_val)
+            ax3.plot(alpha_raw[i,j,:], CL_raw[i,j,:]/CD_raw[i,j,:], col_raw[j], label='Re='+Re_val)
             if use_surrogate:
                 ax1.plot(alpha[i,j,:], CL[i,j,:], col_sur[j])
                 ax2.plot(alpha[i,j,:], CD[i,j,:], col_sur[j])
+                ax3.plot(alpha[i,j,:], CL[i,j,:]/CD[i,j,:], col_sur[j])
              
             ax1.set_ylabel('$C_l$')   
             ax2.set_ylabel('$C_d$')  
+            ax3.set_ylabel('$L/D$')  
             ax1.legend(loc='best')
             
         ax1.set_xlabel('AoA [deg]') 
         ax2.set_xlabel('AoA [deg]') 
+        ax3.set_xlabel('AoA [deg]') 
         fig.tight_layout()
         
         if save_figure:

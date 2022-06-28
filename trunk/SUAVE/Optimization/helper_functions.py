@@ -207,7 +207,7 @@ def convert_values(inputs):
     
     provided_values  = inputs_packed[::5]
     
-    provided_units   = inputs_packed[3::5]*1.0
+    provided_units   = inputs_packed[4::5]*1.0
     
     converted_values = provided_values*provided_units
     
@@ -352,8 +352,9 @@ def scale_const_values(inputs,x):
     N/A
     """        
     
+    provided_units = pack_array(inputs)[3::4]
     provided_scale = pack_array(inputs)[2::4]
-    scaled =  x/provided_scale
+    scaled =  x/(provided_scale*provided_units)
     
     return scaled
 
@@ -378,11 +379,38 @@ def scale_const_bnds(inputs):
     """     
     
     provided_bounds = pack_array(inputs)[1::4]
-    provided_units  = pack_array(inputs)[3::4]
+    provided_scale  = pack_array(inputs)[2::4]
     
-    converted_values = provided_bounds*provided_units
+    converted_values = provided_bounds/provided_scale
     
     return converted_values
+
+## @ingroup Optimization
+def unscale_obj_values(inputs,x):
+    """ Rescales values based on Nexus inputs scale
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    inputs           [Data()]
+    x                [array]
+
+    Outputs:
+    scaled           [array]
+
+    Properties Used:
+    N/A
+    """     
+    
+    provided_scale = pack_array(inputs)[0::2]
+    provided_units = pack_array(inputs)[1::2]
+    scaled         = x*provided_scale/provided_units
+    
+    return scaled
 
 ## @ingroup Optimization
 def unscale_const_values(inputs,x):
@@ -405,9 +433,9 @@ def unscale_const_values(inputs,x):
     N/A
     """     
     
-    provided_units   = inputs[:,-1]*1.0
-    provided_scale = np.array(inputs[:,-2],dtype = float)
-    scaled =  x*provided_scale/provided_units
+    provided_units = pack_array(inputs)[3::4]
+    provided_scale = pack_array(inputs)[2::4]
+    scaled         = x*provided_scale/provided_units
     
     return scaled
 

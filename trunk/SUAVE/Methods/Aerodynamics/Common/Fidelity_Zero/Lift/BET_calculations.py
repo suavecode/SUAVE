@@ -81,8 +81,11 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         for jj, (cl, cd) in enumerate(zip(cl_sur,cd_sur)):
             sub_cl = interp2d(Re, alpha, cl.RE_data, cl.aoa_data, cl.CL_data)
             sub_cd = interp2d(Re, alpha, cd.RE_data, cd.aoa_data, cd.CD_data)
-            Cl    = jnp.where(aloc==jj,sub_cl,Cl)
-            Cdval = jnp.where(aloc==jj,sub_cd,Cdval)
+            Cl     = jnp.where(aloc==jj,sub_cl,Cl)
+            Cdval  = jnp.where(aloc==jj,sub_cd,Cdval)
+            
+        # Scale for Mach, this is Karmen_Tsien
+        Cl    = jnp.where(Ma<1.,Cl/((1-Ma*Ma)**0.5+((Ma*Ma)/(1+(1-Ma*Ma)**0.5))*Cl/2),Cl)
 
     else:
         # Estimate Cl max
@@ -90,7 +93,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         Re_ref     = 9.*10**6
         Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
 
-        # If not airfoil polar provided, use 2*pi as lift curve slope
+        # If no airfoil polar provided, use 2*pi as lift curve slope
         Cl = 2.*jnp.pi*alpha
 
         # By 90 deg, it's totally stalled.
@@ -104,12 +107,12 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval = jnp.where(alpha>=jnp.pi/2,2,Cdval)    
 
-        # prevent zero Cl to keep Cd/Cl from breaking in BET
-        Cl = jnp.where(Cl==0,1e-6,Cl)
+    # prevent zero Cl to keep Cd/Cl from breaking in BET
+    Cl = jnp.where(Cl==0,1e-6,Cl)
     return Cl, Cdval, alpha, Ma, W
 
 
-@jit
+#@jit
 def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     """
     Computes the inflow, lamdaw, and the tip loss factor, F.
@@ -152,7 +155,6 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
 
     return lamdaw, F, piece
 
-@jit
 def interp2d(x,y,xp,yp,zp,fill_value= None):
     """
     Bilinear interpolation on a grid. ``CartesianGrid`` is much faster if the data
@@ -167,10 +169,6 @@ def interp2d(x,y,xp,yp,zp,fill_value= None):
     Returns:
         1D array `z` satisfying `z[i] = f(x[i], y[i])`.
     """
-    #if xp.ndim != 1 or yp.ndim != 1:
-        #raise ValueError("xp and yp must be 1D arrays")
-    #if zp.shape != (xp.shape + yp.shape):
-        #raise ValueError("zp must be a 2D array with shape xp.shape + yp.shape")
 
     ix = jnp.clip(jnp.searchsorted(xp, x, side="right"), 1, len(xp) - 1)
     iy = jnp.clip(jnp.searchsorted(yp, y, side="right"), 1, len(yp) - 1)

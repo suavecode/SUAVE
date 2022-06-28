@@ -120,7 +120,7 @@ class Rotor(Energy_Component):
         
         return thrust_vector, torque, power, Cp, outputs , etap
 
-    @jit
+    #@jit
     def _prewake(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     
@@ -358,7 +358,7 @@ class Rotor(Energy_Component):
 
         return wake_inputs
     
-    @jit
+    #@jit
     def _postwake(self,va,vt,wake_inputs,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
     
@@ -499,7 +499,7 @@ class Rotor(Energy_Component):
         Rp_Rinf     = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
         epsilon     = Cd/Cl
-        epsilon     = jnp.where(epsilon==jnp.inf,10.,epsilon)
+        epsilon     = jnp.where(epsilon==jnp.inf,100.,epsilon)
     
         # thrust and torque and their derivatives on the blade 
         blade_dT_dr_2d          = rho*(Gamma*(Wt-epsilon*Wa))

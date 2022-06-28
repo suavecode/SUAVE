@@ -20,6 +20,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoi
      import compute_airfoil_polars
 from jax import jit, jacobian
 import jax.numpy as jnp
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import interp2d
 
 from SUAVE.Core import Data
 
@@ -132,18 +133,16 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     # Step 4, determine epsilon and alpha from airfoil data  
     if airfoil_flag:   
         # compute airfoil polars for airfoils 
-        airfoil_data    = compute_airfoil_polars(a_geo, a_pol,npoints = number_of_airfoil_section_points)  
+        airfoil_data    = compute_airfoil_polars(a_geo, a_pol,npoints = number_of_airfoil_section_points,use_pre_stall_data=True,linear_lift=True)  
         
         airfoil_cl_surs = Data()
         airfoil_cd_surs = Data()
         
         for ii, key in enumerate(airfoil_data.lift_coefficient_surrogates.keys()):
-            cl = airfoil_data.lift_coefficient_surrogates[key]
-            airfoil_cl_surs[key] = jit(cl)
+            airfoil_cl_surs[key] = airfoil_data.lift_coefficient_surrogates[key]
         
         for ii, key in enumerate(airfoil_data.drag_coefficient_surrogates.keys()):
-            cd = airfoil_data.drag_coefficient_surrogates[key]
-            airfoil_cd_surs[key] = jit(cd)
+            airfoil_cd_surs[key] = airfoil_data.drag_coefficient_surrogates[key]
             
         jac       = jacobian(objective)
      
@@ -177,8 +176,8 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             
             # query surrogate for sectional Cls at stations 
             Cdval    = np.zeros_like(RE) 
-            for j in range(len(airfoil_cd_surs)):
-                Cdval_af    = airfoil_cd_surs[str(a_geo[j])]((RE,alpha))
+            for j, cd in enumerate(airfoil_cd_surs):
+                Cdval_af    = interp2d(RE, alpha, cd.RE_data, cd.aoa_data, cd.CD_data)
                 locs        = np.where(np.array(a_loc) == j )
                 Cdval[locs] = Cdval_af[locs]    
                 
@@ -318,7 +317,8 @@ def objective(x, airfoil_cl_surs, RE , a_geo ,a_loc, Cl):
     Cl_vals = jnp.zeros_like(RE)     
     aloc    = jnp.array(a_loc)
     for jj, cl in enumerate(airfoil_cl_surs):
-        Cl_vals = jnp.where(aloc==jj,cl((RE,x)),Cl_vals)
+        sub_cl = interp2d(RE, x, cl.RE_data, cl.aoa_data, cl.CL_data)
+        Cl     = jnp.where(aloc==jj,sub_cl,Cl)
         
     # compute Cl residual    
     Cl_residuals = Cl_vals - Cl 
