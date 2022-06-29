@@ -56,6 +56,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         self.tag                           = 'rotor_wake'
         self.wake_method                   = 'Fidelity_Zero'
         self.maximum_convergence_iteration = 1000.
+        self.convergence_tolerance         = 1.e-8     
         
     def evaluate(self,rotor,wake_inputs,conditions):
         """

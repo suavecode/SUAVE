@@ -53,9 +53,10 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     # Setup
     PSI   = jnp.ones_like(wake_inputs.velocity_total).flatten()
     limit = wake.maximum_convergence_iteration
+    tol   = wake.convergence_tolerance
     
     # Solve!       
-    PSI_final, ii = simple_newton(iteration,jacobian_iteration,PSI,while_loop,args=(wake_inputs,rotor),limit=limit)
+    PSI_final, ii = simple_newton(iteration,jacobian_iteration,PSI,while_loop,args=(wake_inputs,rotor),limit=limit,tol=tol)
 
     # Calculate the velocities given PSI
     va, vt = va_vt(PSI_final, wake_inputs, rotor)
@@ -140,7 +141,7 @@ def jacobian_iteration(PSI, wake_inputs, rotor):
     return iteration(PSI, wake_inputs, rotor)
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-#@jit
+@jit
 def va_vt(PSI, wake_inputs, rotor):
     """
     Computes the inflow velocities from the inflow angle

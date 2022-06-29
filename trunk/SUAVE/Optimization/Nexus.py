@@ -470,7 +470,8 @@ class Nexus(Data):
             None
         """
         if x is None:
-            x = self.optimization_problem.inputs.pack_array()[0::5]
+            input_array = self.optimization_problem.inputs.pack_array()
+            x = input_array[0::5]/input_array[3::5]    
         
         if self.jitable:
             grad_function = jit_jac_nexus_all_constraint_wrapper
@@ -656,7 +657,7 @@ class Nexus(Data):
         return grad_obj, jac_con
     
     
-    def add_array_inputs(self, full_path, lower_bound, upper_bound, star=None):
+    def add_array_inputs(self, full_path, lower_bound, upper_bound, scale=1., star=None):
         
         # go to the full path and figure out the array shape
         array  = eval('self.'+full_path)
@@ -669,12 +670,12 @@ class Nexus(Data):
         new_inputs  = np.zeros((size,6),dtype=object)
         # create an alias list
         new_aliases = []
-        
+                
         # loop over the array dimension by dimension
         for ii,val in enumerate(array.flatten()):
             # setup the inputs
             alias_name       = name+'_'+str(ii)
-            new_inputs[ii,:] = np.array([alias_name,val,lower_bound,upper_bound,1.,1.],dtype=object)
+            new_inputs[ii,:] = np.array([alias_name,val,lower_bound,upper_bound,scale,1.],dtype=object)
             # setup the aliases            
             new_aliases.append([alias_name,full_path+'['+str(ii)+']'])
 
