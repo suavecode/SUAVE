@@ -45,11 +45,6 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
     except:
         print("No vortex distribution defined. Creating default vortex distribution from vehicle.")
         settings = Vortex_Lattice().settings
-        #settings.number_spanwise_vortices  = 25
-        #settings.number_chordwise_vortices = 5
-        #settings.spanwise_cosine_spacing   = False
-        #settings.model_fuselage            = False
-        #settings.model_nacelle             = False
         VD = generate_vortex_distribution(geometry,settings)        
         
     sym          = VD.symmetric_wings
