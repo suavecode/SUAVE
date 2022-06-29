@@ -611,8 +611,9 @@ class Rotor(Energy_Component):
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
         cpts       = len(np.atleast_1d(self.inputs.y_axis_rotation))
-        rots       = np.array(self.orientation_euler_angles) + np.array([0., self.inputs.y_axis_rotation, 0.]) * 1
+        rots       = np.array(self.orientation_euler_angles) * 1.
         rots       = np.repeat(rots[None,:], cpts, axis=0)
+        rots[:,1] += np.atleast_2d(self.inputs.y_axis_rotation)[:,0]
         
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
 

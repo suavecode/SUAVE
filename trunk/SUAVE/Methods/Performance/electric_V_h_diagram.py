@@ -131,17 +131,17 @@ def electric_V_h_diagram(vehicle,
 
                 # Determine Propeller Power at Altitude and Speed
                 prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
-                _,P = propeller_single_point(vehicle.networks.battery_propeller.propellers[prop_key],
+                _,res = propeller_single_point(vehicle.networks.battery_propeller.propellers[prop_key],
                                            analyses=analyses,
                                            pitch=0.,
                                            omega=test_omega,
                                            altitude=altitude,
                                            delta_isa=0.,
-                                           speed=V).power
+                                           speed=V)
+                Power = res.power
 
                 # Check if Propeller Power Exceeds Max Battery Power, Switch to Max Battery Power if So
-
-                P = np.min([P, vehicle.networks.battery_propeller.battery.max_power])
+                P = np.min([Power, vehicle.networks.battery_propeller.battery.max_power])
 
                 # Determine Climb Rate (ref. Raymer)
 

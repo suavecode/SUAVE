@@ -60,10 +60,10 @@ def main():
 
 
     # Truth values
-    departure_throttle_truth          = np.array([0.65161054, 0.65183868, 0.65231039, 0.65255397])
-    transition_1_throttle_truth       = np.array([0.65434873, 0.64834806, 0.52075861, 0.58035428])
-    cruise_throttle_truth             = np.array([0.46376169, 0.46409995, 0.4647782 , 0.4651182 ])
-    transition_y_axis_rotations_truth = np.array([1.36961133, 1.34327318, 1.10250854, 0.06580108])
+    departure_throttle_truth          = np.array([0.65160358, 0.65183173, 0.65230344, 0.65254702])
+    transition_1_throttle_truth       = np.array([0.56425048, 0.47183824, 0.41012242, 0.57948489])
+    cruise_throttle_truth             = np.array([0.46295101, 0.4632851 , 0.46395502, 0.46429086])
+    transition_y_axis_rotations_truth = np.array([1.36961008, 1.27762765, 1.42548788, 0.07221514])
 
     # Store errors 
     error = Data()

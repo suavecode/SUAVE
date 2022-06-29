@@ -58,11 +58,11 @@ def test_1():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 642.8368993870412
-    torque_r    = 127.98612952140998
-    power_r     = 29485.887512829242
-    Cp_r        = 0.03764130311950602
-    etap_r      = 0.21801510946799357
+    thrust_r    = 642.8324378879063
+    torque_r    = 127.98543894283786
+    power_r     = 29485.728414947524
+    Cp_r        = 0.03764110001720534
+    etap_r      = 0.2180147727203606
 
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
@@ -84,7 +84,7 @@ def test_2():
     # update the wake method used for each prop
     prop.Wake = Rotor_Wake_Fidelity_One()
 
-    results = propeller_single_point(prop,
+    _, results = propeller_single_point(prop,
                                      pitch=0.,
                                      omega=2200. * Units.rpm,
                                      altitude= 5000. * Units.ft,
@@ -100,11 +100,11 @@ def test_2():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 645.8643152096909
-    torque_r    = 127.10023264665021
-    power_r     = 29281.791524499793
-    Cp_r        = 0.03738075681718287
-    etap_r      = 0.22056857916951647
+    thrust_r    = 645.8591486980088
+    torque_r    = 127.09972470854179
+    power_r     = 29281.674503960265
+    Cp_r        = 0.0373806074302737
+    etap_r      = 0.22056769622606728
 
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
