@@ -74,10 +74,10 @@ def main():
     
     # Truth results
 
-    truth_F   = 105.36921867602801
-    truth_rpm = 218.16907991634037
-    truth_i   = 130.08358405204618
-    truth_bat = 139686132.72257057
+    truth_F   = 82.50753846943554
+    truth_rpm = 196.4824776287468
+    truth_i   = 86.20535773927487
+    truth_bat = 124605489.68939433
     
     print('battery energy')
     print(energy)
@@ -201,7 +201,7 @@ def mission_setup(analyses,vehicle):
     # segment attributes     
     segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
-    segment.mach           = 0.12
+    segment.mach           = 0.1
     segment.distance       = 3050.0 * Units.km
     segment.battery_energy = vehicle.networks.solar.battery.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)

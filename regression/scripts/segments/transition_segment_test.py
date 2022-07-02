@@ -61,9 +61,9 @@ def main():
 
     # Truth values
     departure_throttle_truth          = np.array([0.65160358, 0.65183173, 0.65230344, 0.65254702])
-    transition_1_throttle_truth       = np.array([0.56425048, 0.47183824, 0.41012242, 0.57948489])
-    cruise_throttle_truth             = np.array([0.46295101, 0.4632851 , 0.46395502, 0.46429086])
-    transition_y_axis_rotations_truth = np.array([1.36961008, 1.27762765, 1.42548788, 0.07221514])
+    transition_1_throttle_truth       = np.array([0.65642177, 0.65147106, 0.53588624, 0.60139904])
+    cruise_throttle_truth             = np.array([0.46356958, 0.46390726, 0.46458435, 0.46492376])
+    transition_y_axis_rotations_truth = np.array([1.34042448, 1.31307769, 1.05489631, 0.05264738])
 
     # Store errors 
     error = Data()
@@ -225,12 +225,12 @@ def mission_setup(analyses,vehicle):
     segment.tag                                         = "Transition_1"
     segment.analyses.extend( analyses.transition_1 )
     segment.altitude                                    = 40.0 * Units.ft
-    segment.acceleration                                = 2.0  * Units['m/s/s']
+    segment.acceleration                                = 2.3  * Units['m/s/s']
     segment.air_speed_start                             = 0.0  * Units.mph              # starts from hover
     segment.air_speed_end                               = 1.2  * V_stall         # increases linearly in time to stall speed
     segment.pitch_initial                               = 0.0  * Units.degrees  
     segment.pitch_final                                 = 3.6  * Units.degrees   
-    segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
+    segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
