@@ -50,6 +50,7 @@ def  import_airfoil_polars(airfoil_polar_files):
     CL           = np.zeros((num_airfoils,num_polars,dim_aoa))
     CD           = np.zeros((num_airfoils,num_polars,dim_aoa)) 
     Re           = np.zeros((num_airfoils,num_polars))
+    Ma           = np.zeros((num_airfoils,num_polars))
     
     AoA_interp = np.linspace(-6,16,dim_aoa) 
     
@@ -66,6 +67,8 @@ def  import_airfoil_polars(airfoil_polar_files):
                 line = data_block[header_line]   
                 if 'Re =' in line:    
                     Re[i,j] = float(line[25:40].strip().replace(" ", ""))
+                if 'Mach =' in line:    
+                    Ma[i,j] = float(line[7:20].strip().replace(" ", ""))    
                 if '---' in line:
                     data_block = data_block[header_line+1:]
                     break
@@ -94,6 +97,7 @@ def  import_airfoil_polars(airfoil_polar_files):
                  
         airfoil_data.angle_of_attacks  = AoA_interp
         airfoil_data.reynolds_number   = Re
+        airfoil_data.mach_number       = Ma
         airfoil_data.lift_coefficients = CL
         airfoil_data.drag_coefficients = CD      
      
