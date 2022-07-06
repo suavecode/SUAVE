@@ -55,7 +55,7 @@ def main():
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
 
     X57_SPL        = X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA[0][0]
-    X57_SPL_true   = 66.26047007599651
+    X57_SPL_true   = 66.26724817959557
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
@@ -83,7 +83,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SAE Turbofan Aircraft Noise Model')
     B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
-    B737_SPL_true   = 27.760627174951193
+    B737_SPL_true   = 27.75165864404251
     print(B737_SPL) 
     B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
     print('SPL difference')
@@ -170,6 +170,8 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000 
+    aerodynamics.settings.number_spanwise_vortices   = 5
+    aerodynamics.settings.number_chordwise_vortices  = 2       
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
