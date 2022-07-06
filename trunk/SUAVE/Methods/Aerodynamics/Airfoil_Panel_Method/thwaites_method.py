@@ -82,7 +82,7 @@ def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,tol,
             Ve_i        = VE_I.data[:,a_i,re_i][VE_I.mask[:,a_i,re_i] ==False]
             dVe_i       = DVE_I.data[:,a_i,re_i][DVE_I.mask[:,a_i,re_i] ==False] 
             y0          = theta_0**2 * getVe(0,x_i,Ve_i)**6   
-            theta2_Ve6  = odeint(odefcn, y0,x_i , args=(nu, x_i, Ve_i))  
+            theta2_Ve6  = odeint(odefcn, y0,x_i , args=(nu, x_i, Ve_i),rtol=1e-6,atol=1e-6)  
             
             # Compute momentum thickness, theta 
             theta       = np.sqrt(theta2_Ve6[:,0]/ Ve_i**6)
