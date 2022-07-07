@@ -257,7 +257,7 @@ def test_results(results, results_regression):
             errors     = (vals-vals_tr)/vals_tr
         
         #check error
-        max_error = max_errors[0] if key in ['lift'] else max_errors[1]
+        max_error = max_errors[1] if key in ['lift'] else max_errors[1]
         assert np.max(np.abs(errors)) < max_error, 'Failed at {} test, case {}'.format(key, np.argmax(np.abs(errors))+1)
         
     return
