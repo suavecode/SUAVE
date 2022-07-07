@@ -57,7 +57,7 @@ def lift_equivalent_area(config,analyses,conditions):
     results = to_numpy(VLM(conditions, settings, config))
     CP = results.CP
     
-    VD = analyses.aerodynamics.geometry.vortex_distribution
+    VD = to_numpy(analyses.aerodynamics.geometry.vortex_distribution)
     
     areas      = VD.panel_areas
     normal_vec = VD.normals
