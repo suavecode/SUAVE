@@ -8,7 +8,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_wake_contraction_matrix import compute_wake_contraction_matrix
 
 
@@ -140,12 +139,6 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # put into velocity frame and find (y,z) components
     azi_y   = np.sin(panel_azimuthal_positions)
     azi_z   = np.cos(panel_azimuthal_positions)
-    
-
-    # extract airfoil trailing edge coordinates for initial location of vortex wake
-    if rotor.airfoil_data == None:
-        a_sec              = rotor.airfoil_geometry   
-        rotor.airfoil_data = import_airfoil_geometry(a_sec,npoints=100) 
         
     airfoil_data = rotor.airfoil_data
     a_secl       = rotor.airfoil_polar_stations
@@ -161,7 +154,6 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     xle_airfoils = xupper[:,0]*c + airfoil_le_offset
     yle_airfoils = yupper[:,0]*c 
-    
     
     x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4 - airfoil_le_offset
     y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4

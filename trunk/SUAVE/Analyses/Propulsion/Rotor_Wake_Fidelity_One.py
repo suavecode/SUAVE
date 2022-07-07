@@ -14,6 +14,7 @@ from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fideli
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.fidelity_one_wake_convergence import fidelity_one_wake_convergence
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
 
 # package imports
@@ -106,6 +107,11 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         _,_,_,_,outputs,_ = rotor_temp.spin(conditions)
         
         rotor.outputs = outputs
+        
+        # store airfoil data to the rotor
+        if rotor.airfoil_data == None:
+            a_sec              = rotor.airfoil_geometry   
+            rotor.airfoil_data = import_airfoil_geometry(a_sec,npoints=100)         
         
         # match the azimuthal discretization betwen rotor and wake
         if self.wake_settings.number_steps_per_rotation  != rotor.number_azimuthal_stations:
