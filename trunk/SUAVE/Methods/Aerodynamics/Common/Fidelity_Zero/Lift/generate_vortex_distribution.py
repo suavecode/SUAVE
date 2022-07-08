@@ -155,13 +155,13 @@ def generate_vortex_distribution(geometry,settings):
 
     x_cg       = geometry.mass_properties.center_of_gravity[0][0]
     z_cg       = geometry.mass_properties.center_of_gravity[0][2]
-    if x_cg == 0.0:
-        x_m = x_mac 
-        z_m = z_mac
-    else:
-        x_m = x_cg
-        z_m = z_cg    
-        
+    
+    # Do boolean math instead of an if statement for moment locations
+    bool_cg = x_cg == 0.0
+    
+    x_m = bool_cg*x_mac + (1-bool_cg)*x_cg
+    z_m = bool_cg*z_mac + (1-bool_cg)*z_cg
+
     VD.x_m    = x_m
     VD.z_m    = z_m
     VD.w_span = w_span
@@ -454,11 +454,11 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         shifted_idxs  = shifted_idxs.at[idx].set(jnp.inf)
         y_coordinates = y_coordinates.at[idx].set(y_req)
 
-    y_coordinates = jnp.array(sorted(y_coordinates))
+    y_coordinates = y_coordinates.sort()
     
-    for y_req in y_coords_required:
-        if y_req not in y_coordinates:
-            raise ValueError('VLM did not capture all section breaks')  
+    #for y_req in y_coords_required:
+        #if y_req not in y_coordinates:
+            #raise ValueError('VLM did not capture all section breaks')  
     
     # ---------------------------------------------------------------------------------------
     # STEP 6: Define coordinates of panels horseshoe vortices and control points 
@@ -481,8 +481,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                 rel_offset = cs_wing.origin[0,1] - wing.origin[0][1] if not vertical_wing else cs_wing.origin[0,2] - wing.origin[0][2]
                 cs_wing.y_coords_required.append(y_coord - rel_offset)
             
-            if y_coordinates[idx_y+1] == break_spans[i_break+1]: 
-                i_break += 1
+            ycord_bool = y_coordinates[idx_y+1] == break_spans[i_break+1]
+            i_break   += int(1*ycord_bool)
             
     
     # -------------------------------------------------------------------------------------------------------------

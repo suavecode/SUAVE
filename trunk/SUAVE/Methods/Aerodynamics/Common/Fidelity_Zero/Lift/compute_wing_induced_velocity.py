@@ -16,9 +16,10 @@
 import jax.numpy as jnp
 from jax.numpy import where as w
 from jax.numpy import newaxis as na
-from jax import lax
+from jax import lax, jit
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+#@jit
 def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
@@ -81,12 +82,13 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     XA_TE = jnp.array(jnp.atleast_2d(VD.XA_TE*1.),dtype=precision)
     XB_TE = jnp.array(jnp.atleast_2d(VD.XB_TE*1.),dtype=precision)
     
-    
     # Panel Dihedral Angle, using AH and BH location
     D      = jnp.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
     COS_DL = (YBH-YAH)/D    
     DL     = jnp.arccos(COS_DL)
     DL     = w(DL>(jnp.pi/2),DL - jnp.pi,DL) # This flips the dihedral angle for the other side of the wing
+    DL     = w(COS_DL==1,0,DL) # This is for JAX to not give infs for the derivative
+    DL     = w(COS_DL==-1,0,DL)
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -173,39 +175,39 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     
     # Split the vectors into subsonic and supersonic
     sub      = (B2<0)[:,0,0]
-    B2_sub   = B2[sub,:,:]
-    RO1_sub  = B2_sub*RTV1
-    RO2_sub  = B2_sub*RTV2
+    B2_sub   = B2
+    RO1_sub  = B2*RTV1
+    RO2_sub  = B2*RTV2
     
     # ZERO-OUT PERTURBATION VELOCITY COMPONENTS
     U = jnp.zeros((n_mach,shape_0,shape_1),dtype=precision)
     V = jnp.zeros((n_mach,shape_0,shape_1),dtype=precision)
     W = jnp.zeros((n_mach,shape_0,shape_1),dtype=precision)    
     
-    if jnp.sum(sub)>0:
-        # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
-        U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)
-        U = U.at[sub.nonzero()].set(U_sub[sub.nonzero()])
-        V = V.at[sub.nonzero()].set(V_sub[sub.nonzero()])
-        W = W.at[sub.nonzero()].set(W_sub[sub.nonzero()])
+    #if jnp.sum(sub)>0:
+    # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
+    U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)
+    U = jnp.where(sub,U_sub,U)
+    V = jnp.where(sub,V_sub,V)
+    W = jnp.where(sub,W_sub,W)
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX. some values computed in a preprocessing section in VLM
     sup         = (B2>=0)[:,0,0]
-    B2_sup      = B2[sup,:,:]
-    RO1_sup     = B2[sup,:,:]*RTV1
-    RO2_sup     = B2[sup,:,:]*RTV2
+    B2_sup      = B2
+    RO1_sup     = B2*RTV1
+    RO2_sup     = B2*RTV2    
     RNMAX       = VD.panels_per_strip
     CHORD       = VD.chord_lengths
     CHORD       = jnp.repeat(CHORD,shape_0,axis=0)
     RFLAG       = jnp.ones((n_mach,shape_1),dtype=jnp.int8)
-    
-    if jnp.sum(sup)>0:
-        U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
-                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind,precision)
-        U = U.at[sup].set(U_sup)
-        V = V.at[sup].set(V_sup)
-        W = W.at[sup].set(W_sup)
-        RFLAG = RFLAG.at[sup].set(RFLAG_sup)
+
+    U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
+                                                X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)    
+
+    U     = jnp.where(sup,U_sup,U)
+    V     = jnp.where(sup,V_sup,V)
+    W     = jnp.where(sup,W_sup,W)
+    RFLAG = jnp.where(sup,RFLAG_sup,RFLAG)
 
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
@@ -221,13 +223,13 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     EW     = (limit_W*COS1-limit_V*SIN1)*WEIGHT    
 
     return C_mn, s, RFLAG, EW
-    
+
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for subsonic mach numbers
 
     Assumptions: 
-    Trailing vortex legs infinity are alligned to freestream
+    Trailing vortex legs infinity are aligned to freestream
 
     Source:  
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
@@ -292,7 +294,7 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     
     return U, V, W
 
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind, LE_ind,precision=jnp.float32):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind,precision=jnp.float32):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
 
@@ -348,7 +350,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     RAD1   = jnp.sqrt(XSQ1 - RO1)
     RAD2   = jnp.sqrt(XSQ2 - RO2)
     RAD1   = w(jnp.isnan(RAD1),0.,RAD1) 
-    RAD2   = w(jnp.isnan(RAD2),0.,RAD2) 
+    RAD2   = w(jnp.isnan(RAD2),0.,RAD2)
+    n_cp   = shape[1]
     
     DENOM           = XTY * XTY + (T2 - B2) *ZSQ # The last part of this is the TBZ term
     SIGN            = jnp.ones(shape,dtype=jnp.int8)
@@ -407,23 +410,21 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     V  = ZETAPI *(FT1 - FT2 - QB *T)
     W  = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI    
     
-    # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX WHEN RECEIVING POINT IS IN THE PLANE OF THE HORSESHOE
+    # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX WHEN RECEIVING POINT IS IN THE PLANE OF THE HORSESHOE   
     in_plane = jnp.broadcast_to(ZSQ<TOLSQ2,shape)
-    RAD1_in  = RAD1[in_plane]
-    RAD2_in  = RAD2[in_plane] 
-    Y1_in    = Y1[ZSQ<TOLSQ2]
-    Y2_in    = Y2[ZSQ<TOLSQ2]
-    XTY_in   = XTY[ZSQ<TOLSQ2]
-    TOL_in   = TOL[ZSQ<TOLSQ2]
+    RAD1_in  = RAD1.flatten()
+    RAD2_in  = RAD2.flatten()
+    Y1_in    = Y1.flatten()
+    Y2_in    = Y2.flatten()
+    XTY_in   = XTY.flatten()
+    TOL_in   = TOL.flatten()
     
-    if jnp.sum(in_plane)>0:
-        W_in = supersonic_in_plane(RAD1_in, RAD2_in, Y1_in, Y2_in, TOL_in, XTY_in, CPI)
-    else:
-        W_in = []
+    W_in = supersonic_in_plane(RAD1_in, RAD2_in, Y1_in, Y2_in, TOL_in, XTY_in, CPI)
+    W_in = jnp.reshape(W_in,W.shape)
 
-    U = U.at[in_plane].set(0)
-    V = V.at[in_plane].set(0)
-    W = W.at[in_plane].set(W_in)
+    U = jnp.where(in_plane,0,U)
+    V = jnp.where(in_plane,0,V)
+    W = jnp.where(in_plane,W_in,W) 
 
     # DETERMINE IF TRANSVERSE VORTEX LEG OF HORSESHOE ASSOCIATED TO THE
     # CONTROL POINT UNDER CONSIDERATION IS SONIC (SWEPT PARALLEL TO MACH
@@ -437,16 +438,16 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # Setup masks
     F_mask = jnp.ones((n_mach,size),dtype=bool)
     A_mask = jnp.ones((n_mach,size),dtype=bool)
-    F_mask = F_mask.at[:,TE_ind].set(0)
-    A_mask = A_mask.at[:,LE_ind].set(0)
+    F_mask = jnp.where(jnp.broadcast_to(TE_ind,(n_mach,size)),0,F_mask)
+    A_mask = jnp.where(jnp.broadcast_to(LE_ind,(n_mach,size)),0,F_mask)
     
     # Apply the mask
     T2F = T2F.at[A_mask].set(T2S[F_mask])
     T2A = T2A.at[F_mask].set(T2S[A_mask])
     
     # Zero out terms on the LE and TE
-    T2F = T2F.at[:, TE_ind].set(0)
-    T2A = T2A.at[:, LE_ind].set(0)
+    T2F = jnp.where(jnp.broadcast_to(TE_ind,(n_mach,size)),0,T2F)
+    T2A = jnp.where(jnp.broadcast_to(LE_ind,(n_mach,size)),0,T2A)
 
     TRANS = (B2[:,:,0]-T2F)*(B2[:,:,0]-T2A)
     
@@ -482,6 +483,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
 
     # The self velocity goes to 2
     FLAG_bool_split   = jnp.array(jnp.split(FLAG_bool.ravel(),n_mach))
+    test              = jnp.where(FLAG_bool_split)
     FLAG_ind          = jnp.array(jnp.where(FLAG_bool_split))
     squares           = jnp.zeros((size,size,n_mach))
     squares           = squares.at[FLAG_ind[1],FLAG_ind[1],FLAG_ind[0]].set(1)

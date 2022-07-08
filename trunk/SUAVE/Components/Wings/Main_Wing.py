@@ -16,14 +16,16 @@ from SUAVE.Core import ContainerOrdered
 from SUAVE.Components.Wings.Segment import Segment
 
 import numpy as np
+from jax.tree_util import register_pytree_node_class
 
 # ----------------------------------------------------------------------
 #  Attribute
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Wings
+@register_pytree_node_class
 class Main_Wing(Wing):
-    """This class is used to define main wings SUAVE
+    """This class is used to define main wings in SUAVE
 
     Assumptions:
     None
@@ -65,11 +67,14 @@ class Main_Wing(Wing):
         self.generative_design_minimum         = 1
         self.generative_design_characteristics = ['spans.projected','chords.root','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
         self.generative_design_char_min_bounds = [1.0,0.5,0,-np.inf,-np.inf]   
-        self.generative_design_char_max_bounds = [np.inf,np.inf,np.inf,np.inf,np.inf]        
+        self.generative_design_char_max_bounds = [np.inf,np.inf,np.inf,np.inf,np.inf]      
+        self.static_keys                       = ['generative_design_characteristics']   
+        
         
         
         
 ## @ingroup Components-Wings
+@register_pytree_node_class        
 class Segment_Container(ContainerOrdered):
     """ Container for wing segment
     
@@ -108,9 +113,9 @@ class Segment_Container(ContainerOrdered):
         N/A
         """       
         
-        return [Segment]
+        #return [Segment]
         
-        #return []
+        return []
     
     
     def append(self,val):

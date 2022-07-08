@@ -31,6 +31,7 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import
 
 # package imports
 import numpy as np 
+import jax.numpy as jnp 
 from scipy.interpolate import RectBivariateSpline, RegularGridInterpolator
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution       import generate_vortex_distribution 
@@ -86,8 +87,9 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.propeller_wake_model            = False
         self.settings.discretize_control_surfaces     = False
         self.settings.use_VORLAX_matrix_calculation   = False
-        self.settings.floating_point_precision        = np.float32
+        self.settings.floating_point_precision        = jnp.float32
         self.settings.use_surrogate                   = True
+        self.settings.static_keys                     = ['floating_point_precision']
 
         # conditions table, used for surrogate model training
         self.training                                = Data()

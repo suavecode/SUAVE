@@ -12,9 +12,8 @@
 # ----------------------------------------------------------------------
 
 # package imports 
-import numpy as np
 from jax.ops import segment_sum
-from jax import lax
+from jax import lax, jit
 import jax.numpy as jnp
 from jax.numpy import where as w
 from jax.numpy import newaxis as na
@@ -204,8 +203,8 @@ def VLM(conditions,settings,geometry):
     D     = VD.D
     
     # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
-    XBAR    = jnp.ones(sum(LE_ind)) * x_m
-    ZBAR    = jnp.ones(sum(LE_ind)) * z_m
+    XBAR    = jnp.ones(jnp.sum(LE_ind)) * x_m
+    ZBAR    = jnp.ones(jnp.sum(LE_ind)) * z_m
     VD.XBAR = XBAR
     VD.ZBAR = ZBAR
     
@@ -217,15 +216,16 @@ def VLM(conditions,settings,geometry):
     delta = jnp.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
     # Build the RHS vector    
-    rhs = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm) 
-    RHS     = rhs.RHS*1
-    ONSET   = rhs.ONSET*1
+    rhs   = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm) 
+    RHS   = rhs.RHS*1
+    ONSET = rhs.ONSET*1
 
     # Build induced velocity matrix, C_mn
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = jnp.unique(mach,return_inverse=True)
     m_unique      = jnp.atleast_2d(m_unique).T
-    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique,precision=precision)
+    #C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique,precision=precision)
+    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique)
     
     C_mn  = C_mn_small[inv,:,:,:]
     RFLAG = RFLAG_small[inv,:]
@@ -327,7 +327,7 @@ def VLM(conditions,settings,geometry):
     B2_LE = B2[:,LE_ind]
     T2    = TLE*TLE
     STB   = jnp.zeros_like(B2_LE)
-    STB   = w(B2_LE<T2,np.sqrt(T2-B2_LE),STB)
+    STB   = w(B2_LE<T2,jnp.sqrt(T2-B2_LE),STB)
     
     # DL IS THE DIHEDRAL ANGLE (WITH RESPECT TO THE X-Y PLANE) OF
     # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES. 

@@ -2,6 +2,7 @@
 # make_VLM_wings.py
 
 # Created:  Jun 2021, A. Blaufox
+# Modified: Jul 2022, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -9,6 +10,7 @@
 
 # package imports 
 import numpy as np
+import jax.numpy as jnp
 from copy import deepcopy
 
 import SUAVE
@@ -100,6 +102,12 @@ def make_VLM_wings(geometry, settings):
             seg_b          = wing.Segments[ib]            
             seg_b.chord    = seg_b.root_chord_percent *wing.chords.root  ##may be worth implementing a self-calculating .chord attribute    
             
+            if not hasattr(seg_a,'x_offset'):
+                seg_a.x_offset = 0.
+                
+            if not hasattr(seg_a,'dih_offset'):
+                seg_a.dih_offset = 0.            
+            
             #guarantee that all segments have leading edge sweep
             if (i != 0) and (seg_a.sweeps.leading_edge is None):
                 old_sweep                 = seg_a.sweeps.quarter_chord
@@ -108,8 +116,10 @@ def make_VLM_wings(geometry, settings):
                 
             #give segments offsets for giving cs_wings an origin later
             section_span     = (seg_b.percent_span_location - seg_a.percent_span_location) * wing_halfspan
-            seg_b.x_offset   = 0. if i==0 else seg_a.x_offset   + section_span*np.tan(seg_a.sweeps.leading_edge)
-            seg_b.dih_offset = 0. if i==0 else seg_a.dih_offset + section_span*np.tan(seg_a.dihedral_outboard)
+            seg_b.x_offset   = seg_a.x_offset   + section_span*jnp.tan(seg_a.sweeps.leading_edge)
+            seg_b.dih_offset = seg_a.dih_offset + section_span*jnp.tan(seg_a.dihedral_outboard)   
+            
+
         wing.Segments[-1].sweeps.leading_edge = 1e-8
     
     # each control_surface-turned-wing will have its own unique ID number
@@ -262,6 +272,10 @@ def copy_large_container(large_container, type_str):
             data.cs_type                     = type(obj) # needed to identify the class of a control surface
         elif type_str == 'wings':
             data.wing_type = type(obj)
+            try:
+                data.static_keys.extend('wing_type')
+            except:
+                data.static_keys = ['wing_type']
             if issubclass(data.wing_type, All_Moving_Surface):
                 data.sign_duplicate              = obj.sign_duplicate
                 data.hinge_fraction              = obj.hinge_fraction 
@@ -523,11 +537,17 @@ def convert_to_segmented_wing(wing):
         segment.append_airfoil(wing.Airfoil.airfoil)              
     wing.Segments.append(segment) 
     
-    # tip segment 
-    if wing.taper==0:
-        wing.taper = wing.chords.tip / wing.chords.root
-    elif wing.chords.tip==0:
-        wing.chords.tip = wing.chords.root * wing.taper
+    # tip segment, this is a boolean to replace if statements
+    taper_bool = wing.taper==0
+    wing.taper = taper_bool*(wing.chords.tip / wing.chords.root) + wing.taper*(1-taper_bool)
+    
+    tip_bool = wing.chords.tip==0
+    wing.chords.tip = tip_bool*(wing.chords.root * wing.taper) + wing.chords.tip*(1-tip_bool)
+    
+    #if wing.taper==0:
+        #wing.taper = wing.chords.tip / wing.chords.root
+    #elif wing.chords.tip==0:
+        #wing.chords.tip = wing.chords.root * wing.taper
         
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'tip_segment'
@@ -665,8 +685,8 @@ def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
     sweep_ob_LE    = seg_a.sweeps.leading_edge
     twist          = cs_wing.twists.root    
     local_chord    = cs_wing.chords.root / cs.chord_fraction
-    x_offset       = np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset])
-    dih_offset     = np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])
+    x_offset       = jnp.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset])
+    dih_offset     = jnp.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])
     inboard_span_break  = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ob_cut, Airfoil,
                                           dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord,
                                           x_offset, dih_offset)
@@ -682,8 +702,8 @@ def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
     sweep_ob_LE    = seg_b.sweeps.leading_edge   if is_coincident else seg_a.sweeps.leading_edge
     twist          = cs_wing.twists.tip    
     local_chord    = cs_wing.chords.tip  / cs.chord_fraction
-    x_offset       = np.interp(cs.span_fraction_end, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset])
-    dih_offset     = np.interp(cs.span_fraction_end, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])    
+    x_offset       = jnp.interp(cs.span_fraction_end, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset])
+    dih_offset     = jnp.interp(cs.span_fraction_end, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])    
     outboard_span_break = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ib_cut, Airfoil,
                                           dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord,
                                           x_offset, dih_offset)    

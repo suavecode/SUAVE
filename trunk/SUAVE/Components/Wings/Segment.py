@@ -13,12 +13,14 @@ import SUAVE
 from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Component, Lofted_Body
 import numpy as np
+from jax.tree_util import register_pytree_node_class
 
 # ------------------------------------------------------------ 
 #  Wing Segments
 # ------------------------------------------------------------
 
 ## @ingroup Components-Wings
+@register_pytree_node_class
 class Segment(Lofted_Body.Segment):
     def __defaults__(self):
         """This sets the default for wing segments in SUAVE.
@@ -65,6 +67,8 @@ class Segment(Lofted_Body.Segment):
         self.generative_design_characteristics   = ['percent_span_location','twist','root_chord_percent','dihedral_outboard','sweeps.quarter_chord','thickness_to_chord']
         self.generative_design_char_min_bounds   = [0.,-np.pi/3,0.,-.1,-1.2,0.0001]   
         self.generative_design_char_max_bounds   = [1.,np.pi/3,np.inf,1.,1.2,0.5]        
+        self.static_keys                         = ['generative_design_characteristics','generative_design_special_parent']   
+        
         
         
     def append_airfoil(self,airfoil):

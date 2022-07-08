@@ -20,12 +20,15 @@ from SUAVE.Components import Lofted_Body, Mass_Properties, Physical_Component
 from SUAVE.Components.Airfoils import Airfoil
 
 import numpy as np
+from jax.tree_util import register_pytree_node_class
+
 
 # ------------------------------------------------------------
 #   Wing
 # ------------------------------------------------------------
 
 ## @ingroup Components-Wings
+@register_pytree_node_class
 class Wing(Lofted_Body):
     """This class defines the wing in SUAVE
 
@@ -121,6 +124,7 @@ class Wing(Lofted_Body):
         self.generative_design_characteristics = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','dihedral','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
         self.generative_design_char_min_bounds = [0,1.,0.001,0.1,0.001,-np.pi/4,-1.,-1.,-1.]   
         self.generative_design_char_max_bounds = [5.,np.inf,1.0,np.inf,np.pi/3,np.pi/4,1.,1.,1.]
+        self.static_keys                       = ['generative_design_characteristics']   
         
         self.Segments                          = ContainerOrdered()
         self.control_surfaces                  = SUAVE.Core.Container()
@@ -238,7 +242,8 @@ class Wing(Lofted_Body):
         self.Fuel_Tanks.append(fuel_tank)
 
         return    
-    
+
+@register_pytree_node_class
 class Container(Physical_Component.Container):
     def get_children(self):
         """ Returns the components that can go inside
@@ -258,11 +263,13 @@ class Container(Physical_Component.Container):
         Properties Used:
         N/A
         """       
-        from . import Main_Wing
-        from . import Vertical_Tail
-        from . import Horizontal_Tail
+        #from . import Main_Wing
+        #from . import Vertical_Tail
+        #from . import Horizontal_Tail
         
-        return [Main_Wing,Vertical_Tail,Horizontal_Tail]
+        #return [Main_Wing,Vertical_Tail,Horizontal_Tail]
+        
+        return []
 
 
 # ------------------------------------------------------------
