@@ -62,6 +62,7 @@ def maximum_lift_to_drag(analyses,altitude,CL_max,up_bnd,delta_isa):
                 #  Single Point Segment 1: constant Speed, constant altitude
                 # ------------------------------------------------------------------ 
                 segment = SUAVE.Analyses.Mission.Segments.Single_Point.Set_Speed_Set_Altitude_No_Propulsion()
+                segment.state.numerics.number_control_points        = 5
                 segment.tag = "single_point" 
                 segment.analyses.extend(analyses) 
                 segment.altitude              = altitude
