@@ -22,7 +22,7 @@ from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv
 def main():
    
     #------------------------------------------------------------------
-    # Propulsor
+    # Network
     #------------------------------------------------------------------
 
     # build network
@@ -81,7 +81,7 @@ def main():
     bat.specific_energy      = 250. *Units.Wh/Units.kg
     bat.resistance           = 0.003
     bat.iters                = 0
-    initialize_from_mass(bat,bat.mass_properties.mass)
+    initialize_from_mass(bat)   
     net.battery              = bat
 
     #Component 9 the system logic controller and MPPT
@@ -118,6 +118,7 @@ def main():
     conditions.frames.inertial.time           = np.array([[0.0],[1.0]])
     numerics.time.integrate                   = np.array([[0, 0],[0, 1]])
     numerics.time.differentiate               = np.array([[0, 0],[0, 1]])
+    numerics.time.control_points              = np.array([[0, 0],[0, 1]]) 
     conditions.frames.planet.start_time       = time.strptime("Sat, Jun 21 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",) 
     conditions.frames.planet.latitude         = np.array([[0.0],[0.0]])
     conditions.frames.planet.longitude        = np.array([[0.0],[0.0]])
@@ -133,15 +134,15 @@ def main():
     F       = results.thrust_force_vector
     
     # Truth results
-    truth_F   = [[ 68.78277813   ], [ 68.78277813     ]]
-    truth_i   = [[ 5.75011436    ], [ 5.75011436      ]]
-    truth_rpm = [[ 14390.30435183], [ 14390.30435183  ]]
-    truth_bat = [[ 4500000.      ], [ 4499883.5041616 ]]
+    truth_F   = [[68.78277813       ], [ 68.78277813     ]]
+    truth_i   = [[ 5.75011436       ], [ 5.75011436      ]]
+    truth_rpm = [[ 14390.30435183   ], [ 14390.30435183  ]]
+    truth_bat = [[3169014.08450704  ], [3168897.35916947 ]]
     
     error = Data()
     error.Thrust = np.max(np.abs(F[:,0]-truth_F))
-    error.RPM = np.max(np.abs(conditions.propulsion.rpm-truth_rpm))
-    error.Current  = np.max(np.abs(conditions.propulsion.current-truth_i))
+    error.RPM = np.max(np.abs(conditions.propulsion.propeller_rpm-truth_rpm))
+    error.Current  = np.max(np.abs(conditions.propulsion.battery_current-truth_i))
     error.Battery = np.max(np.abs(bat.current_energy-truth_bat))
     
     print(error)

@@ -46,14 +46,15 @@ def section_properties(state,settings,geometry):
     """  
     
     # Unpack
-    wing = geometry
-    re   = state.conditions.freestream.reynolds_number
-    mac  = wing.chords.mean_aerodynamic
-    tc   = wing.thickness_to_chord
-    A0   = settings.section_zero_lift_angle_of_attack
-    S1p  = settings.section_lift_curve_slope
+    wing   = geometry
+    re     = state.conditions.freestream.reynolds_number
+    mac    = wing.chords.mean_aerodynamic
+    tc     = wing.thickness_to_chord
+    A0     = settings.section_zero_lift_angle_of_attack
+    S1p    = settings.section_lift_curve_slope
+    ACDmin = settings.section_minimum_drag_coefficient_angle_of_attack 
     
-    # RE dimensionless
+    # RE dimensional
     RE = re*mac
     
     # Calculate 2-D CLmax
@@ -64,11 +65,12 @@ def section_properties(state,settings,geometry):
     CL1maxp = 1.5 * np.ones_like(state.conditions.freestream.altitude)
     
     # Estimate the ACL1'
-    ACLp = A0 + CL1maxp/S1p + 3. * Units.deg
-
+    ACLp = A0 + CL1maxp/S1p 
+    
     # Calculate 2-D Cd0  
-    # First calculate CF, from AA 241 A/B Notes
-    CF  = 0.455/(np.log(RE)**2.58)
+    # First calculate CF, 
+    #CF  = 0.455/(np.log(RE)**2.58) # from AA 241 A/B Notes
+    CF = 0.0576*(RE**(-0.2)) # Typical power law for turbulent skin friction
     
     # Find k, from AA 241 A/B Notes
     beta2 = 1
@@ -78,7 +80,7 @@ def section_properties(state,settings,geometry):
     k     = 1 + k1 + k2;
     
     # Cd0
-    Cd0 = k*CF
+    Cd0 = 2*k*CF
     
     # Estimate the CD1max'
     # I have no idea
@@ -94,5 +96,7 @@ def section_properties(state,settings,geometry):
     wing.section.angle_attack_max_prestall_lift           = ACLp
     wing.section.pre_stall_maximum_drag_coefficient       = CD1maxp
     wing.section.pre_stall_maximum_drag_coefficient_angle = ACD1p 
+    wing.section.minimum_drag_coefficient                 = Cd0
+    wing.section.minimum_drag_coefficient_angle_of_attack = ACDmin
     
     return RE, CL1maxp, Cd0, ACLp, CD1maxp

@@ -5,6 +5,7 @@
 # Modified: Nov 2016, T. MacDonald
 #           Apr 2019, T. MacDonald
 #           Apr 2020, M. Clarke
+#           Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -74,7 +75,11 @@ class Supersonic_Zero(Markup):
         settings.number_spanwise_vortices           = None 
         settings.number_chordwise_vortices          = None 
         settings.use_surrogate                      = True 
-        settings.propeller_wake_model               = False  
+        settings.propeller_wake_model               = False
+        settings.model_fuselage                     = False
+        settings.recalculate_total_wetted_area      = False
+        settings.model_nacelle                      = False
+        settings.discretize_control_surfaces        = False
         
         # this multiplier is used to determine the volume wave drag at the peak Mach number
         # by multiplying the volume wave drag at the end drag rise Mach number
@@ -83,15 +88,16 @@ class Supersonic_Zero(Markup):
         # 'Fixed' means that the area is not able to vary with Mach number, so the number at the desired cruise condition should
         # be used
         # 'OpenVSP' is a desired future possibility. This would allow the cross sectional area to vary with Mach number, but is 
-        # much more computationally intensive.        
-        settings.volume_wave_drag_scaling    = 3.7 # 1.8-2.2 are given as typical for an SST, but 3.7 was found to be more accurate 
+        # much more computationally intensive.     
+        settings.wave_drag_type              = 'Raymer'
+        settings.volume_wave_drag_scaling    = 3.2 # 1.8-2.2 are given as typical for an SST, but 3.2 was found to be more accurate 
         # This may be due to added propulsion effects
         settings.fuselage_parasite_drag_begin_blend_mach = 0.91
         settings.fuselage_parasite_drag_end_blend_mach   = 0.99
         
         # vortex lattice configurations
-        settings.number_spanwise_vortices = 5
-        settings.number_chordwise_vortices = 1
+        settings.number_spanwise_vortices = 15
+        settings.number_chordwise_vortices = 5
         
         
         # build the evaluation process
@@ -99,7 +105,6 @@ class Supersonic_Zero(Markup):
         
         compute.lift = Process()
         compute.lift.inviscid_wings                = Vortex_Lattice()
-        compute.lift.vortex                        = Methods.Lift.vortex_lift  # SZ
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
@@ -111,11 +116,11 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage 
-        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
+        compute.drag.parasite.nacelles             = Process_Geometry('nacelles')
+        compute.drag.parasite.nacelles.nacelle     = Methods.Drag.parasite_drag_nacelle # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
+        compute.drag.induced                       = Common.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
@@ -147,9 +152,11 @@ class Supersonic_Zero(Markup):
         propeller_wake_model      = self.settings.propeller_wake_model 
         n_sw                      = self.settings.number_spanwise_vortices    
         n_cw                      = self.settings.number_chordwise_vortices  
-        
+        mf                        = self.settings.model_fuselage
+        mn                        = self.settings.model_nacelle
+        dcs                       = self.settings.discretize_control_surfaces
+
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate , n_sw ,  n_cw ,propeller_wake_model)     
-        
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,mf,mn,dcs)
                 
     finalize = initialize        

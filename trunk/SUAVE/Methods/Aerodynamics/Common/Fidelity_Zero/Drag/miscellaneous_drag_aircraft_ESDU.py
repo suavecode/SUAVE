@@ -1,15 +1,18 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 # miscellaneous_drag_aircraft_ESDU.py
-# 
+#
 # Created:  Jan 2014, T. Orra
-# Modified: Jan 2016, E. Botero    
+# Modified: Jan 2016, E. Botero
+#           Jul 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 # SUAVE imports
+from SUAVE.Components.Energy.Networks.Lift_Cruise import Lift_Cruise
+from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Core import Data
-
+import numpy as np
 # ----------------------------------------------------------------------
 #  Computes the miscellaneous drag
 # ----------------------------------------------------------------------
@@ -29,8 +32,8 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     geometry.reference_area                    [m^2]
     geometry.wings.areas.wetted                [m^2]
     geometry.fuselages.areas.wetted            [m^2]
-    geometry.propulsor.areas.wetted            [m^2]
-    geometry.propulsor.number_of_engines       [Unitless]
+    geometry.network.areas.wetted              [m^2]
+    geometry.network.number_of_engines         [Unitless]
 
     Outputs:
     cd_excrescence (drag)                      [Unitless]
@@ -40,10 +43,10 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     """
 
     # unpack inputs
-    
+
     conditions    = state.conditions
     configuration = settings
-    
+
     Sref      = geometry.reference_area
     ones_1col = conditions.freestream.mach_number *0.+1
 
@@ -54,12 +57,12 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
 
     for fuselage in geometry.fuselages:
         swet_tot += fuselage.areas.wetted
-
-    for propulsor in geometry.propulsors:
-        swet_tot += propulsor.areas.wetted * propulsor.number_of_engines
+ 
+    for nacelle in geometry.nacelles:
+        swet_tot += nacelle.areas.wetted * len(nacelle.origin) 
 
     swet_tot *= 1.10
-    
+
     # Estimating excrescence drag, based in ESDU 94044, figure 1
     D_q = 0.40* (0.0184 + 0.000469 * swet_tot - 1.13*10**-7 * swet_tot ** 2)
     cd_excrescence = D_q / Sref

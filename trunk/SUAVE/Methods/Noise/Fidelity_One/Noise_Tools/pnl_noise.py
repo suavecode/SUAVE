@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # pnl_noise.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -13,18 +13,28 @@ import numpy as np
 #  PNL Noise
 # ---------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 def pnl_noise (SPL):
     """This method calculates de Perceived Noise Level PNL from a 1/3 octave band noise spectra
+ 
+    Assumptions:
+        None
 
-        Inputs:
-                    SPL                     - Sound Pressure Level in 1/3 octave band
+    Source:
+        None
+ 
+    Inputs:
+        SPL - Sound Pressure Level in 1/3 octave band  [dB]
+   
+    Outputs:
+        PNL - Perceived Noise Level                    [dB]
+   
+    Properties Used:
+        N/A    
+    """
+   
 
-                Outputs:
-                    PNL                     - Perceived Noise Level"""
-    
-
-    #Definition of the noisineess matrix for each octave band
+    #Definition of the noisinees matrix for each octave band
     noy = [[1, 50, 91, 64, 52, 49, 55, 0.043478, 0.030103, 0.07952, 0.058098],
             [2,	63, 85.9, 60, 51, 44, 51, 0.04057, 0.030103, 0.06816, 0.058098],
             [3,	80, 87.3, 56, 49, 39,	46,	0.036831, 0.030103, 0.06816, 0.052288],
@@ -51,15 +61,14 @@ def pnl_noise (SPL):
             [24, 10000, 50.7, 41, 37, 21, 29, 0.042285,	0.02996, 0.05964, 0.043573]]
 
     
-    #Defining the necessary arrays for the calculation
+    # Defining the necessary arrays for the calculation
     nsteps  = len(SPL)
     SPL_noy = np.zeros((nsteps,24))
     PNL     = np.zeros(nsteps)
     
     #-------------------------------------------
-    #STEP 1 - Convert SPL to Perceived Noisiness
-    #-------------------------------------------
-    
+    # STEP 1 - Convert SPL to Perceived Noisiness
+    #-------------------------------------------  
     for j in range(0,nsteps):
     
         for i in range(0,23):
@@ -76,16 +85,16 @@ def pnl_noise (SPL):
                 SPL_noy[j][i] = 0.1*(10**(noy[i][9]*(SPL[j][i]-noy[i][5])))
             
         #-------------------------------------------  
-        #STEP 2 - Combine perceived noiseness values  
+        # STEP 2 - Combine perceived noiseness values  
         #-------------------------------------------
         max_noy = np.max(SPL_noy[j][:])            
         Perceived_noisinees = 0.85*max_noy+0.15*np.sum(SPL_noy[j][:])
         
         #-----------------------------------------------------------------
-        #STEP 3 - Convert Perceived Noiseness into Perceived Noise Level
+        # STEP 3 - Convert Perceived Noiseness into Perceived Noise Level
         #------------------------------------------------------------------    
         if Perceived_noisinees==0:
             Perceived_noisinees = 0.0625
         PNL[j] = 40+(10/np.log10(2))*np.log10(Perceived_noisinees)
         
-    return (PNL)
+    return PNL

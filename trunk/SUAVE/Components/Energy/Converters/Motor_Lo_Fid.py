@@ -89,8 +89,6 @@ class Motor_Lo_Fid(Energy_Component):
           speed_constant                         [radian/s/V]
         """  
         # Unpack
-        V     = conditions.freestream.velocity[:,0,None]
-        rho   = conditions.freestream.density[:,0,None]
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
@@ -100,9 +98,12 @@ class Motor_Lo_Fid(Energy_Component):
         etam  = self.motor_efficiency
         v     = self.inputs.voltage
         
-
+        inside = Res*Res*io*io - 2.*Res*etam*io*v - 2.*Res*io*v + etam*etam*v*v - 2.*etam*v*v + v*v
+        
+        inside[inside<0.] = 0.
+        
         # Omega
-        omega1 = (Kv*v)/2. + (Kv*(Res*Res*io*io - 2.*Res*etam*io*v - 2.*Res*io*v + etam*etam*v*v - 2.*etam*v*v + v*v)**(1./2.))/2. - (Kv*Res*io)/2. + (Kv*etam*v)/2.
+        omega1 = (Kv*v)/2. + (Kv*(inside)**(1./2.))/2. - (Kv*Res*io)/2. + (Kv*etam*v)/2.
 
         # If the voltage supplied is too low this function will NaN. However, that really means it won't spin
         omega1[np.isnan(omega1)] = 0.0

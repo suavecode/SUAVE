@@ -6,6 +6,7 @@
 #           Mar 2020, M. Clarke
 #           Apr 2020, M. Clarke
 #           Apr 2020, E. Botero
+#           Aug 2021, R. Erhard
 
 """ setup file for a mission with a 737
 """
@@ -17,14 +18,14 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Performance.Mission_Plots import *
+from SUAVE.Plots.Geometry import * 
 import matplotlib.pyplot as plt  
 import numpy as np 
 
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 
-from concurrent.futures import  ProcessPoolExecutor
-import sys, time
+import sys
 
 sys.path.append('../Vehicles')
 # the analysis functions
@@ -47,7 +48,6 @@ def main():
     configs, analyses = full_setup()
 
     simple_sizing(configs, analyses)
-
     configs.finalize()
     analyses.finalize() 
  
@@ -57,24 +57,28 @@ def main():
 
     # load older results
     #save_results(results)
-    # old_results = load_results()
-    #
-    # # plt the old results
-    # plot_mission(results)
-    # plot_mission(old_results,'k-')
-    # plt.show(block=True)
-    #
-    # # check the results
-    # check_results(results,old_results)
-
+    old_results = load_results()   
+    
+    # check the results
+    check_results(results,old_results) 
+    
     # plt the old results
     plot_mission(results)
     plot_mission(old_results,'k-')
-    #plt.show(block=True)
+    #plt.show(block=True)    
     
-    # check the results
-    check_results(results,old_results)
+    # print weights breakdown
+    print_weight_breakdown(configs.cruise)
 
+    #print mission breakdown
+    print_mission_breakdown(results)
+    
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------
+    
+    # plot vehicle 
+    plot_vehicle(configs.base,plot_control_points = True)      
     return
 
 
@@ -149,6 +153,9 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry                            = vehicle
+    aerodynamics.settings.use_surrogate              = True
+    aerodynamics.settings.number_spanwise_vortices   = 5
+    aerodynamics.settings.number_chordwise_vortices  = 2    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
@@ -160,8 +167,8 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy = SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -348,6 +355,9 @@ def mission_setup(analyses):
     segment.distance  = (3933.65 + 770 - 92.6) * Units.km
     
     segment.state.numerics.number_control_points = 10
+    
+    # post-process aerodynamic derivatives in cruise
+    segment.process.finalize.post_process.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Static_Stability.compute_aero_derivatives
 
     # add to mission
     mission.append_segment(segment)
@@ -512,6 +522,8 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.stability.static.Cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
+        'segments.cruise.conditions.aero_derivatives.dCL_dAlpha',
+        'segments.cruise.conditions.aero_derivatives.dCn_dBeta'
     ]
 
     # do the check
@@ -569,19 +581,6 @@ def save_results(results):
     SUAVE.Input_Output.SUAVE.archive(results,'results_mission_B737.res')
     return
 
-if __name__ == '__main__':
-
-    procs = 24
-    evals = 5 * procs
-
-    start_time = time.perf_counter()
-
-    with ProcessPoolExecutor(max_workers=procs) as executor:
-        results = [executor.submit(main) for _ in range(evals)]
-
-    end_time = time.perf_counter()
-
-    duration = end_time - start_time
-
-    print("Total Execution Time: {}".format(duration))
-    print("Average Execution Time: {}".format(duration / evals))
+if __name__ == '__main__': 
+    main()    
+    plt.show()

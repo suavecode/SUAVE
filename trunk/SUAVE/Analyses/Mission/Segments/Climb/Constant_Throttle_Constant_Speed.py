@@ -4,16 +4,18 @@
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
 #           Apr 2020, M. Clarke
+#           Aug 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUAVE imports
+# SUAVE importsE
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
+from SUAVE.Methods.skip import skip
 
 from SUAVE.Analyses import Process
 
@@ -63,7 +65,8 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         self.altitude_start = None # Optional
         self.altitude_end   = 10. * Units.km
         self.throttle       = 0.5
-        self.air_speed      = 100 * Units.m / Units.s
+        self.air_speed      = 100 * Units.m / Units.s 
+        self.true_course    = 0.0 * Units.degrees            
         
         # --------------------------------------------------------------
         #   State
@@ -148,6 +151,8 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.aero_derivatives  = skip
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
        
         return
 

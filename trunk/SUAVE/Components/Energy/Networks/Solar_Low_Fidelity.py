@@ -4,17 +4,16 @@
 # Created:  Jun 2014, E. Botero
 # Modified: Feb 2016, T. MacDonald
 #           Mar 2020, M. Clarke
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
+from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 
 from SUAVE.Core import Data , Units
 
@@ -23,7 +22,7 @@ from SUAVE.Core import Data , Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Solar_Low_Fidelity(Propulsor):
+class Solar_Low_Fidelity(Network):
     """ A solar powered system with batteries and maximum power point tracking.
         
         This network adds an extra unknowns to the mission, the torque matching between motor and propeller.
@@ -61,8 +60,7 @@ class Solar_Low_Fidelity(Propulsor):
         self.avionics          = None
         self.payload           = None
         self.solar_logic       = None
-        self.battery           = None
-        self.nacelle_dia       = None
+        self.battery           = None 
         self.engine_length     = None
         self.number_of_engines = None
         self.tag               = 'Solar_Low_Fidelity'
@@ -84,11 +82,11 @@ class Solar_Low_Fidelity(Propulsor):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                solar_flux           [watts/m^2] 
-                rpm                  [radians/sec]
-                current              [amps]
-                battery_draw         [watts]
-                battery_energy       [joules]
+                solar_flux              [watts/m^2] 
+                rpm                     [radians/sec]
+                current                 [amps]
+                battery_power_draw      [watts]
+                battery_energy          [joules]
                 
             Properties Used:
             Defaulted values
@@ -109,7 +107,12 @@ class Solar_Low_Fidelity(Propulsor):
         num_engines = self.number_of_engines
         
         # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy
+        battery.current_energy           = conditions.propulsion.battery_energy
+        battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
+        battery.cell_charge_throughput   = conditions.propulsion.battery_cell_charge_throughput     
+        battery.age                      = conditions.propulsion.battery_cycle_day          
+        battery.R_growth_factor          = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor          = conditions.propulsion.battery_capacity_fade_factor  
         
         # step 1
         solar_flux.solar_radiation(conditions)
@@ -159,7 +162,6 @@ class Solar_Low_Fidelity(Propulsor):
         esc.currentin(conditions)
         # link
         solar_logic.inputs.currentesc  = esc.outputs.currentin*num_engines
-        solar_logic.inputs.volts_motor = esc.outputs.voltageout 
         
         # Adjust power usage for magic thrust
         solar_logic.inputs.currentesc[eta>1.0] = solar_logic.inputs.currentesc[eta>1.0]*eta[eta>1.0]
@@ -169,20 +171,22 @@ class Solar_Low_Fidelity(Propulsor):
         battery.inputs = solar_logic.outputs
         battery.energy_calc(numerics)
         
-        #Pack the conditions for outputs
+        # Calculate avionics and payload power
+        avionics_payload_power = avionics.outputs.power + payload.outputs.power        
+        
+        # Pack the conditions for outputs 
         a                                        = conditions.freestream.speed_of_sound
         R                                        = propeller.tip_radius        
-        rpm                                      = motor.outputs.omega*60./(2.*np.pi)
-        current                                  = solar_logic.inputs.currentesc
-        battery_draw                             = battery.inputs.power_in 
-        battery_energy                           = battery.current_energy
-                                                 
+        rpm                                      = motor.outputs.omega / Units.rpm         
+        
+        battery.inputs.current                   = solar_logic.inputs.currentesc
+        pack_battery_conditions(conditions,battery,avionics_payload_power,P)     
+        
         conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
-        conditions.propulsion.rpm                = rpm
-        conditions.propulsion.current            = current
-        conditions.propulsion.battery_draw       = battery_draw
-        conditions.propulsion.battery_energy     = battery_energy
+        conditions.propulsion.propeller_rpm      = rpm
         conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
+        
+     
         
         #Create the outputs
         F                                        = num_engines * F * [1,0,0]      

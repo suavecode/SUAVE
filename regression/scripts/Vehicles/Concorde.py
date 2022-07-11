@@ -6,6 +6,7 @@
 #           Oct 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
 #           Feb 2019, T. MacDonald
+#           Oct 2021, M. Clarke
 
 """ setup file for the Concorde 
 """
@@ -13,11 +14,13 @@
 import numpy as np
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container,
-)
+from SUAVE.Core import Data
+
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
+
+from copy import deepcopy
 
 def vehicle_setup():
 
@@ -94,10 +97,11 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio    = 1.0
     
-    wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    wing_airfoil = SUAVE.Components.Airfoils.Airfoil()
     
     # This airfoil is not a true Concorde airfoil
-    wing_airfoil.coordinate_file   = '../Vehicles/NACA65-203.dat' 
+    wing_airfoil.coordinate_file   = '../Vehicles/Airfoils/NACA65-203.txt' 
+
     
     wing.append_airfoil(wing_airfoil)  
     
@@ -149,6 +153,9 @@ def vehicle_setup():
     segment.thickness_to_chord    = 0.03
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)      
+    
+    # Fill out more segment properties automatically
+    wing = wing_segmented_planform(wing)        
     
     # CG locations are approximate
     # Masses from http://www.concordesst.com/fuelsys.html
@@ -242,9 +249,9 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio  = 1.0
     
-    tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    tail_airfoil = SUAVE.Components.Airfoils.Airfoil()
     # This airfoil is not a true Concorde airfoil
-    tail_airfoil.coordinate_file = '../Vehicles/supersonic_tail.dat' 
+    tail_airfoil.coordinate_file = '../Vehicles/Airfoils/supersonic_tail.txt' 
     
     wing.append_airfoil(tail_airfoil)  
 
@@ -283,6 +290,9 @@ def vehicle_setup():
     segment.thickness_to_chord    = 0.04
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)    
+    
+    # Fill out more segment properties automatically
+    wing = wing_segmented_planform(wing)        
     
     # add to vehicle
     vehicle.append_component(wing)    
@@ -351,6 +361,33 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(fuselage)
     
+
+    # ------------------------------------------------------------------        
+    # the nacelle 
+    # ------------------------------------------------------------------    
+    nacelle                  = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter         = 1.3
+    nacelle.tag              = 'nacelle_L1'
+    nacelle.origin           = [[36.56, 22, -1.9]] 
+    nacelle.length           = 12.0 
+    nacelle.inlet_diameter   = 1.1 
+    nacelle.areas.wetted     = 30.
+    vehicle.append_component(nacelle)       
+
+    nacelle_2               = deepcopy(nacelle)
+    nacelle_2.tag           = 'nacelle_2'
+    nacelle_2.origin        = [[37.,5.3,-1.3]]
+    vehicle.append_component(nacelle_2)     
+
+    nacelle_3               = deepcopy(nacelle)
+    nacelle_3.tag           = 'nacelle_3'
+    nacelle_3.origin        = [[37.,-5.3,-1.3]]
+    vehicle.append_component(nacelle_3)   
+
+    nacelle_4              = deepcopy(nacelle)
+    nacelle_4.tag          = 'nacelle_4'
+    nacelle_4.origin       = [[37.,-6.,-1.3]]
+    vehicle.append_component(nacelle_4)       
         
     # ------------------------------------------------------------------
     #   Turbojet Network
@@ -520,7 +557,7 @@ def vehicle_setup():
     #total design thrust (includes all the engines)
     thrust.total_design             = 40000. * Units.lbf
  
-    # Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
+    # Note: Sizing builds the network. It does not actually set the size of the turbojet
     #design sizing conditions
     altitude      = 60000.0*Units.ft
     mach_number   = 2.02
@@ -575,7 +612,7 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'climb'
     
-    config.propulsors.turbojet.afterburner_active = True
+    config.networks.turbojet.afterburner_active = True
     
     configs.append(config)    
     
@@ -590,7 +627,7 @@ def configs_setup(vehicle):
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.
     
-    config.propulsors.turbojet.afterburner_active = True
+    config.networks.turbojet.afterburner_active = True
     
     configs.append(config)
     

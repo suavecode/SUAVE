@@ -94,11 +94,11 @@ def main():
     weight.fuel    = vehicle.fuel.mass_properties.mass	
     actual         = Data()	
     actual.bag     = 0.	
-    actual.empty   = 700.0097482541994	
-    actual.fuel    = 48.417662245800784	
+    actual.empty   = 694.7649585502986
+    actual.fuel    = 53.66245194970156
 
-    actual.wing            = 152.25407206578896	
-    actual.fuselage        = 126.7421108234472	
+    actual.wing            = 147.65984323497554
+    actual.fuselage        = 126.85012177631337
     actual.propulsion      = 224.40728553408732	
     actual.landing_gear    = 67.81320006645151	
     actual.furnishing      = 37.8341395817	
@@ -197,8 +197,7 @@ def main():
     for k, v in error.items():
         assert (np.abs(v) < 1E-6)
 
-
-
+        
     return
 
 # ----------------------------------------------------------------------

@@ -18,7 +18,6 @@ from SUAVE.Core import Data
 import numpy as np
 import pylab as plt
 
-from concurrent.futures import ProcessPoolExecutor
 import copy, time
 import random
 from SUAVE.Attributes.Gases.Air import Air
@@ -39,7 +38,9 @@ def main():
         
         
     # initalize the aero model
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()      
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics.settings.number_spanwise_vortices  = 5
+    aerodynamics.settings.number_chordwise_vortices = 2
     aerodynamics.geometry = vehicle
         
     aerodynamics.initialize()    
@@ -175,19 +176,10 @@ def main():
     #compute_aircraft_lift(conditions, configuration, geometry) 
     
     lift   = state.conditions.aerodynamics.lift_coefficient
-    lift_r =  np.array([-1.21776694,-0.48854139,-0.43529644,-0.34913136,-0.20409426,
-                        0.11639443, 0.35889528, 0.58542141, 0.88029083, 1.24354982,    
-                        1.26293412   ])[:,None]   
     
-    print('lift = ', lift)
-    
-    lift_test = np.abs((lift-lift_r)/lift)
-    
+    print('lift = \n', lift)
     print('\nCompute Lift Test Results\n')
     #print lift_test
-        
-    assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'    
-    
     
     # --------------------------------------------------------------------
     # Test compute drag 
@@ -209,75 +201,88 @@ def main():
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
    
-    print('cd_m =', cd_m)
+    print('cd_m =\n', cd_m)
     
-   
-    (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
-    
-    drag_tests = Data()
-    drag_tests.cd_c = np.abs((cd_c-cd_c_r)/cd_c)
-    for ii,cd in enumerate(drag_tests.cd_c):
-        if np.isnan(cd):
-            drag_tests.cd_c[ii] = np.abs((cd_c[ii]-cd_c_r[ii])/np.min(cd_c[cd_c!=0]))
-    drag_tests.cd_i = np.abs((cd_i-cd_i_r)/cd_i)
-    drag_tests.cd_m = np.abs((cd_m-cd_m_r)/cd_m)
+    #drag_tests = Data()
     ## Commented lines represent values not set by current drag functions, but to be recreated in the future
     # Line below is not normalized since regression values are 0, insert commented line if this changes
     # drag_tests.cd_m_fuse_base = np.abs((cd_m_fuse_base-cd_m_fuse_base_r)) # np.abs((cd_m_fuse_base-cd_m_fuse_base_r)/cd_m_fuse_base)
     # drag_tests.cd_m_fuse_up   = np.abs((cd_m_fuse_up - cd_m_fuse_up_r)/cd_m_fuse_up)
     # drag_tests.cd_m_ctrl      = np.abs((cd_m_ctrl - cd_m_ctrl_r)/cd_m_ctrl)
-    drag_tests.cd_p_fuse      = np.abs((cd_p_fuse - cd_p_fuse_r)/cd_p_fuse)
-    drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
-    drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
     print('\nCompute Drag Test Results\n')    
     print('cd_tot=', cd_tot)
-   
-    for i, tests in list(drag_tests.items()): 
-       
-        assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
-        
+    
+    # --------------------------------------------------------------------
+    # Process All Results 
+    # --------------------------------------------------------------------
+    results            = make_results_object(lift, cd_c, cd_i, cd_m, cd_p_fuse, cd_p_wing, cd_tot)
+    
+    save_results(results, SAVE=False)
+    results_regression = load_results()
+    
+    test_results(results, results_regression)
+    
     #return conditions, configuration, geometry, test_num
+    return
+        
       
+# ----------------------------------------------------------------------
+#   Make/Test Results Utility Functions
+# ----------------------------------------------------------------------
+def make_results_object(lift, cd_c, cd_i, cd_m, cd_p_fuse, cd_p_wing, cd_tot):
+    results = Data()
+    results.lift      = lift
+    results.cd_c      = cd_c
+    results.cd_i      = cd_i     
+    results.cd_m      = cd_m     
+    results.cd_p_fuse = cd_p_fuse
+    results.cd_p_wing = cd_p_wing
+    results.cd_tot    = cd_tot 
+    return results
 
-def reg_values():
-    cd_c_r = np.array([[6.13612922e-06,2.39245373e-08,1.51468452e-22,2.54647860e-09,2.22699731e-04,
-                        2.87294510e-05,1.22068187e-09,2.10390592e-11,3.93978347e-05,3.45211595e-03,
-                        6.40126656e-14]]).T   
+def test_results(results, results_regression):
+    max_errors = [1e-6, 1e-4]
+    for key in results.keys():
+        #get values
+        vals    = results[key]
+        vals_tr = results_regression[key]
+        
+        #get error
+        if key in ['cd_c']:
+            for ii,val in enumerate(vals):
+                if np.isnan(val):
+                    vals[ii] = np.abs((vals[ii]-vals_tr[ii])/np.min(vals[vals!=0]))        
+        else:
+            errors     = (vals-vals_tr)/vals_tr
+        
+        #check error
+        max_error = max_errors[0] if key in ['lift'] else max_errors[1]
+        assert np.max(np.abs(errors)) < max_error, 'Failed at {} test, case {}'.format(key, np.argmax(np.abs(errors))+1)
+        
+    return
 
-    cd_i_r = np.array([[0.03016324,0.01070789,0.00929508,0.00581828,0.00174489,
-                        0.00159063,0.0083172 ,0.01971968,0.0371695 ,0.06249228,
-                        0.08192402]]).T     
+# ----------------------------------------------------------------------
+#   Save/Load Utility Functions
+# ----------------------------------------------------------------------
+def regression_results_filename():
+    return 'aerodynamics_results.res'
+
+def load_results():
+    return SUAVE.Input_Output.SUAVE.load(regression_results_filename())
+
+def save_results(results, SAVE=False):
+    if SAVE==True:
+        print('!####! SAVING NEW REGRESSION RESULTS !####!')
+        SUAVE.Input_Output.SUAVE.archive(results,regression_results_filename())        
+    return
+
+# ----------------------------------------------------------------------
+#   Call Main
+# ----------------------------------------------------------------------
+if __name__ == '__main__':
+
+    main()
     
-    cd_m_r = np.array([[ 0.0011752,0.0011752,0.0011752,0.0011752,0.0011752,
-                         0.0011752,0.0011752,0.0011752,0.0011752,0.0011752,
-                         0.0011752]]).T
-                         
-    cd_m_fuse_base_r = np.array([[ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]]).T
-
-    procs = 3
-    evals = 5 * procs
-
-    start_time = time.perf_counter()
-
-    with ProcessPoolExecutor(max_workers=procs) as executor:
-        results = [executor.submit(main) for _ in range(evals)]
-
-    cd_p_fuse_r     = np.array([[ 0.00573221,0.00669671,0.01034335,0.00656387,0.00669973,
-                                  0.00560398,0.00687499,0.0085221 ,0.00669252,0.0060046 ,
-                                  0.00697051]]).T
- 
-    cd_p_wing_r     = np.array([[0.00579887,0.00592795, 0.00942986, 0.0057326 ,0.00653004, 
-                                 0.00501665, 0.00599058, 0.00759737, 0.00600963, 0.00556283, 
-                                 0.00602578 ]]).T 
- 
-    cd_tot_r        = np.array([[0.04880922,0.02920768,0.03767294,0.02376355,0.02143475,
-                                 0.01719576,0.02709348,0.04322341,0.05635135,0.08419896,
-                                 0.10234771]]).T  
-    
-    return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, \
-           cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
-
-    print("Total Execution Time: {}".format(duration))
-    print("Average Execution Time: {}".format(duration/evals))
+    print('Aero regression test passed!')
       

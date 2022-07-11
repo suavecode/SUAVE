@@ -4,6 +4,7 @@
 # Created:  Mar 2015, T. Momose
 # Modified: Jan 2016, E. Botero
 #           Apr 2017, M. Clarke
+#           Dec 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -50,6 +51,9 @@ def translate_conditions_to_cases(avl ,conditions):
         case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity      
         case.conditions.aerodynamics.angle_of_attack          = conditions.aerodynamics.angle_of_attack[i]/Units.deg
         case.conditions.aerodynamics.side_slip_angle          = conditions.aerodynamics.side_slip_angle  
+        case.conditions.aerodynamics.lift_coefficient         = conditions.aerodynamics.lift_coefficient
+        case.conditions.aerodynamics.roll_rate_coefficient    = conditions.aerodynamics.roll_rate_coefficient
+        case.conditions.aerodynamics.pitch_rate_coefficient   = conditions.aerodynamics.pitch_rate_coefficient
         
         # determine the number of wings 
         n_wings = 0 
@@ -182,7 +186,7 @@ def translate_results_to_conditions(cases,results):
     res.stability.static.Cn_r                                = np.zeros_like(res.S_ref)      
  
     res.stability.static.neutral_point                       = np.zeros_like(res.S_ref)    
-    res.stability.static.spiral_stability_condition          = np.zeros_like(res.S_ref)    
+    res.stability.static.spiral_criteria                     = np.zeros_like(res.S_ref)    
  
     # aero results 1: total surface forces and coefficeints 
     res.aerodynamics.wing_areas                    = np.zeros((dim,num_wings)) 
@@ -193,13 +197,14 @@ def translate_results_to_conditions(cases,results):
     res.aerodynamics.wing_local_spans              = np.zeros((dim,num_wings,n_sw))
     res.aerodynamics.wing_section_chords           = np.zeros_like(res.aerodynamics.wing_local_spans)
     res.aerodynamics.wing_section_cls              = np.zeros_like(res.aerodynamics.wing_local_spans)
+    res.aerodynamics.wing_section_induced_angle    = np.zeros_like(res.aerodynamics.wing_local_spans)
     res.aerodynamics.wing_section_cds              = np.zeros_like(res.aerodynamics.wing_local_spans)
     
     res.stability.static.control_surfaces_cases   = {}
     
-    mach_case = list(results.keys())[0][5:7]   
+    mach_case = list(results.keys())[0][5:9]   
     for i in range(len(results.keys())):
-        aoa_case = '{:02d}'.format(i+1)
+        aoa_case = '{:04d}'.format(i+1)
         tag = 'case_' + mach_case + '_' + aoa_case
         case_res = results[tag]       
         
@@ -286,6 +291,7 @@ def translate_results_to_conditions(cases,results):
         res.stability.static.Cn_q[i][0]                     = case_res.stability.Cn_q
         res.stability.static.Cn_r[i][0]                     = case_res.stability.Cn_r
         res.stability.static.neutral_point[i][0]            = case_res.stability.neutral_point
+        res.stability.static.spiral_criteria[i][0]          = case_res.stability.spiral_criteria
         
         # aero surface forces file 
         res.aerodynamics.wing_areas[i][:]                   = case_res.aerodynamics.wing_areas   
@@ -296,6 +302,7 @@ def translate_results_to_conditions(cases,results):
         res.aerodynamics.wing_local_spans[i][:]             = case_res.aerodynamics.wing_local_spans
         res.aerodynamics.wing_section_chords[i][:]          = case_res.aerodynamics.wing_section_chords  
         res.aerodynamics.wing_section_cls[i][:]             = case_res.aerodynamics.wing_section_cls    
+        res.aerodynamics.wing_section_induced_angle[i][:]   = case_res.aerodynamics.wing_section_aoa_i
         res.aerodynamics.wing_section_cds[i][:]             = case_res.aerodynamics.wing_section_cds   
         
         res.stability.static.control_surfaces_cases[tag]    = case_res.stability.control_surfaces

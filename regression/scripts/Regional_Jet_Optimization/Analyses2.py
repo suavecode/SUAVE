@@ -59,7 +59,7 @@ def base(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.settings.number_spanwise_vortices   = 5
-    aerodynamics.settings.number_chordwise_vortices  = 1    
+    aerodynamics.settings.number_chordwise_vortices  = 3    
     aerodynamics.geometry = vehicle
 
     aerodynamics.settings.drag_coefficient_increment = 0.0000
@@ -74,7 +74,7 @@ def base(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
 
     # ------------------------------------------------------------------

@@ -6,7 +6,7 @@
 # Mofified: Jun 2017, M. Clarke
 #           Apr 2020, M. Clarke
 #           May 2020, E. Botero
-
+#           May 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,9 +15,8 @@
 import numpy as np
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_location import compute_chord_length_from_span_location
-from SUAVE.Components.Fuselages import Elliptical_Fuselage
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
-
+from SUAVE.Components.Energy.Energy_Component import Energy_Component
 import SUAVE
 
 # ----------------------------------------------------------------------
@@ -63,79 +62,6 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
             wing.mass_properties.center_of_gravity[0][0] = .3*chord_length_h_tail_35_percent_semi_span + \
                                                                           h_tail_35_percent_semi_span_offset            
 
-    # computes the CG of propulsors. If origin not specified in vehicle set up, change compute_propulsor_origin boolean to True
-    propulsor_name                                              = list(vehicle.propulsors.keys())[0]
-    propulsor                                                   = vehicle.propulsors[propulsor_name]   
-    
-    if compute_propulsor_origin == True:
-        propulsor.origin = [[0,0,0]]
-        propulsor.origin[0][0] = wing.origin[0] + mac_le_offset/2.-(3./4.)*propulsor.engine_length
-        propulsor.origin[0][1] = 0.
-        propulsor.origin[0][2] = 0.
-        
-    propulsor.mass_properties.center_of_gravity[0]              = propulsor.engine_length*.5
- 
-   
-    # ---------------------------------------------------------------------------------
-    # configurations with fuselages (BWB, Tube and Wing)  
-    # ---------------------------------------------------------------------------------
-    if vehicle.fuselages.keys() != []:
-
-        fuse_key                                                = list(vehicle.fuselages.keys())[0]
-        fuselage                                                = vehicle.fuselages[fuse_key]
-
-        if fuselage.Fuel_Tanks.keys() != []:
-            fuel                                                = vehicle.fuel
-            fuel.origin                                         = wing.origin
-            fuel.mass_properties.center_of_gravity              = wing.mass_properties.center_of_gravity
-
-        if fuselage.Batteries.keys()!= []:
-            bat_key                                             = list(fuselage.Batteries.keys())[0]
-            battery                                             = fuselage.Batteries[bat_key]
-
-        control_systems                                         = vehicle.control_systems
-        control_systems.origin                                  = wing.origin
-        control_systems.mass_properties.center_of_gravity[0]    = .4*wing.chords.mean_aerodynamic+mac_le_offset
-        electrical_systems                                      = vehicle.electrical_systems
-        landing_gear                                            = vehicle.landing_gear
-        avionics                                                = vehicle.avionics
-        furnishings                                             = vehicle.furnishings
-        passenger_weights                                       = vehicle.passenger_weights
-        air_conditioner                                         = vehicle.air_conditioner
-        apu                                                     = vehicle.apu
-        hydraulics                                              = vehicle.hydraulics
-        optionals                                               = vehicle.optionals
-
-        if isinstance(fuselage, Elliptical_Fuselage):
-            # Assumptions reflected here are unsourced
-
-            fuselage.mass_properties.center_of_gravity[0]           = 0.375 * fuselage.lengths.total
-            avionics.origin                                         = fuselage.origin
-            avionics.mass_properties.center_of_gravity[0]           = 0.1 * fuselage.lengths.total
-            electrical_systems.origin                               = battery.origin
-            electrical_systems.mass_properties.center_of_gravity[0] = battery.mass_properties.center_of_gravity[0]
-            air_conditioner.origin                                  = fuselage.origin
-            air_conditioner.mass_properties.center_of_gravity[0]    = 0.125 * fuselage.lengths.total
-
-        else:
-            fuselage.mass_properties.center_of_gravity[0]           = .45*fuselage.lengths.total
-            avionics.origin                                         = fuselage.origin
-            avionics.mass_properties.center_of_gravity[0]           = .4 * fuselage.lengths.nose
-            electrical_systems.mass_properties.center_of_gravity[0] = .75*(fuselage.origin[0][0]+  .5*fuselage.lengths.total)+.25*(propulsor.origin[0][0]+propulsor.mass_properties.center_of_gravity[0])
-            air_conditioner.origin = fuselage.origin
-            air_conditioner.mass_properties.center_of_gravity[0] = fuselage.lengths.nose
-            hydraulics.origin = fuselage.origin
-            hydraulics.mass_properties.center_of_gravity = .75 * (wing.origin + wing.mass_properties.center_of_gravity) + .25 * (propulsor.origin[0] + propulsor.mass_properties.center_of_gravity)
-
-        furnishings.origin                                      = fuselage.origin
-        furnishings.mass_properties.center_of_gravity[0]        = .51*fuselage.lengths.total
-        
-        passenger_weights.origin                                = fuselage.origin
-        passenger_weights.mass_properties.center_of_gravity[0]  = .51*fuselage.lengths.total
-        
-        #assumption that it's at 90% of fuselage length (not from notes)
-        apu.origin                                              = fuselage.origin
-        apu.mass_properties.center_of_gravity[0]                = .9*fuselage.lengths.total 
         elif isinstance(wing,C.Wings.Vertical_Tail):
             chord_length_v_tail_35_percent_semi_span  = compute_chord_length_from_span_location(wing,.35*wing.spans.projected)
             v_tail_35_percent_semi_span_offset        = np.tan(wing.sweeps.quarter_chord)*.35*.5*wing.spans.projected
@@ -148,18 +74,25 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
             wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic + mac_le_offset
             
             
-    # Go through all the propulsors
-    propulsion_moment = 0.
-    propulsion_mass   = 0. 
-    for prop in vehicle.propulsors:
-            prop.mass_properties.center_of_gravity[0][0] = prop.engine_length*.5
-            propulsion_mass                              += prop.mass_properties.mass         
-            propulsion_moment                            += propulsion_mass*(prop.engine_length*.5+prop.origin[0][0])
-            
-    if propulsion_mass!= 0.:
-        propulsion_cg = propulsion_moment/propulsion_mass
+    # Go through all the networks
+    network_moment = 0.
+    network_mass   = 0.
+    for net in vehicle.networks:
+        net.mass_properties.center_of_gravity[0][0] = net.engine_length*.5
+        network_mass                               += net.mass_properties.mass
+        network_moment                             += network_mass*(np.sum(np.array(net.origin),axis=0) +
+                                                                         net.mass_properties.center_of_gravity)
+
+        for key,Comp in net.items():
+            if isinstance(Comp,Energy_Component):
+                network_moment += net[key].mass_properties.mass*(np.sum(np.array(net[key].origin),axis=0) +
+                                                                     net[key].mass_properties.center_of_gravity)
+                network_mass   += net[key].mass_properties.mass*len(net[key].origin)
+
+    if network_mass!= 0.:
+        propulsion_cg = network_moment/network_mass
     else:
-        propulsion_cg = 0.
+        propulsion_cg = np.array([[0.,0.,0.]])
 
     # Go through all the fuselages
     for fuse in vehicle.fuselages:
@@ -198,14 +131,13 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     cargo                                                   = vehicle.payload.cargo
     air_conditioner                                         = vehicle.systems.air_conditioner
     optionals                                               = vehicle.systems.optionals  
-    fuel                                                    = vehicle.systems.fuel 
+    fuel                                                    = vehicle.systems.fuel
     control_systems                                         = vehicle.systems.control_systems
     electrical_systems                                      = vehicle.systems.electrical_systems
     main_gear                                               = vehicle.landing_gear.main    
     nose_gear                                               = vehicle.landing_gear.nose 
     hydraulics                                              = vehicle.systems.hydraulics
         
-
     avionics.origin[0][0]                                      = 0.4 * nose_length
     avionics.mass_properties.center_of_gravity[0][0]           = 0.0
     
@@ -239,7 +171,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
         .1*vehicle.wings.main_wing.chords.mean_aerodynamic
     
     
-    electrical_systems.origin[0][0]                            = .75*(.5*length_scale) + propulsion_cg*.25
+    electrical_systems.origin[0][0]                            = .75*(.5*length_scale) + propulsion_cg[0][0]*.25
     electrical_systems.mass_properties.center_of_gravity[0][0] = 0.0
     
     hydraulics.origin[0][0]                                    = .75*(vehicle.wings.main_wing.origin[0][0] + \
@@ -260,4 +192,3 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     main_gear.origin[0][0]                                     = main_gear_location
     main_gear.mass_properties.center_of_gravity                = 0.0
     
-    return

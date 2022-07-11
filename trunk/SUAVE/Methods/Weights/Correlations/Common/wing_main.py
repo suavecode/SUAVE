@@ -112,7 +112,7 @@ def wing_main(vehicle, wing, rho, sigma, computation_type = 'segmented'):
 
         weight = 4.22 * area / Units.feet ** 2 + (weight_factor / Units.lb)
 
-    elif computation_type == 'simple':
+    else:
 
         area    = wing.areas.reference / Units.ft ** 2
         span    = wing.spans.projected / Units.ft
@@ -122,10 +122,7 @@ def wing_main(vehicle, wing, rho, sigma, computation_type = 'segmented'):
         # Calculate weight of wing for traditional aircraft wing
         weight  = 4.22 * area + 1.642 * 10. ** -6. * Nult * (span) ** 3. * (mtow * zfw) ** 0.5 \
                  * (1. + 2. * taper) / (t_c_w * (np.cos(sweep)) ** 2. * area * (1. + taper))
-        
-    else:
-        
-        raise NotImplementedError
+
 
     weight = weight * Units.lb  # Convert lb to kg
 

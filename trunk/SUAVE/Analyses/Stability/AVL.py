@@ -88,13 +88,23 @@ class AVL(Stability):
         self.settings.number_spanwise_vortices      = 20
         self.settings.number_chordwise_vortices     = 10
         self.settings.trim_aircraft                 = False 
+        self.settings.print_output                  = False
                                                     
+        # Regression Status      
+        self.settings.keep_files                    = False
+        self.settings.save_regression_results       = False          
+        self.settings.regression_flag               = False 
+
         # Conditions table, used for surrogate model training
         self.training                               = Data()   
         
         # Standard subsonic/transonic aircarft
         self.training.angle_of_attack               = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
         self.training.Mach                          = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
+        self.settings.side_slip_angle               = 0.0
+        self.settings.roll_rate_coefficient         = 0.0
+        self.settings.pitch_rate_coefficient        = 0.0 
+        self.settings.lift_coefficient              = None
         
         self.training.moment_coefficient            = None
         self.training.Cm_alpha_moment_coefficient   = None
@@ -113,11 +123,6 @@ class AVL(Stability):
         self.configuration                          = Data()    
         self.geometry                               = Data()
                                                     
-        # Regression Status      
-        self.keep_files                             = False
-        self.save_regression_results                = False          
-        self.regression_flag                        = False 
-
     def finalize(self):
         """Drives functions to get training samples and build a surrogate.
 
@@ -136,8 +141,8 @@ class AVL(Stability):
         Properties Used:
         self.geometry.tag
         """          
-        geometry                       = self.geometry
-        self.tag                       = 'avl_analysis_of_{}'.format(geometry.tag) 
+        geometry                                = self.geometry 
+        self.tag                                = 'avl_analysis_of_{}'.format(geometry.tag) 
             
         # Sample training data
         self.sample_training()
@@ -184,6 +189,8 @@ class AVL(Stability):
         Cm_alpha_model      = surrogates.Cm_alpha_moment_coefficient
         Cn_beta_model       = surrogates.Cn_beta_moment_coefficient      
         neutral_point_model = surrogates.neutral_point
+        cg                  = self.geometry.mass_properties.center_of_gravity[0]
+        MAC                 = self.geometry.wings.main_wing.chords.mean_aerodynamic
         
         # set up data structures
         static_stability    = Data()
@@ -201,11 +208,12 @@ class AVL(Stability):
             Cm_alpha[i] = Cm_alpha_model(AoA[i][0],Mach[i][0])[0]  
             Cn_beta[i]  = Cn_beta_model(AoA[i][0],Mach[i][0])[0]  
             NP[i]       = neutral_point_model(AoA[i][0],Mach[i][0])[0]    
-            
+                
         static_stability.CM            = CM
         static_stability.Cm_alpha      = Cm_alpha 
         static_stability.Cn_beta       = Cn_beta   
         static_stability.neutral_point = NP 
+        static_stability.static_margin = (NP - cg)/MAC    
  
         results         = Data()
         results.static  = static_stability
@@ -240,35 +248,42 @@ class AVL(Stability):
         self.training_file (optional - file containing previous AVL data)
         """ 
         # Unpack
-        run_folder    = os.path.abspath(self.settings.filenames.run_folder)
-        geometry      = self.geometry
-        training      = self.training 
-        trim_aircraft = self.settings.trim_aircraft  
-        AoA           = training.angle_of_attack
-        Mach          = training.Mach
-        atmosphere    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmo_data     = atmosphere.compute_values(altitude = 0.0)         
-                      
-        CM            = np.zeros((len(AoA),len(Mach)))
-        Cm_alpha      = np.zeros_like(CM)
-        Cn_beta       = np.zeros_like(CM)
-        NP            = np.zeros_like(CM)
+        run_folder             = os.path.abspath(self.settings.filenames.run_folder)
+        geometry               = self.geometry
+        training               = self.training 
+        trim_aircraft          = self.settings.trim_aircraft  
+        AoA                    = training.angle_of_attack
+        Mach                   = training.Mach
+        side_slip_angle        = self.settings.side_slip_angle
+        roll_rate_coefficient  = self.settings.roll_rate_coefficient
+        pitch_rate_coefficient = self.settings.pitch_rate_coefficient
+        lift_coefficient       = self.settings.lift_coefficient
+        atmosphere             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmo_data              = atmosphere.compute_values(altitude = 0.0)         
+                               
+        CM                     = np.zeros((len(AoA),len(Mach)))
+        Cm_alpha               = np.zeros_like(CM)
+        Cn_beta                = np.zeros_like(CM)
+        NP                     = np.zeros_like(CM)
        
         # remove old files in run directory  
         if os.path.exists('avl_files'):
-            if not self.regression_flag:
+            if not self.settings.regression_flag:
                 rmtree(run_folder)
                 
         for i,_ in enumerate(Mach):
             # Set training conditions
             run_conditions = Aerodynamics()
-            run_conditions.freestream.density           = atmo_data.density[0,0] 
-            run_conditions.freestream.gravity           = 9.81               
-            run_conditions.aerodynamics.angle_of_attack = AoA 
-            run_conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound[0,0] 
-            run_conditions.aerodynamics.side_slip_angle = 0.0
-            run_conditions.freestream.velocity          = Mach[i] * run_conditions.freestream.speed_of_sound
-            run_conditions.freestream.mach_number       = Mach[i] 
+            run_conditions.freestream.density                  = atmo_data.density[0,0] 
+            run_conditions.freestream.gravity                  = 9.81            
+            run_conditions.freestream.speed_of_sound           = atmo_data.speed_of_sound[0,0]  
+            run_conditions.freestream.velocity                 = Mach[i] * run_conditions.freestream.speed_of_sound
+            run_conditions.freestream.mach_number              = Mach[i] 
+            run_conditions.aerodynamics.side_slip_angle        = side_slip_angle
+            run_conditions.aerodynamics.angle_of_attack        = AoA 
+            run_conditions.aerodynamics.roll_rate_coefficient  = roll_rate_coefficient
+            run_conditions.aerodynamics.lift_coefficient       = lift_coefficient
+            run_conditions.aerodynamics.pitch_rate_coefficient = pitch_rate_coefficient
             
             #Run Analysis at AoA[i] and Mach[i]
             results =  self.evaluate_conditions(run_conditions, trim_aircraft)
@@ -294,7 +309,7 @@ class AVL(Stability):
             NP        = np.reshape(NP_1D , (len(AoA),-1))
         
         # Save the data for regression 
-        if self.save_regression_results:
+        if self.settings.save_regression_results:
             # convert from 2D to 1D
             CM_1D       = CM.reshape([len(AoA)*len(Mach),1]) 
             Cm_alpha_1D = Cm_alpha.reshape([len(AoA)*len(Mach),1])  
@@ -361,7 +376,7 @@ class AVL(Stability):
 #  Helper Functions
 # ----------------------------------------------------------------------
         
-    def evaluate_conditions(self,run_conditions, trim_aircraft  ):
+    def evaluate_conditions(self,run_conditions, trim_aircraft ):
         """Process vehicle to setup geometry, condititon, and configuration.
 
         Assumptions:
@@ -402,6 +417,7 @@ class AVL(Stability):
         dynamic_results_template_2       = self.settings.filenames.dynamic_output_template_2    # 'system_matrix_{}.dat'
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template 
+        print_output                     = self.settings.print_output 
         
         # rename defaul avl aircraft tag
         self.tag                         = 'avl_analysis_of_{}'.format(self.geometry.tag) 
@@ -418,8 +434,10 @@ class AVL(Stability):
         num_cs       = 0
         cs_names     = []
         cs_functions = []
+        control_surfaces = False
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
+                control_surfaces = True 
                 wing = populate_control_sections(wing)     
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
@@ -458,10 +476,10 @@ class AVL(Stability):
             write_geometry(self,run_script_path)
             write_mass_file(self,run_conditions)
             write_run_cases(self,trim_aircraft)
-            write_input_deck(self, trim_aircraft)
+            write_input_deck(self, trim_aircraft,control_surfaces)
 
             # RUN AVL!
-            results_avl = run_analysis(self)
+            results_avl = run_analysis(self,print_output)
     
         # translate results
         results = translate_results_to_conditions(cases,results_avl)
@@ -473,7 +491,7 @@ class AVL(Stability):
         if np.count_nonzero(self.geometry.mass_properties.moments_of_inertia.tensor) > 0:  
                 results = compute_dynamic_flight_modes(results,self.geometry,run_conditions,cases)        
              
-        if not self.keep_files:
+        if not self.settings.keep_files:
             rmtree( run_folder )           
  
         return results

@@ -6,6 +6,7 @@
 # Modified: Apr 2018, J. Smart
 #           Mar 2020, M. Clarke
 #           Mar 2020, J. Smart
+#           May 2021, M. Clarke
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -71,27 +72,29 @@ def wing(wing,
 
         Inputs:
 
-            wing                    SUAVE Wing Data Structure
-            config                  SUAVE Confiug Data Structure
-            maxThrust               Maximum Thrust                      [N]
-            numAnalysisPoints       Analysis Points for Sizing          [Unitless]
-            safety_factor           Design Saftey Factor                [Unitless]
-            max_g_load              Maximum Accelerative Load           [Unitless]
-            moment_to_lift_ratio    Coeff. of Moment to Coeff. of Lift  [Unitless]
-            lift_to_drag_ratio      Coeff. of Lift to Coeff. of Drag    [Unitess]
-            forward_web_locations   Location of Forward Spar Webbing    [m]
-            rear_web_locations      Location of Rear Spar Webbing       [m]
-            shear_center            Location of Shear Center            [m]
-            margin_factor           Allowable Extra Mass Fraction       [Unitless]
+            wing                          SUAVE Wing Data Structure           [None]
+                 winglet_fraction         winglet fraction                    [Unitless]
+                 motor_spanwise_locations spanwise fraction location of motor [Unitless]
+            config                        SUAVE Config Data Structure         [None]
+            maxThrust                     Maximum Thrust                      [N]
+            numAnalysisPoints             Analysis Points for Sizing          [Unitless]
+            safety_factor                 Design Safety Factor                [Unitless]
+            max_g_load                    Maximum Accelerative Load           [Unitless]
+            moment_to_lift_ratio          Coeff. of Moment to Coeff. of Lift  [Unitless]
+            lift_to_drag_ratio            Coeff. of Lift to Coeff. of Drag    [Unitless]
+            forward_web_locations         Location of Forward Spar Webbing    [m]
+            rear_web_locations            Location of Rear Spar Webbing       [m]
+            shear_center                  Location of Shear Center            [m]
+            margin_factor                 Allowable Extra Mass Fraction       [Unitless]
 
         Outputs:
 
-            weight:                 Wing Mass                           [kg]
+            weight:                       Wing Mass                           [kg]
     """
 
-#-------------------------------------------------------------------------------
-# Unpack Inputs
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Unpack Inputs
+    #-------------------------------------------------------------------------------
 
     MTOW                        = config.mass_properties.max_takeoff
     wingspan                    = wing.spans.projected
@@ -127,9 +130,9 @@ def wing(wing,
     nRibs = len(motor_spanwise_locations) + 2
     motor_spanwise_locations = np.multiply(motor_spanwise_locations,wingspan/2)
 
-#-------------------------------------------------------------------------------
-# Unpack Material Properties
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Unpack Material Properties
+    #-------------------------------------------------------------------------------
 
     try:
         torsMat = wing.materials.skin_materials.torsion_carrier
@@ -184,9 +187,9 @@ def wing(wing,
     shearUSS = shearMat.ultimate_shear_strength
 
 
-#-------------------------------------------------------------------------------
-# Airfoil
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Airfoil
+    #-------------------------------------------------------------------------------
 
     NACA = np.multiply(5 * thicknessToChord, [0.2969, -0.1260, -0.3516, 0.2843, -0.1015])
     coord = np.unique(fwdWeb+aftWeb+np.linspace(0, 1, N).tolist())[:, np.newaxis]
@@ -196,9 +199,9 @@ def wing(wing,
     coord = np.concatenate((coord[-1:0:-1], coord.dot(np.array([[1., 0.], [0., -1.]]))), axis=0)
     coord[:, 0] = coord[:, 0] - xShear
 
-#-------------------------------------------------------------------------------
-# Beam Geometry
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Beam Geometry
+    #-------------------------------------------------------------------------------
 
     x = np.concatenate((np.linspace(0, 1, N), np.linspace(1, 1+wingletFraction, N)), axis=0)
     x = x * wingspan/2
@@ -208,9 +211,9 @@ def wing(wing,
     fwdWeb[:] = [round(locFwd - xShear, 2) for locFwd in fwdWeb]
     aftWeb[:] = [round(locAft - xShear, 2) for locAft in aftWeb]
 
-#-------------------------------------------------------------------------------
-# Loads
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Loads
+    #-------------------------------------------------------------------------------
 
     L = (1-(x/np.max(x))**2)**0.5           # Assumes Elliptic Lift Distribution
     L0 = 0.5*G_max*MTOW*9.8*liftFraction*SF # Total Design Lift Force
@@ -219,9 +222,9 @@ def wing(wing,
     T = L * chord * cmocl                # Torsion Distribution
     D = L/LoD                               # Drag Distribution
 
-#-------------------------------------------------------------------------------
-# Shear/Moments
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Shear/Moments
+    #-------------------------------------------------------------------------------
 
     Vx = np.append(np.cumsum((D[0:-1]*np.diff(x))[::-1])[::-1], 0)   # Drag Shear
     Vz = np.append(np.cumsum((L[0:-1]*np.diff(x))[::-1])[::-1], 0)   # Lift Shear
@@ -242,9 +245,9 @@ def wing(wing,
     Mt = np.append(np.cumsum((Vt[0:-1]*np.diff(x))[::-1])[::-1],0)  # Thrust Moment
     Mz = np.max((Mz, Mt))    # Worst Case of Drag vs. Thrust Moment
 
-#-------------------------------------------------------------------------------
-# General Structural Properties
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # General Structural Properties
+    #-------------------------------------------------------------------------------
 
     seg = []                        # LIST of Structural Segments
 
