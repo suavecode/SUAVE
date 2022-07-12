@@ -17,10 +17,11 @@
 # package imports
 #import numpy as np
 import jax.numpy as jnp
-from jax import lax
+from jax import lax, jit
 from SUAVE.Core import Data, to_jnumpy
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+#@jit
 def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model):
 
     """ This computes the right hand side matrix for the VLM. In this
@@ -71,13 +72,14 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
 
     # unpack
     VD               = geometry.vortex_distribution
+    n_cp             = VD.XAH.shape[0]
 
     aoa              = conditions.aerodynamics.angle_of_attack
-    aoa_distribution = jnp.repeat(aoa, VD.n_cp, axis = 1)
+    aoa_distribution = jnp.repeat(aoa, n_cp, axis = 1)
     PSI              = conditions.aerodynamics.side_slip_angle
-    PSI_distribution = jnp.repeat(PSI, VD.n_cp, axis = 1)
+    PSI_distribution = jnp.repeat(PSI, n_cp, axis = 1)
     V_inf            = conditions.freestream.velocity
-    V_distribution   = jnp.repeat(V_inf , VD.n_cp, axis = 1)
+    V_distribution   = jnp.repeat(V_inf, n_cp, axis = 1)
 
     Vx_ind_total     = jnp.zeros_like(V_distribution)
     Vy_ind_total     = jnp.zeros_like(V_distribution)
@@ -145,8 +147,9 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     Properties Used:
     N/A
     """
-    LE_ind      = VD.leading_edge_indices
-    RNMAX       = VD.panels_per_strip
+    LE_ind       = VD.leading_edge_indices
+    RNMAX        = VD.panels_per_strip
+    panel_strips = VD.stripwise_panels_per_strip
 
 
     # VORLAX frame RHS calculation---------------------------------------------------------
@@ -179,9 +182,9 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
     # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
     # ARE XGIRO, YGIRO, AND ZGIRO.
-    XGIRO = X + CHORD*DELTAX - jnp.repeat(XBAR, RNMAX[LE_ind])
+    XGIRO = X + CHORD*DELTAX - jnp.repeat(XBAR, panel_strips)
     YGIRO = YY
-    ZGIRO = ZZ - jnp.repeat(ZBAR, RNMAX[LE_ind])
+    ZGIRO = ZZ - jnp.repeat(ZBAR, panel_strips)
 
     # VX, VY, VZ ARE THE FLOW ONSET VELOCITY COMPONENTS AT THE LEADING
     # EDGE (STRIP MIDPOINT). VX, VY, VZ AND THE ROTATION RATES ARE
@@ -193,7 +196,7 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     #COMPUTE DIRECTION COSINES.
     SCNTL  = VD.SLOPE/jnp.sqrt(1. + VD.SLOPE **2)
     CCNTL  = 1. / jnp.sqrt(1.0 + SCNTL**2)
-    phi_LE = jnp.repeat(phi[:,LE_ind]  , RNMAX[LE_ind], axis=1)
+    phi_LE = phi# jnp.repeat(phi[:,LE_ind]  , panel_strips, axis=1)
     COD    = jnp.cos(phi_LE)
     SID    = jnp.sin(phi_LE)
 

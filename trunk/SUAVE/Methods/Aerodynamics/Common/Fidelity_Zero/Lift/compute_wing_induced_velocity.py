@@ -19,7 +19,7 @@ from jax.numpy import newaxis as na
 from jax import lax, jit
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-#@jit
+@jit
 def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
@@ -53,7 +53,6 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     # unpack  
     LE_ind       = VD.leading_edge_indices
     TE_ind       = VD.trailing_edge_indices
-    n_cp         = VD.n_cp
     n_mach       = len(mach)
     mach         = jnp.array(mach,dtype=precision)
 
@@ -174,7 +173,8 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     XSQ2   = X2 *X2
     
     # Split the vectors into subsonic and supersonic
-    sub      = (B2<0)[:,0,0]
+    #sub      = (B2<0)[:,0,0]
+    sub      = (B2<0)
     B2_sub   = B2
     RO1_sub  = B2*RTV1
     RO2_sub  = B2*RTV2
@@ -201,19 +201,22 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     CHORD       = jnp.repeat(CHORD,shape_0,axis=0)
     RFLAG       = jnp.ones((n_mach,shape_1),dtype=jnp.int8)
 
-    U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
-                                                X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)    
+    #U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
+                                                #X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)    
 
-    U     = jnp.where(sup,U_sup,U)
-    V     = jnp.where(sup,V_sup,V)
-    W     = jnp.where(sup,W_sup,W)
-    RFLAG = jnp.where(sup,RFLAG_sup,RFLAG)
+    #U     = jnp.where(sup,U_sup,U)
+    #V     = jnp.where(sup,V_sup,V)
+    #W     = jnp.where(sup,W_sup,W)
+    #RFLAG = jnp.where(sup,RFLAG_sup,RFLAG)
 
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
     
+    n_cp = XAH.shape[1]
+    
     # Calculate the W velocity in the VORLAX frame for later calcs
     # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
+    n_cp   = shape[1]    
     COS1   = jnp.cos(DL.T - DL)
     SIN1   = jnp.sin(DL.T - DL) 
     WEIGHT = 1

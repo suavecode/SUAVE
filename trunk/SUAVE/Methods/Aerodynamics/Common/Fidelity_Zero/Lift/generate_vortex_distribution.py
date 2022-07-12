@@ -317,6 +317,14 @@ def generate_vortex_distribution(geometry,settings):
     VD.chord_segs = chord_segs
     VD.span_segs  = span_segs
     
+    # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
+    VD.XBAR  = jnp.ones(jnp.sum(VD.leading_edge_indices)) * x_m
+    VD.ZBAR  = jnp.ones(jnp.sum(VD.leading_edge_indices)) * z_m     
+    VD.stripwise_panels_per_strip = VD.panels_per_strip[VD.leading_edge_indices]
+    
+    # For JAX some things have to be fixed
+    VD.static_keys  = ['stripwise_panels_per_strip','leading_edge_indices','chord_segs']
+    
     # pack VD into geometry
     geometry.vortex_distribution = VD
     

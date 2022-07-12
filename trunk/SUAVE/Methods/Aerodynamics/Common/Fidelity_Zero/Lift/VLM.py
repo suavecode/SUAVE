@@ -26,6 +26,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+@jit
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients.
     
@@ -161,7 +162,7 @@ def VLM(conditions,settings,geometry):
     
     # Unpack vortex distribution
     VD           = geometry.VD
-    n_cp         = VD.n_cp 
+    #n_cp         = VD.n_cp 
     n_sw         = VD.n_sw
     CHORD        = VD.chord_lengths
     chord_breaks = VD.chordwise_breaks
@@ -172,10 +173,13 @@ def VLM(conditions,settings,geometry):
     LE_ind       = VD.leading_edge_indices
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
-    x_m          = VD.x_m
-    z_m          = VD.z_m
+    panel_strips = VD.stripwise_panels_per_strip
+
     w_span       = VD.w_span
     c_bar        = VD.c_bar
+    XBAR         = VD.XBAR
+    ZBAR         = VD.ZBAR
+    n_cp         = VD.XAH.shape[0]
 
     exposed_leading_edge_flag = VD.exposed_leading_edge_flag
     
@@ -188,6 +192,7 @@ def VLM(conditions,settings,geometry):
     YB1 = VD.YB1    
     ZA1 = VD.ZA1
     ZB1 = VD.ZB1  
+
     
     XCH = VD.XCH
     
@@ -196,17 +201,11 @@ def VLM(conditions,settings,geometry):
     YA_TE =  VD.YA_TE
     YB_TE =  VD.YB_TE
     ZA_TE =  VD.ZA_TE
-    ZB_TE =  VD.ZB_TE     
+    ZB_TE =  VD.ZB_TE   
      
     SLOPE = VD.SLOPE
     SLE   = VD.SLE
     D     = VD.D
-    
-    # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
-    XBAR    = jnp.ones(jnp.sum(LE_ind)) * x_m
-    ZBAR    = jnp.ones(jnp.sum(LE_ind)) * z_m
-    VD.XBAR = XBAR
-    VD.ZBAR = ZBAR
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Generate A and RHS matrices from VD and geometry
@@ -222,14 +221,17 @@ def VLM(conditions,settings,geometry):
 
     # Build induced velocity matrix, C_mn
     # This is not affected by AoA, so we can use unique mach numbers only
-    m_unique, inv = jnp.unique(mach,return_inverse=True)
-    m_unique      = jnp.atleast_2d(m_unique).T
+    #m_unique, inv = jnp.unique(mach,return_inverse=True)
+    #m_unique      = jnp.atleast_2d(m_unique).T
     #C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique,precision=precision)
-    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique)
+    #C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique)
     
-    C_mn  = C_mn_small[inv,:,:,:]
-    RFLAG = RFLAG_small[inv,:]
-    EW    = EW_small[inv,:,:]
+    #C_mn  = C_mn_small[inv,:,:,:]
+    #RFLAG = RFLAG_small[inv,:]
+    #EW    = EW_small[inv,:,:]
+    
+    C_mn, s, RFLAG, EW = compute_wing_induced_velocity(VD,mach)
+    
 
     # Turn off sonic vortices when Mach>1
     RHS = RHS*RFLAG
@@ -280,7 +282,7 @@ def VLM(conditions,settings,geometry):
                 jnp.sqrt((ZB1[LE_ind]-ZA1[LE_ind])**2 + \
                         (YB1[LE_ind]-YA1[LE_ind])**2)  
     TAN_TE = (XB_TE - XA_TE)/ jnp.sqrt((ZB_TE-ZA_TE)**2 + (YB_TE-YA_TE)**2) # _TE variables already have np.repeat built in 
-    TAN_LE = jnp.broadcast_to(jnp.repeat(TAN_LE,RNMAX[LE_ind]),jnp.shape(B2)) 
+    TAN_LE = jnp.broadcast_to(jnp.repeat(TAN_LE,panel_strips),jnp.shape(B2)) 
     TAN_TE = jnp.broadcast_to(TAN_TE                         ,jnp.shape(B2))    
     
     TNL    = TAN_LE * 1 # VORLAX's SIGN variable not needed, as these are taken directly from geometry
@@ -292,13 +294,13 @@ def VLM(conditions,settings,geometry):
     
     # cumsum GANT loop if KTOP > 0 (don't actually need KTOP with vectorized arrays and np.roll)
     GFX    = jnp.tile((1 /CHORD), (len_mach,1))
-    GANT   = strip_cumsum(GFX*GAMMA, chord_breaks, RNMAX[LE_ind])
+    GANT   = strip_cumsum(GFX*GAMMA, chord_breaks, panel_strips)
     GANT   = jnp.roll(GANT,1)
     GANT   = w(LE_ind[na,:],0,GANT) 
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
     COS_DL = (YBH-YAH)[LE_ind]/D
-    cos_DL = jnp.broadcast_to(jnp.repeat(COS_DL,RNMAX[LE_ind]),jnp.shape(B2))
+    cos_DL = jnp.broadcast_to(jnp.repeat(COS_DL,panel_strips),jnp.shape(B2))
     DCPSID = FORLAT * cos_DL *GLAT /(XIB - XIA)
     FACTOR = FORAXL + ONSET
     
