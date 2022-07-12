@@ -26,7 +26,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-@jit
+#@jit
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients.
     
@@ -180,6 +180,8 @@ def VLM(conditions,settings,geometry):
     XBAR         = VD.XBAR
     ZBAR         = VD.ZBAR
     n_cp         = VD.XAH.shape[0]
+    total_sw     = VD.total_sw
+    n_w          = VD.n_w
 
     exposed_leading_edge_flag = VD.exposed_leading_edge_flag
     
@@ -231,6 +233,7 @@ def VLM(conditions,settings,geometry):
     #EW    = EW_small[inv,:,:]
     
     C_mn, s, RFLAG, EW = compute_wing_induced_velocity(VD,mach)
+    
     
 
     # Turn off sonic vortices when Mach>1
@@ -359,8 +362,8 @@ def VLM(conditions,settings,geometry):
 
     # Split into chordwise strengths and sum into strips    
     # SICPLE = COUPLE (ABOUT STRIP CENTERLINE) DUE TO SIDESLIP.
-    CNC    = segment_sum(SINF.T,          chord_segs).T
-    SICPLE = segment_sum((SINF*CORMED).T, chord_segs).T
+    CNC    = segment_sum(SINF.T,          chord_segs,total_sw).T
+    SICPLE = segment_sum((SINF*CORMED).T, chord_segs,total_sw).T
     
     # COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
     # POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
@@ -371,8 +374,8 @@ def VLM(conditions,settings,geometry):
     BMLE  = (XLE-XX)*SINF        # These are moment on each panel
     
     # Sum onto the panel
-    CAXL = segment_sum(CAXL.T,chord_segs).T
-    BMLE = segment_sum(BMLE.T,chord_segs).T
+    CAXL = segment_sum(CAXL.T,chord_segs,total_sw).T
+    BMLE = segment_sum(BMLE.T,chord_segs,total_sw).T
     
     
     SICPLE *= (-1) * COSIN * COD * GAF
@@ -458,10 +461,10 @@ def VLM(conditions,settings,geometry):
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES
     cdi_y    = DRAG/CHORD_strip/ES
-    CL_wing  = segment_sum(LIFT.T,span_segs).T/SURF
-    CDi_wing = segment_sum(DRAG.T,span_segs).T/SURF    
+    CL_wing  = segment_sum(LIFT.T,span_segs,n_w).T/SURF
+    CDi_wing = segment_sum(DRAG.T,span_segs,n_w).T/SURF    
     
-    alpha_i  = jnp.hsplit(jnp.arctan(cdi_y/cl_y),span_breaks[1:])
+    #alpha_i  = jnp.hsplit(jnp.arctan(cdi_y/cl_y),span_breaks[1:])
     
     # Now calculate total coefficients
     CL       = jnp.atleast_2d(jnp.sum(LIFT,axis=1)/SREF).T          # CLTOT in VORLAX
@@ -494,7 +497,7 @@ def VLM(conditions,settings,geometry):
     results.CDi_wing       = CDi_wing 
     results.cl_y           = cl_y   
     results.cdi_y          = cdi_y       
-    results.alpha_i        = alpha_i  
+    #results.alpha_i        = alpha_i  
     results.CP             = jnp.array(CP    , dtype=precision)
     results.gamma          = jnp.array(GAMMA , dtype=precision)
     results.VD             = VD
@@ -519,8 +522,8 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     chordwise spacing (the if statement below). However, since the trends are correct, 
     albeit underestimated, this calculation is being forced here.    
     """
-    LE_ind      = VD.leading_edge_indices
-    RNMAX       = VD.panels_per_strip
+    LE_ind       = VD.leading_edge_indices
+    panel_strips = VD.stripwise_panels_per_strip
 
     ##spacing = settings.spanwise_cosine_spacing
     ##if spacing == False: # linear spacing is LAX==1 in VORLAX
@@ -538,7 +541,7 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
     # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
     # ARE XGIRO, YGIRO, AND ZGIRO. 
-    XGIRO = X - CHORD*XLE - jnp.repeat(XBAR, RNMAX[LE_ind])
+    XGIRO = X - CHORD*XLE - jnp.repeat(XBAR, panel_strips)
     YGIRO = rhs.YGIRO
     ZGIRO = rhs.ZGIRO
     
@@ -555,7 +558,7 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     #          LEADING EDGE.
     EFFINC = VX *rhs.SCNTL + VY *rhs.CCNTL *rhs.SID - VZ *rhs.CCNTL *rhs.COD 
     CLE = CLE - EFFINC[:,LE_ind] 
-    CLE = jnp.where(STB > 0, CLE /RNMAX[LE_ind] /STB, CLE)
+    CLE = jnp.where(STB > 0, CLE /panel_strips /STB, CLE)
     
     return CLE
 

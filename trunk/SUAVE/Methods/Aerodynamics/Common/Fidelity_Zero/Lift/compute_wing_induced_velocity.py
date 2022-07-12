@@ -212,11 +212,12 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
     
-    n_cp = XAH.shape[1]
+    
     
     # Calculate the W velocity in the VORLAX frame for later calcs
     # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
-    n_cp   = shape[1]    
+    #n_cp   = shape[1]    
+    n_cp   = XAH.shape[1]
     COS1   = jnp.cos(DL.T - DL)
     SIN1   = jnp.sin(DL.T - DL) 
     WEIGHT = 1
@@ -227,6 +228,7 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
 
     return C_mn, s, RFLAG, EW
 
+@jit
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for subsonic mach numbers

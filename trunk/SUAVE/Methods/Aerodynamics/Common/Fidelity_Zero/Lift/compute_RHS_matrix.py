@@ -147,7 +147,6 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     Properties Used:
     N/A
     """
-    LE_ind       = VD.leading_edge_indices
     RNMAX        = VD.panels_per_strip
     panel_strips = VD.stripwise_panels_per_strip
 
