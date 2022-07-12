@@ -11,3 +11,5 @@ from .Aluminum import Aluminum
 from .Acrylic import Acrylic
 from .Steel import Steel
 from .Nickel import Nickel
+from .Titanium import Titanium
+from .Magnesium import Magnesium
