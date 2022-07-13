@@ -318,7 +318,7 @@ def prop_rotor_design_test():
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-6) 
+        assert(np.abs(v)<1e-3) 
 
     return
 def plot_results(results,prop,c,ls,m):
