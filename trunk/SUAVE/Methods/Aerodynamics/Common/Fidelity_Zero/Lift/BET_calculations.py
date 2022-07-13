@@ -138,13 +138,12 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
        F          tip loss factor                                                  [-]
        piece      output of a step in tip loss calculation (needed for residual)   [-]
     """
-    lamdaw            = r*Wa/(R*Wt)
-    lamdaw[lamdaw<0.] = 0.
+    lamdaw             = r*Wa/(R*Wt)
+    lamdaw[lamdaw<=0.] = 1e-12
 
     et1, et2, et3, maxat = 1,1,1,-np.inf
     tipfactor = B/2.0*(  (R/r)**et1 - 1  )**et2/lamdaw**et3 
-    tipfactor[np.where(tipfactor==0)] = 1e-6 # tolerance to prevent nan
-    tipfactor[tipfactor<=0.]   = 0.
+
     piece = np.exp(-tipfactor)
     Ftip = 2.*np.arccos(piece)/np.pi  
 
