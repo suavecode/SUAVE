@@ -52,11 +52,8 @@ class Prop_Rotor(Rotor):
         self.design_power_hover          = None
         self.inputs.pitch_command_hover  = 0.0      
         self.inputs.pitch_command_cruise = 0.0
-        
  
-        self.optimization_parameters.slack_constaint                   = 1E-2 # slack constraint 
-        self.optimization_parameters.ideal_SPL_dBA                     = 45 
-        self.optimization_parameters.aeroacoustic_weight               = 1.   # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization     
+        self.optimization_parameters.slack_constaint                   = 1E-3 # slack constraint        
         self.optimization_parameters.multiobjective_performance_weight = 0.5 
-        self.optimization_parameters.multiobjective_acoustic_weight    = 0.5  
+        self.optimization_parameters.multiobjective_acoustic_weight    = 1.0        
         

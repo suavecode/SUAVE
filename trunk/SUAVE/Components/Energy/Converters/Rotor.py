@@ -12,11 +12,12 @@
 #           Jul 2021, R. Erhard
 #           Sep 2021, R. Erhard
 #           Feb 2022, R. Erhard
+#           Jul 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
@@ -101,6 +102,13 @@ class Rotor(Energy_Component):
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
+    
+        self.optimization_parameters                       = Data() 
+        self.optimization_parameters.tip_mach_range        = [0.3,0.7] 
+        self.optimization_parameters.microphone_angle      = 45 * Units.degrees    
+        self.optimization_parameters.slack_constaint       = 1E-3 # slack constraint 
+        self.optimization_parameters.ideal_SPL_dBA         = 45 
+        self.optimization_parameters.aeroacoustic_weight   = 1.   # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization  
         
 
     def spin(self,conditions):
