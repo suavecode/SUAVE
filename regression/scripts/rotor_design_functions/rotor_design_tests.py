@@ -24,9 +24,10 @@ def main():
     # in case of failure check both. The design and analysis powers will 
     # differ because of karman-tsien compressibility corrections in the 
     # analysis scripts 
-    #propeller_design_test()
     
-    #lift_rotor_design_test()
+    propeller_design_test()
+    
+    lift_rotor_design_test()
     
     prop_rotor_design_test()
     return     
@@ -143,16 +144,16 @@ def propeller_design_test():
     plot_results(output, prop,'grey','-','o') 
     
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3352.366469630676
-    Q_a_truth       = 978.76113592
-    P_a_truth       = 202761.72763161
-    Cp_a_truth      = 0.10450832
+    F_a_truth       = 3040.827940585338
+    Q_a_truth       = 888.55038334
+    P_a_truth       = 184073.52335802
+    Cp_a_truth      = 0.10448797
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2629.013537561697
-    Q_truth         = 787.38469662
-    P_truth         = 163115.87734548
-    Cp_truth        = 0.08407389 
+    F_truth         = 2374.846923311773
+    Q_truth         = 711.53739878
+    P_truth         = 147403.22940515
+    Cp_truth        = 0.08367235
     
     # Store errors 
     error = Data()
@@ -222,10 +223,10 @@ def lift_rotor_design_test():
     plot_results(output_rot, rot,'green','-','^') 
     
     # Truth values for rotor with airfoil geometry defined 
-    F_rot_truth      = 2000.17389
-    Q_rot_truth      = 271.00539592
-    P_rot_truth      = 51764.45843619
-    Cp_rot_truth     = 0.02339609
+    F_rot_truth      = 2000.6441862216102
+    Q_rot_truth      = 275.98549691
+    P_rot_truth      = 51620.46376602
+    Cp_rot_truth     = 0.02484779
     
     # Store errors 
     error = Data()  
@@ -302,10 +303,10 @@ def prop_rotor_design_test():
     plot_results(output_pr, prop_rotor,'blue','-','^') 
     
     # Truth values for rotor with airfoil geometry defined 
-    F_pr_truth      = 2802.7938
-    Q_pr_truth      = 471.13455701
-    P_pr_truth      = 72039.35311904
-    Cp_pr_truth     = 0.04180738
+    F_pr_truth      = 2802.739588036596
+    Q_pr_truth      = 411.38283745635147
+    P_pr_truth      = 71643.44252150676
+    Cp_pr_truth     = 0.028141242594857053
     
     # Store errors 
     error = Data()  
@@ -318,7 +319,7 @@ def prop_rotor_design_test():
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-3) 
+        assert(np.abs(v)<1e-6) 
 
     return
 def plot_results(results,prop,c,ls,m):
