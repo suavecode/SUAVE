@@ -29,7 +29,7 @@ import time
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
 def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP',
-                      solver_sense_step = 1E-5,solver_tolerance = 1E-4):  
+                      solver_sense_step = 1E-6,solver_tolerance = 1E-5):  
     """ Optimizes rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.

@@ -223,10 +223,10 @@ def lift_rotor_design_test():
     plot_results(output_rot, rot,'green','-','^') 
     
     # Truth values for rotor with airfoil geometry defined 
-    F_rot_truth      = 2000.6441862216102
-    Q_rot_truth      = 275.9854969114176
-    P_rot_truth      = 51620.463766022556
-    Cp_rot_truth     = 0.02484778665964775
+    F_rot_truth      = 2001.9999980605835
+    Q_rot_truth      = 245.6923132019721
+    P_rot_truth      = 50884.59472369422
+    Cp_rot_truth     = 0.018041589632845204
     
     # Store errors 
     error = Data()  
@@ -319,7 +319,7 @@ def prop_rotor_design_test():
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-6) 
+        assert(np.abs(v)<1e-3) 
 
     return
 def plot_results(results,prop,c,ls,m):
