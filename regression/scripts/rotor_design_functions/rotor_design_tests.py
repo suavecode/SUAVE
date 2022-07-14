@@ -170,7 +170,7 @@ def propeller_design_test():
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-6)
+        assert(np.abs(v)<1e-3)
 
     return
 
@@ -224,9 +224,9 @@ def lift_rotor_design_test():
     
     # Truth values for rotor with airfoil geometry defined 
     F_rot_truth      = 2000.6441862216102
-    Q_rot_truth      = 275.98549691
-    P_rot_truth      = 51620.46376602
-    Cp_rot_truth     = 0.02484779
+    Q_rot_truth      = 275.9854969114176
+    P_rot_truth      = 51620.463766022556
+    Cp_rot_truth     = 0.02484778665964775
     
     # Store errors 
     error = Data()  
@@ -239,7 +239,7 @@ def lift_rotor_design_test():
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-6) 
+        assert(np.abs(v)<1e-3) 
 
     return
 
