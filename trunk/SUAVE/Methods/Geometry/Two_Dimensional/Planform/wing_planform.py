@@ -10,7 +10,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+#import numpy as np
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -72,7 +73,7 @@ def wing_planform(wing):
     
     # calculate
     span       = (ar*sref)**.5
-    span_total = span/np.cos(dihedral)
+    span_total = span/jnp.cos(dihedral)
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
     mgc        = (chord_root+chord_tip)/2
@@ -82,12 +83,12 @@ def wing_planform(wing):
     mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
     
     # calculate leading edge sweep
-    le_sweep = np.arctan( np.tan(sweep) - (4./ar)*(0.-0.25)*(1.-taper)/(1.+taper) )
+    le_sweep = jnp.arctan( jnp.tan(sweep) - (4./ar)*(0.-0.25)*(1.-taper)/(1.+taper) )
     
     # estimating aerodynamic center coordinates
     y_coord = span / 6. * (( 1. + 2. * taper ) / (1. + taper))
-    x_coord = mac * 0.25 + y_coord * np.tan(le_sweep)
-    z_coord = y_coord * np.tan(dihedral)
+    x_coord = mac * 0.25 + y_coord * jnp.tan(le_sweep)
+    z_coord = y_coord * jnp.tan(dihedral)
         
     if vertical:
         temp    = y_coord * 1.
@@ -98,7 +99,7 @@ def wing_planform(wing):
         y_coord = 0    
     
     # Total length calculation
-    total_length = np.tan(le_sweep)*span/2. + chord_tip
+    total_length = jnp.tan(le_sweep)*span/2. + chord_tip
         
     # Computing flap geometry
     affected_area = 0.

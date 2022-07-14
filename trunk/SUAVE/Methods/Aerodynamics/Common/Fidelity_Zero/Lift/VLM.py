@@ -17,6 +17,7 @@ from jax import lax, jit
 import jax.numpy as jnp
 from jax.numpy import where as w
 from jax.numpy import newaxis as na
+import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
@@ -26,7 +27,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-#@jit
+@jit
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients.
     
@@ -163,7 +164,7 @@ def VLM(conditions,settings,geometry):
     # Unpack vortex distribution
     VD           = geometry.VD
     #n_cp         = VD.n_cp 
-    n_sw         = VD.n_sw
+    n_sw         = np.array(VD.n_sw)
     CHORD        = VD.chord_lengths
     chord_breaks = VD.chordwise_breaks
     span_breaks  = VD.spanwise_breaks
@@ -173,7 +174,7 @@ def VLM(conditions,settings,geometry):
     LE_ind       = VD.leading_edge_indices
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
-    panel_strips = VD.stripwise_panels_per_strip
+    panel_strips = np.array(VD.stripwise_panels_per_strip)
 
     w_span       = VD.w_span
     c_bar        = VD.c_bar
@@ -215,7 +216,7 @@ def VLM(conditions,settings,geometry):
     # Compute flow tangency conditions
     phi   = jnp.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
     delta = jnp.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
-
+    
     # Build the RHS vector    
     rhs   = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm) 
     RHS   = rhs.RHS*1
@@ -299,7 +300,8 @@ def VLM(conditions,settings,geometry):
     GFX    = jnp.tile((1 /CHORD), (len_mach,1))
     GANT   = strip_cumsum(GFX*GAMMA, chord_breaks, panel_strips)
     GANT   = jnp.roll(GANT,1)
-    GANT   = w(LE_ind[na,:],0,GANT) 
+    #GANT   = w(LE_ind[na,:],0,GANT) 
+    GANT   = GANT.at[LE_ind,:].set(0)
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
     COS_DL = (YBH-YAH)[LE_ind]/D
@@ -522,8 +524,8 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     chordwise spacing (the if statement below). However, since the trends are correct, 
     albeit underestimated, this calculation is being forced here.    
     """
-    LE_ind       = VD.leading_edge_indices
-    panel_strips = VD.stripwise_panels_per_strip
+    LE_ind       = VD.leading_edge_indices[0]
+    panel_strips = np.array(VD.stripwise_panels_per_strip)
 
     ##spacing = settings.spanwise_cosine_spacing
     ##if spacing == False: # linear spacing is LAX==1 in VORLAX
@@ -577,3 +579,4 @@ def strip_cumsum(arr, chord_breaks, strip_lengths):
     offsets = offsets.at[:,0].set(0)
     offsets = jnp.repeat(offsets, strip_lengths, axis=1)
     return cumsum - offsets
+    

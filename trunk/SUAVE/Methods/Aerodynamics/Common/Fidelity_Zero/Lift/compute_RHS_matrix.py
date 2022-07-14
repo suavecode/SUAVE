@@ -19,9 +19,10 @@
 import jax.numpy as jnp
 from jax import lax, jit
 from SUAVE.Core import Data, to_jnumpy
+import numpy as np
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-#@jit
+@jit
 def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model):
 
     """ This computes the right hand side matrix for the VLM. In this
@@ -148,7 +149,7 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     N/A
     """
     RNMAX        = VD.panels_per_strip
-    panel_strips = VD.stripwise_panels_per_strip
+    panel_strips = np.array(VD.stripwise_panels_per_strip)
 
 
     # VORLAX frame RHS calculation---------------------------------------------------------

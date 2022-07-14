@@ -12,7 +12,7 @@
 # package imports 
 import jax.numpy as jnp
 
-from SUAVE.Core import  Data
+from SUAVE.Core import  Data, to_numpy
 from SUAVE.Components.Wings import All_Moving_Surface
 from SUAVE.Components.Fuselages import Fuselage
 from SUAVE.Components.Nacelles  import Nacelle
@@ -324,7 +324,10 @@ def generate_vortex_distribution(geometry,settings):
     VD.stripwise_panels_per_strip = VD.panels_per_strip[VD.leading_edge_indices]
     
     # For JAX some things have to be fixed
-    VD.static_keys  = ['stripwise_panels_per_strip','leading_edge_indices','total_sw','n_w','n_sw']
+    VD.static_keys  = ['total_sw','n_w','stripwise_panels_per_strip','n_sw']
+    VD['leading_edge_indices'] = jnp.where(VD['leading_edge_indices'])
+    VD['stripwise_panels_per_strip'] = tuple(VD['stripwise_panels_per_strip'])
+    VD['n_sw'] = tuple(VD['n_sw'])
     
     # pack VD into geometry
     geometry.vortex_distribution = VD
