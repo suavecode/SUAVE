@@ -29,7 +29,7 @@ import time
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
 def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP',
-                      solver_sense_step = 1E-6,solver_tolerance = 1E-5):  
+                      solver_sense_step = 1E-5,solver_tolerance = 1E-4,print_iterations = False):  
     """ Optimizes rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
@@ -115,7 +115,7 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
     
     # start optimization 
     ti                   = time.time()   
-    optimization_problem = rotor_optimization_setup(rotor)  
+    optimization_problem = rotor_optimization_setup(rotor,print_iterations )  
     output               = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = solver_sense_step,tolerance = solver_tolerance)    
     tf                   = time.time()
     elapsed_time         = round((tf-ti)/60,2)
@@ -130,7 +130,7 @@ def lift_rotor_design(rotor,number_of_stations = 20, number_of_airfoil_section_p
     
     return rotor
   
-def rotor_optimization_setup(rotor):
+def rotor_optimization_setup(rotor,print_iterations ):
     """ Sets up rotor optimization problem including design variables, constraints and objective function
         using SUAVE's Nexus optimization framework. Appends methodolody of planform modification to Nexus. 
           
@@ -233,6 +233,7 @@ def rotor_optimization_setup(rotor):
     # -------------------------------------------------------------------
     #  Procedure
     # -------------------------------------------------------------------    
+    nexus.print_iterations  = print_iterations 
     nexus.procedure = optimization_procedure_set_up()
     
     # -------------------------------------------------------------------
@@ -487,6 +488,7 @@ def post_process(nexus):
     alpha          = rotor.optimization_parameters.aeroacoustic_weight
     epsilon        = rotor.optimization_parameters.slack_constaint 
     ideal_SPL      = rotor.optimization_parameters.ideal_SPL_dBA  
+    print_iter     = nexus.print_iterations
     
     # Calculate atmospheric properties
     atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -574,22 +576,23 @@ def post_process(nexus):
         
     # -------------------------------------------------------
     # PRINT ITERATION PERFOMRMANCE
-    # -------------------------------------------------------                
-    print("Aero_Acoustic_Obj       : " + str(summary.Aero_Acoustic_Obj))     
-    print("Aero_Acoustic_Weight    : " + str(alpha))
-    if rotor.design_thrust == None: 
-        print("Thrust (N)              : " + str(-thrust[0][2]))   
-        print("Power (kW)              : " + str(power[0][0]/1000)) 
-    if rotor.design_power == None: 
-        print("Thrust (N)              : " + str(-thrust[0][2]))   
-        print("Power (kW)              : " + str(power[0][0]/1000)) 
-    print("Tip Mach                : " + str(rotor.design_tip_mach))   
-    print("Average SPL             : " + str(Acoustic_Metric))  
-    print("Figure of Merit         : " + str(FM))  
-    print("Thrust/Power Residual   : " + str(summary.thrust_power_residual)) 
-    print("Blade Taper             : " + str(blade_taper))
-    print("Max Sectional Cl        : " + str(summary.max_sectional_cl))  
-    print("Blade CL                : " + str(mean_CL))  
-    print("\n\n") 
+    # -------------------------------------------------------  
+    if print_iter:
+        print("Aero_Acoustic_Obj       : " + str(summary.Aero_Acoustic_Obj))     
+        print("Aero_Acoustic_Weight    : " + str(alpha))
+        if rotor.design_thrust == None: 
+            print("Thrust (N)              : " + str(-thrust[0][2]))   
+            print("Power (kW)              : " + str(power[0][0]/1000)) 
+        if rotor.design_power == None: 
+            print("Thrust (N)              : " + str(-thrust[0][2]))   
+            print("Power (kW)              : " + str(power[0][0]/1000)) 
+        print("Tip Mach                : " + str(rotor.design_tip_mach))   
+        print("Average SPL             : " + str(Acoustic_Metric))  
+        print("Figure of Merit         : " + str(FM))  
+        print("Thrust/Power Residual   : " + str(summary.thrust_power_residual)) 
+        print("Blade Taper             : " + str(blade_taper))
+        print("Max Sectional Cl        : " + str(summary.max_sectional_cl))  
+        print("Blade CL                : " + str(mean_CL))  
+        print("\n\n") 
     
     return nexus 

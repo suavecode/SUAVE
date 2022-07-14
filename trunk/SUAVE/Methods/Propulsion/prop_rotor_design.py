@@ -29,7 +29,7 @@ import time
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
 def prop_rotor_design(prop_rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP',
-                      solver_sense_step = 1E-5,solver_tolerance = 1E-4):  
+                      solver_sense_step = 1E-5,solver_tolerance = 1E-4,print_iterations = False):  
     """ Optimizes prop-rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
@@ -119,7 +119,7 @@ def prop_rotor_design(prop_rotor,number_of_stations = 20, number_of_airfoil_sect
     
     # start optimization   
     ti                   = time.time()     
-    optimization_problem = rotor_optimization_setup(prop_rotor)  
+    optimization_problem = rotor_optimization_setup(prop_rotor,print_iterations )  
     output               = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = solver_sense_step,tolerance = solver_tolerance)   
     Beta_c               = np.array([output[10],output[11]])    
     tf                   = time.time()
@@ -134,7 +134,7 @@ def prop_rotor_design(prop_rotor,number_of_stations = 20, number_of_airfoil_sect
     
     return prop_rotor
   
-def rotor_optimization_setup(prop_rotor):
+def rotor_optimization_setup(prop_rotor,print_iterations):
     """ Sets up prop-rotor optimization problem including design variables, constraints and objective function
         using SUAVE's Nexus optimization framework. Appends methodolody of planform modification to Nexus. 
           
@@ -253,7 +253,8 @@ def rotor_optimization_setup(prop_rotor):
     
     # -------------------------------------------------------------------
     #  Procedure
-    # -------------------------------------------------------------------    
+    # -------------------------------------------------------------------       
+    nexus.print_iterations  = print_iterations 
     nexus.procedure = optimization_procedure_set_up()
     
     # -------------------------------------------------------------------
@@ -582,6 +583,7 @@ def post_process(nexus):
     epsilon              = prop_rotor_hover.optimization_parameters.slack_constaint 
     ideal_SPL            = prop_rotor_hover.optimization_parameters.ideal_SPL_dBA  
     atmosphere           = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    print_iter           = nexus.print_iterations
     
     # Calculate atmospheric properties
     V_hover              = prop_rotor_hover.freestream_velocity_hover   
@@ -737,35 +739,36 @@ def post_process(nexus):
         
     # -------------------------------------------------------
     # PRINT ITERATION PERFOMRMANCE
-    # -------------------------------------------------------                
-    print("Aeroacoustic Obj             : " + str(summary.Aero_Acoustic_Obj))     
-    print("Aeroacoustic Weight          : " + str(alpha))  
-    print("Multiobj. Performance Weight : " + str(beta))  
-    print("Multiobj. Acoustic Weight    : " + str(gamma)) 
-    print("Blade Taper                  : " + str(blade_taper))
-    print("Hover RPM                    : " + str(omega_hover[0]/Units.rpm))    
-    print("Hover Pitch Command (deg)    : " + str(prop_rotor_hover.inputs.pitch_command/Units.degrees)) 
-    if prop_rotor_hover.design_thrust == None: 
-        print("Hover Power                  : " + str(power_hover[0][0]))  
-    if prop_rotor_hover.design_power == None: 
-        print("Hover Thrust                 : " + str(-thrust_hover[0][2]))  
-    print("Hover Average SPL            : " + str(Acoustic_Metric_hover))    
-    print("Hover Tip Mach               : " + str(prop_rotor_hover.design_tip_mach_hover))  
-    print("Hover Thrust/Power Residual  : " + str(summary.thrust_power_residual_hover)) 
-    print("Hover Figure of Merit        : " + str(FM_hover))  
-    print("Hover Max Sectional Cl       : " + str(summary.max_sectional_cl_hover)) 
-    print("Hover Blade CL               : " + str(mean_CL_hover))   
-    print("Cruise RPM                   : " + str(omega_cruise[0]/Units.rpm))    
-    print("Cruise Pitch Command (deg)   : " + str(prop_rotor_cruise.inputs.pitch_command/Units.degrees)) 
-    if prop_rotor_cruise.design_thrust == None:  
-        print("Cruise Power                 : " + str(power_cruise[0][0])) 
-    if prop_rotor_cruise.design_power == None:  
-        print("Cruise Thrust                : " + str(thrust_cruise[0][0]))   
-    print("Cruise Tip Mach              : " + str(prop_rotor_cruise.design_tip_mach_cruise))  
-    print("Cruise Thrust/Power Residual : " + str(summary.thrust_power_residual_cruise))
-    print("Cruise Efficiency            : " + str(eta_cruise)) 
-    print("Cruise Max Sectional Cl      : " + str(summary.max_sectional_cl_cruise))  
-    print("Cruise Blade CL              : " + str(mean_CL_cruise))  
-    print("\n\n") 
+    # -------------------------------------------------------      
+    if print_iter:
+        print("Aeroacoustic Obj             : " + str(summary.Aero_Acoustic_Obj))     
+        print("Aeroacoustic Weight          : " + str(alpha))  
+        print("Multiobj. Performance Weight : " + str(beta))  
+        print("Multiobj. Acoustic Weight    : " + str(gamma)) 
+        print("Blade Taper                  : " + str(blade_taper))
+        print("Hover RPM                    : " + str(omega_hover[0]/Units.rpm))    
+        print("Hover Pitch Command (deg)    : " + str(prop_rotor_hover.inputs.pitch_command/Units.degrees)) 
+        if prop_rotor_hover.design_thrust == None: 
+            print("Hover Power                  : " + str(power_hover[0][0]))  
+        if prop_rotor_hover.design_power == None: 
+            print("Hover Thrust                 : " + str(-thrust_hover[0][2]))  
+        print("Hover Average SPL            : " + str(Acoustic_Metric_hover))    
+        print("Hover Tip Mach               : " + str(prop_rotor_hover.design_tip_mach_hover))  
+        print("Hover Thrust/Power Residual  : " + str(summary.thrust_power_residual_hover)) 
+        print("Hover Figure of Merit        : " + str(FM_hover))  
+        print("Hover Max Sectional Cl       : " + str(summary.max_sectional_cl_hover)) 
+        print("Hover Blade CL               : " + str(mean_CL_hover))   
+        print("Cruise RPM                   : " + str(omega_cruise[0]/Units.rpm))    
+        print("Cruise Pitch Command (deg)   : " + str(prop_rotor_cruise.inputs.pitch_command/Units.degrees)) 
+        if prop_rotor_cruise.design_thrust == None:  
+            print("Cruise Power                 : " + str(power_cruise[0][0])) 
+        if prop_rotor_cruise.design_power == None:  
+            print("Cruise Thrust                : " + str(thrust_cruise[0][0]))   
+        print("Cruise Tip Mach              : " + str(prop_rotor_cruise.design_tip_mach_cruise))  
+        print("Cruise Thrust/Power Residual : " + str(summary.thrust_power_residual_cruise))
+        print("Cruise Efficiency            : " + str(eta_cruise)) 
+        print("Cruise Max Sectional Cl      : " + str(summary.max_sectional_cl_cruise))  
+        print("Cruise Blade CL              : " + str(mean_CL_cruise))  
+        print("\n\n") 
     
     return nexus 
