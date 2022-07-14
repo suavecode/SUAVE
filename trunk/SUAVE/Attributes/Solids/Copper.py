@@ -1,7 +1,7 @@
 ## @ingroup Attributes-Solids
 # Copper.py
 #
-# Created: Feb 2020, K. Hamilton
+# Created: Feb 2020,  K. Hamilton - Through New Zealand Ministry of Business Innovation and Employment Research Contract RTVU2004
 # Modified: Jan 2022, S. Claridge
 
 #-------------------------------------------------------------------------------
@@ -62,6 +62,7 @@ class Copper(Solid):
         self.density                    =     8960.0        # [kg/(m**3)]
         self.conductivity_electrical    = 58391886.09       # [mhos/m]
         self.conductivity_thermal       =      392.4        # [W/(m*K)]
+        self.interpolate                = False
 
         # Lookup table arrays. Temperature in K, thermal conductivity in W/(m*K)
         temperatures   = np.array([4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 120.0, 140.0, 160.0, 180.0, 200.0, 220.0, 240.0, 260.0, 280.0, 300.0])
@@ -79,7 +80,7 @@ class Copper(Solid):
         self.c_electrical = interpolate.interp1d(temperatures, conductivities, kind = 'cubic', fill_value='extrapolate')
 
 
- 
+
     def thermal_conductivity(self, temperature):
                 
         # Create output variable
