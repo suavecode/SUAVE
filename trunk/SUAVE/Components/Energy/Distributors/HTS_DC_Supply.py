@@ -1,7 +1,7 @@
 ## @ingroup Components-Energy-Distributors
 # HTS_DC_Supply.py
 #
-# Created:  Feb 2020,   K. Hamilton
+# Created:  Feb 2020,   K. Hamilton - Through New Zealand Ministry of Business Innovation and Employment Research Contract RTVU2004 
 # Modified: Nov 2021,   S. Claridge
 
 # ----------------------------------------------------------------------
@@ -42,8 +42,10 @@ class HTS_DC_Supply(Energy_Component):
         self.efficiency         =   0.0
         self.rated_current      = 100.0     # [A]
         self.rated_power        = 100.0     # [W]
+        self.inputs.power_out   = 0.0       # [W]
+        self.outputs.power_in   = 0.0       # [W]
     
-    def power(self, current, power_out):
+    def power(self, conditions):
         """ The power that must be supplied to the DC supply to power the HTS coils.
 
             Assumptions:
@@ -55,15 +57,21 @@ class HTS_DC_Supply(Energy_Component):
             N/A
 
             Inputs:
-            current             [A]
-            power_out           [W]
-            self.efficiency
+            self.inputs
+                current             [A]
+                power_out           [W]
 
             Outputs:
-            power_in            [W]
+            self.outputs
+                power_in            [W]
+
+            Properties Used:
+            self. 
+                efficiency 
 
         """
         # Unpack
+        power_out               = self.inputs.power_out
         efficiency              = self.efficiency
 
         # Apply the efficiency of the current supply to get the total power required at the input of the current supply.
@@ -71,4 +79,6 @@ class HTS_DC_Supply(Energy_Component):
 
 
         # Return basic result.
+        self.outputs.power_in = power_in
+
         return power_in

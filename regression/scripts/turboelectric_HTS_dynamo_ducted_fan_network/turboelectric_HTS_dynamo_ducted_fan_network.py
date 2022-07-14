@@ -1,5 +1,5 @@
 ### @ingroup Regression-scripts-turboelectric_HTS_ducted_fan_network
-#turboelectric_HTS_ducted_fan_network.py
+#turboelectric_HTS_dynamo_ducted_fan_network.py
 # 
 # Created:  Nov 2021, S. Claridge
 # 
@@ -13,24 +13,26 @@ import SUAVE
 
 import numpy as np
 
-from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan   
-from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
+from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Dynamo_Ducted_Fan import Turboelectric_HTS_Dynamo_Ducted_Fan   
+from SUAVE.Methods.Propulsion.serial_HTS_dynamo_turboelectric_sizing import serial_HTS_dynamo_turboelectric_sizing
+
+from SUAVE.Methods.Weights.Dynamo_Supply.dynamo_supply_mass_estimation import dynamo_supply_mass_estimation
 
 from SUAVE.Attributes.Gases import Air
-from SUAVE.Attributes.Solids.Copper import Copper
 
 from SUAVE.Core import (
 Data, Units,
 )
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 
-### @ingroup Regression-scripts-turboelectric_HTS_ducted_fan_network
+### @ingroup Regression-scripts-turboelectric_HTS_dynamo_ducted_fan_network
 def main():   
     
     # call the network function
     energy_network()
     
     return
+
 
 def energy_network():
 
@@ -76,12 +78,13 @@ def energy_network():
     # Conditions        
     ones_1col = np.ones([1,1])    
     alt_size  = 10000.0
+
     # Setup conditions
-    planet     = SUAVE.Attributes.Planets.Earth()   
+    planet                           = SUAVE.Attributes.Planets.Earth()   
     atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                        = atmosphere.compute_values(alt_size,0,True) 
     working_fluid                    = SUAVE.Attributes.Gases.Air()    
-    conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions_sizing                = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
 
     # freestream conditions
     conditions_sizing.freestream.altitude                     = ones_1col*alt_size     
@@ -113,12 +116,12 @@ def energy_network():
 
     
     # ------------------------------------------------------------------
-    #   Turboelectric HTS Ducted Fan Network 
+    #   Turboelectric HTS Dynamo Ducted Fan Network 
     # ------------------------------------------------------------------    
     
     # Instantiate the Turboelectric HTS Ducted Fan Network 
     # This also instantiates the component parts of the efan network, then below each part has its properties modified so they are no longer the default properties as created here at instantiation. 
-    efan = Turboelectric_HTS_Ducted_Fan()
+    efan = Turboelectric_HTS_Dynamo_Ducted_Fan()
     efan.tag = 'turbo_fan'
 
     # Outline of Turboelectric drivetrain components. These are populated below.
@@ -132,8 +135,8 @@ def energy_network():
     # 3. Powersupply   
     # 4. ESC           
     # 5. Rotor         
-    # 6. Lead          
-    # 7. CCS           
+    # 6. HTS Dynamo         
+    # 7. HTS Dynamo speed controller          
     # 8. Cryocooler    
     # 9. Heat Exchanger
     # The components are then sized
@@ -179,7 +182,7 @@ def energy_network():
     
     # to convert freestream static to stagnation quantities
     # instantiate
-    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram     = SUAVE.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
     
     # add to the network
@@ -189,7 +192,7 @@ def energy_network():
     #  Component 1.2 - Inlet Nozzle
     
     # instantiate
-    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle     = SUAVE.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
@@ -203,7 +206,7 @@ def energy_network():
     #  Component 1.3 - Fan Nozzle
     
     # instantiate
-    fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    fan_nozzle     = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
     fan_nozzle.tag = 'fan_nozzle'
 
     # setup
@@ -217,7 +220,7 @@ def energy_network():
     #  Component 1.4 - Fan
     
     # instantiate
-    fan = SUAVE.Components.Energy.Converters.Fan()
+    fan     = SUAVE.Components.Energy.Converters.Fan()
     fan.tag = 'fan'
 
     # setup
@@ -231,7 +234,7 @@ def energy_network():
     # Component 1.5 : thrust
 
     # To compute the thrust
-    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust     = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
  
     # total design thrust (includes all the propulsors)
@@ -247,12 +250,12 @@ def energy_network():
     # ------------------------------------------------------------------
     # Component 2 : HTS motor
     
-    efan.motor = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
+    efan.motor     = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
     efan.motor.tag = 'motor'
     # number_of_motors is not used as the motor count is assumed to match the engine count
 
     # Set the origin of each motor to match its ducted fan
-    efan.motor.origin = efan.ducted_fan.origin
+    efan.motor.origin             = efan.ducted_fan.origin
     efan.motor.gear_ratio         = 1.0
     efan.motor.gearbox_efficiency = 1.0
     efan.motor.motor_efficiency   = 0.96
@@ -275,8 +278,8 @@ def energy_network():
 
     # ------------------------------------------------------------------
     #  Component 4 - Electronic Speed Controller (ESC)
-
-    efan.esc = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()     # Could make this where the ESC is defined as a Siemens SD104
+    
+    efan.esc     = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()     # Could make this where the ESC is defined as a Siemens SD104
     efan.esc.tag = 'esc'
 
     efan.esc.efficiency             =   0.95                 # Siemens SD104 SiC Power Electronicss reported to be this efficient
@@ -284,7 +287,7 @@ def energy_network():
     # ------------------------------------------------------------------
     #  Component 5 - HTS rotor (part of the propulsor motor)
     
-    efan.rotor = SUAVE.Components.Energy.Converters.Motor_HTS_Rotor()
+    efan.rotor     = SUAVE.Components.Energy.Converters.Motor_HTS_Rotor()
     efan.rotor.tag = 'rotor'
 
     efan.rotor.temperature              =    50.0       # [K]
@@ -296,35 +299,32 @@ def energy_network():
     efan.rotor.diameter                 =     0.310     * Units.meter       # From paper: DOI:10.2514/6.2019-4517 Would be good to estimate this from power instead.
     rotor_end_area                      = np.pi*(efan.rotor.diameter/2.0)**2.0
     rotor_end_circumference             = np.pi*efan.rotor.diameter
-    efan.rotor.surface_area             = 2.0 * rotor_end_area + efan.rotor.length*rotor_end_circumference
-    efan.rotor.R_value                  =   125.0                           # [K.m2/W]  2.0 W/m2 based on experience at Robinson Research
+    efan.rotor.surface_area             =     2.0 * rotor_end_area + efan.rotor.length*rotor_end_circumference
+    efan.rotor.R_value                  =     125.0     # [K.m2/W]  2.0 W/m2 based on experience at Robinson Research
 
     # ------------------------------------------------------------------
-    #  Component 6 - Copper Supply Leads of propulsion motor rotors
-    
-    efan.lead = SUAVE.Components.Energy.Distributors.Cryogenic_Lead()
-    efan.lead.tag = 'lead'
-    copper = Copper()
-    efan.lead.cold_temp                 = efan.rotor.temperature   # [K]
-    efan.lead.hot_temp                  = efan.rotor.skin_temp     # [K]
-    efan.lead.current                   = efan.rotor.current       # [A]
-    efan.lead.length                    = 0.3                      # [m]
-    efan.lead.material                  = copper
-    efan.leads                          = efan.ducted_fan.number_of_engines * 2.0      # Each motor has two leads to make a complete circuit
+    #  Component 6 - HTS Dynamo supplying the rotor
+    efan.hts_dynamo                      = SUAVE.Components.Energy.Distributors.HTS_DC_Dynamo_Basic()
+    efan.hts_dynamo.tag                  = 'hts_dynamo'
+    efan.hts_dynamo.efficiency           = 0.16 #[W/W]
+    efan.hts_dynamo.rated_current        = 850  #[A]
+    efan.hts_dynamo.rated_RPM            = 120  #[RPM]
+    efan.hts_dynamo.rated_temp           = 77   #[K]
+    efan.hts_dynamo.mass_properties.mass = 8.7 # [kg] Based on the Squirrel Cage HTS dynamo developed at Robinson Research Institute with eight HTS stators and four Nd-Fe-B permanent magnets.
 
-    # ------------------------------------------------------------------
-    #  Component 7 - Rotor Constant Current Supply (CCS)
-    
-    efan.ccs = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()
-    efan.ccs.tag = 'ccs'
+        # ------------------------------------------------------------------
+    #  Component 7 -  HTS Dynamo speed controller
 
-    efan.ccs.efficiency             =   0.95               # Siemens SD104 SiC Power Electronics reported to be this efficient
+    efan.dynamo_esc             = SUAVE.Components.Energy.Distributors.HTS_Dynamo_Supply()
+    efan.dynamo_esc.tag         = 'dynamo_esc'
+    efan.dynamo_esc.efficiency  = 0.5    # Basic estimated efficiency for small motor-gearbox combo. Larger motors have better efficiency.
+    efan.dynamo_esc.rated_RPM   = 1000   #[RPM]
 
 
     # ------------------------------------------------------------------
     #  Component 8 - Cryocooler, to cool the HTS Rotor
- 
-    efan.cryocooler = SUAVE.Components.Energy.Cooling.Cryocooler()
+
+    efan.cryocooler     = SUAVE.Components.Energy.Cooling.Cryocooler()
     efan.cryocooler.tag = 'cryocooler'
 
     efan.cryocooler.cooler_type        = 'GM'
@@ -333,7 +333,7 @@ def energy_network():
 
     # ------------------------------------------------------------------
     #  Component 9 - Cryogenic Heat Exchanger, to cool the HTS Rotor
-    efan.heat_exchanger = SUAVE.Components.Energy.Cooling.Cryogenic_Heat_Exchanger()
+    efan.heat_exchanger     = SUAVE.Components.Energy.Cooling.Cryogenic_Heat_Exchanger()
     efan.heat_exchanger.tag = 'heat_exchanger'
 
     efan.heat_exchanger.cryogen                         = SUAVE.Attributes.Cryogens.Liquid_H2()
@@ -346,12 +346,13 @@ def energy_network():
     cryo_temp       =  50.0     # [K]
     amb_temp        = 300.0     # [K]
 
-    # Powertrain Sizing
-
-
     # Size powertrain components
     ducted_fan_sizing(efan.ducted_fan,mach_number,altitude)
-    serial_HTS_turboelectric_sizing(efan,mach_number,altitude, cryo_cold_temp = cryo_temp, cryo_amb_temp = amb_temp)
+    serial_HTS_dynamo_turboelectric_sizing(efan,mach_number,altitude, cryo_cold_temp = cryo_temp, cryo_amb_temp = amb_temp)
+    
+    #mass estimation of the dynamo esc
+    dynamo_supply_mass_estimation(efan.dynamo_esc)
+    
 
     print("Design thrust ",efan.ducted_fan.design_thrust)
     
@@ -368,21 +369,21 @@ def energy_network():
     
     # Test the model 
     # Specify the expected values
-    expected = Data()
-    expected.thrust                 = 47826.12361690928
-    expected.mdot                   = 0.807913394579505
-    expected.mdot_fuel              = 0.79080567
-    expected.mdot_additional_fuel   = 0.01710773
-    
+    expected                      = Data()
+    expected.thrust               = 47826.12361690928
+    expected.mdot                 = 0.803874635885751
+    expected.mdot_fuel            = 0.7936072561316556
+    expected.mdot_additional_fuel = 0.010267379754095392
+
     #error data function
-    error =  Data()
-    error.thrust_error                  = (F[0][0] -  expected.thrust)/expected.thrust
-    error.mdot_error                    = (mdot[0][0]-expected.mdot)/expected.mdot
-    error.mdot_fuel_error               = (mdot_fuel[0][0]-expected.mdot_fuel)/expected.mdot_fuel
-    error.mdot_additional_fuel_error    = (mdot_additional_fuel[0][0]-expected.mdot_additional_fuel)/expected.mdot_additional_fuel
-    
+    error                            =  Data()
+    error.thrust_error               = (F[0][0] -  expected.thrust)/expected.thrust
+    error.mdot_error                 = mdot[0][0]-expected.mdot
+    error.mdot_fuel_error            = mdot_fuel[0][0]-expected.mdot_fuel
+    error.mdot_additional_fuel_error = mdot_additional_fuel[0][0]-expected.mdot_additional_fuel
+
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-6)    
+        assert(np.abs(v) < 1e-6)    
         
     return
     

@@ -1,7 +1,8 @@
 ## @ingroup Methods-Cooling-Cryogen-Consumption
 # Coolant_use.py
 #
-# Created : Feb 2020, K. Hamilton
+# Created:  Feb 2020,   K. Hamilton - Through New Zealand Ministry of Business Innovation and Employment Research Contract RTVU2004 
+# Modified: Feb 2022,   S. Claridge 
 
 # ----------------------------------------------------------------------
 #  Imports

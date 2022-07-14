@@ -4,4 +4,6 @@
 
 from . import Correlations
 from . import Buildups
+from . import Dynamo_Supply
+from . import Cooling
 
