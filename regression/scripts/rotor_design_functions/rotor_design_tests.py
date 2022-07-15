@@ -225,19 +225,21 @@ def lift_rotor_design_test():
     # Truth values for rotor with airfoil geometry defined 
     F_rot_truth      = 2000.6441862216102
     Q_rot_truth      = 275.9854969114176 
+    P_rot_truth      = 51620.463766022556
     Cp_rot_truth     = 0.02484778665964775
     
     # Store errors 
     error = Data()  
     error.Thrust_rot = np.max(np.abs(np.linalg.norm(-F_rot)-F_rot_truth))
     error.Torque_rot = np.max(np.abs(Q_rot-Q_rot_truth))    
+    error.Power_rot  = np.max(np.abs(P_rot-P_rot_truth))    
     error.Cp_rot     = np.max(np.abs(Cp_rot-Cp_rot_truth))   
     
     print('Errors:')
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-3) 
+        assert(np.abs(v)<1e-6) 
 
     return
 
@@ -303,19 +305,21 @@ def prop_rotor_design_test():
     # Truth values for rotor with airfoil geometry defined 
     F_pr_truth      = 2802.739588036596
     Q_pr_truth      = 411.38283745635147 
+    P_pr_truth      = 71643.44252150676
     Cp_pr_truth     = 0.028141242594857053
     
     # Store errors 
     error = Data()  
     error.Thrust_pr = np.max(np.abs(np.linalg.norm(-F_pr)-F_pr_truth))
     error.Torque_pr = np.max(np.abs(Q_pr-Q_pr_truth))     
+    error.Power_pr  = np.max(np.abs(P_pr-P_pr_truth))     
     error.Cp_pr     = np.max(np.abs(Cp_pr-Cp_pr_truth))   
     
     print('Errors:')
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-3) 
+        assert(np.abs(v)<1e-6) 
 
     return
 def plot_results(results,prop,c,ls,m):
