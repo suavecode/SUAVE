@@ -149,7 +149,7 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     N/A
     """
     RNMAX        = VD.panels_per_strip
-    panel_strips = np.array(VD.stripwise_panels_per_strip)
+    panel_strips = VD.stripwise_panels_per_strip
 
 
     # VORLAX frame RHS calculation---------------------------------------------------------
@@ -182,9 +182,9 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
     # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
     # ARE XGIRO, YGIRO, AND ZGIRO.
-    XGIRO = X + CHORD*DELTAX - jnp.repeat(XBAR, panel_strips)
+    XGIRO = X + CHORD*DELTAX - jnp.repeat(XBAR, panel_strips,total_repeat_length=X.shape[0])
     YGIRO = YY
-    ZGIRO = ZZ - jnp.repeat(ZBAR, panel_strips)
+    ZGIRO = ZZ - jnp.repeat(ZBAR, panel_strips,total_repeat_length=X.shape[0])
 
     # VX, VY, VZ ARE THE FLOW ONSET VELOCITY COMPONENTS AT THE LEADING
     # EDGE (STRIP MIDPOINT). VX, VY, VZ AND THE ROTATION RATES ARE

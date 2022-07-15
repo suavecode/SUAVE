@@ -27,7 +27,6 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-@jit
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients.
     
@@ -174,7 +173,7 @@ def VLM(conditions,settings,geometry):
     LE_ind       = VD.leading_edge_indices
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
-    panel_strips = np.array(VD.stripwise_panels_per_strip)
+    panel_strips = VD.stripwise_panels_per_strip
 
     w_span       = VD.w_span
     c_bar        = VD.c_bar
@@ -286,7 +285,7 @@ def VLM(conditions,settings,geometry):
                 jnp.sqrt((ZB1[LE_ind]-ZA1[LE_ind])**2 + \
                         (YB1[LE_ind]-YA1[LE_ind])**2)  
     TAN_TE = (XB_TE - XA_TE)/ jnp.sqrt((ZB_TE-ZA_TE)**2 + (YB_TE-YA_TE)**2) # _TE variables already have np.repeat built in 
-    TAN_LE = jnp.broadcast_to(jnp.repeat(TAN_LE,panel_strips),jnp.shape(B2)) 
+    TAN_LE = jnp.broadcast_to(jnp.repeat(TAN_LE,panel_strips,total_repeat_length=n_cp),jnp.shape(B2)) 
     TAN_TE = jnp.broadcast_to(TAN_TE                         ,jnp.shape(B2))    
     
     TNL    = TAN_LE * 1 # VORLAX's SIGN variable not needed, as these are taken directly from geometry
@@ -305,7 +304,7 @@ def VLM(conditions,settings,geometry):
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
     COS_DL = (YBH-YAH)[LE_ind]/D
-    cos_DL = jnp.broadcast_to(jnp.repeat(COS_DL,panel_strips),jnp.shape(B2))
+    cos_DL = jnp.broadcast_to(jnp.repeat(COS_DL,panel_strips,total_repeat_length=n_cp),jnp.shape(B2))
     DCPSID = FORLAT * cos_DL *GLAT /(XIB - XIA)
     FACTOR = FORAXL + ONSET
     
@@ -472,11 +471,11 @@ def VLM(conditions,settings,geometry):
     CL       = jnp.atleast_2d(jnp.sum(LIFT,axis=1)/SREF).T          # CLTOT in VORLAX
     CDi      = jnp.atleast_2d(jnp.sum(DRAG,axis=1)/SREF).T          # CDTOT in VORLAX
     CM       = jnp.atleast_2d(jnp.sum(MOMENT,axis=1)/SREF).T/c_bar  # CMTOT in VORLAX
-    CYTOT    = jnp.atleast_2d(jnp.sum(FY,axis=1)/SREF).T   # total y force coeff
-    CRTOT    = jnp.atleast_2d(jnp.sum(RM,axis=1)/SREF).T   # rolling moment coeff (unscaled)
-    CRMTOT   = CRTOT/w_span*(-1)                         # rolling moment coeff
-    CNTOT    = jnp.atleast_2d(jnp.sum(YM,axis=1)/SREF).T   # yawing  moment coeff (unscaled)
-    CYMTOT   = CNTOT/w_span*(-1)                         # yawing  moment coeff
+    CYTOT    = jnp.atleast_2d(jnp.sum(FY,axis=1)/SREF).T            # total y force coeff
+    CRTOT    = jnp.atleast_2d(jnp.sum(RM,axis=1)/SREF).T            # rolling moment coeff (unscaled)
+    CRMTOT   = CRTOT/w_span*(-1)                                    # rolling moment coeff
+    CNTOT    = jnp.atleast_2d(jnp.sum(YM,axis=1)/SREF).T            # yawing  moment coeff (unscaled)
+    CYMTOT   = CNTOT/w_span*(-1)                                    # yawing  moment coeff
 
     # ---------------------------------------------------------------------------------------
     # STEP 13: Pack outputs
@@ -525,7 +524,7 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     albeit underestimated, this calculation is being forced here.    
     """
     LE_ind       = VD.leading_edge_indices[0]
-    panel_strips = np.array(VD.stripwise_panels_per_strip)
+    panel_strips = VD.stripwise_panels_per_strip
 
     ##spacing = settings.spanwise_cosine_spacing
     ##if spacing == False: # linear spacing is LAX==1 in VORLAX
@@ -543,7 +542,7 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
     # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
     # ARE XGIRO, YGIRO, AND ZGIRO. 
-    XGIRO = X - CHORD*XLE - jnp.repeat(XBAR, panel_strips)
+    XGIRO = X - CHORD*XLE - jnp.repeat(XBAR, panel_strips,total_repeat_length=X.shape[0])
     YGIRO = rhs.YGIRO
     ZGIRO = rhs.ZGIRO
     
@@ -577,6 +576,6 @@ def strip_cumsum(arr, chord_breaks, strip_lengths):
     cumsum  = jnp.cumsum(arr, axis=1)
     offsets = cumsum[:,chord_breaks-1]
     offsets = offsets.at[:,0].set(0)
-    offsets = jnp.repeat(offsets, strip_lengths, axis=1)
+    offsets = jnp.repeat(offsets, strip_lengths, axis=1,total_repeat_length=cumsum.shape[1])
     return cumsum - offsets
     

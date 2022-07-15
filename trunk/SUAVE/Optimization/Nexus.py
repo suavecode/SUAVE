@@ -20,10 +20,8 @@ from copy import deepcopy
 from . import helper_functions as help_fun
 import numpy as np
 
-from jax import jacfwd, jit, grad
+from jax import jacfwd, jit
 from jax.tree_util import register_pytree_node_class
-import jax.numpy as jnp
-import jax
 from functools import partial
 
 # ----------------------------------------------------------------------
@@ -145,7 +143,6 @@ class Nexus(Data):
                 self = step(self)
         
         # Store to cache
-        self.last_inputs   = deepcopy(self.optimization_problem.inputs)
         self.last_fidelity = self.fidelity_level
         
         return self
@@ -235,7 +232,7 @@ class Nexus(Data):
         
         if self.jitable:
             grad_function = jit_jac_nexus_objective_wrapper
-            grad, problem = grad_function(x,self)  
+            grad, problem = grad_function(x,self)
             self.update(problem,hard=True)
         else:
             grad_function = jac_nexus_objective_wrapper

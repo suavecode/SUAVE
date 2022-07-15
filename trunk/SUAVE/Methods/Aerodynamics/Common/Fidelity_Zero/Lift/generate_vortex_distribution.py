@@ -11,6 +11,8 @@
 
 # package imports 
 import jax.numpy as jnp
+import numpy as np
+from jax import jit
 
 from SUAVE.Core import  Data, to_numpy
 from SUAVE.Components.Wings import All_Moving_Surface
@@ -223,7 +225,7 @@ def generate_vortex_distribution(geometry,settings):
     # empty vectors necessary for arbitrary discretization dimensions
     VD.n_w              = 0                            # number of wings counter (refers to wings, fuselages or other structures)  
     VD.n_cp             = 0                            # number of bound vortices (panels) counter 
-    VD.n_sw             = jnp.array([], dtype=jnp.int16) # array of the number of spanwise  strips in each wing
+    VD.n_sw             =  np.array([], dtype=jnp.int16) # array of the number of spanwise  strips in each wing
     VD.n_cw             = jnp.array([], dtype=jnp.int16) # array of the number of chordwise panels per strip in each wing
     VD.chordwise_breaks = jnp.array([], dtype=jnp.int32) # indices of the first panel in every strip      (given a list of all panels)
     VD.spanwise_breaks  = jnp.array([], dtype=jnp.int32) # indices of the first strip of panels in a wing (given chordwise_breaks)    
@@ -231,11 +233,11 @@ def generate_vortex_distribution(geometry,settings):
     
     VD.leading_edge_indices      = jnp.array([], dtype=bool)      # bool array of leading  edge indices (all false except for panels at leading  edge)
     VD.trailing_edge_indices     = jnp.array([], dtype=bool)      # bool array of trailing edge indices (all false except for panels at trailing edge)    
-    VD.panels_per_strip          = jnp.array([], dtype=jnp.int16)  # array of the number of panels per strip (RNMAX); this is assigned for all panels  
-    VD.chordwise_panel_number    = jnp.array([], dtype=jnp.int16)  # array of panels' numbers in their strips.     
+    VD.panels_per_strip          = jnp.array([], dtype=jnp.int16) # array of the number of panels per strip (RNMAX); this is assigned for all panels  
+    VD.chordwise_panel_number    = jnp.array([], dtype=jnp.int16) # array of panels' numbers in their strips.     
     VD.chord_lengths             = jnp.array([], dtype=precision) # Chord length, this is assigned for all panels.
     VD.tangent_incidence_angle   = jnp.array([], dtype=precision) # Tangent Incidence Angles of the chordwise strip. LE to TE, ZETA
-    VD.exposed_leading_edge_flag = jnp.array([], dtype=jnp.int16)  # 0 or 1 per strip. 0 turns off leading edge suction for non-slat control surfaces
+    VD.exposed_leading_edge_flag = jnp.array([], dtype=jnp.int16) # 0 or 1 per strip. 0 turns off leading edge suction for non-slat control surfaces
     
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
@@ -251,7 +253,7 @@ def generate_vortex_distribution(geometry,settings):
     for wing in VD.VLM_wings:
         if not wing.is_a_control_surface:
             if show_prints: print('discretizing ' + wing.tag) 
-            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)    
+            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)            
                     
     for wing in VD.VLM_wings:
         if wing.is_a_control_surface:
@@ -265,8 +267,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.n_fus      = 0
     for nac in geometry.nacelles:
         if show_prints: print('discretizing ' + nac.tag)
-        VD = generate_fuselage_and_nacelle_vortex_distribution(VD,nac,n_cw_fuse,n_sw_fuse,precision,model_nacelle)
-
+        VD = generate_fuselage_and_nacelle_vortex_distribution(VD,nac,n_cw_fuse,n_sw_fuse,precision,model_nacelle).s
 
     # ---------------------------------------------------------------------------------------
     # STEP 9: Unpack aircraft fuselage geometry
@@ -278,9 +279,11 @@ def generate_vortex_distribution(geometry,settings):
 
     # ---------------------------------------------------------------------------------------
     # STEP 10: Postprocess VD information
-    # ---------------------------------------------------------------------------------------      
+    # ---------------------------------------------------------------------------------------   
+    
+    total_sw = np.sum(VD.n_sw)
 
-    LE_ind = VD.leading_edge_indices
+    VD['leading_edge_indices'] = LE_ind = jnp.where(VD['leading_edge_indices'],size=total_sw)
 
     # Compute Panel Areas and Normals
     VD.panel_areas = jnp.array(compute_panel_area(VD) , dtype=precision)
@@ -295,7 +298,7 @@ def generate_vortex_distribution(geometry,settings):
     Z1c   = (VD.ZA1+VD.ZB1)/2
     Z2c   = (VD.ZA2+VD.ZB2)/2
     SLOPE = (Z2c - Z1c)/(X2c - X1c)
-    SLE   = SLOPE[LE_ind]    
+    SLE   = SLOPE[LE_ind]   
     D     = jnp.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
     
     # Pack VORLAX variables
@@ -307,27 +310,27 @@ def generate_vortex_distribution(geometry,settings):
     chord_arange   = jnp.arange(0,len(VD.chordwise_breaks))
     chord_breaksp1 = jnp.hstack((VD.chordwise_breaks,VD.n_cp))
     chord_repeats  = jnp.diff(chord_breaksp1)
-    chord_segs     = jnp.repeat(chord_arange,chord_repeats)    
+    chord_segs     = jnp.repeat(chord_arange,chord_repeats,total_repeat_length=VD.n_cp)    
     
     span_arange   = jnp.arange(0,len(VD.spanwise_breaks))
     span_breaksp1 = jnp.hstack((VD.spanwise_breaks,sum(VD.n_sw)))
     span_repeats  = jnp.diff(span_breaksp1)
-    span_segs     = jnp.repeat(span_arange,span_repeats)    
+    span_segs     = jnp.repeat(span_arange,span_repeats,total_repeat_length=total_sw)    
         
     VD.chord_segs = chord_segs
     VD.span_segs  = span_segs
-    VD.total_sw   = jnp.sum(VD.n_sw)
+    VD.total_sw   = total_sw
     
     # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
-    VD.XBAR  = jnp.ones(jnp.sum(VD.leading_edge_indices)) * x_m
-    VD.ZBAR  = jnp.ones(jnp.sum(VD.leading_edge_indices)) * z_m     
+    VD.XBAR  = jnp.ones(total_sw) * x_m
+    VD.ZBAR  = jnp.ones(total_sw) * z_m     
     VD.stripwise_panels_per_strip = VD.panels_per_strip[VD.leading_edge_indices]
     
     # For JAX some things have to be fixed
-    VD.static_keys  = ['total_sw','n_w','stripwise_panels_per_strip','n_sw']
-    VD['leading_edge_indices'] = jnp.where(VD['leading_edge_indices'])
-    VD['stripwise_panels_per_strip'] = tuple(VD['stripwise_panels_per_strip'])
+    #VD.static_keys  = ['total_sw','n_w','stripwise_panels_per_strip','n_sw']
+    #VD['stripwise_panels_per_strip'] = tuple(VD['stripwise_panels_per_strip'])
     VD['n_sw'] = tuple(VD['n_sw'])
+    VD.static_keys  = ['n_sw']
     
     # pack VD into geometry
     geometry.vortex_distribution = VD
@@ -479,29 +482,30 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     y_b   = y_coordinates[1:]             
     del_y = y_coordinates[1:] - y_coordinates[:-1] 
     
-    # Let relevant control surfaces know which y-coords they are required to have----------------------------------
-    if not wing.is_a_control_surface:
-        i_break = 0
-        for idx_y in range(n_sw):
-            span_break = span_breaks[i_break]
-            cs_IDs     = span_break.cs_IDs[:,1] #only the outboard control surfaces
-            y_coord    = y_coordinates[idx_y]
+    
+    ## Let relevant control surfaces know which y-coords they are required to have----------------------------------
+    #if not wing.is_a_control_surface:
+        #i_break = 0
+        #for idx_y in range(n_sw):
+            #span_break = span_breaks[i_break]
+            #cs_IDs     = span_break.cs_IDs[:,1] #only the outboard control surfaces
+            #y_coord    = y_coordinates[idx_y]
             
-            for cs_ID in cs_IDs[cs_IDs >= 0]:
-                cs_tag     = wing.tag + '__cs_id_{}'.format(cs_ID)
-                cs_wing    = wings[cs_tag]
-                rel_offset = cs_wing.origin[0,1] - wing.origin[0][1] if not vertical_wing else cs_wing.origin[0,2] - wing.origin[0][2]
-                cs_wing.y_coords_required.append(y_coord - rel_offset)
+            #for cs_ID in cs_IDs[cs_IDs >= 0]:
+                #cs_tag     = wing.tag + '__cs_id_{}'.format(cs_ID)
+                #cs_wing    = wings[cs_tag]
+                #rel_offset = cs_wing.origin[0,1] - wing.origin[0][1] if not vertical_wing else cs_wing.origin[0,2] - wing.origin[0][2]
+                #cs_wing.y_coords_required.append(y_coord - rel_offset)
             
-            ycord_bool = y_coordinates[idx_y+1] == break_spans[i_break+1]
-            i_break   += int(1*ycord_bool)
+            #ycord_bool = y_coordinates[idx_y+1] == break_spans[i_break+1]
+            #i_break   += int(1*ycord_bool)
             
     
     # -------------------------------------------------------------------------------------------------------------
     # Run the strip contruction loop again if wing is symmetric. 
     # Reflection plane = x-y plane for vertical wings. Otherwise, reflection plane = x-z plane
     signs         = jnp.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
-    symmetry_mask = jnp.array([True,sym_para])
+    symmetry_mask = np.array([True,sym_para])
     for sym_sign_ind, sym_sign in enumerate(signs[symmetry_mask]):
         # create empty vectors for coordinates 
         xah   = jnp.zeros(n_cw*n_sw)
@@ -875,16 +879,16 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             VD.tangent_incidence_angle   = jnp.append(VD.tangent_incidence_angle  , tan_incidence            )
             VD.exposed_leading_edge_flag = jnp.append(VD.exposed_leading_edge_flag, exposed_leading_edge_flag)
             
-            #increment i_break if needed; check for end of wing----------------------------------------------------
-            if y_b[idx_y] == break_spans[i_break+1]: 
-                i_break += 1
+            ##increment i_break if needed; check for end of wing----------------------------------------------------
+            #if y_b[idx_y] == break_spans[i_break+1]: 
+                #i_break += 1
                 
-                # append final xyz chordline 
-                if i_break == n_breaks-1:
-                    x = x.at[-(n_cw+1):].set(xi_prime_bs)
-                    y = y.at[-(n_cw+1):].set(y_prime_bs)
-                    z = z.at[-(n_cw+1):].set(zeta_prime_bs)                                  
-        #End 'for each strip' loop            
+                ## append final xyz chordline 
+                #if i_break == n_breaks-1:
+                    #x = x.at[-(n_cw+1):].set(xi_prime_bs)
+                    #y = y.at[-(n_cw+1):].set(y_prime_bs)
+                    #z = z.at[-(n_cw+1):].set(zeta_prime_bs)                                  
+        ##End 'for each strip' loop            
     
         # adjusting coordinate axis so reference point is at the nose of the aircraft------------------------------
         xah = xah + wing_origin_x # x coordinate of left corner of bound vortex 
@@ -962,7 +966,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         
         VD.chordwise_breaks = jnp.append(VD.chordwise_breaks, jnp.int32(chordwise_breaks))
         VD.spanwise_breaks  = jnp.append(VD.spanwise_breaks , jnp.int32(first_strip_ind ))            
-        VD.n_sw             = jnp.append(VD.n_sw            , jnp.int16(n_sw)            )
+        VD.n_sw             =  np.append(VD.n_sw            ,  np.int16(n_sw)            )
         VD.n_cw             = jnp.append(VD.n_cw            , jnp.int16(n_cw)            )
     
         # ---------------------------------------------------------------------------------------
@@ -1512,8 +1516,10 @@ def compute_unit_normal(VD):
     unit_normal = (cross.T / jnp.linalg.norm(cross,axis=1)).T
 
      # adjust Z values, no values should point down, flip vectors if so
-    condition = jnp.where(unit_normal[:,2]<0)
-    unit_normal = unit_normal.at[condition,:].set(-unit_normal[condition,:])
+    #condition = jnp.where(unit_normal[:,2]<0)
+    cond = jnp.tile((unit_normal[:,2]<0)[:,jnp.newaxis],3)
+    unit_normal = jnp.where(cond,-unit_normal,unit_normal)
+    #unit_normal = unit_normal.at[condition,:].set(-unit_normal[condition,:])
     
 
     return unit_normal
