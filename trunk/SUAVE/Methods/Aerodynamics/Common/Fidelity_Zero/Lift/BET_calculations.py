@@ -116,7 +116,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
 
 
 
-def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
+def compute_inflow_and_tip_loss(r,R,Wa,Wt,B,et1=1,et2=1,et3=1):
     """
     Computes the inflow, lamdaw, and the tip loss factor, F.
 
@@ -132,7 +132,10 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
        Wa         axial velocity                                                   [m/s]
        Wt         tangential velocity                                              [m/s]
        B          number of rotor blades                                           [-]
-                 
+       et1        tuning parameter for tip loss function 
+       et2        tuning parameter for tip loss function 
+       et3        tuning parameter for tip loss function 
+       
     Outputs:               
        lamdaw     inflow ratio                                                     [-]
        F          tip loss factor                                                  [-]
@@ -141,7 +144,6 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     lamdaw             = r*Wa/(R*Wt)
     lamdaw[lamdaw<=0.] = 1e-12
 
-    et1, et2, et3, maxat = 1,1,1,-np.inf
     tipfactor = B/2.0*(  (R/r)**et1 - 1  )**et2/lamdaw**et3 
 
     piece = np.exp(-tipfactor)
