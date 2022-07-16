@@ -52,7 +52,7 @@ def electric_V_h_diagram(vehicle,
         Assumptions:
 
         Assumes use of Battery Propeller Energy Network
-        Assumes identical propellers and operating conditions 
+        Assumes identical operating conditions of propellers
 
 
         Inputs:
