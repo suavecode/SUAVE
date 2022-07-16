@@ -16,7 +16,7 @@ import copy
 from SUAVE.Plots.Geometry.plot_vehicle import get_blade_coordinates
 
 ## @ingroup Input_Output-VTK
-def save_prop_vtk(prop, filename, Results, time_step, origin_offset):
+def save_prop_vtk(prop, filename, Results, time_step, origin_offset=np.array([0,0,0])):
     """
     Saves a SUAVE propeller object as a VTK in legacy format.
 
@@ -43,8 +43,6 @@ def save_prop_vtk(prop, filename, Results, time_step, origin_offset):
     # Generate propeller point geometry
     n_blades = prop.number_of_blades
     n_r      = len(prop.chord_distribution)
-    rot      = prop.rotation   
-    
 
     try:
         # Check if propeller lofted geometry has already been saved
@@ -68,7 +66,6 @@ def save_prop_vtk(prop, filename, Results, time_step, origin_offset):
         Gprops   = generate_lofted_propeller_points(prop)
         n_af     = prop.vtk_airfoil_points
         wake     = False
-
 
     for B_idx in range(n_blades):
         # Get geometry of blade for current propeller instance

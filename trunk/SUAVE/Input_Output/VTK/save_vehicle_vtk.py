@@ -77,7 +77,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
             print("Attempting to save propeller.")
             propellers = network.propellers
             try:
-                n_props = int(network.number_of_propeller_engines)
+                n_props = len(propellers)
             except:
                 n_props   = int(network.number_of_engines)
         except:
@@ -87,8 +87,6 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
         if n_props>0:
             for i in range(n_props):
                 propi = propellers[list(propellers.keys())[i]]
-                
-                propi.inputs.y_axis_rotation = network.y_axis_rotation
                 
                 start_angle = propi.start_angle
                 Na = propi.number_azimuthal_stations
@@ -109,8 +107,8 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 
                 try:
                     # check if rotor has wake present
-                    gamma = propi.Wake.wake_vortex_distribution.GAMMA[start_angle_idx,:,:,:,:]
-                    wVD = propi.Wake.wake_vortex_distribution
+                    gamma = propi.Wake.vortex_distribution.reshaped_wake.GAMMA[start_angle_idx,:,:,:,:]
+                    wVD = propi.Wake.vortex_distribution.reshaped_wake
                     wake_present = True
                 except:
                     wake_present = False
@@ -169,8 +167,8 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 
                 try:
                     # check if rotor has wake present
-                    gamma = roti.wake_vortex_distribution.GAMMA
-                    wVD = propi.wake_vortex_distribution
+                    gamma = roti.vortex_distribution.reshaped_wake.GAMMA
+                    wVD = propi.vortex_distribution.reshaped_wake
                     wake_present = True
                 except:
                     wake_present = False
@@ -192,7 +190,6 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                     Results['prop_outputs'] = Results['all_prop_outputs'][roti_key]
                     
                     # save prop wake
-                    wVD = roti.wake_vortex_distribution
                     save_prop_wake_vtk(wVD, gamma, file, Results,origin_offset,rot=roti.rotation)      
 
     
