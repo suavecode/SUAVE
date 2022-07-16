@@ -249,7 +249,13 @@ def get_values(dictionary,outputs,aliases):
                 
     values = np.zeros(len(outputs))
     for ii in range(0,len(outputs)):
-        splitstring = pointer[ii].split('.')
+        
+        if isinstance(pointer[ii], str) and not ('*' in pointer[ii]) :
+            splitstring = pointer[ii].split('.')
+            
+        else :
+            raise TypeError("Pointers for Objectives and Constraints must be unique path (str), not list or contain asterisk")
+            
         values[ii]  = eval('dictionary.'+'.'.join(splitstring[0:]))
     
     return values

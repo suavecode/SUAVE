@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 ## @ingroup Plots-Geometry
@@ -90,8 +90,8 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
             for rot in net.lift_rotors:
                 # plot rotor wake
                 if rot.Wake.wake_method =="Fidelity_One":
-                    plot_propeller_wake(axes, rot, wake_face_color, wake_edge_color, wake_alpha)            
-            
+                    plot_propeller_wake(axes, rot, wake_face_color, wake_edge_color, wake_alpha)
+
 
     # -------------------------------------------------------------------------
     # PLOT FUSELAGE
@@ -112,14 +112,14 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     nacelle_face_color = 'darkred'
     nacelle_edge_color = 'black'
     nacelle_alpha      = 1
-    for nacelle in vehicle.nacelles:  
+    for nacelle in vehicle.nacelles:
         # Generate Nacelle Geoemtry
         nac_geo = generate_nacelle_points(nacelle)
-        
-        # Plot Nacelle Geometry
-        plot_nacelle_geometry(axes,nac_geo,nacelle_face_color,nacelle_edge_color,nacelle_alpha ) 
 
-           
+        # Plot Nacelle Geometry
+        plot_nacelle_geometry(axes,nac_geo,nacelle_face_color,nacelle_edge_color,nacelle_alpha )
+
+
     # -------------------------------------------------------------------------
     # PLOT ENGINE
     # -------------------------------------------------------------------------
@@ -132,11 +132,11 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     axes.set_xlim(0,axis_limits*2)
     axes.set_ylim(-axis_limits,axis_limits)
     axes.set_zlim(-axis_limits,axis_limits)
-    
+
     if not plot_axis:
         plt.axis('off')
         plt.grid(None)
-    
+
     if save_figure:
         fig.savefig(save_filename)
     return
@@ -203,7 +203,7 @@ def plot_propeller_wake(axes, prop,face_color,edge_color,alpha,ctrl_pt=0):
     num_B    = len(wVD.XA1[0,0,:,0,0])
     dim_R    = len(wVD.XA1[0,0,0,:,0])
     nts      = len(wVD.XA1[0,0,0,0,:])
-    
+
     for t_idx in range(nts):
         for B_idx in range(num_B):
             for loc in range(dim_R):
@@ -341,7 +341,7 @@ def plot_network(axes,network,prop_face_color,prop_edge_color,prop_alpha):
             # Generate and Plot Propeller/Rotor Geometry
             plot_propeller_geometry(axes,rotor,0,prop_face_color,prop_edge_color,prop_alpha)
 
-    return 
+    return
 
 def generate_nacelle_points(nac,tessellation = 24):
     """ This generates the coordinate points on the surface of the nacelle
@@ -352,57 +352,57 @@ def generate_nacelle_points(nac,tessellation = 24):
     Source:
     None
 
-    Inputs: 
+    Inputs:
     Properties Used:
-    N/A 
+    N/A
     """
-     
-    
-    num_nac_segs = len(nac.Segments.keys())   
+
+
+    num_nac_segs = len(nac.Segments.keys())
     theta        = np.linspace(0,2*np.pi,tessellation)
     n_points     = 20
-    
+
     if num_nac_segs == 0:
         num_nac_segs = int(n_points/2)
         nac_pts      = np.zeros((num_nac_segs,tessellation,3))
         naf          = nac.Airfoil
-        
-        if naf.naca_4_series_airfoil != None: 
+
+        if naf.naca_4_series_airfoil != None:
             # use mean camber surface of airfoil
             camber       = float(naf.naca_4_series_airfoil[0])/100
             camber_loc   = float(naf.naca_4_series_airfoil[1])/10
-            thickness    = float(naf.naca_4_series_airfoil[2:])/100 
+            thickness    = float(naf.naca_4_series_airfoil[2:])/100
             airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
-            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
-            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
-        
-        elif naf.coordinate_file != None: 
+            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length
+            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length
+
+        elif naf.coordinate_file != None:
             a_sec        = naf.coordinate_file
             a_secl       = [0]
             airfoil_data = import_airfoil_geometry(a_sec,npoints=num_nac_segs)
-            xpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.x_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
-            zpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.y_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
-        
+            xpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.x_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length
+            zpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.y_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length
+
         else:
             # if no airfoil defined, use super ellipse as default
-            a =  nac.length/2 
-            b =  (nac.diameter - nac.inlet_diameter)/2 
-            b = np.maximum(b,1E-3) # ensure 
-            xpts =  np.repeat(np.atleast_2d(np.linspace(-a,a,num_nac_segs)).T,tessellation,axis = 1) 
-            zpts = (np.sqrt((b**2)*(1 - (xpts**2)/(a**2) )))*nac.length 
-            xpts = (xpts+a)*nac.length  
+            a =  nac.length/2
+            b =  (nac.diameter - nac.inlet_diameter)/2
+            b = np.maximum(b,1E-3) # ensure
+            xpts =  np.repeat(np.atleast_2d(np.linspace(-a,a,num_nac_segs)).T,tessellation,axis = 1)
+            zpts = (np.sqrt((b**2)*(1 - (xpts**2)/(a**2) )))*nac.length
+            xpts = (xpts+a)*nac.length
 
-        if nac.flow_through: 
-            zpts = zpts + nac.inlet_diameter/2  
-                
-        # create geometry 
-        theta_2d = np.repeat(np.atleast_2d(theta),num_nac_segs,axis =0) 
+        if nac.flow_through:
+            zpts = zpts + nac.inlet_diameter/2
+
+        # create geometry
+        theta_2d = np.repeat(np.atleast_2d(theta),num_nac_segs,axis =0)
         nac_pts[:,:,0] =  xpts
         nac_pts[:,:,1] =  zpts*np.cos(theta_2d)
-        nac_pts[:,:,2] =  zpts*np.sin(theta_2d)  
-                
+        nac_pts[:,:,2] =  zpts*np.sin(theta_2d)
+
     else:
-        nac_pts = np.zeros((num_nac_segs,tessellation,3)) 
+        nac_pts = np.zeros((num_nac_segs,tessellation,3))
         for i_seg in range(num_nac_segs):
             a        = nac.Segments[i_seg].width/2
             b        = nac.Segments[i_seg].height/2
@@ -410,36 +410,36 @@ def generate_nacelle_points(nac,tessellation = 24):
             nac_ypts = r*np.cos(theta)
             nac_zpts = r*np.sin(theta)
             nac_pts[i_seg,:,0] = nac.Segments[i_seg].percent_x_location*nac.length
-            nac_pts[i_seg,:,1] = nac_ypts + nac.Segments[i_seg].percent_y_location*nac.length 
-            nac_pts[i_seg,:,2] = nac_zpts + nac.Segments[i_seg].percent_z_location*nac.length  
-            
+            nac_pts[i_seg,:,1] = nac_ypts + nac.Segments[i_seg].percent_y_location*nac.length
+            nac_pts[i_seg,:,2] = nac_zpts + nac.Segments[i_seg].percent_z_location*nac.length
+
     # rotation about y to orient propeller/rotor to thrust angle
     rot_trans =  nac.nac_vel_to_body()
-    rot_trans =  np.repeat( np.repeat(rot_trans[ np.newaxis,:,: ],tessellation,axis=0)[ np.newaxis,:,:,: ],num_nac_segs,axis=0)    
-    
-    NAC_PTS  =  np.matmul(rot_trans,nac_pts[...,None]).squeeze()  
-     
-    # translate to body 
+    rot_trans =  np.repeat( np.repeat(rot_trans[ np.newaxis,:,: ],tessellation,axis=0)[ np.newaxis,:,:,: ],num_nac_segs,axis=0)
+
+    NAC_PTS  =  np.matmul(rot_trans,nac_pts[...,None]).squeeze()
+
+    # translate to body
     NAC_PTS[:,:,0] = NAC_PTS[:,:,0] + nac.origin[0][0]
     NAC_PTS[:,:,1] = NAC_PTS[:,:,1] + nac.origin[0][1]
     NAC_PTS[:,:,2] = NAC_PTS[:,:,2] + nac.origin[0][2]
     return NAC_PTS
 
 def plot_nacelle_geometry(axes,NAC_SURF_PTS,face_color,edge_color,alpha):
-    """ This plots a 3D surface of a nacelle  
+    """ This plots a 3D surface of a nacelle
 
     Assumptions:
     None
 
     Source:
-    None 
+    None
 
     Properties Used:
     N/A
     """
 
     num_nac_segs = len(NAC_SURF_PTS[:,0,0])
-    tesselation  = len(NAC_SURF_PTS[0,:,0]) 
+    tesselation  = len(NAC_SURF_PTS[0,:,0])
     for i_seg in range(num_nac_segs-1):
         for i_tes in range(tesselation-1):
             X = [NAC_SURF_PTS[i_seg  ,i_tes  ,0],
@@ -475,7 +475,7 @@ def plot_propeller_geometry(axes,prop,cpt=0,prop_face_color='red',prop_edge_colo
     Inputs:
     prop           - SUAVE propeller for which to plot the geometry
     cpt            - control point at which to plot the propeller
-    
+
 
     Properties Used:
     N/A
@@ -529,12 +529,12 @@ def get_blade_coordinates(prop,n_points,dim,i):
 
     Properties Used:
     N/A
-    """    
+    """
     # unpack
     num_B  = prop.number_of_blades
     a_sec  = prop.airfoil_geometry
     a_secl = prop.airfoil_polar_stations
-    twist  = prop.twist_distribution
+    beta   = prop.twist_distribution + prop.inputs.pitch_command
     a_o    = prop.start_angle
     b      = prop.chord_distribution
     r      = prop.radius_distribution
@@ -542,13 +542,13 @@ def get_blade_coordinates(prop,n_points,dim,i):
     t      = prop.max_thickness_distribution
     origin = prop.origin
     beta   = twist + prop.inputs.pitch_command
-    
-    # Apply rotation correction 
+
+    # Apply rotation correction
     beta *= -prop.rotation
     b    *= prop.rotation
-    
+
     theta  = (np.linspace(0,2*np.pi,num_B+1)[:-1] + np.pi)%(2*np.pi)
-    rot    = prop.rotation 
+    rot    = prop.rotation
     flip_1 =  (np.pi/2)
     flip_2 =  (np.pi/2)
 
@@ -556,7 +556,7 @@ def get_blade_coordinates(prop,n_points,dim,i):
     b_2d               = np.repeat(np.atleast_2d(b).T  ,n_points,axis=1)
     t_2d               = np.repeat(np.atleast_2d(t).T  ,n_points,axis=1)
     r_2d               = np.repeat(np.atleast_2d(r).T  ,n_points,axis=1)
-    airfoil_le_offset  = np.repeat(b[:,None], n_points, axis=1)/2  
+    airfoil_le_offset  = np.repeat(b[:,None], n_points, axis=1)/2
 
     # get airfoil coordinate geometry
     if a_sec != None:
@@ -583,14 +583,14 @@ def get_blade_coordinates(prop,n_points,dim,i):
 
     prop_vel_to_body = prop.prop_vel_to_body()
     cpts             = len(prop_vel_to_body[:,0,0])
-    
+
     matrix        = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
-    matrix[:,:,0] = xp*rot
+    matrix[:,:,0] = xp
     matrix[:,:,1] = yp
     matrix[:,:,2] = zp
     matrix        = np.repeat(matrix[None,:,:,:], cpts, axis=0)
 
-    
+
     # ROTATION MATRICES FOR INNER SECTION
     # rotation about y axis to create twist and position blade upright
     trans_1        = np.zeros((dim,3,3))
@@ -610,18 +610,10 @@ def get_blade_coordinates(prop,n_points,dim,i):
 
     # rotation about y to orient propeller/rotor to thrust angle
     trans_3 =  prop_vel_to_body
-    trans_3 =  np.repeat(trans_3[:, None,:,: ],dim,axis=1) 
-    
-    ## rotation 180 degrees about x-axis to align airfoil with vehicle frame
-    trans_4 = np.zeros((dim,3,3))
-    trans_4[:,2,2] = np.cos(np.pi)
-    trans_4[:,2,1] = -np.sin(np.pi)
-    trans_4[:,0,0] = 1
-    trans_4[:,1,2] = np.sin(np.pi)
-    trans_4[:,1,1] = np.cos(np.pi)    
-    
-    trans     = np.matmul(trans_4[None,:,:,:],np.matmul(trans_3,np.matmul(trans_2,trans_1)))
-    rot_mat   = np.repeat(trans[:,:, None,:,:],n_points,axis=2)    
+    trans_3 =  np.repeat(trans_3[:, None,:,: ],dim,axis=1)
+
+    trans     = np.matmul(trans_2,np.matmul(trans_3,trans_1))
+    rot_mat   = np.repeat(trans[:,:, None,:,:],n_points,axis=2)
 
     # ---------------------------------------------------------------------------------------------
     # ROTATE POINTS
@@ -630,12 +622,12 @@ def get_blade_coordinates(prop,n_points,dim,i):
     # ---------------------------------------------------------------------------------------------
     # create empty data structure for storing geometry
     G = Data()
-    
+
     # store node points
     G.X  = mat[:,:,:,0] + origin[0][0]
     G.Y  = mat[:,:,:,1] + origin[0][1]
     G.Z  = mat[:,:,:,2] + origin[0][2]
-    
+
     # store points
     G.XA1  = mat[:,:-1,:-1,0] + origin[0][0]
     G.YA1  = mat[:,:-1,:-1,1] + origin[0][1]
@@ -650,5 +642,5 @@ def get_blade_coordinates(prop,n_points,dim,i):
     G.XB2  = mat[:,1:,1:,0]  + origin[0][0]
     G.YB2  = mat[:,1:,1:,1]  + origin[0][1]
     G.ZB2  = mat[:,1:,1:,2]  + origin[0][2]
-    
+
     return G

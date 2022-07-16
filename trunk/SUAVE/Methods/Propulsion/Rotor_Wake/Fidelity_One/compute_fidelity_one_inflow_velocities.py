@@ -16,7 +16,7 @@ from scipy.signal import savgol_filter
 from scipy.interpolate import interp1d
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
+def compute_fidelity_one_inflow_velocities( wake, prop ):
     """
     Assumptions:
         None
@@ -43,6 +43,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     Nr            = len(prop.chord_distribution)
     r             = prop.radius_distribution
     rot           = prop.rotation
+    WD            = wake.vortex_distribution
 
 
     try:

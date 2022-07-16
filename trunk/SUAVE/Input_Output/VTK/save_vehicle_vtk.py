@@ -78,7 +78,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                 print("Attempting to save propeller.")
             propellers = network.propellers
             try:
-                n_props = int(network.number_of_propeller_engines)
+                n_props = len(propellers)
             except:
                 n_props   = int(network.number_of_engines)
         except:

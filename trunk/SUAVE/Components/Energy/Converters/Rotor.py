@@ -69,16 +69,18 @@ class Rotor(Energy_Component):
         self.hub_radius                   = 0.0
         self.twist_distribution           = 0.0
         self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
-        self.chord_distribution           = 0.0 
+        self.chord_distribution           = 0.0
         self.thickness_to_chord           = 0.0
+        self.mid_chord_alignment          = 0.0
         self.blade_solidity               = 0.0
         self.design_power                 = None
         self.design_thrust                = None
         self.airfoil_geometry             = None
+        self.airfoil_data                 = None
         self.airfoil_polars               = None
         self.airfoil_polar_stations       = None
         self.radius_distribution          = None
-        self.rotation                     = 1        
+        self.rotation                     = 1
         self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                       = False
         self.number_azimuthal_stations    = 24
@@ -94,16 +96,16 @@ class Rotor(Energy_Component):
         self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
         self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
-        
+
         self.start_angle               = 0.0      # angle of first blade from vertical
         self.start_angle_idx           = 0
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
-        
+
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
-        
+
 
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
@@ -194,7 +196,7 @@ class Rotor(Energy_Component):
         nonuniform_freestream = self.nonuniform_freestream
         use_2d_analysis       = self.use_2d_analysis
         pitch_c               = self.inputs.pitch_command
-        
+
         # 2d analysis required for wake fid1
         if isinstance(self.Wake, Rotor_Wake_Fidelity_One):
             use_2d_analysis=True
@@ -217,7 +219,7 @@ class Rotor(Energy_Component):
         # Number of radial stations and segment control points
         Nr       = len(c)
         ctrl_pts = len(Vv)
-        
+
         # Helpful shorthands
         pi      = np.pi
 
@@ -229,7 +231,7 @@ class Rotor(Energy_Component):
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
         body2thrust     = self.body_to_prop_vel()
-        
+
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body)
 
@@ -296,7 +298,7 @@ class Rotor(Energy_Component):
             ut +=  (utz + uty)  # tangential velocity in direction of rotor rotation
             ur +=  (urz + ury)  # radial velocity (positive toward tip)
             ua +=  np.zeros_like(ut)
-            
+
 
         # Include external velocities introduced by user
         if nonuniform_freestream:
@@ -350,8 +352,8 @@ class Rotor(Energy_Component):
         # Total velocities
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
-        
-        
+
+
         #---------------------------------------------------------------------------
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
@@ -362,8 +364,8 @@ class Rotor(Energy_Component):
         wake_inputs.velocity_tangential   = Ut
         wake_inputs.ctrl_pts              = ctrl_pts
         wake_inputs.Nr                    = Nr
-        wake_inputs.Na                    = Na        
-        wake_inputs.use_2d_analysis       = use_2d_analysis        
+        wake_inputs.Na                    = Na
+        wake_inputs.use_2d_analysis       = use_2d_analysis
         wake_inputs.twist_distribution    = beta
         wake_inputs.chord_distribution    = c
         wake_inputs.radius_distribution   = r
@@ -371,7 +373,7 @@ class Rotor(Energy_Component):
         wake_inputs.dynamic_viscosities   = nu
 
         va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
-        
+
         # compute new blade velocities
         Wa   = va + Ua
         Wt   = Ut - vt
@@ -381,10 +383,10 @@ class Rotor(Energy_Component):
         # Compute aerodynamic forces based on specified input airfoil or surrogate
         Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         alpha_freestream   = beta - np.arctan2(Ua,Ut)
-        
+
         # compute HFW circulation at the blade
-        Gamma = 0.5*W*c*Cl           
-                
+        Gamma = 0.5*W*c*Cl
+
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BET iteration
         va     = F*va
         vt     = F*vt
@@ -468,10 +470,10 @@ class Rotor(Energy_Component):
         torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
         rotor_drag              = np.atleast_2d((B * np.sum(rotor_drag_distribution, axis=1))).T
         power                   = omega*torque
-        
+
         Cfz = thrust / (rho_0 * np.pi * R**4 * omega**2)
         Cmz = -torque / (rho_0 * np.pi * R**5 * omega**2)
-        
+
         # calculate coefficients
         D        = 2*R
         Cq       = torque/(rho_0*(n*n)*(D*D*D*D*D))
@@ -480,7 +482,7 @@ class Rotor(Energy_Component):
         Crd      = rotor_drag/(rho_0*(n*n)*(D*D*D*D))
         etap     = V*thrust/power
         A        = np.pi*(R**2 - self.hub_radius**2)
-        FoM      = thrust*np.sqrt(thrust/(2*rho_0*A))    /power  
+        FoM      = thrust*np.sqrt(thrust/(2*rho_0*A))    /power
 
         # prevent things from breaking
         #Cq[Cq<0]                                               = 0.
@@ -565,7 +567,7 @@ class Rotor(Energy_Component):
         self.outputs = outputs
 
         return thrust_vector, torque, power, Cp, outputs , etap
-    
+
     def generate_evaluation_points(self, offset=np.array([0,0,0]), grid_settings=None):
         """Generates the (X,Y,Z) point locations of each radial and azimuthal station
         in the propeller plane.
@@ -578,21 +580,22 @@ class Rotor(Energy_Component):
             grid_settings.hub_radius = self.hub_radius
             grid_settings.Nr = len(self.radius_distribution)
             grid_settings.Na = self.number_azimuthal_stations
-            
+
         # Generate the grid points at which to evaluate
         grid_settings.offset = offset
         grid_points = generate_propeller_grid(self,grid_settings)
-        
-        
+
+
         return grid_points
-        
+
     def vec_to_vel(self):
-        """This rotates from the propellers vehicle frame to the propellers velocity frame
+        """This rotates from the propeller's vehicle frame to the propeller's velocity frame
 
         Assumptions:
-        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
-        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
-        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+        There are two propeller frames, the propeller vehicle frame and the propeller velocity frame. When propeller
+        is axially aligned with the vehicle body:
+           - The velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+           - The vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
@@ -610,15 +613,15 @@ class Rotor(Energy_Component):
         rot_mat = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         return rot_mat
-    
+
 
     def body_to_prop_vel(self):
-        """This rotates from the systems body frame to the propellers velocity frame
+        """This rotates from the system's body frame to the propeller's velocity frame
 
         Assumptions:
-        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
-        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
-        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame.
+        Velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        Vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
@@ -633,7 +636,7 @@ class Rotor(Energy_Component):
         None
         """
 
-        # Go from body to vehicle frame
+        # Go from velocity to vehicle frame
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
@@ -641,7 +644,7 @@ class Rotor(Energy_Component):
         rots       = np.array(self.orientation_euler_angles) * 1.
         rots       = np.repeat(rots[None,:], cpts, axis=0)
         rots[:,1] += np.atleast_2d(self.inputs.y_axis_rotation)[:,0]
-        
+
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
 
         # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
@@ -683,6 +686,6 @@ class Rotor(Energy_Component):
         rot_mat = r.as_matrix()
 
         return rot_mat
-    
+
     def vec_to_prop_body(self):
         return self.prop_vel_to_body()

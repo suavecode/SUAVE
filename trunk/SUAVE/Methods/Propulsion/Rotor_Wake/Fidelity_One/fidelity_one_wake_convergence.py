@@ -51,14 +51,14 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
         if wake.verbose:
             print("\tGenerating fully-prescribed wake shape...")
         ii_max = 1
-        
+
 
     while va_diff > tol:
         # generate wake geometry for rotor
-        wake  = generate_fidelity_one_wake_shape(wake,rotor)
+        wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
 
         # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-        va, vt = compute_fidelity_one_inflow_velocities(wake,rotor, wake.vortex_distribution)
+        va, vt = compute_fidelity_one_inflow_velocities(wake,rotor)
 
         # compute new blade velocities
         Wa   = va + Ua
