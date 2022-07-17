@@ -89,7 +89,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.use_VORLAX_matrix_calculation   = False
         self.settings.floating_point_precision        = jnp.float32
         self.settings.use_surrogate                   = True
-        self.settings.static_keys                     = ['floating_point_precision']
+        self.settings.static_keys                     = ['floating_point_precision','number_spanwise_vortices','number_chordwise_vortices','wing_spanwise_vortices','wing_chordwise_vortices','fuselage_spanwise_vortices','fuselage_chordwise_vortices']
 
         # conditions table, used for surrogate model training
         self.training                                = Data()

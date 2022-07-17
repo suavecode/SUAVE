@@ -64,23 +64,24 @@ class Nexus(Data):
             Properties Used:
             None
         """          
-        self.vehicle_configurations = None
-        self.analyses               = SUAVE.Analyses.Analysis.Container()
-        self.missions               = None
-        self.procedure              = Process()
-        self.results                = Data()
-        self.summary                = Data()
-        self.fidelity_level         = 1.
-        self.last_inputs            = Data()
-        self.last_fidelity          = None
-        self.last_jacobian_inputs   = Data()
-        self.last_jacobians         = None
-        self.evaluation_count       = 0.
-        self.force_evaluate         = False
-        self.hard_bounded_inputs    = False
-        self.use_jax_derivatives    = False
-        self.jitable                = False
-        self.static_keys            = ['last_jacobians']
+        self.vehicle_configurations  = None
+        self.analyses                = SUAVE.Analyses.Analysis.Container()
+        self.missions                = None
+        self.procedure               = Process()
+        self.results                 = Data()
+        self.summary                 = Data()
+        self.fidelity_level          = 1.
+        self.last_inputs             = None
+        self.last_grad_inputs        = None
+        self.last_grad               = None        
+        self.last_jacobian_inputs    = None
+        self.last_jacobians          = None
+        self.last_fidelity           = None
+        self.evaluation_count        = 0.
+        self.force_evaluate          = False
+        self.hard_bounded_inputs     = False
+        self.use_jax_derivatives     = False
+        self.jitable                 = False
 
         self.optimization_problem             = Data()
         self.optimization_problem.inputs      = None     
@@ -168,12 +169,22 @@ class Nexus(Data):
         
         if x is None:
             x = self.optimization_problem.inputs.pack_array()[0::5]        
-        
-        
-        if self.jitable:
-            scaled_objective, self = jit_nexus_objective_wrapper(x,self)
+            
+        # Check if the last inputs were just run
+        if not (x == self.last_inputs).all():
+            if self.jitable:
+                scaled_objective, problem = jit_nexus_objective_wrapper(x,self)
+            else:
+                scaled_objective, problem = self._objective(x)
+            
+            self.update(problem,hard=True)
+            self.last_inputs    = x
         else:
-            scaled_objective, self = self._objective(x)
+            aliases     = self.optimization_problem.aliases
+            objective   = self.optimization_problem.objective
+        
+            objective_value  = help_fun.get_values(self,objective,aliases)  
+            scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
 
         return scaled_objective
@@ -230,14 +241,21 @@ class Nexus(Data):
         if x is None:
             x = self.optimization_problem.inputs.pack_array()[0::5]
         
-        if self.jitable:
-            grad_function = jit_jac_nexus_objective_wrapper
-            grad, problem = grad_function(x,self)
-            self.update(problem,hard=True)
-        else:
-            grad_function = jac_nexus_objective_wrapper
+        
+        # Check if the last inputs were just run
+        if not (x == self.last_grad_inputs).all():        
+            if self.jitable:
+                grad_function = jit_jac_nexus_objective_wrapper
+            else:
+                grad_function = jac_nexus_objective_wrapper
+            
             grad, problem = grad_function(x,self)  
             self.update(problem,hard=True)
+                    
+            self.last_grad_inputs = x
+            self.last_grad        = grad
+        else:
+            grad                  = self.last_grad
 
         return grad
         
@@ -401,8 +419,27 @@ class Nexus(Data):
             Properties Used:
             None
         """         
+        
+        if x is None:
+            x = self.optimization_problem.inputs.pack_array()[0::5]        
 
-        scaled_constraints, self = self._all_constraints(x)
+
+        if not (x == self.last_inputs).all():     
+            
+            if self.jitable:
+                scaled_constraints, problem = jit_nexus_all_constraint_wrapper(x,self)
+            else:
+                scaled_constraints, problem = self._all_constraints(x)   
+                
+            self.update(problem,hard=True)
+            self.last_inputs    = x
+        else:
+            # get the results
+            aliases     = self.optimization_problem.aliases
+            constraints = self.optimization_problem.constraints
+        
+            constraint_values  = help_fun.get_values(self,constraints,aliases) 
+            scaled_constraints = help_fun.scale_const_values(constraints,constraint_values)             
 
 
         return scaled_constraints     
@@ -459,14 +496,20 @@ class Nexus(Data):
         if x is None:
             x = self.optimization_problem.inputs.pack_array()[0::5]
         
-        if self.jitable:
-            grad_function = jit_jac_nexus_all_constraint_wrapper
-            grad, problem = grad_function(x,self)  
+        # Check if the last inputs were just run
+        if not (x == self.last_jacobian_inputs).all():            
+            if self.jitable:
+                grad_function = jit_jac_nexus_all_constraint_wrapper
+            else:
+                grad_function = jac_nexus_all_constraint_wrapper
+                
+            grad, problem = grad_function(x,self)        
             self.update(problem,hard=True)
+            
+            self.last_jacobian_inputs = x
+            self.last_jacobians       = grad                  
         else:
-            grad_function = jac_nexus_all_constraint_wrapper
-            grad, problem = grad_function(x,self)  
-            self.update(problem,hard=True)
+            grad = self.last_jacobians
                 
         return grad
     

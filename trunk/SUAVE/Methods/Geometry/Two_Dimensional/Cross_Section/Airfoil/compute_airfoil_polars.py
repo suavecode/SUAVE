@@ -23,7 +23,7 @@ import numpy as np
 import jax.numpy as jnp
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True):
+def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True,linear_lift=False):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
@@ -67,7 +67,7 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
     airfoil_data = import_airfoil_geometry(a_geo, npoints = npoints)
 
     # Get all of the coefficients for AERODAS wings
-    AoA_sweep_deg = np.linspace(-14,90,105)
+    AoA_sweep_deg = np.linspace(-90,90,181)
     AoA_sweep_radians = AoA_sweep_deg*Units.degrees
     CL = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
     CD = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
@@ -167,6 +167,9 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
             CD[i,j,:] = CD_ij
             aoa0[i,j] = A0
             cl0[i,j]  = np.interp(0,airfoil_aoa,airfoil_cl)
+            
+            if linear_lift:
+                CL[i,j,:] = S1*(AoA_sweep_radians-A0)
             
             if use_pre_stall_data == True:
                 CL[i,j,:], CD[i,j,:] = apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL[i,j,:], CD[i,j,:])

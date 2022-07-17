@@ -14,7 +14,7 @@ import jax.numpy as jnp
 import numpy as np
 from jax import jit
 
-from SUAVE.Core import  Data, to_numpy
+from SUAVE.Core import  Data
 from SUAVE.Components.Wings import All_Moving_Surface
 from SUAVE.Components.Fuselages import Fuselage
 from SUAVE.Components.Nacelles  import Nacelle
@@ -26,6 +26,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 #  Generate Vortex Distribution
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+@jit
 def generate_vortex_distribution(geometry,settings):
     ''' Compute the coordinates of panels, vortices , control points
     and geometry used to build the influence coefficient matrix. A 
@@ -327,13 +328,8 @@ def generate_vortex_distribution(geometry,settings):
     VD.stripwise_panels_per_strip = VD.panels_per_strip[VD.leading_edge_indices]
     
     # For JAX some things have to be fixed
-    #VD.static_keys  = ['total_sw','n_w','stripwise_panels_per_strip','n_sw']
-    #VD['stripwise_panels_per_strip'] = tuple(VD['stripwise_panels_per_strip'])
     VD['n_sw'] = tuple(VD['n_sw'])
-    VD.static_keys  = ['n_sw']
-    
-    # pack VD into geometry
-    geometry.vortex_distribution = VD
+    VD.static_keys  = ['n_sw','total_sw','n_w']
     
     if show_prints: print('finish discretization')            
     

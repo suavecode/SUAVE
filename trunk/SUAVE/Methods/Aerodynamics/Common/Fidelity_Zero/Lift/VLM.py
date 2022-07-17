@@ -27,6 +27,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+@jit
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients.
     
@@ -161,7 +162,7 @@ def VLM(conditions,settings,geometry):
     # ------------------ --------------------------------------------------------------------    
     
     # Unpack vortex distribution
-    VD           = geometry.VD
+    VD           = geometry.vortex_distribution
     #n_cp         = VD.n_cp 
     n_sw         = np.array(VD.n_sw)
     CHORD        = VD.chord_lengths
