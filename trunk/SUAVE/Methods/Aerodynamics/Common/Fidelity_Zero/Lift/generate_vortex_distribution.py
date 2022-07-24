@@ -411,6 +411,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     section_area      = jnp.zeros(n_breaks)
     section_LE_cut    = jnp.zeros(n_breaks)
     section_TE_cut    = jnp.ones(n_breaks)
+    span_breaks_cs_ID = []
 
     # ---------------------------------------------------------------------------------------
     # STEP 5:  Obtain sweep, chord, dihedral and twist at the beginning/end of each break.
@@ -445,10 +446,17 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         else:
             break_camber_zs.append(jnp.zeros(30))              
             break_camber_xs.append(jnp.linspace(0,1,30)) 
+            
+        span_breaks_cs_ID.append(span_breaks[i_break].cs_IDs[0,1])
 
         # Get control surface leading and trailing edge cute cuts: section__cuts[-1] should never be used in the following code
         section_LE_cut = section_LE_cut.at[i_break].set(span_breaks[i_break].cuts[0,1])
         section_TE_cut = section_TE_cut.at[i_break].set(span_breaks[i_break].cuts[1,1])
+        
+    # Make break_cambers jnp arrays
+    break_camber_xs   = jnp.array(break_camber_xs)
+    break_camber_zs   = jnp.array(break_camber_zs)
+    span_breaks_cs_ID = jnp.array(span_breaks_cs_ID)
 
     VD.wing_areas.append(jnp.sum(section_area[:], dtype=precision))
     if sym_para is True :
@@ -466,10 +474,6 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         y_coordinates = y_coordinates.at[idx].set(y_req)
 
     y_coordinates = y_coordinates.sort()
-    
-    #for y_req in y_coords_required:
-        #if y_req not in y_coordinates:
-            #raise ValueError('VLM did not capture all section breaks')  
     
     # ---------------------------------------------------------------------------------------
     # STEP 6: Define coordinates of panels horseshoe vortices and control points 
@@ -866,9 +870,10 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             tan_incidence  = jnp.array(tan_incidence , dtype=precision)            
                         
             is_a_slat         = wing.is_a_control_surface and wing.is_slat
-            strip_has_no_slat = (not wing.is_a_control_surface) and (span_breaks[i_break].cs_IDs[0,1] == -1) # wing's le, outboard control surface ID
+            strip_has_no_slat = (not wing.is_a_control_surface) and (span_breaks_cs_ID[i_break] == -1) # wing's le, outboard control surface ID
             
-            exposed_leading_edge_flag  = jnp.int16(1) if is_a_slat or strip_has_no_slat else jnp.int16(0)   
+            slat_cond                  = jnp.logical_or(is_a_slat,strip_has_no_slat)
+            exposed_leading_edge_flag  = jnp.int16(1)*slat_cond 
             
             VD.leading_edge_indices      = jnp.append(VD.leading_edge_indices     , LE_inds                  ) 
             VD.trailing_edge_indices     = jnp.append(VD.trailing_edge_indices    , TE_inds                  )            
@@ -877,17 +882,13 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             VD.chord_lengths             = jnp.append(VD.chord_lengths            , chord_adjusted           )
             VD.tangent_incidence_angle   = jnp.append(VD.tangent_incidence_angle  , tan_incidence            )
             VD.exposed_leading_edge_flag = jnp.append(VD.exposed_leading_edge_flag, exposed_leading_edge_flag)
-            
-            ##increment i_break if needed; check for end of wing----------------------------------------------------
-            #if y_b[idx_y] == break_spans[i_break+1]: 
-                #i_break += 1
-                
-                ## append final xyz chordline 
-                #if i_break == n_breaks-1:
-                    #x = x.at[-(n_cw+1):].set(xi_prime_bs)
-                    #y = y.at[-(n_cw+1):].set(y_prime_bs)
-                    #z = z.at[-(n_cw+1):].set(zeta_prime_bs)                                  
-        ##End 'for each strip' loop            
+
+            #increment i_break if needed; check for end of wing----------------------------------------------------
+            cond = y_b[idx_y] == break_spans[i_break+1]
+            i_break += 1*cond
+                               
+            #End 'for each strip' loop           
+        
     
         # adjusting coordinate axis so reference point is at the nose of the aircraft------------------------------
         xah = xah + wing_origin_x # x coordinate of left corner of bound vortex 
