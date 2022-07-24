@@ -479,23 +479,26 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     del_y = y_coordinates[1:] - y_coordinates[:-1] 
     
     
-    ## Let relevant control surfaces know which y-coords they are required to have----------------------------------
-    #if not wing.is_a_control_surface:
-        #i_break = 0
-        #for idx_y in range(n_sw):
-            #span_break = span_breaks[i_break]
-            #cs_IDs     = span_break.cs_IDs[:,1] #only the outboard control surfaces
-            #y_coord    = y_coordinates[idx_y]
-            
-            #for cs_ID in cs_IDs[cs_IDs >= 0]:
-                #cs_tag     = wing.tag + '__cs_id_{}'.format(cs_ID)
-                #cs_wing    = wings[cs_tag]
-                #rel_offset = cs_wing.origin[0,1] - wing.origin[0][1] if not vertical_wing else cs_wing.origin[0,2] - wing.origin[0][2]
-                #cs_wing.y_coords_required.append(y_coord - rel_offset)
-            
-            #ycord_bool = y_coordinates[idx_y+1] == break_spans[i_break+1]
-            #i_break   += int(1*ycord_bool)
-            
+    # Let relevant control surfaces know which y-coords they are required to have----------------------------------
+    if not wing.is_a_control_surface:
+        for span_break in span_breaks:
+            cs_IDs     = span_break.cs_IDs[:,1] #only the outboard control surfaces
+    
+            for cs_ID in cs_IDs[cs_IDs >= 0]:
+                cs_tag     = wing.tag + '__cs_id_{}'.format(cs_ID)
+                cs_wing    = wings[cs_tag]
+                rel_offset = cs_wing.origin[0,1] - wing.origin[0][1] if not vertical_wing else cs_wing.origin[0,2] - wing.origin[0][2]
+    
+                rel_wing_ys = y_coordinates - rel_offset
+    
+                halfspan_size        = cs_wing.spans.projected * 0.5 if wing.symmetric else cs_wing.spans.projected
+                directional_halfspan = jnp.sign(jnp.cos(cs_wing.dihedral))*halfspan_size #account for dihedral in quadrants II and III
+    
+                l_bound = jnp.minimum(0, directional_halfspan)
+                r_bound = jnp.maximum(0, directional_halfspan)
+    
+                cs_wing.y_coords_required = rel_wing_ys[(l_bound<=rel_wing_ys) & (rel_wing_ys<=r_bound)]        
+    
     
     # -------------------------------------------------------------------------------------------------------------
     # Run the strip contruction loop again if wing is symmetric. 
