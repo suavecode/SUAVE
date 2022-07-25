@@ -12,7 +12,8 @@
 # package imports 
 import jax.numpy as jnp
 import numpy as np
-from jax import jit
+from jax import jit, lax
+from jax.lax import dynamic_update_slice as DUS
 
 from SUAVE.Core import  Data
 from SUAVE.Components.Wings import All_Moving_Surface
@@ -550,7 +551,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         x     = jnp.zeros((n_cw+1)*(n_sw+1)) # may have to change to make space for split if control surfaces are allowed to have more than two Segments
         y     = jnp.zeros((n_cw+1)*(n_sw+1)) 
         z     = jnp.zeros((n_cw+1)*(n_sw+1))         
-        cs_w  = jnp.zeros(n_sw)        
+        cs_w  = jnp.zeros(n_sw)
+        
+        coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]
         
         # adjust origin for symmetry with special case for vertical symmetry
         if vertical_wing:
@@ -564,331 +567,49 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             
         # ---------------------------------------------------------------------------------------------------------
         # Loop over each strip of panels in the wing
-        i_break = 0           
-        for idx_y in range(n_sw):
-            # define basic geometric values------------------------------------------------------------------------
-            # inboard, outboard, and central panel values
-            eta_a = (y_a[idx_y] - break_spans[i_break])  
-            eta_b = (y_b[idx_y] - break_spans[i_break]) 
-            eta   = (y_b[idx_y] - del_y[idx_y]/2 - break_spans[i_break]) 
-    
-            segment_chord_ratio = (break_chord[i_break+1] - break_chord[i_break])/section_span[i_break+1]
-            segment_twist_ratio = (break_twist[i_break+1] - break_twist[i_break])/section_span[i_break+1]
-    
-            wing_chord_section_a  = break_chord[i_break] + (eta_a*segment_chord_ratio) 
-            wing_chord_section_b  = break_chord[i_break] + (eta_b*segment_chord_ratio)
-            wing_chord_section    = break_chord[i_break] + (eta*segment_chord_ratio)
-    
-            # x-positions based on whether the wing needs 'cuts' for its control sufaces
-            nondim_x_stations = jnp.interp(jnp.linspace(0.,1.,num=n_cw+1), jnp.array([0.,1.]), jnp.array([section_LE_cut[i_break], section_TE_cut[i_break]]))
-            x_stations_a      = nondim_x_stations * wing_chord_section_a  #x positions accounting for control surface cuts, relative to leading
-            x_stations_b      = nondim_x_stations * wing_chord_section_b
-            x_stations        = nondim_x_stations * wing_chord_section
-            
-            delta_x_a = (x_stations_a[-1] - x_stations_a[0])/n_cw  
-            delta_x_b = (x_stations_b[-1] - x_stations_b[0])/n_cw      
-            delta_x   = (x_stations[-1]   - x_stations[0]  )/n_cw             
-    
-            # define coordinates of horseshoe vortices and control points------------------------------------------
-            xi_a1 = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break]) + x_stations_a[:-1]                  # x coordinate of top left corner of panel
-            xi_ah = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break]) + x_stations_a[:-1] + delta_x_a*0.25 # x coordinate of left corner of panel
-            xi_ac = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break]) + x_stations_a[:-1] + delta_x_a*0.75 # x coordinate of bottom left corner of control point vortex  
-            xi_a2 = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break]) + x_stations_a[1:]                   # x coordinate of bottom left corner of bound vortex 
-            xi_b1 = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break]) + x_stations_b[:-1]                  # x coordinate of top right corner of panel      
-            xi_bh = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break]) + x_stations_b[:-1] + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
-            xi_bc = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break]) + x_stations_b[:-1] + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
-            xi_b2 = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break]) + x_stations_b[1:]                   # x coordinate of bottom right corner of panel
-            xi_ch = break_x_offset[i_break] + eta  *jnp.tan(break_sweep[i_break]) + x_stations[:-1]   + delta_x  *0.25 # x coordinate center of bound vortex of each panel 
-            xi_c  = break_x_offset[i_break] + eta  *jnp.tan(break_sweep[i_break]) + x_stations[:-1]   + delta_x  *0.75 # x coordinate three-quarter chord control point for each panel
-    
-            #adjust for camber-------------------------------------------------------------------------------------    
-            #format camber vars for wings vs control surface wings
-            nondim_camber_x_coords = break_camber_xs[i_break] *1
-            nondim_camber          = break_camber_zs[i_break] *1
-            if wing.is_a_control_surface: #rescale so that airfoils get cut properly
-                if not wing.is_slat:
-                    nondim_camber_x_coords -= 1 - wing.chord_fraction
-                nondim_camber_x_coords /= wing.chord_fraction
-                nondim_camber          /= wing.chord_fraction
-    
-            # adjustment of coordinates for camber
-            section_camber_a  = nondim_camber*wing_chord_section_a  
-            section_camber_b  = nondim_camber*wing_chord_section_b  
-            section_camber_c  = nondim_camber*wing_chord_section             
-            
-            section_x_coord_a = nondim_camber_x_coords*wing_chord_section_a
-            section_x_coord_b = nondim_camber_x_coords*wing_chord_section_b
-            section_x_coord   = nondim_camber_x_coords*wing_chord_section
-    
-            z_c_a1 = jnp.interp((x_stations_a[:-1]                 ) ,section_x_coord_a, section_camber_a) 
-            z_c_ah = jnp.interp((x_stations_a[:-1] + delta_x_a*0.25) ,section_x_coord_a, section_camber_a)
-            z_c_ac = jnp.interp((x_stations_a[:-1] + delta_x_a*0.75) ,section_x_coord_a, section_camber_a) 
-            z_c_a2 = jnp.interp((x_stations_a[1:]                  ) ,section_x_coord_a, section_camber_a) 
-            z_c_b1 = jnp.interp((x_stations_b[:-1]                 ) ,section_x_coord_b, section_camber_b)   
-            z_c_bh = jnp.interp((x_stations_b[:-1] + delta_x_b*0.25) ,section_x_coord_b, section_camber_b) 
-            z_c_bc = jnp.interp((x_stations_b[:-1] + delta_x_b*0.75) ,section_x_coord_b, section_camber_b) 
-            z_c_b2 = jnp.interp((x_stations_b[1:]                  ) ,section_x_coord_b, section_camber_b) 
-            z_c_ch = jnp.interp((x_stations[:-1]   + delta_x  *0.25) ,section_x_coord  , section_camber_c) 
-            z_c    = jnp.interp((x_stations[:-1]   + delta_x  *0.75) ,section_x_coord  , section_camber_c) 
-    
-            # adjust for dihedral and add to camber----------------------------------------------------------------    
-            zeta_a1 = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])  + z_c_a1  # z coordinate of top left corner of panel
-            zeta_ah = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])  + z_c_ah  # z coordinate of left corner of bound vortex  
-            zeta_a2 = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])  + z_c_a2  # z coordinate of bottom left corner of panel
-            zeta_ac = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])  + z_c_ac  # z coordinate of bottom left corner of panel of control point
-            zeta_bc = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])  + z_c_bc  # z coordinate of top right corner of panel of control point                          
-            zeta_b1 = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])  + z_c_b1  # z coordinate of top right corner of panel  
-            zeta_bh = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])  + z_c_bh  # z coordinate of right corner of bound vortex        
-            zeta_b2 = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])  + z_c_b2  # z coordinate of bottom right corner of panel                 
-            zeta_ch = break_z_offset[i_break] + eta  *jnp.tan(break_dihedral[i_break])  + z_c_ch  # z coordinate center of bound vortex on each panel
-            zeta    = break_z_offset[i_break] + eta  *jnp.tan(break_dihedral[i_break])  + z_c     # z coordinate three-quarter chord control point for each panel
-    
-            # adjust for twist-------------------------------------------------------------------------------------
-            # pivot point is the leading edge before camber  
-            pivot_x_a = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break])             # x location of leading edge left corner of wing
-            pivot_x_b = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break])             # x location of leading edge right of wing
-            pivot_x   = break_x_offset[i_break] + eta  *jnp.tan(break_sweep[i_break])             # x location of leading edge center of wing
-            
-            pivot_z_a = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])          # z location of leading edge left corner of wing
-            pivot_z_b = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])          # z location of leading edge right of wing
-            pivot_z   = break_z_offset[i_break] + eta  *jnp.tan(break_dihedral[i_break])          # z location of leading edge center of wing
-    
-            # adjust twist pivot line for control surface wings: offset leading edge to match that of the owning wing            
-            if wing.is_a_control_surface and not wing.is_slat: #correction only leading for non-leading edge control surfaces since the LE is the pivot by default
-                nondim_cs_LE = (1 - wing.chord_fraction)
-                pivot_x_a   -= nondim_cs_LE *(wing_chord_section_a /wing.chord_fraction) 
-                pivot_x_b   -= nondim_cs_LE *(wing_chord_section_b /wing.chord_fraction) 
-                pivot_x     -= nondim_cs_LE *(wing_chord_section   /wing.chord_fraction) 
-    
-            # adjust coordinates for twist
-            section_twist_a = break_twist[i_break] + (eta_a * segment_twist_ratio)               # twist at left side of panel
-            section_twist_b = break_twist[i_break] + (eta_b * segment_twist_ratio)               # twist at right side of panel
-            section_twist   = break_twist[i_break] + (eta   * segment_twist_ratio)               # twist at center local chord 
-    
-            xi_prime_a1    = pivot_x_a + jnp.cos(section_twist_a)*(xi_a1-pivot_x_a) + jnp.sin(section_twist_a)*(zeta_a1-pivot_z_a) # x coordinate transformation of top left corner
-            xi_prime_ah    = pivot_x_a + jnp.cos(section_twist_a)*(xi_ah-pivot_x_a) + jnp.sin(section_twist_a)*(zeta_ah-pivot_z_a) # x coordinate transformation of bottom left corner
-            xi_prime_ac    = pivot_x_a + jnp.cos(section_twist_a)*(xi_ac-pivot_x_a) + jnp.sin(section_twist_a)*(zeta_a2-pivot_z_a) # x coordinate transformation of bottom left corner of control point
-            xi_prime_a2    = pivot_x_a + jnp.cos(section_twist_a)*(xi_a2-pivot_x_a) + jnp.sin(section_twist_a)*(zeta_a2-pivot_z_a) # x coordinate transformation of bottom left corner
-            xi_prime_b1    = pivot_x_b + jnp.cos(section_twist_b)*(xi_b1-pivot_x_b) + jnp.sin(section_twist_b)*(zeta_b1-pivot_z_b) # x coordinate transformation of top right corner 
-            xi_prime_bh    = pivot_x_b + jnp.cos(section_twist_b)*(xi_bh-pivot_x_b) + jnp.sin(section_twist_b)*(zeta_bh-pivot_z_b) # x coordinate transformation of top right corner 
-            xi_prime_bc    = pivot_x_b + jnp.cos(section_twist_b)*(xi_bc-pivot_x_b) + jnp.sin(section_twist_b)*(zeta_b1-pivot_z_b) # x coordinate transformation of top right corner of control point                         
-            xi_prime_b2    = pivot_x_b + jnp.cos(section_twist_b)*(xi_b2-pivot_x_b) + jnp.sin(section_twist_b)*(zeta_b2-pivot_z_b) # x coordinate transformation of botton right corner 
-            xi_prime_ch    = pivot_x   + jnp.cos(section_twist)  *(xi_ch-pivot_x)   + jnp.sin(section_twist)  *(zeta_ch-pivot_z)   # x coordinate transformation of center of horeshoe vortex 
-            xi_prime       = pivot_x   + jnp.cos(section_twist)  *(xi_c -pivot_x)   + jnp.sin(section_twist)  *(zeta   -pivot_z)   # x coordinate transformation of control point
-    
-            zeta_prime_a1  = pivot_z_a - jnp.sin(section_twist_a)*(xi_a1-pivot_x_a) + jnp.cos(section_twist_a)*(zeta_a1-pivot_z_a) # z coordinate transformation of top left corner
-            zeta_prime_ah  = pivot_z_a - jnp.sin(section_twist_a)*(xi_ah-pivot_x_a) + jnp.cos(section_twist_a)*(zeta_ah-pivot_z_a) # z coordinate transformation of bottom left corner
-            zeta_prime_ac  = pivot_z_a - jnp.sin(section_twist_a)*(xi_ac-pivot_x_a) + jnp.cos(section_twist_a)*(zeta_ac-pivot_z_a) # z coordinate transformation of bottom left corner
-            zeta_prime_a2  = pivot_z_a - jnp.sin(section_twist_a)*(xi_a2-pivot_x_a) + jnp.cos(section_twist_a)*(zeta_a2-pivot_z_a) # z coordinate transformation of bottom left corner
-            zeta_prime_b1  = pivot_z_b - jnp.sin(section_twist_b)*(xi_b1-pivot_x_b) + jnp.cos(section_twist_b)*(zeta_b1-pivot_z_b) # z coordinate transformation of top right corner 
-            zeta_prime_bh  = pivot_z_b - jnp.sin(section_twist_b)*(xi_bh-pivot_x_b) + jnp.cos(section_twist_b)*(zeta_bh-pivot_z_b) # z coordinate transformation of top right corner 
-            zeta_prime_bc  = pivot_z_b - jnp.sin(section_twist_b)*(xi_bc-pivot_x_b) + jnp.cos(section_twist_b)*(zeta_bc-pivot_z_b) # z coordinate transformation of top right corner                         
-            zeta_prime_b2  = pivot_z_b - jnp.sin(section_twist_b)*(xi_b2-pivot_x_b) + jnp.cos(section_twist_b)*(zeta_b2-pivot_z_b) # z coordinate transformation of botton right corner 
-            zeta_prime_ch  = pivot_z   - jnp.sin(section_twist)  *(xi_ch-pivot_x)   + jnp.cos(-section_twist) *(zeta_ch-pivot_z)   # z coordinate transformation of center of horseshoe
-            zeta_prime     = pivot_z   - jnp.sin(section_twist)  *(xi_c -pivot_x)   + jnp.cos(-section_twist) *(zeta   -pivot_z)   # z coordinate transformation of control point
-            
-            # Define y-coordinate and other arrays-----------------------------------------------------------------
-            # take normal value for first wing, then reflect over xz plane for a symmetric wing
-            y_prime_as = (jnp.ones(n_cw+1)*y_a[idx_y]                 ) *sym_sign          
-            y_prime_a1 = (y_prime_as[:-1]                            ) *1       
-            y_prime_ah = (y_prime_as[:-1]                            ) *1       
-            y_prime_ac = (y_prime_as[:-1]                            ) *1          
-            y_prime_a2 = (y_prime_as[:-1]                            ) *1        
-            y_prime_bs = (jnp.ones(n_cw+1)*y_b[idx_y]                 ) *sym_sign            
-            y_prime_b1 = (y_prime_bs[:-1]                            ) *1         
-            y_prime_bh = (y_prime_bs[:-1]                            ) *1         
-            y_prime_bc = (y_prime_bs[:-1]                            ) *1         
-            y_prime_b2 = (y_prime_bs[:-1]                            ) *1   
-            y_prime_ch = (jnp.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)) *sym_sign
-            y_prime    = (y_prime_ch                                 ) *1    
-            
-            # populate all corners of all panels. Right side only populated for last strip wing the wing
-            is_last_section = (idx_y == n_sw-1)
-            xi_prime_as   = jnp.concatenate([xi_prime_a1,  jnp.array([xi_prime_a2  [-1]])])*1
-            xi_prime_bs   = jnp.concatenate([xi_prime_b1,  jnp.array([xi_prime_b2  [-1]])])*1 if is_last_section else None 
-            zeta_prime_as = jnp.concatenate([zeta_prime_a1,jnp.array([zeta_prime_a2[-1]])])*1            
-            zeta_prime_bs = jnp.concatenate([zeta_prime_b1,jnp.array([zeta_prime_b2[-1]])])*1 if is_last_section else None       
-            
-            # Deflect control surfaces-----------------------------------------------------------------------------
-            # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
-            # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
-            wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
-            if wing.is_a_control_surface or wing_is_all_moving:
-                
-                #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
-                #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
-                is_first_strip = (idx_y == 0)
-                if is_first_strip:
-                    # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
-                    ib_le_strip_corner = jnp.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
-                    ib_te_strip_corner = jnp.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
-                    
-                    interp_fractions   = jnp.array([0.,    2.,    4.   ]) + wing.hinge_fraction
-                    interp_domains     = jnp.array([0.,1., 2.,3., 4.,5.])
-                    interp_ranges_ib   = jnp.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
-                    ib_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ib)
-                    
-                    
-                    #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
-                    if wing.is_a_control_surface:
-                        need_to_compute_hinge_vector = True
-                    else: #wing is an all-moving surface
-                        hinge_vector                 = jnp.array(wing.hinge_vector)
-                        hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
-                                                        not (hinge_vector==jnp.array([0.,0.,0.])).all()
-                        need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
-                        
-                    if need_to_compute_hinge_vector:
-                        ob_le_strip_corner = jnp.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
-                        ob_te_strip_corner = jnp.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
-                        interp_ranges_ob   = jnp.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
-                        ob_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ob)
-                    
-                        use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
-                        if use_root_chord_in_plane_normal: ob_hinge_point = ob_hinge_point.at[0].set(ib_hinge_point[0])
-                    
-                        hinge_vector       = ob_hinge_point - ib_hinge_point
-                        hinge_vector       = hinge_vector / jnp.linalg.norm(hinge_vector)   
-                    elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
-                        HNG_1 = hinge_vector[1] * 1
-                        HNG_2 = hinge_vector[2] * 1
-                        
-                        hinge_vector =  hinge_vector.at[1].set(HNG_2)
-                        hinge_vector =  hinge_vector.at[2].set(HNG_1)
-                        
-                    #store hinge root point and direction vector
-                    wing.hinge_root_point = ib_hinge_point
-                    wing.hinge_vector     = hinge_vector
-                    #END first strip calculations
-                
-                # get deflection angle
-                deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
-                symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
-                symmetry_multiplier  *= -1                   if vertical_wing      else 1
-                deflection_angle      = deflection_base_angle * symmetry_multiplier
-                    
-                # make quaternion rotation matrix
-                quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
-                
-                # rotate strips
-                xi_prime_a1, y_prime_a1, zeta_prime_a1 = rotate_points_with_quaternion(quaternion, [xi_prime_a1,y_prime_a1,zeta_prime_a1])
-                xi_prime_ah, y_prime_ah, zeta_prime_ah = rotate_points_with_quaternion(quaternion, [xi_prime_ah,y_prime_ah,zeta_prime_ah])
-                xi_prime_ac, y_prime_ac, zeta_prime_ac = rotate_points_with_quaternion(quaternion, [xi_prime_ac,y_prime_ac,zeta_prime_ac])
-                xi_prime_a2, y_prime_a2, zeta_prime_a2 = rotate_points_with_quaternion(quaternion, [xi_prime_a2,y_prime_a2,zeta_prime_a2])
-                                                                                                   
-                xi_prime_b1, y_prime_b1, zeta_prime_b1 = rotate_points_with_quaternion(quaternion, [xi_prime_b1,y_prime_b1,zeta_prime_b1])
-                xi_prime_bh, y_prime_bh, zeta_prime_bh = rotate_points_with_quaternion(quaternion, [xi_prime_bh,y_prime_bh,zeta_prime_bh])
-                xi_prime_bc, y_prime_bc, zeta_prime_bc = rotate_points_with_quaternion(quaternion, [xi_prime_bc,y_prime_bc,zeta_prime_bc])
-                xi_prime_b2, y_prime_b2, zeta_prime_b2 = rotate_points_with_quaternion(quaternion, [xi_prime_b2,y_prime_b2,zeta_prime_b2])
-                                                                                                   
-                xi_prime_ch, y_prime_ch, zeta_prime_ch = rotate_points_with_quaternion(quaternion, [xi_prime_ch,y_prime_ch,zeta_prime_ch])
-                xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
-                                                                                                   
-                xi_prime_as, y_prime_as, zeta_prime_as = rotate_points_with_quaternion(quaternion, [xi_prime_as,y_prime_as,zeta_prime_as])
-                xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs]) if is_last_section else [None, None, None] 
-            
-            # reflect over the plane y = z for a vertical wing-----------------------------------------------------
-            inverted_wing = -jnp.sign(break_dihedral[i_break] - jnp.pi/2)
-            if vertical_wing:
-                y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
-                y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
-                y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
-                y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
-                                                                     
-                y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
-                y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
-                y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
-                y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
-                                                                     
-                y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
-                y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
-                                                                     
-                y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
-
-                if y_prime_bs == None:
-                    pass
-                else:
-                    y_prime_bs = inverted_wing*y_prime_bs
-                y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs
-                 
-            # store coordinates of panels, horseshoeces vortices and control points relative to wing root----------
-            xa1 = xa1.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_a1)     # top left corner of panel
-            ya1 = ya1.at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime_a1)
-            za1 = za1.at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime_a1)
-            xah = xah.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_ah)     # left coord of horseshoe
-            yah = yah.at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime_ah)
-            zah = zah.at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime_ah)                    
-            xac = xac.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_ac)     # left coord of control point
-            yac = yac.at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime_ac)
-            zac = zac.at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime_ac)
-            xa2 = xa2.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_a2)     # bottom left corner of panel
-            ya2 = ya2.at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime_a2)
-            za2 = za2.at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime_a2)
-                                             
-            xb1 = xb1.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_b1)     # top right corner of panel
-            yb1 = yb1.at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime_b1)          
-            zb1 = zb1.at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime_b1)   
-            xbh = xbh.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_bh)     # right coord of horseshoe
-            ybh = ybh.at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime_bh)          
-            zbh = zbh.at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime_bh)                    
-            xbc = xbc.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_bc)     # right coord of control point
-            ybc = ybc.at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime_bc)                           
-            zbc = zbc.at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime_bc)   
-            xb2 = xb2.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_b2)     # bottom right corner of panel
-            yb2 = yb2.at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime_b2)                        
-            zb2 = zb2.at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime_b2) 
-                                             
-            xch = xch.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_ch)     # center coord of horseshoe
-            ych = ych.at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime_ch)                              
-            zch = zch.at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime_ch)
-            xc  = xc .at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime)        # center (true) coord of control point
-            yc  = yc .at[idx_y*n_cw:(idx_y+1)*n_cw].set(y_prime)
-            zc  = zc .at[idx_y*n_cw:(idx_y+1)*n_cw].set(zeta_prime) 
-           
-            x   = x.at[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)].set(xi_prime_as)     # x, y, z represent all all points of the corners of the panels, LE and TE inclusive
-            y   = y.at[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)].set(y_prime_as)      # the final right corners get appended at last strip in wing, later
-            z   = z.at[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)].set(zeta_prime_as)              
-    
-            cs_w = cs_w.at[idx_y].set(wing_chord_section)
-                   
-            # store this strip's discretization information--------------------------------------------------------
-            LE_inds        = jnp.full(n_cw, False)
-            TE_inds        = jnp.full(n_cw, False)
-            LE_inds        = LE_inds.at[0].set(True)
-            TE_inds        = TE_inds.at[-1].set(True)
-            
-            RNMAX          = jnp.ones(n_cw, jnp.int16)*n_cw
-            panel_numbers  = jnp.linspace(1,n_cw,n_cw, dtype=jnp.int16)
-            
-            LE_X           = (xi_prime_a1  [0 ] + xi_prime_b1  [0 ])/2
-            LE_Z           = (zeta_prime_a1[0 ] + zeta_prime_b1[0 ])/2
-            TE_X           = (xi_prime_a2  [-1] + xi_prime_b2  [-1])/2
-            TE_Z           = (zeta_prime_a2[-1] + zeta_prime_b2[-1])/2           
-            chord_adjusted = jnp.ones(n_cw) * jnp.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
-            tan_incidence  = jnp.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax
-            chord_adjusted = jnp.array(chord_adjusted, dtype=precision)
-            tan_incidence  = jnp.array(tan_incidence , dtype=precision)            
-                        
-            is_a_slat         = wing.is_a_control_surface and wing.is_slat
-            strip_has_no_slat = (not wing.is_a_control_surface) and (span_breaks_cs_ID[i_break] == -1) # wing's le, outboard control surface ID
-            
-            slat_cond                  = jnp.logical_or(is_a_slat,strip_has_no_slat)
-            exposed_leading_edge_flag  = jnp.int16(1)*slat_cond 
-            
-            VD.leading_edge_indices      = jnp.append(VD.leading_edge_indices     , LE_inds                  ) 
-            VD.trailing_edge_indices     = jnp.append(VD.trailing_edge_indices    , TE_inds                  )            
-            VD.panels_per_strip          = jnp.append(VD.panels_per_strip         , RNMAX                    )
-            VD.chordwise_panel_number    = jnp.append(VD.chordwise_panel_number   , panel_numbers            )  
-            VD.chord_lengths             = jnp.append(VD.chord_lengths            , chord_adjusted           )
-            VD.tangent_incidence_angle   = jnp.append(VD.tangent_incidence_angle  , tan_incidence            )
-            VD.exposed_leading_edge_flag = jnp.append(VD.exposed_leading_edge_flag, exposed_leading_edge_flag)
-
-            #increment i_break if needed; check for end of wing----------------------------------------------------
-            cond = y_b[idx_y] == break_spans[i_break+1]
-            i_break += 1*cond
-                               
-            #End 'for each strip' loop           
         
+        
+        # Setup items that will iterate in loop
+        LE_inds        = jnp.zeros(n_cw*n_sw,dtype=bool)
+        TE_inds        = jnp.zeros(n_cw*n_sw,dtype=bool)
+        RNMAX          = jnp.zeros(n_cw*n_sw,dtype=jnp.int16)
+        panel_numbers  = jnp.zeros(n_cw*n_sw,dtype=jnp.int16)
+        chord_adjusted = jnp.zeros(n_cw*n_sw)
+        tan_incidence  = jnp.zeros(n_cw*n_sw)
+        exposed_leading_edge_flag = jnp.zeros(n_sw,dtype=jnp.int16)
+
+        indices = [LE_inds,TE_inds,RNMAX,panel_numbers,chord_adjusted,tan_incidence,exposed_leading_edge_flag]
+        
+        
+        def wing_s(idx_y,val):
+            inds, i_break, cords = val
+            inds, i_break, cords = wing_strip(i_break,wing,inds,cords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
+               break_x_offset,break_z_offset,break_camber_xs,break_camber_zs,break_dihedral,section_span,
+               section_LE_cut,section_TE_cut,sym_sign,sym_sign_ind,vertical_wing,span_breaks_cs_ID,precision)    
+            
+            return [inds, i_break, cords]
+            
+            
+        
+        i_break = 0           
+        
+        indices, i_break, coords = lax.fori_loop(0, n_sw, wing_s, [indices, i_break, coords])
+        
+        LE_inds,TE_inds,RNMAX,panel_numbers,chord_adjusted,tan_incidence,exposed_leading_edge_flag = indices
+        
+        VD.leading_edge_indices      = jnp.append(VD.leading_edge_indices     , LE_inds                  ) 
+        VD.trailing_edge_indices     = jnp.append(VD.trailing_edge_indices    , TE_inds                  )            
+        VD.panels_per_strip          = jnp.append(VD.panels_per_strip         , RNMAX                    )
+        VD.chordwise_panel_number    = jnp.append(VD.chordwise_panel_number   , panel_numbers            )  
+        VD.chord_lengths             = jnp.append(VD.chord_lengths            , chord_adjusted           )
+        VD.tangent_incidence_angle   = jnp.append(VD.tangent_incidence_angle  , tan_incidence            )
+        VD.exposed_leading_edge_flag = jnp.append(VD.exposed_leading_edge_flag, exposed_leading_edge_flag)
+        
+
+        xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,\
+            xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w = coords
+    
+
     
         # adjusting coordinate axis so reference point is at the nose of the aircraft------------------------------
         xah = xah + wing_origin_x # x coordinate of left corner of bound vortex 
@@ -1020,7 +741,353 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     #End symmetry loop
     VD.symmetric_wings = jnp.append(VD.symmetric_wings, int(sym_para))
     return VD
+
+def fori_loop(lower, upper, body_fun, init_val):
+    val = init_val
+    for i in range(lower, upper):
+        val = body_fun(i, val)
+    return val
     
+    
+def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
+               break_x_offset,break_z_offset,break_camber_xs,break_camber_zs,break_dihedral,section_span,
+               section_LE_cut,section_TE_cut,sym_sign,sym_sign_ind,vertical_wing,span_breaks_cs_ID,precision):
+    
+    xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w = coords
+    
+    # define basic geometric values------------------------------------------------------------------------
+    # inboard, outboard, and central panel values
+    eta_a = (y_a[idx_y] - break_spans[i_break])  
+    eta_b = (y_b[idx_y] - break_spans[i_break]) 
+    eta   = (y_b[idx_y] - del_y[idx_y]/2 - break_spans[i_break]) 
+
+    segment_chord_ratio = (break_chord[i_break+1] - break_chord[i_break])/section_span[i_break+1]
+    segment_twist_ratio = (break_twist[i_break+1] - break_twist[i_break])/section_span[i_break+1]
+
+    wing_chord_section_a  = break_chord[i_break] + (eta_a*segment_chord_ratio) 
+    wing_chord_section_b  = break_chord[i_break] + (eta_b*segment_chord_ratio)
+    wing_chord_section    = break_chord[i_break] + (eta*segment_chord_ratio)
+
+    # x-positions based on whether the wing needs 'cuts' for its control sufaces
+    nondim_x_stations = jnp.interp(jnp.linspace(0.,1.,num=n_cw+1), jnp.array([0.,1.]), jnp.array([section_LE_cut[i_break], section_TE_cut[i_break]]))
+    x_stations_a      = nondim_x_stations * wing_chord_section_a  #x positions accounting for control surface cuts, relative to leading
+    x_stations_b      = nondim_x_stations * wing_chord_section_b
+    x_stations        = nondim_x_stations * wing_chord_section
+    
+    delta_x_a = (x_stations_a[-1] - x_stations_a[0])/n_cw  
+    delta_x_b = (x_stations_b[-1] - x_stations_b[0])/n_cw      
+    delta_x   = (x_stations[-1]   - x_stations[0]  )/n_cw             
+
+    # define coordinates of horseshoe vortices and control points------------------------------------------
+    xi_a1 = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break]) + x_stations_a[:-1]                  # x coordinate of top left corner of panel
+    xi_ah = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break]) + x_stations_a[:-1] + delta_x_a*0.25 # x coordinate of left corner of panel
+    xi_ac = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break]) + x_stations_a[:-1] + delta_x_a*0.75 # x coordinate of bottom left corner of control point vortex  
+    xi_a2 = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break]) + x_stations_a[1:]                   # x coordinate of bottom left corner of bound vortex 
+    xi_b1 = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break]) + x_stations_b[:-1]                  # x coordinate of top right corner of panel      
+    xi_bh = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break]) + x_stations_b[:-1] + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
+    xi_bc = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break]) + x_stations_b[:-1] + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
+    xi_b2 = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break]) + x_stations_b[1:]                   # x coordinate of bottom right corner of panel
+    xi_ch = break_x_offset[i_break] + eta  *jnp.tan(break_sweep[i_break]) + x_stations[:-1]   + delta_x  *0.25 # x coordinate center of bound vortex of each panel 
+    xi_c  = break_x_offset[i_break] + eta  *jnp.tan(break_sweep[i_break]) + x_stations[:-1]   + delta_x  *0.75 # x coordinate three-quarter chord control point for each panel
+
+    #adjust for camber-------------------------------------------------------------------------------------    
+    #format camber vars for wings vs control surface wings
+    nondim_camber_x_coords = break_camber_xs[i_break] *1
+    nondim_camber          = break_camber_zs[i_break] *1
+    if wing.is_a_control_surface: #rescale so that airfoils get cut properly
+        if not wing.is_slat:
+            nondim_camber_x_coords -= 1 - wing.chord_fraction
+        nondim_camber_x_coords /= wing.chord_fraction
+        nondim_camber          /= wing.chord_fraction
+
+    # adjustment of coordinates for camber
+    section_camber_a  = nondim_camber*wing_chord_section_a  
+    section_camber_b  = nondim_camber*wing_chord_section_b  
+    section_camber_c  = nondim_camber*wing_chord_section             
+    
+    section_x_coord_a = nondim_camber_x_coords*wing_chord_section_a
+    section_x_coord_b = nondim_camber_x_coords*wing_chord_section_b
+    section_x_coord   = nondim_camber_x_coords*wing_chord_section
+
+    z_c_a1 = jnp.interp((x_stations_a[:-1]                 ) ,section_x_coord_a, section_camber_a) 
+    z_c_ah = jnp.interp((x_stations_a[:-1] + delta_x_a*0.25) ,section_x_coord_a, section_camber_a)
+    z_c_ac = jnp.interp((x_stations_a[:-1] + delta_x_a*0.75) ,section_x_coord_a, section_camber_a) 
+    z_c_a2 = jnp.interp((x_stations_a[1:]                  ) ,section_x_coord_a, section_camber_a) 
+    z_c_b1 = jnp.interp((x_stations_b[:-1]                 ) ,section_x_coord_b, section_camber_b)   
+    z_c_bh = jnp.interp((x_stations_b[:-1] + delta_x_b*0.25) ,section_x_coord_b, section_camber_b) 
+    z_c_bc = jnp.interp((x_stations_b[:-1] + delta_x_b*0.75) ,section_x_coord_b, section_camber_b) 
+    z_c_b2 = jnp.interp((x_stations_b[1:]                  ) ,section_x_coord_b, section_camber_b) 
+    z_c_ch = jnp.interp((x_stations[:-1]   + delta_x  *0.25) ,section_x_coord  , section_camber_c) 
+    z_c    = jnp.interp((x_stations[:-1]   + delta_x  *0.75) ,section_x_coord  , section_camber_c) 
+
+    # adjust for dihedral and add to camber----------------------------------------------------------------    
+    zeta_a1 = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])  + z_c_a1  # z coordinate of top left corner of panel
+    zeta_ah = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])  + z_c_ah  # z coordinate of left corner of bound vortex  
+    zeta_a2 = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])  + z_c_a2  # z coordinate of bottom left corner of panel
+    zeta_ac = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])  + z_c_ac  # z coordinate of bottom left corner of panel of control point
+    zeta_bc = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])  + z_c_bc  # z coordinate of top right corner of panel of control point                          
+    zeta_b1 = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])  + z_c_b1  # z coordinate of top right corner of panel  
+    zeta_bh = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])  + z_c_bh  # z coordinate of right corner of bound vortex        
+    zeta_b2 = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])  + z_c_b2  # z coordinate of bottom right corner of panel                 
+    zeta_ch = break_z_offset[i_break] + eta  *jnp.tan(break_dihedral[i_break])  + z_c_ch  # z coordinate center of bound vortex on each panel
+    zeta    = break_z_offset[i_break] + eta  *jnp.tan(break_dihedral[i_break])  + z_c     # z coordinate three-quarter chord control point for each panel
+
+    # adjust for twist-------------------------------------------------------------------------------------
+    # pivot point is the leading edge before camber  
+    pivot_x_a = break_x_offset[i_break] + eta_a*jnp.tan(break_sweep[i_break])             # x location of leading edge left corner of wing
+    pivot_x_b = break_x_offset[i_break] + eta_b*jnp.tan(break_sweep[i_break])             # x location of leading edge right of wing
+    pivot_x   = break_x_offset[i_break] + eta  *jnp.tan(break_sweep[i_break])             # x location of leading edge center of wing
+    
+    pivot_z_a = break_z_offset[i_break] + eta_a*jnp.tan(break_dihedral[i_break])          # z location of leading edge left corner of wing
+    pivot_z_b = break_z_offset[i_break] + eta_b*jnp.tan(break_dihedral[i_break])          # z location of leading edge right of wing
+    pivot_z   = break_z_offset[i_break] + eta  *jnp.tan(break_dihedral[i_break])          # z location of leading edge center of wing
+
+    # adjust twist pivot line for control surface wings: offset leading edge to match that of the owning wing            
+    if wing.is_a_control_surface and not wing.is_slat: #correction only leading for non-leading edge control surfaces since the LE is the pivot by default
+        nondim_cs_LE = (1 - wing.chord_fraction)
+        pivot_x_a   -= nondim_cs_LE *(wing_chord_section_a /wing.chord_fraction) 
+        pivot_x_b   -= nondim_cs_LE *(wing_chord_section_b /wing.chord_fraction) 
+        pivot_x     -= nondim_cs_LE *(wing_chord_section   /wing.chord_fraction) 
+
+    # adjust coordinates for twist
+    section_twist_a = break_twist[i_break] + (eta_a * segment_twist_ratio)               # twist at left side of panel
+    section_twist_b = break_twist[i_break] + (eta_b * segment_twist_ratio)               # twist at right side of panel
+    section_twist   = break_twist[i_break] + (eta   * segment_twist_ratio)               # twist at center local chord 
+
+    xi_prime_a1    = pivot_x_a + jnp.cos(section_twist_a)*(xi_a1-pivot_x_a) + jnp.sin(section_twist_a)*(zeta_a1-pivot_z_a) # x coordinate transformation of top left corner
+    xi_prime_ah    = pivot_x_a + jnp.cos(section_twist_a)*(xi_ah-pivot_x_a) + jnp.sin(section_twist_a)*(zeta_ah-pivot_z_a) # x coordinate transformation of bottom left corner
+    xi_prime_ac    = pivot_x_a + jnp.cos(section_twist_a)*(xi_ac-pivot_x_a) + jnp.sin(section_twist_a)*(zeta_a2-pivot_z_a) # x coordinate transformation of bottom left corner of control point
+    xi_prime_a2    = pivot_x_a + jnp.cos(section_twist_a)*(xi_a2-pivot_x_a) + jnp.sin(section_twist_a)*(zeta_a2-pivot_z_a) # x coordinate transformation of bottom left corner
+    xi_prime_b1    = pivot_x_b + jnp.cos(section_twist_b)*(xi_b1-pivot_x_b) + jnp.sin(section_twist_b)*(zeta_b1-pivot_z_b) # x coordinate transformation of top right corner 
+    xi_prime_bh    = pivot_x_b + jnp.cos(section_twist_b)*(xi_bh-pivot_x_b) + jnp.sin(section_twist_b)*(zeta_bh-pivot_z_b) # x coordinate transformation of top right corner 
+    xi_prime_bc    = pivot_x_b + jnp.cos(section_twist_b)*(xi_bc-pivot_x_b) + jnp.sin(section_twist_b)*(zeta_b1-pivot_z_b) # x coordinate transformation of top right corner of control point                         
+    xi_prime_b2    = pivot_x_b + jnp.cos(section_twist_b)*(xi_b2-pivot_x_b) + jnp.sin(section_twist_b)*(zeta_b2-pivot_z_b) # x coordinate transformation of botton right corner 
+    xi_prime_ch    = pivot_x   + jnp.cos(section_twist)  *(xi_ch-pivot_x)   + jnp.sin(section_twist)  *(zeta_ch-pivot_z)   # x coordinate transformation of center of horeshoe vortex 
+    xi_prime       = pivot_x   + jnp.cos(section_twist)  *(xi_c -pivot_x)   + jnp.sin(section_twist)  *(zeta   -pivot_z)   # x coordinate transformation of control point
+
+    zeta_prime_a1  = pivot_z_a - jnp.sin(section_twist_a)*(xi_a1-pivot_x_a) + jnp.cos(section_twist_a)*(zeta_a1-pivot_z_a) # z coordinate transformation of top left corner
+    zeta_prime_ah  = pivot_z_a - jnp.sin(section_twist_a)*(xi_ah-pivot_x_a) + jnp.cos(section_twist_a)*(zeta_ah-pivot_z_a) # z coordinate transformation of bottom left corner
+    zeta_prime_ac  = pivot_z_a - jnp.sin(section_twist_a)*(xi_ac-pivot_x_a) + jnp.cos(section_twist_a)*(zeta_ac-pivot_z_a) # z coordinate transformation of bottom left corner
+    zeta_prime_a2  = pivot_z_a - jnp.sin(section_twist_a)*(xi_a2-pivot_x_a) + jnp.cos(section_twist_a)*(zeta_a2-pivot_z_a) # z coordinate transformation of bottom left corner
+    zeta_prime_b1  = pivot_z_b - jnp.sin(section_twist_b)*(xi_b1-pivot_x_b) + jnp.cos(section_twist_b)*(zeta_b1-pivot_z_b) # z coordinate transformation of top right corner 
+    zeta_prime_bh  = pivot_z_b - jnp.sin(section_twist_b)*(xi_bh-pivot_x_b) + jnp.cos(section_twist_b)*(zeta_bh-pivot_z_b) # z coordinate transformation of top right corner 
+    zeta_prime_bc  = pivot_z_b - jnp.sin(section_twist_b)*(xi_bc-pivot_x_b) + jnp.cos(section_twist_b)*(zeta_bc-pivot_z_b) # z coordinate transformation of top right corner                         
+    zeta_prime_b2  = pivot_z_b - jnp.sin(section_twist_b)*(xi_b2-pivot_x_b) + jnp.cos(section_twist_b)*(zeta_b2-pivot_z_b) # z coordinate transformation of botton right corner 
+    zeta_prime_ch  = pivot_z   - jnp.sin(section_twist)  *(xi_ch-pivot_x)   + jnp.cos(-section_twist) *(zeta_ch-pivot_z)   # z coordinate transformation of center of horseshoe
+    zeta_prime     = pivot_z   - jnp.sin(section_twist)  *(xi_c -pivot_x)   + jnp.cos(-section_twist) *(zeta   -pivot_z)   # z coordinate transformation of control point
+    
+    # Define y-coordinate and other arrays-----------------------------------------------------------------
+    # take normal value for first wing, then reflect over xz plane for a symmetric wing
+    y_prime_as = (jnp.ones(n_cw+1)*y_a[idx_y]                 ) *sym_sign          
+    y_prime_a1 = (y_prime_as[:-1]                            ) *1       
+    y_prime_ah = (y_prime_as[:-1]                            ) *1       
+    y_prime_ac = (y_prime_as[:-1]                            ) *1          
+    y_prime_a2 = (y_prime_as[:-1]                            ) *1        
+    y_prime_bs = (jnp.ones(n_cw+1)*y_b[idx_y]                 ) *sym_sign            
+    y_prime_b1 = (y_prime_bs[:-1]                            ) *1         
+    y_prime_bh = (y_prime_bs[:-1]                            ) *1         
+    y_prime_bc = (y_prime_bs[:-1]                            ) *1         
+    y_prime_b2 = (y_prime_bs[:-1]                            ) *1   
+    y_prime_ch = (jnp.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)) *sym_sign
+    y_prime    = (y_prime_ch                                 ) *1    
+    
+    # populate all corners of all panels. Right side only populated for last strip wing the wing
+    is_last_section = (idx_y == n_sw-1)
+    xi_prime_as   = jnp.concatenate([xi_prime_a1,  jnp.array([xi_prime_a2  [-1]])])*1
+    #xi_prime_bs   = jnp.concatenate([xi_prime_b1,  jnp.array([xi_prime_b2  [-1]])])*1 if is_last_section else None 
+    zeta_prime_as = jnp.concatenate([zeta_prime_a1,jnp.array([zeta_prime_a2[-1]])])*1            
+    #zeta_prime_bs = jnp.concatenate([zeta_prime_b1,jnp.array([zeta_prime_b2[-1]])])*1 if is_last_section else None       
+    
+    # Deflect control surfaces-----------------------------------------------------------------------------
+    # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
+    # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
+    wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
+    if wing.is_a_control_surface or wing_is_all_moving:
+        
+        #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
+        #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
+        is_first_strip = (idx_y == 0)
+        if is_first_strip:
+            # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
+            ib_le_strip_corner = jnp.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
+            ib_te_strip_corner = jnp.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
+            
+            interp_fractions   = jnp.array([0.,    2.,    4.   ]) + wing.hinge_fraction
+            interp_domains     = jnp.array([0.,1., 2.,3., 4.,5.])
+            interp_ranges_ib   = jnp.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
+            ib_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ib)
+            
+            
+            #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
+            if wing.is_a_control_surface:
+                need_to_compute_hinge_vector = True
+            else: #wing is an all-moving surface
+                hinge_vector                 = jnp.array(wing.hinge_vector)
+                hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
+                                                not (hinge_vector==jnp.array([0.,0.,0.])).all()
+                need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
+                
+            if need_to_compute_hinge_vector:
+                ob_le_strip_corner = jnp.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
+                ob_te_strip_corner = jnp.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
+                interp_ranges_ob   = jnp.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
+                ob_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ob)
+            
+                use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
+                if use_root_chord_in_plane_normal: ob_hinge_point = ob_hinge_point.at[0].set(ib_hinge_point[0])
+            
+                hinge_vector       = ob_hinge_point - ib_hinge_point
+                hinge_vector       = hinge_vector / jnp.linalg.norm(hinge_vector)   
+            elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
+                HNG_1 = hinge_vector[1] * 1
+                HNG_2 = hinge_vector[2] * 1
+                
+                hinge_vector =  hinge_vector.at[1].set(HNG_2)
+                hinge_vector =  hinge_vector.at[2].set(HNG_1)
+                
+            #store hinge root point and direction vector
+            wing.hinge_root_point = ib_hinge_point
+            wing.hinge_vector     = hinge_vector
+            #END first strip calculations
+        
+        # get deflection angle
+        deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
+        symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
+        symmetry_multiplier  *= -1                   if vertical_wing      else 1
+        deflection_angle      = deflection_base_angle * symmetry_multiplier
+            
+        # make quaternion rotation matrix
+        quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
+        
+        # rotate strips
+        xi_prime_a1, y_prime_a1, zeta_prime_a1 = rotate_points_with_quaternion(quaternion, [xi_prime_a1,y_prime_a1,zeta_prime_a1])
+        xi_prime_ah, y_prime_ah, zeta_prime_ah = rotate_points_with_quaternion(quaternion, [xi_prime_ah,y_prime_ah,zeta_prime_ah])
+        xi_prime_ac, y_prime_ac, zeta_prime_ac = rotate_points_with_quaternion(quaternion, [xi_prime_ac,y_prime_ac,zeta_prime_ac])
+        xi_prime_a2, y_prime_a2, zeta_prime_a2 = rotate_points_with_quaternion(quaternion, [xi_prime_a2,y_prime_a2,zeta_prime_a2])
+                                                                                           
+        xi_prime_b1, y_prime_b1, zeta_prime_b1 = rotate_points_with_quaternion(quaternion, [xi_prime_b1,y_prime_b1,zeta_prime_b1])
+        xi_prime_bh, y_prime_bh, zeta_prime_bh = rotate_points_with_quaternion(quaternion, [xi_prime_bh,y_prime_bh,zeta_prime_bh])
+        xi_prime_bc, y_prime_bc, zeta_prime_bc = rotate_points_with_quaternion(quaternion, [xi_prime_bc,y_prime_bc,zeta_prime_bc])
+        xi_prime_b2, y_prime_b2, zeta_prime_b2 = rotate_points_with_quaternion(quaternion, [xi_prime_b2,y_prime_b2,zeta_prime_b2])
+                                                                                           
+        xi_prime_ch, y_prime_ch, zeta_prime_ch = rotate_points_with_quaternion(quaternion, [xi_prime_ch,y_prime_ch,zeta_prime_ch])
+        xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
+                                                                                           
+        xi_prime_as, y_prime_as, zeta_prime_as = rotate_points_with_quaternion(quaternion, [xi_prime_as,y_prime_as,zeta_prime_as])
+        #xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs]) if is_last_section else [None, None, None] 
+    
+    # reflect over the plane y = z for a vertical wing-----------------------------------------------------
+    inverted_wing = -jnp.sign(break_dihedral[i_break] - jnp.pi/2)
+    if vertical_wing:
+        y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
+        y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
+        y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
+        y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
+                                                             
+        y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
+        y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
+        y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
+        y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
+                                                             
+        y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
+        y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
+                                                             
+        y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
+
+        if y_prime_bs == None:
+            pass
+        else:
+            y_prime_bs = inverted_wing*y_prime_bs
+        #y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs
+         
+    # store coordinates of panels, horseshoeces vortices and control points relative to wing root----------
+    #xa1 = xa1.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_a1)     # top left corner of panel
+    xa1 = DUS(xa1, xi_prime_a1,(idx_y*n_cw,))
+    ya1 = DUS(ya1,y_prime_a1,(idx_y*n_cw,))
+    za1 = DUS(za1,zeta_prime_a1,(idx_y*n_cw,))
+    xah = DUS(xah,xi_prime_ah,(idx_y*n_cw,))     # left coord of horseshoe
+    yah = DUS(yah,y_prime_ah,(idx_y*n_cw,))
+    zah = DUS(zah,zeta_prime_ah,(idx_y*n_cw,))                    
+    xac = DUS(xac,xi_prime_ac,(idx_y*n_cw,))     # left coord of control point
+    yac = DUS(yac,y_prime_ac,(idx_y*n_cw,))
+    zac = DUS(zac,zeta_prime_ac,(idx_y*n_cw,))
+    xa2 = DUS(xa2,xi_prime_a2,(idx_y*n_cw,))     # bottom left corner of panel
+    ya2 = DUS(ya2,y_prime_a2,(idx_y*n_cw,))
+    za2 = DUS(za2,zeta_prime_a2,(idx_y*n_cw,))
+                                     
+    xb1 = DUS(xb1,xi_prime_b1,(idx_y*n_cw,))     # top right corner of panel
+    yb1 = DUS(yb1,y_prime_b1,(idx_y*n_cw,))          
+    zb1 = DUS(zb1,zeta_prime_b1,(idx_y*n_cw,))   
+    xbh = DUS(xbh,xi_prime_bh,(idx_y*n_cw,))     # right coord of horseshoe
+    ybh = DUS(ybh,y_prime_bh,(idx_y*n_cw,))          
+    zbh = DUS(zbh,zeta_prime_bh,(idx_y*n_cw,))                    
+    xbc = DUS(xbc,xi_prime_bc,(idx_y*n_cw,))     # right coord of control point
+    ybc = DUS(ybc,y_prime_bc,(idx_y*n_cw,))                           
+    zbc = DUS(zbc,zeta_prime_bc,(idx_y*n_cw,))   
+    xb2 = DUS(xb2,xi_prime_b2,(idx_y*n_cw,))     # bottom right corner of panel
+    yb2 = DUS(yb2,y_prime_b2,(idx_y*n_cw,))                        
+    zb2 = DUS(zb2,zeta_prime_b2,(idx_y*n_cw,)) 
+                                     
+    xch = DUS(xch,xi_prime_ch,(idx_y*n_cw,))     # center coord of horseshoe
+    ych = DUS(ych,y_prime_ch,(idx_y*n_cw,))                              
+    zch = DUS(zch,zeta_prime_ch,(idx_y*n_cw,))
+    xc  = DUS(xc ,xi_prime,(idx_y*n_cw,))        # center (true,(idx_y*n_cw,)) coord of control point
+    yc  = DUS(yc ,y_prime,(idx_y*n_cw,))
+    zc  = DUS(zc ,zeta_prime,(idx_y*n_cw,)) 
+    x   = DUS(x,xi_prime_as,(idx_y*(n_cw+1),))     # x, y, z represent all all points of the corners of the panels, LE and TE inclusive
+    y   = DUS(y,y_prime_as,(idx_y*(n_cw+1),))      # the final right corners get appended at last strip in wing, later
+    z   = DUS(z,zeta_prime_as,(idx_y*(n_cw+1),))            
+
+    cs_w = cs_w.at[idx_y].set(wing_chord_section)
+           
+    # store this strip's discretization information--------------------------------------------------------
+    LE_inds        = jnp.full(n_cw, False)
+    TE_inds        = jnp.full(n_cw, False)
+    LE_inds        = LE_inds.at[0].set(True)
+    TE_inds        = TE_inds.at[-1].set(True)
+    
+    RNMAX          = jnp.ones(n_cw, jnp.int16)*n_cw
+    panel_numbers  = jnp.linspace(1,n_cw,n_cw, dtype=jnp.int16)
+    
+    LE_X           = (xi_prime_a1  [0 ] + xi_prime_b1  [0 ])/2
+    LE_Z           = (zeta_prime_a1[0 ] + zeta_prime_b1[0 ])/2
+    TE_X           = (xi_prime_a2  [-1] + xi_prime_b2  [-1])/2
+    TE_Z           = (zeta_prime_a2[-1] + zeta_prime_b2[-1])/2           
+    chord_adjusted = jnp.ones(n_cw) * jnp.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
+    tan_incidence  = jnp.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax
+    chord_adjusted = jnp.array(chord_adjusted, dtype=precision)
+    tan_incidence  = jnp.array(tan_incidence , dtype=precision)            
+                
+    is_a_slat         = wing.is_a_control_surface and wing.is_slat
+    strip_has_no_slat = (not wing.is_a_control_surface) and (span_breaks_cs_ID[i_break] == -1) # wing's le, outboard control surface ID
+    
+    slat_cond                  = jnp.logical_or(is_a_slat,strip_has_no_slat)
+    exposed_leading_edge_flag  = jnp.array([1],dtype=jnp.int16)*slat_cond 
+    
+    leading_edge_indices,trailing_edge_indices,panels_per_strip,chordwise_panel_number,chord_lengths, \
+               tangent_incidence_angle,exposed_leading_edge_flags = indices
+    
+    leading_edge_indices       = DUS(leading_edge_indices,LE_inds,(idx_y*n_cw,))
+    trailing_edge_indices      = DUS(trailing_edge_indices,TE_inds,(idx_y*n_cw,))      
+    panels_per_strip           = DUS(panels_per_strip, RNMAX,(idx_y*n_cw,))
+    chordwise_panel_number     = DUS(chordwise_panel_number,panel_numbers,(idx_y*n_cw,))  
+    chord_lengths              = DUS(chord_lengths,chord_adjusted,(idx_y*n_cw,))
+    tangent_incidence_angle    = DUS(tangent_incidence_angle,tan_incidence,(idx_y*n_cw,))
+    exposed_leading_edge_flags = DUS(exposed_leading_edge_flags,exposed_leading_edge_flag,(idx_y,))
+    
+    indices = [leading_edge_indices,trailing_edge_indices,panels_per_strip,chordwise_panel_number,chord_lengths,
+               tangent_incidence_angle,exposed_leading_edge_flags]
+    
+    
+    coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]
+
+    #increment i_break if needed; check for end of wing----------------------------------------------------
+    cond = y_b[idx_y] == break_spans[i_break+1]
+    i_break += 1*cond
+    
+    #End 'for each strip' loop           
+    
+    return indices, i_break, coords
 
 # ----------------------------------------------------------------------
 #  Discretize Fuselage
