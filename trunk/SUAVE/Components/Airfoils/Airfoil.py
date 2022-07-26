@@ -12,12 +12,14 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Components import Lofted_Body
+from jax.tree_util import register_pytree_node_class
 
 # ------------------------------------------------------------
 #   Airfoil
 # ------------------------------------------------------------
 
 ## @ingroup Components-Airfoils
+@register_pytree_node_class
 class Airfoil(Lofted_Body.Section):
     def __defaults__(self):
         """This sets the default values of a airfoil defined in SUAVE.

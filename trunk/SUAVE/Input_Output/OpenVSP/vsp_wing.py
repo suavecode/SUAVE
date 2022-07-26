@@ -499,7 +499,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     vsp.SetDriverGroup( wing_id, 1, vsp.SPAN_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
 
     # Root chord
-    vsp.SetParmVal( wing_id,'Root_Chord',x_secs[1],root_chord)
+    vsp.SetParmVal( wing_id,'Root_Chord',x_secs[1],float(root_chord))
 
     # Sweep of the first section
     vsp.SetParmVal( wing_id,'Sweep',x_secs[1],sweep)
@@ -508,7 +508,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     # Twists
     if n_segments != 0:
         if np.isclose(wing.Segments[0].percent_span_location,0.):
-            vsp.SetParmVal( wing_id,'Twist',x_secs[0],wing.Segments[0].twist / Units.deg) # root
+            vsp.SetParmVal( wing_id,'Twist',x_secs[0],float(wing.Segments[0].twist) / Units.deg) # root
         else:
             vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
         # The tips should write themselves
@@ -578,8 +578,8 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
             vsp.Update()
 
     # Thickness to chords
-    vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_0',root_tc)
-    vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_1',tip_tc)
+    vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_0',float(root_tc))
+    vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_1',float(tip_tc))
 
     # Dihedral
     vsp.SetParmVal( wing_id,'Dihedral',x_secs[1],dihedral)
@@ -612,15 +612,15 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
             break
 
         # Unpack
-        dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
+        dihedral_i = float(wing.Segments[i_segs-1].dihedral_outboard) / Units.deg
         chord_i    = root_chord*wing.Segments[i_segs-1].root_chord_percent
         try:
             twist_i    = wing.Segments[i_segs].twist / Units.deg
             no_twist_flag = False
         except:
             no_twist_flag = True
-        sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
-        tc_i       = wing.Segments[i_segs-1].thickness_to_chord
+        sweep_i    = float(wing.Segments[i_segs-1].sweeps.quarter_chord) / Units.deg
+        tc_i       = float(wing.Segments[i_segs-1].thickness_to_chord)
 
         # Calculate the local span
         if i_segs == n_segments:
@@ -656,7 +656,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
         vsp.SetParmVal(span_parm, span_i)
         vsp.SetParmVal(sweep_parm, sweep_i)
         vsp.SetParmVal(swp_loc_parm, sweep_loc)
-        vsp.SetParmVal(rt_ch_parm, chord_i)
+        vsp.SetParmVal(rt_ch_parm, float(chord_i))
         vsp.SetParmVal(tc_parm, tc_i)
         
         # OpenVSP's rotation on vertical segmented wings is opposite of SUAVE's
@@ -679,11 +679,11 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
     if (n_segments != 0) and (wing.Segments[-1].percent_span_location == 1.):
         tip_chord = root_chord*wing.Segments[-1].root_chord_percent
-        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[n_segments-1+adjust],tip_chord)
+        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[n_segments-1+adjust],float(tip_chord))
         vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[n_segments-1+adjust],wing.Segments[-1].thickness_to_chord)
         # twist is set in the normal loop
     else:
-        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
+        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],float(tip_chord))
         vsp.SetParmVal( wing_id,'Twist',x_secs[-1-(1-adjust)],tip_twist)
         # a single trapezoidal wing is assumed to have constant thickness to chord
     vsp.Update()

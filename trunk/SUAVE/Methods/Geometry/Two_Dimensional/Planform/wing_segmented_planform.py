@@ -10,7 +10,8 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data 
-import numpy as np
+import jax.numpy as jnp
+from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions import convert_sweep_segments
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -77,10 +78,11 @@ def wing_segmented_planform(wing, overwrite_reference = False):
         dihedrals.append(seg.dihedral_outboard)
         
     # Convert to arrays
-    chords    = np.array(chords)
-    span_locs = np.array(span_locs)
-    sweeps    = np.array(sweeps)
-    t_cs      = np.array(t_cs)
+    chords    = jnp.array(chords)
+    span_locs = jnp.array(span_locs)
+    sweeps    = jnp.array(sweeps)
+    t_cs      = jnp.array(t_cs)
+    dihedrals = jnp.array(dihedrals)
     
     # Basic calcs:
     semispan     = span/(1+sym)
@@ -94,17 +96,17 @@ def wing_segmented_planform(wing, overwrite_reference = False):
     
     # Calculate the weighted area, this should not include any unexposed area 
     A_wets = 2*(1+0.2*t_cs[:-1])*As
-    wet_area = np.sum(A_wets)
+    wet_area = jnp.sum(A_wets)
     
     # Calculate the wing area
-    ref_area = np.sum(As)*(1+sym)
+    ref_area = jnp.sum(As)*(1+sym)
     
     # Calculate the Aspect Ratio
     AR = (span**2)/ref_area
     
     # Calculate the total span
-    lens = lengths_dim/np.cos(dihedrals[:-1])
-    total_len = np.sum(np.array(lens))*(1+sym)
+    lens = lengths_dim/jnp.cos(dihedrals[:-1])
+    total_len = jnp.sum(jnp.array(lens))*(1+sym)
     
     # Calculate the mean geometric chord
     mgc = ref_area/span
@@ -115,8 +117,8 @@ def wing_segmented_planform(wing, overwrite_reference = False):
     C = span_locs[:-1]
     integral = ((A+B*(span_locs[1:]-C))**3-(A+B*(span_locs[:-1]-C))**3)/(3*B)
     # For the cases when the wing doesn't taper in a spot
-    integral[np.isnan(integral)] = (A[np.isnan(integral)]**2)*((lengths_ndim)[np.isnan(integral)])
-    MAC = (semispan*(1+sym)/(ref_area))*np.sum(integral)
+    integral = jnp.where(jnp.isnan(integral),(A**2)*(lengths_ndim),integral)
+    MAC = (semispan*(1+sym)/(ref_area))*jnp.sum(integral)
     
     # Calculate the taper ratio
     lamda = chords[-1]/chords[0]
@@ -125,38 +127,39 @@ def wing_segmented_planform(wing, overwrite_reference = False):
     ct = chords_dim[-1]
     
     # Calculate an average t/c weighted by area
-    t_c = np.sum(As*t_cs[:-1])/(ref_area/2)
+    t_c = jnp.sum(As*t_cs[:-1])/(ref_area/2)
     
     # Calculate the segment leading edge sweeps
     r_offsets = chords_dim[:-1]/4
     t_offsets = chords_dim[1:]/4
-    le_sweeps = np.arctan((r_offsets+np.tan(sweeps[:-1])*(lengths_dim)-t_offsets)/(lengths_dim))    
+    le_sweeps = jnp.arctan((r_offsets+jnp.tan(sweeps[:-1])*(lengths_dim)-t_offsets)/(lengths_dim))    
     
     # Calculate the effective sweeps
-    c_4_sweep   = np.arctan(np.sum(lengths_ndim*np.tan(sweeps[:-1])))
-    le_sweep_total= np.arctan(np.sum(lengths_ndim*np.tan(le_sweeps)))
+    c_4_sweep      = jnp.arctan(jnp.sum(lengths_ndim*jnp.tan(sweeps[:-1])))
+    le_sweep_total = jnp.arctan(jnp.sum(lengths_ndim*jnp.tan(le_sweeps)))
 
     # Calculate the aerodynamic center, but first the centroid
-    dxs = np.cumsum(np.concatenate([np.array([0]),np.tan(le_sweeps[:-1])*lengths_dim[:-1]]))
-    dys = np.cumsum(np.concatenate([np.array([0]),lengths_dim[:-1]]))
-    dzs = np.cumsum(np.concatenate([np.array([0]),np.tan(dihedrals[:-2])*lengths_dim[:-1]]))
+    dxs = jnp.cumsum(jnp.concatenate([jnp.array([0]),jnp.tan(le_sweeps[:-1])*lengths_dim[:-1]]))
+    dys = jnp.cumsum(jnp.concatenate([jnp.array([0]),lengths_dim[:-1]]))
+    dzs = jnp.cumsum(jnp.concatenate([jnp.array([0]),jnp.tan(dihedrals[:-2])*lengths_dim[:-1]]))
     
     Cxys = []
     for i in range(len(lengths_dim)):
         Cxys.append(segment_centroid(le_sweeps[i],lengths_dim[i],dxs[i],dys[i],dzs[i], tapers[i], 
                                      As[i], dihedrals[i], chords_dim[i], chords_dim[i+1]))
 
-    aerodynamic_center = (np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym)))
+    Cxys = jnp.array(Cxys)
+    aerodynamic_center = (jnp.dot(jnp.transpose(Cxys),As)/(ref_area/(1+sym)))
 
-    single_side_aerodynamic_center = (np.array(aerodynamic_center)*1.)
-    single_side_aerodynamic_center[0] = single_side_aerodynamic_center[0] - MAC*.25    
+    single_side_aerodynamic_center = (jnp.array(aerodynamic_center)*1.)
+    single_side_aerodynamic_center = single_side_aerodynamic_center.at[0].set(single_side_aerodynamic_center[0] - MAC*.25) 
     if sym== True:
-        aerodynamic_center[1] = 0
+        aerodynamic_center = aerodynamic_center.at[1].set(0)
         
-    aerodynamic_center[0] = single_side_aerodynamic_center[0]
+    aerodynamic_center = aerodynamic_center.at[0].set(single_side_aerodynamic_center[0])
     
     # Total length for supersonics
-    total_length = np.tan(le_sweep_total)*semispan + chords[-1]*RC
+    total_length = jnp.tan(le_sweep_total)*semispan + chords[-1]*RC
     
     # Pack stuff
     if overwrite_reference:
@@ -178,6 +181,10 @@ def wing_segmented_planform(wing, overwrite_reference = False):
 
     # update remainder segment properties
     segment_properties(wing)
+    
+    # update LE sweeps
+    for i,seg in enumerate(wing.Segments):
+        seg.sweeps.leading_edge = le_sweeps[i]
     
     return wing
  
@@ -258,10 +265,8 @@ def segment_properties(wing,update_wet_areas=False,update_ref_areas=False):
                 S_exposed_seg = S_exposed_seg*2
             
             # compute wetted area of segment
-            if t_c_w < 0.05:
-                Swet_seg = 2.003* S_exposed_seg
-            else:
-                Swet_seg = (1.977 + 0.52*t_c_w) * S_exposed_seg
+            swet_cond = t_c_w < 0.05
+            Swet_seg  = (2.003* S_exposed_seg)*(swet_cond) + (swet_cond-1)*(1.977 + 0.52*t_c_w) * S_exposed_seg
                 
             segment.taper                   = taper
             segment.chords                  = Data()
@@ -274,11 +279,11 @@ def segment_properties(wing,update_wet_areas=False,update_ref_areas=False):
             total_wetted_area    = total_wetted_area + Swet_seg
             total_reference_area = total_reference_area + Sref_seg 
     
-    if wing.areas.reference==0. or update_ref_areas:
-        wing.areas.reference = total_reference_area
-        
-    if wing.areas.wetted==0. or update_wet_areas:
-        wing.areas.wetted    = total_wetted_area
+    ref_cond = jnp.logical_or(wing.areas.reference==0.,update_ref_areas)
+    wing.areas.reference = total_reference_area*ref_cond + (1-ref_cond)*wing.areas.reference
+    
+    area_cond = jnp.logical_or(wing.areas.wetted==0.,update_wet_areas)
+    wing.areas.wetted = total_wetted_area*area_cond + (1-area_cond)*wing.areas.wetted
         
     return wing
 
@@ -312,9 +317,9 @@ def segment_centroid(le_sweep,seg_span,dx,dy,dz,taper,A,dihedral,root_chord,tip_
     
     a = tip_chord
     b = root_chord
-    c = np.tan(le_sweep)*seg_span
+    c = jnp.tan(le_sweep)*seg_span
     cx = (2*a*c + a**2 + c*b + a*b + b**2) / (3*(a+b))
     cy = seg_span / 3. * (( 1. + 2. * taper ) / (1. + taper))
-    cz = cy * np.tan(dihedral)    
+    cz = cy * jnp.tan(dihedral)    
     
-    return np.array([cx+dx,cy+dy,cz+dz])
+    return jnp.array([cx+dx,cy+dy,cz+dz])

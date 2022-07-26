@@ -163,11 +163,9 @@ def VLM(conditions,settings,geometry):
     
     # Unpack vortex distribution
     VD           = geometry.vortex_distribution
-    #n_cp         = VD.n_cp 
     n_sw         = np.array(VD.n_sw)
     CHORD        = VD.chord_lengths
     chord_breaks = VD.chordwise_breaks
-    span_breaks  = VD.spanwise_breaks
     chord_segs   = VD.chord_segs
     span_segs    = VD.span_segs    
     RNMAX        = VD.panels_per_strip    
@@ -221,22 +219,10 @@ def VLM(conditions,settings,geometry):
     rhs   = compute_RHS_matrix(delta,phi,conditions,settings,geometry,pwm) 
     RHS   = rhs.RHS*1
     ONSET = rhs.ONSET*1
-
+    
     # Build induced velocity matrix, C_mn
-    # This is not affected by AoA, so we can use unique mach numbers only
-    #m_unique, inv = jnp.unique(mach,return_inverse=True)
-    #m_unique      = jnp.atleast_2d(m_unique).T
-    #C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique,precision=precision)
-    #C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique)
-    
-    #C_mn  = C_mn_small[inv,:,:,:]
-    #RFLAG = RFLAG_small[inv,:]
-    #EW    = EW_small[inv,:,:]
-    
     C_mn, s, RFLAG, EW = compute_wing_induced_velocity(VD,mach)
     
-    
-
     # Turn off sonic vortices when Mach>1
     RHS = RHS*RFLAG
     

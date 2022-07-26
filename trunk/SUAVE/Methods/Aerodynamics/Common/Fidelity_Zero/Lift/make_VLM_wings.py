@@ -781,7 +781,7 @@ cut from a non-slat control surface     |           |           .       fraction
     return span_break
 
 def make_span_break_tag(span_break):
-    location   = round(span_break.span_fraction, 3)
+    location   = jnp.round(span_break.span_fraction, 3)
     cs_IDs_arr = span_break.cs_IDs.flatten()
     cs_IDs_str = '{}'.format(cs_IDs_arr).replace('[','').replace(']','').replace('-1', 'na').replace('  ', '_')
     
