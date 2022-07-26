@@ -349,7 +349,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     For control surfaces, "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
     symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
     
-    The hinge_vector will only ever be calcualted on the first strip of any control/all-moving surface. It is assumed that all control
+    The hinge_vector will only ever be calculated on the first strip of any control/all-moving surface. It is assumed that all control
     surfaces are trapezoids, thus needing only one hinge, and that all all-moving surfaces have exactly one point of rotation.
 
     Source:   
@@ -553,8 +553,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         z     = jnp.zeros((n_cw+1)*(n_sw+1))         
         cs_w  = jnp.zeros(n_sw)
         
-        coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]
-        
+
         # adjust origin for symmetry with special case for vertical symmetry
         if vertical_wing:
             wing_origin_x = wing_origin[0]
@@ -580,8 +579,25 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
 
         indices = [LE_inds,TE_inds,RNMAX,panel_numbers,chord_adjusted,tan_incidence,exposed_leading_edge_flag]
         
+        coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,\
+                  ybc,zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]
+
         
         def wing_s(idx_y,val):
+            """ This is an inline wrapper
+        
+            Assumptions: 
+            The same as generate_wing_vortex_distribution
+        
+            Source:   
+            None
+            
+            Inputs:   
+            MANY
+            
+            Properties Used:
+            N/A
+            """                 
             inds, i_break, cords = val
             inds, i_break, cords = wing_strip(i_break,wing,inds,cords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
                break_x_offset,break_z_offset,break_camber_xs,break_camber_zs,break_dihedral,section_span,
@@ -742,18 +758,27 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     VD.symmetric_wings = jnp.append(VD.symmetric_wings, int(sym_para))
     return VD
 
-def fori_loop(lower, upper, body_fun, init_val):
-    val = init_val
-    for i in range(lower, upper):
-        val = body_fun(i, val)
-    return val
-    
-    
 def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
                break_x_offset,break_z_offset,break_camber_xs,break_camber_zs,break_dihedral,section_span,
                section_LE_cut,section_TE_cut,sym_sign,sym_sign_ind,vertical_wing,span_breaks_cs_ID,precision):
+    """ This generates vortex distribution points for the given strip of wing 
+
+    Assumptions: 
+    The same as generate_wing_vortex_distribution
+
+    Source:   
+    None
     
-    xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w = coords
+    Inputs:   
+    MANY
+    
+    Properties Used:
+    N/A
+    """     
+    
+    
+    xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,xa_te,\
+        ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w = coords
     
     # define basic geometric values------------------------------------------------------------------------
     # inboard, outboard, and central panel values
@@ -1079,7 +1104,8 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
                tangent_incidence_angle,exposed_leading_edge_flags]
     
     
-    coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]
+    coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,
+              zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]
 
     #increment i_break if needed; check for end of wing----------------------------------------------------
     cond = y_b[idx_y] == break_spans[i_break+1]
