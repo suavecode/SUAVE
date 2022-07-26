@@ -64,7 +64,7 @@ def main():
     results_SR              = mission_SR.evaluate()
     results_SR              = results_SR.merged()
     
-    distance_regression_SR = 102657.56617755585
+    distance_regression_SR = 101333.61366532302
 
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc_SR = ', distance_calc_SR)
@@ -329,7 +329,7 @@ def mission_setup_SR(vehicle,analyses):
     # ------------------------------------------------------------------    
     
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "cruise"
+    segment.tag = "cruise2"
     
     segment.analyses.extend( analyses )
     

@@ -17,7 +17,9 @@ import pandas as pd
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def  import_airfoil_polars(airfoil_polar_files):
-    """This imports airfoil polars from a text file output from XFOIL or Airfoiltools.com
+    """This imports airfoil polars from a text file output from XFOIL or from a 
+    text file containing the (alpha, CL, CD) data from other sources.
+    
     
     Assumptions:
     Input airfoil polars file is obtained from XFOIL or from Airfoiltools.com
@@ -68,20 +70,18 @@ def  import_airfoil_polars(airfoil_polar_files):
     
             # Read data          
             if xfoilPolarFormat:
+                # get data, extract Re, Ma
                 polarData = pd.read_csv(airfoil_polar_files[i][j], skiprows=[1,2,3,4,5,6,7,8,9,11], skipinitialspace=True, delim_whitespace=True)
-                
                 headerLine = pd.read_csv(airfoil_polar_files[i][j], sep="\t", skiprows=7, nrows=1)
                 headerString = str(headerLine.iloc[0])
                 ReString = headerString.split('Re =',1)[1].split('e 6',1)[0]
                 MaString = headerString.split('Mach =',1)[1].split('Re',1)[0]                
             else:
-                # get Re, Ma info
+                # get data, extract Re, Ma
+                polarData = pd.read_csv(airfoil_polar_files[i][j], sep=" ")  
                 ReString = airfoil_polar_files[i][j].split('Re_',1)[1].split('e6',1)[0]
                 MaString = airfoil_polar_files[i][j].split('Ma_',1)[1].split('_',1)[0]
-
-                # Open file and read column names and data block
-                polarData = pd.read_csv(airfoil_polar_files[i][j], sep=" ")   
-                
+ 
             airfoil_aoa = polarData["alpha"]
             airfoil_cl = polarData["CL"]
             airfoil_cd = polarData["CD"]
