@@ -330,8 +330,8 @@ def VLM(conditions,settings,geometry):
     YAH, YBH= w(boolean,YBH,YAH), w(boolean,YAH,YBH)
 
     # Leading edge sweep. VORLAX does it panel by panel. This will be spanwise.
-    TLE   = TAN_LE[:,LE_ind]
-    B2_LE = B2[:,LE_ind]
+    TLE   = TAN_LE[:,LE_ind][:,0,:]
+    B2_LE = B2[:,LE_ind][:,0,:]
     T2    = TLE*TLE
     STB   = jnp.zeros_like(B2_LE)
     STB   = w(B2_LE<T2,jnp.sqrt(T2-B2_LE),STB)
@@ -381,7 +381,7 @@ def VLM(conditions,settings,geometry):
     
     
     SICPLE *= (-1) * COSIN * COD * GAF
-    DCP_LE = DCP[:,LE_ind]
+    DCP_LE = DCP[:,LE_ind][:,0,:]
     
     # COMPUTE LEADING EDGE THRUST COEFF. (CSUC) BY CALCULATING
     # THE TOTAL INDUCED FLOW AT THE LEADING EDGE. THIS COMPUTATION
