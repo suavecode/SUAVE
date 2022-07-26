@@ -6,6 +6,7 @@
 #           Sep 2020, M. Clarke 
 #           May 2021, R. Erhard
 #           Nov 2021, R. Erhard
+#           Jul 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -46,69 +47,47 @@ def  import_airfoil_polars(airfoil_polar_files):
         num_polars = max(num_polars, n_p)       
     
     # create empty data structures 
+    dim_aoa = 180 * 4 + 1
+    AoA_interp = np.linspace(-90,90,dim_aoa)     
     airfoil_data = Data()
-    dim_aoa      = 89 # this is done to get an AoA discretization of 0.25
     CL           = np.zeros((num_airfoils,num_polars,dim_aoa))
     CD           = np.zeros((num_airfoils,num_polars,dim_aoa)) 
     Re           = np.zeros((num_airfoils,num_polars))
     Ma           = np.zeros((num_airfoils,num_polars))
     
-    AoA_interp = np.linspace(-6,16,dim_aoa) 
-    xfoilPolarFormat = False
-    
     for i in range(num_airfoils): 
     
         for j in range(len(airfoil_polar_files[i])):   
-            # Open file and read column names and data block
-            f = open(airfoil_polar_files[i][j]) 
-            
-            
+        
+            # check for xfoil format
+            xFoilLine = pd.read_csv(airfoil_polar_files[i][j], sep="\t", skiprows=0, nrows=1)
+            if "XFOIL" in str(xFoilLine):
+                xfoilPolarFormat = True
+            else:
+                xfoilPolarFormat = False
+    
+            # Read data          
             if xfoilPolarFormat:
-                data_block = f.readlines()
-                f.close()
+                polarData = pd.read_csv(airfoil_polar_files[i][j], skiprows=[1,2,3,4,5,6,7,8,9,11], skipinitialspace=True, delim_whitespace=True)
                 
-                # Ignore header
-                for header_line in range(len(data_block)):
-                    line = data_block[header_line]   
-                    if 'Re =' in line:    
-                        Re[i,j] = float(line[25:40].strip().replace(" ", ""))
-                    if 'Mach =' in line:    
-                        Ma[i,j] = float(line[7:20].strip().replace(" ", ""))    
-                    if '---' in line:
-                        data_block = data_block[header_line+1:]
-                        break
-                    
-                # Remove any extra lines at end of file:
-                last_line = False
-                while last_line == False:
-                    if data_block[-1]=='\n':
-                        data_block = data_block[0:-1]
-                    else:
-                        last_line = True
-                
-                data_len = len(data_block)
-                airfoil_aoa= np.zeros(data_len)
-                airfoil_cl = np.zeros(data_len)
-                airfoil_cd = np.zeros(data_len)     
-            
-                # Loop through each value: append to each column
-                for line_count , line in enumerate(data_block):
-                    airfoil_aoa[line_count] = float(data_block[line_count][0:8].strip())
-                    airfoil_cl[line_count]  = float(data_block[line_count][10:17].strip())
-                    airfoil_cd[line_count]  = float(data_block[line_count][20:27].strip())  
+                headerLine = pd.read_csv(airfoil_polar_files[i][j], sep="\t", skiprows=7, nrows=1)
+                headerString = str(headerLine.iloc[0])
+                ReString = headerString.split('Re =',1)[1].split('e 6',1)[0]
+                MaString = headerString.split('Mach =',1)[1].split('Re',1)[0]                
             else:
                 # get Re, Ma info
                 ReString = airfoil_polar_files[i][j].split('Re_',1)[1].split('e6',1)[0]
                 MaString = airfoil_polar_files[i][j].split('Ma_',1)[1].split('_',1)[0]
-                Re[i,j] = float (ReString) * 1e6
-                Ma[i,j] = float (MaString)
-            
+
                 # Open file and read column names and data block
                 polarData = pd.read_csv(airfoil_polar_files[i][j], sep=" ")   
-                airfoil_aoa = polarData["alpha"]
-                airfoil_cl = polarData["CL"]
-                airfoil_cd = polarData["CD"]
-          
+                
+            airfoil_aoa = polarData["alpha"]
+            airfoil_cl = polarData["CL"]
+            airfoil_cd = polarData["CD"]
+            
+            Re[i,j] = float (ReString) * 1e6
+            Ma[i,j] = float (MaString)            
             CL[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cl)
             CD[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cd)       
                  
