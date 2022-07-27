@@ -512,8 +512,8 @@ def plot_propeller_geometry(axes,prop,cpt=0,prop_face_color='red',prop_edge_colo
                 axes.add_collection3d(prop_collection)
     return
 
-def get_blade_coordinates(prop,n_points,dim,i):
-    """ This generates the coordinates of the blade surface for plotting
+def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
+    """ This generates the coordinates of the blade surface for plotting in the aircraft frame (x-back, z-up)
 
     Assumptions:
     None
@@ -522,10 +522,11 @@ def get_blade_coordinates(prop,n_points,dim,i):
     None
 
     Inputs:
-    prop          - SUAVE rotor
-    n_points      - number of points around airfoils of each blade section
-    dim           - number for radial dimension
-    i             - blade number
+    prop             - SUAVE rotor
+    n_points         - number of points around airfoils of each blade section
+    dim              - number for radial dimension
+    i                - blade number
+    aircraftRefFrame - boolean to convert the coordinates from rotor frame to aircraft frame 
 
     Properties Used:
     N/A
@@ -607,17 +608,21 @@ def get_blade_coordinates(prop,n_points,dim,i):
     trans_2 = np.repeat(trans_2[None,:,:], dim, axis=0)
     trans_2 = np.repeat(trans_2[None,:,:,:], cpts, axis=0)
 
-    # rotation about y to orient propeller/rotor to thrust angle
+    # rotation about y to orient propeller/rotor to thrust angle (from propeller frame to aircraft frame)
     trans_3 =  prop_vel_to_body
     trans_3 =  np.repeat(trans_3[:, None,:,: ],dim,axis=1) 
     
-    trans     = np.matmul(trans_2,np.matmul(trans_3,trans_1))
+    trans     = np.matmul(trans_2,trans_1)
     rot_mat   = np.repeat(trans[:,:, None,:,:],n_points,axis=2)    
 
     # ---------------------------------------------------------------------------------------------
     # ROTATE POINTS
-    mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze(axis=-1)
-
+    if aircraftRefFrame:
+        # rotate all points to the thrust angle with trans_3
+        mat  =  np.matmul(np.matmul(rot_mat,matrix[...,None]).squeeze(axis=-1), trans_3)
+    else:
+        # use the rotor frame
+        mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze(axis=-1)
     # ---------------------------------------------------------------------------------------------
     # create empty data structure for storing geometry
     G = Data()
