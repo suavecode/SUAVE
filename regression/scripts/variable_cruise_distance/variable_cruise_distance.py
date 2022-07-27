@@ -329,13 +329,12 @@ def mission_setup_SR(vehicle,analyses):
     # ------------------------------------------------------------------    
     
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "cruise2"
+    segment.tag = "cruise"
     
     segment.analyses.extend( analyses )
     
-    segment.altitude  = 1000.0 * Units.ft    
-    segment.air_speed = 110.   * Units['mph']
-    segment.distance  = 40.    * Units.miles     
+    segment.altitude  = 100.0 * Units.ft    
+    segment.air_speed = 110.   * Units['mph']  
     segment.state.unknowns.throttle = 0.80 * ones_row(1)
     
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16)
