@@ -2,7 +2,7 @@
 # save_prop_wake_vtk.py
 # 
 # Created:    Jun 2021, R. Erhard
-# Modified: 
+# Modified:   Jul 2022, R. Erhard
 #     
 from SUAVE.Core import Data      
 import numpy as np
