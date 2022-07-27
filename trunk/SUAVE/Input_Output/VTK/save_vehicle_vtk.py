@@ -129,7 +129,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                     Results['prop_outputs'] = propi.outputs
                     
                     # save prop wake
-                    save_prop_wake_vtk(wVD, gamma, file, Results,start_angle_idx,origin_offset,rot=propi.rotation) 
+                    save_prop_wake_vtk(propi, wVD, gamma, file, Results,start_angle_idx,origin_offset,rot=propi.rotation) 
                 
                     
         try:
@@ -190,7 +190,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                     Results['prop_outputs'] = Results['all_prop_outputs'][roti_key]
                     
                     # save prop wake
-                    save_prop_wake_vtk(wVD, gamma, file, Results,origin_offset,rot=roti.rotation)      
+                    save_prop_wake_vtk(propi, wVD, gamma, file, Results,origin_offset,rot=roti.rotation)      
 
     
     #---------------------------
