@@ -296,7 +296,7 @@ def save_prop_vtk(prop, filename, Results, time_step, origin_offset=np.array([0,
 ## @ingroup Input_Output-VTK
 def generate_lofted_propeller_points(prop):
     """
-    Generates nodes on the lofted propeller.
+    Generates nodes on the lofted propeller in the propeller frame.
 
     Inputs:
        prop          Data structure of SUAVE propeller                  [Unitless]
@@ -324,7 +324,7 @@ def generate_lofted_propeller_points(prop):
     
     for i in range(num_B):
         Gprops[i] = Data()
-        G = get_blade_coordinates(prop,n_points,dim,i)
+        G = get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=False)
 
         # Store G for this blade:
         Gprops[i] = copy.deepcopy(G)
