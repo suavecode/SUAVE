@@ -207,7 +207,7 @@ def convert_values(inputs):
     
     provided_values  = inputs_packed[::5]
     
-    provided_units   = inputs_packed[3::5]*1.0
+    provided_units   = inputs_packed[4::5]*1.0
     
     converted_values = provided_values*provided_units
     
@@ -247,9 +247,12 @@ def get_values(dictionary,outputs,aliases):
     for name in output_names:
         pointer.append(aliases[name])
                 
-    values = jnp.zeros(len(outputs))
+    values = []
     for ii in range(0,len(outputs)):
-        values = dictionary.deep_get(pointer[ii])
+        #values = values.at[ii].set(dictionary.deep_get(pointer[ii]))
+        values.append(dictionary.deep_get(pointer[ii]))
+        
+    values = jnp.array(values)
 
     return values
 

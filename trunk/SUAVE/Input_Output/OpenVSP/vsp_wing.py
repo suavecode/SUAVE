@@ -455,7 +455,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
         span   = wing.spans.projected
     root_chord = wing.chords.root
     tip_chord  = wing.chords.tip
-    sweep      = wing.sweeps.quarter_chord / Units.deg
+    sweep      = float(wing.sweeps.quarter_chord) / Units.deg
     sweep_loc  = 0.25
     root_twist = wing.twists.root / Units.deg
     tip_twist  = wing.twists.tip  / Units.deg
@@ -491,9 +491,9 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
         vsp.SetParmVal( wing_id,'X_Rel_Rotation','XForm',90)
         dihedral = -dihedral # check for vertical tail, direction reverses from SUAVE/AVL
 
-    vsp.SetParmVal( wing_id,'X_Rel_Location','XForm',wing_x)
-    vsp.SetParmVal( wing_id,'Y_Rel_Location','XForm',wing_y)
-    vsp.SetParmVal( wing_id,'Z_Rel_Location','XForm',wing_z)
+    vsp.SetParmVal( wing_id,'X_Rel_Location','XForm',float(wing_x))
+    vsp.SetParmVal( wing_id,'Y_Rel_Location','XForm',float(wing_y))
+    vsp.SetParmVal( wing_id,'Z_Rel_Location','XForm',float(wing_z))
 
     # This ensures that the other VSP parameters are driven properly
     vsp.SetDriverGroup( wing_id, 1, vsp.SPAN_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
@@ -589,7 +589,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
         local_span    = span*wing.Segments[0].percent_span_location
         sec_tip_chord = root_chord*wing.Segments[0].root_chord_percent
         vsp.SetParmVal( wing_id,'Span',x_secs[1],local_span)
-        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[1],sec_tip_chord)
+        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[1],float(sec_tip_chord))
     else:
         vsp.SetParmVal( wing_id,'Span',x_secs[1],span/np.cos(dihedral*Units.degrees))
 
@@ -680,7 +680,7 @@ def write_vsp_wing(vehicle,wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     if (n_segments != 0) and (wing.Segments[-1].percent_span_location == 1.):
         tip_chord = root_chord*wing.Segments[-1].root_chord_percent
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[n_segments-1+adjust],float(tip_chord))
-        vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[n_segments-1+adjust],wing.Segments[-1].thickness_to_chord)
+        vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[n_segments-1+adjust],float(wing.Segments[-1].thickness_to_chord))
         # twist is set in the normal loop
     else:
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],float(tip_chord))

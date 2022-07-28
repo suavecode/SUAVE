@@ -243,7 +243,12 @@ class Nexus(Data):
         
         
         # Check if the last inputs were just run
-        if not (x == self.last_grad_inputs).all():        
+        try:
+            condition = (x == self.last_grad_inputs).all()
+        except:
+            condition = (x == self.last_grad_inputs)
+        
+        if not condition:        
             if self.jitable:
                 grad_function = jit_jac_nexus_objective_wrapper
             else:
@@ -497,7 +502,13 @@ class Nexus(Data):
             x = self.optimization_problem.inputs.pack_array()[0::5]
         
         # Check if the last inputs were just run
-        if not (x == self.last_jacobian_inputs).all():            
+        try:
+            condition = (x == self.last_jacobian_inputs).all()
+        except:
+            condition = (x == self.last_jacobian_inputs)        
+    
+        # Check if the last inputs were just run
+        if not condition:            
             if self.jitable:
                 grad_function = jit_jac_nexus_all_constraint_wrapper
             else:

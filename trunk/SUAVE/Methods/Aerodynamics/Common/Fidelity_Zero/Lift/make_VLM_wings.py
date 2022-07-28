@@ -162,6 +162,7 @@ def make_VLM_wings(geometry, settings):
             
             # register segment span break
             span_break = make_span_break_from_segment(seg_b)
+            span_break.tag = span_break.tag + str(i)
             seg_breaks.append(span_break)
 
         #merge _breaks arrays into one span_breaks array----------------------------------
@@ -611,7 +612,7 @@ def reprocess_span_breaks(span_breaks):
     """     
     sbs = SUAVE.Core.ContainerOrdered()
     for i,span_break in enumerate(span_breaks):
-        span_break.tag = make_span_break_tag(span_break)
+        span_break.tag = make_span_break_tag(span_break) + str(i)
         sbs.append(span_break)
     return sbs
 

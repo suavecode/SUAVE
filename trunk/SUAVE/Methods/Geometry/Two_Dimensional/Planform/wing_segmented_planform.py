@@ -115,6 +115,8 @@ def wing_segmented_planform(wing, overwrite_reference = False):
     A = chords_dim[:-1]
     B = (A-chords_dim[1:])/(-lengths_ndim)
     C = span_locs[:-1]
+    
+    B = jnp.where(B<=0.,1e-10,B) # This is for numerical stability
     integral = ((A+B*(span_locs[1:]-C))**3-(A+B*(span_locs[:-1]-C))**3)/(3*B)
     # For the cases when the wing doesn't taper in a spot
     integral = jnp.where(jnp.isnan(integral),(A**2)*(lengths_ndim),integral)

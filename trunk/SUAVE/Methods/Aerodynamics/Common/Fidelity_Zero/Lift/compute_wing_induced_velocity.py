@@ -18,8 +18,14 @@ from jax.numpy import where as w
 from jax.numpy import newaxis as na
 from jax import lax, jit
 
+from functools import partial
+
+# ----------------------------------------------------------------------
+#  Compute Wing Induced Velocity
+# ----------------------------------------------------------------------
+
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-@jit
+@partial(jit, static_argnums=2)
 def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
