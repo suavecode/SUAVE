@@ -60,9 +60,9 @@ def main():
 
 
     # Truth values
-    departure_throttle_truth          = np.array([0.64757861, 0.64780765, 0.64828021, 0.64852375])
-    transition_1_throttle_truth       = np.array([0.65248106, 0.64847285, 0.53572132, 0.60161508])
-    cruise_throttle_truth             = np.array([0.57325728, 0.5734639 , 0.57387771, 0.57408483])
+    departure_throttle_truth          = np.array([0.6543453 , 0.65457384, 0.65504606, 0.65528976])
+    transition_1_throttle_truth       = np.array([0.66045178, 0.65464328, 0.535134  , 0.60043377])
+    cruise_throttle_truth             = np.array([0.57078263, 0.57089225, 0.5711126 , 0.57122264])
     transition_y_axis_rotations_truth = np.array([1.34042448, 1.3130777 , 1.05489631, 0.05264738])
 
     # Store errors 
@@ -254,8 +254,8 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                     = 0.99  * ones_row(1)
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
-                                                                                                            initial_power_coefficient = 0.03)
+    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment)
+
     # add to misison
     mission.append_segment(segment)
     
@@ -275,8 +275,8 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                     = 0.99  * ones_row(1)
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
-                                                                                                            initial_power_coefficient = 0.03)
+    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment)
+
     # add to misison
     mission.append_segment(segment)    
     
@@ -288,11 +288,14 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend(analyses.cruise) 
     segment.altitude                                   = 40.0 * Units.ft
     segment.air_speed                                  = 110 * Units.mph
-    segment.distance                                   = 1.    * Units.miles   
-    segment.state.unknowns.throttle                    = 0.85    * ones_row(1) 
+    segment.distance                                   = 0.5    * Units.miles   
+    segment.state.unknowns.throttle                    = 0.5    * ones_row(1) 
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip   
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,
+                                                                                       initial_power_coefficient = 0.04,
+                                                                                       initial_battery_cell_temperature = 290. ,
+                                                                                       initial_battery_state_of_charge = 0.97)                                                                                       
     
     # add to mission
     mission.append_segment(segment)    
