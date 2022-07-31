@@ -152,25 +152,25 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     xi_prime_as, y_prime_as, zeta_prime_as = rotate_points_with_quaternion(quaternion, [xi_prime_as,y_prime_as,zeta_prime_as])
     xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs]) 
 
-    # reflect over the plane y = z for a vertical wing-----------------------------------------------------
-    if vertical_wing:
-        y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
-        y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
-        y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
-        y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
+    ## reflect over the plane y = z for a vertical wing-----------------------------------------------------
+    #if vertical_wing:
+        #y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
+        #y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
+        #y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
+        #y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
                                                              
-        y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
-        y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
-        y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
-        y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
+        #y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
+        #y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
+        #y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
+        #y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
                                                              
-        y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
-        y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
+        #y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
+        #y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
                                                              
-        y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
+        #y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
 
-        y_prime_bs = inverted_wing*y_prime_bs
-        y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs    
+        #y_prime_bs = inverted_wing*y_prime_bs
+        #y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs    
                 
             
     # Pack the VD

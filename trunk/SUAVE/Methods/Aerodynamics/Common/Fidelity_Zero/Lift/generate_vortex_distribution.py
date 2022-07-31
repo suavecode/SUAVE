@@ -507,6 +507,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             eta_a = (y_a[idx_y] - break_spans[i_break])  
             eta_b = (y_b[idx_y] - break_spans[i_break]) 
             eta   = (y_b[idx_y] - del_y[idx_y]/2 - break_spans[i_break]) 
+            
+            # Inverted wing
+            wing.inverted_wing = -np.sign(break_dihedral[i_break] - np.pi/2)
     
             segment_chord_ratio = (break_chord[i_break+1] - break_chord[i_break])/section_span[i_break+1]
             segment_twist_ratio = (break_twist[i_break+1] - break_twist[i_break])/section_span[i_break+1]
@@ -639,14 +642,100 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             y_prime    = (y_prime_ch                                 ) *1    
             
             # populate all corners of all panels. Right side only populated for last strip wing the wing
-            is_last_section = (idx_y == n_sw-1)
             xi_prime_as   = np.concatenate([xi_prime_a1,  np.array([xi_prime_a2  [-1]])])*1
-            xi_prime_bs   = np.concatenate([xi_prime_b1,  np.array([xi_prime_b2  [-1]])])*1 if is_last_section else None 
+            xi_prime_bs   = np.concatenate([xi_prime_b1,  np.array([xi_prime_b2  [-1]])])*1
             zeta_prime_as = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])*1            
-            zeta_prime_bs = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])*1 if is_last_section else None       
+            zeta_prime_bs = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])*1  
+            
+            # TEMP test deflect_control_surface_strip in strip level loop
+            from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.deflect_control_surface import deflect_control_surface_strip
+            
+            wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
+            if wing.is_a_control_surface or wing_is_all_moving:         
+                
+                raw_VD = Data(xi_prime_a1   = xi_prime_a1  ,
+                              xi_prime_ac   = xi_prime_ac  ,
+                              xi_prime_ah   = xi_prime_ah  ,
+                              xi_prime_a2   = xi_prime_a2  ,
+                              y_prime_a1    = y_prime_a1   ,
+                              y_prime_ah    = y_prime_ah   ,
+                              y_prime_ac    = y_prime_ac   ,
+                              y_prime_a2    = y_prime_a2   ,
+                              zeta_prime_a1 = zeta_prime_a1,
+                              zeta_prime_ah = zeta_prime_ah,
+                              zeta_prime_ac = zeta_prime_ac,
+                              zeta_prime_a2 = zeta_prime_a2, 
+                              xi_prime_b1   = xi_prime_b1  ,
+                              xi_prime_bh   = xi_prime_bh  ,
+                              xi_prime_bc   = xi_prime_bc  ,
+                              xi_prime_b2   = xi_prime_b2  ,
+                              y_prime_b1    = y_prime_b1   ,
+                              y_prime_bh    = y_prime_bh   ,
+                              y_prime_bc    = y_prime_bc   ,
+                              y_prime_b2    = y_prime_b2   ,
+                              zeta_prime_b1 = zeta_prime_b1,
+                              zeta_prime_bh = zeta_prime_bh,
+                              zeta_prime_bc = zeta_prime_bc,
+                              zeta_prime_b2 = zeta_prime_b2,
+                              xi_prime_ch   = xi_prime_ch  ,
+                              xi_prime      = xi_prime     ,
+                              y_prime_ch    = y_prime_ch   ,
+                              y_prime       = y_prime      ,
+                              zeta_prime_ch = zeta_prime_ch,
+                              zeta_prime    = zeta_prime   ,
+                              xi_prime_as   = xi_prime_as  ,
+                              xi_prime_bs   = xi_prime_bs  ,
+                              y_prime_as    = y_prime_as   ,
+                              y_prime_bs    = y_prime_bs   ,
+                              zeta_prime_as = zeta_prime_as,
+                              zeta_prime_bs = zeta_prime_bs)
+                
+                
+                raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y,sym_sign_ind)
+                
+                xi_prime_a1    = raw_VD.xi_prime_a1  
+                xi_prime_ac    = raw_VD.xi_prime_ac  
+                xi_prime_ah    = raw_VD.xi_prime_ah  
+                xi_prime_a2    = raw_VD.xi_prime_a2  
+                y_prime_a1     = raw_VD.y_prime_a1   
+                y_prime_ah     = raw_VD.y_prime_ah   
+                y_prime_ac     = raw_VD.y_prime_ac   
+                y_prime_a2     = raw_VD.y_prime_a2   
+                zeta_prime_a1  = raw_VD.zeta_prime_a1
+                zeta_prime_ah  = raw_VD.zeta_prime_ah
+                zeta_prime_ac  = raw_VD.zeta_prime_ac
+                zeta_prime_a2  = raw_VD.zeta_prime_a2
+                                  
+                xi_prime_b1    = raw_VD.xi_prime_b1  
+                xi_prime_bh    = raw_VD.xi_prime_bh  
+                xi_prime_bc    = raw_VD.xi_prime_bc  
+                xi_prime_b2    = raw_VD.xi_prime_b2  
+                y_prime_b1     = raw_VD.y_prime_b1   
+                y_prime_bh     = raw_VD.y_prime_bh   
+                y_prime_bc     = raw_VD.y_prime_bc   
+                y_prime_b2     = raw_VD.y_prime_b2   
+                zeta_prime_b1  = raw_VD.zeta_prime_b1
+                zeta_prime_bh  = raw_VD.zeta_prime_bh
+                zeta_prime_bc  = raw_VD.zeta_prime_bc
+                zeta_prime_b2  = raw_VD.zeta_prime_b2
+                                              
+                xi_prime_ch    = raw_VD.xi_prime_ch  
+                xi_prime       = raw_VD.xi_prime     
+                y_prime_ch     = raw_VD.y_prime_ch   
+                y_prime        = raw_VD.y_prime      
+                zeta_prime_ch  = raw_VD.zeta_prime_ch
+                zeta_prime     = raw_VD.zeta_prime   
+                                                       
+                xi_prime_as    = raw_VD.xi_prime_as  
+                xi_prime_bs    = raw_VD.xi_prime_bs  
+                y_prime_as     = raw_VD.y_prime_as   
+                y_prime_bs     = raw_VD.y_prime_bs   
+                zeta_prime_as  = raw_VD.zeta_prime_as
+                zeta_prime_bs  = raw_VD.zeta_prime_bs 
+                        
+            
             
             # reflect over the plane y = z for a vertical wing-----------------------------------------------------
-            wing.inverted_wing = -np.sign(break_dihedral[i_break] - np.pi/2)
             if vertical_wing:
                 y_prime_a1, zeta_prime_a1 = zeta_prime_a1, wing.inverted_wing*y_prime_a1
                 y_prime_ah, zeta_prime_ah = zeta_prime_ah, wing.inverted_wing*y_prime_ah
@@ -669,44 +758,44 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                     y_prime_bs = wing.inverted_wing*y_prime_bs
                 y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs
                  
-            # store coordinates of panels, horseshoeces vortices and control points relative to wing root----------
-            xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1     # top left corner of panel
-            ya1[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_a1
-            za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
-            xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah     # left coord of horseshoe
-            yah[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ah
-            zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
-            xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac     # left coord of control point
-            yac[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ac
-            zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
-            xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2     # bottom left corner of panel
-            ya2[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_a2
-            za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
-                                             
-            xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1     # top right corner of panel
-            yb1[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_b1          
-            zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1   
-            xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh     # right coord of horseshoe
-            ybh[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_bh          
-            zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh                    
-            xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc     # right coord of control point
-            ybc[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_bc                           
-            zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc   
-            xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2     # bottom right corner of panel
-            yb2[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_b2                        
-            zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
-                                             
-            xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch     # center coord of horseshoe
-            ych[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ch                              
-            zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
-            xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime        # center (true) coord of control point
-            yc [idx_y*n_cw:(idx_y+1)*n_cw] = y_prime
-            zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
-           
-            x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = xi_prime_as     # x, y, z represent all all points of the corners of the panels, LE and TE inclusive
-            y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = y_prime_as      # the final right corners get appended at last strip in wing, later
-            z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = zeta_prime_as              
-    
+                # store coordinates of panels, horseshoeces vortices and control points relative to wing root----------
+                xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1     # top left corner of panel
+                ya1[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_a1
+                za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
+                xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah     # left coord of horseshoe
+                yah[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ah
+                zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
+                xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac     # left coord of control point
+                yac[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ac
+                zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
+                xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2     # bottom left corner of panel
+                ya2[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_a2
+                za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+                                                 
+                xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1     # top right corner of panel
+                yb1[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_b1          
+                zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1   
+                xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh     # right coord of horseshoe
+                ybh[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_bh          
+                zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh                    
+                xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc     # right coord of control point
+                ybc[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_bc                           
+                zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc   
+                xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2     # bottom right corner of panel
+                yb2[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_b2                        
+                zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
+                                                 
+                xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch     # center coord of horseshoe
+                ych[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ch                              
+                zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+                xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime        # center (true) coord of control point
+                yc [idx_y*n_cw:(idx_y+1)*n_cw] = y_prime
+                zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
+               
+                x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = xi_prime_as     # x, y, z represent all all points of the corners of the panels, LE and TE inclusive
+                y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = y_prime_as      # the final right corners get appended at last strip in wing, later
+                z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = zeta_prime_as              
+
             cs_w[idx_y] = wing_chord_section       
                    
             # store this strip's discretization information--------------------------------------------------------
@@ -750,54 +839,6 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                     y[-(n_cw+1):] = y_prime_bs
                     z[-(n_cw+1):] = zeta_prime_bs              
                     
-            # TEMP test deflect_control_surface_strip in strip level loop
-            from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.deflect_control_surface import deflect_control_surface_strip
-            
-            wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
-            if wing.is_a_control_surface or wing_is_all_moving:         
-                
-                raw_VD = Data(raw_VD.xi_prime_a1   = xi_prime_a1  ,
-                              raw_VD.xi_prime_ac   = xi_prime_ac  ,
-                              raw_VD.xi_prime_ah   = xi_prime_ah  ,
-                              raw_VD.xi_prime_a2   = xi_prime_a2  ,
-                              raw_VD.y_prime_a1    = y_prime_a1   ,
-                              raw_VD.y_prime_ah    = y_prime_ah   ,
-                              raw_VD.y_prime_ac    = y_prime_ac   ,
-                              raw_VD.y_prime_a2    = y_prime_a2   ,
-                              raw_VD.zeta_prime_a1 = zeta_prime_a1,
-                              raw_VD.zeta_prime_ah = zeta_prime_ah,
-                              raw_VD.zeta_prime_ac = zeta_prime_ac,
-                              raw_VD.zeta_prime_a2 = zeta_prime_a2,
-                              
-                              raw_VD.xi_prime_b1   = xi_prime_b1  ,
-                              raw_VD.xi_prime_bh   = xi_prime_bh  ,
-                              raw_VD.xi_prime_bc   = xi_prime_bc  ,
-                              raw_VD.xi_prime_b2   = xi_prime_b2  ,
-                              raw_VD.y_prime_b1    = y_prime_b1   ,
-                              raw_VD.y_prime_bh    = y_prime_bh   ,
-                              raw_VD.y_prime_bc    = y_prime_bc   ,
-                              raw_VD.y_prime_b2    = y_prime_b2   ,
-                              raw_VD.zeta_prime_b1 = zeta_prime_b1,
-                              raw_VD.zeta_prime_bh = zeta_prime_bh,
-                              raw_VD.zeta_prime_bc = zeta_prime_bc,
-                              raw_VD.zeta_prime_b2 = zeta_prime_b2,
-                              
-                              raw_VD.xi_prime_ch   = xi_prime_ch  ,
-                              raw_VD.xi_prime      = xi_prime     ,
-                              raw_VD.y_prime_ch    = y_prime_ch   ,
-                              raw_VD.y_prime       = y_prime      ,
-                              raw_VD.zeta_prime_ch = zeta_prime_ch,
-                              raw_VD.zeta_prime    = zeta_prime   ,
-                              
-                              raw_VD.xi_prime_as   = xi_prime_as  ,
-                              raw_VD.xi_prime_bs   = xi_prime_bs  ,
-                              raw_VD.y_prime_as    = y_prime_as   ,
-                              raw_VD.y_prime_bs    = y_prime_bs   ,
-                              raw_VD.zeta_prime_as = zeta_prime_as,
-                              raw_VD.zeta_prime_bs = zeta_prime_bs,)
-                
-                
-                deflect_control_surface_strip(wing, raw_VD, idx_y)
             
                     
         #End 'for each strip' loop            
