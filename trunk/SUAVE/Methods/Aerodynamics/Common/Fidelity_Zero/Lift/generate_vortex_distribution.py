@@ -903,12 +903,12 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
     
     # Define y-coordinate and other arrays-----------------------------------------------------------------
     # take normal value for first wing, then reflect over xz plane for a symmetric wing
-    y_prime_as = (jnp.ones(n_cw+1)*y_a[idx_y]                 ) *sym_sign          
+    y_prime_as = (jnp.ones(n_cw+1)*y_a[idx_y]                ) *sym_sign          
     y_prime_a1 = (y_prime_as[:-1]                            ) *1       
     y_prime_ah = (y_prime_as[:-1]                            ) *1       
     y_prime_ac = (y_prime_as[:-1]                            ) *1          
     y_prime_a2 = (y_prime_as[:-1]                            ) *1        
-    y_prime_bs = (jnp.ones(n_cw+1)*y_b[idx_y]                 ) *sym_sign            
+    y_prime_bs = (jnp.ones(n_cw+1)*y_b[idx_y]                ) *sym_sign            
     y_prime_b1 = (y_prime_bs[:-1]                            ) *1         
     y_prime_bh = (y_prime_bs[:-1]                            ) *1         
     y_prime_bc = (y_prime_bs[:-1]                            ) *1         
@@ -917,11 +917,10 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
     y_prime    = (y_prime_ch                                 ) *1    
     
     # populate all corners of all panels. Right side only populated for last strip wing the wing
-    is_last_section = (idx_y == n_sw-1)
     xi_prime_as   = jnp.concatenate([xi_prime_a1,  jnp.array([xi_prime_a2  [-1]])])*1
-    #xi_prime_bs   = jnp.concatenate([xi_prime_b1,  jnp.array([xi_prime_b2  [-1]])])*1 if is_last_section else None 
+    xi_prime_bs   = jnp.concatenate([xi_prime_b1,  jnp.array([xi_prime_b2  [-1]])])*1 
     zeta_prime_as = jnp.concatenate([zeta_prime_a1,jnp.array([zeta_prime_a2[-1]])])*1            
-    #zeta_prime_bs = jnp.concatenate([zeta_prime_b1,jnp.array([zeta_prime_b2[-1]])])*1 if is_last_section else None       
+    zeta_prime_bs = jnp.concatenate([zeta_prime_b1,jnp.array([zeta_prime_b2[-1]])])*1   
     
     # Deflect control surfaces-----------------------------------------------------------------------------
     # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
@@ -999,7 +998,7 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
         xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
                                                                                            
         xi_prime_as, y_prime_as, zeta_prime_as = rotate_points_with_quaternion(quaternion, [xi_prime_as,y_prime_as,zeta_prime_as])
-        #xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs]) if is_last_section else [None, None, None] 
+        xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs])
     
     # reflect over the plane y = z for a vertical wing-----------------------------------------------------
     inverted_wing = -jnp.sign(break_dihedral[i_break] - jnp.pi/2)
@@ -1019,15 +1018,11 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
                                                              
         y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
 
-        if y_prime_bs == None:
-            pass
-        else:
-            y_prime_bs = inverted_wing*y_prime_bs
-        #y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs
+        y_prime_bs = inverted_wing*y_prime_bs
+        y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs
          
     # store coordinates of panels, horseshoeces vortices and control points relative to wing root----------
-    #xa1 = xa1.at[idx_y*n_cw:(idx_y+1)*n_cw].set(xi_prime_a1)     # top left corner of panel
-    xa1 = DUS(xa1, xi_prime_a1,(idx_y*n_cw,))
+    xa1 = DUS(xa1, xi_prime_a1,(idx_y*n_cw,))    # top left corner of panel
     ya1 = DUS(ya1,y_prime_a1,(idx_y*n_cw,))
     za1 = DUS(za1,zeta_prime_a1,(idx_y*n_cw,))
     xah = DUS(xah,xi_prime_ah,(idx_y*n_cw,))     # left coord of horseshoe
@@ -1104,14 +1099,21 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
                tangent_incidence_angle,exposed_leading_edge_flags]
     
     
-    coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,
-              zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]
+
 
     #increment i_break if needed; check for end of wing----------------------------------------------------
     cond = y_b[idx_y] == break_spans[i_break+1]
     i_break += 1*cond
     
-    #End 'for each strip' loop           
+    # Functionally this doesn't do anything until the final break
+    x = x.at[-(n_cw+1):].set(xi_prime_bs)
+    y = y.at[-(n_cw+1):].set(y_prime_bs)
+    z = z.at[-(n_cw+1):].set(zeta_prime_bs)    
+    
+    #End 'for each strip' loop     
+    
+    coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,
+              zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]    
     
     return indices, i_break, coords
 
