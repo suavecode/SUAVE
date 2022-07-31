@@ -645,80 +645,6 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             zeta_prime_as = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])*1            
             zeta_prime_bs = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])*1 if is_last_section else None       
             
-            # Deflect control surfaces-----------------------------------------------------------------------------
-            # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
-            # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
-            wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
-            if wing.is_a_control_surface or wing_is_all_moving:
-                
-                #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
-                #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
-                is_first_strip = (idx_y == 0)
-                if is_first_strip:
-                    # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
-                    ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
-                    ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
-                    
-                    interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
-                    interp_domains     = np.array([0.,1., 2.,3., 4.,5.])
-                    interp_ranges_ib   = np.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
-                    ib_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ib)
-                    
-                    
-                    #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
-                    if wing.is_a_control_surface:
-                        need_to_compute_hinge_vector = True
-                    else: #wing is an all-moving surface
-                        hinge_vector                 = wing.hinge_vector
-                        hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
-                                                        not (hinge_vector==np.array([0.,0.,0.])).all()
-                        need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
-                        
-                    if need_to_compute_hinge_vector:
-                        ob_le_strip_corner = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
-                        ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
-                        interp_ranges_ob   = np.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
-                        ob_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ob)
-                    
-                        use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
-                        if use_root_chord_in_plane_normal: ob_hinge_point[0] = ib_hinge_point[0]
-                    
-                        hinge_vector       = ob_hinge_point - ib_hinge_point
-                        hinge_vector       = hinge_vector / np.linalg.norm(hinge_vector)   
-                    elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
-                        hinge_vector[1], hinge_vector[2] = hinge_vector[2], hinge_vector[1] 
-                        
-                    #store hinge root point and direction vector
-                    wing.hinge_root_point = ib_hinge_point
-                    wing.hinge_vector     = hinge_vector
-                    #END first strip calculations
-                
-                # get deflection angle
-                deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
-                symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
-                symmetry_multiplier  *= -1                   if vertical_wing      else 1
-                deflection_angle      = deflection_base_angle * symmetry_multiplier
-                    
-                # make quaternion rotation matrix
-                quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
-                
-                # rotate strips
-                xi_prime_a1, y_prime_a1, zeta_prime_a1 = rotate_points_with_quaternion(quaternion, [xi_prime_a1,y_prime_a1,zeta_prime_a1])
-                xi_prime_ah, y_prime_ah, zeta_prime_ah = rotate_points_with_quaternion(quaternion, [xi_prime_ah,y_prime_ah,zeta_prime_ah])
-                xi_prime_ac, y_prime_ac, zeta_prime_ac = rotate_points_with_quaternion(quaternion, [xi_prime_ac,y_prime_ac,zeta_prime_ac])
-                xi_prime_a2, y_prime_a2, zeta_prime_a2 = rotate_points_with_quaternion(quaternion, [xi_prime_a2,y_prime_a2,zeta_prime_a2])
-                                                                                                   
-                xi_prime_b1, y_prime_b1, zeta_prime_b1 = rotate_points_with_quaternion(quaternion, [xi_prime_b1,y_prime_b1,zeta_prime_b1])
-                xi_prime_bh, y_prime_bh, zeta_prime_bh = rotate_points_with_quaternion(quaternion, [xi_prime_bh,y_prime_bh,zeta_prime_bh])
-                xi_prime_bc, y_prime_bc, zeta_prime_bc = rotate_points_with_quaternion(quaternion, [xi_prime_bc,y_prime_bc,zeta_prime_bc])
-                xi_prime_b2, y_prime_b2, zeta_prime_b2 = rotate_points_with_quaternion(quaternion, [xi_prime_b2,y_prime_b2,zeta_prime_b2])
-                                                                                                   
-                xi_prime_ch, y_prime_ch, zeta_prime_ch = rotate_points_with_quaternion(quaternion, [xi_prime_ch,y_prime_ch,zeta_prime_ch])
-                xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
-                                                                                                   
-                xi_prime_as, y_prime_as, zeta_prime_as = rotate_points_with_quaternion(quaternion, [xi_prime_as,y_prime_as,zeta_prime_as])
-                xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs]) if is_last_section else [None, None, None] 
-            
             # reflect over the plane y = z for a vertical wing-----------------------------------------------------
             inverted_wing = -np.sign(break_dihedral[i_break] - np.pi/2)
             if vertical_wing:
@@ -903,6 +829,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
         VD.n_sw             = np.append(VD.n_sw            , np.int16(n_sw)            )
         VD.n_cw             = np.append(VD.n_cw            , np.int16(n_cw)            )
+        
+        # Deflect the control surface
+        
     
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
@@ -1455,117 +1384,6 @@ def compute_unit_normal(VD):
 
     return unit_normal
 
-# ----------------------------------------------------------------------
-#  Rotation functions
-# ----------------------------------------------------------------------
-def rotate_points_about_line(point_on_line, direction_unit_vector, rotation_angle, points):
-    """ This computes the location of given points after rotating about an arbitrary 
-    line that passes through a given point. An important thing to note is that this
-    function does not modify the original points. It instead makes copies of the points
-    to rotate, rotates the copies, the outputs the copies as np.arrays.
 
-    Assumptions: 
-    None
 
-    Source:   
-    https://sites.google.com/site/glennmurray/Home/rotation-matrices-and-formulas/rotation-about-an-arbitrary-axis-in-3-dimensions
-    
-    Inputs:   
-    point_on_line         - a list or array of size 3 corresponding to point coords (a,b,c)
-    direction_unit_vector - a list or array of size 3 corresponding to unit vector  <u,v,w>
-    rotation_angle        - angle of rotation in radians
-    points                - a list or array of size 3 corresponding to the lists (xs, ys, zs)
-                            where xs, ys, and zs are the (x,y,z) coords of the points 
-                            that will be rotated
-    
-    Properties Used:
-    N/A
-    """       
-    a,  b,  c  = point_on_line
-    u,  v,  w  = direction_unit_vector
-    xs, ys, zs = np.array(points[0]), np.array(points[1]), np.array(points[2])
-    
-    cos         = np.cos(rotation_angle)
-    sin         = np.sin(rotation_angle)
-    uvw_dot_xyz = u*xs + v*ys + w*zs
-    
-    xs_prime = (a*(v**2 + w**2) - u*(b*v + c*w - uvw_dot_xyz))*(1-cos)  +  xs*cos  +  (-c*v + b*w - w*ys + v*zs)*sin
-    ys_prime = (b*(u**2 + w**2) - v*(a*u + c*w - uvw_dot_xyz))*(1-cos)  +  ys*cos  +  ( c*u - a*w + w*xs - u*zs)*sin
-    zs_prime = (c*(u**2 + v**2) - w*(a*u + b*v - uvw_dot_xyz))*(1-cos)  +  zs*cos  +  (-b*u + a*v - v*xs + u*ys)*sin
-    
-    return xs_prime, ys_prime, zs_prime
-    
-def make_hinge_quaternion(point_on_line, direction_unit_vector, rotation_angle):
-    """ This make a quaternion that will rotate a vector about a the line that 
-    passes through the point 'point_on_line' and has direction 'direction_unit_vector'.
-    The quat rotates 'rotation_angle' radians. The quat is meant to be multiplied by
-    the vector [x  y  z  1]
 
-    Assumptions: 
-    None
-
-    Source:   
-    https://sites.google.com/site/glennmurray/Home/rotation-matrices-and-formulas/rotation-about-an-arbitrary-axis-in-3-dimensions
-    
-    Inputs:   
-    point_on_line         - a list or array of size 3 corresponding to point coords (a,b,c)
-    direction_unit_vector - a list or array of size 3 corresponding to unit vector  <u,v,w>
-    rotation_angle        - angle of rotation in radians
-    n_points              - number of points that will be rotated
-    
-    Properties Used:
-    N/A
-    """       
-    a,  b,  c  = point_on_line
-    u,  v,  w  = direction_unit_vector
-    
-    cos         = np.cos(rotation_angle)
-    sin         = np.sin(rotation_angle)
-    
-    q11 = u**2 + (v**2 + w**2)*cos
-    q12 = u*v*(1-cos) - w*sin
-    q13 = u*w*(1-cos) + v*sin
-    q14 = (a*(v**2 + w**2) - u*(b*v + c*w))*(1-cos)  +  (b*w - c*v)*sin
-    
-    q21 = u*v*(1-cos) + w*sin
-    q22 = v**2 + (u**2 + w**2)*cos
-    q23 = v*w*(1-cos) - u*sin
-    q24 = (b*(u**2 + w**2) - v*(a*u + c*w))*(1-cos)  +  (c*u - a*w)*sin
-    
-    q31 = u*w*(1-cos) - v*sin
-    q32 = v*w*(1-cos) + u*sin
-    q33 = w**2 + (u**2 + v**2)*cos
-    q34 = (c*(u**2 + v**2) - w*(a*u + b*v))*(1-cos)  +  (a*v - b*u)*sin    
-    
-    quat = np.array([[q11, q12, q13, q14],
-                     [q21, q22, q23, q24],
-                     [q31, q32, q33, q34],
-                     [0. , 0. , 0. , 1. ]])
-    
-    return quat
-
-def rotate_points_with_quaternion(quat, points):
-    """ This rotates the points by a quaternion
-
-    Assumptions: 
-    None
-
-    Source:   
-    https://sites.google.com/site/glennmurray/Home/rotation-matrices-and-formulas/rotation-about-an-arbitrary-axis-in-3-dimensions
-    
-    Inputs:   
-    quat     - a quaternion that will rotate the given points about a line which 
-               is not necessarily at the origin  
-    points   - a list or array of size 3 corresponding to the lists (xs, ys, zs)
-               where xs, ys, and zs are the (x,y,z) coords of the points 
-               that will be rotated
-    
-    Outputs:
-    xs, ys, zs - np arrays of the rotated points' xyz coordinates
-    
-    Properties Used:
-    N/A
-    """     
-    vectors = np.array([points[0],points[1],points[2],np.ones(len(points[0]))]).T
-    x_primes, y_primes, z_primes = np.sum(quat[0]*vectors, axis=1), np.sum(quat[1]*vectors, axis=1), np.sum(quat[2]*vectors, axis=1)
-    return x_primes, y_primes, z_primes
