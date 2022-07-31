@@ -17,7 +17,7 @@ from SUAVE.Components.Wings import All_Moving_Surface
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def deflect_control_surface(wing,VD):
+def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     """ Rotates existing points in the VD with respect to current values of deflection
 
     Assumptions: 
@@ -39,158 +39,183 @@ def deflect_control_surface(wing,VD):
     # Unpack
     vertical_wing = wing.vertical
     sym_sign_ind  = wing.symmetric
+    inverted_wing = wing.inverted_wing
     
-    xi_prime_a1
-    xi_prime_ac
-    
-    y_prime_a1
-    zeta_prime_a1 
-    
-    xi_prime_ah
-    y_prime_ah
-    zeta_prime_ah
-    
-
-    y_prime_ac
-    zeta_prime_ac 
-    
-    xi_prime_a2
-    y_prime_a2
-    zeta_prime_a2 
+    xi_prime_a1    = raw_VD.xi_prime_a1  
+    xi_prime_ac    = raw_VD.xi_prime_ac  
+    xi_prime_ah    = raw_VD.xi_prime_ah  
+    xi_prime_a2    = raw_VD.xi_prime_a2  
+    y_prime_a1     = raw_VD.y_prime_a1   
+    y_prime_ah     = raw_VD.y_prime_ah   
+    y_prime_ac     = raw_VD.y_prime_ac   
+    y_prime_a2     = raw_VD.y_prime_a2   
+    zeta_prime_a1  = raw_VD.zeta_prime_a1
+    zeta_prime_ah  = raw_VD.zeta_prime_ah
+    zeta_prime_ac  = raw_VD.zeta_prime_ac
+    zeta_prime_a2  = raw_VD.zeta_prime_a2
+                      
+    xi_prime_b1    = raw_VD.xi_prime_b1  
+    xi_prime_bh    = raw_VD.xi_prime_bh  
+    xi_prime_bc    = raw_VD.xi_prime_bc  
+    xi_prime_b2    = raw_VD.xi_prime_b2  
+    y_prime_b1     = raw_VD.y_prime_b1   
+    y_prime_bh     = raw_VD.y_prime_bh   
+    y_prime_bc     = raw_VD.y_prime_bc   
+    y_prime_b2     = raw_VD.y_prime_b2   
+    zeta_prime_b1  = raw_VD.zeta_prime_b1
+    zeta_prime_bh  = raw_VD.zeta_prime_bh
+    zeta_prime_bc  = raw_VD.zeta_prime_bc
+    zeta_prime_b2  = raw_VD.zeta_prime_b2
+                                  
+    xi_prime_ch    = raw_VD.xi_prime_ch  
+    xi_prime       = raw_VD.xi_prime     
+    y_prime_ch     = raw_VD.y_prime_ch   
+    y_prime        = raw_VD.y_prime      
+    zeta_prime_ch  = raw_VD.zeta_prime_ch
+    zeta_prime     = raw_VD.zeta_prime   
                                            
-    xi_prime_b1
-    y_prime_b1
-    zeta_prime_b1 
-    xi_prime_bh
-    y_prime_bh
-    zeta_prime_bh 
-    xi_prime_bc
-    y_prime_bc
-    zeta_prime_bc 
-    xi_prime_b2
-    y_prime_b2
-    zeta_prime_b2 
-                                           
-    xi_prime_ch
-    y_prime_ch
-    zeta_prime_ch 
-    xi_prime 
-    y_prime   
-    zeta_prime    
-                                           
-    xi_prime_as
-    y_prime_as
-    zeta_prime_as 
-    xi_prime_bs
-    y_prime_bs
-    zeta_prime_bs    
+    xi_prime_as    = raw_VD.xi_prime_as  
+    xi_prime_bs    = raw_VD.xi_prime_bs  
+    y_prime_as     = raw_VD.y_prime_as   
+    y_prime_bs     = raw_VD.y_prime_bs   
+    zeta_prime_as  = raw_VD.zeta_prime_as
+    zeta_prime_bs  = raw_VD.zeta_prime_bs 
     
-    
-    for idx_y in range(n_sw):
-    
-        # Deflect control surfaces-----------------------------------------------------------------------------
-        # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
-        # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
-        wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
-        if wing.is_a_control_surface or wing_is_all_moving:
-            
-            #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
-            #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
-            is_first_strip = (idx_y == 0)
-            if is_first_strip:
-                # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
-                ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
-                ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
-                
-                interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
-                interp_domains     = np.array([0.,1., 2.,3., 4.,5.])
-                interp_ranges_ib   = np.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
-                ib_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ib)
-                
-                
-                #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
-                if wing.is_a_control_surface:
-                    need_to_compute_hinge_vector = True
-                else: #wing is an all-moving surface
-                    hinge_vector                 = wing.hinge_vector
-                    hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
-                                                    not (hinge_vector==np.array([0.,0.,0.])).all()
-                    need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
-                    
-                if need_to_compute_hinge_vector:
-                    ob_le_strip_corner = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
-                    ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
-                    interp_ranges_ob   = np.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
-                    ob_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ob)
-                
-                    use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
-                    if use_root_chord_in_plane_normal: ob_hinge_point[0] = ib_hinge_point[0]
-                
-                    hinge_vector       = ob_hinge_point - ib_hinge_point
-                    hinge_vector       = hinge_vector / np.linalg.norm(hinge_vector)   
-                elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
-                    hinge_vector[1], hinge_vector[2] = hinge_vector[2], hinge_vector[1] 
-                    
-                #store hinge root point and direction vector
-                wing.hinge_root_point = ib_hinge_point
-                wing.hinge_vector     = hinge_vector
-                #END first strip calculations
-            
-            # get deflection angle
-            deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
-            symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
-            symmetry_multiplier  *= -1                   if vertical_wing      else 1
-            deflection_angle      = deflection_base_angle * symmetry_multiplier
-                
-            # make quaternion rotation matrix
-            quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
-            
-            # rotate strips
-            xi_prime_a1, y_prime_a1, zeta_prime_a1 = rotate_points_with_quaternion(quaternion, [xi_prime_a1,y_prime_a1,zeta_prime_a1])
-            xi_prime_ah, y_prime_ah, zeta_prime_ah = rotate_points_with_quaternion(quaternion, [xi_prime_ah,y_prime_ah,zeta_prime_ah])
-            xi_prime_ac, y_prime_ac, zeta_prime_ac = rotate_points_with_quaternion(quaternion, [xi_prime_ac,y_prime_ac,zeta_prime_ac])
-            xi_prime_a2, y_prime_a2, zeta_prime_a2 = rotate_points_with_quaternion(quaternion, [xi_prime_a2,y_prime_a2,zeta_prime_a2])
-                                                                                               
-            xi_prime_b1, y_prime_b1, zeta_prime_b1 = rotate_points_with_quaternion(quaternion, [xi_prime_b1,y_prime_b1,zeta_prime_b1])
-            xi_prime_bh, y_prime_bh, zeta_prime_bh = rotate_points_with_quaternion(quaternion, [xi_prime_bh,y_prime_bh,zeta_prime_bh])
-            xi_prime_bc, y_prime_bc, zeta_prime_bc = rotate_points_with_quaternion(quaternion, [xi_prime_bc,y_prime_bc,zeta_prime_bc])
-            xi_prime_b2, y_prime_b2, zeta_prime_b2 = rotate_points_with_quaternion(quaternion, [xi_prime_b2,y_prime_b2,zeta_prime_b2])
-                                                                                               
-            xi_prime_ch, y_prime_ch, zeta_prime_ch = rotate_points_with_quaternion(quaternion, [xi_prime_ch,y_prime_ch,zeta_prime_ch])
-            xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
-                                                                                               
-            xi_prime_as, y_prime_as, zeta_prime_as = rotate_points_with_quaternion(quaternion, [xi_prime_as,y_prime_as,zeta_prime_as])
-            xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs]) if is_last_section else [None, None, None] 
+    # Deflect control surfaces-----------------------------------------------------------------------------
+    # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
+    # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
+    wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
         
-            # reflect over the plane y = z for a vertical wing-----------------------------------------------------
-            inverted_wing = -np.sign(break_dihedral[i_break] - np.pi/2)
-            if vertical_wing:
-                y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
-                y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
-                y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
-                y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
-                                                                     
-                y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
-                y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
-                y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
-                y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
-                                                                     
-                y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
-                y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
-                                                                     
-                y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
+    #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
+    #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
+    if idx_y == 0:
+        # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
+        ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
+        ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
+        
+        interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
+        interp_domains     = np.array([0.,1., 2.,3., 4.,5.])
+        interp_ranges_ib   = np.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
+        ib_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ib)
+        
+        #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
+        if wing.is_a_control_surface:
+            need_to_compute_hinge_vector = True
+        else: #wing is an all-moving surface
+            hinge_vector                 = wing.hinge_vector
+            hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
+                                            not (hinge_vector==np.array([0.,0.,0.])).all()
+            need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
+            
+        if need_to_compute_hinge_vector:
+            ob_le_strip_corner = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
+            ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
+            interp_ranges_ob   = np.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
+            ob_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ob)
+        
+            use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
+            if use_root_chord_in_plane_normal: ob_hinge_point[0] = ib_hinge_point[0]
+        
+            hinge_vector       = ob_hinge_point - ib_hinge_point
+            hinge_vector       = hinge_vector / np.linalg.norm(hinge_vector)   
+        elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
+            hinge_vector[1], hinge_vector[2] = hinge_vector[2], hinge_vector[1] 
+            
+        #store hinge root point and direction vector
+        wing.hinge_root_point = ib_hinge_point
+        wing.hinge_vector     = hinge_vector
+        #END first strip calculations
     
-                if np.any(y_prime_bs) == None:
-                    pass
-                else:
-                    y_prime_bs = inverted_wing*y_prime_bs
-                y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs    
+    # get deflection angle
+    deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
+    symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
+    symmetry_multiplier  *= -1                   if vertical_wing      else 1
+    deflection_angle      = deflection_base_angle * symmetry_multiplier
+        
+    # make quaternion rotation matrix
+    quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
+    
+    # rotate strips
+    xi_prime_a1, y_prime_a1, zeta_prime_a1 = rotate_points_with_quaternion(quaternion, [xi_prime_a1,y_prime_a1,zeta_prime_a1])
+    xi_prime_ah, y_prime_ah, zeta_prime_ah = rotate_points_with_quaternion(quaternion, [xi_prime_ah,y_prime_ah,zeta_prime_ah])
+    xi_prime_ac, y_prime_ac, zeta_prime_ac = rotate_points_with_quaternion(quaternion, [xi_prime_ac,y_prime_ac,zeta_prime_ac])
+    xi_prime_a2, y_prime_a2, zeta_prime_a2 = rotate_points_with_quaternion(quaternion, [xi_prime_a2,y_prime_a2,zeta_prime_a2])
+                                                                                       
+    xi_prime_b1, y_prime_b1, zeta_prime_b1 = rotate_points_with_quaternion(quaternion, [xi_prime_b1,y_prime_b1,zeta_prime_b1])
+    xi_prime_bh, y_prime_bh, zeta_prime_bh = rotate_points_with_quaternion(quaternion, [xi_prime_bh,y_prime_bh,zeta_prime_bh])
+    xi_prime_bc, y_prime_bc, zeta_prime_bc = rotate_points_with_quaternion(quaternion, [xi_prime_bc,y_prime_bc,zeta_prime_bc])
+    xi_prime_b2, y_prime_b2, zeta_prime_b2 = rotate_points_with_quaternion(quaternion, [xi_prime_b2,y_prime_b2,zeta_prime_b2])
+                                                                                       
+    xi_prime_ch, y_prime_ch, zeta_prime_ch = rotate_points_with_quaternion(quaternion, [xi_prime_ch,y_prime_ch,zeta_prime_ch])
+    xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
+                                                                                       
+    xi_prime_as, y_prime_as, zeta_prime_as = rotate_points_with_quaternion(quaternion, [xi_prime_as,y_prime_as,zeta_prime_as])
+    xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs]) 
+
+    # reflect over the plane y = z for a vertical wing-----------------------------------------------------
+    if vertical_wing:
+        y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
+        y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
+        y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
+        y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
+                                                             
+        y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
+        y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
+        y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
+        y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
+                                                             
+        y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
+        y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
+                                                             
+        y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
+
+        y_prime_bs = inverted_wing*y_prime_bs
+        y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs    
                 
             
-        # Pack the VD
+    # Pack the VD
+    raw_VD.xi_prime_a1   = xi_prime_a1  
+    raw_VD.xi_prime_ac   = xi_prime_ac  
+    raw_VD.xi_prime_ah   = xi_prime_ah  
+    raw_VD.xi_prime_a2   = xi_prime_a2  
+    raw_VD.y_prime_a1    = y_prime_a1   
+    raw_VD.y_prime_ah    = y_prime_ah   
+    raw_VD.y_prime_ac    = y_prime_ac   
+    raw_VD.y_prime_a2    = y_prime_a2   
+    raw_VD.zeta_prime_a1 = zeta_prime_a1
+    raw_VD.zeta_prime_ah = zeta_prime_ah
+    raw_VD.zeta_prime_ac = zeta_prime_ac
+    raw_VD.zeta_prime_a2 = zeta_prime_a2
+                                      
+    raw_VD.xi_prime_b1   = xi_prime_b1  
+    raw_VD.xi_prime_bh   = xi_prime_bh  
+    raw_VD.xi_prime_bc   = xi_prime_bc  
+    raw_VD.xi_prime_b2   = xi_prime_b2  
+    raw_VD.y_prime_b1    = y_prime_b1   
+    raw_VD.y_prime_bh    = y_prime_bh   
+    raw_VD.y_prime_bc    = y_prime_bc   
+    raw_VD.y_prime_b2    = y_prime_b2   
+    raw_VD.zeta_prime_b1 = zeta_prime_b1
+    raw_VD.zeta_prime_bh = zeta_prime_bh
+    raw_VD.zeta_prime_bc = zeta_prime_bc
+    raw_VD.zeta_prime_b2 = zeta_prime_b2
+                                    
+    raw_VD.xi_prime_ch   = xi_prime_ch  
+    raw_VD.xi_prime      = xi_prime     
+    raw_VD.y_prime_ch    = y_prime_ch   
+    raw_VD.y_prime       = y_prime      
+    raw_VD.zeta_prime_ch = zeta_prime_ch
+    raw_VD.zeta_prime    = zeta_prime   
+                         
+    raw_VD.xi_prime_as   = xi_prime_as  
+    raw_VD.xi_prime_bs   = xi_prime_bs  
+    raw_VD.y_prime_as    = y_prime_as   
+    raw_VD.y_prime_bs    = y_prime_bs   
+    raw_VD.zeta_prime_as = zeta_prime_as
+    raw_VD.zeta_prime_bs = zeta_prime_bs
     
     
-    return VD    
+    return raw_VD    
 
 # ----------------------------------------------------------------------
 #  Make Hinge Quaternion
