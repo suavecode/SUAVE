@@ -49,10 +49,10 @@ def deflect_control_surface(VD,wing):
         xi_prime_bh    = VD.XBH[condition]
         xi_prime_bc    = VD.XBC[condition]
         xi_prime_b2    = VD.XB2[condition]
-        y_prime_b1     = VD.XB1[condition]
-        y_prime_bh     = VD.XBH[condition]
-        y_prime_bc     = VD.XBC[condition]
-        y_prime_b2     = VD.XB2[condition]
+        y_prime_b1     = VD.YB1[condition]
+        y_prime_bh     = VD.YBH[condition]
+        y_prime_bc     = VD.YBC[condition]
+        y_prime_b2     = VD.YB2[condition]
         zeta_prime_b1  = VD.ZB1[condition]
         zeta_prime_bh  = VD.ZBH[condition]
         zeta_prime_bc  = VD.ZBC[condition]
@@ -170,10 +170,10 @@ def deflect_control_surface(VD,wing):
         VD.XBH[condition]       =  xi_prime_bh    
         VD.XBC[condition]       =  xi_prime_bc    
         VD.XB2[condition]       =  xi_prime_b2    
-        VD.XB1[condition]       =  y_prime_b1     
-        VD.XBH[condition]       =  y_prime_bh     
-        VD.XBC[condition]       =  y_prime_bc     
-        VD.XB2[condition]       =  y_prime_b2     
+        VD.YB1[condition]       =  y_prime_b1     
+        VD.YBH[condition]       =  y_prime_bh     
+        VD.YBC[condition]       =  y_prime_bc     
+        VD.YB2[condition]       =  y_prime_b2     
         VD.ZB1[condition]       =  zeta_prime_b1  
         VD.ZBH[condition]       =  zeta_prime_bh  
         VD.ZBC[condition]       =  zeta_prime_bc  
@@ -238,7 +238,7 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     zeta_prime_ah  = raw_VD.zeta_prime_ah
     zeta_prime_ac  = raw_VD.zeta_prime_ac
     zeta_prime_a2  = raw_VD.zeta_prime_a2
-                      
+
     xi_prime_b1    = raw_VD.xi_prime_b1  
     xi_prime_bh    = raw_VD.xi_prime_bh  
     xi_prime_bc    = raw_VD.xi_prime_bc  
@@ -251,21 +251,21 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     zeta_prime_bh  = raw_VD.zeta_prime_bh
     zeta_prime_bc  = raw_VD.zeta_prime_bc
     zeta_prime_b2  = raw_VD.zeta_prime_b2
-                                  
+
     xi_prime_ch    = raw_VD.xi_prime_ch  
     xi_prime       = raw_VD.xi_prime     
     y_prime_ch     = raw_VD.y_prime_ch   
     y_prime        = raw_VD.y_prime      
     zeta_prime_ch  = raw_VD.zeta_prime_ch
     zeta_prime     = raw_VD.zeta_prime   
-                                           
+
     xi_prime_as    = raw_VD.xi_prime_as  
     xi_prime_bs    = raw_VD.xi_prime_bs  
     y_prime_as     = raw_VD.y_prime_as   
     y_prime_bs     = raw_VD.y_prime_bs   
     zeta_prime_as  = raw_VD.zeta_prime_as
-    zeta_prime_bs  = raw_VD.zeta_prime_bs 
-    
+    zeta_prime_bs  = raw_VD.zeta_prime_bs     
+
     # Deflect control surfaces-----------------------------------------------------------------------------
     # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
     # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
@@ -313,7 +313,7 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     
     # get deflection angle
     deflection            = wing.deflection - wing.deflection_last
-    deflection_base_angle = deflection      if (not wing.is_slat) else deflection
+    deflection_base_angle = deflection      if (not wing.is_slat) else -deflection
     symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
     symmetry_multiplier  *= -1                   if vertical_wing      else 1
     deflection_angle      = deflection_base_angle * symmetry_multiplier
@@ -357,8 +357,8 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
 
         y_prime_bs = inverted_wing*y_prime_bs
         y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs    
-                
-            
+
+
     # Pack the VD
     raw_VD.xi_prime_a1   = xi_prime_a1  
     raw_VD.xi_prime_ac   = xi_prime_ac  
@@ -372,7 +372,7 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     raw_VD.zeta_prime_ah = zeta_prime_ah
     raw_VD.zeta_prime_ac = zeta_prime_ac
     raw_VD.zeta_prime_a2 = zeta_prime_a2
-                                      
+
     raw_VD.xi_prime_b1   = xi_prime_b1  
     raw_VD.xi_prime_bh   = xi_prime_bh  
     raw_VD.xi_prime_bc   = xi_prime_bc  
@@ -385,21 +385,21 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     raw_VD.zeta_prime_bh = zeta_prime_bh
     raw_VD.zeta_prime_bc = zeta_prime_bc
     raw_VD.zeta_prime_b2 = zeta_prime_b2
-                                    
+
     raw_VD.xi_prime_ch   = xi_prime_ch  
     raw_VD.xi_prime      = xi_prime     
     raw_VD.y_prime_ch    = y_prime_ch   
     raw_VD.y_prime       = y_prime      
     raw_VD.zeta_prime_ch = zeta_prime_ch
     raw_VD.zeta_prime    = zeta_prime   
-                         
+
     raw_VD.xi_prime_as   = xi_prime_as  
     raw_VD.xi_prime_bs   = xi_prime_bs  
     raw_VD.y_prime_as    = y_prime_as   
     raw_VD.y_prime_bs    = y_prime_bs   
     raw_VD.zeta_prime_as = zeta_prime_as
-    raw_VD.zeta_prime_bs = zeta_prime_bs
-    
+    raw_VD.zeta_prime_bs = zeta_prime_bs    
+
     
     return raw_VD    
 
