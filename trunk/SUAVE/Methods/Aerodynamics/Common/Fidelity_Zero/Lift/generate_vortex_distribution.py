@@ -758,43 +758,43 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                     y_prime_bs = wing.inverted_wing*y_prime_bs
                 y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs
                  
-                # store coordinates of panels, horseshoeces vortices and control points relative to wing root----------
-                xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1     # top left corner of panel
-                ya1[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_a1
-                za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
-                xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah     # left coord of horseshoe
-                yah[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ah
-                zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
-                xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac     # left coord of control point
-                yac[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ac
-                zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
-                xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2     # bottom left corner of panel
-                ya2[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_a2
-                za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
-                                                 
-                xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1     # top right corner of panel
-                yb1[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_b1          
-                zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1   
-                xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh     # right coord of horseshoe
-                ybh[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_bh          
-                zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh                    
-                xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc     # right coord of control point
-                ybc[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_bc                           
-                zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc   
-                xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2     # bottom right corner of panel
-                yb2[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_b2                        
-                zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
-                                                 
-                xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch     # center coord of horseshoe
-                ych[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ch                              
-                zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
-                xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime        # center (true) coord of control point
-                yc [idx_y*n_cw:(idx_y+1)*n_cw] = y_prime
-                zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
-               
-                x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = xi_prime_as     # x, y, z represent all all points of the corners of the panels, LE and TE inclusive
-                y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = y_prime_as      # the final right corners get appended at last strip in wing, later
-                z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = zeta_prime_as              
+            # store coordinates of panels, horseshoeces vortices and control points relative to wing root----------
+            xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1     # top left corner of panel
+            ya1[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_a1
+            za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
+            xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah     # left coord of horseshoe
+            yah[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ah
+            zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
+            xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac     # left coord of control point
+            yac[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ac
+            zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
+            xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2     # bottom left corner of panel
+            ya2[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_a2
+            za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+                                             
+            xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1     # top right corner of panel
+            yb1[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_b1          
+            zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1   
+            xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh     # right coord of horseshoe
+            ybh[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_bh          
+            zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh                    
+            xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc     # right coord of control point
+            ybc[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_bc                           
+            zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc   
+            xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2     # bottom right corner of panel
+            yb2[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_b2                        
+            zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
+                                             
+            xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch     # center coord of horseshoe
+            ych[idx_y*n_cw:(idx_y+1)*n_cw] = y_prime_ch                              
+            zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+            xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime        # center (true) coord of control point
+            yc [idx_y*n_cw:(idx_y+1)*n_cw] = y_prime
+            zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
+           
+            x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = xi_prime_as     # x, y, z represent all all points of the corners of the panels, LE and TE inclusive
+            y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = y_prime_as      # the final right corners get appended at last strip in wing, later
+            z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = zeta_prime_as              
 
             cs_w[idx_y] = wing_chord_section       
                    

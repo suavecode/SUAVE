@@ -30,6 +30,7 @@ def main():
     # control surface cases
     deflections = np.array([-10, 10, 20]) *Units.degrees
     
+    
     # get settings and conditions
     conditions = get_conditions()      
     settings = get_settings()

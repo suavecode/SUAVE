@@ -38,7 +38,6 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     
     # Unpack
     vertical_wing = wing.vertical
-    sym_sign_ind  = wing.symmetric
     inverted_wing = wing.inverted_wing
     
     xi_prime_a1    = raw_VD.xi_prime_a1  
