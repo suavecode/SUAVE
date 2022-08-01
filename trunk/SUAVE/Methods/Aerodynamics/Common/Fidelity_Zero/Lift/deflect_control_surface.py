@@ -23,129 +23,174 @@ def deflect_control_surface(VD,wing):
     # Unpack number of strips for this wing
     n_sw     = wing.n_sw
     n_cw     = wing.n_cw
-    sym_sign = 1 # This is hard coded for experimentation CHANGE ME
+    sym_para = wing.symmetric    
 
-    # Pull out initial VD data points
-    condition      = VD.surface_ID == wing.surface_ID*sym_sign
-    xi_prime_a1    = VD.XA1[condition]
-    xi_prime_ac    = VD.XAC[condition]
-    xi_prime_ah    = VD.XAH[condition]
-    xi_prime_a2    = VD.XA2[condition]
-    y_prime_a1     = VD.YA1[condition]
-    y_prime_ah     = VD.YAH[condition]
-    y_prime_ac     = VD.YAC[condition]
-    y_prime_a2     = VD.YA2[condition]
-    zeta_prime_a1  = VD.ZA1[condition]
-    zeta_prime_ah  = VD.ZAH[condition]
-    zeta_prime_ac  = VD.ZAC[condition]
-    zeta_prime_a2  = VD.ZA2[condition]
-    xi_prime_b1    = VD.XB1[condition]
-    xi_prime_bh    = VD.XBH[condition]
-    xi_prime_bc    = VD.XBC[condition]
-    xi_prime_b2    = VD.XB2[condition]
-    y_prime_b1     = VD.XB1[condition]
-    y_prime_bh     = VD.XBH[condition]
-    y_prime_bc     = VD.XBC[condition]
-    y_prime_b2     = VD.XB2[condition]
-    zeta_prime_b1  = VD.ZB1[condition]
-    zeta_prime_bh  = VD.ZBH[condition]
-    zeta_prime_bc  = VD.ZBC[condition]
-    zeta_prime_b2  = VD.ZB2[condition]
-    xi_prime_ch    = VD.XCH[condition]
-    xi_prime       = VD.XC [condition]
-    y_prime_ch     = VD.YCH[condition]
-    y_prime        = VD.YC [condition]
-    zeta_prime_ch  = VD.ZCH[condition]
-    zeta_prime     = VD.ZC [condition]
-    xi_prime_as    = VD.X  [condition][:-(n_cw+1)] 
-    xi_prime_bs    = VD.X  [condition][n_cw+1:]
-    y_prime_as     = VD.Y  [condition][:-(n_cw+1)]
-    y_prime_bs     = VD.Y  [condition][n_cw+1:]
-    zeta_prime_as  = VD.Z  [condition][:-(n_cw+1)]
-    zeta_prime_bs  = VD.Z  [condition][n_cw+1:]
-    
 
-    for idx_y in range(n_sw):
-        raw_VD = Data(xi_prime_a1   = xi_prime_a1  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime_ac   = xi_prime_ac  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime_ah   = xi_prime_ah  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime_a2   = xi_prime_a2  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_a1    = y_prime_a1   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_ah    = y_prime_ah   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_ac    = y_prime_ac   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_a2    = y_prime_a2   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_a1 = zeta_prime_a1[idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_ah = zeta_prime_ah[idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_ac = zeta_prime_ac[idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_a2 = zeta_prime_a2[idx_y*n_cw:(idx_y+1)*n_cw], 
-                      xi_prime_b1   = xi_prime_b1  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime_bh   = xi_prime_bh  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime_bc   = xi_prime_bc  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime_b2   = xi_prime_b2  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_b1    = y_prime_b1   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_bh    = y_prime_bh   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_bc    = y_prime_bc   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_b2    = y_prime_b2   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_b1 = zeta_prime_b1[idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_bh = zeta_prime_bh[idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_bc = zeta_prime_bc[idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_b2 = zeta_prime_b2[idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime_ch   = xi_prime_ch  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime      = xi_prime     [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_ch    = y_prime_ch   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime       = y_prime      [idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_ch = zeta_prime_ch[idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime    = zeta_prime   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime_as   = xi_prime_as  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      xi_prime_bs   = xi_prime_bs  [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_as    = y_prime_as   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      y_prime_bs    = y_prime_bs   [idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_as = zeta_prime_as[idx_y*n_cw:(idx_y+1)*n_cw],
-                      zeta_prime_bs = zeta_prime_bs[idx_y*n_cw:(idx_y+1)*n_cw])
-            
-            
-        raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y,sym_sign_ind)
+    # Symmetry loop
+    signs         = np.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
+    symmetry_mask = [True,sym_para]
+    for sym_sign_ind, sym_sign in enumerate(signs[symmetry_mask]):    
+        # Pull out initial VD data points
+        condition      = VD.surface_ID      == wing.surface_ID*sym_sign
+        condition_full = VD.surface_ID_full == wing.surface_ID*sym_sign
+        xi_prime_a1    = VD.XA1[condition]
+        xi_prime_ac    = VD.XAC[condition]
+        xi_prime_ah    = VD.XAH[condition]
+        xi_prime_a2    = VD.XA2[condition]
+        y_prime_a1     = VD.YA1[condition]
+        y_prime_ah     = VD.YAH[condition]
+        y_prime_ac     = VD.YAC[condition]
+        y_prime_a2     = VD.YA2[condition]
+        zeta_prime_a1  = VD.ZA1[condition]
+        zeta_prime_ah  = VD.ZAH[condition]
+        zeta_prime_ac  = VD.ZAC[condition]
+        zeta_prime_a2  = VD.ZA2[condition]
+        xi_prime_b1    = VD.XB1[condition]
+        xi_prime_bh    = VD.XBH[condition]
+        xi_prime_bc    = VD.XBC[condition]
+        xi_prime_b2    = VD.XB2[condition]
+        y_prime_b1     = VD.XB1[condition]
+        y_prime_bh     = VD.XBH[condition]
+        y_prime_bc     = VD.XBC[condition]
+        y_prime_b2     = VD.XB2[condition]
+        zeta_prime_b1  = VD.ZB1[condition]
+        zeta_prime_bh  = VD.ZBH[condition]
+        zeta_prime_bc  = VD.ZBC[condition]
+        zeta_prime_b2  = VD.ZB2[condition]
+        xi_prime_ch    = VD.XCH[condition]
+        xi_prime       = VD.XC [condition]
+        y_prime_ch     = VD.YCH[condition]
+        y_prime        = VD.YC [condition]
+        zeta_prime_ch  = VD.ZCH[condition]
+        zeta_prime     = VD.ZC [condition]
+        xi_prime_as    = VD.X  [condition_full] 
+        xi_prime_bs    = VD.X  [condition_full]
+        y_prime_as     = VD.Y  [condition_full]
+        y_prime_bs     = VD.Y  [condition_full]
+        zeta_prime_as  = VD.Z  [condition_full]
+        zeta_prime_bs  = VD.Z  [condition_full]        
         
-        xi_prime_a1    = raw_VD.xi_prime_a1  
-        xi_prime_ac    = raw_VD.xi_prime_ac  
-        xi_prime_ah    = raw_VD.xi_prime_ah  
-        xi_prime_a2    = raw_VD.xi_prime_a2  
-        y_prime_a1     = raw_VD.y_prime_a1   
-        y_prime_ah     = raw_VD.y_prime_ah   
-        y_prime_ac     = raw_VD.y_prime_ac   
-        y_prime_a2     = raw_VD.y_prime_a2   
-        zeta_prime_a1  = raw_VD.zeta_prime_a1
-        zeta_prime_ah  = raw_VD.zeta_prime_ah
-        zeta_prime_ac  = raw_VD.zeta_prime_ac
-        zeta_prime_a2  = raw_VD.zeta_prime_a2
-                          
-        xi_prime_b1    = raw_VD.xi_prime_b1  
-        xi_prime_bh    = raw_VD.xi_prime_bh  
-        xi_prime_bc    = raw_VD.xi_prime_bc  
-        xi_prime_b2    = raw_VD.xi_prime_b2  
-        y_prime_b1     = raw_VD.y_prime_b1   
-        y_prime_bh     = raw_VD.y_prime_bh   
-        y_prime_bc     = raw_VD.y_prime_bc   
-        y_prime_b2     = raw_VD.y_prime_b2   
-        zeta_prime_b1  = raw_VD.zeta_prime_b1
-        zeta_prime_bh  = raw_VD.zeta_prime_bh
-        zeta_prime_bc  = raw_VD.zeta_prime_bc
-        zeta_prime_b2  = raw_VD.zeta_prime_b2
-                                      
-        xi_prime_ch    = raw_VD.xi_prime_ch  
-        xi_prime       = raw_VD.xi_prime     
-        y_prime_ch     = raw_VD.y_prime_ch   
-        y_prime        = raw_VD.y_prime      
-        zeta_prime_ch  = raw_VD.zeta_prime_ch
-        zeta_prime     = raw_VD.zeta_prime   
-                                               
-        xi_prime_as    = raw_VD.xi_prime_as  
-        xi_prime_bs    = raw_VD.xi_prime_bs  
-        y_prime_as     = raw_VD.y_prime_as   
-        y_prime_bs     = raw_VD.y_prime_bs   
-        zeta_prime_as  = raw_VD.zeta_prime_as
-        zeta_prime_bs  = raw_VD.zeta_prime_bs 
-    
+        
+        for idx_y in range(n_sw):
+            start = idx_y*n_cw
+            stop  = (idx_y+1)*n_cw
+            raw_VD = Data(xi_prime_a1   = xi_prime_a1  [start:stop],
+                          xi_prime_ac   = xi_prime_ac  [start:stop],
+                          xi_prime_ah   = xi_prime_ah  [start:stop],
+                          xi_prime_a2   = xi_prime_a2  [start:stop],
+                          y_prime_a1    = y_prime_a1   [start:stop],
+                          y_prime_ah    = y_prime_ah   [start:stop],
+                          y_prime_ac    = y_prime_ac   [start:stop],
+                          y_prime_a2    = y_prime_a2   [start:stop],
+                          zeta_prime_a1 = zeta_prime_a1[start:stop],
+                          zeta_prime_ah = zeta_prime_ah[start:stop],
+                          zeta_prime_ac = zeta_prime_ac[start:stop],
+                          zeta_prime_a2 = zeta_prime_a2[start:stop], 
+                          xi_prime_b1   = xi_prime_b1  [start:stop],
+                          xi_prime_bh   = xi_prime_bh  [start:stop],
+                          xi_prime_bc   = xi_prime_bc  [start:stop],
+                          xi_prime_b2   = xi_prime_b2  [start:stop],
+                          y_prime_b1    = y_prime_b1   [start:stop],
+                          y_prime_bh    = y_prime_bh   [start:stop],
+                          y_prime_bc    = y_prime_bc   [start:stop],
+                          y_prime_b2    = y_prime_b2   [start:stop],
+                          zeta_prime_b1 = zeta_prime_b1[start:stop],
+                          zeta_prime_bh = zeta_prime_bh[start:stop],
+                          zeta_prime_bc = zeta_prime_bc[start:stop],
+                          zeta_prime_b2 = zeta_prime_b2[start:stop],
+                          xi_prime_ch   = xi_prime_ch  [start:stop],
+                          xi_prime      = xi_prime     [start:stop],
+                          y_prime_ch    = y_prime_ch   [start:stop],
+                          y_prime       = y_prime      [start:stop],
+                          zeta_prime_ch = zeta_prime_ch[start:stop],
+                          zeta_prime    = zeta_prime   [start:stop],
+                          xi_prime_as   = xi_prime_as  [start:stop],
+                          xi_prime_bs   = xi_prime_bs  [start:stop],
+                          y_prime_as    = y_prime_as   [start:stop],
+                          y_prime_bs    = y_prime_bs   [start:stop],
+                          zeta_prime_as = zeta_prime_as[start:stop],
+                          zeta_prime_bs = zeta_prime_bs[start:stop])
+                
+                
+            raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y,sym_sign_ind)
+            
+            xi_prime_a1  [start:stop]  = raw_VD.xi_prime_a1  
+            xi_prime_ac  [start:stop]  = raw_VD.xi_prime_ac  
+            xi_prime_ah  [start:stop]  = raw_VD.xi_prime_ah  
+            xi_prime_a2  [start:stop]  = raw_VD.xi_prime_a2  
+            y_prime_a1   [start:stop]  = raw_VD.y_prime_a1   
+            y_prime_ah   [start:stop]  = raw_VD.y_prime_ah   
+            y_prime_ac   [start:stop]  = raw_VD.y_prime_ac   
+            y_prime_a2   [start:stop]  = raw_VD.y_prime_a2   
+            zeta_prime_a1[start:stop]  = raw_VD.zeta_prime_a1
+            zeta_prime_ah[start:stop]  = raw_VD.zeta_prime_ah
+            zeta_prime_ac[start:stop]  = raw_VD.zeta_prime_ac
+            zeta_prime_a2[start:stop]  = raw_VD.zeta_prime_a2
+        
+            xi_prime_b1  [start:stop]  = raw_VD.xi_prime_b1  
+            xi_prime_bh  [start:stop]  = raw_VD.xi_prime_bh  
+            xi_prime_bc  [start:stop]  = raw_VD.xi_prime_bc  
+            xi_prime_b2  [start:stop]  = raw_VD.xi_prime_b2  
+            y_prime_b1   [start:stop]  = raw_VD.y_prime_b1   
+            y_prime_bh   [start:stop]  = raw_VD.y_prime_bh   
+            y_prime_bc   [start:stop]  = raw_VD.y_prime_bc   
+            y_prime_b2   [start:stop]  = raw_VD.y_prime_b2   
+            zeta_prime_b1[start:stop]  = raw_VD.zeta_prime_b1
+            zeta_prime_bh[start:stop]  = raw_VD.zeta_prime_bh
+            zeta_prime_bc[start:stop]  = raw_VD.zeta_prime_bc
+            zeta_prime_b2[start:stop]  = raw_VD.zeta_prime_b2
+               
+            xi_prime_ch  [start:stop]  = raw_VD.xi_prime_ch  
+            xi_prime     [start:stop]  = raw_VD.xi_prime     
+            y_prime_ch   [start:stop]  = raw_VD.y_prime_ch   
+            y_prime      [start:stop]  = raw_VD.y_prime      
+            zeta_prime_ch[start:stop]  = raw_VD.zeta_prime_ch
+            zeta_prime   [start:stop]  = raw_VD.zeta_prime   
+
+            xi_prime_as  [start:stop]  = raw_VD.xi_prime_as  
+            xi_prime_bs  [start:stop]  = raw_VD.xi_prime_bs  
+            y_prime_as   [start:stop]  = raw_VD.y_prime_as   
+            y_prime_bs   [start:stop]  = raw_VD.y_prime_bs   
+            zeta_prime_as[start:stop]  = raw_VD.zeta_prime_as
+            zeta_prime_bs[start:stop]  = raw_VD.zeta_prime_bs 
+            
+        VD.XA1[condition]       =  xi_prime_a1    
+        VD.XAC[condition]       =  xi_prime_ac    
+        VD.XAH[condition]       =  xi_prime_ah    
+        VD.XA2[condition]       =  xi_prime_a2    
+        VD.YA1[condition]       =  y_prime_a1     
+        VD.YAH[condition]       =  y_prime_ah     
+        VD.YAC[condition]       =  y_prime_ac     
+        VD.YA2[condition]       =  y_prime_a2     
+        VD.ZA1[condition]       =  zeta_prime_a1  
+        VD.ZAH[condition]       =  zeta_prime_ah  
+        VD.ZAC[condition]       =  zeta_prime_ac  
+        VD.ZA2[condition]       =  zeta_prime_a2  
+        VD.XB1[condition]       =  xi_prime_b1    
+        VD.XBH[condition]       =  xi_prime_bh    
+        VD.XBC[condition]       =  xi_prime_bc    
+        VD.XB2[condition]       =  xi_prime_b2    
+        VD.XB1[condition]       =  y_prime_b1     
+        VD.XBH[condition]       =  y_prime_bh     
+        VD.XBC[condition]       =  y_prime_bc     
+        VD.XB2[condition]       =  y_prime_b2     
+        VD.ZB1[condition]       =  zeta_prime_b1  
+        VD.ZBH[condition]       =  zeta_prime_bh  
+        VD.ZBC[condition]       =  zeta_prime_bc  
+        VD.ZB2[condition]       =  zeta_prime_b2  
+        VD.XCH[condition]       =  xi_prime_ch    
+        VD.XC [condition]       =  xi_prime       
+        VD.YCH[condition]       =  y_prime_ch     
+        VD.YC [condition]       =  y_prime        
+        VD.ZCH[condition]       =  zeta_prime_ch  
+        VD.ZC [condition]       =  zeta_prime     
+        VD.X  [condition_full]  =  xi_prime_as    
+        VD.X  [condition_full]  =  xi_prime_bs    
+        VD.Y  [condition_full]  =  y_prime_as     
+        VD.Y  [condition_full]  =  y_prime_bs     
+        VD.Z  [condition_full]  =  zeta_prime_as  
+        VD.Z  [condition_full]  =  zeta_prime_bs         
+        
         
     wing.deflection_last = wing.deflection*1.
 
@@ -230,7 +275,7 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
     if idx_y == 0:
         # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
-        ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
+        ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]]) 
         ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
         
         interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
@@ -263,7 +308,7 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
             
         #store hinge root point and direction vector
         wing.hinge_root_point = ib_hinge_point
-        wing.hinge_vector     = hinge_vector
+        wing.hinge_vector     = hinge_vector 
         #END first strip calculations
     
     # get deflection angle
@@ -281,37 +326,37 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     xi_prime_ah, y_prime_ah, zeta_prime_ah = rotate_points_with_quaternion(quaternion, [xi_prime_ah,y_prime_ah,zeta_prime_ah])
     xi_prime_ac, y_prime_ac, zeta_prime_ac = rotate_points_with_quaternion(quaternion, [xi_prime_ac,y_prime_ac,zeta_prime_ac])
     xi_prime_a2, y_prime_a2, zeta_prime_a2 = rotate_points_with_quaternion(quaternion, [xi_prime_a2,y_prime_a2,zeta_prime_a2])
-                                                                                       
+                                                                                                                             
     xi_prime_b1, y_prime_b1, zeta_prime_b1 = rotate_points_with_quaternion(quaternion, [xi_prime_b1,y_prime_b1,zeta_prime_b1])
     xi_prime_bh, y_prime_bh, zeta_prime_bh = rotate_points_with_quaternion(quaternion, [xi_prime_bh,y_prime_bh,zeta_prime_bh])
     xi_prime_bc, y_prime_bc, zeta_prime_bc = rotate_points_with_quaternion(quaternion, [xi_prime_bc,y_prime_bc,zeta_prime_bc])
     xi_prime_b2, y_prime_b2, zeta_prime_b2 = rotate_points_with_quaternion(quaternion, [xi_prime_b2,y_prime_b2,zeta_prime_b2])
-                                                                                       
+                                                                                                                             
     xi_prime_ch, y_prime_ch, zeta_prime_ch = rotate_points_with_quaternion(quaternion, [xi_prime_ch,y_prime_ch,zeta_prime_ch])
     xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
-                                                                                       
+                                                                                                                             
     xi_prime_as, y_prime_as, zeta_prime_as = rotate_points_with_quaternion(quaternion, [xi_prime_as,y_prime_as,zeta_prime_as])
-    xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs]) 
+    xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs])
 
-    ## reflect over the plane y = z for a vertical wing-----------------------------------------------------
-    #if vertical_wing:
-        #y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
-        #y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
-        #y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
-        #y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
+    # reflect over the plane y = z for a vertical wing-----------------------------------------------------
+    if vertical_wing:
+        y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
+        y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
+        y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
+        y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
                                                              
-        #y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
-        #y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
-        #y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
-        #y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
+        y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
+        y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
+        y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
+        y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
                                                              
-        #y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
-        #y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
+        y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
+        y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
                                                              
-        #y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
+        y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
 
-        #y_prime_bs = inverted_wing*y_prime_bs
-        #y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs    
+        y_prime_bs = inverted_wing*y_prime_bs
+        y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs    
                 
             
     # Pack the VD

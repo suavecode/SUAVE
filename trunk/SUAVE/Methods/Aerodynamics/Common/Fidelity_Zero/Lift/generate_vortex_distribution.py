@@ -192,7 +192,8 @@ def generate_vortex_distribution(geometry,settings):
     VD.chordwise_breaks = np.array([], dtype=np.int32) # indices of the first panel in every strip      (given a list of all panels)
     VD.spanwise_breaks  = np.array([], dtype=np.int32) # indices of the first strip of panels in a wing (given chordwise_breaks)    
     VD.symmetric_wings  = np.array([], dtype=np.int32)
-    VD.surface_ID       = np.empty(shape=[0,1], dtype=np.int8) 
+    VD.surface_ID       = np.empty(shape=[0,1], dtype=np.int16) 
+    VD.surface_ID_full  = np.empty(shape=[0,1], dtype=np.int16)     
     
     VD.leading_edge_indices      = np.array([], dtype=bool)      # bool array of leading  edge indices (all false except for panels at leading  edge)
     VD.trailing_edge_indices     = np.array([], dtype=bool)      # bool array of trailing edge indices (all false except for panels at trailing edge)    
@@ -855,6 +856,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.n_sw             = np.append(VD.n_sw            , np.int16(n_sw)            )
         VD.n_cw             = np.append(VD.n_cw            , np.int16(n_cw)            )
         VD.surface_ID       = np.append(VD.surface_ID      , np.ones(n_cw*n_sw)*ID*sym_sign) # Update me when the loop is gone
+        VD.surface_ID_full  = np.append(VD.surface_ID_full , np.ones((n_cw+1)*(n_sw+1))*ID*sym_sign) # Update me when the loop is gone    
                 
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
@@ -1288,6 +1290,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         VD.n_sw             = np.append(VD.n_sw            , np.int16([n_sw, n_sw])    )
         VD.n_cw             = np.append(VD.n_cw            , np.int16([n_cw, n_cw])    )
         VD.surface_ID       = np.append(VD.surface_ID      , np.ones(len(fhs_xch)) * VD.counter)
+        VD.surface_ID_full  = np.append(VD.surface_ID_full , np.ones(((n_sw+1)*(n_cw+1))*2) * VD.counter)
         
         VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , np.tile(leading_edge_indices        , 2) )
         VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , np.tile(trailing_edge_indices       , 2) )           
