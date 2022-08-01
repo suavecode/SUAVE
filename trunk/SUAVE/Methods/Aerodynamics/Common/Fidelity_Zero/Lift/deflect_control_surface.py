@@ -63,17 +63,17 @@ def deflect_control_surface(VD,wing):
         y_prime        = VD.YC [condition]
         zeta_prime_ch  = VD.ZCH[condition]
         zeta_prime     = VD.ZC [condition]
-        xi_prime_as    = VD.X  [condition_full] 
-        xi_prime_bs    = VD.X  [condition_full]
-        y_prime_as     = VD.Y  [condition_full]
-        y_prime_bs     = VD.Y  [condition_full]
-        zeta_prime_as  = VD.Z  [condition_full]
-        zeta_prime_bs  = VD.Z  [condition_full]        
+        xi_prime_as    = VD.X  [condition_full][:(-n_cw+1)] 
+        xi_prime_bs    = VD.X  [condition_full][n_cw+1:   ] 
+        y_prime_as     = VD.Y  [condition_full][:(-n_cw+1)] 
+        y_prime_bs     = VD.Y  [condition_full][n_cw+1:   ] 
+        zeta_prime_as  = VD.Z  [condition_full][:(-n_cw+1)] 
+        zeta_prime_bs  = VD.Z  [condition_full][n_cw+1:   ]      
         
         
         for idx_y in range(n_sw):
-            start = idx_y*n_cw
-            stop  = (idx_y+1)*n_cw
+            start     , stop      = idx_y*n_cw    , (idx_y+1)*n_cw
+            start_full, stop_full = idx_y*(n_cw+1), (idx_y+1)*(n_cw+1)
             raw_VD = Data(xi_prime_a1   = xi_prime_a1  [start:stop],
                           xi_prime_ac   = xi_prime_ac  [start:stop],
                           xi_prime_ah   = xi_prime_ah  [start:stop],
@@ -104,12 +104,12 @@ def deflect_control_surface(VD,wing):
                           y_prime       = y_prime      [start:stop],
                           zeta_prime_ch = zeta_prime_ch[start:stop],
                           zeta_prime    = zeta_prime   [start:stop],
-                          xi_prime_as   = xi_prime_as  [start:stop],
-                          xi_prime_bs   = xi_prime_bs  [start:stop],
-                          y_prime_as    = y_prime_as   [start:stop],
-                          y_prime_bs    = y_prime_bs   [start:stop],
-                          zeta_prime_as = zeta_prime_as[start:stop],
-                          zeta_prime_bs = zeta_prime_bs[start:stop])
+                          xi_prime_as   = xi_prime_as  [start_full:stop_full],
+                          xi_prime_bs   = xi_prime_bs  [start_full:stop_full],
+                          y_prime_as    = y_prime_as   [start_full:stop_full],
+                          y_prime_bs    = y_prime_bs   [start_full:stop_full],
+                          zeta_prime_as = zeta_prime_as[start_full:stop_full],
+                          zeta_prime_bs = zeta_prime_bs[start_full:stop_full])
                 
                 
             raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y,sym_sign_ind)
@@ -147,12 +147,12 @@ def deflect_control_surface(VD,wing):
             zeta_prime_ch[start:stop]  = raw_VD.zeta_prime_ch
             zeta_prime   [start:stop]  = raw_VD.zeta_prime   
 
-            xi_prime_as  [start:stop]  = raw_VD.xi_prime_as  
-            xi_prime_bs  [start:stop]  = raw_VD.xi_prime_bs  
-            y_prime_as   [start:stop]  = raw_VD.y_prime_as   
-            y_prime_bs   [start:stop]  = raw_VD.y_prime_bs   
-            zeta_prime_as[start:stop]  = raw_VD.zeta_prime_as
-            zeta_prime_bs[start:stop]  = raw_VD.zeta_prime_bs 
+            xi_prime_as  [start_full:stop_full]  = raw_VD.xi_prime_as  
+            xi_prime_bs  [start_full:stop_full]  = raw_VD.xi_prime_bs  
+            y_prime_as   [start_full:stop_full]  = raw_VD.y_prime_as   
+            y_prime_bs   [start_full:stop_full]  = raw_VD.y_prime_bs   
+            zeta_prime_as[start_full:stop_full]  = raw_VD.zeta_prime_as
+            zeta_prime_bs[start_full:stop_full]  = raw_VD.zeta_prime_bs 
             
         VD.XA1[condition]       =  xi_prime_a1    
         VD.XAC[condition]       =  xi_prime_ac    
@@ -184,12 +184,12 @@ def deflect_control_surface(VD,wing):
         VD.YC [condition]       =  y_prime        
         VD.ZCH[condition]       =  zeta_prime_ch  
         VD.ZC [condition]       =  zeta_prime     
-        VD.X  [condition_full]  =  xi_prime_as    
-        VD.X  [condition_full]  =  xi_prime_bs    
-        VD.Y  [condition_full]  =  y_prime_as     
-        VD.Y  [condition_full]  =  y_prime_bs     
-        VD.Z  [condition_full]  =  zeta_prime_as  
-        VD.Z  [condition_full]  =  zeta_prime_bs         
+        VD.X  [condition_full][:(-n_cw+1)]  =  xi_prime_as    
+        VD.X  [condition_full][(-n_cw+1):]  =  xi_prime_bs   [(-n_cw+1):]   
+        VD.Y  [condition_full][:(-n_cw+1)]  =  y_prime_as     
+        VD.Y  [condition_full][(-n_cw+1):]  =  y_prime_bs    [(-n_cw+1):] 
+        VD.Z  [condition_full][:(-n_cw+1)]  =  zeta_prime_as  
+        VD.Z  [condition_full][(-n_cw+1):]  =  zeta_prime_bs [(-n_cw+1):]        
         
         
     wing.deflection_last = wing.deflection*1.
@@ -357,7 +357,7 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
 
         y_prime_bs = inverted_wing*y_prime_bs
         y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs    
-
+           
 
     # Pack the VD
     raw_VD.xi_prime_a1   = xi_prime_a1  
