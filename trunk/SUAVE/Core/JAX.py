@@ -93,7 +93,7 @@ def to_jnumpy(obj):
         pass
 
     # Check if the object is iterable, if so iterate on using recursion this will work for lists and tuples but not dicts
-    elif isinstance(obj,Iterable):
+    elif isinstance(obj,Iterable) and not isinstance(obj,jnp.ndarray):
         try:
             obj = obj.__class__(map(to_jnumpy,obj))    
         except:

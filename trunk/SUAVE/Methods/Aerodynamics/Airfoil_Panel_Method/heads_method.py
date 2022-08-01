@@ -91,7 +91,7 @@ def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE
                 if np.isnan(H1_0):
                     H1_0     = (del_0 - del_star_0) / theta_0 
                 y0           = [theta_0, getVe(0,x_i,Ve_i)*theta_0*H1_0]     
-                y            = odeint(odefcn,y0,x_i,args=(Re_L/l, x_i, Ve_i, dVe_i))  
+                y            = odeint(odefcn,y0,x_i,args=(Re_L/l, x_i, Ve_i, dVe_i),rtol=1e-6,atol=1e-6)  
                 
                 # Compute momentum thickness, theta 
                 theta        = y[:,0] 

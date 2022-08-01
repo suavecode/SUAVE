@@ -12,6 +12,7 @@ import numpy as np
 import pylab as plt
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution import generate_vortex_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity import compute_wing_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_wake_grid import generate_wing_wake_grid
 
@@ -48,7 +49,6 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, eval
     croot   = geometry.wings[main_wing].chords.root
     ctip    = geometry.wings[main_wing].chords.tip
     x0_wing = geometry.wings[main_wing].origin[0,0]
-    aoa     = conditions.aerodynamics.angle_of_attack
     mach    = conditions.freestream.mach_number
     rho     = conditions.freestream.density
     mu      = conditions.freestream.dynamic_viscosity 
@@ -61,9 +61,10 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, eval
     # --------------------------------------------------------------------------------
     #          Run the VLM for the given vehicle and conditions 
     # --------------------------------------------------------------------------------
-    results = VLM(conditions, VLM_settings, geometry)
-    gamma   = results.gamma
-    VD      = geometry.vortex_distribution 
+    geometry.VD = generate_vortex_distribution(geometry, VLM_settings)
+    results     = VLM(conditions, VLM_settings, geometry)
+    gamma       = results.gamma
+    VD          = geometry.vortex_distribution 
     
     # create a deep copy of the vortex distribution
     VD       = copy.deepcopy(VD)

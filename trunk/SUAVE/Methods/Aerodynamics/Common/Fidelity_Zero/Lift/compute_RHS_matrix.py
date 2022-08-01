@@ -8,14 +8,17 @@
 #           Jul 2021, E. Botero
 #           Jul 2021, R. Erhard
 #           Feb 2022, R. Erhard
+#           May 2022, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # package imports
-import numpy as np
-from SUAVE.Core import Data
+#import numpy as np
+import jax.numpy as jnp
+from jax import lax
+from SUAVE.Core import Data, to_jnumpy
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_model):
@@ -70,51 +73,32 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
     VD               = geometry.vortex_distribution
 
     aoa              = conditions.aerodynamics.angle_of_attack
-    aoa_distribution = np.repeat(aoa, VD.n_cp, axis = 1)
+    aoa_distribution = jnp.repeat(aoa, VD.n_cp, axis = 1)
     PSI              = conditions.aerodynamics.side_slip_angle
-    PSI_distribution = np.repeat(PSI, VD.n_cp, axis = 1)
+    PSI_distribution = jnp.repeat(PSI, VD.n_cp, axis = 1)
     V_inf            = conditions.freestream.velocity
-    V_distribution   = np.repeat(V_inf , VD.n_cp, axis = 1)
+    V_distribution   = jnp.repeat(V_inf , VD.n_cp, axis = 1)
 
-    rot_V_wake_ind   = np.zeros((len(aoa), VD.n_cp,3))
-    prop_V_wake_ind  = np.zeros((len(aoa), VD.n_cp,3))
-    Vx_ind_total     = np.zeros_like(V_distribution)
-    Vy_ind_total     = np.zeros_like(V_distribution)
-    Vz_ind_total     = np.zeros_like(V_distribution)
+    Vx_ind_total     = jnp.zeros_like(V_distribution)
+    Vy_ind_total     = jnp.zeros_like(V_distribution)
+    Vz_ind_total     = jnp.zeros_like(V_distribution)
 
     dt               = 0
     num_ctrl_pts     = len(aoa) # number of control points
     num_eval_pts     = len(VD.XC)
-    for network in geometry.networks:
-        if propeller_wake_model:
-            # include the propeller wake effect on the wing
-            if 'propellers' in network.keys(): 
-                # extract the propeller wake and compute resulting induced velocities data structure
-                props           = network.propellers
-                prop_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
-                
-                for p in props:
-                    prop_V_wake_ind += p.Wake.evaluate_slipstream(p,geometry,num_ctrl_pts)
-                    
-                    
-            if 'lift_rotors' in network.keys(): 
-                # extract the rotor wake and compute resulting induced velocities data structure
-                rots           = network.lift_rotors
-                rot_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
-                
-                for r in rots:
-                    rot_V_wake_ind += r.Wake.evaluate_slipstream(r,geometry,num_ctrl_pts)
-                    
-                    
-            # update the total induced velocity distribution
-            Vx_ind_total = Vx_ind_total + prop_V_wake_ind[:,:,0] + rot_V_wake_ind[:,:,0]
-            Vy_ind_total = Vy_ind_total + prop_V_wake_ind[:,:,1] + rot_V_wake_ind[:,:,1]
-            Vz_ind_total = Vz_ind_total + prop_V_wake_ind[:,:,2] + rot_V_wake_ind[:,:,2]
 
-            rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
-                            Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)           
-            
-            return  rhs
+    r_p_V_wake_ind   = jnp.zeros((num_ctrl_pts,num_eval_pts,3))
+    
+    # If we have a propeller wake attached
+    #wake_model_false = lambda _: r_p_V_wake_ind 
+    #cond_inputs      = to_jnumpy((geometry,num_ctrl_pts, r_p_V_wake_ind))
+    #r_p_V_wake_ind   = lax.cond(propeller_wake_model,wake_model_true,wake_model_false,cond_inputs)
+                
+    # update the total induced velocity distribution
+    Vx_ind_total = Vx_ind_total + r_p_V_wake_ind[:,:,0]
+    Vy_ind_total = Vy_ind_total + r_p_V_wake_ind[:,:,1]
+    Vz_ind_total = Vz_ind_total + r_p_V_wake_ind[:,:,2]
+
 
     rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
                     Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)
@@ -175,9 +159,9 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     YAWQ   = conditions.stability.dynamic.yaw_rate
     VINF   = conditions.freestream.velocity
 
-    SINALF = np.sin(ALFA)
-    COSIN  = np.cos(ALFA) * np.sin(PSIRAD)
-    COSCOS = np.cos(ALFA) * np.cos(PSIRAD)
+    SINALF = jnp.sin(ALFA)
+    COSIN  = jnp.cos(ALFA) * jnp.sin(PSIRAD)
+    COSCOS = jnp.cos(ALFA) * jnp.cos(PSIRAD)
     PITCH  = PITCHQ / VINF
     ROLL   = ROLLQ  / VINF
     YAW    = YAWQ   / VINF
@@ -195,9 +179,9 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
     # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
     # ARE XGIRO, YGIRO, AND ZGIRO.
-    XGIRO = X + CHORD*DELTAX - np.repeat(XBAR, RNMAX[LE_ind])
+    XGIRO = X + CHORD*DELTAX - jnp.repeat(XBAR, RNMAX[LE_ind])
     YGIRO = YY
-    ZGIRO = ZZ - np.repeat(ZBAR, RNMAX[LE_ind])
+    ZGIRO = ZZ - jnp.repeat(ZBAR, RNMAX[LE_ind])
 
     # VX, VY, VZ ARE THE FLOW ONSET VELOCITY COMPONENTS AT THE LEADING
     # EDGE (STRIP MIDPOINT). VX, VY, VZ AND THE ROTATION RATES ARE
@@ -207,11 +191,11 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     VZ = (SINALF - ROLL *YGIRO + PITCH*XGIRO)
     
     #COMPUTE DIRECTION COSINES.
-    SCNTL  = VD.SLOPE/np.sqrt(1. + VD.SLOPE **2)
-    CCNTL  = 1. / np.sqrt(1.0 + SCNTL**2)
-    phi_LE = np.repeat(phi[:,LE_ind]  , RNMAX[LE_ind], axis=1)
-    COD    = np.cos(phi_LE)
-    SID    = np.sin(phi_LE)
+    SCNTL  = VD.SLOPE/jnp.sqrt(1. + VD.SLOPE **2)
+    CCNTL  = 1. / jnp.sqrt(1.0 + SCNTL**2)
+    phi_LE = jnp.repeat(phi[:,LE_ind]  , RNMAX[LE_ind], axis=1)
+    COD    = jnp.cos(phi_LE)
+    SID    = jnp.sin(phi_LE)
 
     # COMPUTE ONSET FLOW COMPONENT ALONG THE OUTWARD NORMAL TO
     # THE SURFACE AT THE CONTROL POINT, ALOC.
@@ -227,17 +211,17 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     Vy_rotation       = -YAWQ  *XGIRO + ROLLQ *ZGIRO
     Vz_rotation       = -ROLLQ *YGIRO + PITCHQ*XGIRO
 
-    Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) + Vx_rotation + Vx_ind_total
-    Vy                = V_distribution*np.cos(aoa_distribution)*np.sin(PSI_distribution) + Vy_rotation + Vy_ind_total
-    Vz                = V_distribution*np.sin(aoa_distribution)                          + Vz_rotation + Vz_ind_total    
+    Vx                = V_distribution*jnp.cos(aoa_distribution)*jnp.cos(PSI_distribution) + Vx_rotation + Vx_ind_total
+    Vy                = V_distribution*jnp.cos(aoa_distribution)*jnp.sin(PSI_distribution) + Vy_rotation + Vy_ind_total
+    Vz                = V_distribution*jnp.sin(aoa_distribution)                          + Vz_rotation + Vz_ind_total    
     
-    aoa_distribution  = np.arctan(Vz/ np.sqrt(Vx**2 + Vy**2) )
-    PSI_distribution  = np.arctan(Vy / Vx)
+    aoa_distribution  = jnp.arctan(Vz/ jnp.sqrt(Vx**2 + Vy**2) )
+    PSI_distribution  = jnp.arctan(Vy / Vx)
 
     # compute RHS: dot(v, panel_normals)
-    V_unit_vector    = (np.array([Vx,Vy,Vz])/V_distribution).T
-    panel_normals    = VD.normals[:,np.newaxis,:]
-    RHS_from_normals = np.sum(V_unit_vector*panel_normals, axis=2).T    
+    V_unit_vector    = (jnp.array([Vx,Vy,Vz])/V_distribution).T
+    panel_normals    = VD.normals[:,jnp.newaxis,:]
+    RHS_from_normals = jnp.sum(V_unit_vector*panel_normals, axis=2).T    
 
     #pack values--------------------------------------------------------------------------
     use_VORLAX_RHS = settings.use_VORLAX_matrix_calculation
@@ -260,3 +244,33 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     rhs.SID    = SID
 
     return rhs
+
+def wake_model_true(cond_inputs):
+
+    # Unpacks
+    geometry, num_ctrl_pts, r_p_V_wake_ind = cond_inputs[0], cond_inputs[1], cond_inputs[2]
+
+    nets             = list(geometry.networks.keys())
+    n_nets           = len(nets)    
+
+    for ii in range(0,n_nets):
+        network = geometry.networks[nets[ii]]
+
+        # include the propeller and rotor wake effect on the wing
+        rotor_props = Data()
+
+        try: # Add in the propellers
+            rotor_props.update(network.propellers)
+        except:
+            pass
+
+        try:  # Add in the rotors
+            rotor_props.update(network.lift_rotors)
+        except:
+            pass
+
+        # Loop over all the rotors and props
+        for r_p in rotor_props:
+            r_p_V_wake_ind += r_p.Wake.evaluate_slipstream(r_p,geometry,num_ctrl_pts)
+
+    return r_p_V_wake_ind

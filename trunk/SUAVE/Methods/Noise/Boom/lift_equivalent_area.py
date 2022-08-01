@@ -2,7 +2,7 @@
 # lift_equivalent_area.py
 # 
 # Created:  Sep 2020, E. Botero
-# Modified: 
+# Modified: Jun 2022, J. Smart
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,6 +11,7 @@
 import numpy as np
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
+from SUAVE.Core import to_numpy
 
 # ----------------------------------------------------------------------
 #   Equivalent Area from lift for Sonic Boom
@@ -53,10 +54,10 @@ def lift_equivalent_area(config,analyses,conditions):
     settings     = analyses.aerodynamics.process.compute.lift.inviscid_wings.settings
     length       = config.total_length
     
-    results = VLM(conditions, settings, config)
+    results = to_numpy(VLM(conditions, settings, config))
     CP = results.CP
     
-    VD = analyses.aerodynamics.geometry.vortex_distribution
+    VD = to_numpy(analyses.aerodynamics.geometry.vortex_distribution)
     
     areas      = VD.panel_areas
     normal_vec = VD.normals

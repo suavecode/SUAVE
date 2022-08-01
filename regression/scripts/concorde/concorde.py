@@ -6,6 +6,7 @@
 #           Aug 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
 #           May 2021, E. Botero
+#           Jun 2022, J, Smart
 
 """ setup file for a mission with Concorde
 """
@@ -27,7 +28,7 @@ import numpy as np
 import pylab as plt
 
 # More basic SUAVE function
-from SUAVE.Core import Data
+from SUAVE.Core import Data, to_numpy
 
 import sys
 sys.path.append('../Vehicles')
@@ -90,9 +91,9 @@ def main():
     
 
     # plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-')
-    plt.show()
+    # plot_mission(results)
+    # plot_mission(old_results,'k-')
+    # plt.show()
 
     # check the results
     check_results(results,old_results)
@@ -140,11 +141,11 @@ def equivalent_area(vehicle,analyses,conditions):
                                    56.78777765, 57.28419734, 57.49949357, 57.99040541, 58.61763071,
                                    58.94738099, 77.075     ])
 
-    regression_AE_x   = np.array([ 0.        ,  8.33633745, 12.66771286, 17.73998778, 19.62571335,
-                                   23.97243778, 24.43285069, 26.98196968, 34.56874444, 36.48647208,
-                                   37.03624936, 37.03624582, 37.03624514, 37.03624415, 37.03624431,
-                                   37.03624381, 37.03624383, 37.03624373, 37.03624376, 37.03624377,
-                                   37.03624377, 37.03624377])
+    regression_AE_x   = np.array([ 0.        ,   8.33632652, 12.6677023 , 17.73997204, 19.62569497, 23.97241859,
+                                   24.43282931, 26.98195958, 34.56882002, 36.48656027, 37.03633858,
+                                   37.03633503, 37.03633436, 37.03633337, 37.03633353, 37.03633303,
+                                   37.03633305, 37.03633294, 37.03633297, 37.03633299, 37.03633299,
+                                   37.03633299])
 
     
     assert (np.abs((X_locs[1:] - regression_X_locs[1:] )/regression_X_locs[1:] ) < 1e-6).all() 
