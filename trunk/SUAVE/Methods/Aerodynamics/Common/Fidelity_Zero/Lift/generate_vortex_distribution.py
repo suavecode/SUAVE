@@ -20,6 +20,8 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.deflect_control_surface import deflect_control_surface
+
 # ----------------------------------------------------------------------
 #  Generate Vortex Distribution
 # ----------------------------------------------------------------------
@@ -190,6 +192,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.chordwise_breaks = np.array([], dtype=np.int32) # indices of the first panel in every strip      (given a list of all panels)
     VD.spanwise_breaks  = np.array([], dtype=np.int32) # indices of the first strip of panels in a wing (given chordwise_breaks)    
     VD.symmetric_wings  = np.array([], dtype=np.int32)
+    VD.surface_ID       = np.empty(shape=[0,1], dtype=np.int8) 
     
     VD.leading_edge_indices      = np.array([], dtype=bool)      # bool array of leading  edge indices (all false except for panels at leading  edge)
     VD.trailing_edge_indices     = np.array([], dtype=bool)      # bool array of trailing edge indices (all false except for panels at trailing edge)    
@@ -204,6 +207,7 @@ def generate_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------    
     VD.wing_areas  = [] # instantiate wing areas
     VD.vortex_lift = []
+    VD.counter     = 0
     
     #reformat/preprocess wings and control surfaces for VLM panelization
     VLM_wings = make_VLM_wings(geometry, settings)
@@ -213,13 +217,14 @@ def generate_vortex_distribution(geometry,settings):
     for wing in VD.VLM_wings:
         if not wing.is_a_control_surface:
             if show_prints: print('discretizing ' + wing.tag) 
-            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)    
+            VD, wing = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)    
                     
     for wing in VD.VLM_wings:
         if wing.is_a_control_surface:
             if show_prints:print('discretizing ' + wing.tag)
-            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)     
-                    
+            VD, wing = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)     
+            
+            
     # ---------------------------------------------------------------------------------------
     # STEP 8: Unpack aircraft nacelle geometry
     # ---------------------------------------------------------------------------------------      
@@ -238,10 +243,19 @@ def generate_vortex_distribution(geometry,settings):
         if show_prints: print('discretizing ' + fus.tag)
         VD = generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,precision,model_fuselage)
 
-    # ---------------------------------------------------------------------------------------
-    # STEP 10: Postprocess VD information
-    # ---------------------------------------------------------------------------------------      
 
+    # ---------------------------------------------------------------------------------------
+    # STEP 10: Deflect Control Surfaces
+    # ---------------------------------------------------------------------------------------      
+    for wing in VD.VLM_wings:
+        wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)        
+        if wing.is_a_control_surface or wing_is_all_moving:
+            # Deflect the control surface
+            VD, wing = deflect_control_surface(VD, wing)
+    
+    # ---------------------------------------------------------------------------------------
+    # STEP 11: Postprocess VD information
+    # ---------------------------------------------------------------------------------------      
     LE_ind = VD.leading_edge_indices
 
     # Compute Panel Areas and Normals
@@ -318,6 +332,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     if sym_para is True :
         span = span/2
         VD.vortex_lift.append(wing.vortex_lift)
+        
+    VD.counter  +=1
+    wing.surface_ID = VD.counter*1
 
     # ---------------------------------------------------------------------------------------
     # STEP 3: Get discretization control variables  
@@ -646,93 +663,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             xi_prime_bs   = np.concatenate([xi_prime_b1,  np.array([xi_prime_b2  [-1]])])*1
             zeta_prime_as = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])*1            
             zeta_prime_bs = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])*1  
-            
-            # TEMP test deflect_control_surface_strip in strip level loop
-            from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.deflect_control_surface import deflect_control_surface_strip
-            
-            wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
-            if wing.is_a_control_surface or wing_is_all_moving:         
-                
-                raw_VD = Data(xi_prime_a1   = xi_prime_a1  ,
-                              xi_prime_ac   = xi_prime_ac  ,
-                              xi_prime_ah   = xi_prime_ah  ,
-                              xi_prime_a2   = xi_prime_a2  ,
-                              y_prime_a1    = y_prime_a1   ,
-                              y_prime_ah    = y_prime_ah   ,
-                              y_prime_ac    = y_prime_ac   ,
-                              y_prime_a2    = y_prime_a2   ,
-                              zeta_prime_a1 = zeta_prime_a1,
-                              zeta_prime_ah = zeta_prime_ah,
-                              zeta_prime_ac = zeta_prime_ac,
-                              zeta_prime_a2 = zeta_prime_a2, 
-                              xi_prime_b1   = xi_prime_b1  ,
-                              xi_prime_bh   = xi_prime_bh  ,
-                              xi_prime_bc   = xi_prime_bc  ,
-                              xi_prime_b2   = xi_prime_b2  ,
-                              y_prime_b1    = y_prime_b1   ,
-                              y_prime_bh    = y_prime_bh   ,
-                              y_prime_bc    = y_prime_bc   ,
-                              y_prime_b2    = y_prime_b2   ,
-                              zeta_prime_b1 = zeta_prime_b1,
-                              zeta_prime_bh = zeta_prime_bh,
-                              zeta_prime_bc = zeta_prime_bc,
-                              zeta_prime_b2 = zeta_prime_b2,
-                              xi_prime_ch   = xi_prime_ch  ,
-                              xi_prime      = xi_prime     ,
-                              y_prime_ch    = y_prime_ch   ,
-                              y_prime       = y_prime      ,
-                              zeta_prime_ch = zeta_prime_ch,
-                              zeta_prime    = zeta_prime   ,
-                              xi_prime_as   = xi_prime_as  ,
-                              xi_prime_bs   = xi_prime_bs  ,
-                              y_prime_as    = y_prime_as   ,
-                              y_prime_bs    = y_prime_bs   ,
-                              zeta_prime_as = zeta_prime_as,
-                              zeta_prime_bs = zeta_prime_bs)
-                
-                
-                raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y,sym_sign_ind)
-                
-                xi_prime_a1    = raw_VD.xi_prime_a1  
-                xi_prime_ac    = raw_VD.xi_prime_ac  
-                xi_prime_ah    = raw_VD.xi_prime_ah  
-                xi_prime_a2    = raw_VD.xi_prime_a2  
-                y_prime_a1     = raw_VD.y_prime_a1   
-                y_prime_ah     = raw_VD.y_prime_ah   
-                y_prime_ac     = raw_VD.y_prime_ac   
-                y_prime_a2     = raw_VD.y_prime_a2   
-                zeta_prime_a1  = raw_VD.zeta_prime_a1
-                zeta_prime_ah  = raw_VD.zeta_prime_ah
-                zeta_prime_ac  = raw_VD.zeta_prime_ac
-                zeta_prime_a2  = raw_VD.zeta_prime_a2
-                                  
-                xi_prime_b1    = raw_VD.xi_prime_b1  
-                xi_prime_bh    = raw_VD.xi_prime_bh  
-                xi_prime_bc    = raw_VD.xi_prime_bc  
-                xi_prime_b2    = raw_VD.xi_prime_b2  
-                y_prime_b1     = raw_VD.y_prime_b1   
-                y_prime_bh     = raw_VD.y_prime_bh   
-                y_prime_bc     = raw_VD.y_prime_bc   
-                y_prime_b2     = raw_VD.y_prime_b2   
-                zeta_prime_b1  = raw_VD.zeta_prime_b1
-                zeta_prime_bh  = raw_VD.zeta_prime_bh
-                zeta_prime_bc  = raw_VD.zeta_prime_bc
-                zeta_prime_b2  = raw_VD.zeta_prime_b2
-                                              
-                xi_prime_ch    = raw_VD.xi_prime_ch  
-                xi_prime       = raw_VD.xi_prime     
-                y_prime_ch     = raw_VD.y_prime_ch   
-                y_prime        = raw_VD.y_prime      
-                zeta_prime_ch  = raw_VD.zeta_prime_ch
-                zeta_prime     = raw_VD.zeta_prime   
-                                                       
-                xi_prime_as    = raw_VD.xi_prime_as  
-                xi_prime_bs    = raw_VD.xi_prime_bs  
-                y_prime_as     = raw_VD.y_prime_as   
-                y_prime_bs     = raw_VD.y_prime_bs   
-                zeta_prime_as  = raw_VD.zeta_prime_as
-                zeta_prime_bs  = raw_VD.zeta_prime_bs 
-                        
+
             
             
             # reflect over the plane y = z for a vertical wing-----------------------------------------------------
@@ -905,12 +836,14 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         zb_te = np.hstack(zb_te1.T) 
     
         # find spanwise locations 
-        y_sw = yc[locations]        
+        y_sw = yc[locations]
+        ID   = VD.counter*1
     
         # increment number of wings and panels
         n_panels = len(xch)
         VD.n_w  += 1             
         VD.n_cp += n_panels 
+        
         
         # store this wing's discretization information  
         first_panel_ind  = VD.XAH.size
@@ -921,10 +854,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
         VD.n_sw             = np.append(VD.n_sw            , np.int16(n_sw)            )
         VD.n_cw             = np.append(VD.n_cw            , np.int16(n_cw)            )
-        
-        # Deflect the control surface
-        
-    
+        VD.surface_ID       = np.append(VD.surface_ID      , np.ones(n_cw*n_sw)*ID*sym_sign) # Update me when the loop is gone
+                
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
         # --------------------------------------------------------------------------------------- 
@@ -972,10 +903,15 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.Y      = np.append(VD.Y    , np.array(y    , dtype=precision))
         VD.Z      = np.append(VD.Z    , np.array(z    , dtype=precision))         
         VD.CS     = np.append(VD.CS   , np.array(cs_w , dtype=precision)) 
-        VD.DY     = np.append(VD.DY   , np.array(del_y, dtype=precision))      
+        VD.DY     = np.append(VD.DY   , np.array(del_y, dtype=precision))    
     #End symmetry loop
     VD.symmetric_wings = np.append(VD.symmetric_wings, int(sym_para))
-    return VD
+    
+    # Pack wing data
+    wing.n_sw = n_sw
+    wing.n_cw = n_cw    
+    
+    return VD, wing
     
 
 # ----------------------------------------------------------------------
@@ -1336,9 +1272,10 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     if model_geometry == True:
         
         # increment fuslage lifting surface sections  
-        VD.n_fus += 2    
-        VD.n_cp  += len(fhs_xch)
-        VD.n_w   += 2 
+        VD.n_fus   += 2    
+        VD.n_cp    += len(fhs_xch)
+        VD.n_w     += 2 
+        VD.counter += 1
         
         # store this fuselage's discretization information 
         n_panels         = n_sw*n_cw
@@ -1350,6 +1287,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
         VD.n_sw             = np.append(VD.n_sw            , np.int16([n_sw, n_sw])    )
         VD.n_cw             = np.append(VD.n_cw            , np.int16([n_cw, n_cw])    )
+        VD.surface_ID       = np.append(VD.surface_ID      , np.ones(len(fhs_xch)) * VD.counter)
         
         VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , np.tile(leading_edge_indices        , 2) )
         VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , np.tile(trailing_edge_indices       , 2) )           

@@ -437,6 +437,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.hinge_fraction        = cs.hinge_fraction
     cs_wing.sign_duplicate        = cs.sign_duplicate
     cs_wing.deflection            = cs.deflection
+    cs_wing.deflection_last       = 0.
     
     #adjustments---------------------------------------------------------------------------------------------------
     #adjust origin - may need to be adjusted later

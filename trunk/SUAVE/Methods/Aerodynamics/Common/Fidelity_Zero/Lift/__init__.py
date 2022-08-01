@@ -13,3 +13,4 @@ from .generate_vortex_distribution            import generate_vortex_distributio
 from .fuselage_correction                     import fuselage_correction
 from .make_VLM_wings                          import make_VLM_wings
 from .VLM                                     import VLM
+from .deflect_control_surface                 import deflect_control_surface

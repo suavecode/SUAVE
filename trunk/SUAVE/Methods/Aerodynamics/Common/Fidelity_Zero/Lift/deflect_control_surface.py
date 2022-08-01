@@ -11,14 +11,155 @@
 
 import numpy as np
 from SUAVE.Components.Wings import All_Moving_Surface
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Deflect Control Surface
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+def deflect_control_surface(VD,wing):
+    
+    # Unpack number of strips for this wing
+    n_sw     = wing.n_sw
+    n_cw     = wing.n_cw
+    sym_sign = 1 # This is hard coded for experimentation CHANGE ME
+
+    # Pull out initial VD data points
+    condition      = VD.surface_ID == wing.surface_ID*sym_sign
+    xi_prime_a1    = VD.XA1[condition]
+    xi_prime_ac    = VD.XAC[condition]
+    xi_prime_ah    = VD.XAH[condition]
+    xi_prime_a2    = VD.XA2[condition]
+    y_prime_a1     = VD.YA1[condition]
+    y_prime_ah     = VD.YAH[condition]
+    y_prime_ac     = VD.YAC[condition]
+    y_prime_a2     = VD.YA2[condition]
+    zeta_prime_a1  = VD.ZA1[condition]
+    zeta_prime_ah  = VD.ZAH[condition]
+    zeta_prime_ac  = VD.ZAC[condition]
+    zeta_prime_a2  = VD.ZA2[condition]
+    xi_prime_b1    = VD.XB1[condition]
+    xi_prime_bh    = VD.XBH[condition]
+    xi_prime_bc    = VD.XBC[condition]
+    xi_prime_b2    = VD.XB2[condition]
+    y_prime_b1     = VD.XB1[condition]
+    y_prime_bh     = VD.XBH[condition]
+    y_prime_bc     = VD.XBC[condition]
+    y_prime_b2     = VD.XB2[condition]
+    zeta_prime_b1  = VD.ZB1[condition]
+    zeta_prime_bh  = VD.ZBH[condition]
+    zeta_prime_bc  = VD.ZBC[condition]
+    zeta_prime_b2  = VD.ZB2[condition]
+    xi_prime_ch    = VD.XCH[condition]
+    xi_prime       = VD.XC [condition]
+    y_prime_ch     = VD.YCH[condition]
+    y_prime        = VD.YC [condition]
+    zeta_prime_ch  = VD.ZCH[condition]
+    zeta_prime     = VD.ZC [condition]
+    xi_prime_as    = VD.X  [condition][:-(n_cw+1)] 
+    xi_prime_bs    = VD.X  [condition][n_cw+1:]
+    y_prime_as     = VD.Y  [condition][:-(n_cw+1)]
+    y_prime_bs     = VD.Y  [condition][n_cw+1:]
+    zeta_prime_as  = VD.Z  [condition][:-(n_cw+1)]
+    zeta_prime_bs  = VD.Z  [condition][n_cw+1:]
+    
+
+    for idx_y in range(n_sw):
+        raw_VD = Data(xi_prime_a1   = xi_prime_a1  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime_ac   = xi_prime_ac  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime_ah   = xi_prime_ah  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime_a2   = xi_prime_a2  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_a1    = y_prime_a1   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_ah    = y_prime_ah   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_ac    = y_prime_ac   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_a2    = y_prime_a2   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_a1 = zeta_prime_a1[idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_ah = zeta_prime_ah[idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_ac = zeta_prime_ac[idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_a2 = zeta_prime_a2[idx_y*n_cw:(idx_y+1)*n_cw], 
+                      xi_prime_b1   = xi_prime_b1  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime_bh   = xi_prime_bh  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime_bc   = xi_prime_bc  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime_b2   = xi_prime_b2  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_b1    = y_prime_b1   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_bh    = y_prime_bh   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_bc    = y_prime_bc   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_b2    = y_prime_b2   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_b1 = zeta_prime_b1[idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_bh = zeta_prime_bh[idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_bc = zeta_prime_bc[idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_b2 = zeta_prime_b2[idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime_ch   = xi_prime_ch  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime      = xi_prime     [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_ch    = y_prime_ch   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime       = y_prime      [idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_ch = zeta_prime_ch[idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime    = zeta_prime   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime_as   = xi_prime_as  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      xi_prime_bs   = xi_prime_bs  [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_as    = y_prime_as   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      y_prime_bs    = y_prime_bs   [idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_as = zeta_prime_as[idx_y*n_cw:(idx_y+1)*n_cw],
+                      zeta_prime_bs = zeta_prime_bs[idx_y*n_cw:(idx_y+1)*n_cw])
+            
+            
+        raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y,sym_sign_ind)
+        
+        xi_prime_a1    = raw_VD.xi_prime_a1  
+        xi_prime_ac    = raw_VD.xi_prime_ac  
+        xi_prime_ah    = raw_VD.xi_prime_ah  
+        xi_prime_a2    = raw_VD.xi_prime_a2  
+        y_prime_a1     = raw_VD.y_prime_a1   
+        y_prime_ah     = raw_VD.y_prime_ah   
+        y_prime_ac     = raw_VD.y_prime_ac   
+        y_prime_a2     = raw_VD.y_prime_a2   
+        zeta_prime_a1  = raw_VD.zeta_prime_a1
+        zeta_prime_ah  = raw_VD.zeta_prime_ah
+        zeta_prime_ac  = raw_VD.zeta_prime_ac
+        zeta_prime_a2  = raw_VD.zeta_prime_a2
+                          
+        xi_prime_b1    = raw_VD.xi_prime_b1  
+        xi_prime_bh    = raw_VD.xi_prime_bh  
+        xi_prime_bc    = raw_VD.xi_prime_bc  
+        xi_prime_b2    = raw_VD.xi_prime_b2  
+        y_prime_b1     = raw_VD.y_prime_b1   
+        y_prime_bh     = raw_VD.y_prime_bh   
+        y_prime_bc     = raw_VD.y_prime_bc   
+        y_prime_b2     = raw_VD.y_prime_b2   
+        zeta_prime_b1  = raw_VD.zeta_prime_b1
+        zeta_prime_bh  = raw_VD.zeta_prime_bh
+        zeta_prime_bc  = raw_VD.zeta_prime_bc
+        zeta_prime_b2  = raw_VD.zeta_prime_b2
+                                      
+        xi_prime_ch    = raw_VD.xi_prime_ch  
+        xi_prime       = raw_VD.xi_prime     
+        y_prime_ch     = raw_VD.y_prime_ch   
+        y_prime        = raw_VD.y_prime      
+        zeta_prime_ch  = raw_VD.zeta_prime_ch
+        zeta_prime     = raw_VD.zeta_prime   
+                                               
+        xi_prime_as    = raw_VD.xi_prime_as  
+        xi_prime_bs    = raw_VD.xi_prime_bs  
+        y_prime_as     = raw_VD.y_prime_as   
+        y_prime_bs     = raw_VD.y_prime_bs   
+        zeta_prime_as  = raw_VD.zeta_prime_as
+        zeta_prime_bs  = raw_VD.zeta_prime_bs 
+    
+        
+    wing.deflection_last = wing.deflection*1.
+
+    return VD, wing
+
+
+
+# ----------------------------------------------------------------------
+#  Deflect Control Surface Strip
+# ----------------------------------------------------------------------
+
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
-    """ Rotates existing points in the VD with respect to current values of deflection
+    """ Rotates existing points in the VD with respect to current values of a delta deflection
 
     Assumptions: 
 
@@ -126,7 +267,8 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
         #END first strip calculations
     
     # get deflection angle
-    deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
+    deflection            = wing.deflection - wing.deflection_last
+    deflection_base_angle = deflection      if (not wing.is_slat) else deflection
     symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
     symmetry_multiplier  *= -1                   if vertical_wing      else 1
     deflection_angle      = deflection_base_angle * symmetry_multiplier
