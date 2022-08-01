@@ -25,8 +25,8 @@ from functools import partial
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-@partial(jit, static_argnums=2)
-def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
+@partial(jit, static_argnums=(2,3))
+def compute_wing_induced_velocity(VD,mach,supersonic_flag,precision=jnp.float32):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
     Assumptions: 
@@ -57,7 +57,7 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     N/A
     """
     # unpack  
-    LE_ind       = VD.leading_edge_indices
+    LE_ind       = VD.leading_edge_indices_full
     TE_ind       = VD.trailing_edge_indices
     n_mach       = len(mach)
     mach         = jnp.array(mach,dtype=precision)
@@ -94,6 +94,7 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     DL     = w(DL>(jnp.pi/2),DL - jnp.pi,DL) # This flips the dihedral angle for the other side of the wing
     DL     = w(COS_DL==1,0,DL) # This is for JAX to not give infs for the derivative
     DL     = w(COS_DL==-1,0,DL)
+    
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -198,32 +199,30 @@ def compute_wing_induced_velocity(VD,mach,precision=jnp.float32):
     W = jnp.where(sub,W_sub,W)
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX. some values computed in a preprocessing section in VLM
-    sup         = (B2>=0)[:,0,0]
-    B2_sup      = B2
-    RO1_sup     = B2*RTV1
-    RO2_sup     = B2*RTV2    
-    RNMAX       = VD.panels_per_strip
-    CHORD       = VD.chord_lengths
-    CHORD       = jnp.repeat(CHORD,shape_0,axis=0)
-    RFLAG       = jnp.ones((n_mach,shape_1),dtype=jnp.int8)
-
-    #U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
-                                                #X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)    
-
-    #U     = jnp.where(sup,U_sup,U)
-    #V     = jnp.where(sup,V_sup,V)
-    #W     = jnp.where(sup,W_sup,W)
-    #RFLAG = jnp.where(sup,RFLAG_sup,RFLAG)
+    if supersonic_flag:
+        n_cp        = XAH.shape[1]
+        sup         = (B2>=0)[:,0,0]
+        B2_sup      = B2
+        RO1_sup     = B2*RTV1
+        RO2_sup     = B2*RTV2    
+        RNMAX       = VD.panels_per_strip
+        CHORD       = VD.chord_lengths
+        CHORD       = jnp.repeat(CHORD,shape_0,axis=0)
+        RFLAG       = jnp.ones((n_mach,shape_1),dtype=jnp.int8)
+        
+        U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
+                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)    
+    
+        U     = jnp.where(sup,U_sup,U)
+        V     = jnp.where(sup,V_sup,V)
+        W     = jnp.where(sup,W_sup,W)
+        RFLAG = jnp.where(sup,RFLAG_sup,RFLAG)
 
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
     
-    
-    
     # Calculate the W velocity in the VORLAX frame for later calcs
-    # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
-    #n_cp   = shape[1]    
-    n_cp   = XAH.shape[1]
+    # The angles are Dihedral angle of the current panel - dihedral angle of the influencing pane
     COS1   = jnp.cos(DL.T - DL)
     SIN1   = jnp.sin(DL.T - DL) 
     WEIGHT = 1
@@ -450,7 +449,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     F_mask = jnp.ones((n_mach,size),dtype=bool)
     A_mask = jnp.ones((n_mach,size),dtype=bool)
     F_mask = jnp.where(jnp.broadcast_to(TE_ind,(n_mach,size)),0,F_mask)
-    A_mask = jnp.where(jnp.broadcast_to(LE_ind,(n_mach,size)),0,F_mask)
+    A_mask = jnp.where(jnp.broadcast_to(LE_ind[0],(n_mach,size)),0,F_mask)
     
     # Apply the mask
     T2F = T2F.at[A_mask].set(T2S[F_mask])
@@ -488,29 +487,13 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # WILL BE THE AVERAGE OF THE STRENGTHS OF THE HORSESHOES IMMEDIATELY
     # IN FRONT OF AND BEHIND IT.
     
-    # Zero out the row
-    FLAG_bool_rep     = jnp.broadcast_to(FLAG_bool,shape)
-    W                 = w(FLAG_bool_rep,0.,W) # Default to zero
-
-    # The self velocity goes to 2
-    FLAG_bool_split   = jnp.array(jnp.split(FLAG_bool.ravel(),n_mach))
-    test              = jnp.where(FLAG_bool_split)
-    FLAG_ind          = jnp.array(jnp.where(FLAG_bool_split))
-    squares           = jnp.zeros((size,size,n_mach))
-    squares           = squares.at[FLAG_ind[1],FLAG_ind[1],FLAG_ind[0]].set(1)
-    squares           = jnp.ravel(squares,order='F')
+    squares = jnp.identity(size)*FLAG_bool
+    sq_up   = jnp.eye(size,k=1)*FLAG_bool
+    sq_dn   = jnp.eye(size,k=-1)*FLAG_bool
     
-    FLAG_bool_self    = jnp.where(squares==1)[0]
-    W                 = W.ravel()
-    W                 = W.at[FLAG_bool_self].set(2.) # It's own value, -2
-    
-    # The panels before and after go to -1
-    FLAG_bool_bef = FLAG_bool_self - 1
-    FLAG_bool_aft = FLAG_bool_self + 1
-    W             = W.at[FLAG_bool_bef].set(-1.)
-    W             = W.at[FLAG_bool_aft].set(-1.)
-    
-    W = jnp.reshape(W,shape)
+    W       = jnp.where(squares==1,2., W)
+    W       = jnp.where(sq_up==1,-1., W)
+    W       = jnp.where(sq_dn==1,-1., W)
 
     return U, V, W, RFLAG
 

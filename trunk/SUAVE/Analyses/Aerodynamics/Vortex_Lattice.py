@@ -78,7 +78,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.wing_chordwise_vortices         = None
         self.settings.fuselage_spanwise_vortices      = None
         self.settings.fuselage_chordwise_vortices     = None 
-        
+        self.settings.supersonic                      = True
         self.settings.spanwise_cosine_spacing         = True
         self.settings.vortex_distribution             = Data()   
         self.settings.model_fuselage                  = False
@@ -160,11 +160,11 @@ class Vortex_Lattice(Aerodynamics):
         if n_cw is not None:
             settings.number_chordwise_vortices = n_cw 
             
-        settings.use_surrogate              = use_surrogate
-        settings.propeller_wake_model       = propeller_wake_model 
-        settings.discretize_control_surfaces= dcs
-        settings.model_fuselage             = mf
-        settings.model_nacelle              = mn
+        settings.use_surrogate               = use_surrogate
+        settings.propeller_wake_model        = propeller_wake_model 
+        settings.discretize_control_surfaces = dcs
+        settings.model_fuselage              = mf
+        settings.model_nacelle               = mn
         
         # build the vortex distribution
         # generate vortex distribution (VLM steps 1-9)

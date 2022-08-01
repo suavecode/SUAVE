@@ -284,7 +284,7 @@ def generate_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------   
     
     total_sw = np.sum(VD.n_sw)
-
+    VD['leading_edge_indices_full'] = VD['leading_edge_indices']
     VD['leading_edge_indices'] = LE_ind = jnp.where(VD['leading_edge_indices'],size=total_sw)
 
     # Compute Panel Areas and Normals

@@ -963,5 +963,3 @@ class Data(dict):
         do_operation(self,other,result)    
     
         return result
-
-    

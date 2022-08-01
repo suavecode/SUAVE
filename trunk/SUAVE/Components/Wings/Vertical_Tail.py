@@ -1,3 +1,4 @@
+## @ingroup Components-Wings
 # Vertical_Tail.py
 #
 # Created:  Feb 2014, T. Lukacyzk, T. Orra
@@ -16,11 +17,13 @@ from .Wing import Wing
 from copy import deepcopy
 import numpy as np
  
+from jax.tree_util import register_pytree_node_class 
 
 # ----------------------------------------------------------------------
 #  Attribute
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Wings
+@register_pytree_node_class
 class Vertical_Tail(Wing):
     """This class is used to define vertical tails SUAVE
 

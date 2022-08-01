@@ -111,6 +111,7 @@ class Fidelity_Zero(Markup):
         
         # Set subsonic mach numbers for the vortex lattice surrogate
         compute.lift.inviscid_wings.training.Mach = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9]]).T     
+        compute.lift.inviscid_wings.settings.supersonic = False
         
         
     def initialize(self):

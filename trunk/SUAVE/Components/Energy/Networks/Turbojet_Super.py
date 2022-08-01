@@ -15,11 +15,14 @@ from .Network import Network
 
 import numpy as np
 
+from jax.tree_util import register_pytree_node_class
+
 # ----------------------------------------------------------------------
 #  Turbojet Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
+@register_pytree_node_class
 class Turbojet_Super(Network):
     """ This is a turbojet for supersonic flight.
 
@@ -68,7 +71,9 @@ class Turbojet_Super(Network):
         self.generative_design_max_per_vehicle = 1
         self.generative_design_characteristics = ['sealevel_static_thrust','number_of_engines','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
         self.generative_design_char_min_bounds = [100.,1.,0.,-1,-1]   
-        self.generative_design_char_max_bounds = [np.inf,np.inf,1,1,1]        
+        self.generative_design_char_max_bounds = [np.inf,np.inf,1,1,1]      
+        self.static_keys                       = ['generative_design_characteristics']   
+        
         
 
     _component_root_map = None

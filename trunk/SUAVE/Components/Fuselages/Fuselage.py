@@ -20,11 +20,14 @@ from SUAVE.Components import Physical_Component, Lofted_Body
 from SUAVE.Components.Lofted_Body_Segment.Segment import Segment_Container
 import numpy as np
 
+from jax.tree_util import register_pytree_node_class
+
 # ------------------------------------------------------------
 #  Fuselage
 # ------------------------------------------------------------
 
 ## @ingroup components-fuselages
+@register_pytree_node_class
 class Fuselage(Lofted_Body):
     """ This is a standard fuselage for a tube and wing aircraft.
     
@@ -109,6 +112,8 @@ class Fuselage(Lofted_Body):
         self.generative_design_characteristics = ['lengths.total','heights.maximum','width','fineness.nose','fineness.tail']
         self.generative_design_char_min_bounds = [1.,0.001,0.001,0.001,0.001]   
         self.generative_design_char_max_bounds = [np.inf,np.inf,np.inf,np.inf,np.inf]    
+        self.static_keys                       = ['generative_design_characteristics']   
+        
 
         self.Fuel_Tanks = Physical_Component.Container()
 
@@ -167,7 +172,7 @@ class Fuselage(Lofted_Body):
 
         return
         
-
+@register_pytree_node_class
 class Container(Physical_Component.Container):
     def get_children(self):
         """ Returns the components that can go inside
@@ -188,7 +193,7 @@ class Container(Physical_Component.Container):
         N/A
         """        
         
-        return [Fuselage]
+        #return [Fuselage]
 
 # ------------------------------------------------------------
 #  Handle Linking

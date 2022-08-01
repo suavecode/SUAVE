@@ -221,7 +221,7 @@ def VLM(conditions,settings,geometry):
     ONSET = rhs.ONSET*1
     
     # Build induced velocity matrix, C_mn
-    C_mn, s, RFLAG, EW = compute_wing_induced_velocity(VD,mach,precision=precision)
+    C_mn, s, RFLAG, EW = compute_wing_induced_velocity(VD,mach,supersonic_flag=settings.supersonic,precision=precision)
     
     # Turn off sonic vortices when Mach>1
     RHS = RHS*RFLAG
