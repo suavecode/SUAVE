@@ -8,7 +8,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_wake_contraction_matrix import compute_wake_contraction_matrix
 
 
@@ -37,16 +36,17 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     R                = rotor.tip_radius
     r                = rotor.radius_distribution 
     c                = rotor.chord_distribution 
-    beta             = rotor.twist_distribution
+    beta             = rotor.twist_distribution + rotor.inputs.pitch_command
     B                = rotor.number_of_blades  
     
     rotor_outputs    = rotor.outputs
     Na               = rotor_outputs.number_azimuthal_stations
     Nr               = rotor_outputs.number_radial_stations
+
     omega            = rotor_outputs.omega                               
-    va               = rotor_outputs.disc_axial_induced_velocity 
+    va               = rotor_outputs.disc_axial_induced_velocity
     V_inf            = rotor_outputs.velocity
-    gamma            = rotor_outputs.disc_circulation   
+    gamma            = rotor_outputs.disc_circulation
     rot              = rotor.rotation
     
     # apply rotation direction to twist and chord distribution
@@ -55,7 +55,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     # dimensions for analysis                      
     Nr   = len(r)                   # number of radial stations
-    m    = len(omega)                         # number of control points
+    m    = len(omega)               # number of control points
 
     # Compute blade angles starting from each of Na azimuthal stations, shape: (Na,B)
     azi          = np.linspace(0,2*np.pi,Na+1)[:-1]
@@ -83,9 +83,8 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # extract mean inflow velocities
     axial_induced_velocity = np.mean(va,axis = 2) # radial inflow, averaged around the azimuth
     mean_induced_velocity  = np.mean( axial_induced_velocity,axis = 1)   
-
-    alpha = rotor.orientation_euler_angles[1]
-    rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
+    
+    rots = rotor.body_to_prop_vel()[0]
     
     lambda_tot   = np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 99 Leishman)
     mu_prop      = np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
@@ -140,12 +139,9 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # put into velocity frame and find (y,z) components
     azi_y   = np.sin(panel_azimuthal_positions)
     azi_z   = np.cos(panel_azimuthal_positions)
-    
-
-    # extract airfoil trailing edge coordinates for initial location of vortex wake
-    a_sec        = rotor.airfoil_geometry   
+        
+    airfoil_data = rotor.airfoil_data
     a_secl       = rotor.airfoil_polar_stations
-    airfoil_data = import_airfoil_geometry(a_sec,npoints=100)  
    
     # trailing edge points in airfoil coordinates
     xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)
@@ -158,7 +154,6 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     xle_airfoils = xupper[:,0]*c + airfoil_le_offset
     yle_airfoils = yupper[:,0]*c 
-    
     
     x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4 - airfoil_le_offset
     y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4
@@ -212,14 +207,14 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     X_pts = np.append(x_c_4[:,:,:,:,0][:,:,:,:,None], X_pts, axis=4) 
     Y_pts = np.append(y_c_4[:,:,:,:,0][:,:,:,:,None], Y_pts, axis=4)
     Z_pts = np.append(z_c_4[:,:,:,:,0][:,:,:,:,None], Z_pts, axis=4)
-
+    
     #------------------------------------------------------
     # Store points  
     #------------------------------------------------------
     # Initialize vortex distribution and arrays with required matrix sizes
     VD = Data()
     rotor.vortex_distribution = VD        
-    VD, WD = initialize_distributions(Nr, Na, B, nts, m,VD)
+    VD = initialize_distributions(Nr, Na, B, nts, m,VD)
     
     # ( azimuthal start index, control point  , blade number , location on blade, time step )
     if rot==-1:
@@ -255,45 +250,43 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     VD.Wake.GAMMA[:,:,0:B,:,:] = Gamma 
     
     # Append wake geometry and vortex strengths to each individual propeller
-    wake.wake_vortex_distribution   = VD.Wake
+    wake.vortex_distribution.reshaped_wake   = VD.Wake
     
     # append trailing edge locations
-    wake.wake_vortex_distribution.Xblades_te = X_pts[:,0,:,:,0]
-    wake.wake_vortex_distribution.Yblades_te = Y_pts[:,0,:,:,0]
-    wake.wake_vortex_distribution.Zblades_te = Z_pts[:,0,:,:,0]
+    wake.vortex_distribution.reshaped_wake.Xblades_te = X_pts[:,0,:,:,0]
+    wake.vortex_distribution.reshaped_wake.Yblades_te = Y_pts[:,0,:,:,0]
+    wake.vortex_distribution.reshaped_wake.Zblades_te = Z_pts[:,0,:,:,0]
 
     # append quarter chord lifting line point locations        
-    wake.wake_vortex_distribution.Xblades_c_4 = x_c_4_rotor 
-    wake.wake_vortex_distribution.Yblades_c_4 = y_c_4_rotor
-    wake.wake_vortex_distribution.Zblades_c_4 = z_c_4_rotor
+    wake.vortex_distribution.reshaped_wake.Xblades_c_4 = x_c_4_rotor
+    wake.vortex_distribution.reshaped_wake.Yblades_c_4 = y_c_4_rotor
+    wake.vortex_distribution.reshaped_wake.Zblades_c_4 = z_c_4_rotor
     
     # append three-quarter chord evaluation point locations        
-    wake.wake_vortex_distribution.Xblades_cp = x_c_4 
-    wake.wake_vortex_distribution.Yblades_cp = y_c_4 
-    wake.wake_vortex_distribution.Zblades_cp = z_c_4 
+    wake.vortex_distribution.reshaped_wake.Xblades_cp = x_c_4 
+    wake.vortex_distribution.reshaped_wake.Yblades_cp = y_c_4 
+    wake.vortex_distribution.reshaped_wake.Zblades_cp = z_c_4 
 
     # Compress Data into 1D Arrays  
     mat6_size = (Na,m,nts*B*(Nr-1)) 
 
-    WD.XA1    =  np.reshape(VD.Wake.XA1,mat6_size)
-    WD.YA1    =  np.reshape(VD.Wake.YA1,mat6_size)
-    WD.ZA1    =  np.reshape(VD.Wake.ZA1,mat6_size)
-    WD.XA2    =  np.reshape(VD.Wake.XA2,mat6_size)
-    WD.YA2    =  np.reshape(VD.Wake.YA2,mat6_size)
-    WD.ZA2    =  np.reshape(VD.Wake.ZA2,mat6_size)
-    WD.XB1    =  np.reshape(VD.Wake.XB1,mat6_size)
-    WD.YB1    =  np.reshape(VD.Wake.YB1,mat6_size)
-    WD.ZB1    =  np.reshape(VD.Wake.ZB1,mat6_size)
-    WD.XB2    =  np.reshape(VD.Wake.XB2,mat6_size)
-    WD.YB2    =  np.reshape(VD.Wake.YB2,mat6_size)
-    WD.ZB2    =  np.reshape(VD.Wake.ZB2,mat6_size)
-    WD.GAMMA  =  np.reshape(VD.Wake.GAMMA,mat6_size)
+    wake.vortex_distribution.XA1    =  np.reshape(VD.Wake.XA1,mat6_size)
+    wake.vortex_distribution.YA1    =  np.reshape(VD.Wake.YA1,mat6_size)
+    wake.vortex_distribution.ZA1    =  np.reshape(VD.Wake.ZA1,mat6_size)
+    wake.vortex_distribution.XA2    =  np.reshape(VD.Wake.XA2,mat6_size)
+    wake.vortex_distribution.YA2    =  np.reshape(VD.Wake.YA2,mat6_size)
+    wake.vortex_distribution.ZA2    =  np.reshape(VD.Wake.ZA2,mat6_size)
+    wake.vortex_distribution.XB1    =  np.reshape(VD.Wake.XB1,mat6_size)
+    wake.vortex_distribution.YB1    =  np.reshape(VD.Wake.YB1,mat6_size)
+    wake.vortex_distribution.ZB1    =  np.reshape(VD.Wake.ZB1,mat6_size)
+    wake.vortex_distribution.XB2    =  np.reshape(VD.Wake.XB2,mat6_size)
+    wake.vortex_distribution.YB2    =  np.reshape(VD.Wake.YB2,mat6_size)
+    wake.vortex_distribution.ZB2    =  np.reshape(VD.Wake.ZB2,mat6_size)
+    wake.vortex_distribution.GAMMA  =  np.reshape(VD.Wake.GAMMA,mat6_size)
     
     rotor.wake_skew_angle = wake_skew_angle
-    WD.reshaped_wake = wake.wake_vortex_distribution
-            
-       
-    return WD
+    
+    return wake, rotor
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
 def initialize_distributions(Nr, Na, B, n_wts, m, VD):
@@ -339,21 +332,5 @@ def initialize_distributions(Nr, Na, B, n_wts, m, VD):
     VD.Wake.YB2   = np.zeros(mat1_size) 
     VD.Wake.ZB2   = np.zeros(mat1_size) 
     VD.Wake.GAMMA  = np.zeros(mat1_size)  
-      
-    WD        = Data()
-    mat2_size = (Na,m*n_wts*B*nmax)
-    WD.XA1    = np.zeros(mat2_size)
-    WD.YA1    = np.zeros(mat2_size)
-    WD.ZA1    = np.zeros(mat2_size)
-    WD.XA2    = np.zeros(mat2_size)
-    WD.YA2    = np.zeros(mat2_size)
-    WD.ZA2    = np.zeros(mat2_size)   
-    WD.XB1    = np.zeros(mat2_size)
-    WD.YB1    = np.zeros(mat2_size)
-    WD.ZB1    = np.zeros(mat2_size)
-    WD.XB2    = np.zeros(mat2_size)
-    WD.YB2    = np.zeros(mat2_size)
-    WD.ZB2    = np.zeros(mat2_size) 
-
  
-    return VD, WD
+    return VD

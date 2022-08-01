@@ -55,11 +55,11 @@ def case_1(vehicle, conditions):
     plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
     
     thrust   = np.linalg.norm(thrust)
-    thrust_r = 1743.1852280707787
-    torque_r = 748.83510157
-    power_r  = 101943.1769993
+    thrust_r = 1743.1852479971017
+    torque_r = 748.83510441
+    power_r  = 101943.17738622
     Cp_r     = 0.46940459
-    etap_r   = 0.71831936
+    etap_r   = 0.71831937
     print('\nCase 1 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
     print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
@@ -105,11 +105,11 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
 
     # expected results
     thrust   = np.linalg.norm(thrust)
-    thrust_r = 1150.8011066182569
-    torque_r = 568.67820121
-    power_r  = 77417.39456419
-    Cp_r     = 0.35647389
-    etap_r   = 0.66452007
+    thrust_r = 1150.8011515854673
+    torque_r = 568.67821527
+    power_r  = 77417.3964781
+    Cp_r     = 0.3564739
+    etap_r   = 0.66452008
     print('\nCase 2 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
     print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
@@ -152,7 +152,7 @@ def case_3(vehicle,conditions):
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
 
     thrust   = np.linalg.norm(thrust)
-    thrust_r, torque_r, power_r, Cp_r, etap_r = 1670.6463962249322, 742.03161805, 101016.98013317, 0.46513985, 0.73932696
+    thrust_r, torque_r, power_r, Cp_r, etap_r = 1670.646434565442, 742.03162704, 101016.98135661, 0.46513986, 0.73932696
     print('\nCase 3 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
     print('Torque difference = ', np.abs(torque - torque_r) / torque_r )

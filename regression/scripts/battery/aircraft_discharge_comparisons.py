@@ -40,14 +40,14 @@ def main():
 
     # General Aviation Aircraft   
 
-    GA_RPM_true              = [2285.7997780675864,2285.799778062956]
-    GA_lift_coefficient_true = [0.547471696197573,0.547471696197573]
+    GA_RPM_true              = [2285.799691255412,2285.799691250787]
+    GA_lift_coefficient_true = [0.5474716961975736,0.547471696197576]
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2404.364318280946,2404.364318342303]
+    EVTOL_RPM_true              = [2404.363170876128,2404.363170937451]
 
-    EVTOL_lift_coefficient_true = [0.8075309358242124,0.8075309358160647]
+    EVTOL_lift_coefficient_true = [0.8075309358253244,0.8075309358231044]
     
         
     for i in range(len(battery_chemistry)):
