@@ -269,6 +269,7 @@ def copy_large_container(large_container, type_str):
                 data.is_slat                     = False
                 data.use_constant_hinge_fraction = obj.use_constant_hinge_fraction
                 data.hinge_vector                = obj.hinge_vector
+                data.deflection_last             = 0.
         container.append(data)
         
     return container
