@@ -253,11 +253,26 @@ def generate_vortex_distribution(geometry,settings):
         if wing.is_a_control_surface or wing_is_all_moving:
             # Deflect the control surface
             VD, wing = deflect_control_surface(VD, wing)
-    
+            
     # ---------------------------------------------------------------------------------------
     # STEP 11: Postprocess VD information
-    # ---------------------------------------------------------------------------------------      
-    LE_ind = VD.leading_edge_indices
+    # ---------------------------------------------------------------------------------------  
+    
+    VD = postprocess_VD(VD, settings)
+    
+    # pack VD into geometry
+    geometry.vortex_distribution = VD
+    
+    if show_prints: print('finish discretization')     
+    
+    return VD 
+    
+def postprocess_VD(VD, settings):
+    #unpack
+    precision  = settings.floating_point_precision   
+    LE_ind     = VD.leading_edge_indices
+    TE_ind     = VD.trailing_edge_indices
+    strip_n_cw = VD.panels_per_strip[LE_ind]
 
     # Compute Panel Areas and Normals
     VD.panel_areas = np.array(compute_panel_area(VD) , dtype=precision)
@@ -266,7 +281,7 @@ def generate_vortex_distribution(geometry,settings):
     # Reshape chord_lengths
     VD.chord_lengths = np.atleast_2d(VD.chord_lengths) #need to be 2D for later calculations
     
-    # Compute variables used in VORLAX
+    # Compute panel-wise variables used in VORLAX
     X1c   = (VD.XA1+VD.XB1)/2
     X2c   = (VD.XA2+VD.XB2)/2
     Z1c   = (VD.ZA1+VD.ZB1)/2
@@ -275,15 +290,21 @@ def generate_vortex_distribution(geometry,settings):
     SLE   = SLOPE[LE_ind]    
     D    = np.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
     
+    # Compute strip-wise incidence
+    LE_X           = X1c[LE_ind]
+    LE_Z           = Z1c[LE_ind]
+    TE_X           = X2c[TE_ind]
+    TE_Z           = Z2c[TE_ind]
+    tan_incidence  = np.repeat((LE_Z-TE_Z)/(LE_X-TE_X), strip_n_cw) # ZETA  in vorlax
+    chord_adjusted = np.repeat(np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2), strip_n_cw) # CHORD in vorlax
+    
     # Pack VORLAX variables
-    VD.SLOPE = SLOPE
-    VD.SLE   = SLE
-    VD.D     = D
+    VD.SLOPE                   = SLOPE
+    VD.SLE                     = SLE
+    VD.D                       = D         
+    VD.tangent_incidence_angle = tan_incidence
+    VD.chord_lengths           = np.atleast_2d(chord_adjusted)
     
-    # pack VD into geometry
-    geometry.vortex_distribution = VD
-    
-    if show_prints: print('finish discretization')            
     
     return VD 
 
