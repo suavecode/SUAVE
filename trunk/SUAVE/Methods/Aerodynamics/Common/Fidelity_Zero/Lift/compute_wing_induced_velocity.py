@@ -180,7 +180,6 @@ def compute_wing_induced_velocity(VD,mach,supersonic_flag,precision=jnp.float32)
     XSQ2   = X2 *X2
     
     # Split the vectors into subsonic and supersonic
-    #sub      = (B2<0)[:,0,0]
     sub      = (B2<0)
     B2_sub   = B2
     RO1_sub  = B2*RTV1
@@ -199,8 +198,9 @@ def compute_wing_induced_velocity(VD,mach,supersonic_flag,precision=jnp.float32)
     W = jnp.where(sub,W_sub,W)
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX. some values computed in a preprocessing section in VLM
+    RFLAG           = jnp.ones((n_mach,shape_1),dtype=jnp.int8)
+    n_cp            = XAH.shape[1]
     if supersonic_flag:
-        n_cp        = XAH.shape[1]
         sup         = (B2>=0)[:,0,0]
         B2_sup      = B2
         RO1_sup     = B2*RTV1
@@ -208,7 +208,6 @@ def compute_wing_induced_velocity(VD,mach,supersonic_flag,precision=jnp.float32)
         RNMAX       = VD.panels_per_strip
         CHORD       = VD.chord_lengths
         CHORD       = jnp.repeat(CHORD,shape_0,axis=0)
-        RFLAG       = jnp.ones((n_mach,shape_1),dtype=jnp.int8)
         
         U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
                                                     X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)    
