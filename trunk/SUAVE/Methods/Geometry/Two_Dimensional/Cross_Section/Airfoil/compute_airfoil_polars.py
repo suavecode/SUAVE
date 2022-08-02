@@ -67,7 +67,7 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
     airfoil_data = import_airfoil_geometry(a_geo, npoints = npoints)
 
     # Get all of the coefficients for AERODAS wings
-    AoA_sweep_deg = np.linspace(-14,90,105)
+    AoA_sweep_deg = np.linspace(-90,90,180 * 4 + 1)
     AoA_sweep_radians = AoA_sweep_deg*Units.degrees
     CL = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
     CD = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
@@ -123,7 +123,7 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
             ACL1 = airfoil_aoa[idx_aoa_max_prestall_cl] * Units.degrees
 
             # computing approximate lift curve slope
-            linear_idxs = [int(np.where(airfoil_aoa==0)[0]),int(np.where(airfoil_aoa==4)[0])]
+            linear_idxs = [np.argmin(abs(airfoil_aoa)),np.argmin(abs(airfoil_aoa - 4))]
             cl_range = airfoil_cl[linear_idxs]
             aoa_range = airfoil_aoa[linear_idxs] * Units.degrees
             S1 = (cl_range[1]-cl_range[0])/(aoa_range[1]-aoa_range[0])

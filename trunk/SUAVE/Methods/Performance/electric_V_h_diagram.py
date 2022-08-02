@@ -9,7 +9,7 @@
 #------------------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units
 
 from SUAVE.Methods.Performance.propeller_single_point import propeller_single_point
 
@@ -52,7 +52,8 @@ def electric_V_h_diagram(vehicle,
         Assumptions:
 
         Assumes use of Battery Propeller Energy Network
-        Assumes identical propellers
+        Assumes identical operating conditions of propellers
+
 
         Inputs:
 
@@ -77,9 +78,11 @@ def electric_V_h_diagram(vehicle,
 
     # Unpack Inputs
 
-    g       = analyses.atmosphere.planet.sea_level_gravity
-    W       = vehicle.mass_properties.takeoff * g
-    S       = vehicle.reference_area
+    g               = analyses.atmosphere.planet.sea_level_gravity
+    W               = vehicle.mass_properties.takeoff * g
+    S               = vehicle.reference_area
+    Nprops          = int(vehicle.networks.battery_propeller.number_of_propeller_engines)
+    identical_props = vehicle.networks.battery_propeller.identical_propellers
 
     # Single Point Mission for Drag Determination
 
@@ -130,15 +133,26 @@ def electric_V_h_diagram(vehicle,
                 D = -results.segments.single_point.conditions.frames.wind.drag_force_vector[0][0]
 
                 # Determine Propeller Power at Altitude and Speed
-                prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
-                _,res = propeller_single_point(vehicle.networks.battery_propeller.propellers[prop_key],
-                                           analyses=analyses,
-                                           pitch=0.,
-                                           omega=test_omega,
-                                           altitude=altitude,
-                                           delta_isa=0.,
-                                           speed=V)
-                Power = res.power
+                
+                if identical_props:
+                    n_laps = 1
+                    p_factor = Nprops
+                else:
+                    n_laps = Nprops
+                    p_factor = 1
+                
+                Power = 0
+                for i in range(n_laps):
+                    prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[i]
+                    _,res = propeller_single_point(vehicle.networks.battery_propeller.propellers[prop_key],
+                                               analyses=analyses,
+                                               pitch=0.,
+                                               omega=test_omega,
+                                               altitude=altitude,
+                                               delta_isa=0.,
+                                               speed=V)
+                    Power += res.power * p_factor
+                        
 
                 # Check if Propeller Power Exceeds Max Battery Power, Switch to Max Battery Power if So
                 P = np.min([Power, vehicle.networks.battery_propeller.battery.max_power])

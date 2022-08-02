@@ -40,14 +40,13 @@ def main():
 
     # General Aviation Aircraft   
 
-    GA_RPM_true              = [2285.799691255412,2285.799691250787]
-    GA_lift_coefficient_true = [0.5474716961975736,0.547471696197576]
+    GA_RPM_true              = [2285.3601728390076,2285.3601727299374]
+    GA_lift_coefficient_true = [0.5474716961975755,0.5474716961975755]
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2404.363170876128,2404.363170937451]
-
-    EVTOL_lift_coefficient_true = [0.8075309358253244,0.8075309358231044]
+    EVTOL_RPM_true              = [2404.5599353381335,2404.5599354104666]
+    EVTOL_lift_coefficient_true = [0.589001696937736,0.5950616125292438]
     
         
     for i in range(len(battery_chemistry)):
@@ -506,7 +505,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.base )
     segment.altitude                                   = 300.0 * Units.ft
     segment.time                                       = 60.   * Units.second
-    segment.air_speed                                  = 1.2*Vstall
+    segment.air_speed                                  = 1.4*Vstall
     segment.state.unknowns.throttle =  0.80 * ones_row(1)
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,\
                                                                                           initial_prop_power_coefficient = 0.16)
@@ -517,7 +516,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.tag                                        = "cruise" 
     segment.analyses.extend(analyses.base) 
     segment.altitude                                   = 1000.0 * Units.ft
-    segment.air_speed                                  = 110. * Units['mph']
+    segment.air_speed                                  = 115. * Units['mph']
     segment.distance                                   = 40. * Units.miles 
     segment.state.unknowns.throttle                    = 0.8 * ones_row(1) 
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment ) 
