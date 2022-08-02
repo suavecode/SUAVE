@@ -31,9 +31,11 @@ def deflect_control_surface(VD,wing):
 
 
     Inputs: 
-    VD       - vehicle vortex distribution                    [Unitless] 
-    wing     - a VLM_wing object that was generated in the    [Unitless] 
-               original generate_vortex_distribution call. 
+    VD                   - vehicle vortex distribution                    [Unitless] 
+    wing                 - a VLM_wing object that was generated in the    [Unitless] 
+                           original generate_vortex_distribution call. 
+    wing.deflection_last - last deflection applied to this wing           [radians] 
+    wing.deflection      - deflection to set this wing to.                [radians] 
     
     Outputs:      
     VD       - vehicle vortex distribution                    [Unitless] 
@@ -51,9 +53,9 @@ def deflect_control_surface(VD,wing):
 
 
     # Symmetry loop
-    signs         = np.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
+    signs         = np.array([1, -1], dtype=int) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
     symmetry_mask = [True,sym_para]
-    for sym_sign_ind, sym_sign in enumerate(signs[symmetry_mask]):    
+    for sym_sign in signs[symmetry_mask]:    
         
         # Pull out initial VD data points of surface
         condition      = VD.surface_ID      == wing.surface_ID*sym_sign
@@ -132,7 +134,7 @@ def deflect_control_surface(VD,wing):
             raw_VD.zeta_prime    = zeta_prime   [start:stop]
             
             # deflect the surface
-            raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y,sym_sign_ind)
+            raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y==0, sym_sign)
             
             # unpack strip values into surface values
             xi_prime_a1  [start:stop]  = raw_VD.xi_prime_a1  
@@ -226,7 +228,7 @@ def deflect_control_surface(VD,wing):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
+def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     """ Rotates existing points in the VD with respect to current values of a delta deflection
 
     Assumptions: 
@@ -235,10 +237,17 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
 
 
     Inputs: 
-    VD       - vehicle vortex distribution                    [Unitless] 
+    wing                 - a VLM_wing object that was generated in the    [Unitless] 
+                           original generate_vortex_distribution call. 
+    wing.deflection_last - last deflection applied to this wing           [radians]
+    wing.deflection      - deflection to set this wing to.                [radians]
+    
+    raw_VD               - undeflected VD pertaining a strip of wing      [Unitless] 
+    is_first_strip       - whether this is the first strip of wing        [Unitless]
+    sym_sign             - 1 for original side, -1 for symmetric side     [Unitless]
     
     Outputs:      
-    VD       - vehicle vortex distribution                    [Unitless] 
+    raw_VD - deflected VD values pertaining to wing         [Unitless] 
 
 
     Properties Used:
@@ -251,7 +260,7 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     
     x_origin, y_origin, z_origin = wing.origin[0]
     
-    y_origin *= 1 - 2*sym_sign_ind
+    y_origin *= sym_sign
     
     xi_prime_a1    = raw_VD.xi_prime_a1   
     xi_prime_ac    = raw_VD.xi_prime_ac   
@@ -286,6 +295,21 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     zeta_prime_ch  = raw_VD.zeta_prime_ch 
     zeta_prime     = raw_VD.zeta_prime    
 
+    # flip over y = z for a vertical wing since deflection math assumes horizontal wing--------------------
+    if vertical_wing:
+        y_prime_a1, zeta_prime_a1 = inverted_wing*zeta_prime_a1, y_prime_a1
+        y_prime_ah, zeta_prime_ah = inverted_wing*zeta_prime_ah, y_prime_ah
+        y_prime_ac, zeta_prime_ac = inverted_wing*zeta_prime_ac, y_prime_ac
+        y_prime_a2, zeta_prime_a2 = inverted_wing*zeta_prime_a2, y_prime_a2
+                                                             
+        y_prime_b1, zeta_prime_b1 = inverted_wing*zeta_prime_b1, y_prime_b1
+        y_prime_bh, zeta_prime_bh = inverted_wing*zeta_prime_bh, y_prime_bh
+        y_prime_bc, zeta_prime_bc = inverted_wing*zeta_prime_bc, y_prime_bc
+        y_prime_b2, zeta_prime_b2 = inverted_wing*zeta_prime_b2, y_prime_b2
+                                                             
+        y_prime_ch, zeta_prime_ch = inverted_wing*zeta_prime_ch, y_prime_ch
+        y_prime   , zeta_prime    = inverted_wing*zeta_prime   , y_prime   
+
     # Deflect control surfaces-----------------------------------------------------------------------------
     # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
     # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
@@ -293,7 +317,7 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
         
     #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
     #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
-    if idx_y == 0:
+    if is_first_strip:
         # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
         ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]]) 
         ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
@@ -333,10 +357,12 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     
     # get deflection angle
     deflection            = wing.deflection - wing.deflection_last
-    deflection_base_angle = deflection      if (not wing.is_slat) else -deflection
-    symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
-    symmetry_multiplier  *= -1                   if vertical_wing      else 1
-    deflection_angle      = deflection_base_angle * symmetry_multiplier
+    deflection_base_angle = deflection           if (not wing.is_slat) else -deflection
+    symmetry_multiplier   = -wing.sign_duplicate if sym_sign==-1       else 1
+    vertical_multiplier   = -1                   if vertical_wing      else 1
+    deflection_angle      = deflection_base_angle * symmetry_multiplier * vertical_multiplier
+    
+    ##symmetry_multiplier   = {'1':1, '-1':-wing.sign_duplicate}[str(sym_sign)] # @ Emilio is this more readable?
         
     # make quaternion rotation matrix
     quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
@@ -355,7 +381,7 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
     xi_prime_ch, y_prime_ch, zeta_prime_ch = rotate_points_with_quaternion(quaternion, [xi_prime_ch,y_prime_ch,zeta_prime_ch])
     xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
                                                                                                                              
-    # reflect over the plane y = z for a vertical wing-----------------------------------------------------
+    # flip over y = z again after deflecting---------------------------------------------------------------
     if vertical_wing:
         y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
         y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
@@ -369,12 +395,6 @@ def deflect_control_surface_strip(wing, raw_VD, idx_y, sym_sign_ind):
                                                              
         y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
         y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
-                                                             
-        #y_prime_as, zeta_prime_as = zeta_prime_as, inverted_wing*y_prime_as
-        #
-        #y_prime_bs = inverted_wing*y_prime_bs
-        #y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs    
-           
 
     # Pack the VD
     raw_VD.xi_prime_a1   = xi_prime_a1      
