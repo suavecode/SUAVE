@@ -73,20 +73,18 @@ def postprocess_VD(VD, settings):
     tan_incidence  = np.repeat((LE_Z-TE_Z)/(LE_X-TE_X), strip_n_cw) # ZETA  in vorlax
     chord_adjusted = np.repeat(np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2), strip_n_cw) # CHORD in vorlax
     
+    XC_TE_wings  = np.repeat(VD.XC [TE_ind], strip_n_cw)
+    YC_TE_wings  = np.repeat(VD.YC [TE_ind], strip_n_cw)
+    ZC_TE_wings  = np.repeat(VD.ZC [TE_ind], strip_n_cw)
+    XA_TE_wings  = np.repeat(VD.XA2[TE_ind], strip_n_cw)
+    YA_TE_wings  = np.repeat(VD.YA2[TE_ind], strip_n_cw)
+    ZA_TE_wings  = np.repeat(VD.ZA2[TE_ind], strip_n_cw)
+    XB_TE_wings  = np.repeat(VD.XB2[TE_ind], strip_n_cw)
+    YB_TE_wings  = np.repeat(VD.YB2[TE_ind], strip_n_cw)
+    ZB_TE_wings  = np.repeat(VD.ZB2[TE_ind], strip_n_cw)    
+    
     # Compute wing-only values
-    wing_strip_n_cw  = VD.panels_per_strip[is_VLM_wing*LE_ind]
-    
-    XC_TE_wings  = np.repeat(VD.XC [is_VLM_wing*TE_ind], wing_strip_n_cw)
-    YC_TE_wings  = np.repeat(VD.YC [is_VLM_wing*TE_ind], wing_strip_n_cw)
-    ZC_TE_wings  = np.repeat(VD.ZC [is_VLM_wing*TE_ind], wing_strip_n_cw)
-    XA_TE_wings  = np.repeat(VD.XA2[is_VLM_wing*TE_ind], wing_strip_n_cw)
-    YA_TE_wings  = np.repeat(VD.YA2[is_VLM_wing*TE_ind], wing_strip_n_cw)
-    ZA_TE_wings  = np.repeat(VD.ZA2[is_VLM_wing*TE_ind], wing_strip_n_cw)
-    XB_TE_wings  = np.repeat(VD.XB2[is_VLM_wing*TE_ind], wing_strip_n_cw)
-    YB_TE_wings  = np.repeat(VD.YB2[is_VLM_wing*TE_ind], wing_strip_n_cw)
-    ZB_TE_wings  = np.repeat(VD.ZB2[is_VLM_wing*TE_ind], wing_strip_n_cw)
-    
-    Y_SW        = VD.YC[is_VLM_wing*TE_ind]
+    Y_SW = VD.YC[is_VLM_wing*TE_ind]
     
     # Pack VORLAX variables
     VD.SLOPE                   = SLOPE
@@ -96,15 +94,15 @@ def postprocess_VD(VD, settings):
     VD.chord_lengths           = np.atleast_2d(chord_adjusted)
     VD.Y_SW                    = Y_SW
     
-    VD.XC_TE[is_VLM_wing]  = XC_TE_wings
-    VD.YC_TE[is_VLM_wing]  = YC_TE_wings
-    VD.ZC_TE[is_VLM_wing]  = ZC_TE_wings
-    VD.XA_TE[is_VLM_wing]  = XA_TE_wings
-    VD.YA_TE[is_VLM_wing]  = YA_TE_wings
-    VD.ZA_TE[is_VLM_wing]  = ZA_TE_wings
-    VD.XB_TE[is_VLM_wing]  = XB_TE_wings
-    VD.YB_TE[is_VLM_wing]  = YB_TE_wings
-    VD.ZB_TE[is_VLM_wing]  = ZB_TE_wings
+    VD.XC_TE  = XC_TE_wings
+    VD.YC_TE  = YC_TE_wings
+    VD.ZC_TE  = ZC_TE_wings
+    VD.XA_TE  = XA_TE_wings
+    VD.YA_TE  = YA_TE_wings
+    VD.ZA_TE  = ZA_TE_wings
+    VD.XB_TE  = XB_TE_wings
+    VD.YB_TE  = YB_TE_wings
+    VD.ZB_TE  = ZB_TE_wings   
     
     VD.is_postprocessed = True
     

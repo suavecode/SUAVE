@@ -1199,14 +1199,14 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     fhs_zb_te = np.hstack(fhs_zb_te1.T)     
     
     fhs_xc_te = np.concatenate([fhs_xc_te , fhs_xc_te ])
-    fhs_yc_te = np.concatenate([fhs_yc_te , fhs_yc_te ])
-    fhs_zc_te = np.concatenate([fhs_zc_te ,-fhs_zc_te ])                 
+    fhs_yc_te = np.concatenate([fhs_yc_te ,-fhs_yc_te ])
+    fhs_zc_te = np.concatenate([fhs_zc_te , fhs_zc_te ])                 
     fhs_xa_te = np.concatenate([fhs_xa_te , fhs_xa_te ])
-    fhs_ya_te = np.concatenate([fhs_ya_te , fhs_ya_te ])
-    fhs_za_te = np.concatenate([fhs_za_te ,-fhs_za_te ])            
+    fhs_ya_te = np.concatenate([fhs_ya_te ,-fhs_ya_te ])
+    fhs_za_te = np.concatenate([fhs_za_te , fhs_za_te ])            
     fhs_xb_te = np.concatenate([fhs_xb_te , fhs_xb_te ])
-    fhs_yb_te = np.concatenate([fhs_yb_te , fhs_yb_te ])
-    fhs_zb_te = np.concatenate([fhs_zb_te ,-fhs_zb_te ])    
+    fhs_yb_te = np.concatenate([fhs_yb_te ,-fhs_yb_te ])
+    fhs_zb_te = np.concatenate([fhs_zb_te , fhs_zb_te ])    
 
     # Horizontal Fuselage Sections 
     wing_areas = []
