@@ -273,6 +273,12 @@ def postprocess_VD(VD, settings):
     LE_ind     = VD.leading_edge_indices
     TE_ind     = VD.trailing_edge_indices
     strip_n_cw = VD.panels_per_strip[LE_ind]
+    
+    # @Emilio: assumes last VLM_wing is the last to get discretized & thus has highest surface_ID. 
+    #          This is correct for now, but do we want to continue to assume this, or should this be 
+    #           rewritten to allow any order of wings
+    last_wing_ID = list(VD.VLM_wings.values())[-1].surface_ID
+    is_VLM_wing  = np.abs(VD.surface_ID) <= last_wing_ID
 
     # Compute Panel Areas and Normals
     VD.panel_areas = np.array(compute_panel_area(VD) , dtype=precision)
@@ -290,7 +296,7 @@ def postprocess_VD(VD, settings):
     SLE   = SLOPE[LE_ind]    
     D    = np.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
     
-    # Compute strip-wise incidence
+    # Compute strip-wise values
     LE_X           = X1c[LE_ind]
     LE_Z           = Z1c[LE_ind]
     TE_X           = X2c[TE_ind]
@@ -298,13 +304,38 @@ def postprocess_VD(VD, settings):
     tan_incidence  = np.repeat((LE_Z-TE_Z)/(LE_X-TE_X), strip_n_cw) # ZETA  in vorlax
     chord_adjusted = np.repeat(np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2), strip_n_cw) # CHORD in vorlax
     
+    # Compute wing-only values
+    wing_strip_n_cw  = VD.panels_per_strip[is_VLM_wing*LE_ind]
+    
+    XC_TE_wings  = np.repeat(VD.XC [is_VLM_wing*TE_ind], wing_strip_n_cw)
+    YC_TE_wings  = np.repeat(VD.YC [is_VLM_wing*TE_ind], wing_strip_n_cw)
+    ZC_TE_wings  = np.repeat(VD.ZC [is_VLM_wing*TE_ind], wing_strip_n_cw)
+    XA_TE_wings  = np.repeat(VD.XA2[is_VLM_wing*TE_ind], wing_strip_n_cw)
+    YA_TE_wings  = np.repeat(VD.YA2[is_VLM_wing*TE_ind], wing_strip_n_cw)
+    ZA_TE_wings  = np.repeat(VD.ZA2[is_VLM_wing*TE_ind], wing_strip_n_cw)
+    XB_TE_wings  = np.repeat(VD.XB2[is_VLM_wing*TE_ind], wing_strip_n_cw)
+    YB_TE_wings  = np.repeat(VD.YB2[is_VLM_wing*TE_ind], wing_strip_n_cw)
+    ZB_TE_wings  = np.repeat(VD.ZB2[is_VLM_wing*TE_ind], wing_strip_n_cw)
+    
+    Y_SW        = VD.YC[is_VLM_wing*TE_ind]
+    
     # Pack VORLAX variables
     VD.SLOPE                   = SLOPE
     VD.SLE                     = SLE
     VD.D                       = D         
     VD.tangent_incidence_angle = tan_incidence
     VD.chord_lengths           = np.atleast_2d(chord_adjusted)
+    VD.Y_SW                    = Y_SW
     
+    VD.XC_TE[is_VLM_wing]  = XC_TE_wings
+    VD.YC_TE[is_VLM_wing]  = YC_TE_wings
+    VD.ZC_TE[is_VLM_wing]  = ZC_TE_wings
+    VD.XA_TE[is_VLM_wing]  = XA_TE_wings
+    VD.YA_TE[is_VLM_wing]  = YA_TE_wings
+    VD.ZA_TE[is_VLM_wing]  = ZA_TE_wings
+    VD.XB_TE[is_VLM_wing]  = XB_TE_wings
+    VD.YB_TE[is_VLM_wing]  = YB_TE_wings
+    VD.ZB_TE[is_VLM_wing]  = ZB_TE_wings
     
     return VD 
 
