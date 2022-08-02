@@ -16,8 +16,8 @@ from SUAVE.Core import  Data
 from SUAVE.Components.Wings import All_Moving_Surface
 from SUAVE.Components.Fuselages import Fuselage
 from SUAVE.Components.Nacelles  import Nacelle
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_VD_helpers import postprocess_VD
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import postprocess_VD
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 
