@@ -745,17 +745,13 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             
             #increment i_break if needed; check for end of wing----------------------------------------------------
             if y_b[idx_y] == break_spans[i_break+1]: 
-                i_break += 1
-                
-                # append final xyz chordline 
-                if i_break == n_breaks-1:
-                    x[-(n_cw+1):] = xi_prime_bs
-                    y[-(n_cw+1):] = y_prime_bs
-                    z[-(n_cw+1):] = zeta_prime_bs              
-                    
+                i_break += 1    
             
                     
         #End 'for each strip' loop            
+        x[-(n_cw+1):] = xi_prime_bs
+        y[-(n_cw+1):] = y_prime_bs
+        z[-(n_cw+1):] = zeta_prime_bs              
         
         # adjusting coordinate axis so reference point is at the nose of the aircraft------------------------------
         xah = xah + wing_origin_x # x coordinate of left corner of bound vortex 
