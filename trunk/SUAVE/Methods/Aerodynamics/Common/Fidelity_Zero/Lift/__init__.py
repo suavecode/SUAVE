@@ -14,3 +14,4 @@ from .fuselage_correction                     import fuselage_correction
 from .make_VLM_wings                          import make_VLM_wings
 from .VLM                                     import VLM
 from .deflect_control_surface                 import deflect_control_surface
+from .generate_VD_helpers                     import postprocess_VD, compute_panel_area, compute_unit_normal
