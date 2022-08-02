@@ -59,7 +59,7 @@ def main():
             positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0] 
 
     # Set up for Propeller Model
-    prop.inputs.omega                                      = np.atleast_2d(test_omega).T
+
     conditions                                             = Aerodynamics()   
     conditions.freestream.density                          = np.ones((ctrl_pts,1)) * density
     conditions.freestream.dynamic_viscosity                = np.ones((ctrl_pts,1)) * dynamic_viscosity   
@@ -68,7 +68,10 @@ def main():
     conditions.frames.inertial.velocity_vector             = np.array([[77.2, 0. ,0.],[ 77.0,0.,0.], [ 77.2, 0. ,0.]])
     conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
-
+    
+    prop.inputs.omega                                      = np.atleast_2d(test_omega).T
+    prop.inputs.y_axis_rotation                           *= np.ones_like(prop.inputs.omega)
+    
     # Run Propeller model 
     F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions) 
 
@@ -81,10 +84,10 @@ def main():
     
     
     # Store Noise Data 
-    noise                                                  = SUAVE.Analyses.Noise.Fidelity_One() 
-    settings                                               = noise.settings   
-    num_mic                                                = len(conditions.noise.total_microphone_locations[0] )  
-    conditions.noise.number_of_microphones                 = num_mic
+    noise                                      = SUAVE.Analyses.Noise.Fidelity_One() 
+    settings                                   = noise.settings   
+    num_mic                                    = len(conditions.noise.total_microphone_locations[0] )  
+    conditions.noise.number_of_microphones     = num_mic
     
     # Run Fidelity One    
     propeller_noise                       = propeller_mid_fidelity(net.propellers,noise_data,segment,settings )

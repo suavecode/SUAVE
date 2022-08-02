@@ -15,7 +15,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
+def compute_fidelity_one_inflow_velocities( wake, prop ):
     """
     Assumptions:
         None
@@ -42,6 +42,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
     Nr            = len(prop.chord_distribution)
     r             = prop.radius_distribution
     rot           = prop.rotation
+    WD            = wake.vortex_distribution
 
 
     try:
@@ -68,9 +69,9 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         #----------------------------------------------------------------
         #set the evaluation points in the vortex distribution: (ncpts, nblades, Nr, Ntsteps)
         r    = prop.radius_distribution 
-        Yb   = wake.wake_vortex_distribution.Yblades_cp[i,0,0,:,0]
-        Zb   = wake.wake_vortex_distribution.Zblades_cp[i,0,0,:,0]
-        Xb   = wake.wake_vortex_distribution.Xblades_cp[i,0,0,:,0]
+        Yb   = wake.vortex_distribution.reshaped_wake.Yblades_cp[i,0,0,:,0]
+        Zb   = wake.vortex_distribution.reshaped_wake.Zblades_cp[i,0,0,:,0]
+        Xb   = wake.vortex_distribution.reshaped_wake.Xblades_cp[i,0,0,:,0]
         
         VD.YC = (Yb[1:] + Yb[:-1])/2
         VD.ZC = (Zb[1:] + Zb[:-1])/2
@@ -84,15 +85,15 @@ def compute_fidelity_one_inflow_velocities( wake, prop, WD ):
         V_ind   = compute_wake_induced_velocity(WD, VD, cpts, azi_start_idx=i)
         
         # velocities in vehicle frame
-        u       = V_ind[0,:,0]   # velocity in vehicle x-frame
-        v       = V_ind[0,:,1]   # velocity in vehicle y-frame
-        w       = V_ind[0,:,2]   # velocity in vehicle z-frame
+        u       = V_ind[:,:,0]   # velocity in vehicle x-frame
+        v       = V_ind[:,:,1]    # velocity in vehicle y-frame
+        w       = V_ind[:,:,2]    # velocity in vehicle z-frame
         
         # rotate from vehicle to prop frame:
         rot_to_prop = prop.vec_to_prop_body()
-        uprop       = u*rot_to_prop[0,0] + w*rot_to_prop[0,2]
+        uprop       = u*rot_to_prop[:,0,0][:,None] + w*rot_to_prop[:,0,2][:,None]
         vprop       = v
-        wprop       = u*rot_to_prop[2,0] + w*rot_to_prop[2,2]      
+        wprop       = u*rot_to_prop[:,2,0][:,None] + w*rot_to_prop[:,2,2][:,None]     
         
         # interpolate to get values at rotor radial stations
         r_midpts = (r[1:] + r[:-1])/2

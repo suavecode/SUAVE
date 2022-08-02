@@ -64,7 +64,7 @@ def main():
     T, Q, P, Cp, outputs , etap = run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=plot_flag)
     
     # compare regression results:
-    T_iso_true, Q_iso_true, P_iso_true, Cp_iso_true, etap_iso_true = 3.258258146104775, 0.07230456, 49.21615082, 0.04596791, 0.59190802
+    T_iso_true, Q_iso_true, P_iso_true, Cp_iso_true, etap_iso_true = 3.231014878022335, 0.07193015, 48.96129682, 0.04572988, 0.59001415
     
     assert(abs(np.linalg.norm(T_iso)-T_iso_true)<1e-6)
     assert(abs(Q_iso-Q_iso_true)<1e-6)
@@ -72,7 +72,7 @@ def main():
     assert(abs(Cp_iso-Cp_iso_true)<1e-6)
     assert(abs(etap_iso-etap_iso_true)<1e-6)
     
-    T_true, Q_true, P_true, Cp_true, etap_true = 3.481799966900316,0.072652,49.45264925,0.0461888,0.62949261
+    T_true, Q_true, P_true, Cp_true, etap_true = 3.471913141752909, 0.0724282, 49.30031102, 0.04604652, 0.62964473
 
     assert(abs(np.linalg.norm(T)-T_true)<1e-6)
     assert(abs(Q-Q_true)<1e-6)

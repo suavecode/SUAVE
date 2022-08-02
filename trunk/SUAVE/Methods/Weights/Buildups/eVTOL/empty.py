@@ -14,7 +14,7 @@ from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
 from SUAVE.Methods.Weights.Buildups.Common.wing import wing
-
+from SUAVE.Components.Energy.Converters import Propeller, Lift_Rotor
 from SUAVE.Components.Energy.Networks import Battery_Propeller
 from SUAVE.Components.Energy.Networks import Lift_Cruise
 
@@ -230,29 +230,30 @@ def empty(config,
             prop_motors   = network.propeller_motors
             rot_motors    = network.lift_rotor_motors
 
-
-        elif isinstance(network, Battery_Propeller):
-            # Total number of rotors and propellers
-            
-            if network.number_of_lift_rotor_engines == None:
-                nLiftRotors = 0 
-            else:
-                nLiftRotors   = network.number_of_lift_rotor_engines
-                rots          = network.lift_rotors
-                rot_motors    = network.lift_rotor_motors
-                
-            if  network.number_of_propeller_engines == None:
-                nThrustProps  = 0
-            else:
-                nThrustProps  = network.number_of_propeller_engines 
-                props         = network.propellers
-                prop_motors   = network.propeller_motors 
-
+        elif isinstance(network, Battery_Propeller): 
+            props         = network.propellers 
+            prop_motors   = network.propeller_motors          
+            nThrustProps  = 0  
+            nLiftRotors   = 0    
+            nProps        = 0 
+            for rot_idx in range(len(props.keys())):               
+                if type(props[list(props.keys())[rot_idx]]) == Propeller: 
+                    props          = network.propellers
+                    nThrustProps  +=1
+    
+                elif type(props[list(props.keys())[rot_idx]]) == Lift_Rotor:    
+                    nLiftRotors   +=1  
+                    
+            if (nThrustProps == 0) and (nLiftRotors != 0):
+                network.lift_rotors           = network.propellers
+                rot_motors                    = network.propeller_motors  
+                network.identical_lift_rotors = network.number_of_propeller_engines
         else:
             raise NotImplementedError("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
             Weight buildup will not return information on propulsion system.""",RuntimeWarning)
 
-        nProps  = int(nLiftRotors + nThrustProps)
+        
+        nProps  = int(nLiftRotors + nThrustProps)  
         if nProps > 1:
             prop_BRS_weight     = 16.   * Units.kg
         else:
@@ -260,11 +261,10 @@ def empty(config,
 
         prop_servo_weight  = 0.0
 
-        if nThrustProps > 0:
-            if network.identical_propellers:
-                # Get reference properties for sizing from first propeller (assumes identical)
-                proprotor    = props[list(props.keys())[0]]
-                propmotor    = prop_motors[list(prop_motors.keys())[0]]
+        if nThrustProps > 0: 
+            for idx, propeller in enumerate(network.propellers):
+                proprotor    = propeller
+                propmotor    = prop_motors[list(prop_motors.keys())[idx]]
                 rTip_ref     = proprotor.tip_radius
                 bladeSol_ref = proprotor.blade_solidity
 
@@ -273,32 +273,15 @@ def empty(config,
 
                 # Compute and add propeller weights
                 propeller_mass                 = prop(proprotor, maxLift/5.) * Units.kg
-                output.propellers             += nThrustProps * propeller_mass
-                output.propeller_motors       += nThrustProps * propmotor.mass_properties.mass
+                output.propellers             += propeller_mass
+                output.propeller_motors       += propmotor.mass_properties.mass
                 proprotor.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
 
-            else:
-                for idx, propeller in enumerate(network.propellers):
-                    proprotor    = propeller
-                    propmotor    = prop_motors[list(prop_motors.keys())[idx]]
-                    rTip_ref     = proprotor.tip_radius
-                    bladeSol_ref = proprotor.blade_solidity
-
-                    if proprotor.variable_pitch:
-                        prop_servo_weight  = 5.2  * Units.kg
-
-                    # Compute and add propeller weights
-                    propeller_mass                 = prop(proprotor, maxLift/5.) * Units.kg
-                    output.propellers             += propeller_mass
-                    output.propeller_motors       += propmotor.mass_properties.mass
-                    proprotor.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
-
         lift_rotor_servo_weight = 0.0
-        if nLiftRotors > 0:
-            if network.identical_lift_rotors:
-                # Get reference properties for sizing from first lift_rotor (assumes identical)
-                liftrotor = rots[list(rots.keys())[0]]
-                liftmotor = rot_motors[list(rot_motors.keys())[0]]
+        if nLiftRotors > 0: 
+            for idx, lift_rotor in enumerate(network.lift_rotors):
+                liftrotor    = lift_rotor
+                liftmotor    = rot_motors[list(rot_motors.keys())[idx]]
                 rTip_ref     = liftrotor.tip_radius
                 bladeSol_ref = liftrotor.blade_solidity
 
@@ -308,26 +291,9 @@ def empty(config,
 
                 # Compute and add lift_rotor weights
                 lift_rotor_mass                = prop(liftrotor, maxLift / max(nLiftRotors - 1, 1))  * Units.kg
-                output.lift_rotors            += nLiftRotors * lift_rotor_mass
-                output.lift_rotor_motors      += nLiftRotors * liftmotor.mass_properties.mass
+                output.lift_rotors            += lift_rotor_mass
+                output.lift_rotor_motors      += liftmotor.mass_properties.mass
                 liftrotor.mass_properties.mass = lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
-
-            else:
-                for idx, lift_rotor in enumerate(network.lift_rotors):
-                    liftrotor    = lift_rotor
-                    liftmotor    = rot_motors[list(rot_motors.keys())[idx]]
-                    rTip_ref     = liftrotor.tip_radius
-                    bladeSol_ref = liftrotor.blade_solidity
-
-
-                    if liftrotor.variable_pitch:
-                        lift_rotor_servo_weight = 0.65 * Units.kg
-
-                    # Compute and add lift_rotor weights
-                    lift_rotor_mass                = prop(liftrotor, maxLift / max(nLiftRotors - 1, 1))  * Units.kg
-                    output.lift_rotors            += lift_rotor_mass
-                    output.lift_rotor_motors      += liftmotor.mass_properties.mass
-                    liftrotor.mass_properties.mass = lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
 
         # Add associated weights
         output.servos += (nLiftRotors * lift_rotor_servo_weight + nThrustProps * prop_servo_weight)

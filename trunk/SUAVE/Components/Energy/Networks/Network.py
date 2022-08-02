@@ -56,7 +56,7 @@ class Network(Physical_Component):
         self.tag = 'network'
         self.generative_design_max_per_vehicle = 1
         self.non_dimensional_origin = [[0.0,0.0,0.0]]
-        self.number_of_engines = 1.0 
+        self.number_of_engines = 1
         self.engine_length     = 1.0
         self.wing_mounted      = True
         
@@ -127,8 +127,9 @@ class Container(Physical_Component.Container):
         ones_row = state.ones_row
         
         results = Data()
-        results.thrust_force_vector = 0.*ones_row(3)
-        results.vehicle_mass_rate   = 0.*ones_row(1)
+        results.thrust_force_vector       = 0.*ones_row(3)
+        results.vehicle_mass_rate         = 0.*ones_row(1)
+        results.network_y_axis_rotation   = 0.*ones_row(1)
 
         for net in self.values():
 

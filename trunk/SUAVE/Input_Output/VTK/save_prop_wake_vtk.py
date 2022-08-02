@@ -2,13 +2,13 @@
 # save_prop_wake_vtk.py
 # 
 # Created:    Jun 2021, R. Erhard
-# Modified: 
+# Modified:   Jul 2022, R. Erhard
 #     
 from SUAVE.Core import Data      
 import numpy as np
 
 ## @ingroup Input_Output-VTK
-def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx,rot=-1):
+def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_offset,rot=-1,aircraftReferenceFrame=True):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
@@ -57,36 +57,66 @@ def save_prop_wake_vtk(wVD,gamma,filename,Results,start_angle_idx,rot=-1):
         n_vertices = n_blades*(n_radial_rings+1)*(n_time_steps+1)    # total number of node vertices
         points_header = "\n\nPOINTS "+str(n_vertices) +" float"
         f.write(points_header)    
-        node_number=[]
+        node_number=[] 
+
+        matA1 = np.zeros(np.append(np.shape(wVD.XA1),3))
+        matA2 = np.zeros(np.append(np.shape(wVD.XA1),3))        
+        matB1 = np.zeros(np.append(np.shape(wVD.XA1),3))
+        matB2 = np.zeros(np.append(np.shape(wVD.XA1),3))
+        
+        matA1[:,:,:,:,:,0] = wVD.XA1 + origin_offset[0]
+        matA1[:,:,:,:,:,1] = wVD.YA1 + origin_offset[1]
+        matA1[:,:,:,:,:,2] = wVD.ZA1 + origin_offset[2]
+
+        matA2[:,:,:,:,:,0] = wVD.XA2 + origin_offset[0]
+        matA2[:,:,:,:,:,1] = wVD.YA2 + origin_offset[1]
+        matA2[:,:,:,:,:,2] = wVD.ZA2 + origin_offset[2]
+
+        matB1[:,:,:,:,:,0] = wVD.XB1 + origin_offset[0]
+        matB1[:,:,:,:,:,1] = wVD.YB1 + origin_offset[1]
+        matB1[:,:,:,:,:,2] = wVD.ZB1 + origin_offset[2]
+
+        matB2[:,:,:,:,:,0] = wVD.XB2 + origin_offset[0]
+        matB2[:,:,:,:,:,1] = wVD.YB2 + origin_offset[1]
+        matB2[:,:,:,:,:,2] = wVD.ZB2 + origin_offset[2]
+        
+        if aircraftReferenceFrame:
+            # rotate points to aircraft frame
+            trans_3 =  prop.prop_vel_to_body() 
+            matA1 = np.matmul(matA1, trans_3)
+            matA2 = np.matmul(matA2, trans_3)
+            matB1 = np.matmul(matB1, trans_3)
+            matB2 = np.matmul(matB2, trans_3)
+        
         
         if rot ==1:
             # Flip around to use A's as right-side of panel, 1=LE, 2=TE
-            XA2 = wVD.XB2 # bottom left corner of panel
-            XB2 = wVD.XA2 # bottom right corner of panel
-            XA1 = wVD.XB1 # top left corner of panel
-            XB1 = wVD.XA1 # top right corner of panel    
-            YA2 = wVD.YB2 # bottom left corner of panel
-            YB2 = wVD.YA2 # bottom right corner of panel
-            YA1 = wVD.YB1 # top left corner of panel
-            YB1 = wVD.YA1 # top right corner of panel   
-            ZA2 = wVD.ZB2 # bottom left corner of panel
-            ZB2 = wVD.ZA2 # bottom right corner of panel
-            ZA1 = wVD.ZB1 # top left corner of panel
-            ZB1 = wVD.ZA1 # top right corner of panel               
+            XA2 = matB2[:,:,:,:,:,0]  # bottom left corner of panel
+            XB2 = matA2[:,:,:,:,:,0]  # bottom right corner of panel
+            XA1 = matB1[:,:,:,:,:,0]  # top left corner of panel
+            XB1 = matA1[:,:,:,:,:,0]  # top right corner of panel    
+            YA2 = matB2[:,:,:,:,:,1]  # bottom left corner of panel
+            YB2 = matA2[:,:,:,:,:,1]  # bottom right corner of panel
+            YA1 = matB1[:,:,:,:,:,1]  # top left corner of panel
+            YB1 = matA1[:,:,:,:,:,1]  # top right corner of panel   
+            ZA2 = matB2[:,:,:,:,:,2]  # bottom left corner of panel
+            ZB2 = matA2[:,:,:,:,:,2]  # bottom right corner of panel
+            ZA1 = matB1[:,:,:,:,:,2]  # top left corner of panel
+            ZB1 = matA1[:,:,:,:,:,2]  # top right corner of panel               
         else:
             # Use B's as rightmost panel
-            XA2 = wVD.XA2 # bottom left corner of panel
-            XB2 = wVD.XB2 # bottom right corner of panel
-            XA1 = wVD.XA1 # top left corner of panel
-            XB1 = wVD.XB1 # top right corner of panel    
-            YA2 = wVD.YA2 # bottom left corner of panel
-            YB2 = wVD.YB2 # bottom right corner of panel
-            YA1 = wVD.YA1 # top left corner of panel
-            YB1 = wVD.YB1 # top right corner of panel   
-            ZA2 = wVD.ZA2 # bottom left corner of panel
-            ZB2 = wVD.ZB2 # bottom right corner of panel
-            ZA1 = wVD.ZA1 # top left corner of panel
-            ZB1 = wVD.ZB1 # top right corner of panel              
+            XA2 = matA2[:,:,:,:,:,0]  # bottom left corner of panel
+            XB2 = matB2[:,:,:,:,:,0]  # bottom right corner of panel
+            XA1 = matA1[:,:,:,:,:,0]  # top left corner of panel
+            XB1 = matB1[:,:,:,:,:,0]  # top right corner of panel    
+            YA2 = matA2[:,:,:,:,:,1]  # bottom left corner of panel
+            YB2 = matB2[:,:,:,:,:,1]  # bottom right corner of panel
+            YA1 = matA1[:,:,:,:,:,1]  # top left corner of panel
+            YB1 = matB1[:,:,:,:,:,1]  # top right corner of panel   
+            ZA2 = matA2[:,:,:,:,:,2]  # bottom left corner of panel
+            ZB2 = matB2[:,:,:,:,:,2]  # bottom right corner of panel
+            ZA1 = matA1[:,:,:,:,:,2]  # top left corner of panel
+            ZB1 = matB1[:,:,:,:,:,2]  # top right corner of panel              
            
         
         # Loop over number of rotor blades

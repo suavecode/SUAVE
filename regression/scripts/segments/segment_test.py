@@ -485,6 +485,8 @@ def mission_setup(analyses):
     segment.throttle                  = 0.6
     segment.distance                  = 500 * Units.km 
     segment.state.numerics.number_control_points = 16
+    segment.state.unknowns.accel_x               = -1. * ones_row(1)
+    segment.state.unknowns.time                  = 10.
     
     # add to misison
     mission.append_segment(segment)   

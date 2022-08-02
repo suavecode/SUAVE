@@ -69,10 +69,12 @@ class Rotor(Energy_Component):
         self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
         self.chord_distribution           = 0.0 
         self.thickness_to_chord           = 0.0
+        self.mid_chord_alignment          = 0.0 
         self.blade_solidity               = 0.0
         self.design_power                 = None
         self.design_thrust                = None
         self.airfoil_geometry             = None
+        self.airfoil_data                 = None
         self.airfoil_polars               = None
         self.airfoil_polar_stations       = None
         self.radius_distribution          = None
@@ -83,7 +85,10 @@ class Rotor(Energy_Component):
         self.vtk_airfoil_points           = 40
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
+        self.sol_tolerance                = 1e-8
+        self.design_power_coefficient     = 0.01
 
+        
         self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream     = False
         self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
@@ -91,8 +96,8 @@ class Rotor(Energy_Component):
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
         
         self.start_angle               = 0.0      # angle of first blade from vertical
+        self.start_angle_idx           = 0        # azimuthal index at which the blade is started
         self.inputs.y_axis_rotation    = 0.
-
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
         
@@ -190,7 +195,6 @@ class Rotor(Energy_Component):
         use_2d_analysis       = self.use_2d_analysis
         pitch_c               = self.inputs.pitch_command
         
-        
         # 2d analysis required for wake fid1
         if isinstance(self.Wake, Rotor_Wake_Fidelity_One):
             use_2d_analysis=True
@@ -210,6 +214,10 @@ class Rotor(Energy_Component):
         rho_0   = rho
         T_0     = T
 
+        # Number of radial stations and segment control points
+        Nr       = len(c)
+        ctrl_pts = len(Vv)
+        
         # Helpful shorthands
         pi      = np.pi
 
@@ -221,16 +229,13 @@ class Rotor(Energy_Component):
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
         body2thrust     = self.body_to_prop_vel()
+        
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body)
 
         # Check and correct for hover
         V         = V_thrust[:,0,None]
         V[V==0.0] = 1E-6
-
-        # Number of radial stations and segment control points
-        Nr       = len(c)
-        ctrl_pts = len(Vv)
 
         # Non-dimensional radial distribution and differential radius
         chi           = r_1d/R
@@ -473,7 +478,7 @@ class Rotor(Energy_Component):
         Crd      = rotor_drag/(rho_0*(n*n)*(D*D*D*D))
         etap     = V*thrust/power
         A        = np.pi*(R**2 - self.hub_radius**2)
-        FoM      = thrust*np.sqrt(T_0/(2*rho_0*A))    /power  
+        FoM      = thrust*np.sqrt(thrust/(2*rho_0*A))    /power  
 
         # prevent things from breaking
         Cq[Cq<0]                                               = 0.
@@ -554,12 +559,13 @@ class Rotor(Energy_Component):
     
     
     def vec_to_vel(self):
-        """This rotates from the propellers vehicle frame to the propellers velocity frame
+        """This rotates from the propeller's vehicle frame to the propeller's velocity frame
 
         Assumptions:
-        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
-        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
-        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+        There are two propeller frames, the propeller vehicle frame and the propeller velocity frame. When propeller
+        is axially aligned with the vehicle body:
+           - The velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+           - The vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
@@ -580,12 +586,12 @@ class Rotor(Energy_Component):
     
 
     def body_to_prop_vel(self):
-        """This rotates from the systems body frame to the propellers velocity frame
+        """This rotates from the system's body frame to the propeller's velocity frame
 
         Assumptions:
-        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
-        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
-        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame.
+        Velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        Vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
@@ -600,11 +606,15 @@ class Rotor(Energy_Component):
         None
         """
 
-        # Go from body to vehicle frame
+        # Go from velocity to vehicle frame
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
-        rots    = np.array(self.orientation_euler_angles) * 1. 
+        cpts       = len(np.atleast_1d(self.inputs.y_axis_rotation))
+        rots       = np.array(self.orientation_euler_angles) * 1.
+        rots       = np.repeat(rots[None,:], cpts, axis=0)
+        rots[:,1] += np.atleast_2d(self.inputs.y_axis_rotation)[:,0]
+        
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
 
         # GO from the propeller vehicle frame to the propeller velocity frame: rot 2

@@ -39,15 +39,10 @@ def test_1():
     This tests the propeller_single_point function using the Fidelity Zero rotor wake inflow model.
     """
     vehicle = vehicle_setup()
+    prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
+    prop = vehicle.networks.battery_propeller.propellers[prop_key]
 
-    analyses = SUAVE.Analyses.Vehicle()
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere.features.planet = SUAVE.Analyses.Planets.Planet()
-    analyses.append(atmosphere)
-
-
-    results = propeller_single_point(vehicle.networks.battery_propeller,
-                                     analyses,
+    _, results = propeller_single_point(prop,
                                      pitch=0.,
                                      omega=2200. * Units.rpm,
                                      altitude= 5000. * Units.ft,
@@ -63,11 +58,11 @@ def test_1():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 643.4365612076354
-    torque_r    = 130.6985065893255
-    power_r     = 30110.77432998669
-    Cp_r        = 0.03843902555841082
-    etap_r      = 0.21368980888905617
+    thrust_r    = 826.2131667245225
+    torque_r    = 99.57634330285626
+    power_r     = 22940.742630049815
+    Cp_r        = 0.029285855708042142
+    etap_r      = 0.3601510116949202
 
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
@@ -83,19 +78,13 @@ def test_2():
     This tests the propeller_single_point function using the Fidelity One rotor inflow model.
     """    
     vehicle = vehicle_setup()
-
+    prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
+    prop = vehicle.networks.battery_propeller.propellers[prop_key]
+    
     # update the wake method used for each prop
-    for p in vehicle.networks.battery_propeller.propellers:
-        p.Wake = Rotor_Wake_Fidelity_One()
-        
-    analyses = SUAVE.Analyses.Vehicle()
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere.features.planet = SUAVE.Analyses.Planets.Planet()
-    analyses.append(atmosphere)
+    prop.Wake = Rotor_Wake_Fidelity_One()
 
-
-    results = propeller_single_point(vehicle.networks.battery_propeller,
-                                     analyses,
+    _, results = propeller_single_point(prop,
                                      pitch=0.,
                                      omega=2200. * Units.rpm,
                                      altitude= 5000. * Units.ft,
@@ -111,11 +100,11 @@ def test_2():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 637.9402297052759
-    torque_r    = 129.07946679553763
-    power_r     = 29737.7743383709
-    Cp_r        = 0.03796285858728355
-    etap_r      = 0.21452184768317925
+    thrust_r    = 825.8700355738054
+    torque_r    = 101.48355163256565
+    power_r     = 23380.131886398372
+    Cp_r        = 0.029846774356954243
+    etap_r      = 0.35323583270899495
 
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
