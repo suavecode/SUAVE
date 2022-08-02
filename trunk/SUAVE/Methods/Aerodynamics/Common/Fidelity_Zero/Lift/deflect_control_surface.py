@@ -19,6 +19,30 @@ from SUAVE.Core import Data
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def deflect_control_surface(VD,wing):
+    """ 
+    Deflects the panels of a vortex distribution that correspond to the given VLM_wing. 
+    
+    Assumptions: 
+    If the user calls this function outside of generate_vortex_distribution,
+    SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.postprocess_VD MUST be called
+    right after
+
+    Source:  
+
+
+    Inputs: 
+    VD       - vehicle vortex distribution                    [Unitless] 
+    wing     - a VLM_wing object that was generated in the    [Unitless] 
+               original generate_vortex_distribution call. 
+    
+    Outputs:      
+    VD       - vehicle vortex distribution                    [Unitless] 
+    wing     - VLM_wing object                                [Unitless] 
+
+
+    Properties Used:
+    N/A
+    """     
     
     # Unpack number of strips for this wing
     n_sw     = wing.n_sw
@@ -190,7 +214,9 @@ def deflect_control_surface(VD,wing):
         
         
     wing.deflection_last = wing.deflection*1.
-
+    
+    VD.is_postprocessed = False
+    
     return VD, wing
 
 
