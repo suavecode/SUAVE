@@ -63,7 +63,7 @@ def postprocess_VD(VD, settings):
     Z2c   = (VD.ZA2+VD.ZB2)/2
     SLOPE = (Z2c - Z1c)/(X2c - X1c)
     SLE   = SLOPE[LE_ind]    
-    D    = np.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
+    D     = np.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
     
     # Compute strip-wise values
     LE_X           = X1c[LE_ind]

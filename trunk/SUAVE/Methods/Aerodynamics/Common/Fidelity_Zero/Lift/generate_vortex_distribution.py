@@ -473,13 +473,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         zac   = np.zeros(n_cw*n_sw)    
         xbc   = np.zeros(n_cw*n_sw)
         ybc   = np.zeros(n_cw*n_sw)
-        zbc   = np.zeros(n_cw*n_sw)     
-        xa_te = np.zeros(n_cw*n_sw)
-        ya_te = np.zeros(n_cw*n_sw)
-        za_te = np.zeros(n_cw*n_sw)    
-        xb_te = np.zeros(n_cw*n_sw)
-        yb_te = np.zeros(n_cw*n_sw)
-        zb_te = np.zeros(n_cw*n_sw)  
+        zbc   = np.zeros(n_cw*n_sw)  
         xc    = np.zeros(n_cw*n_sw) 
         yc    = np.zeros(n_cw*n_sw) 
         zc    = np.zeros(n_cw*n_sw) 
@@ -646,8 +640,6 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             xi_prime_bs   = np.concatenate([xi_prime_b1,  np.array([xi_prime_b2  [-1]])])*1
             zeta_prime_as = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])*1            
             zeta_prime_bs = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])*1  
-
-            
             
             # reflect over the plane y = z for a vertical wing-----------------------------------------------------
             if vertical_wing:
@@ -719,36 +711,24 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             TE_inds[-1]    = True
             
             RNMAX          = np.ones(n_cw, np.int16)*n_cw
-            panel_numbers  = np.linspace(1,n_cw,n_cw, dtype=np.int16)
-            
-            LE_X           = (xi_prime_a1  [0 ] + xi_prime_b1  [0 ])/2
-            LE_Z           = (zeta_prime_a1[0 ] + zeta_prime_b1[0 ])/2
-            TE_X           = (xi_prime_a2  [-1] + xi_prime_b2  [-1])/2
-            TE_Z           = (zeta_prime_a2[-1] + zeta_prime_b2[-1])/2           
-            chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
-            tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax
-            chord_adjusted = np.array(chord_adjusted, dtype=precision)
-            tan_incidence  = np.array(tan_incidence , dtype=precision)            
+            panel_numbers  = np.linspace(1,n_cw,n_cw, dtype=np.int16)           
                         
-            is_a_slat         = wing.is_a_control_surface and wing.is_slat
-            strip_has_no_slat = (not wing.is_a_control_surface) and (span_breaks[i_break].cs_IDs[0,1] == -1) # wing's le, outboard control surface ID
-            
+            is_a_slat                  = wing.is_a_control_surface and wing.is_slat
+            strip_has_no_slat          = (not wing.is_a_control_surface) and (span_breaks[i_break].cs_IDs[0,1] == -1) # wing's le, outboard control surface ID
             exposed_leading_edge_flag  = np.int16(1) if is_a_slat or strip_has_no_slat else np.int16(0)   
             
             VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , LE_inds                  ) 
             VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , TE_inds                  )            
             VD.panels_per_strip          = np.append(VD.panels_per_strip         , RNMAX                    )
             VD.chordwise_panel_number    = np.append(VD.chordwise_panel_number   , panel_numbers            )  
-            VD.chord_lengths             = np.append(VD.chord_lengths            , chord_adjusted           )
-            VD.tangent_incidence_angle   = np.append(VD.tangent_incidence_angle  , tan_incidence            )
             VD.exposed_leading_edge_flag = np.append(VD.exposed_leading_edge_flag, exposed_leading_edge_flag)
             
             #increment i_break if needed; check for end of wing----------------------------------------------------
             if y_b[idx_y] == break_spans[i_break+1]: 
-                i_break += 1    
-            
-                    
-        #End 'for each strip' loop            
+                i_break += 1            
+        #End 'for each strip' loop    
+        
+        # store outboardmost edge
         x[-(n_cw+1):] = xi_prime_bs
         y[-(n_cw+1):] = y_prime_bs
         z[-(n_cw+1):] = zeta_prime_bs              
@@ -791,43 +771,19 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         x   = x   + wing_origin_x  # x coordinate of control points on panel
         y   = y   + wing_origin_y  # y coordinate of control points on panel
         z   = z   + wing_origin_z  # y coordinate of control points on panel
-    
-        # find the location of the trailing edge panels of each wing-----------------------------------------------
-        locations = ((np.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
-        xc_te1 = np.repeat(np.atleast_2d(xc [locations]), n_cw , axis = 0)
-        yc_te1 = np.repeat(np.atleast_2d(yc [locations]), n_cw , axis = 0)
-        zc_te1 = np.repeat(np.atleast_2d(zc [locations]), n_cw , axis = 0)        
-        xa_te1 = np.repeat(np.atleast_2d(xa2[locations]), n_cw , axis = 0)
-        ya_te1 = np.repeat(np.atleast_2d(ya2[locations]), n_cw , axis = 0)
-        za_te1 = np.repeat(np.atleast_2d(za2[locations]), n_cw , axis = 0)
-        xb_te1 = np.repeat(np.atleast_2d(xb2[locations]), n_cw , axis = 0)
-        yb_te1 = np.repeat(np.atleast_2d(yb2[locations]), n_cw , axis = 0)
-        zb_te1 = np.repeat(np.atleast_2d(zb2[locations]), n_cw , axis = 0)     
-    
-        xc_te = np.hstack(xc_te1.T)
-        yc_te = np.hstack(yc_te1.T)
-        zc_te = np.hstack(zc_te1.T)        
-        xa_te = np.hstack(xa_te1.T)
-        ya_te = np.hstack(ya_te1.T)
-        za_te = np.hstack(za_te1.T)
-        xb_te = np.hstack(xb_te1.T)
-        yb_te = np.hstack(yb_te1.T)
-        zb_te = np.hstack(zb_te1.T) 
-    
-        # find spanwise locations 
-        y_sw = yc[locations]
-        ID   = VD.counter*1
-    
+        
+        # VD discretization information----------------------------------------------------------------------------
+        
         # increment number of wings and panels
         n_panels = len(xch)
         VD.n_w  += 1             
         VD.n_cp += n_panels 
         
-        
         # store this wing's discretization information  
         first_panel_ind  = VD.XAH.size
         first_strip_ind  = VD.chordwise_breaks.size
         chordwise_breaks = first_panel_ind + np.arange(n_panels)[0::n_cw]
+        ID               = VD.counter*1
         
         VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
         VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
@@ -859,16 +815,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.ZB1    = np.append(VD.ZB1  , np.array(zb1  , dtype=precision))
         VD.XB2    = np.append(VD.XB2  , np.array(xb2  , dtype=precision))                
         VD.YB2    = np.append(VD.YB2  , np.array(yb2  , dtype=precision))        
-        VD.ZB2    = np.append(VD.ZB2  , np.array(zb2  , dtype=precision))    
-        VD.XC_TE  = np.append(VD.XC_TE, np.array(xc_te, dtype=precision))
-        VD.YC_TE  = np.append(VD.YC_TE, np.array(yc_te, dtype=precision)) 
-        VD.ZC_TE  = np.append(VD.ZC_TE, np.array(zc_te, dtype=precision))          
-        VD.XA_TE  = np.append(VD.XA_TE, np.array(xa_te, dtype=precision))
-        VD.YA_TE  = np.append(VD.YA_TE, np.array(ya_te, dtype=precision)) 
-        VD.ZA_TE  = np.append(VD.ZA_TE, np.array(za_te, dtype=precision)) 
-        VD.XB_TE  = np.append(VD.XB_TE, np.array(xb_te, dtype=precision))
-        VD.YB_TE  = np.append(VD.YB_TE, np.array(yb_te, dtype=precision)) 
-        VD.ZB_TE  = np.append(VD.ZB_TE, np.array(zb_te, dtype=precision))  
+        VD.ZB2    = np.append(VD.ZB2  , np.array(zb2  , dtype=precision)) 
         VD.XAC    = np.append(VD.XAC  , np.array(xac  , dtype=precision))
         VD.YAC    = np.append(VD.YAC  , np.array(yac  , dtype=precision)) 
         VD.ZAC    = np.append(VD.ZAC  , np.array(zac  , dtype=precision)) 
@@ -879,12 +826,12 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.YC     = np.append(VD.YC   , np.array(yc   , dtype=precision))
         VD.ZC     = np.append(VD.ZC   , np.array(zc   , dtype=precision))  
         VD.X      = np.append(VD.X    , np.array(x    , dtype=precision))
-        VD.Y_SW   = np.append(VD.Y_SW , np.array(y_sw , dtype=precision))
         VD.Y      = np.append(VD.Y    , np.array(y    , dtype=precision))
         VD.Z      = np.append(VD.Z    , np.array(z    , dtype=precision))         
         VD.CS     = np.append(VD.CS   , np.array(cs_w , dtype=precision)) 
         VD.DY     = np.append(VD.DY   , np.array(del_y, dtype=precision))    
     #End symmetry loop
+    
     VD.symmetric_wings = np.append(VD.symmetric_wings, int(sym_para))
     
     # Pack wing data
@@ -958,9 +905,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     leading_edge_indices    = np.array([],dtype=bool)    
     trailing_edge_indices   = np.array([],dtype=bool)    
     panels_per_strip        = np.array([],dtype=np.int16)
-    chordwise_panel_number  = np.array([],dtype=np.int16)
-    chord_lengths           = np.array([],dtype=precision)               
-    tangent_incidence_angle = np.array([],dtype=precision)               
+    chordwise_panel_number  = np.array([],dtype=np.int16)               
 
     # geometry values
     origin     = fus.origin[0]
@@ -1149,22 +1094,10 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         RNMAX          = np.ones(n_cw, np.int16)*n_cw
         panel_numbers  = np.linspace(1,n_cw,n_cw, dtype=np.int16)
         
-        i_LE, i_TE     = idx_y*n_cw, (idx_y+1)*n_cw-1
-        LE_X           = (fhs_xa1[i_LE] + fhs_xb1[i_LE])/2
-        LE_Z           = (fhs_za1[i_LE] + fhs_zb1[i_LE])/2
-        TE_X           = (fhs_xa2[i_TE] + fhs_xb2[i_TE])/2
-        TE_Z           = (fhs_za2[i_TE] + fhs_zb2[i_TE])/2           
-        chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
-        tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax      
-        chord_adjusted = np.array(chord_adjusted, dtype=precision)
-        tan_incidence  = np.array(tan_incidence , dtype=precision)
-        
         leading_edge_indices    = np.append(leading_edge_indices   , LE_inds       ) 
         trailing_edge_indices   = np.append(trailing_edge_indices  , TE_inds       )            
         panels_per_strip        = np.append(panels_per_strip       , RNMAX         )
-        chordwise_panel_number  = np.append(chordwise_panel_number , panel_numbers )  
-        chord_lengths           = np.append(chord_lengths          , chord_adjusted)
-        tangent_incidence_angle = np.append(tangent_incidence_angle, tan_incidence )        
+        chordwise_panel_number  = np.append(chordwise_panel_number , panel_numbers )       
 
     # xyz positions for the right side of this fuselage's outermost panels
     fhs_x[-(n_cw+1):] = np.concatenate([fhs_xi_b1,np.array([fhs_xi_b2[-1]])])+ fus.origin[0][0]  
@@ -1174,39 +1107,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     fvs_z[-(n_cw+1):] = np.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]               
     fvs_y[-(n_cw+1):] = np.zeros(n_cw+1)                 + fus.origin[0][1]   
     fhs_cs =  (fhs.chord[:-1]+fhs.chord[1:])/2
-    fvs_cs =  (fvs.chord[:-1]+fvs.chord[1:])/2  
-    
-    # find the location of the trailing edge panels of each wing
-    locations = ((np.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
-    fhs_xc_te1 = np.repeat(np.atleast_2d(fhs_xc[locations]), n_cw , axis = 0)
-    fhs_yc_te1 = np.repeat(np.atleast_2d(fhs_yc[locations]), n_cw , axis = 0)
-    fhs_zc_te1 = np.repeat(np.atleast_2d(fhs_zc[locations]), n_cw , axis = 0)        
-    fhs_xa_te1 = np.repeat(np.atleast_2d(fhs_xa2[locations]), n_cw , axis = 0)
-    fhs_ya_te1 = np.repeat(np.atleast_2d(fhs_ya2[locations]), n_cw , axis = 0)
-    fhs_za_te1 = np.repeat(np.atleast_2d(fhs_za2[locations]), n_cw , axis = 0)
-    fhs_xb_te1 = np.repeat(np.atleast_2d(fhs_xb2[locations]), n_cw , axis = 0)
-    fhs_yb_te1 = np.repeat(np.atleast_2d(fhs_yb2[locations]), n_cw , axis = 0)
-    fhs_zb_te1 = np.repeat(np.atleast_2d(fhs_zb2[locations]), n_cw , axis = 0)     
-    
-    fhs_xc_te = np.hstack(fhs_xc_te1.T)
-    fhs_yc_te = np.hstack(fhs_yc_te1.T)
-    fhs_zc_te = np.hstack(fhs_zc_te1.T)        
-    fhs_xa_te = np.hstack(fhs_xa_te1.T)
-    fhs_ya_te = np.hstack(fhs_ya_te1.T)
-    fhs_za_te = np.hstack(fhs_za_te1.T)
-    fhs_xb_te = np.hstack(fhs_xb_te1.T)
-    fhs_yb_te = np.hstack(fhs_yb_te1.T)
-    fhs_zb_te = np.hstack(fhs_zb_te1.T)     
-    
-    fhs_xc_te = np.concatenate([fhs_xc_te , fhs_xc_te ])
-    fhs_yc_te = np.concatenate([fhs_yc_te ,-fhs_yc_te ])
-    fhs_zc_te = np.concatenate([fhs_zc_te , fhs_zc_te ])                 
-    fhs_xa_te = np.concatenate([fhs_xa_te , fhs_xa_te ])
-    fhs_ya_te = np.concatenate([fhs_ya_te ,-fhs_ya_te ])
-    fhs_za_te = np.concatenate([fhs_za_te , fhs_za_te ])            
-    fhs_xb_te = np.concatenate([fhs_xb_te , fhs_xb_te ])
-    fhs_yb_te = np.concatenate([fhs_yb_te ,-fhs_yb_te ])
-    fhs_zb_te = np.concatenate([fhs_zb_te , fhs_zb_te ])    
+    fvs_cs =  (fvs.chord[:-1]+fvs.chord[1:])/2     
 
     # Horizontal Fuselage Sections 
     wing_areas = []
@@ -1274,10 +1175,8 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , np.tile(trailing_edge_indices       , 2) )           
         VD.panels_per_strip          = np.append(VD.panels_per_strip         , np.tile(panels_per_strip            , 2) )
         VD.chordwise_panel_number    = np.append(VD.chordwise_panel_number   , np.tile(chordwise_panel_number      , 2) ) 
-        VD.chord_lengths             = np.append(VD.chord_lengths            , np.tile(chord_lengths               , 2) )
-        VD.tangent_incidence_angle   = np.append(VD.tangent_incidence_angle  , np.tile(tangent_incidence_angle     , 2) ) 
         VD.exposed_leading_edge_flag = np.append(VD.exposed_leading_edge_flag, np.tile(np.ones(n_sw,dtype=np.int16), 2) )
-    
+        
         # Store fus in vehicle vector  
         VD.XAH    = np.append(VD.XAH  , np.array(fhs_xah  , dtype=precision))
         VD.YAH    = np.append(VD.YAH  , np.array(fhs_yah  , dtype=precision))
@@ -1287,40 +1186,31 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         VD.ZBH    = np.append(VD.ZBH  , np.array(fhs_zbh  , dtype=precision))
         VD.XCH    = np.append(VD.XCH  , np.array(fhs_xch  , dtype=precision))
         VD.YCH    = np.append(VD.YCH  , np.array(fhs_ych  , dtype=precision))
-        VD.ZCH    = np.append(VD.ZCH  , np.array(fhs_zch  , dtype=precision))     
+        VD.ZCH    = np.append(VD.ZCH  , np.array(fhs_zch  , dtype=precision))
         VD.XA1    = np.append(VD.XA1  , np.array(fhs_xa1  , dtype=precision))
         VD.YA1    = np.append(VD.YA1  , np.array(fhs_ya1  , dtype=precision))
         VD.ZA1    = np.append(VD.ZA1  , np.array(fhs_za1  , dtype=precision))
         VD.XA2    = np.append(VD.XA2  , np.array(fhs_xa2  , dtype=precision))
         VD.YA2    = np.append(VD.YA2  , np.array(fhs_ya2  , dtype=precision))
-        VD.ZA2    = np.append(VD.ZA2  , np.array(fhs_za2  , dtype=precision))    
+        VD.ZA2    = np.append(VD.ZA2  , np.array(fhs_za2  , dtype=precision))
         VD.XB1    = np.append(VD.XB1  , np.array(fhs_xb1  , dtype=precision))
         VD.YB1    = np.append(VD.YB1  , np.array(fhs_yb1  , dtype=precision))
         VD.ZB1    = np.append(VD.ZB1  , np.array(fhs_zb1  , dtype=precision))
-        VD.XB2    = np.append(VD.XB2  , np.array(fhs_xb2  , dtype=precision))                
-        VD.YB2    = np.append(VD.YB2  , np.array(fhs_yb2  , dtype=precision))        
-        VD.ZB2    = np.append(VD.ZB2  , np.array(fhs_zb2  , dtype=precision))  
-        VD.XC_TE  = np.append(VD.XC_TE, np.array(fhs_xc_te, dtype=precision))
-        VD.YC_TE  = np.append(VD.YC_TE, np.array(fhs_yc_te, dtype=precision)) 
-        VD.ZC_TE  = np.append(VD.ZC_TE, np.array(fhs_zc_te, dtype=precision))          
-        VD.XA_TE  = np.append(VD.XA_TE, np.array(fhs_xa_te, dtype=precision))
-        VD.YA_TE  = np.append(VD.YA_TE, np.array(fhs_ya_te, dtype=precision)) 
-        VD.ZA_TE  = np.append(VD.ZA_TE, np.array(fhs_za_te, dtype=precision)) 
-        VD.XB_TE  = np.append(VD.XB_TE, np.array(fhs_xb_te, dtype=precision))
-        VD.YB_TE  = np.append(VD.YB_TE, np.array(fhs_yb_te, dtype=precision)) 
-        VD.ZB_TE  = np.append(VD.ZB_TE, np.array(fhs_zb_te, dtype=precision))      
+        VD.XB2    = np.append(VD.XB2  , np.array(fhs_xb2  , dtype=precision))
+        VD.YB2    = np.append(VD.YB2  , np.array(fhs_yb2  , dtype=precision))
+        VD.ZB2    = np.append(VD.ZB2  , np.array(fhs_zb2  , dtype=precision))
         VD.XAC    = np.append(VD.XAC  , np.array(fhs_xac  , dtype=precision))
-        VD.YAC    = np.append(VD.YAC  , np.array(fhs_yac  , dtype=precision)) 
-        VD.ZAC    = np.append(VD.ZAC  , np.array(fhs_zac  , dtype=precision)) 
+        VD.YAC    = np.append(VD.YAC  , np.array(fhs_yac  , dtype=precision))
+        VD.ZAC    = np.append(VD.ZAC  , np.array(fhs_zac  , dtype=precision))
         VD.XBC    = np.append(VD.XBC  , np.array(fhs_xbc  , dtype=precision))
-        VD.YBC    = np.append(VD.YBC  , np.array(fhs_ybc  , dtype=precision)) 
-        VD.ZBC    = np.append(VD.ZBC  , np.array(fhs_zbc  , dtype=precision))  
+        VD.YBC    = np.append(VD.YBC  , np.array(fhs_ybc  , dtype=precision))
+        VD.ZBC    = np.append(VD.ZBC  , np.array(fhs_zbc  , dtype=precision))
         VD.XC     = np.append(VD.XC   , np.array(fhs_xc   , dtype=precision))
         VD.YC     = np.append(VD.YC   , np.array(fhs_yc   , dtype=precision))
-        VD.ZC     = np.append(VD.ZC   , np.array(fhs_zc   , dtype=precision))  
-        VD.CS     = np.append(VD.CS   , np.array(fhs_cs   , dtype=precision)) 
-        VD.X      = np.append(VD.X    , np.array(fhs_x    , dtype=precision))  
-        VD.Y      = np.append(VD.Y    , np.array(fhs_y    , dtype=precision))  
+        VD.ZC     = np.append(VD.ZC   , np.array(fhs_zc   , dtype=precision))
+        VD.CS     = np.append(VD.CS   , np.array(fhs_cs   , dtype=precision))
+        VD.X      = np.append(VD.X    , np.array(fhs_x    , dtype=precision))
+        VD.Y      = np.append(VD.Y    , np.array(fhs_y    , dtype=precision))
         VD.Z      = np.append(VD.Z    , np.array(fhs_z    , dtype=precision))
         
         VD.wing_areas = np.append(VD.wing_areas, wing_areas)
