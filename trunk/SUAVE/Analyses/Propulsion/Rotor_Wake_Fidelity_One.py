@@ -14,16 +14,18 @@ from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fideli
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.fidelity_one_wake_convergence import fidelity_one_wake_convergence
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
 
 # package imports
 import copy
 import numpy as np
+from jax.tree_util import register_pytree_node_class
+
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Propulsion
+@register_pytree_node_class
 class Rotor_Wake_Fidelity_One(Energy_Component):
     """ SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One()
     
@@ -55,26 +57,55 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         None
         """
 
-        self.tag                        = 'rotor_wake'
-        self.wake_method                = 'Fidelity_One'
-        self.vortex_distribution        = Data()
-        self.wake_method_fidelity       = 0
-        self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
-        self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
-        self.vtk_save_loc               = None       # location to save vtk outputs of wake
+        self.tag                               = 'rotor_wake_1'
+        self.wake_method                       = 'Fidelity_One'
+        self.semi_prescribed_converge          = False      # flag for convergence on semi-prescribed wake shape
+        self.vtk_save_flag                     = False      # flag for saving vtk outputs of wake
+        self.vtk_save_loc                      = None       # location to save vtk outputs of wake
         
         self.wake_settings              = Data()
-        self.wake_settings.number_rotor_rotations     = 5
-        self.wake_settings.number_steps_per_rotation  = 72
-        self.wake_settings.initial_timestep_offset    = 0    # initial timestep
+        self.wake_settings.number_rotor_rotations     = 5.
+        self.wake_settings.number_steps_per_rotation  = 24
+        self.wake_settings.initial_timestep_offset    = 0   # initial timestep
+        
+        self.wake_settings.static_keys                = ['number_steps_per_rotation','number_rotor_rotations','initial_timestep_offset']
         
         # wake convergence criteria
-        self.maximum_convergence_iteration            = 10
-        self.axial_velocity_convergence_tolerance     = 1e-2
+        self.maximum_convergence_iteration            = 10.
+        self.axial_velocity_convergence_tolerance     = 1.e-2
         
         # flags for slipstream interaction
-        self.slipstream                 = False
-        self.verbose                    = True
+        self.slipstream                               = False
+        
+        # Vortex distribution
+        self.vortex_distribution                     = Data()
+        VD = self.vortex_distribution
+        VD.XA1   = None
+        VD.YA1   = None
+        VD.ZA1   = None
+        VD.XA2   = None
+        VD.YA2   = None
+        VD.ZA2   = None
+        VD.XB1   = None
+        VD.YB1   = None
+        VD.ZB1   = None
+        VD.XB2   = None
+        VD.YB2   = None
+        VD.ZB2   = None
+        VD.GAMMA = None 
+        
+        self.vortex_distribution.reshaped_wake = Data()  
+        reshaped_wake             = self.vortex_distribution.reshaped_wake
+        reshaped_wake.Xblades_te  = None
+        reshaped_wake.Yblades_te  = None
+        reshaped_wake.Zblades_te  = None
+        reshaped_wake.Xblades_c_4 = None
+        reshaped_wake.Yblades_c_4 = None
+        reshaped_wake.Zblades_c_4 = None
+        reshaped_wake.Xblades_cp  = None
+        reshaped_wake.Yblades_cp  = None
+        reshaped_wake.Zblades_cp  = None
+
         
     def initialize(self,rotor,conditions):
         """
@@ -102,26 +133,17 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         """
         # run the BET once using fidelity zero inflow
-        rotor_temp = copy.deepcopy(rotor)
+        rotor_temp      = copy.deepcopy(rotor)
         rotor_temp.Wake = Rotor_Wake_Fidelity_Zero()
         _,_,_,_,outputs,_ = rotor_temp.spin(conditions)
         
         rotor.outputs = outputs
         
-        # store airfoil data to the rotor
-        if rotor.airfoil_data == None:
-            a_sec              = rotor.airfoil_geometry   
-            rotor.airfoil_data = import_airfoil_geometry(a_sec,npoints=100)         
-        
         # match the azimuthal discretization betwen rotor and wake
         if self.wake_settings.number_steps_per_rotation  != rotor.number_azimuthal_stations:
             self.wake_settings.number_steps_per_rotation = rotor.number_azimuthal_stations
-            
-            if self.verbose:
-                print("Wake azimuthal discretization does not match rotor discretization. \
-                Resetting wake to match rotor of Na="+str(rotor.number_azimuthal_stations))
         
-        return
+        return rotor
     
     def evaluate(self,rotor,wake_inputs,conditions):
         """
@@ -152,7 +174,11 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         """   
         
         # Initialize rotor with single pass of VW 
-        self.initialize(rotor,conditions)
+        rotor = self.initialize(rotor,conditions)
+        
+        # This is a local import because F1 requires higher precision
+        from jax.config import config
+        config.update("jax_enable_x64", True)        
         
         # Converge on the Fidelity-One rotor wake shape
         WD, va, vt = fidelity_one_wake_convergence(self,rotor,wake_inputs)
@@ -160,7 +186,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # Store wake shape
         self.vortex_distribution = WD
             
-        return va, vt
+        return self, va, vt
     
     def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
         """
@@ -286,6 +312,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # update wake distribution
         self.vortex_distribution = wVD
+        
         return
         
         

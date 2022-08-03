@@ -15,6 +15,8 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import jax.numpy as jnp
+import jaxlib
 from .Arrays import atleast_2d_col, array_type, matrix_type, append_array
 
 from copy import copy
@@ -81,6 +83,8 @@ class Data(dict):
                 if not bool(value):
                     aux_dict[key] = self.pop(key)
             elif isinstance(value,bool):
+                aux_dict[key] = self.pop(key)
+            elif isinstance(value,jaxlib.xla_extension.CompiledFunction):
                 aux_dict[key] = self.pop(key)
 
         # Some children classes might have "static_keys" that are marked as immutable
@@ -509,7 +513,7 @@ class Data(dict):
         """           
         return [self[key] for key in super(Data,self).__iter__()]    
     
-    def update(self,other):
+    def update(self,other,hard=False):
         """ Updates the internal values of a dictionary with given data
     
             Assumptions:
@@ -534,9 +538,12 @@ class Data(dict):
             if k.startswith('_'):
                 continue
         
-            try:
-                self[k].update(v)
-            except:
+            if hard==False:                
+                try:
+                    self[k].update(v)
+                except:
+                    self[k] = v
+            else:
                 self[k] = v
         return
     
@@ -665,11 +672,21 @@ class Data(dict):
                 index    = int(splitkey[ii][:-1])
                 thing = thing[index]
             index    = int(splitkey[-1][:-1])
-            thing[index] = val
+            try:
+                thing[index] = val
+            except:
+                if isinstance(val,jnp.ndarray):
+                    thing = jnp.array(thing)
+                thing = thing.at[index].set(val)
+            # Explicitly writing back
+            data[splitkey[0]] = thing
         else:
             data[ keys[-1] ] = val
             
-        return data
+        return self
+    
+    
+            
 
     def deep_get(self,keys):
         """ Regresses through a list of keys to pull a specific value out
@@ -738,7 +755,8 @@ class Data(dict):
         # valid types for output
         valid_types = ( int, float,
                         array_type,
-                        matrix_type )
+                        matrix_type,
+                        jnp.ndarray)
         
         # initialize array row size (for array output)
         size = [False]
@@ -821,7 +839,8 @@ class Data(dict):
         # valid types for output
         valid_types = ( int, float,
                         array_type,
-                        matrix_type )
+                        matrix_type,
+                        jnp.array)
         
         # counter for unpacking
         _index = [0]
@@ -859,7 +878,7 @@ class Data(dict):
                 elif rank == 1:
                     n = len(v)
                     if vector:
-                        D[k][:] = M[index:(index+n)]
+                        D[k] = M[index:(index+n)]
                         index += n
                     else:#array
                         D[k][:] = M[:,index]
@@ -911,8 +930,6 @@ class Data(dict):
     
         # result data structure
         klass = self.__class__
-        if isinstance(klass,Data):
-            klass = Data
         result = klass()
     
         # the update function
@@ -928,7 +945,7 @@ class Data(dict):
                     b = B
                 # recursion
                 if isinstance(a,Data):
-                    c = klass()
+                    c = a.__class__()
                     C[k] = c
                     do_operation(a,b,c)
                 # method
@@ -946,5 +963,3 @@ class Data(dict):
         do_operation(self,other,result)    
     
         return result
-
-    

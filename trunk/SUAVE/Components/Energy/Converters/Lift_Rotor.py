@@ -10,10 +10,13 @@
 from .Rotor import Rotor
 import numpy as np
 
+from jax.tree_util import register_pytree_node_class
+
 # ----------------------------------------------------------------------
 #  Lift Rotor Class
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
+@register_pytree_node_class
 class Lift_Rotor(Rotor):
     """This is a lift rotor component, and is a sub-class of rotor.
     
@@ -44,6 +47,5 @@ class Lift_Rotor(Rotor):
 
         self.tag                       = 'lift_rotor'
         self.orientation_euler_angles  = [0.,np.pi/2.,0.] # This is Z-direction thrust up in vehicle frame
-        self.use_2d_analysis           = False
         self.variable_pitch            = False
         
