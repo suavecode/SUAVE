@@ -39,12 +39,12 @@ def main():
     print(configs.base.weight_breakdown)
     print(configs.base.mass_properties.center_of_gravity)
 
-    # Plot vehicle 
-    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = False)
-
     # evaluate mission    
     mission  = analyses.missions.base
     results  = mission.evaluate()
+    
+    # Plot vehicle 
+    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = False)    
 
     # plot results
     plot_mission(results)   

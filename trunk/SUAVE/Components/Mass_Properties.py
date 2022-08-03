@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
+from jax.tree_util import register_pytree_node_class
 
 import numpy as np
 
@@ -17,6 +18,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Components
+@register_pytree_node_class
 class Mass_Properties(Data):
     """ Mass properties for a physical component
         

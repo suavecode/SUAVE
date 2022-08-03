@@ -17,6 +17,7 @@ from jax import jacobian, jit
 from SUAVE.Methods.Propulsion.Rotor_Wake.Common import simple_newton
 from jax.lax import while_loop
 
+
 # ----------------------------------------------------------------------
 # Wake Convergence
 # ----------------------------------------------------------------------
@@ -53,6 +54,7 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     
     # Solve!
     Fva_final, ii = simple_newton(iteration_F1,jacobian_iteration_F1,Fva,while_loop, tol=tol, limit=limit, args=(wake,wake_inputs,rotor))  
+
     
     # Reshape from 1-D back
     rotor.outputs.disc_axial_induced_velocity = jnp.reshape(Fva_final,jnp.shape(rotor.outputs.disc_axial_induced_velocity))     
@@ -120,28 +122,6 @@ def iteration_F1(Fva,wake,wake_inputs,rotor):
 @jacobian
 def jacobian_iteration_F1(PSI, wake, wake_inputs, rotor):
     return iteration_F1(PSI, wake, wake_inputs, rotor)
-
-#def while_loop(cond_fun, body_fun, init_val):
-    #"""
-    #This is the Python equivalent of a LAX While
-
-    #Assumptions:
-    #N/A
-
-    #Source:
-    #N/A
-
-    #Inputs:
-
-
-    #Outputs:
-
-
-    #"""       
-    #val = init_val
-    #while cond_fun(val):
-        #val = body_fun(val)
-    #return val
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 @jit

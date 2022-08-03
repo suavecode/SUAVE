@@ -19,8 +19,8 @@ from .import_airfoil_geometry import import_airfoil_geometry
 from .import_airfoil_polars   import import_airfoil_polars 
 import numpy as np
 
-#from jax.scipy.interpolate import RegularGridInterpolator
 import jax.numpy as jnp
+
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True,linear_lift=False):

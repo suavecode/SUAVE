@@ -230,16 +230,17 @@ def vehicle_setup():
     Hover_Load                   = vehicle.mass_properties.takeoff*g      # hover load   
     design_tip_mach              = 0.7                                    # design tip mach number 
     
-    lift_rotor                        = SUAVE.Components.Energy.Converters.Lift_Rotor() 
-    lift_rotor.tip_radius             = 3.95 * Units.feet
-    lift_rotor.hub_radius             = 0.6  * Units.feet 
-    lift_rotor.disc_area              = np.pi*(lift_rotor.tip_radius**2) 
-    lift_rotor.number_of_blades       = 3
-    lift_rotor.freestream_velocity    = 10.0
-    lift_rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/lift_rotor.tip_radius   
-    lift_rotor.design_Cl              = 0.7
-    lift_rotor.design_altitude        = 1000 * Units.feet                   
-    lift_rotor.design_thrust          = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
+    lift_rotor                           = SUAVE.Components.Energy.Converters.Lift_Rotor() 
+    lift_rotor.tip_radius                = 3.95 * Units.feet
+    lift_rotor.hub_radius                = 0.6  * Units.feet 
+    lift_rotor.disc_area                 = np.pi*(lift_rotor.tip_radius**2) 
+    lift_rotor.number_of_blades          = 3
+    lift_rotor.freestream_velocity       = 10.0
+    lift_rotor.angular_velocity          = (design_tip_mach*speed_of_sound)/lift_rotor.tip_radius   
+    lift_rotor.design_Cl                 = 0.7
+    lift_rotor.design_altitude           = 1000 * Units.feet                   
+    lift_rotor.design_thrust             = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
+    lift_rotor.number_azimuthal_stations = 24
 
     lift_rotor.airfoil_geometry       = ['../Vehicles/Airfoils/NACA_4412.txt'] 
     lift_rotor.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,

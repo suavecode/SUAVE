@@ -14,6 +14,7 @@
 
 # python imports
 import numpy as np
+from jax.tree_util import register_pytree_node_class
 
 # SUAVE imports
 from .Basic import Basic
@@ -24,6 +25,7 @@ from .Conditions import Conditions
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission-Segments-Conditions
+@register_pytree_node_class
 class Aerodynamics(Basic):
     """ This builds upon Basic, which itself builds on conditions, to add the data structure for aerodynamic mission analyses.
     
@@ -77,6 +79,7 @@ class Aerodynamics(Basic):
         self.frames.planet.start_time      = None
         self.frames.planet.latitude        = ones_1col * 0
         self.frames.planet.longitude       = ones_1col * 0
+        self.frames.planet.static_keys     = ['start_time']
 
         # freestream conditions
         self.freestream = Conditions()        
@@ -139,7 +142,7 @@ class Aerodynamics(Basic):
         self.propulsion.battery_pack_temperature             = ones_1col * 0
         self.propulsion.battery_cell_temperature             = ones_1col * 0 
         self.propulsion.battery_cell_charge_throughput       = ones_1col * 0    
-        self.propulsion.battery_cycle_day                    = 0
+        self.propulsion.battery_cycle_day                    = 0.
         self.propulsion.battery_resistance_growth_factor     = 1.
         self.propulsion.battery_capacity_fade_factor         = 1. 
         self.propulsion.propeller_y_axis_rotation            = ones_1col * 0

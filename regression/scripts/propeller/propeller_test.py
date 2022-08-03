@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units, to_numpy
 from SUAVE.Plots.Geometry import plot_propeller
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
@@ -22,6 +22,11 @@ from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 
 def main():
+    
+    # This is a local import because this test requires higher precision
+    from jax.config import config
+    config.update("jax_enable_x64", True)        
+        
     
     # This script could fail if either the design or analysis scripts fail,
     # in case of failure check both. The design and analysis powers will 
@@ -111,6 +116,7 @@ def main():
     prop.design_altitude          = 1. * Units.km     
     prop.origin                   = [[16.*0.3048 , 0. ,2.02*0.3048 ]]    
     prop.design_power             = gearbox.outputs.power  
+    prop.number_azimuthal_stations= 1
     prop                          = propeller_design(prop)      
     
     # Design a Rotor with airfoil  geometry defined  
@@ -156,7 +162,7 @@ def main():
     
     # Find the operating conditions
     atmosphere            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions =  atmosphere.compute_values(rot.design_altitude)
+    atmosphere_conditions = atmosphere.compute_values(rot.design_altitude)
     
     V  = prop.freestream_velocity
     Vr = rot.freestream_velocity
@@ -186,47 +192,50 @@ def main():
     
     # propeller with airfoil results 
     prop_a.inputs.pitch_command                = 0.0*Units.degree
-    F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  
+    
+    F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = to_numpy(prop_a.spin(conditions))
     plot_results(output_a, prop_a,'blue','-','s')
     
     # propeller without airfoil results 
     prop.inputs.pitch_command           = 0.0*Units.degree
-    F, Q, P, Cplast ,output , etap      = prop.spin(conditions)
+    F, Q, P, Cplast ,output , etap      = to_numpy(prop.spin(conditions))
     plot_results(output, prop,'red','-','o')
+    
+
     
     # rotor with airfoil results 
     rot_a.inputs.pitch_command                     = 0.0*Units.degree
-    Fr_a, Qr_a, Pr_a, Cplastr_a ,outputr_a , etapr = rot_a.spin(conditions_r)
+    Fr_a, Qr_a, Pr_a, Cplastr_a ,outputr_a , etapr = to_numpy(rot_a.spin(conditions_r))
     plot_results(outputr_a, rot_a,'green','-','^')
     
     # rotor with out airfoil results 
     rot.inputs.pitch_command              = 0.0*Units.degree
-    Fr, Qr, Pr, Cplastr ,outputr , etapr  = rot.spin(conditions_r)
+    Fr, Qr, Pr, Cplastr ,outputr , etapr  = to_numpy(rot.spin(conditions_r))
     plot_results(outputr, rot,'black','-','P')
     
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3352.366469630676
-    Q_a_truth       = 978.76113592
-    P_a_truth       = 202761.72763161
+    F_a_truth       = 3352.3664597724883
+    Q_a_truth       = 978.76113388
+    P_a_truth       = 202761.72720908
     Cplast_a_truth  = 0.10450832
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2629.013537561697
+    F_truth         = 2629.0135375646205
     Q_truth         = 787.38469662
-    P_truth         = 163115.87734548
+    P_truth         = 163115.87734575
     Cplast_truth    = 0.08407389
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1499.6766372165007
-    Qr_a_truth      = 139.1060306
-    Pr_a_truth      = 28817.42853679
-    Cplastr_a_truth = 0.04532838
+    Fr_a_truth      = 1579.2361899390073
+    Qr_a_truth      = 146.35419614
+    Pr_a_truth      = 30318.97014145
+    Cplastr_a_truth = 0.04769023
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1250.1858821890885
-    Qr_truth        = 121.95416738
-    Pr_truth        = 25264.22102656
-    Cplastr_truth   = 0.03973936
+    Fr_truth        = 1321.2957050670902
+    Qr_truth        = 128.70336151
+    Pr_truth        = 26662.39491376
+    Cplastr_truth   = 0.04193862
     
     # Store errors 
     error = Data()

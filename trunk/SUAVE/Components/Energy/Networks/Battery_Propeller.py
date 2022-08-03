@@ -23,8 +23,12 @@ from SUAVE.Analyses.Mission.Segments.Conditions import Residuals
 from SUAVE.Components.Physical_Component import Container 
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
-from SUAVE.Core import Data , Units 
+from SUAVE.Core import Data , Units, to_numpy
 import copy
+
+from SUAVE.Components.Energy.Converters import Rotor as rotor_class
+from SUAVE.Analyses.Propulsion import Rotor_Wake_Fidelity_One
+
 
 # ----------------------------------------------------------------------
 #  Network
@@ -193,8 +197,8 @@ class Battery_Propeller(Network):
                 prop.inputs.omega           = motor.outputs.omega 
                 
                 # step 4
-                F, Q, P, Cp, outputs, etap = prop.spin(conditions)
-                    
+                F, Q, P, Cp, outputs, etap = to_numpy(rotor_class.spin(prop,conditions))
+                
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta        = conditions.propulsion.throttle[:,0,None]
                 P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
@@ -234,7 +238,7 @@ class Battery_Propeller(Network):
                     
                     # apply offset 
                     origin_offset = np.array(p.origin[0]) - np.array(prop.origin[0])
-                    p.Wake = base_wake
+                    p.Wake = Rotor_Wake_Fidelity_One(base_wake)
                     p.Wake.shift_wake_VD(wake_vd, origin_offset)
             elif identical_flag and prop.Wake.wake_method=="Fidelity_Zero":
                 for p in props:
