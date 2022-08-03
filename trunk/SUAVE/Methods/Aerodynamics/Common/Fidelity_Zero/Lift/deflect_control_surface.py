@@ -12,10 +12,47 @@
 import numpy as np
 from SUAVE.Components.Wings import All_Moving_Surface
 from SUAVE.Core import Data
+from .generate_VD_helpers import postprocess_VD
 
 # ----------------------------------------------------------------------
 #  Deflect Control Surface
 # ----------------------------------------------------------------------
+
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+def deflect_control_surfaces(VD,geometry,settings):
+    """ 
+    Goes through a vehicle and updates the control surface deflections in the VD. Crucially this rebuilds the VD as a
+    postprocess step
+    
+    Assumptions: 
+
+    Source:  
+
+
+    Inputs: 
+    VD - vehicle vortex distribution              [Unitless] 
+    geometry.wings                                [Unitless]  
+    settings.floating_point_precision             [np.dtype]
+
+    Outputs:      
+    VD - vehicle vortex distribution              [Unitless] 
+
+    Properties Used:
+    N/A
+    """     
+    
+    # Loop over t ewings
+    for wing in VD.VLM_wings:
+        wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)        
+        if wing.is_a_control_surface or wing_is_all_moving:
+            # Deflect the control surface
+            VD, wing = deflect_control_surface(VD, wing)    
+        
+    VD = postprocess_VD(VD, settings)
+    
+    
+    return VD
+
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def deflect_control_surface(VD,wing):
