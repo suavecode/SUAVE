@@ -361,8 +361,6 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     symmetry_multiplier   = -wing.sign_duplicate if sym_sign==-1       else 1
     vertical_multiplier   = -1                   if vertical_wing      else 1
     deflection_angle      = deflection_base_angle * symmetry_multiplier * vertical_multiplier
-    
-    ##symmetry_multiplier   = {'1':1, '-1':-wing.sign_duplicate}[str(sym_sign)] # @ Emilio is this more readable?
         
     # make quaternion rotation matrix
     quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
