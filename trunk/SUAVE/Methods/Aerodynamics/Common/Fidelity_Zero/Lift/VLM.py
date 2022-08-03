@@ -236,10 +236,12 @@ def VLM(conditions,settings,geometry):
     
     # Build Aerodynamic Influence Coefficient Matrix
     use_VORLAX_induced_velocity = settings.use_VORLAX_matrix_calculation
-    SUAVE_form = lambda : jnp.multiply(C_mn[:,:,:,0],jnp.atleast_3d(jnp.sin(delta)*jnp.cos(phi))) \
+    def SUAVE_form():
+        return jnp.array(jnp.multiply(C_mn[:,:,:,0],jnp.atleast_3d(jnp.sin(delta)*jnp.cos(phi))) \
                         + jnp.multiply(C_mn[:,:,:,1],jnp.atleast_3d(jnp.cos(delta)*jnp.sin(phi))) \
-                        - jnp.multiply(C_mn[:,:,:,2],jnp.atleast_3d(jnp.cos(phi)*jnp.cos(delta)))   # validated from book eqn 7.42 
-    vor_form   = lambda : EW
+                        - jnp.multiply(C_mn[:,:,:,2],jnp.atleast_3d(jnp.cos(phi)*jnp.cos(delta))),dtype=precision)   # validated from book eqn 7.42 
+    def vor_form():
+        return jnp.array(EW,dtype=precision)
     
     A          = lax.cond(use_VORLAX_induced_velocity,vor_form,SUAVE_form)    
 

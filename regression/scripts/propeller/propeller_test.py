@@ -213,6 +213,8 @@ def main():
     Fr, Qr, Pr, Cplastr ,outputr , etapr  = to_numpy(rot.spin(conditions_r))
     plot_results(outputr, rot,'black','-','P')
     
+    config.update("jax_enable_x64", False)     
+    
     # Truth values for propeller with airfoil geometry defined 
     F_a_truth       = 3352.3664597724883
     Q_a_truth       = 978.76113388

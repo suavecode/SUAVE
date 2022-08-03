@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt  
 import matplotlib.cm as cm
 import os
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import interp2d
 
 ## @ingroup Plots
 def plot_airfoil_analysis_boundary_layer_properties(ap,show_legend = True ):  
@@ -292,8 +293,10 @@ def plot_airfoil_polar_files(airfoil_path, airfoil_polar_paths, line_color = 'k-
     for i in range(n_airfoils):
         airfoil_name = os.path.basename(airfoil_path[i][0])
         if use_surrogate:
-            CL[i,:,:] = CL_sur[airfoil_path[i]]((Re[i,:,:],alpha[i,:,:]))
-            CD[i,:,:] = CD_sur[airfoil_path[i]]((Re[i,:,:],alpha[i,:,:]))
+            cl = CL_sur[airfoil_path[i]]
+            cd = CD_sur[airfoil_path[i]]
+            CL[i,:,:] = interp2d(Re[i,:,:], alpha[i,:,:], cl.RE_data, cl.aoa_data, cl.CL_data)
+            CD[i,:,:] = interp2d(Re[i,:,:], alpha[i,:,:], cd.RE_data, cd.aoa_data, cd.CD_data)
             
         # plot all Reynolds number polars for ith airfoil
         fig  = plt.figure(save_filename +'_'+ str(i))

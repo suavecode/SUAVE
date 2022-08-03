@@ -105,6 +105,8 @@ def main():
         # plot the results
         plot_results(EVTOL_results,line_style_new[i],line_style2_new[i])  
         
+        config.update("jax_enable_x64", False)       
+        
         # RPM of rotor check during hover
         EVTOL_RPM        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0] 
         print('EVTOL RPM: ' + str(EVTOL_RPM)) 
@@ -121,6 +123,8 @@ def main():
         print(EVTOL_diff_CL)
         assert np.abs((EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i])/EVTOL_lift_coefficient_true[i]) < 1e-6   
                 
+                
+        
             
     return
 
@@ -257,6 +261,9 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
+    import jax.numpy as jnp
+    aerodynamics.process.compute.lift.inviscid_wings.settings.floating_point_precision = jnp.float64
+    
     analyses.append(aerodynamics)  
 
     # ------------------------------------------------------------------	
