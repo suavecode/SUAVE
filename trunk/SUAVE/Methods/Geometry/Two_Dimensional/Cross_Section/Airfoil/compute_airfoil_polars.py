@@ -12,18 +12,18 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core               import Data , Units
+from SUAVE.Core               import Data , Units, to_jnumpy
 from SUAVE.Methods.Aerodynamics.AERODAS.pre_stall_coefficients import pre_stall_coefficients
 from SUAVE.Methods.Aerodynamics.AERODAS.post_stall_coefficients import post_stall_coefficients 
 from .import_airfoil_geometry import import_airfoil_geometry 
 from .import_airfoil_polars   import import_airfoil_polars 
 import numpy as np
 
-from scipy.interpolate import RegularGridInterpolator
-
+#from jax.scipy.interpolate import RegularGridInterpolator
+import jax.numpy as jnp
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True):
+def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True,linear_lift=False):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
@@ -67,7 +67,7 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
     airfoil_data = import_airfoil_geometry(a_geo, npoints = npoints)
 
     # Get all of the coefficients for AERODAS wings
-    AoA_sweep_deg = np.linspace(-14,90,105)
+    AoA_sweep_deg = np.linspace(-90,90,181)
     AoA_sweep_radians = AoA_sweep_deg*Units.degrees
     CL = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
     CD = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
@@ -168,16 +168,26 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
             aoa0[i,j] = A0
             cl0[i,j]  = np.interp(0,airfoil_aoa,airfoil_cl)
             
+            if linear_lift:
+                CL[i,j,:] = S1*(AoA_sweep_radians-A0)
+            
             if use_pre_stall_data == True:
                 CL[i,j,:], CD[i,j,:] = apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL[i,j,:], CD[i,j,:])
         
         # remove placeholder values (for airfoils that have different number of polars)
         n_p      = len(a_polar[i])
-        RE_data  = airfoil_polar_data.reynolds_number[i][0:n_p]
-        aoa_data = AoA_sweep_radians
+        RE_data  = to_jnumpy(airfoil_polar_data.reynolds_number[i][0:n_p])
+        aoa_data = to_jnumpy(AoA_sweep_radians)
         
-        CL_sur = RegularGridInterpolator((RE_data, aoa_data), CL[i,0:n_p,:],bounds_error=False,fill_value=None)  
-        CD_sur = RegularGridInterpolator((RE_data, aoa_data), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
+        CL_sur = Data()
+        CD_sur = Data()
+        CL_sur.RE_data  = RE_data
+        CD_sur.RE_data  = RE_data
+        CL_sur.aoa_data = aoa_data
+        CD_sur.aoa_data = aoa_data
+        CL_sur.CL_data  = CL[i,0:n_p,:]
+        CD_sur.CD_data  = CD[i,0:n_p,:]
+        
         
         CL_surs[a_geo[i]]  = CL_sur
         CD_surs[a_geo[i]]  = CD_sur   
