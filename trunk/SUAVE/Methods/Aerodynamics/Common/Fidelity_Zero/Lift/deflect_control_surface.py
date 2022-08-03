@@ -296,19 +296,16 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     zeta_prime     = raw_VD.zeta_prime    
 
     # flip over y = z for a vertical wing since deflection math assumes horizontal wing--------------------
-    if vertical_wing:
-        y_prime_a1, zeta_prime_a1 = inverted_wing*zeta_prime_a1, y_prime_a1
-        y_prime_ah, zeta_prime_ah = inverted_wing*zeta_prime_ah, y_prime_ah
-        y_prime_ac, zeta_prime_ac = inverted_wing*zeta_prime_ac, y_prime_ac
-        y_prime_a2, zeta_prime_a2 = inverted_wing*zeta_prime_a2, y_prime_a2
-                                                             
-        y_prime_b1, zeta_prime_b1 = inverted_wing*zeta_prime_b1, y_prime_b1
-        y_prime_bh, zeta_prime_bh = inverted_wing*zeta_prime_bh, y_prime_bh
-        y_prime_bc, zeta_prime_bc = inverted_wing*zeta_prime_bc, y_prime_bc
-        y_prime_b2, zeta_prime_b2 = inverted_wing*zeta_prime_b2, y_prime_b2
-                                                             
-        y_prime_ch, zeta_prime_ch = inverted_wing*zeta_prime_ch, y_prime_ch
-        y_prime   , zeta_prime    = inverted_wing*zeta_prime   , y_prime   
+    y_prime_a1, zeta_prime_a1 = flip_1(y_prime_a1, zeta_prime_a1, vertical_wing, inverted_wing)
+    y_prime_ah, zeta_prime_ah = flip_1(y_prime_ah, zeta_prime_ah, vertical_wing, inverted_wing)
+    y_prime_ac, zeta_prime_ac = flip_1(y_prime_ac, zeta_prime_ac, vertical_wing, inverted_wing)
+    y_prime_a2, zeta_prime_a2 = flip_1(y_prime_a2, zeta_prime_a2, vertical_wing, inverted_wing)
+    y_prime_b1, zeta_prime_b1 = flip_1(y_prime_b1, zeta_prime_b1, vertical_wing, inverted_wing)
+    y_prime_bh, zeta_prime_bh = flip_1(y_prime_bh, zeta_prime_bh, vertical_wing, inverted_wing)
+    y_prime_bc, zeta_prime_bc = flip_1(y_prime_bc, zeta_prime_bc, vertical_wing, inverted_wing)
+    y_prime_b2, zeta_prime_b2 = flip_1(y_prime_b2, zeta_prime_b2, vertical_wing, inverted_wing)
+    y_prime_ch, zeta_prime_ch = flip_1(y_prime_ch, zeta_prime_ch, vertical_wing, inverted_wing)
+    y_prime   , zeta_prime    = flip_1(y_prime   , zeta_prime   , vertical_wing, inverted_wing)
 
     # Deflect control surfaces-----------------------------------------------------------------------------
     # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
@@ -356,14 +353,15 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
         #END first strip calculations
     
     # get deflection angle
-    deflection            = wing.deflection - wing.deflection_last
-    deflection_base_angle = deflection           if (not wing.is_slat) else -deflection
-    symmetry_multiplier   = -wing.sign_duplicate if sym_sign==-1       else 1
-    vertical_multiplier   = -1                   if vertical_wing      else 1
-    deflection_angle      = deflection_base_angle * symmetry_multiplier * vertical_multiplier
+    ddeflection      = wing.deflection      - wing.deflection_last               # This is a delta deflection
+    slat_multiplier  = (1 - wing.is_slat)   - wing.is_slat                       # Flip signs if it's a slat
+    sym_multiplier   = (1 - (sym_sign==-1)) - wing.sign_duplicate*(sym_sign==-1) # If it's the symmetric side
+    ver_multiplier   = (1 - vertical_wing)-1*vertical_wing                       # Vertical multiplier
+
+    delta_deflection = slat_multiplier*sym_multiplier*ver_multiplier*ddeflection
         
     # make quaternion rotation matrix
-    quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
+    quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, delta_deflection)
     
     # rotate strips
     xi_prime_a1, y_prime_a1, zeta_prime_a1 = rotate_points_with_quaternion(quaternion, [xi_prime_a1,y_prime_a1,zeta_prime_a1])
@@ -380,19 +378,17 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
                                                                                                                              
     # flip over y = z again after deflecting---------------------------------------------------------------
-    if vertical_wing:
-        y_prime_a1, zeta_prime_a1 = zeta_prime_a1, inverted_wing*y_prime_a1
-        y_prime_ah, zeta_prime_ah = zeta_prime_ah, inverted_wing*y_prime_ah
-        y_prime_ac, zeta_prime_ac = zeta_prime_ac, inverted_wing*y_prime_ac
-        y_prime_a2, zeta_prime_a2 = zeta_prime_a2, inverted_wing*y_prime_a2
-                                                             
-        y_prime_b1, zeta_prime_b1 = zeta_prime_b1, inverted_wing*y_prime_b1
-        y_prime_bh, zeta_prime_bh = zeta_prime_bh, inverted_wing*y_prime_bh
-        y_prime_bc, zeta_prime_bc = zeta_prime_bc, inverted_wing*y_prime_bc
-        y_prime_b2, zeta_prime_b2 = zeta_prime_b2, inverted_wing*y_prime_b2
-                                                             
-        y_prime_ch, zeta_prime_ch = zeta_prime_ch, inverted_wing*y_prime_ch
-        y_prime   , zeta_prime    = zeta_prime   , inverted_wing*y_prime
+    
+    y_prime_a1, zeta_prime_a1 = flip_2(y_prime_a1, zeta_prime_a1, vertical_wing, inverted_wing)
+    y_prime_ah, zeta_prime_ah = flip_2(y_prime_ah, zeta_prime_ah, vertical_wing, inverted_wing)
+    y_prime_ac, zeta_prime_ac = flip_2(y_prime_ac, zeta_prime_ac, vertical_wing, inverted_wing)
+    y_prime_a2, zeta_prime_a2 = flip_2(y_prime_a2, zeta_prime_a2, vertical_wing, inverted_wing)
+    y_prime_b1, zeta_prime_b1 = flip_2(y_prime_b1, zeta_prime_b1, vertical_wing, inverted_wing)
+    y_prime_bh, zeta_prime_bh = flip_2(y_prime_bh, zeta_prime_bh, vertical_wing, inverted_wing)
+    y_prime_bc, zeta_prime_bc = flip_2(y_prime_bc, zeta_prime_bc, vertical_wing, inverted_wing)
+    y_prime_b2, zeta_prime_b2 = flip_2(y_prime_b2, zeta_prime_b2, vertical_wing, inverted_wing)
+    y_prime_ch, zeta_prime_ch = flip_2(y_prime_ch, zeta_prime_ch, vertical_wing, inverted_wing)
+    y_prime   , zeta_prime    = flip_2(y_prime,    zeta_prime   , vertical_wing, inverted_wing)
 
     # Pack the VD
     raw_VD.xi_prime_a1   = xi_prime_a1      
@@ -516,4 +512,66 @@ def rotate_points_with_quaternion(quat, points):
     x_primes, y_primes, z_primes = np.sum(quat[0]*vectors, axis=1), np.sum(quat[1]*vectors, axis=1), np.sum(quat[2]*vectors, axis=1)
     return x_primes, y_primes, z_primes
     
+    
+    
+def flip_1(A,B,T1,T2):
+    """ This swaps values based on a double boolean
+    
+    If T1 is false A and B are kept as is
+    
+    If T1 is true A and B are swapped
+    If T2 is true 
+
+    Assumptions: 
+    None
+
+    Source:   
+    N/A
+    
+    
+    Inputs:   
+    input_A
+    input_B
+    bool1
+
+    Outputs:
+    swapped or not values
+    
+    Properties Used:
+    N/A
+    """
+    
+    NT1 = 1-T1
+    
+    return B*T1*T2+A*NT1, A*T1+B*NT1
+    
+def flip_2(A,B,T1,T2):
+    """ This swaps values based on a double boolean
+    
+    If T1 is false A and B are kept as is
+    
+    If T1 is true A and B are swapped
+    If T2 is true 
+
+    Assumptions: 
+    None
+
+    Source:   
+    N/A
+    
+    
+    Inputs:   
+    input_A
+    input_B
+    bool1
+
+    Outputs:
+    swapped or not values
+    
+    Properties Used:
+    N/A
+    """
+    NT1 = 1-T1
+    
+    return B*T1+A*NT1, A*T1*T2+B*NT1
     
