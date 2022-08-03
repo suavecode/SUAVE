@@ -1,7 +1,7 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 # generate_VD_helpers.py
 # 
-# Created:  Jun 2021, A. Blaufox
+# Created:  Aug 2022, A. Blaufox
 # Modified: 
 #           
 
@@ -22,6 +22,7 @@ def postprocess_VD(VD, settings):
     values (e.g. VD.XA1, VD.XCH, etc) are changed.
 
     Assumptions: 
+      - the last VLM_wing in VD.VLM_wings is last to get discretized and thus has the highest surface_ID
 
     Source:  
 
@@ -43,10 +44,7 @@ def postprocess_VD(VD, settings):
     TE_ind     = VD.trailing_edge_indices
     strip_n_cw = VD.panels_per_strip[LE_ind]
     
-    # @Emilio: assumes last VLM_wing is the last to get discretized & thus has highest surface_ID. 
-    #          This is correct for now, but do we want to continue to assume this, or should this be 
-    #           rewritten to allow any order of wings
-    last_wing_ID = list(VD.VLM_wings.values())[-1].surface_ID
+    last_wing_ID = list(VD.VLM_wings.values())[-1].surface_ID # assumes last VLM_wing in its container is last to get discretized
     is_VLM_wing  = np.abs(VD.surface_ID) <= last_wing_ID
 
     # Compute Panel Areas and Normals
