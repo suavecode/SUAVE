@@ -50,6 +50,9 @@ def deflect_control_surfaces(VD,geometry,settings):
         
     VD = postprocess_VD(VD, settings)
     
+    # pack VD into geometry
+    geometry.vortex_distribution = VD    
+    
     
     return VD
 

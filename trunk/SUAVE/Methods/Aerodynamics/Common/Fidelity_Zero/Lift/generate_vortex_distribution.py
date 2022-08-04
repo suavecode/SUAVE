@@ -445,7 +445,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     # Reflection plane = x-y plane for vertical wings. Otherwise, reflection plane = x-z plane
     signs         = np.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
     symmetry_mask = [True,sym_para]
-    for sym_sign_ind, sym_sign in enumerate(signs[symmetry_mask]):
+    for sym_sign in signs[symmetry_mask]:
         # create empty vectors for coordinates 
         xah   = np.zeros(n_cw*n_sw)
         yah   = np.zeros(n_cw*n_sw)
@@ -483,14 +483,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         cs_w  = np.zeros(n_sw)        
         
         # adjust origin for symmetry with special case for vertical symmetry
-        if vertical_wing:
-            wing_origin_x = wing_origin[0]
-            wing_origin_y = wing_origin[1]
-            wing_origin_z = wing_origin[2] * sym_sign
-        else:
-            wing_origin_x = wing_origin[0]
-            wing_origin_y = wing_origin[1] * sym_sign
-            wing_origin_z = wing_origin[2]       
+        wing_origin_x = wing_origin[0]
+        wing_origin_y = wing_origin[1] * ((1-vertical_wing)*sym_sign+vertical_wing)
+        wing_origin_z = wing_origin[2] * ((1-vertical_wing)+sym_sign*vertical_wing)
             
         # ---------------------------------------------------------------------------------------------------------
         # Loop over each strip of panels in the wing
@@ -658,10 +653,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                 
                 y_prime_as, zeta_prime_as = zeta_prime_as, wing.inverted_wing*y_prime_as
 
-                if np.any(y_prime_bs) == None:
-                    pass
-                else:
-                    y_prime_bs = wing.inverted_wing*y_prime_bs
+ 
+                y_prime_bs = wing.inverted_wing*y_prime_bs
                 y_prime_bs, zeta_prime_bs = zeta_prime_bs, y_prime_bs
                  
             # store coordinates of panels, horseshoeces vortices and control points relative to wing root----------
