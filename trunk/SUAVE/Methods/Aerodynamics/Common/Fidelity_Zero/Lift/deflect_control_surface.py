@@ -468,10 +468,45 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     return raw_VD    
 
 # ----------------------------------------------------------------------
-#  Make Hinge Quaternion
+#  Rotation functions
 # ----------------------------------------------------------------------
+def rotate_points_about_line(point_on_line, direction_unit_vector, rotation_angle, points):
+    """ This computes the location of given points after rotating about an arbitrary 
+    line that passes through a given point. An important thing to note is that this
+    function does not modify the original points. It instead makes copies of the points
+    to rotate, rotates the copies, the outputs the copies as np.arrays.
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+    Assumptions: 
+    None
+
+    Source:   
+    https://sites.google.com/site/glennmurray/Home/rotation-matrices-and-formulas/rotation-about-an-arbitrary-axis-in-3-dimensions
+    
+    Inputs:   
+    point_on_line         - a list or array of size 3 corresponding to point coords (a,b,c)
+    direction_unit_vector - a list or array of size 3 corresponding to unit vector  <u,v,w>
+    rotation_angle        - angle of rotation in radians
+    points                - a list or array of size 3 corresponding to the lists (xs, ys, zs)
+                            where xs, ys, and zs are the (x,y,z) coords of the points 
+                            that will be rotated
+    
+    Properties Used:
+    N/A
+    """       
+    a,  b,  c  = point_on_line
+    u,  v,  w  = direction_unit_vector
+    xs, ys, zs = jnp.array(points[0]), jnp.array(points[1]), jnp.array(points[2])
+    
+    cos         = jnp.cos(rotation_angle)
+    sin         = jnp.sin(rotation_angle)
+    uvw_dot_xyz = u*xs + v*ys + w*zs
+    
+    xs_prime = (a*(v**2 + w**2) - u*(b*v + c*w - uvw_dot_xyz))*(1-cos)  +  xs*cos  +  (-c*v + b*w - w*ys + v*zs)*sin
+    ys_prime = (b*(u**2 + w**2) - v*(a*u + c*w - uvw_dot_xyz))*(1-cos)  +  ys*cos  +  ( c*u - a*w + w*xs - u*zs)*sin
+    zs_prime = (c*(u**2 + v**2) - w*(a*u + b*v - uvw_dot_xyz))*(1-cos)  +  zs*cos  +  (-b*u + a*v - v*xs + u*ys)*sin
+    
+    return xs_prime, ys_prime, zs_prime
+    
 def make_hinge_quaternion(point_on_line, direction_unit_vector, rotation_angle):
     """ This make a quaternion that will rotate a vector about a the line that 
     passes through the point 'point_on_line' and has direction 'direction_unit_vector'.
@@ -496,8 +531,8 @@ def make_hinge_quaternion(point_on_line, direction_unit_vector, rotation_angle):
     a,  b,  c  = point_on_line
     u,  v,  w  = direction_unit_vector
     
-    cos         = np.cos(rotation_angle)
-    sin         = np.sin(rotation_angle)
+    cos         = jnp.cos(rotation_angle)
+    sin         = jnp.sin(rotation_angle)
     
     q11 = u**2 + (v**2 + w**2)*cos
     q12 = u*v*(1-cos) - w*sin
@@ -514,18 +549,13 @@ def make_hinge_quaternion(point_on_line, direction_unit_vector, rotation_angle):
     q33 = w**2 + (u**2 + v**2)*cos
     q34 = (c*(u**2 + v**2) - w*(a*u + b*v))*(1-cos)  +  (a*v - b*u)*sin    
     
-    quat = np.array([[q11, q12, q13, q14],
-                     [q21, q22, q23, q24],
-                     [q31, q32, q33, q34],
-                     [0. , 0. , 0. , 1. ]])
+    quat = jnp.array([[q11, q12, q13, q14],
+                      [q21, q22, q23, q24],
+                      [q31, q32, q33, q34],
+                      [0. , 0. , 0. , 1. ]])
     
     return quat
 
-# ----------------------------------------------------------------------
-#  Rotate Points with Quaternion
-# ----------------------------------------------------------------------
-
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def rotate_points_with_quaternion(quat, points):
     """ This rotates the points by a quaternion
 
@@ -548,10 +578,9 @@ def rotate_points_with_quaternion(quat, points):
     Properties Used:
     N/A
     """     
-    vectors = np.array([points[0],points[1],points[2],np.ones(len(points[0]))]).T
-    x_primes, y_primes, z_primes = np.sum(quat[0]*vectors, axis=1), np.sum(quat[1]*vectors, axis=1), np.sum(quat[2]*vectors, axis=1)
+    vectors = jnp.array([points[0],points[1],points[2],jnp.ones(len(points[0]))]).T
+    x_primes, y_primes, z_primes = jnp.sum(quat[0]*vectors, axis=1), jnp.sum(quat[1]*vectors, axis=1), jnp.sum(quat[2]*vectors, axis=1)
     return x_primes, y_primes, z_primes
-    
     
     
 def flip_1(A,B,T1,T2):
