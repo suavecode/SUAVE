@@ -225,12 +225,12 @@ def mission_setup(analyses,vehicle):
     segment.tag                                         = "Transition_1"
     segment.analyses.extend( analyses.transition_1 )
     segment.altitude                                    = 40.0 * Units.ft
-    segment.acceleration                                = 2.0  * Units['m/s/s']
+    segment.acceleration                                = 2.3  * Units['m/s/s']
     segment.air_speed_start                             = 0.0  * Units.mph              # starts from hover
     segment.air_speed_end                               = 1.2  * V_stall         # increases linearly in time to stall speed
     segment.pitch_initial                               = 0.0  * Units.degrees  
     segment.pitch_final                                 = 3.6  * Units.degrees   
-    segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
+    segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 

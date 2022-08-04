@@ -338,15 +338,15 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
     n_airfoils = shape[0]
     n_Re       = shape[1]
 
-    col_raw = ['m-', 'b-', 'r-', 'g-', 'o-','p-']    
+    col_raw = ['m-', 'b-', 'r-', 'g-', 'k-','m-','b-','r-','g-', 'k-']    
     if use_surrogate:
-        col_sur = ['m--', 'b--', 'r--', 'g--', 'o--','p--']
+        col_sur = ['m--', 'b--', 'r--', 'g--', 'k--','m--','b--','r--', 'g--', 'k--']
         # Compute airfoil surrogates
-        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=False)
+        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=True)
         CL_sur = a_data.lift_coefficient_surrogates
         CD_sur = a_data.drag_coefficient_surrogates
         
-        alpha   = np.linspace(-16,16,100)
+        alpha   = np.asarray(a_data.aoa_from_polar) * Units.deg
         n_alpha = len(alpha.T)
         alpha   = np.reshape(alpha,(n_airfoils,1,n_alpha))
         alpha   = np.repeat(alpha, n_Re, axis=1)
@@ -359,8 +359,8 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
         CD = np.zeros_like(Re)
     
         for i in range(n_airfoils):
-            CL[i,:,:] = CL_sur[airfoil_path[i]](Re[i,:,:],alpha[i,:,:]* Units.deg,grid=False)
-            CD[i,:,:] = CD_sur[airfoil_path[i]](Re[i,:,:],alpha[i,:,:]* Units.deg,grid=False)        
+            CL[i,:,:] = CL_sur[airfoil_path[i]]((Re[i,:,:],alpha[i,:,:]))
+            CD[i,:,:] = CD_sur[airfoil_path[i]]((Re[i,:,:],alpha[i,:,:]))      
     
     # Get raw data polars
     airfoil_polar_data = import_airfoil_polars(airfoil_polar_paths)
@@ -390,8 +390,8 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
             ax1.plot(alpha_raw[i,j,:], CL_raw[i,j,:], col_raw[j], label='Re='+Re_val)
             ax2.plot(alpha_raw[i,j,:], CD_raw[i,j,:], col_raw[j], label='Re='+Re_val)
             if use_surrogate:
-                ax1.plot(alpha[i,j,:], CL[i,j,:], col_sur[j])
-                ax2.plot(alpha[i,j,:], CD[i,j,:], col_sur[j])
+                ax1.plot(alpha[i,j,:]/Units.deg, CL[i,j,:], col_sur[j])
+                ax2.plot(alpha[i,j,:]/Units.deg, CD[i,j,:], col_sur[j])
              
             ax1.set_ylabel('$C_l$')   
             ax2.set_ylabel('$C_d$')  

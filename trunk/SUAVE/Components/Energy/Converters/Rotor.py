@@ -72,10 +72,12 @@ class Rotor(Energy_Component):
         self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
         self.chord_distribution           = 0.0 
         self.thickness_to_chord           = 0.0
+        self.mid_chord_alignment          = 0.0 
         self.blade_solidity               = 0.0
         self.design_power                 = None
         self.design_thrust                = None
         self.airfoil_geometry             = None
+        self.airfoil_data                 = None
         self.airfoil_polars               = None
         self.airfoil_polar_stations       = None
         self.airfoil_cl_surrogates        = None
@@ -617,12 +619,13 @@ class Rotor(Energy_Component):
 
     
     def vec_to_vel(self):
-        """This rotates from the propellers vehicle frame to the propellers velocity frame
+        """This rotates from the propeller's vehicle frame to the propeller's velocity frame
 
         Assumptions:
-        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
-        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
-        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+        There are two propeller frames, the propeller vehicle frame and the propeller velocity frame. When propeller
+        is axially aligned with the vehicle body:
+           - The velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+           - The vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
@@ -643,12 +646,12 @@ class Rotor(Energy_Component):
     
 
     def body_to_prop_vel(self):
-        """This rotates from the systems body frame to the propellers velocity frame
+        """This rotates from the system's body frame to the propeller's velocity frame
 
         Assumptions:
-        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
-        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
-        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame.
+        Velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        Vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
@@ -663,7 +666,7 @@ class Rotor(Energy_Component):
         None
         """
 
-        # Go from body to vehicle frame
+        # Go from velocity to vehicle frame
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
 
         # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation

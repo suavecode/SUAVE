@@ -108,9 +108,8 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         Cl = jnp.where(Cl==0,1e-6,Cl)
     return Cl, Cdval, alpha, Ma, W
 
-
 @jit
-def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
+def compute_inflow_and_tip_loss(r,R,Wa,Wt,B,et1=1,et2=1,et3=1):
     """
     Computes the inflow, lamdaw, and the tip loss factor, F.
 
@@ -126,7 +125,10 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
        Wa         axial velocity                                                   [m/s]
        Wt         tangential velocity                                              [m/s]
        B          number of rotor blades                                           [-]
-                 
+       et1        tuning parameter for tip loss function 
+       et2        tuning parameter for tip loss function 
+       et3        tuning parameter for tip loss function 
+       
     Outputs:               
        lamdaw     inflow ratio                                                     [-]
        F          tip loss factor                                                  [-]
@@ -134,24 +136,16 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     """
     
     lamdaw = jnp.array(r*Wa/(R*Wt))
-    lamdaw = jnp.where(lamdaw<=0.,0,lamdaw)
-    f      = (B/2.)*(R/r - 1.)/lamdaw
-    f      = jnp.where(f<=0.,0,f)
-    piece  = jnp.exp(-f)
+    lamdaw = jnp.where(lamdaw<=0.,1e-12,lamdaw)
 
-    lamdaw            = jnp.array(r*Wa/(R*Wt))
-    lamdaw            = jnp.where(lamdaw<=0.,1e-12,lamdaw) # Zero causes Nans when differentiated
-
-    Rtip = R
-    et1, et2, et3, maxat = 1,1,1,-jnp.inf
-    tipfactor = jnp.array( B/2.0*(  (Rtip/r)**et1 - 1  )**et2/lamdaw**et3)
+    tipfactor = jnp.array( B/2.0*(  (R/r)**et1 - 1  )**et2/lamdaw**et3)
     tipfactor = jnp.where(tipfactor<=0,0,tipfactor) # This is also needed
-    Ftip      = jnp.where(tipfactor<=0,0,2.*jnp.arccos(jnp.exp(-tipfactor))/jnp.pi) # this extra where is for grad to keep from nan-ing    
+     
+    piece     = jnp.exp(-tipfactor)
+    Ftip      = jnp.where(tipfactor<=0,0,2.*jnp.arccos(piece)/jnp.pi) # this extra where is for grad to keep from nan-ing    
+    piece     = jnp.exp(-Ftip)
     
-    F = Ftip
-
-    return lamdaw, F, piece
-
+    return lamdaw, Ftip, piece
 @jit
 def interp2d(x,y,xp,yp,zp,fill_value= None):
     """

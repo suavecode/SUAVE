@@ -249,8 +249,12 @@ def get_values(dictionary,outputs,aliases):
                 
     values = []
     for ii in range(0,len(outputs)):
-        #values = values.at[ii].set(dictionary.deep_get(pointer[ii]))
-        values.append(dictionary.deep_get(pointer[ii]))
+        
+        if isinstance(pointer[ii], str) and not ('*' in pointer[ii]) :     
+            values.append(dictionary.deep_get(pointer[ii]))
+        else :
+            raise TypeError("Pointers for Objectives and Constraints must be unique path (str), not list or contain asterisk")
+                
         
     values = jnp.array(values)
 
@@ -433,8 +437,4 @@ def unpack_array(dictionary, array):
         dictionary[key] = array[index:(index+length)]
         index           = index + length
 
-
-
     return dictionary
-    
-    

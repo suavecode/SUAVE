@@ -18,3 +18,5 @@ from .nozzle_calculations import exit_Mach_shock, mach_area, normal_shock, press
 from . import electric_motor_sizing
 from .liquid_rocket_sizing import liquid_rocket_sizing
 from .serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
+from .serial_HTS_dynamo_turboelectric_sizing import serial_HTS_dynamo_turboelectric_sizing
+
