@@ -13,6 +13,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.fidelity_one_wake_convergence import fidelity_one_wake_convergence
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.update_wake_position import update_wake_position
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
@@ -71,6 +72,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # wake convergence criteria
         self.maximum_convergence_iteration            = 10
         self.axial_velocity_convergence_tolerance     = 1e-2
+        self.relaxation                               = False
         
         # flags for slipstream interaction
         self.slipstream                 = False
@@ -161,6 +163,19 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.vortex_distribution = WD
             
         return va, vt
+    
+    def evolve_wake_vortex_distribution(self,rotor,VD=None):
+        """
+        Time-evolves the wake under its own wake distribution (self.vortex_distribution) and any external
+        vortex distribution (VD).
+        
+        """
+        # Update the position of each vortex filament due to component interactions
+        self, rotor, interpolatedBoxData = update_wake_position(self,rotor,VD)
+        
+        # Update the vortex strengths of each vortex ring accordingly
+        
+        return interpolatedBoxData
     
     def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
         """
