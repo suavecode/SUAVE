@@ -22,7 +22,7 @@ import SUAVE
 from SUAVE.Core.Arrays import array_type
 from SUAVE.Core import DataOrdered
 
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  State
@@ -109,7 +109,7 @@ class State(Conditions):
         
         
 ## @ingroup Analyses-Mission-Segments-Conditions      
-@register_pytree_node_class        
+        
 class Container(State):
     def __defaults__(self):
         """ This sets the default values.

@@ -9,14 +9,14 @@
 # ----------------------------------------------------------------------
 
 from .Conditions import Conditions
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Residuals
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission-Segments-Conditions
-@register_pytree_node_class
+
 class Residuals(Conditions):
     """ Creates the data structure for the residuals that solved in a mission
     

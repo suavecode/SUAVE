@@ -20,7 +20,7 @@ from SUAVE.Components import Lofted_Body, Mass_Properties, Physical_Component
 from SUAVE.Components.Airfoils import Airfoil
 
 import numpy as np
-from jax.tree_util import register_pytree_node_class
+
 
 
 # ------------------------------------------------------------
@@ -28,7 +28,7 @@ from jax.tree_util import register_pytree_node_class
 # ------------------------------------------------------------
 
 ## @ingroup Components-Wings
-@register_pytree_node_class
+
 class Wing(Lofted_Body):
     """This class defines the wing in SUAVE
 
@@ -243,7 +243,7 @@ class Wing(Lofted_Body):
 
         return    
 
-@register_pytree_node_class
+
 class Container(Physical_Component.Container):
     def get_children(self):
         """ Returns the components that can go inside

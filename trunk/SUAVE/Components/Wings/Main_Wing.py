@@ -16,14 +16,14 @@ from SUAVE.Core import ContainerOrdered
 from SUAVE.Components.Wings.Segment import Segment
 
 import numpy as np
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Attribute
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Wings
-@register_pytree_node_class
+
 class Main_Wing(Wing):
     """This class is used to define main wings in SUAVE
 
@@ -74,7 +74,7 @@ class Main_Wing(Wing):
         
         
 ## @ingroup Components-Wings
-@register_pytree_node_class        
+        
 class Segment_Container(ContainerOrdered):
     """ Container for wing segment
     

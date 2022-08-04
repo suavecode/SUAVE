@@ -73,7 +73,7 @@ class Turbofan(Network):
         self.generative_design_max_per_vehicle = 1
         self.generative_design_characteristics = ['sealevel_static_thrust','number_of_engines','bypass_ratio','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
         self.generative_design_char_min_bounds = [1000.,2.,0.1,0.,-0.7,-0.7]   
-        self.generative_design_char_max_bounds = [np.inf,2,np.inf,0.7,0.7,0.7]    
+        self.generative_design_char_max_bounds = [np.inf,2,np.inf,0.7,0.7,0.7]
         
     # linking the different network components
     def evaluate_thrust(self,state):

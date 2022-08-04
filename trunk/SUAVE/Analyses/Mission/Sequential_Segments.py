@@ -12,14 +12,14 @@
 import SUAVE
 from SUAVE.Methods import Missions as Methods
 from .Mission import Mission
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #   Class
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission
-@register_pytree_node_class
+
 class Sequential_Segments(Mission):
     """ Solves each segment one at time
     

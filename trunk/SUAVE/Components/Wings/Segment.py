@@ -13,14 +13,14 @@ import SUAVE
 from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Component, Lofted_Body
 import numpy as np
-from jax.tree_util import register_pytree_node_class
+
 
 # ------------------------------------------------------------ 
 #  Wing Segments
 # ------------------------------------------------------------
 
 ## @ingroup Components-Wings
-@register_pytree_node_class
+
 class Segment(Lofted_Body.Segment):
     def __defaults__(self):
         """This sets the default for wing segments in SUAVE.
@@ -98,7 +98,7 @@ class Segment(Lofted_Body.Segment):
 
         
 ## @ingroup Components-Wings
-@register_pytree_node_class        
+        
 class Segment_Container(ContainerOrdered):
     """ Container for wing segment
     

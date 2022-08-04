@@ -10,14 +10,14 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from jax.tree_util import register_pytree_node_class
+
 
 
 # ----------------------------------------------------------------------
 # Operating Costs class
 # ----------------------------------------------------------------------
 ## @ingroup Components-Costs
-@register_pytree_node_class    
+    
 class Operating_Costs(Data):
     """A class containing operating cost variables.
     
@@ -60,7 +60,7 @@ class Operating_Costs(Data):
 # Industrial Costs class
 # ----------------------------------------------------------------------
 ## @ingroup Components-Costs
-@register_pytree_node_class    
+    
 class Industrial_Costs(Data):
     """A class containing industrial cost variables.
     

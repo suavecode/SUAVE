@@ -20,13 +20,13 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import
 # package imports
 import copy
 import numpy as np
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Propulsion
-@register_pytree_node_class
+
 class Rotor_Wake_Fidelity_One(Energy_Component):
     """ SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One()
     

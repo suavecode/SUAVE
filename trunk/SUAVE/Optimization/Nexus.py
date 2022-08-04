@@ -21,7 +21,7 @@ from . import helper_functions as help_fun
 import numpy as np
 
 from jax import jacfwd, jit
-from jax.tree_util import register_pytree_node_class
+
 from functools import partial
 
 # ----------------------------------------------------------------------
@@ -29,7 +29,7 @@ from functools import partial
 # ----------------------------------------------------------------------
 
 ## @ingroup Optimization
-@register_pytree_node_class
+
 class Nexus(Data):
     """noun (plural same or nexuses)
         -a connection or series of connections linking two or more things

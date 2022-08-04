@@ -11,13 +11,13 @@
 from .Propellant import Propellant
 from SUAVE.Core import Data
 
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Jet_A Propellant Class
 # ----------------------------------------------------------------------
 ## @ingroup Attributes-Propellants
-@register_pytree_node_class
+
 class Jet_A(Propellant):
     """Holds values for this propellant
     

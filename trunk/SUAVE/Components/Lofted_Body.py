@@ -13,14 +13,14 @@
 from .Component          import Component
 from .Physical_Component import Physical_Component
 from SUAVE.Core         import DataOrdered
-from jax.tree_util import register_pytree_node_class
+
 
 # ------------------------------------------------------------
 #  Lofted Body
 # ------------------------------------------------------------
 
 ## @ingroup Components
-@register_pytree_node_class
+
 class Lofted_Body(Physical_Component):
     def __defaults__(self):
         """This sets the default values.
@@ -49,7 +49,7 @@ class Lofted_Body(Physical_Component):
 # ------------------------------------------------------------
 
 ## @ingroup Components
-@register_pytree_node_class
+
 class Segment(Component):
     """ A class that stubs out what a segment is
     

@@ -10,14 +10,14 @@
 # package imports
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Fuel Tank
 # ----------------------------------------------------------------------    
 
 ## @ingroup Components-Energy-Storages-Fuel_Tank
-@register_pytree_node_class
+
 class Fuel_Tank(Energy_Component):
     """
     Energy Component object that stores fuel. Contains values

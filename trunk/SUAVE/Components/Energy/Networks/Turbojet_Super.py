@@ -15,14 +15,14 @@ from .Network import Network
 
 import numpy as np
 
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Turbojet Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-@register_pytree_node_class
+
 class Turbojet_Super(Network):
     """ This is a turbojet for supersonic flight.
 

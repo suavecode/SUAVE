@@ -14,7 +14,7 @@ from .Component import Component
 from .Mass_Properties import Mass_Properties
 
 import numpy as np
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Physical Component
@@ -54,7 +54,7 @@ class Physical_Component(Component):
         self.symmetric = False
 
 ## @ingroup Components    
-@register_pytree_node_class
+
 class Container(Component.Container):
     """ A container of physical components
         

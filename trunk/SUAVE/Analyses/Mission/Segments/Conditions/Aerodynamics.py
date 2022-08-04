@@ -14,7 +14,7 @@
 
 # python imports
 import numpy as np
-from jax.tree_util import register_pytree_node_class
+
 
 # SUAVE imports
 from .Basic import Basic
@@ -25,7 +25,7 @@ from .Conditions import Conditions
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission-Segments-Conditions
-@register_pytree_node_class
+
 class Aerodynamics(Basic):
     """ This builds upon Basic, which itself builds on conditions, to add the data structure for aerodynamic mission analyses.
     

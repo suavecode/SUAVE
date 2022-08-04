@@ -13,7 +13,7 @@
 
 # python imports
 import numpy as np
-from jax.tree_util import register_pytree_node_class
+
 
 # SUAVE imports
 from SUAVE.Core                    import Data
@@ -24,7 +24,7 @@ from SUAVE.Core                    import Data
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission-Segments-Conditions
-@register_pytree_node_class
+
 class Conditions(Data):
     """ Conditions are the magic Data that contains the information about the vehicle in flight.
         At this point none of the information really exists. What is here are the methods that allow a mission

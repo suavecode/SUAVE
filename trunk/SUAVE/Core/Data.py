@@ -21,7 +21,8 @@ from .Arrays import atleast_2d_col, array_type, matrix_type, append_array
 
 from copy import copy
 
-from jax.tree_util import register_pytree_node_class
+from jax.tree_util import register_pytree_node
+import operator as op
 
 # for enforcing attribute style access names
 import string
@@ -38,7 +39,6 @@ objgetattrib = object.__getattribute__
 # ----------------------------------------------------------------------        
 
 ## @ingroup Core
-@register_pytree_node_class
 class Data(dict):
     """ An extension of the Python dict which allows for both tag and '.' usage.
         This is an unordered dictionary. So indexing it will not produce deterministic results.
@@ -255,6 +255,11 @@ class Data(dict):
             N/A    
         """         
         
+        # This passes JAX compatibility to children classes
+        try:
+            register_pytree_node(cls, op.methodcaller('tree_flatten'), cls.tree_unflatten)
+        except:
+            pass
         
         # initialize data, no inputs
         self = super(Data,cls).__new__(cls)
@@ -269,6 +274,8 @@ class Data(dict):
                 klass.__defaults__(self)
             except:
                 pass
+            
+  
             
         return self
     

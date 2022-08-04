@@ -21,7 +21,8 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
                             '_'*len(chars) + string.ascii_lowercase )
 
 import numpy as np
-from jax.tree_util import register_pytree_node_class
+from jax.tree_util import register_pytree_node
+import operator as op
 import jaxlib
 import types
 
@@ -127,7 +128,7 @@ class Property(object):
 # ----------------------------------------------------------------------        
 
 ## @ingroup Core
-@register_pytree_node_class
+
 class DataOrdered(OrderedDict):
     """ An extension of the Python dict which allows for both tag and '.' usage.
         This is an ordered dictionary. So indexing it will produce deterministic results.
@@ -328,6 +329,12 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """         
+        # This passes JAX compatibility to children classes
+        try:
+            register_pytree_node(cls, op.methodcaller('tree_flatten'), cls.tree_unflatten)
+        except:
+            pass        
+        
         # Make the new:
         self = OrderedDict.__new__(cls)
         

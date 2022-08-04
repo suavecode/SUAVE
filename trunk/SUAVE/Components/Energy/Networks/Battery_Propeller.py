@@ -28,14 +28,14 @@ import copy
 
 from SUAVE.Components.Energy.Converters import Rotor as rotor_class
 from SUAVE.Analyses.Propulsion import Rotor_Wake_Fidelity_One
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-@register_pytree_node_class
+
 class Battery_Propeller(Network):
     """ This is a simple network with a battery powering a propeller through
         an electric motor

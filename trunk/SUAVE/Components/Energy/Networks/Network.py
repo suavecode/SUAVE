@@ -14,7 +14,7 @@
 
 from SUAVE.Components import Physical_Component
 from SUAVE.Core import Data
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Network
@@ -66,9 +66,10 @@ class Network(Physical_Component):
         self.areas.maximum     = 0.0
         self.areas.exit        = 0.0
         self.areas.inflow      = 0.0
+        self.static_keys       = ['generative_design_characteristics']
         
 ## @ingroup Components-Energy-Networks
-@register_pytree_node_class        
+        
 class Container(Physical_Component.Container):
     """ SUAVE.Components.Energy.Networks.Network.Container()
         

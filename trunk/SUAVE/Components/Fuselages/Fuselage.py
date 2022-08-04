@@ -20,14 +20,14 @@ from SUAVE.Components import Physical_Component, Lofted_Body
 from SUAVE.Components.Lofted_Body_Segment.Segment import Segment_Container
 import numpy as np
 
-from jax.tree_util import register_pytree_node_class
+
 
 # ------------------------------------------------------------
 #  Fuselage
 # ------------------------------------------------------------
 
 ## @ingroup components-fuselages
-@register_pytree_node_class
+
 class Fuselage(Lofted_Body):
     """ This is a standard fuselage for a tube and wing aircraft.
     
@@ -172,7 +172,7 @@ class Fuselage(Lofted_Body):
 
         return
         
-@register_pytree_node_class
+
 class Container(Physical_Component.Container):
     def get_children(self):
         """ Returns the components that can go inside

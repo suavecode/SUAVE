@@ -12,12 +12,12 @@
 # ----------------------------------------------------------------------        
 
 from .DataOrdered import DataOrdered
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #   Data Container Base Class
 # ----------------------------------------------------------------------        
-@register_pytree_node_class
+
 class ContainerOrdered(DataOrdered):
     """ A dict-type container with attribute, item and index style access
         intended to hold a attribute-accessible list of DataOrdered(). This is ordered.

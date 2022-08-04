@@ -14,7 +14,7 @@
 from .Data     import Data
 from warnings import warn
 import random
-from jax.tree_util import register_pytree_node_class
+
 
 import string
 chars = string.punctuation + string.whitespace
@@ -27,7 +27,7 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 # ----------------------------------------------------------------------        
 
 ## @ingroup Core
-@register_pytree_node_class
+
 class Container(Data):
     """ A dict-type container with attribute, item and index style access
         intended to hold a attribute-accessible list of Data(). This is unordered.

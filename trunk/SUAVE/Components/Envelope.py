@@ -10,7 +10,7 @@
 
 from SUAVE.Core import Data
 from .Component import Component
-from jax.tree_util import register_pytree_node_class
+
 
 
 
@@ -19,7 +19,7 @@ from jax.tree_util import register_pytree_node_class
 # ----------------------------------------------------------------------
 
 ## @ingroup Components
-@register_pytree_node_class    
+    
 class Envelope(Component):
     """ Flight envelope for a vehicle
     

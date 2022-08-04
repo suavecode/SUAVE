@@ -14,7 +14,7 @@ from .Container import Container as ContainerBase
 from .Data import Data
 from .DataOrdered import DataOrdered
 import numpy as np
-from jax.tree_util import register_pytree_node_class
+
 
 # ----------------------------------------------------------------------
 #  Config
@@ -174,7 +174,7 @@ class Diffed_Data(Data):
 # ----------------------------------------------------------------------
 #  Config Container
 # ----------------------------------------------------------------------
-@register_pytree_node_class
+
 class Container(ContainerBase):
     """ A dict-type container with attribute, item and index style access
         intended to hold a attribute-accessible list of Data(). This is unordered.

@@ -11,7 +11,7 @@
 from .Conditions import Conditions
 
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
-from jax.tree_util import register_pytree_node_class
+
 
 import numpy as np
 
@@ -20,7 +20,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission-Segments-Conditions
-@register_pytree_node_class
+
 class Numerics(Conditions):
     """ Creates the data structure for the numerical solving of a mission.
     
