@@ -557,10 +557,10 @@ def rotate_points_with_quaternion(quat, points):
 def flip_1(A,B,T1,T2):
     """ This swaps values based on a double boolean
     
-    If T1 is false A and B are kept as is
+    If T1 is false A and B are kept as is. T2 is not used
     
     If T1 is true A and B are swapped
-    If T2 is true 
+    T2 is applied at the first position
 
     Assumptions: 
     None
@@ -570,9 +570,10 @@ def flip_1(A,B,T1,T2):
     
     
     Inputs:   
-    input_A
-    input_B
-    bool1
+    input_A  [int,float,array]
+    input_B  [int,float,array]
+    T1       [bool]
+    T2       [bool/int/float]
 
     Outputs:
     swapped or not values
@@ -588,10 +589,10 @@ def flip_1(A,B,T1,T2):
 def flip_2(A,B,T1,T2):
     """ This swaps values based on a double boolean
     
-    If T1 is false A and B are kept as is
+    If T1 is false A and B are kept as is. T2 is not used
     
     If T1 is true A and B are swapped
-    If T2 is true 
+    T2 is applied at the second position
 
     Assumptions: 
     None
@@ -601,9 +602,10 @@ def flip_2(A,B,T1,T2):
     
     
     Inputs:   
-    input_A
-    input_B
-    bool1
+    input_A  [int,float,array]
+    input_B  [int,float,array]
+    T1       [bool]
+    T2       [bool/int/float]
 
     Outputs:
     swapped or not values
