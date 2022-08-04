@@ -284,6 +284,7 @@ def copy_large_container(large_container, type_str):
                 data.is_slat                     = False
                 data.use_constant_hinge_fraction = obj.use_constant_hinge_fraction
                 data.hinge_vector                = obj.hinge_vector
+                data.deflection_last             = 0.
         container.append(data)
         
     return container
@@ -452,6 +453,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.hinge_fraction        = cs.hinge_fraction
     cs_wing.sign_duplicate        = cs.sign_duplicate
     cs_wing.deflection            = cs.deflection
+    cs_wing.deflection_last       = 0.
     
     #adjustments---------------------------------------------------------------------------------------------------
     #adjust origin - may need to be adjusted later

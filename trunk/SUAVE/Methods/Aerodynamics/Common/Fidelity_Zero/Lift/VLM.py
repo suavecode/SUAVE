@@ -161,6 +161,9 @@ def VLM(conditions,settings,geometry):
     # STEPS 1-9: Generate Panelization and Vortex Distribution
     # ------------------ --------------------------------------------------------------------    
     
+    if not VD.is_postprocessed:
+        raise ValueError('postprocess_VD has not been called since the panels have been modified')
+    
     # Unpack vortex distribution
     VD           = geometry.vortex_distribution
     n_sw         = np.array(VD.n_sw)

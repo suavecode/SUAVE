@@ -19,9 +19,12 @@ from SUAVE.Core import  Data
 from SUAVE.Components.Wings import All_Moving_Surface
 from SUAVE.Components.Fuselages import Fuselage
 from SUAVE.Components.Nacelles  import Nacelle
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_VD_helpers import postprocess_VD
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
+
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.deflect_control_surface import deflect_control_surface
 
 # ----------------------------------------------------------------------
 #  Generate Vortex Distribution
@@ -232,6 +235,8 @@ def generate_vortex_distribution(geometry,settings):
     VD.chordwise_breaks = jnp.array([], dtype=jnp.int32) # indices of the first panel in every strip      (given a list of all panels)
     VD.spanwise_breaks  = jnp.array([], dtype=jnp.int32) # indices of the first strip of panels in a wing (given chordwise_breaks)    
     VD.symmetric_wings  = jnp.array([], dtype=jnp.int32)
+    VD.surface_ID       = jnp.empty(shape=[0,1], dtype=jnp.int16) 
+    VD.surface_ID_full  = jnp.empty(shape=[0,1], dtype=jnp.int16)     
     
     VD.leading_edge_indices      = jnp.array([], dtype=bool)      # bool array of leading  edge indices (all false except for panels at leading  edge)
     VD.trailing_edge_indices     = jnp.array([], dtype=bool)      # bool array of trailing edge indices (all false except for panels at trailing edge)    
@@ -246,6 +251,7 @@ def generate_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------    
     VD.wing_areas  = [] # instantiate wing areas
     VD.vortex_lift = []
+    VD.counter     = 0
     
     #reformat/preprocess wings and control surfaces for VLM panelization
     VLM_wings = make_VLM_wings(geometry, settings)
@@ -255,13 +261,14 @@ def generate_vortex_distribution(geometry,settings):
     for wing in VD.VLM_wings:
         if not wing.is_a_control_surface:
             if show_prints: print('discretizing ' + wing.tag) 
-            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)            
+            VD, wing = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)            
                     
     for wing in VD.VLM_wings:
         if wing.is_a_control_surface:
             if show_prints:print('discretizing ' + wing.tag)
-            VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)     
-                    
+            VD, wing = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)     
+            
+            
     # ---------------------------------------------------------------------------------------
     # STEP 8: Unpack aircraft nacelle geometry
     # ---------------------------------------------------------------------------------------      
@@ -279,62 +286,26 @@ def generate_vortex_distribution(geometry,settings):
         if show_prints: print('discretizing ' + fus.tag)
         VD = generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,precision,model_fuselage)
 
-    # ---------------------------------------------------------------------------------------
-    # STEP 10: Postprocess VD information
-    # ---------------------------------------------------------------------------------------   
-    
-    total_sw = np.sum(VD.n_sw)
-    VD['leading_edge_indices_full'] = VD['leading_edge_indices']
-    VD['leading_edge_indices'] = LE_ind = jnp.where(VD['leading_edge_indices'],size=total_sw)
 
-    # Compute Panel Areas and Normals
-    VD.panel_areas = jnp.array(compute_panel_area(VD) , dtype=precision)
-    VD.normals     = jnp.array(compute_unit_normal(VD), dtype=precision)  
+    # ---------------------------------------------------------------------------------------
+    # STEP 10: Deflect Control Surfaces
+    # ---------------------------------------------------------------------------------------      
+    for wing in VD.VLM_wings:
+        wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)        
+        if wing.is_a_control_surface or wing_is_all_moving:
+            # Deflect the control surface
+            VD, wing = deflect_control_surface(VD, wing)
+            
+    # ---------------------------------------------------------------------------------------
+    # STEP 11: Postprocess VD information
+    # ---------------------------------------------------------------------------------------  
     
-    # Reshape chord_lengths
-    VD.chord_lengths = jnp.atleast_2d(VD.chord_lengths) #need to be 2D for later calculations
+    VD = postprocess_VD(VD, settings)
     
-    # Compute variables used in VORLAX
-    X1c   = (VD.XA1+VD.XB1)/2
-    X2c   = (VD.XA2+VD.XB2)/2
-    Z1c   = (VD.ZA1+VD.ZB1)/2
-    Z2c   = (VD.ZA2+VD.ZB2)/2
-    SLOPE = (Z2c - Z1c)/(X2c - X1c)
-    SLE   = SLOPE[LE_ind]   
-    D     = jnp.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
-    
-    # Pack VORLAX variables
-    VD.SLOPE = SLOPE
-    VD.SLE   = SLE
-    VD.D     = D
-    
-    # Do some final calculations for segmented breaks
-    chord_arange   = jnp.arange(0,len(VD.chordwise_breaks))
-    chord_breaksp1 = jnp.hstack((VD.chordwise_breaks,VD.n_cp))
-    chord_repeats  = jnp.diff(chord_breaksp1)
-    chord_segs     = jnp.repeat(chord_arange,chord_repeats,total_repeat_length=VD.n_cp)    
-    
-    span_arange   = jnp.arange(0,len(VD.spanwise_breaks))
-    span_breaksp1 = jnp.hstack((VD.spanwise_breaks,sum(VD.n_sw)))
-    span_repeats  = jnp.diff(span_breaksp1)
-    span_segs     = jnp.repeat(span_arange,span_repeats,total_repeat_length=total_sw)    
-        
-    VD.chord_segs = chord_segs
-    VD.span_segs  = span_segs
-    VD.total_sw   = total_sw
-    
-    # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
-    VD.XBAR  = jnp.ones(total_sw) * x_m
-    VD.ZBAR  = jnp.ones(total_sw) * z_m     
-    VD.stripwise_panels_per_strip = VD.panels_per_strip[VD.leading_edge_indices]
-    
-    # For JAX some things have to be fixed
-    VD['n_sw'] = tuple(VD['n_sw'])
-    VD.static_keys  = ['n_sw','total_sw','n_w']
-    
-    if show_prints: print('finish discretization')            
+    if show_prints: print('finish discretization')     
     
     return VD 
+
 
 # ----------------------------------------------------------------------
 #  Discretize Wings
@@ -375,6 +346,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     if sym_para is True :
         span = span/2
         VD.vortex_lift.append(wing.vortex_lift)
+        
+    VD.counter  +=1
+    wing.surface_ID = VD.counter*1
 
     # ---------------------------------------------------------------------------------------
     # STEP 3: Get discretization control variables  
@@ -510,7 +484,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     # Reflection plane = x-y plane for vertical wings. Otherwise, reflection plane = x-z plane
     signs         = jnp.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
     symmetry_mask = np.array([True,sym_para])
-    for sym_sign_ind, sym_sign in enumerate(signs[symmetry_mask]):
+    for sym_sign in signs[symmetry_mask]:
         # create empty vectors for coordinates 
         xah   = jnp.zeros(n_cw*n_sw)
         yah   = jnp.zeros(n_cw*n_sw)
@@ -539,12 +513,6 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         xbc   = jnp.zeros(n_cw*n_sw)
         ybc   = jnp.zeros(n_cw*n_sw)
         zbc   = jnp.zeros(n_cw*n_sw)     
-        xa_te = jnp.zeros(n_cw*n_sw)
-        ya_te = jnp.zeros(n_cw*n_sw)
-        za_te = jnp.zeros(n_cw*n_sw)    
-        xb_te = jnp.zeros(n_cw*n_sw)
-        yb_te = jnp.zeros(n_cw*n_sw)
-        zb_te = jnp.zeros(n_cw*n_sw)  
         xc    = jnp.zeros(n_cw*n_sw) 
         yc    = jnp.zeros(n_cw*n_sw) 
         zc    = jnp.zeros(n_cw*n_sw) 
@@ -552,22 +520,14 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         y     = jnp.zeros((n_cw+1)*(n_sw+1)) 
         z     = jnp.zeros((n_cw+1)*(n_sw+1))         
         cs_w  = jnp.zeros(n_sw)
-        
+
 
         # adjust origin for symmetry with special case for vertical symmetry
-        if vertical_wing:
-            wing_origin_x = wing_origin[0]
-            wing_origin_y = wing_origin[1]
-            wing_origin_z = wing_origin[2] * sym_sign
-        else:
-            wing_origin_x = wing_origin[0]
-            wing_origin_y = wing_origin[1] * sym_sign
-            wing_origin_z = wing_origin[2]       
+        wing_origin_x = wing_origin[0]
+        wing_origin_y = wing_origin[1] * ((1-vertical_wing)*sym_sign+vertical_wing)
+        wing_origin_z = wing_origin[2] * ((1-vertical_wing)+sym_sign*vertical_wing)
             
         # ---------------------------------------------------------------------------------------------------------
-        # Loop over each strip of panels in the wing
-        
-        
         # Setup items that will iterate in loop
         LE_inds        = jnp.zeros(n_cw*n_sw,dtype=bool)
         TE_inds        = jnp.zeros(n_cw*n_sw,dtype=bool)
@@ -601,12 +561,10 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             inds, i_break, cords = val
             inds, i_break, cords = wing_strip(i_break,wing,inds,cords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
                break_x_offset,break_z_offset,break_camber_xs,break_camber_zs,break_dihedral,section_span,
-               section_LE_cut,section_TE_cut,sym_sign,sym_sign_ind,vertical_wing,span_breaks_cs_ID,precision)    
+               section_LE_cut,section_TE_cut,sym_sign,vertical_wing,span_breaks_cs_ID,precision)    
             
             return [inds, i_break, cords]
             
-            
-        
         i_break = 0           
         
         indices, i_break, coords = lax.fori_loop(0, n_sw, wing_s, [indices, i_break, coords])
@@ -626,7 +584,6 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w = coords
     
 
-    
         # adjusting coordinate axis so reference point is at the nose of the aircraft------------------------------
         xah = xah + wing_origin_x # x coordinate of left corner of bound vortex 
         yah = yah + wing_origin_y # y coordinate of left corner of bound vortex 
@@ -665,32 +622,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         x   = x   + wing_origin_x  # x coordinate of control points on panel
         y   = y   + wing_origin_y  # y coordinate of control points on panel
         z   = z   + wing_origin_z  # y coordinate of control points on panel
-    
-        # find the location of the trailing edge panels of each wing-----------------------------------------------
-        locations = ((jnp.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
-        xc_te1 = jnp.repeat(jnp.atleast_2d(xc [locations]), n_cw , axis = 0)
-        yc_te1 = jnp.repeat(jnp.atleast_2d(yc [locations]), n_cw , axis = 0)
-        zc_te1 = jnp.repeat(jnp.atleast_2d(zc [locations]), n_cw , axis = 0)        
-        xa_te1 = jnp.repeat(jnp.atleast_2d(xa2[locations]), n_cw , axis = 0)
-        ya_te1 = jnp.repeat(jnp.atleast_2d(ya2[locations]), n_cw , axis = 0)
-        za_te1 = jnp.repeat(jnp.atleast_2d(za2[locations]), n_cw , axis = 0)
-        xb_te1 = jnp.repeat(jnp.atleast_2d(xb2[locations]), n_cw , axis = 0)
-        yb_te1 = jnp.repeat(jnp.atleast_2d(yb2[locations]), n_cw , axis = 0)
-        zb_te1 = jnp.repeat(jnp.atleast_2d(zb2[locations]), n_cw , axis = 0)     
-    
-        xc_te = jnp.hstack(xc_te1.T)
-        yc_te = jnp.hstack(yc_te1.T)
-        zc_te = jnp.hstack(zc_te1.T)        
-        xa_te = jnp.hstack(xa_te1.T)
-        ya_te = jnp.hstack(ya_te1.T)
-        za_te = jnp.hstack(za_te1.T)
-        xb_te = jnp.hstack(xb_te1.T)
-        yb_te = jnp.hstack(yb_te1.T)
-        zb_te = jnp.hstack(zb_te1.T) 
-    
-        # find spanwise locations 
-        y_sw = yc[locations]        
-    
+        
+        # VD discretization information----------------------------------------------------------------------------
+        
         # increment number of wings and panels
         n_panels = len(xch)
         VD.n_w  += 1             
@@ -700,11 +634,14 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         first_panel_ind  = VD.XAH.size
         first_strip_ind  = VD.chordwise_breaks.size
         chordwise_breaks = first_panel_ind + jnp.arange(n_panels)[0::n_cw]
+        ID = VD.counter*1
         
         VD.chordwise_breaks = jnp.append(VD.chordwise_breaks, jnp.int32(chordwise_breaks))
         VD.spanwise_breaks  = jnp.append(VD.spanwise_breaks , jnp.int32(first_strip_ind ))            
         VD.n_sw             =  np.append(VD.n_sw            ,  np.int16(n_sw)            )
         VD.n_cw             = jnp.append(VD.n_cw            , jnp.int16(n_cw)            )
+        VD.surface_ID       = np.append(VD.surface_ID      , np.ones(n_cw*n_sw)*ID*sym_sign) # Update me when the loop is gone
+        VD.surface_ID_full  = np.append(VD.surface_ID_full , np.ones((n_cw+1)*(n_sw+1))*ID*sym_sign) # Update me when the loop is gone          
     
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
@@ -730,15 +667,6 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.XB2    = jnp.append(VD.XB2  , jnp.array(xb2  , dtype=precision))                
         VD.YB2    = jnp.append(VD.YB2  , jnp.array(yb2  , dtype=precision))        
         VD.ZB2    = jnp.append(VD.ZB2  , jnp.array(zb2  , dtype=precision))    
-        VD.XC_TE  = jnp.append(VD.XC_TE, jnp.array(xc_te, dtype=precision))
-        VD.YC_TE  = jnp.append(VD.YC_TE, jnp.array(yc_te, dtype=precision)) 
-        VD.ZC_TE  = jnp.append(VD.ZC_TE, jnp.array(zc_te, dtype=precision))          
-        VD.XA_TE  = jnp.append(VD.XA_TE, jnp.array(xa_te, dtype=precision))
-        VD.YA_TE  = jnp.append(VD.YA_TE, jnp.array(ya_te, dtype=precision)) 
-        VD.ZA_TE  = jnp.append(VD.ZA_TE, jnp.array(za_te, dtype=precision)) 
-        VD.XB_TE  = jnp.append(VD.XB_TE, jnp.array(xb_te, dtype=precision))
-        VD.YB_TE  = jnp.append(VD.YB_TE, jnp.array(yb_te, dtype=precision)) 
-        VD.ZB_TE  = jnp.append(VD.ZB_TE, jnp.array(zb_te, dtype=precision))  
         VD.XAC    = jnp.append(VD.XAC  , jnp.array(xac  , dtype=precision))
         VD.YAC    = jnp.append(VD.YAC  , jnp.array(yac  , dtype=precision)) 
         VD.ZAC    = jnp.append(VD.ZAC  , jnp.array(zac  , dtype=precision)) 
@@ -749,18 +677,22 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.YC     = jnp.append(VD.YC   , jnp.array(yc   , dtype=precision))
         VD.ZC     = jnp.append(VD.ZC   , jnp.array(zc   , dtype=precision))  
         VD.X      = jnp.append(VD.X    , jnp.array(x    , dtype=precision))
-        VD.Y_SW   = jnp.append(VD.Y_SW , jnp.array(y_sw , dtype=precision))
         VD.Y      = jnp.append(VD.Y    , jnp.array(y    , dtype=precision))
         VD.Z      = jnp.append(VD.Z    , jnp.array(z    , dtype=precision))         
         VD.CS     = jnp.append(VD.CS   , jnp.array(cs_w , dtype=precision)) 
         VD.DY     = jnp.append(VD.DY   , jnp.array(del_y, dtype=precision))      
     #End symmetry loop
     VD.symmetric_wings = jnp.append(VD.symmetric_wings, int(sym_para))
-    return VD
+    
+    # Pack wing data
+    wing.n_sw = n_sw
+    wing.n_cw = n_cw    
+
+    return VD, wing
 
 def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
                break_x_offset,break_z_offset,break_camber_xs,break_camber_zs,break_dihedral,section_span,
-               section_LE_cut,section_TE_cut,sym_sign,sym_sign_ind,vertical_wing,span_breaks_cs_ID,precision):
+               section_LE_cut,section_TE_cut,sym_sign,vertical_wing,span_breaks_cs_ID,precision):
     """ This generates vortex distribution points for the given strip of wing 
 
     Assumptions: 
@@ -785,6 +717,9 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
     eta_a = (y_a[idx_y] - break_spans[i_break])  
     eta_b = (y_b[idx_y] - break_spans[i_break]) 
     eta   = (y_b[idx_y] - del_y[idx_y]/2 - break_spans[i_break]) 
+    
+    # Inverted wing
+    wing.inverted_wing = -np.sign(break_dihedral[i_break] - np.pi/2)    
 
     segment_chord_ratio = (break_chord[i_break+1] - break_chord[i_break])/section_span[i_break+1]
     segment_twist_ratio = (break_twist[i_break+1] - break_twist[i_break])/section_span[i_break+1]
@@ -922,84 +857,6 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
     zeta_prime_as = jnp.concatenate([zeta_prime_a1,jnp.array([zeta_prime_a2[-1]])])*1            
     zeta_prime_bs = jnp.concatenate([zeta_prime_b1,jnp.array([zeta_prime_b2[-1]])])*1   
     
-    # Deflect control surfaces-----------------------------------------------------------------------------
-    # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
-    # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
-    wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
-    if wing.is_a_control_surface or wing_is_all_moving:
-        
-        #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
-        #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
-        is_first_strip = (idx_y == 0)
-        if is_first_strip:
-            # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
-            ib_le_strip_corner = jnp.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
-            ib_te_strip_corner = jnp.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
-            
-            interp_fractions   = jnp.array([0.,    2.,    4.   ]) + wing.hinge_fraction
-            interp_domains     = jnp.array([0.,1., 2.,3., 4.,5.])
-            interp_ranges_ib   = jnp.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
-            ib_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ib)
-            
-            
-            #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
-            if wing.is_a_control_surface:
-                need_to_compute_hinge_vector = True
-            else: #wing is an all-moving surface
-                hinge_vector                 = jnp.array(wing.hinge_vector)
-                hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
-                                                not (hinge_vector==jnp.array([0.,0.,0.])).all()
-                need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
-                
-            if need_to_compute_hinge_vector:
-                ob_le_strip_corner = jnp.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
-                ob_te_strip_corner = jnp.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
-                interp_ranges_ob   = jnp.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
-                ob_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ob)
-            
-                use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
-                if use_root_chord_in_plane_normal: ob_hinge_point = ob_hinge_point.at[0].set(ib_hinge_point[0])
-            
-                hinge_vector       = ob_hinge_point - ib_hinge_point
-                hinge_vector       = hinge_vector / jnp.linalg.norm(hinge_vector)   
-            elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
-                HNG_1 = hinge_vector[1] * 1
-                HNG_2 = hinge_vector[2] * 1
-                
-                hinge_vector =  hinge_vector.at[1].set(HNG_2)
-                hinge_vector =  hinge_vector.at[2].set(HNG_1)
-                
-            #store hinge root point and direction vector
-            wing.hinge_root_point = ib_hinge_point
-            wing.hinge_vector     = hinge_vector
-            #END first strip calculations
-        
-        # get deflection angle
-        deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
-        symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
-        symmetry_multiplier  *= -1                   if vertical_wing      else 1
-        deflection_angle      = deflection_base_angle * symmetry_multiplier
-            
-        # make quaternion rotation matrix
-        quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, deflection_angle)
-        
-        # rotate strips
-        xi_prime_a1, y_prime_a1, zeta_prime_a1 = rotate_points_with_quaternion(quaternion, [xi_prime_a1,y_prime_a1,zeta_prime_a1])
-        xi_prime_ah, y_prime_ah, zeta_prime_ah = rotate_points_with_quaternion(quaternion, [xi_prime_ah,y_prime_ah,zeta_prime_ah])
-        xi_prime_ac, y_prime_ac, zeta_prime_ac = rotate_points_with_quaternion(quaternion, [xi_prime_ac,y_prime_ac,zeta_prime_ac])
-        xi_prime_a2, y_prime_a2, zeta_prime_a2 = rotate_points_with_quaternion(quaternion, [xi_prime_a2,y_prime_a2,zeta_prime_a2])
-                                                                                           
-        xi_prime_b1, y_prime_b1, zeta_prime_b1 = rotate_points_with_quaternion(quaternion, [xi_prime_b1,y_prime_b1,zeta_prime_b1])
-        xi_prime_bh, y_prime_bh, zeta_prime_bh = rotate_points_with_quaternion(quaternion, [xi_prime_bh,y_prime_bh,zeta_prime_bh])
-        xi_prime_bc, y_prime_bc, zeta_prime_bc = rotate_points_with_quaternion(quaternion, [xi_prime_bc,y_prime_bc,zeta_prime_bc])
-        xi_prime_b2, y_prime_b2, zeta_prime_b2 = rotate_points_with_quaternion(quaternion, [xi_prime_b2,y_prime_b2,zeta_prime_b2])
-                                                                                           
-        xi_prime_ch, y_prime_ch, zeta_prime_ch = rotate_points_with_quaternion(quaternion, [xi_prime_ch,y_prime_ch,zeta_prime_ch])
-        xi_prime   , y_prime   , zeta_prime    = rotate_points_with_quaternion(quaternion, [xi_prime   ,y_prime   ,zeta_prime   ])
-                                                                                           
-        xi_prime_as, y_prime_as, zeta_prime_as = rotate_points_with_quaternion(quaternion, [xi_prime_as,y_prime_as,zeta_prime_as])
-        xi_prime_bs, y_prime_bs, zeta_prime_bs = rotate_points_with_quaternion(quaternion, [xi_prime_bs,y_prime_bs,zeta_prime_bs])
-    
     # reflect over the plane y = z for a vertical wing-----------------------------------------------------
     inverted_wing = -jnp.sign(break_dihedral[i_break] - jnp.pi/2)
     if vertical_wing:
@@ -1098,8 +955,6 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
     indices = [leading_edge_indices,trailing_edge_indices,panels_per_strip,chordwise_panel_number,chord_lengths,
                tangent_incidence_angle,exposed_leading_edge_flags]
     
-    
-
 
     #increment i_break if needed; check for end of wing----------------------------------------------------
     cond = y_b[idx_y] == break_spans[i_break+1]
@@ -1182,8 +1037,6 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     trailing_edge_indices   = jnp.array([],dtype=bool)    
     panels_per_strip        = jnp.array([],dtype=jnp.int16)
     chordwise_panel_number  = jnp.array([],dtype=jnp.int16)
-    chord_lengths           = jnp.array([],dtype=precision)               
-    tangent_incidence_angle = jnp.array([],dtype=precision)               
 
     # geometry values
     origin     = fus.origin[0]
@@ -1372,22 +1225,11 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         RNMAX          = jnp.ones(n_cw, jnp.int16)*n_cw
         panel_numbers  = jnp.linspace(1,n_cw,n_cw, dtype=jnp.int16)
         
-        i_LE, i_TE     = idx_y*n_cw, (idx_y+1)*n_cw-1
-        LE_X           = (fhs_xa1[i_LE] + fhs_xb1[i_LE])/2
-        LE_Z           = (fhs_za1[i_LE] + fhs_zb1[i_LE])/2
-        TE_X           = (fhs_xa2[i_TE] + fhs_xb2[i_TE])/2
-        TE_Z           = (fhs_za2[i_TE] + fhs_zb2[i_TE])/2           
-        chord_adjusted = jnp.ones(n_cw) * jnp.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
-        tan_incidence  = jnp.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax      
-        chord_adjusted = jnp.array(chord_adjusted, dtype=precision)
-        tan_incidence  = jnp.array(tan_incidence , dtype=precision)
-        
         leading_edge_indices    = jnp.append(leading_edge_indices   , LE_inds       ) 
         trailing_edge_indices   = jnp.append(trailing_edge_indices  , TE_inds       )            
         panels_per_strip        = jnp.append(panels_per_strip       , RNMAX         )
         chordwise_panel_number  = jnp.append(chordwise_panel_number , panel_numbers )  
-        chord_lengths           = jnp.append(chord_lengths          , chord_adjusted)
-        tangent_incidence_angle = jnp.append(tangent_incidence_angle, tan_incidence )        
+
 
     # xyz positions for the right side of this fuselage's outermost panels
     fhs_x = fhs_x.at[-(n_cw+1):].set(jnp.concatenate([fhs_xi_b1,jnp.array([fhs_xi_b2[-1]])])+ fus.origin[0][0])
@@ -1397,39 +1239,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     fvs_z = fvs_z.at[-(n_cw+1):].set(jnp.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]         )
     fvs_y = fvs_y.at[-(n_cw+1):].set(jnp.zeros(n_cw+1)                 + fus.origin[0][1]   )
     fhs_cs =  (fhs.chord[:-1]+fhs.chord[1:])/2
-    fvs_cs =  (fvs.chord[:-1]+fvs.chord[1:])/2  
-    
-    # find the location of the trailing edge panels of each wing
-    locations = ((jnp.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
-    fhs_xc_te1 = jnp.repeat(jnp.atleast_2d(fhs_xc[locations]), n_cw , axis = 0)
-    fhs_yc_te1 = jnp.repeat(jnp.atleast_2d(fhs_yc[locations]), n_cw , axis = 0)
-    fhs_zc_te1 = jnp.repeat(jnp.atleast_2d(fhs_zc[locations]), n_cw , axis = 0)        
-    fhs_xa_te1 = jnp.repeat(jnp.atleast_2d(fhs_xa2[locations]), n_cw , axis = 0)
-    fhs_ya_te1 = jnp.repeat(jnp.atleast_2d(fhs_ya2[locations]), n_cw , axis = 0)
-    fhs_za_te1 = jnp.repeat(jnp.atleast_2d(fhs_za2[locations]), n_cw , axis = 0)
-    fhs_xb_te1 = jnp.repeat(jnp.atleast_2d(fhs_xb2[locations]), n_cw , axis = 0)
-    fhs_yb_te1 = jnp.repeat(jnp.atleast_2d(fhs_yb2[locations]), n_cw , axis = 0)
-    fhs_zb_te1 = jnp.repeat(jnp.atleast_2d(fhs_zb2[locations]), n_cw , axis = 0)     
-    
-    fhs_xc_te = jnp.hstack(fhs_xc_te1.T)
-    fhs_yc_te = jnp.hstack(fhs_yc_te1.T)
-    fhs_zc_te = jnp.hstack(fhs_zc_te1.T)        
-    fhs_xa_te = jnp.hstack(fhs_xa_te1.T)
-    fhs_ya_te = jnp.hstack(fhs_ya_te1.T)
-    fhs_za_te = jnp.hstack(fhs_za_te1.T)
-    fhs_xb_te = jnp.hstack(fhs_xb_te1.T)
-    fhs_yb_te = jnp.hstack(fhs_yb_te1.T)
-    fhs_zb_te = jnp.hstack(fhs_zb_te1.T)     
-    
-    fhs_xc_te = jnp.concatenate([fhs_xc_te , fhs_xc_te ])
-    fhs_yc_te = jnp.concatenate([fhs_yc_te , fhs_yc_te ])
-    fhs_zc_te = jnp.concatenate([fhs_zc_te ,-fhs_zc_te ])                 
-    fhs_xa_te = jnp.concatenate([fhs_xa_te , fhs_xa_te ])
-    fhs_ya_te = jnp.concatenate([fhs_ya_te , fhs_ya_te ])
-    fhs_za_te = jnp.concatenate([fhs_za_te ,-fhs_za_te ])            
-    fhs_xb_te = jnp.concatenate([fhs_xb_te , fhs_xb_te ])
-    fhs_yb_te = jnp.concatenate([fhs_yb_te , fhs_yb_te ])
-    fhs_zb_te = jnp.concatenate([fhs_zb_te ,-fhs_zb_te ])    
+    fvs_cs =  (fvs.chord[:-1]+fvs.chord[1:])/2     
 
     # Horizontal Fuselage Sections 
     wing_areas = []
@@ -1475,9 +1285,10 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     if model_geometry == True:
         
         # increment fuslage lifting surface sections  
-        VD.n_fus += 2    
-        VD.n_cp  += len(fhs_xch)
-        VD.n_w   += 2 
+        VD.n_fus   += 2    
+        VD.n_cp    += len(fhs_xch)
+        VD.n_w     += 2 
+        VD.counter += 1
         
         # store this fuselage's discretization information 
         n_panels         = n_sw*n_cw
@@ -1489,13 +1300,13 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         VD.spanwise_breaks  = jnp.append(VD.spanwise_breaks , jnp.int32(first_strip_ind ))            
         VD.n_sw             = jnp.append(VD.n_sw            , jnp.int16([n_sw, n_sw])    )
         VD.n_cw             = jnp.append(VD.n_cw            , jnp.int16([n_cw, n_cw])    )
+        VD.surface_ID       = jnp.append(VD.surface_ID      , jnp.ones(len(fhs_xch)) * VD.counter)
+        VD.surface_ID_full  = jnp.append(VD.surface_ID_full , jnp.ones(((n_sw+1)*(n_cw+1))*2) * VD.counter)        
         
         VD.leading_edge_indices      = jnp.append(VD.leading_edge_indices     , jnp.tile(leading_edge_indices        , 2) )
         VD.trailing_edge_indices     = jnp.append(VD.trailing_edge_indices    , jnp.tile(trailing_edge_indices       , 2) )           
         VD.panels_per_strip          = jnp.append(VD.panels_per_strip         , jnp.tile(panels_per_strip            , 2) )
         VD.chordwise_panel_number    = jnp.append(VD.chordwise_panel_number   , jnp.tile(chordwise_panel_number      , 2) ) 
-        VD.chord_lengths             = jnp.append(VD.chord_lengths            , jnp.tile(chord_lengths               , 2) )
-        VD.tangent_incidence_angle   = jnp.append(VD.tangent_incidence_angle  , jnp.tile(tangent_incidence_angle     , 2) ) 
         VD.exposed_leading_edge_flag = jnp.append(VD.exposed_leading_edge_flag, jnp.tile(jnp.ones(n_sw,dtype=jnp.int16), 2) )
     
         # Store fus in vehicle vector  
@@ -1519,16 +1330,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         VD.ZB1    = jnp.append(VD.ZB1  , jnp.array(fhs_zb1  , dtype=precision))
         VD.XB2    = jnp.append(VD.XB2  , jnp.array(fhs_xb2  , dtype=precision))                
         VD.YB2    = jnp.append(VD.YB2  , jnp.array(fhs_yb2  , dtype=precision))        
-        VD.ZB2    = jnp.append(VD.ZB2  , jnp.array(fhs_zb2  , dtype=precision))  
-        VD.XC_TE  = jnp.append(VD.XC_TE, jnp.array(fhs_xc_te, dtype=precision))
-        VD.YC_TE  = jnp.append(VD.YC_TE, jnp.array(fhs_yc_te, dtype=precision)) 
-        VD.ZC_TE  = jnp.append(VD.ZC_TE, jnp.array(fhs_zc_te, dtype=precision))          
-        VD.XA_TE  = jnp.append(VD.XA_TE, jnp.array(fhs_xa_te, dtype=precision))
-        VD.YA_TE  = jnp.append(VD.YA_TE, jnp.array(fhs_ya_te, dtype=precision)) 
-        VD.ZA_TE  = jnp.append(VD.ZA_TE, jnp.array(fhs_za_te, dtype=precision)) 
-        VD.XB_TE  = jnp.append(VD.XB_TE, jnp.array(fhs_xb_te, dtype=precision))
-        VD.YB_TE  = jnp.append(VD.YB_TE, jnp.array(fhs_yb_te, dtype=precision)) 
-        VD.ZB_TE  = jnp.append(VD.ZB_TE, jnp.array(fhs_zb_te, dtype=precision))      
+        VD.ZB2    = jnp.append(VD.ZB2  , jnp.array(fhs_zb2  , dtype=precision))       
         VD.XAC    = jnp.append(VD.XAC  , jnp.array(fhs_xac  , dtype=precision))
         VD.YAC    = jnp.append(VD.YAC  , jnp.array(fhs_yac  , dtype=precision)) 
         VD.ZAC    = jnp.append(VD.ZAC  , jnp.array(fhs_zac  , dtype=precision)) 
@@ -1551,185 +1353,3 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     
     
     return VD
-
-# ----------------------------------------------------------------------
-#  Panel Computations
-# ----------------------------------------------------------------------
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_panel_area(VD):
-    """ This computes the area of the panels on the lifting surface of the vehicle 
-
-    Assumptions: 
-    None
-
-    Source:   
-    None
-    
-    Inputs:   
-    VD                   - vortex distribution    
-    
-    Properties Used:
-    N/A
-    """     
-    
-    # create vectors for panel corders
-    P1P2 = jnp.array([VD.XB1 - VD.XA1,VD.YB1 - VD.YA1,VD.ZB1 - VD.ZA1]).T
-    P1P3 = jnp.array([VD.XA2 - VD.XA1,VD.YA2 - VD.YA1,VD.ZA2 - VD.ZA1]).T
-    P2P3 = jnp.array([VD.XA2 - VD.XB1,VD.YA2 - VD.YB1,VD.ZA2 - VD.ZB1]).T
-    P2P4 = jnp.array([VD.XB2 - VD.XB1,VD.YB2 - VD.YB1,VD.ZB2 - VD.ZB1]).T   
-    
-    # compute area of quadrilateral panel
-    A_panel = 0.5*(jnp.linalg.norm(jnp.cross(P1P2,P1P3),axis=1) + jnp.linalg.norm(jnp.cross(P2P3, P2P4),axis=1))
-    
-    return A_panel
-
-
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_unit_normal(VD):
-    """ This computes the unit normal vector of each panel
-
-
-    Assumptions: 
-    None
-
-    Source:
-    None
-    
-    Inputs:   
-    VD                   - vortex distribution    
-    
-    Properties Used:
-    N/A
-    """     
-
-     # create vectors for panel
-    P1P2 = jnp.array([VD.XB1 - VD.XA1,VD.YB1 - VD.YA1,VD.ZB1 - VD.ZA1]).T
-    P1P3 = jnp.array([VD.XA2 - VD.XA1,VD.YA2 - VD.YA1,VD.ZA2 - VD.ZA1]).T
-
-    cross = jnp.cross(P1P2,P1P3) 
-
-    unit_normal = (cross.T / jnp.linalg.norm(cross,axis=1)).T
-
-     # adjust Z values, no values should point down, flip vectors if so
-    #condition = jnp.where(unit_normal[:,2]<0)
-    cond = jnp.tile((unit_normal[:,2]<0)[:,jnp.newaxis],3)
-    unit_normal = jnp.where(cond,-unit_normal,unit_normal)
-    #unit_normal = unit_normal.at[condition,:].set(-unit_normal[condition,:])
-    
-
-    return unit_normal
-
-# ----------------------------------------------------------------------
-#  Rotation functions
-# ----------------------------------------------------------------------
-def rotate_points_about_line(point_on_line, direction_unit_vector, rotation_angle, points):
-    """ This computes the location of given points after rotating about an arbitrary 
-    line that passes through a given point. An important thing to note is that this
-    function does not modify the original points. It instead makes copies of the points
-    to rotate, rotates the copies, the outputs the copies as np.arrays.
-
-    Assumptions: 
-    None
-
-    Source:   
-    https://sites.google.com/site/glennmurray/Home/rotation-matrices-and-formulas/rotation-about-an-arbitrary-axis-in-3-dimensions
-    
-    Inputs:   
-    point_on_line         - a list or array of size 3 corresponding to point coords (a,b,c)
-    direction_unit_vector - a list or array of size 3 corresponding to unit vector  <u,v,w>
-    rotation_angle        - angle of rotation in radians
-    points                - a list or array of size 3 corresponding to the lists (xs, ys, zs)
-                            where xs, ys, and zs are the (x,y,z) coords of the points 
-                            that will be rotated
-    
-    Properties Used:
-    N/A
-    """       
-    a,  b,  c  = point_on_line
-    u,  v,  w  = direction_unit_vector
-    xs, ys, zs = jnp.array(points[0]), jnp.array(points[1]), jnp.array(points[2])
-    
-    cos         = jnp.cos(rotation_angle)
-    sin         = jnp.sin(rotation_angle)
-    uvw_dot_xyz = u*xs + v*ys + w*zs
-    
-    xs_prime = (a*(v**2 + w**2) - u*(b*v + c*w - uvw_dot_xyz))*(1-cos)  +  xs*cos  +  (-c*v + b*w - w*ys + v*zs)*sin
-    ys_prime = (b*(u**2 + w**2) - v*(a*u + c*w - uvw_dot_xyz))*(1-cos)  +  ys*cos  +  ( c*u - a*w + w*xs - u*zs)*sin
-    zs_prime = (c*(u**2 + v**2) - w*(a*u + b*v - uvw_dot_xyz))*(1-cos)  +  zs*cos  +  (-b*u + a*v - v*xs + u*ys)*sin
-    
-    return xs_prime, ys_prime, zs_prime
-    
-def make_hinge_quaternion(point_on_line, direction_unit_vector, rotation_angle):
-    """ This make a quaternion that will rotate a vector about a the line that 
-    passes through the point 'point_on_line' and has direction 'direction_unit_vector'.
-    The quat rotates 'rotation_angle' radians. The quat is meant to be multiplied by
-    the vector [x  y  z  1]
-
-    Assumptions: 
-    None
-
-    Source:   
-    https://sites.google.com/site/glennmurray/Home/rotation-matrices-and-formulas/rotation-about-an-arbitrary-axis-in-3-dimensions
-    
-    Inputs:   
-    point_on_line         - a list or array of size 3 corresponding to point coords (a,b,c)
-    direction_unit_vector - a list or array of size 3 corresponding to unit vector  <u,v,w>
-    rotation_angle        - angle of rotation in radians
-    n_points              - number of points that will be rotated
-    
-    Properties Used:
-    N/A
-    """       
-    a,  b,  c  = point_on_line
-    u,  v,  w  = direction_unit_vector
-    
-    cos         = jnp.cos(rotation_angle)
-    sin         = jnp.sin(rotation_angle)
-    
-    q11 = u**2 + (v**2 + w**2)*cos
-    q12 = u*v*(1-cos) - w*sin
-    q13 = u*w*(1-cos) + v*sin
-    q14 = (a*(v**2 + w**2) - u*(b*v + c*w))*(1-cos)  +  (b*w - c*v)*sin
-    
-    q21 = u*v*(1-cos) + w*sin
-    q22 = v**2 + (u**2 + w**2)*cos
-    q23 = v*w*(1-cos) - u*sin
-    q24 = (b*(u**2 + w**2) - v*(a*u + c*w))*(1-cos)  +  (c*u - a*w)*sin
-    
-    q31 = u*w*(1-cos) - v*sin
-    q32 = v*w*(1-cos) + u*sin
-    q33 = w**2 + (u**2 + v**2)*cos
-    q34 = (c*(u**2 + v**2) - w*(a*u + b*v))*(1-cos)  +  (a*v - b*u)*sin    
-    
-    quat = jnp.array([[q11, q12, q13, q14],
-                      [q21, q22, q23, q24],
-                      [q31, q32, q33, q34],
-                      [0. , 0. , 0. , 1. ]])
-    
-    return quat
-
-def rotate_points_with_quaternion(quat, points):
-    """ This rotates the points by a quaternion
-
-    Assumptions: 
-    None
-
-    Source:   
-    https://sites.google.com/site/glennmurray/Home/rotation-matrices-and-formulas/rotation-about-an-arbitrary-axis-in-3-dimensions
-    
-    Inputs:   
-    quat     - a quaternion that will rotate the given points about a line which 
-               is not necessarily at the origin  
-    points   - a list or array of size 3 corresponding to the lists (xs, ys, zs)
-               where xs, ys, and zs are the (x,y,z) coords of the points 
-               that will be rotated
-    
-    Outputs:
-    xs, ys, zs - np arrays of the rotated points' xyz coordinates
-    
-    Properties Used:
-    N/A
-    """     
-    vectors = jnp.array([points[0],points[1],points[2],jnp.ones(len(points[0]))]).T
-    x_primes, y_primes, z_primes = jnp.sum(quat[0]*vectors, axis=1), jnp.sum(quat[1]*vectors, axis=1), jnp.sum(quat[2]*vectors, axis=1)
-    return x_primes, y_primes, z_primes
