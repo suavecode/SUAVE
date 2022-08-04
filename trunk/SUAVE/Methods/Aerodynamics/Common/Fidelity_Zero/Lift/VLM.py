@@ -478,6 +478,10 @@ def VLM(conditions,settings,geometry):
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES
     cdi_y    = DRAG/CHORD_strip/ES
+    #length = len(LIFT[0])
+    #testCLwing = LIFT[:,0:length//8] + LIFT[:,length//4:3*length//8]
+    
+    #CL_wing  = np.atleast_2d(np.sum(testCLwing, axis=1)/SREF).T #np.add.reduceat(LIFT,span_breaks,axis=1)/SURF
     CL_wing  = np.add.reduceat(LIFT,span_breaks,axis=1)/SURF
     CDi_wing = np.add.reduceat(DRAG,span_breaks,axis=1)/SURF
     alpha_i  = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
@@ -520,6 +524,7 @@ def VLM(conditions,settings,geometry):
     results.V_distribution = rhs.V_distribution
     results.V_x            = rhs.Vx_ind_total
     results.V_z            = rhs.Vz_ind_total
+    VD.gamma = np.array(GAMMA , dtype=precision)
     
     return results
 
