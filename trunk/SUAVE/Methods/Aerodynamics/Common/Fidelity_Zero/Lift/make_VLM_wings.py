@@ -271,6 +271,7 @@ def copy_large_container(large_container, type_str):
         #special case new attributes
         if type_str == 'control_surfaces':
             data.cs_type                     = type(obj) # needed to identify the class of a control surface
+            data['static_keys']              = ['cs_type']
         elif type_str == 'wings':
             data.wing_type = type(obj)
             try:

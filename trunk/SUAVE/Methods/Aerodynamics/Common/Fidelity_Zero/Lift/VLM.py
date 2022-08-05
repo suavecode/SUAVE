@@ -27,7 +27,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-@jit
+#@jit
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients.
     
@@ -160,9 +160,6 @@ def VLM(conditions,settings,geometry):
     # ---------------------------------------------------------------------------------------
     # STEPS 1-9: Generate Panelization and Vortex Distribution
     # ------------------ --------------------------------------------------------------------    
-    
-    if not VD.is_postprocessed:
-        raise ValueError('postprocess_VD has not been called since the panels have been modified')
     
     # Unpack vortex distribution
     VD           = geometry.vortex_distribution
@@ -455,7 +452,7 @@ def VLM(conditions,settings,geometry):
     CL_wing  = segment_sum(LIFT.T,span_segs,n_w).T/SURF
     CDi_wing = segment_sum(DRAG.T,span_segs,n_w).T/SURF    
     
-    #alpha_i  = jnp.hsplit(jnp.arctan(cdi_y/cl_y),span_breaks[1:])
+    alpha_i  = jnp.hsplit(jnp.arctan(cdi_y/cl_y),span_breaks[1:])
     
     # Now calculate total coefficients
     CL       = jnp.atleast_2d(jnp.sum(LIFT,axis=1)/SREF).T          # CLTOT in VORLAX
@@ -488,7 +485,7 @@ def VLM(conditions,settings,geometry):
     results.CDi_wing       = CDi_wing 
     results.cl_y           = cl_y   
     results.cdi_y          = cdi_y       
-    #results.alpha_i        = alpha_i  
+    results.alpha_i        = alpha_i  
     results.CP             = jnp.array(CP    , dtype=precision)
     results.gamma          = jnp.array(GAMMA , dtype=precision)
     results.VD             = VD

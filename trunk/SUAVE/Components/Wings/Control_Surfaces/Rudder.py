@@ -15,7 +15,7 @@ from SUAVE.Components.Wings.Control_Surfaces.Control_Surface import Control_Surf
 # ----------------------------------------------------------------------
 ## @ingroup Components-Wings-Control_Surfaces
 class Rudder(Control_Surface):
-    """This class is used to define slats in SUAVE
+    """This class is used to define rudders in SUAVE
 
     Assumptions:
     None
@@ -33,7 +33,7 @@ class Rudder(Control_Surface):
     N/A
     """ 
     def __defaults__(self):
-        """This sets the default for slats in SUAVE.
+        """This sets the default for rudders in SUAVE.
         
         see Control_Surface().__defaults__ for an explanation of attributes
     

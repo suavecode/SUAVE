@@ -11,6 +11,7 @@
 
 # package imports 
 import jax.numpy as jnp
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  postprocess_VD
@@ -38,21 +39,19 @@ def postprocess_VD(VD, settings):
     Properties Used:
     N/A
     """     
+    # Setup static items
+    total_sw = np.sum(VD.n_sw)
+    VD['leading_edge_indices_full'] = VD['leading_edge_indices']
+    VD['leading_edge_indices']      = LE_ind = jnp.where(VD['leading_edge_indices'],size=total_sw)
+    VD['trailing_edge_indices']     = TE_ind = jnp.where(VD['trailing_edge_indices'],size=total_sw)
+        
     #unpack
     precision  = settings.floating_point_precision   
-    LE_ind     = VD.leading_edge_indices
-    TE_ind     = VD.trailing_edge_indices
     strip_n_cw = VD.panels_per_strip[LE_ind]
     
     last_wing_ID = list(VD.VLM_wings.values())[-1].surface_ID # assumes last VLM_wing in its container is last to get discretized
     is_VLM_wing  = jnp.abs(VD.surface_ID) <= last_wing_ID
     
-    # Setup dict objects
-    total_sw = np.sum(VD.n_sw)
-    VD['leading_edge_indices_full'] = VD['leading_edge_indices']
-    VD['leading_edge_indices'] = LE_ind = jnp.where(VD['leading_edge_indices'],size=total_sw)
-    
-
     # Compute Panel Areas and Normals
     VD.panel_areas = jnp.array(compute_panel_area(VD) , dtype=precision)
     VD.normals     = jnp.array(compute_unit_normal(VD), dtype=precision)  
@@ -74,21 +73,21 @@ def postprocess_VD(VD, settings):
     LE_Z           = Z1c[LE_ind]
     TE_X           = X2c[TE_ind]
     TE_Z           = Z2c[TE_ind]
-    tan_incidence  = jnp.repeat((LE_Z-TE_Z)/(LE_X-TE_X), strip_n_cw) # ZETA  in vorlax
-    chord_adjusted = jnp.repeat(jnp.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2), strip_n_cw) # CHORD in vorlax
+    tan_incidence  = jnp.repeat((LE_Z-TE_Z)/(LE_X-TE_X), strip_n_cw,total_repeat_length=VD.n_cp) # ZETA  in vorlax
+    chord_adjusted = jnp.repeat(jnp.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2), strip_n_cw,total_repeat_length=VD.n_cp) # CHORD in vorlax
     
-    XC_TE_wings  = jnp.repeat(VD.XC [TE_ind], strip_n_cw)
-    YC_TE_wings  = jnp.repeat(VD.YC [TE_ind], strip_n_cw)
-    ZC_TE_wings  = jnp.repeat(VD.ZC [TE_ind], strip_n_cw)
-    XA_TE_wings  = jnp.repeat(VD.XA2[TE_ind], strip_n_cw)
-    YA_TE_wings  = jnp.repeat(VD.YA2[TE_ind], strip_n_cw)
-    ZA_TE_wings  = jnp.repeat(VD.ZA2[TE_ind], strip_n_cw)
-    XB_TE_wings  = jnp.repeat(VD.XB2[TE_ind], strip_n_cw)
-    YB_TE_wings  = jnp.repeat(VD.YB2[TE_ind], strip_n_cw)
-    ZB_TE_wings  = jnp.repeat(VD.ZB2[TE_ind], strip_n_cw)    
+    XC_TE_wings  = jnp.repeat(VD.XC [TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
+    YC_TE_wings  = jnp.repeat(VD.YC [TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
+    ZC_TE_wings  = jnp.repeat(VD.ZC [TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
+    XA_TE_wings  = jnp.repeat(VD.XA2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
+    YA_TE_wings  = jnp.repeat(VD.YA2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
+    ZA_TE_wings  = jnp.repeat(VD.ZA2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
+    XB_TE_wings  = jnp.repeat(VD.XB2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
+    YB_TE_wings  = jnp.repeat(VD.YB2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
+    ZB_TE_wings  = jnp.repeat(VD.ZB2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)    
     
     # Compute wing-only values
-    Y_SW = VD.YC[is_VLM_wing*TE_ind]
+    #Y_SW = VD.YC[is_VLM_wing*TE_ind]
     
     # Pack VORLAX variables
     VD.SLOPE                   = SLOPE
@@ -96,7 +95,7 @@ def postprocess_VD(VD, settings):
     VD.D                       = D         
     VD.tangent_incidence_angle = tan_incidence
     VD.chord_lengths           = jnp.atleast_2d(chord_adjusted)
-    VD.Y_SW                    = Y_SW
+    #VD.Y_SW                    = Y_SW
     VD.total_sw                = total_sw
     
     # Do some final calculations for segmented breaks
@@ -115,8 +114,8 @@ def postprocess_VD(VD, settings):
     VD.total_sw   = total_sw
     
     # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
-    VD.XBAR  = jnp.ones(total_sw) * VD.x_mx_m
-    VD.ZBAR  = jnp.ones(total_sw) * VD.x_mz_m     
+    VD.XBAR  = jnp.ones(total_sw) * VD.x_m
+    VD.ZBAR  = jnp.ones(total_sw) * VD.x_m     
     VD.stripwise_panels_per_strip = VD.panels_per_strip[VD.leading_edge_indices]
     
     # For JAX some things have to be fixed

@@ -276,7 +276,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.n_fus      = 0
     for nac in geometry.nacelles:
         if show_prints: print('discretizing ' + nac.tag)
-        VD = generate_fuselage_and_nacelle_vortex_distribution(VD,nac,n_cw_fuse,n_sw_fuse,precision,model_nacelle).s
+        VD = generate_fuselage_and_nacelle_vortex_distribution(VD,nac,n_cw_fuse,n_sw_fuse,precision,model_nacelle)
 
     # ---------------------------------------------------------------------------------------
     # STEP 9: Unpack aircraft fuselage geometry
@@ -540,7 +540,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         indices = [LE_inds,TE_inds,RNMAX,panel_numbers,chord_adjusted,tan_incidence,exposed_leading_edge_flag]
         
         coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,\
-                  ybc,zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]
+                  ybc,zbc,xc,yc,zc,x,y,z,cs_w]
 
         
         def wing_s(idx_y,val):
@@ -558,16 +558,16 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             Properties Used:
             N/A
             """                 
-            inds, i_break, cords = val
-            inds, i_break, cords = wing_strip(i_break,wing,inds,cords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
+            inds, i_break, cords, wingg = val
+            inds, i_break, cords, wingg = wing_strip(i_break,wingg,inds,cords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
                break_x_offset,break_z_offset,break_camber_xs,break_camber_zs,break_dihedral,section_span,
                section_LE_cut,section_TE_cut,sym_sign,vertical_wing,span_breaks_cs_ID,precision)    
             
-            return [inds, i_break, cords]
+            return [inds, i_break, cords, wing]
             
         i_break = 0           
         
-        indices, i_break, coords = lax.fori_loop(0, n_sw, wing_s, [indices, i_break, coords])
+        indices, i_break, coords, wing = lax.fori_loop(0, n_sw, wing_s, [indices, i_break, coords, wing])
         
         LE_inds,TE_inds,RNMAX,panel_numbers,chord_adjusted,tan_incidence,exposed_leading_edge_flag = indices
         
@@ -581,7 +581,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         
 
         xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,\
-            xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w = coords
+           xc,yc,zc,x,y,z,cs_w = coords
     
 
         # adjusting coordinate axis so reference point is at the nose of the aircraft------------------------------
@@ -640,8 +640,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
         VD.spanwise_breaks  = jnp.append(VD.spanwise_breaks , jnp.int32(first_strip_ind ))            
         VD.n_sw             =  np.append(VD.n_sw            ,  np.int16(n_sw)            )
         VD.n_cw             = jnp.append(VD.n_cw            , jnp.int16(n_cw)            )
-        VD.surface_ID       = np.append(VD.surface_ID      , np.ones(n_cw*n_sw)*ID*sym_sign) # Update me when the loop is gone
-        VD.surface_ID_full  = np.append(VD.surface_ID_full , np.ones((n_cw+1)*(n_sw+1))*ID*sym_sign) # Update me when the loop is gone          
+        VD.surface_ID       = jnp.append(VD.surface_ID      , jnp.ones(n_cw*n_sw)*ID*sym_sign)         # Update me when the loop is gone
+        VD.surface_ID_full  = jnp.append(VD.surface_ID_full , jnp.ones((n_cw+1)*(n_sw+1))*ID*sym_sign) # Update me when the loop is gone          
     
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
@@ -709,8 +709,8 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
     """     
     
     
-    xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,xa_te,\
-        ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w = coords
+    xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,zbc,\
+        xc,yc,zc,x,y,z,cs_w = coords
     
     # define basic geometric values------------------------------------------------------------------------
     # inboard, outboard, and central panel values
@@ -719,7 +719,7 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
     eta   = (y_b[idx_y] - del_y[idx_y]/2 - break_spans[i_break]) 
     
     # Inverted wing
-    wing.inverted_wing = -np.sign(break_dihedral[i_break] - np.pi/2)    
+    wing.inverted_wing = -jnp.sign(break_dihedral[i_break] - np.pi/2)    
 
     segment_chord_ratio = (break_chord[i_break+1] - break_chord[i_break])/section_span[i_break+1]
     segment_twist_ratio = (break_twist[i_break+1] - break_twist[i_break])/section_span[i_break+1]
@@ -968,9 +968,9 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
     #End 'for each strip' loop     
     
     coords = [xah,yah,zah,xbh,ybh,zbh,xch,ych,zch,xa1,ya1,za1,xa2,ya2,za2,xb1,yb1,zb1,xb2,yb2,zb2,xac,yac,zac,xbc,ybc,
-              zbc,xa_te,ya_te,za_te,xb_te,yb_te,zb_te,xc,yc,zc,x,y,z,cs_w]    
+              zbc,xc,yc,zc,x,y,z,cs_w]    
     
-    return indices, i_break, coords
+    return indices, i_break, coords, wing
 
 # ----------------------------------------------------------------------
 #  Discretize Fuselage

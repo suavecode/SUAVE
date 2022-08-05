@@ -15,7 +15,7 @@
 
 import numpy as np
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units, to_numpy
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 
@@ -153,7 +153,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     # Fill out more segment properties automatically
-    wing = wing_segmented_planform(wing)    
+    wing = to_numpy(wing_segmented_planform(wing))
 
     # control surfaces -------------------------------------------
     slat                          = SUAVE.Components.Wings.Control_Surfaces.Slat()
@@ -242,7 +242,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     # Fill out more segment properties automatically
-    wing = wing_segmented_planform(wing)        
+    wing = to_numpy(wing_segmented_planform(wing))     
 
     # control surfaces -------------------------------------------
     elevator                       = SUAVE.Components.Wings.Control_Surfaces.Elevator()
@@ -324,7 +324,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     # Fill out more segment properties automatically
-    wing = wing_segmented_planform(wing)        
+    wing = to_numpy(wing_segmented_planform(wing))     
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -812,7 +812,7 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag                                                       = 'cutback'
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
-    config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
+    #config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
     #Noise input for the landing gear                                
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Cutback_'
@@ -831,7 +831,7 @@ def configs_setup(vehicle):
     config.tag = 'landing'
 
     config.wings['main_wing'].control_surfaces.flap.deflection       = 30. * Units.deg
-    config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg  
+    #config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg  
     #Noise input for the landing gear                              
     config.landing_gear.gear_condition                               = 'down'    
     config.output_filename                                           = 'Approach_'
