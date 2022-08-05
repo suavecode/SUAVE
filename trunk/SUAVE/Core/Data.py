@@ -847,7 +847,7 @@ class Data(dict):
         valid_types = ( int, float,
                         array_type,
                         matrix_type,
-                        jnp.array)
+                        jnp.ndarray)
         
         # counter for unpacking
         _index = [0]

@@ -27,7 +27,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-#@jit
+@jit
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients.
     
@@ -173,6 +173,8 @@ def VLM(conditions,settings,geometry):
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
     panel_strips = VD.stripwise_panels_per_strip
+    span_breaks  = VD.spanwise_breaks
+    
 
     w_span       = VD.w_span
     c_bar        = VD.c_bar
@@ -452,7 +454,7 @@ def VLM(conditions,settings,geometry):
     CL_wing  = segment_sum(LIFT.T,span_segs,n_w).T/SURF
     CDi_wing = segment_sum(DRAG.T,span_segs,n_w).T/SURF    
     
-    alpha_i  = jnp.hsplit(jnp.arctan(cdi_y/cl_y),span_breaks[1:])
+    alpha_i  = jnp.arctan(cdi_y/cl_y)
     
     # Now calculate total coefficients
     CL       = jnp.atleast_2d(jnp.sum(LIFT,axis=1)/SREF).T          # CLTOT in VORLAX

@@ -688,6 +688,9 @@ def calculate_VLM(conditions,settings,geometry):
     dim_wing_lifts = CL_wing  * areas
     dim_wing_drags = CDi_wing * areas
     
+    # alpha_i needs to be split
+    alpha_i = np.hsplit(alpha_i,geometry.vortex_distribution.spanwise_breaks)
+    
     i = 0
     # Assign the lift and drag and non-dimensionalize
     for wing in geometry.wings.values():
