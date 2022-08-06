@@ -11,7 +11,8 @@
 # ----------------------------------------------------------------------
 
 from .Gas import Gas
-import jax.numpy as jnp
+#import jax.numpy as jnp
+import numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Air Gas Class

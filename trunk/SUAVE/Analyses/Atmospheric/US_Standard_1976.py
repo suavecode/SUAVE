@@ -9,7 +9,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from jax import numpy as jnp
+#from jax import numpy as jnp
+import numpy as jnp
 from warnings import warn
 
 import SUAVE

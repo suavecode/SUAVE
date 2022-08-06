@@ -8,7 +8,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data, DataOrdered
 
 from jax import numpy as jnp
 import numpy as np
@@ -44,8 +44,8 @@ def to_numpy(obj):
     if isinstance(obj, jnp.ndarray) and not isinstance(obj,np.ndarray):
         obj = np.array(obj)
 
-    # Check if the object is a numpy array, return the jnp version
-    elif isinstance(obj,Data):
+    # Check if the object is data
+    elif isinstance(obj,(Data,DataOrdered)):
         obj = obj.do_recursive(to_numpy)    
 
     elif isinstance(obj,str):
@@ -57,6 +57,7 @@ def to_numpy(obj):
             obj = obj.__class__(map(to_numpy,obj))    
         except:
             pass
+            
     
     return obj
 
@@ -86,7 +87,7 @@ def to_jnumpy(obj):
         obj = jnp.array(obj)
         
     # Check if the object is a numpy array, return the jnp version
-    elif isinstance(obj,Data):
+    elif isinstance(obj,(Data,DataOrdered)):
         obj = obj.do_recursive(to_jnumpy)    
 
     elif isinstance(obj,str):

@@ -169,7 +169,7 @@ class Vortex_Lattice(Aerodynamics):
         # build the vortex distribution
         # generate vortex distribution (VLM steps 1-9)
         geometry                     = self.geometry
-        self.geometry.vortex_distribution = generate_vortex_distribution(geometry,settings)          
+        self.geometry.vortex_distribution = to_numpy(generate_vortex_distribution(geometry,settings))     
         
         # If we are using the surrogate
         if use_surrogate == True: 

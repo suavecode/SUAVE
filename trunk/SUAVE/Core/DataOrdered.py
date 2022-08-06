@@ -1067,6 +1067,62 @@ class DataOrdered(OrderedDict):
         """          
         for k in self.__iter():
             yield (k, self[k])   
+            
+            
+    def do_recursive(self,method,other=None,default=None):
+        """ Recursively applies a method of the class.
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            method  - name of the method to access
+    
+            Outputs:
+            Result  - the results of the method
+    
+            Properties Used:
+            N/A    
+        """          
+    
+        # result data structure
+        klass = self.__class__
+        result = klass()
+    
+        # the update function
+        def do_operation(A,B,C):
+            for k,a in A.items():
+                if isinstance(B,DataOrdered):
+                    if k in B:
+                        b = B[k]
+                    else: 
+                        C[k] = a
+                        continue
+                else:
+                    b = B
+                # recursion
+                if isinstance(a,DataOrdered):
+                    c = a.__class__()
+                    C[k] = c
+                    do_operation(a,b,c)
+                # method
+                else:
+                    if b is None:
+                        c = method(a)
+                    else:
+                        c = method(a,b)
+                    if not c is None:
+                        C[k] = c
+                #: if type
+            #: for each key,value
+    
+        # do the update!
+        do_operation(self,other,result)    
+    
+        return result    
 
 
 # for rebuilding dictionaries with attributes
