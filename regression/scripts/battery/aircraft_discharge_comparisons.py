@@ -39,16 +39,18 @@ def main():
     # ----------------------------------------------------------------------    
 
     # General Aviation Aircraft   
-
     GA_RPM_true              = [2285.3601728390076,2285.3601727299374]
     GA_lift_coefficient_true = [0.5474716961975755,0.5474716961975755]
     
-
     # EVTOL Aircraft      
     EVTOL_RPM_true              = [2404.5599353381335,2404.5599354104666]
-    EVTOL_lift_coefficient_true = [0.589001696937736,0.5950616125292438]
+    EVTOL_lift_coefficient_true = [0.5950616126321425,0.5950616125292438]
     
-        
+    GA_RPM = np.zeros_like(GA_RPM_true)
+    GA_lift_coefficient = np.zeros_like(GA_lift_coefficient_true)
+    EVTOL_RPM = np.zeros_like(EVTOL_RPM_true)
+    EVTOL_lift_coefficient = np.zeros_like(EVTOL_lift_coefficient_true)
+    
     for i in range(len(battery_chemistry)):
         print('***********************************')
         print(battery_chemistry[i] + ' Cell Powered Aircraft')
@@ -69,22 +71,19 @@ def main():
         plot_results(GA_results,line_style_new[i],line_style2_new[i])  
         
         # RPM of rotor check during hover
-        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0] 
-        print('GA RPM: ' + str(GA_RPM))
-        GA_diff_RPM   = np.abs(GA_RPM - GA_RPM_true[i])
+        GA_RPM[i]        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0] 
+        print('GA RPM: ' + str(GA_RPM[i]))
+        GA_diff_RPM   = np.abs(GA_RPM[i] - GA_RPM_true[i])
         print('RPM difference')
-        print(GA_diff_RPM)
-        assert np.abs((GA_RPM - GA_RPM_true[i])/GA_RPM_true[i]) < 1e-6  
+        print(GA_diff_RPM) 
         
         # lift Coefficient Check During Cruise
-        GA_lift_coefficient        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
-        print('GA CL: ' + str(GA_lift_coefficient)) 
-        GA_diff_CL                 = np.abs(GA_lift_coefficient  - GA_lift_coefficient_true[i]) 
+        GA_lift_coefficient[i]        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
+        print('GA CL: ' + str(GA_lift_coefficient[i])) 
+        GA_diff_CL                 = np.abs(GA_lift_coefficient[i]  - GA_lift_coefficient_true[i]) 
         print('CL difference')
         print(GA_diff_CL)
-        assert np.abs((GA_lift_coefficient  - GA_lift_coefficient_true[i])/GA_lift_coefficient_true[i]) < 1e-6
-            
-            
+        
       
         print('\nLift-Cruise Network Analysis')  
         print('--------------------------------------')
@@ -101,22 +100,26 @@ def main():
         plot_results(EVTOL_results,line_style_new[i],line_style2_new[i])  
         
         # RPM of rotor check during hover
-        EVTOL_RPM        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0] 
-        print('EVTOL RPM: ' + str(EVTOL_RPM)) 
-        EVTOL_diff_RPM   = np.abs(EVTOL_RPM - EVTOL_RPM_true[i])
+        EVTOL_RPM[i]        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0] 
+        print('EVTOL RPM: ' + str(EVTOL_RPM[i])) 
+        EVTOL_diff_RPM   = np.abs(EVTOL_RPM[i] - EVTOL_RPM_true[i])
         print('EVTOL_RPM difference')
         print(EVTOL_diff_RPM)
-        assert np.abs((EVTOL_RPM - EVTOL_RPM_true[i])/EVTOL_RPM_true[i]) < 1e-6  
         
         # lift Coefficient Check During Cruise
-        EVTOL_lift_coefficient        = EVTOL_results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[2][0] 
-        print('EVTOL CL: ' + str(EVTOL_lift_coefficient)) 
-        EVTOL_diff_CL                 = np.abs(EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i]) 
+        EVTOL_lift_coefficient[i]     = EVTOL_results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[2][0] 
+        print('EVTOL CL: ' + str(EVTOL_lift_coefficient[i])) 
+        EVTOL_diff_CL                 = np.abs(EVTOL_lift_coefficient[i]  - EVTOL_lift_coefficient_true[i]) 
         print('CL difference')
-        print(EVTOL_diff_CL)
-        assert np.abs((EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i])/EVTOL_lift_coefficient_true[i]) < 1e-6   
+        print(EVTOL_diff_CL)  
                 
-            
+    for i in range(len(battery_chemistry)):
+        assert np.abs((GA_RPM[i] - GA_RPM_true[i])/GA_RPM_true[i]) < 1e-6 
+        assert np.abs((GA_lift_coefficient[i]  - GA_lift_coefficient_true[i])/GA_lift_coefficient_true[i]) < 1e-6
+        assert np.abs((EVTOL_RPM[i] - EVTOL_RPM_true[i])/EVTOL_RPM_true[i]) < 1e-6  
+        assert np.abs((EVTOL_lift_coefficient[i]  - EVTOL_lift_coefficient_true[i])/EVTOL_lift_coefficient_true[i]) < 1e-6 
+        
+        
     return
 
 
@@ -487,10 +490,10 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment                                            = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag                                        = "climb_2"
     segment.analyses.extend( analyses.base )
-    segment.air_speed                                  = 1.1*Vstall
+    segment.air_speed                                  = 1.4*Vstall
     segment.altitude_start                             = 50.0 * Units.ft
     segment.altitude_end                               = 300. * Units.ft
-    segment.climb_rate                                 = 500. * Units['ft/min'] 
+    segment.climb_rate                                 = 300. * Units['ft/min'] 
     segment.state.unknowns.throttle =  0.80 * ones_row(1)
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)
 
@@ -506,7 +509,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.altitude                                   = 300.0 * Units.ft
     segment.time                                       = 60.   * Units.second
     segment.air_speed                                  = 1.4*Vstall
-    segment.state.unknowns.throttle =  0.80 * ones_row(1)
+    segment.state.unknowns.throttle =  0.90 * ones_row(1)
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,\
                                                                                           initial_prop_power_coefficient = 0.16)
     # add to misison

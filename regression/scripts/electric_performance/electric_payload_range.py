@@ -35,7 +35,7 @@ def main():
 
     payload_range = electric_payload_range(vehicle, mission, 'cruise', display_plot=True)
 
-    payload_range_r = [     0.  , 138468.79602601, 138266.64414851]
+    payload_range_r = [     0.  , 132518.85105833, 104829.42381746]
 
     assert (np.abs(payload_range.range[1] - payload_range_r[1]) / payload_range_r[1] < 1e-6), "Payload Range Regression Failed at Max Payload Test"
     assert (np.abs(payload_range.range[2] - payload_range_r[2]) / payload_range_r[2] < 1e-6), "Payload Range Regression Failed at Ferry Range Test"
@@ -79,10 +79,10 @@ def mission_setup(vehicle, analyses):
 
     segment.analyses.extend(analyses)  
     segment.altitude  = 1000.0 * Units.ft
-    segment.air_speed = 110.   * Units['mph']
-    segment.distance  = 80.    * Units.miles     
+    segment.air_speed = 120.   * Units['mph']
+    segment.distance  = 50.    * Units.miles     
     segment.battery_energy = vehicle.networks.lift_cruise.battery.max_energy
-    segment.state.unknowns.throttle = 0.80 * ones_row(1)
+    segment.state.unknowns.throttle = 0.90 * ones_row(1)
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16) 
 
     mission.append_segment(segment)

@@ -62,7 +62,7 @@ def main():
     # Truth values
     departure_throttle_truth          = np.array([0.6543453 , 0.65457384, 0.65504606, 0.65528976])
     transition_1_throttle_truth       = np.array([0.66045178, 0.65464328, 0.535134  , 0.60043377])
-    cruise_throttle_truth             = np.array([0.57078263, 0.57089225, 0.5711126 , 0.57122264])
+    cruise_throttle_truth             = np.array([0.62021044, 0.62033787, 0.62059296, 0.62072509])
     transition_y_axis_rotations_truth = np.array([1.34042448, 1.3130777 , 1.05489631, 0.05264738])
 
     # Store errors 
@@ -247,11 +247,11 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.transition_1 )
     segment.altitude_start                              = 40.0 * Units.ft
     segment.altitude_end                                = 100.0 * Units.ft
-    segment.acceleration                                = 0.2  * Units['m/s/s']
-    segment.climb_angle                                 = 5. * Units.deg
+    segment.acceleration                                = 0.4  * Units['m/s/s']
+    segment.climb_angle                                 = 4. * Units.deg
     segment.pitch_initial                               = 3.8  * Units.degrees  
     segment.pitch_final                                 = 4.2  * Units.degrees   
-    segment.state.unknowns.throttle                     = 0.99  * ones_row(1)
+    segment.state.unknowns.throttle                     = 1.  * ones_row(1)
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment)
@@ -287,7 +287,7 @@ def mission_setup(analyses,vehicle):
     segment.tag                                        = "Cruise" 
     segment.analyses.extend(analyses.cruise) 
     segment.altitude                                   = 40.0 * Units.ft
-    segment.air_speed                                  = 110 * Units.mph
+    segment.air_speed                                  = 120 * Units.mph
     segment.distance                                   = 0.5    * Units.miles   
     segment.state.unknowns.throttle                    = 0.5    * ones_row(1) 
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip

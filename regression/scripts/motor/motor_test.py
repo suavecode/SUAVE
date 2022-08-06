@@ -149,12 +149,12 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 197.3100865178771
-    torque_1_truth   = 934.3967667083742
-    current_2_truth  = 572.1810424084946
-    torque_3_truth   = 803.1971917613615
-    voltage_4_truth  = 417.0863609031858
-    current_4_truth  = 665.3182086911492
+    omega_1_truth    = 197.3103003715905
+    torque_1_truth   = 934.39879219354
+    current_2_truth  = 572.1837055198907
+    torque_3_truth   = 803.2009300949339
+    voltage_4_truth  = 417.08605937483554
+    current_4_truth  = 665.319657390401
     power_out_truth  = 1960.0
   
     error = Data()
