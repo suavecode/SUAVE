@@ -13,19 +13,17 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data  
 import numpy as np
-import pandas as pd
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def  import_airfoil_polars(airfoil_polar_files):
     """This imports airfoil polars from a text file output from XFOIL or from a 
     text file containing the (alpha, CL, CD) data from other sources.
     
-    
     Assumptions:
     Input airfoil polars file is obtained from XFOIL or from Airfoiltools.com
 
     Source:
-    http://airfoiltools.com/
+    N/A
 
     Inputs:
     airfoil polar files   <list of strings>
@@ -58,12 +56,14 @@ def  import_airfoil_polars(airfoil_polar_files):
     Ma           = np.zeros((num_airfoils,num_polars))
     
     for i in range(num_airfoils): 
-    
         for j in range(len(airfoil_polar_files[i])):   
         
             # check for xfoil format
-            xFoilLine = pd.read_csv(airfoil_polar_files[i][j], sep="\t", skiprows=0, nrows=1)
-            if "XFOIL" in str(xFoilLine):
+            f = open(airfoil_polar_files[i][j]) 
+            data_block = f.readlines()
+            f.close()            
+            
+            if "XFOIL" in data_block[1]:
                 xfoilPolarFormat = True
             else:
                 xfoilPolarFormat = False
@@ -71,21 +71,24 @@ def  import_airfoil_polars(airfoil_polar_files):
             # Read data          
             if xfoilPolarFormat:
                 # get data, extract Re, Ma
-                polarData = pd.read_csv(airfoil_polar_files[i][j], skiprows=[1,2,3,4,5,6,7,8,9,11], skipinitialspace=True, delim_whitespace=True)
-                headerLine = pd.read_csv(airfoil_polar_files[i][j], sep="\t", skiprows=7, nrows=1)
-                headerString = str(headerLine.iloc[0])
-                ReString = headerString.split('Re =',1)[1].split('e 6',1)[0]
-                MaString = headerString.split('Mach =',1)[1].split('Re',1)[0]                
+                headers = data_block[10].split()
+                polarData = np.genfromtxt(airfoil_polar_files[i][j], encoding='UTF-8-sig', dtype=None, names=headers, skip_header=12)
+                infoLine = list(filter(lambda x: 'Re = ' in x, data_block))[0]
+                
+                ReString = str(float(infoLine.split('Re =')[1].split('e 6')[0]))
+                MaString = str(float(infoLine.split('Mach =')[1].split(' Re')[0]))
             else:
                 # get data, extract Re, Ma
-                polarData = pd.read_csv(airfoil_polar_files[i][j], sep=" ")  
+                polarData = np.genfromtxt(airfoil_polar_files[i][j], delimiter=" ", encoding='UTF-8-sig', dtype=None, names=True)
+                headers = polarData.dtype.names
+                
                 ReString = airfoil_polar_files[i][j].split('Re_',1)[1].split('e6',1)[0]
                 MaString = airfoil_polar_files[i][j].split('Ma_',1)[1].split('_',1)[0]
- 
-            airfoil_aoa = polarData["alpha"]
-            airfoil_cl = polarData["CL"]
-            airfoil_cd = polarData["CD"]
             
+            airfoil_aoa = polarData[headers[np.where(np.array(headers) == 'alpha')[0][0]]]
+            airfoil_cl = polarData[headers[np.where(np.array(headers) == 'CL')[0][0]]]
+            airfoil_cd = polarData[headers[np.where(np.array(headers) == 'CD')[0][0]]]           
+        
             Re[i,j] = float (ReString) * 1e6
             Ma[i,j] = float (MaString)            
             CL[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cl)
