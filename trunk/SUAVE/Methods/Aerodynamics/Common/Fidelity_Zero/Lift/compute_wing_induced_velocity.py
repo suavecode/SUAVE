@@ -58,7 +58,7 @@ def compute_wing_induced_velocity(VD,mach,supersonic_flag,precision=jnp.float32)
     """
     # unpack  
     LE_ind       = VD.leading_edge_indices_full
-    TE_ind       = VD.trailing_edge_indices
+    TE_ind       = VD.trailing_edge_indices_full
     n_mach       = len(mach)
     mach         = jnp.array(mach,dtype=precision)
 
@@ -201,7 +201,7 @@ def compute_wing_induced_velocity(VD,mach,supersonic_flag,precision=jnp.float32)
     RFLAG           = jnp.ones((n_mach,shape_1),dtype=jnp.int8)
     n_cp            = XAH.shape[1]
     if supersonic_flag:
-        sup         = (B2>=0)[:,0,0]
+        sup         = (B2>=0)
         B2_sup      = B2
         RO1_sup     = B2*RTV1
         RO2_sup     = B2*RTV2    
@@ -215,7 +215,7 @@ def compute_wing_induced_velocity(VD,mach,supersonic_flag,precision=jnp.float32)
         U     = jnp.where(sup,U_sup,U)
         V     = jnp.where(sup,V_sup,V)
         W     = jnp.where(sup,W_sup,W)
-        RFLAG = jnp.where(sup,RFLAG_sup,RFLAG)
+        RFLAG = RFLAG_sup
 
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = jnp.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)

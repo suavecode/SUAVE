@@ -41,9 +41,10 @@ def postprocess_VD(VD, settings):
     """     
     # Setup static items
     total_sw = np.sum(VD.n_sw)
-    VD['leading_edge_indices_full'] = VD['leading_edge_indices']
-    VD['leading_edge_indices']      = LE_ind = jnp.where(VD['leading_edge_indices'],size=total_sw)
-    VD['trailing_edge_indices']     = TE_ind = jnp.where(VD['trailing_edge_indices'],size=total_sw)
+    VD['leading_edge_indices_full']  = VD['leading_edge_indices']
+    VD['trailing_edge_indices_full'] = VD['trailing_edge_indices']
+    VD['leading_edge_indices']       = LE_ind = jnp.where(VD['leading_edge_indices'],size=total_sw)
+    VD['trailing_edge_indices']      = TE_ind = jnp.where(VD['trailing_edge_indices'],size=total_sw)
         
     #unpack
     precision  = settings.floating_point_precision   

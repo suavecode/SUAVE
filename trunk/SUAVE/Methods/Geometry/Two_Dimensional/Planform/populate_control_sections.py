@@ -13,6 +13,7 @@
 from SUAVE.Core import Data , Units 
 import numpy as np 
 from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -130,6 +131,7 @@ def populate_control_sections(wing):
                     #for calls from make_VLM_wings
                     if 'cs_type' in cs.keys():
                         control_surface.cs_type           = cs.cs_type
+                        control_surface.static_keys       = ['cs_type']
                     
                     w_seg[i].control_surfaces.append(control_surface)        
                 

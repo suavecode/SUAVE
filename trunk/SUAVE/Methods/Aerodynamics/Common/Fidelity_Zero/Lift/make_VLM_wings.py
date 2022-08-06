@@ -218,7 +218,7 @@ def make_VLM_wings(geometry, settings):
                         break
                     elif ID_j == -1: #found a span_break within control surface. copy values
                         span_breaks[j].cs_IDs[edge,:] = [ID_i, ID_i]
-                        span_breaks[j].cuts[edge,:]   = [cut, cut]
+                        span_breaks[j].cuts = span_breaks[j].cuts.at[edge,:].set([cut, cut])
                     else:
                         raise ValueError('VLM does not support multiple control surfaces on the same edge at this time')
                 
@@ -420,17 +420,17 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     span_b                        = seg_b.percent_span_location
     twist_a                       = seg_a.twist
     twist_b                       = seg_b.twist
-    cs_wing.twists.root           = np.interp(cs.span_fraction_start, [span_a, span_b], [twist_a, twist_b])
-    cs_wing.twists.tip            = np.interp(cs.span_fraction_end,   [span_a, span_b], [twist_a, twist_b])
+    cs_wing.twists.root           = jnp.interp(cs.span_fraction_start, np.array([span_a, span_b]), jnp.array([twist_a, twist_b]))
+    cs_wing.twists.tip            = jnp.interp(cs.span_fraction_end,   np.array([span_a, span_b]), jnp.array([twist_a, twist_b]))
     cs_wing.dihedral              = seg_a.dihedral_outboard
     cs_wing.thickness_to_chord    = (seg_a.thickness_to_chord + seg_b.thickness_to_chord)/2
-    cs_wing.origin                = np.array(wing.origin) *1.
+    cs_wing.origin                = jnp.array(wing.origin) *1.
     
     span_fraction_tot             = cs.span_fraction_end - cs.span_fraction_start
     cs_wing.spans.projected       = wing.spans.projected * span_fraction_tot #includes 2x length if cs is on a symmetric wing 
     
-    wing_chord_local_at_cs_root   = np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.chord, seg_b.chord])
-    wing_chord_local_at_cs_tip    = np.interp(cs.span_fraction_end,   [span_a, span_b], [seg_a.chord, seg_b.chord])
+    wing_chord_local_at_cs_root   = jnp.interp(cs.span_fraction_start, np.array([span_a, span_b]), jnp.array([seg_a.chord, seg_b.chord]))
+    wing_chord_local_at_cs_tip    = jnp.interp(cs.span_fraction_end,   np.array([span_a, span_b]), jnp.array([seg_a.chord, seg_b.chord]))
     cs_wing.chords.root           = wing_chord_local_at_cs_root * cs.chord_fraction  
     cs_wing.chords.tip            = wing_chord_local_at_cs_tip  * cs.chord_fraction             
     cs_wing.taper                 = cs_wing.chords.tip / cs_wing.chords.root
@@ -460,9 +460,9 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     #adjust origin - may need to be adjusted later
     wing_halfspan                 = wing.spans.projected * 0.5 if wing.symmetric else wing.spans.projected
     LE_TE_cs_offset               = 0. if cs_wing.is_slat else (1 - cs.chord_fraction)*wing_chord_local_at_cs_root
-    cs_wing.origin[0,0]          += np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset]) + LE_TE_cs_offset
-    cs_wing.origin[0,1]          += cs.span_fraction_start * wing_halfspan if not wing.vertical else np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])
-    cs_wing.origin[0,2]          += np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset]) if not wing.vertical else cs.span_fraction_start * wing_halfspan
+    cs_wing.origin                = cs_wing.origin.at[0,0].add(jnp.interp(cs.span_fraction_start, np.array([span_a, span_b]), jnp.array([seg_a.x_offset, seg_b.x_offset])) + LE_TE_cs_offset)
+    cs_wing.origin                = cs_wing.origin.at[0,1].add(cs.span_fraction_start * wing_halfspan if not wing.vertical else jnp.interp(cs.span_fraction_start, np.array([span_a, span_b]), np.array([seg_a.dih_offset, seg_b.dih_offset])))
+    cs_wing.origin                = cs_wing.origin.at[0,2].add(jnp.interp(cs.span_fraction_start, np.array([span_a, span_b]), jnp.array([seg_a.dih_offset, seg_b.dih_offset])) if not wing.vertical else cs.span_fraction_start * wing_halfspan)
     
     # holds all required y-coords. Will be added to during discretization to ensure y-coords match up between wing and control surface.
     rel_offset                    = cs_wing.origin[0,1] - wing.origin[0][1] if not cs_wing.vertical else cs_wing.origin[0,2] - wing.origin[0][2]
@@ -490,8 +490,8 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     # give segments offsets (in coordinates relative to the cs_wing)
     cs_wing.Segments[0].x_offset   = 0.
     cs_wing.Segments[0].dih_offset = 0.  
-    cs_wing.Segments[1].x_offset   = wing_halfspan * span_fraction_tot *np.tan(cs_wing.Segments[0].sweeps.leading_edge)
-    cs_wing.Segments[1].dih_offset = wing_halfspan * span_fraction_tot *np.tan(cs_wing.Segments[0].dihedral_outboard)    
+    cs_wing.Segments[1].x_offset   = wing_halfspan * span_fraction_tot *jnp.tan(cs_wing.Segments[0].sweeps.leading_edge)
+    cs_wing.Segments[1].dih_offset = wing_halfspan * span_fraction_tot *jnp.tan(cs_wing.Segments[0].dihedral_outboard)    
     
     #add airfoil
     cs_wing.Segments[0].Airfoil     = seg_a.Airfoil
@@ -600,7 +600,7 @@ def add_span_break(span_break, span_breaks):
         else:
             boolean = span_breaks[-1].cs_IDs==-1
             span_breaks[-1].cs_IDs[boolean] = span_break.cs_IDs[boolean]
-            span_breaks[-1].cuts[boolean]   = span_break.cuts[boolean]
+            span_breaks[-1].cuts            = jnp.where(boolean,span_break.cuts,span_breaks[-1].cuts)
                 
     return
 
@@ -689,8 +689,8 @@ def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
     sweep_ob_LE    = seg_a.sweeps.leading_edge
     twist          = cs_wing.twists.root    
     local_chord    = cs_wing.chords.root / cs.chord_fraction
-    x_offset       = jnp.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset])
-    dih_offset     = jnp.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])
+    x_offset       = jnp.interp(cs.span_fraction_start, np.array([span_a, span_b]), jnp.array([seg_a.x_offset, seg_b.x_offset]))
+    dih_offset     = jnp.interp(cs.span_fraction_start, np.array([span_a, span_b]), jnp.array([seg_a.dih_offset, seg_b.dih_offset]))
     inboard_span_break  = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ob_cut, Airfoil,
                                           dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord,
                                           x_offset, dih_offset)
@@ -706,8 +706,8 @@ def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
     sweep_ob_LE    = seg_b.sweeps.leading_edge   if is_coincident else seg_a.sweeps.leading_edge
     twist          = cs_wing.twists.tip    
     local_chord    = cs_wing.chords.tip  / cs.chord_fraction
-    x_offset       = jnp.interp(cs.span_fraction_end, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset])
-    dih_offset     = jnp.interp(cs.span_fraction_end, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])    
+    x_offset       = jnp.interp(cs.span_fraction_end, np.array([span_a, span_b]), jnp.array([seg_a.x_offset, seg_b.x_offset]))
+    dih_offset     = jnp.interp(cs.span_fraction_end, np.array([span_a, span_b]), jnp.array([seg_a.dih_offset, seg_b.dih_offset]))
     outboard_span_break = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ib_cut, Airfoil,
                                           dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord,
                                           x_offset, dih_offset)    
@@ -770,9 +770,9 @@ cut from a non-slat control surface     |           |           .       fraction
     # For inboard_cut, -1 takes value of previous outboard cut value in a later function
     # For outboard_cut, -1 takes value of next inboard cut value.
     # If no break directly touching this one, cut becomes 0 (LE) or 1 (TE).
-    span_break.cuts                 = np.array([[0.,0.],   #  [[inboard LE cut, outboard LE cut],
+    span_break.cuts                 = jnp.array([[0.,0.],   #  [[inboard LE cut, outboard LE cut],
                                                 [1.,1.]])  #   [inboard TE cut, outboard TE cut]]
-    span_break.cuts[LE_TE,ib_ob]    = chord_cut
+    span_break.cuts                 = span_break.cuts.at[LE_TE,ib_ob].set(chord_cut)
     span_break.Airfoil              = Airfoil
     span_break.dihedral_outboard    = dihedral_ob
     span_break.sweep_outboard_QC    = sweep_ob_QC

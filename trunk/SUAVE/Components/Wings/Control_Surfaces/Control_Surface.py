@@ -67,3 +67,4 @@ class Control_Surface(Physical_Component):
         self.configuration_type    = 'single_slotted'
         
         self.gain                  = 1.0 #deflection multiplier used only for AVL
+        self.static_keys           = ['span_fraction_start','span_fraction_end']

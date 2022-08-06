@@ -419,8 +419,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             break_camber_zs.append(airfoil_data.camber_coordinates[0])
             break_camber_xs.append(airfoil_data.x_lower_surface[0]) 
         else:
-            break_camber_zs.append(jnp.zeros(30))              
-            break_camber_xs.append(jnp.linspace(0,1,30)) 
+            break_camber_zs.append(jnp.zeros(100))              
+            break_camber_xs.append(jnp.linspace(0,1,100)) 
             
         span_breaks_cs_ID.append(span_breaks[i_break].cs_IDs[0,1])
 
@@ -461,7 +461,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     # Let relevant control surfaces know which y-coords they are required to have----------------------------------
     if not wing.is_a_control_surface:
         for span_break in span_breaks:
-            cs_IDs     = span_break.cs_IDs[:,1] #only the outboard control surfaces
+            cs_IDs         = span_break.cs_IDs[:,1] #only the outboard control surfaces
     
             for cs_ID in cs_IDs[cs_IDs >= 0]:
                 cs_tag     = wing.tag + '__cs_id_{}'.format(cs_ID)
@@ -476,7 +476,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                 l_bound = jnp.minimum(0, directional_halfspan)
                 r_bound = jnp.maximum(0, directional_halfspan)
     
-                cs_wing.y_coords_required = rel_wing_ys[(l_bound<=rel_wing_ys) & (rel_wing_ys<=r_bound)]        
+                cs_wing.y_coords_required_cond = (l_bound<=rel_wing_ys) & (rel_wing_ys<=r_bound)
+                cs_wing.y_coord_required_all   = rel_wing_ys
+                cs_wing.y_coords_required      = rel_wing_ys[cs_wing.y_coords_required_cond]
     
     
     # -------------------------------------------------------------------------------------------------------------

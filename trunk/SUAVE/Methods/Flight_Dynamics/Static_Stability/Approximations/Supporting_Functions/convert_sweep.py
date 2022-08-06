@@ -131,8 +131,8 @@ def convert_sweep_segments(old_sweep, seg_a, seg_b, wing, old_ref_chord_fraction
      Properties Used:
         N/A       
     """            
-    if old_ref_chord_fraction==new_ref_chord_fraction:
-        return old_sweep
+    #if old_ref_chord_fraction==new_ref_chord_fraction:
+        #return old_sweep
     
     # Unpack inputs    
     sweep          = old_sweep
