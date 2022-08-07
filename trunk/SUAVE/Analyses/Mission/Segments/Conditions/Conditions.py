@@ -18,7 +18,6 @@ from jax.tree_util import register_pytree_node_class
 # SUAVE imports
 from SUAVE.Core                    import Data
 
-
 # ----------------------------------------------------------------------
 #  Conditions
 # ----------------------------------------------------------------------

@@ -32,7 +32,6 @@ from jax import jit
 import jax.numpy as jnp
 
 
-
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
@@ -115,8 +114,77 @@ class Rotor(Energy_Component):
         
         
     def spin(self,conditions):
+        """Analyzes a general rotor given geometry and operating conditions.
+        This is the function that is used to run the rotor. It individuals call the three parts of the rotor analysis:
+        1. prewake
+        2. wake
+        3. postwake
+    
+        Assumptions:
+        per source
+    
+        Source:
+        Drela, M. "Qprop Formulation", MIT AeroAstro, June 2006
+        http://web.mit.edu/drela/Public/web/qprop/qprop_theory.pdf
+    
+        Leishman, Gordon J. Principles of helicopter aerodynamics
+        Cambridge university press, 2006.
+    
+        Inputs:
+        self.inputs.omega                    [radian/s]
+        conditions.freestream.
+          density                            [kg/m^3]
+          dynamic_viscosity                  [kg/(m-s)]
+          speed_of_sound                     [m/s]
+          temperature                        [K]
+        conditions.frames.
+          body.transform_to_inertial         (rotation matrix)
+          inertial.velocity_vector           [m/s]
+        conditions.propulsion.
+          throttle                           [-]
+    
+        Outputs:
+        conditions.propulsion.outputs.
+           number_radial_stations            [-]
+           number_azimuthal_stations         [-]
+           disc_radial_distribution          [m]
+           speed_of_sound                    [m/s]
+           density                           [kg/m-3]
+           velocity                          [m/s]
+           disc_tangential_induced_velocity  [m/s]
+           disc_axial_induced_velocity       [m/s]
+           disc_tangential_velocity          [m/s]
+           disc_axial_velocity               [m/s]
+           drag_coefficient                  [-]
+           lift_coefficient                  [-]
+           omega                             [rad/s]
+           disc_circulation                  [-]
+           blade_dQ_dR                       [N/m]
+           blade_dT_dr                       [N]
+           blade_thrust_distribution         [N]
+           disc_thrust_distribution          [N]
+           thrust_per_blade                  [N]
+           thrust_coefficient                [-]
+           azimuthal_distribution            [rad]
+           disc_azimuthal_distribution       [rad]
+           blade_dQ_dR                       [N]
+           blade_dQ_dr                       [Nm]
+           blade_torque_distribution         [Nm]
+           disc_torque_distribution          [Nm]
+           torque_per_blade                  [Nm]
+           torque_coefficient                [-]
+           power                             [W]
+           power_coefficient                 [-]
+    
+        Properties Used:
+        self.
+          tip_radius                         [m]
+          twist_distribution                 [radians]
+          chord_distribution                 [m]
+          orientation_euler_angles           [rad, rad, rad]
+        """        
         
-        # Split into 3 different functions, pre_wake, wake, and post_wake
+        # Split into 3 different functions: pre_wake, wake, and post_wake
         wake_inputs                                      = self._prewake(conditions)
         self.Wake, va, vt                                = self.Wake.evaluate(self,wake_inputs,conditions)
         thrust_vector, torque, power, Cp, outputs , etap = self._postwake(va, vt, wake_inputs, conditions)
@@ -126,6 +194,8 @@ class Rotor(Energy_Component):
     @jit
     def _prewake(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
+        
+        This _prewake is not intended for a user to run
     
         Assumptions:
         per source
@@ -364,6 +434,8 @@ class Rotor(Energy_Component):
     @jit
     def _postwake(self,va,vt,wake_inputs,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
+        
+        This _postwake is not intended for a user to run
     
         Assumptions:
         per source
@@ -436,7 +508,6 @@ class Rotor(Energy_Component):
         r_1d    = self.radius_distribution
         
         # unpack wake inputs
-        U             = wake_inputs.velocity_total      
         Ua            = wake_inputs.velocity_axial
         Ut            = wake_inputs.velocity_tangential  
         beta          = wake_inputs.twist_distribution  
