@@ -68,7 +68,7 @@ def main():
         GA_results = GA_mission.evaluate() 
          
         # plot the results
-        plot_results(GA_results,line_style_new[i],line_style2_new[i])  
+        #plot_results(GA_results,line_style_new[i],line_style2_new[i])  
         
         # RPM of rotor check during hover
         GA_RPM[i]        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0] 
@@ -97,7 +97,7 @@ def main():
         EVTOL_results = EVTOL_mission.evaluate()  
         
         # plot the results
-        plot_results(EVTOL_results,line_style_new[i],line_style2_new[i])  
+        #plot_results(EVTOL_results,line_style_new[i],line_style2_new[i])  
         
         # RPM of rotor check during hover
         EVTOL_RPM[i]        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0] 
@@ -495,7 +495,8 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.altitude_end                               = 300. * Units.ft
     segment.climb_rate                                 = 300. * Units['ft/min'] 
     segment.state.unknowns.throttle =  0.80 * ones_row(1)
-    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,
+                                                                                        initial_prop_power_coefficient = 0.10)
 
     # add to misison
     mission.append_segment(segment)
