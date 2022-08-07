@@ -585,7 +585,7 @@ def vehicle_setup():
     propeller.variable_pitch         = True
 
     propeller.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    propeller.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    propeller.airfoil_polars         = [[#'../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
