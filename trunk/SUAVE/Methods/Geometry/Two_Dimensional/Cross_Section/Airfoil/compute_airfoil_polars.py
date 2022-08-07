@@ -24,7 +24,7 @@ from scipy.interpolate import RegularGridInterpolator
 
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_polars(a_geo,a_polar,npoints = 100 ,use_pre_stall_data=True):
+def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
@@ -91,12 +91,19 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 100 ,use_pre_stall_data=True)
     # read airfoil polars 
     airfoil_polar_data = import_airfoil_polars(a_polar)
     
-    # AERODAS 
+    # initialize new data
+    airfoil_data.angle_of_attacks             = Data()
+    airfoil_data.lift_coefficient_surrogates  = Data()
+    airfoil_data.drag_coefficient_surrogates  = Data()   
+    airfoil_data.re_from_polar                = Data()
+    airfoil_data.aoa_from_polar               = Data()    
     aNames = []
+    
+    # AERODAS 
     for i in range(num_airfoils):
         aNames.append(os.path.basename(a_geo[i])[:-4])
         # Modify the "wing" slightly:
-        geometry.thickness_to_chord = airfoil_data[aNames[i]].thickness_to_chord
+        geometry.thickness_to_chord = airfoil_data.thickness_to_chord[aNames[i]]
         
         for j in range(len(a_polar[i])):
             # Extract from polars
@@ -177,11 +184,11 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 100 ,use_pre_stall_data=True)
         CL_sur = RegularGridInterpolator((RE_data, aoa_data), CL[i,0:n_p,:],bounds_error=False,fill_value=None)  
         CD_sur = RegularGridInterpolator((RE_data, aoa_data), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
         
-        airfoil_data[aNames[i]].angle_of_attacks             = AoA_sweep_radians
-        airfoil_data[aNames[i]].lift_coefficient_surrogates  = CL_sur
-        airfoil_data[aNames[i]].drag_coefficient_surrogates  = CD_sur   
-        airfoil_data[aNames[i]].re_from_polar                = RE_data
-        airfoil_data[aNames[i]].aoa_from_polar               = aoa_data
+        airfoil_data.angle_of_attacks[aNames[i]]             = AoA_sweep_radians
+        airfoil_data.lift_coefficient_surrogates[aNames[i]]  = CL_sur
+        airfoil_data.drag_coefficient_surrogates[aNames[i]]  = CD_sur   
+        airfoil_data.re_from_polar[aNames[i]]                = RE_data
+        airfoil_data.aoa_from_polar[aNames[i]]               = aoa_data
         
     airfoil_data.airfoil_names                 = aNames
     

@@ -21,7 +21,7 @@ import os
 import scipy.interpolate as interp
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100,surface_interpolation = 'cubic'):
+def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_interpolation = 'cubic'):
     """This imports an airfoil geometry from a text file  and stores
     the coordinates of upper and lower surfaces as well as the mean
     camberline
@@ -62,12 +62,19 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100,surface_inter
     # unpack      
 
     airfoil_data = Data()
-
+    airfoil_data.x_coordinates      = Data()
+    airfoil_data.y_coordinates      = Data()
+    airfoil_data.thickness_to_chord = Data()
+    airfoil_data.max_thickness      = Data()
+    airfoil_data.camber_coordinates = Data()
+    airfoil_data.x_upper_surface    = Data()
+    airfoil_data.x_lower_surface    = Data()
+    airfoil_data.y_upper_surface    = Data()
+    airfoil_data.y_lower_surface    = Data()
     n_pts       = npoints//2
     aNames = []
     for i in range(num_airfoils):  
         aNames.append(os.path.basename(airfoil_geometry_files[i])[:-4])
-        airfoil_data[aNames[i]] = Data()
         
         # Open file and read column names and data block
         f = open(airfoil_geometry_files[i]) 
@@ -201,14 +208,14 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100,surface_inter
         max_c = max(x_data) - min(x_data)
         t_c   = max_t/max_c 
         
-        airfoil_data[aNames[i]].thickness_to_chord = t_c
-        airfoil_data[aNames[i]].max_thickness = max_t 
-        airfoil_data[aNames[i]].x_coordinates = x_data
-        airfoil_data[aNames[i]].y_coordinates = y_data     
-        airfoil_data[aNames[i]].x_upper_surface = x_up_surf_new
-        airfoil_data[aNames[i]].x_lower_surface = x_lo_surf_new
-        airfoil_data[aNames[i]].y_upper_surface = y_up_surf_new
-        airfoil_data[aNames[i]].y_lower_surface = y_lo_surf_new          
-        airfoil_data[aNames[i]].camber_coordinates = camber
-
+        airfoil_data.thickness_to_chord[aNames[i]] = t_c
+        airfoil_data.max_thickness[aNames[i]] = max_t 
+        airfoil_data.x_coordinates[aNames[i]] = x_data
+        airfoil_data.y_coordinates[aNames[i]] = y_data     
+        airfoil_data.x_upper_surface[aNames[i]] = x_up_surf_new
+        airfoil_data.x_lower_surface[aNames[i]] = x_lo_surf_new
+        airfoil_data.y_upper_surface[aNames[i]] = y_up_surf_new
+        airfoil_data.y_lower_surface[aNames[i]] = y_lo_surf_new          
+        airfoil_data.camber_coordinates[aNames[i]] = camber
+    airfoil_data.airfoil_names = aNames
     return airfoil_data 
