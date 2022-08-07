@@ -19,12 +19,12 @@ from SUAVE.Methods.Aerodynamics.AERODAS.post_stall_coefficients import post_stal
 from .import_airfoil_geometry import import_airfoil_geometry 
 from .import_airfoil_polars   import import_airfoil_polars 
 import numpy as np
-
+import os
 from scipy.interpolate import RegularGridInterpolator
 
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True):
+def compute_airfoil_polars(a_geo,a_polar,npoints = 100 ,use_pre_stall_data=True):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
@@ -74,10 +74,6 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
     CD = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
     aoa0 = np.zeros((num_airfoils,num_polars))
     cl0 = np.zeros((num_airfoils,num_polars))
-
-    CL_surs = Data()
-    CD_surs = Data()    
-    aoa_from_polars = []
     
     # Create an infinite aspect ratio wing
     geometry              = SUAVE.Components.Wings.Wing()
@@ -96,10 +92,11 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
     airfoil_polar_data = import_airfoil_polars(a_polar)
     
     # AERODAS 
+    aNames = []
     for i in range(num_airfoils):
-        
+        aNames.append(os.path.basename(a_geo[i])[:-4])
         # Modify the "wing" slightly:
-        geometry.thickness_to_chord = airfoil_data.thickness_to_chord[i]
+        geometry.thickness_to_chord = airfoil_data[aNames[i]].thickness_to_chord
         
         for j in range(len(a_polar[i])):
             # Extract from polars
@@ -180,16 +177,13 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
         CL_sur = RegularGridInterpolator((RE_data, aoa_data), CL[i,0:n_p,:],bounds_error=False,fill_value=None)  
         CD_sur = RegularGridInterpolator((RE_data, aoa_data), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
         
-        CL_surs[a_geo[i]]  = CL_sur
-        CD_surs[a_geo[i]]  = CD_sur   
-        aoa_from_polars.append(airfoil_aoa)
+        airfoil_data[aNames[i]].angle_of_attacks             = AoA_sweep_radians
+        airfoil_data[aNames[i]].lift_coefficient_surrogates  = CL_sur
+        airfoil_data[aNames[i]].drag_coefficient_surrogates  = CD_sur   
+        airfoil_data[aNames[i]].re_from_polar                = RE_data
+        airfoil_data[aNames[i]].aoa_from_polar               = aoa_data
         
-    airfoil_data.angle_of_attacks              = AoA_sweep_radians
-    airfoil_data.lift_coefficient_surrogates   = CL_surs
-    airfoil_data.drag_coefficient_surrogates   = CD_surs 
-    
-    airfoil_data.re_from_polar  = airfoil_polar_data.reynolds_number
-    airfoil_data.aoa_from_polar = aoa_from_polars #airfoil_polar_data.angle_of_attacks
+    airfoil_data.airfoil_names                 = aNames
     
     return airfoil_data
 

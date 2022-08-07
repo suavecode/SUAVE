@@ -141,11 +141,10 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
             if rotor.nonuniform_freestream: 
                 for i_azi in range(num_azi):
                     if rotor.airfoil_flag  == True:
-                        a_geo                   = rotor.airfoil_geometry
-                        airfoil_data            = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
+                        airfoil_data            = rotor.airfoil_data
                         Re_batch                = np.atleast_2d(Re_blade[i,:,0]).T
                         AoA_batch               = np.atleast_2d(alpha_blade[i,:,0]).T
-                        npanel                  = len(airfoil_data.x_coordinates[0]) - 2
+                        npanel                  = len(airfoil_data[airfoil_data.airfoil_names[0]].x_coordinates) - 2
                         AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = rotor.airfoil_polar_stations)
                     else:
                         camber                          = 0.0
@@ -177,11 +176,10 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                     upper_surface_dp_dx[:,i_azi]      = abs(surface_dcp_dx[:,-TE_idx]*(0.5*rho_blade[i,:,i_azi]*U_blade[i,:,i_azi]**2)/blade_chords)
             else:
                 if rotor.airfoil_flag  == True:
-                    a_geo                   = rotor.airfoil_geometry
-                    airfoil_data            = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
+                    airfoil_data            = rotor.airfoil_data
                     Re_batch                = np.atleast_2d(Re_blade[i,:,0]).T
                     AoA_batch               = np.atleast_2d(alpha_blade[i,:,0]).T
-                    npanel                  = len(airfoil_data.x_coordinates[0]) - 2
+                    npanel                  = len(airfoil_data[airfoil_data.airfoil_names[0]].x_coordinates) - 2
                     AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = rotor.airfoil_polar_stations)
                 else:
                     camber                          = 0.0

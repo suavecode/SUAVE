@@ -334,9 +334,8 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
     Properties Used:
     N/A	
     """
-    shape = np.shape(airfoil_polar_paths)
-    n_airfoils = shape[0]
-    n_Re       = shape[1]
+    n_airfoils = len(airfoil_polar_paths)
+    n_Re       = len(airfoil_polar_paths[0])
 
     col_raw = ['m-', 'b-', 'r-', 'g-', 'k-','m-','b-','r-','g-', 'k-']    
     if use_surrogate:
