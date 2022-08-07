@@ -183,8 +183,6 @@ class Rotor(Energy_Component):
         # Unpack rotor airfoil data
         a_loc   = self.airfoil_polar_stations
         a_data  = self.airfoil_data
-        #cl_sur  = self.airfoil_data#airfoil_cl_surrogates
-        #cd_sur  = self.airfoil_cd_surrogates
 
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega

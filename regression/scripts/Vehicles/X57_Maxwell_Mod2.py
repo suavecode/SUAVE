@@ -17,7 +17,9 @@ from SUAVE.Methods.Propulsion                           import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing                 import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing     import size_optimal_motor
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
-
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
+    compute_airfoil_polars,
+)
 import numpy as np 
 from copy import deepcopy
 import os
@@ -433,13 +435,14 @@ def vehicle_setup():
     prop.symmetry               = True
     prop.variable_pitch         = True 
     
-    prop.airfoil_geometry       =  [base + '/Airfoils/NACA_4412.txt']
-    prop.airfoil_polars         = [[base + '/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    airfoil_geometry       =  [base + '/Airfoils/NACA_4412.txt']
+    airfoil_polars         = [[base + '/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                     base + '/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                     base + '/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                     base + '/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                     base + '/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-
+    
+    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     prop                        = propeller_design(prop,number_of_airfoil_section_points = 102)
 

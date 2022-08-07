@@ -17,6 +17,9 @@ from SUAVE.Core import Units
 from SUAVE.Core import (
     Data, Container,
 )
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
+    compute_airfoil_polars,
+)
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
@@ -246,13 +249,13 @@ def vehicle_setup():
     prop.design_power            = .64 * 180. * Units.horsepower
     prop.variable_pitch          = True
 
-    prop.airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    prop.airfoil_polars          = [['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    airfoil_polars          = [['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-
+    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
     prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     prop                         = propeller_design(prop)   
     

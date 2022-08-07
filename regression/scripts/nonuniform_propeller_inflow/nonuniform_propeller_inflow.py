@@ -9,7 +9,9 @@ from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Plots.Performance.Propeller_Plots import *
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_wake import compute_wing_wake
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
-
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
+    compute_airfoil_polars,
+)
 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 import numpy as np
@@ -262,13 +264,14 @@ def basic_prop(Na=24, Nr=101):
     prop.rotation                  = 1
     prop.symmetry                  = True
 
-    prop.airfoil_geometry          =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    prop.airfoil_polars            = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    airfoil_geometry          =  ['../Vehicles/Airfoils/NACA_4412.txt']
+    airfoil_polars            = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
+    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
     prop.airfoil_polar_stations    = list(np.zeros(Nr).astype(int))
     prop                           = propeller_design(prop,Nr)
 

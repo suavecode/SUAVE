@@ -289,20 +289,17 @@ def design_F8745D4_prop():
     ospath                                = os.path.abspath(__file__)
     separator                             = os.path.sep
     rel_path                              = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator
-    prop.airfoil_geometry                 = [ rel_path +'Clark_y.txt']
-    prop.airfoil_polars                   = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
+    airfoil_geometry                 = [ rel_path +'Clark_y.txt']
+    airfoil_polars                   = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
                                               rel_path +'Polars/Clark_y_polar_Re_500000.txt',rel_path +'Polars/Clark_y_polar_Re_1000000.txt']]
+    
+    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
+    
     airfoil_polar_stations                = np.zeros(dim)
-    prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))     
-    airfoil_polars                        = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)  
-    airfoil_cl_surs                       = airfoil_polars.lift_coefficient_surrogates 
-    airfoil_cd_surs                       = airfoil_polars.drag_coefficient_surrogates     
-    prop.airfoil_flag                     = True 
-    prop.airfoil_cl_surrogates            = airfoil_cl_surs
-    prop.airfoil_cd_surrogates            = airfoil_cd_surs    
+    prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))       
+    prop.airfoil_flag                     = True   
     prop.mid_chord_alignment              = np.zeros_like(prop.chord_distribution)
     prop.number_of_airfoil_section_points = 102
-    prop.airfoil_data                     = import_airfoil_geometry(prop.airfoil_geometry, npoints = prop.number_of_airfoil_section_points) 
 
     return prop
 if __name__ == '__main__': 

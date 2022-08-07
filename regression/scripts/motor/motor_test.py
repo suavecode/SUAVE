@@ -14,6 +14,9 @@ from SUAVE.Core import Units
 from SUAVE.Core import (
 Data, Container,
 )
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
+    compute_airfoil_polars,
+)
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion                       import propeller_design
 import numpy as np
@@ -33,13 +36,13 @@ def main():
     prop.design_altitude         = 0.0 * Units.km
     prop.design_thrust           = 2271.2220451593753 
 
-    prop.airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    prop.airfoil_polars          = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    airfoil_polars          = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-
+    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
     prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
     prop                         = propeller_design(prop)   
     
