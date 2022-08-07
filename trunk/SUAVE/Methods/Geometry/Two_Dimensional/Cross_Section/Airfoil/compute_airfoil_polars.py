@@ -6,6 +6,7 @@
 #           Jan 2021, E. Botero
 #           Jan 2021, R. Erhard
 #           Nov 2021, R. Erhard
+#           Aug 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -27,7 +28,7 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
-    are obtained in the form of a text file of airfoil polar data obtained from airfoiltools.com
+    are obtained in the form of a text file of airfoil polar data.
     
     Assumptions:
     Uses AERODAS formulation for post stall characteristics 
@@ -102,9 +103,9 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
         
         for j in range(len(a_polar[i])):
             # Extract from polars
-            airfoil_cl         = airfoil_polar_data.lift_coefficients[i,j] 
-            airfoil_cd         = airfoil_polar_data.drag_coefficients[i,j] 
-            airfoil_aoa        = airfoil_polar_data.angle_of_attacks  
+            airfoil_cl         = np.array(airfoil_polar_data.lift_coefficients[i][j]) 
+            airfoil_cd         = np.array(airfoil_polar_data.drag_coefficients[i][j]) 
+            airfoil_aoa        = np.array(airfoil_polar_data.angle_of_attacks[i][j]) 
             
             # computing approximate zero lift aoa
             airfoil_cl_plus = airfoil_cl[airfoil_cl>0]
@@ -187,8 +188,6 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
     airfoil_data.lift_coefficient_surrogates   = CL_surs
     airfoil_data.drag_coefficient_surrogates   = CD_surs 
     
-    airfoil_data.lift_coefficients_from_polar  = airfoil_polar_data.lift_coefficients
-    airfoil_data.drag_coefficients_from_polar  = airfoil_polar_data.drag_coefficients
     airfoil_data.re_from_polar  = airfoil_polar_data.reynolds_number
     airfoil_data.aoa_from_polar = aoa_from_polars #airfoil_polar_data.angle_of_attacks
     

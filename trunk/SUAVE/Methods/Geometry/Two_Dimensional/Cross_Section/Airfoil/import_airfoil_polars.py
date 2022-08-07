@@ -15,7 +15,7 @@ from SUAVE.Core import Data
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def  import_airfoil_polars(airfoil_polar_files):
+def import_airfoil_polars(airfoil_polar_files):
     """This imports airfoil polars from a text file output from XFOIL or from a 
     text file containing the (alpha, CL, CD) data from other sources.
     
@@ -38,24 +38,28 @@ def  import_airfoil_polars(airfoil_polar_files):
     # number of airfoils 
     num_airfoils = len(airfoil_polar_files)  
     
-    num_polars   = 0
+    num_polars   = []
     for i in range(num_airfoils): 
         n_p = len(airfoil_polar_files[i])
         if n_p < 3:
             raise AttributeError('Provide three or more airfoil polars to compute surrogate')
         
-        num_polars = max(num_polars, n_p)       
+        num_polars.append(n_p)# = max(num_polars, n_p)       
     
-    # create empty data structures 
-    dim_aoa = 180 * 4 + 1
-    AoA_interp = np.linspace(-90,90,dim_aoa)     
+    # create empty data structures    
     airfoil_data = Data()
-    CL           = np.zeros((num_airfoils,num_polars,dim_aoa))
-    CD           = np.zeros((num_airfoils,num_polars,dim_aoa)) 
-    Re           = np.zeros((num_airfoils,num_polars))
-    Ma           = np.zeros((num_airfoils,num_polars))
     
+    all_Re = []
+    all_Ma = []
+    all_CL = []
+    all_CD = []
+    all_AoA = []
     for i in range(num_airfoils): 
+        Re = []
+        Ma = []
+        CL = []
+        CD = []
+        AoA = []
         for j in range(len(airfoil_polar_files[i])):   
         
             # check for xfoil format
@@ -89,16 +93,21 @@ def  import_airfoil_polars(airfoil_polar_files):
             airfoil_cl = polarData[headers[np.where(np.array(headers) == 'CL')[0][0]]]
             airfoil_cd = polarData[headers[np.where(np.array(headers) == 'CD')[0][0]]]           
         
-            Re[i,j] = float (ReString) * 1e6
-            Ma[i,j] = float (MaString)            
-            CL[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cl)
-            CD[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cd)       
-                 
-        airfoil_data.angle_of_attacks  = AoA_interp
-        airfoil_data.reynolds_number   = Re
-        airfoil_data.mach_number       = Ma
-        airfoil_data.lift_coefficients = CL
-        airfoil_data.drag_coefficients = CD      
+            Re.append( float (ReString) * 1e6 )
+            Ma.append( float (MaString)       )       
+            CL.append( list  (airfoil_cl)     )
+            CD.append( list  (airfoil_cd)     )
+            AoA.append(list  (airfoil_aoa)    )
+        all_Re.append(Re)    
+        all_Ma.append(Ma) 
+        all_CL.append(CL)
+        all_CD.append(CD)  
+        all_AoA.append(AoA)
+    airfoil_data.angle_of_attacks  = all_AoA
+    airfoil_data.reynolds_number   = all_Re
+    airfoil_data.mach_number       = all_Ma
+    airfoil_data.lift_coefficients = all_CL
+    airfoil_data.drag_coefficients = all_CD      
      
     return airfoil_data 
 
