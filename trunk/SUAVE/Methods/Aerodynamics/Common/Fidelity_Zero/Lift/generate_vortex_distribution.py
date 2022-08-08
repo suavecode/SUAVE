@@ -151,14 +151,15 @@ def generate_vortex_distribution(geometry,settings):
     else:
         c_bar  = 0.
         x_mac  = 0.
+        z_mac  = 0.
         w_span = 0.
         for wing in geometry.wings:
             if wing.vertical == False:
-                if c_bar <= wing.chords.mean_aerodynamic:
-                    c_bar  = wing.chords.mean_aerodynamic
-                    x_mac  = wing.aerodynamic_center[0] + wing.origin[0][0]
-                    z_mac  = wing.aerodynamic_center[2] + wing.origin[0][2]
-                    w_span = wing.spans.projected
+                c_bar_cond = c_bar <= wing.chords.mean_aerodynamic
+                c_bar      = (1-c_bar_cond)*c_bar  + c_bar_cond*wing.chords.mean_aerodynamic
+                x_mac      = (1-c_bar_cond)*x_mac  + c_bar_cond*(wing.aerodynamic_center[0] + wing.origin[0][0])
+                z_mac      = (1-c_bar_cond)*z_mac  + c_bar_cond*(wing.aerodynamic_center[2] + wing.origin[0][2])
+                w_span     = (1-c_bar_cond)*w_span + c_bar_cond*wing.spans.projected
 
     x_cg       = geometry.mass_properties.center_of_gravity[0][0]
     z_cg       = geometry.mass_properties.center_of_gravity[0][2]
@@ -261,13 +262,14 @@ def generate_vortex_distribution(geometry,settings):
     for wing in VD.VLM_wings:
         if not wing.is_a_control_surface:
             if show_prints: print('discretizing ' + wing.tag) 
-            VD, wing = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)            
+            VD, wing_out = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)
+            wing.update(wing_out,hard=True)
                     
     for wing in VD.VLM_wings:
         if wing.is_a_control_surface:
             if show_prints:print('discretizing ' + wing.tag)
-            VD, wing = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)     
-            
+            VD, wing_out = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)    
+            wing.update(wing_out,hard=True)
             
     # ---------------------------------------------------------------------------------------
     # STEP 8: Unpack aircraft nacelle geometry
@@ -354,8 +356,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     # STEP 3: Get discretization control variables  
     # ---------------------------------------------------------------------------------------
     # get number of spanwise and chordwise panels for this wing
-    n_sw = n_sw if (not wing.is_a_control_surface) else max(len(wing.y_coords_required)-1,1)
-    n_cw = n_cw if (not wing.is_a_control_surface) else max(int(jnp.ceil(wing.chord_fraction*n_cw)),2)  
+    n_sw = n_sw 
+    n_cw = n_cw
     
     # get y_coordinates (y-locations of the edges of each strip in wing-local coords)
     if spc == True: # discretize wing using cosine spacing     
@@ -478,7 +480,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     
                 cs_wing.y_coords_required_cond = (l_bound<=rel_wing_ys) & (rel_wing_ys<=r_bound)
                 cs_wing.y_coord_required_all   = rel_wing_ys
-                cs_wing.y_coords_required      = rel_wing_ys[cs_wing.y_coords_required_cond]
+                #cs_wing.y_coords_required      = rel_wing_ys[cs_wing.y_coords_required_cond]
     
     
     # -------------------------------------------------------------------------------------------------------------
@@ -560,16 +562,18 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             Properties Used:
             N/A
             """                 
-            inds, i_break, cords, wingg = val
-            inds, i_break, cords, wingg = wing_strip(i_break,wingg,inds,cords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
+            inds, i_breaks, cords, wingg = val
+            inds, i_breaks, cords, wingg = wing_strip(i_breaks,wingg,inds,cords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_spans,break_chord,break_twist,break_sweep,
                break_x_offset,break_z_offset,break_camber_xs,break_camber_zs,break_dihedral,section_span,
                section_LE_cut,section_TE_cut,sym_sign,vertical_wing,span_breaks_cs_ID,precision)    
             
-            return [inds, i_break, cords, wing]
+            return [inds, i_breaks, cords, wingg]
             
         i_break = 0           
         
-        indices, i_break, coords, wing = lax.fori_loop(0, n_sw, wing_s, [indices, i_break, coords, wing])
+        indices, i_break, coords, wing_out = lax.fori_loop(0, n_sw, wing_s, [indices, i_break, coords, wing])
+        
+        wing.update(wing_out,hard=True)
         
         LE_inds,TE_inds,RNMAX,panel_numbers,chord_adjusted,tan_incidence,exposed_leading_edge_flag = indices
         
@@ -721,7 +725,7 @@ def wing_strip(i_break,wing,indices,coords,n_sw,y_a,y_b,idx_y,del_y,n_cw,break_s
     eta   = (y_b[idx_y] - del_y[idx_y]/2 - break_spans[i_break]) 
     
     # Inverted wing
-    wing.inverted_wing = -jnp.sign(break_dihedral[i_break] - np.pi/2)    
+    wing.inverted_wing = -jnp.sign(break_dihedral[i_break] - np.pi/2)
 
     segment_chord_ratio = (break_chord[i_break+1] - break_chord[i_break])/section_span[i_break+1]
     segment_twist_ratio = (break_twist[i_break+1] - break_twist[i_break])/section_span[i_break+1]
@@ -1300,7 +1304,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         
         VD.chordwise_breaks = jnp.append(VD.chordwise_breaks, jnp.int32(chordwise_breaks))
         VD.spanwise_breaks  = jnp.append(VD.spanwise_breaks , jnp.int32(first_strip_ind ))            
-        VD.n_sw             = jnp.append(VD.n_sw            , jnp.int16([n_sw, n_sw])    )
+        VD.n_sw             =  np.append(VD.n_sw            ,  np.int16([n_sw, n_sw])    )
         VD.n_cw             = jnp.append(VD.n_cw            , jnp.int16([n_cw, n_cw])    )
         VD.surface_ID       = jnp.append(VD.surface_ID      , jnp.ones(len(fhs_xch)) * VD.counter)
         VD.surface_ID_full  = jnp.append(VD.surface_ID_full , jnp.ones(((n_sw+1)*(n_cw+1))*2) * VD.counter)        

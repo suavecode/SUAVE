@@ -13,6 +13,7 @@ import numpy as np
 from SUAVE.Components.Wings import All_Moving_Surface
 from SUAVE.Core import Data
 from .generate_VD_helpers import postprocess_VD
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Deflect Control Surface
@@ -98,8 +99,8 @@ def deflect_control_surface(VD,wing):
     for sym_sign in signs[symmetry_mask]:    
         
         # Pull out initial VD data points of surface
-        condition      = VD.surface_ID      == wing.surface_ID*sym_sign
-        condition_full = VD.surface_ID_full == wing.surface_ID*sym_sign
+        condition      = jnp.where(VD.surface_ID      == wing.surface_ID*sym_sign,size=VD.surface_ID.shape[0])
+        condition_full = jnp.where(VD.surface_ID_full == wing.surface_ID*sym_sign,size=VD.surface_ID_full.shape[0])
         xi_prime_a1    = VD.XA1[condition]
         xi_prime_ac    = VD.XAC[condition]
         xi_prime_ah    = VD.XAH[condition]
@@ -131,9 +132,9 @@ def deflect_control_surface(VD,wing):
         zeta_prime_ch  = VD.ZCH[condition]
         zeta_prime     = VD.ZC [condition]
         
-        X_as = np.zeros_like(VD.X[condition_full][:-(n_cw+1)])
-        Y_as = np.zeros_like(VD.Y[condition_full][:-(n_cw+1)])
-        Z_as = np.zeros_like(VD.Z[condition_full][:-(n_cw+1)])
+        X_as = jnp.zeros_like(VD.X[condition_full][:-(n_cw+1)])
+        Y_as = jnp.zeros_like(VD.Y[condition_full][:-(n_cw+1)])
+        Z_as = jnp.zeros_like(VD.Z[condition_full][:-(n_cw+1)])
         
         
         for idx_y in range(n_sw):
@@ -177,82 +178,81 @@ def deflect_control_surface(VD,wing):
             raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y==0, sym_sign)
             
             # unpack strip values into surface values
-            xi_prime_a1  [start:stop]  = raw_VD.xi_prime_a1  
-            xi_prime_ac  [start:stop]  = raw_VD.xi_prime_ac  
-            xi_prime_ah  [start:stop]  = raw_VD.xi_prime_ah  
-            xi_prime_a2  [start:stop]  = raw_VD.xi_prime_a2  
-            y_prime_a1   [start:stop]  = raw_VD.y_prime_a1   
-            y_prime_ah   [start:stop]  = raw_VD.y_prime_ah   
-            y_prime_ac   [start:stop]  = raw_VD.y_prime_ac   
-            y_prime_a2   [start:stop]  = raw_VD.y_prime_a2   
-            zeta_prime_a1[start:stop]  = raw_VD.zeta_prime_a1
-            zeta_prime_ah[start:stop]  = raw_VD.zeta_prime_ah
-            zeta_prime_ac[start:stop]  = raw_VD.zeta_prime_ac
-            zeta_prime_a2[start:stop]  = raw_VD.zeta_prime_a2
-        
-            xi_prime_b1  [start:stop]  = raw_VD.xi_prime_b1  
-            xi_prime_bh  [start:stop]  = raw_VD.xi_prime_bh  
-            xi_prime_bc  [start:stop]  = raw_VD.xi_prime_bc  
-            xi_prime_b2  [start:stop]  = raw_VD.xi_prime_b2  
-            y_prime_b1   [start:stop]  = raw_VD.y_prime_b1   
-            y_prime_bh   [start:stop]  = raw_VD.y_prime_bh   
-            y_prime_bc   [start:stop]  = raw_VD.y_prime_bc   
-            y_prime_b2   [start:stop]  = raw_VD.y_prime_b2   
-            zeta_prime_b1[start:stop]  = raw_VD.zeta_prime_b1
-            zeta_prime_bh[start:stop]  = raw_VD.zeta_prime_bh
-            zeta_prime_bc[start:stop]  = raw_VD.zeta_prime_bc
-            zeta_prime_b2[start:stop]  = raw_VD.zeta_prime_b2
+            xi_prime_a1   = xi_prime_a1  .at[start:stop].set(raw_VD.xi_prime_a1  )
+            xi_prime_ac   = xi_prime_ac  .at[start:stop].set(raw_VD.xi_prime_ac  )
+            xi_prime_ah   = xi_prime_ah  .at[start:stop].set(raw_VD.xi_prime_ah  )
+            xi_prime_a2   = xi_prime_a2  .at[start:stop].set(raw_VD.xi_prime_a2  )
+            y_prime_a1    = y_prime_a1   .at[start:stop].set(raw_VD.y_prime_a1   )
+            y_prime_ah    = y_prime_ah   .at[start:stop].set(raw_VD.y_prime_ah   )
+            y_prime_ac    = y_prime_ac   .at[start:stop].set(raw_VD.y_prime_ac   )
+            y_prime_a2    = y_prime_a2   .at[start:stop].set(raw_VD.y_prime_a2   )
+            zeta_prime_a1 = zeta_prime_a1.at[start:stop].set(raw_VD.zeta_prime_a1)
+            zeta_prime_ah = zeta_prime_ah.at[start:stop].set(raw_VD.zeta_prime_ah)
+            zeta_prime_ac = zeta_prime_ac.at[start:stop].set(raw_VD.zeta_prime_ac)
+            zeta_prime_a2 = zeta_prime_a2.at[start:stop].set(raw_VD.zeta_prime_a2)
+            xi_prime_b1   = xi_prime_b1  .at[start:stop].set(raw_VD.xi_prime_b1  )
+            xi_prime_bh   = xi_prime_bh  .at[start:stop].set(raw_VD.xi_prime_bh  )
+            xi_prime_bc   = xi_prime_bc  .at[start:stop].set(raw_VD.xi_prime_bc  )
+            xi_prime_b2   = xi_prime_b2  .at[start:stop].set(raw_VD.xi_prime_b2  )
+            y_prime_b1    = y_prime_b1   .at[start:stop].set(raw_VD.y_prime_b1   )
+            y_prime_bh    = y_prime_bh   .at[start:stop].set(raw_VD.y_prime_bh   )
+            y_prime_bc    = y_prime_bc   .at[start:stop].set(raw_VD.y_prime_bc   )
+            y_prime_b2    = y_prime_b2   .at[start:stop].set(raw_VD.y_prime_b2   )
+            zeta_prime_b1 = zeta_prime_b1.at[start:stop].set(raw_VD.zeta_prime_b1)
+            zeta_prime_bh = zeta_prime_bh.at[start:stop].set(raw_VD.zeta_prime_bh)
+            zeta_prime_bc = zeta_prime_bc.at[start:stop].set(raw_VD.zeta_prime_bc)
+            zeta_prime_b2 = zeta_prime_b2.at[start:stop].set(raw_VD.zeta_prime_b2)
                
-            xi_prime_ch  [start:stop]  = raw_VD.xi_prime_ch  
-            xi_prime     [start:stop]  = raw_VD.xi_prime     
-            y_prime_ch   [start:stop]  = raw_VD.y_prime_ch   
-            y_prime      [start:stop]  = raw_VD.y_prime      
-            zeta_prime_ch[start:stop]  = raw_VD.zeta_prime_ch
-            zeta_prime   [start:stop]  = raw_VD.zeta_prime   
+            xi_prime_ch   = xi_prime_ch  .at[start:stop].set(raw_VD.xi_prime_ch  )
+            xi_prime      = xi_prime     .at[start:stop].set(raw_VD.xi_prime     )
+            y_prime_ch    = y_prime_ch   .at[start:stop].set(raw_VD.y_prime_ch   )
+            y_prime       = y_prime      .at[start:stop].set(raw_VD.y_prime      )
+            zeta_prime_ch = zeta_prime_ch.at[start:stop].set(raw_VD.zeta_prime_ch)
+            zeta_prime    = zeta_prime   .at[start:stop].set(raw_VD.zeta_prime   )
             
-            X_as[start_full:stop_full] = np.append(raw_VD.xi_prime_a1  , raw_VD.xi_prime_a2  [-1])
-            Y_as[start_full:stop_full] = np.append(raw_VD.y_prime_a1   , raw_VD.y_prime_a2   [-1])
-            Z_as[start_full:stop_full] = np.append(raw_VD.zeta_prime_a1, raw_VD.zeta_prime_a2[-1])
+            X_as = X_as.at[start_full:stop_full].set(jnp.append(raw_VD.xi_prime_a1  , raw_VD.xi_prime_a2  [-1]))
+            Y_as = Y_as.at[start_full:stop_full].set(jnp.append(raw_VD.y_prime_a1   , raw_VD.y_prime_a2   [-1]))
+            Z_as = Z_as.at[start_full:stop_full].set(jnp.append(raw_VD.zeta_prime_a1, raw_VD.zeta_prime_a2[-1]))
         
         # pack surface VD values into vehicle VD    
-        VD.XA1[condition]    = xi_prime_a1    
-        VD.XAC[condition]    = xi_prime_ac    
-        VD.XAH[condition]    = xi_prime_ah    
-        VD.XA2[condition]    = xi_prime_a2    
-        VD.YA1[condition]    = y_prime_a1     
-        VD.YAH[condition]    = y_prime_ah     
-        VD.YAC[condition]    = y_prime_ac     
-        VD.YA2[condition]    = y_prime_a2     
-        VD.ZA1[condition]    = zeta_prime_a1  
-        VD.ZAH[condition]    = zeta_prime_ah  
-        VD.ZAC[condition]    = zeta_prime_ac  
-        VD.ZA2[condition]    = zeta_prime_a2  
-        VD.XB1[condition]    = xi_prime_b1    
-        VD.XBH[condition]    = xi_prime_bh    
-        VD.XBC[condition]    = xi_prime_bc    
-        VD.XB2[condition]    = xi_prime_b2    
-        VD.YB1[condition]    = y_prime_b1     
-        VD.YBH[condition]    = y_prime_bh     
-        VD.YBC[condition]    = y_prime_bc     
-        VD.YB2[condition]    = y_prime_b2     
-        VD.ZB1[condition]    = zeta_prime_b1  
-        VD.ZBH[condition]    = zeta_prime_bh  
-        VD.ZBC[condition]    = zeta_prime_bc  
-        VD.ZB2[condition]    = zeta_prime_b2  
-        VD.XCH[condition]    = xi_prime_ch    
-        VD.XC [condition]    = xi_prime       
-        VD.YCH[condition]    = y_prime_ch     
-        VD.YC [condition]    = y_prime        
-        VD.ZCH[condition]    = zeta_prime_ch  
-        VD.ZC [condition]    = zeta_prime    
+        VD.XA1 = VD.XA1.at[condition].set(xi_prime_a1   ) 
+        VD.XAC = VD.XAC.at[condition].set(xi_prime_ac   ) 
+        VD.XAH = VD.XAH.at[condition].set(xi_prime_ah   ) 
+        VD.XA2 = VD.XA2.at[condition].set(xi_prime_a2   ) 
+        VD.YA1 = VD.YA1.at[condition].set(y_prime_a1    ) 
+        VD.YAH = VD.YAH.at[condition].set(y_prime_ah    ) 
+        VD.YAC = VD.YAC.at[condition].set(y_prime_ac    ) 
+        VD.YA2 = VD.YA2.at[condition].set(y_prime_a2    ) 
+        VD.ZA1 = VD.ZA1.at[condition].set(zeta_prime_a1 ) 
+        VD.ZAH = VD.ZAH.at[condition].set(zeta_prime_ah ) 
+        VD.ZAC = VD.ZAC.at[condition].set(zeta_prime_ac ) 
+        VD.ZA2 = VD.ZA2.at[condition].set(zeta_prime_a2 ) 
+        VD.XB1 = VD.XB1.at[condition].set(xi_prime_b1   ) 
+        VD.XBH = VD.XBH.at[condition].set(xi_prime_bh   ) 
+        VD.XBC = VD.XBC.at[condition].set(xi_prime_bc   ) 
+        VD.XB2 = VD.XB2.at[condition].set(xi_prime_b2   ) 
+        VD.YB1 = VD.YB1.at[condition].set(y_prime_b1    ) 
+        VD.YBH = VD.YBH.at[condition].set(y_prime_bh    ) 
+        VD.YBC = VD.YBC.at[condition].set(y_prime_bc    ) 
+        VD.YB2 = VD.YB2.at[condition].set(y_prime_b2    ) 
+        VD.ZB1 = VD.ZB1.at[condition].set(zeta_prime_b1 ) 
+        VD.ZBH = VD.ZBH.at[condition].set(zeta_prime_bh ) 
+        VD.ZBC = VD.ZBC.at[condition].set(zeta_prime_bc ) 
+        VD.ZB2 = VD.ZB2.at[condition].set(zeta_prime_b2 ) 
+        VD.XCH = VD.XCH.at[condition].set(xi_prime_ch   ) 
+        VD.XC  = VD.XC .at[condition].set(xi_prime      ) 
+        VD.YCH = VD.YCH.at[condition].set(y_prime_ch    ) 
+        VD.YC  = VD.YC .at[condition].set(y_prime       ) 
+        VD.ZCH = VD.ZCH.at[condition].set(zeta_prime_ch ) 
+        VD.ZC  = VD.ZC .at[condition].set(zeta_prime    )
         
-        X_last_bs = np.append(raw_VD.xi_prime_b1  , raw_VD.xi_prime_b2  [-1])
-        Y_last_bs = np.append(raw_VD.y_prime_b1   , raw_VD.y_prime_b2   [-1])
-        Z_last_bs = np.append(raw_VD.zeta_prime_b1, raw_VD.zeta_prime_b2[-1])
+        X_last_bs = jnp.append(raw_VD.xi_prime_b1  , raw_VD.xi_prime_b2  [-1])
+        Y_last_bs = jnp.append(raw_VD.y_prime_b1   , raw_VD.y_prime_b2   [-1])
+        Z_last_bs = jnp.append(raw_VD.zeta_prime_b1, raw_VD.zeta_prime_b2[-1])
         
-        VD.X[condition_full] = np.append(X_as, X_last_bs)
-        VD.Y[condition_full] = np.append(Y_as, Y_last_bs)
-        VD.Z[condition_full] = np.append(Z_as, Z_last_bs)
+        VD.X = VD.X.at[condition_full].set(jnp.append(X_as, X_last_bs))
+        VD.Y = VD.Y.at[condition_full].set(jnp.append(Y_as, Y_last_bs))
+        VD.Z = VD.Z.at[condition_full].set(jnp.append(Z_as, Z_last_bs))
         
         
     wing.deflection_last = wing.deflection*1.
@@ -356,13 +356,13 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
     if is_first_strip:
         # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
-        ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]]) 
-        ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
+        ib_le_strip_corner = jnp.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]]) 
+        ib_te_strip_corner = jnp.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
         
         interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
         interp_domains     = np.array([0.,1., 2.,3., 4.,5.])
-        interp_ranges_ib   = np.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
-        ib_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ib)
+        interp_ranges_ib   = jnp.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
+        ib_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ib)
         
         #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
         if wing.is_a_control_surface:
@@ -374,16 +374,16 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
             need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
             
         if need_to_compute_hinge_vector:
-            ob_le_strip_corner = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
-            ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
-            interp_ranges_ob   = np.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
-            ob_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ob)
+            ob_le_strip_corner = jnp.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
+            ob_te_strip_corner = jnp.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
+            interp_ranges_ob   = jnp.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
+            ob_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ob)
         
             use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
             if use_root_chord_in_plane_normal: ob_hinge_point[0] = ib_hinge_point[0]
         
             hinge_vector       = ob_hinge_point - ib_hinge_point
-            hinge_vector       = hinge_vector / np.linalg.norm(hinge_vector)   
+            hinge_vector       = hinge_vector / jnp.linalg.norm(hinge_vector)   
         elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
             hinge_vector[1], hinge_vector[2] = hinge_vector[2], hinge_vector[1] 
             

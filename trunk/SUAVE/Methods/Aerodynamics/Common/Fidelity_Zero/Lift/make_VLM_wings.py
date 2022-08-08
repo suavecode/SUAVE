@@ -129,6 +129,7 @@ def make_VLM_wings(geometry, settings):
     # Build wing Data() objects and wing.span_breaks from control surfaces on segments
     # ------------------------------------------------------------------    
     for wing in wings:
+        wing.inverted_wing = 0
         if wing.is_a_control_surface == True: #skip if this wing is actually a control surface
             continue
         
@@ -236,7 +237,9 @@ def make_VLM_wings(geometry, settings):
         span_breaks.append(span_break)
         span_break  = make_span_break_from_segment(cs_wing.Segments[1])
         span_breaks.append(span_break) 
-        cs_wing.span_breaks = span_breaks
+        cs_wing.span_breaks   = span_breaks
+        cs_wing.inverted_wing = 0.
+        
     
     return wings
   

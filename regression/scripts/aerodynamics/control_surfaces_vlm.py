@@ -41,10 +41,13 @@ def main():
     results.CM  = np.array([])
     
     # run VLM
+    
+    from jax import config
+    config.update("jax_debug_nans", True)        
     for deflection in deflections:
-        geometry    = get_deflected_b737(deflection)
-        geometry.VD = generate_vortex_distribution(geometry, settings)
-        data        = VLM(conditions, settings, geometry)
+        geometry                     = get_deflected_b737(deflection)
+        geometry.vortex_distribution = generate_vortex_distribution(geometry, settings)
+        data                         = VLM(conditions, settings, geometry)
         
         plot_title  = "{}, deflection = {} degrees".format(geometry.tag, round(deflection/Units.degrees))
         plot_vehicle_vlm_panelization(geometry, plot_control_points=False, save_filename=plot_title)        
