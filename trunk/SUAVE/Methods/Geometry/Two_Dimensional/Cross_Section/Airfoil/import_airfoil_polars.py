@@ -98,11 +98,13 @@ def import_airfoil_polars(airfoil_polar_files):
             CL.append( list  (airfoil_cl)     )
             CD.append( list  (airfoil_cd)     )
             AoA.append(list  (airfoil_aoa)    )
+            
         all_Re.append(Re)    
         all_Ma.append(Ma) 
         all_CL.append(CL)
         all_CD.append(CD)  
         all_AoA.append(AoA)
+        
     airfoil_data.angle_of_attacks  = all_AoA
     airfoil_data.reynolds_number   = all_Re
     airfoil_data.mach_number       = all_Ma

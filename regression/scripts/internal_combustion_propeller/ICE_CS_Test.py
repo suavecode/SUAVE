@@ -102,11 +102,11 @@ def ICE_CS(vehicle):
     prop.design_power           = .64 * 180. * Units.horsepower
 
     airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+    airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.05e6.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.1e6.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.2e6.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.5e6.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_1.0e6.txt' ]]
     prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
     prop                        = propeller_design(prop)    

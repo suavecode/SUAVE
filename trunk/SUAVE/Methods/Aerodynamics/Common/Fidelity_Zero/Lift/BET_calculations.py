@@ -68,8 +68,8 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_data,ctrl_pts,N
             Cl      = np.zeros((ctrl_pts,Nr,Na))
             Cdval   = np.zeros((ctrl_pts,Nr,Na))
             for jj in range(dim_sur):
-                Cl_af           = a_data.lift_coefficient_surrogates[aNames[jj]]((Re,alpha))
-                Cdval_af        = a_data.drag_coefficient_surrogates[aNames[jj]]((Re,alpha))
+                Cl_af           = a_data.lift_coefficient_surrogates[jj]((Re,alpha))
+                Cdval_af        = a_data.drag_coefficient_surrogates[jj]((Re,alpha))
                 locs            = np.where(np.array(a_loc) == jj )
                 Cl[:,locs,:]    = Cl_af[:,locs,:]
                 Cdval[:,locs,:] = Cdval_af[:,locs,:]
@@ -79,8 +79,8 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_data,ctrl_pts,N
             Cdval   = np.zeros((ctrl_pts,Nr))
 
             for jj in range(dim_sur):
-                Cl_af         = a_data.lift_coefficient_surrogates[aNames[jj]]((Re,alpha))
-                Cdval_af      = a_data.drag_coefficient_surrogates[aNames[jj]]((Re,alpha))
+                Cl_af         = a_data.lift_coefficient_surrogates[jj]((Re,alpha))
+                Cdval_af      = a_data.drag_coefficient_surrogates[jj]((Re,alpha))
                 locs          = np.where(np.array(a_loc) == jj )
                 Cl[:,locs]    = Cl_af[:,locs]
                 Cdval[:,locs] = Cdval_af[:,locs]

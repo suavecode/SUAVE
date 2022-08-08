@@ -270,10 +270,10 @@ def plot_airfoil_polars(airfoil_data, aoa_sweep, Re_sweep, display_plot = False,
         fig.set_figheight(4)
         fig.set_figwidth(12)
         for ii in range(len(Re_sweep)):
-            cl_sur = airfoil_cl_surs[airfoil_names[jj]](
+            cl_sur = airfoil_cl_surs[jj](
                 (Re_sweep[ii], aoa_sweep)
             )
-            cd_sur = airfoil_cd_surs[airfoil_names[jj]](
+            cd_sur = airfoil_cd_surs[jj](
                 (Re_sweep[ii], aoa_sweep)
             )
             ax.plot(aoa_sweep / Units.deg, cl_sur, col_raw[ii], label="Re="+str(Re_sweep[ii]))
@@ -351,7 +351,7 @@ def plot_raw_data_airfoil_polars(airfoil_names, airfoil_polars_path, display_plo
             ax2.plot(np.array(aoa_sweep[ii]), np.array(CD[ii]), col_raw[ii])
             ax2.set_xlabel("Alpha (deg)")
             ax2.set_ylabel("Cd")
-            ax2.set_title(airfoil_names[jj])
+            ax2.set_title(airfoil_names[jj] + " (Raw Polar Data)")
             ax2.grid()    
             
             ax3.plot(np.array(CD[ii]), np.array(CL[ii]), col_raw[ii])

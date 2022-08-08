@@ -151,7 +151,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             # query surrogate for sectional Cls at stations 
             Cdval    = np.zeros_like(RE) 
             for j in range(len(a_data.airfoil_names)):                 
-                Cdval_af    = a_data[a_data.airfoil_names[j]].drag_coefficient_surrogates((RE,alpha))
+                Cdval_af    = a_data.drag_coefficient_surrogates[j]((RE,alpha))
                 locs        = np.where(np.array(a_loc) == j )
                 Cdval[locs] = Cdval_af[locs]    
                 
@@ -243,8 +243,8 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     T_C    = np.zeros(len(a_data.airfoil_names))   
     if airfoil_flag:   
         for j in range(len(a_data.airfoil_names)):
-            maxT[j] = a_data[a_data.airfoil_names[j]].max_thickness
-            T_C[j]  = a_data[a_data.airfoil_names[j]].thickness_to_chord
+            maxT[j] = a_data.max_thickness[j]
+            T_C[j]  = a_data.thickness_to_chord[j]
         t_max    = np.take(maxT,a_loc,axis=0)*c 
         t_c      = np.take(T_C,a_loc,axis=0)  
     else:     
@@ -285,7 +285,7 @@ def objective(x, a_data, RE ,a_loc, Cl ,N):
     # query surrogate for sectional Cls at stations 
     Cl_vals = np.zeros(N)     
     for j in range(len(a_data.airfoil_names)):                 
-        Cl_af         = a_data[a_data.airfoil_names[j]].lift_coefficient_surrogates((RE,x))
+        Cl_af         = a_data.lift_coefficient_surrogates[j]((RE,x))
         locs          = np.where(np.array(a_loc) == j )
         Cl_vals[locs] = Cl_af[locs] 
         

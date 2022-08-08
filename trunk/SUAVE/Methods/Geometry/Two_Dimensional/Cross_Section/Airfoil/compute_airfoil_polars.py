@@ -24,7 +24,7 @@ from scipy.interpolate import RegularGridInterpolator
 
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True):
+def compute_airfoil_polars(a_geo, a_polar, npoints = 200, use_pre_stall_data=True):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
@@ -68,12 +68,12 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
     airfoil_data = import_airfoil_geometry(a_geo, npoints = npoints)
 
     # Get all of the coefficients for AERODAS wings
-    AoA_sweep_deg = np.linspace(-90,90,180 * 4 + 1)
+    AoA_sweep_deg = np.linspace(-90, 90, 180 * 4 + 1)
     AoA_sweep_radians = AoA_sweep_deg*Units.degrees
-    CL = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
-    CD = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
-    aoa0 = np.zeros((num_airfoils,num_polars))
-    cl0 = np.zeros((num_airfoils,num_polars))
+    CL = np.zeros((num_airfoils, num_polars, len(AoA_sweep_deg)))
+    CD = np.zeros((num_airfoils, num_polars, len(AoA_sweep_deg)))
+    aoa0 = np.zeros((num_airfoils, num_polars))
+    cl0 = np.zeros((num_airfoils, num_polars))
     
     # Create an infinite aspect ratio wing
     geometry              = SUAVE.Components.Wings.Wing()
@@ -89,27 +89,30 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
     state.conditions.aerodynamics.post_stall_coefficients = Data()
 
     # read airfoil polars 
-    airfoil_polar_data = import_airfoil_polars(a_polar)
+    airfoil_polar_data_raw = import_airfoil_polars(a_polar)
+    airfoil_polar_data = smooth_raw_polar_data(airfoil_polar_data_raw)
     
     # initialize new data
-    airfoil_data.angle_of_attacks             = Data()
-    airfoil_data.lift_coefficient_surrogates  = Data()
-    airfoil_data.drag_coefficient_surrogates  = Data()   
-    airfoil_data.re_from_polar                = Data()
-    airfoil_data.aoa_from_polar               = Data()    
+    airfoil_data.angle_of_attacks             = []
+    airfoil_data.lift_coefficient_surrogates  = []
+    airfoil_data.drag_coefficient_surrogates  = []   
+    airfoil_data.re_from_polar                = []
+    airfoil_data.aoa_from_polar               = []    
     aNames = []
     
     # AERODAS 
     for i in range(num_airfoils):
         aNames.append(os.path.basename(a_geo[i])[:-4])
         # Modify the "wing" slightly:
-        geometry.thickness_to_chord = airfoil_data.thickness_to_chord[aNames[i]]
+        geometry.thickness_to_chord = airfoil_data.thickness_to_chord[i]
         
         for j in range(len(a_polar[i])):
-            # Extract from polars
+            # Extract raw data from polars
             airfoil_cl         = np.array(airfoil_polar_data.lift_coefficients[i][j]) 
             airfoil_cd         = np.array(airfoil_polar_data.drag_coefficients[i][j]) 
             airfoil_aoa        = np.array(airfoil_polar_data.angle_of_attacks[i][j]) 
+            
+            airfoil_cl, airfoil_cd, airfoil_aoa = remove_post_stall(airfoil_cl, airfoil_cd, airfoil_aoa)
             
             # computing approximate zero lift aoa
             airfoil_cl_plus = airfoil_cl[airfoil_cl>0]
@@ -121,7 +124,6 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
             except:
                 A0 = airfoil_aoa[idx_zero_lift] * Units.deg
             
-
             # max lift coefficent and associated aoa
             CL1max = np.max(airfoil_cl)
             idx_aoa_max_prestall_cl = np.where(airfoil_cl == CL1max)[0][0]
@@ -175,24 +177,43 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True)
             
             if use_pre_stall_data == True:
                 CL[i,j,:], CD[i,j,:] = apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL[i,j,:], CD[i,j,:])
-        
+            
+
         # remove placeholder values (for airfoils that have different number of polars)
         n_p      = len(a_polar[i])
         RE_data  = airfoil_polar_data.reynolds_number[i][0:n_p]
         aoa_data = AoA_sweep_radians
         
+        
         CL_sur = RegularGridInterpolator((RE_data, aoa_data), CL[i,0:n_p,:],bounds_error=False,fill_value=None)  
         CD_sur = RegularGridInterpolator((RE_data, aoa_data), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
         
-        airfoil_data.angle_of_attacks[aNames[i]]             = AoA_sweep_radians
-        airfoil_data.lift_coefficient_surrogates[aNames[i]]  = CL_sur
-        airfoil_data.drag_coefficient_surrogates[aNames[i]]  = CD_sur   
-        airfoil_data.re_from_polar[aNames[i]]                = RE_data
-        airfoil_data.aoa_from_polar[aNames[i]]               = aoa_data
+        airfoil_data.angle_of_attacks.append(AoA_sweep_radians)
+        airfoil_data.lift_coefficient_surrogates.append(CL_sur)
+        airfoil_data.drag_coefficient_surrogates.append(CD_sur) 
+        airfoil_data.re_from_polar.append(RE_data)
+        airfoil_data.aoa_from_polar.append(aoa_data)
         
     airfoil_data.airfoil_names                 = aNames
     
     return airfoil_data
+
+def remove_post_stall(airfoil_cl, airfoil_cd, airfoil_aoa):
+    cl_grad = np.gradient(airfoil_cl)
+    a0_idx = np.argmin(abs(airfoil_aoa))
+    if np.any(cl_grad[:a0_idx] < 0):
+        negativeInflectionPoint = a0_idx - np.where( np.flip(cl_grad[:a0_idx]) < 0 )[0][0] # 
+    else:
+        negativeInflectionPoint = 0
+    if np.any(cl_grad[a0_idx:] < 0):
+        positiveInflectionPoint = a0_idx + np.where( cl_grad[a0_idx:] < 0)[0][0]
+    else:
+        positiveInflectionPoint = len(airfoil_aoa)
+    
+    airfoil_cl = airfoil_cl[negativeInflectionPoint:positiveInflectionPoint]
+    airfoil_cd = airfoil_cd[negativeInflectionPoint:positiveInflectionPoint]
+    airfoil_aoa = airfoil_aoa[negativeInflectionPoint:positiveInflectionPoint]
+    return airfoil_cl, airfoil_cd, airfoil_aoa
 
 def apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL, CD):
     # Coefficients in pre-stall regime taken from experimental data:
@@ -203,10 +224,73 @@ def apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL,
     CL[aoa_locs] = airfoil_cl[abs(aoa_in_data[:,None] - airfoil_aoa[None,:]).argmin(axis=-1)]
     CD[aoa_locs] = airfoil_cd[abs(aoa_in_data[:,None] - airfoil_aoa[None,:]).argmin(axis=-1)]
     
-    # remove kinks/overlap between pre- and post-stall                
-    data_lb = np.where(CD == airfoil_cd[0])[0][0]
-    data_ub = np.where(CD == airfoil_cd[-1])[0][-1]
+    # remove kinks/overlap between pre- and post-stall  
+    data_lb = [i for i, v in enumerate(abs(CD-airfoil_cd[0])) if v == min(abs(CD-airfoil_cd[0]))][0]#np.where(CD == airfoil_cd[0])[0][0]
+    data_ub = [i for i, v in enumerate(abs(CD-airfoil_cd[-1])) if v == min(abs(CD-airfoil_cd[-1]))][-1]#np.where(CD == airfoil_cd[-1])[0][-1]
     CD[0:data_lb] = np.maximum(CD[0:data_lb], CD[data_lb]*np.ones_like(CD[0:data_lb]))
     CD[data_ub:]  = np.maximum(CD[data_ub:],  CD[data_ub]*np.ones_like(CD[data_ub:])) 
     
     return CL, CD
+
+
+def smooth_raw_polar_data(polar_data_raw):
+    # initialize new data structure
+    polar_data_new = Data()
+    polar_data_new.reynolds_number = polar_data_raw.reynolds_number
+    polar_data_new.mach_number = polar_data_raw.mach_number
+    polar_data_new.lift_coefficients = []
+    polar_data_new.drag_coefficients = []
+    polar_data_new.angle_of_attacks = []
+    
+    # get information
+    num_airfoils = len(polar_data_raw.lift_coefficients)
+    for a in range(num_airfoils): 
+        num_polars = len(polar_data_raw.lift_coefficients[a])
+        cl_a = []
+        cd_a = []
+        aoa_a = []
+        for i in range(num_polars):
+            # extract raw data
+            c_l_raw = np.array(polar_data_raw.lift_coefficients[a][i])
+            c_d_raw = np.array(polar_data_raw.drag_coefficients[a][i])
+            aoa_raw = np.array(polar_data_raw.angle_of_attacks[a][i])
+            
+            # smooth the data with rolling average
+            c_l_filtered = rollingAverage(aoa_raw, c_l_raw, window_size=9, order=1)
+            c_d_filtered = rollingAverage(aoa_raw, c_d_raw, window_size=9, order=1)          
+            
+            ## remove post-stall regions
+            #c_l_grad = np.gradient(c_l_filtered)
+            #c_l_grad_target = c_l_grad[np.argmin(abs(aoa_raw))]
+            #pre_stalled_ids = np.where(c_l_grad > 0.4 * c_l_grad_target)
+            
+            cl_a.append(list(c_l_filtered)) #[pre_stalled_ids]))
+            cd_a.append(list(c_d_filtered)) #[pre_stalled_ids]))
+            aoa_a.append(list(aoa_raw)) #[pre_stalled_ids]))
+        polar_data_new.lift_coefficients.append(cl_a)
+        polar_data_new.drag_coefficients.append(cd_a)
+        polar_data_new.angle_of_attacks.append(aoa_a)
+    
+    return polar_data_new
+
+def rollingAverage(x, y, window_size=13, order=1):
+    N = len(x)
+    y_averaged = np.zeros_like(y)
+    for i in range(N):
+        # fit a polynomial of specified order to this window of data
+
+        # At the start and end use half window size
+        if i < window_size // 2:
+            w_start = 0
+            w_end = window_size // 2
+        elif i > N - window_size // 2:
+            w_start = N - window_size // 2
+            w_end = N
+        else:
+            w_start = i - window_size // 2
+            w_end = i + window_size // 2
+
+        fitData = np.polyfit(x[w_start:w_end], y[w_start:w_end], deg=order)
+        y_averaged[i] = np.polyval(fitData, x[i])
+
+    return y_averaged

@@ -44,7 +44,7 @@ def test_1():
 
     _, results = propeller_single_point(prop,
                                      pitch=0.,
-                                     omega=2200. * Units.rpm,
+                                     omega=1500. * Units.rpm,
                                      altitude= 5000. * Units.ft,
                                      delta_isa=0.,
                                      speed=10 * Units['m/s'],
@@ -58,11 +58,11 @@ def test_1():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 826.2131667245225
-    torque_r    = 99.57634330285626
-    power_r     = 22940.742630049815
-    Cp_r        = 0.029285855708042142
-    etap_r      = 0.3601510116949202
+    thrust_r    = 283.34728002003214
+    torque_r    = 65.5433160782699
+    power_r     = 10295.520014170324
+    Cp_r        = 0.04146608161360752
+    etap_r      = 0.2752141510385534
 
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
@@ -86,7 +86,7 @@ def test_2():
 
     _, results = propeller_single_point(prop,
                                      pitch=0.,
-                                     omega=2200. * Units.rpm,
+                                     omega=1500. * Units.rpm,
                                      altitude= 5000. * Units.ft,
                                      delta_isa=0.,
                                      speed=10 * Units['m/s'],
@@ -100,11 +100,11 @@ def test_2():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 825.8700355738054
-    torque_r    = 101.48355163256565
-    power_r     = 23380.131886398372
-    Cp_r        = 0.029846774356954243
-    etap_r      = 0.35323583270899495
+    thrust_r    = 284.79236891828293
+    torque_r    = 65.2604080020779
+    power_r     = 10251.080917480023
+    Cp_r        = 0.041287099375929504
+    etap_r      = 0.27781691629480587
 
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"

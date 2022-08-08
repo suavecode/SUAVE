@@ -208,14 +208,14 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_inter
         max_c = max(x_data) - min(x_data)
         t_c   = max_t/max_c 
         
-        airfoil_data.thickness_to_chord[aNames[i]] = t_c
-        airfoil_data.max_thickness[aNames[i]] = max_t 
-        airfoil_data.x_coordinates[aNames[i]] = x_data
-        airfoil_data.y_coordinates[aNames[i]] = y_data     
-        airfoil_data.x_upper_surface[aNames[i]] = x_up_surf_new
-        airfoil_data.x_lower_surface[aNames[i]] = x_lo_surf_new
-        airfoil_data.y_upper_surface[aNames[i]] = y_up_surf_new
-        airfoil_data.y_lower_surface[aNames[i]] = y_lo_surf_new          
-        airfoil_data.camber_coordinates[aNames[i]] = camber
+        airfoil_data.thickness_to_chord[i] = t_c
+        airfoil_data.max_thickness[i] = max_t 
+        airfoil_data.x_coordinates[i] = x_data
+        airfoil_data.y_coordinates[i] = y_data     
+        airfoil_data.x_upper_surface[i] = x_up_surf_new
+        airfoil_data.x_lower_surface[i] = x_lo_surf_new
+        airfoil_data.y_upper_surface[i] = y_up_surf_new
+        airfoil_data.y_lower_surface[i] = y_lo_surf_new          
+        airfoil_data.camber_coordinates[i] = camber
     airfoil_data.airfoil_names = aNames
     return airfoil_data 

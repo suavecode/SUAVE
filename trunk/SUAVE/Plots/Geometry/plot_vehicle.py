@@ -560,9 +560,9 @@ def get_blade_coordinates(prop,dim,i,aircraftRefFrame=True):
         max_t    = np.zeros(len(a_secl))
         
         for j in range(len(a_secl)):
-            xpts[j,:]  = airfoil_data[airfoil_data.airfoil_names[a_secl[j]]].x_coordinates
-            zpts[j,:]  = airfoil_data[airfoil_data.airfoil_names[a_secl[j]]].y_coordinates
-            max_t[j]   = airfoil_data[airfoil_data.airfoil_names[a_secl[j]]].thickness_to_chord
+            xpts[j,:]  = airfoil_data.x_coordinates[a_secl[j]]
+            zpts[j,:]  = airfoil_data.y_coordinates[a_secl[j]]
+            max_t[j]   = airfoil_data.thickness_to_chord[a_secl[j]]
             
     else:
         camber       = 0.02

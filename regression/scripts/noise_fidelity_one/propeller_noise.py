@@ -290,8 +290,8 @@ def design_F8745D4_prop():
     separator                             = os.path.sep
     rel_path                              = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator
     airfoil_geometry                 = [ rel_path +'Clark_y.txt']
-    airfoil_polars                   = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
-                                              rel_path +'Polars/Clark_y_polar_Re_500000.txt',rel_path +'Polars/Clark_y_polar_Re_1000000.txt']]
+    airfoil_polars                   = [[rel_path +'Polars/Clark_y_Ma_0.0_Re_0.05e6.txt' ,rel_path +'Polars/Clark_y_Ma_0.0_Re_0.1e6.txt',rel_path +'Polars/Clark_y_Ma_0.0_Re_0.2e6.txt',
+                                              rel_path +'Polars/Clark_y_Ma_0.0_Re_0.5e6.txt',rel_path +'Polars/Clark_y_Ma_0.0_Re_1.0e6.txt']]
     
     prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
     
