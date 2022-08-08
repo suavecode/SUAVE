@@ -75,16 +75,10 @@ def airfoil_analysis(airfoil_data,alpha,Re_L,npanel = 100 , batch_analysis = Tru
     
     nalpha     = len(alpha)
     nRe        = len(Re_L) 
-    nP_o       = len(airfoil_data.x_coordinates[airfoil_stations[0]])
-    x_coord    = np.zeros((len(airfoil_stations), nP_o))
-    y_coord    = np.zeros((len(airfoil_stations), nP_o))
-    
-    for j in range(len(airfoil_stations)):
-        x_coord[j,:]  = airfoil_data.x_coordinates[airfoil_stations[j]]
-        y_coord[j,:]  = airfoil_data.y_coordinates[airfoil_stations[j]]
-    
-    x_coord    = np.delete(x_coord[::-1].T, int(npanel/2),0)  
-    y_coord    = np.delete(y_coord[::-1].T, int(npanel/2),0)  
+    x_coord    = np.take(airfoil_data.x_coordinates,airfoil_stations,axis=0).T
+    y_coord    = np.take(airfoil_data.y_coordinates,airfoil_stations,axis=0).T
+    x_coord    = np.delete(x_coord[::-1], int(npanel/2),0)  
+    y_coord    = np.delete(y_coord[::-1], int(npanel/2),0)  
     
     if batch_analysis:        
         x_coord_3d = np.repeat(np.repeat(np.atleast_2d(x_coord),nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)

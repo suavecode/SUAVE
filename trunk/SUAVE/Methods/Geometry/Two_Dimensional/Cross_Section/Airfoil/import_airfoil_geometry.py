@@ -62,15 +62,15 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_inter
     # unpack      
 
     airfoil_data = Data()
-    airfoil_data.x_coordinates      = Data()
-    airfoil_data.y_coordinates      = Data()
-    airfoil_data.thickness_to_chord = Data()
-    airfoil_data.max_thickness      = Data()
-    airfoil_data.camber_coordinates = Data()
-    airfoil_data.x_upper_surface    = Data()
-    airfoil_data.x_lower_surface    = Data()
-    airfoil_data.y_upper_surface    = Data()
-    airfoil_data.y_lower_surface    = Data()
+    airfoil_data.x_coordinates      = []
+    airfoil_data.y_coordinates      = []
+    airfoil_data.thickness_to_chord = []
+    airfoil_data.max_thickness      = []
+    airfoil_data.camber_coordinates = []
+    airfoil_data.x_upper_surface    = []
+    airfoil_data.x_lower_surface    = []
+    airfoil_data.y_upper_surface    = []
+    airfoil_data.y_lower_surface    = []
     n_pts       = npoints//2
     aNames = []
     for i in range(num_airfoils):  
@@ -208,14 +208,16 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_inter
         max_c = max(x_data) - min(x_data)
         t_c   = max_t/max_c 
         
-        airfoil_data.thickness_to_chord[i] = t_c
-        airfoil_data.max_thickness[i] = max_t 
-        airfoil_data.x_coordinates[i] = x_data
-        airfoil_data.y_coordinates[i] = y_data     
-        airfoil_data.x_upper_surface[i] = x_up_surf_new
-        airfoil_data.x_lower_surface[i] = x_lo_surf_new
-        airfoil_data.y_upper_surface[i] = y_up_surf_new
-        airfoil_data.y_lower_surface[i] = y_lo_surf_new          
-        airfoil_data.camber_coordinates[i] = camber
+        airfoil_data.thickness_to_chord.append(t_c)
+        airfoil_data.max_thickness.append(max_t)
+        airfoil_data.x_coordinates.append(x_data)
+        airfoil_data.y_coordinates.append(y_data)
+        airfoil_data.x_upper_surface.append(x_up_surf_new)
+        airfoil_data.x_lower_surface.append(x_lo_surf_new)
+        airfoil_data.y_upper_surface.append(y_up_surf_new)
+        airfoil_data.y_lower_surface.append(y_lo_surf_new)         
+        airfoil_data.camber_coordinates.append(camber)
+    
     airfoil_data.airfoil_names = aNames
+    
     return airfoil_data 

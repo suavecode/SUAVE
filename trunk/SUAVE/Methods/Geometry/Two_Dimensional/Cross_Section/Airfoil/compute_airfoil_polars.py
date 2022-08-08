@@ -95,9 +95,7 @@ def compute_airfoil_polars(a_geo, a_polar, npoints = 200, use_pre_stall_data=Tru
     # initialize new data
     airfoil_data.angle_of_attacks             = []
     airfoil_data.lift_coefficient_surrogates  = []
-    airfoil_data.drag_coefficient_surrogates  = []   
-    airfoil_data.re_from_polar                = []
-    airfoil_data.aoa_from_polar               = []    
+    airfoil_data.drag_coefficient_surrogates  = []    
     aNames = []
     
     # AERODAS 
@@ -191,9 +189,7 @@ def compute_airfoil_polars(a_geo, a_polar, npoints = 200, use_pre_stall_data=Tru
         airfoil_data.angle_of_attacks.append(AoA_sweep_radians)
         airfoil_data.lift_coefficient_surrogates.append(CL_sur)
         airfoil_data.drag_coefficient_surrogates.append(CD_sur) 
-        airfoil_data.re_from_polar.append(RE_data)
-        airfoil_data.aoa_from_polar.append(aoa_data)
-        
+    
     airfoil_data.airfoil_names                 = aNames
     
     return airfoil_data

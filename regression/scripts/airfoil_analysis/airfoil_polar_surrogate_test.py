@@ -52,22 +52,20 @@ def main():
     
     # -----------------------------------------------------------------------------------------
     # Regression comparison
-    # -----------------------------------------------------------------------------------------
-
-    airfoil_test = airfoil_data.airfoil_names[0]    
-    xc = airfoil_data.x_coordinates[airfoil_test]
-    cl_outputs = airfoil_data.lift_coefficient_surrogates[airfoil_test]((Re_sweep[0], aoa_sweep))
-    cd_outputs = airfoil_data.drag_coefficient_surrogates[airfoil_test]((Re_sweep[0], aoa_sweep))
+    # -----------------------------------------------------------------------------------------  
+    xc = airfoil_data.x_coordinates[0]
+    cl_outputs = airfoil_data.lift_coefficient_surrogates[0]((Re_sweep[0], aoa_sweep))
+    cd_outputs = airfoil_data.drag_coefficient_surrogates[0]((Re_sweep[0], aoa_sweep))
         
-    # store new regression data (LEAVE COMMENTED OUT)
-    np.save(airfoil_test+"_xc", airfoil_data.x_coordinates[airfoil_test])
-    np.save(airfoil_test+"_cl_sweep", cl_outputs)
-    np.save(airfoil_test+"_cd_sweep", cd_outputs)
+    ## store new regression data (LEAVE COMMENTED OUT)
+    #np.save(airfoil_data.airfoil_names[0]+"_xc", airfoil_data.x_coordinates[0])
+    #np.save(airfoil_data.airfoil_names[0]+"_cl_sweep", cl_outputs)
+    #np.save(airfoil_data.airfoil_names[0]+"_cd_sweep", cd_outputs)
     
     # regress coordinate values
-    xc_true = np.load(airfoil_test+"_xc.npy")
-    cl_outputs_true = np.load(airfoil_test+"_cl_sweep.npy")
-    cd_outputs_true = np.load(airfoil_test+"_cd_sweep.npy")
+    xc_true = np.load(airfoil_data.airfoil_names[0]+"_xc.npy")
+    cl_outputs_true = np.load(airfoil_data.airfoil_names[0]+"_cl_sweep.npy")
+    cd_outputs_true = np.load(airfoil_data.airfoil_names[0]+"_cd_sweep.npy")
     assert(np.max(abs(xc-xc_true)) < 1e-6)
     assert(np.max(abs(cl_outputs-cl_outputs_true)) < 1e-6)
     assert(np.max(abs(cd_outputs-cd_outputs_true)) < 1e-6)
