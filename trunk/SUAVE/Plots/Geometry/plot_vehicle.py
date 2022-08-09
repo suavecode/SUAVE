@@ -532,16 +532,16 @@ def get_blade_coordinates(prop,dim,i,aircraftRefFrame=True):
     N/A
     """    
     # unpack
-    num_B        = prop.number_of_blades
-    airfoil_data = prop.airfoil_data
-    a_secl       = prop.airfoil_polar_stations
-    beta         = prop.twist_distribution + prop.inputs.pitch_command
-    a_o          = prop.start_angle
-    b            = prop.chord_distribution
-    r            = prop.radius_distribution
-    MCA          = prop.mid_chord_alignment
-    t            = prop.max_thickness_distribution
-    origin       = prop.origin
+    num_B                 = prop.number_of_blades
+    airfoil_geometry_data = prop.airfoil_geometry_data
+    a_secl                = prop.airfoil_polar_stations
+    beta                  = prop.twist_distribution + prop.inputs.pitch_command
+    a_o                   = prop.start_angle
+    b                     = prop.chord_distribution
+    r                     = prop.radius_distribution
+    MCA                   = prop.mid_chord_alignment
+    t                     = prop.max_thickness_distribution
+    origin                = prop.origin
     
     if prop.rotation==1:
         # negative chord and twist to give opposite rotation direction
@@ -553,26 +553,27 @@ def get_blade_coordinates(prop,dim,i,aircraftRefFrame=True):
     flip_2 =  (np.pi/2)
 
     # get airfoil coordinate geometry
-    if airfoil_data != None:
-        n_points = len(airfoil_data[airfoil_data.airfoil_names[a_secl[0]]].x_coordinates)
+    aNames = airfoil_geometry_data.airfoil_names
+    if airfoil_geometry_data != None:
+        n_points = len(airfoil_geometry_data.x_coordinates[aNames[0]])
         xpts     = np.zeros((len(a_secl), n_points))
         zpts     = np.zeros((len(a_secl), n_points))
         max_t    = np.zeros(len(a_secl))
         
         for j in range(len(a_secl)):
-            xpts[j,:]  = airfoil_data.x_coordinates[a_secl[j]]
-            zpts[j,:]  = airfoil_data.y_coordinates[a_secl[j]]
-            max_t[j]   = airfoil_data.thickness_to_chord[a_secl[j]]
+            xpts[j,:]  = airfoil_geometry_data.x_coordinates[aNames[a_secl[j]]]
+            zpts[j,:]  = airfoil_geometry_data.y_coordinates[aNames[a_secl[j]]]
+            max_t[j]   = airfoil_geometry_data.thickness_to_chord[aNames[a_secl[j]]]
             
     else:
         camber       = 0.02
         camber_loc   = 0.4
         thickness    = 0.10
         n_points     = 20
-        airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
-        xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
-        zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
-        max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
+        airfoil_geometry_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
+        xpts                  = np.repeat(np.atleast_2d(airfoil_geometry_data.x_coordinates) ,dim,axis=0)
+        zpts                  = np.repeat(np.atleast_2d(airfoil_geometry_data.y_coordinates) ,dim,axis=0)
+        max_t                 = np.repeat(airfoil_geometry_data.thickness_to_chord,dim,axis=0)
     
     #
     MCA_2d             = np.repeat(np.atleast_2d(MCA).T,n_points,axis=1)

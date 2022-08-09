@@ -25,9 +25,9 @@ sys.path.append('../Vehicles')
  
 from Cessna_172      import vehicle_setup  
 from SUAVE.Methods.Propulsion import propeller_design
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
-    compute_airfoil_polars,
-)
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
+
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -107,7 +107,9 @@ def ICE_CS(vehicle):
                                     '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.2e6.txt' ,
                                     '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.5e6.txt' ,
                                     '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_1.0e6.txt' ]]
-    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
+
+    prop.airfoil_geometry_data = import_airfoil_geometry(airfoil_geometry, npoints = 100)     
+    prop.airfoil_polar_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
     prop                        = propeller_design(prop)    
     

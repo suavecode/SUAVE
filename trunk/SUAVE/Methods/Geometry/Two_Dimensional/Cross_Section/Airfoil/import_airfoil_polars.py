@@ -38,28 +38,22 @@ def import_airfoil_polars(airfoil_polar_files):
     # number of airfoils 
     num_airfoils = len(airfoil_polar_files)  
     
-    num_polars   = []
+    num_polars   = 0
     for i in range(num_airfoils): 
         n_p = len(airfoil_polar_files[i])
         if n_p < 3:
             raise AttributeError('Provide three or more airfoil polars to compute surrogate')
         
-        num_polars.append(n_p)# = max(num_polars, n_p)       
+        num_polars = max(num_polars, n_p)
     
     # create empty data structures    
-    airfoil_data = Data()
+    airfoil_raw_polar_data = Data()
     
-    all_Re = []
-    all_Ma = []
-    all_CL = []
-    all_CD = []
-    all_AoA = []
+    all_Re, all_Ma, all_CL, all_CD, all_AoA = [], [], [], [], []
+    
     for i in range(num_airfoils): 
-        Re = []
-        Ma = []
-        CL = []
-        CD = []
-        AoA = []
+        Re, Ma, CL, CD, AoA = [], [], [], [], []
+        
         for j in range(len(airfoil_polar_files[i])):   
         
             # check for xfoil format
@@ -95,9 +89,9 @@ def import_airfoil_polars(airfoil_polar_files):
         
             Re.append( float (ReString) * 1e6 )
             Ma.append( float (MaString)       )       
-            CL.append( list  (airfoil_cl)     )
-            CD.append( list  (airfoil_cd)     )
-            AoA.append(list  (airfoil_aoa)    )
+            CL.append(  airfoil_cl      )
+            CD.append(  airfoil_cd     )
+            AoA.append( airfoil_aoa     )
             
         all_Re.append(Re)    
         all_Ma.append(Ma) 
@@ -105,11 +99,11 @@ def import_airfoil_polars(airfoil_polar_files):
         all_CD.append(CD)  
         all_AoA.append(AoA)
         
-    airfoil_data.angle_of_attacks  = all_AoA
-    airfoil_data.reynolds_number   = all_Re
-    airfoil_data.mach_number       = all_Ma
-    airfoil_data.lift_coefficients = all_CL
-    airfoil_data.drag_coefficients = all_CD      
+    airfoil_raw_polar_data.angle_of_attacks  = np.array(all_AoA)
+    airfoil_raw_polar_data.reynolds_number   = np.array(all_Re)
+    airfoil_raw_polar_data.mach_number       = np.array(all_Ma)
+    airfoil_raw_polar_data.lift_coefficients = np.array(all_CL)
+    airfoil_raw_polar_data.drag_coefficients = np.array(all_CD)     
      
-    return airfoil_data 
+    return airfoil_raw_polar_data 
 

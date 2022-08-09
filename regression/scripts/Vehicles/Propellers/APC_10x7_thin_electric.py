@@ -6,11 +6,10 @@
 
 
 import SUAVE
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Units
 import numpy as np
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
-    compute_airfoil_polars,
-)
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 import os
 
 
@@ -120,7 +119,8 @@ def propeller_geometry():
             polars_path + "Clark_y_Ma_0.0_Re_5.0e6.txt", 
         ],
     ]
-    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
+    prop.airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry)
+    prop.airfoil_polar_data     = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
     prop.airfoil_polar_stations = np.zeros(len(r_R))
     prop.airfoil_polar_stations = list(prop.airfoil_polar_stations.astype(int))
     

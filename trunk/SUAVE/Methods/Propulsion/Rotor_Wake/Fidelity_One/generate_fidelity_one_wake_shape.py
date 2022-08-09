@@ -144,8 +144,8 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     a_secl       = rotor.airfoil_polar_stations
    
     # trailing edge points in airfoil coordinates
-    xupper         = np.take(airfoil_data.x_upper_surface.values(),a_secl,axis=0)
-    yupper         = np.take(airfoil_data.y_upper_surface.values(),a_secl,axis=0)   
+    xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)
+    yupper         = np.take(airfoil_data.y_upper_surface,a_secl,axis=0)   
     
     # Align the quarter chords of the airfoils (zero sweep)
     airfoil_le_offset = -c/2

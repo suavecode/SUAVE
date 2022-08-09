@@ -48,18 +48,19 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     print('\nDesigning',prop.tag)
     
     # Unpack
-    N      = number_of_stations       # this number determines the discretization of the propeller into stations 
-    B      = prop.number_of_blades
-    R      = prop.tip_radius
-    Rh     = prop.hub_radius
-    omega  = prop.angular_velocity    # Rotation Rate in rad/s 
-    V      = prop.freestream_velocity # Freestream Velocity
-    Cl     = prop.design_Cl           # Design Lift Coefficient
-    alt    = prop.design_altitude
-    Thrust = prop.design_thrust
-    Power  = prop.design_power
-    a_data = prop.airfoil_data        
-    a_loc  = prop.airfoil_polar_stations    
+    N          = number_of_stations       # this number determines the discretization of the propeller into stations 
+    B          = prop.number_of_blades
+    R          = prop.tip_radius
+    Rh         = prop.hub_radius
+    omega      = prop.angular_velocity    # Rotation Rate in rad/s 
+    V          = prop.freestream_velocity # Freestream Velocity
+    Cl         = prop.design_Cl           # Design Lift Coefficient
+    alt        = prop.design_altitude
+    Thrust     = prop.design_thrust
+    Power      = prop.design_power
+    a_pol_data = prop.airfoil_polar_data  
+    a_geo_data = prop.airfoil_geometry_data        
+    a_loc      = prop.airfoil_polar_stations    
     
     if (Thrust == None) and (Power== None):
         raise AssertionError('Specify either design thrust or design power!')
@@ -109,7 +110,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     c = 0.2 * np.ones_like(chi)
     
     # if user defines airfoil, check dimension of stations
-    if  a_data != None and a_loc != None:
+    if  a_geo_data != None and a_loc != None:
         if len(a_loc) != N:
             raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller')
         airfoil_flag = True  
@@ -145,13 +146,13 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             alpha0   = np.ones(N)*0.05
             
             # solve for optimal alpha to meet design Cl target
-            sol      = root(objective, x0 = alpha0 , args=(a_data, RE ,a_loc, Cl ,N))  
+            sol      = root(objective, x0 = alpha0 , args=(a_pol_data, RE ,a_loc, Cl ,N))  
             alpha    = sol.x
             
             # query surrogate for sectional Cls at stations 
             Cdval    = np.zeros_like(RE) 
-            for j in range(len(a_data.airfoil_names)):                 
-                Cdval_af    = a_data.drag_coefficient_surrogates[j]((RE,alpha))
+            for j in range(len(a_pol_data.lift_coefficient_surrogates)):                 
+                Cdval_af    = a_pol_data.drag_coefficient_surrogates[j]((RE,alpha))
                 locs        = np.where(np.array(a_loc) == j )
                 Cdval[locs] = Cdval_af[locs]    
                 
@@ -239,12 +240,13 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     Cp     = Power/(rho*(n*n*n)*(D*D*D*D*D))  
     
     # compute max thickness distribution  
-    maxT  = np.zeros(len(a_data.airfoil_names))    
-    T_C    = np.zeros(len(a_data.airfoil_names))   
+    aNames = a_geo_data.airfoil_names
+    maxT  = np.zeros(len(aNames))    
+    T_C    = np.zeros(len(aNames))   
     if airfoil_flag:   
-        for j in range(len(a_data.airfoil_names)):
-            maxT[j] = a_data.max_thickness[j]
-            T_C[j]  = a_data.thickness_to_chord[j]
+        for j in range(len(aNames)):
+            maxT[j] = a_geo_data.max_thickness[aNames[j]]
+            T_C[j]  = a_geo_data.thickness_to_chord[aNames[j]]
         t_max    = np.take(maxT,a_loc,axis=0)*c 
         t_c      = np.take(T_C,a_loc,axis=0)  
     else:     
@@ -281,11 +283,11 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     return prop
 
     
-def objective(x, a_data, RE ,a_loc, Cl ,N):  
+def objective(x, a_pol_data, RE ,a_loc, Cl ,N):  
     # query surrogate for sectional Cls at stations 
     Cl_vals = np.zeros(N)     
-    for j in range(len(a_data.airfoil_names)):                 
-        Cl_af         = a_data.lift_coefficient_surrogates[j]((RE,x))
+    for j in range(len(a_pol_data.lift_coefficient_surrogates)):                 
+        Cl_af         = a_pol_data.lift_coefficient_surrogates[j]((RE,x))
         locs          = np.where(np.array(a_loc) == j )
         Cl_vals[locs] = Cl_af[locs] 
         

@@ -111,7 +111,7 @@ def iteration(PSI, wake_inputs, rotor):
     B        = rotor.number_of_blades    
     tc       = rotor.thickness_to_chord
     a_loc    = rotor.airfoil_polar_stations
-    a_data   = rotor.airfoil_data  
+    a_pol_data   = rotor.airfoil_polar_data  
     
     # Reshape PSI because the solver gives it flat
     if wake_inputs.use_2d_analysis:
@@ -127,7 +127,7 @@ def iteration(PSI, wake_inputs, rotor):
     vt           = Ut - Wt
 
     # compute blade airfoil forces and properties
-    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_data,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_pol_data,ctrl_pts,Nr,Na,tc,use_2d_analysis)
 
     # compute inflow velocity and tip loss factor
     lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)

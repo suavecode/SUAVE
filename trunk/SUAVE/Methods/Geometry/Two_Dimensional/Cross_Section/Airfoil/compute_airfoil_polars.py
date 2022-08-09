@@ -16,15 +16,13 @@ import SUAVE
 from SUAVE.Core               import Data , Units
 from SUAVE.Methods.Aerodynamics.AERODAS.pre_stall_coefficients import pre_stall_coefficients
 from SUAVE.Methods.Aerodynamics.AERODAS.post_stall_coefficients import post_stall_coefficients 
-from .import_airfoil_geometry import import_airfoil_geometry 
 from .import_airfoil_polars   import import_airfoil_polars 
 import numpy as np
-import os
 from scipy.interpolate import RegularGridInterpolator
 
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_polars(a_geo, a_polar, npoints = 200, use_pre_stall_data=True):
+def compute_airfoil_polars(a_polar, airfoil_geometry_data, npoints = 200, use_pre_stall_data=True):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
@@ -53,7 +51,7 @@ def compute_airfoil_polars(a_geo, a_polar, npoints = 200, use_pre_stall_data=Tru
     N/A
     """  
     
-    num_airfoils = len(a_geo)
+    num_airfoils = len(airfoil_geometry_data.x_coordinates)
     
     # check number of polars per airfoil in batch
     num_polars   = 0
@@ -63,9 +61,6 @@ def compute_airfoil_polars(a_geo, a_polar, npoints = 200, use_pre_stall_data=Tru
             raise AttributeError('Provide three or more airfoil polars to compute surrogate')
         
         num_polars = max(num_polars, n_p)        
-
-    # read airfoil geometry  
-    airfoil_data = import_airfoil_geometry(a_geo, npoints = npoints)
 
     # Get all of the coefficients for AERODAS wings
     AoA_sweep_deg = np.linspace(-90, 90, 180 * 4 + 1)
@@ -93,16 +88,16 @@ def compute_airfoil_polars(a_geo, a_polar, npoints = 200, use_pre_stall_data=Tru
     airfoil_polar_data = smooth_raw_polar_data(airfoil_polar_data_raw)
     
     # initialize new data
-    airfoil_data.angle_of_attacks             = []
-    airfoil_data.lift_coefficient_surrogates  = []
-    airfoil_data.drag_coefficient_surrogates  = []    
-    aNames = []
+    airfoil_polar_surrogate_data = Data()
+    airfoil_polar_surrogate_data.angle_of_attacks             = []
+    airfoil_polar_surrogate_data.lift_coefficient_surrogates  = []
+    airfoil_polar_surrogate_data.drag_coefficient_surrogates  = []    
     
     # AERODAS 
+    aNames = airfoil_geometry_data.airfoil_names
     for i in range(num_airfoils):
-        aNames.append(os.path.basename(a_geo[i])[:-4])
         # Modify the "wing" slightly:
-        geometry.thickness_to_chord = airfoil_data.thickness_to_chord[i]
+        geometry.thickness_to_chord = airfoil_geometry_data.thickness_to_chord[aNames[i]]
         
         for j in range(len(a_polar[i])):
             # Extract raw data from polars
@@ -180,19 +175,17 @@ def compute_airfoil_polars(a_geo, a_polar, npoints = 200, use_pre_stall_data=Tru
         # remove placeholder values (for airfoils that have different number of polars)
         n_p      = len(a_polar[i])
         RE_data  = airfoil_polar_data.reynolds_number[i][0:n_p]
-        aoa_data = AoA_sweep_radians
+
+        CL_sur = RegularGridInterpolator((RE_data, AoA_sweep_radians), CL[i,0:n_p,:],bounds_error=False,fill_value=None)  
+        CD_sur = RegularGridInterpolator((RE_data, AoA_sweep_radians), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
         
         
-        CL_sur = RegularGridInterpolator((RE_data, aoa_data), CL[i,0:n_p,:],bounds_error=False,fill_value=None)  
-        CD_sur = RegularGridInterpolator((RE_data, aoa_data), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
+        airfoil_polar_surrogate_data.lift_coefficient_surrogates.append(CL_sur)
+        airfoil_polar_surrogate_data.drag_coefficient_surrogates.append(CD_sur) 
         
-        airfoil_data.angle_of_attacks.append(AoA_sweep_radians)
-        airfoil_data.lift_coefficient_surrogates.append(CL_sur)
-        airfoil_data.drag_coefficient_surrogates.append(CD_sur) 
+    airfoil_polar_surrogate_data.angle_of_attacks = AoA_sweep_radians
     
-    airfoil_data.airfoil_names                 = aNames
-    
-    return airfoil_data
+    return airfoil_polar_surrogate_data
 
 def remove_post_stall(airfoil_cl, airfoil_cd, airfoil_aoa):
     cl_grad = np.gradient(airfoil_cl)
