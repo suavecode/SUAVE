@@ -233,7 +233,7 @@ def plot_airfoil_analysis_surface_forces(ap,show_legend= True,arrow_color = 'r')
 
 
 ## @ingroup Plots-Performance
-def plot_airfoil_polars(airfoil_data, aoa_sweep, Re_sweep, display_plot = False, 
+def plot_airfoil_polars(airfoil_polar_data, aoa_sweep, Re_sweep, display_plot = False, 
                         save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
     """This plots all airfoil polars in the list "airfoil_polar_paths" 
 
@@ -255,9 +255,9 @@ def plot_airfoil_polars(airfoil_data, aoa_sweep, Re_sweep, display_plot = False,
     N/A	
     """
     # Extract surrogates from airfoil data
-    airfoil_names = airfoil_data.airfoil_names
-    airfoil_cl_surs = airfoil_data.lift_coefficient_surrogates
-    airfoil_cd_surs = airfoil_data.drag_coefficient_surrogates
+    airfoil_names   = airfoil_polar_data.airfoil_names
+    airfoil_cl_surs = airfoil_polar_data.lift_coefficient_surrogates
+    airfoil_cd_surs = airfoil_polar_data.drag_coefficient_surrogates
 
     #----------------------------------------------------------------------------
     # plot airfoil polar surrogates
@@ -270,10 +270,10 @@ def plot_airfoil_polars(airfoil_data, aoa_sweep, Re_sweep, display_plot = False,
         fig.set_figheight(4)
         fig.set_figwidth(12)
         for ii in range(len(Re_sweep)):
-            cl_sur = airfoil_cl_surs[jj](
+            cl_sur = airfoil_cl_surs[airfoil_names[jj]](
                 (Re_sweep[ii], aoa_sweep)
             )
-            cd_sur = airfoil_cd_surs[jj](
+            cd_sur = airfoil_cd_surs[airfoil_names[jj]](
                 (Re_sweep[ii], aoa_sweep)
             )
             ax.plot(aoa_sweep / Units.deg, cl_sur, col_raw[ii], label="Re="+str(Re_sweep[ii]))
@@ -324,7 +324,7 @@ def plot_raw_data_airfoil_polars(airfoil_names, airfoil_polars_path, display_plo
     Properties Used:
     N/A	
     """
-    airfoil_data = import_airfoil_polars(airfoil_polars_path)
+    airfoil_data = import_airfoil_polars(airfoil_polars_path, airfoil_names)
 
     #----------------------------------------------------------------------------
     # plot airfoil polar surrogates
@@ -332,10 +332,10 @@ def plot_raw_data_airfoil_polars(airfoil_names, airfoil_polars_path, display_plo
     col_raw = ['black','firebrick', 'darkorange', 'gold','forestgreen','teal','deepskyblue', 'blue',
                'blueviolet', 'fuchsia', 'deeppink', 'gray'] 
     for jj in range(len(airfoil_names)):
-        Re_sweep = airfoil_data.reynolds_number[jj]
-        aoa_sweep = airfoil_data.angle_of_attacks[jj]
-        CL = airfoil_data.lift_coefficients[jj]
-        CD = airfoil_data.drag_coefficients[jj]
+        Re_sweep = airfoil_data.reynolds_number[airfoil_names[jj]]
+        aoa_sweep = airfoil_data.angle_of_attacks[airfoil_names[jj]]
+        CL = airfoil_data.lift_coefficients[airfoil_names[jj]]
+        CD = airfoil_data.drag_coefficients[airfoil_names[jj]]
         
         fig, (ax,ax2,ax3) = plt.subplots(1,3)
         fig.set_figheight(4)

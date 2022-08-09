@@ -39,18 +39,17 @@ def main():
     # ----------------------------------------------------------------------    
 
     # General Aviation Aircraft   
-    GA_RPM_true              = [2285.3601728390076,2285.3601727299374]
-    GA_lift_coefficient_true = [0.5474716961975755,0.5474716961975755]
+
+    GA_RPM_true              = [2287.4598939481502,2287.4598939025564]
+    GA_lift_coefficient_true = [0.5474716961975736,0.5474716961975756]
     
+
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2404.5599353381335,2404.5599354104666]
-    EVTOL_lift_coefficient_true = [0.5950616126321425,0.5950616125292438]
+    EVTOL_RPM_true              = [2404.3825064145894,2404.3825064589055]
+
+    EVTOL_lift_coefficient_true = [0.8075309358248256,0.8075309358231033]
     
-    GA_RPM = np.zeros_like(GA_RPM_true)
-    GA_lift_coefficient = np.zeros_like(GA_lift_coefficient_true)
-    EVTOL_RPM = np.zeros_like(EVTOL_RPM_true)
-    EVTOL_lift_coefficient = np.zeros_like(EVTOL_lift_coefficient_true)
-    
+        
     for i in range(len(battery_chemistry)):
         print('***********************************')
         print(battery_chemistry[i] + ' Cell Powered Aircraft')
@@ -68,22 +67,25 @@ def main():
         GA_results = GA_mission.evaluate() 
          
         # plot the results
-        #plot_results(GA_results,line_style_new[i],line_style2_new[i])  
+        plot_results(GA_results,line_style_new[i],line_style2_new[i])  
         
         # RPM of rotor check during hover
-        GA_RPM[i]        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0] 
-        print('GA RPM: ' + str(GA_RPM[i]))
-        GA_diff_RPM   = np.abs(GA_RPM[i] - GA_RPM_true[i])
+        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0] 
+        print('GA RPM: ' + str(GA_RPM))
+        GA_diff_RPM   = np.abs(GA_RPM - GA_RPM_true[i])
         print('RPM difference')
-        print(GA_diff_RPM) 
+        print(GA_diff_RPM)
+        assert np.abs((GA_RPM - GA_RPM_true[i])/GA_RPM_true[i]) < 1e-6  
         
         # lift Coefficient Check During Cruise
-        GA_lift_coefficient[i]        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
-        print('GA CL: ' + str(GA_lift_coefficient[i])) 
-        GA_diff_CL                 = np.abs(GA_lift_coefficient[i]  - GA_lift_coefficient_true[i]) 
+        GA_lift_coefficient        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
+        print('GA CL: ' + str(GA_lift_coefficient)) 
+        GA_diff_CL                 = np.abs(GA_lift_coefficient  - GA_lift_coefficient_true[i]) 
         print('CL difference')
         print(GA_diff_CL)
-        
+        assert np.abs((GA_lift_coefficient  - GA_lift_coefficient_true[i])/GA_lift_coefficient_true[i]) < 1e-6
+            
+            
       
         print('\nLift-Cruise Network Analysis')  
         print('--------------------------------------')
@@ -97,29 +99,25 @@ def main():
         EVTOL_results = EVTOL_mission.evaluate()  
         
         # plot the results
-        #plot_results(EVTOL_results,line_style_new[i],line_style2_new[i])  
+        plot_results(EVTOL_results,line_style_new[i],line_style2_new[i])  
         
         # RPM of rotor check during hover
-        EVTOL_RPM[i]        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0] 
-        print('EVTOL RPM: ' + str(EVTOL_RPM[i])) 
-        EVTOL_diff_RPM   = np.abs(EVTOL_RPM[i] - EVTOL_RPM_true[i])
+        EVTOL_RPM        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0] 
+        print('EVTOL RPM: ' + str(EVTOL_RPM)) 
+        EVTOL_diff_RPM   = np.abs(EVTOL_RPM - EVTOL_RPM_true[i])
         print('EVTOL_RPM difference')
         print(EVTOL_diff_RPM)
+        assert np.abs((EVTOL_RPM - EVTOL_RPM_true[i])/EVTOL_RPM_true[i]) < 1e-6  
         
         # lift Coefficient Check During Cruise
-        EVTOL_lift_coefficient[i]     = EVTOL_results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[2][0] 
-        print('EVTOL CL: ' + str(EVTOL_lift_coefficient[i])) 
-        EVTOL_diff_CL                 = np.abs(EVTOL_lift_coefficient[i]  - EVTOL_lift_coefficient_true[i]) 
+        EVTOL_lift_coefficient        = EVTOL_results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[2][0] 
+        print('EVTOL CL: ' + str(EVTOL_lift_coefficient)) 
+        EVTOL_diff_CL                 = np.abs(EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i]) 
         print('CL difference')
-        print(EVTOL_diff_CL)  
+        print(EVTOL_diff_CL)
+        assert np.abs((EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i])/EVTOL_lift_coefficient_true[i]) < 1e-6   
                 
-    for i in range(len(battery_chemistry)):
-        assert np.abs((GA_RPM[i] - GA_RPM_true[i])/GA_RPM_true[i]) < 1e-6 
-        assert np.abs((GA_lift_coefficient[i]  - GA_lift_coefficient_true[i])/GA_lift_coefficient_true[i]) < 1e-6
-        assert np.abs((EVTOL_RPM[i] - EVTOL_RPM_true[i])/EVTOL_RPM_true[i]) < 1e-6  
-        assert np.abs((EVTOL_lift_coefficient[i]  - EVTOL_lift_coefficient_true[i])/EVTOL_lift_coefficient_true[i]) < 1e-6 
-        
-        
+            
     return
 
 
@@ -403,7 +401,8 @@ def EVTOL_mission_setup(analyses,vehicle):
     base_segment.state.numerics.number_control_points        = 3 
     base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-
+    ones_row                                                 = base_segment.state.ones_row
+    
     # VSTALL Calculation
     m      = vehicle.mass_properties.max_takeoff
     g      = 9.81
@@ -433,55 +432,6 @@ def EVTOL_mission_setup(analyses,vehicle):
     # add to misison
     mission.append_segment(segment)
 
-    # ------------------------------------------------------------------
-    #   First Cruise Segment: Transition
-    # ------------------------------------------------------------------
-    segment                                            = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
-    segment.tag                                        = "transition_1"
-    segment.analyses.extend( analyses.base ) 
-
-    segment.altitude                                 = 40.  * Units.ft
-    segment.air_speed_start                          = 500. * Units['ft/min']
-    segment.air_speed_end                            = 0.8 * Vstall
-    segment.acceleration                             = 9.8/5
-    segment.pitch_initial                            = 0.0 * Units.degrees
-    segment.pitch_final                              = 5. * Units.degrees
-    ones_row                                         = segment.state.ones_row
-    segment.state.unknowns.throttle                  = 0.95  *  ones_row(1)
-    segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
-                                                         initial_prop_power_coefficient = 0.2,
-                                                         initial_lift_rotor_power_coefficient = 0.01,
-                                                         initial_throttle_lift = 0.9,)
-
-    # add to misison
-    mission.append_segment(segment)
-
-    # ------------------------------------------------------------------
-    #   First Cruise Segment: Transition
-    # ------------------------------------------------------------------
-    segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
-    segment.tag                                         = "transition_2"
-    segment.analyses.extend( analyses.base )
-    segment.altitude_start                          = 40.0 * Units.ft
-    segment.altitude_end                            = 50.0 * Units.ft
-    segment.climb_angle                             = 1 * Units.degrees
-    segment.acceleration                            = 0.5 * Units['m/s/s']
-    segment.pitch_initial                           = 5. * Units.degrees
-    segment.pitch_final                             = 7. * Units.degrees
-    segment.state.unknowns.throttle                 = 0.95  * ones_row(1)
-    segment.process.iterate.unknowns.mission        = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
-                                                         initial_prop_power_coefficient = 0.2,
-                                                         initial_lift_rotor_power_coefficient = 0.01,
-                                                         initial_throttle_lift = 0.9,)
-
-    # add to misison
-    mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------
@@ -490,13 +440,12 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment                                            = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag                                        = "climb_2"
     segment.analyses.extend( analyses.base )
-    segment.air_speed                                  = 1.4*Vstall
+    segment.air_speed                                  = 1.1*Vstall
     segment.altitude_start                             = 50.0 * Units.ft
     segment.altitude_end                               = 300. * Units.ft
-    segment.climb_rate                                 = 300. * Units['ft/min'] 
+    segment.climb_rate                                 = 500. * Units['ft/min'] 
     segment.state.unknowns.throttle =  0.80 * ones_row(1)
-    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,
-                                                                                        initial_prop_power_coefficient = 0.10)
+    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)
 
     # add to misison
     mission.append_segment(segment)
@@ -509,8 +458,8 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.base )
     segment.altitude                                   = 300.0 * Units.ft
     segment.time                                       = 60.   * Units.second
-    segment.air_speed                                  = 1.4*Vstall
-    segment.state.unknowns.throttle =  0.90 * ones_row(1)
+    segment.air_speed                                  = 1.2*Vstall
+    segment.state.unknowns.throttle =  0.80 * ones_row(1)
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,\
                                                                                           initial_prop_power_coefficient = 0.16)
     # add to misison
@@ -520,7 +469,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.tag                                        = "cruise" 
     segment.analyses.extend(analyses.base) 
     segment.altitude                                   = 1000.0 * Units.ft
-    segment.air_speed                                  = 115. * Units['mph']
+    segment.air_speed                                  = 110. * Units['mph']
     segment.distance                                   = 40. * Units.miles 
     segment.state.unknowns.throttle                    = 0.8 * ones_row(1) 
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment ) 

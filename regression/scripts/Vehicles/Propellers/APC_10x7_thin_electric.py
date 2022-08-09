@@ -6,7 +6,7 @@
 
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Data, Units
 import numpy as np
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
@@ -110,18 +110,17 @@ def propeller_geometry():
     polars_path = os.path.join(os.path.dirname(__file__), "../Airfoils/Polars/")
     airfoil_geometry = [airfoils_path + "Clark_y.txt"]
     airfoil_polars = [
-        [   polars_path + "Clark_y_Ma_0.0_Re_0.05e6.txt",
-            polars_path + "Clark_y_Ma_0.0_Re_0.1e6.txt", 
-            polars_path + "Clark_y_Ma_0.0_Re_0.2e6.txt", 
-            polars_path + "Clark_y_Ma_0.0_Re_0.5e6.txt", 
-            polars_path + "Clark_y_Ma_0.0_Re_1.0e6.txt", 
-            polars_path + "Clark_y_Ma_0.0_Re_2.0e6.txt", 
-            polars_path + "Clark_y_Ma_0.0_Re_5.0e6.txt", 
+        [   polars_path + "Clark_y_polar_Re_50000.txt",
+            polars_path + "Clark_y_polar_Re_100000.txt",
+            polars_path + "Clark_y_polar_Re_200000.txt",
+            polars_path + "Clark_y_polar_Re_500000.txt",
+            polars_path + "Clark_y_polar_Re_1000000.txt",
         ],
     ]
     prop.airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry)
-    prop.airfoil_polar_data     = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
+    prop.airfoil_polar_data     = compute_airfoil_polars(airfoil_polars, prop.airfoil_geometry_data)
     prop.airfoil_polar_stations = np.zeros(len(r_R))
     prop.airfoil_polar_stations = list(prop.airfoil_polar_stations.astype(int))
+    
     
     return prop

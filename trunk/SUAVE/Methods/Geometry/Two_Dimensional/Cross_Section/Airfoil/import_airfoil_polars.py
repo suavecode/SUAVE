@@ -15,7 +15,7 @@ from SUAVE.Core import Data
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def import_airfoil_polars(airfoil_polar_files):
+def import_airfoil_polars(airfoil_polar_files, airfoil_names):
     """This imports airfoil polars from a text file output from XFOIL or from a 
     text file containing the (alpha, CL, CD) data from other sources.
     
@@ -47,9 +47,12 @@ def import_airfoil_polars(airfoil_polar_files):
         num_polars = max(num_polars, n_p)
     
     # create empty data structures    
-    airfoil_raw_polar_data = Data()
-    
-    all_Re, all_Ma, all_CL, all_CD, all_AoA = [], [], [], [], []
+    airfoil_raw_polar_data = Data()    
+    airfoil_raw_polar_data.angle_of_attacks  = Data()
+    airfoil_raw_polar_data.reynolds_number   = Data()
+    airfoil_raw_polar_data.mach_number       = Data()
+    airfoil_raw_polar_data.lift_coefficients = Data()
+    airfoil_raw_polar_data.drag_coefficients = Data() 
     
     for i in range(num_airfoils): 
         Re, Ma, CL, CD, AoA = [], [], [], [], []
@@ -93,17 +96,12 @@ def import_airfoil_polars(airfoil_polar_files):
             CD.append(  airfoil_cd     )
             AoA.append( airfoil_aoa     )
             
-        all_Re.append(Re)    
-        all_Ma.append(Ma) 
-        all_CL.append(CL)
-        all_CD.append(CD)  
-        all_AoA.append(AoA)
         
-    airfoil_raw_polar_data.angle_of_attacks  = np.array(all_AoA)
-    airfoil_raw_polar_data.reynolds_number   = np.array(all_Re)
-    airfoil_raw_polar_data.mach_number       = np.array(all_Ma)
-    airfoil_raw_polar_data.lift_coefficients = np.array(all_CL)
-    airfoil_raw_polar_data.drag_coefficients = np.array(all_CD)     
-     
+        airfoil_raw_polar_data.angle_of_attacks[airfoil_names[i]]  = AoA
+        airfoil_raw_polar_data.reynolds_number[airfoil_names[i]]   = Re
+        airfoil_raw_polar_data.mach_number[airfoil_names[i]]       = Ma
+        airfoil_raw_polar_data.lift_coefficients[airfoil_names[i]] = CL
+        airfoil_raw_polar_data.drag_coefficients[airfoil_names[i]] = CD
+    airfoil_raw_polar_data.airfoil_names = airfoil_names
     return airfoil_raw_polar_data 
 

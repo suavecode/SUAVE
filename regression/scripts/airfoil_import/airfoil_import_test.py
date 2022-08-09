@@ -14,6 +14,8 @@ from SUAVE.Plots.Geometry import plot_airfoil
 import matplotlib.pyplot as plt  
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_polars \
+     import import_airfoil_polars
 from SUAVE.Plots.Performance.Airfoil_Plots import *
 import os
 import numpy as np
@@ -29,16 +31,16 @@ def main():
     rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_import_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator
     airfoil_geometry_with_selig =  [rel_path + 'NACA_4412.txt','airfoil_geometry_2.txt', 'airfoil_geometry_2-selig.txt']        
     airfoil_geometry            = [rel_path + 'NACA_4412.txt']
-    airfoil_polar_names         =  [[rel_path + 'Polars' + separator + 'NACA_4412_Ma_0.0_Re_0.05e6.txt',
-                                     rel_path + 'Polars' + separator + 'NACA_4412_Ma_0.0_Re_0.1e6.txt',
-                                     rel_path + 'Polars' + separator + 'NACA_4412_Ma_0.0_Re_0.2e6.txt',
-                                     rel_path + 'Polars' + separator + 'NACA_4412_Ma_0.0_Re_0.5e6.txt',
-                                     rel_path + 'Polars' + separator + 'NACA_4412_Ma_0.0_Re_1.0e6.txt']]   
+    airfoil_polar_names         =  [[rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_50000.txt',
+                                     rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_100000.txt',
+                                     rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_200000.txt',
+                                     rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_500000.txt',
+                                     rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_1000000.txt']]   
     
     
     # plot airfoil polar data with and without surrogate
     plot_raw_data_airfoil_polars(airfoil_geometry, airfoil_polar_names, display_plot=True)
-
+    
     airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry_with_selig)
 
     # Actual t/c values  
@@ -47,14 +49,14 @@ def main():
 
     # Check t/c calculation against previously calculated values
 
+    aNames = airfoil_geometry_data.airfoil_names
     for i in range(0, len(airfoil_geometry_with_selig)):
-        assert(np.abs(airfoil_tc_actual[i]-airfoil_geometry_data.thickness_to_chord[i]) < 1E-8 )
+        assert(np.abs(airfoil_tc_actual[i]-airfoil_geometry_data.thickness_to_chord[aNames[i]]) < 1E-8 )
     
 
     # Check that camber line comes back the same for the Lednicer and Selig formats
-
-    for j in range(0, len(airfoil_geometry_data.camber_coordinates[1])):
-        assert( np.abs(airfoil_geometry_data.camber_coordinates[1][j] - airfoil_geometry_data.camber_coordinates[2][j]) < 1E-8 )
+    for j in range(0, len(airfoil_geometry_data.camber_coordinates[aNames[1]])):
+        assert( np.abs(airfoil_geometry_data.camber_coordinates[aNames[1]][j] - airfoil_geometry_data.camber_coordinates[aNames[2]][j]) < 1E-8 )
 
     plot_airfoil(airfoil_geometry_with_selig)
     

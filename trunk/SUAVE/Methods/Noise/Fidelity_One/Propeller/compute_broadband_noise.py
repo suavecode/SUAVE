@@ -176,11 +176,12 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                     upper_surface_dp_dx[:,i_azi]      = abs(surface_dcp_dx[:,-TE_idx]*(0.5*rho_blade[i,:,i_azi]*U_blade[i,:,i_azi]**2)/blade_chords)
             else:
                 if rotor.airfoil_flag  == True:
-                    airfoil_data            = rotor.airfoil_data
+                    airfoil_geometry_data   = rotor.airfoil_geometry_data
+                    airfoil_names           = airfoil_geometry_data.airfoil_names
                     Re_batch                = np.atleast_2d(Re_blade[i,:,0]).T
                     AoA_batch               = np.atleast_2d(alpha_blade[i,:,0]).T
-                    npanel                  = len(airfoil_data.x_coordinates[0]) - 2
-                    AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = rotor.airfoil_polar_stations)
+                    npanel                  = len(airfoil_geometry_data.x_coordinates[airfoil_names[0]]) - 2
+                    AP                      = airfoil_analysis(airfoil_geometry_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = rotor.airfoil_polar_stations)
                 else:
                     camber                          = 0.0
                     camber_loc                      = 0.0
@@ -190,7 +191,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                     default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
                     Re_batch                        = np.atleast_2d(Re_blade[i,:,0]).T
                     AoA_batch                       = np.atleast_2d(alpha_blade[i,:,0]).T
-                    npanel                          = len(default_airfoil_data.x_coordinates[0]) - 2
+                    npanel                          = len(default_airfoil_data.x_coordinates[default_airfoil_data.airfoil_names[0]]) - 2
                     AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = default_airfoil_polar_stations)
 
                 # extract properties

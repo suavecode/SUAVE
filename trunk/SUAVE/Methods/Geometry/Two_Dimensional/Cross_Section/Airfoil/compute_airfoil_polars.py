@@ -51,7 +51,7 @@ def compute_airfoil_polars(a_polar, airfoil_geometry_data, npoints = 200, use_pr
     N/A
     """  
     
-    num_airfoils = len(airfoil_geometry_data.x_coordinates)
+    num_airfoils = len(airfoil_geometry_data.airfoil_names)
     
     # check number of polars per airfoil in batch
     num_polars   = 0
@@ -84,14 +84,14 @@ def compute_airfoil_polars(a_polar, airfoil_geometry_data, npoints = 200, use_pr
     state.conditions.aerodynamics.post_stall_coefficients = Data()
 
     # read airfoil polars 
-    airfoil_polar_data_raw = import_airfoil_polars(a_polar)
+    airfoil_polar_data_raw = import_airfoil_polars(a_polar, airfoil_geometry_data.airfoil_names)
     airfoil_polar_data = smooth_raw_polar_data(airfoil_polar_data_raw)
     
     # initialize new data
     airfoil_polar_surrogate_data = Data()
-    airfoil_polar_surrogate_data.angle_of_attacks             = []
-    airfoil_polar_surrogate_data.lift_coefficient_surrogates  = []
-    airfoil_polar_surrogate_data.drag_coefficient_surrogates  = []    
+    airfoil_polar_surrogate_data.angle_of_attacks             = Data()
+    airfoil_polar_surrogate_data.lift_coefficient_surrogates  = Data()
+    airfoil_polar_surrogate_data.drag_coefficient_surrogates  = Data()   
     
     # AERODAS 
     aNames = airfoil_geometry_data.airfoil_names
@@ -174,16 +174,17 @@ def compute_airfoil_polars(a_polar, airfoil_geometry_data, npoints = 200, use_pr
 
         # remove placeholder values (for airfoils that have different number of polars)
         n_p      = len(a_polar[i])
-        RE_data  = airfoil_polar_data.reynolds_number[i][0:n_p]
+        RE_data  = airfoil_polar_data.reynolds_number[aNames[i]]
 
         CL_sur = RegularGridInterpolator((RE_data, AoA_sweep_radians), CL[i,0:n_p,:],bounds_error=False,fill_value=None)  
         CD_sur = RegularGridInterpolator((RE_data, AoA_sweep_radians), CD[i,0:n_p,:],bounds_error=False,fill_value=None)           
         
         
-        airfoil_polar_surrogate_data.lift_coefficient_surrogates.append(CL_sur)
-        airfoil_polar_surrogate_data.drag_coefficient_surrogates.append(CD_sur) 
+        airfoil_polar_surrogate_data.lift_coefficient_surrogates[aNames[i]] = CL_sur
+        airfoil_polar_surrogate_data.drag_coefficient_surrogates[aNames[i]] = CD_sur
         
     airfoil_polar_surrogate_data.angle_of_attacks = AoA_sweep_radians
+    airfoil_polar_surrogate_data.airfoil_names    = airfoil_geometry_data.airfoil_names
     
     return airfoil_polar_surrogate_data
 
@@ -234,15 +235,16 @@ def smooth_raw_polar_data(polar_data_raw):
     # get information
     num_airfoils = len(polar_data_raw.lift_coefficients)
     for a in range(num_airfoils): 
-        num_polars = len(polar_data_raw.lift_coefficients[a])
+        aName = polar_data_raw.airfoil_names[a]
+        num_polars = len(polar_data_raw.lift_coefficients[aName])
         cl_a = []
         cd_a = []
         aoa_a = []
         for i in range(num_polars):
             # extract raw data
-            c_l_raw = np.array(polar_data_raw.lift_coefficients[a][i])
-            c_d_raw = np.array(polar_data_raw.drag_coefficients[a][i])
-            aoa_raw = np.array(polar_data_raw.angle_of_attacks[a][i])
+            c_l_raw = np.array(polar_data_raw.lift_coefficients[aName][i])
+            c_d_raw = np.array(polar_data_raw.drag_coefficients[aName][i])
+            aoa_raw = np.array(polar_data_raw.angle_of_attacks[aName][i])
             
             # smooth the data with rolling average
             c_l_filtered = rollingAverage(aoa_raw, c_l_raw, window_size=9, order=1)

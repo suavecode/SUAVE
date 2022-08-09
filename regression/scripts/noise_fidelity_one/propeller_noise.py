@@ -5,8 +5,7 @@ import SUAVE
 from SUAVE.Core import Units, Data 
 from SUAVE.Components.Energy.Networks.Battery_Propeller                                   import Battery_Propeller 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars  import compute_airfoil_polars
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
-     import import_airfoil_geometry     
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry     
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                    import propeller_mid_fidelity
 from SUAVE.Analyses.Mission.Segments.Conditions                                           import Aerodynamics , Conditions
 from SUAVE.Analyses.Mission.Segments.Segment                                              import Segment 
@@ -290,17 +289,17 @@ def design_F8745D4_prop():
     separator                             = os.path.sep
     rel_path                              = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator
     airfoil_geometry                 = [ rel_path +'Clark_y.txt']
-    airfoil_polars                   = [[rel_path +'Polars/Clark_y_Ma_0.0_Re_0.05e6.txt' ,rel_path +'Polars/Clark_y_Ma_0.0_Re_0.1e6.txt',rel_path +'Polars/Clark_y_Ma_0.0_Re_0.2e6.txt',
-                                              rel_path +'Polars/Clark_y_Ma_0.0_Re_0.5e6.txt',rel_path +'Polars/Clark_y_Ma_0.0_Re_1.0e6.txt']]
-    
-    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
+    airfoil_polars                   = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
+                                              rel_path +'Polars/Clark_y_polar_Re_500000.txt',rel_path +'Polars/Clark_y_polar_Re_1000000.txt']]
     
     airfoil_polar_stations                = np.zeros(dim)
-    prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))       
-    prop.airfoil_flag                     = True   
+    prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))     
+    prop.airfoil_flag                     = True    
     prop.mid_chord_alignment              = np.zeros_like(prop.chord_distribution)
     prop.number_of_airfoil_section_points = 102
-
+    prop.airfoil_geometry_data            = import_airfoil_geometry(airfoil_geometry, npoints = prop.number_of_airfoil_section_points) 
+    prop.airfoil_polar_data               = compute_airfoil_polars(airfoil_polars, prop.airfoil_geometry_data)
+    
     return prop
 if __name__ == '__main__': 
     main()    

@@ -53,23 +53,20 @@ def main():
     # Check throttles
     departure_throttle     = results.segments.departure.conditions.propulsion.throttle[:,0]
     transition_1_throttle  = results.segments.transition_1.conditions.propulsion.throttle[:,0]
-    cruise_throttle        = results.segments.cruise.conditions.propulsion.throttle[:,0]
     
     # Check network y-axis rotation during transition
     transition_y_axis_rotations = results.segments.transition_1.conditions.propulsion.propeller_y_axis_rotation[:,0]
 
 
     # Truth values
-    departure_throttle_truth          = np.array([0.6543453 , 0.65457384, 0.65504606, 0.65528976])
-    transition_1_throttle_truth       = np.array([0.66045178, 0.65464328, 0.535134  , 0.60043377])
-    cruise_throttle_truth             = np.array([0.62021044, 0.62033787, 0.62059296, 0.62072509])
-    transition_y_axis_rotations_truth = np.array([1.34042448, 1.3130777 , 1.05489631, 0.05264738])
+    departure_throttle_truth          = np.array([0.65157588, 0.65180396, 0.65227554, 0.65251906])
+    transition_1_throttle_truth       = np.array([0.63138338, 0.61255963, 0.52575721, 0.60354162])
+    transition_y_axis_rotations_truth = np.array([1.34042996, 1.29711042, 1.09795197, 0.0194651 ])
 
     # Store errors 
     error = Data()
     error.departure_throttle          = np.max(np.abs(departure_throttle - departure_throttle_truth))  
     error.transition_1_throttle       = np.max(np.abs(transition_1_throttle - transition_1_throttle_truth))   
-    error.cruise_throttle             = np.max(np.abs(cruise_throttle - cruise_throttle_truth))   
     error.transition_y_axis_rotations = np.max(np.abs(transition_y_axis_rotations - transition_y_axis_rotations_truth))   
 
     print('Errors:')
@@ -234,7 +231,7 @@ def mission_setup(analyses,vehicle):
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
-                                                                                                            initial_power_coefficient = 0.03)
+                                                                                                            initial_power_coefficient = 0.25)
     # add to misison
     mission.append_segment(segment)
     
@@ -247,15 +244,15 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.transition_1 )
     segment.altitude_start                              = 40.0 * Units.ft
     segment.altitude_end                                = 100.0 * Units.ft
-    segment.acceleration                                = 0.4  * Units['m/s/s']
-    segment.climb_angle                                 = 4. * Units.deg
-    segment.pitch_initial                               = 3.8  * Units.degrees  
-    segment.pitch_final                                 = 4.2  * Units.degrees   
-    segment.state.unknowns.throttle                     = 1.  * ones_row(1)
+    segment.acceleration                                = 0.5  * Units['m/s/s']
+    segment.climb_angle                                 = 7. * Units.deg
+    segment.pitch_initial                               = 3.6  * Units.degrees  
+    segment.pitch_final                                 = 4.0  * Units.degrees   
+    segment.state.unknowns.throttle                     = 0.85  * ones_row(1)
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment)
-
+    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
+                                                                                                            initial_power_coefficient = 0.1)
     # add to misison
     mission.append_segment(segment)
     
@@ -268,36 +265,16 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.transition_1 )
     segment.altitude_start                              = 100.0 * Units.ft
     segment.altitude_end                                = 40.0 * Units.ft 
-    segment.acceleration                                = -0.2  * Units['m/s/s']
-    segment.climb_angle                                 = 5. * Units.deg
-    segment.pitch_initial                               = 4.2  * Units.degrees  
-    segment.pitch_final                                 = 3.4  * Units.degrees   
-    segment.state.unknowns.throttle                     = 0.99  * ones_row(1)
+    segment.acceleration                                = -0.25  * Units['m/s/s']
+    segment.climb_angle                                 = 7. * Units.deg
+    segment.pitch_initial                               = 4.0  * Units.degrees  
+    segment.pitch_final                                 = 3.6  * Units.degrees   
+    segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment)
-
+    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
+                                                                                                            initial_power_coefficient = 0.1)
     # add to misison
-    mission.append_segment(segment)    
-    
-    # ------------------------------------------------------------------
-    #   Segment 3: Mini Cruise; Constant Acceleration, Constant Altitude
-    # ------------------------------------------------------------------ 
-    segment                                            = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag                                        = "Cruise" 
-    segment.analyses.extend(analyses.cruise) 
-    segment.altitude                                   = 40.0 * Units.ft
-    segment.air_speed                                  = 120 * Units.mph
-    segment.distance                                   = 0.5    * Units.miles   
-    segment.state.unknowns.throttle                    = 0.5    * ones_row(1) 
-    segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip   
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,
-                                                                                       initial_power_coefficient = 0.04,
-                                                                                       initial_battery_cell_temperature = 290. ,
-                                                                                       initial_battery_state_of_charge = 0.97)                                                                                       
-    
-    # add to mission
     mission.append_segment(segment)    
 
 

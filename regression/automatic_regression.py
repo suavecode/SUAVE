@@ -44,7 +44,6 @@ modules = [
     'scripts/aerodynamics/sideslip_and_rotation_vlm.py',
     'scripts/airfoil_import/airfoil_import_test.py',
     'scripts/airfoil_import/airfoil_interpolation_test.py',
-    'scripts/airfoil_analysis/airfoil_polar_surrogate_test.py',
     'scripts/airfoil_analysis/airfoil_panel_method_test.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',

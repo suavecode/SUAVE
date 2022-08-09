@@ -373,15 +373,15 @@ def generate_nacelle_points(nac,tessellation = 24):
             camber_loc   = float(naf.naca_4_series_airfoil[1])/10
             thickness    = float(naf.naca_4_series_airfoil[2:])/100 
             airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
-            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
-            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
+            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface.values()).T,tessellation,axis = 1)*nac.length 
+            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[airfoil_data.airfoil_names[0]]).T,tessellation,axis = 1)*nac.length  
         
         elif naf.coordinate_file != None: 
             a_sec        = naf.coordinate_file
             a_secl       = [0]
             airfoil_data = import_airfoil_geometry(a_sec,npoints=num_nac_segs)
-            xpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.x_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
-            zpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.y_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
+            xpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.x_coordinates.values(),a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
+            zpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.y_coordinates.values(),a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
         
         else:
             # if no airfoil defined, use super ellipse as default
@@ -553,8 +553,8 @@ def get_blade_coordinates(prop,dim,i,aircraftRefFrame=True):
     flip_2 =  (np.pi/2)
 
     # get airfoil coordinate geometry
-    aNames = airfoil_geometry_data.airfoil_names
     if airfoil_geometry_data != None:
+        aNames = airfoil_geometry_data.airfoil_names
         n_points = len(airfoil_geometry_data.x_coordinates[aNames[0]])
         xpts     = np.zeros((len(a_secl), n_points))
         zpts     = np.zeros((len(a_secl), n_points))
@@ -571,9 +571,10 @@ def get_blade_coordinates(prop,dim,i,aircraftRefFrame=True):
         thickness    = 0.10
         n_points     = 20
         airfoil_geometry_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
-        xpts                  = np.repeat(np.atleast_2d(airfoil_geometry_data.x_coordinates) ,dim,axis=0)
-        zpts                  = np.repeat(np.atleast_2d(airfoil_geometry_data.y_coordinates) ,dim,axis=0)
-        max_t                 = np.repeat(airfoil_geometry_data.thickness_to_chord,dim,axis=0)
+        aNames                = airfoil_geometry_data.airfoil_names
+        xpts                  = np.repeat(np.atleast_2d(airfoil_geometry_data.x_coordinates[aNames[0]]) ,dim,axis=0)
+        zpts                  = np.repeat(np.atleast_2d(airfoil_geometry_data.y_coordinates[aNames[0]]) ,dim,axis=0)
+        max_t                 = np.repeat(airfoil_geometry_data.thickness_to_chord[aNames[0]],dim,axis=0)
     
     #
     MCA_2d             = np.repeat(np.atleast_2d(MCA).T,n_points,axis=1)

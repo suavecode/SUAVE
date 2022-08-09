@@ -14,9 +14,8 @@ from SUAVE.Core import Units
 from SUAVE.Core import (
 Data, Container,
 )
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
-    compute_airfoil_polars,
-)
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion                       import propeller_design
 import numpy as np
@@ -37,12 +36,14 @@ def main():
     prop.design_thrust           = 2271.2220451593753 
 
     airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    airfoil_polars          = [['../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.05e6.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.1e6.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.2e6.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.5e6.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_1.0e6.txt' ]]
-    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
+    airfoil_polars          = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+
+    prop.airfoil_geometry_data   = import_airfoil_geometry(airfoil_geometry)
+    prop.airfoil_polar_data      = compute_airfoil_polars(airfoil_polars, prop.airfoil_geometry_data)
     prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
     prop                         = propeller_design(prop)   
     
@@ -152,12 +153,12 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 197.3103003715905
-    torque_1_truth   = 934.39879219354
-    current_2_truth  = 572.1837055198907
-    torque_3_truth   = 803.2009300949339
-    voltage_4_truth  = 417.08605937483554
-    current_4_truth  = 665.319657390401
+    omega_1_truth    = 197.3149623
+    torque_1_truth   = 934.4429475025574
+    current_2_truth  = 572.2417638433878
+    torque_3_truth   = 803.2824292690289
+    voltage_4_truth  = 417.0794861805669
+    current_4_truth  = 665.3512388410677
     power_out_truth  = 1960.0
   
     error = Data()

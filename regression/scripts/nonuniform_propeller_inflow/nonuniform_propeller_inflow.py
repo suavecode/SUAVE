@@ -9,9 +9,8 @@ from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Plots.Performance.Propeller_Plots import *
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_wake import compute_wing_wake
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
-    compute_airfoil_polars,
-)
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 import numpy as np
@@ -57,11 +56,11 @@ def case_1(vehicle, conditions):
     plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
     
     thrust   = np.linalg.norm(thrust)
-    thrust_r = 1745.466230232954
-    torque_r = 749.0748922
-    power_r  = 101975.82106043
-    Cp_r     = 0.4695549
-    etap_r   = 0.71902906
+    thrust_r = 1738.662230458737
+    torque_r = 746.75236032
+    power_r  = 101659.64159969
+    Cp_r     = 0.46809903
+    etap_r   = 0.7184538
     print('\nCase 1 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
     print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
@@ -107,11 +106,11 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
 
     # expected results
     thrust   = np.linalg.norm(thrust)
-    thrust_r = 1151.3403879429393
-    torque_r = 568.93882728
-    power_r  = 77452.87507268
-    Cp_r     = 0.35663726
-    etap_r   = 0.66452692
+    thrust_r = 1147.4579297648168
+    torque_r = 566.69857956
+    power_r  = 77147.8974213
+    Cp_r     = 0.35523297
+    etap_r   = 0.66490418
     print('\nCase 2 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
     print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
@@ -154,7 +153,7 @@ def case_3(vehicle,conditions):
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
 
     thrust   = np.linalg.norm(thrust)
-    thrust_r, torque_r, power_r, Cp_r, etap_r = 1671.1817856530772, 742.29896022, 101053.37494162, 0.46530744, 0.73929753
+    thrust_r, torque_r, power_r, Cp_r, etap_r = 1669.3167868463604, 741.13494845, 100894.91140539, 0.46457778, 0.73963232
     print('\nCase 3 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
     print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
@@ -265,15 +264,15 @@ def basic_prop(Na=24, Nr=101):
     prop.symmetry                  = True
 
     airfoil_geometry          =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    airfoil_polars            = [['../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.05e6.txt' ,
-                                       '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.1e6.txt' ,
-                                       '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.2e6.txt' ,
-                                       '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.5e6.txt' ,
-                                       '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_1.0e6.txt' ]]
-
-    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
-    prop.airfoil_polar_stations    = list(np.zeros(Nr).astype(int))
-    prop                           = propeller_design(prop,Nr)
+    airfoil_polars            = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+    prop.airfoil_geometry_data   = import_airfoil_geometry(airfoil_geometry)
+    prop.airfoil_polar_data      = compute_airfoil_polars(airfoil_polars, prop.airfoil_geometry_data)
+    prop.airfoil_polar_stations  = list(np.zeros(Nr).astype(int))
+    prop                         = propeller_design(prop,Nr)
 
     return prop
 

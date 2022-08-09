@@ -16,9 +16,8 @@ from SUAVE.Methods.Propulsion                           import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing                 import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing     import size_optimal_motor
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform    import wing_segmented_planform
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
-    compute_airfoil_polars,
-)
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 import numpy as np 
 from copy import deepcopy
 
@@ -417,21 +416,19 @@ def vehicle_setup():
     prop.sol_tolerance          = 1e-4
     prop.symmetry               = True
     prop.variable_pitch         = True 
-    
-    # apply airfoil surrogate model
     airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    airfoil_polars         = [[#'../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.05e6.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.1e6.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.1e6.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_0.5e6.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_1.0e6.txt',
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_2.0e6.txt',
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_Ma_0.0_Re_5.0e6.txt' ]]
-    prop.airfoil_data = compute_airfoil_polars(airfoil_geometry, airfoil_polars)
+    airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     
+    prop.airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry)
+    prop.airfoil_polar_data     = compute_airfoil_polars(airfoil_polars, prop.airfoil_geometry_data)
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    prop                        = propeller_design(prop,number_of_airfoil_section_points = 102)
-
+    prop                        = propeller_design(prop)
+    prop.number_of_airfoil_section_points = 102
+    
     prop_left = deepcopy(prop)
     prop_left.tag = 'propeller_2' 
     prop_left.origin   = [[2.,-5.7,0.784]]

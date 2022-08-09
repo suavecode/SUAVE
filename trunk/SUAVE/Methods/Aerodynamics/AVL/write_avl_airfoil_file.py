@@ -49,7 +49,7 @@ def write_avl_airfoil_file(suave_airfoil_filename):
     
     # import airfoil coordinates 
     airfoil_geometry_data = import_airfoil_geometry([f_path])
-    dim = len(airfoil_geometry_data.x_coordinates[0])
+    dim = len(airfoil_geometry_data.x_coordinates[airfoil_geometry_data.airfoil_names[0]])
               
     # write file  
     with open(avl_airfoil_filename,'w') as afile:
@@ -57,11 +57,11 @@ def write_avl_airfoil_file(suave_airfoil_filename):
             for i in range(dim - 1):
                 if i == int(dim/2):
                     pass  
-                elif airfoil_geometry_data.y_coordinates[0][i] < 0.0:
-                    case_text = '\t' + format(airfoil_geometry_data.x_coordinates[0][i], '.7f')+ "   " + format(airfoil_geometry_data.y_coordinates[0][i], '.7f') + "\n" 
+                elif airfoil_geometry_data.y_coordinates[airfoil_geometry_data.airfoil_names[0]][i] < 0.0:
+                    case_text = '\t' + format(airfoil_geometry_data.x_coordinates[airfoil_geometry_data.airfoil_names[0]][i], '.7f')+ "   " + format(airfoil_geometry_data.y_coordinates[airfoil_geometry_data.airfoil_names[0]][i], '.7f') + "\n" 
                     afile.write(case_text)
                 else:   
-                    case_text = '\t' + format(airfoil_geometry_data.x_coordinates[0][i], '.7f')+ "    " + format(airfoil_geometry_data.y_coordinates[0][i], '.7f') + "\n" 
+                    case_text = '\t' + format(airfoil_geometry_data.x_coordinates[airfoil_geometry_data.airfoil_names[0]][i], '.7f')+ "    " + format(airfoil_geometry_data.y_coordinates[airfoil_geometry_data.airfoil_names[0]][i], '.7f') + "\n" 
                     afile.write(case_text)
     afile.close()
     return avl_airfoil_filename 

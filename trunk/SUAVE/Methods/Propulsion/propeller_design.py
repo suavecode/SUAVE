@@ -21,7 +21,7 @@ from scipy.optimize import root
 #  Propeller Design
 # ----------------------------------------------------------------------
 
-def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points = 100):
+def propeller_design(prop,number_of_stations=20):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
@@ -152,7 +152,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             # query surrogate for sectional Cls at stations 
             Cdval    = np.zeros_like(RE) 
             for j in range(len(a_pol_data.lift_coefficient_surrogates)):                 
-                Cdval_af    = a_pol_data.drag_coefficient_surrogates[j]((RE,alpha))
+                Cdval_af    = a_pol_data.drag_coefficient_surrogates[a_pol_data.airfoil_names[j]]((RE,alpha))
                 locs        = np.where(np.array(a_loc) == j )
                 Cdval[locs] = Cdval_af[locs]    
                 
@@ -240,10 +240,10 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     Cp     = Power/(rho*(n*n*n)*(D*D*D*D*D))  
     
     # compute max thickness distribution  
-    aNames = a_geo_data.airfoil_names
-    maxT  = np.zeros(len(aNames))    
-    T_C    = np.zeros(len(aNames))   
     if airfoil_flag:   
+        aNames = a_geo_data.airfoil_names
+        maxT  = np.zeros(len(aNames))    
+        T_C    = np.zeros(len(aNames))           
         for j in range(len(aNames)):
             maxT[j] = a_geo_data.max_thickness[aNames[j]]
             T_C[j]  = a_geo_data.thickness_to_chord[aNames[j]]
@@ -278,7 +278,6 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     prop.thickness_to_chord               = t_c 
     prop.blade_solidity                   = sigma  
     prop.airfoil_flag                     = airfoil_flag 
-    prop.number_of_airfoil_section_points = number_of_airfoil_section_points
 
     return prop
 
@@ -287,7 +286,7 @@ def objective(x, a_pol_data, RE ,a_loc, Cl ,N):
     # query surrogate for sectional Cls at stations 
     Cl_vals = np.zeros(N)     
     for j in range(len(a_pol_data.lift_coefficient_surrogates)):                 
-        Cl_af         = a_pol_data.lift_coefficient_surrogates[j]((RE,x))
+        Cl_af         = a_pol_data.lift_coefficient_surrogates[a_pol_data.airfoil_names[j]]((RE,x))
         locs          = np.where(np.array(a_loc) == j )
         Cl_vals[locs] = Cl_af[locs] 
         
