@@ -30,7 +30,6 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.deflect_control_surfac
 #  Generate Vortex Distribution
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-@jit
 def generate_vortex_distribution(geometry,settings):
     ''' Compute the coordinates of panels, vortices , control points
     and geometry used to build the influence coefficient matrix. A 
@@ -255,8 +254,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.counter     = 0
     
     #reformat/preprocess wings and control surfaces for VLM panelization
-    VLM_wings = make_VLM_wings(geometry, settings)
-    VD.VLM_wings = VLM_wings
+    VD.VLM_wings = make_VLM_wings(geometry, settings)
     
     #generate panelization for each wing. Wings first, then control surface wings
     for wing in VD.VLM_wings:
@@ -296,12 +294,21 @@ def generate_vortex_distribution(geometry,settings):
         wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)        
         if wing.is_a_control_surface or wing_is_all_moving:
             # Deflect the control surface
-            VD, wing = deflect_control_surface(VD, wing)
+            VD, wing_out = deflect_control_surface(VD, wing)
+            wing.update(wing_out,hard=True)
             
     # ---------------------------------------------------------------------------------------
     # STEP 11: Postprocess VD information
     # ---------------------------------------------------------------------------------------  
-    
+    # Setup static items
+    total_sw      = np.sum(VD.n_sw)
+    VD.total_sw   = total_sw
+    VD['leading_edge_indices_full']  = VD['leading_edge_indices']
+    VD['trailing_edge_indices_full'] = VD['trailing_edge_indices']
+    VD['leading_edge_indices']       = jnp.where(VD['leading_edge_indices'],size=total_sw)
+    VD['trailing_edge_indices']      = jnp.where(VD['trailing_edge_indices'],size=total_sw)
+    VD.static_keys                   = ['n_sw','total_sw','n_w','n_cp']    
+
     VD = postprocess_VD(VD, settings)
     
     if show_prints: print('finish discretization')     
@@ -692,7 +699,11 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     
     # Pack wing data
     wing.n_sw = n_sw
-    wing.n_cw = n_cw    
+    wing.n_cw = n_cw
+    try:
+        wing.static_keys.extend(['n_cw','n_sw'])
+    except:
+        wing.static_keys = ['n_cw','n_sw']
 
     return VD, wing
 

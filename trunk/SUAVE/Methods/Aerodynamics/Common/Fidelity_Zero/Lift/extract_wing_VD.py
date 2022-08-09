@@ -88,6 +88,7 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
     VD_wing.n_cp = len(VD_wing.XC)
     VD_wing.n_cw = VD.n_cw[ids]
     VD_wing.n_sw = VD.n_sw[ids]
+    VD_wing.static_keys = ['n_cw','n_sw','wing_type']
 
     return VD_wing, pt_ids
 

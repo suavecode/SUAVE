@@ -39,15 +39,14 @@ def postprocess_VD(VD, settings):
     Properties Used:
     N/A
     """     
-    # Setup static items
-    total_sw = np.sum(VD.n_sw)
-    VD['leading_edge_indices_full']  = VD['leading_edge_indices']
-    VD['trailing_edge_indices_full'] = VD['trailing_edge_indices']
-    VD['leading_edge_indices']       = LE_ind = jnp.where(VD['leading_edge_indices'],size=total_sw)
-    VD['trailing_edge_indices']      = TE_ind = jnp.where(VD['trailing_edge_indices'],size=total_sw)
-        
+
     #unpack
-    precision  = settings.floating_point_precision   
+    precision = settings.floating_point_precision   
+    LE_ind    = VD['leading_edge_indices']  
+    TE_ind    = VD['trailing_edge_indices']
+    total_sw  = VD.total_sw
+    n_cp      = VD.n_cp
+        
     strip_n_cw = VD.panels_per_strip[LE_ind]
     
     last_wing_ID = list(VD.VLM_wings.values())[-1].surface_ID # assumes last VLM_wing in its container is last to get discretized
@@ -74,18 +73,18 @@ def postprocess_VD(VD, settings):
     LE_Z           = Z1c[LE_ind]
     TE_X           = X2c[TE_ind]
     TE_Z           = Z2c[TE_ind]
-    tan_incidence  = jnp.repeat((LE_Z-TE_Z)/(LE_X-TE_X), strip_n_cw,total_repeat_length=VD.n_cp) # ZETA  in vorlax
-    chord_adjusted = jnp.repeat(jnp.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2), strip_n_cw,total_repeat_length=VD.n_cp) # CHORD in vorlax
+    tan_incidence  = jnp.repeat((LE_Z-TE_Z)/(LE_X-TE_X), strip_n_cw,total_repeat_length=n_cp) # ZETA  in vorlax
+    chord_adjusted = jnp.repeat(jnp.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2), strip_n_cw,total_repeat_length=n_cp) # CHORD in vorlax
     
-    XC_TE_wings  = jnp.repeat(VD.XC [TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
-    YC_TE_wings  = jnp.repeat(VD.YC [TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
-    ZC_TE_wings  = jnp.repeat(VD.ZC [TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
-    XA_TE_wings  = jnp.repeat(VD.XA2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
-    YA_TE_wings  = jnp.repeat(VD.YA2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
-    ZA_TE_wings  = jnp.repeat(VD.ZA2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
-    XB_TE_wings  = jnp.repeat(VD.XB2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
-    YB_TE_wings  = jnp.repeat(VD.YB2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)
-    ZB_TE_wings  = jnp.repeat(VD.ZB2[TE_ind], strip_n_cw,total_repeat_length=VD.n_cp)    
+    XC_TE_wings  = jnp.repeat(VD.XC [TE_ind], strip_n_cw,total_repeat_length=n_cp)
+    YC_TE_wings  = jnp.repeat(VD.YC [TE_ind], strip_n_cw,total_repeat_length=n_cp)
+    ZC_TE_wings  = jnp.repeat(VD.ZC [TE_ind], strip_n_cw,total_repeat_length=n_cp)
+    XA_TE_wings  = jnp.repeat(VD.XA2[TE_ind], strip_n_cw,total_repeat_length=n_cp)
+    YA_TE_wings  = jnp.repeat(VD.YA2[TE_ind], strip_n_cw,total_repeat_length=n_cp)
+    ZA_TE_wings  = jnp.repeat(VD.ZA2[TE_ind], strip_n_cw,total_repeat_length=n_cp)
+    XB_TE_wings  = jnp.repeat(VD.XB2[TE_ind], strip_n_cw,total_repeat_length=n_cp)
+    YB_TE_wings  = jnp.repeat(VD.YB2[TE_ind], strip_n_cw,total_repeat_length=n_cp)
+    ZB_TE_wings  = jnp.repeat(VD.ZB2[TE_ind], strip_n_cw,total_repeat_length=n_cp)    
     
     # Compute wing-only values
     #Y_SW = VD.YC[is_VLM_wing*TE_ind]
@@ -97,13 +96,12 @@ def postprocess_VD(VD, settings):
     VD.tangent_incidence_angle = tan_incidence
     VD.chord_lengths           = jnp.atleast_2d(chord_adjusted)
     #VD.Y_SW                    = Y_SW
-    VD.total_sw                = total_sw
     
     # Do some final calculations for segmented breaks
     chord_arange   = jnp.arange(0,len(VD.chordwise_breaks))
     chord_breaksp1 = jnp.hstack((VD.chordwise_breaks,VD.n_cp))
     chord_repeats  = jnp.diff(chord_breaksp1)
-    chord_segs     = jnp.repeat(chord_arange,chord_repeats,total_repeat_length=VD.n_cp)    
+    chord_segs     = jnp.repeat(chord_arange,chord_repeats,total_repeat_length=n_cp)    
     
     span_arange   = jnp.arange(0,len(VD.spanwise_breaks))
     span_breaksp1 = jnp.hstack((VD.spanwise_breaks,sum(VD.n_sw)))
@@ -112,7 +110,6 @@ def postprocess_VD(VD, settings):
         
     VD.chord_segs = chord_segs
     VD.span_segs  = span_segs
-    VD.total_sw   = total_sw
     
     # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
     VD.XBAR  = jnp.ones(total_sw) * VD.x_m
@@ -121,7 +118,6 @@ def postprocess_VD(VD, settings):
     
     # For JAX some things have to be fixed
     VD['n_sw'] = tuple(VD['n_sw'])
-    VD.static_keys  = ['n_sw','total_sw','n_w']    
     
     VD.XC_TE  = XC_TE_wings
     VD.YC_TE  = YC_TE_wings
