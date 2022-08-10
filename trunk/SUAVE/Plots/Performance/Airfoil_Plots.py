@@ -266,8 +266,8 @@ def plot_airfoil_polars(airfoil_polar_data, aoa_sweep, Re_sweep, display_plot = 
     col_raw = ['black','firebrick', 'darkorange', 'gold','forestgreen','teal','deepskyblue', 'blue',
                'blueviolet', 'fuchsia', 'deeppink', 'gray'] 
     for jj in range(len(airfoil_names)):
-        fig, (ax,ax2,ax3) = plt.subplots(1,3)
-        fig.set_figheight(4)
+        fig, ((ax,ax2),(ax3,ax4)) = plt.subplots(2,2)
+        fig.set_figheight(8)
         fig.set_figwidth(12)
         for ii in range(len(Re_sweep)):
             cl_sur = airfoil_cl_surs[airfoil_names[jj]](
@@ -292,6 +292,11 @@ def plot_airfoil_polars(airfoil_polar_data, aoa_sweep, Re_sweep, display_plot = 
             ax3.set_xlabel("Cd")
             ax3.set_ylabel("Cl")
             ax3.grid() 
+
+            ax4.plot(aoa_sweep / Units.deg, cd_sur / cl_sur, col_raw[ii])
+            ax4.set_xlabel("Alpha (deg)")
+            ax4.set_ylabel("Cd/Cl")
+            ax4.grid()             
         
         plt.tight_layout()
 
@@ -337,8 +342,8 @@ def plot_raw_data_airfoil_polars(airfoil_names, airfoil_polars_path, display_plo
         CL = airfoil_data.lift_coefficients[airfoil_names[jj]]
         CD = airfoil_data.drag_coefficients[airfoil_names[jj]]
         
-        fig, (ax,ax2,ax3) = plt.subplots(1,3)
-        fig.set_figheight(4)
+        fig, ((ax,ax2),(ax3,ax4))  = plt.subplots(2,2)
+        fig.set_figheight(8)
         fig.set_figwidth(12)
         for ii in range(len(Re_sweep)):
             
@@ -358,6 +363,11 @@ def plot_raw_data_airfoil_polars(airfoil_names, airfoil_polars_path, display_plo
             ax3.set_xlabel("Cd")
             ax3.set_ylabel("Cl")
             ax3.grid() 
+
+            ax4.plot(np.array(aoa_sweep[ii]), np.array(CD[ii]) / np.array(CL[ii]), col_raw[ii])
+            ax4.set_xlabel("Alpha (deg)")
+            ax4.set_ylabel("Cd/Cl")
+            ax4.grid()             
             
         plt.tight_layout()
 

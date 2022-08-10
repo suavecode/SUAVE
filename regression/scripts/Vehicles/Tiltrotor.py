@@ -417,8 +417,8 @@ def vehicle_setup():
     prop.symmetry               = True
     prop.variable_pitch         = True 
     airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    airfoil_polars         = [[#'../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+    airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                    #'../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt',
@@ -426,7 +426,7 @@ def vehicle_setup():
                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_7500000.txt' ]]
     
     prop.airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry)
-    prop.airfoil_polar_data     = compute_airfoil_polars(airfoil_polars, prop.airfoil_geometry_data)
+    prop.airfoil_polar_data     = compute_airfoil_polars(airfoil_polars, prop.airfoil_geometry_data, use_pre_stall_data=False)
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     prop                        = propeller_design(prop)
     prop.number_of_airfoil_section_points = 102

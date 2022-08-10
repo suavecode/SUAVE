@@ -40,10 +40,10 @@ def main():
         airfoil_polar_files.append([airfoil_polars[i] for i in sorted_ids])
     
     airfoil_geometry_data = import_airfoil_geometry(airfoil_geometry_files)
-    airfoil_polar_data = compute_airfoil_polars(airfoil_polar_files, airfoil_geometry_data, use_pre_stall_data=True)
+    airfoil_polar_data = compute_airfoil_polars(airfoil_polar_files, airfoil_geometry_data, use_pre_stall_data=False)
     aoa_sweep = np.linspace(-20,20,100) * Units.deg
-    #Re_sweep = np.array([0.1, 0.2, 0.5, 1., 3.5, 5., 7.5]) * 1e6
-    Re_sweep = np.array([0.05, 0.1, 0.2, 0.5, 1.]) * 1e6
+    Re_sweep = np.array([0.05, 0.1, 0.2, 0.5, 1., 3.5, 5., 7.5]) * 1e6
+    #Re_sweep = np.array([0.05, 0.1, 0.2, 0.5, 1.]) * 1e6
     plot_airfoil_polars(airfoil_polar_data, aoa_sweep, Re_sweep)   
     plot_raw_data_airfoil_polars(airfoil_polar_data.airfoil_names, airfoil_polar_files)
 
