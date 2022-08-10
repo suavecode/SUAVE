@@ -66,14 +66,18 @@ def import_airfoil_polars(airfoil_polar_files, airfoil_names):
             
             if "XFOIL" in data_block[1]:
                 xfoilPolarFormat = True
+                header_idx = 10
+            elif "xflr5" in data_block[0]:
+                xfoilPolarFormat = True
+                header_idx = 9
             else:
                 xfoilPolarFormat = False
     
             # Read data          
             if xfoilPolarFormat:
                 # get data, extract Re, Ma
-                headers = data_block[10].split()
-                polarData = np.genfromtxt(airfoil_polar_files[i][j], encoding='UTF-8-sig', dtype=None, names=headers, skip_header=12)
+                headers = data_block[header_idx].split()
+                polarData = np.genfromtxt(airfoil_polar_files[i][j], encoding='UTF-8-sig', dtype=None, names=headers, skip_header=header_idx+2)
                 infoLine = list(filter(lambda x: 'Re = ' in x, data_block))[0]
                 
                 ReString = str(float(infoLine.split('Re =')[1].split('e 6')[0]))
