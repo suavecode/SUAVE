@@ -53,7 +53,6 @@ def main():
     # Check throttles
     departure_throttle     = results.segments.departure.conditions.propulsion.throttle[:,0]
     transition_1_throttle  = results.segments.transition_1.conditions.propulsion.throttle[:,0]
-    cruise_throttle        = results.segments.cruise.conditions.propulsion.throttle[:,0]
     
     # Check network y-axis rotation during transition
     transition_y_axis_rotations = results.segments.transition_1.conditions.propulsion.propeller_y_axis_rotation[:,0]
@@ -62,7 +61,6 @@ def main():
     # Truth values
     departure_throttle_truth          = np.array([0.65837632, 0.6586018 , 0.65906953, 0.65931179])
     transition_1_throttle_truth       = np.array([0.6516322 , 0.65337755, 0.58179709, 0.50820503])
-    cruise_throttle_truth             = np.array([0.5264188 , 0.52684193, 0.52769073, 0.52811639])
     transition_y_axis_rotations_truth = np.array([1.34807392, 1.32772193, 1.19236449, 0.8064705 ])
 
     # Store errors 
