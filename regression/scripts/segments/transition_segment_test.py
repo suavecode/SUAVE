@@ -61,9 +61,9 @@ def main():
 
     # Truth values
     departure_throttle_truth          = np.array([0.65758528, 0.65781216, 0.65828215, 0.65852528])
-    transition_1_throttle_truth       = np.array([0.66401019, 0.65784128, 0.53378441, 0.59738894])
-    cruise_throttle_truth             = np.array([0.45869047, 0.45903259, 0.45971863, 0.46006255])
-    transition_y_axis_rotations_truth = np.array([1.34042448, 1.3130777 , 1.05489631, 0.05264738])
+    transition_1_throttle_truth       = np.array([0.66325365, 0.65816521, 0.55020341, 0.52471247])
+    cruise_throttle_truth             = np.array([0.45887493, 0.45921746, 0.45990433, 0.46024868])
+    transition_y_axis_rotations_truth = np.array([1.35011167, 1.32493479, 1.12849612, 0.53727703])
 
     # Store errors 
     error = Data()
@@ -225,16 +225,16 @@ def mission_setup(analyses,vehicle):
     segment.tag                                         = "Transition_1"
     segment.analyses.extend( analyses.transition_1 )
     segment.altitude                                    = 40.0 * Units.ft
-    segment.acceleration                                = 2.3  * Units['m/s/s']
+    segment.acceleration                                = 2.2  * Units['m/s/s']
     segment.air_speed_start                             = 0.0  * Units.mph              # starts from hover
-    segment.air_speed_end                               = 1.2  * V_stall         # increases linearly in time to stall speed
+    segment.air_speed_end                               = 1.1  * V_stall         # increases linearly in time to stall speed
     segment.pitch_initial                               = 0.0  * Units.degrees  
     segment.pitch_final                                 = 3.6  * Units.degrees   
-    segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
+    segment.state.unknowns.throttle                     = 0.85  * ones_row(1)
     segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
-                                                                                                            initial_power_coefficient = 0.15)
+                                                                                                            initial_power_coefficient = 0.1)
     # add to misison
     mission.append_segment(segment)
     
@@ -247,8 +247,8 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.transition_1 )
     segment.altitude_start                              = 40.0 * Units.ft
     segment.altitude_end                                = 100.0 * Units.ft
-    segment.acceleration                                = 0.5  * Units['m/s/s']
-    segment.climb_angle                                 = 7. * Units.deg
+    segment.acceleration                                = 1.5  * Units['m/s/s']
+    segment.climb_angle                                 = 5. * Units.deg
     segment.pitch_initial                               = 3.6  * Units.degrees  
     segment.pitch_final                                 = 4.0  * Units.degrees   
     segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
@@ -269,7 +269,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                              = 100.0 * Units.ft
     segment.altitude_end                                = 40.0 * Units.ft 
     segment.acceleration                                = -0.25  * Units['m/s/s']
-    segment.climb_angle                                 = 7. * Units.deg
+    segment.climb_angle                                 = 5. * Units.deg
     segment.pitch_initial                               = 4.0  * Units.degrees  
     segment.pitch_final                                 = 3.6  * Units.degrees   
     segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
