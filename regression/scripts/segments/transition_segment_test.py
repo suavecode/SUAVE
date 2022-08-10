@@ -69,7 +69,6 @@ def main():
     error = Data()
     error.departure_throttle          = np.max(np.abs(departure_throttle - departure_throttle_truth))  
     error.transition_1_throttle       = np.max(np.abs(transition_1_throttle - transition_1_throttle_truth))   
-    error.cruise_throttle             = np.max(np.abs(cruise_throttle - cruise_throttle_truth))   
     error.transition_y_axis_rotations = np.max(np.abs(transition_y_axis_rotations - transition_y_axis_rotations_truth))   
 
     print('Errors:')
@@ -280,24 +279,6 @@ def mission_setup(analyses,vehicle):
     # add to misison
     mission.append_segment(segment)    
     
-    # ------------------------------------------------------------------
-    #   Segment 3: Mini Cruise; Constant Acceleration, Constant Altitude
-    # ------------------------------------------------------------------ 
-    segment                                            = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag                                        = "Cruise" 
-    segment.analyses.extend(analyses.cruise) 
-    segment.altitude                                   = 90.0 * Units.ft
-    segment.air_speed                                  = 1.4  * V_stall
-    segment.distance                                   = 2.    * Units.miles   
-    segment.state.unknowns.throttle                    = 0.8    * ones_row(1) 
-    segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip   
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
-    
-    # add to mission
-    mission.append_segment(segment)    
-
-
     # ------------------------------------------------------------------
     #   Mission definition complete    
     # ------------------------------------------------------------------ 
