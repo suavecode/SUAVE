@@ -69,7 +69,7 @@ def main():
     error.transition_1_throttle       = np.max(np.abs(transition_1_throttle - transition_1_throttle_truth))   
     error.transition_y_axis_rotations = np.max(np.abs(transition_y_axis_rotations - transition_y_axis_rotations_truth))   
     
-    plt.show()  
+    #plt.show()  
     
     print('Errors:')
     print(error)
@@ -225,7 +225,7 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.transition_1 )
     segment.altitude                                    = 40.0 * Units.ft
     segment.acceleration                                = 2.2  * Units['m/s/s']
-    segment.air_speed_start                             = 0.1  * Units.mph              # starts from hover
+    segment.air_speed_start                             = 1.1  * Units.mph              # starts from hover
     segment.air_speed_end                               = 1.   * V_stall         # increases linearly in time to stall speed
     segment.pitch_initial                               = 0.0  * Units.degrees  
     segment.pitch_final                                 = 3.6  * Units.degrees   
