@@ -47,7 +47,6 @@ def main():
     plot_airfoil_polars(airfoil_polar_data, aoa_sweep, Re_sweep)   
     plot_raw_data_airfoil_polars(airfoil_polar_data.airfoil_names, airfoil_polar_files)
 
-    plt.show()
     
     # -----------------------------------------------------------------------------------------
     # Regression comparison
@@ -69,6 +68,7 @@ def main():
     assert(np.max(abs(cl_outputs-cl_outputs_true)) < 1e-6)
     assert(np.max(abs(cd_outputs-cd_outputs_true)) < 1e-6)
 
+    plt.show()
     return
 
 if __name__ == "__main__":
