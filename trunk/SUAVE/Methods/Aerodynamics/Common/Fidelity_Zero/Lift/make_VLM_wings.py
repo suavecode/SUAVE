@@ -239,6 +239,8 @@ def make_VLM_wings(geometry, settings):
         span_breaks.append(span_break) 
         cs_wing.span_breaks   = span_breaks
         cs_wing.inverted_wing = 0.
+        cs_wing.hinge_root_point = np.zeros(3)
+        cs_wing.hinge_vector     = np.zeros(3)
         
     
     return wings
@@ -288,7 +290,7 @@ def copy_large_container(large_container, type_str):
                 data.is_slat                     = False
                 data.use_constant_hinge_fraction = obj.use_constant_hinge_fraction
                 data.hinge_vector                = obj.hinge_vector
-                data.deflection_last             = 0.
+                data.deflection_last             = obj.deflection  *1.
         container.append(data)
         
     return container
@@ -451,13 +453,14 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.is_slat               = (cs.cs_type==Slat)
     cs_wing.is_aileron            = (cs.cs_type==Aileron)
     cs_wing.pivot_edge            = 'TE' if cs_wing.is_slat else 'LE'
+    cs_wing.wing_type             = cs.cs_type
     
     #control surface attributes
     cs_wing.chord_fraction        = cs.chord_fraction
     cs_wing.hinge_fraction        = cs.hinge_fraction
     cs_wing.sign_duplicate        = cs.sign_duplicate
     cs_wing.deflection            = cs.deflection
-    cs_wing.deflection_last       = 0.
+    cs_wing.deflection_last       = cs.deflection
     
     #adjustments---------------------------------------------------------------------------------------------------
     #adjust origin - may need to be adjusted later
@@ -499,6 +502,8 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     #add airfoil
     cs_wing.Segments[0].Airfoil     = seg_a.Airfoil
     cs_wing.Segments[1].Airfoil     = seg_b.Airfoil if cs.span_fraction_end==span_b else seg_a.Airfoil
+    cs_wing.static_keys             = ['wing_type']
+
     
     return cs_wing
 

@@ -11,9 +11,12 @@
 
 import numpy as np
 from SUAVE.Components.Wings import All_Moving_Surface
-from SUAVE.Core import Data
 from .generate_VD_helpers import postprocess_VD
 import jax.numpy as jnp
+from jax.lax import fori_loop, cond
+from jax.lax import dynamic_slice as DS
+from jax.lax import dynamic_update_slice as DUS
+from jax import jit
 
 # ----------------------------------------------------------------------
 #  Deflect Control Surface
@@ -42,23 +45,31 @@ def deflect_control_surfaces(VD,geometry,settings):
     N/A
     """     
     
-    # Loop over t ewings
+    # Loop over the wings
     for wing in VD.VLM_wings:
-        wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)        
-        if wing.is_a_control_surface or wing_is_all_moving:
-            # Deflect the control surface
-            VD, wing = deflect_control_surface(VD, wing)    
+        CS_cond    = issubclass(wing.wing_type, All_Moving_Surface) or wing.is_a_control_surface
+        VD, wing_out = cond(CS_cond,true_fun,false_fun,[VD,wing])
+        wing.update(wing_out,hard=True)  
         
     VD = postprocess_VD(VD, settings)
     
     # pack VD into geometry
     geometry.vortex_distribution = VD    
     
-    
     return VD
+
+def true_fun(inputs): 
+    VD, wing = inputs
+    # Deflect the control surface
+    VD, wing = deflect_control_surface(VD, wing)    
+    return [VD,wing]
+
+def false_fun(inputs): 
+    return inputs
 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+@jit
 def deflect_control_surface(VD,wing):
     """ 
     Deflects the panels of a vortex distribution that correspond to the given VLM_wing. 
@@ -88,10 +99,10 @@ def deflect_control_surface(VD,wing):
     """     
     
     # Unpack number of strips for this wing
-    n_sw     = wing.n_sw
-    n_cw     = wing.n_cw
-    sym_para = wing.symmetric    
-
+    n_sw             = wing.n_sw
+    n_cw             = wing.n_cw
+    sym_para         = wing.symmetric    
+    vertical_wing    = wing.vertical
 
     # Symmetry loop
     signs         = np.array([1, -1], dtype=int) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
@@ -99,156 +110,37 @@ def deflect_control_surface(VD,wing):
     for sym_sign in signs[symmetry_mask]:    
         
         # Pull out initial VD data points of surface
-        condition      = jnp.where(VD.surface_ID      == wing.surface_ID*sym_sign,size=VD.surface_ID.shape[0])
-        condition_full = jnp.where(VD.surface_ID_full == wing.surface_ID*sym_sign,size=VD.surface_ID_full.shape[0])
-        xi_prime_a1    = VD.XA1[condition]
-        xi_prime_ac    = VD.XAC[condition]
-        xi_prime_ah    = VD.XAH[condition]
-        xi_prime_a2    = VD.XA2[condition]
-        y_prime_a1     = VD.YA1[condition]
-        y_prime_ah     = VD.YAH[condition]
-        y_prime_ac     = VD.YAC[condition]
-        y_prime_a2     = VD.YA2[condition]
-        zeta_prime_a1  = VD.ZA1[condition]
-        zeta_prime_ah  = VD.ZAH[condition]
-        zeta_prime_ac  = VD.ZAC[condition]
-        zeta_prime_a2  = VD.ZA2[condition]
-        xi_prime_b1    = VD.XB1[condition]
-        xi_prime_bh    = VD.XBH[condition]
-        xi_prime_bc    = VD.XBC[condition]
-        xi_prime_b2    = VD.XB2[condition]
-        y_prime_b1     = VD.YB1[condition]
-        y_prime_bh     = VD.YBH[condition]
-        y_prime_bc     = VD.YBC[condition]
-        y_prime_b2     = VD.YB2[condition]
-        zeta_prime_b1  = VD.ZB1[condition]
-        zeta_prime_bh  = VD.ZBH[condition]
-        zeta_prime_bc  = VD.ZBC[condition]
-        zeta_prime_b2  = VD.ZB2[condition]
-        xi_prime_ch    = VD.XCH[condition]
-        xi_prime       = VD.XC [condition]
-        y_prime_ch     = VD.YCH[condition]
-        y_prime        = VD.YC [condition]
-        zeta_prime_ch  = VD.ZCH[condition]
-        zeta_prime     = VD.ZC [condition]
+        condition      = jnp.where(VD.surface_ID      == wing.surface_ID*sym_sign,size=VD.surface_ID.shape[0])        
+        condition_full = jnp.where(VD.surface_ID_full == wing.surface_ID*sym_sign,size=VD.surface_ID_full.shape[0])        
         
         X_as = jnp.zeros_like(VD.X[condition_full][:-(n_cw+1)])
         Y_as = jnp.zeros_like(VD.Y[condition_full][:-(n_cw+1)])
         Z_as = jnp.zeros_like(VD.Z[condition_full][:-(n_cw+1)])
         
+        As_cords = [X_as,Y_as,Z_as]
         
-        for idx_y in range(n_sw):
-            start     , stop      = idx_y*n_cw    , (idx_y+1)*n_cw
-            start_full, stop_full = idx_y*(n_cw+1), (idx_y+1)*(n_cw+1)
-            
-            # pack strip values
-            raw_VD = Data()
-            raw_VD.xi_prime_a1   = xi_prime_a1  [start:stop]
-            raw_VD.xi_prime_ac   = xi_prime_ac  [start:stop]
-            raw_VD.xi_prime_ah   = xi_prime_ah  [start:stop]
-            raw_VD.xi_prime_a2   = xi_prime_a2  [start:stop]
-            raw_VD.y_prime_a1    = y_prime_a1   [start:stop]
-            raw_VD.y_prime_ah    = y_prime_ah   [start:stop]
-            raw_VD.y_prime_ac    = y_prime_ac   [start:stop]
-            raw_VD.y_prime_a2    = y_prime_a2   [start:stop]
-            raw_VD.zeta_prime_a1 = zeta_prime_a1[start:stop]
-            raw_VD.zeta_prime_ah = zeta_prime_ah[start:stop]
-            raw_VD.zeta_prime_ac = zeta_prime_ac[start:stop]
-            raw_VD.zeta_prime_a2 = zeta_prime_a2[start:stop]
-            raw_VD.xi_prime_b1   = xi_prime_b1  [start:stop]
-            raw_VD.xi_prime_bh   = xi_prime_bh  [start:stop]
-            raw_VD.xi_prime_bc   = xi_prime_bc  [start:stop]
-            raw_VD.xi_prime_b2   = xi_prime_b2  [start:stop]
-            raw_VD.y_prime_b1    = y_prime_b1   [start:stop]
-            raw_VD.y_prime_bh    = y_prime_bh   [start:stop]
-            raw_VD.y_prime_bc    = y_prime_bc   [start:stop]
-            raw_VD.y_prime_b2    = y_prime_b2   [start:stop]
-            raw_VD.zeta_prime_b1 = zeta_prime_b1[start:stop]
-            raw_VD.zeta_prime_bh = zeta_prime_bh[start:stop]
-            raw_VD.zeta_prime_bc = zeta_prime_bc[start:stop]
-            raw_VD.zeta_prime_b2 = zeta_prime_b2[start:stop]
-            raw_VD.xi_prime_ch   = xi_prime_ch  [start:stop]
-            raw_VD.xi_prime      = xi_prime     [start:stop]
-            raw_VD.y_prime_ch    = y_prime_ch   [start:stop]
-            raw_VD.y_prime       = y_prime      [start:stop]
-            raw_VD.zeta_prime_ch = zeta_prime_ch[start:stop]
-            raw_VD.zeta_prime    = zeta_prime   [start:stop]
-            
-            # deflect the surface
-            raw_VD = deflect_control_surface_strip(wing, raw_VD, idx_y==0, sym_sign)
-            
-            # unpack strip values into surface values
-            xi_prime_a1   = xi_prime_a1  .at[start:stop].set(raw_VD.xi_prime_a1  )
-            xi_prime_ac   = xi_prime_ac  .at[start:stop].set(raw_VD.xi_prime_ac  )
-            xi_prime_ah   = xi_prime_ah  .at[start:stop].set(raw_VD.xi_prime_ah  )
-            xi_prime_a2   = xi_prime_a2  .at[start:stop].set(raw_VD.xi_prime_a2  )
-            y_prime_a1    = y_prime_a1   .at[start:stop].set(raw_VD.y_prime_a1   )
-            y_prime_ah    = y_prime_ah   .at[start:stop].set(raw_VD.y_prime_ah   )
-            y_prime_ac    = y_prime_ac   .at[start:stop].set(raw_VD.y_prime_ac   )
-            y_prime_a2    = y_prime_a2   .at[start:stop].set(raw_VD.y_prime_a2   )
-            zeta_prime_a1 = zeta_prime_a1.at[start:stop].set(raw_VD.zeta_prime_a1)
-            zeta_prime_ah = zeta_prime_ah.at[start:stop].set(raw_VD.zeta_prime_ah)
-            zeta_prime_ac = zeta_prime_ac.at[start:stop].set(raw_VD.zeta_prime_ac)
-            zeta_prime_a2 = zeta_prime_a2.at[start:stop].set(raw_VD.zeta_prime_a2)
-            xi_prime_b1   = xi_prime_b1  .at[start:stop].set(raw_VD.xi_prime_b1  )
-            xi_prime_bh   = xi_prime_bh  .at[start:stop].set(raw_VD.xi_prime_bh  )
-            xi_prime_bc   = xi_prime_bc  .at[start:stop].set(raw_VD.xi_prime_bc  )
-            xi_prime_b2   = xi_prime_b2  .at[start:stop].set(raw_VD.xi_prime_b2  )
-            y_prime_b1    = y_prime_b1   .at[start:stop].set(raw_VD.y_prime_b1   )
-            y_prime_bh    = y_prime_bh   .at[start:stop].set(raw_VD.y_prime_bh   )
-            y_prime_bc    = y_prime_bc   .at[start:stop].set(raw_VD.y_prime_bc   )
-            y_prime_b2    = y_prime_b2   .at[start:stop].set(raw_VD.y_prime_b2   )
-            zeta_prime_b1 = zeta_prime_b1.at[start:stop].set(raw_VD.zeta_prime_b1)
-            zeta_prime_bh = zeta_prime_bh.at[start:stop].set(raw_VD.zeta_prime_bh)
-            zeta_prime_bc = zeta_prime_bc.at[start:stop].set(raw_VD.zeta_prime_bc)
-            zeta_prime_b2 = zeta_prime_b2.at[start:stop].set(raw_VD.zeta_prime_b2)
-               
-            xi_prime_ch   = xi_prime_ch  .at[start:stop].set(raw_VD.xi_prime_ch  )
-            xi_prime      = xi_prime     .at[start:stop].set(raw_VD.xi_prime     )
-            y_prime_ch    = y_prime_ch   .at[start:stop].set(raw_VD.y_prime_ch   )
-            y_prime       = y_prime      .at[start:stop].set(raw_VD.y_prime      )
-            zeta_prime_ch = zeta_prime_ch.at[start:stop].set(raw_VD.zeta_prime_ch)
-            zeta_prime    = zeta_prime   .at[start:stop].set(raw_VD.zeta_prime   )
-            
-            X_as = X_as.at[start_full:stop_full].set(jnp.append(raw_VD.xi_prime_a1  , raw_VD.xi_prime_a2  [-1]))
-            Y_as = Y_as.at[start_full:stop_full].set(jnp.append(raw_VD.y_prime_a1   , raw_VD.y_prime_a2   [-1]))
-            Z_as = Z_as.at[start_full:stop_full].set(jnp.append(raw_VD.zeta_prime_a1, raw_VD.zeta_prime_a2[-1]))
+        # get deflection angle
+        ddeflection      = wing.deflection      - wing.deflection_last               # This is a delta deflection
+        slat_multiplier  = (1 - wing.is_slat)   - wing.is_slat                       # Flip signs if it's a slat
+        sym_multiplier   = (1 - (sym_sign==-1)) - wing.sign_duplicate*(sym_sign==-1) # If it's the symmetric side
+        ver_multiplier   = (1 - vertical_wing)-1*vertical_wing                       # Vertical multiplier
+    
+        ddeflection = slat_multiplier*sym_multiplier*ver_multiplier*ddeflection        
+
+        wing, VD, As_cords, sym_sign, ddeflection = fori_loop(0,n_sw,deflect_control_surface_strip,[wing, VD, As_cords, sym_sign,ddeflection])
         
-        # pack surface VD values into vehicle VD    
-        VD.XA1 = VD.XA1.at[condition].set(xi_prime_a1   ) 
-        VD.XAC = VD.XAC.at[condition].set(xi_prime_ac   ) 
-        VD.XAH = VD.XAH.at[condition].set(xi_prime_ah   ) 
-        VD.XA2 = VD.XA2.at[condition].set(xi_prime_a2   ) 
-        VD.YA1 = VD.YA1.at[condition].set(y_prime_a1    ) 
-        VD.YAH = VD.YAH.at[condition].set(y_prime_ah    ) 
-        VD.YAC = VD.YAC.at[condition].set(y_prime_ac    ) 
-        VD.YA2 = VD.YA2.at[condition].set(y_prime_a2    ) 
-        VD.ZA1 = VD.ZA1.at[condition].set(zeta_prime_a1 ) 
-        VD.ZAH = VD.ZAH.at[condition].set(zeta_prime_ah ) 
-        VD.ZAC = VD.ZAC.at[condition].set(zeta_prime_ac ) 
-        VD.ZA2 = VD.ZA2.at[condition].set(zeta_prime_a2 ) 
-        VD.XB1 = VD.XB1.at[condition].set(xi_prime_b1   ) 
-        VD.XBH = VD.XBH.at[condition].set(xi_prime_bh   ) 
-        VD.XBC = VD.XBC.at[condition].set(xi_prime_bc   ) 
-        VD.XB2 = VD.XB2.at[condition].set(xi_prime_b2   ) 
-        VD.YB1 = VD.YB1.at[condition].set(y_prime_b1    ) 
-        VD.YBH = VD.YBH.at[condition].set(y_prime_bh    ) 
-        VD.YBC = VD.YBC.at[condition].set(y_prime_bc    ) 
-        VD.YB2 = VD.YB2.at[condition].set(y_prime_b2    ) 
-        VD.ZB1 = VD.ZB1.at[condition].set(zeta_prime_b1 ) 
-        VD.ZBH = VD.ZBH.at[condition].set(zeta_prime_bh ) 
-        VD.ZBC = VD.ZBC.at[condition].set(zeta_prime_bc ) 
-        VD.ZB2 = VD.ZB2.at[condition].set(zeta_prime_b2 ) 
-        VD.XCH = VD.XCH.at[condition].set(xi_prime_ch   ) 
-        VD.XC  = VD.XC .at[condition].set(xi_prime      ) 
-        VD.YCH = VD.YCH.at[condition].set(y_prime_ch    ) 
-        VD.YC  = VD.YC .at[condition].set(y_prime       ) 
-        VD.ZCH = VD.ZCH.at[condition].set(zeta_prime_ch ) 
-        VD.ZC  = VD.ZC .at[condition].set(zeta_prime    )
-        
-        X_last_bs = jnp.append(raw_VD.xi_prime_b1  , raw_VD.xi_prime_b2  [-1])
-        Y_last_bs = jnp.append(raw_VD.y_prime_b1   , raw_VD.y_prime_b2   [-1])
-        Z_last_bs = jnp.append(raw_VD.zeta_prime_b1, raw_VD.zeta_prime_b2[-1])
+       # Index the last b values 
+        start, stop   = (n_sw-1)*n_cw    , n_sw*n_cw
+        xi_prime_b2   = VD.XB2[condition][start:stop]
+        xi_prime_b1   = VD.XB1[condition][start:stop]
+        y_prime_b1    = VD.YB1[condition][start:stop]
+        y_prime_b2    = VD.YB2[condition][start:stop]
+        zeta_prime_b1 = VD.ZB1[condition][start:stop]
+        zeta_prime_b2 = VD.ZB2[condition][start:stop]
+
+        X_last_bs = jnp.append(xi_prime_b1  , xi_prime_b2  [-1])
+        Y_last_bs = jnp.append(y_prime_b1   , y_prime_b2   [-1])
+        Z_last_bs = jnp.append(zeta_prime_b1, zeta_prime_b2[-1])
         
         VD.X = VD.X.at[condition_full].set(jnp.append(X_as, X_last_bs))
         VD.Y = VD.Y.at[condition_full].set(jnp.append(Y_as, Y_last_bs))
@@ -268,7 +160,7 @@ def deflect_control_surface(VD,wing):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
+def deflect_control_surface_strip(idx_y, VALS):
     """ Rotates existing points in the VD with respect to current values of a delta deflection
 
     Assumptions: 
@@ -283,7 +175,6 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     wing.deflection      - deflection to set this wing to.                [radians]
     
     raw_VD               - undeflected VD pertaining a strip of wing      [Unitless] 
-    is_first_strip       - whether this is the first strip of wing        [Unitless]
     sym_sign             - 1 for original side, -1 for symmetric side     [Unitless]
     
     Outputs:      
@@ -293,47 +184,54 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     Properties Used:
     N/A
     """    
+    # Loop items
+    wing, VD, As_cords, sym_sign, delta_deflection = VALS 
     
     # Unpack
-    vertical_wing = wing.vertical
-    inverted_wing = wing.inverted_wing
+    vertical_wing    = wing.vertical
+    inverted_wing    = wing.inverted_wing
+    n_cw             = wing.n_cw    
+    X_as, Y_as, Z_as = As_cords
     
+    # Unpack origins
     x_origin, y_origin, z_origin = wing.origin[0]
-    
     y_origin *= sym_sign
     
-    xi_prime_a1    = raw_VD.xi_prime_a1   
-    xi_prime_ac    = raw_VD.xi_prime_ac   
-    xi_prime_ah    = raw_VD.xi_prime_ah   
-    xi_prime_a2    = raw_VD.xi_prime_a2   
-    y_prime_a1     = raw_VD.y_prime_a1    
-    y_prime_ah     = raw_VD.y_prime_ah    
-    y_prime_ac     = raw_VD.y_prime_ac    
-    y_prime_a2     = raw_VD.y_prime_a2    
-    zeta_prime_a1  = raw_VD.zeta_prime_a1 
-    zeta_prime_ah  = raw_VD.zeta_prime_ah 
-    zeta_prime_ac  = raw_VD.zeta_prime_ac 
-    zeta_prime_a2  = raw_VD.zeta_prime_a2 
-                                          
-    xi_prime_b1    = raw_VD.xi_prime_b1   
-    xi_prime_bh    = raw_VD.xi_prime_bh   
-    xi_prime_bc    = raw_VD.xi_prime_bc   
-    xi_prime_b2    = raw_VD.xi_prime_b2   
-    y_prime_b1     = raw_VD.y_prime_b1    
-    y_prime_bh     = raw_VD.y_prime_bh    
-    y_prime_bc     = raw_VD.y_prime_bc    
-    y_prime_b2     = raw_VD.y_prime_b2    
-    zeta_prime_b1  = raw_VD.zeta_prime_b1 
-    zeta_prime_bh  = raw_VD.zeta_prime_bh 
-    zeta_prime_bc  = raw_VD.zeta_prime_bc 
-    zeta_prime_b2  = raw_VD.zeta_prime_b2 
-                                          
-    xi_prime_ch    = raw_VD.xi_prime_ch   
-    xi_prime       = raw_VD.xi_prime      
-    y_prime_ch     = raw_VD.y_prime_ch    
-    y_prime        = raw_VD.y_prime       
-    zeta_prime_ch  = raw_VD.zeta_prime_ch 
-    zeta_prime     = raw_VD.zeta_prime    
+    # The start and stops based on idx_y
+    start     , stop      = idx_y*n_cw    , (idx_y+1)*n_cw
+    start_full, stop_full = idx_y*(n_cw+1), (idx_y+1)*(n_cw+1)
+    
+    condition      = jnp.where(VD.surface_ID == wing.surface_ID*sym_sign,size=VD.surface_ID.shape[0])
+    xi_prime_a1    = DS(VD.XA1[condition],(start,),(n_cw,))
+    xi_prime_ac    = DS(VD.XAC[condition],(start,),(n_cw,))
+    xi_prime_ah    = DS(VD.XAH[condition],(start,),(n_cw,))
+    xi_prime_a2    = DS(VD.XA2[condition],(start,),(n_cw,))
+    y_prime_a1     = DS(VD.YA1[condition],(start,),(n_cw,))
+    y_prime_ah     = DS(VD.YAH[condition],(start,),(n_cw,))
+    y_prime_ac     = DS(VD.YAC[condition],(start,),(n_cw,))
+    y_prime_a2     = DS(VD.YA2[condition],(start,),(n_cw,))
+    zeta_prime_a1  = DS(VD.ZA1[condition],(start,),(n_cw,))
+    zeta_prime_ah  = DS(VD.ZAH[condition],(start,),(n_cw,))
+    zeta_prime_ac  = DS(VD.ZAC[condition],(start,),(n_cw,))
+    zeta_prime_a2  = DS(VD.ZA2[condition],(start,),(n_cw,))
+    xi_prime_b1    = DS(VD.XB1[condition],(start,),(n_cw,))
+    xi_prime_bh    = DS(VD.XBH[condition],(start,),(n_cw,))
+    xi_prime_bc    = DS(VD.XBC[condition],(start,),(n_cw,))
+    xi_prime_b2    = DS(VD.XB2[condition],(start,),(n_cw,))
+    y_prime_b1     = DS(VD.YB1[condition],(start,),(n_cw,))
+    y_prime_bh     = DS(VD.YBH[condition],(start,),(n_cw,))
+    y_prime_bc     = DS(VD.YBC[condition],(start,),(n_cw,))
+    y_prime_b2     = DS(VD.YB2[condition],(start,),(n_cw,))
+    zeta_prime_b1  = DS(VD.ZB1[condition],(start,),(n_cw,))
+    zeta_prime_bh  = DS(VD.ZBH[condition],(start,),(n_cw,))
+    zeta_prime_bc  = DS(VD.ZBC[condition],(start,),(n_cw,))
+    zeta_prime_b2  = DS(VD.ZB2[condition],(start,),(n_cw,))
+    xi_prime_ch    = DS(VD.XCH[condition],(start,),(n_cw,))
+    xi_prime       = DS(VD.XC [condition],(start,),(n_cw,))
+    y_prime_ch     = DS(VD.YCH[condition],(start,),(n_cw,))
+    y_prime        = DS(VD.YC [condition],(start,),(n_cw,))
+    zeta_prime_ch  = DS(VD.ZCH[condition],(start,),(n_cw,))
+    zeta_prime     = DS(VD.ZC [condition],(start,),(n_cw,))
 
     # flip over y = z for a vertical wing since deflection math assumes horizontal wing--------------------
     y_prime_a1, zeta_prime_a1 = flip_1(y_prime_a1, zeta_prime_a1, vertical_wing, inverted_wing)
@@ -352,54 +250,45 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
     wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
         
-    #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
+    # Assume always the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
     #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
-    if is_first_strip:
-        # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
-        ib_le_strip_corner = jnp.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]]) 
-        ib_te_strip_corner = jnp.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
-        
-        interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
-        interp_domains     = np.array([0.,1., 2.,3., 4.,5.])
-        interp_ranges_ib   = jnp.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
-        ib_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ib)
-        
-        #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
-        if wing.is_a_control_surface:
-            need_to_compute_hinge_vector = True
-        else: #wing is an all-moving surface
-            hinge_vector                 = wing.hinge_vector
-            hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
-                                            not (hinge_vector==np.array([0.,0.,0.])).all()
-            need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
-            
-        if need_to_compute_hinge_vector:
-            ob_le_strip_corner = jnp.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
-            ob_te_strip_corner = jnp.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
-            interp_ranges_ob   = jnp.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
-            ob_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ob)
-        
-            use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
-            if use_root_chord_in_plane_normal: ob_hinge_point[0] = ib_hinge_point[0]
-        
-            hinge_vector       = ob_hinge_point - ib_hinge_point
-            hinge_vector       = hinge_vector / jnp.linalg.norm(hinge_vector)   
-        elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
-            hinge_vector[1], hinge_vector[2] = hinge_vector[2], hinge_vector[1] 
-            
-        #store hinge root point and direction vector
-        wing.hinge_root_point = ib_hinge_point
-        wing.hinge_vector     = hinge_vector 
-        #END first strip calculations
+    # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
+    ib_le_strip_corner = jnp.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]]) 
+    ib_te_strip_corner = jnp.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
     
-    # get deflection angle
-    ddeflection      = wing.deflection      - wing.deflection_last               # This is a delta deflection
-    slat_multiplier  = (1 - wing.is_slat)   - wing.is_slat                       # Flip signs if it's a slat
-    sym_multiplier   = (1 - (sym_sign==-1)) - wing.sign_duplicate*(sym_sign==-1) # If it's the symmetric side
-    ver_multiplier   = (1 - vertical_wing)-1*vertical_wing                       # Vertical multiplier
-
-    delta_deflection = slat_multiplier*sym_multiplier*ver_multiplier*ddeflection
+    interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
+    interp_domains     = np.array([0.,1., 2.,3., 4.,5.])
+    interp_ranges_ib   = jnp.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
+    ib_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ib)
+    
+    #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
+    if wing.is_a_control_surface:
+        need_to_compute_hinge_vector = True
+    else: #wing is an all-moving surface
+        hinge_vector                 = wing.hinge_vector
+        hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
+                                        not (hinge_vector==np.array([0.,0.,0.])).all()
+        need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
         
+    if need_to_compute_hinge_vector:
+        ob_le_strip_corner = jnp.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
+        ob_te_strip_corner = jnp.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
+        interp_ranges_ob   = jnp.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
+        ob_hinge_point     = jnp.interp(interp_fractions, interp_domains, interp_ranges_ob)
+    
+        use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
+        if use_root_chord_in_plane_normal: ob_hinge_point[0] = ib_hinge_point[0]
+    
+        hinge_vector       = ob_hinge_point - ib_hinge_point
+        hinge_vector       = hinge_vector / jnp.linalg.norm(hinge_vector)   
+    elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
+        hinge_vector[1], hinge_vector[2] = hinge_vector[2], hinge_vector[1] 
+        
+    #store hinge root point and direction vector
+    wing.hinge_root_point = ib_hinge_point
+    wing.hinge_vector     = hinge_vector 
+    #END first strip calculations
+    
     # make quaternion rotation matrix
     quaternion   = make_hinge_quaternion(wing.hinge_root_point, wing.hinge_vector, delta_deflection)
     
@@ -431,41 +320,45 @@ def deflect_control_surface_strip(wing, raw_VD, is_first_strip, sym_sign):
     y_prime   , zeta_prime    = flip_2(y_prime,    zeta_prime   , vertical_wing, inverted_wing)
 
     # Pack the VD
-    raw_VD.xi_prime_a1   = xi_prime_a1      
-    raw_VD.xi_prime_ac   = xi_prime_ac      
-    raw_VD.xi_prime_ah   = xi_prime_ah      
-    raw_VD.xi_prime_a2   = xi_prime_a2      
-    raw_VD.y_prime_a1    = y_prime_a1       
-    raw_VD.y_prime_ah    = y_prime_ah       
-    raw_VD.y_prime_ac    = y_prime_ac       
-    raw_VD.y_prime_a2    = y_prime_a2       
-    raw_VD.zeta_prime_a1 = zeta_prime_a1    
-    raw_VD.zeta_prime_ah = zeta_prime_ah    
-    raw_VD.zeta_prime_ac = zeta_prime_ac    
-    raw_VD.zeta_prime_a2 = zeta_prime_a2    
-                                            
-    raw_VD.xi_prime_b1   = xi_prime_b1      
-    raw_VD.xi_prime_bh   = xi_prime_bh      
-    raw_VD.xi_prime_bc   = xi_prime_bc      
-    raw_VD.xi_prime_b2   = xi_prime_b2      
-    raw_VD.y_prime_b1    = y_prime_b1       
-    raw_VD.y_prime_bh    = y_prime_bh       
-    raw_VD.y_prime_bc    = y_prime_bc       
-    raw_VD.y_prime_b2    = y_prime_b2       
-    raw_VD.zeta_prime_b1 = zeta_prime_b1    
-    raw_VD.zeta_prime_bh = zeta_prime_bh    
-    raw_VD.zeta_prime_bc = zeta_prime_bc    
-    raw_VD.zeta_prime_b2 = zeta_prime_b2    
-                                            
-    raw_VD.xi_prime_ch   = xi_prime_ch      
-    raw_VD.xi_prime      = xi_prime         
-    raw_VD.y_prime_ch    = y_prime_ch       
-    raw_VD.y_prime       = y_prime          
-    raw_VD.zeta_prime_ch = zeta_prime_ch    
-    raw_VD.zeta_prime    = zeta_prime       
-
+    VD.XA1 = VD.XA1.at[condition].set(DUS(VD.XA1[condition],xi_prime_a1,(start,)))
+    VD.XAC = VD.XAC.at[condition].set(DUS(VD.XAC[condition],xi_prime_ac  ,(start,)))
+    VD.XAH = VD.XAH.at[condition].set(DUS(VD.XAH[condition],xi_prime_ah  ,(start,)))
+    VD.XA2 = VD.XA2.at[condition].set(DUS(VD.XA2[condition],xi_prime_a2  ,(start,)))
+    VD.YA1 = VD.YA1.at[condition].set(DUS(VD.YA1[condition],y_prime_a1   ,(start,)))
+    VD.YAH = VD.YAH.at[condition].set(DUS(VD.YAH[condition],y_prime_ah   ,(start,)))
+    VD.YAC = VD.YAC.at[condition].set(DUS(VD.YAC[condition],y_prime_ac   ,(start,)))
+    VD.YA2 = VD.YA2.at[condition].set(DUS(VD.YA2[condition],y_prime_a2   ,(start,)))
+    VD.ZA1 = VD.ZA1.at[condition].set(DUS(VD.ZA1[condition],zeta_prime_a1,(start,)))
+    VD.ZAH = VD.ZAH.at[condition].set(DUS(VD.ZAH[condition],zeta_prime_ah,(start,)))
+    VD.ZAC = VD.ZAC.at[condition].set(DUS(VD.ZAC[condition],zeta_prime_ac,(start,)))
+    VD.ZA2 = VD.ZA2.at[condition].set(DUS(VD.ZA2[condition],zeta_prime_a2,(start,)))
+    VD.XB1 = VD.XB1.at[condition].set(DUS(VD.XB1[condition],xi_prime_b1  ,(start,)))
+    VD.XBH = VD.XBH.at[condition].set(DUS(VD.XBH[condition],xi_prime_bh  ,(start,)))
+    VD.XBC = VD.XBC.at[condition].set(DUS(VD.XBC[condition],xi_prime_bc  ,(start,)))
+    VD.XB2 = VD.XB2.at[condition].set(DUS(VD.XB2[condition],xi_prime_b2  ,(start,)))
+    VD.YB1 = VD.YB1.at[condition].set(DUS(VD.YB1[condition],y_prime_b1   ,(start,)))
+    VD.YBH = VD.YBH.at[condition].set(DUS(VD.YBH[condition],y_prime_bh   ,(start,)))
+    VD.YBC = VD.YBC.at[condition].set(DUS(VD.YBC[condition],y_prime_bc   ,(start,)))
+    VD.YB2 = VD.YB2.at[condition].set(DUS(VD.YB2[condition],y_prime_b2   ,(start,)))
+    VD.ZB1 = VD.ZB1.at[condition].set(DUS(VD.ZB1[condition],zeta_prime_b1,(start,)))
+    VD.ZBH = VD.ZBH.at[condition].set(DUS(VD.ZBH[condition],zeta_prime_bh,(start,)))
+    VD.ZBC = VD.ZBC.at[condition].set(DUS(VD.ZBC[condition],zeta_prime_bc,(start,)))
+    VD.ZB2 = VD.ZB2.at[condition].set(DUS(VD.ZB2[condition],zeta_prime_b2,(start,)))
+    VD.XCH = VD.XCH.at[condition].set(DUS(VD.XCH[condition],xi_prime_ch  ,(start,)))
+    VD.XC  = VD.XC .at[condition].set(DUS(VD.XC [condition],xi_prime     ,(start,)))
+    VD.YCH = VD.YCH.at[condition].set(DUS(VD.YCH[condition],y_prime_ch   ,(start,)))
+    VD.YC  = VD.YC .at[condition].set(DUS(VD.YC [condition],y_prime      ,(start,)))
+    VD.ZCH = VD.ZCH.at[condition].set(DUS(VD.ZCH[condition],zeta_prime_ch,(start,)))
+    VD.ZC  = VD.ZC .at[condition].set(DUS(VD.ZC [condition],zeta_prime   ,(start,)))
     
-    return raw_VD    
+    X_as = DUS(X_as,jnp.append(xi_prime_a1  ,  xi_prime_a2[-1]),(start_full,))
+    Y_as = DUS(Y_as,jnp.append(y_prime_a1   ,   y_prime_a2[-1]),(start_full,))
+    Z_as = DUS(Z_as,jnp.append(zeta_prime_a1,zeta_prime_a2[-1]),(start_full,))
+
+    As_cords = [X_as,Y_as,Z_as]
+
+
+    return [wing, VD, As_cords, sym_sign, delta_deflection]
 
 # ----------------------------------------------------------------------
 #  Rotation functions
