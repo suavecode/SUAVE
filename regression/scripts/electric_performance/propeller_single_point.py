@@ -17,8 +17,10 @@ import numpy as np
 
 import sys
 sys.path.append('../Vehicles')
+sys.path.append('../B737')
 
 from X57_Maxwell_Mod2 import vehicle_setup
+from mission_B737 import base_analysis
 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 
@@ -38,11 +40,11 @@ def test_1():
     """
     This tests the propeller_single_point function using the Fidelity Zero rotor wake inflow model.
     """
-    vehicle = vehicle_setup()
-    prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
-    prop = vehicle.networks.battery_propeller.propellers[prop_key]
+    vehicle  = vehicle_setup()
+    net      = vehicle.networks.battery_propeller
+    analyses = base_analysis(vehicle)
 
-    _, results = propeller_single_point(prop,
+    results = propeller_single_point(net, analyses,
                                      pitch=0.,
                                      omega=2200. * Units.rpm,
                                      altitude= 5000. * Units.ft,
@@ -80,11 +82,12 @@ def test_2():
     vehicle = vehicle_setup()
     prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[0]
     prop = vehicle.networks.battery_propeller.propellers[prop_key]
-    
+    net      = vehicle.networks.battery_propeller
+    analyses = base_analysis(vehicle)    
     # update the wake method used for each prop
     prop.Wake = Rotor_Wake_Fidelity_One()
 
-    _, results = propeller_single_point(prop,
+    results = propeller_single_point(net, analyses,
                                      pitch=0.,
                                      omega=2200. * Units.rpm,
                                      altitude= 5000. * Units.ft,
