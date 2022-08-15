@@ -53,76 +53,65 @@ def main():
     bad_prop.design_tip_mach          = 0.1
     bad_prop.angular_velocity         = gearbox.inputs.speed  
     bad_prop.design_Cl                = 0.7
-    bad_prop.design_altitude          = 1. * Units.km  
-    airfoil                           = SUAVE.Components.Airfoils.Airfoil()   
-    airfoil.coordinate_file           ='4412'   
-    airfoil.NACA_4_series_flag        = True 
-    airfoil.polar_files               =  ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
-                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
-                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
-                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
-                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']
-    bad_prop.append_airfoil(airfoil)
-    bad_prop.airfoil_polar_stations   =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    bad_prop.design_thrust            = 100000
-    bad_prop                          = propeller_design(bad_prop)
-    prop_a                            = SUAVE.Components.Energy.Converters.Propeller()
-    prop_a.tag                        = "Prop_W_Aifoil"
-    prop_a.number_of_blades           = 3
-    prop_a.number_of_engines          = 1
-    prop_a.freestream_velocity        = 49.1744
-    prop_a.tip_radius                 = 1.0668
-    prop_a.hub_radius                 = 0.21336
-    prop_a.design_tip_mach            = 0.65
-    prop_a.angular_velocity           = gearbox.inputs.speed # 207.16160479940007
-    prop_a.design_Cl                  = 0.7
-    prop_a.design_altitude            = 1. * Units.km 
+    bad_prop.design_altitude          = 1. * Units.km      
+    bad_prop.airfoil_geometry         = ['../Vehicles/Airfoils/NACA_4412.txt']
+
+    bad_prop.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']] 
+
+    bad_prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
+    bad_prop.design_thrust           = 100000
+    bad_prop                         = propeller_design(bad_prop)  
     
-    # define first airfoil 
-    airfoil_1                         = SUAVE.Components.Airfoils.Airfoil()
-    airfoil_1.tag                     = 'NACA_4412' 
-    airfoil_1.coordinate_file         = '../Vehicles/Airfoils/NACA_4412.txt'   # absolute path   
-    airfoil_1.polar_files             = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
-                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
-                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
-                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
-                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt'] 
-    prop_a.append_airfoil(airfoil_1)   # append first airfoil 
-    
-    # define  second airfoil 
-    airfoil_2                         = SUAVE.Components.Airfoils.Airfoil()  
-    airfoil_2.tag                     = 'Clark_Y' 
-    airfoil_2.coordinate_file         = '../Vehicles/Airfoils/Clark_y.txt' 
-    airfoil_2.polar_files             = ['../Vehicles/Airfoils/Polars/Clark_y_polar_Re_50000.txt',
-                                          '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_100000.txt',
-                                          '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_200000.txt',
-                                          '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_500000.txt',
-                                          '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_1000000.txt'] 
-    prop_a.append_airfoil(airfoil_2)  # append second airfoil 
-    
-    # define polar stations on rotor 
-    prop_a.airfoil_polar_stations    = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]
-    prop_a.design_thrust             = 3054.4809132125697
-    prop_a                           = propeller_design(prop_a)
+    prop_a                          = SUAVE.Components.Energy.Converters.Propeller() 
+    prop_a.tag                      = "Prop_W_Aifoil"
+    prop_a.number_of_blades         = 3
+    prop_a.number_of_engines        = 1
+    prop_a.freestream_velocity      = 49.1744 
+    prop_a.tip_radius               = 1.0668
+    prop_a.hub_radius               = 0.21336 
+    prop_a.design_tip_mach          = 0.65
+    prop_a.angular_velocity         = gearbox.inputs.speed # 207.16160479940007 
+    prop_a.design_Cl                = 0.7
+    prop_a.design_altitude          = 1. * Units.km      
+    prop_a.airfoil_geometry         = ['../Vehicles/Airfoils/NACA_4412.txt','../Vehicles/Airfoils/Clark_y.txt']
+
+    prop_a.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt'],
+                                       ['../Vehicles/Airfoils/Polars/Clark_y_polar_Re_50000.txt',
+                                        '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_100000.txt',
+                                        '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_200000.txt',
+                                        '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_500000.txt',
+                                        '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_1000000.txt']] 
+
+    prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]  
+    prop_a.design_thrust           = 3054.4809132125697
+    prop_a                         = propeller_design(prop_a)  
     
     # plot propeller 
     plot_propeller(prop_a)
  
     # Design the Propeller with airfoil  geometry defined 
-    prop                           = SUAVE.Components.Energy.Converters.Propeller()
-    prop.tag                       = "Prop_No_Aifoil"
-    prop.number_of_blades          = 3
-    prop.number_of_engines         = 1
-    prop.freestream_velocity       = 49.1744
-    prop.tip_radius                = 1.0668
-    prop.hub_radius                = 0.21336
-    prop.design_tip_mach           = 0.65
-    prop.angular_velocity          = gearbox.inputs.speed
-    prop.design_Cl                 = 0.7
-    prop.design_altitude           = 1. * Units.km
-    prop.origin                    = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
-    prop.design_power              = gearbox.outputs.power
-    prop                           = propeller_design(prop)
+    prop                          = SUAVE.Components.Energy.Converters.Propeller()
+    prop.tag                      = "Prop_No_Aifoil"
+    prop.number_of_blades         = 3
+    prop.number_of_engines        = 1
+    prop.freestream_velocity      = 49.1744 
+    prop.tip_radius               = 1.0668
+    prop.hub_radius               = 0.21336 
+    prop.design_tip_mach          = 0.65
+    prop.angular_velocity         = gearbox.inputs.speed  
+    prop.design_Cl                = 0.7
+    prop.design_altitude          = 1. * Units.km     
+    prop.origin                   = [[16.*0.3048 , 0. ,2.02*0.3048 ]]    
+    prop.design_power             = gearbox.outputs.power  
+    prop                          = propeller_design(prop)      
     
     # Design a Rotor with airfoil  geometry defined  
     rot_a                          = SUAVE.Components.Energy.Converters.Rotor() 
@@ -137,37 +126,40 @@ def main():
     rot_a.angular_velocity         = 258.9520059992501
     rot_a.design_Cl                = 0.7
     rot_a.design_altitude          = 20 * Units.feet                            
-    rot_a.design_thrust            = 2271.2220451593753  
-    airfoil                        = SUAVE.Components.Airfoils.Airfoil() 
-    airfoil.coordinate_file        = '4412'  
-    airfoil.NACA_4_series_flag     = True 
-    airfoil.number_of_points       = 30    # for aero coefficients, panel code works better with fewer points 
-    rot_a.append_airfoil(airfoil)   
-    rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    rot_a.design_thrust            = 2271.2220451593753 
+    rot_a.airfoil_geometry         = ['../Vehicles/Airfoils/NACA_4412.txt']
+
+    rot_a.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']]
+
+    rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]    
     rot_a                          = propeller_design(rot_a) 
     
     # Design a Rotor without airfoil geometry defined 
-    rot                            = SUAVE.Components.Energy.Converters.Rotor()
-    rot.tag                        = "Rot_No_Aifoil"
-    rot.tip_radius                 = 2.8 * Units.feet
-    rot.hub_radius                 = 0.35 * Units.feet
-    rot.number_of_blades           = 2
-    rot.design_tip_mach            = 0.65
-    rot.number_of_engines          = 12
-    rot.disc_area                  = np.pi*(rot.tip_radius**2)
-    rot.freestream_velocity        = 500. * Units['ft/min']
-    rot.angular_velocity           = 258.9520059992501
-    rot.design_Cl                  = 0.7
-    rot.design_altitude            = 20 * Units.feet
-    rot.design_thrust              = 2271.2220451593753
-    rot                            = propeller_design(rot)
+    rot                          = SUAVE.Components.Energy.Converters.Rotor()
+    rot.tag                      = "Rot_No_Aifoil"
+    rot.tip_radius               = 2.8 * Units.feet
+    rot.hub_radius               = 0.35 * Units.feet      
+    rot.number_of_blades         = 2   
+    rot.design_tip_mach          = 0.65
+    rot.number_of_engines        = 12
+    rot.disc_area                = np.pi*(rot.tip_radius**2)     
+    rot.freestream_velocity      = 500. * Units['ft/min']  
+    rot.angular_velocity         = 258.9520059992501
+    rot.design_Cl                = 0.7
+    rot.design_altitude          = 20 * Units.feet                            
+    rot.design_thrust            = 2271.2220451593753  
+    rot                          = propeller_design(rot) 
     
     # Find the operating conditions
-    atmosphere                     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions          = atmosphere.compute_values(rot.design_altitude)
+    atmosphere            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere_conditions =  atmosphere.compute_values(rot.design_altitude)
     
-    V                              = prop.freestream_velocity
-    Vr                             = rot.freestream_velocity
+    V  = prop.freestream_velocity
+    Vr = rot.freestream_velocity
     
     conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     conditions._size                                    = 1
@@ -219,22 +211,22 @@ def main():
     Cplast_a_truth  = 0.10450832
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2682.883049614873
-    Q_truth         = 804.66619031
-    P_truth         = 166695.93931239
-    Cplast_truth    = 0.08591914
+    F_truth         = 2629.013537561697
+    Q_truth         = 787.38469662
+    P_truth         = 163115.87734548
+    Cplast_truth    = 0.08407389
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1266.0906132241278
-    Qr_a_truth      = 107.01068456
-    Pr_a_truth      = 22168.50514504
-    Cplastr_a_truth = 0.03486995
+    Fr_a_truth      = 1499.6766372165007
+    Qr_a_truth      = 139.1060306
+    Pr_a_truth      = 28817.42853679
+    Cplastr_a_truth = 0.04532838
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1276.4378657580712
-    Qr_truth        = 125.37681959
-    Pr_truth        = 25973.26315058
-    Cplastr_truth   = 0.04085465
+    Fr_truth        = 1250.1858821890885
+    Qr_truth        = 121.95416738
+    Pr_truth        = 25264.22102656
+    Cplastr_truth   = 0.03973936
     
     # Store errors 
     error = Data()

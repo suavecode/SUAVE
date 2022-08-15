@@ -55,21 +55,23 @@ def main():
     transition_1_throttle  = results.segments.transition_1.conditions.propulsion.throttle[:,0]
     cruise_throttle        = results.segments.cruise.conditions.propulsion.throttle[:,0]
     
-    print(departure_throttle)
-    print(transition_1_throttle)
-    print(cruise_throttle)
-    
-    # Truth values   
-    departure_throttle_truth          = 0.6516875478807475
-    transition_1_throttle_truth       = 0.6013997974737667
-    cruise_throttle_truth             = 0.46492807449474316
+    # Check network y-axis rotation during transition
+    transition_y_axis_rotations = results.segments.transition_1.conditions.propulsion.propeller_y_axis_rotation[:,0]
+
+
+    # Truth values
+    departure_throttle_truth          = np.array([0.65161054, 0.65183868, 0.65231039, 0.65255397])
+    transition_1_throttle_truth       = np.array([0.65642843, 0.65147807, 0.53589773, 0.60141026])
+    cruise_throttle_truth             = np.array([0.46357384, 0.46391152, 0.46458863, 0.46492805])
+    transition_y_axis_rotations_truth = np.array([1.34042448, 1.3130777 , 1.05489631, 0.05264738])
 
     # Store errors 
     error = Data()
-    error.departure_throttle          = np.abs(departure_throttle[-1] - departure_throttle_truth)
-    error.transition_1_throttle       = np.abs(transition_1_throttle[-1] - transition_1_throttle_truth)
-    error.cruise_throttle             = np.abs(cruise_throttle[-1] - cruise_throttle_truth)
-    
+    error.departure_throttle          = np.max(np.abs(departure_throttle - departure_throttle_truth))  
+    error.transition_1_throttle       = np.max(np.abs(transition_1_throttle - transition_1_throttle_truth))   
+    error.cruise_throttle             = np.max(np.abs(cruise_throttle - cruise_throttle_truth))   
+    error.transition_y_axis_rotations = np.max(np.abs(transition_y_axis_rotations - transition_y_axis_rotations_truth))   
+
     print('Errors:')
     print(error)
 
