@@ -589,9 +589,7 @@ def vehicle_setup():
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt',
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_5000000.txt',
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_7500000.txt' ]]
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
     propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     propeller                        = propeller_design(propeller,number_of_airfoil_section_points = 50)
@@ -617,10 +615,7 @@ def vehicle_setup():
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt',
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_5000000.txt',
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_7500000.txt' ]]
-                
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
     lift_rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     lift_rotor                            = propeller_design(lift_rotor)
