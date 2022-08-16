@@ -182,4 +182,4 @@ def propeller_single_point(prop,
     results.axial_velocity              = va_BEVW
     results.outputs                     = outputs
 
-    return prop, results
+    return prop, results, conditions

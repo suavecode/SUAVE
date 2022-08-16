@@ -2,7 +2,7 @@
 # Rotor_Wake_Fidelity_One.py
 #
 # Created:  Jan 2022, R. Erhard
-# Modified:
+# Modified: Aug 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -159,14 +159,14 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
         return va, vt
 
-    def evolve_wake_vortex_distribution(self,rotor,VD=None):
+    def evolve_wake_vortex_distribution(self,rotor,conditions,VD=None):
         """
         Time-evolves the wake under its own wake distribution (self.vortex_distribution) and any external
         vortex distribution (VD).
 
         """
         # Update the position of each vortex filament due to component interactions
-        self, rotor, interpolatedBoxData = update_wake_position(self,rotor,VD)
+        self, rotor, interpolatedBoxData = update_wake_position(self,rotor,conditions,VD)
 
         # Update the vortex strengths of each vortex ring accordingly
 
