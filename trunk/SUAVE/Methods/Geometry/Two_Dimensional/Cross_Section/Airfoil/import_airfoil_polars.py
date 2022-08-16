@@ -65,13 +65,17 @@ def  import_airfoil_polars(airfoil_polar_files):
             xFoilLine = pd.read_csv(airfoil_polar_files[i][j], sep="\t", skiprows=0, nrows=1)
             if "XFOIL" in str(xFoilLine):
                 xfoilPolarFormat = True
+                polarData = pd.read_csv(airfoil_polar_files[i][j], skiprows=[1,2,3,4,5,6,7,8,9,11], skipinitialspace=True, delim_whitespace=True)
+            elif "xflr5" in str(xFoilLine):
+                xfoilPolarFormat = True
+                polarData = pd.read_csv(airfoil_polar_files[i][j], skiprows=[0,1,2,3,4,5,6,7,8,10], skipinitialspace=True, delim_whitespace=True)
             else:
                 xfoilPolarFormat = False
     
             # Read data          
             if xfoilPolarFormat:
                 # get data, extract Re, Ma
-                polarData = pd.read_csv(airfoil_polar_files[i][j], skiprows=[1,2,3,4,5,6,7,8,9,11], skipinitialspace=True, delim_whitespace=True)
+                
                 headerLine = pd.read_csv(airfoil_polar_files[i][j], sep="\t", skiprows=7, nrows=1)
                 headerString = str(headerLine.iloc[0])
                 ReString = headerString.split('Re =',1)[1].split('e 6',1)[0]

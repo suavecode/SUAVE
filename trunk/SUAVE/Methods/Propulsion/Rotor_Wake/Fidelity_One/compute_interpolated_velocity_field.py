@@ -17,7 +17,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_v
 
 
 
-def compute_interpolated_velocity_field(WD, VD=None, dL=0.05, factor=1.5):
+def compute_interpolated_velocity_field(WD, conditions, VD=None, dL=0.05, factor=1.5):
     """
     Inputs
        WD            - Rotor wake vortex distribution
@@ -98,7 +98,8 @@ def compute_interpolated_velocity_field(WD, VD=None, dL=0.05, factor=1.5):
     #--------------------------------------------------------------------------------------------    
     # Step 1d: Generate function for induced velocity, Vind = f(x,y,z)
     #--------------------------------------------------------------------------------------------
-    V_induced = Vind + V_ind_ext  
+    Vinf = conditions.frames.inertial.velocity_vector
+    V_induced = Vind + V_ind_ext + Vinf
     
     fun_V_induced = RegularGridInterpolator((Xouter,Youter,Zouter), V_induced)
     
