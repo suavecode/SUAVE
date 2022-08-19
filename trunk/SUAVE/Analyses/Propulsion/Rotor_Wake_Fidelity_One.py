@@ -183,7 +183,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             # ---- DEBUG -----------------------------------------------------------------------
             # ----------------------------------------------------------------------------------
             # save vortex vtk for this iteration
-            save_single_prop_vehicle_vtk(rotor, iteration=iteration, save_loc="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/")   
+            #save_single_prop_vehicle_vtk(rotor, iteration=iteration, save_loc="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/")   
             # ----------------------------------------------------------------------------------
             # ----------------------------------------------------------------------------------        
             
@@ -202,10 +202,10 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             # ---- DEBUG -----------------------------------------------------------------------
             # ----------------------------------------------------------------------------------
             # save the contour box velocity field for new wake
-            stateData = Data()
-            stateData.vFreestream = conditions.freestream.velocity
-            stateData.alphaDeg = rotor.orientation_euler_angles[1] / Units.deg
-            box_contour_field_vtk(interpolatedBoxData, stateData, iteration=iteration, filename="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/ContourBox.vtk")
+            #stateData = Data()
+            #stateData.vFreestream = conditions.freestream.velocity
+            #stateData.alphaDeg = rotor.orientation_euler_angles[1] / Units.deg
+            #box_contour_field_vtk(interpolatedBoxData, stateData, iteration=iteration, filename="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/ContourBox.vtk")
             # ----------------------------------------------------------------------------------
             # ----------------------------------------------------------------------------------   
             
