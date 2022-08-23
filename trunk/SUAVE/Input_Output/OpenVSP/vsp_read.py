@@ -40,7 +40,7 @@ except ImportError:
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True): 
+def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,saveLoc=None): 
     """This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
     Includes wings, fuselages, and propellers.
 
@@ -202,7 +202,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True):
     # Read Wings 
     # --------------------------------------------------			
     for wing_id in vsp_wings:
-        wing = read_vsp_wing(wing_id, units_type,use_scaling)
+        wing = read_vsp_wing(wing_id, units_type,use_scaling,airfoil_save_loc=saveLoc)
         vehicle.append_component(wing)		 
         
     # --------------------------------------------------			    

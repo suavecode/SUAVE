@@ -36,7 +36,7 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 # ----------------------------------------------------------------------
 
 ## @ingroup Input_Output-OpenVSP
-def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling=True):
+def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, airfoil_save_loc=None, use_scaling=True):
     """This reads an OpenVSP wing vehicle geometry and writes it into a SUAVE wing format.
 
     Assumptions:
@@ -244,8 +244,13 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
                 # (Write the root airfoil with final arg = 0. Write 4th airfoil of 5 segments with final arg = .8)
 
             if write_airfoil_file==True:
-                vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
-                airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
+                if airfoil_save_loc == None:
+                    saveName = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
+                else:
+                    saveName = airfoil_save_loc + '/' + str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
+                
+                vsp.WriteSeligAirfoil(saveName, wing_id, float(jj/segment_num))
+                airfoil.coordinate_file    = saveName
                 airfoil.tag                = 'airfoil'
 
                 segment.append_airfoil(airfoil)
