@@ -416,16 +416,15 @@ def vehicle_setup():
 
     # Component 2 the Propeller 
     prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.tag = 'propeller_1'
-    prop.number_of_blades       = 2.0
-    prop.freestream_velocity    = 135.*Units['mph']
-    prop.angular_velocity       = 1300.  * Units.rpm
-    prop.tip_radius             = 76./2. * Units.inches
-    prop.hub_radius             = 8.     * Units.inches
+    prop.tag                    = 'propeller_1'
+    prop.number_of_blades       = 3.0
+    prop.freestream_velocity    = 150.   * Units.knots
+    prop.angular_velocity       = 2400. * Units.rpm
+    prop.tip_radius             = 1.72/2  
+    prop.hub_radius             = 10.     * Units.inches
     prop.design_Cl              = 0.8
-    prop.design_altitude        = 12000. * Units.feet
-    prop.design_altitude        = 12000. * Units.feet
-    prop.design_thrust          = 1200.
+    prop.design_altitude        = 9000. * Units.feet  
+    prop.design_power           = 98 * 0.65  * Units.hp # assume 65 BHP at cruise
     prop.origin                 = [[2.,2.5,0.784]]
     prop.rotation               = -1
     prop.symmetry               = True
@@ -438,7 +437,7 @@ def vehicle_setup():
                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    prop                        = propeller_design(prop)
+    prop                        = propeller_design(prop,number_of_airfoil_section_points = 102)
 
     prop_left = deepcopy(prop)
     prop_left.tag = 'propeller_2' 
@@ -452,7 +451,7 @@ def vehicle_setup():
     # Component 3 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     bat.mass_properties.mass = 500. * Units.kg  
-    bat.max_voltage          = 500. 
+    bat.max_voltage          = 400. 
     initialize_from_mass(bat)
     net.battery              = bat
     net.voltage              = bat.max_voltage
@@ -465,10 +464,10 @@ def vehicle_setup():
     motor                         = SUAVE.Components.Energy.Converters.Motor()
     motor.efficiency              = 0.95
     motor.gearbox_efficiency      = 1.
-    motor.origin                  = [[2.,  2.5, 0.784]]
-    motor.nominal_voltage         = bat.max_voltage *3/4
+    motor.origin                  = [[2.,  2.5, 0.95]]
+    motor.nominal_voltage         = bat.max_voltage*0.8
     motor.propeller_radius        = prop.tip_radius
-    motor.no_load_current         = 4.0
+    motor.no_load_current         = 0.1
     motor                         = size_optimal_motor(motor,prop)
     motor.mass_properties.mass    = 10. * Units.kg 
     
@@ -477,7 +476,7 @@ def vehicle_setup():
     
     # append left motor 
     motor_left = deepcopy(motor)
-    motor_left.origin = [[2., -2.5, 0.784]] 
+    motor_left.origin = [[2., -2.5, 0.95]] 
     net.propeller_motors.append(motor_left) 
 
     # Component 6 the Payload

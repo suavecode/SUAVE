@@ -29,8 +29,7 @@ def electric_V_h_diagram(vehicle,
                          altitude_ceiling = 2e4 * Units.ft,
                          max_speed = 130 * Units['m/s'],
                          test_omega = 800. * Units.rpm,
-                         display_plot = True,
-                         climb_rate_contours = [0.]
+                         display_plot = True, 
                          ):
     """electric_V_h_diagram(vehicle,
                             analyses,
@@ -68,8 +67,7 @@ def electric_V_h_diagram(vehicle,
             altitude_ceiling                Maximum Test Altitude       [User Set]
             max_speed                       Maximum Test Speed          [User Set]
             test_omega                      Maximum Power Prop Speed    [User Set]
-            display_plot                    Flag for Plot Generation    [Boolean]
-            climb_rate_contours             Climb Rates to Display      [ft/min]
+            display_plot                    Flag for Plot Generation    [Boolean] 
 
         Outputs:
 
@@ -163,14 +161,11 @@ def electric_V_h_diagram(vehicle,
         speed_space             = np.transpose(speed_space)
         alt_space               = np.transpose(alt_space) / Units.ft
 
-        # Make Contour Plot of Climb Rates
-
-        CS = plt.contour(speed_space, alt_space, climb_rate, levels = climb_rate_contours)
+        # Make Contour Plot of Climb Rates 
+        CS = plt.contour(speed_space, alt_space, climb_rate)  
         plt.xlabel('Airspeed (m/s)')
         plt.ylabel('Altitude (ft)')
         plt.title('Climb Rate (ft/min)')
-        plt.clabel(CS)
-
-        plt.show()
-
+        plt.clabel(CS) 
+        
     return climb_rate

@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 # noise_tone_correction.py
 #
 # Created:  Jul 2015, C. Ilario
@@ -14,7 +14,7 @@ import numpy as np
 #  Noise Tone Correction
 # ----------------------------------------------------------------------
 
-## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
 def noise_tone_correction(SPL):
     """This method calculates de correction for spectral irregularities by means of
         a correction tone factor

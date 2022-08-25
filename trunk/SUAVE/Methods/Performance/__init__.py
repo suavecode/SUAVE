@@ -4,6 +4,7 @@
 # @ingroup Methods
 
 from .estimate_take_off_field_length    import estimate_take_off_field_length
+from .estimate_stall_speed              import estimate_stall_speed
 from .payload_range                     import payload_range
 from .estimate_landing_field_length     import estimate_landing_field_length
 from .find_take_off_weight_given_tofl   import find_take_off_weight_given_tofl

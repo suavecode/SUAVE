@@ -5,6 +5,7 @@
 #           Apr 2020, M. Clarke
 #           Sep 2020, M. Clarke 
 #           Apr 2021, M. Clarke
+#           Dec 2021, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -181,8 +182,94 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
         plt.savefig(save_filename + file_type)          
         
     return
+    
+# ------------------------------------------------------------------
+#   Plot Fuel Use
+# ------------------------------------------------------------------
+
+def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Fuel_Burnt", file_type = ".png"):
+    """This plots aircraft fuel usage
+    Assumptions:
+    None
+    Source:
+    None
+    Inputs:
+    results.segments.condtions.
+        frames.inertial.time
+        weights.fuel_mass
+        weights.additional_fuel_mass
+        weights.total_mass
+    Outputs: 
+    Plots
+    Properties Used:
+    N/A	"""
+
+    axis_font = {'size':'14'}  
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8) 
+
+    prev_seg_fuel       = 0
+    prev_seg_extra_fuel = 0
+    total_fuel          = 0
+
+    axes = plt.subplot(1,1,1)
+            
+    for i in range(len(results.segments)):
+
+        segment  = results.segments[i]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+
+        if "has_additional_fuel" in segment.conditions.weights and segment.conditions.weights.has_additional_fuel == True:
 
 
+            fuel     = segment.conditions.weights.fuel_mass[:,0]
+            alt_fuel = segment.conditions.weights.additional_fuel_mass[:,0]
+
+            if i == 0:
+
+                plot_fuel     = np.negative(fuel)
+                plot_alt_fuel = np.negative(alt_fuel)
+
+                axes.plot( time , plot_fuel , 'ro-' , label = 'fuel')
+                axes.plot( time , plot_alt_fuel , 'bo-', label = 'additional fuel' )
+                axes.plot( time , np.add(plot_fuel, plot_alt_fuel), 'go-', label = 'total fuel' )
+
+                axes.legend(loc='center right')   
+
+            else:
+                prev_seg_fuel       += results.segments[i-1].conditions.weights.fuel_mass[-1]
+                prev_seg_extra_fuel += results.segments[i-1].conditions.weights.additional_fuel_mass[-1]
+
+                current_fuel         = np.add(fuel, prev_seg_fuel)
+                current_alt_fuel     = np.add(alt_fuel, prev_seg_extra_fuel)
+
+                axes.plot( time , np.negative(current_fuel)  , 'ro-' )
+                axes.plot( time , np.negative(current_alt_fuel ), 'bo-')
+                axes.plot( time , np.negative(current_fuel + current_alt_fuel), 'go-')
+
+        else:
+            
+            initial_weight  = results.segments[0].conditions.weights.total_mass[:,0][0]
+            
+            for i in range(len(results.segments) ) :
+                segment     = results.segments[i]
+                fuel        = segment.conditions.weights.total_mass[:,0]
+                time        = segment.conditions.frames.inertial.time[:,0] / Units.min 
+                total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight )
+                axes.plot( time, total_fuel, 'mo-')
+
+    axes.set_ylabel('Fuel (kg)',axis_font)
+    axes.set_xlabel('Time (min)',axis_font)
+
+    set_axes(axes)
+
+
+    plt.tight_layout()  
+
+    if save_figure:
+        plt.savefig(save_filename + file_type)  
+        
+    return
 # ------------------------------------------------------------------
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
@@ -1740,7 +1827,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     Span           = np.zeros((dim_mat,dim_gm)) 
     SPL_contour_bm = np.zeros((dim_mat,dim_bm))  
     Aircraft_pos   = np.zeros((dim_mat,3)) 
-    plot_data       = []
+    plot_data      = []
      
     for i in range(dim_segs):  
         if  results.segments[i].battery_discharge == False:
@@ -1766,10 +1853,12 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     # ---------------------------------------------------------------------------
     # Level ground contour 
     # ---------------------------------------------------------------------------
-    filename_1         = 'Level_Ground_' + save_filename
+    filename_1          = 'Level_Ground_' + save_filename
     fig                 = plt.figure(filename_1) 
-    fig.set_size_inches(10 ,10)    
-    levs                = np.linspace(40,120,25)   
+    fig.set_size_inches(10 ,10)     
+    min_SPL             = 30
+    max_SPL             = 100
+    levs                = np.linspace(min_SPL,max_SPL,25)   
     axes                = fig.add_subplot(1,1,1)   
     Range               = Range/Units.nmi
     Span                = Span/Units.nmi
@@ -1792,11 +1881,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
                                 line=dict(color='black',width=2))    
     plot_data.append(aircraft_trajectory)
      
-    # Define Colorbar Bounds 
-    min_gm_SPL  = np.min(SPL_contour_gm) 
-    max_gm_SPL  = np.max(SPL_contour_gm)
-    min_SPL     = min_gm_SPL 
-    max_SPL     = max_gm_SPL
+    # Define Colorbar Bounds  
     min_alt     = 0
     max_alt     = np.max(Aircraft_pos[:,2])
     
@@ -1805,14 +1890,14 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     building_loc  = results.segments[0].analyses.noise.settings.urban_canyon_building_locations
     num_buildings = len( building_loc)
     
-    if num_buildings >0:   
+    if num_buildings > 0:   
         max_alt     = np.maximum(max_alt, max((np.array(building_loc))[:,2]))
         min_bm_SPL  = np.min(SPL_contour_bm) 
         max_bm_SPL  = np.max(SPL_contour_bm)   
         min_SPL     = np.minimum(min_bm_SPL,min_SPL)
         max_SPL     = np.maximum(max_bm_SPL,max_SPL)
         
-        # Get SPL aon Building Surfaces
+        # Get SPL on Building Surfaces
         max_SPL_contour_bm       = np.max(SPL_contour_bm,axis=0)
         building_dimensions      = results.segments[0].analyses.noise.settings.urban_canyon_building_dimensions
         N_x                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_x_resolution 

@@ -1,4 +1,4 @@
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 # mixed_noise_component.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -14,7 +14,7 @@ import numpy as np
 #   Mixed Noise Component
 # ---------------------------------------------------------------------- 
 
-## @ingroupMethods-Noise-Fidelity_One-Engine
+## @ingroup Methods-Noise-Fidelity_One-Engine
 def mixed_noise_component(SPL_m,Velocity_primary,theta_m,sound_ambient,Velocity_secondary,
                           Velocity_aircraft,Area_primary,Area_secondary,DSPL_m,EX_m,Str_m,Velocity_mixed,XBPR):
     """This function calculates the noise contribution of the mixed jet component
