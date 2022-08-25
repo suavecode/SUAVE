@@ -27,4 +27,4 @@ from .Lift_Rotor                 import Lift_Rotor
 from .Propeller                  import Propeller
 from .Motor_HTS_Rotor            import Motor_HTS_Rotor
 from .Turboelectric              import Turboelectric
-from .Turboprop                  import Turboprop
+from .Simple_turbomachine        import Simple_turbomachine

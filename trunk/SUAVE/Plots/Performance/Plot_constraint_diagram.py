@@ -56,8 +56,8 @@ def plot_constraint_diagram(constraints, vehicle, plot_tag,filename='constraint_
 
     # Convert the input into commmon units
     for prop in vehicle.networks: 
-        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
-           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Combustion_Propeller) or \
+           isinstance(prop, Nets.Combustion_Propeller_Constant_Speed):
 
             ax.set_ylabel('P/W, kW/kg')
             plt.ylim(0, 0.3)
@@ -95,8 +95,8 @@ def plot_constraint_diagram(constraints, vehicle, plot_tag,filename='constraint_
     f.write("Design point :\n")
     f.write('     Wing loading = ' + str(design_wing_loading) + ' kg/sq m\n') 
     for prop in vehicle.networks: 
-        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
-           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Combustion_Propeller) or \
+           isinstance(prop, Nets.Combustion_Propeller_Constant_Speed):
 
             f.write('     Power-to-weight ratio = ' + str(design_thrust_to_weight) + ' kW/kg\n')    
         else:

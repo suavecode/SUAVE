@@ -1,11 +1,12 @@
 ## @ingroup Components-Energy-Networks
-# Internal_Combustion_Propeller.py
+# Combustion_Propeller.py
 # 
 # Created:  Sep 2016, E. Botero
 # Modified: Apr 2018, M. Clarke 
 #           Mar 2020, M. Clarke 
 #           Apr 2021, M. Clarke
 #           Jul 2021, E. Botero
+#           Jan 2022, S. Karpuk
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -21,7 +22,7 @@ from SUAVE.Core import Data, Units
 #  Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Internal_Combustion_Propeller(Network):
+class Combustion_Propeller(Network):
     """ A simple mock up of an internal combustion propeller engine. Tis network adds an extra
         unknowns to the mission, the torque matching between motor and propeller.
     
@@ -54,6 +55,7 @@ class Internal_Combustion_Propeller(Network):
         self.engine_length        = None
         self.number_of_engines    = None
         self.identical_propellers = True
+        self.tag                  = 'Combustion_Propeller'
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

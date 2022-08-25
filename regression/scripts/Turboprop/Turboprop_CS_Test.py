@@ -80,7 +80,7 @@ def Turboprop_CS(vehicle):
     net.rated_power                             = 180.  * Units.hp
     
     # Component 1 the engine                    
-    engine                                  = SUAVE.Components.Energy.Converters.Turboprop()
+    engine                                  = SUAVE.Components.Energy.Converters.Simple_turbomachine()
     engine.sea_level_power                  = 180. * Units.horsepower
     engine.flat_rate_altitude               = 0.0
     engine.rated_speed                      = 2700. * Units.rpm

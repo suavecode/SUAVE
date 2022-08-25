@@ -23,7 +23,7 @@ sys.path.append('../Vehicles')
 def main():
 
     # Sample jet airplane
-    # ------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
 
     # Define the vehicle and required constraint analysis parameters
     ca = Constraint_Analysis.Constraint_Analysis()
@@ -114,7 +114,7 @@ def main():
     ca.aerodynamics.cl_max_landing = 2.4
 
     ca.design_point_type = 'maximum wing loading'
-    # ---------------------------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
 
     # run the constraint diagrams for various engine models
 
@@ -145,8 +145,9 @@ def main():
  
 
     # Sample propeller airplanes
-    # ------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     # Define the vehicle and required constrain analysis parameters
+    # Assumes a rectangular wing similar to Cessna 172 and applies differnt flap and engine types
 
     ca = Constraint_Analysis.Constraint_Analysis()
 
@@ -266,21 +267,21 @@ def main():
     jet_TW_Bartel_true      = 0.277663710
 
 
-    err_turboprop_WS        = (turboprop_WS - turboprop_WS_true)/turboprop_WS_true
-    err_turboprop_TW        = (turboprop_TW - turboprop_TW_true)/turboprop_TW_true
+    err_turboprop_WS        = (turboprop_WS  - turboprop_WS_true)/turboprop_WS_true
+    err_turboprop_TW        = (turboprop_TW  - turboprop_TW_true)/turboprop_TW_true
     err_turboprop1_WS       = (turboprop1_WS - turboprop1_WS_true)/turboprop1_WS_true
     err_turboprop1_TW       = (turboprop1_TW - turboprop1_TW_true)/turboprop1_TW_true
-    err_piston_WS           = (piston_WS - piston_WS_true)/piston_WS_true
-    err_piston_TW           = (piston_TW - piston_TW_true)/piston_TW_true
-    err_electric_WS         = (electric_WS - electric_WS_true)/electric_WS_true
-    err_electric_TW         = (electric_TW - electric_TW_true)/electric_TW_true
-    err_jet_WS_Matt         = (jet_WS_Matt  - jet_WS_Matt_true)/jet_WS_Matt_true
-    err_jet_TW_Matt         = (jet_TW_Matt  - jet_TW_Matt_true)/jet_TW_Matt_true
-    err_jet_WS_Scholz       = (jet_WS_Scholz  - jet_WS_Scholz_true)/jet_WS_Scholz_true
-    err_jet_TW_Scholz       = (jet_TW_Scholz  - jet_TW_Scholz_true)/jet_TW_Scholz_true
-    err_jet_WS_Howe         = (jet_WS_Howe  - jet_WS_Howe_true)/jet_WS_Howe_true
-    err_jet_TW_Howe         = (jet_TW_Howe - jet_TW_Howe_true)/jet_TW_Howe_true
-    err_jet_WS_Bartel       = (jet_WS_Bartel  - jet_WS_Bartel_true)/jet_WS_Bartel_true
+    err_piston_WS           = (piston_WS     - piston_WS_true)/piston_WS_true
+    err_piston_TW           = (piston_TW     - piston_TW_true)/piston_TW_true
+    err_electric_WS         = (electric_WS   - electric_WS_true)/electric_WS_true
+    err_electric_TW         = (electric_TW   - electric_TW_true)/electric_TW_true
+    err_jet_WS_Matt         = (jet_WS_Matt   - jet_WS_Matt_true)/jet_WS_Matt_true
+    err_jet_TW_Matt         = (jet_TW_Matt   - jet_TW_Matt_true)/jet_TW_Matt_true
+    err_jet_WS_Scholz       = (jet_WS_Scholz - jet_WS_Scholz_true)/jet_WS_Scholz_true
+    err_jet_TW_Scholz       = (jet_TW_Scholz - jet_TW_Scholz_true)/jet_TW_Scholz_true
+    err_jet_WS_Howe         = (jet_WS_Howe   - jet_WS_Howe_true)/jet_WS_Howe_true
+    err_jet_TW_Howe         = (jet_TW_Howe   - jet_TW_Howe_true)/jet_TW_Howe_true
+    err_jet_WS_Bartel       = (jet_WS_Bartel - jet_WS_Bartel_true)/jet_WS_Bartel_true
     err_jet_TW_Bartel       = (jet_TW_Bartel - jet_TW_Bartel_true)/jet_TW_Bartel_true
  
 
@@ -326,14 +327,14 @@ def main():
 
     
     print('Errors:')
-    print('Turboprop           : W/S = ' + str(err_turboprop_WS) + ', P/W = ' + str(err_turboprop_TW))
-    print('Turboprop1          : W/S = ' + str(err_turboprop1_WS) + ', P/W = ' + str(err_turboprop1_TW))
-    print('Piston              : W/S = ' + str(err_piston_WS) + ', P/W = ' + str(err_piston_TW))
-    print('Electric            : W/S = ' + str(err_electric_WS) + ', P/W = ' + str(err_electric_TW))
-    print('Turbofan, Mattingly : W/S = ' + str(err_jet_WS_Matt) + ', T/W = ' + str(err_jet_TW_Matt))    
-    print('Turbofan, Scholz    : W/S = ' + str(err_jet_WS_Scholz) + ', T/W = ' + str(err_jet_TW_Scholz))   
-    print('Turbofan, Howe      : W/S = ' + str(err_jet_WS_Howe) + ', T/W = ' + str(err_jet_TW_Howe))  
-    print('Turbofan, Bartel    : W/S = ' + str(err_jet_WS_Bartel) + ', T/W = ' + str(err_jet_TW_Bartel)) 
+    print('Turboprop           : W/S = ' + str(err_turboprop_WS)    + ', P/W = ' + str(err_turboprop_TW))
+    print('Turboprop1          : W/S = ' + str(err_turboprop1_WS)   + ', P/W = ' + str(err_turboprop1_TW))
+    print('Piston              : W/S = ' + str(err_piston_WS)       + ', P/W = ' + str(err_piston_TW))
+    print('Electric            : W/S = ' + str(err_electric_WS)     + ', P/W = ' + str(err_electric_TW))
+    print('Turbofan, Mattingly : W/S = ' + str(err_jet_WS_Matt)     + ', T/W = ' + str(err_jet_TW_Matt))    
+    print('Turbofan, Scholz    : W/S = ' + str(err_jet_WS_Scholz)   + ', T/W = ' + str(err_jet_TW_Scholz))   
+    print('Turbofan, Howe      : W/S = ' + str(err_jet_WS_Howe)     + ', T/W = ' + str(err_jet_TW_Howe))  
+    print('Turbofan, Bartel    : W/S = ' + str(err_jet_WS_Bartel)   + ', T/W = ' + str(err_jet_TW_Bartel)) 
 
 
 
@@ -348,15 +349,15 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     configs = SUAVE.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config     = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
 
     # ------------------------------------------------------------------
     #   ICE with Single-slotted flaps 
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'ICE_single_slotted' 
+    config      = SUAVE.Components.Configs.Config(base_config)
+    config.tag  = 'ICE_single_slotted' 
 
     flap                          = SUAVE.Components.Wings.Control_Surfaces.Flap()
     flap.tag                      = 'flap'
@@ -365,8 +366,11 @@ def configs_setup(vehicle):
     config.wings['main_wing'].append_control_surface(flap)
 
     # engine
-    internal_comb_eng = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
+    internal_comb_eng = SUAVE.Components.Energy.Networks.Combustion_Propeller()
     internal_comb_eng.number_of_engines = 2.0
+
+    engine = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()               # Defines the combustion engine type
+    internal_comb_eng.engines.append(engine)
     config.networks.append(internal_comb_eng)
 
     configs.append(config)
@@ -374,8 +378,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Battery propeller with Single-slotted Fowler flaps
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'Battery_prop_single_slotted_Fowler' 
+    config      = SUAVE.Components.Configs.Config(base_config)
+    config.tag  = 'Battery_prop_single_slotted_Fowler' 
 
     flap                          = SUAVE.Components.Wings.Control_Surfaces.Flap()
     flap.tag                      = 'flap'
@@ -393,8 +397,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Turboprop with Double-slotted flaps
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'Turboprop_double_slotted' 
+    config      = SUAVE.Components.Configs.Config(base_config)
+    config.tag  = 'Turboprop_double_slotted' 
 
     flap                          = SUAVE.Components.Wings.Control_Surfaces.Flap()
     flap.tag                      = 'flap'
@@ -403,8 +407,12 @@ def configs_setup(vehicle):
     config.wings['main_wing'].append_control_surface(flap)
 
     # engine
-    turboprop = SUAVE.Components.Energy.Networks.Turboprop()
+    turboprop = SUAVE.Components.Energy.Networks.Combustion_Propeller()
     turboprop.number_of_engines = 2.0
+                  
+    engine = SUAVE.Components.Energy.Converters.Simple_turbomachine()               # Defines the combustion engine type
+    turboprop.engines.append(engine)
+
     config.networks.append(turboprop)
     
     configs.append(config)
@@ -412,8 +420,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Tirboprop with Double-slotted Fowler
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'Turboprop_double_slotted_Fowler' 
+    config      = SUAVE.Components.Configs.Config(base_config)
+    config.tag  = 'Turboprop_double_slotted_Fowler' 
 
     flap                          = SUAVE.Components.Wings.Control_Surfaces.Flap()
     flap.tag                      = 'flap'
@@ -422,8 +430,11 @@ def configs_setup(vehicle):
     config.wings['main_wing'].append_control_surface(flap)
 
     # engine
-    turboprop = SUAVE.Components.Energy.Networks.Turboprop()
+    turboprop = SUAVE.Components.Energy.Networks.Combustion_Propeller()
     turboprop.number_of_engines = 2.0
+
+    engine = SUAVE.Components.Energy.Converters.Simple_turbomachine()               # Defines the combustion engine type
+    turboprop.engines.append(engine)
     config.networks.append(turboprop)
     
     configs.append(config)

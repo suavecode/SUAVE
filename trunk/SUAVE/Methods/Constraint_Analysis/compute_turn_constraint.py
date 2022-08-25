@@ -78,8 +78,8 @@ def compute_turn_constraint(ca,vehicle):
 
     T_W = np.zeros(len(W_S))
     for prop in vehicle.networks: 
-        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
-           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Combustion_Propeller) or \
+           isinstance(prop, Nets.Combustion_Propeller_Constant_Speed):
         
             P_W  = np.zeros(len(W_S))
             etap = ca.propeller.turn_efficiency
@@ -90,17 +90,23 @@ def compute_turn_constraint(ca,vehicle):
         T_W   = q * (cd0/W_S + k/(q*np.cos(phi))**2*W_S) + Ps/Vturn
 
         # Convert thrust to power (for propeller-driven engines) and normalize the results wrt the Sea-level
-        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
-           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Combustion_Propeller) or \
+           isinstance(prop, Nets.Combustion_Propeller_Constant_Speed):
 
             P_W = T_W*Vturn/etap
 
-            if isinstance(prop, Nets.Turboprop):
-                P_W = P_W / normalize_turboprop_thrust(atmo_values) 
-            elif isinstance(prop, Nets.Internal_Combustion_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed):
-                P_W = P_W / normalize_power_piston(rho)
+            if isinstance(prop, Nets.Combustion_Propeller) or isinstance(prop, Nets.Combustion_Propeller_Constant_Speed):
+                if hasattr(prop.engines, "simple_turbomachine") is True:
+                    P_W = P_W / normalize_turboprop_thrust(atmo_values) 
+                elif hasattr(prop.engines, "internal_combustion_engine") is True:
+                    P_W = P_W / normalize_power_piston(rho)
+                else:
+                    raise ValueError('Warning: Specify an existing engine type') 
             elif isinstance(prop, Nets.Battery_Propeller):
                 pass 
+            else:
+                raise ValueError('Warning: Specify an existing engine type') 
+
 
         elif isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super):
             T_W = T_W / normalize_gasturbine_thrust(ca,vehicle,atmo_values,M*np.ones(1),'turn') 

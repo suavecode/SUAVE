@@ -36,6 +36,7 @@ class Internal_Combustion_Engine(Energy_Component):
         self.rated_speed                     = 0.0
         self.inputs.speed                    = 0.0
         self.power_specific_fuel_consumption = 0.36 # lb/hr/hp :: Ref: Table 5.1, Modern diesel engines, Saeed Farokhi, Aircraft Propulsion (2014)
+        self.tag                             = 'Internal_Combustion_Engine'
 
     def power(self,conditions):
         """ The internal combustion engine output power and specific power consumption

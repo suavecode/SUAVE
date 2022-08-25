@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Converters
-# Turboprop.py
+# Simple_turbomachine.py
 #
 # Created:  Aug, 2022: S. Karpuk
 # Modified 
@@ -10,7 +10,7 @@
 
 # suave imports
 import SUAVE
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Units
 
 # package imports
 import numpy as np
@@ -20,7 +20,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 #  Turboprop Engine Class
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Converters
-class Turboprop(Energy_Component):
+class Simple_turbomachine(Energy_Component):
     """This is a turboprop engine component.
     
     Assumptions:
@@ -36,6 +36,7 @@ class Turboprop(Energy_Component):
         self.rated_speed                     = 0.0
         self.inputs.speed                    = 0.0
         self.power_specific_fuel_consumption = 0.5 # lb/hr/hp :: D. Raymer, Aircraft Design. Conceptual approach
+        self.tag                             = 'Simple_turbomachine'
 
     def power(self,conditions):
         """ The turboprop output power and specific power consumption

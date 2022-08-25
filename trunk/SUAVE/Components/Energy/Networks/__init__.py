@@ -12,7 +12,7 @@ from .Turbofan                                     import Turbofan
 from .Turbojet_Super                               import Turbojet_Super
 from .Solar_Low_Fidelity                           import Solar_Low_Fidelity
 from .Battery_Ducted_Fan                           import Battery_Ducted_Fan
-from .Internal_Combustion_Propeller                import Internal_Combustion_Propeller
+from .Combustion_Propeller                         import Combustion_Propeller
 from .Lift_Cruise                                  import Lift_Cruise
 from .Serial_Hybrid_Ducted_Fan                     import Serial_Hybrid_Ducted_Fan
 from .Propulsor_Surrogate                          import Propulsor_Surrogate
@@ -20,9 +20,8 @@ from .Battery_Propeller                            import Battery_Propeller
 from .Ramjet                                       import Ramjet
 from .Scramjet                                     import Scramjet
 from .Liquid_Rocket                                import Liquid_Rocket
-from .Internal_Combustion_Propeller_Constant_Speed import Internal_Combustion_Propeller_Constant_Speed
+from .Combustion_Propeller_Constant_Speed          import Combustion_Propeller_Constant_Speed
 from .PyCycle                                      import PyCycle
 from .Network                                      import Network
 from .Turboelectric_HTS_Ducted_Fan                 import Turboelectric_HTS_Ducted_Fan
-from .Turboprop                                    import Turboprop
-from .Turboprop_Constant_Speed                     import Turboprop_Constant_Speed
+

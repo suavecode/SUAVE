@@ -1,11 +1,12 @@
 ## @ingroup Components-Energy-Networks
-# Internal_Combustion_Propeller_Constant_Speed.py
+# Combustion_Propeller_Constant_Speed.py
 # 
 # Created:  Sep 2016, E. Botero
 # Modified: Apr 2018, M. Clarke 
 #           Mar 2020, M. Clarke 
 #           Apr 2021, M. Clarke
 #           Jul 2021, E. Botero
+#           Jan 2022, S. Karpuk
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -21,7 +22,7 @@ from SUAVE.Core import Data, Units
 #  Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Internal_Combustion_Propeller_Constant_Speed(Network):
+class Combustion_Propeller_Constant_Speed(Network):
     """ An internal combustion engine with a constant speed propeller.
     
         Assumptions:
@@ -54,6 +55,7 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
         self.number_of_engines    = None
         self.rated_speed          = 0.0
         self.identical_propellers = True
+        self.tag                  = 'Combustion_Propeller_Constant_Speed'
         
     
     # manage process with a driver function

@@ -72,8 +72,8 @@ def compute_climb_constraint(ca,vehicle):
 
 
     for prop in vehicle.networks: 
-        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
-           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Combustion_Propeller) or \
+           isinstance(prop, Nets.Combustion_Propeller_Constant_Speed):
         
             T_W        = np.zeros(len(W_S))
             P_W        = np.zeros(len(W_S))
@@ -100,12 +100,17 @@ def compute_climb_constraint(ca,vehicle):
                 P_W[i] = T_W[i]*Vx/etap
 
 
-                if isinstance(prop, Nets.Turboprop):
-                    P_W[i] = P_W[i] / normalize_turboprop_thrust(atmo_values) 
-                elif isinstance(prop, Nets.Internal_Combustion_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed):
-                    P_W[i] = P_W[i] / normalize_power_piston(rho)
+                if isinstance(prop, Nets.Combustion_Propeller) or isinstance(prop, Nets.Combustion_Propeller_Constant_Speed):
+                    if hasattr(prop.engines, "simple_turbomachine") is True:
+                        P_W[i] = P_W[i] / normalize_turboprop_thrust(atmo_values) 
+                    elif hasattr(prop.engines, "internal_combustion_engine") is True:
+                        P_W[i] = P_W[i] / normalize_power_piston(rho)
+                    else:
+                        raise ValueError('Warning: Specify an existing engine type')
                 elif isinstance(prop, Nets.Battery_Propeller):
                     pass 
+                else:
+                    raise ValueError('Warning: Specify an existing engine type') 
 
         elif isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super):
             M  = Vx/a * np.ones(1)                          

@@ -221,7 +221,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     # build network
-    net                                         = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
+    net                                         = SUAVE.Components.Energy.Networks.Combustion_Propeller()
     net.tag                                     = 'internal_combustion'
     net.number_of_engines                       = 1.
     net.identical_propellers                    = True

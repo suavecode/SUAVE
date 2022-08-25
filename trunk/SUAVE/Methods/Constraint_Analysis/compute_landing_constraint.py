@@ -62,8 +62,8 @@ def compute_landing_constraint(ca,vehicle):
 
     # Estimate the approach speed
     for prop in vehicle.networks: 
-        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Internal_Combustion_Propeller) or \
-           isinstance(prop, Nets.Internal_Combustion_Propeller_Constant_Speed) or isinstance(prop, Nets.Turboprop):
+        if isinstance(prop, Nets.Battery_Propeller) or isinstance(prop, Nets.Combustion_Propeller) or \
+           isinstance(prop, Nets.Combustion_Propeller_Constant_Speed):
             kappa = 0.7
             Vapp  = np.sqrt(3.8217*Sg/kappa+49.488)
 

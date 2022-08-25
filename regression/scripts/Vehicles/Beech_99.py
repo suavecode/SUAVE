@@ -19,6 +19,7 @@ from SUAVE.Core import (
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
+from SUAVE.Methods.Propulsion import propeller_design
 
 def vehicle_setup():
     vehicle = SUAVE.Vehicle()
@@ -107,6 +108,53 @@ def vehicle_setup():
     fuel.origin                               = wing.origin
     fuel.mass_properties.center_of_gravity    = wing.mass_properties.center_of_gravity
     fuel.mass_properties.mass                 = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+
+    # ------------------------------------------------------------------
+    #   Piston Propeller Network
+    # ------------------------------------------------------------------    
+    
+    # build network
+    net                                         = SUAVE.Components.Energy.Networks.Combustion_Propeller()
+    net.tag                                     = 'turboprop'
+    net.number_of_engines                       = 2.
+    net.identical_propellers                    = True
+                                                
+    # the engine                    
+    engine                                  = SUAVE.Components.Energy.Converters.Simple_turbomachine()
+    engine.sea_level_power                  = 550. * Units.horsepower
+    engine.rated_speed                      = 2700. * Units.rpm
+    engine.power_specific_fuel_consumption  = 0.52 
+    net.engines.append(engine)
+    
+    # the prop
+    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_of_blades        = 4.0
+    prop.freestream_velocity     = 200.   * Units.knots
+    prop.angular_velocity        = 2000.  * Units.rpm
+    prop.tip_radius              = 100./2. * Units.inches
+    prop.hub_radius              = 8.     * Units.inches
+    prop.design_Cl               = 0.8
+    prop.design_altitude         = 0. * Units.feet
+    prop.design_power            = 2*550. * Units.horsepower
+    prop.variable_pitch          = True
+
+    prop.airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    prop.airfoil_polars          = [['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+
+    prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
+    prop                         = propeller_design(prop)   
+    
+    net.propellers.append(prop)
+     
+    
+    # add the network to the vehicle
+    vehicle.append_component(net) 
+
+
     
     #find zero_fuel_center_of_gravity
     cg                     = vehicle.mass_properties.center_of_gravity
