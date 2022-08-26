@@ -45,11 +45,27 @@ def deflect_control_surfaces(VD,geometry,settings):
     N/A
     """     
     
-    # Loop over the wings
+    ## Loop over the wings
+    #for wing in VD.VLM_wings:
+        #CS_cond    = issubclass(wing.wing_type, All_Moving_Surface) or wing.is_a_control_surface
+        #if not hasattr(wing,'deflection'): # Note, these should just be coded in
+            #wing.deflection      = 0.
+            #wing.deflection_last = 0.
+            #wing.is_slat         = False
+            #wing.sign_duplicate  = False
+            #wing.hinge_fraction  = 0.
+            #wing.hinge_vector    = np.array([0.,0.,0.])
+            #wing.use_constant_hinge_fraction = True
+        #VD, wing_out = cond(CS_cond,true_fun,false_fun,[VD,wing])
+        #wing.update(wing_out,hard=True)  
+    
     for wing in VD.VLM_wings:
-        CS_cond    = issubclass(wing.wing_type, All_Moving_Surface) or wing.is_a_control_surface
-        VD, wing_out = cond(CS_cond,true_fun,false_fun,[VD,wing])
-        wing.update(wing_out,hard=True)  
+        wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)        
+        if wing.is_a_control_surface or wing_is_all_moving:
+            # Deflect the control surface
+            VD, wing_out = deflect_control_surface(VD, wing)
+            wing.update(wing_out,hard=True)
+    
         
     VD = postprocess_VD(VD, settings)
     
@@ -69,7 +85,6 @@ def false_fun(inputs):
 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-@jit
 def deflect_control_surface(VD,wing):
     """ 
     Deflects the panels of a vortex distribution that correspond to the given VLM_wing. 
@@ -160,6 +175,7 @@ def deflect_control_surface(VD,wing):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+@jit
 def deflect_control_surface_strip(idx_y, VALS):
     """ Rotates existing points in the VD with respect to current values of a delta deflection
 

@@ -8,7 +8,7 @@
 # Imports
 #------------------------------------------------------------------------------
 
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Data
 
 import numpy as np
 import matplotlib.pyplot as plt

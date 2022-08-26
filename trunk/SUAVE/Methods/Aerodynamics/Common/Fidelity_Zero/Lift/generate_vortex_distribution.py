@@ -289,13 +289,17 @@ def generate_vortex_distribution(geometry,settings):
 
     # ---------------------------------------------------------------------------------------
     # STEP 10: Deflect Control Surfaces
-    # ---------------------------------------------------------------------------------------      
+    # ---------------------------------------------------------------------------------------   
+    import jax
+    #jax.profiler.start_trace("/Users/emiliobotero/Research/profile/",create_perfetto_link=True)
     for wing in VD.VLM_wings:
         wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)        
         if wing.is_a_control_surface or wing_is_all_moving:
             # Deflect the control surface
             VD, wing_out = deflect_control_surface(VD, wing)
             wing.update(wing_out,hard=True)
+            
+    #jax.profiler.stop_trace()
             
     # ---------------------------------------------------------------------------------------
     # STEP 11: Postprocess VD information

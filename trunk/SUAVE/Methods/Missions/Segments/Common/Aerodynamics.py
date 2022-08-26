@@ -11,6 +11,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+from SUAVE.Core import to_numpy
 
 # ----------------------------------------------------------------------
 #  Update Altitude
@@ -186,7 +187,7 @@ def update_aerodynamics(segment):
     CLmax              = aerodynamics_model.settings.maximum_lift_coefficient
     
     # call aerodynamics model
-    results = aerodynamics_model( segment.state )    
+    results = to_numpy(aerodynamics_model( segment.state ))
     
     # unpack results
     CL = results.lift.total
