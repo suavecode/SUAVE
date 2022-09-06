@@ -13,7 +13,6 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.fidelity_one_wake_convergence import fidelity_one_wake_convergence
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.update_wake_position import update_wake_position
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
@@ -62,8 +61,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.tag                        = 'rotor_wake'
         self.wake_method                = 'Fidelity_One'
         self.vortex_distribution        = Data()
-        self.wake_method_fidelity       = 0
-        self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
+        self.wake_method_fidelity       = 1
+        self.semi_prescribed_converge   = True      # flag for convergence on semi-prescribed wake shape
         self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
         self.vtk_save_loc               = None       # location to save vtk outputs of wake
         
@@ -73,9 +72,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
         
         # wake convergence criteria
-        self.maximum_convergence_iteration            = 10
-        self.axial_velocity_convergence_tolerance     = 1e-2
-        self.relaxation                               = False
+        self.maximum_convergence_iteration            = 20
+        self.axial_velocity_convergence_tolerance     = 1e-3
         
         # flags for slipstream interaction
         self.slipstream                 = False
@@ -128,7 +126,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         return
     
-    def evaluate(self,rotor,wake_inputs,conditions):
+    def evaluate(self,rotor,wake_inputs,conditions,VD=None):
         """
         Wake evaluation is performed using a semi-prescribed vortex wake (PVW) method for Fidelity One.
         
@@ -167,57 +165,6 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
             
         return va, vt
     
-    def evolve_wake_vortex_distribution(self,rotor,conditions,VD=None):
-        """
-        Time-evolves the wake under its own wake distribution (self.vortex_distribution) and any external
-        vortex distribution (VD).
-        
-        """
-        diff = 10
-        tol = 1e-3
-        iteration = 0
-        max_iter = 10 # number of iterations of wake convergence
-        
-        while diff >= tol and iteration <= max_iter:
-
-            # ---- DEBUG -----------------------------------------------------------------------
-            # ----------------------------------------------------------------------------------
-            # save vortex vtk for this iteration
-            #save_single_prop_vehicle_vtk(rotor, iteration=iteration, save_loc="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/")   
-            # ----------------------------------------------------------------------------------
-            # ----------------------------------------------------------------------------------        
-            
-            prior_VD = copy.deepcopy(self.vortex_distribution)
-            
-            # Update the position of each vortex filament due to component interactions
-            self, rotor, interpolatedBoxData = update_wake_position(self,rotor,conditions,VD)
-            
-            # Compute residual between wake shapes
-            keys = ['XA1', 'XA2', 'YA1', 'YA2', 'ZA1', 'ZA2', 'XB1', 'XB2', 'YB1', 'YB2', 'ZB1', 'ZB2']
-            max_diff = 0.
-            for key in keys:
-                max_diff =  max(max_diff, np.max(abs(prior_VD.reshaped_wake[key] - self.vortex_distribution.reshaped_wake[key])))
-
-    
-            # ---- DEBUG -----------------------------------------------------------------------
-            # ----------------------------------------------------------------------------------
-            # save the contour box velocity field for new wake
-            #stateData = Data()
-            #stateData.vFreestream = conditions.freestream.velocity
-            #stateData.alphaDeg = rotor.orientation_euler_angles[1] / Units.deg
-            #box_contour_field_vtk(interpolatedBoxData, stateData, iteration=iteration, filename="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/ContourBox.vtk")
-            # ----------------------------------------------------------------------------------
-            # ----------------------------------------------------------------------------------   
-            
-            iteration += 1
-            diff = max_diff
-            print("\n\nQUASI FREE VORTEX WAKE, ITERATION "+ str(iteration))
-            print("\nDiff = "+str(diff)+"\n")               
-                       
-            
-        # Update the vortex strengths of each vortex ring accordingly
-        
-        return interpolatedBoxData
     
     def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
         """
