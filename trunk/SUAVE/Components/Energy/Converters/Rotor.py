@@ -89,7 +89,7 @@ class Rotor(Energy_Component):
         self.design_power_coefficient     = 0.01
 
         
-        self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.use_2d_analysis           = True    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream     = False
         self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
         self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
@@ -105,7 +105,7 @@ class Rotor(Energy_Component):
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
         
 
-    def spin(self,conditions):
+    def spin(self,conditions,VD=None):
         """Analyzes a general rotor given geometry and operating conditions.
 
         Assumptions:
@@ -481,9 +481,9 @@ class Rotor(Energy_Component):
         FoM      = thrust*np.sqrt(thrust/(2*rho_0*A))    /power  
 
         # prevent things from breaking
-        Cq[Cq<0]                                               = 0.
-        Ct[Ct<0]                                               = 0.
-        Cp[Cp<0]                                               = 0.
+        #Cq[Cq<0]                                               = 0.
+        #Ct[Ct<0]                                               = 0.
+        #Cp[Cp<0]                                               = 0.
         thrust[conditions.propulsion.throttle[:,0] <=0.0]      = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0
         torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
