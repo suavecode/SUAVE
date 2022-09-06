@@ -31,7 +31,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop ):
         Vt   - tangential velocity, shape (ctrl_pts, Nr, Na); axis 2 in direction of rotation    [m/s]
     """
     
-    VD                       = prop.vortex_distribution
+    VD                       = wake.vortex_distribution
     omega                    = prop.inputs.omega
     init_timestep_offset     = wake.wake_settings.initial_timestep_offset
 
@@ -109,7 +109,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop ):
         Va[:,:,i]  = up
         Vt[:,:,i]  = -rot*(vp*(np.cos(blade_angle)) - wp*(np.sin(blade_angle)) )  # velocity component in direction of rotation     
     
-    prop.vortex_distribution = VD
+    prop.Wake.vortex_distribution = VD
     
 
     return Va, Vt

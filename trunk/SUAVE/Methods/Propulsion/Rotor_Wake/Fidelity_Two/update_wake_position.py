@@ -13,6 +13,7 @@ import numpy as np
 from DCode.Common.generalFunctions import save_single_prop_vehicle_vtk
 from SUAVE.Core import Data
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_interpolated_velocity_field import compute_interpolated_velocity_field
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_exact_velocity_field import compute_exact_velocity_field
 import copy
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
@@ -45,7 +46,11 @@ def update_wake_position(wake, rotor, conditions, VD=None):
     #--------------------------------------------------------------------------------------------  
     # Step 1: Compute interpolated induced velocity field function, Vind = fun((x,y,z))
     #--------------------------------------------------------------------------------------------  
-    fun_V_induced, interpolatedBoxData = compute_interpolated_velocity_field(WD, rotor, conditions, VD)
+    try:
+        fun_V_induced = rotor.Wake.fluid_domain_velocity_field
+        interpolatedBoxData = rotor.Wake.fluid_domain_interpolated_box_data
+    except:
+        fun_V_induced, interpolatedBoxData = compute_interpolated_velocity_field(WD, rotor, conditions, VD)        
     
     #--------------------------------------------------------------------------------------------    
     # Step 2: Compute the position of new trailing edge panel under all velocity influences
@@ -73,6 +78,7 @@ def update_wake_position(wake, rotor, conditions, VD=None):
             xpts_b1 = np.reshape(new_wake.reshaped_wake.XB1[:,:,:,:,nts-1-i:], np.size(new_wake.reshaped_wake.XB1[:,:,:,:,nts-1-i:]))
             ypts_b1 = np.reshape(new_wake.reshaped_wake.YB1[:,:,:,:,nts-1-i:], np.size(new_wake.reshaped_wake.YB1[:,:,:,:,nts-1-i:]))
             zpts_b1 = np.reshape(new_wake.reshaped_wake.ZB1[:,:,:,:,nts-1-i:], np.size(new_wake.reshaped_wake.ZB1[:,:,:,:,nts-1-i:]))
+            
             
             # compute the velocities at all panel nodes
             Va1 = np.reshape( fun_V_induced((xpts_a1, ypts_a1, zpts_a1)), np.append( np.shape(new_wake.reshaped_wake.XA1[:,:,:,:,nts-1-i:]),3) )
@@ -193,38 +199,38 @@ def update_wake_position(wake, rotor, conditions, VD=None):
             
             
     
-    # -------------------------------------------------------------------------------------------
-    # -----DEBUG-----temp store wake to monitor development
-    # -------------------------------------------------------------------------------------------
-    
-    #     # Compress Data into 1D Arrays
-    reshaped_shape = np.shape(new_wake.reshaped_wake.XA1)
-    m  = reshaped_shape[1]
-    B  = reshaped_shape[2]
-    Nr = reshaped_shape[3]
-    mat6_size = (Na,m,nts*B*(Nr)) 
-    
-    new_wake.XA1    =  np.reshape(new_wake.reshaped_wake.XA1,mat6_size)
-    new_wake.YA1    =  np.reshape(new_wake.reshaped_wake.YA1,mat6_size)
-    new_wake.ZA1    =  np.reshape(new_wake.reshaped_wake.ZA1,mat6_size)
-    new_wake.XA2    =  np.reshape(new_wake.reshaped_wake.XA2,mat6_size)
-    new_wake.YA2    =  np.reshape(new_wake.reshaped_wake.YA2,mat6_size)
-    new_wake.ZA2    =  np.reshape(new_wake.reshaped_wake.ZA2,mat6_size)
-    new_wake.XB1    =  np.reshape(new_wake.reshaped_wake.XB1,mat6_size)
-    new_wake.YB1    =  np.reshape(new_wake.reshaped_wake.YB1,mat6_size)
-    new_wake.ZB1    =  np.reshape(new_wake.reshaped_wake.ZB1,mat6_size)
-    new_wake.XB2    =  np.reshape(new_wake.reshaped_wake.XB2,mat6_size)
-    new_wake.YB2    =  np.reshape(new_wake.reshaped_wake.YB2,mat6_size)
-    new_wake.ZB2    =  np.reshape(new_wake.reshaped_wake.ZB2,mat6_size)
-    
-    
-    wakeTemp = copy.deepcopy(wake)
-    for key in ['XA1', 'XA2', 'XB1', 'XB2','YA1', 'YA2', 'YB1', 'YB2','ZA1', 'ZA2', 'ZB1', 'ZB2']:
-        wakeTemp.vortex_distribution.reshaped_wake[key] = new_wake.reshaped_wake[key]
-        wakeTemp.vortex_distribution[key] = new_wake[key]
-    rotor.Wake = wakeTemp
-    wake = wakeTemp
-    #save_single_prop_vehicle_vtk(rotor, iteration=i, save_loc="/Users/rerha/Desktop/test_relaxed_wake/")   
+        # -------------------------------------------------------------------------------------------
+        # -----DEBUG-----temp store wake to monitor development
+        # -------------------------------------------------------------------------------------------
+        
+        #     # Compress Data into 1D Arrays
+        reshaped_shape = np.shape(new_wake.reshaped_wake.XA1)
+        m  = reshaped_shape[1]
+        B  = reshaped_shape[2]
+        Nr = reshaped_shape[3]
+        mat6_size = (Na,m,nts*B*(Nr)) 
+        
+        new_wake.XA1    =  np.reshape(new_wake.reshaped_wake.XA1,mat6_size)
+        new_wake.YA1    =  np.reshape(new_wake.reshaped_wake.YA1,mat6_size)
+        new_wake.ZA1    =  np.reshape(new_wake.reshaped_wake.ZA1,mat6_size)
+        new_wake.XA2    =  np.reshape(new_wake.reshaped_wake.XA2,mat6_size)
+        new_wake.YA2    =  np.reshape(new_wake.reshaped_wake.YA2,mat6_size)
+        new_wake.ZA2    =  np.reshape(new_wake.reshaped_wake.ZA2,mat6_size)
+        new_wake.XB1    =  np.reshape(new_wake.reshaped_wake.XB1,mat6_size)
+        new_wake.YB1    =  np.reshape(new_wake.reshaped_wake.YB1,mat6_size)
+        new_wake.ZB1    =  np.reshape(new_wake.reshaped_wake.ZB1,mat6_size)
+        new_wake.XB2    =  np.reshape(new_wake.reshaped_wake.XB2,mat6_size)
+        new_wake.YB2    =  np.reshape(new_wake.reshaped_wake.YB2,mat6_size)
+        new_wake.ZB2    =  np.reshape(new_wake.reshaped_wake.ZB2,mat6_size)
+        
+        
+        wakeTemp = copy.deepcopy(wake)
+        for key in ['XA1', 'XA2', 'XB1', 'XB2','YA1', 'YA2', 'YB1', 'YB2','ZA1', 'ZA2', 'ZB1', 'ZB2']:
+            wakeTemp.vortex_distribution.reshaped_wake[key] = new_wake.reshaped_wake[key]
+            wakeTemp.vortex_distribution[key] = new_wake[key]
+        rotor.Wake = wakeTemp
+        wake = wakeTemp
+        #save_single_prop_vehicle_vtk(rotor, iteration=i, save_loc="/Users/rerha/Desktop/test_relaxed_wake/")   
 
         # -------------------------------------------------------------------------------------------
         # -------------------------------------------------------------------------------------------
