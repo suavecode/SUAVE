@@ -17,6 +17,8 @@ import numpy as np
 import plotly.graph_objects as go
 import matplotlib.ticker as ticker
 
+from SUAVE.Methods.Geometry.Three_Dimensional \
+     import angles_to_dcms, orientation_product, orientation_transpose
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
@@ -73,7 +75,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -131,7 +133,7 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -182,7 +184,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -271,7 +273,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
     plt.tight_layout()
 
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 # ------------------------------------------------------------------
@@ -335,7 +337,7 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -400,7 +402,7 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -465,7 +467,7 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -576,7 +578,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
 
     plt.tight_layout()
     if save_figure:
-        fig.savefig(save_filename + file_type)
+        fig.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -702,7 +704,7 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
 
     plt.tight_layout()
     if save_figure:
-        fig.savefig(save_filename + file_type)
+        fig.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -777,7 +779,7 @@ def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', s
 
     plt.tight_layout()
     if save_figure:
-        fig.savefig(save_filename + file_type)
+        fig.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -848,7 +850,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -896,7 +898,7 @@ def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', sa
         axes = plt.subplot(2,2,1)
         axes.plot( time , x , line_color )
         axes.plot( time , y , line_color2 )
-        axes.set_xlabel('Distance (m)',axis_font)
+        axes.set_ylabel('Distance (m)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)
 
@@ -921,7 +923,107 @@ def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', sa
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
+
+    return
+# ------------------------------------------------------------------
+#   Propulsion Conditions
+# ------------------------------------------------------------------
+## @ingroup Plots-Performance
+def plot_aircraft_forces(results, line_color = 'bo-', save_figure = False, save_filename = "AircraftForces", file_type = ".png",
+                              width=8, height=5):
+    """This plots the aircraft forces
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.
+        frames.inertial.time
+        propulsion.rpm
+        frames.body.thrust_force_vector
+        propulsion.propeller_motor_torque
+        propulsion.propeller_tip_mach
+
+    Outputs:
+    Plots
+
+    Properties Used:
+    N/A
+    """
+    axis_font = {'size':'14'}
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(width, height)
+
+    for i,segment in enumerate(results.segments.values()):
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+
+        conditions = segment.state.conditions
+    
+        # unpack forces
+        wind_lift_force_vector        = conditions.frames.wind.lift_force_vector
+        wind_drag_force_vector        = conditions.frames.wind.drag_force_vector
+        body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
+        inertial_gravity_force_vector = conditions.frames.inertial.gravity_force_vector
+    
+        # unpack transformation matrices
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        T_wind2inertial = conditions.frames.wind.transform_to_inertial
+    
+        # to inertial frame
+        L = orientation_product(T_wind2inertial,wind_lift_force_vector)
+        D = orientation_product(T_wind2inertial,wind_drag_force_vector)
+        T = orientation_product(T_body2inertial,body_thrust_force_vector)
+        W = inertial_gravity_force_vector        
+    
+        # sum of the forces
+        F = L + D + T + W     
+        thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2))   
+        axes = plt.subplot(1,2,1)
+        if i == 0:
+            # plot with labels
+            axes.plot(time, -T[:,2], 'ko-',label='$T_z$')
+            axes.plot(time, -W[:,2], 'bo-',label='W')
+            axes.plot(time, -L[:,2], 'ro-',label='L')
+            axes.plot(time, -F[:,2], 'mo-',label='Total')
+        else:
+            axes.plot(time, -T[:,2], 'ko-')
+            axes.plot(time, -W[:,2], 'bo-')
+            axes.plot(time, -L[:,2], 'ro-')
+            axes.plot(time, -F[:,2], 'mo-')
+        axes.set_ylabel('$F_z$ (N)',axis_font)
+            
+        set_axes(axes)
+        axes.legend()
+
+        axes = plt.subplot(1,2,2)
+        if i == 0:
+            axes.plot(time, T[:,0], 'ko-',label='$T_x$')
+            axes.plot(time, D[:,0], 'bo-',label='D')
+            axes.plot(time, F[:,0], 'mo-',label='Total')
+        else:            
+            axes.plot(time, T[:,0], 'ko-')
+            axes.plot(time, D[:,0], 'bo-')
+            axes.plot(time, F[:,0], 'mo-')
+
+        axes.set_ylabel('$F_x$ (N)',axis_font)
+        set_axes(axes)
+        axes.legend()        
+
+    # Set limits
+    for i in range(1,2):
+        ax         = plt.subplot(1,2,i)
+        y_lo, y_hi = ax.get_ylim()
+        if y_lo>0: y_lo = 0
+        y_hi       = y_hi*1.1
+        ax.set_ylim(y_lo,y_hi)
+
+    plt.tight_layout()
+    if save_figure:
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 # ------------------------------------------------------------------
@@ -1009,7 +1111,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -1055,21 +1157,22 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
         time       = segment.conditions.frames.inertial.time[:,0] / Units.min
         Vinf       = segment.conditions.freestream.velocity[:,0]
 
-        thrust_vector = segment.conditions.frames.body.thrust_force_vector
-        Tx = thrust_vector[:,0]
-        Tz = thrust_vector[:,2]
-        thrust_angle  = np.arccos(Tx / np.sqrt(Tx**2 + Tz**2))
-        velocity_angle = np.arctan(-Vz / Vx)
 
         n     = segment.conditions.propulsion.propeller_rpm[:,0] / 60
         J     = Vinf/(n*D)
+   
 
-        prop_incidence_angles =  thrust_angle - velocity_angle
+        conditions = segment.state.conditions
+        body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        T = orientation_product(T_body2inertial,body_thrust_force_vector)      
+        thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2)) / Units.deg
+
 
         axes = plt.subplot(2,2,1)
-        axes.plot(time, y_rot, line_color)
+        axes.plot(time, thrust_angle, line_color)
         axes.set_xlabel('Time (mins)', axis_font)
-        axes.set_ylabel('Network Y-Axis Rotation (deg)', axis_font)
+        axes.set_ylabel('Thrust Angle (deg)', axis_font)
         set_axes(axes)
 
         axes = plt.subplot(2,2,2)
@@ -1085,13 +1188,13 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
         set_axes(axes)
 
         axes = plt.subplot(2,2,4)
-        axes.plot(time, prop_incidence_angles/Units.deg, line_color)
+        axes.plot(time, y_rot, line_color)
         axes.set_xlabel('Time (mins)', axis_font)
-        axes.set_ylabel('Propeller Incidence', axis_font)
+        axes.set_ylabel('Propeller y-axis Body Rotation', axis_font)
         set_axes(axes)
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
 
     fig2 = plt.figure("Rotor Operation")
@@ -1099,20 +1202,19 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
     #marks = ['bs', 'oo', 'go', 'r^', 'ms','k-','ro','gs','yo']
     for s, segment in enumerate(results.segments.values()):
 
-        Vx      = segment.state.conditions.frames.inertial.velocity_vector[:,0]
-        Vz      = segment.state.conditions.frames.inertial.velocity_vector[:,2]
         Vinf    = segment.conditions.freestream.velocity[:,0]
 
-        thrust_vector = segment.conditions.frames.body.thrust_force_vector
-        Tx = thrust_vector[:,0]
-        Tz = thrust_vector[:,2]
-        thrust_angle  = np.arccos(Tx / np.sqrt(Tx**2 + Tz**2))
-        velocity_angle = np.arctan(-Vz / Vx)
 
+        conditions = segment.state.conditions
+        body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        T = orientation_product(T_body2inertial,body_thrust_force_vector)      
+        thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2))
+        
         n     = segment.conditions.propulsion.propeller_rpm[:,0] / 60
         J     = Vinf/(n*D)
 
-        prop_incidence_angles =  thrust_angle - velocity_angle
+        prop_incidence_angles =  thrust_angle
 
         axes = plt.subplot(1,1,1)
         axes.scatter(prop_incidence_angles/Units.deg, J, label=segment.tag)
@@ -1179,7 +1281,7 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -1246,7 +1348,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -1305,7 +1407,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig(save_filename + file_type)
+        plt.savefig(save_filename + file_type, dpi=300)
 
     return
 
@@ -1391,7 +1493,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig("Lift_Cruise_Battery_Pack_Conditions" + file_type)
+        plt.savefig("Lift_Cruise_Battery_Pack_Conditions" + file_type, dpi=300)
 
 
     # ------------------------------------------------------------------
@@ -1461,7 +1563,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig("Propulsor_Network" + file_type)
+        plt.savefig("Propulsor_Network" + file_type, dpi=300)
 
     # ------------------------------------------------------------------
     #   Propulsion Conditions
@@ -1518,7 +1620,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig("Lift_Rotor" + file_type)
+        plt.savefig("Lift_Rotor" + file_type, dpi=300)
 
     # ------------------------------------------------------------------
     #   Propulsion Conditions
@@ -1574,7 +1676,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig("Cruise_Propulsor" + file_type)
+        plt.savefig("Cruise_Propulsor" + file_type, dpi=300)
 
     # ------------------------------------------------------------------
     #   Propulsion Conditions
@@ -1602,7 +1704,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
 
     plt.tight_layout()
     if save_figure:
-        plt.savefig("Tip_Mach" + file_type)
+        plt.savefig("Tip_Mach" + file_type, dpi=300)
 
 
     return
@@ -1693,7 +1795,7 @@ def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_fi
             plt.grid(None)
 
             if save_figure:
-                plt.savefig( save_filename + '_' + str(img_idx) + file_type)
+                plt.savefig( save_filename + '_' + str(img_idx) + file_type, dpi=300)
             img_idx += 1
         seg_idx +=1
 
@@ -1750,7 +1852,7 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
             axes.set_title('$C_{Ly}$',axis_font)
 
             if save_figure:
-                plt.savefig( save_filename + '_' + str(img_idx) + file_type)
+                plt.savefig( save_filename + '_' + str(img_idx) + file_type, dpi=300)
             img_idx += 1
         seg_idx +=1
 
@@ -1925,7 +2027,7 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
                 mini_axes4.grid(False)
 
             if save_figure:
-                plt.savefig(save_filename + '_' + str(img_idx) + file_type)
+                plt.savefig(save_filename + '_' + str(img_idx) + file_type, dpi=300)
             img_idx += 1
         seg_idx +=1
 # ------------------------------------------------------------------
@@ -1988,7 +2090,7 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     set_axes(axes)
     axes.legend(loc='upper right')
     if save_figure:
-        plt.savefig(save_filename + ".png")
+        plt.savefig(save_filename + ".png", dpi=300)
 
 
     return
