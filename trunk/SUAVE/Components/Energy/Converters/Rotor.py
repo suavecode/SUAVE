@@ -176,6 +176,7 @@ class Rotor(Energy_Component):
         # Unpack rotor blade parameters
         B       = self.number_of_blades
         R       = self.tip_radius
+        Rh      = self.hub_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
         sweep   = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
@@ -368,17 +369,18 @@ class Rotor(Energy_Component):
         wake_inputs.radius_distribution   = r
         wake_inputs.speed_of_sounds       = a
         wake_inputs.dynamic_viscosities   = nu
+        wake_inputs.azimuthal_distribution = psi_2d
 
-        va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
+        va, vt, self = self.Wake.evaluate(self,wake_inputs,conditions)
         
         # compute new blade velocities
         Wa   = va + Ua
         Wt   = Ut - vt
 
-        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R, Rh,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
-        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         
         # compute HFW circulation at the blade
@@ -387,9 +389,9 @@ class Rotor(Energy_Component):
         #---------------------------------------------------------------------------            
                 
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BET iteration
-        va     = F*va
-        vt     = F*vt
-        lamdaw = r*(va+Ua)/(R*(Ut-vt))
+        #va     = F*va
+        #vt     = F*vt
+        #lamdaw = r*(va+Ua)/(R*(Ut-vt))
 
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
@@ -514,6 +516,7 @@ class Rotor(Energy_Component):
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,
                     disc_radial_distribution          = r_dim_2d,
+                    disc_azimuthal_distribution       = psi_2d,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
                     velocity                          = Vv,
@@ -536,7 +539,6 @@ class Rotor(Energy_Component):
                     disc_effective_angle_of_attack    = alpha_2d,
                     thrust_per_blade                  = thrust/B,
                     thrust_coefficient                = Ct,
-                    disc_azimuthal_distribution       = psi_2d,
                     blade_dQ_dr                       = blade_dQ_dr,
                     disc_dQ_dr                        = blade_dQ_dr_2d,
                     blade_torque_distribution         = blade_Q_distribution,

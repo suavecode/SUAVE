@@ -42,7 +42,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop ):
     Nr            = len(prop.chord_distribution)
     r             = prop.radius_distribution
     rot           = prop.rotation
-    WD            = wake.vortex_distribution
+    #WD            = wake.vortex_distribution
 
 
     try:
@@ -80,9 +80,9 @@ def compute_fidelity_one_inflow_velocities( wake, prop ):
         VD.n_cp = np.size(VD.YC)
 
         # Compute induced velocities at blade from the helical fixed wake
-        VD.Wake_collapsed = WD
+        #VD.Wake_collapsed = WD
         
-        V_ind   = compute_wake_induced_velocity(WD, VD, cpts, azi_start_idx=i)
+        V_ind   = compute_wake_induced_velocity(VD, VD, cpts, azi_start_idx=i)
         
         # velocities in vehicle frame
         u       = V_ind[:,:,0]   # velocity in vehicle x-frame
@@ -109,7 +109,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop ):
         Va[:,:,i]  = up
         Vt[:,:,i]  = -rot*(vp*(np.cos(blade_angle)) - wp*(np.sin(blade_angle)) )  # velocity component in direction of rotation     
     
-    prop.Wake.vortex_distribution = VD
+    #prop.Wake.vortex_distribution = VD
     
 
     return Va, Vt

@@ -72,7 +72,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
         
         # wake convergence criteria
-        self.maximum_convergence_iteration            = 20
+        self.maximum_convergence_iteration            = 10
         self.axial_velocity_convergence_tolerance     = 1e-3
         
         # flags for slipstream interaction
@@ -163,7 +163,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # Store wake shape
         self.vortex_distribution = WD
             
-        return va, vt
+        return va, vt, rotor
     
     
     def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):

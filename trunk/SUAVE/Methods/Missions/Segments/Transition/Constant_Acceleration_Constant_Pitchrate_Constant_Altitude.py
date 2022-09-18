@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-
+import numpy as np 
 ## @ingroup Methods-Missions-Segments-Transition
 def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
@@ -63,16 +63,18 @@ def initialize_conditions(segment):
     # Figure out vx
     vx = v0+(time - t_initial)*ax
     
+    # Figure out x
+    x0 = segment.state.conditions.frames.inertial.position_vector[:,0]
+    xpos = x0 + (vx[:,0] * time[:,0])
+    
     # set the body angle
-    if Tf > T0:
-        body_angle = T0 + time*(Tf-T0)/(t_final-t_initial)
-    else:
-        body_angle = T0 - time*(T0-Tf)/(t_final-t_initial)
+    body_angle = T0 + time*(Tf-T0)/(t_final-t_initial) 
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
     
     # pack
     segment.state.conditions.freestream.altitude[:,0] = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
+    segment.state.conditions.frames.inertial.position_vector[:,0] = xpos # z points down    
     segment.state.conditions.frames.inertial.velocity_vector[:,0] = vx[:,0]
     segment.state.conditions.frames.inertial.time[:,0] = time[:,0]
     

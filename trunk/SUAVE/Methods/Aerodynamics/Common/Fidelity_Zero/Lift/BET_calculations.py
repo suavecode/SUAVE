@@ -6,7 +6,7 @@
 
 import numpy as np
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+def compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
     """
     Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
                                               Wa,Wt,a,nu,
@@ -33,6 +33,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
        R                          tip radius                                      [-]
        B                          number of rotor blades                          [-]
 
+       F                          Prandtl's tip/hub loss factor                   [-]
        Wa                         axial velocity                                  [-]
        Wt                         tangential velocity                             [-]
        a                          speed of sound                                  [-]
@@ -109,6 +110,23 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         Cdval[alpha>=np.pi/2] = 2.
 
 
+    # Apply rolling average for smoothing (Cl, Cd) from surrogated data
+    from DCode.Common.generalFunctions import savitzky_golay
+    ws, order = 5, 2
+    for cpt in range(ctrl_pts):
+        # FILTER OUTLIER DATA
+        if use_2d_analysis:
+            for a in range(Na):
+                Cl[cpt,:,a] = savitzky_golay(Cl[cpt,:,a], ws, order)   
+                Cdval[cpt,:,a] = savitzky_golay(Cdval[cpt,:,a], ws, order)     
+        else:
+            Cl[cpt,:] = savitzky_golay(Cl[cpt,:], ws, order)   
+            Cdval[cpt,:] = savitzky_golay(Cdval[cpt,:], ws, order)  
+                
+    # Apply tip/hub corrections
+    Cl = Cl*F
+    Cdval = Cdval*F
+    
     # prevent zero Cl to keep Cd/Cl from breaking in BET
     Cl[Cl==0] = 1e-6
 
@@ -116,7 +134,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
 
 
 
-def compute_inflow_and_tip_loss(r,R,Wa,Wt,B,et1=1,et2=1,et3=1):
+def compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B,et1=1,et2=1,et3=1):
     """
     Computes the inflow, lamdaw, and the tip loss factor, F.
 
@@ -145,8 +163,15 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B,et1=1,et2=1,et3=1):
     lamdaw[lamdaw<=0.] = 1e-12
 
     tipfactor = B/2.0*(  (R/r)**et1 - 1  )**et2/lamdaw**et3 
+    hubfactor = B/2.0*(  (r/Rh)**et1 - 1  )**et2/lamdaw**et3 
 
-    piece = np.exp(-tipfactor)
-    Ftip = 2.*np.arccos(piece)/np.pi  
-
-    return lamdaw, Ftip, piece
+    tippiece = np.exp(-tipfactor)
+    hubpiece = np.exp(-hubfactor)
+    Ftip = 2.*np.arccos(tippiece)/np.pi  
+    Fhub = 2.*np.arccos(hubpiece)/np.pi  
+    
+    piece = tippiece
+    piece[tippiece<1e-3] = hubpiece[tippiece<1e-3]
+    
+    F = Ftip * Fhub
+    return lamdaw, F, piece

@@ -7,7 +7,6 @@
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 import numpy as np
 import scipy as sp
-import copy
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
@@ -51,13 +50,13 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
         PSI    = np.ones((ctrl_pts,Nr))
 
     PSI_final,infodict,ier,msg = sp.optimize.fsolve(iteration,PSI,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
-    
+
     if ier!=1:
         print("Rotor BEVW did not converge to a solution (Stall)")
     
     # Calculate the velocities given PSI
     va, vt = va_vt(PSI_final, wake_inputs, rotor)
-
+    
     
     return va, vt
 
@@ -100,6 +99,7 @@ def iteration(PSI, wake_inputs, rotor):
     beta            = wake_inputs.twist_distribution
     c               = wake_inputs.chord_distribution
     r               = wake_inputs.radius_distribution
+    psi             = wake_inputs.azimuthal_distribution
     a               = wake_inputs.speed_of_sounds
     nu              = wake_inputs.dynamic_viscosities
     ctrl_pts        = wake_inputs.ctrl_pts
@@ -108,6 +108,7 @@ def iteration(PSI, wake_inputs, rotor):
 
     # Unpack rotor data        
     R        = rotor.tip_radius
+    Rh       = rotor.hub_radius
     B        = rotor.number_of_blades    
     tc       = rotor.thickness_to_chord
     a_geo    = rotor.airfoil_geometry
@@ -120,7 +121,7 @@ def iteration(PSI, wake_inputs, rotor):
         PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
     else:
         PSI    = np.reshape(PSI,(ctrl_pts,Nr))
-    
+
     # compute velocities
     sin_psi      = np.sin(PSI)
     cos_psi      = np.cos(PSI)
@@ -128,14 +129,15 @@ def iteration(PSI, wake_inputs, rotor):
     Wt           = 0.5*Ut + 0.5*U*cos_psi
     vt           = Ut - Wt
 
-    # compute blade airfoil forces and properties
-    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
-
     # compute inflow velocity and tip loss factor
-    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B)
+    
+    # compute blade airfoil forces and properties
+    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+
 
     # compute Newton residual on circulation
-    Gamma       = vt*(4.*np.pi*r/B)*F*(1.+(4.*lamdaw*R/(np.pi*B*r))*(4.*lamdaw*R/(np.pi*B*r)))**0.5
+    Gamma       = vt*(4.*np.pi*r/B)*(1.+(4.*lamdaw*R/(np.pi*B*r))*(4.*lamdaw*R/(np.pi*B*r)))**0.5
     Rsquiggly   = Gamma - 0.5*W*c*Cl
     
     return Rsquiggly.flatten()
@@ -235,6 +237,7 @@ def compute_dR_dpsi(PSI,wake_inputs,rotor):
 
     # Unpack rotor data        
     R        = rotor.tip_radius
+    Rh       = rotor.hub_radius
     B        = rotor.number_of_blades      
     
     # Reshape PSI because the solver gives it flat
@@ -252,7 +255,7 @@ def compute_dR_dpsi(PSI,wake_inputs,rotor):
     Wa           = 0.5*Ua + 0.5*U*sin_psi
     Wt           = 0.5*Ut + 0.5*U*cos_psi
     
-    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B)
     
     pi          = np.pi
     pi2         = np.pi**2

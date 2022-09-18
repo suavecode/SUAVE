@@ -136,25 +136,16 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
         None
         """   
         
-        # Initialize rotor with PVW if wake not present
-        #if rotor.Wake.vortex_distribution == None or len(rotor.Wake.vortex_distribution.keys())==0:
+        # Initialize rotor with PVW
         self.initialize(rotor,conditions)
         
-        ## Converge on the Fidelity-One rotor wake shape as initial starting point
-        #WD, va, vt = fidelity_one_wake_convergence(self,rotor,wake_inputs)
-        
-        ## Store wake shape
-        #self.vortex_distribution = WD
-        
         # evolve the wake with itself over time, generating a force-free wake
-        self.evolve_wake_vortex_distribution(rotor,conditions,VD=VD)
+        self, rotor, interpolatedBoxData = self.evolve_wake_vortex_distribution(rotor,conditions,VD=VD)
         
-
-        # Converge on the Fidelity-One rotor wake shape as initial starting point
-                # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+        # compute wake-induced velocities
         va, vt = compute_fidelity_one_inflow_velocities(self,rotor)   
             
-        return va, vt
+        return va, vt, rotor
     
     def evolve_wake_vortex_distribution(self,rotor,conditions,VD=None):
         """
@@ -208,7 +199,7 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
             
         # Update the vortex strengths of each vortex ring accordingly
         
-        return interpolatedBoxData
+        return self, rotor, interpolatedBoxData
     
     def get_fluid_domain_boundaries(self, prop, factor=1.5):
         """

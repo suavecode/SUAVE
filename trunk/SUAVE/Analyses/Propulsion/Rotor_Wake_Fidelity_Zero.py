@@ -89,7 +89,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         
         va, vt = fidelity_zero_wake_convergence(self, rotor, wake_inputs)
             
-        return va, vt
+        return va, vt, rotor
     
     def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
         """
