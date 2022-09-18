@@ -38,6 +38,7 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     r  = wake_inputs.radius_distribution
     
     R  = rotor.tip_radius
+    Rh = rotor.hub_radius
     B  = rotor.number_of_blades    
     
     beta = wake_inputs.twist_distribution
@@ -86,23 +87,20 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
         # compute new blade velocities
         Wa   = va + Ua
         Wt   = Ut - vt
-    
         
-        # generate new wake with new circulation
-        # update disc circulation
-        # compute HFW circulation at the blade
-        Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis=True)
+        # compute blade forces
+        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B)
+        Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis=True)
 
-        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
-        
+        # compute circulation at the blade        
         Gamma = 0.5*W*c*Cl*F
         g_diff = np.max(abs(Gamma - rotor.outputs.disc_circulation))
         print(g_diff)
         
         
         rotor.outputs.disc_circulation = rotor.outputs.disc_circulation + 0.25*(Gamma - rotor.outputs.disc_circulation)
-        rotor.outputs.disc_axial_induced_velocity = F*va #rotor.outputs.disc_axial_induced_velocity + 0.5*(F*va - rotor.outputs.disc_axial_induced_velocity)
-        rotor.outputs.disc_tangential_induced_velocity = F*vt #rotor.outputs.disc_axial_induced_velocity + 0.5*(F*va - rotor.outputs.disc_axial_induced_velocity)
+        #rotor.outputs.disc_axial_induced_velocity = F*va #rotor.outputs.disc_axial_induced_velocity + 0.5*(F*va - rotor.outputs.disc_axial_induced_velocity)
+        #rotor.outputs.disc_tangential_induced_velocity = F*vt #rotor.outputs.disc_axial_induced_velocity + 0.5*(F*va - rotor.outputs.disc_axial_induced_velocity)
 
         g_ii+=1
         if g_ii >= ii_max and g_diff>tol:
@@ -111,9 +109,9 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
             break               
            
 
-        ## update the axial disc velocity based on new va from HFW
-        #va_diff = np.max(abs(F*va - rotor.outputs.disc_axial_induced_velocity))
-        #rotor.outputs.disc_axial_induced_velocity = F*va #rotor.outputs.disc_axial_induced_velocity + 0.5*(F*va - rotor.outputs.disc_axial_induced_velocity)
+    ## update the axial disc velocity based on new va from HFW
+    va_diff = np.max(abs(F*va - rotor.outputs.disc_axial_induced_velocity))
+    rotor.outputs.disc_axial_induced_velocity = F*va #rotor.outputs.disc_axial_induced_velocity + 0.5*(F*va - rotor.outputs.disc_axial_induced_velocity)
         #rotor.outputs.disc_tangential_induced_velocity = F*vt #rotor.outputs.disc_axial_induced_velocity + 0.5*(F*va - rotor.outputs.disc_axial_induced_velocity)
         
         #va_ii+=1
