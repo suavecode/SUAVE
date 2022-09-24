@@ -268,7 +268,7 @@ def segment_properties(wing,update_wet_areas=False,update_ref_areas=False):
             
             # compute wetted area of segment
             swet_cond = t_c_w < 0.05
-            Swet_seg  = (2.003* S_exposed_seg)*(swet_cond) + (swet_cond-1)*(1.977 + 0.52*t_c_w) * S_exposed_seg
+            Swet_seg  = (2.003* S_exposed_seg)*(swet_cond) + (1-swet_cond)*(1.977 + 0.52*t_c_w) * S_exposed_seg
                 
             segment.taper                   = taper
             segment.chords                  = Data()

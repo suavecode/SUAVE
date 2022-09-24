@@ -225,6 +225,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 nmw +=1                
                 wing_instance = wing
                 wing_instance_idx = i
+                wing_instance_tag = wing.tag
             if nmw == 1:
                 pass
             elif nmw>1:
@@ -233,9 +234,10 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 print("No wing specified for slipstream analysis. No main wing defined, using the last wing in vehicle.")
                 wing_instance = wing 
                 wing_instance_idx = i
-        
+                wing_instance_tag = wing.tag
+                
         # Isolate the VD components corresponding to this wing instance
-        wing_CPs, slipstream_vd_ids = extract_wing_collocation_points(geometry, wing_instance_idx)
+        wing_CPs, slipstream_vd_ids = extract_wing_collocation_points(geometry, wing_instance_tag)
         
         # Evaluate rotor slipstream effect on specified wing instance
         rot_V_wake_ind = self.evaluate_wake_velocities(rotor, wing_CPs, ctrl_pts)

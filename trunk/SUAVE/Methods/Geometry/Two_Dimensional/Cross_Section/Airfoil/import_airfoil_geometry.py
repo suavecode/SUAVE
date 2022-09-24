@@ -215,4 +215,14 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_inter
         airfoil_data.y_lower_surface.append(y_lo_surf_new)          
         airfoil_data.camber_coordinates.append(camber)
 
+    airfoil_data.thickness_to_chord = np.array(airfoil_data.thickness_to_chord )
+    airfoil_data.max_thickness      = np.array(airfoil_data.max_thickness      )
+    airfoil_data.x_coordinates      = np.array(airfoil_data.x_coordinates      )
+    airfoil_data.y_coordinates      = np.array(airfoil_data.y_coordinates      )
+    airfoil_data.x_upper_surface    = np.array(airfoil_data.x_upper_surface    )
+    airfoil_data.x_lower_surface    = np.array(airfoil_data.x_lower_surface    )
+    airfoil_data.y_upper_surface    = np.array(airfoil_data.y_upper_surface    )
+    airfoil_data.y_lower_surface    = np.array(airfoil_data.y_lower_surface    )    
+    airfoil_data.camber_coordinates = np.array(airfoil_data.camber_coordinates )
+
     return airfoil_data 

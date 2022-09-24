@@ -69,6 +69,7 @@ def propeller_range_endurance_speeds(analyses,altitude,CL_max,up_bnd,delta_isa):
                 segment.analyses.extend(analyses) 
                 segment.altitude              = altitude
                 segment.temperature_deviation = delta_isa
+                segment.state.numerics.tolerance_solution = 1e-6
                 
                 segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
                 segment.process.finalize.post_process.stability = SUAVE.Methods.skip                    
@@ -86,7 +87,7 @@ def propeller_range_endurance_speeds(analyses,altitude,CL_max,up_bnd,delta_isa):
 
                 # Run the Mission      
                 point_results = mission.evaluate()    
-
+                
                 CL = point_results.segments.single_point.conditions.aerodynamics.lift_coefficient
                 CD = point_results.segments.single_point.conditions.aerodynamics.drag_coefficient
 

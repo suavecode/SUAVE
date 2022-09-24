@@ -94,7 +94,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
             
         return self, va, vt
     
-    def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
+    def evaluate_slipstream(self,rotor,geometry,r_p_V_wake_ind,wing_instance=None):
         """
         Evaluates the velocities induced by the rotor on a specified wing of the vehicle.
         If no wing instance is specified, uses main wing or last available wing in geometry.
@@ -125,6 +125,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
                 nmw +=1                
                 wing_instance = wing
                 wing_instance_idx = i
+                wing_instance_tag = wing.tag
             if nmw == 1:
                 pass
             elif nmw>1:
@@ -133,21 +134,22 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
                 print("No wing specified for slipstream analysis. No main wing defined, using the last wing in vehicle.")
                 wing_instance = wing 
                 wing_instance_idx = i
+                wing_instance_tag = wing.tag
         
         # Isolate the VD components corresponding to this wing instance
-        wing_CPs, slipstream_vd_ids = extract_wing_collocation_points(geometry, wing_instance_idx)
+        wing_CPs, slipstream_vd_ids = extract_wing_collocation_points(geometry, wing_instance_tag)
         
         # Evaluate rotor slipstream effect on specified wing instance
-        rot_V_wake_ind = self.evaluate_wake_velocities(rotor, wing_CPs,ctrl_pts)
+        rot_V_wake_ind = self.evaluate_wake_velocities(rotor, wing_CPs,r_p_V_wake_ind)
         
         # Expand
-        wake_V_ind = np.zeros((ctrl_pts,geometry.vortex_distribution.n_cp,3))
+        wake_V_ind = jnp.zeros((ctrl_pts,geometry.vortex_distribution.n_cp,3))
         wake_V_ind[:,slipstream_vd_ids,:] = rot_V_wake_ind
         
             
         return wake_V_ind
     
-    def evaluate_wake_velocities(self,rotor,evaluation_points,ctrl_pts):
+    def evaluate_wake_velocities(self,rotor,evaluation_points,r_p_V_wake_ind ):
         """
         Links the rotor wake to compute the wake-induced velocities at the specified
         evaluation points.
@@ -172,7 +174,7 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         
         rots = Data()
         rots.append(rotor)
-        rot_V_wake_ind = compute_fidelity_zero_induced_velocity(evaluation_points,rots,ctrl_pts)  
+        rot_V_wake_ind = compute_fidelity_zero_induced_velocity(evaluation_points,rots,r_p_V_wake_ind )  
         
         return rot_V_wake_ind
     

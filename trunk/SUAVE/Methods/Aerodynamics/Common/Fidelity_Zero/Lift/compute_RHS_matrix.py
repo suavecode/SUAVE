@@ -93,9 +93,10 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
     r_p_V_wake_ind   = jnp.zeros((num_ctrl_pts,num_eval_pts,3))
     
     # If we have a propeller wake attached
-    #wake_model_false = lambda _: r_p_V_wake_ind 
-    #cond_inputs      = to_jnumpy((geometry,num_ctrl_pts, r_p_V_wake_ind))
-    #r_p_V_wake_ind   = lax.cond(propeller_wake_model,wake_model_true,wake_model_false,cond_inputs)
+    def wake_model_false(cond_inputs):
+        return r_p_V_wake_ind 
+    cond_inputs      = to_jnumpy((geometry,num_ctrl_pts, r_p_V_wake_ind))
+    r_p_V_wake_ind   = lax.cond(propeller_wake_model,wake_model_true,wake_model_false,cond_inputs)
                 
     # update the total induced velocity distribution
     Vx_ind_total = Vx_ind_total + r_p_V_wake_ind[:,:,0]
@@ -274,6 +275,6 @@ def wake_model_true(cond_inputs):
 
         # Loop over all the rotors and props
         for r_p in rotor_props:
-            r_p_V_wake_ind += r_p.Wake.evaluate_slipstream(r_p,geometry,num_ctrl_pts)
+            r_p_V_wake_ind += r_p.Wake.evaluate_slipstream(r_p,geometry,r_p_V_wake_ind)
 
     return r_p_V_wake_ind

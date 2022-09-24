@@ -118,6 +118,7 @@ def postprocess_VD(VD, settings):
     
     # For JAX some things have to be fixed
     VD['n_sw'] = tuple(VD['n_sw'])
+    VD['n_cw'] = tuple(VD['n_cw'])
     
     VD.XC_TE  = XC_TE_wings
     VD.YC_TE  = YC_TE_wings

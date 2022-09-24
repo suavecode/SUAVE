@@ -143,7 +143,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     azi_z   = jnp.cos(panel_azimuthal_positions)
         
     airfoil_data = rotor.airfoil_data
-    a_secl       = rotor.airfoil_polar_stations
+    a_secl       = jnp.array(rotor.airfoil_polar_stations)
    
     # trailing edge points in airfoil coordinates
     xupper         = jnp.take(jnp.array(airfoil_data.x_upper_surface),a_secl,axis=0)

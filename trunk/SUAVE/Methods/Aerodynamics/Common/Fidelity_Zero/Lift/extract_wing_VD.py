@@ -12,13 +12,14 @@
 # package imports
 from SUAVE.Core import Data
 import numpy as np
+import jax.numpy as jnp
 
 from SUAVE.Analyses.Aerodynamics.Vortex_Lattice import Vortex_Lattice
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import generate_vortex_distribution
 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def extract_wing_collocation_points(geometry, wing_instance_idx):
+def extract_wing_collocation_points(geometry, wing_instance_tag):
 
     """ This extracts the collocation points of the vehicle vortex distribution
     belonging to the specified wing instance index. This is useful for slipstream
@@ -47,26 +48,31 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
         settings = Vortex_Lattice().settings
         VD = generate_vortex_distribution(geometry,settings)        
         
-    sym          = VD.symmetric_wings
+    #sym          = VD.symmetric_wings
     
     # Find the beginning and end indices of the wing
     # all breaks
-    breaks = np.hstack([0,np.cumsum(VD.n_cw*VD.n_sw)])
+            #breaks = np.hstack([0,np.cumsum(VD.n_cw*VD.n_sw)])
+            
+            ## Find the initial index of the wing
+            #semispan_idx     = wing_instance_idx + np.sum(sym[0:wing_instance_idx])
+            #start_pt         = breaks[semispan_idx]
+            
+            ## Find the final index of the wing
+            #end_semispan_idx = semispan_idx + 1 + sym[wing_instance_idx]
+            #end_pt           = breaks[end_semispan_idx]
+            
+            ## Make ranges of points
+            #ids              = range(semispan_idx, end_semispan_idx)
+            #pt_ids           = range(start_pt,end_pt)
+            
+    VD_wing = geometry.vortex_distribution.VLM_wings[wing_instance_tag]
+    ID      = VD_wing.surface_ID
+            
+    pt_ids = jnp.where(jnp.abs(VD.surface_ID) == ID,size=VD.surface_ID.shape[0]) 
     
-    # Find the initial index of the wing
-    semispan_idx     = wing_instance_idx + np.sum(sym[0:wing_instance_idx])
-    start_pt         = breaks[semispan_idx]
-    
-    # Find the final index of the wing
-    end_semispan_idx = semispan_idx + 1 + sym[wing_instance_idx]
-    end_pt              = breaks[end_semispan_idx]
-    
-    # Make ranges of points
-    ids              = range(semispan_idx, end_semispan_idx)
-    pt_ids           = range(start_pt,end_pt)
 
     # Pack the wing level resultss
-    VD_wing  = Data()
     VD_wing.XC   = VD.XC[pt_ids]
     VD_wing.YC   = VD.YC[pt_ids]
     VD_wing.ZC   = VD.ZC[pt_ids]
@@ -86,9 +92,9 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
     
     
     VD_wing.n_cp = len(VD_wing.XC)
-    VD_wing.n_cw = VD.n_cw[ids]
-    VD_wing.n_sw = VD.n_sw[ids]
-    VD_wing.static_keys = ['n_cw','n_sw','wing_type']
+    #VD_wing.n_cw = VD.n_cw[ids]
+    #VD_wing.n_sw = VD.n_sw[ids]
+    #VD_wing.static_keys = ['n_cw','n_sw','wing_type']
 
     return VD_wing, pt_ids
 

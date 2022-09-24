@@ -8,11 +8,13 @@
 # ----------------------------------------------------------------------
 
 # package imports
-import numpy as np 
-from scipy.interpolate import interp1d
+#import numpy as np 
+#from scipy.interpolate import interp1d
+
+import jax.numpy as jnp
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
-def compute_fidelity_zero_induced_velocity(evaluation_points, props, ctrl_pts, identical_flag=False):  
+def compute_fidelity_zero_induced_velocity(evaluation_points, props,r_p_V_wake_ind , identical_flag=False):  
     """ This computes the velocity induced by the fidelity zero wake
     on specified evaluation points.
 
@@ -28,17 +30,14 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, props, ctrl_pts, i
           YC              - Y-location of evaluation points (vehicle frame)             [m] 
           ZC              - Z-location of evaluation points (vehicle frame)             [m] 
           
-       geometry    - SUAVE vehicle                                 [Unitless] 
-       cpts        - control points in segment                     [Unitless]
+       geometry           - SUAVE vehicle                                               [Unitless] 
+       r_p_V_wake_ind     - the wake induced velocity                                   [m/s]
     Properties Used:
        N/A
     """
 
-    # extract vortex distribution
-    n_cp = len(evaluation_points.XC)
-    
     # initialize propeller wake induced velocities
-    prop_V_wake_ind = np.zeros((ctrl_pts,n_cp,3))
+    prop_V_wake_ind = r_p_V_wake_ind
     
     for i,prop in enumerate(props):
         if identical_flag:
@@ -52,9 +51,9 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, props, ctrl_pts, i
         
         # Ignore points within hub or outside tip radius
         hub_y_center = prop.origin[0][1]
-        inboard_r    = np.flip(hub_y_center - r) 
+        inboard_r    = jnp.flip(hub_y_center - r) 
         outboard_r   = hub_y_center + r 
-        prop_y_range = np.append(inboard_r, outboard_r)
+        prop_y_range = jnp.append(inboard_r, outboard_r)
     
         # within this range, add an induced x- and z- velocity from propeller wake
         bool_inboard  = ( evaluation_points.YC > inboard_r[0] )  * ( evaluation_points.YC < inboard_r[-1] )
@@ -63,25 +62,25 @@ def compute_fidelity_zero_induced_velocity(evaluation_points, props, ctrl_pts, i
         YC_in_range   = evaluation_points.YC[bool_in_range]
 
         y_vals  = YC_in_range
-        val_ids = np.where(bool_in_range==True)
+        val_ids = jnp.where(bool_in_range==True,size=bool_in_range.shape[0])
         
         s  = evaluation_points.XC[val_ids] - prop.origin[0][0]
-        kd = 1 + s/(np.sqrt(s**2 + R**2))    
+        kd = 1 + s/(jnp.sqrt(s**2 + R**2))    
 
         # extract radial and azimuthal velocities at blade
         va = prop_outputs.blade_axial_induced_velocity[0]
         vt = prop_outputs.blade_tangential_induced_velocity[0]
         
         
-        va_y_range  = np.append(np.flipud(va), va)
-        vt_y_range  = np.append(np.flipud(vt), vt)*prop.rotation
-        va_interp   = interp1d(prop_y_range, va_y_range)
-        vt_interp   = interp1d(prop_y_range, vt_y_range)
+        va_y_range  = jnp.append(jnp.flipud(va), va)
+        vt_y_range  = jnp.append(jnp.flipud(vt), vt)*prop.rotation
+        va_interp   = jnp.interp(prop_y_range, va_y_range)
+        vt_interp   = jnp.interp(prop_y_range, vt_y_range)
         
         
         # preallocate va_new and vt_new
         va_new = kd*va_interp((y_vals))
-        vt_new = np.zeros(np.size(val_ids))
+        vt_new = jnp.zeros(jnp.size(val_ids))
         
         # invert inboard vt values
         inboard_bools                = (y_vals < hub_y_center)
