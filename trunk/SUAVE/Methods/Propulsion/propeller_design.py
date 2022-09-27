@@ -16,8 +16,8 @@ import SUAVE
 import numpy as np
 import scipy as sp 
 from scipy.optimize import root 
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
-     import compute_airfoil_polars
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties \
+     import compute_airfoil_properties
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
@@ -60,7 +60,8 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     Thrust = prop.design_thrust
     Power  = prop.design_power
     a_geo  = prop.airfoil_geometry
-    a_pol  = prop.airfoil_polars        
+    a_pol  = prop.airfoil_polars   
+    a_bon  = prop.airfoil_boundary_layer_properties
     a_loc  = prop.airfoil_polar_stations    
     
     if (Thrust == None) and (Power== None):
@@ -126,8 +127,8 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
         
     # Step 4, determine epsilon and alpha from airfoil data  
     if airfoil_flag:   
-        # compute airfoil polars for airfoils 
-        airfoil_data    = compute_airfoil_polars(a_geo, a_pol,npoints = number_of_airfoil_section_points)  
+        # compute airfoil polars for airfoils  
+        airfoil_data    = compute_airfoil_properties(a_geo, airfoil_polars=a_pol,boundary_laye_files= a_bon, npoints = number_of_airfoil_section_points)  
         airfoil_cl_surs = airfoil_data.lift_coefficient_surrogates 
         airfoil_cd_surs = airfoil_data.drag_coefficient_surrogates          
      

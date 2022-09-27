@@ -8,8 +8,8 @@
 import SUAVE
 from SUAVE.Core import Data, Units
 import numpy as np
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
-    compute_airfoil_polars,
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties import (
+    compute_airfoil_properties,
 )
 import os
 
@@ -121,21 +121,21 @@ def propeller_geometry():
     
     prop.airfoil_polar_stations = np.zeros(len(r_R))
     prop.airfoil_polar_stations = list(prop.airfoil_polar_stations.astype(int))
-
-    airfoil_polars  = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)
-    airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates
-    airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates
+ 
+    airfoil_data    = compute_airfoil_properties(prop.airfoil_geometry, prop.airfoil_polars)
+    airfoil_cl_surs = airfoil_data.lift_coefficient_surrogates
+    airfoil_cd_surs = airfoil_data.drag_coefficient_surrogates
     
     prop.airfoil_cl_surrogates = airfoil_cl_surs
     prop.airfoil_cd_surrogates = airfoil_cd_surs
     
 
     results = Data()
-    results.lift_coefficient_surrogates  = airfoil_polars.lift_coefficient_surrogates  
-    results.drag_coefficient_surrogates  = airfoil_polars.drag_coefficient_surrogates 
-    results.cl_airfoiltools  = airfoil_polars.lift_coefficients_from_polar
-    results.cd_airfoiltools  = airfoil_polars.drag_coefficients_from_polar  
-    results.re_airfoiltools  = airfoil_polars.re_from_polar 
-    results.aoa_airfoiltools = airfoil_polars.aoa_from_polar
+    results.lift_coefficient_surrogates  = airfoil_data.lift_coefficient_surrogates  
+    results.drag_coefficient_surrogates  = airfoil_data.drag_coefficient_surrogates 
+    results.cl_airfoiltools              = airfoil_data.lift_coefficients_from_polar
+    results.cd_airfoiltools              = airfoil_data.drag_coefficients_from_polar  
+    results.re_airfoiltools              = airfoil_data.re_from_polar 
+    results.aoa_airfoiltools             = airfoil_data.aoa_from_polar
     
     return prop

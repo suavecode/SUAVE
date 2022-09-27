@@ -368,12 +368,9 @@ def generate_nacelle_points(nac,tessellation = 24):
         naf          = nac.Airfoil
         
         if naf.naca_4_series_airfoil != None: 
-            # use mean camber surface of airfoil
-            camber       = float(naf.naca_4_series_airfoil[0])/100
-            camber_loc   = float(naf.naca_4_series_airfoil[1])/10
-            thickness    = float(naf.naca_4_series_airfoil[2:])/100 
-            airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
-            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface).T,tessellation,axis = 1)*nac.length 
+            # use mean camber surface of airfoil 
+            airfoil_data = compute_naca_4series(naf.naca_4_series_airfoil,(n_points - 2))
+            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface[0]).T,tessellation,axis = 1)*nac.length 
             zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
         
         elif naf.coordinate_file != None: 
@@ -565,11 +562,8 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
         zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0)
         max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0)
 
-    else:
-        camber       = 0.02
-        camber_loc   = 0.4
-        thickness    = 0.10
-        airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points - 2))
+    else: 
+        airfoil_data = compute_naca_4series(['2410'],(n_points - 2))
         xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
         zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
         max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
