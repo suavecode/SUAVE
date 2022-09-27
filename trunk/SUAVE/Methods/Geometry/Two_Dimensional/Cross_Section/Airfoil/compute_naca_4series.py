@@ -83,6 +83,11 @@ def compute_naca_4series(airfoil_geometry_files,npanels=200):
         # concatenate upper and lower surfaces  
         x_data    = np.hstack((x_lo_surf ,x_up_surf))
         y_data    = np.hstack((y_lo_surf, y_up_surf)) 
+        
+
+        max_t  = np.max(thickness)
+        max_c  = max(x_data) - min(x_data)
+        t_c    = max_t/max_c         
     
         airfoil_data.x_coordinates.append(x_data)  
         airfoil_data.y_coordinates.append(y_data)     
@@ -91,5 +96,6 @@ def compute_naca_4series(airfoil_geometry_files,npanels=200):
         airfoil_data.y_upper_surface.append(y_up_surf)
         airfoil_data.y_lower_surface.append(y_lo_surf)          
         airfoil_data.camber_coordinates.append(camber)        
+        airfoil_data.thickness_to_chord.append(t_c) 
     
     return airfoil_data

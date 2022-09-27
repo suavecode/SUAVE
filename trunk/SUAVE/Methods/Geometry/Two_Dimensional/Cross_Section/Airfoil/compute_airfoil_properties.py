@@ -53,7 +53,7 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polars = None, boundary
     AoA_sweep                     = np.array([-2,0,4])*Units.degrees  # np.array([-8,-4,0,4,8,12])*Units.degrees 
     Re_sweep                      = np.array([1,25,75])*1E4           # np.array([1,5,10,50,75,100])*1E4 
         
-    num_airfoils                  = len(airfoil_geometry)  
+    num_airfoils                  = len(airfoil_geometry.x_coordinates)  
     dim_aoa                       = len(AoA_sweep)
     dim_Re                        = len(Re_sweep) 
     
@@ -172,7 +172,7 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polars = None, boundary
     #airfoil_data.cf_upper_surface_surrogates         = cf_upper_surface_surs      
     #airfoil_data.Re_theta_upper_surface_surrogates   = Ret_upper_surface_surs    
     #airfoil_data.H_upper_surface_surrogates          = H_upper_surface_surs   
-    
+     
     # ----------------------------------------------------------------------------------------
     # Compute extended cl and cd polars 
     # ----------------------------------------------------------------------------------------    
@@ -221,7 +221,7 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polars = None, boundary
                 airfoil_aoa        = airfoil_polar_data.angle_of_attacks  
             
             # compute airfoil cl and cd for extended AoA range 
-            CL,CD = compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa)  
+            CL,CD = compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geometry,use_pre_stall_data)  
         
         CL_sur                             = RegularGridInterpolator((Re_sweep, aoa_data), CL,bounds_error=False,fill_value=None)  
         CD_sur                             = RegularGridInterpolator((Re_sweep, aoa_data), CD,bounds_error=False,fill_value=None)     

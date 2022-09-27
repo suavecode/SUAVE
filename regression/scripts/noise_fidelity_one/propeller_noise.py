@@ -287,19 +287,18 @@ def design_F8745D4_prop():
     airfoil_polar_stations                = np.zeros(dim)
     prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))
     
-    #airfoil_geometry                      = compute_naca_4series( ['4412'], npanels= 100) 
-    #airfoil_polars                        = compute_airfoil_properties(airfoil_geometry, prop.airfoil_polars)  
+    airfoil_geometry                      = compute_naca_4series( ['4412'], npanels= 100) 
     
     
     ospath                                = os.path.abspath(__file__)
     separator                             = os.path.sep
-    rel_path                              = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator
-    prop.airfoil_geometry                 = [ rel_path +'Clark_y.txt']
+    rel_path                              = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator 
     prop.airfoil_polars                   = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
                                               rel_path +'Polars/Clark_y_polar_Re_500000.txt',rel_path +'Polars/Clark_y_polar_Re_1000000.txt']]
     airfoil_polar_stations                = np.zeros(dim)
-    prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))     
-    airfoil_polars                        = compute_airfoil_properties(prop.airfoil_geometry, prop.airfoil_polars)  
+    prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))    
+    
+    airfoil_polars                        = compute_airfoil_properties(airfoil_geometry, prop.airfoil_polars)  
     
     airfoil_cl_surs                       = airfoil_polars.lift_coefficient_surrogates 
     airfoil_cd_surs                       = airfoil_polars.drag_coefficient_surrogates     
