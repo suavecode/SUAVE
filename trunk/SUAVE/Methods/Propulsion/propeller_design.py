@@ -60,8 +60,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     Thrust = prop.design_thrust
     Power  = prop.design_power
     a_geo  = prop.airfoil_geometry
-    a_pol  = prop.airfoil_polars   
-    a_bon  = prop.airfoil_boundary_layer_properties
+    a_pol  = prop.airfoil_polars    
     a_loc  = prop.airfoil_polar_stations    
     
     if (Thrust == None) and (Power== None):

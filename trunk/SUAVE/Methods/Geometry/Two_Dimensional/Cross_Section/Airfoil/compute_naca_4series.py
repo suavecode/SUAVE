@@ -39,7 +39,7 @@ def compute_naca_4series(airfoil_geometry_files,npanels=200):
     npoints       = npanels + 1 
 
     airfoil_data                    = Data() 
-    airfoil_data.airfoil_names      = airfoil_geometry_files         
+    airfoil_data.name               = airfoil_geometry_files         
     airfoil_data.x_coordinates      = []
     airfoil_data.y_coordinates      = []
     airfoil_data.thickness_to_chord = []
