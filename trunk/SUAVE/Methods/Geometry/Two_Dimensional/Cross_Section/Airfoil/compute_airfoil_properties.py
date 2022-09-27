@@ -51,14 +51,12 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polars = None, boundary
     Properties Used:
     N/A
     """   
-    AoA_sweep                 = np.array([-2,0,4])*Units.degrees  # np.array([-2,0,4,8])*Units.degrees 
-    Re_sweep                  = np.array([1,25,75])*1E4 # np.array([1,25,75,100])*1E4
-    Ma_sweep                  = np.array([0.2,0.4,0.7]) # np.array([0.0,0.2,0.4,0.7]) 
+    AoA_sweep                 = np.array([-2,0,4])*Units.degrees  # np.array([-2,0,2,4,6,8])*Units.degrees 
+    Re_sweep                  = np.array([1,25,75])*1E4 # np.array([1,5,10,50,75,100])*1E4 
     
     num_airfoils              = len(airfoil_geometry.x_coordinates)  
     dim_aoa                   = len(AoA_sweep)
-    dim_Re                    = len(Re_sweep)
-    dim_Ma                    = len(Ma_sweep) 
+    dim_Re                    = len(Re_sweep) 
     
     airfoil_data                  = Data() 
     theta_lower_surface_surs      = Data()
@@ -80,80 +78,78 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polars = None, boundary
     
     if boundary_layer_files == None:        
         for af in range(num_airfoils):  
-            cl                        = np.zeros((dim_aoa,dim_Re,dim_Ma))
-            cd                        = np.zeros((dim_aoa,dim_Re,dim_Ma))
-            cm                        = np.zeros((dim_aoa,dim_Re,dim_Ma))
-            theta_lower_surface       = np.zeros((dim_aoa,dim_Re,dim_Ma))
-            delta_lower_surface       = np.zeros((dim_aoa,dim_Re,dim_Ma))
-            delta_star_lower_surface  = np.zeros((dim_aoa,dim_Re,dim_Ma))
-            sa_lower_surface          = np.zeros((dim_aoa,dim_Re,dim_Ma))       
-            ue_lower_surface          = np.zeros((dim_aoa,dim_Re,dim_Ma))   
-            cf_lower_surface          = np.zeros((dim_aoa,dim_Re,dim_Ma))      
-            Ret_lower_surface         = np.zeros((dim_aoa,dim_Re,dim_Ma))    
-            H_lower_surface           = np.zeros((dim_aoa,dim_Re,dim_Ma))  
-            theta_upper_surface       = np.zeros((dim_aoa,dim_Re,dim_Ma))
-            delta_upper_surface       = np.zeros((dim_aoa,dim_Re,dim_Ma))
-            delta_star_upper_surface  = np.zeros((dim_aoa,dim_Re,dim_Ma))
-            sa_upper_surface          = np.zeros((dim_aoa,dim_Re,dim_Ma))       
-            ue_upper_surface          = np.zeros((dim_aoa,dim_Re,dim_Ma))   
-            cf_upper_surface          = np.zeros((dim_aoa,dim_Re,dim_Ma))      
-            Ret_upper_surface         = np.zeros((dim_aoa,dim_Re,dim_Ma))    
-            H_upper_surface           = np.zeros((dim_aoa,dim_Re,dim_Ma)) 
+            cl                        = np.zeros((dim_aoa,dim_Re))
+            cd                        = np.zeros((dim_aoa,dim_Re))
+            cm                        = np.zeros((dim_aoa,dim_Re))
+            theta_lower_surface       = np.zeros((dim_aoa,dim_Re))
+            delta_lower_surface       = np.zeros((dim_aoa,dim_Re))
+            delta_star_lower_surface  = np.zeros((dim_aoa,dim_Re))
+            sa_lower_surface          = np.zeros((dim_aoa,dim_Re))       
+            ue_lower_surface          = np.zeros((dim_aoa,dim_Re))   
+            cf_lower_surface          = np.zeros((dim_aoa,dim_Re))      
+            Ret_lower_surface         = np.zeros((dim_aoa,dim_Re))    
+            H_lower_surface           = np.zeros((dim_aoa,dim_Re))  
+            theta_upper_surface       = np.zeros((dim_aoa,dim_Re))
+            delta_upper_surface       = np.zeros((dim_aoa,dim_Re))
+            delta_star_upper_surface  = np.zeros((dim_aoa,dim_Re))
+            sa_upper_surface          = np.zeros((dim_aoa,dim_Re))       
+            ue_upper_surface          = np.zeros((dim_aoa,dim_Re))   
+            cf_upper_surface          = np.zeros((dim_aoa,dim_Re))      
+            Ret_upper_surface         = np.zeros((dim_aoa,dim_Re))    
+            H_upper_surface           = np.zeros((dim_aoa,dim_Re)) 
             
             for aoa_i in range(dim_aoa):
-                for re_i in range(dim_Re):
-                    for ma_i in range(dim_Ma): 
+                for re_i in range(dim_Re):  
+                    AoA     = np.atleast_2d(AoA_sweep[aoa_i])
+                    Re      = np.atleast_2d(Re_sweep[re_i] )    
+                    Ma      = np.rray([[0]])  
                     
-                        AoA     = np.atleast_2d(AoA_sweep[aoa_i])
-                        Re      = np.atleast_2d(Re_sweep[re_i] )
-                        Ma      = np.atleast_2d(Ma_sweep[ma_i] )    
-                        
-                        # run airfoil analysis  
-                        af_res  = airfoil_analysis(airfoil_geometry,AoA,Re,Ma,airfoil_stations = [af],viscous_flag = True)              
-                        
-                        bstei = 4 # bottom surface trailing edge index
-                        nw    = af_res.num_wake_pts
-                        tstei = -(bstei + nw) # top surface trailing edge index 
-                        
-                        # store raw results 
-                        cl[af,aoa_i,re_i,ma_i]                        = af_res.cl[0][0]
-                        cd[af,aoa_i,re_i,ma_i]                        = af_res.cd[0][0]
-                        cm[af,aoa_i,re_i,ma_i]                        = af_res.cm[0][0]
-                        theta_lower_surface[af,aoa_i,re_i,ma_i]       = af_res.theta[0][bstei]
-                        delta_lower_surface[af,aoa_i,re_i,ma_i]       = af_res.delta[0][bstei]
-                        delta_star_lower_surface[af,aoa_i,re_i,ma_i]  = af_res.delta_star[0][bstei]
-                        sa_lower_surface[af,aoa_i,re_i,ma_i]          = af_res.sa[0][bstei]      
-                        ue_lower_surface[af,aoa_i,re_i,ma_i]          = af_res.ue[0][bstei]   
-                        cf_lower_surface[af,aoa_i,re_i,ma_i]          = af_res.cf[0][bstei]      
-                        Ret_lower_surface[af,aoa_i,re_i,ma_i]         = af_res.Re_theta[0][bstei]    
-                        H_lower_surface[af,aoa_i,re_i,ma_i]           = af_res.H[0][bstei] 
-                        theta_upper_surface[af,aoa_i,re_i,ma_i]       = af_res.theta[0][tstei]
-                        delta_upper_surface[af,aoa_i,re_i,ma_i]       = af_res.delta[0][tstei]
-                        delta_star_upper_surface[af,aoa_i,re_i,ma_i]  = af_res.delta_star[0][tstei]
-                        sa_upper_surface[af,aoa_i,re_i,ma_i]          = af_res.sa[0][tstei]      
-                        ue_upper_surface[af,aoa_i,re_i,ma_i]          = af_res.ue[0][tstei]   
-                        cf_upper_surface[af,aoa_i,re_i,ma_i]          = af_res.cf[0][tstei]      
-                        Ret_upper_surface[af,aoa_i,re_i,ma_i]         = af_res.Re_theta[0][tstei]    
-                        H_upper_surface[af,aoa_i,re_i,ma_i]           = af_res.H[0][tstei]    
+                    # run airfoil analysis  
+                    af_res  = airfoil_analysis(airfoil_geometry,AoA,Re,Ma,airfoil_stations = [af],viscous_flag = True)              
+                    
+                    bstei = 4 # bottom surface trailing edge index
+                    nw    = af_res.num_wake_pts
+                    tstei = -(bstei + nw) # top surface trailing edge index 
+                    
+                    # store raw results 
+                    cl[af,aoa_i,re_i]                        = af_res.cl[0][0]
+                    cd[af,aoa_i,re_i]                        = af_res.cd[0][0]
+                    cm[af,aoa_i,re_i]                        = af_res.cm[0][0]
+                    theta_lower_surface[af,aoa_i,re_i]       = af_res.theta[0][bstei]
+                    delta_lower_surface[af,aoa_i,re_i]       = af_res.delta[0][bstei]
+                    delta_star_lower_surface[af,aoa_i,re_i]  = af_res.delta_star[0][bstei]
+                    sa_lower_surface[af,aoa_i,re_i]          = af_res.sa[0][bstei]      
+                    ue_lower_surface[af,aoa_i,re_i]          = af_res.ue[0][bstei]   
+                    cf_lower_surface[af,aoa_i,re_i]          = af_res.cf[0][bstei]      
+                    Ret_lower_surface[af,aoa_i,re_i]         = af_res.Re_theta[0][bstei]    
+                    H_lower_surface[af,aoa_i,re_i]           = af_res.H[0][bstei] 
+                    theta_upper_surface[af,aoa_i,re_i]       = af_res.theta[0][tstei]
+                    delta_upper_surface[af,aoa_i,re_i]       = af_res.delta[0][tstei]
+                    delta_star_upper_surface[af,aoa_i,re_i]  = af_res.delta_star[0][tstei]
+                    sa_upper_surface[af,aoa_i,re_i]          = af_res.sa[0][tstei]      
+                    ue_upper_surface[af,aoa_i,re_i]          = af_res.ue[0][tstei]   
+                    cf_upper_surface[af,aoa_i,re_i]          = af_res.cf[0][tstei]      
+                    Ret_upper_surface[af,aoa_i,re_i]         = af_res.Re_theta[0][tstei]    
+                    H_upper_surface[af,aoa_i,re_i]           = af_res.H[0][tstei]    
                         
             
             # create surrogates  
-            theta_lower_surface_surs[airfoil_geometry.name[af] + '_ls']       = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),theta_lower_surface ,bounds_error=False,fill_value=None  ) 
-            delta_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']       = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),delta_lower_surface ,bounds_error=False,fill_value=None  ) 
-            delta_star_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']  = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),delta_star_lower_surface,bounds_error=False,fill_value=None  ) 
-            sa_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']          = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),sa_lower_surface ,bounds_error=False,fill_value=None)   
-            ue_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']          = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),ue_lower_surface ,bounds_error=False,fill_value=None) 
-            cf_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']          = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),cf_lower_surface ,bounds_error=False,fill_value=None) 
-            Ret_lower_surface_surs[airfoil_geometry.name[af]+ 'ls']         = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),Ret_lower_surface,bounds_error=False,fill_value=None  ) 
-            H_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']           = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),H_lower_surface  ,bounds_error=False,fill_value=None)
-            theta_upper_surface_surs[airfoil_geometry.name[af]+ '_us']        = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),theta_upper_surface ,bounds_error=False,fill_value=None ) 
-            delta_upper_surface_surs[airfoil_geometry.name[af]+ '_us']       = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),delta_upper_surface  ,bounds_error=False,fill_value=None) 
-            delta_star_upper_surface_surs[airfoil_geometry.name[af]+ '_us']  = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),delta_star_upper_surface ,bounds_error=False,fill_value=None ) 
-            sa_upper_surface_surs[airfoil_geometry.name[af]+ '_us']          = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),sa_upper_surface ,bounds_error=False,fill_value=None )   
-            ue_upper_surface_surs[airfoil_geometry.name[af]+ '_us']          = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),ue_upper_surface ,bounds_error=False,fill_value=None ) 
-            cf_upper_surface_surs[airfoil_geometry.name[af]+ '_us']          = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),cf_upper_surface ,bounds_error=False,fill_value=None ) 
-            Ret_upper_surface_surs[airfoil_geometry.name[af]+ '_us']         = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),Ret_upper_surface,bounds_error=False,fill_value=None  ) 
-            H_upper_surface_surs[airfoil_geometry.name[af]+ '_us']           = RegularGridInterpolator((AoA_sweep, Re_sweep, Ma_sweep),H_upper_surface  ,bounds_error=False,fill_value=None)  
+            theta_lower_surface_surs[airfoil_geometry.name[af] + '_ls']      = RegularGridInterpolator((AoA_sweep, Re_sweep),theta_lower_surface ,bounds_error=False,fill_value=None  ) 
+            delta_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']       = RegularGridInterpolator((AoA_sweep, Re_sweep),delta_lower_surface ,bounds_error=False,fill_value=None  ) 
+            delta_star_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']  = RegularGridInterpolator((AoA_sweep, Re_sweep),delta_star_lower_surface,bounds_error=False,fill_value=None  ) 
+            sa_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']          = RegularGridInterpolator((AoA_sweep, Re_sweep),sa_lower_surface ,bounds_error=False,fill_value=None)   
+            ue_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']          = RegularGridInterpolator((AoA_sweep, Re_sweep),ue_lower_surface ,bounds_error=False,fill_value=None) 
+            cf_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']          = RegularGridInterpolator((AoA_sweep, Re_sweep),cf_lower_surface ,bounds_error=False,fill_value=None) 
+            Ret_lower_surface_surs[airfoil_geometry.name[af]+ 'ls']          = RegularGridInterpolator((AoA_sweep, Re_sweep),Ret_lower_surface,bounds_error=False,fill_value=None  ) 
+            H_lower_surface_surs[airfoil_geometry.name[af]+ '_ls']           = RegularGridInterpolator((AoA_sweep, Re_sweep),H_lower_surface  ,bounds_error=False,fill_value=None)
+            theta_upper_surface_surs[airfoil_geometry.name[af]+ '_us']       = RegularGridInterpolator((AoA_sweep, Re_sweep),theta_upper_surface ,bounds_error=False,fill_value=None ) 
+            delta_upper_surface_surs[airfoil_geometry.name[af]+ '_us']       = RegularGridInterpolator((AoA_sweep, Re_sweep),delta_upper_surface  ,bounds_error=False,fill_value=None) 
+            delta_star_upper_surface_surs[airfoil_geometry.name[af]+ '_us']  = RegularGridInterpolator((AoA_sweep, Re_sweep),delta_star_upper_surface ,bounds_error=False,fill_value=None ) 
+            sa_upper_surface_surs[airfoil_geometry.name[af]+ '_us']          = RegularGridInterpolator((AoA_sweep, Re_sweep),sa_upper_surface ,bounds_error=False,fill_value=None )   
+            ue_upper_surface_surs[airfoil_geometry.name[af]+ '_us']          = RegularGridInterpolator((AoA_sweep, Re_sweep),ue_upper_surface ,bounds_error=False,fill_value=None ) 
+            cf_upper_surface_surs[airfoil_geometry.name[af]+ '_us']          = RegularGridInterpolator((AoA_sweep, Re_sweep),cf_upper_surface ,bounds_error=False,fill_value=None ) 
+            Ret_upper_surface_surs[airfoil_geometry.name[af]+ '_us']         = RegularGridInterpolator((AoA_sweep, Re_sweep),Ret_upper_surface,bounds_error=False,fill_value=None  ) 
+            H_upper_surface_surs[airfoil_geometry.name[af]+ '_us']           = RegularGridInterpolator((AoA_sweep, Re_sweep),H_upper_surface  ,bounds_error=False,fill_value=None)  
                         
                 
         # store surrogates  
