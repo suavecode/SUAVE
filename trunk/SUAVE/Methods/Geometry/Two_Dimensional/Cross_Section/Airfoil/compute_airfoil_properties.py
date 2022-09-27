@@ -209,6 +209,9 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polars = None, boundary
             Re_sweep                    = airfoil_polar_data.reynolds_number[i][0:n_p] 
             geometry.thickness_to_chord = airfoil_geometry.thickness_to_chord[i]
         
+        CL                = np.zeros((len(AoA_sweep_deg)))
+        CD                = np.zeros((len(AoA_sweep_deg)))        
+        
         for j in range(len(airfoil_polars[i])): 
             if airfoil_polars == None: # use panel code 
                 airfoil_cl         = cl[i,:,j]
@@ -261,9 +264,6 @@ def compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geom
     Properties Used:
     N/A
     """   
-
-    CL                = np.zeros(len(AoA_sweep_deg))
-    CD                = np.zeros(len(AoA_sweep_deg))
     
     # Create dummy settings and state
     settings                                              = Data()
