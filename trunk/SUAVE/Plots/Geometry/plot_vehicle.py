@@ -373,12 +373,11 @@ def generate_nacelle_points(nac,tessellation = 24):
             xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface[0]).T,tessellation,axis = 1)*nac.length 
             zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
         
-        elif naf.coordinate_file != None: 
-            a_sec        = naf.coordinate_file
-            a_secl       = [0]
-            airfoil_data = import_airfoil_geometry(a_sec,npoints=num_nac_segs)
-            xpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.x_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
-            zpts         = np.repeat(np.atleast_2d(np.take(airfoil_data.y_coordinates,a_secl,axis=0)).T,tessellation,axis = 1)*nac.length  
+        elif naf.coordinate_file != None:  
+            a_pol        = [0]
+            a_geo        = import_airfoil_geometry(naf.coordinate_file,npoints=num_nac_segs)
+            xpts         = np.repeat(np.atleast_2d(np.take(a_geo.x_coordinates,a_pol,axis=0)).T,tessellation,axis = 1)*nac.length  
+            zpts         = np.repeat(np.atleast_2d(np.take(a_geo.y_coordinates,a_pol,axis=0)).T,tessellation,axis = 1)*nac.length  
         
         else:
             # if no airfoil defined, use super ellipse as default
@@ -529,16 +528,18 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     N/A
     """    
     # unpack
-    num_B  = prop.number_of_blades
-    a_sec  = prop.airfoil_geometry
-    a_secl = prop.airfoil_polar_stations
-    beta   = prop.twist_distribution + prop.inputs.pitch_command
-    a_o    = prop.start_angle
-    b      = prop.chord_distribution
-    r      = prop.radius_distribution
-    MCA    = prop.mid_chord_alignment
-    t      = prop.max_thickness_distribution
-    origin = prop.origin
+    num_B        = prop.number_of_blades
+    airfoil_data = prop.airfoil_data
+    a_geo        = airfoil_data.geometry
+    a_geo_files  = airfoil_data.geometry_files
+    a_pol        = airfoil_data.polar_stations
+    beta         = prop.twist_distribution + prop.inputs.pitch_command
+    a_o          = prop.start_angle
+    b            = prop.chord_distribution
+    r            = prop.radius_distribution
+    MCA          = prop.mid_chord_alignment
+    t            = prop.max_thickness_distribution
+    origin       = prop.origin
     
     if prop.rotation==1:
         # negative chord and twist to give opposite rotation direction
@@ -556,14 +557,14 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     airfoil_le_offset  = np.repeat(b[:,None], n_points, axis=1)/2  
 
     # get airfoil coordinate geometry
-    if a_sec != None:
-        airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)
-        xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
-        zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0)
-        max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0)
+    if a_geo != None: 
+        a_geo        = import_airfoil_geometry(a_geo_files,n_points)
+        xpts         = np.take(a_geo.x_coordinates,a_pol,axis=0)
+        zpts         = np.take(a_geo.y_coordinates,a_pol,axis=0)
+        max_t        = np.take(a_geo.thickness_to_chord,a_pol,axis=0)
 
     else: 
-        airfoil_data = compute_naca_4series(['2410'],(n_points - 2))
+        airfoil_data = compute_naca_4series(['2410'],n_points)
         xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
         zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
         max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)

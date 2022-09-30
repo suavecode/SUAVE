@@ -8,7 +8,7 @@ from SUAVE.Core import Data
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_naca_4series(airfoil_geometry_files,npanels=200):
+def compute_naca_4series(airfoil_geometry_files,npoints=200):
     """Computes the points of NACA 4-series airfoil
 
     Assumptions:
@@ -36,10 +36,10 @@ def compute_naca_4series(airfoil_geometry_files,npanels=200):
     """         
  
     num_foils     = len(airfoil_geometry_files)  
-    npoints       = npanels + 1 
+    npoints       = npoints + 1 
 
     airfoil_data                    = Data() 
-    airfoil_data.name               = airfoil_geometry_files         
+    airfoil_data.airfoil_names      = []        
     airfoil_data.x_coordinates      = []
     airfoil_data.y_coordinates      = []
     airfoil_data.thickness_to_chord = []
@@ -48,14 +48,14 @@ def compute_naca_4series(airfoil_geometry_files,npanels=200):
     airfoil_data.x_upper_surface    = []
     airfoil_data.x_lower_surface    = []
     airfoil_data.y_upper_surface    = []
-    airfoil_data.y_lower_surface    = []    
-    
+    airfoil_data.y_lower_surface    = []   
     
     for foil in range(num_foils):
+        airfoil_data.airfoil_names.append(airfoil_geometry_files[foil])
         airfoil_digits  = [int(x) for x in airfoil_geometry_files[foil]] 
-        camber      = airfoil_digits[0]/100 #   Maximum camber as a fraction of chord
-        camber_loc  = airfoil_digits[1]/10  #   Maximum camber location as a fraction of chord
-        thickness   = airfoil_digits[2]/10 + airfoil_digits[3]/100 #   Maximum thickness as a fraction of chord  
+        camber          = airfoil_digits[0]/100 #   Maximum camber as a fraction of chord
+        camber_loc      = airfoil_digits[1]/10  #   Maximum camber location as a fraction of chord
+        thickness       = airfoil_digits[2]/10 + airfoil_digits[3]/100 #   Maximum thickness as a fraction of chord  
      
         N  = int(npoints/2)                         # number of points per side 
         te = 1.5                                    # points per side and trailing-edge bunching factor
@@ -88,7 +88,8 @@ def compute_naca_4series(airfoil_geometry_files,npanels=200):
         max_t  = np.max(thickness)
         max_c  = max(x_data) - min(x_data)
         t_c    = max_t/max_c         
-    
+        
+        airfoil_data.max_thickness.append(max_t)
         airfoil_data.x_coordinates.append(x_data)  
         airfoil_data.y_coordinates.append(y_data)     
         airfoil_data.x_upper_surface.append(x_up_surf)

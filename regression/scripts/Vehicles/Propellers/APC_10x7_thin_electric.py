@@ -8,6 +8,8 @@
 import SUAVE
 from SUAVE.Core import Data, Units
 import numpy as np
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+     import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties import (
     compute_airfoil_properties,
 )
@@ -109,33 +111,25 @@ def propeller_geometry():
     
     airfoils_path = os.path.join(os.path.dirname(__file__), "../Airfoils/")
     polars_path = os.path.join(os.path.dirname(__file__), "../Airfoils/Polars/")
-    prop.airfoil_geometry = [airfoils_path + "Clark_y.txt"]
-    prop.airfoil_polars = [
+    prop.airfoil_geometry_files = [airfoils_path + "Clark_y.txt"]
+    prop.airfoil_polar_files = [
         [   polars_path + "Clark_y_polar_Re_50000.txt",
             polars_path + "Clark_y_polar_Re_100000.txt",
             polars_path + "Clark_y_polar_Re_200000.txt",
             polars_path + "Clark_y_polar_Re_500000.txt",
             polars_path + "Clark_y_polar_Re_1000000.txt",
         ],
-    ]
-    
-    prop.airfoil_polar_stations = np.zeros(len(r_R))
-    prop.airfoil_polar_stations = list(prop.airfoil_polar_stations.astype(int))
- 
-    airfoil_data    = compute_airfoil_properties(prop.airfoil_geometry, prop.airfoil_polars)
-    airfoil_cl_surs = airfoil_data.lift_coefficient_surrogates
-    airfoil_cd_surs = airfoil_data.drag_coefficient_surrogates
-    
-    prop.airfoil_cl_surrogates = airfoil_cl_surs
-    prop.airfoil_cd_surrogates = airfoil_cd_surs
-    
+    ] 
+    prop.airfoil_polar_stations = list(np.zeros(len(r_R)).astype(int))
+    prop.airfoil_geometry       = import_airfoil_geometry(prop.airfoil_geometry_files)
+    prop.airfoil_data           = compute_airfoil_properties(prop.airfoil_geometry, prop.airfoil_polars) 
 
     results = Data()
-    results.lift_coefficient_surrogates  = airfoil_data.lift_coefficient_surrogates  
-    results.drag_coefficient_surrogates  = airfoil_data.drag_coefficient_surrogates 
-    results.cl_airfoiltools              = airfoil_data.lift_coefficients_from_polar
-    results.cd_airfoiltools              = airfoil_data.drag_coefficients_from_polar  
-    results.re_airfoiltools              = airfoil_data.re_from_polar 
-    results.aoa_airfoiltools             = airfoil_data.aoa_from_polar
+    results.lift_coefficient_surrogates  = prop.airfoil_data.lift_coefficient_surrogates  
+    results.drag_coefficient_surrogates  = prop.airfoil_data.drag_coefficient_surrogates 
+    results.cl_airfoiltools              = prop.airfoil_data.lift_coefficients_from_polar
+    results.cd_airfoiltools              = prop.airfoil_data.drag_coefficients_from_polar  
+    results.re_airfoiltools              = prop.airfoil_data.re_from_polar 
+    results.aoa_airfoiltools             = prop.airfoil_data.aoa_from_polar
     
     return prop

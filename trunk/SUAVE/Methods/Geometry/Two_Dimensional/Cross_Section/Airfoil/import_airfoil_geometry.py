@@ -20,7 +20,7 @@ import numpy as np
 from scipy import interpolate
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def import_airfoil_geometry(airfoil_geometry_files, npanels = 200,surface_interpolation = 'cubic'):
+def import_airfoil_geometry(airfoil_geometry_files, npoints = 100,surface_interpolation = 'cubic'):
     """This imports an airfoil geometry from a text file  and stores
     the coordinates of upper and lower surfaces as well as the mean
     camberline
@@ -179,8 +179,8 @@ def import_airfoil_geometry(airfoil_geometry_files, npanels = 200,surface_interp
         y_up_surf = np.array(y_up_surf)
         y_lo_surf = np.array(y_lo_surf)  
  
-        t            = np.linspace(0,4,npanels)
-        delta        = 0.25
+        t            = np.linspace(0,4,npoints-1)
+        delta        = 0.25 
         A            = 5
         f            = 0.25
         smoothsq     = 5 + (2*A/np.pi) *np.arctan(np.sin(2*np.pi*t*f + np.pi/2)/delta) 

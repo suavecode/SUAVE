@@ -28,14 +28,14 @@ def main():
     AoA                  = np.array([[2],[3]])*Units.degrees 
     Re                   = np.array([[1E5],[1E5]])  
     Ma                   = np.array([[0.2],[0.2]])  
-    npanel               = 100
+    npoints              = 100
 
     ospath               = os.path.abspath(__file__)
     separator            = os.path.sep 
     rel_path             = ospath.split('airfoil_analysis' + separator + 'airfoil_panel_method_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator 
 
     airfoils             = [rel_path + 'NACA_4412.txt',rel_path +'Clark_Y.txt']   
-    airfoil_geometry     = import_airfoil_geometry(airfoils, npanels = npanel)    
+    airfoil_geometry     = import_airfoil_geometry(airfoils,npoints)    
     airfoil_results_1    = airfoil_analysis(airfoil_geometry,AoA,Re,Ma,airfoil_stations = [0,1],viscous_flag = False ) 
     
     plot_airfoil_cp(airfoil_results_1)
@@ -64,9 +64,9 @@ def main():
     AoA                  = np.array([[2]])*Units.degrees 
     Re                   = np.array([[1E5]])  
     Ma                   = np.array([[0.2]])  
-    npanel               = 100   
+    npoints              = 100   
     airfoils             = ['2412']
-    airfoil_geometry     = compute_naca_4series(airfoils,npanels=npanel)     
+    airfoil_geometry     = compute_naca_4series(airfoils,npoints)     
     airfoil_results_2    = airfoil_analysis(airfoil_geometry,AoA,Re,Ma,airfoil_stations = [0],viscous_flag = True ) 
     
     

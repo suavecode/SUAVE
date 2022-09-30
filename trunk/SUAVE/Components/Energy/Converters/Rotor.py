@@ -73,10 +73,6 @@ class Rotor(Energy_Component):
         self.blade_solidity               = 0.0
         self.design_power                 = None
         self.design_thrust                = None
-        self.airfoil_geometry             = None
-        self.airfoil_data                 = None
-        self.airfoil_polars               = None
-        self.airfoil_polar_stations       = None
         self.radius_distribution          = None
         self.rotation                     = 1        
         self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
@@ -86,23 +82,32 @@ class Rotor(Energy_Component):
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
         self.sol_tolerance                = 1e-8
-        self.design_power_coefficient     = 0.01
+        self.design_power_coefficient     = 0.01 
 
+        airfoil_data                      = Data()
+        airfoil_data.NACA_4_series        = False       
+        airfoil_data.geometry_files       = None   
+        airfoil_data.geometry             = None
+        airfoil_data.polar_files          = None
+        airfoil_data.polars               = None
+        airfoil_data.polar_stations       = None
+        airfoil_data.number_of_points     = 100
+        self.airfoil_data                 = airfoil_data
         
-        self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
-        self.nonuniform_freestream     = False
-        self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
-        self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
-        self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
-        
-        self.start_angle               = 0.0      # angle of first blade from vertical
-        self.start_angle_idx           = 0        # azimuthal index at which the blade is started
-        self.inputs.y_axis_rotation    = 0.
-        self.inputs.pitch_command      = 0.
-        self.variable_pitch            = False
+        self.use_2d_analysis              = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream        = False
+        self.axial_velocities_2d          = None     # user input for additional velocity influences at the rotor
+        self.tangential_velocities_2d     = None     # user input for additional velocity influences at the rotor
+        self.radial_velocities_2d         = None     # user input for additional velocity influences at the rotor
+           
+        self.start_angle                  = 0.0      # angle of first blade from vertical
+        self.start_angle_idx              = 0        # azimuthal index at which the blade is started
+        self.inputs.y_axis_rotation       = 0.
+        self.inputs.pitch_command         = 0.
+        self.variable_pitch               = False
         
         # Initialize the default wake set to Fidelity Zero
-        self.Wake                      = Rotor_Wake_Fidelity_Zero()
+        self.Wake                         = Rotor_Wake_Fidelity_Zero()
         
 
     def spin(self,conditions):
@@ -182,11 +187,11 @@ class Rotor(Energy_Component):
         r_1d    = self.radius_distribution
         tc      = self.thickness_to_chord
 
-        # Unpack rotor airfoil data
-        a_geo   = self.airfoil_geometry
-        a_loc   = self.airfoil_polar_stations
-        cl_sur  = self.airfoil_cl_surrogates
-        cd_sur  = self.airfoil_cd_surrogates
+        # Unpack rotor airfoil data 
+        airfoil_data = self.airfoil_data
+        a_loc   = airfoil_data.polar_stations
+        a_names = airfoil_data.geometry_files
+        a_pol   = airfoil_data.polars
 
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega
@@ -350,7 +355,6 @@ class Rotor(Energy_Component):
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
         
-        
         #---------------------------------------------------------------------------
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
@@ -378,7 +382,7 @@ class Rotor(Energy_Component):
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
-        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_names,a_pol,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         
         # compute HFW circulation at the blade

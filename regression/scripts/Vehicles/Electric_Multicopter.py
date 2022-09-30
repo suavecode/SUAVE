@@ -241,14 +241,15 @@ def vehicle_setup():
     lift_rotor.design_altitude        = 1000 * Units.feet                   
     lift_rotor.design_thrust          = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
 
-    lift_rotor.airfoil_geometry       = ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    lift_rotor.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+    lr_airfoil_data                   = lift_rotor.airfoil_data
+    lr_airfoil_data.geometry          = ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    lr_airfoil_data.polars            = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     
-    lift_rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
+    lr_airfoil_data.polar_stations    = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     lift_rotor                        = propeller_design(lift_rotor)     
     
     # Appending rotors with different origins

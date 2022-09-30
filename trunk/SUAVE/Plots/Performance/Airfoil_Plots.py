@@ -139,7 +139,7 @@ def plot_airfoil(airfoil_results):
     fig    = plt.figure()
     axis   = fig.add_subplot(1,1,1)  
     for case in range(cases): 
-        axis.plot(xz[case,:,0], xz[case,:,1], color = blacks[case], linestyle = '-', linewidth =  1, label = f"Airfoil No. {case + 1}")
+        axis.plot(xz[case,:,0], xz[case,:,1], color = blacks[case], linestyle = '-', marker = 'o', linewidth =  1, label = f"Airfoil No. {case + 1}")
         
     axis.set_ylabel(r'$y$') 
     axis.set_xlabel(r'$x$') 

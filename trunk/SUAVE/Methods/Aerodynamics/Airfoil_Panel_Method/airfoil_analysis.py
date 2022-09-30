@@ -73,7 +73,7 @@ def airfoil_analysis(airfoil_geometry,AoA,Re,Ma,airfoil_stations = [0],viscous_f
      
     # number of cases 
     num_cases = len(airfoil_stations)
-    npanel    = len(airfoil_geometry.x_coordinates[0]) -1 
+    npanel    = len(airfoil_geometry.x_coordinates[0]) 
     
     # airfoil results data structure 
     Airfoil_results   = initialize_results(num_cases,npanel,viscous_flag)
@@ -260,8 +260,7 @@ def initialize_case(airfoil_geometry,AoA,Re,Ma,npanel,airfoil_stations,viscous_f
     return Airfoils 
 
 def initialize_results(cases,npanel,viscous_flag): 
-    
-    npanel += (npanel%2 == 0)
+     
     if viscous_flag:
         nwake  = int(np.ceil(npanel/10 + 10)) 
     else:
@@ -281,6 +280,7 @@ def initialize_results(cases,npanel,viscous_flag):
     Airfoil_results.cpi            = np.zeros((cases,npanel_and_wake)) 
     Airfoil_results.cp             = np.zeros((cases,npanel_and_wake)) 
     Airfoil_results.cpi            = np.zeros((cases,npanel_and_wake)) 
+    Airfoil_results.dcp_dx         = np.zeros((cases,npanel)) 
     Airfoil_results.cl             = np.zeros((cases,1))
     Airfoil_results.cl_ue          = np.zeros((cases,npanel)) 
     Airfoil_results.normals        = np.zeros((cases,npanel_and_wake,2)) 
@@ -316,7 +316,7 @@ def set_results(Airfoils,Airfoil_results,case,viscous_flag):
     Airfoil_results.rho[case]           = Airfoils.oper.rho
     Airfoil_results.Vinf[case]          = Airfoils.oper.Vinf
     Airfoil_results.cp[case]            = Airfoils.post.cp[:,0]      
-    Airfoil_results.cpi[case]           = Airfoils.post.cpi[:,0]     
+    Airfoil_results.cpi[case]           = Airfoils.post.cpi[:,0] 
     Airfoil_results.cl[case]            = Airfoils.post.cl[0]      
     Airfoil_results.cl_ue[case]         = Airfoils.post.cl_ue[:,0]   
     Airfoil_results.cl_alpha[case]      = Airfoils.post.cl_alpha[0]
@@ -334,6 +334,7 @@ def set_results(Airfoils,Airfoil_results,case,viscous_flag):
         Airfoils.wake_pts                   = Airfoils.wake.N
         Airfoil_results.wake_pts[case][:,0] = Airfoils.wake.x[0,:]  
         Airfoil_results.wake_pts[case][:,1] = Airfoils.wake.x[1,:]   
+        Airfoil_results.dcp_dx[case]        = np.gradient(Airfoils.post.cp[:-Airfoils.wake.N,0], Airfoils.foil.x[0,:])
         Airfoil_results.theta[case]         = Airfoils.post.theta   
         Airfoil_results.delta[case]         = Airfoils.post.delta
         Airfoil_results.delta_star[case]    = Airfoils.post.delta_star   
@@ -344,5 +345,7 @@ def set_results(Airfoils,Airfoil_results,case,viscous_flag):
         Airfoil_results.Re_theta[case]      = Airfoils.post.Ret[:,0]    
         Airfoil_results.H[case]             = Airfoils.post.Hk[:,0] 
         Airfoil_results.normals[case]       = Airfoils.post.normals.T
+    else: 
+        Airfoil_results.dcp_dx[case]        = np.gradient(Airfoils.post.cp[:,0], Airfoils.foil.x[0,:])
     
     return Airfoils

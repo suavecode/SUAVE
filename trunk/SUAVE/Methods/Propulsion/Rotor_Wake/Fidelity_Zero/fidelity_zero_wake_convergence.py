@@ -107,13 +107,13 @@ def iteration(PSI, wake_inputs, rotor):
     Na              = wake_inputs.Na
 
     # Unpack rotor data        
-    R        = rotor.tip_radius
-    B        = rotor.number_of_blades    
-    tc       = rotor.thickness_to_chord
-    a_geo    = rotor.airfoil_geometry
-    a_loc    = rotor.airfoil_polar_stations
-    cl_sur   = rotor.airfoil_cl_surrogates
-    cd_sur   = rotor.airfoil_cd_surrogates    
+    R            = rotor.tip_radius
+    B            = rotor.number_of_blades    
+    tc           = rotor.thickness_to_chord 
+    airfoil_data = rotor.airfoil_data 
+    a_loc        = airfoil_data.polar_stations
+    a_names      = airfoil_data.geometry_files
+    a_pol        = airfoil_data.polars     
     
     # Reshape PSI because the solver gives it flat
     if wake_inputs.use_2d_analysis:
@@ -129,7 +129,7 @@ def iteration(PSI, wake_inputs, rotor):
     vt           = Ut - Wt
 
     # compute blade airfoil forces and properties
-    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_names,a_pol,ctrl_pts,Nr,Na,tc,use_2d_analysis)
 
     # compute inflow velocity and tip loss factor
     lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
