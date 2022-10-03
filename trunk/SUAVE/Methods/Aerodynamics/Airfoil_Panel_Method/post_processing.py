@@ -157,10 +157,11 @@ def get_distributions(Airfoils):
     Airfoils.post.uei        = get_ueinv(Airfoils) # compressible inviscid edge velocity
 
     # derived viscous quantities
-    N   = Airfoils.glob.Nsys 
-    cf  = np.zeros((N,1)) 
-    Ret = np.zeros((N,1))
-    Hk  = np.zeros((N,1))
+    N     = Airfoils.glob.Nsys 
+    cf    = np.zeros((N,1)) 
+    Ret   = np.zeros((N,1))
+    Hk    = np.zeros((N,1))
+    de    = np.zeros((N,1))
     for iss in range(3):   # loop over surfaces
         Is    = Airfoils.vsol.Is[iss] # surface point indices
         param = build_param(Airfoils, iss) # get parameter structure
@@ -170,20 +171,21 @@ def get_distributions(Airfoils):
             param     = station_param(Airfoils, param, j)
             uk ,_     = get_uk(Uj[3], param) # corrected edge speed
             cfloc, _  = get_cf(Uj, param) # local skin friction coefficient
+            de[j],_   = get_de(Uj, param)
             cf[j]     = cfloc * uk**2/param.Vinf**2 # free-stream-based cf
             Ret[j],_  = get_Ret(Uj, param) # Re_theta
             Hk[j],_   = get_Hk(Uj, param) # kinematic shape factor 
     
-    Airfoils.post.cf  = cf 
-    Airfoils.post.Ret = Ret 
-    Airfoils.post.Hk  = Hk 
+    Airfoils.post.cf    = cf 
+    Airfoils.post.Ret   = Ret 
+    Airfoils.post.Hk    = Hk 
+    Airfoils.post.delta = de
     
     # normals 
     t                     = np.concatenate((Airfoils.foil.t,Airfoils.wake.t),axis = 1)
     vec                   = np.concatenate((-t[1,:][None,:],t[0,:][None,:]) ,axis = 0)
     e                     = np.linalg.norm(vec,axis = 0)
-    n                     = vec/np.tile(e[None,:], (2,1)) # outward normals  
-    Airfoils.post.delta   = np.linalg.norm(n*Airfoils.post.delta_star,axis=0)
+    n                     = vec/np.tile(e[None,:], (2,1)) # outward normals   
     Airfoils.post.normals = n
 
     return 

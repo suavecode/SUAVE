@@ -12,7 +12,8 @@ from SUAVE.Core import  Data
 import numpy as np   
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import SPL_spectra_arithmetic  
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_point_source_coordinates
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_blade_section_source_coordinates
+from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_blade_section_source_coordinates 
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties  import compute_boundary_layer_properties
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise         import compute_harmonic_noise
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        import compute_broadband_noise
 
@@ -33,7 +34,7 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     Inputs:
         rotors                  - data structure of rotors                            [None]
         segment                 - flight segment data structure                       [None] 
-        aeroacoustic_data      - data structure of acoustic data                     [None]
+        aeroacoustic_data       - data structure of acoustic data                     [None]
         settings                - accoustic settings                                  [None]
                                
     Outputs:
@@ -76,6 +77,12 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,aeroacoustic_data,rotors,microphone_locations,settings)
     
     # Broadband Noise
+    rotor         = rotors[list(rotors.keys())[0]]
+    if rotor.airfoil_data.polars.boundary_layer_properties: # only compute boundary layer properties if needed 
+        pass
+    else:
+        rotor.airfoil_data.polars = compute_boundary_layer_properties(rotor.airfoil_data.geometry,rotor.airfoil_data)
+        
     compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,rotors,aeroacoustic_data,settings,Noise)
 
     # Combine Harmonic (periodic/tonal) and Broadband Noise

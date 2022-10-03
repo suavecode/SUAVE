@@ -61,50 +61,51 @@ class Rotor(Energy_Component):
         None
         """
 
-        self.tag                          = 'rotor'
-        self.number_of_blades             = 0.0
-        self.tip_radius                   = 0.0
-        self.hub_radius                   = 0.0
-        self.twist_distribution           = 0.0
-        self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
-        self.chord_distribution           = 0.0 
-        self.thickness_to_chord           = 0.0
-        self.mid_chord_alignment          = 0.0 
-        self.blade_solidity               = 0.0
-        self.design_power                 = None
-        self.design_thrust                = None
-        self.radius_distribution          = None
-        self.rotation                     = 1        
-        self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
-        self.ducted                       = False
-        self.number_azimuthal_stations    = 24
-        self.vtk_airfoil_points           = 40
-        self.induced_power_factor         = 1.48         # accounts for interference effects
-        self.profile_drag_coefficient     = .03
-        self.sol_tolerance                = 1e-8
-        self.design_power_coefficient     = 0.01 
+        self.tag                               = 'rotor'
+        self.number_of_blades                  = 0.0
+        self.tip_radius                        = 0.0
+        self.hub_radius                        = 0.0
+        self.twist_distribution                = 0.0
+        self.sweep_distribution                = 0.0         # quarter chord offset from quarter chord of root airfoil
+        self.chord_distribution                = 0.0 
+        self.thickness_to_chord                = 0.0
+        self.mid_chord_alignment               = 0.0 
+        self.blade_solidity                    = 0.0
+        self.design_power                      = None
+        self.design_thrust                     = None
+        self.radius_distribution               = None
+        self.rotation                          = 1        
+        self.orientation_euler_angles          = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
+        self.ducted                            = False
+        self.number_azimuthal_stations         = 24
+        self.vtk_airfoil_points                = 40
+        self.induced_power_factor              = 1.48         # accounts for interference effects
+        self.profile_drag_coefficient          = .03
+        self.sol_tolerance                     = 1e-8
+        self.design_power_coefficient          = 0.01 
 
-        airfoil_data                      = Data()
-        airfoil_data.NACA_4_series        = False       
-        airfoil_data.geometry_files       = None   
-        airfoil_data.geometry             = None
-        airfoil_data.polar_files          = None
-        airfoil_data.polars               = None
-        airfoil_data.polar_stations       = None
-        airfoil_data.number_of_points     = 100
-        self.airfoil_data                 = airfoil_data
+        airfoil_data                           = Data()
+        airfoil_data.NACA_4_series             = False       
+        airfoil_data.geometry_files            = None   
+        airfoil_data.geometry                  = None
+        airfoil_data.polar_files               = None
+        airfoil_data.polars                    = None
+        airfoil_data.polar_stations            = None
+        airfoil_data.number_of_points          = 100
+        airfoil_data.boundary_layer_properties = False 
+        self.airfoil_data                      = airfoil_data
         
-        self.use_2d_analysis              = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
-        self.nonuniform_freestream        = False
-        self.axial_velocities_2d          = None     # user input for additional velocity influences at the rotor
-        self.tangential_velocities_2d     = None     # user input for additional velocity influences at the rotor
-        self.radial_velocities_2d         = None     # user input for additional velocity influences at the rotor
-           
-        self.start_angle                  = 0.0      # angle of first blade from vertical
-        self.start_angle_idx              = 0        # azimuthal index at which the blade is started
-        self.inputs.y_axis_rotation       = 0.
-        self.inputs.pitch_command         = 0.
-        self.variable_pitch               = False
+        self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream             = False
+        self.axial_velocities_2d               = None     # user input for additional velocity influences at the rotor
+        self.tangential_velocities_2d          = None     # user input for additional velocity influences at the rotor
+        self.radial_velocities_2d              = None     # user input for additional velocity influences at the rotor
+                
+        self.start_angle                       = 0.0      # angle of first blade from vertical
+        self.start_angle_idx                   = 0        # azimuthal index at which the blade is started
+        self.inputs.y_axis_rotation            = 0.
+        self.inputs.pitch_command              = 0.
+        self.variable_pitch                    = False
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                         = Rotor_Wake_Fidelity_Zero()

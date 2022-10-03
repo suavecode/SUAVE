@@ -208,6 +208,7 @@ def initialize_case(airfoil_geometry,AoA,Re,Ma,npanel,airfoil_stations,viscous_f
 
     # distributions
     Airfoils.post.theta       = []       # theta = momentum thickness distribution
+    Airfoils.post.delta       = []       # delta  = boundary layer thickness 
     Airfoils.post.delta_star  = []       # delta* = displacement thickness distribution
     Airfoils.post.sa          = []       # amplification factor/shear lag coeff distribution
     Airfoils.post.ue          = []       # edge velocity (compressible) distribution
@@ -336,7 +337,7 @@ def set_results(Airfoils,Airfoil_results,case,viscous_flag):
         Airfoil_results.wake_pts[case][:,1] = Airfoils.wake.x[1,:]   
         Airfoil_results.dcp_dx[case]        = np.gradient(Airfoils.post.cp[:-Airfoils.wake.N,0], Airfoils.foil.x[0,:])
         Airfoil_results.theta[case]         = Airfoils.post.theta   
-        Airfoil_results.delta[case]         = Airfoils.post.delta
+        Airfoil_results.delta[case]         = Airfoils.post.delta[:,0]
         Airfoil_results.delta_star[case]    = Airfoils.post.delta_star   
         Airfoil_results.sa[case]            = Airfoils.post.sa      
         Airfoil_results.ue[case]            = Airfoils.post.ue      

@@ -284,10 +284,11 @@ def plot_airfoil_distributions(airfoil_results):
     N/A
     """          
     plot_quantity(airfoil_results, airfoil_results.ue,  r'$u_e$'  , 'edge velocity')
-    plot_quantity(airfoil_results, airfoil_results.ue_inv, r'$u_{e_inv}$'  ,'inviscid edge velocity')
+    plot_quantity(airfoil_results, airfoil_results.ue_inv, r'$u_{e_{inv}}$'  ,'inviscid edge velocity')
     plot_quantity(airfoil_results, airfoil_results.sa,  r'$c_{\tau}^{1/2}$'  ,'amplification')
     plot_quantity(airfoil_results, airfoil_results.H,  r'$H$'  ,'kinematic shape parameter')
     plot_quantity(airfoil_results, airfoil_results.delta_star, r'$\delta*$' ,'displacement thickness')
+    plot_quantity(airfoil_results, airfoil_results.delta   , r'$\delta$' ,'boundary layer thickness')
     plot_quantity(airfoil_results, airfoil_results.theta, r'$\theta$' ,'momentum thickness')
     plot_quantity(airfoil_results, airfoil_results.cf, r'$c_f $'  ,   'skin friction coefficient')
     plot_quantity(airfoil_results, airfoil_results.Re_theta,  r'$Re_{\theta}$'  ,'theta Reynolds number') 

@@ -18,6 +18,7 @@
 from SUAVE.Core import Data  
 import numpy as np
 from scipy import interpolate
+import scipy.interpolate as interp
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def import_airfoil_geometry(airfoil_geometry_files, npoints = 100,surface_interpolation = 'cubic'):
@@ -179,6 +180,7 @@ def import_airfoil_geometry(airfoil_geometry_files, npoints = 100,surface_interp
         y_up_surf = np.array(y_up_surf)
         y_lo_surf = np.array(y_lo_surf)  
  
+        # create custom spacing for more points and leading and trailing edge
         t            = np.linspace(0,4,npoints-1)
         delta        = 0.25 
         A            = 5
@@ -187,8 +189,6 @@ def import_airfoil_geometry(airfoil_geometry_files, npoints = 100,surface_interp
         dim_spacing  = np.append(0,np.cumsum(smoothsq)/sum(smoothsq))
         
         # compute thickness, camber and concatenate coodinates 
-        thickness     = y_up_surf - y_lo_surf
-        camber        = y_lo_surf + thickness/2 
         x_data        = np.hstack((x_lo_surf[::-1], x_up_surf[1:])) 
         y_data        = np.hstack((y_lo_surf[::-1], y_up_surf[1:]))   
         tck,u         = interpolate.splprep([x_data,y_data],k=3,s=0) 
@@ -196,27 +196,61 @@ def import_airfoil_geometry(airfoil_geometry_files, npoints = 100,surface_interp
         x_data        = out[0]   
         y_data        = out[1]  
         
-        arg_min = np.argmin(x_data)
-        if (x_data[arg_min] == 0) and (y_data[arg_min]  == 0): 
-            x_data[arg_min]    = 0  
-            y_data[arg_min]    = 0 
+        # shift points to leading edge (x = 0, y = 0)
+        x_delta  = min(x_data)
+        x_data   = x_data - x_delta 
         
+        arg_min  = np.argmin(x_data) 
+        y_delta  = y_data[arg_min]
+        y_data   = y_data - y_delta
+        
+        if (x_data[arg_min] == 0) and (y_data[arg_min]  == 0): 
+            x_data[arg_min]  = 0  
+            y_data[arg_min]  = 0 
+        
+        # make sure points start and end at x = 1.0
+        x_data[0]  = 1.0
+        x_data[-1] = 1.0
+        
+        # make sure a small gap at trailing edge
         if (y_data[0] == y_data[-1]): 
             y_data[0]          = y_data[0]  - 1E-4
-            y_data[-1]         = y_data[-1] + 1E-4 
-          
-        max_t  = np.max(thickness)
-        max_c  = max(x_data) - min(x_data)
-        t_c    = max_t/max_c 
+            y_data[-1]         = y_data[-1] + 1E-4  
+            
+        # thicknes and camber distributions require equal points     
+        n_pts         = npoints//2        
+        x_up_surf_old = np.array(x_up_surf)   
+        arrx_up_interp= interpolate.interp1d(np.arange(x_up_surf_old.size),x_up_surf_old, kind=surface_interpolation)
+        x_up_surf_new = arrx_up_interp(np.linspace(0,x_up_surf_old.size-1,n_pts))    
+    
+        x_lo_surf_old = np.array(x_lo_surf) 
+        arrx_lo_interp= interpolate.interp1d(np.arange(x_lo_surf_old.size),x_lo_surf_old, kind=surface_interpolation )
+        x_lo_surf_new = arrx_lo_interp(np.linspace(0,x_lo_surf_old.size-1,n_pts)) 
+    
+        # y coordinates 
+        y_up_surf_old = np.array(y_up_surf)   
+        arry_up_interp= interpolate.interp1d(np.arange(y_up_surf_old.size),y_up_surf_old, kind=surface_interpolation)
+        y_up_surf_new = arry_up_interp(np.linspace(0,y_up_surf_old.size-1,n_pts))    
+    
+        y_lo_surf_old = np.array(y_lo_surf) 
+        arry_lo_interp= interpolate.interp1d(np.arange(y_lo_surf_old.size),y_lo_surf_old, kind=surface_interpolation)
+        y_lo_surf_new = arry_lo_interp(np.linspace(0,y_lo_surf_old.size-1,n_pts)) 
+    
+        # compute thickness, camber and concatenate coodinates 
+        thickness     = y_up_surf_new - y_lo_surf_new
+        camber        = y_lo_surf_new + thickness/2  
+        max_t         = np.max(thickness)
+        max_c         = max(x_data) - min(x_data)
+        t_c           = max_t/max_c 
         
         airfoil_data.thickness_to_chord.append(t_c)
         airfoil_data.max_thickness.append(max_t)    
         airfoil_data.x_coordinates.append(x_data)  
         airfoil_data.y_coordinates.append(y_data)     
-        airfoil_data.x_upper_surface.append(x_up_surf)
-        airfoil_data.x_lower_surface.append(x_lo_surf)
-        airfoil_data.y_upper_surface.append(y_up_surf)
-        airfoil_data.y_lower_surface.append(y_lo_surf)          
+        airfoil_data.x_upper_surface.append(x_up_surf_new)
+        airfoil_data.x_lower_surface.append(x_lo_surf_new)
+        airfoil_data.y_upper_surface.append(y_up_surf_new)
+        airfoil_data.y_lower_surface.append(y_lo_surf_new)             
         airfoil_data.camber_coordinates.append(camber)
          
     return airfoil_data  

@@ -8,14 +8,14 @@
 # ---------------------------------------------------------------------
 from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis 
-import matplotlib.pyplot as plt   
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
-     import  compute_naca_4series
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
-     import import_airfoil_geometry
-from SUAVE.Plots.Performance.Airfoil_Plots import * 
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series      import  compute_naca_4series
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry   import import_airfoil_geometry
+from SUAVE.Plots.Performance.Airfoil_Plots import *
+
+# package imports 
 import os 
 import numpy as np
+import matplotlib.pyplot as plt   
 
 # ----------------------------------------------------------------------
 #   Main
@@ -68,8 +68,7 @@ def main():
     airfoils             = ['2412']
     airfoil_geometry     = compute_naca_4series(airfoils,npoints)     
     airfoil_results_2    = airfoil_analysis(airfoil_geometry,AoA,Re,Ma,airfoil_stations = [0],viscous_flag = True ) 
-    
-    
+      
     plot_airfoil_panels(airfoil_results_2) 
     plot_airfoil_boundary_layers(airfoil_results_2)
     plot_airfoil_distributions(airfoil_results_2) 
