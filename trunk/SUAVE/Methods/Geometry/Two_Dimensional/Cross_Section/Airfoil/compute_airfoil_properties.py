@@ -14,13 +14,12 @@
 import SUAVE
 from SUAVE.Core                                                           import Data , Units
 from SUAVE.Methods.Aerodynamics.AERODAS.pre_stall_coefficients            import pre_stall_coefficients
-from SUAVE.Methods.Aerodynamics.AERODAS.post_stall_coefficients           import post_stall_coefficients 
-from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis_new import airfoil_analysis_new 
+from SUAVE.Methods.Aerodynamics.AERODAS.post_stall_coefficients           import post_stall_coefficients  
 from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis     import airfoil_analysis
 from .import_airfoil_polars                                               import import_airfoil_polars 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series   
 import numpy as np
-from scipy.interpolate import RegularGridInterpolator , interp2d
+from scipy.interpolate import RegularGridInterpolator  
 
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
@@ -196,8 +195,8 @@ def compute_boundary_layer_properties(airfoil_geometry,airfoil_data):
         a_names                       = ['0012']                
         airfoil_geometry              = compute_naca_4series(a_names, npoints= 100)    
     
-    AoA_sweep                     = np.array([-4,0,2,4,6,8,12,16])*Units.degrees 
-    Re_sweep                      = np.array([5,10,25,55,75,100])*1E4 
+    AoA_sweep                     = np.array([-3,0,3,6,9,12])*Units.degrees 
+    Re_sweep                      = np.array([5,25,55,75,100])*1E4 
     num_airfoils                  = len(airfoil_geometry.x_coordinates)   
     dim_aoa                       = len(AoA_sweep)
     dim_Re                        = len(Re_sweep)      
@@ -240,11 +239,10 @@ def compute_boundary_layer_properties(airfoil_geometry,airfoil_data):
                 Ma      = np.array([[0.0]])  
                 
                 # run airfoil analysis  
-                #af_res  = airfoil_analysis_new(airfoil_geometry,AoA,Re,Ma,airfoil_stations = [af],viscous_flag = True)         
-                af_res  = airfoil_analysis(airfoil_geometry,AoA,Re, batch_analysis = False, airfoil_stations =  [af], )
+                af_res  = airfoil_analysis(airfoil_geometry,AoA,Re,Ma,airfoil_stations = [af],viscous_flag = True)      
                 
-                bstei = 4 # bottom surface trailing edge index
-                nw    = 0 # af_res.num_wake_pts
+                bstei = 15           # bottom surface trailing edge index
+                nw    = af_res.num_wake_pts
                 tstei = -(bstei + nw) # top surface trailing edge index 
                 
                 # store raw results 
@@ -262,53 +260,10 @@ def compute_boundary_layer_properties(airfoil_geometry,airfoil_data):
                 delta_star_upper_surface[af,aoa_i,re_i]  = af_res.delta_star[0][tstei]     
                 ue_upper_surface[af,aoa_i,re_i]          = af_res.ue[0][tstei]   
                 cf_upper_surface[af,aoa_i,re_i]          = af_res.cf[0][tstei]   
-                dcp_dx_upper_surface[af,aoa_i,re_i]      = af_res.dcp_dx[0][tstei]      
-                    
-        # replace nans 0 with mean as a post post-processor
-        theta_lower_surface       = np.nan_to_num(theta_lower_surface)
-        theta_upper_surface       = np.nan_to_num(theta_upper_surface)
-        delta_lower_surface       = np.nan_to_num(delta_lower_surface)
-        delta_upper_surface       = np.nan_to_num(delta_upper_surface)
-        delta_star_lower_surface  = np.nan_to_num(delta_star_lower_surface)
-        delta_star_upper_surface  = np.nan_to_num(delta_star_upper_surface)
-        cf_lower_surface          = np.nan_to_num(cf_lower_surface)
-        cf_upper_surface          = np.nan_to_num(cf_upper_surface)
-        dcp_dx_lower_surface      = np.nan_to_num(dcp_dx_lower_surface )
-        dcp_dx_upper_surface      = np.nan_to_num(dcp_dx_upper_surface )
-        ue_lower_surface          = np.nan_to_num(ue_lower_surface)
-        ue_upper_surface          = np.nan_to_num(ue_upper_surface) 
-        
-        # apply thresholds for non-converged boundary layer solutions form pandel code 
-        theta_lower_surface[abs(theta_lower_surface)> 0.01 ]           = 0.0
-        theta_upper_surface[abs(theta_upper_surface)>0.01 ]            = 0.0
-        delta_lower_surface[abs(delta_lower_surface)> 0.1 ]            = 0.0
-        delta_upper_surface[abs(delta_upper_surface)> 0.1]             = 0.0
-        delta_star_lower_surface[abs(delta_star_lower_surface)>0.1 ]   = 0.0
-        delta_star_upper_surface[abs(delta_star_upper_surface)>0.1 ]   = 0.0
-        cf_lower_surface[abs(cf_lower_surface)>0.1 ]                   = 0.0
-        cf_upper_surface[abs(cf_upper_surface)> 0.1]                   = 0.0
-        dcp_dx_lower_surface[abs(dcp_dx_lower_surface)> 1E7]           = 0.0
-        dcp_dx_upper_surface[abs(dcp_dx_upper_surface)> 1E7]           = 0.0
-        ue_lower_surface[abs(ue_lower_surface)> 500.]                  = 0.0
-        ue_upper_surface[abs(ue_upper_surface)> 500.]                  = 0.0 
-        
-        # replace null solutions with mean
-        theta_lower_surface[theta_lower_surface == 0]                  = np.mean(theta_lower_surface)
-        theta_upper_surface[theta_upper_surface == 0]                  = np.mean(theta_upper_surface)
-        delta_lower_surface[delta_lower_surface == 0]                  = np.mean(delta_lower_surface)
-        delta_upper_surface[delta_upper_surface == 0]                  = np.mean(delta_upper_surface)
-        delta_star_lower_surface[delta_star_lower_surface == 0]        = np.mean(delta_star_lower_surface)
-        delta_star_upper_surface[delta_star_upper_surface== 0]         = np.mean(delta_star_upper_surface)
-        cf_lower_surface[cf_lower_surface == 0]                        = np.mean(cf_lower_surface)
-        cf_upper_surface[cf_upper_surface == 0]                        = np.mean(cf_upper_surface)
-        dcp_dx_lower_surface[dcp_dx_lower_surface  == 0]               = np.mean(dcp_dx_lower_surface )
-        dcp_dx_upper_surface[dcp_dx_upper_surface  == 0]               = np.mean(dcp_dx_upper_surface )
-        ue_lower_surface[ue_lower_surface == 0]                        = np.mean(ue_lower_surface)
-        ue_upper_surface[ue_upper_surface == 0]                        = np.mean(ue_upper_surface) 
-
+                dcp_dx_upper_surface[af,aoa_i,re_i]      = af_res.dcp_dx[0][-bstei]      
         
         # create surrogates   
-        smoothing_method = "nearest"
+        smoothing_method = "linear"
         cm_surs[airfoil_geometry.airfoil_names[af] ]                       = RegularGridInterpolator((AoA_sweep, Re_sweep),cm[af] , method= smoothing_method ,bounds_error=False,fill_value=None  ) 
         theta_lower_surface_surs[airfoil_geometry.airfoil_names[af] ]      = RegularGridInterpolator((AoA_sweep, Re_sweep),theta_lower_surface[af]  , method= smoothing_method,bounds_error=False,fill_value=None  ) 
         delta_lower_surface_surs[airfoil_geometry.airfoil_names[af]]       = RegularGridInterpolator((AoA_sweep, Re_sweep),delta_lower_surface[af]  , method= smoothing_method,bounds_error=False,fill_value=None  ) 

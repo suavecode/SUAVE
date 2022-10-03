@@ -11,9 +11,7 @@ import numpy as np
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.SPL_harmonic_to_third_octave  import SPL_harmonic_to_third_octave  
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties  import compute_airfoil_properties
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series   
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic  
 from scipy.special import fresnel
  
 # ----------------------------------------------------------------------
@@ -149,8 +147,6 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         upper_surface_Ue         = np.zeros_like(lower_surface_theta) 
         upper_surface_dp_dx      = np.zeros_like(lower_surface_theta)
 
-        # ------------------------------------------------------------
-        # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******   
         if rotor.nonuniform_freestream: 
 
             # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
@@ -230,7 +226,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
             cf_us            = np.zeros((num_cpt,num_sec))
             dcp_dx_us        = np.zeros((num_cpt,num_sec)) 
             local_aoa        = alpha_blade[:,:,0]
-            local_Re         = Re_blade[:,:,0]/1E6             
+            local_Re         = Re_blade[:,:,0]              
 
             for jj in range(dim_sur):
                 theta_ls_data           = theta_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
