@@ -170,7 +170,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
             for i_azi in range(num_azi):  
                 for jj in range(dim_sur):
                     local_aoa                     = alpha_blade[:,:,i_azi]
-                    local_Re                      = Re_blade[:,:,i_azi]/1E6 
+                    local_Re                      = Re_blade[:,:,i_azi] 
                     
                     theta_ls_data                 = theta_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
                     delta_ls_data                 = delta_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
@@ -237,14 +237,14 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                 delta_ls_data           = delta_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
                 delta_star_ls_data      = delta_star_lower_surface_surs[a_names[jj]]((local_aoa,local_Re)) 
                 ue_ls_data              = ue_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                cf_ls_data              = abs(cf_lower_surface_surs[a_names[jj]]((local_aoa,local_Re)))
-                dcp_dx_ls_data          = abs(dcp_dx_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))) 
+                cf_ls_data              = cf_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
+                dcp_dx_ls_data          = dcp_dx_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
                 theta_us_data           = theta_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
                 delta_us_data           = delta_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
                 delta_star_us_data      = delta_star_upper_surface_surs[a_names[jj]]((local_aoa,local_Re)) 
                 ue_us_data              = ue_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                cf_us_data              = abs(cf_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))) 
-                dcp_dx_us_data          = abs(dcp_dx_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))) 
+                cf_us_data              = cf_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
+                dcp_dx_us_data          = dcp_dx_upper_surface_surs[a_names[jj]]((local_aoa,local_Re)) 
                 
                 locs                    = np.where(np.array(a_loc) == jj ) 
                 
@@ -277,49 +277,6 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
             upper_surface_cf          = np.tile(cf_us[:,:,None],(1,1,num_azi))  
             upper_surface_Ue          = np.tile(ue_us[:,:,None],(1,1,num_azi))*U_blade  
             upper_surface_dp_dx       = np.tile(dP_dX_us[:,:,None],(1,1,num_azi))  
-            
-        ## replace nans 0 with mean as a post post-processor
-        #lower_surface_theta       = np.nan_to_num(lower_surface_theta)
-        #upper_surface_theta       = np.nan_to_num(upper_surface_theta)
-        #lower_surface_delta       = np.nan_to_num(lower_surface_delta)
-        #upper_surface_delta       = np.nan_to_num(upper_surface_delta)
-        #lower_surface_delta_star  = np.nan_to_num(lower_surface_delta_star)
-        #upper_surface_delta_star  = np.nan_to_num(upper_surface_delta_star)
-        #lower_surface_cf          = np.nan_to_num(lower_surface_cf)
-        #upper_surface_cf          = np.nan_to_num(upper_surface_cf)
-        #lower_surface_dp_dx       = np.nan_to_num(lower_surface_dp_dx )
-        #upper_surface_dp_dx       = np.nan_to_num(upper_surface_dp_dx )
-        #lower_surface_Ue          = np.nan_to_num(lower_surface_Ue)
-        #upper_surface_Ue          = np.nan_to_num(upper_surface_Ue) 
-        
-        ## apply thresholds for non-converged boundary layer solutions form pandel code 
-        #lower_surface_theta[abs(lower_surface_theta)> 0.01 ]           = 0.0
-        #upper_surface_theta[abs(upper_surface_theta)>0.01 ]            = 0.0
-        #lower_surface_delta[abs(lower_surface_delta)> 0.1 ]            = 0.0
-        #upper_surface_delta[abs(upper_surface_delta)> 0.1]             = 0.0
-        #lower_surface_delta_star[abs(lower_surface_delta_star)>0.1 ]   = 0.0
-        #upper_surface_delta_star[abs(upper_surface_delta_star)>0.1 ]   = 0.0
-        #lower_surface_cf[abs(lower_surface_cf)>0.1 ]                   = 0.0
-        #upper_surface_cf[abs(upper_surface_cf)> 0.1]                   = 0.0
-        #lower_surface_dp_dx[abs(lower_surface_dp_dx)> 1E7]             = 0.0
-        #upper_surface_dp_dx[abs(upper_surface_dp_dx)> 1E7]             = 0.0
-        #lower_surface_Ue[abs(lower_surface_Ue)> 500.]                  = 0.0
-        #upper_surface_Ue[abs(upper_surface_Ue)> 500.]                  = 0.0 
-        
-        ## replace null solutions with mean
-        #lower_surface_theta[lower_surface_theta == 0]                  = np.mean(lower_surface_theta)
-        #upper_surface_theta[upper_surface_theta == 0]                  = np.mean(upper_surface_theta)
-        #lower_surface_delta[lower_surface_delta == 0]                  = np.mean(lower_surface_delta)
-        #upper_surface_delta[upper_surface_delta == 0]                  = np.mean(upper_surface_delta)
-        #lower_surface_delta_star[lower_surface_delta_star == 0]        = np.mean(lower_surface_delta_star)
-        #upper_surface_delta_star[upper_surface_delta_star== 0]         = np.mean(upper_surface_delta_star)
-        #lower_surface_cf[lower_surface_cf == 0]                        = np.mean(lower_surface_cf)
-        #upper_surface_cf[upper_surface_cf == 0]                        = np.mean(upper_surface_cf)
-        #lower_surface_dp_dx [lower_surface_dp_dx  == 0]                = np.mean(lower_surface_dp_dx )
-        #upper_surface_dp_dx [upper_surface_dp_dx  == 0]                = np.mean(upper_surface_dp_dx )
-        #lower_surface_Ue[lower_surface_Ue == 0]                        = np.mean(lower_surface_Ue)
-        #upper_surface_Ue[upper_surface_Ue == 0]                        = np.mean(upper_surface_Ue) 
-
         # ------------------------------------------------------------
         # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******
 
