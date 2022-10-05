@@ -512,8 +512,8 @@ def plot_propeller_geometry(axes,prop,cpt=0,prop_face_color='red',prop_edge_colo
                 axes.add_collection3d(prop_collection)
     return
 
-def get_blade_coordinates(prop,n_points,dim,i):
-    """ This generates the coordinates of the blade surface for plotting
+def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
+    """ This generates the coordinates of the blade surface for plotting in the aircraft frame (x-back, z-up)
 
     Assumptions:
     None
@@ -522,10 +522,11 @@ def get_blade_coordinates(prop,n_points,dim,i):
     None
 
     Inputs:
-    prop          - SUAVE rotor
-    n_points      - number of points around airfoils of each blade section
-    dim           - number for radial dimension
-    i             - blade number
+    prop             - SUAVE rotor
+    n_points         - number of points around airfoils of each blade section
+    dim              - number for radial dimension
+    i                - blade number
+    aircraftRefFrame - boolean to convert the coordinates from rotor frame to aircraft frame 
 
     Properties Used:
     N/A
@@ -534,7 +535,7 @@ def get_blade_coordinates(prop,n_points,dim,i):
     num_B  = prop.number_of_blades
     a_sec  = prop.airfoil_geometry
     a_secl = prop.airfoil_polar_stations
-    beta   = prop.twist_distribution
+    beta   = prop.twist_distribution + prop.inputs.pitch_command
     a_o    = prop.start_angle
     b      = prop.chord_distribution
     r      = prop.radius_distribution
@@ -542,13 +543,12 @@ def get_blade_coordinates(prop,n_points,dim,i):
     t      = prop.max_thickness_distribution
     origin = prop.origin
     
-    if prop.rotation==-1:
+    if prop.rotation==1:
         # negative chord and twist to give opposite rotation direction
-        b = -b
-        beta = -beta       
+        b = -b    
+        beta = -beta
     
     theta  = np.linspace(0,2*np.pi,num_B+1)[:-1]
-    rot    = prop.rotation 
     flip_1 =  (np.pi/2)
     flip_2 =  (np.pi/2)
 
@@ -573,7 +573,7 @@ def get_blade_coordinates(prop,n_points,dim,i):
         xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
         zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
         max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
-
+            
     # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
     max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
 
@@ -585,7 +585,7 @@ def get_blade_coordinates(prop,n_points,dim,i):
     cpts             = len(prop_vel_to_body[:,0,0])
     
     matrix        = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
-    matrix[:,:,0] = xp*rot
+    matrix[:,:,0] = xp
     matrix[:,:,1] = yp
     matrix[:,:,2] = zp
     matrix        = np.repeat(matrix[None,:,:,:], cpts, axis=0)
@@ -608,25 +608,21 @@ def get_blade_coordinates(prop,n_points,dim,i):
     trans_2 = np.repeat(trans_2[None,:,:], dim, axis=0)
     trans_2 = np.repeat(trans_2[None,:,:,:], cpts, axis=0)
 
-    # rotation about y to orient propeller/rotor to thrust angle
+    # rotation about y to orient propeller/rotor to thrust angle (from propeller frame to aircraft frame)
     trans_3 =  prop_vel_to_body
     trans_3 =  np.repeat(trans_3[:, None,:,: ],dim,axis=1) 
     
-    ## rotation 180 degrees about x-axis to align airfoil with vehicle frame
-    trans_4 = np.zeros((dim,3,3))
-    trans_4[:,2,2] = np.cos(np.pi)
-    trans_4[:,2,1] = -np.sin(np.pi)
-    trans_4[:,0,0] = 1
-    trans_4[:,1,2] = np.sin(np.pi)
-    trans_4[:,1,1] = np.cos(np.pi)    
-    
-    trans     = np.matmul(trans_4[None,:,:,:],np.matmul(trans_3,np.matmul(trans_2,trans_1)))
+    trans     = np.matmul(trans_2,trans_1)
     rot_mat   = np.repeat(trans[:,:, None,:,:],n_points,axis=2)    
 
     # ---------------------------------------------------------------------------------------------
     # ROTATE POINTS
-    mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze(axis=-1)
-
+    if aircraftRefFrame:
+        # rotate all points to the thrust angle with trans_3
+        mat  =  np.matmul(np.matmul(rot_mat,matrix[...,None]).squeeze(axis=-1), trans_3)
+    else:
+        # use the rotor frame
+        mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze(axis=-1)
     # ---------------------------------------------------------------------------------------------
     # create empty data structure for storing geometry
     G = Data()

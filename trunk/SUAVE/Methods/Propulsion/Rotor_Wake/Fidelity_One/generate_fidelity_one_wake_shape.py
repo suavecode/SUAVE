@@ -8,7 +8,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_Zero.compute_wake_contraction_matrix import compute_wake_contraction_matrix
 
 
@@ -85,8 +84,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     axial_induced_velocity = np.mean(va,axis = 2) # radial inflow, averaged around the azimuth
     mean_induced_velocity  = np.mean( axial_induced_velocity,axis = 1)   
     
-    alpha = rotor.orientation_euler_angles[1]
-    rots  = np.array([[np.cos(alpha), 0, np.sin(alpha)], [0,1,0], [-np.sin(alpha), 0, np.cos(alpha)]])
+    rots = rotor.body_to_prop_vel()[0]
     
     lambda_tot   = np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 99 Leishman)
     mu_prop      = np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
@@ -141,12 +139,9 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # put into velocity frame and find (y,z) components
     azi_y   = np.sin(panel_azimuthal_positions)
     azi_z   = np.cos(panel_azimuthal_positions)
-    
-
-    # extract airfoil trailing edge coordinates for initial location of vortex wake
-    a_sec        = rotor.airfoil_geometry   
+        
+    airfoil_data = rotor.airfoil_data
     a_secl       = rotor.airfoil_polar_stations
-    airfoil_data = import_airfoil_geometry(a_sec,npoints=100)  
    
     # trailing edge points in airfoil coordinates
     xupper         = np.take(airfoil_data.x_upper_surface,a_secl,axis=0)
@@ -159,7 +154,6 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     xle_airfoils = xupper[:,0]*c + airfoil_le_offset
     yle_airfoils = yupper[:,0]*c 
-    
     
     x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4 - airfoil_le_offset
     y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4
