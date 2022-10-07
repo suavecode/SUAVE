@@ -27,6 +27,7 @@ import numpy as np
 ## @ingroup Methods-Weights-Buildups-eVTOL
 
 def empty(config,
+          settings,
           contingency_factor            = 1.1,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
