@@ -53,27 +53,25 @@ def converge_evtol_weight(vehicle,
     breakdown      = empty(vehicle,contingency_factor,
                            speed_of_sound,max_tip_mach,disk_area_factor,
                            safety_factor,max_thrust_to_weight_ratio,
-                           max_g_load,motor_efficiency)
-    vehicle_mtow   = vehicle.mass_properties.max_takeoff  
+                           max_g_load,motor_efficiency) 
     build_up_mass  = breakdown.total    
+    diff           = vehicle.mass_properties.max_takeoff - build_up_mass
+    iterations     = 0
     
-    diff           = vehicle_mtow - build_up_mass 
-    iterations     = 0 
-    while(diff>1):
-        vehicle.mass_properties.max_takeoff = vehicle_mtow - diff*1E-1
+    while(abs(diff)>1):
+        vehicle.mass_properties.max_takeoff = vehicle.mass_properties.max_takeoff - diff*1E-1
         breakdown      = empty(vehicle,contingency_factor,
                            speed_of_sound,max_tip_mach,disk_area_factor,
                            safety_factor,max_thrust_to_weight_ratio,
                            max_g_load,motor_efficiency)
         build_up_mass  = breakdown.total    
-        diff           = vehicle_mtow - build_up_mass 
-        vehicle_mtow   = vehicle.mass_properties.max_takeoff
+        diff           = vehicle.mass_properties.max_takeoff - build_up_mass 
         iterations     += 1
         if print_iterations:
             print(round(diff,3))
         if iterations == 100:
             print('Weight convergence failed!')
-            return 
-    print('Converged MTOW = ' + str(round(vehicle_mtow)) + ' kg')
+            return False 
+    print('Converged MTOW = ' + str(round(vehicle.mass_properties.max_takeoff)) + ' kg')
     
-    return
+    return True 
