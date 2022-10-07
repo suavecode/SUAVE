@@ -20,6 +20,7 @@ from DCode.Common.Visualization_Tools.box_contour_field_vtk import box_contour_f
 # package imports
 import copy
 import numpy as np
+import pickle
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
 # ----------------------------------------------------------------------
@@ -61,6 +62,7 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
         self.wake_method_fidelity       = 2
         self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
         self.vtk_save_loc               = None       # location to save vtk outputs of wake
+        self.restart_file               = None       # file of initial wake instance to use if specified
         
         self.wake_settings              = Data()
         self.wake_settings.number_rotor_rotations     = 5
@@ -70,6 +72,7 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
         # wake convergence criteria
         self.maximum_convergence_iteration            = 10
         self.axial_velocity_convergence_tolerance     = 1e-2
+        self.influencing_vortex_distribution          = None  # any additional vortex distribution elements influencing wake development (ie. vehicle.vortex_distribution)
         
         # flags for slipstream interaction
         self.slipstream                 = False
@@ -136,11 +139,21 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
         None
         """   
         
-        # Initialize rotor with PVW
-        self.initialize(rotor,conditions)
+        # Initialize rotor with PVW unless restart file specified
+        if self.restart_file is not None:
+            # load restart file
+            with open(self.restart_file, 'rb') as file:
+                data = pickle.load(file)   
+            
+            # update rotor and wake initialization
+            rotor.outputs = data.prop.outputs
+            rotor.Wake.vortex_distribution = data.prop.Wake.vortex_distribution
+            self.vortex_distribution = rotor.Wake.vortex_distribution
+        else:
+            self.initialize(rotor,conditions)
         
         # evolve the wake with itself over time, generating a force-free wake
-        self, rotor, interpolatedBoxData = self.evolve_wake_vortex_distribution(rotor,conditions,VD=VD)
+        self, rotor, interpolatedBoxData = self.evolve_wake_vortex_distribution(rotor,conditions,VD=self.influencing_vortex_distribution)
         
         # compute wake-induced velocities
         va, vt = compute_fidelity_one_inflow_velocities(self,rotor)   
@@ -154,50 +167,50 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
         
         """
         diff = 10
-        tol = 1e-3
+        tol = 1e-3       # converged when delta in wake geoemtry is less than 1mm 
         iteration = 0
-        max_iter = 10 # number of iterations of wake convergence
+        max_iter = 1#10    # max number of iterations for wake convergence
 
-        print("\n\nQUASI FREE VORTEX WAKE SINGLE PASS:\n")  
-        #print("\n\nQUASI FREE VORTEX WAKE CONVERGENCE:\n")        
-        #while diff >= tol and iteration <= max_iter:
+        #print("\n\nQUASI FREE VORTEX WAKE SINGLE PASS:\n")  
+        print("\n\nQUASI FREE VORTEX WAKE CONVERGENCE:\n")        
+        while diff >= tol and iteration <= max_iter:
 
-        # ---- DEBUG -----------------------------------------------------------------------
-        # ----------------------------------------------------------------------------------
-        # save vortex vtk for this iteration
-        #save_single_prop_vehicle_vtk(rotor, iteration=iteration, save_loc="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/")   
-        # ----------------------------------------------------------------------------------
-        # ----------------------------------------------------------------------------------        
-        
-        prior_VD = copy.deepcopy(self.vortex_distribution)
-        
-        # Update the position of each vortex filament due to component interactions
-        self, rotor, interpolatedBoxData = update_wake_position(self,rotor,conditions,VD)
-        #self, rotor, interpolatedBoxData = update_wake_position2(self,rotor,conditions,VD)
-        
-        # Compute residual between wake shapes
-        keys = ['XA1', 'XA2', 'YA1', 'YA2', 'ZA1', 'ZA2', 'XB1', 'XB2', 'YB1', 'YB2', 'ZB1', 'ZB2']
-        max_diff = 0.
-        for key in keys:
-            max_diff =  max(max_diff, np.max(abs(prior_VD.reshaped_wake[key] - self.vortex_distribution.reshaped_wake[key])))
-
-
-        # ---- DEBUG -----------------------------------------------------------------------
-        # ----------------------------------------------------------------------------------
-        #save the contour box velocity field for new wake
-        ##stateData = Data()
-        ##stateData.vFreestream = conditions.freestream.velocity
-        ##stateData.alphaDeg = rotor.orientation_euler_angles[1] / Units.deg
-        ##box_contour_field_vtk(interpolatedBoxData, stateData, iteration=iteration, filename="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/ContourBox.vtk")
-        # ----------------------------------------------------------------------------------
-        # ----------------------------------------------------------------------------------   
+            # ---- DEBUG -----------------------------------------------------------------------
+            # ----------------------------------------------------------------------------------
+            # save vortex vtk for this iteration
+            #save_single_prop_vehicle_vtk(rotor, iteration=iteration, save_loc="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/")   
+            # ----------------------------------------------------------------------------------
+            # ----------------------------------------------------------------------------------        
             
-            #iteration += 1
-            #diff = max_diff
-            #print("Diff = "+str(diff))               
-                       
+            prior_VD = copy.deepcopy(self.vortex_distribution)
             
-        # Update the vortex strengths of each vortex ring accordingly
+            # Update the position of each vortex filament due to component interactions
+            self, rotor, interpolatedBoxData = update_wake_position(self,rotor,conditions,VD)
+            #self, rotor, interpolatedBoxData = update_wake_position2(self,rotor,conditions,VD)
+            
+            # Compute residual between wake shapes
+            keys = ['XA1', 'XA2', 'YA1', 'YA2', 'ZA1', 'ZA2', 'XB1', 'XB2', 'YB1', 'YB2', 'ZB1', 'ZB2']
+            max_diff = 0.
+            for key in keys:
+                max_diff =  max(max_diff, np.max(abs(prior_VD.reshaped_wake[key] - self.vortex_distribution.reshaped_wake[key])))
+    
+    
+            # ---- DEBUG -----------------------------------------------------------------------
+            # ----------------------------------------------------------------------------------
+            #save the contour box velocity field for new wake
+            ##stateData = Data()
+            ##stateData.vFreestream = conditions.freestream.velocity
+            ##stateData.alphaDeg = rotor.orientation_euler_angles[1] / Units.deg
+            ##box_contour_field_vtk(interpolatedBoxData, stateData, iteration=iteration, filename="/Users/rerha/Desktop/test_relaxed_wake/convergenceLoop/ContourBox.vtk")
+            # ----------------------------------------------------------------------------------
+            # ----------------------------------------------------------------------------------   
+                
+            iteration += 1
+            diff = max_diff
+            print(diff)               
+                           
+                
+            # Update the vortex strengths of each vortex ring accordingly
         
         return self, rotor, interpolatedBoxData
     
