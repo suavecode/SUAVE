@@ -134,55 +134,17 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         upper_surface_dp_dx      = np.zeros_like(lower_surface_theta)
 
         # ------------------------------------------------------------
-        # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******
-        for i in range(num_cpt) : # lower surface is 0, upper surface is 1
-            TE_idx  =  4  # assume trailing edge is the forth from last panel
-
-            if rotor.nonuniform_freestream: 
-                for i_azi in range(num_azi):
-                    if rotor.airfoil_flag  == True:
-                        a_geo                   = rotor.airfoil_geometry
-                        airfoil_data            = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
-                        Re_batch                = np.atleast_2d(Re_blade[i,:,0]).T
-                        AoA_batch               = np.atleast_2d(alpha_blade[i,:,0]).T
-                        npanel                  = len(airfoil_data.x_coordinates[0]) - 2
-                        AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = rotor.airfoil_polar_stations)
-                    else:
-                        camber                          = 0.0
-                        camber_loc                      = 0.0
-                        thickness                       = 0.12
-                        default_airfoil_data            = compute_naca_4series(camber, camber_loc, thickness,(rotor.number_of_airfoil_section_points*2 - 2))
-                        airfoil_polar_stations          = np.zeros(num_sec)
-                        default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
-                        Re_batch                        = np.atleast_2d(Re_blade[i,:,0]).T
-                        AoA_batch                       = np.atleast_2d(alpha_blade[i,:,0]).T
-                        npanel                          = len(default_airfoil_data.x_coordinates[0]) - 2
-                        AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = default_airfoil_polar_stations)
-
-                    # extract properties
-                    lower_surface_theta[:,i_azi]      = AP.theta[:,TE_idx]
-                    lower_surface_delta[:,i_azi]      = AP.delta[:,TE_idx]
-                    lower_surface_delta_star[:,i_azi] = AP.delta_star[:,TE_idx]
-                    lower_surface_cf[:,i_azi]         = AP.Cf[:,TE_idx]
-                    lower_surface_Ue[:,i_azi]         = AP.Ue_Vinf[:,TE_idx]*U_blade[i,:,i_azi]
-                    lower_surface_H[:,i_azi]          = AP.H[:,TE_idx]
-                    surface_dcp_dx                    = (np.diff(AP.Cp,axis = 1)/np.diff(AP.x,axis = 1))
-                    lower_surface_dp_dx[:,i_azi]      = abs(surface_dcp_dx[:,TE_idx]*(0.5*rho_blade[i,:,i_azi]*U_blade[i,:,i_azi]**2)/blade_chords)
-                    upper_surface_theta[:,i_azi]      = AP.theta[:,-TE_idx]
-                    upper_surface_delta[:,i_azi]      = AP.delta[:,-TE_idx]
-                    upper_surface_delta_star[:,i_azi] = AP.delta_star[:,-TE_idx]
-                    upper_surface_cf[:,i_azi]         = AP.Cf[:,-TE_idx]
-                    upper_surface_Ue[:,i_azi]         = AP.Ue_Vinf[:,-TE_idx]*U_blade[i,:,i_azi]
-                    upper_surface_H[:,i_azi]          = AP.H[:,-TE_idx]
-                    upper_surface_dp_dx[:,i_azi]      = abs(surface_dcp_dx[:,-TE_idx]*(0.5*rho_blade[i,:,i_azi]*U_blade[i,:,i_azi]**2)/blade_chords)
-            else:
+        # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ****** 
+        TE_idx  =  4  # assume trailing edge is the forth from last panel 
+        if rotor.nonuniform_freestream: 
+            for i_azi in range(num_azi):
                 if rotor.airfoil_flag  == True:
                     a_geo                   = rotor.airfoil_geometry
                     airfoil_data            = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
                     Re_batch                = np.atleast_2d(Re_blade[i,:,0]).T
                     AoA_batch               = np.atleast_2d(alpha_blade[i,:,0]).T
                     npanel                  = len(airfoil_data.x_coordinates[0]) - 2
-                    AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = rotor.airfoil_polar_stations)
+                    AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = rotor.airfoil_polar_stations)
                 else:
                     camber                          = 0.0
                     camber_loc                      = 0.0
@@ -190,91 +152,127 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                     default_airfoil_data            = compute_naca_4series(camber, camber_loc, thickness,(rotor.number_of_airfoil_section_points*2 - 2))
                     airfoil_polar_stations          = np.zeros(num_sec)
                     default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
-                    Re_batch                        = np.atleast_2d(Re_blade[i,:,0]).T
+                    Re_batch                        = np.atleast_2d(Re_blade[:,:,0]).T
                     AoA_batch                       = np.atleast_2d(alpha_blade[i,:,0]).T
                     npanel                          = len(default_airfoil_data.x_coordinates[0]) - 2
-                    AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = default_airfoil_polar_stations)
+                    AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = default_airfoil_polar_stations)
 
                 # extract properties
-                surface_dcp_dx                = (np.diff(AP.Cp,axis = 1)/np.diff(AP.x,axis = 1))
-                lower_surface_theta[:,:]      = np.repeat(np.atleast_2d(AP.theta[:,TE_idx]).T,num_azi,axis = 1)
-                lower_surface_delta[:,:]      = np.repeat(np.atleast_2d(AP.delta[:,TE_idx]).T,num_azi,axis = 1)*0.1
-                lower_surface_delta_star[:,:] = np.repeat(np.atleast_2d(AP.delta_star[:,TE_idx]).T,num_azi,axis = 1)
-                lower_surface_cf[:,:]         = np.repeat(np.atleast_2d(AP.Cf[:,TE_idx]).T,num_azi,axis = 1)
-                lower_surface_Ue[:,:]         = np.repeat(np.atleast_2d(AP.Ue_Vinf[:,TE_idx]*U_blade[i,:,0]).T,num_azi,axis = 1)
-                lower_surface_H[:,:]          = np.repeat(np.atleast_2d(AP.H[:,TE_idx]).T,num_azi,axis = 1)
-                lower_surface_dp_dx[:,:]      = np.repeat(np.atleast_2d(surface_dcp_dx[:,TE_idx]*(0.5*rho_blade[i,:,0]*(U_blade[i,:,0]**2))/blade_chords).T,num_azi,axis = 1)
-                upper_surface_theta[:,:]      = np.repeat(np.atleast_2d(AP.theta[:,-TE_idx]).T,num_azi,axis = 1)
-                upper_surface_delta[:,:]      = np.repeat(np.atleast_2d(AP.delta[:,-TE_idx]).T,num_azi,axis = 1)*0.1
-                upper_surface_delta_star[:,:] = np.repeat(np.atleast_2d(AP.delta_star[:,-TE_idx]).T,num_azi,axis = 1)
-                upper_surface_cf[:,:]         = np.repeat(np.atleast_2d(AP.Cf[:,-TE_idx]).T,num_azi,axis = 1)
-                upper_surface_Ue[:,:]         = np.repeat(np.atleast_2d(AP.Ue_Vinf[:,-TE_idx]*U_blade[i,:,0]).T,num_azi,axis = 1)
-                upper_surface_H[:,:]          = np.repeat(np.atleast_2d(AP.H[:,-TE_idx]).T,num_azi,axis = 1)
-                upper_surface_dp_dx[:,:]      = np.repeat(np.atleast_2d(surface_dcp_dx[:,-TE_idx]*(0.5*rho_blade[i,:,0]*(U_blade[i,:,0]**2))/blade_chords).T,num_azi,axis = 1)
+                lower_surface_theta[:,i_azi]      = AP.theta[:,TE_idx]
+                lower_surface_delta[:,i_azi]      = AP.delta[:,TE_idx]
+                lower_surface_delta_star[:,i_azi] = AP.delta_star[:,TE_idx]
+                lower_surface_cf[:,i_azi]         = AP.Cf[:,TE_idx]
+                lower_surface_Ue[:,i_azi]         = AP.Ue_Vinf[:,TE_idx]*U_blade[i,:,i_azi]
+                lower_surface_H[:,i_azi]          = AP.H[:,TE_idx]
+                surface_dcp_dx                    = (np.diff(AP.Cp,axis = 1)/np.diff(AP.x,axis = 1))
+                lower_surface_dp_dx[:,i_azi]      = abs(surface_dcp_dx[:,TE_idx]*(0.5*rho_blade[i,:,i_azi]*U_blade[i,:,i_azi]**2)/blade_chords)
+                upper_surface_theta[:,i_azi]      = AP.theta[:,-TE_idx]
+                upper_surface_delta[:,i_azi]      = AP.delta[:,-TE_idx]
+                upper_surface_delta_star[:,i_azi] = AP.delta_star[:,-TE_idx]
+                upper_surface_cf[:,i_azi]         = AP.Cf[:,-TE_idx]
+                upper_surface_Ue[:,i_azi]         = AP.Ue_Vinf[:,-TE_idx]*U_blade[i,:,i_azi]
+                upper_surface_H[:,i_azi]          = AP.H[:,-TE_idx]
+                upper_surface_dp_dx[:,i_azi]      = abs(surface_dcp_dx[:,-TE_idx]*(0.5*rho_blade[i,:,i_azi]*U_blade[i,:,i_azi]**2)/blade_chords)
+        else:
+            if rotor.airfoil_flag  == True:
+                a_geo                   = rotor.airfoil_geometry
+                airfoil_data            = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
+                Re_batch                = Re_blade[:,:,0]
+                AoA_batch               = alpha_blade[:,:,0]
+                npanel                  = len(airfoil_data.x_coordinates[0]) - 2
+                AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = rotor.airfoil_polar_stations)
+            else:
+                camber                          = 0.0
+                camber_loc                      = 0.0
+                thickness                       = 0.12
+                default_airfoil_data            = compute_naca_4series(camber, camber_loc, thickness,(rotor.number_of_airfoil_section_points*2 - 2))
+                airfoil_polar_stations          = np.zeros(num_sec)
+                default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
+                Re_batch                        = Re_blade[:,:,0]
+                AoA_batch                       = alpha_blade[:,:,0]
+                npanel                          = len(default_airfoil_data.x_coordinates[0]) - 2
+                AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = default_airfoil_polar_stations)
 
-            # replace nans 0 with mean as a post post-processor
-            lower_surface_theta       = np.nan_to_num(lower_surface_theta)
-            upper_surface_theta       = np.nan_to_num(upper_surface_theta)
-            lower_surface_delta       = np.nan_to_num(lower_surface_delta)
-            upper_surface_delta       = np.nan_to_num(upper_surface_delta)
-            lower_surface_delta_star  = np.nan_to_num(lower_surface_delta_star)
-            upper_surface_delta_star  = np.nan_to_num(upper_surface_delta_star)
-            lower_surface_cf          = np.nan_to_num(lower_surface_cf)
-            upper_surface_cf          = np.nan_to_num(upper_surface_cf)
-            lower_surface_dp_dx       = np.nan_to_num(lower_surface_dp_dx )
-            upper_surface_dp_dx       = np.nan_to_num(upper_surface_dp_dx )
-            lower_surface_Ue          = np.nan_to_num(lower_surface_Ue)
-            upper_surface_Ue          = np.nan_to_num(upper_surface_Ue)
-            lower_surface_H           = np.nan_to_num(lower_surface_H)
-            upper_surface_H           = np.nan_to_num(upper_surface_H)
-            
-            # apply thresholds for non-converged boundary layer solutions form pandel code 
-            lower_surface_theta[abs(lower_surface_theta)> 0.01 ]           = 0.0
-            upper_surface_theta[abs(upper_surface_theta)>0.01 ]            = 0.0
-            lower_surface_delta[abs(lower_surface_delta)> 0.1 ]            = 0.0
-            upper_surface_delta[abs(upper_surface_delta)> 0.1]             = 0.0
-            lower_surface_delta_star[abs(lower_surface_delta_star)>0.1 ]   = 0.0
-            upper_surface_delta_star[abs(upper_surface_delta_star)>0.1 ]   = 0.0
-            lower_surface_cf[abs(lower_surface_cf)>0.1 ]                   = 0.0
-            upper_surface_cf[abs(upper_surface_cf)> 0.1]                   = 0.0
-            lower_surface_dp_dx[abs(lower_surface_dp_dx)> 1E7]             = 0.0
-            upper_surface_dp_dx[abs(upper_surface_dp_dx)> 1E7]             = 0.0
-            lower_surface_Ue[abs(lower_surface_Ue)> 500.]                  = 0.0
-            upper_surface_Ue[abs(upper_surface_Ue)> 500.]                  = 0.0
-            lower_surface_H[abs(lower_surface_H)> 10.]                     = 0.0
-            upper_surface_H[abs(upper_surface_H)> 10.]                     = 0.0 
-            
-            # replace null solutions with mean
-            lower_surface_theta[lower_surface_theta == 0]           = np.mean(lower_surface_theta)
-            upper_surface_theta[upper_surface_theta == 0]           = np.mean(upper_surface_theta)
-            lower_surface_delta[lower_surface_delta == 0]           = np.mean(lower_surface_delta)
-            upper_surface_delta[upper_surface_delta == 0]           = np.mean(upper_surface_delta)
-            lower_surface_delta_star[lower_surface_delta_star == 0] = np.mean(lower_surface_delta_star)
-            upper_surface_delta_star[upper_surface_delta_star== 0]  = np.mean(upper_surface_delta_star)
-            lower_surface_cf[lower_surface_cf == 0]                 = np.mean(lower_surface_cf)
-            upper_surface_cf[upper_surface_cf == 0]                 = np.mean(upper_surface_cf)
-            lower_surface_dp_dx [lower_surface_dp_dx  == 0]         = np.mean(lower_surface_dp_dx )
-            upper_surface_dp_dx [upper_surface_dp_dx  == 0]         = np.mean(upper_surface_dp_dx )
-            lower_surface_Ue[lower_surface_Ue == 0]                 = np.mean(lower_surface_Ue)
-            upper_surface_Ue[upper_surface_Ue == 0]                 = np.mean(upper_surface_Ue)
-            lower_surface_H[lower_surface_H == 0]                   = np.mean(lower_surface_H)
-            upper_surface_H[upper_surface_H == 0]                   = np.mean(upper_surface_H)
+            # extract properties
+            surface_dcp_dx                = (np.diff(AP.Cp,axis = 1)/np.diff(AP.x,axis = 1))
+            lower_surface_theta[:,:]      = np.repeat(np.atleast_2d(AP.theta[:,TE_idx]).T,num_azi,axis = 1)
+            lower_surface_delta[:,:]      = np.repeat(np.atleast_2d(AP.delta[:,TE_idx]).T,num_azi,axis = 1)*0.1
+            lower_surface_delta_star[:,:] = np.repeat(np.atleast_2d(AP.delta_star[:,TE_idx]).T,num_azi,axis = 1)
+            lower_surface_cf[:,:]         = np.repeat(np.atleast_2d(AP.Cf[:,TE_idx]).T,num_azi,axis = 1)
+            lower_surface_Ue[:,:]         = np.repeat(np.atleast_2d(AP.Ue_Vinf[:,TE_idx]*U_blade[:,:,0]).T,num_azi,axis = 1)
+            lower_surface_H[:,:]          = np.repeat(np.atleast_2d(AP.H[:,TE_idx]).T,num_azi,axis = 1)
+            lower_surface_dp_dx[:,:]      = np.repeat(np.atleast_2d(surface_dcp_dx[:,TE_idx]*(0.5*rho_blade[:,:,0]*(U_blade[:,:,0]**2))/blade_chords).T,num_azi,axis = 1)
+            upper_surface_theta[:,:]      = np.repeat(np.atleast_2d(AP.theta[:,-TE_idx]).T,num_azi,axis = 1)
+            upper_surface_delta[:,:]      = np.repeat(np.atleast_2d(AP.delta[:,-TE_idx]).T,num_azi,axis = 1)*0.1
+            upper_surface_delta_star[:,:] = np.repeat(np.atleast_2d(AP.delta_star[:,-TE_idx]).T,num_azi,axis = 1)
+            upper_surface_cf[:,:]         = np.repeat(np.atleast_2d(AP.Cf[:,-TE_idx]).T,num_azi,axis = 1)
+            upper_surface_Ue[:,:]         = np.repeat(np.atleast_2d(AP.Ue_Vinf[:,-TE_idx]*U_blade[:,:,0]).T,num_azi,axis = 1)
+            upper_surface_H[:,:]          = np.repeat(np.atleast_2d(AP.H[:,-TE_idx]).T,num_azi,axis = 1)
+            upper_surface_dp_dx[:,:]      = np.repeat(np.atleast_2d(surface_dcp_dx[:,-TE_idx]*(0.5*rho_blade[:,:,0]*(U_blade[:,:,0]**2))/blade_chords).T,num_azi,axis = 1)
 
-            # ------------------------------------------------------------
-            # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******
+        # replace nans 0 with mean as a post post-processor
+        lower_surface_theta       = np.nan_to_num(lower_surface_theta)
+        upper_surface_theta       = np.nan_to_num(upper_surface_theta)
+        lower_surface_delta       = np.nan_to_num(lower_surface_delta)
+        upper_surface_delta       = np.nan_to_num(upper_surface_delta)
+        lower_surface_delta_star  = np.nan_to_num(lower_surface_delta_star)
+        upper_surface_delta_star  = np.nan_to_num(upper_surface_delta_star)
+        lower_surface_cf          = np.nan_to_num(lower_surface_cf)
+        upper_surface_cf          = np.nan_to_num(upper_surface_cf)
+        lower_surface_dp_dx       = np.nan_to_num(lower_surface_dp_dx )
+        upper_surface_dp_dx       = np.nan_to_num(upper_surface_dp_dx )
+        lower_surface_Ue          = np.nan_to_num(lower_surface_Ue)
+        upper_surface_Ue          = np.nan_to_num(upper_surface_Ue)
+        lower_surface_H           = np.nan_to_num(lower_surface_H)
+        upper_surface_H           = np.nan_to_num(upper_surface_H)
+        
+        # apply thresholds for non-converged boundary layer solutions form pandel code 
+        lower_surface_theta[abs(lower_surface_theta)> 0.01 ]           = 0.0
+        upper_surface_theta[abs(upper_surface_theta)>0.01 ]            = 0.0
+        lower_surface_delta[abs(lower_surface_delta)> 0.1 ]            = 0.0
+        upper_surface_delta[abs(upper_surface_delta)> 0.1]             = 0.0
+        lower_surface_delta_star[abs(lower_surface_delta_star)>0.1 ]   = 0.0
+        upper_surface_delta_star[abs(upper_surface_delta_star)>0.1 ]   = 0.0
+        lower_surface_cf[abs(lower_surface_cf)>0.1 ]                   = 0.0
+        upper_surface_cf[abs(upper_surface_cf)> 0.1]                   = 0.0
+        lower_surface_dp_dx[abs(lower_surface_dp_dx)> 1E7]             = 0.0
+        upper_surface_dp_dx[abs(upper_surface_dp_dx)> 1E7]             = 0.0
+        lower_surface_Ue[abs(lower_surface_Ue)> 500.]                  = 0.0
+        upper_surface_Ue[abs(upper_surface_Ue)> 500.]                  = 0.0
+        lower_surface_H[abs(lower_surface_H)> 10.]                     = 0.0
+        upper_surface_H[abs(upper_surface_H)> 10.]                     = 0.0 
+        
+        # replace null solutions with mean
+        lower_surface_theta[lower_surface_theta == 0]           = np.mean(lower_surface_theta)
+        upper_surface_theta[upper_surface_theta == 0]           = np.mean(upper_surface_theta)
+        lower_surface_delta[lower_surface_delta == 0]           = np.mean(lower_surface_delta)
+        upper_surface_delta[upper_surface_delta == 0]           = np.mean(upper_surface_delta)
+        lower_surface_delta_star[lower_surface_delta_star == 0] = np.mean(lower_surface_delta_star)
+        upper_surface_delta_star[upper_surface_delta_star== 0]  = np.mean(upper_surface_delta_star)
+        lower_surface_cf[lower_surface_cf == 0]                 = np.mean(lower_surface_cf)
+        upper_surface_cf[upper_surface_cf == 0]                 = np.mean(upper_surface_cf)
+        lower_surface_dp_dx [lower_surface_dp_dx  == 0]         = np.mean(lower_surface_dp_dx )
+        upper_surface_dp_dx [upper_surface_dp_dx  == 0]         = np.mean(upper_surface_dp_dx )
+        lower_surface_Ue[lower_surface_Ue == 0]                 = np.mean(lower_surface_Ue)
+        upper_surface_Ue[upper_surface_Ue == 0]                 = np.mean(upper_surface_Ue)
+        lower_surface_H[lower_surface_H == 0]                   = np.mean(lower_surface_H)
+        upper_surface_H[upper_surface_H == 0]                   = np.mean(upper_surface_H)
 
-            delta[i,:,:,:,:,:,0]        = np.tile(lower_surface_delta[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # lower surface boundary layer thickness
-            delta[i,:,:,:,:,:,1]        = np.tile(upper_surface_delta[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # upper surface boundary layer thickness
-            delta_star[i,:,:,:,:,:,0]   = np.tile(lower_surface_delta_star[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf)) # lower surface displacement thickness
-            delta_star[i,:,:,:,:,:,1]   = np.tile(upper_surface_delta_star[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf)) # upper surface displacement thickness
-            dp_dx[i,:,:,:,:,:,0]        = np.tile(lower_surface_dp_dx[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # lower surface pressure differential
-            dp_dx[i,:,:,:,:,:,1]        = np.tile(upper_surface_dp_dx[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # upper surface pressure differential
-            Ue[i,:,:,:,:,:,0]           = np.tile(lower_surface_Ue[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))         # lower surface boundary layer edge velocity
-            Ue[i,:,:,:,:,:,1]           = np.tile(upper_surface_Ue[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))         # upper surface boundary layer edge velocity
-            tau_w[i,:,:,:,:,:,0]        = np.tile((lower_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)))[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))       # lower surface wall shear stress
-            tau_w[i:,:,:,:,:,:,1]       = np.tile((upper_surface_cf*(0.5*rho_blade[i]*(U_blade[i]**2)))[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # upper surface wall shear stress
-            Theta[i,:,:,:,:,:,0]        = np.tile(lower_surface_theta[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # lower surface momentum thickness
-            Theta[i,:,:,:,:,:,1]        = np.tile(upper_surface_theta[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # upper surface momentum thickness
+        # ------------------------------------------------------------
+        # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******
+
+        delta[:,:,:,:,:,:,0]        = np.tile(lower_surface_delta[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # lower surface boundary layer thickness
+        delta[:,:,:,:,:,:,1]        = np.tile(upper_surface_delta[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # upper surface boundary layer thickness
+        delta_star[:,:,:,:,:,:,0]   = np.tile(lower_surface_delta_star[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf)) # lower surface displacement thickness
+        delta_star[:,:,:,:,:,:,1]   = np.tile(upper_surface_delta_star[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf)) # upper surface displacement thickness
+        dp_dx[:,:,:,:,:,:,0]        = np.tile(lower_surface_dp_dx[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # lower surface pressure differential
+        dp_dx[:,:,:,:,:,:,1]        = np.tile(upper_surface_dp_dx[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # upper surface pressure differential
+        Ue[:,:,:,:,:,:,0]           = np.tile(lower_surface_Ue[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))         # lower surface boundary layer edge velocity
+        Ue[:,:,:,:,:,:,1]           = np.tile(upper_surface_Ue[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))         # upper surface boundary layer edge velocity
+        tau_w[:,:,:,:,:,:,0]        = np.tile((lower_surface_cf*(0.5*rho_blade*(U_blade**2)))[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))       # lower surface wall shear stress
+        tau_w[:,:,:,:,:,:,1]       = np.tile((upper_surface_cf*(0.5*rho_blade*(U_blade**2)))[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # upper surface wall shear stress
+        Theta[:,:,:,:,:,:,0]        = np.tile(lower_surface_theta[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # lower surface momentum thickness
+        Theta[:,:,:,:,:,:,1]        = np.tile(upper_surface_theta[None,None,:,:,None],(num_mic,num_rot,1,1,num_cf))      # upper surface momentum thickness
 
         # Update dimensions for computation
         r         = np.tile(r[None,None,None,:,None,None],(num_cpt,num_mic,num_rot,1,num_azi,num_cf))

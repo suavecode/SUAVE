@@ -28,10 +28,10 @@ def main():
     # -----------------------------------------------
     # Batch analysis of single airfoil - NACA 2410 
     # -----------------------------------------------
-    Re_batch             = np.atleast_2d(np.array([1E5,2E5])).T
-    AoA_batch            = np.atleast_2d(np.linspace(-5,10,4)*Units.degrees).T       
+    Re_batch             = np.atleast_3d(np.array([1E5,2E5])).T
+    AoA_batch            = np.atleast_3d(np.linspace(-5,10,4)*Units.degrees).T       
     airfoil_geometry     = compute_naca_4series(0.02,0.4,0.1,npoints=npanel)
-    airfoil_properties_1 = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel, batch_analysis = True)  
+    airfoil_properties_1 = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel)  
     
      # Plots    
     plot_airfoil_analysis_polars(airfoil_properties_1,show_legend = True )  
@@ -67,12 +67,12 @@ def main():
     ospath               = os.path.abspath(__file__)
     separator            = os.path.sep 
     rel_path             = ospath.split('airfoil_analysis' + separator + 'airfoil_panel_method_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator 
-    Re_vals              = np.atleast_2d(np.array([1E5,1E5,1E5,1E5,1E5,1E5])).T
-    AoA_vals             = np.atleast_2d(np.array([2,2,2,2,2,2])*Units.degrees).T       
+    Re_vals              = np.atleast_3d(np.array([1E5,1E5,1E5,1E5,1E5,1E5])).T
+    AoA_vals             = np.atleast_3d(np.array([2,2,2,2,2,2])*Units.degrees).T       
     airfoil_stations     = [0,1,0,1,0,1] 
     airfoils             = [rel_path + 'NACA_4412.txt',rel_path +'Clark_y.txt']             
     airfoil_geometry     = import_airfoil_geometry(airfoils, npoints = (npanel + 2))    
-    airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals, npanel, batch_analysis = False, airfoil_stations = airfoil_stations)    
+    airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals, npanel, airfoil_stations = airfoil_stations)    
        
     True_Cls  = np.array([[0.68788905],[0.60906619],[0.68788905],[0.60906619],[0.68788905],[0.60906619]])
     True_Cds  = np.array([[0.01015395],[0.00846174],[0.01015395],[0.00846174],[0.01015395],[0.00846174]])

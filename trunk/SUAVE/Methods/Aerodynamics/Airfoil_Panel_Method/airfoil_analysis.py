@@ -21,7 +21,7 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis = True, airfoil_stations = [0],
+def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 ,airfoil_stations = [0],
                      initial_momentum_thickness=1E-5,tolerance = 1E0):
     """This computes the aerodynamic polars as well as the boundary layer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
@@ -73,27 +73,28 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis =
     N/A
     """    
     
-    nalpha     = len(alpha)
-    nRe        = len(Re_L) 
-    x_coord    = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0).T 
-    y_coord    = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T
-    x_coord    = np.delete(x_coord[::-1], int(npanel/2),0)  
-    y_coord    = np.delete(y_coord[::-1], int(npanel/2),0)  
+    nalpha       = len(alpha[0,:])
+    nRe          = len(Re_L[0,:]) 
+    nalpha_cpts  = len(alpha) 
+    nRe_cpts     = len(Re_L) 
+    x_coord      = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0).T 
+    y_coord      = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T
+    x_coord      = np.delete(x_coord[::-1], int(npanel/2),0)  
+    y_coord      = np.delete(y_coord[::-1], int(npanel/2),0)
     
-    if batch_analysis:        
-        x_coord_3d = np.repeat(np.repeat(np.atleast_2d(x_coord),nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)
-        y_coord_3d = np.repeat(np.repeat(np.atleast_2d(y_coord),nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)        
-    else:
-        nairfoil = len(airfoil_stations)  
-        if (nalpha != nRe) and ( nairfoil!= nalpha):
-            raise AssertionError('Dimension of angle of attacks,Reynolds numbers and airfoil stations must all be equal')      
-        x_coord_3d = np.repeat(x_coord[:,:,np.newaxis],nRe, axis = 2)
-        y_coord_3d = np.repeat(y_coord[:,:,np.newaxis],nRe, axis = 2)
+    nairfoil = len(airfoil_stations)  
+    if (nalpha_cpts != nRe_cpts):
+        raise AssertionError('Dimension of control points for angle of attacks and Reynolds numbers must all be equal')      
+    
+    if (nalpha != nRe) and ( nairfoil!= nalpha):
+        raise AssertionError('Dimension of angle of attacks,Reynolds numbers and airfoil stations must all be equal')      
+    x_coord_3d = np.repeat(x_coord[:,:,np.newaxis],nRe_cpts, axis = 2)
+    y_coord_3d = np.repeat(y_coord[:,:,np.newaxis],nRe_cpts, axis = 2)
         
     # Begin by solving for velocity distribution at airfoil surface using inviscid panel simulation
     # these are the locations (faces) where things are computed , len = n panel
     # dimension of vt = npanel x nalpha x nRe
-    X,Y,vt,normals = hess_smith(x_coord_3d,y_coord_3d,alpha,Re_L,npanel,batch_analysis)  
+    X,Y,vt,normals = hess_smith(x_coord_3d,y_coord_3d,alpha,Re_L,npanel)  
     
     # Reynolds number 
     RE_L_VALS = np.repeat(Re_L.T,nalpha, axis = 0)
