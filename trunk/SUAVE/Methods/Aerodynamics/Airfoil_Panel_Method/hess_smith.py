@@ -1,6 +1,7 @@
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
 # hess_smith.py 
 # Created:  Mar 2021, M. Clarke
+# Modified: Sep 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

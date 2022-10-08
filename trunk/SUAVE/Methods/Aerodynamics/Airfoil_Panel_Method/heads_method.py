@@ -1,6 +1,8 @@
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
 # heads_method.py 
+
 # Created:  Mar 2021, M. Clarke
+# Modified: Sep 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -2,6 +2,7 @@
 # aero_coeff.py
 
 # Created:  Mar 2021, M. Clarke
+# Modified: Sep 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -2,6 +2,7 @@
 # airfoil_analysis.py
 
 # Created:  Mar 2021, M. Clarke
+# Modified: Sep 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -521,14 +522,12 @@ def concatenate_surfaces(X_BOT,X_TOP,FUNC_BOT_SURF,FUNC_TOP_SURF,npanel,ncases,n
     Properties Used:
     N/A  
     '''  
-    FUNC = np.zeros((npanel,ncases,ncpts)) 
-    N_ALPHA = 1 
+    FUNC = np.zeros((npanel,ncases,ncpts))  
     
-    for a_i in range(N_ALPHA):
-        for Re_i in range(ncpts):    
-            a_i = Re_i  
-            top_func          = FUNC_TOP_SURF[:,a_i,Re_i][X_TOP[:,a_i,Re_i].mask == False] 
-            bot_func          = FUNC_BOT_SURF[:,a_i,Re_i][X_BOT[:,a_i,Re_i].mask == False]                  
-            FUNC[:,a_i,Re_i]  = np.concatenate([bot_func[::-1],top_func])
+    for case in range(ncases):
+        for cpt in range(ncpts):   
+            top_func          = FUNC_TOP_SURF[:,case,cpt][X_TOP[:,case,cpt].mask == False] 
+            bot_func          = FUNC_BOT_SURF[:,case,cpt][X_BOT[:,case,cpt].mask == False]                  
+            FUNC[:,case,cpt]  = np.concatenate([bot_func[::-1],top_func])
     return FUNC
     

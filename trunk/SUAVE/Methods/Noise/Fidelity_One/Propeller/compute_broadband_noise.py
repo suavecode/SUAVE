@@ -3,6 +3,7 @@
 #
 # Created:   Mar 2021, M. Clarke
 # Modified:  Feb 2022, M. Clarke
+# Modified:  Sep 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -139,27 +140,24 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         if rotor.nonuniform_freestream: 
             for i_azi in range(num_azi):
                 if rotor.airfoil_flag  == True:
-                    a_geo                   = rotor.airfoil_geometry
-                    airfoil_data            = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
-                    Re_batch                = np.atleast_2d(Re_blade[i,:,0]).T
-                    AoA_batch               = np.atleast_2d(alpha_blade[i,:,0]).T
-                    npanel                  = len(airfoil_data.x_coordinates[0]) - 2
-                    AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = rotor.airfoil_polar_stations)
-                else:
-                    camber                          = 0.0
-                    camber_loc                      = 0.0
-                    thickness                       = 0.12
-                    default_airfoil_data            = compute_naca_4series(camber, camber_loc, thickness,(rotor.number_of_airfoil_section_points*2 - 2))
+                    a_geo                           = rotor.airfoil_geometry
+                    airfoil_data                    = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
+                    Re_batch                        = Re_blade[:,:,i_azi]
+                    AoA_batch                       = alpha_blade[:,:,i_azi]
+                    npanel                          = len(airfoil_data.x_coordinates[0]) - 2
+                    AP                              = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = rotor.airfoil_polar_stations)
+                else: 
+                    default_airfoil_data            = compute_naca_4series(0.0, 0.0, 0.12,(rotor.number_of_airfoil_section_points*2 - 2))
                     airfoil_polar_stations          = np.zeros(num_sec)
                     default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
-                    Re_batch                        = np.atleast_2d(Re_blade[:,:,0]).T
-                    AoA_batch                       = np.atleast_2d(alpha_blade[:,:,0]).T
+                    Re_batch                        = Re_blade[:,:,i_azi]
+                    AoA_batch                       = alpha_blade[:,:,i_azi]
                     npanel                          = len(default_airfoil_data.x_coordinates[0]) - 2
                     AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = default_airfoil_polar_stations)
 
                 # extract properties
                 lower_surface_theta[:,:,i_azi]      = AP.theta[:,:,TE_idx]
-                lower_surface_delta[:,:,i_azi]      = AP.delta[:,:,TE_idx]
+                lower_surface_delta[:,:,i_azi]      = AP.delta[:,:,TE_idx]*0.1
                 lower_surface_delta_star[:,:,i_azi] = AP.delta_star[:,:,TE_idx]
                 lower_surface_cf[:,:,i_azi]         = AP.Cf[:,:,TE_idx]
                 lower_surface_Ue[:,:,i_azi]         = AP.Ue_Vinf[:,:,TE_idx]*U_blade[:,:,i_azi]
@@ -167,7 +165,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                 surface_dcp_dx                      = (np.diff(AP.Cp,axis = 1)/np.diff(AP.x,axis = 1))
                 lower_surface_dp_dx[:,:,i_azi]      = abs(surface_dcp_dx[:,:,TE_idx]*(0.5*rho_blade[:,:,i_azi]*U_blade[:,:,i_azi]**2)/blade_chords)
                 upper_surface_theta[:,:,i_azi]      = AP.theta[:,:,-TE_idx]
-                upper_surface_delta[:,:,i_azi]      = AP.delta[:,:,-TE_idx]
+                upper_surface_delta[:,:,i_azi]      = AP.delta[:,:,-TE_idx]*0.1
                 upper_surface_delta_star[:,:,i_azi] = AP.delta_star[:,:,-TE_idx]
                 upper_surface_cf[:,:,i_azi]         = AP.Cf[:,:,-TE_idx]
                 upper_surface_Ue[:,:,i_azi]         = AP.Ue_Vinf[:,-TE_idx]*U_blade[:,:,i_azi]
@@ -175,17 +173,14 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                 upper_surface_dp_dx[:,:,i_azi]      = abs(surface_dcp_dx[:,:,-TE_idx]*(0.5*rho_blade[:,:,i_azi]*U_blade[:,:,i_azi]**2)/blade_chords)
         else:
             if rotor.airfoil_flag  == True:
-                a_geo                   = rotor.airfoil_geometry
-                airfoil_data            = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
-                Re_batch                = Re_blade[:,:,0]
-                AoA_batch               = alpha_blade[:,:,0]
-                npanel                  = len(airfoil_data.x_coordinates[0]) - 2
-                AP                      = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = rotor.airfoil_polar_stations)
-            else:
-                camber                          = 0.0
-                camber_loc                      = 0.0
-                thickness                       = 0.12
-                default_airfoil_data            = compute_naca_4series(camber, camber_loc, thickness,(rotor.number_of_airfoil_section_points*2 - 2))
+                a_geo                           = rotor.airfoil_geometry
+                airfoil_data                    = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
+                Re_batch                        = Re_blade[:,:,0]
+                AoA_batch                       = alpha_blade[:,:,0]
+                npanel                          = len(airfoil_data.x_coordinates[0]) - 2
+                AP                              = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = rotor.airfoil_polar_stations)
+            else: 
+                default_airfoil_data            = compute_naca_4series(0.0, 0.0, 0.12,(rotor.number_of_airfoil_section_points*2 - 2))
                 airfoil_polar_stations          = np.zeros(num_sec)
                 default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
                 Re_batch                        = Re_blade[:,:,0]
@@ -270,7 +265,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         Ue[:,:,:,:,:,:,0]           = np.tile(lower_surface_Ue[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))         # lower surface boundary layer edge velocity
         Ue[:,:,:,:,:,:,1]           = np.tile(upper_surface_Ue[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))         # upper surface boundary layer edge velocity
         tau_w[:,:,:,:,:,:,0]        = np.tile((lower_surface_cf*(0.5*rho_blade*(U_blade**2)))[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))       # lower surface wall shear stress
-        tau_w[:,:,:,:,:,:,1]       = np.tile((upper_surface_cf*(0.5*rho_blade*(U_blade**2)))[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface wall shear stress
+        tau_w[:,:,:,:,:,:,1]        = np.tile((upper_surface_cf*(0.5*rho_blade*(U_blade**2)))[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface wall shear stress
         Theta[:,:,:,:,:,:,0]        = np.tile(lower_surface_theta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # lower surface momentum thickness
         Theta[:,:,:,:,:,:,1]        = np.tile(upper_surface_theta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface momentum thickness
 
