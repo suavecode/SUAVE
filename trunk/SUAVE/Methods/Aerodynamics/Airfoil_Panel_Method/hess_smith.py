@@ -50,7 +50,7 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel):
     
     ndim      = len(alpha[0,:])
     ncpts     = len(Re) 
-    alpha_2d  = np.repeat(np.repeat(alpha,ncpts, axis = 1)[np.newaxis,:, :], npanel, axis=0) 
+    alpha_2d  = np.repeat(np.repeat(alpha[0,:,:],ncpts, axis = 1)[np.newaxis,:, :], npanel, axis=0) 
     
     # generate panel geometry data for later use   
     l,st,ct,xbar,ybar,norm = panel_geometry(x_coord,y_coord,npanel,ndim,ncpts) 
