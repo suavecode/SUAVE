@@ -14,7 +14,7 @@ import numpy as np
 # infl_coeff.py
 # ----------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def infl_coeff(x,y,xbar,ybar,st,ct,npanel,ndim,ncpts):
+def infl_coeff(x,y,xbar,ybar,st,ct,npanel,ncases,ncpts):
     """Compute the matrix of aerodynamic influence  coefficients for later use
 
     Assumptions:
@@ -39,7 +39,7 @@ def infl_coeff(x,y,xbar,ybar,st,ct,npanel,ndim,ncpts):
     N/A
     """                          
    
-    ainfl                = np.zeros((ndim,ncpts,npanel+1,npanel+1))    
+    ainfl                = np.zeros((ncases,ncpts,npanel+1,npanel+1))    
     pi2inv               = 1 / (2*np.pi) 
     
     # convert 1d matrices to 4d 
@@ -62,9 +62,9 @@ def infl_coeff(x,y,xbar,ybar,st,ct,npanel,ndim,ncpts):
     r_ratio              = rij_dot_rij_plus_1/rij/rij_plus_1
     r_ratio[r_ratio>1.0] = 1.0 # numerical noise 
     betaij               = np.real(anglesign*np.arccos(r_ratio))  
-    diag_indices         = list(np.tile(np.repeat(np.arange(npanel),ndim),ncpts))
-    aoas                 = list(np.tile(np.arange(ndim),ncpts*npanel))
-    res                  = list(np.repeat(np.arange(ncpts),ndim*npanel))   
+    diag_indices         = list(np.tile(np.repeat(np.arange(npanel),ncases),ncpts))
+    aoas                 = list(np.tile(np.arange(ncases),ncpts*npanel))
+    res                  = list(np.repeat(np.arange(ncpts),ncases*npanel))   
     betaij[aoas,res,diag_indices,diag_indices] = np.pi 
     
     ainfl[:,:,:-1,:-1]   = pi2inv*(sti_minus_j*np.log(rij_plus_1/rij) + cti_minus_j*betaij)

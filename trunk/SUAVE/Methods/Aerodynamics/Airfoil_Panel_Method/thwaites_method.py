@@ -15,7 +15,7 @@ from scipy.integrate import odeint
 # thwaites_method
 # ----------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,tol,THETA_0):
+def thwaites_method(npanel,ncases,ncpts,L,RE_L,X_I,VE_I, DVE_I,tol,THETA_0):
     """ Computes the boundary layer characteristics in laminar 
     flow pressure gradients
     
@@ -28,8 +28,8 @@ def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,tol,
 
     Inputs:  
     npanel         - number of points on surface                                                 [unitless]
-    nalpha         - number of angle of attacks                                                  [unitless]
-    nRe            - number of reynolds numbers                                                  [unitless]
+    ncases         - number of cases                                                             [unitless]
+    ncpts          - number of control points                                                    [unitless]
     batch_analysis - flag for batch analysis                                                     [boolean]
     THETA_0        - initial momentum thickness                                                  [m]
     L              - normalized length of surface                                                [unitless]
@@ -55,7 +55,7 @@ def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,tol,
     """
     
     # Initialize vectors 
-    X_T          = np.zeros((npanel,nalpha,nRe))
+    X_T          = np.zeros((npanel,ncases,ncpts))
     THETA_T      = np.zeros_like(X_T)
     DELTA_STAR_T = np.zeros_like(X_T)
     H_T          = np.zeros_like(X_T)
@@ -63,24 +63,17 @@ def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,tol,
     RE_THETA_T   = np.zeros_like(X_T)
     RE_X_T       = np.zeros_like(X_T)
     DELTA_T      = np.zeros_like(X_T)  
-    
-    if batch_analysis:
-        N_ALPHA = nalpha
-    else:
-        N_ALPHA = 1 
-    
-    for a_i in range(N_ALPHA):
-        for re_i in range(nRe):    
-            if not batch_analysis:  
-                a_i = re_i 
+      
+    for case in range(ncases):
+        for cpt in range(ncpts):    
             # compute laminar boundary layer properties  
-            l           = L[a_i,re_i]
+            l           = L[case,cpt]
             theta_0     = THETA_0 
-            Re_L        = RE_L[a_i,re_i]
+            Re_L        = RE_L[case,cpt]
             nu          = l/Re_L    
-            x_i         = X_I.data[:,a_i,re_i][X_I.mask[:,a_i,re_i] ==False]
-            Ve_i        = VE_I.data[:,a_i,re_i][VE_I.mask[:,a_i,re_i] ==False]
-            dVe_i       = DVE_I.data[:,a_i,re_i][DVE_I.mask[:,a_i,re_i] ==False] 
+            x_i         = X_I.data[:,case,cpt][X_I.mask[:,case,cpt] ==False]
+            Ve_i        = VE_I.data[:,case,cpt][VE_I.mask[:,case,cpt] ==False]
+            dVe_i       = DVE_I.data[:,case,cpt][DVE_I.mask[:,case,cpt] ==False] 
             y0          = theta_0**2 * getVe(0,x_i,Ve_i)**6   
             theta2_Ve6  = odeint(odefcn, y0,x_i , args=(nu, x_i, Ve_i))  
             
@@ -123,17 +116,17 @@ def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,tol,
             Re_x[0]     = 1E-5
             
             # Find where matrices are not masked 
-            indices = np.where(X_I.mask[:,a_i,re_i] == False)
+            indices = np.where(X_I.mask[:,case,cpt] == False)
             
             # Store results 
-            np.put(X_T[:,a_i,re_i],indices,x_i)
-            np.put(THETA_T[:,a_i,re_i],indices,theta)
-            np.put(DELTA_STAR_T[:,a_i,re_i],indices,del_star)
-            np.put(H_T[:,a_i,re_i],indices,H)
-            np.put(CF_T[:,a_i,re_i],indices ,cf)
-            np.put(RE_THETA_T[:,a_i,re_i],indices,Re_theta)
-            np.put(RE_X_T[:,a_i,re_i],indices,Re_x)
-            np.put(DELTA_T[:,a_i,re_i],indices,delta)
+            np.put(X_T[:,case,cpt],indices,x_i)
+            np.put(THETA_T[:,case,cpt],indices,theta)
+            np.put(DELTA_STAR_T[:,case,cpt],indices,del_star)
+            np.put(H_T[:,case,cpt],indices,H)
+            np.put(CF_T[:,case,cpt],indices ,cf)
+            np.put(RE_THETA_T[:,case,cpt],indices,Re_theta)
+            np.put(RE_X_T[:,case,cpt],indices,Re_x)
+            np.put(DELTA_T[:,case,cpt],indices,delta)
     
     RESULTS = Data(
         X_T          = X_T,      

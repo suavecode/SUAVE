@@ -13,8 +13,8 @@ from scipy.integrate import odeint
 # heads_method.py 
 # ----------------------------------------------------------------------   
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE_L,TURBULENT_COORD,
-                 VE_I, DVE_I,batch_analysis,tol):
+def heads_method(npanel,ncases,ncpts,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE_L,TURBULENT_COORD,
+                 VE_I, DVE_I,tol):
     """ Computes the boundary layer characteristics in turbulent
     flow pressure gradients
 
@@ -26,9 +26,8 @@ def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE
     None  
 
     Inputs: 
-    nalpha         - number of angle of attacks                                                    [unitless]
-    nRe            - number of reynolds numbers                                                    [unitless]
-    batch_analysis - flag for batch analysis                                                       [boolean]
+    ncases         - number of cases                                                             [unitless]
+    ncpts          - number of control points                                                    [unitless]
     DEL_0          - intital bounday layer thickness                                               [m]
     DELTA_STAR_0   - initial displacement thickness                                                [m]
     THETA_0        - initial momentum thickness                                                    [m]
@@ -56,7 +55,7 @@ def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE
     """   
      
     # Initialize vectors 
-    X_H          = np.zeros((npanel,nalpha,nRe))
+    X_H          = np.zeros((npanel,ncases,ncpts))
     THETA_H      = np.zeros_like(X_H)
     DELTA_STAR_H = np.zeros_like(X_H)
     H_H          = np.zeros_like(X_H)
@@ -64,28 +63,23 @@ def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE
     RE_THETA_H   = np.zeros_like(X_H)
     RE_X_H       = np.zeros_like(X_H)
     DELTA_H      = np.zeros_like(X_H)       
-
-    if batch_analysis:
-        N_ALPHA = nalpha
-    else:
-        N_ALPHA = 1  
-    for a_i in range(N_ALPHA):
-        for re_i in range(nRe):   
-            if not batch_analysis:  
-                a_i = re_i  
+ 
+          
+    for case in range(ncases):
+        for cpt in range(ncpts):  
             # length of tubulent surface  
-            l = TURBULENT_SURF[a_i,re_i] 
+            l = TURBULENT_SURF[case,cpt] 
             if l == 0.0:
                 pass
             else: 
-                theta_0      = THETA_0[a_i,re_i] 
-                Re_L         = RE_L[a_i,re_i] 
+                theta_0      = THETA_0[case,cpt] 
+                Re_L         = RE_L[case,cpt] 
                 nu           = l/Re_L    
-                x_i          = TURBULENT_COORD.data[:,a_i,re_i][TURBULENT_COORD.mask[:,a_i,re_i] ==False] 
-                Ve_i         = VE_I.data[:,a_i,re_i][TURBULENT_COORD.mask[:,a_i,re_i] ==False]
-                dVe_i        = DVE_I.data[:,a_i,re_i][TURBULENT_COORD.mask[:,a_i,re_i] ==False]  
-                del_0        = DEL_0[a_i,re_i]
-                del_star_0   = DELTA_STAR_0[a_i,re_i]
+                x_i          = TURBULENT_COORD.data[:,case,cpt][TURBULENT_COORD.mask[:,case,cpt] ==False] 
+                Ve_i         = VE_I.data[:,case,cpt][TURBULENT_COORD.mask[:,case,cpt] ==False]
+                dVe_i        = DVE_I.data[:,case,cpt][TURBULENT_COORD.mask[:,case,cpt] ==False]  
+                del_0        = DEL_0[case,cpt]
+                del_star_0   = DELTA_STAR_0[case,cpt]
                 H_0          = del_star_0 / theta_0
                 H1_0         = getH1(np.atleast_1d(H_0))[0]
                 if np.isnan(H1_0):
@@ -136,17 +130,17 @@ def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE
                 Re_x[0]      = 1E-5                
     
                 # Find where matrices are not masked 
-                indices = np.where(TURBULENT_COORD.mask[:,a_i,re_i] == False)
+                indices = np.where(TURBULENT_COORD.mask[:,case,cpt] == False)
                 
                 # Store results 
-                np.put(X_H[:,a_i,re_i],indices,x_i )
-                np.put(THETA_H[:,a_i,re_i],indices,theta)
-                np.put(DELTA_STAR_H[:,a_i,re_i],indices,del_star)
-                np.put(H_H[:,a_i,re_i],indices,H)
-                np.put(CF_H[:,a_i,re_i],indices ,cf)
-                np.put(RE_THETA_H[:,a_i,re_i],indices,Re_theta)
-                np.put(RE_X_H[:,a_i,re_i],indices,Re_x)
-                np.put(DELTA_H[:,a_i,re_i],indices,delta) 
+                np.put(X_H[:,case,cpt],indices,x_i )
+                np.put(THETA_H[:,case,cpt],indices,theta)
+                np.put(DELTA_STAR_H[:,case,cpt],indices,del_star)
+                np.put(H_H[:,case,cpt],indices,H)
+                np.put(CF_H[:,case,cpt],indices ,cf)
+                np.put(RE_THETA_H[:,case,cpt],indices,Re_theta)
+                np.put(RE_X_H[:,case,cpt],indices,Re_x)
+                np.put(DELTA_H[:,case,cpt],indices,delta) 
 
     RESULTS = Data(
         X_H          = X_H,      

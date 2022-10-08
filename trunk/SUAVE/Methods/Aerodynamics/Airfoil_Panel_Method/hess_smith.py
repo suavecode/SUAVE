@@ -48,18 +48,18 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel):
     N/A
     """      
     
-    ndim      = len(alpha[0,:])
+    ncases      = len(alpha[0,:])
     ncpts     = len(Re) 
     alpha_2d  = np.repeat(alpha.T[np.newaxis,:, :], npanel, axis=0) 
     
     # generate panel geometry data for later use   
-    l,st,ct,xbar,ybar,norm = panel_geometry(x_coord,y_coord,npanel,ndim,ncpts) 
+    l,st,ct,xbar,ybar,norm = panel_geometry(x_coord,y_coord,npanel,ncases,ncpts) 
     
     # compute matrix of aerodynamic influence coefficients
-    ainfl         = infl_coeff(x_coord,y_coord,xbar,ybar,st,ct,npanel,ndim,ncpts) # ndim x ncpts x npanel+1 x npanel+1
+    ainfl         = infl_coeff(x_coord,y_coord,xbar,ybar,st,ct,npanel,ncases,ncpts) # ncases x ncpts x npanel+1 x npanel+1
     
     # compute right hand side vector for the specified angle of attack 
-    b_2d          = np.zeros((npanel+1,ndim, ncpts))
+    b_2d          = np.zeros((npanel+1,ncases, ncpts))
     b_2d[:-1,:,:] = st*np.cos(alpha_2d) - np.sin(alpha_2d)*ct
     b_2d[-1,:,:]  = -(ct[0,:,:]*np.cos(alpha_2d[-1,:,:]) + st[0,:,:]*np.sin(alpha_2d[-1,:,:]))-(ct[-1,:,:]*np.cos(alpha_2d[-1,:,:]) +st[-1,:,:]*np.sin(alpha_2d[-1,:,:]))
       
