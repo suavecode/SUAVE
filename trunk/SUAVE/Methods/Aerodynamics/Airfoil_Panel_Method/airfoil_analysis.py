@@ -75,29 +75,25 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 ,airfoil_stations 
     
     nalpha       = len(alpha[0,:])
     nRe          = len(Re_L[0,:]) 
-    nalpha_cpts  = len(alpha) 
     nRe_cpts     = len(Re_L) 
     nairfoil     = len(airfoil_stations)  
     x_coord      = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0).T 
     y_coord      = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T
     x_coord      = np.delete(x_coord[::-1], int(npanel/2),0)  
     y_coord      = np.delete(y_coord[::-1], int(npanel/2),0)
-    
-    if (nalpha_cpts != nRe_cpts ):
-        raise AssertionError('Dimension of angle of attacks and Reynolds numbers cases must be equal')      
-    
-    if (nairfoil!=  nRe):
-        raise AssertionError('Dimension of cases and airfoil stations must all be equal')      
+         
+    if (nairfoil!=  nalpha) and (nairfoil!=  nRe):
+        raise AssertionError('Number of angle of attacks and Reynolds numbers must be equal to the number of stations')      
     x_coord_3d = np.repeat(x_coord[:,:,np.newaxis],nRe_cpts, axis = 2) # number of points, number of cases, number of control points 
     y_coord_3d = np.repeat(y_coord[:,:,np.newaxis],nRe_cpts, axis = 2) # number of points, number of cases, number of control points 
         
     # Begin by solving for velocity distribution at airfoil surface using inviscid panel simulation
     # these are the locations (faces) where things are computed , len = n panel
-    # dimension of vt = npanel x ndim x nRe
+    # dimension of vt = npanel x ndim x ncpts
     X,Y,vt,normals = hess_smith(x_coord_3d,y_coord_3d,alpha,Re_L,npanel)  
     
     # Reynolds number 
-    RE_L_VALS = np.repeat(Re_L.T,ndim, axis = 0)
+    RE_L_VALS = np.repeat(Re_L[0].T,ndim, axis = 0)
     
     # ---------------------------------------------------------------------
     # Bottom surface of airfoil 

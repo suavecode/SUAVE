@@ -15,7 +15,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def velocity_distribution(qg,x,y,xbar,ybar,st,ct,alpha,Re,npanel):
+def velocity_distribution(qg,x,y,xbar,ybar,st,ct,alpha_2d,npanel):
     """Compute the tangential velocity distribution at the       
                  midpoint of each panel   
     
@@ -45,11 +45,11 @@ def velocity_distribution(qg,x,y,xbar,ybar,st,ct,alpha,Re,npanel):
     N/A
     """  
     
-    nalpha           = len(alpha)
-    nRe              = len(Re) 
+    nalpha           = len(alpha_2d[0,:,0])
+    ncpts            = len(alpha_2d[0,0,:])
     
     # flow tangency boundary condition - source distribution  
-    vt_2d = ct *np.cos(alpha) + st*np.sin(alpha)
+    vt_2d = ct *np.cos(alpha_2d) + st*np.sin(alpha_2d)
     gamma = np.repeat(qg[-1,:,:][np.newaxis,:,:],npanel, axis = 0)  
     
     # convert 1d matrices to 2d 
@@ -73,9 +73,9 @@ def velocity_distribution(qg,x,y,xbar,ybar,st,ct,alpha,Re,npanel):
     r_ratio              = rij_dot_rij_plus_1/rij/rij_plus_1
     r_ratio[r_ratio>1.0] = 1.0 # numerical noise     
     betaij               = np.real(anglesign*np.arccos(r_ratio))    
-    diag_indices         =  list(np.tile(np.repeat(np.arange(npanel),nalpha),nRe))
-    aoas                 = list(np.tile(np.arange(nalpha),nRe*npanel))
-    res                  = list(np.repeat(np.arange(nRe),nalpha*npanel))   
+    diag_indices         =  list(np.tile(np.repeat(np.arange(npanel),nalpha),ncpts))
+    aoas                 = list(np.tile(np.arange(nalpha),ncpts*npanel))
+    res                  = list(np.repeat(np.arange(ncpts),nalpha*npanel))   
     betaij[aoas,res,diag_indices,diag_indices] = np.pi      
     
     # swap axes 

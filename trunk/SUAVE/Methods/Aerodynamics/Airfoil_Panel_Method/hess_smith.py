@@ -50,7 +50,7 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel):
     
     ndim      = len(alpha[0,:])
     ncpts     = len(Re) 
-    alpha_2d  = np.repeat(np.repeat(alpha[0,:,:],ncpts, axis = 1)[np.newaxis,:, :], npanel, axis=0) 
+    alpha_2d  = np.repeat(alpha.T[np.newaxis,:, :], npanel, axis=0) 
     
     # generate panel geometry data for later use   
     l,st,ct,xbar,ybar,norm = panel_geometry(x_coord,y_coord,npanel,ndim,ncpts) 
@@ -68,6 +68,6 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel):
     qg            = np.swapaxes(qg_T.T,1,2) 
     
     # compute the tangential velocity distribution at the midpoint of panels 
-    vt            = velocity_distribution(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha,Re,npanel)
+    vt            = velocity_distribution(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha_2d,npanel)
     
     return  xbar,ybar,vt,norm 

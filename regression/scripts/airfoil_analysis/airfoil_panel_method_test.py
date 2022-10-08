@@ -67,8 +67,8 @@ def main():
     ospath               = os.path.abspath(__file__)
     separator            = os.path.sep 
     rel_path             = ospath.split('airfoil_analysis' + separator + 'airfoil_panel_method_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator 
-    Re_vals              = np.atleast_3d(np.array([1E5,1E5,1E5,1E5,1E5,1E5])).T
-    AoA_vals             = np.atleast_3d(np.array([2,2,2,2,2,2])*Units.degrees).T       
+    Re_vals              = np.atleast_2d(np.array([1E5,1E5,1E5,1E5,1E5,1E5]))
+    AoA_vals             = np.atleast_2d(np.array([2,2,2,2,2,2])*Units.degrees)       
     airfoil_stations     = [0,1,0,1,0,1] 
     airfoils             = [rel_path + 'NACA_4412.txt',rel_path +'Clark_y.txt']             
     airfoil_geometry     = import_airfoil_geometry(airfoils, npoints = (npanel + 2))    
