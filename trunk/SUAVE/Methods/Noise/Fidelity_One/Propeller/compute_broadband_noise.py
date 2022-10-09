@@ -4,6 +4,7 @@
 # Created:   Mar 2021, M. Clarke
 # Modified:  Feb 2022, M. Clarke
 # Modified:  Sep 2022, M. Clarke
+# Modified:  Sep 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -144,30 +145,28 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                     airfoil_data                    = import_airfoil_geometry(a_geo, npoints = rotor.number_of_airfoil_section_points)
                     Re_batch                        = Re_blade[:,:,i_azi]
                     AoA_batch                       = alpha_blade[:,:,i_azi]
-                    npanel                          = len(airfoil_data.x_coordinates[0]) - 2
-                    AP                              = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = rotor.airfoil_polar_stations)
+                    AP                              = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, airfoil_stations = rotor.airfoil_polar_stations)
                 else: 
-                    default_airfoil_data            = compute_naca_4series(0.0, 0.0, 0.12,(rotor.number_of_airfoil_section_points*2 - 2))
+                    default_airfoil_data            = compute_naca_4series(['0012'],(rotor.number_of_airfoil_section_points*2 - 2))
                     airfoil_polar_stations          = np.zeros(num_sec)
                     default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
                     Re_batch                        = Re_blade[:,:,i_azi]
-                    AoA_batch                       = alpha_blade[:,:,i_azi]
-                    npanel                          = len(default_airfoil_data.x_coordinates[0]) - 2
-                    AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = default_airfoil_polar_stations)
+                    AoA_batch                       = alpha_blade[:,:,i_azi] 
+                    AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, airfoil_stations = default_airfoil_polar_stations)
 
                 # extract properties
                 lower_surface_theta[:,:,i_azi]      = AP.theta[:,:,TE_idx]
                 lower_surface_delta[:,:,i_azi]      = AP.delta[:,:,TE_idx]*0.1
                 lower_surface_delta_star[:,:,i_azi] = AP.delta_star[:,:,TE_idx]
-                lower_surface_cf[:,:,i_azi]         = AP.Cf[:,:,TE_idx]
+                lower_surface_cf[:,:,i_azi]         = AP.cf[:,:,TE_idx]
                 lower_surface_Ue[:,:,i_azi]         = AP.Ue_Vinf[:,:,TE_idx]*U_blade[:,:,i_azi]
                 lower_surface_H[:,:,i_azi]          = AP.H[:,:,TE_idx]
-                surface_dcp_dx                      = (np.diff(AP.Cp,axis = 1)/np.diff(AP.x,axis = 1))
+                surface_dcp_dx                      = (np.diff(AP.cp,axis = 1)/np.diff(AP.x,axis = 1))
                 lower_surface_dp_dx[:,:,i_azi]      = abs(surface_dcp_dx[:,:,TE_idx]*(0.5*rho_blade[:,:,i_azi]*U_blade[:,:,i_azi]**2)/blade_chords)
                 upper_surface_theta[:,:,i_azi]      = AP.theta[:,:,-TE_idx]
                 upper_surface_delta[:,:,i_azi]      = AP.delta[:,:,-TE_idx]*0.1
                 upper_surface_delta_star[:,:,i_azi] = AP.delta_star[:,:,-TE_idx]
-                upper_surface_cf[:,:,i_azi]         = AP.Cf[:,:,-TE_idx]
+                upper_surface_cf[:,:,i_azi]         = AP.cf[:,:,-TE_idx]
                 upper_surface_Ue[:,:,i_azi]         = AP.Ue_Vinf[:,-TE_idx]*U_blade[:,:,i_azi]
                 upper_surface_H[:,:,i_azi]          = AP.H[:,:,-TE_idx]
                 upper_surface_dp_dx[:,:,i_azi]      = abs(surface_dcp_dx[:,:,-TE_idx]*(0.5*rho_blade[:,:,i_azi]*U_blade[:,:,i_azi]**2)/blade_chords)
@@ -178,29 +177,29 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                 Re_batch                        = Re_blade[:,:,0]
                 AoA_batch                       = alpha_blade[:,:,0]
                 npanel                          = len(airfoil_data.x_coordinates[0]) - 2
-                AP                              = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, npanel, airfoil_stations = rotor.airfoil_polar_stations)
+                AP                              = airfoil_analysis(airfoil_data,AoA_batch,Re_batch, airfoil_stations = rotor.airfoil_polar_stations)
             else: 
-                default_airfoil_data            = compute_naca_4series(0.0, 0.0, 0.12,(rotor.number_of_airfoil_section_points*2 - 2))
+                default_airfoil_data            = compute_naca_4series(['0012'],(rotor.number_of_airfoil_section_points*2 - 2))
                 airfoil_polar_stations          = np.zeros(num_sec)
                 default_airfoil_polar_stations  = list(airfoil_polar_stations.astype(int) )
                 Re_batch                        = Re_blade[:,:,0]
                 AoA_batch                       = alpha_blade[:,:,0]
                 npanel                          = len(default_airfoil_data.x_coordinates[0]) - 2
-                AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, npanel, batch_analysis = False, airfoil_stations = default_airfoil_polar_stations)
+                AP                              = airfoil_analysis(default_airfoil_data,AoA_batch,Re_batch, batch_analysis = False, airfoil_stations = default_airfoil_polar_stations)
 
             # extract properties
-            surface_dcp_dx           = (np.diff(AP.Cp,axis = 2)/np.diff(AP.x,axis = 2))
+            surface_dcp_dx           = (np.diff(AP.cp,axis = 2)/np.diff(AP.x,axis = 2))
             lower_surface_theta      = np.tile(AP.theta[:,:,TE_idx][:,:,None],(1,1,num_azi))
             lower_surface_delta      = np.tile(AP.delta[:,:,TE_idx][:,:,None],(1,1,num_azi))*0.1
             lower_surface_delta_star = np.tile(AP.delta_star[:,:,TE_idx][:,:,None],(1,1,num_azi))
-            lower_surface_cf         = np.tile(AP.Cf[:,:,TE_idx][:,:,None],(1,1,num_azi))
+            lower_surface_cf         = np.tile(AP.cf[:,:,TE_idx][:,:,None],(1,1,num_azi))
             lower_surface_Ue         = np.tile((AP.Ue_Vinf[:,:,TE_idx]*U_blade[:,:,0])[:,:,None],(1,1,num_azi))
             lower_surface_H          = np.tile(AP.H[:,:,TE_idx][:,:,None],(1,1,num_azi))
             lower_surface_dp_dx      = np.tile(((surface_dcp_dx[:,:,TE_idx]*0.5*rho_blade[:,:,0]*U_blade[:,:,0]**2)/blade_chords)[:,:,None],(1,1,num_azi))
             upper_surface_theta      = np.tile(AP.theta[:,:,-TE_idx][:,:,None],(1,1,num_azi))
             upper_surface_delta      = np.tile(AP.delta[:,:,-TE_idx][:,:,None],(1,1,num_azi))*0.1
             upper_surface_delta_star = np.tile(AP.delta_star[:,:,-TE_idx][:,:,None],(1,1,num_azi))
-            upper_surface_cf         = np.tile(AP.Cf[:,:,-TE_idx][:,:,None],(1,1,num_azi))
+            upper_surface_cf         = np.tile(AP.cf[:,:,-TE_idx][:,:,None],(1,1,num_azi))
             upper_surface_Ue         = np.tile((AP.Ue_Vinf[:,:,-TE_idx]*U_blade[:,:,0])[:,:,None],(1,1,num_azi))
             upper_surface_H          = np.tile(AP.H[:,:,-TE_idx][:,:,None],(1,1,num_azi))
             upper_surface_dp_dx      = np.tile(((surface_dcp_dx[:,:,-TE_idx]*0.5*rho_blade[:,:,0]*U_blade[:,:,0]**2)/blade_chords)[:,:,None],(1,1,num_azi))

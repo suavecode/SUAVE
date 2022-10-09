@@ -47,7 +47,7 @@ def main():
     airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry_with_selig)
 
     # Actual t/c values  
-    airfoil_tc_actual = [0.12031526401402462, 0.11177063928743779, 0.11177063928743779]
+    airfoil_tc_actual = [0.12031526401402462, 0.11177619218206997, 0.11177619218206997]
 
 
     # Check t/c calculation against previously calculated values

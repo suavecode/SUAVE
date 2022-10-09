@@ -22,7 +22,7 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 ,airfoil_stations = [0],
+def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
                      initial_momentum_thickness=1E-5,tolerance = 1E0):
     """This computes the aerodynamic polars as well as the boundary layer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
@@ -36,8 +36,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 ,airfoil_stations 
     Inputs: 
     airfoil_geometry   - airfoil geometry points                                                             [unitless]
     alpha              - angle of attacks                                                                    [radians]
-    Re_L               - Reynolds numbers                                                                    [unitless]
-    npanel             - number of airfoil panels                                                            [unitless]
+    Re_L               - Reynolds numbers                                                                     [unitless]
     batch_analysis     - boolean : If True: the specified number of angle of attacks and Reynolds            [boolean]
                                   numbers are used to create a table of 2-D results for each combination
                                   Note: Can only accomodate one airfoil
@@ -81,9 +80,8 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 ,airfoil_stations 
     ncases       = nalpha 
     ncpts        = nRe_cpts
     x_coord      = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0).T 
-    y_coord      = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T
-    x_coord      = np.delete(x_coord[::-1], int(npanel/2),0)  
-    y_coord      = np.delete(y_coord[::-1], int(npanel/2),0)
+    y_coord      = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T 
+    npanel       = len(x_coord)-1 
          
     if (nairfoil!=  nalpha) and (nairfoil!=  nRe):
         raise AssertionError('Number of angle of attacks and Reynolds numbers must be equal to the number of stations')      
@@ -474,15 +472,15 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 ,airfoil_stations 
     airfoil_properties = Data(
         AoA        = alpha,
         Re         = Re_L,
-        Cl         = AERO_RES_BL.Cl,
-        Cd         = AERO_RES_BL.Cd,
-        Cm         = AERO_RES_BL.Cm,  
+        cl         = AERO_RES_BL.Cl,
+        cd         = AERO_RES_BL.Cd,
+        cm         = AERO_RES_BL.Cm,  
         normals    = np.transpose(normals,(3,2,0,1)),
         x          = np.transpose(X,(2,1,0)),
         y          = np.transpose(Y,(2,1,0)),
         x_bl       = np.transpose(X_BL ,(2,1,0)),
         y_bl       = np.transpose(Y_BL ,(2,1,0)),
-        Cp         = np.transpose(CP_BL,(2,1,0)),         
+        cp         = np.transpose(CP_BL,(2,1,0)),         
         Ue_Vinf    = np.transpose(VE   ,(2,1,0)),         
         dVe        = np.transpose(DVE  ,(2,1,0)),   
         theta      = np.transpose(THETA,(2,1,0)),      
@@ -491,7 +489,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 ,airfoil_stations 
         Re_theta   = np.transpose(RE_THETA,(2,1,0)),  
         Re_x       = np.transpose(RE_X,(2,1,0)),  
         H          = np.transpose(H,(2,1,0)),            
-        Cf         = np.transpose(CF,(2,1,0)),    
+        cf         = np.transpose(CF,(2,1,0)),    
         )  
         
     return  airfoil_properties 
