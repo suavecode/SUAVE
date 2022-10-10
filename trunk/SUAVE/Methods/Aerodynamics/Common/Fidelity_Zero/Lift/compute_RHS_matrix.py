@@ -246,8 +246,12 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     rhs.RHS            = RHS_from_normals if not use_VORLAX_RHS else ALOC
     rhs.ONSET          = ONSET
     rhs.Vx_ind_total   = Vx_ind_total
+    rhs.Vy_ind_total   = Vy_ind_total
     rhs.Vz_ind_total   = Vz_ind_total
-    rhs.V_distribution = V_distribution
+    rhs.Vx_total       = Vx
+    rhs.Vy_total       = Vy
+    rhs.Vz_total       = Vz 
+    rhs.V_distribution = np.sqrt(Vx**2 + Vy**2 + Vz**2)#V_distribution
     rhs.dt             = dt
 
     #these values will be used later to calculate EFFINC
