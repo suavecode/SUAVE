@@ -522,8 +522,16 @@ def VLM(conditions,settings,geometry):
     results.gamma          =  np.array(GAMMA , dtype=precision)
     results.VD             = VD
     results.V_distribution = rhs.V_distribution
-    results.V_x            = rhs.Vx_ind_total
-    results.V_z            = rhs.Vz_ind_total
+    results.Vx_ind            = rhs.Vx_ind_total
+    results.Vy_ind            = rhs.Vy_ind_total
+    results.Vz_ind            = rhs.Vz_ind_total
+    results.Vx_tot            = rhs.Vx_total
+    results.Vy_tot            = rhs.Vy_total
+    results.Vz_tot            = rhs.Vz_total
+    results.CHORD_strip       = CHORD_strip
+    results.ES                = ES
+    results.STRIP             = STRIP
+    results.LIFT              = LIFT
     VD.gamma = np.array(GAMMA , dtype=precision)
     
     return results
