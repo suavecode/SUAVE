@@ -32,7 +32,7 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename
     airfoil_geo_files = [a1, a2]
     a1_name           = os.path.basename(a1)
     a2_name           = os.path.basename(a2)
-    a_geo = import_airfoil_geometry(airfoil_geo_files,npoints)
+    a_geo             = import_airfoil_geometry(airfoil_geo_files,npoints)
     
     # identify x and y coordinates of the two airfoils
     x_upper = a_geo.x_upper_surface

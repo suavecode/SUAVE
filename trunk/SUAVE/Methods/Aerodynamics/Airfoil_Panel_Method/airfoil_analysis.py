@@ -465,9 +465,10 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
     CP_BL_VALS   = np.ma.concatenate([np.flip(CP_BL_BOT,axis = 0),CP_BL_TOP], axis = 0 )  
     CP_BL_VALS_1 = CP_BL_VALS.flatten('F')  
     CP_BL_VALS_2 = CP_BL_VALS_1.data[~CP_BL_VALS_1.mask] 
-    CP_BL        = CP_BL_VALS_2.reshape((npanel,ncases,ncpts),order = 'F')     
+    CP_BL        = CP_BL_VALS_2.reshape((npanel,ncases,ncpts),order = 'F')    
+    DCP_DX       = np.diff(CP_BL,axis=0)/ np.diff(X,axis=0) 
     
-    AERO_RES_BL  = aero_coeff(X,Y,-CP_BL,alpha,npanel)  
+    AERO_RES_BL  = aero_coeff(X,Y,-CP_BL,alpha,npanel) 
     
     airfoil_properties = Data(
         AoA        = alpha,
@@ -480,7 +481,8 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
         y          = np.transpose(Y,(2,1,0)),
         x_bl       = np.transpose(X_BL ,(2,1,0)),
         y_bl       = np.transpose(Y_BL ,(2,1,0)),
-        cp         = np.transpose(CP_BL,(2,1,0)),         
+        cp         = np.transpose(CP_BL,(2,1,0)),  
+        dcp_dx     = np.transpose(DCP_DX,(2,1,0)),            
         Ue_Vinf    = np.transpose(VE   ,(2,1,0)),         
         dVe        = np.transpose(DVE  ,(2,1,0)),   
         theta      = np.transpose(THETA,(2,1,0)),      

@@ -12,8 +12,8 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_polars \
      import import_airfoil_polars 
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
-     import compute_airfoil_polars 
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties \
+     import compute_airfoil_properties 
 import numpy as np 
 import matplotlib.pyplot as plt  
 import matplotlib.cm as cm
@@ -87,6 +87,7 @@ def plot_quantity(ap, q, qaxis, qname):
     axis.set_title(qname)            
     axis.set_ylabel(qaxis) 
     axis.set_xlabel(r'$x$') 
+    axis.legend(loc='upper left', ncol=1)
     return  
  
 ## @ingroup Plots
@@ -157,7 +158,7 @@ def plot_airfoil_polar_files(airfoil_path, airfoil_polar_paths, line_color = 'k-
     
     if use_surrogate:
         # Compute airfoil surrogates
-        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=False)
+        a_data = compute_airfoil_properties(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=False)
         CL_sur = a_data.lift_coefficient_surrogates
         CD_sur = a_data.drag_coefficient_surrogates
         
@@ -238,7 +239,7 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
     if use_surrogate:
         col_sur = ['m--', 'b--', 'r--', 'g--', 'k--','m--','b--','r--', 'g--', 'k--']
         # Compute airfoil surrogates
-        a_data = compute_airfoil_polars(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=True)
+        a_data = compute_airfoil_properties(airfoil_path, airfoil_polar_paths,npoints = 200, use_pre_stall_data=True)
         CL_sur = a_data.lift_coefficient_surrogates
         CD_sur = a_data.drag_coefficient_surrogates
         

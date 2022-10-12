@@ -6,7 +6,7 @@
 #----------------------------------------------------------------------
 #   Imports
 # ---------------------------------------------------------------------
-from SUAVE.Core import Units, Data 
+from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis 
 import matplotlib.pyplot as plt   
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \

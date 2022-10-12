@@ -209,8 +209,8 @@ def import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_interp
         
         # make sure a small gap at trailing edge
         if (y_data[0] == y_data[-1]): 
-            y_data[0]  = y_data[0]  - 1E-4
-            y_data[-1] = y_data[-1] + 1E-4  
+            y_data[0]          = y_data[0]  - 1E-4
+            y_data[-1]         = y_data[-1] + 1E-4
             
         # thicknes and camber distributions require equal points     
         n_pts         = npoints//2        

@@ -3,13 +3,12 @@
 # Imports    
 import SUAVE
 from SUAVE.Core import Units, Data 
-from SUAVE.Components.Energy.Networks.Battery_Propeller                                   import Battery_Propeller 
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars  import compute_airfoil_polars
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
-     import import_airfoil_geometry     
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                    import propeller_mid_fidelity
-from SUAVE.Analyses.Mission.Segments.Conditions                                           import Aerodynamics , Conditions
-from SUAVE.Analyses.Mission.Segments.Segment                                              import Segment 
+from SUAVE.Components.Energy.Networks.Battery_Propeller                                       import Battery_Propeller
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties  import compute_airfoil_properties
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series        import compute_naca_4series
+from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                        import propeller_mid_fidelity
+from SUAVE.Analyses.Mission.Segments.Conditions                                               import Aerodynamics , Conditions
+from SUAVE.Analyses.Mission.Segments.Segment                                                  import Segment
 from scipy.interpolate import interp1d  
 
 # Python Imports 
@@ -70,7 +69,7 @@ def main():
     conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
     
     prop.inputs.omega                                      = np.atleast_2d(test_omega).T
-    prop.inputs.y_axis_rotation                           *= np.ones_like(prop.inputs.omega)
+    prop.inputs.y_axis_rotation                            = np.ones_like(prop.inputs.omega)
     
     # Run Propeller model 
     F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions) 
@@ -278,31 +277,19 @@ def design_F8745D4_prop():
     func_twist_distribution               = interp1d(r_R_data, (beta_data)* Units.degrees   , kind='cubic')
     func_chord_distribution               = interp1d(r_R_data, b_R_data * prop.tip_radius , kind='cubic')
     func_radius_distribution              = interp1d(r_R_data, r_R_data * prop.tip_radius , kind='cubic')
-    func_max_thickness_distribution       = interp1d(r_R_data, t_c_data * b_R_data , kind='cubic')  
-    
+    func_max_thickness_distribution       = interp1d(r_R_data, t_c_data * b_R_data , kind='cubic')
     prop.twist_distribution               = func_twist_distribution(new_radius_distribution)     
     prop.chord_distribution               = func_chord_distribution(new_radius_distribution)         
     prop.radius_distribution              = func_radius_distribution(new_radius_distribution)        
     prop.max_thickness_distribution       = func_max_thickness_distribution(new_radius_distribution) 
-    prop.thickness_to_chord               = prop.max_thickness_distribution/prop.chord_distribution  
-          
-    ospath                                = os.path.abspath(__file__)
-    separator                             = os.path.sep
-    rel_path                              = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator
-    prop.airfoil_geometry                 = [ rel_path +'Clark_y.txt']
-    prop.airfoil_polars                   = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
-                                              rel_path +'Polars/Clark_y_polar_Re_500000.txt',rel_path +'Polars/Clark_y_polar_Re_1000000.txt']]
-    airfoil_polar_stations                = np.zeros(dim)
-    prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))     
-    airfoil_polars                        = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)  
-    airfoil_cl_surs                       = airfoil_polars.lift_coefficient_surrogates 
-    airfoil_cd_surs                       = airfoil_polars.drag_coefficient_surrogates     
-    prop.airfoil_flag                     = True 
-    prop.airfoil_cl_surrogates            = airfoil_cl_surs
-    prop.airfoil_cd_surrogates            = airfoil_cd_surs    
     prop.mid_chord_alignment              = np.zeros_like(prop.chord_distribution)
-    prop.number_of_airfoil_section_points = 102
-    prop.airfoil_data                     = import_airfoil_geometry(prop.airfoil_geometry, npoints = prop.number_of_airfoil_section_points) 
+    prop.thickness_to_chord               = prop.max_thickness_distribution/prop.chord_distribution
+    airfoil_data                          = prop.airfoil_data
+    airfoil_data.polar_stations           = list(np.zeros(dim).astype(int))
+    airfoil_data.geoemtry_files           = ['4412']
+    airfoil_data.airfoil_flag             = True
+    airfoil_data.geometry                 = compute_naca_4series(prop.airfoil_geoemtry_files, npoints = 100)
+    airfoil_data.polars                   = compute_airfoil_properties(prop.airfoil_geometry)
 
     return prop
 if __name__ == '__main__': 
