@@ -26,7 +26,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 #  Propeller Design
 # ----------------------------------------------------------------------
 
-def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points = 100):
+def propeller_design(prop,number_of_stations=20):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
@@ -49,9 +49,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
           Assumptions/ Source:
           Based on Design of Optimum Propellers by Adkins and Liebeck
           
-    """    
-    print('\nDesigning',prop.tag)
-    
+    """
     # Unpack
     N            = number_of_stations       # this number determines the discretization of the propeller into stations
     B            = prop.number_of_blades
@@ -303,7 +301,6 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     prop.thickness_to_chord                     = t_c
     prop.blade_solidity                         = sigma
     prop.airfoil_data                           = airfoil_data
-    prop.number_of_airfoil_section_points       = number_of_airfoil_section_points
 
     return prop
 

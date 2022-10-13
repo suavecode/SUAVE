@@ -170,18 +170,18 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                     local_aoa                     = alpha_blade[:,:,i_azi]
                     local_Re                      = Re_blade[:,:,i_azi]
 
-                    theta_ls_data                 = theta_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    delta_ls_data                 = delta_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    delta_star_ls_data            = delta_star_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    Ue_Vinf_ls_data               = Ue_Vinf_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    cf_ls_data                    = cf_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    dcp_dx_ls_data                = dcp_dx_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    theta_us_data                 = theta_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    delta_us_data                 = delta_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    delta_star_us_data            = delta_star_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    Ue_Vinf_us_data               = Ue_Vinf_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    cf_us_data                    = cf_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                    dcp_dx_us_data                = dcp_dx_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
+                    theta_ls_data                 = theta_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    delta_ls_data                 = delta_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    delta_star_ls_data            = delta_star_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    Ue_Vinf_ls_data               = Ue_Vinf_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    cf_ls_data                    = cf_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    dcp_dx_ls_data                = dcp_dx_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    theta_us_data                 = theta_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    delta_us_data                 = delta_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    delta_star_us_data            = delta_star_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    Ue_Vinf_us_data               = Ue_Vinf_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    cf_us_data                    = cf_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                    dcp_dx_us_data                = dcp_dx_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
                     locs                          = np.where(np.array(a_loc) == jj )
 
                     theta_ls[:,locs,i_azi]        = theta_ls_data[:,locs]
@@ -231,18 +231,18 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
             local_Re         = Re_blade[:,:,0]
 
             for jj in range(dim_sur):
-                theta_ls_data           = theta_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                delta_ls_data           = delta_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                delta_star_ls_data      = delta_star_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                Ue_Vinf_ls_data         = Ue_Vinf_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                cf_ls_data              = cf_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                dcp_dx_ls_data          = dcp_dx_lower_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                theta_us_data           = theta_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                delta_us_data           = delta_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                delta_star_us_data      = delta_star_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                Ue_Vinf_us_data         = Ue_Vinf_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                cf_us_data              = cf_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
-                dcp_dx_us_data          = dcp_dx_upper_surface_surs[a_names[jj]]((local_aoa,local_Re))
+                theta_ls_data           = theta_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                delta_ls_data           = delta_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                delta_star_ls_data      = delta_star_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                Ue_Vinf_ls_data         = Ue_Vinf_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                cf_ls_data              = cf_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                dcp_dx_ls_data          = dcp_dx_lower_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                theta_us_data           = theta_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                delta_us_data           = delta_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                delta_star_us_data      = delta_star_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                Ue_Vinf_us_data         = Ue_Vinf_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                cf_us_data              = cf_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
+                dcp_dx_us_data          = dcp_dx_upper_surface_surs[a_names[jj]]((local_Re,local_aoa))
 
                 locs                    = np.where(np.array(a_loc) == jj )
 
