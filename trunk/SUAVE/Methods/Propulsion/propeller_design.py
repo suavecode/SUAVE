@@ -270,8 +270,8 @@ def propeller_design(prop,number_of_stations=20):
     t_max  = np.zeros(N)    
     t_c    = np.zeros(N)   
     if airfoil_data.airfoil_flag:
-        t_max                 = np.take(airfoil_data.geometry.max_thickness,a_loc,axis=0)*c
-        t_c                   = np.take(airfoil_data.geometry.thickness_to_chord,a_loc,axis=0)
+        t_max                 = np.take(a_geo.max_thickness,a_loc,axis=0)[:,0]*c
+        t_c                   = np.take(a_geo.thickness_to_chord,a_loc,axis=0)[:,0]
     else:     
         c_blade                    = np.repeat(np.atleast_2d(np.linspace(0,1,N)),N, axis = 0)* np.repeat(np.atleast_2d(c).T,N, axis = 1)
         t                          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
@@ -300,7 +300,6 @@ def propeller_design(prop,number_of_stations=20):
     prop.mid_chord_alignment                    = MCA
     prop.thickness_to_chord                     = t_c
     prop.blade_solidity                         = sigma
-    prop.airfoil_data                           = airfoil_data
 
     return prop
 
