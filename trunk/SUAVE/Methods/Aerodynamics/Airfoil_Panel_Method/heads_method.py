@@ -90,8 +90,19 @@ def heads_method(npanel,ncases,ncpts,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,
                 y            = odeint(odefcn,y0,x_i,args=(Re_L/l, x_i, Ve_i, dVe_i))  
                 
                 # Compute momentum thickness, theta 
-                theta        = y[:,0] 
-                Ve_theta_H1  = y[:,1]    
+                theta            = y[:,0]  
+                ind              = np.where(~np.isnan(theta))[0]
+                first, last      = ind[0], ind[-1]
+                theta[:first]    = theta[first]
+                dtheta_dx        = (theta[last]-theta[last-1])/(x_i[last]-x_i[last-1])
+                theta[last + 1:] = theta[last] + dtheta_dx*(x_i[last + 1:]-x_i[last])
+                
+                Ve_theta_H1            = y[:,1]  
+                ind                    = np.where(~np.isnan(Ve_theta_H1))[0]
+                first, last            = ind[0], ind[-1]
+                Ve_theta_H1[:first]    = Ve_theta_H1[first]
+                dVe_theta_H1_dx        = (Ve_theta_H1[last]-Ve_theta_H1[last-1])/(x_i[last]-x_i[last-1])
+                Ve_theta_H1[last + 1:] = Ve_theta_H1[last] + dVe_theta_H1_dx*(x_i[last + 1:]-x_i[last])
                 
                 # find theta values that do not converge and replace them with neighbor
                 idx1         = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > tol )[0]
@@ -126,7 +137,6 @@ def heads_method(npanel,ncases,ncpts,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,
                 
                 # Compute boundary layer thickness 
                 delta        = theta*H1 + del_star 
-                delta[0]     = 0  
                 
                 # Reynolds number at x=0 cannot be negative (give nans)
                 Re_x[0]      = 1E-5                

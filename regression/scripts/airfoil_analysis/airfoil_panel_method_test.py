@@ -30,28 +30,39 @@ def main():
     # -----------------------------------------------
     Re_vals              = np.atleast_2d(np.array([1E5,1E5,1E5,1E5]))
     AoA_vals             = np.atleast_2d(np.linspace(-5,10,4)*Units.degrees)      
-    airfoil_geometry     = compute_naca_4series(['2410'],npoints)
+    airfoil_geometry     = compute_naca_4series(['2412'],npoints)
     airfoil_properties_1 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals,airfoil_stations = [0,0,0,0])  
     
      # Plots    
     plot_airfoil_analysis_surface_forces(airfoil_properties_1,show_legend = True )   
     plot_airfoil_analysis_boundary_layer_properties(airfoil_properties_1,show_legend = True )   
     
-    # XFOIL Validation - Source :   
-    xfoil_data_cl  = 0.7922
-    xfoil_data_cd  = 0.01588    
+    # XFOIL Validation - Source   
+    xfoil_data_cl   = 0.803793
+    xfoil_data_cd   = 0.017329
+    xfoil_data_cdpi = 0.005383
+    xfoil_data_cm   = -0.053745
   
     diff_CL           = np.abs(airfoil_properties_1.cl[0,2] - xfoil_data_cl)   
-    expected_cl_error = -0.0035454027352821438
+    expected_cl_error = 0.005200678285353422
     print('\nCL difference')
     print(diff_CL)
     assert np.abs(((airfoil_properties_1.cl[0,2] - expected_cl_error)  - xfoil_data_cl)/xfoil_data_cl)  < 1e-6 
     
+
     diff_CD           = np.abs(airfoil_properties_1.cd[0,2] - xfoil_data_cd) 
-    expected_cd_error = -0.004375098844350465
-    print('\nCD difference')
+    expected_cd_error = 0.0002122880489607154
+    print('\nCDpi difference')
     print(diff_CD)
-    assert np.abs(((airfoil_properties_1.cd[0,2]- expected_cd_error)  - xfoil_data_cd)/xfoil_data_cd)  < 1e-6 
+    assert np.abs(((airfoil_properties_1.cd[0,2]- expected_cd_error)  - xfoil_data_cd)/xfoil_data_cd)  < 1e-6  
+     
+
+    diff_CM           = np.abs(airfoil_properties_1.cm[0,2] - xfoil_data_cm) 
+    expected_cm_error = -0.005670722786012765
+    print('\nCM difference')
+    print(diff_CM)
+    assert np.abs(((airfoil_properties_1.cm[0,2]- expected_cm_error)  - xfoil_data_cm)/xfoil_data_cm)  < 1e-6 
+    
 
     # -----------------------------------------------
     # Single Condition Analysis of multiple airfoils  
@@ -66,9 +77,9 @@ def main():
     airfoil_geometry     = import_airfoil_geometry(airfoils, npoints)    
     airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals, airfoil_stations = airfoil_stations)    
        
-    True_cls  = np.array([0.6742895 , 0.58784047, 0.6742895 , 0.58784047, 0.6742895 , 0.58784047])
-    True_cds  = np.array([0.00948557, 0.00854951, 0.00948557, 0.00854951, 0.00948557, 0.00854951])
-    True_cms  = np.array([-0.10309825, -0.08332954, -0.10309825, -0.08332954, -0.10309825,-0.08332954])
+    True_cls    = np.array([0.65581723, 0.57643382, 0.65581723, 0.57643382, 0.65581723,0.57643382])
+    True_cd     = np.array([0.01224437, 0.0115724 , 0.01224437, 0.0115724 , 0.01224437,0.0115724 ])
+    True_cms    = np.array([-0.09905913, -0.08084637, -0.09905913, -0.08084637, -0.09905913, -0.08084637])
     
     print('\n\nSingle Point Validation')   
     print('\nCL difference')
@@ -76,8 +87,8 @@ def main():
     assert np.sum(np.abs((airfoil_properties_2.cl[0]   - True_cls)/True_cls))  < 1e-5 
     
     print('\nCD difference') 
-    print(np.sum(np.abs((airfoil_properties_2.cd[0]  - True_cds)/True_cds)))
-    assert np.sum(np.abs((airfoil_properties_2.cd[0]   - True_cds)/True_cds))  < 1e-5
+    print(np.sum(np.abs((airfoil_properties_2.cd[0]  - True_cd)/True_cd)))
+    assert np.sum(np.abs((airfoil_properties_2.cd[0]   - True_cd)/True_cd))  < 1e-5
     
     print('\nCM difference') 
     print(np.sum(np.abs((airfoil_properties_2.cm[0]  - True_cms)/True_cms)))

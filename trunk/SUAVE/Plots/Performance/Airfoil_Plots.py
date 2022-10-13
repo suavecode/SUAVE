@@ -20,7 +20,7 @@ import matplotlib.cm as cm
 import os
  
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def plot_airfoil_analysis_boundary_layer_properties(ap,show_legend = True ):
+def plot_airfoil_analysis_boundary_layer_properties(ap,show_legend = False ):
     """Plots viscous distributions
     
     Assumptions:
@@ -38,18 +38,18 @@ def plot_airfoil_analysis_boundary_layer_properties(ap,show_legend = True ):
     Properties Used:
     N/A
     """           
-    plot_quantity(ap, ap.Ue_Vinf, r'$U_{e}/U_{inv}}$'  ,'inviscid edge velocity') 
-    plot_quantity(ap, ap.H,  r'$H$'  ,'kinematic shape parameter')
-    plot_quantity(ap, ap.delta_star, r'$\delta*$' ,'displacement thickness')
-    plot_quantity(ap, ap.delta   , r'$\delta$' ,'boundary layer thickness')
-    plot_quantity(ap, ap.theta, r'$\theta$' ,'momentum thickness')
-    plot_quantity(ap, ap.cf, r'$c_f $'  ,   'skin friction coefficient')
-    plot_quantity(ap, ap.Re_theta,  r'$Re_{\theta}$'  ,'theta Reynolds number') 
+    plot_quantity(ap, ap.Ue_Vinf, r'$U_{e}/U_{inv}}$'  ,'inviscid edge velocity',show_legend) 
+    plot_quantity(ap, ap.H,  r'$H$'  ,'kinematic shape parameter',show_legend)
+    plot_quantity(ap, ap.delta_star, r'$\delta*$' ,'displacement thickness',show_legend)
+    plot_quantity(ap, ap.delta   , r'$\delta$' ,'boundary layer thickness',show_legend)
+    plot_quantity(ap, ap.theta, r'$\theta$' ,'momentum thickness',show_legend)
+    plot_quantity(ap, ap.cf, r'$c_f $'  ,   'skin friction coefficient',show_legend)
+    plot_quantity(ap, ap.Re_theta,  r'$Re_{\theta}$'  ,'theta Reynolds number',show_legend) 
     return    
  
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def plot_quantity(ap, q, qaxis, qname):
+def plot_quantity(ap, q, qaxis, qname,show_legend):
     """Plots a quantity q over lower/upper/wake surfaces
     
     Assumptions:
@@ -87,7 +87,8 @@ def plot_quantity(ap, q, qaxis, qname):
     axis.set_title(qname)            
     axis.set_ylabel(qaxis) 
     axis.set_xlabel(r'$x$') 
-    axis.legend(loc='upper left', ncol=1)
+    if show_legend:
+        axis.legend(loc='upper left', ncol=1)
     return  
  
 ## @ingroup Plots
@@ -110,7 +111,7 @@ def plot_airfoil_analysis_surface_forces(ap,show_legend= True,arrow_color = 'r')
     # determine dimension of angle of attack and reynolds number 
     n_cpts   = len(ap.AoA[:,0])
     n_cases  = len(ap.AoA[0,:])
-    n_pts    = len(ap.x[0,0,:])
+    n_pts    = len(ap.x[0,0,:])-1
     
 
     for i in range(n_cpts):     

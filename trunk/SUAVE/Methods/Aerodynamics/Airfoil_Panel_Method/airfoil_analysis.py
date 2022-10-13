@@ -28,7 +28,10 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
     an airfoil at a defined set of reynolds numbers and angle of attacks
 
     Assumptions:
-    Michel Criteria used for transition
+    Michel Criteria used for transition 
+    
+    Squire-Young relation for total drag (exrapolates theta from end of wake). 
+    However, since we do not have a wake we will assume H_wake = 1.05 and Ue_wake = 0.99
 
     Source:
     N/A
@@ -368,7 +371,6 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
     DELTA_TOP_SURF_2       = DELTA_TOP_SURF_1.data[~DELTA_TOP_SURF_1.mask]
     
     X_TOP_SURF           = X_TOP_SURF_2.reshape((npanel,ncases,ncpts),order = 'F') 
-    Y_TOP_SURF           = Y_TOP 
     THETA_TOP_SURF       = THETA_TOP_SURF_2.reshape((npanel,ncases,ncpts),order = 'F')   
     DELTA_STAR_TOP_SURF  = DELTA_STAR_TOP_SURF_2.reshape((npanel,ncases,ncpts),order = 'F') 
     H_TOP_SURF           = H_TOP_SURF_2.reshape((npanel,ncases,ncpts),order = 'F')
@@ -381,8 +383,6 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
     # ------------------------------------------------------------------------------------------------------
     # concatenate lower and upper surfaces   
     # ------------------------------------------------------------------------------------------------------ 
-    X_PANEL    = concatenate_surfaces(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,npanel,ncases,ncpts)
-    Y_PANEL    = concatenate_surfaces(X_BOT,X_TOP,Y_BOT_SURF,Y_TOP_SURF,npanel,ncases,ncpts)
     THETA      = concatenate_surfaces(X_BOT,X_TOP,THETA_BOT_SURF,THETA_TOP_SURF,npanel,ncases,ncpts)
     DELTA_STAR = concatenate_surfaces(X_BOT,X_TOP,DELTA_STAR_BOT_SURF,DELTA_STAR_TOP_SURF,npanel,ncases,ncpts) 
     H          = concatenate_surfaces(X_BOT,X_TOP,H_BOT_SURF,H_TOP_SURF,npanel,ncases,ncpts)  
@@ -404,24 +404,19 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
     # Compute effective surface of airfoil with boundary layer and recompute aerodynamic properties  
     # ------------------------------------------------------------------------------------------------------   
     DELTA          = np.nan_to_num(DELTA) # make sure no nans   
-    DELTA_PTS      = np.concatenate((DELTA,DELTA[-1][np.newaxis,:,:]),axis = 0)
-    DELTA_PTS      = np.concatenate((DELTA[0][np.newaxis,:,:],DELTA_PTS),axis = 0)  
-    NORMALS_PTS    = np.concatenate((normals,normals[-1][np.newaxis,:,:]),axis = 0)
-    NORMALS_PTS    = np.concatenate((normals[0][np.newaxis,:,:],NORMALS_PTS),axis = 0) 
-    POINT_NORMALS  = 0.5*(NORMALS_PTS[1:] + NORMALS_PTS[:-1])  
-    POINT_BLS      = 0.5*(DELTA_PTS[1:] + DELTA_PTS[:-1])  
-    y_coord_3d_bl  = y_coord_3d+ POINT_BLS*POINT_NORMALS[:,1,:,:]
-    x_coord_3d_bl  = x_coord_3d+ POINT_BLS*POINT_NORMALS[:,0,:,:]   
+    y_coord_3d_bl  = Y + DELTA*normals[:,1,:,:]
+    x_coord_3d_bl  = X + DELTA*normals[:,0,:,:]
+    npanel_mod     = npanel-1 
     
-    X_BL, Y_BL,vt_bl,normals_bl = hess_smith(x_coord_3d_bl,y_coord_3d_bl,alpha,Re_L,npanel)      
+    X_BL, Y_BL,vt_bl,normals_bl = hess_smith(x_coord_3d_bl,y_coord_3d_bl,alpha,Re_L,npanel_mod)      
       
     # ---------------------------------------------------------------------
     # Bottom surface of airfoil with boundary layer 
     # ---------------------------------------------------------------------       
     VT_BL           = np.ma.masked_greater(vt_bl,0 )
     VT_BL_mask      = np.ma.masked_greater(vt_bl,0 ).mask
-    X_BL_BOT_VALS   = np.ma.array(X_BL, mask = VT_mask)[::-1]
-    Y_BL_BOT        = np.ma.array(Y_BL, mask = VT_mask)[::-1] 
+    X_BL_BOT_VALS   = np.ma.array(X_BL, mask = VT_BL_mask)[::-1]
+    Y_BL_BOT        = np.ma.array(Y_BL, mask = VT_BL_mask)[::-1] 
     X_BL_BOT        = np.zeros_like(X_BL_BOT_VALS)
     X_BL_BOT[1:]    = np.cumsum(np.sqrt((X_BL_BOT_VALS[1:] - X_BL_BOT_VALS[:-1])**2 + (Y_BL_BOT[1:] - Y_BL_BOT[:-1])**2),axis = 0)
     first_idx       = np.ma.count_masked(X_BL_BOT,axis = 0)
@@ -465,33 +460,39 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
     CP_BL_VALS   = np.ma.concatenate([np.flip(CP_BL_BOT,axis = 0),CP_BL_TOP], axis = 0 )  
     CP_BL_VALS_1 = CP_BL_VALS.flatten('F')  
     CP_BL_VALS_2 = CP_BL_VALS_1.data[~CP_BL_VALS_1.mask] 
-    CP_BL        = CP_BL_VALS_2.reshape((npanel,ncases,ncpts),order = 'F')    
-    DCP_DX       = np.diff(CP_BL,axis=0)/ np.diff(X,axis=0) 
+    CP_BL        = CP_BL_VALS_2.reshape((npanel_mod,ncases,ncpts),order = 'F')    
+    DCP_DX       = np.diff(CP_BL,axis=0)/ np.diff(X_BL,axis=0) 
     
-    AERO_RES_BL  = aero_coeff(X,Y,-CP_BL,alpha,npanel) 
-    
+    AERO_RES_BL  = aero_coeff(X_BL,Y_BL,CP_BL,alpha,npanel_mod) 
+     
+    # Squire-Young relation for total drag 
+    H_wake  = 1.05
+    Ue_wake = 0.99
+    cd      = 2.0*THETA[-1,:,:]*(Ue_wake)**((5+H_wake)/2.) 
+       
     airfoil_properties = Data(
-        AoA        = alpha,
-        Re         = Re_L,
-        cl         = AERO_RES_BL.Cl,
-        cd         = AERO_RES_BL.Cd,
-        cm         = AERO_RES_BL.Cm,  
-        normals    = np.transpose(normals,(3,2,0,1)),
-        x          = np.transpose(X,(2,1,0)),
-        y          = np.transpose(Y,(2,1,0)),
-        x_bl       = np.transpose(X_BL ,(2,1,0)),
-        y_bl       = np.transpose(Y_BL ,(2,1,0)),
-        cp         = np.transpose(CP_BL,(2,1,0)),  
-        dcp_dx     = np.transpose(DCP_DX,(2,1,0)),            
-        Ue_Vinf    = np.transpose(VE   ,(2,1,0)),         
-        dVe        = np.transpose(DVE  ,(2,1,0)),   
-        theta      = np.transpose(THETA,(2,1,0)),      
-        delta_star = np.transpose(DELTA_STAR,(2,1,0)),  
-        delta      = np.transpose(DELTA,(2,1,0)),  
-        Re_theta   = np.transpose(RE_THETA,(2,1,0)),  
-        Re_x       = np.transpose(RE_X,(2,1,0)),  
-        H          = np.transpose(H,(2,1,0)),            
-        cf         = np.transpose(CF,(2,1,0)),    
+        AoA            = alpha,
+        Re             = Re_L,
+        cl             = AERO_RES_BL.cl, 
+        cdpi           = AERO_RES_BL.cdpi,
+        cd             = cd.T,
+        cm             = AERO_RES_BL.cm,  
+        normals        = np.transpose(normals,(3,2,0,1)),
+        x              = np.transpose(X,(2,1,0)),
+        y              = np.transpose(Y,(2,1,0)),
+        x_bl           = np.transpose(X_BL ,(2,1,0)),
+        y_bl           = np.transpose(Y_BL ,(2,1,0)),
+        cp             = np.transpose(CP_BL,(2,1,0)),  
+        dcp_dx         = np.transpose(DCP_DX,(2,1,0)),            
+        Ue_Vinf        = np.transpose(VE   ,(2,1,0)),         
+        dVe            = np.transpose(DVE  ,(2,1,0)),   
+        theta          = np.transpose(THETA,(2,1,0)),      
+        delta_star     = np.transpose(DELTA_STAR,(2,1,0)),  
+        delta          = np.transpose(DELTA,(2,1,0)),  
+        Re_theta       = np.transpose(RE_THETA,(2,1,0)),  
+        Re_x           = np.transpose(RE_X,(2,1,0)),  
+        H              = np.transpose(H,(2,1,0)),            
+        cf             = np.transpose(CF,(2,1,0)),    
         )  
         
     return  airfoil_properties 

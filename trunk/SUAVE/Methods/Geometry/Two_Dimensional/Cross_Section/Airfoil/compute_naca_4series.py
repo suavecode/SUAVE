@@ -8,7 +8,7 @@ from SUAVE.Core import Data
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_naca_4series(airfoil_geometry_files,npoints=200):
+def compute_naca_4series(airfoil_geometry_files,npoints= 100):
     """Computes the points of NACA 4-series airfoil
 
     Assumptions:

@@ -49,7 +49,7 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel):
     N/A
     """      
     
-    ncases      = len(alpha[0,:])
+    ncases    = len(alpha[0,:])
     ncpts     = len(Re) 
     alpha_2d  = np.repeat(alpha.T[np.newaxis,:, :], npanel, axis=0) 
     
