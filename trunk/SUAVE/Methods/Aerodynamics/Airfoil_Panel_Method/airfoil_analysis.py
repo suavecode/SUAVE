@@ -21,7 +21,7 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis = True, airfoil_stations = [0],
+def airfoil_analysis(airfoil_data,alpha,Re_L,npanel = 100 , batch_analysis = True, airfoil_stations = [0],
                      initial_momentum_thickness=1E-5,tolerance = 1E0):
     """This computes the aerodynamic polars as well as the boundary layer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
@@ -75,8 +75,8 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100 , batch_analysis =
     
     nalpha     = len(alpha)
     nRe        = len(Re_L) 
-    x_coord    = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0).T 
-    y_coord    = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T
+    x_coord    = np.take(airfoil_data.x_coordinates.values(),airfoil_stations,axis=0).T
+    y_coord    = np.take(airfoil_data.y_coordinates.values(),airfoil_stations,axis=0).T
     x_coord    = np.delete(x_coord[::-1], int(npanel/2),0)  
     y_coord    = np.delete(y_coord[::-1], int(npanel/2),0)  
     

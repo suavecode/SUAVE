@@ -16,7 +16,8 @@ from SUAVE.Methods.Propulsion                                             import
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
-
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
 
 import numpy as np
 import pylab as plt
@@ -108,9 +109,9 @@ def vehicle_setup():
     segment.sweeps.quarter_chord  = 0.0 * Units.degrees
     segment.thickness_to_chord    = 0.12
     wing.Segments.append(segment)
-    
+
     # Fill out more segment properties automatically
-    wing = wing_segmented_planform(wing)        
+    wing = wing_segmented_planform(wing)
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -159,7 +160,7 @@ def vehicle_setup():
     wing.twists.root              = 0. * Units.degrees
     wing.twists.tip               = 0. * Units.degrees
     wing.origin                   = [[4.0, 4.0*0.3048  , 0.205  ]]
-    wing.aerodynamic_center       = [4.2,0,0]  
+    wing.aerodynamic_center       = [4.2,0,0]
     wing.winglet_fraction         = 0.0
     wing.vertical                 = True
     wing.symmetric                = False
@@ -186,7 +187,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
     wing.origin                  = [[4.0, -4.0*0.3048  , 0.205   ]]
-    wing.aerodynamic_center      = [4.2,0,0]  
+    wing.aerodynamic_center      = [4.2,0,0]
     wing.winglet_fraction        = 0.0
     wing.vertical                = True
     wing.symmetric               = False
@@ -441,9 +442,9 @@ def vehicle_setup():
 
     #------------------------------------------------------------------
     # Nacelles
-    #------------------------------------------------------------------ 
+    #------------------------------------------------------------------
     rotor_nacelle                         = SUAVE.Components.Nacelles.Nacelle()
-    rotor_nacelle.tag                     = 'rotor_nacelle'    
+    rotor_nacelle.tag                     = 'rotor_nacelle'
     rotor_nacelle_origins                 =  [[0.543,  1.63  , -0.126] ,[0.543, -1.63  ,  -0.126 ] ,
                                              [3.843,  1.63  , -0.126] ,[3.843, -1.63  ,  -0.126] ,
                                              [0.543,  2.826 , -0.126] ,[0.543, -2.826 ,  -0.126 ] ,
@@ -452,52 +453,52 @@ def vehicle_setup():
                                              [3.843,  4.022 , -0.126] ,[3.843, -4.022 ,  -0.126 ]]
     rotor_nacelle.length         = 0.25
     rotor_nacelle.diameter       = 0.25
-    rotor_nacelle.orientation_euler_angles  = [0,-90*Units.degrees,0.]    
-    rotor_nacelle.flow_through   = False  
-    
+    rotor_nacelle.orientation_euler_angles  = [0,-90*Units.degrees,0.]
+    rotor_nacelle.flow_through   = False
+
     nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_1'
-    nac_segment.percent_x_location = 0.0  
+    nac_segment.percent_x_location = 0.0
     nac_segment.height             = 0.2
     nac_segment.width              = 0.2
-    rotor_nacelle.append_segment(nac_segment)    
-    
+    rotor_nacelle.append_segment(nac_segment)
+
     nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_2'
-    nac_segment.percent_x_location = 0.25  
+    nac_segment.percent_x_location = 0.25
     nac_segment.height             = 0.25
     nac_segment.width              = 0.25
-    rotor_nacelle.append_segment(nac_segment)    
-    
+    rotor_nacelle.append_segment(nac_segment)
+
     nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_3'
-    nac_segment.percent_x_location = 0.5 
+    nac_segment.percent_x_location = 0.5
     nac_segment.height             = 0.3
     nac_segment.width              = 0.3
-    rotor_nacelle.append_segment(nac_segment)    
+    rotor_nacelle.append_segment(nac_segment)
 
     nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_4'
     nac_segment.percent_x_location = 0.75
     nac_segment.height             = 0.25
     nac_segment.width              = 0.25
-    rotor_nacelle.append_segment(nac_segment)        
+    rotor_nacelle.append_segment(nac_segment)
 
     nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_5'
     nac_segment.percent_x_location = 1.0
     nac_segment.height             = 0.2
     nac_segment.width              = 0.2
-    rotor_nacelle.append_segment(nac_segment)      
-    
-    rotor_nacelle.areas.wetted            =  np.pi*rotor_nacelle.diameter*rotor_nacelle.length + 0.5*np.pi*rotor_nacelle.diameter**2     
+    rotor_nacelle.append_segment(nac_segment)
+
+    rotor_nacelle.areas.wetted            =  np.pi*rotor_nacelle.diameter*rotor_nacelle.length + 0.5*np.pi*rotor_nacelle.diameter**2
 
     for idx in range(12):
         nacelle          = deepcopy(rotor_nacelle)
         nacelle.tag      = 'nacelle_' +  str(idx)
-        nacelle.origin   = [rotor_nacelle_origins[idx]] 
-        vehicle.append_component(nacelle)  
-        
+        nacelle.origin   = [rotor_nacelle_origins[idx]]
+        vehicle.append_component(nacelle)
+
     #------------------------------------------------------------------
     # network
     #------------------------------------------------------------------
@@ -539,18 +540,18 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Battery
     #------------------------------------------------------------------
-    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650() 
-    bat.mass_properties.mass = 500. * Units.kg  
-    bat.max_voltage          = net.voltage   
+    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
+    bat.mass_properties.mass = 500. * Units.kg
+    bat.max_voltage          = net.voltage
     initialize_from_mass(bat)
-    
+
     # Here we, are going to assume a battery pack module shape. This step is optional but
     # required for thermal analysis of tge pack
     number_of_modules                = 10
     bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
     bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
     bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
-    net.battery              = bat       
+    net.battery              = bat
 
     #------------------------------------------------------------------
     # Design Rotors and Propellers
@@ -584,15 +585,19 @@ def vehicle_setup():
     propeller.design_thrust          = (Drag*2.5)/net.number_of_propeller_engines
     propeller.variable_pitch         = True
 
-    propeller.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    propeller.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+    airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
+    airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt',
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_5000000.txt',
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_7500000.txt' ]]
 
+
+    propeller.airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry)
+    propeller.airfoil_polar_data     = compute_airfoil_polars(airfoil_polars, propeller.airfoil_geometry_data)
     propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    propeller                        = propeller_design(propeller,number_of_airfoil_section_points = 50)
+    propeller                        = propeller_design(propeller)
     propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
     net.propellers.append(propeller)
 
@@ -610,13 +615,17 @@ def vehicle_setup():
     lift_rotor.design_thrust              = Hover_Load/(net.number_of_lift_rotor_engines-1) # contingency for one-engine-inoperative condition
     lift_rotor.variable_pitch             = True
 
-    lift_rotor.airfoil_geometry           =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    lift_rotor.airfoil_polars             = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+    airfoil_geometry           =  ['../Vehicles/Airfoils/NACA_4412.txt']
+    airfoil_polars             = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt',
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_5000000.txt',
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_7500000.txt' ]]
 
+
+    lift_rotor.airfoil_geometry_data      = import_airfoil_geometry(airfoil_geometry)
+    lift_rotor.airfoil_polar_data         = compute_airfoil_polars(airfoil_polars, lift_rotor.airfoil_geometry_data)
     lift_rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     lift_rotor                            = propeller_design(lift_rotor)
 
