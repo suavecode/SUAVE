@@ -29,10 +29,10 @@ def main():
     airfoil_data_2_r = import_airfoil_geometry(["Transition2_regression.txt"],npoints=100)
     
     # ensure coordinates are the same:   
-    assert( max(abs(airfoil_data_1.x_coordinates[0] - airfoil_data_1_r.x_coordinates[0])) < 1e-5)
-    assert( max(abs(airfoil_data_2.x_coordinates[0] - airfoil_data_2_r.x_coordinates[0])) < 1e-5)
-    assert( max(abs(airfoil_data_1.y_coordinates[0] - airfoil_data_1_r.y_coordinates[0])) < 1e-5)
-    assert( max(abs(airfoil_data_2.y_coordinates[0] - airfoil_data_2_r.y_coordinates[0])) < 1e-5)
+    assert( max(abs(airfoil_data_1.x_coordinates[airfoil_data_1.airfoil_names[0]] - airfoil_data_1_r.x_coordinates[airfoil_data_1_r.airfoil_names[0]])) < 1e-5)
+    assert( max(abs(airfoil_data_2.x_coordinates[airfoil_data_2.airfoil_names[0]] - airfoil_data_2_r.x_coordinates[airfoil_data_2_r.airfoil_names[0]])) < 1e-5)
+    assert( max(abs(airfoil_data_1.y_coordinates[airfoil_data_1.airfoil_names[0]] - airfoil_data_1_r.y_coordinates[airfoil_data_1_r.airfoil_names[0]])) < 1e-5)
+    assert( max(abs(airfoil_data_2.y_coordinates[airfoil_data_2.airfoil_names[0]] - airfoil_data_2_r.y_coordinates[airfoil_data_2_r.airfoil_names[0]])) < 1e-5)
     
     plt.show()
     

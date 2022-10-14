@@ -76,7 +76,7 @@ def pre_stall_coefficients(state,settings,geometry):
     CL1[alpha<A0]  = S1*(alpha[alpha<A0]-A0)+RCL1[alpha<A0]*((A0-alpha[alpha<A0])/(ACL1[alpha<A0]-A0))**N1[alpha<A0]
     
     # M what is m?
-    M              = 2.0 # Does this need changing
+    M              = 2. # Does this need changing
 
     # Equation 7a
     con      = np.logical_and((2*A0-ACD1)<=alpha,alpha<=ACD1)

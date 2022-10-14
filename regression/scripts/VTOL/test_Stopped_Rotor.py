@@ -82,8 +82,8 @@ def main():
     assert np.abs((RPM - RPM_true)/RPM_true) < 1e-3
 
     # Battery Energy Check During Transition
-    battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.36372833e+08, 3.34188971e+08, 3.32108816e+08])
+    battery_energy_hover_to_transition      = results.segments.climb_2.conditions.propulsion.battery_energy[:,0]
+    battery_energy_hover_to_transition_true = np.array([3.36361566e+08, 3.34748597e+08, 3.33134413e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true)
@@ -219,7 +219,8 @@ def mission_setup(analyses,vehicle):
     base_segment.state.numerics.number_control_points        = 3 
     base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-
+    ones_row                                                 = base_segment.state.ones_row
+    
     # VSTALL Calculation  
     vehicle_mass   = vehicle.mass_properties.max_takeoff
     reference_area = vehicle.reference_area
@@ -246,55 +247,6 @@ def mission_setup(analyses,vehicle):
                                                                                     initial_throttle_lift = 0.9)
     # add to misison
     mission.append_segment(segment)
-
-    # ------------------------------------------------------------------
-    #   First Cruise Segment: Transition
-    # ------------------------------------------------------------------
-    segment                                            = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
-    segment.tag                                        = "transition_1"
-    segment.analyses.extend( analyses.base )
-
-    segment.altitude                                 = 40.  * Units.ft
-    segment.air_speed_start                          = 500. * Units['ft/min']
-    segment.air_speed_end                            = 0.8 * Vstall
-    segment.acceleration                             = 9.8/5
-    segment.pitch_initial                            = 0.0 * Units.degrees
-    segment.pitch_final                              = 5. * Units.degrees
-    ones_row                                         = segment.state.ones_row
-    segment.state.unknowns.throttle                  = 1. * ones_row(1)
-    segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
-                                                         initial_throttle_lift = 0.9,)
-
-    # add to misison
-    mission.append_segment(segment)
-
-    # ------------------------------------------------------------------
-    #   First Cruise Segment: Transition
-    # ------------------------------------------------------------------
-    segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
-    segment.tag                                         = "transition_2"
-    segment.analyses.extend( analyses.base )
-    segment.altitude_start                              = 40.0 * Units.ft
-    segment.altitude_end                                = 50.0 * Units.ft
-    segment.climb_angle                                 = 1 * Units.degrees
-    segment.acceleration                                = 0.5 * Units['m/s/s']
-    segment.pitch_initial                               = 5. * Units.degrees
-    segment.pitch_final                                 = 7. * Units.degrees
-    segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
-    segment.process.iterate.unknowns.mission            = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment,
-                                                         initial_prop_power_coefficient = 0.2,
-                                                         initial_lift_rotor_power_coefficient = 0.01,
-                                                         initial_throttle_lift = 0.9,)
-
-    # add to misison
-    mission.append_segment(segment)
-
 
     # ------------------------------------------------------------------
     #   Second Climb Segment: Constant Speed, Constant Rate
@@ -327,35 +279,6 @@ def mission_setup(analyses,vehicle):
 
     # add to misison
     mission.append_segment(segment)
-    
-    # ------------------------------------------------------------------
-    #   Third Climb Segment: Constant Acceleration, Constant Rate
-    # ------------------------------------------------------------------ 
-    segment                                          = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
-    segment.tag                                      = "climb_2" 
-    segment.analyses.extend( analyses.base) 
-    segment.altitude_start                           = 300.0 * Units.ft  
-    segment.altitude_end                             = 1000. * Units.ft
-    segment.climb_rate                               = 500.  * Units['ft/min']
-    segment.air_speed_start                          = 1.2*Vstall
-    segment.air_speed_end                            = 110.  * Units['mph']    
-    segment.state.unknowns.throttle                  = 0.90    *  ones_row(1)
-    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)    
-    mission.append_segment(segment)   
-    
-    # ------------------------------------------------------------------    
-    #   Cruise Segment: constant speed, constant altitude
-    # ------------------------------------------------------------------     
-    segment                                          = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag                                      = "cruise" 
-    segment.analyses.extend( analyses.base ) 
-    segment.altitude                                 = 1000.0 * Units.ft
-    segment.air_speed                                = 110.   * Units['mph']
-    segment.distance                                 = 50.    * Units.miles     
-    segment.state.unknowns.throttle                  = 0.60 * ones_row(1) 
-    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment) 
-    mission.append_segment(segment) 
-
     
 
     return mission

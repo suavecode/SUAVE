@@ -332,7 +332,7 @@ def make_airfoil_text(vsp_bem,prop):
     """
 
     N             = len(prop.radius_distribution)
-    airfoil_data  = import_airfoil_geometry(prop.airfoil_geometry)
+    airfoil_data  = prop.airfoil_data
     a_sec         = prop.airfoil_polar_stations
     for i in range(N):
         airfoil_station_header = '\nSection ' + str(i) + ' X, Y\n'
