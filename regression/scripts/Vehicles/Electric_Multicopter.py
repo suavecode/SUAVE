@@ -15,6 +15,8 @@ from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_optimal_motor
 from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor, hts_motor , air_cooled_motor
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
 import numpy as np
 from copy import deepcopy
 
@@ -241,13 +243,14 @@ def vehicle_setup():
     lift_rotor.design_altitude        = 1000 * Units.feet                   
     lift_rotor.design_thrust          = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
 
-    lift_rotor.airfoil_geometry       = ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    lift_rotor.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    airfoil_geometry       = ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-    
+    lift_rotor.airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry)
+    lift_rotor.airfoil_polar_data     = compute_airfoil_polars(airfoil_polars, lift_rotor.airfoil_geometry_data)    
     lift_rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     lift_rotor                        = propeller_design(lift_rotor)     
     

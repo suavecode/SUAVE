@@ -14,6 +14,8 @@ from SUAVE.Core import Units
 from SUAVE.Core import (
 Data, Container,
 )
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion                       import propeller_design
 import numpy as np
@@ -33,13 +35,15 @@ def main():
     prop.design_altitude         = 0.0 * Units.km
     prop.design_thrust           = 2271.2220451593753 
 
-    prop.airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    prop.airfoil_polars          = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    airfoil_polars          = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
+    prop.airfoil_geometry_data   = import_airfoil_geometry(airfoil_geometry)
+    prop.airfoil_polar_data      = compute_airfoil_polars(airfoil_polars, prop.airfoil_geometry_data)
     prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
     prop                         = propeller_design(prop)   
     
@@ -149,12 +153,12 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 197.31148892791668
-    torque_1_truth   = 934.4100494764942
-    current_2_truth  = 572.1985068237822
-    torque_3_truth   = 803.2217073749064
-    voltage_4_truth  = 417.0843835405462
-    current_4_truth  = 665.3277090007076
+    omega_1_truth    = 197.3149623
+    torque_1_truth   = 934.4429475025574
+    current_2_truth  = 572.2417638433878
+    torque_3_truth   = 803.2824292690289
+    voltage_4_truth  = 417.0794861805669
+    current_4_truth  = 665.3512388410677
     power_out_truth  = 1960.0
   
     error = Data()

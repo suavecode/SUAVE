@@ -39,11 +39,8 @@ def main():
     
     
     # plot airfoil polar data with and without surrogate
-    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, display_plot=True)
-    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, use_surrogate=True, display_plot=True)
+    plot_raw_data_airfoil_polars(airfoil_geometry, airfoil_polar_names, display_plot=True)
     
-    airfoil_polar_data     = import_airfoil_polars(airfoil_polar_names) 
-
     airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry_with_selig)
 
     # Actual t/c values  
@@ -52,14 +49,14 @@ def main():
 
     # Check t/c calculation against previously calculated values
 
+    aNames = airfoil_geometry_data.airfoil_names
     for i in range(0, len(airfoil_geometry_with_selig)):
-        assert(np.abs(airfoil_tc_actual[i]-airfoil_geometry_data.thickness_to_chord[i]) < 1E-8 )
+        assert(np.abs(airfoil_tc_actual[i]-airfoil_geometry_data.thickness_to_chord[aNames[i]]) < 1E-8 )
     
 
     # Check that camber line comes back the same for the Lednicer and Selig formats
-
-    for j in range(0, len(airfoil_geometry_data.camber_coordinates[1])):
-        assert( np.abs(airfoil_geometry_data.camber_coordinates[1][j] - airfoil_geometry_data.camber_coordinates[2][j]) < 1E-8 )
+    for j in range(0, len(airfoil_geometry_data.camber_coordinates[aNames[1]])):
+        assert( np.abs(airfoil_geometry_data.camber_coordinates[aNames[1]][j] - airfoil_geometry_data.camber_coordinates[aNames[2]][j]) < 1E-8 )
 
     plot_airfoil(airfoil_geometry_with_selig)
     

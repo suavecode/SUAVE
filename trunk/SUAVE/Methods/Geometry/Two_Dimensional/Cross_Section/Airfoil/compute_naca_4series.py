@@ -8,7 +8,7 @@ from SUAVE.Core import Data
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_naca_4series(camber,camber_loc,thickness,npoints=100):
+def compute_naca_4series(camber,camber_loc,thickness,npoints=100,airfoilName='naca_4_series'):
     """Computes the points of NACA 4-series airfoil
 
     Assumptions:
@@ -39,15 +39,16 @@ def compute_naca_4series(camber,camber_loc,thickness,npoints=100):
     """        
     
     airfoil_data                    = Data()
-    airfoil_data.x_coordinates      = []
-    airfoil_data.y_coordinates      = []
-    airfoil_data.thickness_to_chord = []
-    airfoil_data.camber_coordinates = []
-    airfoil_data.x_upper_surface    = []
-    airfoil_data.x_lower_surface    = []
-    airfoil_data.y_upper_surface    = []
-    airfoil_data.y_lower_surface    = []
+    airfoil_data.x_coordinates      = Data()
+    airfoil_data.y_coordinates      = Data()
+    airfoil_data.thickness_to_chord = Data()
+    airfoil_data.camber_coordinates = Data()
+    airfoil_data.x_upper_surface    = Data()
+    airfoil_data.x_lower_surface    = Data()
+    airfoil_data.y_upper_surface    = Data()
+    airfoil_data.y_lower_surface    = Data()
     
+    aNames    = [airfoilName]
     half_pnts = int(npoints/2)
     
     upper = []
@@ -87,15 +88,15 @@ def compute_naca_4series(camber,camber_loc,thickness,npoints=100):
     x_data        = np.concatenate([x_up_surf[::-1],x_lo_surf])
     y_data        = np.concatenate([y_up_surf[::-1],y_lo_surf])  
     
-    airfoil_data.thickness_to_chord.append(np.max(thickness))    
-    airfoil_data.x_coordinates.append(x_data)  
-    airfoil_data.y_coordinates.append(y_data)     
-    airfoil_data.x_upper_surface.append(x_up_surf)
-    airfoil_data.x_lower_surface.append(x_lo_surf)
-    airfoil_data.y_upper_surface.append(y_up_surf)
-    airfoil_data.y_lower_surface.append(y_lo_surf)          
-    airfoil_data.camber_coordinates.append(camber)      
-    
+    airfoil_data.thickness_to_chord[aNames[0]] = np.max(thickness)
+    airfoil_data.x_coordinates[aNames[0]]      = x_data 
+    airfoil_data.y_coordinates[aNames[0]]      = y_data    
+    airfoil_data.x_upper_surface[aNames[0]]    = x_up_surf
+    airfoil_data.x_lower_surface[aNames[0]]    = x_lo_surf
+    airfoil_data.y_upper_surface[aNames[0]]    = y_up_surf
+    airfoil_data.y_lower_surface[aNames[0]]    = y_lo_surf          
+    airfoil_data.camber_coordinates[aNames[0]] = camber    
+    airfoil_data.airfoil_names = aNames
     return airfoil_data
 
 

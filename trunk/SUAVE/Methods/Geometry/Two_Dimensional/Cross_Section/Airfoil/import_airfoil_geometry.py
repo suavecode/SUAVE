@@ -11,13 +11,15 @@
 #           May 2021, R. Erhard
 #           Jun 2021, E. Botero
 #           Aug 2021, M. Clarke
+#           Aug 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data  
-import numpy as np
 import scipy.interpolate as interp
+import numpy as np
+import os
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_interpolation = 'cubic'):
@@ -60,19 +62,23 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_inter
     num_airfoils = len(airfoil_geometry_files)
     # unpack      
 
-    airfoil_data                    = Data()
-    airfoil_data.x_coordinates      = []
-    airfoil_data.y_coordinates      = []
-    airfoil_data.thickness_to_chord = []
-    airfoil_data.max_thickness      = []
-    airfoil_data.camber_coordinates = []
-    airfoil_data.x_upper_surface    = []
-    airfoil_data.x_lower_surface    = []
-    airfoil_data.y_upper_surface    = []
-    airfoil_data.y_lower_surface    = []
+    airfoil_geometry_data                    = Data()
+    airfoil_geometry_data.x_coordinates      = Data()
+    airfoil_geometry_data.y_coordinates      = Data()
+    airfoil_geometry_data.thickness_to_chord = Data()
+    airfoil_geometry_data.max_thickness      = Data()
+    airfoil_geometry_data.camber_coordinates = Data()
+    airfoil_geometry_data.x_upper_surface    = Data()
+    airfoil_geometry_data.x_lower_surface    = Data()
+    airfoil_geometry_data.y_upper_surface    = Data()
+    airfoil_geometry_data.y_lower_surface    = Data()
 
     n_pts       = npoints//2
+    aNames      = []
     for i in range(num_airfoils):  
+        # New airfoil name
+        aNames.append(os.path.basename(airfoil_geometry_files[i])[:-4])
+        
         # Open file and read column names and data block
         f = open(airfoil_geometry_files[i]) 
 
@@ -205,14 +211,15 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200,surface_inter
         max_c = max(x_data) - min(x_data)
         t_c   = max_t/max_c 
         
-        airfoil_data.thickness_to_chord.append(t_c)
-        airfoil_data.max_thickness.append(max_t)    
-        airfoil_data.x_coordinates.append(x_data)  
-        airfoil_data.y_coordinates.append(y_data)     
-        airfoil_data.x_upper_surface.append(x_up_surf_new)
-        airfoil_data.x_lower_surface.append(x_lo_surf_new)
-        airfoil_data.y_upper_surface.append(y_up_surf_new)
-        airfoil_data.y_lower_surface.append(y_lo_surf_new)          
-        airfoil_data.camber_coordinates.append(camber)
-
-    return airfoil_data 
+        airfoil_geometry_data.thickness_to_chord[aNames[i]] = t_c
+        airfoil_geometry_data.max_thickness[aNames[i]] = max_t
+        airfoil_geometry_data.x_coordinates[aNames[i]] = x_data 
+        airfoil_geometry_data.y_coordinates[aNames[i]] = y_data
+        airfoil_geometry_data.x_upper_surface[aNames[i]] = x_up_surf_new
+        airfoil_geometry_data.x_lower_surface[aNames[i]] = x_lo_surf_new
+        airfoil_geometry_data.y_upper_surface[aNames[i]] = y_up_surf_new
+        airfoil_geometry_data.y_lower_surface[aNames[i]] = y_lo_surf_new          
+        airfoil_geometry_data.camber_coordinates[aNames[i]] = camber
+        
+    airfoil_geometry_data.airfoil_names = aNames
+    return airfoil_geometry_data 
