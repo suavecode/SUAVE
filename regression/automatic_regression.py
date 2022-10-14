@@ -37,6 +37,7 @@ import sys, os, traceback, time
 modules = [
 
     # ----------------------- Regression List --------------------------
+    'scripts/segments/transition_segment_test.py',
     'scripts/aerodynamics/aerodynamics.py',
     'scripts/aerodynamics/all_moving_surfaces_vlm.py',
     'scripts/aerodynamics/control_surfaces_vlm.py',
@@ -45,6 +46,7 @@ modules = [
     'scripts/airfoil_import/airfoil_import_test.py',
     'scripts/airfoil_import/airfoil_interpolation_test.py',
     'scripts/airfoil_analysis/airfoil_panel_method_test.py',
+    'scripts/airfoil_analysis/airfoil_polar_surrogate_test.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
@@ -94,7 +96,6 @@ modules = [
     'scripts/rocket_network/Rocketdyne_F1.py',
     'scripts/rocket_network/Rocketdyne_J2.py',
     'scripts/segments/segment_test.py',
-    'scripts/segments/transition_segment_test.py',
     'scripts/slipstream/slipstream_test.py',
     'scripts/slipstream/propeller_interactions.py',
     'scripts/solar_network/solar_network.py',

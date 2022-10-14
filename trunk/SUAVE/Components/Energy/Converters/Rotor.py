@@ -188,10 +188,7 @@ class Rotor(Energy_Component):
         tc      = self.thickness_to_chord
 
         # Unpack rotor airfoil data
-        airfoil_data = self.airfoil_data
-        a_loc   = airfoil_data.polar_stations
-        a_names = airfoil_data.geometry_files
-        a_pol   = airfoil_data.polars
+        airfoil_data = self.airfoil_data 
 
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega
@@ -382,7 +379,7 @@ class Rotor(Energy_Component):
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
-        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_names,a_pol,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoil_data,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         
         # compute HFW circulation at the blade

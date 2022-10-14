@@ -32,10 +32,10 @@ def main():
 
     # Compute Errors
     error       = Data() 
-    error.upper_x = np.abs( airfoil_data.x_upper_surface[0] - truth_upper_x)
-    error.lower_x = np.abs( airfoil_data.x_lower_surface[0] - truth_lower_x)
-    error.upper_y = np.abs( airfoil_data.y_upper_surface[0] - truth_upper_y)
-    error.lower_y = np.abs( airfoil_data.y_lower_surface[0] - truth_lower_y)    
+    error.upper_x = np.abs( airfoil_data.x_upper_surface[airfoil_data.airfoil_names[0]] - truth_upper_x)
+    error.lower_x = np.abs( airfoil_data.x_lower_surface[airfoil_data.airfoil_names[0]] - truth_lower_x)
+    error.upper_y = np.abs( airfoil_data.y_upper_surface[airfoil_data.airfoil_names[0]] - truth_upper_y)
+    error.lower_y = np.abs( airfoil_data.y_lower_surface[airfoil_data.airfoil_names[0]] - truth_lower_y)    
     
     for k,v in list(error.items()):
         assert np.any(np.abs(v)<1e-6)

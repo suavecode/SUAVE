@@ -6,7 +6,7 @@
 
 import numpy as np
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_names,a_pol,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoil_data,ctrl_pts,Nr,Na,tc,use_2d_analysis):
     """
     Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
                                               Wa,Wt,a,nu,
@@ -37,10 +37,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_names,a_pol,ctr
        Wt                         tangential velocity                             [-]
        a                          speed of sound                                  [-]
        nu                         viscosity                                       [-]
-
-       a_loc                      Locations of specified airfoils                 [-]
-       a_names                    Filenames of specified airfoil                  [-]
-       a_pol                      Aerodynamic coefficient Surrogates              [-]
+       airfoil_data               Data structure of airfoil polar information     [-]
        ctrl_pts                   Number of control points                        [-]
        Nr                         Number of radial blade sections                 [-]
        Na                         Number of azimuthal blade stations              [-]
@@ -53,6 +50,10 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_names,a_pol,ctr
        alpha                    section local angle of attack             [rad]
 
     """
+    
+    a_loc    = airfoil_data.polar_stations
+    a_names  = airfoil_data.geometry_files
+    a_pol    = airfoil_data.polars
 
     alpha    = beta - np.arctan2(Wa,Wt)
     W        = (Wa*Wa + Wt*Wt)**0.5

@@ -7,7 +7,6 @@
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations import compute_airfoil_aerodynamics,compute_inflow_and_tip_loss
 import numpy as np
 import scipy as sp
-import copy
 
 ## @defgroup Methods-Propulsion-Rotor_Wake-Fidelity_Zero
 def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
@@ -111,9 +110,6 @@ def iteration(PSI, wake_inputs, rotor):
     B            = rotor.number_of_blades
     tc           = rotor.thickness_to_chord
     airfoil_data = rotor.airfoil_data
-    a_loc        = airfoil_data.polar_stations
-    a_names      = airfoil_data.geometry_files
-    a_pol        = airfoil_data.polars
     
     # Reshape PSI because the solver gives it flat
     if wake_inputs.use_2d_analysis:
@@ -129,7 +125,7 @@ def iteration(PSI, wake_inputs, rotor):
     vt           = Ut - Wt
 
     # compute blade airfoil forces and properties
-    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_names,a_pol,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoil_data,ctrl_pts,Nr,Na,tc,use_2d_analysis)
 
     # compute inflow velocity and tip loss factor
     lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)

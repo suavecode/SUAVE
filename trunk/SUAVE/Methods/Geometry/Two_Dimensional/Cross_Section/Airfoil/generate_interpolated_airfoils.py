@@ -35,10 +35,10 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename
     a_geo             = import_airfoil_geometry(airfoil_geo_files,npoints)
     
     # identify x and y coordinates of the two airfoils
-    x_upper = a_geo.x_upper_surface
-    y_upper = a_geo.y_upper_surface
-    x_lower = a_geo.x_lower_surface
-    y_lower = a_geo.y_lower_surface
+    x_upper = a_geo.x_upper_surface.values()
+    y_upper = a_geo.y_upper_surface.values()
+    x_lower = a_geo.x_lower_surface.values()
+    y_lower = a_geo.y_lower_surface.values()
     
     # identify points on airfoils to interpolate between
     yairfoils_upper  = np.array(y_upper).T

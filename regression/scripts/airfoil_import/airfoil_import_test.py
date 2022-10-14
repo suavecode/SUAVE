@@ -24,43 +24,47 @@ import numpy as np
 #   Main
 # ----------------------------------------------------------------------
 
-def main():   
+def main():    
+    # ----------------------------------------------------------------------------------------------------------------
+    #  Define airfoil geometry and polar files 
+    # ----------------------------------------------------------------------------------------------------------------    
     ospath    = os.path.abspath(__file__)
-    separator = os.path.sep
-
+    separator = os.path.sep 
     rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_import_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator
     airfoil_geometry_with_selig =  [rel_path + 'NACA_4412.txt','airfoil_geometry_2.txt', 'airfoil_geometry_2-selig.txt']        
-    airfoil_geometry            = [rel_path + 'NACA_4412.txt']
-    airfoil_polar_names         =  [[rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_50000.txt',
+    airfoil_geometry_files      = [rel_path + 'NACA_4412.txt']
+    airfoil_polar_files         =  [[rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_50000.txt',
                                      rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_100000.txt',
                                      rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_200000.txt',
                                      rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_500000.txt',
                                      rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_1000000.txt']]   
     
     
-    # plot airfoil polar data with and without surrogate
-    
-    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names)
-    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, use_surrogate=True)
-    
-    airfoil_polar_data     = import_airfoil_polars(airfoil_polar_names) 
 
-    airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry_with_selig)
+    # ----------------------------------------------------------------------------------------------------------------
+    #  Plot polar files 
+    # ----------------------------------------------------------------------------------------------------------------    
+    # plot airfoil polar data with and without surrogate
+    airfoil_geometry_1   = import_airfoil_geometry(airfoil_geometry_files)  
+    airfoil_polar_data_1 = compute_airfoil_properties(airfoil_geometry_1,airfoil_polar_files) 
+    plot_airfoil_polar_files(airfoil_polar_data_1)
+    plot_airfoil_polar_files(airfoil_polar_data_1,use_surrogate=True , save_filename = "Airfoil_Polars_With_Surrogate")
+
+    # ----------------------------------------------------------------------------------------------------------------
+    #  
+    # ----------------------------------------------------------------------------------------------------------------
+    airfoil_geometry_2  = import_airfoil_geometry(airfoil_geometry_with_selig)
 
     # Actual t/c values  
-    airfoil_tc_actual = [0.12031526401402462, 0.11177619218206997, 0.11177619218206997]
+    airfoil_tc_actual = [0.12031526401402462, 0.11177619218206997, 0.11177619218206997] 
 
-
-    # Check t/c calculation against previously calculated values
-
+    # Check t/c calculation against previously calculated values 
     for i in range(0, len(airfoil_geometry_with_selig)):
-        assert(np.abs(airfoil_tc_actual[i]-airfoil_geometry_data.thickness_to_chord[i]) < 1E-8 )
-    
+        assert(np.abs(airfoil_tc_actual[i]-airfoil_geometry_2.thickness_to_chord[i]) < 1E-8 ) 
 
-    # Check that camber line comes back the same for the Lednicer and Selig formats
-
-    for j in range(0, len(airfoil_geometry_data.camber_coordinates[1])):
-        assert( np.abs(airfoil_geometry_data.camber_coordinates[1][j] - airfoil_geometry_data.camber_coordinates[2][j]) < 1E-8 )
+    # Check that camber line comes back the same for the Lednicer and Selig formats 
+    for j in range(0, len(airfoil_geometry_2.camber_coordinates[1])):
+        assert( np.abs(airfoil_geometry_2.camber_coordinates[1][j] - airfoil_geometry_2.camber_coordinates[2][j]) < 1E-8 )
 
     plot_airfoil(airfoil_geometry_with_selig)
     
