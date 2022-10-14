@@ -591,7 +591,7 @@ def vehicle_setup():
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     airfoil_data.polar_stations      = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    propeller                        = propeller_design(propeller,number_of_airfoil_section_points = 50)
+    propeller                        = propeller_design(propeller)
     propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
     net.propellers.append(propeller)
 
@@ -611,7 +611,7 @@ def vehicle_setup():
 
     lr_airfoil_data                       = lift_rotor.airfoil_data
     lr_airfoil_data.geometry_files        =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    lr_airfoil_data.polars_files          = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    lr_airfoil_data.polar_files           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                               '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                               '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                               '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,

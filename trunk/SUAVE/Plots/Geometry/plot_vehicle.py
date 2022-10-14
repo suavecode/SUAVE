@@ -361,24 +361,22 @@ def generate_nacelle_points(nac,tessellation = 24):
     
     num_nac_segs = len(nac.Segments.keys())   
     theta        = np.linspace(0,2*np.pi,tessellation)
-    n_points     = 20
+    n_points     = 21 
     
     if num_nac_segs == 0:
-        num_nac_segs = int(n_points/2)
+        num_nac_segs = int(np.ceil(n_points/2))
         nac_pts      = np.zeros((num_nac_segs,tessellation,3))
         naf          = nac.Airfoil
         
-        if naf.naca_4_series_airfoil != None: 
-            # use mean camber surface of airfoil 
-            airfoil_data = compute_naca_4series(naf.naca_4_series_airfoil,(n_points - 2))
-            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_lower_surface[0]).T,tessellation,axis = 1)*nac.length
-            zpts         = np.repeat(np.atleast_2d(airfoil_data.camber_coordinates[0]).T,tessellation,axis = 1)*nac.length  
+        if naf.naca_4_series_airfoil != None:  
+            a_geo        = compute_naca_4series([naf.naca_4_series_airfoil],num_nac_segs)
+            xpts         = np.repeat(np.atleast_2d(a_geo.x_coordinates[0]).T,tessellation,axis = 1)*nac.length
+            zpts         = np.repeat(np.atleast_2d(a_geo.y_coordinates[0]).T,tessellation,axis = 1)*nac.length  
         
-        elif naf.coordinate_file != None:
-            a_pol        = [0]
-            a_geo        = import_airfoil_geometry(naf.coordinate_file,npoints=num_nac_segs)
-            xpts         = np.repeat(np.atleast_2d(np.take(a_geo.x_coordinates,a_pol,axis=0)).T,tessellation,axis = 1)*nac.length
-            zpts         = np.repeat(np.atleast_2d(np.take(a_geo.y_coordinates,a_pol,axis=0)).T,tessellation,axis = 1)*nac.length
+        elif naf.coordinate_file != None: 
+            a_geo        = import_airfoil_geometry(naf.coordinate_file,num_nac_segs)
+            xpts         = np.repeat(np.atleast_2d(np.take(a_geo.x_coordinates,[0],axis=0)).T,tessellation,axis = 1)*nac.length
+            zpts         = np.repeat(np.atleast_2d(np.take(a_geo.y_coordinates,[0],axis=0)).T,tessellation,axis = 1)*nac.length
         
         else:
             # if no airfoil defined, use super ellipse as default
@@ -478,7 +476,7 @@ def plot_propeller_geometry(axes,prop,cpt=0,prop_face_color='red',prop_edge_colo
     N/A
     """
     num_B     = prop.number_of_blades
-    n_points  = 20
+    n_points  = 21
     af_pts    = n_points-1
     dim       = len(prop.radius_distribution)
 
@@ -562,13 +560,13 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
         a_geo        = import_airfoil_geometry(a_geo_files,n_points)
         xpts         = np.take(a_geo.x_coordinates,a_pol,axis=0)
         zpts         = np.take(a_geo.y_coordinates,a_pol,axis=0)
-        max_t        = np.take(a_geo.thickness_to_chord,a_pol,axis=0)
+        max_t        = np.take(a_geo.thickness_to_chord,a_pol,axis=0)[:,0]
 
     else: 
         airfoil_data = compute_naca_4series(['2410'],n_points)
         xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
         zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
-        max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
+        max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)[:,0]
             
     # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
     max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)

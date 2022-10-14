@@ -5,10 +5,12 @@
 #           Sep 2020, M. Clarke 
 
 from SUAVE.Core import Data  
+import math 
 import numpy as np
 
+
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_naca_4series(airfoil_geometry_files,npoints= 100):
+def compute_naca_4series(airfoil_geometry_files,npoints= 200):
     """Computes the points of NACA 4-series airfoil
 
     Assumptions:
@@ -36,19 +38,19 @@ def compute_naca_4series(airfoil_geometry_files,npoints= 100):
     """         
     
     num_airfoils                = len(airfoil_geometry_files)  
-    half_npoints                = int(npoints/2) # number of points per side  
-
+    half_npoints                = math.floor(npoints/2)      # number of points per side   
+    
     geometry                    = Data()  
     geometry.airfoil_names      = airfoil_geometry_files         
     geometry.x_coordinates      = np.zeros((num_airfoils,npoints+ (npoints%2 == 0)))
     geometry.y_coordinates      = np.zeros((num_airfoils,npoints+ (npoints%2 == 0)))
     geometry.thickness_to_chord = np.zeros((num_airfoils,1))
     geometry.max_thickness      = np.zeros((num_airfoils,1))
-    geometry.camber_coordinates = np.zeros((num_airfoils,half_npoints+ (npoints%2 == 0)))
-    geometry.x_upper_surface    = np.zeros((num_airfoils,half_npoints+ (npoints%2 == 0)))
-    geometry.x_lower_surface    = np.zeros((num_airfoils,half_npoints+ (npoints%2 == 0)))
-    geometry.y_upper_surface    = np.zeros((num_airfoils,half_npoints+ (npoints%2 == 0)))
-    geometry.y_lower_surface    = np.zeros((num_airfoils,half_npoints+ (npoints%2 == 0))) 
+    geometry.camber_coordinates = np.zeros((num_airfoils,half_npoints+1))
+    geometry.x_upper_surface    = np.zeros((num_airfoils,half_npoints+1))
+    geometry.x_lower_surface    = np.zeros((num_airfoils,half_npoints+1))
+    geometry.y_upper_surface    = np.zeros((num_airfoils,half_npoints+1))
+    geometry.y_lower_surface    = np.zeros((num_airfoils,half_npoints+1)) 
      
     for i in range(num_airfoils): 
         airfoil_digits  = [int(x) for x in airfoil_geometry_files[i]] 

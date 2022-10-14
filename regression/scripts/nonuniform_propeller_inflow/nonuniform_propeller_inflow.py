@@ -55,11 +55,11 @@ def case_1(vehicle, conditions):
     plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
     
     thrust   = np.linalg.norm(thrust)
-    thrust_r = 1743.1852479971017
-    torque_r = 748.83510441
-    power_r  = 101943.17738622
-    Cp_r     = 0.46940459
-    etap_r   = 0.71831937
+    thrust_r = 1743.0258191335301
+    torque_r = 748.87304348
+    power_r  = 101948.342247
+    Cp_r     = 0.46942838
+    etap_r   = 0.71821729
     print('\nCase 1 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
     print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
@@ -263,7 +263,7 @@ def basic_prop(Na=24, Nr=101):
     prop.symmetry                  = True
     airfoil_data                   = prop.airfoil_data
     airfoil_data.geometry_files    =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    airfoil_data.polars_files      = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    airfoil_data.polar_files       = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,

@@ -95,7 +95,7 @@ def  import_airfoil_polars(airfoil_polar_files):
             CL[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cl)
             CD[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cd)       
                  
-        airfoil_data.angle_of_attacks  = AoA_interp
+        airfoil_data.angle_of_attacks  = np.tile(AoA_interp[None,:],(num_airfoils,1))
         airfoil_data.reynolds_number   = Re
         airfoil_data.mach_number       = Ma
         airfoil_data.lift_coefficients = CL

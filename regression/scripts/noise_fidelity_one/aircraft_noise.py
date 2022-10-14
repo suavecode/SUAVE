@@ -55,7 +55,7 @@ def main():
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
 
     X57_SPL        = X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA[0][0]
-    X57_SPL_true   = 69.71130208842692
+    X57_SPL_true   = 66.26373125376338
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)

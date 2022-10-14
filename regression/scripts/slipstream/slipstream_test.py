@@ -208,9 +208,9 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
 def regress_2(results):
 
-    CL_truth  = 0.41607938
-    CDi_truth = 0.00895905
-    CM_truth  = 0.06956314
+    CL_truth  = 0.41608099
+    CDi_truth = 0.00893609
+    CM_truth  = 0.06956294
     
 
     

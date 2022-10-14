@@ -91,8 +91,7 @@ class Rotor(Energy_Component):
         airfoil_data.polar_files               = None
         airfoil_data.polars                    = None
         airfoil_data.polar_stations            = None
-        airfoil_data.number_of_points          = 100
-        airfoil_data.boundary_layer_properties = False
+        airfoil_data.number_of_points          = 200
         self.airfoil_data                      = airfoil_data
 
         self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream

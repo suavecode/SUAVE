@@ -242,8 +242,8 @@ def vehicle_setup():
     lift_rotor.design_thrust          = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
 
     lr_airfoil_data                   = lift_rotor.airfoil_data
-    lr_airfoil_data.geometry          = ['../Vehicles/Airfoils/NACA_4412.txt']
-    lr_airfoil_data.polars            = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    lr_airfoil_data.geometry_files    = ['../Vehicles/Airfoils/NACA_4412.txt']
+    lr_airfoil_data.polar_files       = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,

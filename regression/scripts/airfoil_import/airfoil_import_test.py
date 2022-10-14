@@ -39,8 +39,9 @@ def main():
     
     
     # plot airfoil polar data with and without surrogate
-    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, display_plot=True)
-    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, use_surrogate=True, display_plot=True)
+    
+    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names)
+    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, use_surrogate=True)
     
     airfoil_polar_data     = import_airfoil_polars(airfoil_polar_names) 
 

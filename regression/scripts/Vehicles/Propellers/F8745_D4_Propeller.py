@@ -44,7 +44,7 @@ def F8745_D4_Propeller():
     separator = os.path.sep
     rel_path  = os.path.dirname(ospath) + separator 
     airfoil_data.geometry_files     =  [ rel_path +'../Airfoils/Clark_y.txt']
-    airfoil_data.polars_files       =  [[rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt' ,
+    airfoil_data.polar_files        =  [[rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt' ,
                                          rel_path +'../Airfoils/Polars/Clark_y_polar_Re_100000.txt',
                                          rel_path +'../Airfoils/Polars/Clark_y_polar_Re_200000.txt',
                                          rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',
@@ -52,7 +52,7 @@ def F8745_D4_Propeller():
     airfoil_data.polar_stations     = list(np.zeros(num_sec).astype(int))
     airfoil_data.geometry           = import_airfoil_geometry(airfoil_data.geometry_files) 
     airfoil_data.airfoil_flag       = True  
-    airfoil_data.polars             = compute_airfoil_properties(airfoil_data.geometry, airfoil_data.polars_files)  
+    airfoil_data.polars             = compute_airfoil_properties(airfoil_data.geometry, airfoil_data.polar_files)  
     prop.mid_chord_alignment         = np.zeros_like(prop.chord_distribution) 
         
     return prop

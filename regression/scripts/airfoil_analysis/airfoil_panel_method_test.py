@@ -21,9 +21,8 @@ import numpy as np
 #   Main
 # ----------------------------------------------------------------------
 
-def main():    
-    # Define Panelization 
-    npoints = 200
+def main():     
+    npoints = 200 # panel code works best with 20-30 points 
     
     # -----------------------------------------------
     # Batch analysis of single airfoil - NACA 2410 
@@ -40,7 +39,6 @@ def main():
     # XFOIL Validation - Source   
     xfoil_data_cl   = 0.803793
     xfoil_data_cd   = 0.017329
-    xfoil_data_cdpi = 0.005383
     xfoil_data_cm   = -0.053745
   
     diff_CL           = np.abs(airfoil_properties_1.cl[0,2] - xfoil_data_cl)   
@@ -74,7 +72,7 @@ def main():
     AoA_vals             = np.atleast_2d(np.array([[2,2,2,2,2,2],[4,4,4,4,4,4]])*Units.degrees)       
     airfoil_stations     = [0,1,0,1,0,1] 
     airfoils             = [rel_path + 'NACA_4412.txt',rel_path +'Clark_y.txt']             
-    airfoil_geometry     = import_airfoil_geometry(airfoils, npoints)    
+    airfoil_geometry     = import_airfoil_geometry(airfoils,npoints)    
     airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals, airfoil_stations = airfoil_stations)    
        
     True_cls    = np.array([0.65581723, 0.57643382, 0.65581723, 0.57643382, 0.65581723,0.57643382])

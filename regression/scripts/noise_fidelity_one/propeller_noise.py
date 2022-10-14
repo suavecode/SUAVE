@@ -271,14 +271,14 @@ def Hararmonic_Noise_Validation(PP):
 
     # Store errors 
     error = Data()
-    error.SPL_Case_1_60deg  = np.mean(np.abs(F8745D4_SPL_harmonic_bpf_spectrum[0,6,:][:len(harmonics)]  - Exp_Test_Case_1_60deg))  
-    error.SPL_Case_1_90deg  = np.mean(np.abs(F8745D4_SPL_harmonic_bpf_spectrum[0,9,:][:len(harmonics)] - Exp_Test_Case_1_90deg))
+    error.SPL_Case_1_60deg  = np.max(np.abs(F8745D4_SPL_harmonic_bpf_spectrum[0,6,:][:len(harmonics)]  - Exp_Test_Case_1_60deg)/Exp_Test_Case_1_60deg)  
+    error.SPL_Case_1_90deg  = np.max(np.abs(F8745D4_SPL_harmonic_bpf_spectrum[0,9,:][:len(harmonics)] - Exp_Test_Case_1_90deg)/Exp_Test_Case_1_90deg)
     
     print('Errors:')
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<5E0)
+        assert(np.abs(v)<1E0)
 
     return    
  
@@ -440,14 +440,14 @@ def Broadband_Noise_Validation(PP):
     
     # Store errors 
     error = Data()
-    error.SPL_Case_1_60deg  = np.mean(np.abs(APC_SF_SPL_broadband_1_3_spectrum[1,3,8:]  - Exp_broadband_APC[1,:]))
-    error.SPL_Case_1_90deg  = np.mean(np.abs(APC_SF_SPL_broadband_1_3_spectrum[1,4,8:] - Exp_broadband_APC[0,:]))
+    error.SPL_Case_1_60deg  = np.max(np.abs(APC_SF_SPL_broadband_1_3_spectrum[1,3,8:]  - Exp_broadband_APC[1,:])/Exp_broadband_APC[1,:])
+    error.SPL_Case_1_90deg  = np.max(np.abs(APC_SF_SPL_broadband_1_3_spectrum[1,4,8:] - Exp_broadband_APC[0,:])/Exp_broadband_APC[0,:])
     
     print('Errors:')
     print(error)
     
-    #for k,v in list(error.items()):
-        #assert(np.abs(v)<5E0)
+    for k,v in list(error.items()):
+        assert(np.abs(v)<1E0)
         
     return 
 

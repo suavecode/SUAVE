@@ -86,20 +86,20 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
 
     airfoil_data                   = rotor.airfoil_data
     a_loc                          = airfoil_data.polar_stations
-    a_pol                          = airfoil_data.polars
+    bl                             = airfoil_data.polars.boundary_layer
     a_names                        = airfoil_data.geometry_files
-    theta_lower_surface_surs       = a_pol.theta_lower_surface_surrogates
-    delta_lower_surface_surs       = a_pol.delta_lower_surface_surrogates
-    delta_star_lower_surface_surs  = a_pol.delta_star_lower_surface_surrogates
-    Ue_Vinf_lower_surface_surs     = a_pol.Ue_Vinf_lower_surface_surrogates
-    cf_lower_surface_surs          = a_pol.cf_lower_surface_surrogates
-    dcp_dx_lower_surface_surs      = a_pol.dcp_dx_lower_surface_surrogates
-    theta_upper_surface_surs       = a_pol.theta_upper_surface_surrogates
-    delta_upper_surface_surs       = a_pol.delta_upper_surface_surrogates
-    delta_star_upper_surface_surs  = a_pol.delta_star_upper_surface_surrogates
-    Ue_Vinf_upper_surface_surs     = a_pol.Ue_Vinf_upper_surface_surrogates
-    cf_upper_surface_surs          = a_pol.cf_upper_surface_surrogates
-    dcp_dx_upper_surface_surs      = a_pol.dcp_dx_upper_surface_surrogates
+    theta_lower_surface_surs       = bl.theta_lower_surface_surrogates
+    delta_lower_surface_surs       = bl.delta_lower_surface_surrogates
+    delta_star_lower_surface_surs  = bl.delta_star_lower_surface_surrogates
+    Ue_Vinf_lower_surface_surs     = bl.Ue_Vinf_lower_surface_surrogates
+    cf_lower_surface_surs          = bl.cf_lower_surface_surrogates
+    dcp_dx_lower_surface_surs      = bl.dcp_dx_lower_surface_surrogates
+    theta_upper_surface_surs       = bl.theta_upper_surface_surrogates
+    delta_upper_surface_surs       = bl.delta_upper_surface_surrogates
+    delta_star_upper_surface_surs  = bl.delta_star_upper_surface_surrogates
+    Ue_Vinf_upper_surface_surs     = bl.Ue_Vinf_upper_surface_surrogates
+    cf_upper_surface_surs          = bl.cf_upper_surface_surrogates
+    dcp_dx_upper_surface_surs      = bl.dcp_dx_upper_surface_surrogates
 
     dim_sur            = len(theta_lower_surface_surs)
     U_blade            = np.sqrt(Vt_2d**2 + Va_2d**2)
@@ -264,13 +264,13 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
             dP_dX_us                  = dcp_dx_us*(0.5*rho_blade[:,:,0]*(U_blade[:,:,0]**2))/blade_chords_2d
 
             lower_surface_theta       = np.tile(theta_ls[:,:,None],(1,1,num_azi))
-            lower_surface_delta       = np.tile(delta_ls[:,:,None],(1,1,num_azi))
+            lower_surface_delta       = np.tile((blade_chords_2d*delta_ls)[:,:,None],(1,1,num_azi))
             lower_surface_delta_star  = np.tile(delta_star_ls[:,:,None],(1,1,num_azi))
             lower_surface_cf          = np.tile(cf_ls[:,:,None],(1,1,num_azi))
             lower_surface_Ue          = np.tile(Ue_Vinf_ls[:,:,None],(1,1,num_azi))*U_blade
             lower_surface_dp_dx       = np.tile(dP_dX_ls[:,:,None],(1,1,num_azi))
             upper_surface_theta       = np.tile(theta_us[:,:,None],(1,1,num_azi))
-            upper_surface_delta       = np.tile(delta_us[:,:,None],(1,1,num_azi))
+            upper_surface_delta       = np.tile((blade_chords_2d*delta_us)[:,:,None],(1,1,num_azi))
             upper_surface_delta_star  = np.tile(delta_star_us[:,:,None],(1,1,num_azi))
             upper_surface_cf          = np.tile(cf_us[:,:,None],(1,1,num_azi))
             upper_surface_Ue          = np.tile(Ue_Vinf_us[:,:,None],(1,1,num_azi))*U_blade
