@@ -2,16 +2,27 @@
 # BET_calculations.py
 # 
 # Created:  Jan 2022, R. Erhard
-# Modified:       
+# Modified: May 2022, E. Botero
 
-import numpy as np
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
+
+import jax.numpy as jnp
+from jax import jit, lax
+
+
+# ----------------------------------------------------------------------
+#   Compute Airfoil Aerodynamics
+# ----------------------------------------------------------------------
+
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc):
     """
     Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
                                               Wa,Wt,a,nu,
                                               a_loc,a_geo,cl_sur,cd_sur,
-                                              ctrl_pts,Nr,Na,tc,use_2d_analysis )
+                                              ctrl_pts,Nr,Na,tc )
 
     Computes the aerodynamic forces at sectional blade locations. If airfoil
     geometry and locations are specified, the forces are computed using the
@@ -46,7 +57,6 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
        Nr                         Number of radial blade sections                 [-]
        Na                         Number of azimuthal blade stations              [-]
        tc                         Thickness to chord                              [-]
-       use_2d_analysis            Specifies 2d disc vs. 1d single angle analysis  [Boolean]
 
     Outputs:
        Cl                       Lift Coefficients                         [-]
@@ -55,67 +65,49 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
 
     """
 
-    alpha    = beta - np.arctan2(Wa,Wt)
+    alpha    = beta - jnp.arctan2(Wa,Wt)
     W        = (Wa*Wa + Wt*Wt)**0.5
     Ma       = W/a
     Re       = (W*c)/nu
-
+    
     # If propeller airfoils are defined, use airfoil surrogate
     if a_loc != None:
+        aloc  = jnp.atleast_3d(jnp.array(a_loc))
+        aloc  = jnp.broadcast_to(aloc,jnp.shape(Wa))
         # Compute blade Cl and Cd distribution from the airfoil data
-        dim_sur = len(cl_sur)
-        if use_2d_analysis:
-            # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
-            Cl      = np.zeros((ctrl_pts,Nr,Na))
-            Cdval   = np.zeros((ctrl_pts,Nr,Na))
-            for jj in range(dim_sur):
-                Cl_af           = cl_sur[a_geo[jj]]((Re,alpha))
-                Cdval_af        = cd_sur[a_geo[jj]]((Re,alpha))
-                locs            = np.where(np.array(a_loc) == jj )
-                Cl[:,locs,:]    = Cl_af[:,locs,:]
-                Cdval[:,locs,:] = Cdval_af[:,locs,:]
-        else:
-            # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
-            Cl      = np.zeros((ctrl_pts,Nr))
-            Cdval   = np.zeros((ctrl_pts,Nr))
+        # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
+        Cl      = jnp.zeros(jnp.shape(Wa))
+        Cdval   = jnp.zeros(jnp.shape(Wa))
+        for jj, (cl, cd) in enumerate(zip(cl_sur,cd_sur)):
+            Cl    = jnp.where(aloc==jj,cl((Re,alpha)),Cl)
+            Cdval = jnp.where(aloc==jj,cd((Re,alpha)),Cdval)
 
-            for jj in range(dim_sur):
-                Cl_af         = cl_sur[a_geo[jj]]((Re,alpha))
-                Cdval_af      = cd_sur[a_geo[jj]]((Re,alpha))
-                locs          = np.where(np.array(a_loc) == jj )
-                Cl[:,locs]    = Cl_af[:,locs]
-                Cdval[:,locs] = Cdval_af[:,locs]
     else:
         # Estimate Cl max
-        Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+        Cl_max_ref = jnp.atleast_2d(-0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005).T
         Re_ref     = 9.*10**6
         Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
 
         # If not airfoil polar provided, use 2*pi as lift curve slope
-        Cl = 2.*np.pi*alpha
+        Cl = 2.*jnp.pi*alpha
 
         # By 90 deg, it's totally stalled.
-        Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
-        Cl[alpha>=np.pi/2] = 0.
+        Cl = jnp.minimum(Cl, Cl1maxp)
+        Cl = jnp.where(alpha>=jnp.pi/2,0,Cl)
 
         # Scale for Mach, this is Karmen_Tsien
-        Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-
-        # If the blade segments are supersonic, don't scale
-        Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]
+        Cl = jnp.where(Ma[:,:]<1.,Cl/((1-Ma*Ma)**0.5+((Ma*Ma)/(1+(1-Ma*Ma)**0.5))*Cl/2),Cl)
 
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-        Cdval[alpha>=np.pi/2] = 2.
+        Cdval = jnp.where(alpha>=jnp.pi/2,2,Cdval)    
 
-
-    # prevent zero Cl to keep Cd/Cl from breaking in BET
-    Cl[Cl==0] = 1e-6
-
+        # prevent zero Cl to keep Cd/Cl from breaking in BET
+        Cl = jnp.where(Cl==0,1e-6,Cl)
     return Cl, Cdval, alpha, Ma, W
 
 
-
+@jit
 def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
     """
     Computes the inflow, lamdaw, and the tip loss factor, F.
@@ -138,21 +130,12 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B):
        F          tip loss factor                                                  [-]
        piece      output of a step in tip loss calculation (needed for residual)   [-]
     """
-    lamdaw            = r*Wa/(R*Wt)
-    lamdaw[lamdaw<0.] = 0.
-    f                 = (B/2.)*(1.-r/R)/lamdaw
-    f[f<0.]           = 0.
     
-    piece             = np.exp(-f)
-    F                 = 2.*np.arccos(piece)/np.pi
-
-    Rtip = R
-    et1, et2, et3, maxat = 1,1,1,-np.inf
-    tipfactor = B/2.0*(  (Rtip/r)**et1 - 1  )**et2/lamdaw**et3
-    tipfactor[tipfactor<0.]   = 0.
-    Ftip = 2.*np.arccos(np.exp(-tipfactor))/np.pi
-    
-    F = Ftip
-    
+    lamdaw = jnp.array(r*Wa/(R*Wt))
+    lamdaw = jnp.where(lamdaw<=0.,0,lamdaw)
+    f      = (B/2.)*(R/r - 1.)/lamdaw
+    f      = jnp.where(f<=0.,0,f)
+    piece  = jnp.exp(-f)
+    F      = 2.*jnp.arccos(piece)/jnp.pi
 
     return lamdaw, F, piece

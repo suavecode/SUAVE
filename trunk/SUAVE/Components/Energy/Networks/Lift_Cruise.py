@@ -19,7 +19,7 @@ import SUAVE
 # package imports
 import numpy as np
 import copy
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units, Data, to_numpy
 from .Network import Network
 from SUAVE.Analyses.Mission.Segments.Conditions import Residuals
 from SUAVE.Components.Physical_Component import Container 
@@ -214,7 +214,8 @@ class Lift_Cruise(Network):
                 prop.inputs.omega           = motor.outputs.omega 
                 
                 # Run the propeller
-                F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = prop.spin(conditions)
+                F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = to_numpy(prop.spin(conditions))
+                
                     
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta                       = conditions.propulsion.throttle[:,0,None]
@@ -331,8 +332,8 @@ class Lift_Cruise(Network):
                 lift_rotor.inputs.omega           = lift_rotor_motor.outputs.omega   
                 
                 # Run the propeller
-                F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)
-                
+                F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = to_numpy(lift_rotor.spin(konditions))
+                                
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta                       = conditions.propulsion.throttle_lift[:,0,None]
                 P_lift[eta>1.0]           = P_lift[eta>1.0]*eta[eta>1.0]

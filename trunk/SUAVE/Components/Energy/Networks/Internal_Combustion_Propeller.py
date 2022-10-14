@@ -15,7 +15,7 @@
 import numpy as np
 from .Network import Network
 from SUAVE.Components.Physical_Component import Container
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Data, Units, to_numpy
 
 # ----------------------------------------------------------------------
 #  Network
@@ -120,7 +120,7 @@ class Internal_Combustion_Propeller(Network):
             prop.inputs.omega = state.conditions.propulsion.rpm * Units.rpm
             
             # step 4
-            F, Q, P, Cp, outputs, etap = prop.spin(conditions)
+            F, Q, P, Cp, outputs, etap = to_numpy(prop.spin(conditions))
             
             # Check to see if magic thrust is needed
             eta               = conditions.propulsion.throttle[:,0,None]

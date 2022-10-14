@@ -15,7 +15,7 @@
 import numpy as np
 from .Network import Network
 from SUAVE.Components.Physical_Component import Container
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Data, Units, to_numpy
 
 # ----------------------------------------------------------------------
 #  Network
@@ -122,7 +122,7 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             prop.inputs.omega         = rpm
             
             # step 4
-            F, Q, P, Cp, outputs, etap = prop.spin(conditions)
+            F, Q, P, Cp, outputs, etap = to_numpy(prop.spin(conditions))
             
             # Run the engine to calculate the throttle setting and the fuel burn
             engine.inputs.power = P

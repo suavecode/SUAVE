@@ -146,7 +146,7 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     prop.vtk_airfoil_points           = 2*Nc
     prop.CLi                          = vsp.GetParmVal(parm_id[parm_names.index('CLi')])
     prop.blade_solidity               = vsp.GetParmVal(parm_id[parm_names.index('Solidity')])
-    prop.number_of_blades             = int(vsp.GetParmVal(parm_id[parm_names.index('NumBlade')]))
+    prop.number_of_blades             = float(vsp.GetParmVal(parm_id[parm_names.index('NumBlade')]))
 
     prop.tip_radius                   = vsp.GetDoubleResults(rid, "Diameter" )[0] / 2 * units_factor
     prop.radius_distribution          = np.array(vsp.GetDoubleResults(rid, "Radius" )) * prop.tip_radius
@@ -177,7 +177,7 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     prop.tangential                   = np.array(vsp.GetDoubleResults(rid, "Tangential"))[start:]
 
     # Set prop rotation
-    prop.rotation = 1
+    prop.rotation = 1.
 
     # ---------------------------------------------
     # Rotor Airfoil
@@ -256,9 +256,9 @@ Normal: {8}, {9}, {10}
     Y         = np.round(prop.origin[0][1],5)
     Z         = np.round(prop.origin[0][2],5)
     rotations = np.dot(prop.body_to_prop_vel(),np.array([-1,0,0])) # The sign is because props point opposite flow
-    Xn        = np.round(rotations[0],5)
-    Yn        = np.round(rotations[1],5)
-    Zn        = np.round(rotations[2],5)
+    Xn        = np.round(rotations[0,0],5)
+    Yn        = np.round(rotations[0,1],5)
+    Zn        = np.round(rotations[0,2],5)
 
     beta_3_4  = np.interp(prop.tip_radius*0.75,prop.radius_distribution,beta)
 

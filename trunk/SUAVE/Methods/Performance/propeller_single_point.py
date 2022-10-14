@@ -10,7 +10,7 @@
 
 import SUAVE
 
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units, Data, to_numpy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -120,8 +120,8 @@ def propeller_single_point(energy_network,
     conditions.frames.inertial.velocity_vector      = np.tile(velocity_vector, (ctrl_pts, 1))
     conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
 
-    # Run Propeller BEVW
-    F, Q, P, Cp, outputs, etap = prop.spin(conditions)
+    # Run Propeller BEVW        
+    F, Q, P, Cp, outputs, etap = to_numpy(prop.spin(conditions))
         
     va_ind_BEVW         = outputs.disc_axial_induced_velocity[0, :, 0]
     vt_ind_BEVW         = outputs.disc_tangential_induced_velocity[0, :, 0]
