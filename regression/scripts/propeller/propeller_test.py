@@ -128,7 +128,7 @@ def main():
     rot_a.design_thrust            = 2271.2220451593753 
     airfoil_data                   = rot_a.airfoil_data
     airfoil_data.geometry_files    = ['4412']
-    airfoil_data.number_of_points  = 20    # for aero coefficients, panel code works better with fewer points 
+    airfoil_data.number_of_points  = 30    # for aero coefficients, panel code works better with fewer points 
     airfoil_data.NACA_4_series     = True
     airfoil_data.polar_stations    =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     rot_a                          = propeller_design(rot_a) 
@@ -212,10 +212,10 @@ def main():
     Cplast_truth    = 0.08407389
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1142.2736841717197
-    Qr_a_truth      = 275.74726987
-    Pr_a_truth      = 57124.24694445
-    Cplastr_a_truth = 0.08985359
+    Fr_a_truth      = 1237.2749519799602
+    Qr_a_truth      = 109.41785047
+    Pr_a_truth      = 22667.17749636
+    Cplastr_a_truth = 0.03565434
     
     # Truth values for rotor without airfoil geometry defined 
     Fr_truth        = 1250.1858821890885
