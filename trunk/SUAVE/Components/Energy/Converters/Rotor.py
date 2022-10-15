@@ -389,9 +389,9 @@ class Rotor(Energy_Component):
         #---------------------------------------------------------------------------            
                 
         # tip loss correction for velocities, since tip loss correction is only applied to loads in prior BET iteration
-        #va     = F*va
-        #vt     = F*vt
-        #lamdaw = r*(va+Ua)/(R*(Ut-vt))
+        va     = F*va
+        vt     = F*vt
+        lamdaw = r*(va+Ua)/(R*(Ut-vt))
 
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
@@ -658,6 +658,76 @@ class Rotor(Energy_Component):
         rot_mat = r.as_matrix()
 
         return rot_mat
+    
+    def vehicle_body_to_prop_vel(self):
+        """This rotates from the system's body frame to the propeller's velocity frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame.
+        Velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        Vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+
+        # Go from velocity to vehicle frame
+        body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+
+        # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
+        cpts       = len(np.atleast_1d(self.inputs.y_axis_rotation))
+        rots       = np.array(self.orientation_euler_angles) * 1.
+        rots       = np.repeat(rots[None,:], cpts, axis=0)
+        
+        vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
+
+        # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
+        prop_vec_2_prop_vel = self.vec_to_vel()
+
+        # Do all the matrix multiplies
+        rot1    = np.matmul(body_2_vehicle,vehicle_2_prop_vec)
+        rot_mat = np.matmul(rot1,prop_vec_2_prop_vel)
+
+
+        return rot_mat
+    
+    def prop_vel_to_vehicle_body(self):
+        """This rotates from the propeller's velocity frame to the system's body frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+
+        body2propvel = self.vehicle_body_to_prop_vel()
+
+        r = sp.spatial.transform.Rotation.from_matrix(body2propvel)
+        r = r.inv()
+        rot_mat = r.as_matrix()
+
+        return rot_mat    
     
     def vec_to_prop_body(self):
         return self.prop_vel_to_body()

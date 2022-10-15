@@ -173,3 +173,6 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         
         return rot_V_wake_ind
     
+    
+    def rotate_propFrame_to_globalFrame(self,rotor):
+        return
