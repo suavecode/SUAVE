@@ -33,8 +33,8 @@ def main():
     airfoil_properties_1 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals,airfoil_stations = [0,0,0,0])  
     
      # Plots    
-    plot_airfoil_analysis_surface_forces(airfoil_properties_1,show_legend = True )   
-    plot_airfoil_analysis_boundary_layer_properties(airfoil_properties_1,show_legend = True )   
+    plot_airfoil_surface_forces(airfoil_properties_1,show_legend = True )   
+    plot_airfoil_boundary_layer_properties(airfoil_properties_1,show_legend = True )   
     
     # XFOIL Validation - Source   
     xfoil_data_cl   = 0.803793

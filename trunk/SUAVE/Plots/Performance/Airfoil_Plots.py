@@ -203,17 +203,17 @@ def plot_airfoil_polar_files(airfoil_polar_data, line_color = 'k-', use_surrogat
             ax2    = fig.add_subplot(n_Re,2,2+2*j)   
             Re_val = str(round(Re_raw[i,j])/1e6)+'e6'
             
-            ax1.plot(alpha_raw[i,:]/Units.degrees, CL_raw[i,j,:], color= col_raw[j], linestyle = '--', label='Re='+Re_val)
-            ax2.plot(alpha_raw[i,:]/Units.degrees, CD_raw[i,j,:], color= col_raw[j], linestyle = '--', label='Re='+Re_val)
+            ax1.plot(alpha_raw[i,j,:]/Units.degrees, CL_raw[i,j,:], color= col_raw[j], linestyle = '--', label='Re='+Re_val)
+            ax2.plot(alpha_raw[i,j,:]/Units.degrees, CD_raw[i,j,:], color= col_raw[j], linestyle = '--', label='Re='+Re_val)
             
             if use_surrogate: 
                 CL_sur  = airfoil_polar_data.lift_coefficient_surrogates
                 CD_sur  = airfoil_polar_data.drag_coefficient_surrogates 
-                Re      = np.ones(len(alpha_raw[i,:]))*Re_raw[i,j] 
-                CL      = CL_sur[airfoil_polar_data.airfoil_names[i]]((Re,alpha_raw[i,:]))
-                CD      = CD_sur[airfoil_polar_data.airfoil_names[i]]((Re,alpha_raw[i,:]))     
-                ax1.plot(alpha_raw[i,:]/Units.degrees, CL, color = col_sur[j], linestyle = '-', label='Sur Re='+Re_val )
-                ax2.plot(alpha_raw[i,:]/Units.degrees, CD, color = col_sur[j], linestyle = '-', label='Sur Re='+Re_val )
+                Re      = np.ones(len(alpha_raw[i,j,:]))*Re_raw[i,j] 
+                CL      = CL_sur[airfoil_polar_data.airfoil_names[i]]((Re,alpha_raw[i,j,:]))
+                CD      = CD_sur[airfoil_polar_data.airfoil_names[i]]((Re,alpha_raw[i,j,:]))     
+                ax1.plot(alpha_raw[i,j,:]/Units.degrees, CL, color = col_sur[j], linestyle = '-', label='Sur Re='+Re_val )
+                ax2.plot(alpha_raw[i,j,:]/Units.degrees, CD, color = col_sur[j], linestyle = '-', label='Sur Re='+Re_val )
              
             ax1.set_ylabel('$C_l$')   
             ax2.set_ylabel('$C_d$')  
@@ -262,19 +262,20 @@ def plot_airfoil_polars(airfoil_data, save_figure = False,save_filename = "Airfo
         fig.set_figheight(8)
         fig.set_figwidth(12)
         
-        col_raw = cm.winter(np.linspace(0, 0.75,num_polars))   
+        airfoil_name = os.path.basename(airfoil_names[jj])
+        fig.suptitle(airfoil_name[:-4] + " (Raw Polar Data)")
+        col_raw     = cm.jet(np.linspace(0, 1.0,num_polars))   
         for ii in range(len(Re_sweep[:num_polars])):
             
-            ax.plot(aoa_sweep,CL[ii], color = col_raw[ii], label='Re='+str(Re_sweep[ii]))
+            ax.plot(aoa_sweep[ii],CL[ii], color = col_raw[ii], label='Re='+str(Re_sweep[ii]))
             ax.set_xlabel("Alpha (deg)")
             ax.set_ylabel("Cl")
             ax.legend()
             ax.grid()
             
-            ax2.plot(aoa_sweep, CD[ii], color = col_raw[ii])
+            ax2.plot(aoa_sweep[ii], CD[ii], color = col_raw[ii])
             ax2.set_xlabel("Alpha (deg)")
             ax2.set_ylabel("Cd")
-            ax2.set_title(airfoil_names[jj] + " (Raw Polar Data)")
             ax2.grid()    
             
             ax3.plot(CD[ii], CL[ii], color = col_raw[ii])
@@ -282,7 +283,7 @@ def plot_airfoil_polars(airfoil_data, save_figure = False,save_filename = "Airfo
             ax3.set_ylabel("Cl")
             ax3.grid() 
 
-            ax4.plot(aoa_sweep, CD[ii]/CL[ii], color = col_raw[ii])
+            ax4.plot(aoa_sweep[ii], CD[ii]/CL[ii], color = col_raw[ii])
             ax4.set_xlabel("Alpha (deg)")
             ax4.set_ylabel("Cd/Cl")
             ax4.grid()             

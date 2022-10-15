@@ -34,30 +34,18 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename
     a2_name           = os.path.basename(a2)
     a_geo             = import_airfoil_geometry(airfoil_geo_files,npoints)
     
-    # identify x and y coordinates of the two airfoils
-    x_upper = a_geo.x_upper_surface.values()
-    y_upper = a_geo.y_upper_surface.values()
-    x_lower = a_geo.x_lower_surface.values()
-    y_lower = a_geo.y_lower_surface.values()
-    
-    # identify points on airfoils to interpolate between
-    yairfoils_upper  = np.array(y_upper).T
-    yairfoils_lower  = np.array(y_lower).T
-    xairfoils_upper  = np.array(x_upper).T
-    xairfoils_lower  = np.array(x_lower).T
-
     # for each point around the airfoil, interpolate between the two given airfoil coordinates
     z = np.linspace(0,1,nairfoils)
     
-    y_u_lb = yairfoils_upper[:,0]
-    y_u_ub = yairfoils_upper[:,1]
-    y_l_lb = yairfoils_lower[:,0]
-    y_l_ub = yairfoils_lower[:,1]        
+    y_u_lb = a_geo.y_upper_surface[0,:]
+    y_u_ub = a_geo.y_upper_surface[1,:]
+    y_l_lb = a_geo.y_lower_surface[0,:]
+    y_l_ub = a_geo.y_lower_surface[1,:]     
     
-    x_u_lb = xairfoils_upper[:,0]
-    x_u_ub = xairfoils_upper[:,1]
-    x_l_lb = xairfoils_lower[:,0]
-    x_l_ub = xairfoils_lower[:,1]    
+    x_u_lb = a_geo.x_upper_surface[0,:]
+    x_u_ub = a_geo.x_upper_surface[1,:]
+    x_l_lb = a_geo.x_lower_surface[0,:]
+    x_l_ub = a_geo.x_lower_surface[1,:]    
     
     # broadcasting interpolation
     y_n_upper = (z[None,...] * (y_u_ub[...,None] - y_u_lb[...,None]) + (y_u_lb[...,None])).T
@@ -67,7 +55,6 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename
     
     
     # save new airfoil geometry files:
-    
     new_files = {'a_{}'.format(i+1): [] for i in range(nairfoils-2)}
     airfoil_files = []
 

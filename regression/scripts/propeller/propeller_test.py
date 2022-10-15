@@ -218,7 +218,7 @@ def main():
     Cplastr_a_truth = 0.03565434
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1250.1858821890885
+    Fr_truth        = 1250.185882189092
     Qr_truth        = 121.95416738
     Pr_truth        = 25264.22102656
     Cplastr_truth   = 0.03973936

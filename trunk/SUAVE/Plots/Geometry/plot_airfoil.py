@@ -45,8 +45,8 @@ def plot_airfoil(airfoil_paths,  line_color = 'k-', overlay = False, save_figure
             airfoil_name = airfoil_data.airfoil_names[i]
             
             # separate x and y coordinates 
-            airfoil_x  = airfoil_data.x_coordinates[airfoil_name]
-            airfoil_y  = airfoil_data.y_coordinates[airfoil_name]
+            airfoil_x  = airfoil_data.x_coordinates[i]
+            airfoil_y  = airfoil_data.y_coordinates[i]
             
             # plot airfoil geometry
             axes.plot(airfoil_x, airfoil_y , label=airfoil_name )                  
@@ -62,8 +62,8 @@ def plot_airfoil(airfoil_paths,  line_color = 'k-', overlay = False, save_figure
             airfoil_name = airfoil_data.airfoil_names[i]
             
             # separate x and y coordinates 
-            airfoil_x  = airfoil_data.x_coordinates[airfoil_name] 
-            airfoil_y  = airfoil_data.y_coordinates[airfoil_name]
+            airfoil_x  = airfoil_data.x_coordinates[i] 
+            airfoil_y  = airfoil_data.y_coordinates[i]
     
             name = save_filename + '_' + str(i)
             fig  = plt.figure(name)
