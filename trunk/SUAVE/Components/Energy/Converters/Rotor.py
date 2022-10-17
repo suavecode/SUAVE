@@ -25,9 +25,11 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity import compute_wing_induced_velocity
 # package imports
 import numpy as np
 import scipy as sp
+import copy
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -91,9 +93,9 @@ class Rotor(Energy_Component):
         
         self.use_2d_analysis           = True    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream     = False
-        self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
-        self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
-        self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
+        self.external_axial_disc_velocity       = None     # user input for additional velocity influences at the rotor
+        self.external_tangential_disc_velocity  = None     # user input for additional velocity influences at the rotor
+        self.external_radial_disc_velocity      = None     # user input for additional velocity influences at the rotor
         
         self.start_angle               = 0.0      # angle of first blade from vertical
         self.start_angle_idx           = 0        # azimuthal index at which the blade is started
@@ -304,9 +306,9 @@ class Rotor(Energy_Component):
             use_2d_analysis   = True
 
             # include additional influences specified at rotor sections, shape=(ctrl_pts,Nr,Na)
-            ua += self.axial_velocities_2d
-            ut += self.tangential_velocities_2d
-            ur += self.radial_velocities_2d
+            ua += self.external_axial_disc_velocity
+            ut += self.external_tangential_disc_velocity
+            ur += self.external_radial_disc_velocity
 
         if use_2d_analysis:
             # make everything 2D with shape (ctrl_pts,Nr,Na)
@@ -731,3 +733,143 @@ class Rotor(Energy_Component):
     
     def vec_to_prop_body(self):
         return self.prop_vel_to_body()
+    
+    def vehicle_body_to_prop_body(self):
+        """This rotates from the system's body frame to the propeller's velocity frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame.
+        Velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        Vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+
+        # Go from velocity to vehicle frame
+        body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+
+        # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
+        cpts       = len(np.atleast_1d(self.inputs.y_axis_rotation))
+        rots = np.array([0., self.inputs.y_axis_rotation, 0.])
+        rots = np.repeat(rots[None,:], cpts, axis=0)
+        
+        vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
+
+        # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
+        prop_vec_2_prop_vel = self.vec_to_vel()
+
+        # Do all the matrix multiplies
+        rot1    = np.matmul(body_2_vehicle,vehicle_2_prop_vec)
+        rot_mat = np.matmul(rot1,prop_vec_2_prop_vel)
+
+
+        return rot_mat   
+    
+    def prop_body_to_vehicle_body(self):
+        """This rotates from the propeller's velocity frame to the system's body frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+
+        body2propvel = self.vehicle_body_to_prop_body()
+
+        r = sp.spatial.transform.Rotation.from_matrix(body2propvel)
+        r = r.inv()
+        rot_mat = r.as_matrix()
+
+        return rot_mat        
+
+    def compute_VLM_influence_at_rotor(self, vehicle):
+        # unpack
+        VD  = vehicle.vortex_distribution
+        Na  = self.number_azimuthal_stations
+        Nr  = len(self.radius_distribution) 
+        O   = self.origin[0]
+        rot = self.rotation
+        
+        # extract location of rotor blade elements from rotor
+        r   = self.radius_distribution
+        psi = np.linspace(0,2*np.pi,Na+1)[:-1]
+        
+        r_2d   = np.tile(r[:,None], (1, Na))
+        psi_2d = np.tile(psi[None,:],(Nr,1))   
+        
+        # convert positions from polar to cartesian (prop frame)
+        xE = 0
+        yE = r_2d * np.sin(psi_2d)
+        zE = r_2d * np.cos(psi_2d)
+
+        
+        # rotate about y-axis (put into vehicle frame)
+        rot_mat = self.prop_body_to_vehicle_body()[0]
+        VD_temp = copy.deepcopy(VD)
+        Positions = np.matmul(rot_mat, np.array([np.ravel(O[0] + xE), np.ravel(O[1] + yE), np.ravel(O[2] + zE) ]))
+        VD_temp.XC = Positions[0][:]
+        VD_temp.YC = Positions[1][:]
+        VD_temp.ZC = Positions[2][:]
+        
+        # compute induced velocity at rotor disk elements
+        C_mn, _, _, _ = compute_wing_induced_velocity(VD_temp, mach=np.array([0]))
+        Vx = np.reshape( (C_mn[:,:,:,0]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
+        Vy = np.reshape( (C_mn[:,:,:,1]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
+        Vz = np.reshape( (C_mn[:,:,:,2]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
+        
+        # convert velocities from vehicle to prop frame
+        rot_mat2 = self.vehicle_body_to_prop_body()[0]
+        VC_p = np.matmul(rot_mat2, np.array([np.ravel(Vx), np.ravel(Vy), np.ravel(Vz)]))
+        Vx_p = np.reshape(VC_p[0][:], np.shape(Vx))
+        Vy_p = np.reshape(VC_p[1][:], np.shape(Vx))
+        Vz_p = np.reshape(VC_p[2][:], np.shape(Vx))
+        
+        Va_p = Vx_p
+        Vt_p = -rot*(Vy_p*(np.cos(psi_2d)) - Vz_p*(np.sin(psi_2d)) ) 
+        Vr_p = -rot*(Vy_p*(np.sin(psi_2d)) + Vz_p*(np.cos(psi_2d)) ) 
+        
+        # append to rotor, shape=(ctrl_pts,Nr,Na)
+        self.external_axial_disc_velocity = Va_p[None,:,:]
+        self.external_tangential_disc_velocity = Vt_p[None,:,:]
+        self.external_radial_disc_velocity = Vr_p[None,:,:]
+        self.nonuniform_freestream = True
+        
+        # DEBUG PLOT VTK OF POINTS AND VALUES
+        from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
+        points = Data()
+        points.XC = VD_temp.XC
+        points.YC = VD_temp.YC
+        points.ZC = VD_temp.ZC
+        points.induced_velocities = Data()
+        points.induced_velocities.vx = np.ravel(Vx_p)
+        points.induced_velocities.vy = np.ravel(Vy_p)
+        points.induced_velocities.vz = np.ravel(Vz_p)
+        points.induced_velocities.va = np.ravel(Va_p)
+        points.induced_velocities.vt = np.ravel(Vt_p)
+        points.induced_velocities.vr = np.ravel(Vr_p)
+        save_evaluation_points_vtk(points, filename="/Users/rerha/Desktop/TestRotorVDInput/eval_points.vtk")
+        
+        return
+        
