@@ -86,8 +86,8 @@ def compute_propeller_nonuniform_freestream(prop, upstream_wake,conditions):
     Va_2d =  V_thrust[:,0] * np.array(ua_wing)                                                                         # velocity perpendicular to the disk plane, positive downward  eqn 6.36 pg 166  
     
     # Append velocities to propeller
-    prop.tangential_velocities_2d = Vt_2d
-    prop.radial_velocities_2d     = Vr_2d
-    prop.axial_velocities_2d      = Va_2d    
+    prop.external_tangential_disc_velocity = Vt_2d
+    prop.external_radial_disc_velocity     = Vr_2d
+    prop.external_axial_disc_velocity      = Va_2d    
     
     return prop

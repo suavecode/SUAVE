@@ -91,8 +91,8 @@ class Rotor(Energy_Component):
         self.design_power_coefficient     = 0.01
 
         
-        self.use_2d_analysis           = True    # True if rotor is at an angle relative to freestream or nonuniform freestream
-        self.nonuniform_freestream     = False
+        self.use_2d_analysis                    = True    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream              = False
         self.external_axial_disc_velocity       = None     # user input for additional velocity influences at the rotor
         self.external_tangential_disc_velocity  = None     # user input for additional velocity influences at the rotor
         self.external_radial_disc_velocity      = None     # user input for additional velocity influences at the rotor
@@ -526,6 +526,9 @@ class Rotor(Energy_Component):
                     blade_axial_induced_velocity      = Va_ind_avg,
                     blade_tangential_velocity         = Vt_avg,
                     blade_axial_velocity              = Va_avg,
+                    external_axial_disc_velocity      = self.external_axial_disc_velocity,
+                    external_tangential_disc_velocity = self.external_tangential_disc_velocity,
+                    external_radial_disc_velocity     = self.external_radial_disc_velocity,
                     disc_tangential_induced_velocity  = Vt_ind_2d,
                     disc_axial_induced_velocity       = Va_ind_2d,
                     disc_tangential_velocity          = Vt_2d,
@@ -804,27 +807,51 @@ class Rotor(Energy_Component):
 
         return rot_mat        
 
-    def compute_VLM_influence_at_rotor(self, vehicle):
+    def compute_VLM_influence_at_rotor(self, vehicle, conditions):
+        """This takes a vehicle with a vortex distribution after VLM analysis and computes
+         the VLM-induced velocities at the rotor wake. These external velocities are then 
+         applied in the rotor BET / spin function.
+
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        
+        """        
+        #----------------------------------------------------------------------------------------------
         # unpack
         VD  = vehicle.vortex_distribution
         Na  = self.number_azimuthal_stations
         Nr  = len(self.radius_distribution) 
         O   = self.origin[0]
         rot = self.rotation
-        
+        #----------------------------------------------------------------------------------------------
+                
         # extract location of rotor blade elements from rotor
         r   = self.radius_distribution
         psi = np.linspace(0,2*np.pi,Na+1)[:-1]
         
         r_2d   = np.tile(r[:,None], (1, Na))
         psi_2d = np.tile(psi[None,:],(Nr,1))   
-        
+        #----------------------------------------------------------------------------------------------
+                
         # convert positions from polar to cartesian (prop frame)
         xE = 0
         yE = r_2d * np.sin(psi_2d)
         zE = r_2d * np.cos(psi_2d)
 
-        
+        #----------------------------------------------------------------------------------------------
+                
         # rotate about y-axis (put into vehicle frame)
         rot_mat = self.prop_body_to_vehicle_body()[0]
         VD_temp = copy.deepcopy(VD)
@@ -832,13 +859,60 @@ class Rotor(Energy_Component):
         VD_temp.XC = Positions[0][:]
         VD_temp.YC = Positions[1][:]
         VD_temp.ZC = Positions[2][:]
-        
+        #----------------------------------------------------------------------------------------------
+                
         # compute induced velocity at rotor disk elements
         C_mn, _, _, _ = compute_wing_induced_velocity(VD_temp, mach=np.array([0]))
-        Vx = np.reshape( (C_mn[:,:,:,0]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
-        Vy = np.reshape( (C_mn[:,:,:,1]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
-        Vz = np.reshape( (C_mn[:,:,:,2]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
+        Vx_inviscid = np.reshape( (C_mn[:,:,:,0]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
+        Vy_inviscid = np.reshape( (C_mn[:,:,:,1]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
+        Vz_inviscid = np.reshape( (C_mn[:,:,:,2]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
         
+        #----------------------------------------------------------------------------------------------
+        # Impart the wake deficit from BL of wing if x is behind the wing
+        #----------------------------------------------------------------------------------------------
+        
+        wing_tags = list(vehicle.wings.keys())
+        main_wing = wing_tags[0] # assumes main wing is the first in the list        
+        x0_wing = vehicle.wings[main_wing].origin[0][0]
+        span = vehicle.wings[main_wing].spans.projected
+        croot = vehicle.wings[main_wing].chords.root
+        ctip = vehicle.wings[main_wing].chords.tip
+        rho     = conditions.freestream.density
+        mu      = conditions.freestream.dynamic_viscosity 
+        Vv      = conditions.freestream.velocity[0][0]
+        nu      = (mu/rho)[0][0]
+        
+        Va_deficit = np.zeros_like(VD_temp.YC)
+        # if prop point is behind the wing leading edge
+        invalid_ids = np.where(VD_temp.XC <x0_wing)
+        
+            
+        # impart viscous wake to grid points within the span of the wing
+        y_inside            = abs(VD_temp.YC)<0.5*span
+        chord_distribution  = croot - (croot-ctip)*(abs(VD_temp.YC[y_inside])/(0.5*span))
+        
+        # Reynolds number developed at x-plane:
+        Rex_prop_plane     = Vv*(VD_temp.XC[y_inside]-x0_wing)/nu
+        
+        # boundary layer development distance
+        x_dev      = (VD_temp.XC[y_inside]-x0_wing) * np.ones_like(chord_distribution)
+        
+        # For turbulent flow
+        theta_turb  = 0.036*x_dev/(Rex_prop_plane**(1/5))
+        x_theta     = (x_dev-chord_distribution)/theta_turb
+
+        # axial velocity deficit due to turbulent BL from the wing (correlation from Ramaprian et al.)
+        W0  = Vv/np.sqrt(4*np.pi*0.032*x_theta)
+        b   = 2*theta_turb*np.sqrt(16*0.032*np.log(2)*x_theta)
+        Va_deficit[y_inside] = W0*np.exp(-4*np.log(2)*(abs(VD_temp.ZC[y_inside])/b)**2)
+            
+        Va_deficit[invalid_ids] = 0
+        
+        Vx = Vx_inviscid - np.reshape(Va_deficit, np.shape(Vx_inviscid))
+        Vy = Vy_inviscid
+        Vz = Vz_inviscid
+        
+        #----------------------------------------------------------------------------------------------
         # convert velocities from vehicle to prop frame
         rot_mat2 = self.vehicle_body_to_prop_body()[0]
         VC_p = np.matmul(rot_mat2, np.array([np.ravel(Vx), np.ravel(Vy), np.ravel(Vz)]))
@@ -850,26 +924,13 @@ class Rotor(Energy_Component):
         Vt_p = -rot*(Vy_p*(np.cos(psi_2d)) - Vz_p*(np.sin(psi_2d)) ) 
         Vr_p = -rot*(Vy_p*(np.sin(psi_2d)) + Vz_p*(np.cos(psi_2d)) ) 
         
+        #----------------------------------------------------------------------------------------------
         # append to rotor, shape=(ctrl_pts,Nr,Na)
         self.external_axial_disc_velocity = Va_p[None,:,:]
         self.external_tangential_disc_velocity = Vt_p[None,:,:]
         self.external_radial_disc_velocity = Vr_p[None,:,:]
         self.nonuniform_freestream = True
         
-        # DEBUG PLOT VTK OF POINTS AND VALUES
-        from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
-        points = Data()
-        points.XC = VD_temp.XC
-        points.YC = VD_temp.YC
-        points.ZC = VD_temp.ZC
-        points.induced_velocities = Data()
-        points.induced_velocities.vx = np.ravel(Vx_p)
-        points.induced_velocities.vy = np.ravel(Vy_p)
-        points.induced_velocities.vz = np.ravel(Vz_p)
-        points.induced_velocities.va = np.ravel(Va_p)
-        points.induced_velocities.vt = np.ravel(Vt_p)
-        points.induced_velocities.vr = np.ravel(Vr_p)
-        save_evaluation_points_vtk(points, filename="/Users/rerha/Desktop/TestRotorVDInput/eval_points.vtk")
-        
+
         return
         
