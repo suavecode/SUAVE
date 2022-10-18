@@ -11,7 +11,12 @@ def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
     Inputs:
-       wVD           Vortex distribution of propeller wake          [Unitless]  
+       points        Data structure of points to store information  [Unitless]  
+          .XC
+          .YC
+          .ZC
+          .point_data
+          
        filename      Name of vtk file to save                       [Unitless]  
        Results       Data structure of wing and propeller results   [Unitless]  
        i_prop        ith propeller to evaluate wake of              [Unitless]
@@ -40,13 +45,10 @@ def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
         zp = points.ZC        
     
     try:
-        velocities = points.induced_velocities
-        vt = velocities.vt
-        va = velocities.va
-        vr = velocities.vt*0
+        point_data = points.point_data
         wake=True
     except:
-        print("No velocities specified at evaluation points.")
+        print("No point data specified at evaluation points.")
         wake=False
     
     # Create file
@@ -89,27 +91,16 @@ def save_evaluation_points_vtk(points,filename="eval_pts.vtk",time_step=0):
             
         
         if wake:
-            # Second scalar value
-            f.write("\nSCALARS vt float")
-            f.write("\nLOOKUP_TABLE default")   
-            
-            for i in range(len(xp)):
-                f.write("\n"+str(vt[i]))     
-            
-            # Third scalar value
-            f.write("\nSCALARS va float")
-            f.write("\nLOOKUP_TABLE default")   
-            
-            for i in range(len(xp)):
-                f.write("\n"+str(va[i]))     
-                
-            # Fourth scalar value
-            f.write("\nSCALARS vr float")
-            f.write("\nLOOKUP_TABLE default")   
-            
-            for i in range(len(xp)):
-                f.write("\n"+str(vr[i]))                  
-        
+            # Write each scalar value for all stored in data values
+            for val in point_data.keys():
+                try:
+                    f.write("\nSCALARS "+val+" float")
+                    f.write("\nLOOKUP_TABLE default")   
+                    
+                    for i in range(len(xp)):
+                        f.write("\n"+str(point_data[val][i]))     
+                except:
+                    print("Error processing points.point_data."+val)
                        
     f.close()
         
