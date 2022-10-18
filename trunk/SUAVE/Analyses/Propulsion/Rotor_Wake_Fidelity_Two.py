@@ -70,9 +70,9 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
         
         # wake convergence criteria
-        self.maximum_convergence_iteration            = 10
-        self.axial_velocity_convergence_tolerance     = 1e-2
-        self.influencing_vortex_distribution          = None  # any additional vortex distribution elements influencing wake development (ie. vehicle.vortex_distribution)
+        self.maximum_convergence_iteration          = 10
+        self.axial_velocity_convergence_tolerance   = 1e-2
+        self.external_vortex_distribution           = None  # any additional influencing vortex distribution elements (ie. from VLM)
         
         # flags for slipstream interaction
         self.slipstream                 = False
@@ -153,24 +153,24 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
             self.initialize(rotor,conditions)
         
         # evolve the wake with itself over time, generating a force-free wake
-        self, rotor, interpolatedBoxData = self.evolve_wake_vortex_distribution(rotor,conditions,VD=self.influencing_vortex_distribution)
+        self, rotor, interpolatedBoxData = self.evolve_wake_vortex_distribution(rotor,conditions)
         
         # compute wake-induced velocities
         va, vt = compute_fidelity_one_inflow_velocities(self,rotor)   
             
         return va, vt, rotor
     
-    def evolve_wake_vortex_distribution(self,rotor,conditions,VD=None):
+    def evolve_wake_vortex_distribution(self,rotor,conditions):
         """
         Time-evolves the wake under its own wake distribution (self.vortex_distribution) and any external
-        vortex distribution (VD).
+        vortex distribution (self.external_vortex_distribution).
         
         """
         diff = 10
         tol = 1e-3       # converged when delta in wake geoemtry is less than 1mm 
         iteration = 0
         max_iter = 1#10    # max number of iterations for wake convergence
-
+        
         #print("\n\nQUASI FREE VORTEX WAKE SINGLE PASS:\n")  
         print("\n\nQUASI FREE VORTEX WAKE CONVERGENCE:\n")        
         while diff >= tol and iteration <= max_iter:
@@ -185,7 +185,7 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
             prior_VD = copy.deepcopy(self.vortex_distribution)
             
             # Update the position of each vortex filament due to component interactions
-            self, rotor, interpolatedBoxData = update_wake_position(self,rotor,conditions,VD)
+            self, rotor, interpolatedBoxData = update_wake_position(self,rotor,conditions)
             #self, rotor, interpolatedBoxData = update_wake_position2(self,rotor,conditions,VD)
             
             # Compute residual between wake shapes
