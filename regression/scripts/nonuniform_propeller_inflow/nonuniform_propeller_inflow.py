@@ -93,9 +93,9 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
     vt = (1+psi_2d) * 2.0
     vr = (1+psi_2d) * 0.9
 
-    prop.tangential_velocities_2d = vt
-    prop.axial_velocities_2d      = va
-    prop.radial_velocities_2d     = vr
+    prop.external_tangential_disc_velocity = vt
+    prop.external_axial_disc_velocity      = va
+    prop.external_radial_disc_velocity     = vr
 
     # spin propeller in nonuniform flow
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
