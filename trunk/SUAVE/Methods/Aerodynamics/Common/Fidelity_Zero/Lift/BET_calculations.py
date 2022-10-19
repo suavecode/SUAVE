@@ -6,11 +6,11 @@
 
 import numpy as np
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoil_data,ctrl_pts,Nr,Na,tc,use_2d_analysis):
     """
     Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
                                               Wa,Wt,a,nu,
-                                              a_loc,a_geo,cl_sur,cd_sur,
+                                              a_loc,a_names,a_pol
                                               ctrl_pts,Nr,Na,tc,use_2d_analysis )
 
     Computes the aerodynamic forces at sectional blade locations. If airfoil
@@ -37,11 +37,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
        Wt                         tangential velocity                             [-]
        a                          speed of sound                                  [-]
        nu                         viscosity                                       [-]
-
-       a_loc                      Locations of specified airfoils                 [-]
-       a_geo                      Geometry of specified airfoil                   [-]
-       cl_sur                     Lift Coefficient Surrogates                     [-]
-       cd_sur                     Drag Coefficient Surrogates                     [-]
+       airfoil_data               Data structure of airfoil polar information     [-]
        ctrl_pts                   Number of control points                        [-]
        Nr                         Number of radial blade sections                 [-]
        Na                         Number of azimuthal blade stations              [-]
@@ -54,6 +50,10 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
        alpha                    section local angle of attack             [rad]
 
     """
+    
+    a_loc    = airfoil_data.polar_stations
+    a_names  = airfoil_data.geometry_files
+    a_pol    = airfoil_data.polars
 
     alpha    = beta - np.arctan2(Wa,Wt)
     W        = (Wa*Wa + Wt*Wt)**0.5
@@ -62,6 +62,9 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
 
     # If propeller airfoils are defined, use airfoil surrogate
     if a_loc != None:
+        cl_sur  = a_pol.lift_coefficient_surrogates
+        cd_sur  = a_pol.drag_coefficient_surrogates
+
         # Compute blade Cl and Cd distribution from the airfoil data
         dim_sur = len(cl_sur)
         if use_2d_analysis:
@@ -69,8 +72,8 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
             Cl      = np.zeros((ctrl_pts,Nr,Na))
             Cdval   = np.zeros((ctrl_pts,Nr,Na))
             for jj in range(dim_sur):
-                Cl_af           = cl_sur[a_geo[jj]]((Re,alpha))
-                Cdval_af        = cd_sur[a_geo[jj]]((Re,alpha))
+                Cl_af           = cl_sur[a_names[jj]]((Re,alpha))
+                Cdval_af        = cd_sur[a_names[jj]]((Re,alpha))
                 locs            = np.where(np.array(a_loc) == jj )
                 Cl[:,locs,:]    = Cl_af[:,locs,:]
                 Cdval[:,locs,:] = Cdval_af[:,locs,:]
@@ -80,8 +83,8 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
             Cdval   = np.zeros((ctrl_pts,Nr))
 
             for jj in range(dim_sur):
-                Cl_af         = cl_sur[a_geo[jj]]((Re,alpha))
-                Cdval_af      = cd_sur[a_geo[jj]]((Re,alpha))
+                Cl_af         = cl_sur[a_names[jj]]((Re,alpha))
+                Cdval_af      = cd_sur[a_names[jj]]((Re,alpha))
                 locs          = np.where(np.array(a_loc) == jj )
                 Cl[:,locs]    = Cl_af[:,locs]
                 Cdval[:,locs] = Cdval_af[:,locs]

@@ -8,8 +8,10 @@
 import SUAVE
 from SUAVE.Core import Data, Units
 import numpy as np
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import (
-    compute_airfoil_polars,
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+     import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties import (
+    compute_airfoil_properties,
 )
 import os
 
@@ -94,48 +96,24 @@ def propeller_geometry():
         ]
     )
 
-    prop.pitch_command       = 0.0* Units.deg
-    prop.twist_distribution  = beta * Units.deg
-    prop.chord_distribution  = c_R * prop.tip_radius
-    prop.radius_distribution = r_R * prop.tip_radius
-    prop.max_thickness_distribution = 0.12
-    
-    prop.number_azimuthal_stations = 24
-    prop.number_radial_stations    = len(r_R)
-    
-    # Distance from mid chord to the line axis out of the center of the blade - In this case the 1/4 chords are all aligned 
-    MCA = prop.chord_distribution/4. - prop.chord_distribution[0]/4.  
-    prop.mid_chord_alignment = MCA
-    
-    airfoils_path = os.path.join(os.path.dirname(__file__), "../Airfoils/")
-    polars_path = os.path.join(os.path.dirname(__file__), "../Airfoils/Polars/")
-    prop.airfoil_geometry = [airfoils_path + "Clark_y.txt"]
-    prop.airfoil_polars = [
-        [   polars_path + "Clark_y_polar_Re_50000.txt",
-            polars_path + "Clark_y_polar_Re_100000.txt",
-            polars_path + "Clark_y_polar_Re_200000.txt",
-            polars_path + "Clark_y_polar_Re_500000.txt",
-            polars_path + "Clark_y_polar_Re_1000000.txt",
-        ],
-    ]
-    
-    prop.airfoil_polar_stations = np.zeros(len(r_R))
-    prop.airfoil_polar_stations = list(prop.airfoil_polar_stations.astype(int))
-
-    airfoil_polars  = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)
-    airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates
-    airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates
-    
-    prop.airfoil_cl_surrogates = airfoil_cl_surs
-    prop.airfoil_cd_surrogates = airfoil_cd_surs
-    
-
-    results = Data()
-    results.lift_coefficient_surrogates  = airfoil_polars.lift_coefficient_surrogates  
-    results.drag_coefficient_surrogates  = airfoil_polars.drag_coefficient_surrogates 
-    results.cl_airfoiltools  = airfoil_polars.lift_coefficients_from_polar
-    results.cd_airfoiltools  = airfoil_polars.drag_coefficients_from_polar  
-    results.re_airfoiltools  = airfoil_polars.re_from_polar 
-    results.aoa_airfoiltools = airfoil_polars.aoa_from_polar
-    
+    prop.pitch_command               = 0.0* Units.deg
+    prop.twist_distribution          = beta * Units.deg
+    prop.chord_distribution          = c_R * prop.tip_radius
+    prop.radius_distribution         = r_R * prop.tip_radius
+    prop.max_thickness_distribution  = 0.12 
+    prop.number_azimuthal_stations   = 24
+    prop.number_radial_stations      = len(r_R)  
+    prop.mid_chord_alignment         = prop.chord_distribution/4. - prop.chord_distribution[0]/4.  
+    airfoils_path                    = os.path.join(os.path.dirname(__file__), "../Airfoils/")
+    polars_path                      = os.path.join(os.path.dirname(__file__), "../Airfoils/Polars/")
+    airfoil_data                     = prop.airfoil_data
+    airfoil_data.geometry_files      = [airfoils_path + "Clark_y.txt"]
+    airfoil_data.polar_files         = [[   polars_path + "Clark_y_polar_Re_50000.txt",
+                                          polars_path + "Clark_y_polar_Re_100000.txt",
+                                          polars_path + "Clark_y_polar_Re_200000.txt",
+                                          polars_path + "Clark_y_polar_Re_500000.txt",
+                                          polars_path + "Clark_y_polar_Re_1000000.txt",]]
+    airfoil_data.polar_stations      = list(np.zeros(len(r_R)).astype(int))
+    airfoil_data.geometry            = import_airfoil_geometry( airfoil_data.geometry_files)
+    airfoil_data.polars              = compute_airfoil_properties(airfoil_data.geometry,airfoil_data.polar_files)
     return prop

@@ -5,10 +5,12 @@
 #           Sep 2020, M. Clarke 
 
 from SUAVE.Core import Data  
+import math 
 import numpy as np
 
+
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_naca_4series(camber,camber_loc,thickness,npoints=100):
+def compute_naca_4series(airfoil_geometry_files,npoints= 200):
     """Computes the points of NACA 4-series airfoil
 
     Assumptions:
@@ -18,146 +20,82 @@ def compute_naca_4series(camber,camber_loc,thickness,npoints=100):
     None
 
     Inputs:
-    camber      [-] Maximum camber as a fraction of chord
-    camber_loc  [-] Maximum camber location as a fraction of chord
-    thickness   [-] Maximum thickness as a fraction of chord
-    npoints     [-] Total number of points
+        airfoils              <string>
 
     Outputs:
     airfoil_data.
-        thickness_to_chord 
-        x_coordinates 
-        y_coordinates
-        x_upper_surface
-        x_lower_surface
-        y_upper_surface
-        y_lower_surface
-        camber_coordinates  
+        thickness_to_chord    [unitless]
+        x_coordinates         [meters]
+        y_coordinates         [meters]
+        x_upper_surface       [meters]
+        x_lower_surface       [meters]
+        y_upper_surface       [meters]
+        y_lower_surface       [meters]
+        camber_coordinates    [meters] 
 
     Properties Used:
     N/A
-    """        
+    """         
     
-    airfoil_data                    = Data()
-    airfoil_data.x_coordinates      = []
-    airfoil_data.y_coordinates      = []
-    airfoil_data.thickness_to_chord = []
-    airfoil_data.camber_coordinates = []
-    airfoil_data.x_upper_surface    = []
-    airfoil_data.x_lower_surface    = []
-    airfoil_data.y_upper_surface    = []
-    airfoil_data.y_lower_surface    = []
+    num_airfoils                = len(airfoil_geometry_files)  
+    half_npoints                = math.floor(npoints/2)      # number of points per side   
     
-    half_pnts = int(npoints/2)
-    
-    upper = []
-    lower = []
-    
-    for i in range(1,half_pnts):
-        x = float(i) / float(half_pnts);
-        x = x*np.sqrt(x)
-        
-        # lines
-        zt,zc,th = compute_naca_4series_lines(x,camber,camber_loc,thickness)
-        
-        # upper surface
-        xu = x  - zt*np.sin(th)
-        zu = zc + zt*np.cos(th)
-        upper.append([xu,zu])
-        
-        # lower surface
-        xl = x  + zt*np.sin(th)
-        zl = zc - zt*np.cos(th)
-        lower.append([xl,zl])
-    
-    upper = [[0.0,0.0]] + upper + [[1.0,0.0]]
-    lower = [[0.0,0.0]] + lower + [[1.0,0.0]]
-    
-    upper = np.array(upper)
-    lower = np.array(lower) 
-    
-    x_up_surf = upper[:,0]
-    x_lo_surf = lower[:,0]
-    y_up_surf = upper[:,1]
-    y_lo_surf = lower[:,1]  
+    geometry                    = Data()  
+    geometry.airfoil_names      = airfoil_geometry_files         
+    geometry.x_coordinates      = np.zeros((num_airfoils,npoints+ (npoints%2 == 0)))
+    geometry.y_coordinates      = np.zeros((num_airfoils,npoints+ (npoints%2 == 0)))
+    geometry.thickness_to_chord = np.zeros((num_airfoils,1))
+    geometry.max_thickness      = np.zeros((num_airfoils,1))
+    geometry.camber_coordinates = np.zeros((num_airfoils,half_npoints+1))
+    geometry.x_upper_surface    = np.zeros((num_airfoils,half_npoints+1))
+    geometry.x_lower_surface    = np.zeros((num_airfoils,half_npoints+1))
+    geometry.y_upper_surface    = np.zeros((num_airfoils,half_npoints+1))
+    geometry.y_lower_surface    = np.zeros((num_airfoils,half_npoints+1)) 
      
-    # compute thickness, camber and concatenate coodinates 
-    thickness     = y_up_surf - y_lo_surf 
-    camber        = y_lo_surf + thickness/2 
-    x_data        = np.concatenate([x_up_surf[::-1],x_lo_surf])
-    y_data        = np.concatenate([y_up_surf[::-1],y_lo_surf])  
+    for i in range(num_airfoils): 
+        airfoil_digits  = [int(x) for x in airfoil_geometry_files[i]] 
+        camber          = airfoil_digits[0]/100 #   Maximum camber as a fraction of chord
+        camber_loc      = airfoil_digits[1]/10  #   Maximum camber location as a fraction of chord
+        thickness       = airfoil_digits[2]/10 + airfoil_digits[3]/100 #   Maximum thickness as a fraction of chord  
+     
+        te = 1.5                                    # points per side and trailing-edge bunching factor
+        f  = np.linspace(0,1,half_npoints+1)        # linearly-spaced points between 0 and 1
+        x  = 1 - (te+1)*f*(1-f)**te - (1-f)**(te+1) # bunched points, x, 0 to 1
     
-    airfoil_data.thickness_to_chord.append(np.max(thickness))    
-    airfoil_data.x_coordinates.append(x_data)  
-    airfoil_data.y_coordinates.append(y_data)     
-    airfoil_data.x_upper_surface.append(x_up_surf)
-    airfoil_data.x_lower_surface.append(x_lo_surf)
-    airfoil_data.y_upper_surface.append(y_up_surf)
-    airfoil_data.y_lower_surface.append(y_lo_surf)          
-    airfoil_data.camber_coordinates.append(camber)      
-    
-    return airfoil_data
-
-
-## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_naca_4series_lines(x,camber,camber_loc,thickness):
-    """Computes the camber, thickness, and the angle of the camber line
-    at a given point along the airfoil.
-
-    Assumptions:
-    None
-
-    Source:
-    Similar to http://airfoiltools.com/airfoil/naca4digit
-
-    Inputs:
-    camber      [-]       Maximum camber as a fraction of chord
-    camber_loc  [-]       Maximum camber location as a fraction of chord
-    thickness   [-]       Maximum thickness as a fraction of chord
-
-    Outputs:
-    zt          [-]       Thickness
-    zc          [-]       Camber
-    th          [radians] Angle of the camber line
-
-    Properties Used:
-    N/A
-    """          
-
-    xx = x*x
-
-    # thickness
-    zt = thickness/0.2 * (  0.2969*np.sqrt(x) 
-                          - 0.1260*(x)
-                          - 0.3516*(xx) 
-                          + 0.2843*(x*xx) 
-                          - 0.1015*(xx*xx)  )
-    
-    # symmetric
-    if ( camber<=0.0 or camber_loc<=0.0 or camber_loc>=1.0 ):
-        zc = 0.0
-        th = 0.0
-
-    else:
+        # normalized thickness, gap at trailing edge (use -.1036*x^4 for no gap)
+        t    = .2969*np.sqrt(x) - 0.126*x - 0.3516*(x**2) + 0.2843*(x**3) - 0.1015*(x**4)
+        t    = t*thickness/.2
+        m    = camber
+        p    = camber_loc
+        c    = m/(1-p)**2 * ((1-2*p)+2*p*x-x**2)
         
-        # camber
-        if x < camber_loc:
-            zc = (camber/(camber_loc*camber_loc)) * \
-                 (2.0*camber_loc*x - xx)
+        if m == 0 and p == 0:
+            pass
         else:
-            zc = (camber/((1.0 - camber_loc)*(1.0 - camber_loc))) * \
-                 (1.0 - 2.0*camber_loc + 2.0*camber_loc*x - xx)
+            I    = np.where(x<p)[0]  
+            c[I] = m/p**2*(2*p*x[I]-x[I]**2) 
         
-        # finite difference theta
-        xo = x + 0.00001;
-        xoxo = xo*xo;        
-        if xo < camber_loc:
-            zo = (camber/(camber_loc*camber_loc)) * \
-                 (2.0*camber_loc*xo - xoxo)
-        else:
-            zo = (camber/((1.0 - camber_loc)*(1.0 - camber_loc))) * \
-                 (1.0 - 2.0*camber_loc + 2.0*camber_loc*xo - xoxo)
-            
-        th = np.arctan( (zo - zc)/0.00001 )
+        x_up_surf = x[1:]
+        y_up_surf = (c + t)[1:]
+        x_lo_surf = np.flip(x)
+        y_lo_surf = np.flip(c - t)
+       
+        # concatenate upper and lower surfaces  
+        x_data    = np.hstack((x_lo_surf ,x_up_surf))
+        y_data    = np.hstack((y_lo_surf, y_up_surf))  
+
+        max_t  = np.max(thickness)
+        max_c  = max(x_data) - min(x_data)
+        t_c    = max_t/max_c         
         
-    return zt,zc,th
+        geometry.max_thickness[i]      = max_t 
+        geometry.x_coordinates[i]      = x_data   
+        geometry.y_coordinates[i]      = y_data      
+        geometry.x_upper_surface[i]    = x 
+        geometry.x_lower_surface[i]    = x 
+        geometry.y_upper_surface[i]    = np.append(0,y_up_surf) 
+        geometry.y_lower_surface[i]    = y_lo_surf[::-1]           
+        geometry.camber_coordinates[i] = camber         
+        geometry.thickness_to_chord[i] = t_c 
+    
+    return geometry

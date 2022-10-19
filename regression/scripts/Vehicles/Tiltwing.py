@@ -267,16 +267,16 @@ def vehicle_setup():
     prop.angular_velocity         = prop.design_tip_mach*speed_of_sound/prop.tip_radius
     prop.design_Cl                = 0.7
     prop.design_altitude          = 500 * Units.feet
-    Hover_Load                   = vehicle.mass_properties.takeoff*9.81
+    Hover_Load                    = vehicle.mass_properties.takeoff*9.81
     prop.design_thrust            = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
-
-    prop.airfoil_geometry         =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    prop.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    airfoil_data                  = prop.airfoil_data
+    airfoil_data.geometry_files   =  ['../Vehicles/Airfoils/NACA_4412.txt']
+    airfoil_data.polar_files      = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-    prop.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    airfoil_data.polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     prop                          = propeller_design(prop)
     prop.rotation                 = 1
 

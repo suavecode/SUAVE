@@ -383,9 +383,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
 
         # Get airfoil section VD  
         if span_breaks[i_break].Airfoil: 
-            airfoil_data = import_airfoil_geometry([span_breaks[i_break].Airfoil.airfoil.coordinate_file])    
-            break_camber_zs.append(airfoil_data.camber_coordinates[0])
-            break_camber_xs.append(airfoil_data.x_lower_surface[0]) 
+            airfoil_geo_data = import_airfoil_geometry([span_breaks[i_break].Airfoil.airfoil.coordinate_file]) 
+            break_camber_zs.append(airfoil_geo_data.camber_coordinates[0])
+            break_camber_xs.append(airfoil_geo_data.x_lower_surface[0]) 
         else:
             break_camber_zs.append(np.zeros(30))              
             break_camber_xs.append(np.linspace(0,1,30)) 
