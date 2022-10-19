@@ -30,7 +30,7 @@ import time
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
 def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',
-                      solver_sense_step = 1E-5,solver_tolerance = 1E-4,print_iterations = False):  
+                      solver_sense_step = 1E-4,solver_tolerance = 1E-3,print_iterations = False):   
     """ Optimizes rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
@@ -72,14 +72,14 @@ def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',
     chi0          = Rh/R  
     chi           = np.linspace(chi0,1,N+1)  
     chi           = chi[0:N] 
-    airfoil_data = rotor.airfoil_data
-    a_geo_files  = airfoil_data.geometry_files
-    a_pol_files  = airfoil_data.polar_files
-    a_geo        = airfoil_data.geometry
-    a_pol        = airfoil_data.polars
-    n_points     = airfoil_data.number_of_points
-    naca_4series = airfoil_data.NACA_4_series
-    a_loc        = airfoil_data.polar_stations     
+    airfoil_data  = rotor.airfoil_data
+    a_geo_files   = airfoil_data.geometry_files
+    a_pol_files   = airfoil_data.polar_files
+    a_geo         = airfoil_data.geometry
+    a_pol         = airfoil_data.polars
+    n_points      = airfoil_data.number_of_points
+    naca_4series  = airfoil_data.NACA_4_series
+    a_loc         = airfoil_data.polar_stations     
     
     # determine target values 
     if (design_thrust == None) and (design_power== None):
@@ -88,7 +88,6 @@ def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',
         raise AssertionError('Specify either design thrust or design power!') 
     if rotor.rotation == None:
         rotor.rotation = list(np.ones(int(B)))  
-  
 
     # if user defines airfoil, check dimension of stations
     if a_geo_files != None :
@@ -112,12 +111,10 @@ def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',
             a_pol               = compute_airfoil_properties(a_geo, airfoil_polar_files=a_pol_files)
             airfoil_data.polars = a_pol  
             
-            
     # append additional rotor properties for optimization  
     rotor.number_of_blades                 = int(B)  
     rotor.thickness_to_chord               = np.take(a_geo.thickness_to_chord,a_loc,axis=0)[:,0]
-    rotor.radius_distribution              = chi*R 
-    rotor.airfoil_flag                     = True       
+    rotor.radius_distribution              = chi*R      
     
     # assign intial conditions for twist and chord distribution functions
     rotor.chord_r                          = 0.1*R     
