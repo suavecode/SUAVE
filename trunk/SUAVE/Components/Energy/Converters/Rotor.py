@@ -83,16 +83,8 @@ class Rotor(Energy_Component):
         self.profile_drag_coefficient          = .03
         self.sol_tolerance                     = 1e-8
         self.design_power_coefficient          = 0.01
-
-        airfoil_data                           = Data()
-        airfoil_data.NACA_4_series             = False
-        airfoil_data.geometry_files            = None
-        airfoil_data.geometry                  = None
-        airfoil_data.polar_files               = None
-        airfoil_data.polars                    = None
-        airfoil_data.polar_stations            = None
-        airfoil_data.number_of_points          = 200
-        self.airfoil_data                      = airfoil_data
+        
+        self.Airfoil                           = Data() 
 
         self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream             = False
@@ -110,6 +102,35 @@ class Rotor(Energy_Component):
         self.Wake                         = Rotor_Wake_Fidelity_Zero()
         
 
+    
+    def append_airfoil(self,airfoil):
+        """ Adds an airfoil to the segment 
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
+
+        # Assert database type
+        if not isinstance(airfoil,Data):
+            raise Exception('input component must be of type Data()')
+
+        # Store data
+        self.Airfoil.append(airfoil)
+
+        return    
+    
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
 

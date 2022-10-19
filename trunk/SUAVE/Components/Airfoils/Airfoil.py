@@ -41,6 +41,9 @@ class Airfoil(Lofted_Body.Section):
         self.tag                   = 'Airfoil'
         self.thickness_to_chord    = 0.0
         self.naca_4_series_airfoil = None    # string of 4 digits defining NACA 4 series airfoil"
-        self.coordinate_file       = None    # absolute path
-        self.points                = []
+        self.coordinate_file       = None    # absolute path  
+        self.geometry              = None
+        self.polar_files           = None
+        self.polars                = None 
+        self.number_of_points      = 200
        
