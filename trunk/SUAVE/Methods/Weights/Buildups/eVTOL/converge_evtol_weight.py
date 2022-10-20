@@ -60,6 +60,10 @@ def converge_evtol_weight(vehicle,
     
     while(abs(diff)>1):
         vehicle.mass_properties.max_takeoff = vehicle.mass_properties.max_takeoff - diff*1E-1
+        
+        # Note that 'diff' will be negative if buildup mass is larger than MTOW, so subtractive
+        # iteration always moves MTOW toward buildup mass
+        
         breakdown      = empty(vehicle,contingency_factor,
                            speed_of_sound,max_tip_mach,disk_area_factor,
                            safety_factor,max_thrust_to_weight_ratio,
