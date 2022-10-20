@@ -62,7 +62,7 @@ def empty(config,
             max_g_load                  Maximum g-forces load for certification        [UNitless]
             motor_efficiency:           Motor Efficiency                               [Unitless]
 
-        Outpus: 
+        Outputs: 
             outputs:                    Data Dictionary of Component Masses [kg]
 
         Output data dictionary has the following book-keeping hierarchical structure:
