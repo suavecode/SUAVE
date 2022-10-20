@@ -39,20 +39,25 @@ import time
 
 def main():
     # fidelity zero wakes
+    print('Wake Fidelity Zero, Identical Props')    
     t0=time.time()
     Propeller_Slipstream(wake_fidelity=0,identical_props=True)
     print((time.time()-t0)/60)
     
     # fidelity one wakes
+    print('Wake Fidelity One, Identical Props')  
     t0=time.time()
     Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
     print((time.time()-t0)/60)
     
+
+    print('Wake Fidelity One, Non-Identical Props')      
     t0=time.time()
     Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
     print((time.time()-t0)/60)
     
     # include slipstream
+    print('Wake Fidelity Zero, Slipstream Included')  
     Lift_Rotor_Slipstream(wake_fidelity=0)
     
     return
@@ -71,9 +76,9 @@ def Propeller_Slipstream(wake_fidelity,identical_props):
     results = mission.evaluate()
     
     # check regression values
-    if wake_fidelity==0:
+    if wake_fidelity==0: 
         regress_1a(results,configs)
-    elif wake_fidelity==1:
+    elif wake_fidelity==1: 
         regress_1b(results, configs)
     
     return
@@ -136,7 +141,7 @@ def regress_1b(results, configs):
     print(diff_Cl)
     
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
-    assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
+    assert np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
@@ -210,16 +215,19 @@ def regress_2(results):
 
     CL_truth  = 0.4162917318270923
     CDi_truth = 0.005919040884735004
-    CM_truth  = 0.06942369982225714
+    CM_truth  = 0.06942369982225714 
+
+    error     = Data()
+    error.CL  = np.abs(CL_truth  - results.CL) 
+    error.CDi = np.abs(CDi_truth - results.CDi)
+    error.CM  = np.abs(CM_truth  - results.CM) 
     
-    CL  = results.CL
-    CDi = results.CDi
-    CM  = results.CM
-    
-    assert(np.abs(CL_truth  - CL)  < 1e-6)
-    assert(np.abs(CDi_truth - CDi) < 1e-6)
-    assert(np.abs(CM_truth  - CM)  < 1e-6)
-    
+    print('Errors:')
+    print(error)
+
+    for k,v in list(error.items()):
+        assert(np.abs(v)<1e-6)  
+ 
     return
 
 def plot_mission(results,vehicle):

@@ -60,17 +60,17 @@ def main():
 
 
     # Truth values
-    departure_throttle_truth          = np.array([0.65074399, 0.65097221, 0.65144398, 0.65168755]) 
-    transition_1_throttle_truth       = np.array([0.65655828, 0.65159936, 0.53589901, 0.6013998 ]) 
-    cruise_throttle_truth             = np.array([0.46357386, 0.46391154, 0.46458865, 0.46492807]) 
-    transition_y_axis_rotations_truth = np.array([1.34042448, 1.3130777 , 1.05489631, 0.05264738])
+    departure_throttle_truth          = 0.6507439909208339
+    transition_1_throttle_truth       = 0.6565582764889386
+    cruise_throttle_truth             = 0.46357385701137277
+    transition_y_axis_rotations_truth = 1.3404244823557492
 
     # Store errors 
     error = Data()
-    error.departure_throttle          = np.max(np.abs(departure_throttle - departure_throttle_truth))  
-    error.transition_1_throttle       = np.max(np.abs(transition_1_throttle - transition_1_throttle_truth))   
-    error.cruise_throttle             = np.max(np.abs(cruise_throttle - cruise_throttle_truth))   
-    error.transition_y_axis_rotations = np.max(np.abs(transition_y_axis_rotations - transition_y_axis_rotations_truth))   
+    error.departure_throttle          = np.abs(departure_throttle[0] - departure_throttle_truth)
+    error.transition_1_throttle       = np.abs(transition_1_throttle[0] - transition_1_throttle_truth)   
+    error.cruise_throttle             = np.abs(cruise_throttle[0] - cruise_throttle_truth)
+    error.transition_y_axis_rotations = np.abs(transition_y_axis_rotations[0] - transition_y_axis_rotations_truth)   
 
     print('Errors:')
     print(error)
