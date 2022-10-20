@@ -84,7 +84,8 @@ class Rotor(Energy_Component):
         self.sol_tolerance                     = 1e-8
         self.design_power_coefficient          = 0.01
         
-        self.Airfoil                           = Data() 
+        self.airfoils                          = Data() 
+        self.airfoil_locations                  = None
 
         self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream             = False
@@ -127,7 +128,7 @@ class Rotor(Energy_Component):
             raise Exception('input component must be of type Data()')
 
         # Store data
-        self.Airfoil.append(airfoil)
+        self.airfoils.append(airfoil)
 
         return    
     
@@ -200,16 +201,16 @@ class Rotor(Energy_Component):
         """
 
         # Unpack rotor blade parameters
-        B       = self.number_of_blades
-        R       = self.tip_radius
-        beta_0  = self.twist_distribution
-        c       = self.chord_distribution
-        sweep   = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
-        r_1d    = self.radius_distribution
-        tc      = self.thickness_to_chord
-
-        # Unpack rotor airfoil data
-        airfoil_data = self.airfoil_data 
+        B        = self.number_of_blades
+        R        = self.tip_radius
+        beta_0   = self.twist_distribution
+        c        = self.chord_distribution
+        sweep    = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
+        r_1d     = self.radius_distribution
+        tc       = self.thickness_to_chord
+        a_loc    = self.airfoil_locations
+        airfoils = self.airfoils
+ 
 
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega
@@ -400,7 +401,7 @@ class Rotor(Energy_Component):
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
-        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoil_data,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         
         # compute HFW circulation at the blade

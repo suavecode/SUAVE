@@ -23,7 +23,7 @@ def main():
     # Using NACA 2410
     # ------------------------------------------------------------------ 
     npoints      = 11
-    airfoil_data = compute_naca_4series(['2410'],npoints) 
+    airfoil_data = compute_naca_4series('2410',npoints) 
     
     truth_upper_x  = np.array([0.  , 0.06979572, 0.2563872 , 0.5193338 , 0.80322602,       1.        ])
     truth_lower_x  = np.array([0.  , 0.06979572, 0.2563872 , 0.5193338 , 0.80322602,       1.        ])

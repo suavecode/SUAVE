@@ -244,16 +244,16 @@ def vehicle_setup():
     prop.design_Cl               = 0.8
     prop.design_altitude         = 12000. * Units.feet
     prop.design_power            = .64 * 180. * Units.horsepower
-    prop.variable_pitch          = True
-    airfoil_data                 = prop.airfoil_data
-    airfoil_data.geometry_files  =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    airfoil_data.polar_files     = [['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-
-    airfoil_data.polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    prop.variable_pitch          = True 
+    airfoil                      = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file      = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files          = ['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    prop.append_airfoil(airfoil) 
+    prop.airfoil_locations       = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
     prop                         = propeller_design(prop)   
     
     net.propellers.append(prop)

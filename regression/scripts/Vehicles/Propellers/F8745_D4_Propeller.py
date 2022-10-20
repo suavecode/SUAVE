@@ -29,7 +29,7 @@ def F8745_D4_Propeller():
   
     num_sec = 30          
     new_radius_distribution         = np.linspace(0.2,0.98 ,num_sec)
-    func_twist_distribution         = interp1d(r_R_data, (beta_data)* Units.degrees   , kind='cubic')
+    func_twist_distribution         = interp1d(r_R_data, (beta_data)* Units.degrees , kind='cubic')
     func_chord_distribution         = interp1d(r_R_data, b_R_data * prop.tip_radius , kind='cubic')
     func_radius_distribution        = interp1d(r_R_data, r_R_data * prop.tip_radius , kind='cubic')
     func_max_thickness_distribution = interp1d(r_R_data, t_c_data * b_R_data , kind='cubic')  
@@ -38,21 +38,21 @@ def F8745_D4_Propeller():
     prop.chord_distribution         = func_chord_distribution(new_radius_distribution)         
     prop.radius_distribution        = func_radius_distribution(new_radius_distribution)        
     prop.max_thickness_distribution = func_max_thickness_distribution(new_radius_distribution) 
-    prop.thickness_to_chord         = prop.max_thickness_distribution/prop.chord_distribution   
-    airfoil_data                    = prop.airfoil_data 
+    prop.thickness_to_chord         = prop.max_thickness_distribution/prop.chord_distribution 
     ospath    = os.path.abspath(__file__)
     separator = os.path.sep
-    rel_path  = os.path.dirname(ospath) + separator 
-    airfoil_data.geometry_files     =  [ rel_path +'../Airfoils/Clark_y.txt']
-    airfoil_data.polar_files        =  [[rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt' ,
-                                         rel_path +'../Airfoils/Polars/Clark_y_polar_Re_100000.txt',
-                                         rel_path +'../Airfoils/Polars/Clark_y_polar_Re_200000.txt',
-                                         rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',
-                                         rel_path +'../Airfoils/Polars/Clark_y_polar_Re_1000000.txt']]
-    airfoil_data.polar_stations     = list(np.zeros(num_sec).astype(int))
-    airfoil_data.geometry           = import_airfoil_geometry(airfoil_data.geometry_files) 
-    airfoil_data.airfoil_flag       = True  
-    airfoil_data.polars             = compute_airfoil_properties(airfoil_data.geometry, airfoil_data.polar_files)  
-    prop.mid_chord_alignment         = np.zeros_like(prop.chord_distribution) 
+    rel_path  = os.path.dirname(ospath) + separator  
+    airfoil                          = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file          = rel_path +'../Airfoils/Clark_y.txt'
+    airfoil.polar_files              = [rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt' ,
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_100000.txt',
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_200000.txt',
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_1000000.txt']
+    airfoil.geometry                 = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points)
+    airfoil.polars                   = compute_airfoil_properties(airfoil.geometry,airfoil.polar_files)
+    prop.append_airfoil(airfoil) 
+    prop.airfoil_locations           = list(np.zeros(num_sec).astype(int))  
+    prop.mid_chord_alignment         = np.zeros_like(prop.chord_distribution)  
         
     return prop

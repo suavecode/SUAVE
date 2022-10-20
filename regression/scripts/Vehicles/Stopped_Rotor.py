@@ -582,16 +582,17 @@ def vehicle_setup():
     propeller.design_Cl              = 0.7
     propeller.design_altitude        = 1000 * Units.feet
     propeller.design_thrust          = (Drag*2.5)/net.number_of_propeller_engines
-    propeller.variable_pitch         = True
-    airfoil_data                     = propeller.airfoil_data
-    airfoil_data.geometry_files      =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    airfoil_data.polar_files         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-    airfoil_data.polar_stations      = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    propeller                        = propeller_design(propeller)
+    propeller.variable_pitch         = True  
+    airfoil                          = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file          = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files              = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    propeller.append_airfoil(airfoil)  
+    propeller.airfoil_locations      = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    propeller                        = propeller_design(propeller) 
     propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
     net.propellers.append(propeller)
 
@@ -607,18 +608,17 @@ def vehicle_setup():
     lift_rotor.design_Cl                  = 0.7
     lift_rotor.design_altitude            = 20 * Units.feet
     lift_rotor.design_thrust              = Hover_Load/(net.number_of_lift_rotor_engines-1) # contingency for one-engine-inoperative condition
-    lift_rotor.variable_pitch             = True
-
-    lr_airfoil_data                       = lift_rotor.airfoil_data
-    lr_airfoil_data.geometry_files        =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    lr_airfoil_data.polar_files           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-
-    lr_airfoil_data.polar_stations       = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    lift_rotor                            = propeller_design(lift_rotor)
+    lift_rotor.variable_pitch             = True  
+    airfoil                               = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file               = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files                   = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    lift_rotor.append_airfoil(airfoil)    
+    lift_rotor.airfoil_locations          = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    lift_rotor                            = propeller_design(lift_rotor)  
 
     # Appending rotors with different origins
     rotations = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]

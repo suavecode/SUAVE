@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
+from SUAVE.Core import Data
 from SUAVE.Components import Lofted_Body
 
 # ------------------------------------------------------------
@@ -38,12 +38,11 @@ class Airfoil(Lofted_Body.Section):
         N/A
         """         
         
-        self.tag                   = 'Airfoil'
-        self.thickness_to_chord    = 0.0
-        self.naca_4_series_airfoil = None    # string of 4 digits defining NACA 4 series airfoil"
-        self.coordinate_file       = None    # absolute path  
-        self.geometry              = None
-        self.polar_files           = None
-        self.polars                = None 
-        self.number_of_points      = 200
+        self.tag                        = 'Airfoil' 
+        self.coordinate_file            = None    # absolute path  
+        self.NACA_4_series_flag         = False   # Flag for NACA 4 series airfoil
+        self.geometry                   = None
+        self.polar_files                = None
+        self.polars                     = None
+        self.number_of_points           = 200
        

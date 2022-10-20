@@ -22,8 +22,7 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
-                     initial_momentum_thickness=1E-5,tolerance = 1E0):
+def airfoil_analysis(airfoil_geometry,alpha,Re_L,initial_momentum_thickness=1E-5,tolerance = 1E0):
     """This computes the aerodynamic polars as well as the boundary layer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
 
@@ -78,18 +77,17 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,airfoil_stations = [0],
     
     nalpha       = len(alpha[0,:])
     nRe          = len(Re_L[0,:]) 
-    nRe_cpts     = len(Re_L) 
-    nairfoil     = len(airfoil_stations)  
+    nRe_cpts     = len(Re_L)  
     ncases       = nalpha 
     ncpts        = nRe_cpts
-    x_coord      = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0).T 
-    y_coord      = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T 
+    x_coord      = airfoil_geometry.x_coordinates
+    y_coord      = airfoil_geometry.y_coordinates
     npanel       = len(x_coord)-1 
          
-    if (nairfoil!=  nalpha) and (nairfoil!=  nRe):
-        raise AssertionError('Number of angle of attacks and Reynolds numbers must be equal to the number of stations')      
-    x_coord_3d = np.repeat(x_coord[:,:,np.newaxis],nRe_cpts, axis = 2) # number of points, number of cases, number of control points 
-    y_coord_3d = np.repeat(y_coord[:,:,np.newaxis],nRe_cpts, axis = 2) # number of points, number of cases, number of control points 
+    if (nalpha !=  nRe):
+        raise AssertionError('Number of angle of attacks and Reynolds numbers must be equal')      
+    x_coord_3d = np.tile(x_coord[:,None,None],(1,ncases,ncpts)) # number of points, number of cases, number of control points 
+    y_coord_3d = np.tile(y_coord[:,None,None],(1,ncases,ncpts)) # number of points, number of cases, number of control points 
         
     # Begin by solving for velocity distribution at airfoil surface using inviscid panel simulation
     # these are the locations (faces) where things are computed , len = n panel

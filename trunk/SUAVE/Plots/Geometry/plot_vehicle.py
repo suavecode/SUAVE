@@ -19,8 +19,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution 
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series    import compute_naca_4series
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution    import generate_vortex_distribution 
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 ## @ingroup Plots-Geometry
@@ -368,8 +368,8 @@ def generate_nacelle_points(nac,tessellation = 24):
         nac_pts      = np.zeros((num_nac_segs,tessellation,3))
         naf          = nac.Airfoil
         
-        if naf.naca_4_series_airfoil != None:  
-            a_geo        = compute_naca_4series([naf.naca_4_series_airfoil],num_nac_segs)
+        if naf.NACA_4_series_flag == True:  
+            a_geo        = compute_naca_4series(naf.coordinate_file,num_nac_segs)
             xpts         = np.repeat(np.atleast_2d(a_geo.x_coordinates[0]).T,tessellation,axis = 1)*nac.length
             zpts         = np.repeat(np.atleast_2d(a_geo.y_coordinates[0]).T,tessellation,axis = 1)*nac.length  
         
@@ -528,16 +528,14 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     """    
     # unpack
     num_B        = prop.number_of_blades
-    airfoil_data = prop.airfoil_data
-    a_geo        = airfoil_data.geometry
-    a_geo_files  = airfoil_data.geometry_files
-    a_pol        = airfoil_data.polar_stations
+    airfoils     = prop.airfoils 
     beta         = prop.twist_distribution + prop.inputs.pitch_command
     a_o          = prop.start_angle
     b            = prop.chord_distribution
     r            = prop.radius_distribution
     MCA          = prop.mid_chord_alignment
     t            = prop.max_thickness_distribution
+    a_loc        = prop.airfoil_locations
     origin       = prop.origin
     
     if prop.rotation==1:
@@ -556,17 +554,22 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     airfoil_le_offset  = np.repeat(b[:,None], n_points, axis=1)/2  
 
     # get airfoil coordinate geometry
-    if a_geo != None:
-        a_geo        = import_airfoil_geometry(a_geo_files,n_points)
-        xpts         = np.take(a_geo.x_coordinates,a_pol,axis=0)
-        zpts         = np.take(a_geo.y_coordinates,a_pol,axis=0)
-        max_t        = np.take(a_geo.thickness_to_chord,a_pol,axis=0)[:,0]
+    if len(airfoils.keys())>0:
+        xpts  = np.zeros((dim,n_points))
+        zpts  = np.zeros((dim,n_points))
+        max_t = np.zeros(dim)
+        for i,airfoil in enumerate(airfoils):
+            geometry     = import_airfoil_geometry(airfoil.coordinate_file,n_points)
+            locs         = np.where(np.array(a_loc) == i )
+            xpts[locs]   = geometry.x_coordinates  
+            zpts[locs]   = geometry.y_coordinates  
+            max_t[locs]  = geometry.thickness_to_chord 
 
     else: 
-        airfoil_data = compute_naca_4series(['2410'],n_points)
+        airfoil_data = compute_naca_4series('2410',n_points)
         xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
         zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
-        max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)[:,0]
+        max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
             
     # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
     max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
