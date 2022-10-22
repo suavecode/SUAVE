@@ -219,7 +219,7 @@ def regress_2(results):
     print(error)
 
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-6)  
+        assert(np.abs(v)<1e-4)  
  
     return
 
