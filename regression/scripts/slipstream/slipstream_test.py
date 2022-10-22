@@ -170,7 +170,6 @@ def Lift_Rotor_Slipstream(wake_fidelity):
     state.conditions.frames                             = Data()  
     state.conditions.frames.inertial                    = Data()  
     state.conditions.frames.body                        = Data()  
-    state.conditions.use_Blade_Element_Theory           = False
     state.conditions.frames.body.transform_to_inertial  = np.array([[[1., 0., 0],[0., 1., 0.],[0., 0., 1.]]]) 
     state.conditions.propulsion.throttle                = np.ones((1,1))
     velocity_vector                                     = np.array([[51.1, 0. ,0.]])
@@ -182,12 +181,12 @@ def Lift_Rotor_Slipstream(wake_fidelity):
     # run propeller and rotor
 
     prop                          = vehicle.networks.lift_cruise.propellers.propeller
-    prop.inputs.omega             = np.ones((1,1)) * 1200.
+    prop.inputs.omega             = np.ones((1,1)) * 1200. * Units.rpm
     F, Q, P, Cp ,  outputs , etap = prop.spin(state.conditions) 
     prop.outputs                  = outputs
     
     rot                           = vehicle.networks.lift_cruise.lift_rotors.lift_rotor
-    rot.inputs.omega              = np.ones((1,1)) * 250.
+    rot.inputs.omega              = np.ones((1,1)) * 250. * Units.rpm
     F, Q, P, Cp ,  outputs , etap = rot.spin(state.conditions) 
     for r in vehicle.networks.lift_cruise.lift_rotors:
         r.outputs = outputs 
@@ -207,14 +206,14 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
 def regress_2(results):
 
-    CL_truth  = 0.3913348310745662
-    CDi_truth = 0.009610301633564126
-    CM_truth  = 0.045713028627724486
+    CL_truth  = 0.4157703493728565
+    CDi_truth = 0.01337661620674508
+    CM_truth  = 0.06971623190845497
 
     error     = Data()
-    error.CL  = np.abs(CL_truth  - results.CL) 
-    error.CDi = np.abs(CDi_truth - results.CDi)
-    error.CM  = np.abs(CM_truth  - results.CM) 
+    error.CL  = np.abs(CL_truth  - results.CL[0][0]) 
+    error.CDi = np.abs(CDi_truth - results.CDi[0][0])
+    error.CM  = np.abs(CM_truth  - results.CM[0][0]) 
     
     print('Errors:')
     print(error)
@@ -444,11 +443,13 @@ def Stopped_Rotor_vehicle(wake_fidelity, identical_props):
 
 
 def simulation_settings():
-    settings = Vortex_Lattice().settings  
+    settings = Vortex_Lattice().settings    
+    settings.number_spanwise_vortices                 = 15
+    settings.number_chordwise_vortices                = 1  
     settings.use_surrogate                            = False    
     settings.propeller_wake_model                     = True 
     settings.spanwise_cosine_spacing                  = True 
-    settings.model_fuselage                           = False   
+    settings.model_fuselage                           = True
     settings.leading_edge_suction_multiplier          = 1.0    
     settings.oswald_efficiency_factor                 = None
     settings.span_efficiency                          = None
