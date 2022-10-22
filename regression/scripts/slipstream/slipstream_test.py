@@ -176,25 +176,19 @@ def Lift_Rotor_Slipstream(wake_fidelity):
     velocity_vector                                     = np.array([[51.1, 0. ,0.]])
     state.conditions.frames.inertial.velocity_vector    = np.tile(velocity_vector,(1,1)) 
     
-    
+    # set up simulation parameters 
     settings = simulation_settings()
     
     # run propeller and rotor
 
-    prop = vehicle.networks.lift_cruise.propellers.propeller
-    prop.inputs.omega = np.ones((1,1)) * 1200.
+    prop                          = vehicle.networks.lift_cruise.propellers.propeller
+    prop.inputs.omega             = np.ones((1,1)) * 1200.
     F, Q, P, Cp ,  outputs , etap = prop.spin(state.conditions) 
-    prop.outputs = outputs
+    prop.outputs                  = outputs
     
-    rot = vehicle.networks.lift_cruise.lift_rotors.lift_rotor
-    rot.inputs.omega  = np.ones((1,1)) * 250.
-   
-    # =========================================================================================================
-    # Run Propeller model 
-    # =========================================================================================================
+    rot                           = vehicle.networks.lift_cruise.lift_rotors.lift_rotor
+    rot.inputs.omega              = np.ones((1,1)) * 250.
     F, Q, P, Cp ,  outputs , etap = rot.spin(state.conditions) 
-    
-    # append outputs for identical rotors
     for r in vehicle.networks.lift_cruise.lift_rotors:
         r.outputs = outputs 
 
@@ -213,9 +207,9 @@ def Lift_Rotor_Slipstream(wake_fidelity):
 
 def regress_2(results):
 
-    CL_truth  = 0.4162917318270923
-    CDi_truth = 0.005919040884735004
-    CM_truth  = 0.06942369982225714 
+    CL_truth  = 0.3913348310745662
+    CDi_truth = 0.009610301633564126
+    CM_truth  = 0.045713028627724486
 
     error     = Data()
     error.CL  = np.abs(CL_truth  - results.CL) 
@@ -383,6 +377,7 @@ def X57_mission_setup(analyses,vehicle):
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 2
+    base_segment.state.numerics.tolerance_solution           = 1e-10
 
     # ------------------------------------------------------------------
     #   Cruise Segment: constant Speed, constant altitude
@@ -432,12 +427,12 @@ def Stopped_Rotor_vehicle(wake_fidelity, identical_props):
     for p in props:
         p.rotation = -1
         if wake_fidelity==1:
-            p.Wake = Rotor_Wake_Fidelity_One()   
+            p.Wake = Rotor_Wake_Fidelity_One()    
             p.Wake.wake_settings.number_rotor_rotations = 1  # reduced for regression speed
     for r in lift_rots:
         r.rotation = -1
         if wake_fidelity==1:
-            r.Wake = Rotor_Wake_Fidelity_One()   
+            r.Wake = Rotor_Wake_Fidelity_One()  
             r.Wake.wake_settings.number_rotor_rotations = 1  # reduced for regression speed      
 
     # test for non-identical propellers
@@ -450,12 +445,10 @@ def Stopped_Rotor_vehicle(wake_fidelity, identical_props):
 
 def simulation_settings():
     settings = Vortex_Lattice().settings  
-    settings.number_spanwise_vortices                 = 15
-    settings.number_chordwise_vortices                = 1
     settings.use_surrogate                            = False    
     settings.propeller_wake_model                     = True 
     settings.spanwise_cosine_spacing                  = True 
-    settings.model_fuselage                           = True   
+    settings.model_fuselage                           = False   
     settings.leading_edge_suction_multiplier          = 1.0    
     settings.oswald_efficiency_factor                 = None
     settings.span_efficiency                          = None

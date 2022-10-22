@@ -60,10 +60,10 @@ def main():
 
 
     # Truth values
-    departure_throttle_truth          = 0.6507439909208339
-    transition_1_throttle_truth       = 0.6565582764889386
-    cruise_throttle_truth             = 0.46357385701137277
-    transition_y_axis_rotations_truth = 1.3404244823557492
+    departure_throttle_truth          = 0.6507439909215983
+    transition_1_throttle_truth       = 0.6565582764700278
+    cruise_throttle_truth             = 0.4635738570111655
+    transition_y_axis_rotations_truth = 1.3404244823564282
 
     # Store errors 
     error = Data()
@@ -196,6 +196,7 @@ def mission_setup(analyses,vehicle):
     # base segment
     base_segment                                       = Segments.Segment() 
     base_segment.state.numerics.number_control_points  = 4
+    base_segment.state.numerics.tolerance_solution     = 1e-10
     ones_row                                           = base_segment.state.ones_row 
     base_segment.process.initialize.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
 
