@@ -15,6 +15,7 @@ from SUAVE.Methods.Weights.Correlations.Propulsion                        import
 from SUAVE.Methods.Propulsion                                             import propeller_design
 from SUAVE.Plots.Geometry                                                 import *
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
+from SUAVE.Methods.Weights.Buildups.eVTOL.converge_evtol_weight           import converge_evtol_weight
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
@@ -350,7 +351,8 @@ def vehicle_setup():
     vehicle.wings['main_wing'].motor_spanwise_locations   = motor_origins_rear[:,1]/ vehicle.wings['main_wing'].spans.projected
 
     vehicle.append_component(net)
-
+    
+    converge_evtol_weight(vehicle,print_iterations=True)
     vehicle.weight_breakdown  = empty(vehicle)
     compute_component_centers_of_gravity(vehicle)
     vehicle.center_of_gravity()

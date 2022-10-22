@@ -36,15 +36,7 @@ def empty(config,
           max_g_load                    = 3.8,
           motor_efficiency              = 0.85 * 0.98):
 
-    """mass = SUAVE.Methods.Weights.Buildups.EVTOL.empty(
-            config,
-            speed_of_sound                = 340.294,
-            max_tip_mach                  = 0.65,
-            disk_area_factor              = 1.15,
-            max_thrust_to_weight_ratio    = 1.1,
-            motor_efficiency              = 0.85 * 0.98)
-
-        Calculates the empty vehicle mass for an EVTOL-type aircraft including seats,
+    """ Calculates the empty vehicle mass for an EVTOL-type aircraft including seats,
         avionics, servomotors, ballistic recovery system, rotor and hub assembly,
         transmission, and landing gear. Incorporates the results of the following
         common-use buildups:
@@ -59,17 +51,18 @@ def empty(config,
         https://github.com/VahanaOpenSource
 
 
-        Inputs:
-
+        Inputs: 
             config:                     SUAVE Config Data Stucture
-            speed_of_sound:             Local Speed of Sound                [m/s]
-            max_tip_mach:               Allowable Tip Mach Number           [Unitless]
-            disk_area_factor:           Inverse of Disk Area Efficiency     [Unitless]
-            max_thrust_to_weight_ratio: Allowable Thrust to Weight Ratio    [Unitless]
-            motor_efficiency:           Motor Efficiency                    [Unitless]
+            contingency_factor          Factor capturing uncertainty in vehicle weight [Unitless]
+            speed_of_sound:             Local Speed of Sound                           [m/s]
+            max_tip_mach:               Allowable Tip Mach Number                      [Unitless]
+            disk_area_factor:           Inverse of Disk Area Efficiency                [Unitless]
+            max_thrust_to_weight_ratio: Allowable Thrust to Weight Ratio               [Unitless]
+            safety_factor               Safety Factor in vehicle design                [Unitless]
+            max_g_load                  Maximum g-forces load for certification        [UNitless]
+            motor_efficiency:           Motor Efficiency                               [Unitless]
 
-        Outpus:
-
+        Outputs: 
             outputs:                    Data Dictionary of Component Masses [kg]
 
         Output data dictionary has the following book-keeping hierarchical structure:
