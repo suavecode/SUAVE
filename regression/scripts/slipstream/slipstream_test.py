@@ -56,10 +56,6 @@ def main():
     Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
     print((time.time()-t0)/60)
     
-    # include slipstream
-    print('Wake Fidelity Zero, Slipstream Included')  
-    Lift_Rotor_Slipstream(wake_fidelity=0)
-    
     return
 
 
@@ -149,79 +145,7 @@ def regress_1b(results, configs):
     plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
               
     return
-
-
-def Lift_Rotor_Slipstream(wake_fidelity):
-    # setup configs, analyses
-    vehicle = Stopped_Rotor_vehicle(wake_fidelity=wake_fidelity, identical_props=True)
-    
-    # evaluate single point
-    state = SUAVE.Analyses.Mission.Segments.Conditions.State()
-    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()    
-    AoA                                                 = 4 * Units.deg*np.ones((1,1))  
-    state.conditions.freestream.mach_number             = 0.15      * np.ones_like(AoA) 
-    state.conditions.freestream.density                 = 1.21      * np.ones_like(AoA) 
-    state.conditions.freestream.dynamic_viscosity       = 1.79      * np.ones_like(AoA) 
-    state.conditions.freestream.temperature             = 288.      * np.ones_like(AoA) 
-    state.conditions.freestream.pressure                = 99915.9   * np.ones_like(AoA) 
-    state.conditions.freestream.reynolds_number         = 3453930.8 * np.ones_like(AoA)
-    state.conditions.freestream.velocity                = 51.1      * np.ones_like(AoA) 
-    state.conditions.aerodynamics.angle_of_attack       = AoA  
-    state.conditions.frames                             = Data()  
-    state.conditions.frames.inertial                    = Data()  
-    state.conditions.frames.body                        = Data()  
-    state.conditions.frames.body.transform_to_inertial  = np.array([[[1., 0., 0],[0., 1., 0.],[0., 0., 1.]]]) 
-    state.conditions.propulsion.throttle                = np.ones((1,1))
-    velocity_vector                                     = np.array([[51.1, 0. ,0.]])
-    state.conditions.frames.inertial.velocity_vector    = np.tile(velocity_vector,(1,1)) 
-    
-    # set up simulation parameters 
-    settings = simulation_settings()
-    
-    # run propeller and rotor
-
-    prop                          = vehicle.networks.lift_cruise.propellers.propeller
-    prop.inputs.omega             = np.ones((1,1)) * 1200. * Units.rpm
-    F, Q, P, Cp ,  outputs , etap = prop.spin(state.conditions) 
-    prop.outputs                  = outputs
-    
-    rot                           = vehicle.networks.lift_cruise.lift_rotors.lift_rotor
-    rot.inputs.omega              = np.ones((1,1)) * 250. * Units.rpm
-    F, Q, P, Cp ,  outputs , etap = rot.spin(state.conditions) 
-    for r in vehicle.networks.lift_cruise.lift_rotors:
-        r.outputs = outputs 
-
-    # =========================================================================================================
-    # Run VLM with slipstream
-    # =========================================================================================================    
-    results =  VLM(state.conditions,settings,vehicle)
-    
-    # check regression values
-    regress_2(results)
-
-    plot_vehicle(vehicle, save_figure = False, plot_control_points = False)    
-    
-    return
-
-
-def regress_2(results):
-
-    CL_truth  = 0.4157703493728565
-    CDi_truth = 0.01337661620674508
-    CM_truth  = 0.06971623190845497
-
-    error     = Data()
-    error.CL  = np.abs(CL_truth  - results.CL[0][0]) 
-    error.CDi = np.abs(CDi_truth - results.CDi[0][0])
-    error.CM  = np.abs(CM_truth  - results.CM[0][0]) 
-    
-    print('Errors:')
-    print(error)
-
-    for k,v in list(error.items()):
-        assert(np.abs(v)<1e-4)  
  
-    return
 
 def plot_mission(results,vehicle):
 
@@ -440,25 +364,6 @@ def Stopped_Rotor_vehicle(wake_fidelity, identical_props):
         vehicle.networks.lift_cruise.identical_lift_rotors = False
 
     return vehicle
-
-
-def simulation_settings():
-    settings = Vortex_Lattice().settings    
-    settings.number_spanwise_vortices                 = 15
-    settings.number_chordwise_vortices                = 1  
-    settings.use_surrogate                            = False    
-    settings.propeller_wake_model                     = True 
-    settings.spanwise_cosine_spacing                  = True 
-    settings.model_fuselage                           = True
-    settings.leading_edge_suction_multiplier          = 1.0    
-    settings.oswald_efficiency_factor                 = None
-    settings.span_efficiency                          = None
-    settings.viscous_lift_dependent_drag_factor       = 0.38
-    settings.drag_coefficient_increment               = 0.0000
-    settings.spoiler_drag_increment                   = 0.00 
-    settings.maximum_lift_coefficient                 = np.inf 
-    
-    return settings
 
 
 if __name__ == '__main__':
