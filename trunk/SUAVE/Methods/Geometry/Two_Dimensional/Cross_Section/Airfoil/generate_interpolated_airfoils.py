@@ -28,24 +28,24 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename
     
     """
     
-    # import airfoil geometry for the two airfoils
-    airfoil_geo_files = [a1, a2]
+    # import airfoil geometry for the two airfoils 
     a1_name           = os.path.basename(a1)
     a2_name           = os.path.basename(a2)
-    a_geo             = import_airfoil_geometry(airfoil_geo_files,npoints)
+    a_geo_1           = import_airfoil_geometry(a1,npoints)
+    a_geo_2           = import_airfoil_geometry(a2,npoints)
     
     # for each point around the airfoil, interpolate between the two given airfoil coordinates
     z = np.linspace(0,1,nairfoils)
     
-    y_u_lb = a_geo.y_upper_surface[0,:]
-    y_u_ub = a_geo.y_upper_surface[1,:]
-    y_l_lb = a_geo.y_lower_surface[0,:]
-    y_l_ub = a_geo.y_lower_surface[1,:]     
-    
-    x_u_lb = a_geo.x_upper_surface[0,:]
-    x_u_ub = a_geo.x_upper_surface[1,:]
-    x_l_lb = a_geo.x_lower_surface[0,:]
-    x_l_ub = a_geo.x_lower_surface[1,:]    
+    y_u_lb = a_geo_1.y_upper_surface 
+    y_u_ub = a_geo_2.y_upper_surface 
+    y_l_lb = a_geo_1.y_lower_surface 
+    y_l_ub = a_geo_2.y_lower_surface      
+     
+    x_u_lb = a_geo_1.x_upper_surface 
+    x_u_ub = a_geo_2.x_upper_surface 
+    x_l_lb = a_geo_1.x_lower_surface 
+    x_l_ub = a_geo_2.x_lower_surface     
     
     # broadcasting interpolation
     y_n_upper = (z[None,...] * (y_u_ub[...,None] - y_u_lb[...,None]) + (y_u_lb[...,None])).T
@@ -90,7 +90,9 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename
     # plot new and original airfoils:
     airfoil_files.insert(0,a1)
     airfoil_files.append(a2)
-    plot_airfoil(airfoil_files,overlay=True)
-    plot_airfoil(airfoil_files,overlay=False)
+    
+    for airfoil_file in airfoil_files:
+        name = os.path.basename(airfoil_file)
+        plot_airfoil(airfoil_file,save_filename = name[:-4]) 
     
     return new_files

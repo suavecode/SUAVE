@@ -261,15 +261,16 @@ def basic_prop(Na=24, Nr=101):
     prop.number_azimuthal_stations = Na
     prop.rotation                  = 1
     prop.symmetry                  = True
-    airfoil_data                   = prop.airfoil_data
-    airfoil_data.geometry_files    =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    airfoil_data.polar_files       = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-    airfoil_data.polar_stations    = list(np.zeros(Nr).astype(int))
-    prop                           = propeller_design(prop,Nr)
+    airfoil                        = SUAVE.Components.Airfoils.Airfoil()    
+    airfoil.coordinate_file        = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files            = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    prop.append_airfoil(airfoil) 
+    prop.airfoil_locations         = list(np.zeros(Nr).astype(int))
+    prop                           = propeller_design(prop,Nr)   
 
     return prop
 

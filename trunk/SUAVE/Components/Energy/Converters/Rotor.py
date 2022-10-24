@@ -84,16 +84,9 @@ class Rotor(Energy_Component):
         self.profile_drag_coefficient          = .03
         self.sol_tolerance                     = 1e-8
         self.design_power_coefficient          = 0.01
-
-        airfoil_data                           = Data()
-        airfoil_data.NACA_4_series             = False
-        airfoil_data.geometry_files            = None
-        airfoil_data.geometry                  = None
-        airfoil_data.polar_files               = None
-        airfoil_data.polars                    = None
-        airfoil_data.polar_stations            = None
-        airfoil_data.number_of_points          = 200
-        self.airfoil_data                      = airfoil_data
+        
+        self.airfoils                          = Data() 
+        self.airfoil_locations                  = None
 
         self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream             = False
@@ -118,6 +111,35 @@ class Rotor(Energy_Component):
         self.optimization_parameters.aeroacoustic_weight   = 1.   # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization  
         
 
+    
+    def append_airfoil(self,airfoil):
+        """ Adds an airfoil to the segment 
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
+
+        # Assert database type
+        if not isinstance(airfoil,Data):
+            raise Exception('input component must be of type Data()')
+
+        # Store data
+        self.airfoils.append(airfoil)
+
+        return    
+    
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
 
@@ -187,16 +209,16 @@ class Rotor(Energy_Component):
         """
 
         # Unpack rotor blade parameters
-        B       = self.number_of_blades
-        R       = self.tip_radius
-        beta_0  = self.twist_distribution
-        c       = self.chord_distribution
-        sweep   = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
-        r_1d    = self.radius_distribution
-        tc      = self.thickness_to_chord
-
-        # Unpack rotor airfoil data
-        airfoil_data = self.airfoil_data 
+        B        = self.number_of_blades
+        R        = self.tip_radius
+        beta_0   = self.twist_distribution
+        c        = self.chord_distribution
+        sweep    = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
+        r_1d     = self.radius_distribution
+        tc       = self.thickness_to_chord
+        a_loc    = self.airfoil_locations
+        airfoils = self.airfoils
+ 
 
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega
@@ -387,7 +409,7 @@ class Rotor(Energy_Component):
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
-        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoil_data,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         
         # compute HFW circulation at the blade

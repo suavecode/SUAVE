@@ -19,8 +19,6 @@ from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis           
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_polars  import import_airfoil_polars 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series   import compute_naca_4series   
 import numpy as np
-from scipy.interpolate import RegularGridInterpolator  
-
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_pre_stall_data=True):
@@ -64,98 +62,64 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_
         cf_upper_surface                    [unitless]
         dcp_dx_upper_surface                [unitless] 
         Ret_upper_surface                   [unitless]
-        H_upper_surface                     [unitless]
-        
-        # surrogates        
-        cm_surrogates                       [unitless]
-        theta_lower_surface_surrogates      [unitless]
-        delta_lower_surface_surrogates      [unitless]
-        delta_star_lower_surface_surrogates [unitless]   
-        sa_lower_surface_surrogates         [unitless]
-        ue_lower_surface_surrogates         [unitless]
-        cf_lower_surface_surrogates         [unitless]
-        dcp_dx_lower_surface_surrogates     [unitless] 
-        Re_theta_lower_surface_surrogates   [unitless]
-        H_lower_surface_surrogates          [unitless]
-        theta_upper_surface_surrogates      [unitless]
-        delta_upper_surface_surrogates      [unitless]
-        delta_star_upper_surface_surrogates [unitless]   
-        sa_upper_surface_surrogates         [unitless]
-        ue_upper_surface_surrogates         [unitless]
-        cf_upper_surface_surrogates         [unitless]
-        dcp_dx_upper_surface_surrogates     [unitless]  
-        Re_theta_upper_surface_surrogates   [unitless]
-        H_upper_surface_surrogates          [unitless]
+        H_upper_surface                     [unitless] 
     
     Properties Used:
     N/A
-    """    
-    num_airfoils   = len(airfoil_geometry.x_coordinates)    
+    """     
     Airfoil_Data   = Data()  
    
     # ----------------------------------------------------------------------------------------
     # Compute airfoil boundary layers properties 
     # ----------------------------------------------------------------------------------------   
     Airfoil_Data   = compute_boundary_layer_properties(airfoil_geometry,Airfoil_Data)
-    num_polars     = len(Airfoil_Data.re_from_polar[0,:])
+    num_polars     = len(Airfoil_Data.re_from_polar)
      
     # ----------------------------------------------------------------------------------------
     # Compute extended cl and cd polars 
     # ----------------------------------------------------------------------------------------    
     if airfoil_polar_files != None : 
         # check number of polars per airfoil in batch
-        num_polars   = 0
-        for i in range(num_airfoils): 
-            n_p = len(airfoil_polar_files[i])
-            if n_p < 3:
-                raise AttributeError('Provide three or more airfoil polars to compute surrogate') 
-            num_polars = max(num_polars, n_p)         
+        num_polars   = 0 
+        n_p = len(airfoil_polar_files)
+        if n_p < 3:
+            raise AttributeError('Provide three or more airfoil polars to compute surrogate') 
+        num_polars = max(num_polars, n_p)         
          
         # read in polars from files overwrite panel code  
         airfoil_file_data                          = import_airfoil_polars(airfoil_polar_files)  
         Airfoil_Data.aoa_from_polar                = airfoil_file_data.aoa_from_polar
-        Airfoil_Data.re_from_polar                 = airfoil_file_data.re_from_polar
-        Airfoil_Data.number_of_polars_per_airfoil  = airfoil_file_data.number_of_polars_per_airfoil 
+        Airfoil_Data.re_from_polar                 = airfoil_file_data.re_from_polar 
         Airfoil_Data.lift_coefficients             = airfoil_file_data.lift_coefficients
-        Airfoil_Data.drag_coefficients             = airfoil_file_data.drag_coefficients
         Airfoil_Data.drag_coefficients             = airfoil_file_data.drag_coefficients 
         
     # Get all of the coefficients for AERODAS wings
     AoA_sweep_deg         = np.linspace(-14,90,105)
-    AoA_sweep_rad         = AoA_sweep_deg*Units.degrees   
-    CL_surs               = Data()
-    CD_surs               = Data()    
+    AoA_sweep_rad         = AoA_sweep_deg*Units.degrees    
     
     # Create an infinite aspect ratio wing
     geometry              = SUAVE.Components.Wings.Wing()
     geometry.aspect_ratio = np.inf
     geometry.section      = Data()  
     
-    # AERODAS 
-    for i in range(num_airfoils):
-        num_pol = int(Airfoil_Data.number_of_polars_per_airfoil[i,0])
-        CL      = np.zeros((num_pol,len(AoA_sweep_deg)))
-        CD      = np.zeros((num_pol,len(AoA_sweep_deg)))  
-        for j in range(num_pol):    
-            airfoil_cl  = Airfoil_Data.lift_coefficients[i,j,:]
-            airfoil_cd  = Airfoil_Data.drag_coefficients[i,j,:]   
-            airfoil_aoa = Airfoil_Data.aoa_from_polar[i,j,:]/Units.degrees 
-        
-            # compute airfoil cl and cd for extended AoA range 
-            CL[j,:],CD[j,:] = compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geometry,use_pre_stall_data)  
-            
-        CL_surs[airfoil_geometry.airfoil_names[i]]  = RegularGridInterpolator((Airfoil_Data.re_from_polar[i][:num_pol], AoA_sweep_rad), CL,bounds_error=False,fill_value=None) 
-        CD_surs[airfoil_geometry.airfoil_names[i]]  = RegularGridInterpolator((Airfoil_Data.re_from_polar[i][:num_pol], AoA_sweep_rad), CD,bounds_error=False,fill_value=None)   
-        
+    # AERODAS   
+    CL = np.zeros((num_polars,len(AoA_sweep_deg)))
+    CD = np.zeros((num_polars,len(AoA_sweep_deg)))  
+    for j in range(num_polars):    
+        airfoil_cl  = Airfoil_Data.lift_coefficients[j,:]
+        airfoil_cd  = Airfoil_Data.drag_coefficients[j,:]   
+        airfoil_aoa = Airfoil_Data.aoa_from_polar[j,:]/Units.degrees 
+    
+        # compute airfoil cl and cd for extended AoA range 
+        CL[j,:],CD[j,:] = compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geometry,use_pre_stall_data)  
+         
     # ----------------------------------------------------------------------------------------
     # Store data 
-    # ----------------------------------------------------------------------------------------        
-    Airfoil_Data.airfoil_names                 = airfoil_geometry.airfoil_names
-    Airfoil_Data.number_of_airfoils            = num_airfoils
-    Airfoil_Data.reynolds_numbers              = Airfoil_Data.re_from_polar
-    Airfoil_Data.angle_of_attacks              = AoA_sweep_rad 
-    Airfoil_Data.lift_coefficient_surrogates   = CL_surs
-    Airfoil_Data.drag_coefficient_surrogates   = CD_surs     
+    # ----------------------------------------------------------------------------------------    
+    Airfoil_Data.reynolds_numbers    = Airfoil_Data.re_from_polar
+    Airfoil_Data.angle_of_attacks    = AoA_sweep_rad 
+    Airfoil_Data.lift_coefficients   = CL 
+    Airfoil_Data.drag_coefficients   = CD    
         
     return Airfoil_Data
  
@@ -181,8 +145,7 @@ def compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geom
     
     Properties Used:
     N/A
-    """   
-    
+    """    
     
     # Create dummy settings and state
     settings                                              = Data()
@@ -326,117 +289,34 @@ def compute_boundary_layer_properties(airfoil_geometry,Airfoil_Data):
         a_names                       = ['0012']                
         airfoil_geometry              = compute_naca_4series(a_names, npoints= 100)    
     
-    AoA_sweep                     = np.array([-4,0,2,4,8,10,14])*Units.degrees 
-    Re_sweep                      = np.array([1,5,10,30,50,75,100])*1E4 
-    num_airfoils                  = len(airfoil_geometry.x_coordinates)   
-    dim_aoa                       = len(AoA_sweep)
-    dim_Re                        = len(Re_sweep)      
+    AoA_sweep = np.array([-4,0,2,4,8,10,14])*Units.degrees 
+    Re_sweep  = np.array([1,5,10,30,50,75,100])*1E4  
+    AoA_vals  = np.tile(AoA_sweep[None,:],(len(Re_sweep) ,1))
+    Re_vals   = np.tile(Re_sweep[:,None],(1, len(AoA_sweep)))     
     
-    cm_surs                       = Data() 
-    theta_lower_surface_surs      = Data()
-    delta_lower_surface_surs      = Data()
-    delta_star_lower_surface_surs = Data() 
-    Ue_Vinf_lower_surface_surs    = Data()
-    cf_lower_surface_surs         = Data()
-    dcp_dx_lower_surface_surs     = Data() 
-    theta_upper_surface_surs      = Data()
-    delta_upper_surface_surs      = Data()
-    delta_star_upper_surface_surs = Data() 
-    Ue_Vinf_upper_surface_surs    = Data()
-    cf_upper_surface_surs         = Data()
-    dcp_dx_upper_surface_surs     = Data()  
-     
-    cl                            = np.zeros((num_airfoils,dim_Re,dim_aoa))
-    cd                            = np.zeros((num_airfoils,dim_Re,dim_aoa))
-    cm                            = np.zeros((num_airfoils,dim_Re,dim_aoa))
-    theta_lower_surface           = np.zeros((num_airfoils,dim_Re,dim_aoa))
-    delta_lower_surface           = np.zeros((num_airfoils,dim_Re,dim_aoa))
-    delta_star_lower_surface      = np.zeros((num_airfoils,dim_Re,dim_aoa))   
-    Ue_Vinf_lower_surface         = np.zeros((num_airfoils,dim_Re,dim_aoa))   
-    cf_lower_surface              = np.zeros((num_airfoils,dim_Re,dim_aoa)) 
-    dcp_dx_lower_surface          = np.zeros((num_airfoils,dim_Re,dim_aoa))  
-    theta_upper_surface           = np.zeros((num_airfoils,dim_Re,dim_aoa))
-    delta_upper_surface           = np.zeros((num_airfoils,dim_Re,dim_aoa))
-    delta_star_upper_surface      = np.zeros((num_airfoils,dim_Re,dim_aoa))    
-    Ue_Vinf_upper_surface         = np.zeros((num_airfoils,dim_Re,dim_aoa))   
-    cf_upper_surface              = np.zeros((num_airfoils,dim_Re,dim_aoa)) 
-    dcp_dx_upper_surface          = np.zeros((num_airfoils,dim_Re,dim_aoa))      
+    # run airfoil analysis  
+    af_res  = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals) 
     
-    for af in range(num_airfoils):  
-        AoA_vals  = np.tile(AoA_sweep[None,:],(dim_Re,1))
-        Re_vals   = np.tile(Re_sweep[:,None],(1,dim_aoa))    
-        stations  = list(np.zeros(dim_aoa).astype(int))
-        
-        # run airfoil analysis  
-        af_res  = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals,airfoil_stations =  stations) 
-        bstei   = 1      # bottom surface trailing edge index 
-        tstei   = -bstei # top surface trailing edge index 
-        
-        # store raw results 
-        cl[af]                        = af_res.cl
-        cd[af]                        = af_res.cd
-        cm[af]                        = af_res.cm
-        theta_lower_surface[af]       = af_res.theta[:,:,bstei]
-        delta_lower_surface[af]       = af_res.delta[:,:,bstei] 
-        delta_star_lower_surface[af]  = af_res.delta_star[:,:,bstei] 
-        Ue_Vinf_lower_surface[af]     = af_res.Ue_Vinf[:,:,bstei]   
-        cf_lower_surface[af]          = af_res.cf[:,:,bstei]  
-        dcp_dx_lower_surface[af]      = af_res.dcp_dx[:,:,bstei]
-        theta_upper_surface[af]       = af_res.theta[:,:,tstei]
-        delta_upper_surface[af]       = af_res.delta[:,:,tstei]
-        delta_star_upper_surface[af]  = af_res.delta_star[:,:,tstei]     
-        Ue_Vinf_upper_surface[af]     = af_res.Ue_Vinf[:,:,tstei]   
-        cf_upper_surface[af]          = af_res.cf[:,:,tstei]   
-        dcp_dx_upper_surface[af]      = af_res.dcp_dx[:,:,tstei]
-        
-        # create surrogates    
-        cm_surs[airfoil_geometry.airfoil_names[af]]                        = RegularGridInterpolator((Re_sweep,AoA_sweep),cm[af] ,method = 'linear',bounds_error=False,fill_value=None  ) 
-        theta_lower_surface_surs[airfoil_geometry.airfoil_names[af]]       = RegularGridInterpolator((Re_sweep,AoA_sweep),theta_lower_surface[af] ,method = 'linear' ,bounds_error=False,fill_value=None  ) 
-        delta_lower_surface_surs[airfoil_geometry.airfoil_names[af]]       = RegularGridInterpolator((Re_sweep,AoA_sweep),delta_lower_surface[af],method = 'linear'  ,bounds_error=False,fill_value=None  ) 
-        delta_star_lower_surface_surs[airfoil_geometry.airfoil_names[af]]  = RegularGridInterpolator((Re_sweep,AoA_sweep),delta_star_lower_surface[af],method = 'linear' ,bounds_error=False,fill_value=None  )    
-        Ue_Vinf_lower_surface_surs[airfoil_geometry.airfoil_names[af]]     = RegularGridInterpolator((Re_sweep,AoA_sweep),Ue_Vinf_lower_surface[af] ,method = 'linear' ,bounds_error=False,fill_value=None) 
-        cf_lower_surface_surs[airfoil_geometry.airfoil_names[af]]          = RegularGridInterpolator((Re_sweep,AoA_sweep),cf_lower_surface[af] ,method = 'linear' ,bounds_error=False,fill_value=None) 
-        dcp_dx_lower_surface_surs[airfoil_geometry.airfoil_names[af]]      = RegularGridInterpolator((Re_sweep,AoA_sweep),dcp_dx_lower_surface[af],method = 'linear' ,bounds_error=False,fill_value=None  )  
-        theta_upper_surface_surs[airfoil_geometry.airfoil_names[af]]       = RegularGridInterpolator((Re_sweep,AoA_sweep),theta_upper_surface[af],method = 'linear' ,bounds_error=False,fill_value=None ) 
-        delta_upper_surface_surs[airfoil_geometry.airfoil_names[af]]       = RegularGridInterpolator((Re_sweep,AoA_sweep),delta_upper_surface[af] ,method = 'linear' ,bounds_error=False,fill_value=None) 
-        delta_star_upper_surface_surs[airfoil_geometry.airfoil_names[af]]  = RegularGridInterpolator((Re_sweep,AoA_sweep),delta_star_upper_surface[af] ,method = 'linear',bounds_error=False,fill_value=None )  
-        Ue_Vinf_upper_surface_surs[airfoil_geometry.airfoil_names[af]]     = RegularGridInterpolator((Re_sweep,AoA_sweep),Ue_Vinf_upper_surface[af],method = 'linear'  ,bounds_error=False,fill_value=None ) 
-        cf_upper_surface_surs[airfoil_geometry.airfoil_names[af]]          = RegularGridInterpolator((Re_sweep,AoA_sweep),cf_upper_surface[af] ,method = 'linear' ,bounds_error=False,fill_value=None ) 
-        dcp_dx_upper_surface_surs[airfoil_geometry.airfoil_names[af]]      = RegularGridInterpolator((Re_sweep,AoA_sweep),dcp_dx_upper_surface[af],method = 'linear' ,bounds_error=False,fill_value=None  )  
-            
-    # store surrogates 
-    Airfoil_Data.aoa_from_polar                                     = np.tile(np.tile(AoA_sweep[None,:],(num_airfoils,1))[:,None,:],(1,len(Re_sweep),1))  
-    Airfoil_Data.re_from_polar                                      = np.tile(Re_sweep[None,:],(num_airfoils,1)) 
-    Airfoil_Data.number_of_polars_per_airfoil                       = np.ones((num_airfoils,1))*len(Re_sweep)
-    Airfoil_Data.lift_coefficients                                  = cl
-    Airfoil_Data.drag_coefficients                                  = cd 
-    Airfoil_Data.cm                                                 = cm  
-    Airfoil_Data.boundary_layer                                     = Data()
-    Airfoil_Data.boundary_layer.theta_lower_surface                 = theta_lower_surface 
-    Airfoil_Data.boundary_layer.delta_lower_surface                 = delta_lower_surface 
-    Airfoil_Data.boundary_layer.delta_star_lower_surface            = delta_star_lower_surface 
-    Airfoil_Data.boundary_layer.Ue_Vinf_lower_surface               = Ue_Vinf_lower_surface 
-    Airfoil_Data.boundary_layer.cf_lower_surface                    = cf_lower_surface 
-    Airfoil_Data.boundary_layer.dcp_dx_lower_surface                = dcp_dx_lower_surface   
-    Airfoil_Data.boundary_layer.theta_upper_surface                 = theta_upper_surface 
-    Airfoil_Data.boundary_layer.delta_upper_surface                 = delta_upper_surface 
-    Airfoil_Data.boundary_layer.delta_star_upper_surface            = delta_star_upper_surface 
-    Airfoil_Data.boundary_layer.Ue_Vinf_upper_surface               = Ue_Vinf_upper_surface 
-    Airfoil_Data.boundary_layer.cf_upper_surface                    = cf_upper_surface 
-    Airfoil_Data.boundary_layer.dcp_dx_upper_surface                = dcp_dx_upper_surface  
-    
-    Airfoil_Data.boundary_layer.cm_surrogates                       = cm_surs    
-    Airfoil_Data.boundary_layer.theta_lower_surface_surrogates      = theta_lower_surface_surs  
-    Airfoil_Data.boundary_layer.delta_lower_surface_surrogates      = delta_lower_surface_surs 
-    Airfoil_Data.boundary_layer.delta_star_lower_surface_surrogates = delta_star_lower_surface_surs     
-    Airfoil_Data.boundary_layer.Ue_Vinf_lower_surface_surrogates    = Ue_Vinf_lower_surface_surs   
-    Airfoil_Data.boundary_layer.cf_lower_surface_surrogates         = cf_lower_surface_surs   
-    Airfoil_Data.boundary_layer.dcp_dx_lower_surface_surrogates     = dcp_dx_lower_surface_surs      
-    Airfoil_Data.boundary_layer.theta_upper_surface_surrogates      = theta_upper_surface_surs  
-    Airfoil_Data.boundary_layer.delta_upper_surface_surrogates      = delta_upper_surface_surs 
-    Airfoil_Data.boundary_layer.delta_star_upper_surface_surrogates = delta_star_upper_surface_surs     
-    Airfoil_Data.boundary_layer.Ue_Vinf_upper_surface_surrogates    = Ue_Vinf_upper_surface_surs   
-    Airfoil_Data.boundary_layer.cf_upper_surface_surrogates         = cf_upper_surface_surs 
-    Airfoil_Data.boundary_layer.dcp_dx_upper_surface_surrogates     = dcp_dx_upper_surface_surs      
+    # store data
+    Airfoil_Data.aoa_from_polar                                     = np.tile(AoA_sweep[None,:],(len(Re_sweep),1)) 
+    Airfoil_Data.re_from_polar                                      = Re_sweep 
+    Airfoil_Data.lift_coefficients                                  = af_res.cl
+    Airfoil_Data.drag_coefficients                                  = af_res.cd
+    Airfoil_Data.cm                                                 = af_res.cm
+    Airfoil_Data.boundary_layer                                     = Data() 
+    Airfoil_Data.boundary_layer.angle_of_attacks                    = AoA_sweep 
+    Airfoil_Data.boundary_layer.reynolds_numbers                    = Re_sweep      
+    Airfoil_Data.boundary_layer.theta_lower_surface                 = af_res.theta 
+    Airfoil_Data.boundary_layer.delta_lower_surface                 = af_res.delta  
+    Airfoil_Data.boundary_layer.delta_star_lower_surface            = af_res.delta_star  
+    Airfoil_Data.boundary_layer.Ue_Vinf_lower_surface               = af_res.Ue_Vinf   
+    Airfoil_Data.boundary_layer.cf_lower_surface                    = af_res.cf   
+    Airfoil_Data.boundary_layer.dcp_dx_lower_surface                = af_res.dcp_dx 
+    Airfoil_Data.boundary_layer.theta_upper_surface                 = af_res.theta 
+    Airfoil_Data.boundary_layer.delta_upper_surface                 = af_res.delta 
+    Airfoil_Data.boundary_layer.delta_star_upper_surface            = af_res.delta_star   
+    Airfoil_Data.boundary_layer.Ue_Vinf_upper_surface               = af_res.Ue_Vinf     
+    Airfoil_Data.boundary_layer.cf_upper_surface                    = af_res.cf   
+    Airfoil_Data.boundary_layer.dcp_dx_upper_surface                = af_res.dcp_dx   
     
     return Airfoil_Data

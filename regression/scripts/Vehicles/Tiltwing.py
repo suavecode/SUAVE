@@ -15,6 +15,7 @@ from SUAVE.Methods.Weights.Correlations.Propulsion                        import
 from SUAVE.Methods.Propulsion                                             import propeller_design
 from SUAVE.Plots.Geometry                                                 import *
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
+from SUAVE.Methods.Weights.Buildups.eVTOL.converge_evtol_weight           import converge_evtol_weight
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 from copy import deepcopy
 
@@ -269,14 +270,15 @@ def vehicle_setup():
     prop.design_altitude          = 500 * Units.feet
     Hover_Load                    = vehicle.mass_properties.takeoff*9.81
     prop.design_thrust            = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
-    airfoil_data                  = prop.airfoil_data
-    airfoil_data.geometry_files   =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    airfoil_data.polar_files      = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-    airfoil_data.polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    airfoil                       = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file       = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files           = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                  '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                  '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                  '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                  '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    prop.append_airfoil(airfoil)
+    prop.airfoil_locations        = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
     prop                          = propeller_design(prop)
     prop.rotation                 = 1
 
@@ -342,7 +344,8 @@ def vehicle_setup():
     vehicle.wings['main_wing'].motor_spanwise_locations   = motor_origins_rear[:,1]/ vehicle.wings['main_wing'].spans.projected
 
     vehicle.append_component(net)
-
+    
+    converge_evtol_weight(vehicle,print_iterations=True)
     vehicle.weight_breakdown  = empty(vehicle)
     compute_component_centers_of_gravity(vehicle)
     vehicle.center_of_gravity()

@@ -13,6 +13,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data
+from SUAVE.Core.Utilities import interp2d
 import numpy as np
 import scipy as sp 
 from scipy.optimize import root 
@@ -61,14 +62,8 @@ def propeller_design(prop,number_of_stations=20):
     alt          = prop.design_altitude
     Thrust       = prop.design_thrust
     Power        = prop.design_power
-    airfoil_data = prop.airfoil_data
-    a_geo_files  = airfoil_data.geometry_files
-    a_pol_files  = airfoil_data.polar_files
-    a_geo        = airfoil_data.geometry
-    a_pol        = airfoil_data.polars
-    n_points     = airfoil_data.number_of_points
-    naca_4series = airfoil_data.NACA_4_series
-    a_loc        = airfoil_data.polar_stations
+    airfoils     = prop.airfoils 
+    a_loc        = prop.airfoil_locations
     
     if (Thrust == None) and (Power== None):
         raise AssertionError('Specify either design thrust or design power!')
@@ -114,33 +109,27 @@ def propeller_design(prop,number_of_stations=20):
     x       = omega*r/V               # Nondimensional distance
     diff    = 1.0                     # Difference between zetas
     n       = omega/(2*np.pi)         # Cycles per second
-    D       = 2.*R
-    J       = V/(D*n)
-    
-    c = 0.2 * np.ones_like(chi)
+    D       = 2.*R  
+    c       = 0.2 * np.ones_like(chi)
     
     # if user defines airfoil, check dimension of stations
-    if a_geo_files != None :
+    num_airfoils = len(airfoils.keys())
+    if num_airfoils>0:
         if len(a_loc) != N:
-            raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller')
-        airfoil_data.airfoil_flag = True
-    else:
-        print('\nDefaulting to scaled DAE51')
-        airfoil_data.airfoil_flag    = False   
+            raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller') 
         
-    # Step 4, determine epsilon and alpha from airfoil data  
-    if airfoil_data.airfoil_flag:
-        if a_geo == None: # first, if airfoil geometry data not defined, import from geoemtry files
-            if naca_4series: # check if naca 4 series of airfoil from datafile
-                a_geo = compute_naca_4series(a_geo_files,n_points)
-            else:
-                a_geo = import_airfoil_geometry(a_geo_files,n_points)
-            airfoil_data.geometry = a_geo
-
-        if a_pol == None: # compute airfoil polars for airfoils
-            a_pol               = compute_airfoil_properties(a_geo, airfoil_polar_files=a_pol_files)
-            airfoil_data.polars = a_pol  
-     
+        for _,airfoil in enumerate(airfoils):  
+            if airfoil.geometry == None: # first, if airfoil geometry data not defined, import from geoemtry files
+                if airfoil.NACA_4_series_flag: # check if naca 4 series of airfoil from datafile
+                    airfoil.geometry = compute_naca_4series(airfoil.coordinate_file,airfoil.number_of_points)
+                else:
+                    airfoil.geometry = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points) 
+    
+            if airfoil.polars == None: # compute airfoil polars for airfoils
+                airfoil.polars = compute_airfoil_properties(airfoil.geometry, airfoil_polar_files= airfoil.polar_files) 
+    else:
+        print('\nDefaulting to scaled DAE51') 
+        
     while diff>tol:      
         # assign chord distribution
         prop.chord_distribution = c  
@@ -160,18 +149,19 @@ def propeller_design(prop,number_of_stations=20):
         Ma      = Wc/speed_of_sound
         RE      = Wc/nu
 
-        if airfoil_data.airfoil_flag:
+        if num_airfoils>0:
             # assign initial values 
             alpha0   = np.ones(N)*0.05
             
             # solve for optimal alpha to meet design Cl target
-            sol      = root(objective, x0 = alpha0 , args=(airfoil_data, RE, Cl ,N))
+            sol      = root(objective, x0 = alpha0 , args=(airfoils,a_loc,RE,Cl,N))
             alpha    = sol.x
             
             # query surrogate for sectional Cls at stations 
             Cdval    = np.zeros_like(RE) 
-            for j in range(len(a_pol.drag_coefficient_surrogates)):                 
-                Cdval_af    = a_pol.drag_coefficient_surrogates[a_geo_files[j]]((RE,alpha))
+            for j,airfoil in enumerate(airfoils):                   
+                pd          = airfoil.polars
+                Cdval_af    = interp2d(RE,alpha,pd.reynolds_numbers, pd.angle_of_attacks, pd.drag_coefficients)
                 locs        = np.where(np.array(a_loc) == j )
                 Cdval[locs] = Cdval_af[locs]    
                 
@@ -258,9 +248,12 @@ def propeller_design(prop,number_of_stations=20):
     # compute max thickness distribution  
     t_max  = np.zeros(N)    
     t_c    = np.zeros(N)   
-    if airfoil_data.airfoil_flag:
-        t_max   = np.take(a_geo.max_thickness,a_loc,axis=0)[:,0]*c
-        t_c     = np.take(a_geo.thickness_to_chord,a_loc,axis=0)[:,0]
+    if num_airfoils>0:
+        for j,airfoil in enumerate(airfoils): 
+            a_geo         = airfoil.geometry
+            locs          = np.where(np.array(a_loc) == j )
+            t_max[locs]   = a_geo.max_thickness*c[locs] 
+            t_c[locs]     = a_geo.thickness_to_chord 
     else:     
         c_blade = np.repeat(np.atleast_2d(np.linspace(0,1,N)),N, axis = 0)* np.repeat(np.atleast_2d(c).T,N, axis = 1)
         t       = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
@@ -293,14 +286,12 @@ def propeller_design(prop,number_of_stations=20):
     return prop
 
     
-def objective(x, airfoil_data, RE , Cl ,N):
+def objective(x,airfoils,a_loc,RE,Cl,N):
     # query surrogate for sectional Cls at stations 
-    Cl_vals          = np.zeros(N)     
-    airfoil_cl_surs  = airfoil_data.polars.lift_coefficient_surrogates
-    a_names          = airfoil_data.geometry_files
-    a_loc            = airfoil_data.polar_stations
-    for j in range(len(airfoil_cl_surs)):                 
-        Cl_af         = airfoil_cl_surs[a_names[j]]((RE,x))
+    Cl_vals          = np.zeros(N)       
+    for j,airfoil in enumerate(airfoils): 
+        pd            = airfoil.polars
+        Cl_af         = interp2d(RE,x,pd.reynolds_numbers, pd.angle_of_attacks, pd.lift_coefficients)
         locs          = np.where(np.array(a_loc) == j )
         Cl_vals[locs] = Cl_af[locs] 
         

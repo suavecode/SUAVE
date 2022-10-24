@@ -34,15 +34,14 @@ def main():
     # ----------------------------------------------------------------------------------------------------------------------------------------
     #  Plots
     # ----------------------------------------------------------------------------------------------------------------------------------------    
-    # Universal Plot Settings
-    plt.rcParams["font.family"]    = "Times New Roman"
-    plt.rcParams.update({'font.size': 18})
+    # Universal Plot Settings 
+    plt.rcParams.update({'font.size': 12})
     plt.rcParams['axes.linewidth'] = 1. 
  
     PP = Data( 
-        lw  = 2,                             # line_width               
-        m = 10,                             # markersize               
-        lf = 10,                            # legend_font_size         
+        lw  = 1,                             # line_width               
+        m   = 5,                             # markersize               
+        lf  = 10,                            # legend_font_size         
         Slc = ['black','dimgray','silver' ], # SUAVE_line_colors        
         Slm = '^',                           # SUAVE_line_markers       
         Sls = '-',                           # SUAVE_line_styles        
@@ -195,86 +194,80 @@ def Hararmonic_Noise_Validation(PP):
                                        104.369,102.593,101.210,100.021,98.6401,96.6674])
 
     # plot results
-    fig31 = plt.figure('Test_Case_3_p1')
-    fig31.set_size_inches(16, 5)   
-    axes = fig31.add_subplot(1,3,1) 
+    fig = plt.figure('Harmonic Test')
+    fig.set_size_inches(12, 8)   
+    axes = fig.add_subplot(2,3,1) 
     axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[0,6,:][:len(harmonics)]   , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'SUAVE')    
     axes.plot(harmonics, ANOPP_PAS_Case_1_60deg                                      , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw, label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_1_60deg                                       , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')    
     axes.set_title('Case 1, $C_P$ = ' + str(round(Cp[0,0],3)))
-    axes.set_ylabel('SPL (dB)')
-    axes.set_xlabel('Harmonic #') 
+    axes.set_ylabel('SPL (dB)') 
     axes.minorticks_on() 
     #plt.ylim((80,125))      
 
     # Test Case 2
-    axes = fig31.add_subplot(1,3,2) 
+    axes = fig.add_subplot(2,3,2) 
     axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
     axes.plot(harmonics, ANOPP_PAS_Case_2_60deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_2_60deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,   label = 'Exp.')  
     #axes.set_ylabel('SPL (dB)') 
-    axes.set_title('Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))  
-    axes.set_xlabel('Harmonic #') 
-    axes.minorticks_on()  
-    axes.legend(loc='upper center', prop={'size':  PP.lf} , bbox_to_anchor=(0.5, -0.2), ncol= 3 )  
+    axes.set_title('60 deg. 60 deg. Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))   
+    axes.minorticks_on()   
 
     # Test Case 3
-    axes = fig31.add_subplot(1,3,3) 
+    axes = fig.add_subplot(2,3,3) 
     axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[2,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
     axes.plot(harmonics, ANOPP_PAS_Case_3_60deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_3_60deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')        
-    axes.set_title('Case 3, $C_P$ = ' +  str(round(Cp[2,0],3)))  
-    axes.set_xlabel('Harmonic #')  
+    axes.set_title('60 deg. Case 3, $C_P$ = ' +  str(round(Cp[2,0],3))) 
     axes.minorticks_on() 
     plt.tight_layout()
-
-    fig32 = plt.figure('Test_Case_3_p2') 
-    fig32.set_size_inches(16, 5)       
-    axes = fig32.add_subplot(1,3,1)    
+ 
+    axes = fig.add_subplot(2,3,4)    
     axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[0,9,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'SUAVE')    
     axes.plot(harmonics, ANOPP_PAS_Case_1_90deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_1_90deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')       
-    axes.set_title('Case 1, $C_P$ = ' + str(round(Cp[0,0],3)))
+    axes.set_title('90 deg. Case 1, $C_P$ = ' + str(round(Cp[0,0],3)))
     axes.set_ylabel('SPL (dB)')
     axes.set_xlabel('Harmonic #')   
     axes.minorticks_on() 
 
-    axes = fig32.add_subplot(1,3,2)              
+    axes = fig.add_subplot(2,3,5)              
     axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,9,:][:len(harmonics)]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'SUAVE')    
     axes.plot(harmonics, ANOPP_PAS_Case_2_90deg                                     , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw, label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_2_90deg                                      , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw, label = 'Exp.')   
-    axes.set_title('Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))   
+    axes.set_title('90 deg. Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))   
     axes.set_xlabel('Harmonic #')  
-    axes.legend(loc='upper center', prop={'size': PP.lf} , bbox_to_anchor=(0.5, -0.2), ncol= 3 )  
+    axes.legend(loc='upper center', prop={'size': PP.lf} , bbox_to_anchor=(0.5, -0.4), ncol= 3 )  
     axes.minorticks_on() 
 
-    axes = fig32.add_subplot(1,3,3)    
+    axes = fig.add_subplot(2,3,6)    
     axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[2,9,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
     axes.plot(harmonics, ANOPP_PAS_Case_3_90deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_3_90deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')     
-    axes.set_title('Case 3, $C_P$ = ' +  str(round(Cp[2,0],3)))     
+    axes.set_title('90 deg. Case 3, $C_P$ = ' +  str(round(Cp[2,0],3)))     
     axes.set_xlabel('Harmonic #')  
     axes.minorticks_on() 
     plt.tight_layout()
 
     # Polar plot of noise   
-    fig33 = plt.figure('Test_Case_3_p3')
-    axis = fig33.add_subplot(111, projection='polar')    
-    axis.plot(theta*Units.degrees,F8745D4_SPL[0,:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Total'  )  
-    axis.plot(-theta*Units.degrees,F8745D4_SPL[0,:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw  )  
-    axis.plot(theta*Units.degrees,F8745D4_SPL_harmonic[0,:] , color = PP.Slc[1] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw   )  
-    axis.plot(-theta*Units.degrees,F8745D4_SPL_harmonic[0,:] , color = PP.Slc[1] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Harmonic'  )  
-    axis.plot(theta*Units.degrees,F8745D4_SPL_broadband[0,:] , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw   )  
-    axis.plot(-theta*Units.degrees,F8745D4_SPL_broadband[0,:] , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Broadband' )     
-    axis.set_yticks(np.arange(50,150,25))     
-    axis.grid(True)  
+    fig2 = plt.figure('Polar')
+    axis2 = fig2.add_subplot(111, projection='polar')    
+    axis2.plot(theta*Units.degrees,F8745D4_SPL[0,:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Total'  )  
+    axis2.plot(-theta*Units.degrees,F8745D4_SPL[0,:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw  )  
+    axis2.plot(theta*Units.degrees,F8745D4_SPL_harmonic[0,:] , color = PP.Slc[1] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw   )  
+    axis2.plot(-theta*Units.degrees,F8745D4_SPL_harmonic[0,:] , color = PP.Slc[1] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Harmonic'  )  
+    axis2.plot(theta*Units.degrees,F8745D4_SPL_broadband[0,:] , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw   )  
+    axis2.plot(-theta*Units.degrees,F8745D4_SPL_broadband[0,:] , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'Broadband' )     
+    axis2.set_yticks(np.arange(50,150,25))     
+    axis2.grid(True)  
 
     # Store errors 
     error = Data()
     error.SPL_Case_1_60deg  = np.max(np.abs(F8745D4_SPL_harmonic_bpf_spectrum[0,6,:][:len(harmonics)]  - Exp_Test_Case_1_60deg)/Exp_Test_Case_1_60deg)  
     error.SPL_Case_1_90deg  = np.max(np.abs(F8745D4_SPL_harmonic_bpf_spectrum[0,9,:][:len(harmonics)] - Exp_Test_Case_1_90deg)/Exp_Test_Case_1_90deg)
     
-    print('Errors:')
+    print('Harmonic Noise Errors:')
     print(error)
     
     for k,v in list(error.items()):
@@ -443,7 +436,7 @@ def Broadband_Noise_Validation(PP):
     error.SPL_Case_1_60deg  = np.max(np.abs(APC_SF_SPL_broadband_1_3_spectrum[1,3,8:]  - Exp_broadband_APC[1,:])/Exp_broadband_APC[1,:])
     error.SPL_Case_1_90deg  = np.max(np.abs(APC_SF_SPL_broadband_1_3_spectrum[1,4,8:] - Exp_broadband_APC[0,:])/Exp_broadband_APC[0,:])
     
-    print('Errors:')
+    print('Broadband Noise Errors:')
     print(error)
     
     for k,v in list(error.items()):

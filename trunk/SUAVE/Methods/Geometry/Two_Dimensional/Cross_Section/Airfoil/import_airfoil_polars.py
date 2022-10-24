@@ -29,77 +29,68 @@ def  import_airfoil_polars(airfoil_polar_files):
     N/A
     """      
      
-    # number of airfoils 
-    num_airfoils                 = len(airfoil_polar_files)  
-    number_of_polars_per_airfoil = np.zeros((num_airfoils,1)) 
-    num_polars                   = 0
-    for i in range(num_airfoils): 
-        n_p = len(airfoil_polar_files[i])
-        if n_p < 3:
-            raise AttributeError('Provide three or more airfoil polars to compute surrogate')
-        
-        number_of_polars_per_airfoil[i,0] = n_p
-        num_polars            = max(num_polars, n_p)       
+    # number of airfoils   
+    num_polars                   = 0 
+    n_p = len(airfoil_polar_files)
+    if n_p < 3:
+        raise AttributeError('Provide three or more airfoil polars to compute surrogate') 
+    num_polars            = max(num_polars, n_p)       
     
     # create empty data structures 
     airfoil_data = Data()
     dim_aoa      = 89 # this is done to get an AoA discretization of 0.25
-    AoA          = np.zeros((num_airfoils,num_polars,dim_aoa))
-    CL           = np.zeros((num_airfoils,num_polars,dim_aoa))
-    CD           = np.zeros((num_airfoils,num_polars,dim_aoa)) 
-    Re           = np.zeros((num_airfoils,num_polars))
-    Ma           = np.zeros((num_airfoils,num_polars))
+    AoA          = np.zeros((num_polars,dim_aoa))
+    CL           = np.zeros((num_polars,dim_aoa))
+    CD           = np.zeros((num_polars,dim_aoa)) 
+    Re           = np.zeros(num_polars)
+    Ma           = np.zeros(num_polars)
     
-    AoA_interp = np.linspace(-6,16,dim_aoa) 
+    AoA_interp = np.linspace(-6,16,dim_aoa)  
     
-    for i in range(num_airfoils): 
-    
-        for j in range(len(airfoil_polar_files[i])):   
-            # Open file and read column names and data block
-            f = open(airfoil_polar_files[i][j]) 
-            data_block = f.readlines()
-            f.close()
-            
-            # Ignore header
-            for header_line in range(len(data_block)):
-                line = data_block[header_line]   
-                if 'Re =' in line:    
-                    Re[i,j] = float(line[25:40].strip().replace(" ", ""))
-                if 'Mach =' in line:    
-                    Ma[i,j] = float(line[7:20].strip().replace(" ", ""))    
-                if '---' in line:
-                    data_block = data_block[header_line+1:]
-                    break
-                
-            # Remove any extra lines at end of file:
-            last_line = False
-            while last_line == False:
-                if data_block[-1]=='\n':
-                    data_block = data_block[0:-1]
-                else:
-                    last_line = True
-            
-            data_len = len(data_block)
-            airfoil_aoa= np.zeros(data_len)
-            airfoil_cl = np.zeros(data_len)
-            airfoil_cd = np.zeros(data_len)     
+    for j in range(len(airfoil_polar_files)):   
+        # Open file and read column names and data block
+        f = open(airfoil_polar_files[j]) 
+        data_block = f.readlines()
+        f.close()
         
-            # Loop through each value: append to each column
-            for line_count , line in enumerate(data_block):
-                airfoil_aoa[line_count] = float(data_block[line_count][0:8].strip())
-                airfoil_cl[line_count]  = float(data_block[line_count][10:17].strip())
-                airfoil_cd[line_count]  = float(data_block[line_count][20:27].strip())   
-          
-            AoA[i,j,:] = AoA_interp
-            CL[i,j,:]  = np.interp(AoA_interp,airfoil_aoa,airfoil_cl)
-            CD[i,j,:]  = np.interp(AoA_interp,airfoil_aoa,airfoil_cd) 
-    
+        # Ignore header
+        for header_line in range(len(data_block)):
+            line = data_block[header_line]   
+            if 'Re =' in line:    
+                Re[j] = float(line[25:40].strip().replace(" ", ""))
+            if 'Mach =' in line:    
+                Ma[j] = float(line[7:20].strip().replace(" ", ""))    
+            if '---' in line:
+                data_block = data_block[header_line+1:]
+                break
+            
+        # Remove any extra lines at end of file:
+        last_line = False
+        while last_line == False:
+            if data_block[-1]=='\n':
+                data_block = data_block[0:-1]
+            else:
+                last_line = True
         
-        airfoil_data.aoa_from_polar               = AoA*Units.degrees
-        airfoil_data.re_from_polar                = Re
-        airfoil_data.number_of_polars_per_airfoil = number_of_polars_per_airfoil  
-        airfoil_data.mach_number                  = Ma
-        airfoil_data.lift_coefficients            = CL
-        airfoil_data.drag_coefficients            = CD      
+        data_len = len(data_block)
+        airfoil_aoa= np.zeros(data_len)
+        airfoil_cl = np.zeros(data_len)
+        airfoil_cd = np.zeros(data_len)     
+    
+        # Loop through each value: append to each column
+        for line_count , line in enumerate(data_block):
+            airfoil_aoa[line_count] = float(data_block[line_count][0:8].strip())
+            airfoil_cl[line_count]  = float(data_block[line_count][10:17].strip())
+            airfoil_cd[line_count]  = float(data_block[line_count][20:27].strip())   
+      
+        AoA[j,:] = AoA_interp
+        CL[j,:]  = np.interp(AoA_interp,airfoil_aoa,airfoil_cl)
+        CD[j,:]  = np.interp(AoA_interp,airfoil_aoa,airfoil_cd)  
+    
+    airfoil_data.aoa_from_polar               = AoA*Units.degrees
+    airfoil_data.re_from_polar                = Re   
+    airfoil_data.mach_number                  = Ma
+    airfoil_data.lift_coefficients            = CL
+    airfoil_data.drag_coefficients            = CD      
      
     return airfoil_data 

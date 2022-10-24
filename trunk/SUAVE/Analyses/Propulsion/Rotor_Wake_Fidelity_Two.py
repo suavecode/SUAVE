@@ -52,7 +52,7 @@ class Rotor_Wake_Fidelity_Two(Energy_Component):
         self.external_inflow.disc_tangential_induced_velocity = None
 
     
-    def evaluate(self,rotor,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,a_loc,a_names,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions):
+    def evaluate(self,rotor,U,Ua,Ut,PSI,omega,beta,c,r,R,B,a,nu,airfoils,ctrl_pts,Nr,Na,tc,use_2d_analysis,conditions):
         """
         Wake evaluation is performed using an externally-applied inflow field at the rotor.
         This requires an external solver to generate the inflow to the rotor, which must have been appended to the 

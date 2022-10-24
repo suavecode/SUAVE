@@ -25,9 +25,9 @@ def main():
     # differ because of karman-tsien compressibility corrections in the 
     # analysis scripts 
     
-    propeller_design_test()
+    #propeller_design_test()
     
-    lift_rotor_design_test()
+    #lift_rotor_design_test()
     
     prop_rotor_design_test()
     return     
@@ -62,17 +62,17 @@ def propeller_design_test():
     bad_prop.design_tip_mach          = 0.1
     bad_prop.angular_velocity         = gearbox.inputs.speed  
     bad_prop.design_Cl                = 0.7
-    bad_prop.design_altitude          = 1. * Units.km
-    airfoil_data                      = bad_prop.airfoil_data
-    airfoil_data.geometry_files       = ['4412']
-    airfoil_data.NACA_4_series        = True
-    airfoil_data.polar_files          = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
+    bad_prop.design_altitude          = 1. * Units.km  
+    airfoil                           = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file           ='4412'   
+    airfoil.NACA_4_series_flag        = True 
+    airfoil.polar_files               =  ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
                                               '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
                                               '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
                                               '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
-                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']]
-
-    airfoil_data.polar_stations       =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']
+    bad_prop.append_airfoil(airfoil)
+    bad_prop.airfoil_locations        =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     bad_prop.design_thrust            = 100000
     bad_prop                          = propeller_design(bad_prop)
     prop_a                            = SUAVE.Components.Energy.Converters.Propeller()
@@ -85,20 +85,32 @@ def propeller_design_test():
     prop_a.design_tip_mach            = 0.65
     prop_a.angular_velocity           = gearbox.inputs.speed # 207.16160479940007
     prop_a.design_Cl                  = 0.7
-    prop_a.design_altitude            = 1. * Units.km
-    airfoil_data                      = prop_a.airfoil_data
-    airfoil_data.geometry_files       = ['../Vehicles/Airfoils/NACA_4412.txt','../Vehicles/Airfoils/Clark_y.txt']
-    airfoil_data.polar_files          = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
-                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
-                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
-                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
-                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt'],
-                                         ['../Vehicles/Airfoils/Polars/Clark_y_polar_Re_50000.txt',
+    prop_a.design_altitude            = 1. * Units.km 
+    
+    # define first airfoil 
+    airfoil_1                         = SUAVE.Components.Airfoils.Airfoil()
+    airfoil_1.tag                     = 'NACA_4412' 
+    airfoil_1.coordinate_file         = '../Vehicles/Airfoils/NACA_4412.txt'   # absolute path   
+    airfoil_1.polar_files             = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt'] 
+    prop_a.append_airfoil(airfoil_1)   # append first airfoil 
+    
+    # define  second airfoil 
+    airfoil_2                         = SUAVE.Components.Airfoils.Airfoil()  
+    airfoil_2.tag                     = 'Clark_Y' 
+    airfoil_2.coordinate_file         = '../Vehicles/Airfoils/Clark_y.txt' 
+    airfoil_2.polar_files             = ['../Vehicles/Airfoils/Polars/Clark_y_polar_Re_50000.txt',
                                           '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_100000.txt',
                                           '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_200000.txt',
                                           '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_500000.txt',
-                                          '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_1000000.txt']]
-    airfoil_data.polar_stations      = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]
+                                          '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_1000000.txt'] 
+    prop_a.append_airfoil(airfoil_2)  # append second airfoil 
+    
+    # define polar stations on rotor 
+    prop_a.airfoil_locations         = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]
     prop_a.design_thrust             = 3054.4809132125697
     prop_a                           = propeller_design(prop_a)
     
@@ -118,8 +130,8 @@ def propeller_design_test():
     prop.design_Cl                 = 0.7
     prop.design_altitude           = 1. * Units.km
     prop.origin                    = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
-    prop.design_power              = gearbox.outputs.power
-    prop                           = propeller_design(prop) 
+    prop.design_power              = gearbox.outputs.power 
+    prop                           = propeller_design(prop)  
     
     # Find the operating conditions
     atmosphere                     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -191,30 +203,32 @@ def propeller_design_test():
 
 def lift_rotor_design_test():     
       
-    rot                              = SUAVE.Components.Energy.Converters.Lift_Rotor() 
-    rot.tag                          = 'rotor'
-    rot.orientation_euler_angles     = [0, 90*Units.degrees,0]
-    rot.tip_radius                   = 1.15
-    rot.hub_radius                   = 0.15 * rot.tip_radius  
-    rot.number_of_blades             = 3 
-    rot.design_tip_mach              = 0.65   
-    rot.design_altitude              = 40 * Units.feet  
-    rot.design_thrust                = 2000
-    rot.angular_velocity             = rot.design_tip_mach* 343 /rot.tip_radius  
-    rot.freestream_velocity          = np.sqrt(rot.design_thrust/(2*1.2*np.pi*(rot.tip_radius**2))) 
-    rot.variable_pitch               = True     
-    airfoil_data                     = rot.airfoil_data
-    airfoil_data.geometry_files      = ['4412']
-    airfoil_data.number_of_points    = 30    # for aero coefficients, panel code works better with fewer points 
-    airfoil_data.NACA_4_series       = True
-    airfoil_data.polar_stations      =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
-    opt_params                       = rot.optimization_parameters 
-    opt_params.aeroacoustic_weight   = 1.0   # 1 means only perfomrance optimization 0.5 to weight noise equally  
-    rot                              = lift_rotor_design(rot)     
+    rotor                              = SUAVE.Components.Energy.Converters.Lift_Rotor() 
+    rotor.tag                          = 'rotor'
+    rotor.orientation_euler_angles     = [0, 90*Units.degrees,0]
+    rotor.tip_radius                   = 1.15
+    rotor.hub_radius                   = 0.15 * rotor.tip_radius  
+    rotor.number_of_blades             = 3 
+    rotor.design_tip_mach              = 0.65   
+    rotor.design_altitude              = 40 * Units.feet  
+    rotor.design_thrust                = 2000
+    rotor.angular_velocity             = rotor.design_tip_mach* 343 /rotor.tip_radius  
+    rotor.freestream_velocity          = np.sqrt(rotor.design_thrust/(2*1.2*np.pi*(rotor.tip_radius**2))) 
+    rotor.variable_pitch               = True      
+    airfoil                            = SUAVE.Components.Airfoils.Airfoil()
+    airfoil.tag                        = 'NACA_4412'  
+    airfoil.coordinate_file            ='4412'   
+    airfoil.NACA_4_series_flag         = True 
+    airfoil.number_of_points           = 30     
+    rotor.append_airfoil(airfoil)     
+    rotor.airfoil_locations            = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
+    opt_params                         = rotor.optimization_parameters 
+    opt_params.aeroacoustic_weight     = 0.5   # 1 means only perfomrance optimization 0.5 to weight noise equally  
+    rotor                              = lift_rotor_design(rotor)     
     
     # Find the operating conditions
     atmosphere                                          = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions                               =  atmosphere.compute_values(rot.design_altitude)  
+    atmosphere_conditions                               =  atmosphere.compute_values(rotor.design_altitude)  
     conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     conditions._size                                    = 1
     conditions.freestream                               = Data()
@@ -223,20 +237,20 @@ def lift_rotor_design_test():
     conditions.frames.body                              = Data()
     conditions.frames.inertial                          = Data()
     conditions.freestream.update(atmosphere_conditions) 
-    conditions.frames.inertial.velocity_vector          = np.array([[0, 0. ,rot.freestream_velocity]])  
+    conditions.frames.inertial.velocity_vector          = np.array([[0, 0. ,rotor.freestream_velocity]])  
     conditions.propulsion.throttle                      = np.array([[1.0]])
     conditions.frames.body.transform_to_inertial        = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])      
     
     # Assign rpm
-    rot.inputs.omega  = np.array(rot.angular_velocity,ndmin=2) 
+    rotor.inputs.omega  = np.array(rotor.angular_velocity,ndmin=2) 
     
     # rotor with airfoil results  
-    F_rot, Q_rot, P_rot, Cp_rot ,output_rot , etap_rot = rot.spin(conditions)
-    plot_results(output_rot, rot,'green','-','^') 
+    F_rot, Q_rot, P_rot, Cp_rot ,output_rot , etap_rot = rotor.spin(conditions)
+    plot_results(output_rot, rotor,'green','-','^') 
     
     # Truth values for rotor with airfoil geometry defined 
-    F_rot_truth = 2001.3163363266556
-    P_rot_truth = 50257.54423707
+    F_rot_truth = 2000.1714304146967
+    P_rot_truth = 56951.29774015688
     
     # Store errors 
     error = Data()  
@@ -254,38 +268,41 @@ def lift_rotor_design_test():
 
 def prop_rotor_design_test():     
      
-    prop_rotor                                    = SUAVE.Components.Energy.Converters.Prop_Rotor() 
-    prop_rotor.tag                                = 'prop_rotor'     
-    prop_rotor.tip_radius                         = 1.25
-    prop_rotor.hub_radius                         = 0.15 * prop_rotor.tip_radius
-    prop_rotor.design_tip_mach                    = 0.6   
-    prop_rotor.number_of_blades                   = 3  
-    prop_rotor.design_tip_mach_range_hover        = [0.3,0.65]  
-    prop_rotor.design_tip_mach_range_cruise       = [0.3,0.65]  
-    inflow_ratio_hover                            = 0.06 
-    prop_rotor.angular_velocity_hover             = prop_rotor.design_tip_mach*343 /prop_rotor.tip_radius 
-    prop_rotor.design_altitude_hover              = 20 * Units.feet                  
-    prop_rotor.design_thrust_hover                = 2800
-    prop_rotor.freestream_velocity_hover          = inflow_ratio_hover*prop_rotor.angular_velocity_hover*prop_rotor.tip_radius   
-    prop_rotor.angular_velocity_cruise            = prop_rotor.design_tip_mach*343 /prop_rotor.tip_radius                     
-    prop_rotor.design_altitude_cruise             = 2500 * Units.feet                      
-    prop_rotor.design_thrust_cruise               = 1400 
-    prop_rotor.freestream_velocity_cruise         = 175*Units.mph 
-    airfoil_data                                  = prop_rotor.airfoil_data 
-    airfoil_data.geometry_files                   = [ '../Vehicles/Airfoils/NACA_4412.txt']
-    airfoil_data.polar_files                      = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
-                                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
-                                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
-                                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
-                                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']]   
-    airfoil_data.polar_stations                   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
-    opt_params                                    = prop_rotor.optimization_parameters 
-    opt_params.multiobjective_performance_weight  = 0.5
-    opt_params.multiobjective_acoustic_weight     = 1.0  # Do not consider cruise noise 
-    opt_params.aeroacoustic_weight                = 1.0  # 1 means only perfomrance optimization 0.5 to weight noise equally
-          
-    # DESING ROTOR       
-    prop_rotor                                    = prop_rotor_design(prop_rotor)   
+    prop_rotor                                          = SUAVE.Components.Energy.Converters.Prop_Rotor() 
+    prop_rotor.tag                                      = 'prop_rotor'     
+    prop_rotor.tip_radius                               = 1.25
+    prop_rotor.hub_radius                               = 0.15 * prop_rotor.tip_radius
+    prop_rotor.design_tip_mach                          = 0.6   
+    prop_rotor.number_of_blades                         = 3  
+    prop_rotor.design_tip_mach_range_hover              = [0.3,0.65]  
+    prop_rotor.design_tip_mach_range_cruise             = [0.3,0.65]  
+    inflow_ratio_hover                                  = 0.06 
+    prop_rotor.angular_velocity_hover                   = prop_rotor.design_tip_mach*343 /prop_rotor.tip_radius 
+    prop_rotor.design_altitude_hover                    = 20 * Units.feet                  
+    prop_rotor.design_thrust_hover                      = 2800
+    prop_rotor.freestream_velocity_hover                = inflow_ratio_hover*prop_rotor.angular_velocity_hover*prop_rotor.tip_radius   
+    prop_rotor.angular_velocity_cruise                  = prop_rotor.design_tip_mach*343 /prop_rotor.tip_radius                     
+    prop_rotor.design_altitude_cruise                   = 2500 * Units.feet                      
+    prop_rotor.design_thrust_cruise                     = 1400 
+    prop_rotor.freestream_velocity_cruise               = 175*Units.mph 
+       
+    airfoil                                             = SUAVE.Components.Airfoils.Airfoil()
+    airfoil.tag                                         = 'NACA_4412' 
+    airfoil.coordinate_file                             = '../Vehicles/Airfoils/NACA_4412.txt'   # absolute path   
+    airfoil.polar_files                                 = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
+                                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
+                                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
+                                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
+                                                              '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']       
+    prop_rotor.append_airfoil(airfoil)   
+    prop_rotor.airfoil_locations                        = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
+    opt_params                                          = prop_rotor.optimization_parameters 
+    opt_params.multiobjective_performance_weight        = 0.5
+    opt_params.multiobjective_acoustic_weight           = 1.0  # Do not consider cruise noise 
+    opt_params.aeroacoustic_weight                      = 0.5  # 1 means only perfomrance optimization 0.5 to weight noise equally
+                 
+    # DESING ROTOR              
+    prop_rotor                                          = prop_rotor_design(prop_rotor)   
     
     # Find the operating conditions
     atmosphere                                          = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -312,8 +329,8 @@ def prop_rotor_design_test():
     plot_results(output_pr, prop_rotor,'blue','-','^') 
     
     # Truth values for rotor with airfoil geometry defined 
-    F_pr_truth = 2802.739588036596
-    P_pr_truth = 71643.44252150676
+    F_pr_truth = 2797.200155619932
+    P_pr_truth = 76255.48733233
     
     # Store errors 
     error = Data()  

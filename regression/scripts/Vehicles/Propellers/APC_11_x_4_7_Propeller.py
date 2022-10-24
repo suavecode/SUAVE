@@ -56,16 +56,16 @@ def APC_11_x_4_7_Propeller():
     prop.radius_distribution        = r_R*prop.tip_radius      
     prop.mid_chord_alignment        = np.zeros_like(prop.chord_distribution)   
     prop.thickness_to_chord         = prop.max_thickness_distribution/prop.chord_distribution     
-    airfoil_data                    = prop.airfoil_data 
     ospath    = os.path.abspath(__file__)
     separator = os.path.sep
-    rel_path  = os.path.dirname(ospath) + separator 
-    airfoil_data.geometry_files     = [rel_path +'../Airfoils/Clark_y.txt']
-    airfoil_data.polar_files        = [[rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt',
+    rel_path  = os.path.dirname(ospath) + separator   
+    airfoil                          = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file          = rel_path +'../Airfoils/Clark_y.txt'
+    airfoil.polar_files              = [rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt',
                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_100000.txt',rel_path +'../Airfoils/Polars/Clark_y_polar_Re_200000.txt',
-                                      rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',rel_path +'../Airfoils/Polars/Clark_y_polar_Re_1000000.txt']] 
-    airfoil_data.polar_stations     = list(np.zeros(len(prop.radius_distribution)).astype(int))
-    airfoil_data.geometry           = import_airfoil_geometry(airfoil_data.geometry_files) 
-    airfoil_data.airfoil_flag       = True  
-    airfoil_data.polars             = compute_airfoil_properties(airfoil_data.geometry, airfoil_data.polar_files)
+                                      rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',rel_path +'../Airfoils/Polars/Clark_y_polar_Re_1000000.txt']
+    airfoil.geometry                 = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points)
+    airfoil.polars                   = compute_airfoil_properties(airfoil.geometry,airfoil.polar_files)
+    prop.append_airfoil(airfoil) 
+    prop.airfoil_locations           = list(np.zeros(len(prop.radius_distribution)).astype(int)) 
     return prop

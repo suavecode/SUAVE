@@ -21,16 +21,15 @@ import numpy as np
 #   Main
 # ----------------------------------------------------------------------
 
-def main():     
-    npoints = 200 # panel code works best with 20-30 points 
-    
+def main():      
     # -----------------------------------------------
     # Batch analysis of single airfoil - NACA 2410 
     # -----------------------------------------------
     Re_vals              = np.atleast_2d(np.array([1E5,1E5,1E5,1E5]))
-    AoA_vals             = np.atleast_2d(np.linspace(-5,10,4)*Units.degrees)      
-    airfoil_geometry     = compute_naca_4series(['2412'],npoints)
-    airfoil_properties_1 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals,airfoil_stations = [0,0,0,0])  
+    AoA_vals             = np.atleast_2d(np.linspace(-5,10,4)*Units.degrees)   
+    airfoil_file_1       = '2412'
+    airfoil_geometry_1   = compute_naca_4series(airfoil_file_1,npoints = 200)
+    airfoil_properties_1 = airfoil_analysis(airfoil_geometry_1,AoA_vals,Re_vals)  
     
      # Plots    
     plot_airfoil_surface_forces(airfoil_properties_1,show_legend = True )   
@@ -65,19 +64,18 @@ def main():
     # -----------------------------------------------
     # Single Condition Analysis of multiple airfoils  
     # ----------------------------------------------- 
-    ospath               = os.path.abspath(__file__)
-    separator            = os.path.sep 
-    rel_path             = ospath.split('airfoil_analysis' + separator + 'airfoil_panel_method_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator 
-    Re_vals              = np.atleast_2d(np.array([[1E5,1E5,1E5,1E5,1E5,1E5],[2E5,2E5,2E5,2E5,2E5,2E5]]))
-    AoA_vals             = np.atleast_2d(np.array([[2,2,2,2,2,2],[4,4,4,4,4,4]])*Units.degrees)       
-    airfoil_stations     = [0,1,0,1,0,1] 
-    airfoils             = [rel_path + 'NACA_4412.txt',rel_path +'Clark_y.txt']             
-    airfoil_geometry     = import_airfoil_geometry(airfoils,npoints)    
-    airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals, airfoil_stations = airfoil_stations)    
+    ospath                = os.path.abspath(__file__)
+    separator             = os.path.sep 
+    rel_path              = ospath.split('airfoil_analysis' + separator + 'airfoil_panel_method_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator 
+    Re_vals               = np.atleast_2d(np.array([[1E5,1E5,1E5,1E5,1E5,1E5],[2E5,2E5,2E5,2E5,2E5,2E5]]))
+    AoA_vals              = np.atleast_2d(np.array([[0,1,2,3,4,5],[0,1,2,3,4,5]])*Units.degrees)   
+    airfoil_file_2        = rel_path + 'NACA_4412.txt'     
+    airfoil_geometry_2    = import_airfoil_geometry(airfoil_file_2,npoints = 200)      
+    airfoil_properties_2  = airfoil_analysis(airfoil_geometry_2,AoA_vals,Re_vals)     
        
-    True_cls    = np.array([0.65581723, 0.57643382, 0.65581723, 0.57643382, 0.65581723,0.57643382])
-    True_cd     = np.array([0.01224437, 0.0115724 , 0.01224437, 0.0115724 , 0.01224437,0.0115724 ])
-    True_cms    = np.array([-0.09905913, -0.08084637, -0.09905913, -0.08084637, -0.09905913, -0.08084637])
+    True_cls    = np.array([0.43894783, 0.54740563, 0.65581723, 0.764182  , 0.87244463, 0.98056708])
+    True_cd     = np.array([0.01068774, 0.0114142 , 0.01224437, 0.01315219, 0.01419829, 0.01541621])
+    True_cms    = np.array([-0.09880519, -0.09893714, -0.09905913, -0.09922631, -0.09931107,-0.09937669])
     
     print('\n\nSingle Point Validation')   
     print('\nCL difference')
