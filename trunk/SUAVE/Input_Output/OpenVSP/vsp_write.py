@@ -20,7 +20,7 @@
 
 import SUAVE
 from SUAVE.Core import Units, Data 
-from SUAVE.Input_Output.OpenVSP.vsp_propeller import write_vsp_propeller_bem
+from SUAVE.Input_Output.OpenVSP.vsp_rotor import write_vsp_rotor_bem
 from SUAVE.Input_Output.OpenVSP.vsp_fuselage  import write_vsp_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_wing      import write_vsp_wing
 from SUAVE.Input_Output.OpenVSP.vsp_nacelle   import write_vsp_nacelle 
@@ -140,12 +140,19 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         if 'propellers' in  network:
             for prop in network.propellers:
                 vsp_bem_filename = prop.tag + '.bem' 
-                write_vsp_propeller_bem(vsp_bem_filename,prop) 
+                write_vsp_rotor_bem(vsp_bem_filename,prop) 
     
         if 'lift_rotors' in network:
             for rot in network.lift_rotors:
                 vsp_bem_filename = rot.tag + '.bem' 
-                write_vsp_propeller_bem(vsp_bem_filename,rot)    
+                write_vsp_rotor_bem(vsp_bem_filename,rot)    
+                
+        
+        if 'prop_rotors' in network:
+            for prop_rot in network.prop_rotors:
+                vsp_bem_filename = prop_rot.tag + '.bem' 
+                write_vsp_rotor_bem(vsp_bem_filename,prop_rot)    
+                        
     # -------------
     # Nacelle
     # ------------- 

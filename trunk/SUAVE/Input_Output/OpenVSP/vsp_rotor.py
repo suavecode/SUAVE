@@ -1,5 +1,5 @@
 ## @ingroup Input_Output-OpenVSP
-# vsp_propeller.py
+# vsp_rotor.py
 
 # Created:  Sep 2021, R. Erhard
 # Modified:
@@ -33,8 +33,8 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 # ----------------------------------------------------------------------
 
 ## @ingroup Input_Output-OpenVSP
-def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
-    """This reads an OpenVSP propeller geometry and writes it into a SUAVE propeller format.
+def read_vsp_protor(prop_id, units_type='SI',write_airfoil_file=True):
+    """This reads an OpenVSP rotor geometry and writes it into a SUAVE rotor format.
 
     Assumptions:
     1. Written for OpenVSP 3.24.0
@@ -46,7 +46,7 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     1. VSP 10-digit geom ID for prop.
     2. units_type set to 'SI' (default) or 'Imperial'.
     3. write_airfoil_file set to True (default) or False
-    4. number_of_radial_stations is the radial discretization used to extract the propeller design from OpenVSP
+    4. number_of_radial_stations is the radial discretization used to extract the rotor design from OpenVSP
 
     Outputs:
     Writes SUAVE propeller/rotor object, with these geometries, from VSP:
@@ -90,14 +90,14 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     """
 
 
-    # Check if this is a propeller or a lift rotor
+    # Check if this is a rotor or a lift rotor
     # Check if the thrust angle	is > 70 deg in pitch
     if vsp.GetParmVal( prop_id,'Y_Rotation','XForm') >= 70:
         # Assume lift rotor
-        prop 	= SUAVE.Components.Energy.Converters.Lift_Rotor()
+        prop  	 = SUAVE.Components.Energy.Converters.Lift_Rotor() 
     else:
         # Instantiate a propeller
-        prop 	= SUAVE.Components.Energy.Converters.Propeller()
+        prop 	= SUAVE.Components.Energy.Converters.Propeller() 
 
     # Set the units
     if units_type == 'SI':
@@ -131,7 +131,7 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     prop.orientation_euler_angles[1] 	= vsp.GetParmVal(prop_id, 'Y_Rotation', 'XForm') * Units.degrees
     prop.orientation_euler_angles[2] 	= vsp.GetParmVal(prop_id, 'Z_Rotation', 'XForm') * Units.degrees
 
-    # Get the propeller parameter IDs
+    # Get the rotor parameter IDs
     parm_id    = vsp.GetGeomParmIDs(prop_id)
     parm_names = []
     for i in range(len(parm_id)):
@@ -183,12 +183,12 @@ def read_vsp_propeller(prop_id, units_type='SI',write_airfoil_file=True):
     # Rotor Airfoil
     # ---------------------------------------------
     if write_airfoil_file:
-        print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for propeller cross section.")
+        print("Airfoil write not yet implemented. Defaulting to NACA 4412 airfoil for rotor cross section.")
 
     return prop
 
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_propeller_bem(vsp_bem_filename,propeller):
+def write_vsp_rotor_bem(vsp_bem_filename,rotor):
     """   This functions writes a .bem file for OpenVSP
     Assumptions:
         None
@@ -205,11 +205,11 @@ def write_vsp_propeller_bem(vsp_bem_filename,propeller):
     """
     vsp_bem = open(vsp_bem_filename,'w')
     with open(vsp_bem_filename,'w') as vsp_bem:
-        make_header_text(vsp_bem, propeller)
+        make_header_text(vsp_bem, rotor)
 
-        make_section_text(vsp_bem,propeller)
+        make_section_text(vsp_bem,rotor)
 
-        make_airfoil_text(vsp_bem,propeller)
+        make_airfoil_text(vsp_bem,rotor)
 
     # Now import this prop
     vsp.ImportFile(vsp_bem_filename,vsp.IMPORT_BEM,'')
@@ -228,7 +228,7 @@ def make_header_text(vsp_bem,prop):
         None
     Inputs:
         vsp_bem - OpenVSP .bem file
-        prop    - SUAVE propeller data structure
+        prop    - SUAVE rotor data structure
 
     Outputs:
         NA
@@ -270,7 +270,7 @@ Normal: {8}, {9}, {10}
 
 ## @ingroup Input_Output-OpenVSP
 def make_section_text(vsp_bem,prop):
-    """This function writes the sectional information of the propeller
+    """This function writes the sectional information of the rotor
     Assumptions:
         None
 
@@ -278,7 +278,7 @@ def make_section_text(vsp_bem,prop):
         None
     Inputs:
         vsp_bem - OpenVSP .bem file
-        prop    - SUAVE propeller data structure
+        prop    - SUAVE rotor data structure
 
     Outputs:
         NA
@@ -302,7 +302,7 @@ def make_section_text(vsp_bem,prop):
     Axial      = np.zeros(N)
     Tangential = np.zeros(N)
 
-    # Write propeller station imformation
+    # Write rotor station imformation
     vsp_bem.write(header)
     for i in range(N):
         section_text = format(r_R[i], '.7f')+ ", " + format(c_R[i], '.7f')+ ", " + format(beta_deg[i], '.7f')+ ", " +\
@@ -323,7 +323,7 @@ def make_airfoil_text(vsp_bem,prop):
         None
     Inputs:
         vsp_bem - OpenVSP .bem file
-        prop    - SUAVE propeller data structure
+        prop    - SUAVE rotor data structure
 
     Outputs:
         NA
@@ -332,16 +332,20 @@ def make_airfoil_text(vsp_bem,prop):
     """
 
     N             = len(prop.radius_distribution)
-    airfoil_data  = prop.airfoil_data
-    a_sec         = prop.airfoil_airfoil_locations
-    for i in range(N):
-        airfoil_station_header = '\nSection ' + str(i) + ' X, Y\n'
-        vsp_bem.write(airfoil_station_header)
+    airfoils      = prop.airfoils
+    a_loc         = prop.airfoil_locations 
 
-        airfoil_x     = airfoil_data.x_coordinates[int(a_sec[i])]
-        airfoil_y     = airfoil_data.y_coordinates[int(a_sec[i])]
-
-        for j in range(len(airfoil_x)):
-            section_text = format(airfoil_x[j], '.7f')+ ", " + format(airfoil_y[j], '.7f') + "\n"
-            vsp_bem.write(section_text)
+    if len(airfoils.keys())>0:
+        for i in range(N):
+            airfoil_station_header = '\nSection ' + str(i) + ' X, Y\n'
+            vsp_bem.write(airfoil_station_header)
+            for j,airfoil in enumerate(airfoils): 
+                if a_loc[i] == j: 
+                    a_geo         = airfoil.geometry 
+                    airfoil_x     = a_geo.x_coordinates 
+                    airfoil_y     = a_geo.y_coordinates    
+                    for k in range(len(airfoil_x)):
+                        section_text = format(airfoil_x[k], '.7f')+ ", " + format(airfoil_y[k], '.7f') + "\n"
+                        vsp_bem.write(section_text)                
+                 
     return

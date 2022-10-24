@@ -15,7 +15,7 @@
 from copy import deepcopy
 
 import SUAVE
-from SUAVE.Input_Output.OpenVSP.vsp_propeller import read_vsp_propeller
+from SUAVE.Input_Output.OpenVSP.vsp_rotor     import read_vsp_protor
 from SUAVE.Input_Output.OpenVSP.vsp_fuselage  import read_vsp_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_wing      import read_vsp_wing
 from SUAVE.Input_Output.OpenVSP.vsp_nacelle   import read_vsp_nacelle
@@ -221,7 +221,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True):
     lift_rotors = Container()
     propellers  = Container() 
     for prop_id in vsp_props:
-        prop = read_vsp_propeller(prop_id,units_type)
+        prop = read_vsp_protor(prop_id,units_type)
         prop.tag = vsp.GetGeomName(prop_id)
         if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
             lift_rotors.append(prop)

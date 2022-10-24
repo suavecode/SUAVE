@@ -71,15 +71,9 @@ def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',
     design_power  = rotor.design_power
     chi0          = Rh/R  
     chi           = np.linspace(chi0,1,N+1)  
-    chi           = chi[0:N] 
-    airfoil_data  = rotor.airfoil_data
-    a_geo_files   = airfoil_data.geometry_files
-    a_pol_files   = airfoil_data.polar_files
-    a_geo         = airfoil_data.geometry
-    a_pol         = airfoil_data.polars
-    n_points      = airfoil_data.number_of_points
-    naca_4series  = airfoil_data.NACA_4_series
-    a_loc         = airfoil_data.polar_stations     
+    chi           = chi[0:N]  
+    airfoils      = rotor.airfoils      
+    a_loc         = rotor.airfoil_locations    
     
     # determine target values 
     if (design_thrust == None) and (design_power== None):
@@ -87,33 +81,34 @@ def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',
     elif (design_thrust!= None) and (design_power!= None):
         raise AssertionError('Specify either design thrust or design power!') 
     if rotor.rotation == None:
-        rotor.rotation = list(np.ones(int(B)))  
-
-    # if user defines airfoil, check dimension of stations
-    if a_geo_files != None :
-        if len(a_loc) != N:
-            raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on rotor')
-        airfoil_data.airfoil_flag = True
-    else:
-        print('\nDefaulting to scaled DAE51')
-        airfoil_data.airfoil_flag    = False   
+        rotor.rotation = list(np.ones(int(B)))   
         
-    # Step 4, determine epsilon and alpha from airfoil data  
-    if airfoil_data.airfoil_flag:
-        if a_geo == None: # first, if airfoil geometry data not defined, import from geoemtry files
-            if naca_4series: # check if naca 4 series of airfoil from datafile
-                a_geo = compute_naca_4series(a_geo_files,n_points)
-            else:
-                a_geo = import_airfoil_geometry(a_geo_files,n_points)
-            airfoil_data.geometry = a_geo
-
-        if a_pol == None: # compute airfoil polars for airfoils
-            a_pol               = compute_airfoil_properties(a_geo, airfoil_polar_files=a_pol_files)
-            airfoil_data.polars = a_pol  
+    num_airfoils = len(airfoils.keys())
+    if num_airfoils>0:
+        if len(a_loc) != N:
+            raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller') 
+        
+        for _,airfoil in enumerate(airfoils):  
+            if airfoil.geometry == None: # first, if airfoil geometry data not defined, import from geoemtry files
+                if airfoil.NACA_4_series_flag: # check if naca 4 series of airfoil from datafile
+                    airfoil.geometry = compute_naca_4series(airfoil.coordinate_file,airfoil.number_of_points)
+                else:
+                    airfoil.geometry = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points) 
+    
+            if airfoil.polars == None: # compute airfoil polars for airfoils
+                airfoil.polars = compute_airfoil_properties(airfoil.geometry, airfoil_polar_files= airfoil.polar_files) 
+                     
+    # thickness to chord         
+    t_c           = np.zeros(N)    
+    if num_airfoils>0:
+        for j,airfoil in enumerate(airfoils): 
+            a_geo         = airfoil.geometry
+            locs          = np.where(np.array(a_loc) == j ) 
+            t_c[locs]     = a_geo.thickness_to_chord
             
     # append additional rotor properties for optimization  
     rotor.number_of_blades                 = int(B)  
-    rotor.thickness_to_chord               = np.take(a_geo.thickness_to_chord,a_loc,axis=0)[:,0]
+    rotor.thickness_to_chord               = t_c
     rotor.radius_distribution              = chi*R      
     
     # assign intial conditions for twist and chord distribution functions
@@ -281,11 +276,10 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     alt                      = rotor.design_altitude 
     theta                    = rotor.optimization_parameters.microphone_angle    
     rotor.chord_distribution = rotor_opt.chord_distribution
-    rotor.twist_distribution = rotor_opt.twist_distribution
+    rotor.twist_distribution = rotor_opt.twist_distribution 
     c                        = rotor.chord_distribution
-    airfoil_data             = rotor.airfoil_data
-    a_geo                    = airfoil_data.geometry 
-    a_loc                    = airfoil_data.polar_stations  
+    airfoils                 = rotor.airfoils      
+    a_loc                    = rotor.airfoil_locations     
   
     # Calculate atmospheric properties
     atmosphere                = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -329,20 +323,29 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     if rotor.design_thrust == None: 
         rotor.design_thrust = -thrust[0][2]
 
-    design_torque         = power[0][0]/omega           
-    blade_area            = sp.integrate.cumtrapz(B*c, r-r[0])
-    sigma                 = blade_area[-1]/(np.pi*R**2)   
-    MCA                   = c/4. - c[0]/4.  
+    design_torque = power[0][0]/omega           
+    blade_area    = sp.integrate.cumtrapz(B*c, r-r[0])
+    sigma         = blade_area[-1]/(np.pi*R**2)   
+    MCA           = c/4. - c[0]/4.   
+    
+    t_max         = np.zeros(len(c))    
+    t_c           = np.zeros(len(c))    
+    if len(airfoils.keys())>0:
+        for j,airfoil in enumerate(airfoils): 
+            a_geo         = airfoil.geometry
+            locs          = np.where(np.array(a_loc) == j )
+            t_max[locs]   = a_geo.max_thickness*c[locs] 
+            t_c[locs]     = a_geo.thickness_to_chord  
 
     rotor.angular_velocity           = omega      
     rotor.design_torque              = design_torque
-    rotor.max_thickness_distribution = np.take(a_geo.max_thickness,a_loc,axis=0)[:,0]*c
+    rotor.max_thickness_distribution = t_max
     rotor.radius_distribution        = r 
     rotor.number_of_blades           = int(B) 
     rotor.design_power_coefficient   = Cp[0][0] 
     rotor.design_thrust_coefficient  = noise_data.thrust_coefficient[0][0] 
     rotor.mid_chord_alignment        = MCA
-    rotor.thickness_to_chord         = np.take(a_geo.thickness_to_chord,a_loc,axis=0)[:,0] 
+    rotor.thickness_to_chord         = t_c
     rotor.design_SPL_dBA             = mean_SPL
     rotor.design_performance         = noise_data
     rotor.design_acoustics           = propeller_noise
@@ -415,19 +418,27 @@ def modify_blade_geometry(nexus):
              None
     """        
     # Pull out the vehicles
-    vehicle = nexus.vehicle_configurations.rotor_testbench 
-    rotor   = vehicle.networks.battery_propeller.propellers.rotor 
+    vehicle   = nexus.vehicle_configurations.rotor_testbench 
+    rotor     = vehicle.networks.battery_propeller.propellers.rotor 
+    airfoils  = rotor.airfoils      
+    a_loc     = rotor.airfoil_locations   
     
     # Update geometry of blade
-    c       = updated_blade_geometry(rotor.radius_distribution/rotor.tip_radius ,rotor.chord_r,rotor.chord_p,rotor.chord_q,rotor.chord_t)     
-    beta    = updated_blade_geometry(rotor.radius_distribution/rotor.tip_radius ,rotor.twist_r,rotor.twist_p,rotor.twist_q,rotor.twist_t)   
+    c         = updated_blade_geometry(rotor.radius_distribution/rotor.tip_radius ,rotor.chord_r,rotor.chord_p,rotor.chord_q,rotor.chord_t)     
+    beta      = updated_blade_geometry(rotor.radius_distribution/rotor.tip_radius ,rotor.twist_r,rotor.twist_p,rotor.twist_q,rotor.twist_t)   
+  
+    # compute max thickness distribution  
+    t_max  = np.zeros(len(c))     
+    if len(airfoils.keys())>0:
+        for j,airfoil in enumerate(airfoils): 
+            a_geo         = airfoil.geometry
+            locs          = np.where(np.array(a_loc) == j )
+            t_max[locs]   = a_geo.max_thickness*c[locs]   
     
-    rotor.chord_distribution               = c
-    rotor.twist_distribution               = beta  
-    rotor.mid_chord_alignment              = c/4. - c[0]/4.  
-    airfoil_data                           = rotor.airfoil_data 
-    a_geo                                  = airfoil_data.geometry
-    rotor.max_thickness_distribution       = np.take(a_geo.max_thickness,airfoil_data.polar_stations,axis=0)[:,0]*c 
+    rotor.max_thickness_distribution = t_max
+    rotor.chord_distribution         = c
+    rotor.twist_distribution         = beta  
+    rotor.mid_chord_alignment        = c/4. - c[0]/4. 
      
     # diff the new data
     vehicle.store_diff() 
