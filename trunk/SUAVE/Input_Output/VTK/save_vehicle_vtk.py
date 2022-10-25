@@ -24,10 +24,10 @@ import os
 
 ## @ingroup Input_Output-VTK
 def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
-                      time_step=0,origin_offset=np.array([0.,0.,0.]),VLM_settings=None, aircraftReferenceFrame=True,
+                      time_step=0,origin_offset=np.array([0.,0.,0.]),VLM_settings=None, aircraftReferenceFrame=False,
                       prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                       wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk",
-                      fuselage_filename="fuselage.vtk", nacelle_filename="nacelle.vtk", save_loc=None):
+                      fuselage_filename="fuselage.vtk", nacelle_filename="nacelle.vtk", baseName="", save_loc=None):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
 
@@ -60,6 +60,14 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
         os.makedirs(save_loc)
         print("Directory "+save_loc+" created.")
 
+    prop_filename     = baseName + prop_filename
+    rot_filename      = baseName + rot_filename
+    wake_filename     = baseName + wake_filename
+    wing_vlm_filename = baseName + wing_vlm_filename
+    fuselage_filename = baseName + fuselage_filename
+    nacelle_filename  = baseName + nacelle_filename
+    wing_filename     = baseName + wing_filename
+    
     if VLM_settings == None:
         VLM_settings = Vortex_Lattice().settings
         VLM_settings.number_spanwise_vortices  = 25
