@@ -10,18 +10,17 @@
 import numpy as np
 import copy
 from scipy.interpolate import RegularGridInterpolator
-
 from SUAVE.Core import Data
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity import compute_wing_induced_velocity
 
 
 
-def compute_interpolated_velocity_field(WD, rotor, conditions, VD=None, dL=0.03, factor=1.2):
+def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, dL=0.03, factor=0.5):
     """
     Inputs
        WD            - Rotor wake vortex distribution
-       VD            - External vortex distribution
+       VD            - External vortex distribution (ie. from lifting surface VLM)
        dL            - characteristic length of box size
        factor        - scaling factor to extend box region
     Outputs
@@ -32,74 +31,92 @@ def compute_interpolated_velocity_field(WD, rotor, conditions, VD=None, dL=0.03,
     #--------------------------------------------------------------------------------------------
     # Step 1a: Generate coarse grid for external boundaries
     #--------------------------------------------------------------------------------------------   
-    # find min/max dimensions of rotor wake filaments (rotor frame)
-    Xmin = np.min([WD.XA1, WD.XA2, WD.XB1, WD.XB2])
-    Xmax = np.max([WD.XA1, WD.XA2, WD.XB1, WD.XB2])
-    Ymin = np.min([WD.YA1, WD.YA2, WD.YB1, WD.YB2])
-    Ymax = np.max([WD.YA1, WD.YA2, WD.YB1, WD.YB2])
-    Zmin = np.min([WD.ZA1, WD.ZA2, WD.ZB1, WD.ZB2])
-    Zmax = np.max([WD.ZA1, WD.ZA2, WD.ZB1, WD.ZB2])
+    R = rotor.tip_radius
+    rotor_WD = rotor.Wake.vortex_distribution
+    
+    # find min/max dimensions of this rotor wake's filaments (rotor frame)
+    Xmin = np.min([rotor_WD.XA1, rotor_WD.XA2, rotor_WD.XB1, rotor_WD.XB2]) - (factor * R)
+    Xmax = np.max([rotor_WD.XA1, rotor_WD.XA2, rotor_WD.XB1, rotor_WD.XB2]) + (factor * R)
+    Ymin = np.min([rotor_WD.YA1, rotor_WD.YA2, rotor_WD.YB1, rotor_WD.YB2]) - (factor * R)
+    Ymax = np.max([rotor_WD.YA1, rotor_WD.YA2, rotor_WD.YB1, rotor_WD.YB2]) + (factor * R)
+    Zmin = np.min([rotor_WD.ZA1, rotor_WD.ZA2, rotor_WD.ZB1, rotor_WD.ZB2]) - (factor * R)
+    Zmax = np.max([rotor_WD.ZA1, rotor_WD.ZA2, rotor_WD.ZB1, rotor_WD.ZB2]) + (factor * R)
     
     Nx = round( (Xmax-Xmin) / dL )
     Ny = round( (Ymax-Ymin) / dL )
     Nz = round( (Zmax-Zmin) / dL )
     
-    Xouter = np.linspace(Xmin, Xmax, Nx) * factor 
-    Youter = np.linspace(Ymin, Ymax, Ny) * factor
-    Zouter = np.linspace(Zmin, Zmax, Nz) * factor
+    Xouter = np.linspace(Xmin, Xmax, Nx) 
+    Youter = np.linspace(Ymin, Ymax, Ny)
+    Zouter = np.linspace(Zmin, Zmax, Nz)
     
-    # pad with far field bounds
-    char_len = rotor.tip_radius
-    Xb_upper = rotor.origin[0][0] + 20*char_len
-    Xb_lower = rotor.origin[0][0] - 10*char_len
-    Yb_upper = rotor.origin[0][1] + 10*char_len
-    Yb_lower = rotor.origin[0][1] - 10*char_len
-    Zb_upper = rotor.origin[0][2] + 10*char_len
-    Zb_lower = rotor.origin[0][2] - 10*char_len    
-    
-    XouterPadded = np.concatenate((np.concatenate((np.array([Xb_lower]), Xouter)), np.array([Xb_upper])))
-    YouterPadded = np.concatenate((np.concatenate((np.array([Yb_lower]), Youter)), np.array([Yb_upper])))
-    ZouterPadded = np.concatenate((np.concatenate((np.array([Zb_lower]), Zouter)), np.array([Zb_upper])))
-    
-    Xp, Yp, Zp = np.meshgrid(XouterPadded, YouterPadded, ZouterPadded, indexing='ij')
+    Xp, Yp, Zp = np.meshgrid(Xouter, Youter, Zouter, indexing='ij')
     
     # stack grid points
     Xstacked = np.reshape(Xp, np.size(Xp))
     Ystacked = np.reshape(Yp, np.size(Yp))
     Zstacked = np.reshape(Zp, np.size(Zp))  
     
-    GridPoints = Data()
-    GridPoints.XC = Xstacked
-    GridPoints.YC = Ystacked
-    GridPoints.ZC = Zstacked
-    GridPoints.n_cp = len(Xstacked)    
-
-    #--------------------------------------------------------------------------------------------
-    # Step 1b: Compute induced velocities at these grid points
-    #--------------------------------------------------------------------------------------------
-    V_ind_self = compute_wake_induced_velocity(WD, GridPoints, cpts=1)
+    # split into multiple computations for reduced memory requirements and runtime
+    maxPts = 1000
+    nevals = int(np.ceil(len(Xstacked) / maxPts))
+    V_ind_network = np.zeros((1, len(Xstacked), 3))
+    Vind_ext = np.zeros((1, len(Xstacked), 3))
+    import time
+    t0 = time.time()
+    for i in range(nevals):
+        iStart = i*maxPts
+        if i == nevals-1:
+            iEnd = len(Xstacked)
+        else:
+            iEnd = (i+1)*maxPts
+        
+        GridPoints = Data()
+        GridPoints.XC = Xstacked[iStart:iEnd]
+        GridPoints.YC = Ystacked[iStart:iEnd]
+        GridPoints.ZC = Zstacked[iStart:iEnd]
+        GridPoints.n_cp = len(Xstacked[iStart:iEnd])   
+        
+        #--------------------------------------------------------------------------------------------
+        # Step 1b: Compute induced velocities from each wake at these grid points
+        #--------------------------------------------------------------------------------------------
+        for WD in WD_network:
+            V_ind_network[:,iStart:iEnd,:] += compute_wake_induced_velocity(WD, GridPoints, cpts=1)
+        
+        
+        #--------------------------------------------------------------------------------------------    
+        # Step 1c: Compute induced velocities at each evaluation point due to external VD
+        #--------------------------------------------------------------------------------------------
+        if VD is not None:   
+            VD_temp = copy.deepcopy(VD)
+            VD_temp.XC = GridPoints.XC
+            VD_temp.YC = GridPoints.YC
+            VD_temp.ZC = GridPoints.ZC
+            VD_temp.n_cp = len(GridPoints.ZC)
+            C_mn, _, _, _ = compute_wing_induced_velocity(VD_temp, mach=np.array([0]))
+            
+            Vext_x = (C_mn[:,:,:,0]@VD.gamma.T)
+            Vext_y = (C_mn[:,:,:,1]@VD.gamma.T)
+            Vext_z = (C_mn[:,:,:,2]@VD.gamma.T)
+            Vind_ext[:,iStart:iEnd,:] = np.concatenate([Vext_x, Vext_y, Vext_z],axis=2)
+            
+        else:
+            Vind_ext = np.zeros_like(V_ind_network)        
     
+    elapsed_time = time.time()-t0
+    print(elapsed_time)
+    
+    # Update induced velocities to appropriate shape
     Vind = np.zeros(np.append(np.shape(Xp), 3))
-    Vind[:,:,:,0] = np.reshape(V_ind_self[0,:,0], np.shape(Xp))
-    Vind[:,:,:,1] = np.reshape(V_ind_self[0,:,1], np.shape(Xp))
-    Vind[:,:,:,2] = np.reshape(V_ind_self[0,:,2], np.shape(Xp))
+    Vind[:,:,:,0] = np.reshape(V_ind_network[0,:,0], np.shape(Xp))
+    Vind[:,:,:,1] = np.reshape(V_ind_network[0,:,1], np.shape(Xp))
+    Vind[:,:,:,2] = np.reshape(V_ind_network[0,:,2], np.shape(Xp))
 
-    #--------------------------------------------------------------------------------------------    
-    # Step 1c: Compute induced velocities at each evaluation point due to external VD
-    #--------------------------------------------------------------------------------------------
-    if VD is not None:   
-        VD_temp = copy.deepcopy(VD)
-        VD_temp.XC = GridPoints.XC
-        VD_temp.YC = GridPoints.YC
-        VD_temp.ZC = GridPoints.ZC
-        VD_temp.n_cp = len(GridPoints.ZC)
-        C_mn, _, _, _ = compute_wing_induced_velocity(VD_temp, mach=np.array([0]))
-        V_ind_ext = np.zeros_like(Vind)
-        V_ind_ext[:,:,:,0] = np.reshape( (C_mn[:,:,:,0]@VD.gamma.T)[0,:,0] , np.shape(V_ind_ext[:,:,:,0]) )
-        V_ind_ext[:,:,:,1] = np.reshape( (C_mn[:,:,:,1]@VD.gamma.T)[0,:,0] , np.shape(V_ind_ext[:,:,:,0]) )
-        V_ind_ext[:,:,:,2] = np.reshape( (C_mn[:,:,:,2]@VD.gamma.T)[0,:,0] , np.shape(V_ind_ext[:,:,:,0]) )
-    else:
-        V_ind_ext = 0
+    V_ind_ext = np.zeros(np.append(np.shape(Xp), 3))
+    V_ind_ext[:,:,:,0] = np.reshape(Vind_ext[0,:,0], np.shape(Xp))
+    V_ind_ext[:,:,:,1] = np.reshape(Vind_ext[0,:,1], np.shape(Xp))
+    V_ind_ext[:,:,:,2] = np.reshape(Vind_ext[0,:,2], np.shape(Xp))    
+    
     
     # store box data
     interpolatedBoxData = Data()
@@ -108,6 +125,14 @@ def compute_interpolated_velocity_field(WD, rotor, conditions, VD=None, dL=0.03,
     interpolatedBoxData.N_height = len(Xp[0,0,:]) # z-direction (rotor frame)
     interpolatedBoxData.Position = np.transpose(np.array([Xp, Yp, Zp]), (1,2,3,0))
     interpolatedBoxData.Velocity = Vind
+    
+    interpolatedBoxData.Dimensions = Data()
+    interpolatedBoxData.Dimensions.Xmin = Xmin
+    interpolatedBoxData.Dimensions.Xmax = Xmax
+    interpolatedBoxData.Dimensions.Ymin = Ymin
+    interpolatedBoxData.Dimensions.Ymax = Ymax
+    interpolatedBoxData.Dimensions.Zmin = Zmin
+    interpolatedBoxData.Dimensions.Zmax = Zmax   
     
     #--------------------------------------------------------------------------------------------    
     # Step 1e: Generate function for induced velocity, Vind = f(x,y,z)
@@ -118,6 +143,14 @@ def compute_interpolated_velocity_field(WD, rotor, conditions, VD=None, dL=0.03,
     
     V_induced = Vind + V_ind_ext + vVec[0]
     
-    fun_V_induced = RegularGridInterpolator((XouterPadded,YouterPadded,ZouterPadded), V_induced,fill_value=None)
+    #fun_V_induced = RegularGridInterpolator((XouterPadded,YouterPadded,ZouterPadded), V_induced,fill_value=None)
+    fun_V_induced = RegularGridInterpolator((Xouter,Youter,Zouter), V_induced,bounds_error=False,fill_value=None, method="linear")
+    #fun_Vx_induced = RegularGridInterpolator((Xouter,Youter,Zouter), V_induced[:,:,:,0],bounds_error=False,fill_value=None, method="cubic")#method="linear")
+    #fun_Vy_induced = RegularGridInterpolator((Xouter,Youter,Zouter), V_induced[:,:,:,1],bounds_error=False,fill_value=None, method="cubic")#method="linear")
+    #fun_Vz_induced = RegularGridInterpolator((Xouter,Youter,Zouter), V_induced[:,:,:,2],bounds_error=False,fill_value=None, method="cubic")#method="linear")
     
+    #fun_V_induced = Data()
+    #fun_V_induced.fun_Vx_induced = fun_Vx_induced
+    #fun_V_induced.fun_Vy_induced = fun_Vy_induced
+    #fun_V_induced.fun_Vz_induced = fun_Vz_induced
     return fun_V_induced, interpolatedBoxData
