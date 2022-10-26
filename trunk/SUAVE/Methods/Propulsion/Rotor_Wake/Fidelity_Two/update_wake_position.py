@@ -18,10 +18,10 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_veloc
 import copy
 
 from DCode.Common.Visualization_Tools.box_contour_field_vtk import box_contour_field_vtk
-from DCode.Common.Visualization_Tools.evaluate_induced_velocity_contour_plane import evaluate_induced_velocity_contour_plane, default_prop_contourPlane
+#from DCode.Common.Visualization_Tools.evaluate_induced_velocity_contour_plane import evaluate_induced_velocity_contour_plane, default_prop_contourPlane
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-def update_wake_position(wake, rotor, conditions, VD=None):  
+def update_wake_position(wake, rotor, conditions):  
     """ Evolves the rotor wake's vortex filament positions, accounting for the wake vortex
     and external vortex components.
     
@@ -42,10 +42,21 @@ def update_wake_position(wake, rotor, conditions, VD=None):
     """  
     # Unpack
     WD = wake.vortex_distribution
+    VD = wake.external_vortex_distribution
     nts = len(WD.reshaped_wake.XA2[0,0,0,0,:])
     Na  = np.shape(WD.reshaped_wake.XA2)[0]
     omega = rotor.inputs.omega[0][0]
     dt = (2 * np.pi / Na) / omega
+    
+    WD_network=wake.influencing_rotor_wake_network
+    
+    if WD_network == None:
+        # Using single rotor wake as the netowrk
+        print("No network specified. Using single rotor wake in evolution of wake shape for "+str(wake.tag))
+        WD_network = Data()
+        WD_network[wake.tag + "_vortex_distribution"]  = WD
+        
+    
     
     #--------------------------------------------------------------------------------------------  
     # Step 1: Compute interpolated induced velocity field function, Vind = fun((x,y,z))
@@ -54,7 +65,7 @@ def update_wake_position(wake, rotor, conditions, VD=None):
         fun_V_induced = rotor.Wake.fluid_domain_velocity_field
         interpolatedBoxData = rotor.Wake.fluid_domain_interpolated_box_data
     except:
-        fun_V_induced, interpolatedBoxData = compute_interpolated_velocity_field(WD, rotor, conditions, VD)        
+        fun_V_induced, interpolatedBoxData = compute_interpolated_velocity_field(WD_network, rotor, conditions, VD)        
     
     # debug
     debug = False
