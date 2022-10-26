@@ -16,7 +16,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_v
 
 
 
-def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, dL=0.03, factor=0.5):
+def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, dL=0.025, factor=0.5):
     """
     Inputs
        WD            - Rotor wake vortex distribution
