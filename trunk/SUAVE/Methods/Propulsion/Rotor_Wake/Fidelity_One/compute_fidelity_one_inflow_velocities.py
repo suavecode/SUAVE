@@ -42,14 +42,16 @@ def compute_fidelity_one_inflow_velocities( wake, prop ):
     Nr            = len(prop.chord_distribution)
     r             = prop.radius_distribution
     rot           = prop.rotation
-    #WD            = wake.vortex_distribution
+    
+    # Obtain the network of influencing rotor wakes
+    WD_network=wake.influencing_rotor_wake_network
+    
+    if WD_network == None:
+        # Using single rotor wake as the netowrk
+        print("No network specified. Using single rotor wake in evolution of wake shape for "+str(wake.tag))
+        WD_network = Data()
+        WD_network[wake.tag + "_vortex_distribution"]  = wake.vortex_distribution    
 
-
-    try:
-        props = prop.propellers_in_network
-    except:
-        props = Data()
-        props.propeller = prop
 
     # compute radial blade section locations based on initial timestep offset
     azi_step = 2*np.pi/(Na+1)
@@ -81,13 +83,17 @@ def compute_fidelity_one_inflow_velocities( wake, prop ):
 
         # Compute induced velocities at blade from the helical fixed wake
         #VD.Wake_collapsed = WD
+        u = np.zeros((cpts, len(VD.XC)))
+        v = np.zeros((cpts, len(VD.XC)))
+        w = np.zeros((cpts, len(VD.XC)))
+        for WD in WD_network:
+            # compute wake induced velocity from each prop wake in network
+            V_ind   = compute_wake_induced_velocity(WD, VD, cpts, azi_start_idx=i)
         
-        V_ind   = compute_wake_induced_velocity(VD, VD, cpts, azi_start_idx=i)
-        
-        # velocities in vehicle frame
-        u       = V_ind[:,:,0]   # velocity in vehicle x-frame
-        v       = V_ind[:,:,1]    # velocity in vehicle y-frame
-        w       = V_ind[:,:,2]    # velocity in vehicle z-frame
+            # velocities in vehicle frame
+            u       += V_ind[:,:,0]   # velocity in vehicle x-frame
+            v       += V_ind[:,:,1]    # velocity in vehicle y-frame
+            w       += V_ind[:,:,2]    # velocity in vehicle z-frame
         
         # rotate from vehicle to prop frame:
         rot_to_prop = prop.vec_to_prop_body()
