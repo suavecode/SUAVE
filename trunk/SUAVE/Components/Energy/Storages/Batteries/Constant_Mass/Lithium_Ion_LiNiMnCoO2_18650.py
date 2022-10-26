@@ -87,6 +87,13 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         self.cell.specific_heat_capacity      = 1108                                                     # [J/kgK]    
         self.cell.radial_thermal_conductivity = 0.4                                                      # [J/kgK]  
         self.cell.axial_thermal_conductivity  = 32.2                                                     # [J/kgK] # estimated  
+        
+        self.uncertainties                    = Data() 
+        self.uncertainties.internal_resistance= 0
+        self.uncertainties.alpha_cap          = 0
+        self.uncertainties.alpha_res          = 0
+        self.uncertainties.beta_cap           = 0
+        self.uncertainties.beta_res           = 0
                                               
         battery_raw_data                      = load_battery_results()                                                   
         self.discharge_performance_map        = create_discharge_performance_map(battery_raw_data)  
@@ -179,14 +186,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         
         # State of charge of the battery
         initial_discharge_state = np.dot(I,P_bat) + E_current[0]
-        SOC_old =  np.divide(initial_discharge_state,E_max) 
-          
-        # Make sure things do not break by limiting current, temperature and current 
-        SOC_old[SOC_old < 0.] = 0.  
-        SOC_old[SOC_old > 1.] = 1.   
-        
-        T_cell[T_cell<272.65]  = 272.65
-        T_cell[T_cell>322.65]  = 322.65
+        SOC_old =  np.divide(initial_discharge_state,E_max)  
         
         battery.cell_temperature = T_cell
         battery.pack_temperature = T_cell
@@ -215,14 +215,14 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         P_loss = n_total*Q_heat_gen
         P = P_bat - np.abs(P_loss)      
         
-        # Compute State Variables
-        V_ul  = compute_NMC_cell_state_variables(battery_data,SOC_old,T_cell,I_cell)
+        # Compute State Variables with uncertainty
+        V_ul  = compute_NMC_cell_state_variables(battery_data,SOC_old,T_cell,I_cell)  
         
-        # Li-ion battery interal resistance
-        R_0      =  0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036
+        # Li-ion battery interal resistance with uncertainty
+        R_0    = ( 0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036) + battery.uncertainties.internal_resistance 
         
         # Voltage under load: 
-        V_oc      = V_ul + (I_cell * R_0) 
+        V_oc   = V_ul + (I_cell * R_0) 
         
         # ---------------------------------------------------------------------------------
         # Compute updates state of battery 
@@ -472,10 +472,10 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         # aging model  
         delta_DOD = abs(SOC[0][0] - SOC[-1][0])
         rms_V_ul  = np.sqrt(np.mean(V_ul**2)) 
-        alpha_cap = (7.542*np.mean(V_ul) - 23.75) * 1E6 * np.exp(-6976/(Temp))  
-        alpha_res = (5.270*np.mean(V_ul) - 16.32) * 1E5 * np.exp(-5986/(Temp))  
-        beta_cap  = 7.348E-3 * (rms_V_ul - 3.667)**2 +  7.60E-4 + 4.081E-3*delta_DOD
-        beta_res  = 2.153E-4 * (rms_V_ul - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD
+        alpha_cap = (7.542*np.mean(V_ul) - 23.75) * 1E6 * np.exp(-6976/(Temp))         
+        alpha_res = (5.270*np.mean(V_ul) - 16.32) * 1E5 * np.exp(-5986/(Temp))          
+        beta_cap  = 7.348E-3 * (rms_V_ul - 3.667)**2 +  7.60E-4 + 4.081E-3*delta_DOD  
+        beta_res  = 2.153E-4 * (rms_V_ul - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD  
         
         E_fade_factor   = 1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior)   
         R_growth_factor = 1 + alpha_res*(t**0.75) + beta_res*Q_prior  
