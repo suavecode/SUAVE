@@ -122,10 +122,27 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd
         else:
             Cl[cpt,:] = savitzky_golay(Cl[cpt,:], ws, order)   
             Cdval[cpt,:] = savitzky_golay(Cdval[cpt,:], ws, order)  
-                
+    
     # Apply tip/hub corrections
     Cl = Cl*F
     Cdval = Cdval*F
+    
+    ## Alternative filter:
+    #for cpt in range(ctrl_pts):
+        ## FILTER OUTLIER DATA
+        #if use_2d_analysis:
+            #for a in range(Na):
+                #lPoly = np.poly1d(np.polyfit(r[0,:,0], Cl[cpt,:,a], 6))
+                #Cl[cpt,:,a] = F[cpt,:,a]*lPoly(r[0,:,0])  
+                #dPoly = np.poly1d(np.polyfit(r[0,:,0], Cdval[cpt,:,a], 2))
+                #Cdval[cpt,:,a] = F[cpt,:,a]*dPoly(r[0,:,0])  
+        #else:
+            #lPoly = np.poly1d(np.polyfit(r, Cl[cpt,:], 6))
+            #dPoly = np.poly1d(np.polyfit(r, Cdval[cpt,:], 2))
+            #Cl[cpt,:] = F[cpt,:]*lPoly(r)
+            #Cdval[cpt,:] = F[cpt,:]*dPoly(r)            
+            
+            
     
     # prevent zero Cl to keep Cd/Cl from breaking in BET
     Cl[Cl==0] = 1e-6
@@ -174,4 +191,5 @@ def compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B,et1=1,et2=1,et3=1):
     piece[tippiece<1e-3] = hubpiece[tippiece<1e-3]
     
     F = Ftip * Fhub
+    F[F<1e-6] = 1e-6
     return lamdaw, F, piece
