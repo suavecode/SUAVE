@@ -247,7 +247,14 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
     
         # compute the induced velocity from the rotor wake on the lifting surfaces
         #VD.Wake         = wake_vortex_distribution
-        rot_V_wake_ind  = compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts)        
+
+        Na = rotor.number_azimuthal_stations
+        
+        start_angle = rotor.start_angle
+        angles = np.linspace(0,2*np.pi,Na+1)[:-1]
+        azi_start_idx = np.where(np.isclose(abs(start_angle),angles))[0][0]
+        
+        rot_V_wake_ind  = compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts,azi_start_idx)        
         
         return rot_V_wake_ind
     

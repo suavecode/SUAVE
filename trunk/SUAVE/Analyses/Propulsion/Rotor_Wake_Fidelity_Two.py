@@ -63,6 +63,7 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
         self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
         self.vtk_save_loc               = None       # location to save vtk outputs of wake
         self.restart_file               = None       # file of initial wake instance to use if specified
+        self.influencing_rotor_wake_network = None    # Network of self and external influencing rotor wake vortex distributions (Used for wake evolution)
         
         self.wake_settings              = Data()
         self.wake_settings.number_rotor_rotations     = 5
@@ -111,7 +112,7 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
         return
         
         
-    def evaluate(self,rotor,wake_inputs,conditions,VD=None):
+    def evaluate(self,rotor,wake_inputs,conditions):
         """
         Wake evaluation is performed using a free vortex wake (FVW) method for Fidelity Two.
         
@@ -146,9 +147,28 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
                 data = pickle.load(file)   
             
             # update rotor and wake initialization
-            rotor.outputs = data.prop.outputs
-            rotor.Wake.vortex_distribution = data.prop.Wake.vortex_distribution
-            self.vortex_distribution = rotor.Wake.vortex_distribution
+            try:
+                rotor.outputs = data[rotor.tag].outputs
+                rotor.Wake.vortex_distribution = data[rotor.tag].Wake.vortex_distribution
+                self.vortex_distribution = rotor.Wake.vortex_distribution  
+            except:
+                try:
+                    rotor.outputs = data.prop.outputs
+                    rotor.Wake.vortex_distribution = data.prop.Wake.vortex_distribution
+                    self.vortex_distribution = rotor.Wake.vortex_distribution
+                except:
+                    try:
+                        vehicle = data
+                        rotors = vehicle.networks.prop_net.propellers
+                        savedRotor = rotors[rotor.tag]
+                        
+                        rotor.outputs = savedRotor.outputs
+                        rotor.Wake.vortex_distribution = savedRotor.Wake.vortex_distribution
+                        self.vortex_distribution = rotor.Wake.vortex_distribution
+                    except:
+                        print("\tError: incompatible restart file. Initializing with F1 wake.")
+                        self.initialize(rotor,conditions)
+          
         else:
             self.initialize(rotor,conditions)
         
@@ -160,7 +180,7 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
             
         return va, vt, rotor
     
-    def evolve_wake_vortex_distribution(self,rotor,conditions):
+    def evolve_wake_vortex_distribution(self,rotor,conditions,WD_network=None):
         """
         Time-evolves the wake under its own wake distribution (self.vortex_distribution) and any external
         vortex distribution (self.external_vortex_distribution).

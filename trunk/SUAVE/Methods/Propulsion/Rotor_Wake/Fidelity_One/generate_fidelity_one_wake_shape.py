@@ -44,7 +44,8 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     Nr               = rotor_outputs.number_radial_stations
 
     omega            = rotor_outputs.omega                               
-    va               = rotor_outputs.disc_axial_induced_velocity
+    va               = rotor_outputs.disc_axial_induced_velocity       
+    vt               = rotor_outputs.disc_tangential_induced_velocity
     V_inf            = rotor_outputs.velocity
     gamma            = rotor_outputs.disc_circulation
     rot              = rotor.rotation
@@ -83,17 +84,17 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # extract mean inflow velocities
     axial_induced_velocity = np.mean(va,axis = 2) # radial inflow, averaged around the azimuth
     mean_induced_velocity  = np.mean( axial_induced_velocity,axis = 1)   
-    
+
     rots = rotor.body_to_prop_vel()[0]
     
     lambda_tot   = np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 99 Leishman)
-    mu_prop      = np.atleast_2d(np.dot(V_inf,rots[2])).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
+    mu_prop      = np.atleast_2d(np.dot(V_inf,rots[2]) ).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
     Vx           = np.repeat(V_inf[:,0,None], Nr, axis=1) # shape: (m,Nr)
     Vz           = np.repeat(V_inf[:,2,None], Nr, axis=1) # shape: (m,Nr)
     V_prop       = np.sqrt((Vx  + axial_induced_velocity)**2 + Vz**2)
 
     # wake skew angle 
-    wake_skew_angle = -(np.arctan(mu_prop/lambda_tot))
+    wake_skew_angle = -((np.arctan(mu_prop/lambda_tot))) # -(np.arctan(mu_prop/lambda_tot))
     wake_skew_angle = np.tile(wake_skew_angle[:,:,None],(1,Nr,nts))
     
     # reshape gamma to find the average between stations           
@@ -212,9 +213,9 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     # Store points  
     #------------------------------------------------------
     # Initialize vortex distribution and arrays with required matrix sizes
-    VD = Data()
-    rotor.vortex_distribution = VD        
-    VD = initialize_distributions(Nr, Na, B, nts, m,VD)
+    #VD = Data()
+    #rotor.vortex_distribution = VD        
+    VD = initialize_distributions(Nr, Na, B, nts, m)
     
     # ( azimuthal start index, control point  , blade number , location on blade, time step )
     if rot==-1:
@@ -286,10 +287,12 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     rotor.wake_skew_angle = wake_skew_angle
     
+    #wake.rotate_propFrame_to_globalFrame(rotor) 
+    rotor.Wake = wake
     return wake, rotor
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-def initialize_distributions(Nr, Na, B, n_wts, m, VD):
+def initialize_distributions(Nr, Na, B, n_wts, m):
     """
     Initializes the matrices for the wake vortex distributions.
     
@@ -316,7 +319,7 @@ def initialize_distributions(Nr, Na, B, n_wts, m, VD):
        
     """
     nmax = Nr - 1 # one less vortex ring than blade elements
-    
+    VD = Data()
     VD.Wake       = Data()
     mat1_size     = (Na,m,B,nmax,n_wts)
     VD.Wake.XA1   = np.zeros(mat1_size) 
