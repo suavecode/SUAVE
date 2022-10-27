@@ -6,7 +6,7 @@
 
 import numpy as np
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_pol_data,ctrl_pts,Nr,Na,tc,use_2d_analysis):
     """
     Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
                                               Wa,Wt,a,nu,
@@ -39,9 +39,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
        nu                         viscosity                                       [-]
 
        a_loc                      Locations of specified airfoils                 [-]
-       a_geo                      Geometry of specified airfoil                   [-]
-       cl_sur                     Lift Coefficient Surrogates                     [-]
-       cd_sur                     Drag Coefficient Surrogates                     [-]
+       a_pol_data                 Airfoil polar data                              [-]
        ctrl_pts                   Number of control points                        [-]
        Nr                         Number of radial blade sections                 [-]
        Na                         Number of azimuthal blade stations              [-]
@@ -63,14 +61,14 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
     # If propeller airfoils are defined, use airfoil surrogate
     if a_loc != None:
         # Compute blade Cl and Cd distribution from the airfoil data
-        dim_sur = len(cl_sur)
+        dim_sur = len(a_pol_data.lift_coefficient_surrogates)
         if use_2d_analysis:
             # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
             Cl      = np.zeros((ctrl_pts,Nr,Na))
             Cdval   = np.zeros((ctrl_pts,Nr,Na))
             for jj in range(dim_sur):
-                Cl_af           = cl_sur[a_geo[jj]]((Re,alpha))
-                Cdval_af        = cd_sur[a_geo[jj]]((Re,alpha))
+                Cl_af           = a_pol_data.lift_coefficient_surrogates[a_pol_data.airfoil_names[jj]]((Re,alpha))
+                Cdval_af        = a_pol_data.drag_coefficient_surrogates[a_pol_data.airfoil_names[jj]]((Re,alpha))
                 locs            = np.where(np.array(a_loc) == jj )
                 Cl[:,locs,:]    = Cl_af[:,locs,:]
                 Cdval[:,locs,:] = Cdval_af[:,locs,:]
@@ -80,8 +78,8 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
             Cdval   = np.zeros((ctrl_pts,Nr))
 
             for jj in range(dim_sur):
-                Cl_af         = cl_sur[a_geo[jj]]((Re,alpha))
-                Cdval_af      = cd_sur[a_geo[jj]]((Re,alpha))
+                Cl_af         = a_pol_data.lift_coefficient_surrogates[a_pol_data.airfoil_names[jj]]((Re,alpha))
+                Cdval_af      = a_pol_data.drag_coefficient_surrogates[a_pol_data.airfoil_names[jj]]((Re,alpha))
                 locs          = np.where(np.array(a_loc) == jj )
                 Cl[:,locs]    = Cl_af[:,locs]
                 Cdval[:,locs] = Cdval_af[:,locs]
