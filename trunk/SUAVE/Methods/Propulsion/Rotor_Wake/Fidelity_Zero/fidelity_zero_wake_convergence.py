@@ -52,7 +52,7 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
     PSI_final,infodict,ier,msg = sp.optimize.fsolve(iteration,PSI,args=(wake_inputs,rotor),xtol=rotor.sol_tolerance,full_output = 1,band=(1,0))
     
     if ier!=1:
-        print("Rotor BEVW did not converge to a solution (Stall)")
+        print(rotor.tag + " BEVW did not converge to a solution (Stall)")
     
     # Calculate the velocities given PSI
     va, vt = va_vt(PSI_final, wake_inputs, rotor)
@@ -126,7 +126,7 @@ def iteration(PSI, wake_inputs, rotor):
     vt           = Ut - Wt
 
     # compute blade airfoil forces and properties
-    Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+    Cl, Cdval, alpha, Ma, W, Re, alpha = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
 
     # compute inflow velocity and tip loss factor
     lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)

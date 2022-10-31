@@ -521,9 +521,9 @@ def create_response_surface(processed_data):
     battery_map             = Data() 
     amps                    = np.linspace(0, 8, 5)
     temp                    = np.linspace(0, 50, 6) +  272.65
-    SOC                     = np.linspace(0, 1, 15)
-    battery_map.Voltage     = RegularGridInterpolator((amps, temp, SOC), processed_data.Voltage,bounds_error=False,fill_value=None)
-    battery_map.Temperature = RegularGridInterpolator((amps, temp, SOC), processed_data.Temperature,bounds_error=False,fill_value=None) 
+    SOC                     = np.linspace(0, 1, 15) 
+    battery_map.Voltage     = RegularGridInterpolator((amps, temp, SOC), processed_data.Voltage, bounds_error=False, fill_value=None)
+    battery_map.Temperature = RegularGridInterpolator((amps, temp, SOC), processed_data.Temperature, bounds_error=False, fill_value=None)
      
     return battery_map 
 

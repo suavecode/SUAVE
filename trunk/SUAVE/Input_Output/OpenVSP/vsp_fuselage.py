@@ -376,6 +376,9 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
             vsp.Update()             
             set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)            
 
+        
+        vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(0),90) 
+        vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_"+str(0),90) 
         vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
         vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
         vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(end_ind),x_poses[-1])
@@ -474,7 +477,9 @@ def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end
     top_angle  = np.tan(top_z_diff/x_diff)/Units.deg
     bot_angle  = np.tan(-bot_z_diff/x_diff)/Units.deg
     side_angle = np.tan(y_diff/x_diff)/Units.deg
-
+    
+    if top_angle>180:
+        top_angle = 360 - top_angle 
     vsp.SetParmVal(fuse_id,"TBSym","XSec_"+str(i+1),0)
     vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(i+1),top_angle)
     vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(i+1),0.75)

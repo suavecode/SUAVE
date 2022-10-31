@@ -273,15 +273,10 @@ def prop_rotor_design_test():
     prop_rotor.tip_radius                               = 1.25
     prop_rotor.hub_radius                               = 0.15 * prop_rotor.tip_radius
     prop_rotor.design_tip_mach                          = 0.6   
-    prop_rotor.number_of_blades                         = 3  
-    prop_rotor.design_tip_mach_range_hover              = [0.3,0.65]  
-    prop_rotor.design_tip_mach_range_cruise             = [0.3,0.65]  
-    inflow_ratio_hover                                  = 0.06 
-    prop_rotor.angular_velocity_hover                   = prop_rotor.design_tip_mach*343 /prop_rotor.tip_radius 
+    prop_rotor.number_of_blades                         = 3    
     prop_rotor.design_altitude_hover                    = 20 * Units.feet                  
     prop_rotor.design_thrust_hover                      = 2800
-    prop_rotor.freestream_velocity_hover                = inflow_ratio_hover*prop_rotor.angular_velocity_hover*prop_rotor.tip_radius   
-    prop_rotor.angular_velocity_cruise                  = prop_rotor.design_tip_mach*343 /prop_rotor.tip_radius                     
+    prop_rotor.freestream_velocity_hover                = np.sqrt(prop_rotor.design_thrust_hover/(2*1.2*np.pi*(prop_rotor.tip_radius**2))) # From ideal power equation 
     prop_rotor.design_altitude_cruise                   = 2500 * Units.feet                      
     prop_rotor.design_thrust_cruise                     = 1400 
     prop_rotor.freestream_velocity_cruise               = 175*Units.mph 

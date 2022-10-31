@@ -33,7 +33,7 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
 # ----------------------------------------------------------------------
 
 ## @ingroup Input_Output-OpenVSP
-def read_vsp_protor(prop_id, units_type='SI',write_airfoil_file=True):
+def read_vsp_rotor(prop_id, units_type='SI',write_airfoil_file=True):
     """This reads an OpenVSP rotor geometry and writes it into a SUAVE rotor format.
 
     Assumptions:
@@ -257,7 +257,7 @@ Normal: {8}, {9}, {10}
     Z         = np.round(prop.origin[0][2],5)
     rotations = np.dot(prop.body_to_prop_vel(),np.array([-1,0,0])) # The sign is because props point opposite flow
     Xn        = np.round(rotations[0][0],5)
-    Yn        = np.round(rotations[0][1],5)
+    Yn        = np.round(rotations[0][1],5)  
     Zn        = np.round(rotations[0][2],5)
 
     beta_3_4  = np.interp(prop.tip_radius*0.75,prop.radius_distribution,beta)

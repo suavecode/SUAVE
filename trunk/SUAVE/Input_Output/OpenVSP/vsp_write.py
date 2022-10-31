@@ -36,7 +36,7 @@ import numpy as np
 import os
 
 ## @ingroup Input_Output-OpenVSP
-def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_set_ind = 4, write_igs = False):
+def write(vehicle, tag, fuel_tank_set_ind=3, verbose=False, write_file=True, OML_set_ind = 4, write_igs = False):
     """This writes a SUAVE vehicle to OpenVSP format. It will take wing segments into account
     if they are specified in the vehicle setup file.
     
@@ -126,9 +126,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     for wing in vehicle.wings:       
         if verbose:
             print('Writing '+wing.tag+' to OpenVSP Model')
-            area_tags, wing_id = write_vsp_wing(vehicle,wing,area_tags, fuel_tank_set_ind, OML_set_ind)
-        if wing.tag == 'main_wing':
-            main_wing_id = wing_id    
+        area_tags, wing_id = write_vsp_wing(vehicle,wing,area_tags, fuel_tank_set_ind, OML_set_ind) 
     
     # -------------
     # Engines
@@ -139,17 +137,23 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     
         if 'propellers' in  network:
             for prop in network.propellers:
+                if verbose:
+                    print('Writing '+prop.tag+' to OpenVSP Model')
                 vsp_bem_filename = prop.tag + '.bem' 
                 write_vsp_rotor_bem(vsp_bem_filename,prop) 
     
         if 'lift_rotors' in network:
             for rot in network.lift_rotors:
+                if verbose:
+                    print('Writing '+rot.tag+' to OpenVSP Model')
                 vsp_bem_filename = rot.tag + '.bem' 
                 write_vsp_rotor_bem(vsp_bem_filename,rot)    
                 
         
         if 'prop_rotors' in network:
             for prop_rot in network.prop_rotors:
+                if verbose:
+                    print('Writing '+prop_rot.tag+' to OpenVSP Model')
                 vsp_bem_filename = prop_rot.tag + '.bem' 
                 write_vsp_rotor_bem(vsp_bem_filename,prop_rot)    
                         

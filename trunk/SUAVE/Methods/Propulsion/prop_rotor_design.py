@@ -29,8 +29,8 @@ import time
 #  Rotor Design
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
-def prop_rotor_design(prop_rotor,number_of_stations = 20, number_of_airfoil_section_points = 100,solver_name= 'SLSQP',
-                      solver_sense_step = 1E-4,solver_tolerance = 1E-3,print_iterations = False):  
+def prop_rotor_design(prop_rotor,number_of_stations = 20,solver_name= 'SLSQP',
+                      solver_sense_step = 1E-6,solver_tolerance = 1E-5,print_iterations = False):  
     """ Optimizes prop-rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
@@ -115,15 +115,15 @@ def prop_rotor_design(prop_rotor,number_of_stations = 20, number_of_airfoil_sect
     prop_rotor.thickness_to_chord               = t_c
     prop_rotor.radius_distribution              = chi*R       
  
-    # assign intial conditions for twist and chord distribution functions
-    prop_rotor.chord_r  = 0.1*R     
-    prop_rotor.chord_p  = 2         
-    prop_rotor.chord_q  = 1         
+    # assign intial conditions for twist and chord distribution functions 
+    prop_rotor.chord_r  = prop_rotor.radius_distribution[0] 
+    prop_rotor.chord_p  = 1.0       
+    prop_rotor.chord_q  = 0.5       
     prop_rotor.chord_t  = 0.05*R    
     prop_rotor.twist_r  = np.pi/6   
-    prop_rotor.twist_p  = 1         
+    prop_rotor.twist_p  = 1.0       
     prop_rotor.twist_q  = 0.5       
-    prop_rotor.twist_t  = 0   
+    prop_rotor.twist_t  = np.pi/10  
     
     # start optimization   
     ti                   = time.time()     
@@ -167,11 +167,11 @@ def rotor_optimization_setup(prop_rotor,print_iterations):
     # Inputs
     # -------------------------------------------------------------------  
     R       = prop_rotor.tip_radius  
-    tm_ll_h  = prop_rotor.design_tip_mach_range_hover[0]
-    tm_ul_h  = prop_rotor.design_tip_mach_range_hover[1]    
+    tm_ll_h  = prop_rotor.optimization_parameters.tip_mach_range[0]
+    tm_ul_h  = prop_rotor.optimization_parameters.tip_mach_range[1]    
     tm_0_h   = (tm_ul_h + tm_ll_h)/2 
-    tm_ll_c  = prop_rotor.design_tip_mach_range_cruise[0]
-    tm_ul_c  = prop_rotor.design_tip_mach_range_cruise[1]    
+    tm_ll_c  = prop_rotor.optimization_parameters.tip_mach_range[0]
+    tm_ul_c  = prop_rotor.optimization_parameters.tip_mach_range[1]    
     tm_0_c   = (tm_ul_c + tm_ll_c)/2 
     PC_h     = prop_rotor.inputs.pitch_command_hover
     PC_cr    = prop_rotor.inputs.pitch_command_cruise  
@@ -181,7 +181,7 @@ def rotor_optimization_setup(prop_rotor,print_iterations):
     inputs.append([ 'chord_r'          ,  0.1*R    , 0.05*R     , 0.2*R     , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_p'          ,  2        , 0.25       , 2.0       , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_q'          ,  1        , 0.25       , 1.5       , 1.0     ,  1*Units.less])
-    inputs.append([ 'chord_t'          ,  0.05*R   , 0.05*R     , 0.2*R     , 1.0     ,  1*Units.less])  
+    inputs.append([ 'chord_t'          ,  0.05*R   , 0.02*R     , 0.1*R     , 1.0     ,  1*Units.less])  
     inputs.append([ 'twist_r'          ,  np.pi/6  ,  0         , np.pi/4   , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_p'          ,  1        , 0.25       , 2.0       , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_q'          ,  0.5      , 0.25       , 1.5       , 1.0     ,  1*Units.less])
@@ -309,7 +309,7 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     alt_hover                       = prop_rotor.design_altitude_hover  
     atmosphere                      = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data_hover                 = atmosphere.compute_values(alt_hover)         
-    omega_hover                     = prop_rotor_opt_hover.design_tip_mach_hover*atmo_data_hover.speed_of_sound[0]/prop_rotor.tip_radius   
+    omega_hover                     = prop_rotor_opt_hover.design_tip_mach_hover*atmo_data_hover.speed_of_sound[0][0]/prop_rotor.tip_radius   
 
     # microphone locations
     S_hover             = np.maximum(alt_hover,20*Units.feet)  

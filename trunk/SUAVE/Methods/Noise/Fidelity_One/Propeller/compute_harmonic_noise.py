@@ -62,7 +62,10 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_h        = len(harmonics)     
     num_cpt      = len(angle_of_attack)
     num_mic      = len(position_vector[0,:,0,0])
-    num_rot      = len(position_vector[0,0,:,0])  
+    num_rot      = len(position_vector[0,0,:,0]) 
+    phi_0        = np.zeros(num_rot)            # phase angle offset 
+    for r_idx,rotor in enumerate(rotors):
+        phi_0[r_idx] = rotor.phase_offset_angle
     rotor        = rotors[list(rotors.keys())[0]] 
     num_r        = len(rotor.radius_distribution) 
     orientation  = np.array(rotor.orientation_euler_angles) * 1 
@@ -92,7 +95,8 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     c              = np.tile(rotor.chord_distribution[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h))  # blade chord    
     R_tip          = rotor.tip_radius                                                     
     t_c            = np.tile(rotor.thickness_to_chord[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h))  # thickness to chord ratio
-    MCA            = np.tile(rotor.mid_chord_alignment[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h)) # Mid Chord Alighment  
+    MCA            = np.tile(rotor.mid_chord_alignment[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h)) # Mid Chord Alighment 
+    phi_0_vec      = np.tile(phi_0[None,None,:,None,None],(num_cpt,num_mic,1,num_r,num_h))
     res.f          = B*omega*m/(2*np.pi) 
     D              = 2*R[0,0,0,-1,:]                                                                             # rotor diameter    
     r              = R/R[0,0,0,-1,:]                                                                             # non dimensional radius distribution  
@@ -105,7 +109,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     M_t            = V_tip/a                                                                                     # tip Mach number 
     M_r            = np.sqrt(M_x**2 + (r**2)*(M_t**2))                                                           # section relative Mach number     
     B_D            = c/D                                                                                         
-    phi            = np.arctan(z/y)                                                                              # tangential angle   
+    phi            = np.arctan(z/y) + phi_0_vec                                                                  # tangential angle   
 
     # retarted  theta angle in the retarded reference frame
     theta_r        = np.arccos(np.cos(theta)*np.sqrt(1 - (M_x**2)*(np.sin(theta))**2) + M_x*(np.sin(theta))**2 )   

@@ -30,7 +30,7 @@ import time
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
 def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',
-                      solver_sense_step = 1E-4,solver_tolerance = 1E-3,print_iterations = False):   
+                      solver_sense_step = 1E-6,solver_tolerance = 1E-5,print_iterations = False):   
     """ Optimizes rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
@@ -112,14 +112,14 @@ def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',
     rotor.radius_distribution              = chi*R      
     
     # assign intial conditions for twist and chord distribution functions
-    rotor.chord_r                          = 0.1*R     
-    rotor.chord_p                          = 1.0       
-    rotor.chord_q                          = 0.5       
-    rotor.chord_t                          = 0.05*R    
-    rotor.twist_r                          = np.pi/6   
-    rotor.twist_p                          = 1.0       
-    rotor.twist_q                          = 0.5       
-    rotor.twist_t                          = np.pi/10   
+    rotor.chord_r  = rotor.radius_distribution[0] 
+    rotor.chord_p  = 1.0       
+    rotor.chord_q  = 0.5       
+    rotor.chord_t  = 0.05*R    
+    rotor.twist_r  = np.pi/6   
+    rotor.twist_p  = 1.0       
+    rotor.twist_q  = 0.5       
+    rotor.twist_t  = np.pi/10   
     
     # start optimization 
     ti                   = time.time()   
@@ -171,7 +171,7 @@ def rotor_optimization_setup(rotor,print_iterations ):
     inputs.append([ 'chord_r'    , 0.1*R     , 0.05*R , 0.2*R    , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_p'    , 2         , 0.25   , 2.0      , 1.0     ,  1*Units.less])
     inputs.append([ 'chord_q'    , 1         , 0.25   , 1.5      , 1.0     ,  1*Units.less])
-    inputs.append([ 'chord_t'    , 0.05*R    , 0.05*R , 0.2*R    , 1.0     ,  1*Units.less])  
+    inputs.append([ 'chord_t'    , 0.05*R    , 0.02*R , 0.1*R    , 1.0     ,  1*Units.less])  
     inputs.append([ 'twist_r'    , np.pi/6   ,  0     , np.pi/4  , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_p'    , 1         , 0.25   , 2.0      , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_q'    , 0.5       , 0.25   , 1.5      , 1.0     ,  1*Units.less])
@@ -285,7 +285,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     atmosphere                = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                 = atmosphere.compute_values(alt)    
     ctrl_pts                  = 1  
-    omega                     = rotor.design_tip_mach*atmo_data.speed_of_sound[0]/rotor.tip_radius 
+    omega                     = rotor.design_tip_mach*atmo_data.speed_of_sound[0][0]/rotor.tip_radius 
 
     # microphone locations
     S                         = np.maximum(alt , 20*Units.feet)  
@@ -323,7 +323,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     if rotor.design_thrust == None: 
         rotor.design_thrust = -thrust[0][2]
 
-    design_torque = power[0][0]/omega           
+    design_torque = power[0][0]/omega        
     blade_area    = sp.integrate.cumtrapz(B*c, r-r[0])
     sigma         = blade_area[-1]/(np.pi*R**2)   
     MCA           = c/4. - c[0]/4.   

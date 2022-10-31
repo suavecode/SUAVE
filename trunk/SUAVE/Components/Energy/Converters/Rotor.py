@@ -76,6 +76,7 @@ class Rotor(Energy_Component):
         self.design_thrust                     = None
         self.radius_distribution               = None
         self.rotation                          = 1
+        self.phase_offset_angle                = 0.0
         self.orientation_euler_angles          = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                            = False
         self.number_azimuthal_stations         = 24
@@ -409,7 +410,7 @@ class Rotor(Energy_Component):
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
-        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, alpha, Ma,W, Re, alpha = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         
         # compute HFW circulation at the blade
@@ -550,6 +551,8 @@ class Rotor(Energy_Component):
                     velocity                          = Vv,
                     blade_tangential_induced_velocity = Vt_ind_avg,
                     blade_axial_induced_velocity      = Va_ind_avg,
+                    blade_reynolds_number             = Re,
+                    blade_effective_angle_of_attack   = alpha,
                     blade_tangential_velocity         = Vt_avg,
                     blade_axial_velocity              = Va_avg,
                     disc_tangential_induced_velocity  = Vt_ind_2d,
