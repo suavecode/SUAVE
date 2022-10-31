@@ -19,8 +19,8 @@ import matplotlib.pyplot as plt
 sys.path.append('../Vehicles/Propellers')
 # the analysis functions
 
-from F8745_D4_Propeller     import F8745_D4_Propeller
-from APC_11_x_4_7_Propeller import APC_11_x_4_7_Propeller 
+from F8745_D4_Propeller  import F8745_D4_Propeller
+from APC_11x4_Propeller import APC_11x4_Propeller 
 # ----------------------------------------------------------------------
 #   Main
 # ---------------------------------------------------------------------- 
@@ -280,7 +280,7 @@ def Hararmonic_Noise_Validation(PP):
 # Broadband Noise Validation
 # ------------------------------------------------------------------     
 def Broadband_Noise_Validation(PP):  
-    APC_SF = APC_11_x_4_7_Propeller()   
+    APC_SF = APC_11x4_Propeller()   
     APC_SF_inflow_ratio = 0.08 
 
     # Atmosheric conditions 

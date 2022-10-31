@@ -110,12 +110,13 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     # -------------------------------------------------------------------------
     # PLOT ENGINE
     # -------------------------------------------------------------------------
-    nacelle_face_color = 'darkred'
-    nacelle_edge_color = 'black'
-    nacelle_alpha      = 1
+    nacelle_face_color       = 'darkred'
+    nacelle_edge_color       = 'black'
+    nacelle_alpha            = 1
+    number_of_airfoil_points = 21
     for nacelle in vehicle.nacelles:  
         # Generate Nacelle Geoemtry
-        nac_geo = generate_nacelle_points(nacelle)
+        nac_geo = generate_nacelle_points(nacelle,number_of_airfoil_points)
         
         # Plot Nacelle Geometry
         plot_nacelle_geometry(axes,nac_geo,nacelle_face_color,nacelle_edge_color,nacelle_alpha ) 
@@ -124,11 +125,12 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     # -------------------------------------------------------------------------
     # PLOT ENGINE
     # -------------------------------------------------------------------------
-    network_face_color = 'darkred'
-    network_edge_color = 'red'
-    network_alpha      = 1
+    network_face_color       = 'darkred'
+    network_edge_color       = 'red'
+    network_alpha            = 1
+    number_of_airfoil_points = 21
     for network in vehicle.networks:
-        plot_network(axes,network,network_face_color,network_edge_color,network_alpha )
+        plot_network(axes,network,number_of_airfoil_points,network_face_color,network_edge_color,network_alpha )
 
     axes.set_xlim(0,axis_limits*2)
     axes.set_ylim(-axis_limits,axis_limits)
@@ -199,8 +201,7 @@ def plot_propeller_wake(axes, prop,face_color,edge_color,alpha,ctrl_pt=0):
     Properties Used:
     N/A
     """
-    wVD = prop.Wake.vortex_distribution.reshaped_wake
-    num_cpts = len(wVD.XA1[0,:,0,0,0])
+    wVD      = prop.Wake.vortex_distribution.reshaped_wake 
     num_B    = len(wVD.XA1[0,0,:,0,0])
     dim_R    = len(wVD.XA1[0,0,0,:,0])
     nts      = len(wVD.XA1[0,0,0,0,:])
@@ -309,7 +310,7 @@ def plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha):
     return
 
 
-def plot_network(axes,network,prop_face_color,prop_edge_color,prop_alpha):
+def plot_network(axes,network,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha):
     """ This plots the 3D surface of the network
 
     Assumptions:
@@ -333,18 +334,18 @@ def plot_network(axes,network,prop_face_color,prop_edge_color,prop_alpha):
         for prop in network.propellers:
 
             # Generate And Plot Propeller/Rotor Geometry
-            plot_propeller_geometry(axes,prop,0,prop_face_color,prop_edge_color,prop_alpha)
+            plot_propeller_geometry(axes,prop,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
 
     if ('lift_rotors' in network.keys()):
 
         for rotor in network.lift_rotors:
 
             # Generate and Plot Propeller/Rotor Geometry
-            plot_propeller_geometry(axes,rotor,0,prop_face_color,prop_edge_color,prop_alpha)
+            plot_propeller_geometry(axes,rotor,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
 
     return 
 
-def generate_nacelle_points(nac,tessellation = 24):
+def generate_nacelle_points(nac,tessellation = 24,number_of_airfoil_points = 21):
     """ This generates the coordinate points on the surface of the nacelle
 
     Assumptions:
@@ -353,18 +354,21 @@ def generate_nacelle_points(nac,tessellation = 24):
     Source:
     None
 
-    Inputs: 
+    Inputs:
+    nac                        - Nacelle data structure 
+    tessellation               - azimuthal discretization of lofted body 
+    number_of_airfoil_points   - discretization of airfoil geometry 
+    
     Properties Used:
     N/A 
     """
      
     
     num_nac_segs = len(nac.Segments.keys())   
-    theta        = np.linspace(0,2*np.pi,tessellation)
-    n_points     = 21 
+    theta        = np.linspace(0,2*np.pi,tessellation) 
     
     if num_nac_segs == 0:
-        num_nac_segs = int(np.ceil(n_points/2))
+        num_nac_segs = int(np.ceil(number_of_airfoil_points/2))
         nac_pts      = np.zeros((num_nac_segs,tessellation,3))
         naf          = nac.Airfoil
         
@@ -428,6 +432,13 @@ def plot_nacelle_geometry(axes,NAC_SURF_PTS,face_color,edge_color,alpha):
 
     Source:
     None 
+    
+    Inputs:
+    axes          - plotting axes
+    NAC_SURF_PTS  - nacelle surface points 
+    face_color    - face color of nacelle 
+    edge_color    - edge color of nacelle 
+    alpha         - transparency factor 
 
     Properties Used:
     N/A
@@ -458,7 +469,8 @@ def plot_nacelle_geometry(axes,NAC_SURF_PTS,face_color,edge_color,alpha):
 
     return
 
-def plot_propeller_geometry(axes,prop,cpt=0,prop_face_color='red',prop_edge_color='darkred',prop_alpha=1):
+def plot_propeller_geometry(axes,prop,cpt=0,number_of_airfoil_points = 21,
+                            prop_face_color='red',prop_edge_color='darkred',prop_alpha=1):
     """ This plots a 3D surface of the  propeller
 
     Assumptions:
@@ -468,20 +480,21 @@ def plot_propeller_geometry(axes,prop,cpt=0,prop_face_color='red',prop_edge_colo
     None
 
     Inputs:
-    prop           - SUAVE propeller for which to plot the geometry
-    cpt            - control point at which to plot the propeller
+    axes                       - plotting axes
+    prop                       - SUAVE propeller for which to plot the geometry
+    cpt                        - control point at which to plot the propeller
+    number_of_airfoil_points   - discretization of airfoil geometry 
     
 
     Properties Used:
     N/A
     """
-    num_B     = prop.number_of_blades
-    n_points  = 21
-    af_pts    = n_points-1
+    num_B     = prop.number_of_blades 
+    af_pts    = number_of_airfoil_points-1
     dim       = len(prop.radius_distribution)
 
     for i in range(num_B):
-        G = get_blade_coordinates(prop,n_points,dim,i)
+        G = get_blade_coordinates(prop,number_of_airfoil_points,dim,i)
         # ------------------------------------------------------------------------
         # Plot Propeller Blade
         # ------------------------------------------------------------------------
@@ -528,14 +541,14 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     """    
     # unpack
     num_B        = prop.number_of_blades
-    airfoils     = prop.airfoils 
+    airfoils     = prop.Airfoils 
     beta         = prop.twist_distribution + prop.inputs.pitch_command
     a_o          = prop.start_angle
     b            = prop.chord_distribution
     r            = prop.radius_distribution
     MCA          = prop.mid_chord_alignment
     t            = prop.max_thickness_distribution
-    a_loc        = prop.airfoil_locations
+    a_loc        = prop.airfoil_polar_stations
     origin       = prop.origin
     
     if prop.rotation==1:

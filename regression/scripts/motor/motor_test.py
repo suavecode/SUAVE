@@ -41,7 +41,7 @@ def main():
                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
     prop.append_airfoil(airfoil) 
-    prop.airfoil_locations         = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    prop.airfoil_polar_stations    = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     prop                           = propeller_design(prop)    
     
     # Motor

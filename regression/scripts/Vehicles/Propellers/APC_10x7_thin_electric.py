@@ -116,5 +116,5 @@ def propeller_geometry():
     airfoil.geometry                 = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points)
     airfoil.polars                   = compute_airfoil_properties(airfoil.geometry,airfoil.polar_files)
     prop.append_airfoil(airfoil) 
-    prop.airfoil_locations           = list(np.zeros(len(r_R)).astype(int))
+    prop.airfoil_polar_stations      = list(np.zeros(len(r_R)).astype(int))
     return prop

@@ -62,8 +62,8 @@ def propeller_design(prop,number_of_stations=20):
     alt          = prop.design_altitude
     Thrust       = prop.design_thrust
     Power        = prop.design_power
-    airfoils     = prop.airfoils 
-    a_loc        = prop.airfoil_locations
+    airfoils     = prop.Airfoils 
+    a_loc        = prop.airfoil_polar_stations
     
     if (Thrust == None) and (Power== None):
         raise AssertionError('Specify either design thrust or design power!')

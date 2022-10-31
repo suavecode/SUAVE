@@ -269,7 +269,7 @@ def basic_prop(Na=24, Nr=101):
                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
     prop.append_airfoil(airfoil) 
-    prop.airfoil_locations         = list(np.zeros(Nr).astype(int))
+    prop.airfoil_polar_stations    = list(np.zeros(Nr).astype(int))
     prop                           = propeller_design(prop,Nr)   
 
     return prop

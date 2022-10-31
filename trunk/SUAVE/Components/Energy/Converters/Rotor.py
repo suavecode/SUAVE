@@ -18,6 +18,7 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Core import ContainerOrdered 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
@@ -84,8 +85,8 @@ class Rotor(Energy_Component):
         self.sol_tolerance                     = 1e-8
         self.design_power_coefficient          = 0.01
         
-        self.airfoils                          = Data() 
-        self.airfoil_locations                  = None
+        self.Airfoils                          = Airfoil_Container()
+        self.airfoil_polar_stations            = None
 
         self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream             = False
@@ -101,12 +102,11 @@ class Rotor(Energy_Component):
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                         = Rotor_Wake_Fidelity_Zero()
-        
 
-    
+
     def append_airfoil(self,airfoil):
-        """ Adds an airfoil to the segment 
-    
+        """ Adds an airfoil to the segment
+
         Assumptions:
         None
 
@@ -121,17 +121,22 @@ class Rotor(Energy_Component):
 
         Properties Used:
         N/A
-        """ 
-
-        # Assert database type
+        """  
+        # assert database type
         if not isinstance(airfoil,Data):
             raise Exception('input component must be of type Data()')
 
-        # Store data
-        self.airfoils.append(airfoil)
 
-        return    
-    
+        # See if the component exists, if it does modify the name
+        keys = self.keys()
+        if airfoil.tag in keys:
+            string_of_keys = "".join(self.keys())
+            n_comps = string_of_keys.count(airfoil.tag)
+            airfoil.tag = airfoil.tag + str(n_comps+1)    
+            
+        # store data
+        self.Airfoils.append(airfoil)
+        
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
 
@@ -208,8 +213,8 @@ class Rotor(Energy_Component):
         sweep    = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
         r_1d     = self.radius_distribution
         tc       = self.thickness_to_chord
-        a_loc    = self.airfoil_locations
-        airfoils = self.airfoils
+        a_loc    = self.airfoil_polar_stations
+        airfoils = self.Airfoils
  
 
         # Unpack rotor inputs and conditions
@@ -682,3 +687,45 @@ class Rotor(Energy_Component):
     
     def vec_to_prop_body(self):
         return self.prop_vel_to_body()
+
+ 
+## @ingroup Components-Wings
+class Airfoil_Container(ContainerOrdered):
+    """ Container for rotor airfoil  
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
+    """     
+
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        
+        return []

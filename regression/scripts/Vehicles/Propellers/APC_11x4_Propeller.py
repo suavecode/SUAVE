@@ -1,4 +1,4 @@
-# F8745_D4_Propeller.py
+# APC_11x4_Propeller.py
 #
 # Created:  Oct 2022, M. Clarke
 
@@ -14,12 +14,12 @@ import numpy as np
 
 # design propeller 
 
-def APC_11_x_4_7_Propeller():          
+def APC_11x4_Propeller():          
     prop                            = SUAVE.Components.Energy.Converters.Rotor()
     prop.inputs                     = Data() 
     prop.inputs.pitch_command       = 0 
     prop.inputs.y_axis_rotation     = 0.
-    prop.tag                        = 'APC_11x4_7_Propeller'
+    prop.tag                        = 'APC_11x4_Propeller'
     prop.tip_radius                 = (11/2)*Units.inches
     prop.hub_radius                 = prop.tip_radius*0.15 
     prop.number_of_blades           = 2  
@@ -67,5 +67,5 @@ def APC_11_x_4_7_Propeller():
     airfoil.geometry                 = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points)
     airfoil.polars                   = compute_airfoil_properties(airfoil.geometry,airfoil.polar_files)
     prop.append_airfoil(airfoil) 
-    prop.airfoil_locations           = list(np.zeros(len(prop.radius_distribution)).astype(int)) 
+    prop.airfoil_polar_stations      = list(np.zeros(len(prop.radius_distribution)).astype(int)) 
     return prop

@@ -41,21 +41,21 @@ def main():
     xfoil_data_cm   = -0.053745
   
     diff_CL           = np.abs(airfoil_properties_1.cl[0,2] - xfoil_data_cl)   
-    expected_cl_error = 0.005200678285353422
+    expected_cl_error = 0.0051685845759998905
     print('\nCL difference')
     print(diff_CL)
     assert np.abs(((airfoil_properties_1.cl[0,2] - expected_cl_error)  - xfoil_data_cl)/xfoil_data_cl)  < 1e-6 
     
 
     diff_CD           = np.abs(airfoil_properties_1.cd[0,2] - xfoil_data_cd) 
-    expected_cd_error = 0.0002122880489607154
+    expected_cd_error = 0.00022154375589937547
     print('\nCDpi difference')
     print(diff_CD)
     assert np.abs(((airfoil_properties_1.cd[0,2]- expected_cd_error)  - xfoil_data_cd)/xfoil_data_cd)  < 1e-6  
      
 
     diff_CM           = np.abs(airfoil_properties_1.cm[0,2] - xfoil_data_cm) 
-    expected_cm_error = -0.005670722786012765
+    expected_cm_error = -0.00566693670655781
     print('\nCM difference')
     print(diff_CM)
     assert np.abs(((airfoil_properties_1.cm[0,2]- expected_cm_error)  - xfoil_data_cm)/xfoil_data_cm)  < 1e-6 

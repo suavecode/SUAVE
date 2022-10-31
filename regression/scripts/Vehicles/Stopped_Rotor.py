@@ -591,7 +591,7 @@ def vehicle_setup():
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
     propeller.append_airfoil(airfoil)  
-    propeller.airfoil_locations      = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     propeller                        = propeller_design(propeller) 
     propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
     net.propellers.append(propeller)
@@ -617,7 +617,7 @@ def vehicle_setup():
                                           '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                           '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
     lift_rotor.append_airfoil(airfoil)    
-    lift_rotor.airfoil_locations          = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    lift_rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     lift_rotor                            = propeller_design(lift_rotor)  
 
     # Appending rotors with different origins

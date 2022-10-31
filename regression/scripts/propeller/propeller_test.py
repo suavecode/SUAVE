@@ -63,7 +63,7 @@ def main():
                                               '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
                                               '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']
     bad_prop.append_airfoil(airfoil)
-    bad_prop.airfoil_locations        =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    bad_prop.airfoil_polar_stations   =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     bad_prop.design_thrust            = 100000
     bad_prop                          = propeller_design(bad_prop)
     prop_a                            = SUAVE.Components.Energy.Converters.Propeller()
@@ -101,7 +101,7 @@ def main():
     prop_a.append_airfoil(airfoil_2)  # append second airfoil 
     
     # define polar stations on rotor 
-    prop_a.airfoil_locations         = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]
+    prop_a.airfoil_polar_stations    = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]
     prop_a.design_thrust             = 3054.4809132125697
     prop_a                           = propeller_design(prop_a)
     
@@ -143,7 +143,7 @@ def main():
     airfoil.NACA_4_series_flag     = True 
     airfoil.number_of_points       = 30    # for aero coefficients, panel code works better with fewer points 
     rot_a.append_airfoil(airfoil)   
-    rot_a.airfoil_locations        = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     rot_a                          = propeller_design(rot_a) 
     
     # Design a Rotor without airfoil geometry defined 
@@ -225,10 +225,10 @@ def main():
     Cplast_truth    = 0.08407389
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1237.2749519799602
-    Qr_a_truth      = 109.41785047
-    Pr_a_truth      = 22667.17749636
-    Cplastr_a_truth = 0.03565434
+    Fr_a_truth      = 1266.0906132241278
+    Qr_a_truth      = 107.01068456
+    Pr_a_truth      = 22168.50514504
+    Cplastr_a_truth = 0.03486995
     
     # Truth values for rotor without airfoil geometry defined 
     Fr_truth        = 1250.185882189092
