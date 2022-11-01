@@ -23,7 +23,7 @@ install:
     - python3 -m pip install --upgrade matplotlib
     - python3 -m pip install --upgrade plotly
     - PATH=$PATH:/home/appveyor/.local/bin
-    - pip install coveralls==3.2.0
+    - python3 -m pip install coveralls==3.2.0
     - python3 setup.py develop --user
     - cd ../regression
     
