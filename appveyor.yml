@@ -16,12 +16,12 @@ init:
     
 install:
     - cd trunk
-    - pip install --upgrade pip
-    - pip install --upgrade numpy
-    - pip install --upgrade scipy==1.7.3
-    - pip install --upgrade scikit-learn
-    - pip install --upgrade matplotlib
-    - pip install --upgrade plotly
+    - python -m pip install --upgrade pip
+    - python -m pip install --upgrade numpy
+    - python -m pip install --upgrade scipy==1.7.3
+    - python -m pip install --upgrade scikit-learn
+    - python -m pip install --upgrade matplotlib
+    - python -m pip install --upgrade plotly
     - PATH=$PATH:/home/appveyor/.local/bin
     - pip install coveralls==3.2.0
     - python3 setup.py develop --user
