@@ -72,8 +72,8 @@ def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',
     chi0          = Rh/R  
     chi           = np.linspace(chi0,1,N+1)  
     chi           = chi[0:N]  
-    airfoils      = rotor.airfoils      
-    a_loc         = rotor.airfoil_locations    
+    airfoils      = rotor.Airfoils      
+    a_loc         = rotor.airfoil_polar_stations    
     
     # determine target values 
     if (design_thrust == None) and (design_power== None):
@@ -278,8 +278,8 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     rotor.chord_distribution = rotor_opt.chord_distribution
     rotor.twist_distribution = rotor_opt.twist_distribution 
     c                        = rotor.chord_distribution
-    airfoils                 = rotor.airfoils      
-    a_loc                    = rotor.airfoil_locations     
+    airfoils                 = rotor.Airfoils      
+    a_loc                    = rotor.airfoil_polar_stations     
   
     # Calculate atmospheric properties
     atmosphere                = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -420,8 +420,8 @@ def modify_blade_geometry(nexus):
     # Pull out the vehicles
     vehicle   = nexus.vehicle_configurations.rotor_testbench 
     rotor     = vehicle.networks.battery_propeller.propellers.rotor 
-    airfoils  = rotor.airfoils      
-    a_loc     = rotor.airfoil_locations   
+    airfoils  = rotor.Airfoils      
+    a_loc     = rotor.airfoil_polar_stations   
     
     # Update geometry of blade
     c         = updated_blade_geometry(rotor.radius_distribution/rotor.tip_radius ,rotor.chord_r,rotor.chord_p,rotor.chord_q,rotor.chord_t)     

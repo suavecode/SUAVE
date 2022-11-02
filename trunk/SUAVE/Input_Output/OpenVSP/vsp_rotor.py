@@ -332,7 +332,7 @@ def make_airfoil_text(vsp_bem,prop):
     """
 
     N             = len(prop.radius_distribution)
-    airfoils      = prop.airfoils
+    airfoils      = prop.Airfoils
     a_loc         = prop.airfoil_polar_stations
 
     if len(airfoils.keys())>0:

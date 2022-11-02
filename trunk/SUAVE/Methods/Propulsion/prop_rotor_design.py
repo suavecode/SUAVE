@@ -72,8 +72,8 @@ def prop_rotor_design(prop_rotor,number_of_stations = 20,solver_name= 'SLSQP',
     chi0                  = Rh/R  
     chi                   = np.linspace(chi0,1,N+1)  
     chi                   = chi[0:N]
-    airfoils              = prop_rotor.airfoils      
-    a_loc                 = prop_rotor.airfoil_locations    
+    airfoils              = prop_rotor.Airfoils      
+    a_loc                 = prop_rotor.airfoil_polar_stations    
     
     # determine target values 
     if (design_thrust_hover == None) and (design_power_hover== None):
@@ -298,8 +298,8 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     prop_rotor.chord_distribution   = prop_rotor_opt_hover.chord_distribution
     prop_rotor.twist_distribution   = prop_rotor_opt_hover.twist_distribution
     c                               = prop_rotor.chord_distribution
-    airfoils                        = prop_rotor.airfoils      
-    a_loc                           = prop_rotor.airfoil_locations     
+    airfoils                        = prop_rotor.Airfoils      
+    a_loc                           = prop_rotor.airfoil_polar_stations     
     theta                           = prop_rotor.optimization_parameters.microphone_angle   
 
     # ------------------------------------------------------------------
@@ -510,7 +510,7 @@ def modify_blade_geometry(nexus):
     prop_rotor_hover  = vehicle_hover.networks.battery_propeller.propellers.prop_rotor 
     prop_rotor_cruise = vehicle_cruise.networks.battery_propeller.propellers.prop_rotor 
     airfoils          = prop_rotor_hover.airfoils      
-    a_loc             = prop_rotor_hover.airfoil_locations   
+    a_loc             = prop_rotor_hover.airfoil_polar_stations   
     
     # Update geometry of blade
     c       = updated_blade_geometry(prop_rotor_hover.radius_distribution/prop_rotor_hover.tip_radius ,prop_rotor_hover.chord_r,prop_rotor_hover.chord_p,prop_rotor_hover.chord_q,prop_rotor_hover.chord_t)     
