@@ -22,7 +22,7 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(airfoil_geometry,alpha,Re_L,initial_momentum_thickness=1E-5,tolerance = 1E0):
+def airfoil_analysis(airfoil_geometry,alpha,Re_L,initial_momentum_thickness=1E-5,tolerance = 1E0,H_wake = 1.05,Ue_wake = 0.99):
     """This computes the aerodynamic polars as well as the boundary layer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
 
@@ -73,18 +73,14 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,initial_momentum_thickness=1E-5
                         
     Properties Used:
     N/A
-    """    
-    
-    nalpha       = len(alpha[0,:])
-    nRe          = len(Re_L[0,:]) 
-    nRe_cpts     = len(Re_L)  
-    ncases       = nalpha 
-    ncpts        = nRe_cpts
+    """     
+    ncases       = len(alpha[0,:]) 
+    ncpts        = len(Re_L)  
     x_coord      = airfoil_geometry.x_coordinates
     y_coord      = airfoil_geometry.y_coordinates
     npanel       = len(x_coord)-1 
          
-    if (nalpha !=  nRe):
+    if (ncases !=  len(Re_L[0,:])  ):
         raise AssertionError('Number of angle of attacks and Reynolds numbers must be equal')      
     x_coord_3d = np.tile(x_coord[:,None,None],(1,ncases,ncpts)) # number of points, number of cases, number of control points 
     y_coord_3d = np.tile(y_coord[:,None,None],(1,ncases,ncpts)) # number of points, number of cases, number of control points 
@@ -228,8 +224,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,initial_momentum_thickness=1E-5
     RE_X_BOT_SURF_2        = RE_X_BOT_SURF_1.data[~RE_X_BOT_SURF_1.mask]
     DELTA_BOT_SURF_2       = DELTA_BOT_SURF_1.data[~DELTA_BOT_SURF_1.mask]
     
-    X_BOT_SURF           = X_BOT_SURF_2.reshape((npanel,ncases,ncpts),order = 'F')  
-    Y_BOT_SURF           = Y_BOT 
+    X_BOT_SURF           = X_BOT_SURF_2.reshape((npanel,ncases,ncpts),order = 'F')   
     THETA_BOT_SURF       = THETA_BOT_SURF_2.reshape((npanel,ncases,ncpts),order = 'F')  
     DELTA_STAR_BOT_SURF  = DELTA_STAR_BOT_SURF_2.reshape((npanel,ncases,ncpts),order = 'F')  
     H_BOT_SURF           = H_BOT_SURF_2.reshape((npanel,ncases,ncpts),order = 'F')
@@ -463,9 +458,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,initial_momentum_thickness=1E-5
     
     AERO_RES_BL  = aero_coeff(X_BL,Y_BL,CP_BL,alpha,npanel_mod) 
      
-    # Squire-Young relation for total drag 
-    H_wake  = 1.05
-    Ue_wake = 0.99
+    # Squire-Young relation for total drag   
     cd      = 2.0*THETA[-1,:,:]*(Ue_wake)**((5+H_wake)/2.) 
        
     airfoil_properties = Data(
@@ -512,7 +505,7 @@ def concatenate_surfaces(X_BOT,X_TOP,FUNC_BOT_SURF,FUNC_TOP_SURF,npanel,ncases,n
     FUNC_TOP_SURF  - airfoil property computation discretization on top surface    [multiple units]
     npanel         - number of panels                                              [unitless]
     ncases         - number of angle of attacks                                    [unitless]
-    ncpts            - number of Reynolds numbers                                    [unitless]
+    ncpts          - number of Reynolds numbers                                    [unitless]
                                                                  
     Outputs:                                           
     FUNC           - airfoil property in user specified discretization on entire

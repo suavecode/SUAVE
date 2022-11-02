@@ -14,7 +14,7 @@ from SUAVE.Core import Data, Units
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def  import_airfoil_polars(airfoil_polar_files):
+def  import_airfoil_polars(airfoil_polar_files,angel_of_attack_discretization = 89):
     """This imports airfoil polars from a text file output from XFOIL or Airfoiltools.com
     
     Assumptions:
@@ -37,15 +37,14 @@ def  import_airfoil_polars(airfoil_polar_files):
     num_polars            = max(num_polars, n_p)       
     
     # create empty data structures 
-    airfoil_data = Data()
-    dim_aoa      = 89 # this is done to get an AoA discretization of 0.25
-    AoA          = np.zeros((num_polars,dim_aoa))
-    CL           = np.zeros((num_polars,dim_aoa))
-    CD           = np.zeros((num_polars,dim_aoa)) 
+    airfoil_data = Data() 
+    AoA          = np.zeros((num_polars,angel_of_attack_discretization))
+    CL           = np.zeros((num_polars,angel_of_attack_discretization))
+    CD           = np.zeros((num_polars,angel_of_attack_discretization)) 
     Re           = np.zeros(num_polars)
     Ma           = np.zeros(num_polars)
     
-    AoA_interp = np.linspace(-6,16,dim_aoa)  
+    AoA_interp = np.linspace(-6,16,angel_of_attack_discretization)  
     
     for j in range(len(airfoil_polar_files)):   
         # Open file and read column names and data block
