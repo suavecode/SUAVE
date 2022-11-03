@@ -6,6 +6,7 @@
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.generate_interpolated_airfoils import generate_interpolated_airfoils 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
+from SUAVE.Plots.Geometry import plot_airfoil
 import pylab as plt
 import os
 
@@ -23,11 +24,16 @@ def main():
     new_files     = generate_interpolated_airfoils(a1, a2, nairfoils,npoints=100,save_filename="Transition")
     
     # import the new airfoil geometries and compare to the regression:
-    airfoil_data_1   = import_airfoil_geometry(new_files['a_1'].name,npoints=100)
-    airfoil_data_2   = import_airfoil_geometry(new_files['a_2'].name,npoints=100)    
+    airfoil_data_1   = import_airfoil_geometry(new_files[1],npoints=100)
+    airfoil_data_2   = import_airfoil_geometry(new_files[2],npoints=100)    
     airfoil_data_1_r = import_airfoil_geometry("Transition1_regression.txt",npoints=100)
     airfoil_data_2_r = import_airfoil_geometry("Transition2_regression.txt",npoints=100)
     
+    # plot airfoils
+    colors = ['blue','green','orange','red']
+    for af in range(len(new_files)): 
+        plot_airfoil(new_files[af],line_color = colors[af] ,save_filename = airfoil_name)
+        
     # ensure coordinates are the same:   
     assert( max(abs(airfoil_data_1.x_coordinates - airfoil_data_1_r.x_coordinates)) < 1e-5)
     assert( max(abs(airfoil_data_2.x_coordinates - airfoil_data_2_r.x_coordinates)) < 1e-5)

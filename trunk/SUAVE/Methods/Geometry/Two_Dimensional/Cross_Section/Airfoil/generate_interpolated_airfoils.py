@@ -2,18 +2,17 @@
 # generate_airfoil_transition.py
 # 
 # Created:  Mar 2021, R. Erhard
-# Modified: 
+# Modified: Oct 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
-from SUAVE.Plots.Geometry import plot_airfoil
 import numpy as np
 import os
 
-def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename="Transition",plot_airfoils=False):
+def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename="Transition"):
     """ Takes in two airfoils, interpolates between their coordinates to generate new
     airfoil geometries and saves new airfoil files.
     
@@ -89,11 +88,6 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename
         
     # plot new and original airfoils:
     airfoil_files.insert(0,a1)
-    airfoil_files.append(a2)
-    
-    if plot_airfoils:
-        for airfoil_file in airfoil_files:
-            name = os.path.basename(airfoil_file)
-            plot_airfoil(airfoil_file,save_filename = name[:-4]) 
+    airfoil_files.append(a2) 
     
     return airfoil_files
