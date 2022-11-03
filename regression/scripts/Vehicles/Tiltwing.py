@@ -353,7 +353,8 @@ def vehicle_setup():
     vehicle.append_component(net)
     
     converge_evtol_weight(vehicle,print_iterations=True)
-    vehicle.weight_breakdown  = empty(vehicle)
+    settings = Data()
+    vehicle.weight_breakdown  = empty(vehicle,settings)
     compute_component_centers_of_gravity(vehicle)
     vehicle.center_of_gravity()
 

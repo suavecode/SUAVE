@@ -714,7 +714,7 @@ def vehicle_setup():
     vehicle.wings['main_wing'].thickness_to_chord      = 0.18
     vehicle.wings['main_wing'].chords.mean_aerodynamic = 0.9644599977664836
 
-    vehicle.weight_breakdown  = empty(vehicle)
+    vehicle.weight_breakdown  = empty(vehicle,settings=Data())
     compute_component_centers_of_gravity(vehicle)
     vehicle.center_of_gravity()
 
