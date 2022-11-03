@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
-def cm_q(cm_i, l_t, mac):
+def cm_q(cla, vht, l_t, mac):
     """ This calculates the damping in pitch coefficient        
 
     Assumptions:
@@ -30,6 +30,7 @@ def cm_q(cm_i, l_t, mac):
     Properties Used:
     N/A           
     """
-    cm_q = 2. * 1.1 * cm_i * l_t / mac 
+    cm_q = -2. * l_t / mac * vht * cla
+    cm_q = cm_q * 1.1 # factor to account for fuselage contribution
     
     return cm_q
