@@ -85,7 +85,7 @@ class Rotor(Energy_Component):
         self.sol_tolerance                     = 1e-8
         self.design_power_coefficient          = 0.01
         
-        self.Airfoils                          = Airfoil_Container()
+        self.Airfoils                          = ContainerOrdered()
         self.airfoil_polar_stations            = None
 
         self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
@@ -101,8 +101,7 @@ class Rotor(Energy_Component):
         self.variable_pitch                    = False
         
         # Initialize the default wake set to Fidelity Zero
-        self.Wake                         = Rotor_Wake_Fidelity_Zero()
-
+        self.Wake                              = Rotor_Wake_Fidelity_Zero()
 
     def append_airfoil(self,airfoil):
         """ Adds an airfoil to the segment
@@ -687,45 +686,3 @@ class Rotor(Energy_Component):
     
     def vec_to_prop_body(self):
         return self.prop_vel_to_body()
-
- 
-## @ingroup Components-Wings
-class Airfoil_Container(ContainerOrdered):
-    """ Container for rotor airfoil  
-    
-    Assumptions:
-    None
-
-    Source:
-    N/A
-
-    Inputs:
-    None
-
-    Outputs:
-    None
-
-    Properties Used:
-    N/A
-    """     
-
-    def get_children(self):
-        """ Returns the components that can go inside
-        
-        Assumptions:
-        None
-    
-        Source:
-        N/A
-    
-        Inputs:
-        None
-    
-        Outputs:
-        None
-    
-        Properties Used:
-        N/A
-        """       
-        
-        return []
