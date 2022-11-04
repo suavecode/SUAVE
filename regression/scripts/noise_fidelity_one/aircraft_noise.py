@@ -176,13 +176,13 @@ def base_analysis(vehicle):
     #  Noise Analysis
     noise = SUAVE.Analyses.Noise.Fidelity_One()   
     noise.geometry = vehicle  
-    urban_canyon_microphone_array,building_locations,building_dimensions,N_x,N_y,N_z = urban_canyon_microphone_setup() 
-    noise.settings.urban_canyon_microphone_locations    = urban_canyon_microphone_array
-    noise.settings.urban_canyon_building_locations      = building_locations
-    noise.settings.urban_canyon_building_dimensions     = building_dimensions
-    noise.settings.urban_canyon_microphone_x_resolution = N_x 
-    noise.settings.urban_canyon_microphone_y_resolution = N_y
-    noise.settings.urban_canyon_microphone_z_resolution = N_z  
+    microphone_array,building_locations,building_dimensions,N_x,N_y,N_z = urban_canyon_microphone_setup() 
+    noise.settings.building_microphone_locations    = microphone_array
+    noise.settings.building_locations               = building_locations
+    noise.settings.building_building_dimensions     = building_dimensions
+    noise.settings.building_microphone_x_resolution = N_x 
+    noise.settings.building_microphone_y_resolution = N_y
+    noise.settings.building_microphone_z_resolution = N_z  
     noise.settings.level_ground_microphone_x_resolution = 2
     noise.settings.level_ground_microphone_y_resolution = 2        
     analyses.append(noise)

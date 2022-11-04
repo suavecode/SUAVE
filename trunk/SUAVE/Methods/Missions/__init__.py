@@ -3,3 +3,4 @@
 # @ingroup Methods
 
 from . import Segments
+from .compute_ground_distance_and_true_course_angle import compute_ground_distance_and_true_course_angle

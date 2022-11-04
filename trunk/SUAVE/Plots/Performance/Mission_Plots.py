@@ -2092,7 +2092,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
 
     # Adjust Plot Camera
     camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=-1., y=-1., z=.25))
-    building_loc  = results.segments[0].analyses.noise.settings.urban_canyon_building_locations
+    building_loc  = results.segments[0].analyses.noise.settings.building_locations
     num_buildings = len( building_loc)
 
     if num_buildings > 0:
@@ -2104,11 +2104,11 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
 
         # Get SPL on Building Surfaces
         max_SPL_contour_bm       = np.max(SPL_contour_bm,axis=0)
-        building_dimensions      = results.segments[0].analyses.noise.settings.urban_canyon_building_dimensions
-        N_x                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_x_resolution
-        bldg_mic_loc             = results.segments[0].analyses.noise.settings.urban_canyon_microphone_locations
-        N_y                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_y_resolution
-        N_z                      = results.segments[0].analyses.noise.settings.urban_canyon_microphone_z_resolution
+        building_dimensions      = results.segments[0].analyses.noise.settings.building_dimensions
+        N_x                      = results.segments[0].analyses.noise.settings.building_microphone_x_resolution
+        bldg_mic_loc             = results.segments[0].analyses.noise.settings.building_microphone_locations
+        N_y                      = results.segments[0].analyses.noise.settings.building_microphone_y_resolution
+        N_z                      = results.segments[0].analyses.noise.settings.building_microphone_z_resolution
         num_mics_on_xz_surface   = N_x*N_z
         num_mics_on_yz_surface   = N_y*N_z
         num_mics_on_xy_surface   = N_x*N_y

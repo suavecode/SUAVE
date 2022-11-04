@@ -19,5 +19,6 @@ from .print_airframe_output                 import print_airframe_output
 from .print_propeller_output                import print_propeller_output
 from .generate_microphone_points            import generate_building_microphone_points
 from .generate_microphone_points            import generate_ground_microphone_points
+from .generate_microphone_points            import generate_topography_points
 from .compute_noise_evaluation_locations    import compute_ground_noise_evaluation_locations
 from .compute_noise_evaluation_locations    import compute_building_noise_evaluation_locations 

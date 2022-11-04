@@ -67,28 +67,41 @@ class Fidelity_One(Noise):
                 N/A
         """
         
-        # Initialize quantities                   
+        # Initialize quantities
         settings                                      = self.settings
         settings.harmonics                            = np.arange(1,30) 
         settings.flyover                              = False    
         settings.approach                             = False
         settings.sideline                             = False
-        settings.print_noise_output                   = False 
-        settings.fix_lateral_microphone_distance      = True
-        settings.static_microphone_array              = False  
-        settings.urban_canyon_microphone_locations    = None  
-        settings.urban_canyon_building_dimensions     = []
-        settings.urban_canyon_building_locations      = []  
-        settings.urban_canyon_microphone_x_resolution = 4 
-        settings.urban_canyon_microphone_y_resolution = 4
-        settings.urban_canyon_microphone_z_resolution = 16  
-        settings.mic_x_position                       = 0       
+        settings.sideline_x_position                  = 0 
+        settings.print_noise_output                   = False  
+       
+        # settings for building noise analysis 
+        settings.building_analysis                    = False 
+        settings.building_microphone_locations        = None  
+        settings.building_dimensions                  = None
+        settings.building_locations                   = None 
+        settings.building_microphone_x_resolution     = 4 
+        settings.building_microphone_y_resolution     = 4
+        settings.building_microphone_z_resolution     = 16  
+        
+        # settings for topography analysis 
+        settings.topography_analysis                  = False 
+        settings.topography_microphone_locations      = None  
+        settings.topography_microphone_x_stencil      = None
+        settings.topography_microphone_y_stencil      = None 
+        settings.topography_microphone_x_resolution   = 5
+        settings.topography_microphone_y_resolution   = 5
+        
+        # settings for flat surface analysis
         settings.level_ground_microphone_min_x        = 1E-6
         settings.level_ground_microphone_max_x        = 5000 
         settings.level_ground_microphone_min_y        = 1E-6
-        settings.level_ground_microphone_max_y        = 450   # sideline microphone distance
+        settings.level_ground_microphone_max_y        = 450    
         settings.level_ground_microphone_x_resolution = 5
         settings.level_ground_microphone_y_resolution = 5
+                
+        # settings for acoustic frequency resolution
         settings.center_frequencies                   = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
                                                                   500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
                                                                   4000, 5000, 6300, 8000, 10000])        
@@ -126,45 +139,37 @@ class Fidelity_One(Noise):
         print_flag    = settings.print_noise_output  
         conditions    = segment.state.conditions  
         dim_cf        = len(settings.center_frequencies ) 
-        ctrl_pts      = int(segment.state.numerics.number_control_points)
-        min_x         = settings.level_ground_microphone_min_x         
-        max_x         = settings.level_ground_microphone_max_x         
-        min_y         = settings.level_ground_microphone_min_y         
-        max_y         = settings.level_ground_microphone_max_y         
-        x_resolution  = settings.level_ground_microphone_x_resolution  
-        y_resolution  = settings.level_ground_microphone_y_resolution 
-            
+        ctrl_pts      = int(segment.state.numerics.number_control_points) 
         
         # generate noise valuation points
-        settings.ground_microphone_locations = generate_ground_microphone_points(min_x,max_x,min_y,max_y,x_resolution,y_resolution )     
+        settings.ground_microphone_locations = generate_ground_microphone_points(settings)     
         
-        GM_THETA,GM_PHI,GML,num_gm_mic = compute_ground_noise_evaluation_locations(settings,segment)
+        GM_THETA,GM_PHI,RGML,GML,num_gm_mic,mic_stencil = compute_ground_noise_evaluation_locations(settings,segment)
         
         BM_THETA,BM_PHI,UCML,num_b_mic = compute_building_noise_evaluation_locations(settings,segment) 
         
-        mic_locations  = np.concatenate((GML,UCML),axis = 1) 
+        mic_locations  = np.concatenate((RGML,UCML),axis = 1) 
         THETA          = np.concatenate((GM_THETA,BM_THETA),axis = 1) 
         PHI            = np.concatenate((GM_PHI,BM_PHI),axis = 1)  
         
         num_mic = num_b_mic + num_gm_mic  
         
         # append microphone locations to conditions
-        conditions.noise.ground_microphone_theta_angles   = GM_THETA
-        conditions.noise.building_microphone_theta_angles = BM_THETA
-        conditions.noise.total_microphone_theta_angles    = THETA
+        conditions.noise.ground_microphone_theta_angles      = GM_THETA
+        conditions.noise.ground_microphone_phi_angles        = GM_PHI
+        conditions.noise.ground_microphone_stencil_locations = mic_stencil        
+        conditions.noise.ground_microphone_locations         = GML
+        conditions.noise.number_of_ground_microphones        = num_gm_mic
         
-        conditions.noise.ground_microphone_phi_angles     = GM_PHI
-        conditions.noise.building_microphone_phi_angles   = BM_PHI
-        conditions.noise.total_microphone_phi_angles      = PHI
-        
-        conditions.noise.ground_microphone_locations      = GML
-        conditions.noise.building_microphone_locations    = UCML
-        conditions.noise.total_microphone_locations       = mic_locations
-        
-        conditions.noise.number_ground_microphones        = num_gm_mic
-        conditions.noise.number_building_microphones      = num_b_mic 
-        conditions.noise.total_number_of_microphones      = num_mic
-         
+        conditions.noise.building_microphone_phi_angles      = BM_PHI
+        conditions.noise.building_microphone_theta_angles    = BM_THETA
+        conditions.noise.building_microphone_locations       = UCML
+        conditions.noise.number_of_building_microphones      = num_b_mic 
+
+        conditions.noise.total_microphone_theta_angles       = THETA
+        conditions.noise.total_microphone_phi_angles         = PHI 
+        conditions.noise.total_microphone_locations          = mic_locations 
+        conditions.noise.total_number_of_microphones         = num_mic
         
         # create empty arrays for results  
         num_src            = len(config.networks) + 1 

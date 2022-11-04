@@ -6,13 +6,15 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------
+from SUAVE.Core import Units
+from scipy.interpolate import griddata
 import numpy as np
 
 # ----------------------------------------------------------------------
 #  Compute Microphone Points
 # ---------------------------------------------------------------------
 ## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
-def generate_ground_microphone_points(min_x,max_x,min_y,max_y,N_x,N_y):
+def generate_ground_microphone_points(settings):
     """This computes the absolute microphone/observer locations on level ground. 
             
     Assumptions:
@@ -22,6 +24,7 @@ def generate_ground_microphone_points(min_x,max_x,min_y,max_y,N_x,N_y):
         N/A  
 
     Inputs:   
+    settings.
         min_x - minimum x coordinate of noise evaluation plane [meters]
         max_x - maximum x coordinate of noise evaluation plane [meters]
         min_y - minimum y coordinate of noise evaluation plane [meters]
@@ -35,21 +38,77 @@ def generate_ground_microphone_points(min_x,max_x,min_y,max_y,N_x,N_y):
     Properties Used:
         N/A       
     """       
-    num_gm                = N_x*N_y
-    gm_mic_locations      = np.zeros((num_gm,3))    
-    x_coords_0            = np.repeat(np.linspace(min_x,max_x,N_x)[:,np.newaxis],N_y, axis = 1)
-    y_coords_0            = np.repeat(np.linspace(min_y,max_y,N_y)[:,np.newaxis],N_x, axis = 1).T
-    z_coords_0            = np.zeros_like(x_coords_0) 
+    
+    if type(settings.topography_microphone_locations) is np.ndarray :  
+        N_x                   = settings.topography_microphone_x_resolution 
+        N_y                   = settings.topography_microphone_y_resolution
+        num_gm                = N_x*N_y
+        gm_mic_locations      = np.zeros((num_gm,3))    
+        x_coords_0            = settings.topography_microphone_locations[:,:,0]
+        y_coords_0            = settings.topography_microphone_locations[:,:,1]
+        z_coords_0            = settings.topography_microphone_locations[:,:,2]     
+    else:  
+        min_x                 = settings.level_ground_microphone_min_x         
+        max_x                 = settings.level_ground_microphone_max_x         
+        min_y                 = settings.level_ground_microphone_min_y         
+        max_y                 = settings.level_ground_microphone_max_y         
+        N_x                   = settings.level_ground_microphone_x_resolution  
+        N_y                   = settings.level_ground_microphone_y_resolution   
+        num_gm                = N_x*N_y
+        gm_mic_locations      = np.zeros((num_gm,3))    
+        x_coords_0            = np.repeat(np.linspace(min_x,max_x,N_x)[:,np.newaxis],N_y, axis = 1)
+        y_coords_0            = np.repeat(np.linspace(min_y,max_y,N_y)[:,np.newaxis],N_x, axis = 1).T
+        z_coords_0            = np.zeros_like(x_coords_0) 
+    
     gm_mic_locations[:,0] = x_coords_0.reshape(num_gm)
     gm_mic_locations[:,1] = y_coords_0.reshape(num_gm)
     gm_mic_locations[:,2] = z_coords_0.reshape(num_gm)     
     
     return gm_mic_locations 
-     
+  
+## @ingroup Methods-Noise-Fidelity_One-Noise_Tools  
+def generate_topography_points(topography_file,N_x,N_y):
+    """This computes the absolute microphone/observer locations on a defined topography
+            
+    Assumptions:
+        The earth is a perfect sphere with radius of earth = 6378.1 km
 
+    Source:
+        N/A  
+
+    Inputs:  
+        topography_file - file of lattide, longitude and elevation points                         [-]
+        N_x             - discretization of points in x dimension on building surface   [meters]
+        N_y             - discretization of points in y dimension on building surface   [meters] 
+        
+    Outputs: 
+        cartesian_pts  - cartesian coordiates (x,y,z) of all microphones in domain                [meters]
+        lat_long_pts   - latitude-longitude and elevation coordiates of all microphones in domain [deg,deg,m] 
+    
+    Properties Used:
+        N/A       
+    """   
+    data = np.loadtxt(topography_file)
+    Long = data[:,0]
+    Lat  = data[:,1]
+    Elev = data[:,2]    
+    
+    R                = 6378.1 * 1E3 # radius of earth
+    x_dist_max       = (np.max(Long)-np.min(Long))*Units.degrees * R # eqn for arc length,  assume earth is a perfect sphere 
+    y_dist_max       = (np.max(Lat)-np.min(Lat))*Units.degrees * R   # eqn for arc length,  assume earth is a perfect sphere 
+    
+    [x_dist,y_dist]  = np.meshgrid(np.linspace(0,x_dist_max,N_x),np.linspace(0,y_dist_max,N_y))
+    [x_deg,y_deg]    = np.meshgrid(np.linspace(np.min(Long),np.max(Long),N_x),np.linspace(np.min(Lat),np.max(Lat),N_y)) 
+    z_deg            = griddata((Long, Lat), Elev, (x_deg, y_deg), method='linear')     
+    
+    cartesian_pts  = np.dstack((np.dstack((x_dist[:,:,None],y_dist[:,:,None] )),z_deg[:,:,None]))
+    lat_long_pts   = np.dstack((np.dstack((x_deg[:,:,None],y_deg[:,:,None] )),z_deg[:,:,None])) 
+    
+    return cartesian_pts, lat_long_pts
+    
 ## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
 def generate_building_microphone_points(building_locations,building_dimensions,N_x,N_y,N_z):
-    """This computes the absolute microphone/observer locations on the surface of rectilinear buildinsg. 
+    """This computes the absolute microphone/observer locations on the surface of recti-linear buildings. 
             
     Assumptions:
         Microhpone locations are uniformly distributed on the surface
