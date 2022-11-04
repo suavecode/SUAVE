@@ -104,7 +104,7 @@ class Rotor(Energy_Component):
         self.Wake                              = Rotor_Wake_Fidelity_Zero()
 
     def append_airfoil(self,airfoil):
-        """ Adds an airfoil to the segment
+        """ Adds an airfoil to the rotor
 
         Assumptions:
         None
