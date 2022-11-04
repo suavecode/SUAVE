@@ -2065,8 +2065,8 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     max_SPL             = 100
     levs                = np.linspace(min_SPL,max_SPL,25)
     axes                = fig.add_subplot(1,1,1)
-    Range               = Range/Units.nmi
-    Span                = Span/Units.nmi
+    Range               = Range 
+    Span                = Span 
     CS                  = axes.contourf(Range , Span,SPL_gm, levels  = levs, cmap=plt.cm.jet, extend='both')
     cbar = fig.colorbar(CS)
     cbar.ax.set_ylabel('SPL (dBA)', rotation =  90)
