@@ -248,8 +248,6 @@ def plot_mission(results,line_style='bo-'):
     
     return
 
-
-
 def load_results():
     return SUAVE.Input_Output.SUAVE.load('solar_uav_mission.res')
 

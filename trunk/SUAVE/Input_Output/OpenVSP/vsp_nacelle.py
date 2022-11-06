@@ -75,7 +75,7 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
     num_segs       = len(nacelle.Segments)
     
     if num_segs > 0: 
-        if nacelle.Airfoil.naca_4_series_airfoil != None:
+        if nacelle.Airfoil.NACA_4_series_flag == True:
             raise AssertionError('Nacelle segments defined. Airfoil section will not be used.')
         nac_id = vsp.AddGeom( "STACK")
         vsp.SetGeomName(nac_id,nac_tag)  
@@ -160,16 +160,16 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
         if ft_flag:
             vsp.SetParmVal(nac_id,"Mode","Design",0.0)
         else:
-            vsp.SetParmVal(nac_id,"Mode","Design",1.0) 
+            vsp.SetParmVal(nac_id,"Mode","Design",1.0)  
          
-        if nacelle.Airfoil.naca_4_series_airfoil != None:
-            if isinstance(nacelle.Airfoil.naca_4_series_airfoil, str) and len(nacelle.Airfoil.naca_4_series_airfoil) != 4:
+        if nacelle.Airfoil.NACA_4_series_flag == True:
+            if isinstance(nacelle.Airfoil.coordinate_file, str) and len(nacelle.Airfoil.coordinate_file) != 4:
                 raise AssertionError('Nacelle cowling airfoil must be of type < string > and length < 4 >')
             else: 
                 angle        = nacelle.cowling_airfoil_angle/Units.degrees 
-                camber       = float(nacelle.Airfoil.naca_4_series_airfoil[0])/100
-                camber_loc   = float(nacelle.Airfoil.naca_4_series_airfoil[1])/10
-                thickness    = float(nacelle.Airfoil.naca_4_series_airfoil[2:])/100
+                camber       = float(nacelle.Airfoil.coordinate_file[0])/100
+                camber_loc   = float(nacelle.Airfoil.coordinate_file[1])/10
+                thickness    = float(nacelle.Airfoil.coordinate_file[2:])/100
                 
                 vsp.ChangeBORXSecShape(nac_id ,vsp.XS_FOUR_SERIES)
                 vsp.Update()
@@ -335,10 +335,11 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
             thickness  = int(round(vsp.GetParmVal(nacelle_id, "ThickChord", "XSecCurve")*10,0))
             camber     = int(round(vsp.GetParmVal(nacelle_id, "Camber", "XSecCurve")*100,0))
             camber_loc = int(round( vsp.GetParmVal(nacelle_id, "CamberLoc", "XSecCurve" )*10,0)) 
+            airfoil    = str(camber) +  str(camber_loc) +  str(thickness)
+            height     =  thickness  
             
-            airfoil = str(camber) +  str(camber_loc) +  str(thickness)
-            height  =  thickness  
-            naf.naca_4_series_airfoil  = str(airfoil)  
+            naf.coordinate_file        = str(airfoil)  
+            naf.NACA_4_series_flag     = True 
             naf.thickness_to_chord     = thickness 
             nacelle.append_airfoil(naf)
             

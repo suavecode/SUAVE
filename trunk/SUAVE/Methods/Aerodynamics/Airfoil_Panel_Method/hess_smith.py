@@ -1,6 +1,7 @@
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
 # hess_smith.py 
 # Created:  Mar 2021, M. Clarke
+# Modified: Sep 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,7 +19,7 @@ from .velocity_distribution import velocity_distribution
 # ----------------------------------------------------------------------  
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def hess_smith(x_coord,y_coord,alpha,Re,npanel,batch_analyis):
+def hess_smith(x_coord,y_coord,alpha,Re,npanel):
     """Computes the incompressible, inviscid flow over an airfoil of  arbitrary shape using the Hess-Smith panel method.  
 
     Assumptions:
@@ -30,8 +31,7 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel,batch_analyis):
                                                      
     Inputs          
     x             -  Vector of x coordinates of the surface                  [unitess]     
-    y             -  Vector of y coordinates of the surface                  [unitess] 
-    batch_analyis - flag for batch analysis                                  [boolean]
+    y             -  Vector of y coordinates of the surface                  [unitess]  
     alpha         -  Airfoil angle of attack                                 [radians] 
     npanel        -  Number of panels on the airfoil.  The number of nodes   [unitess] 
                       is equal to npanel+1, and the ith panel goes from node   
@@ -49,18 +49,18 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel,batch_analyis):
     N/A
     """      
     
-    nalpha        = len(alpha)
-    nRe           = len(Re) 
-    alpha_2d      = np.repeat(np.repeat(alpha,nRe, axis = 1)[np.newaxis,:, :], npanel, axis=0) 
+    ncases    = len(alpha[0,:])
+    ncpts     = len(Re) 
+    alpha_2d  = np.repeat(alpha.T[np.newaxis,:, :], npanel, axis=0) 
     
     # generate panel geometry data for later use   
-    l,st,ct,xbar,ybar,norm = panel_geometry(x_coord,y_coord,npanel,nalpha,nRe) 
+    l,st,ct,xbar,ybar,norm = panel_geometry(x_coord,y_coord,npanel,ncases,ncpts) 
     
     # compute matrix of aerodynamic influence coefficients
-    ainfl         = infl_coeff(x_coord,y_coord,xbar,ybar,st,ct,npanel,nalpha,nRe,batch_analyis) # nalpha x nRe x npanel+1 x npanel+1
+    ainfl         = infl_coeff(x_coord,y_coord,xbar,ybar,st,ct,npanel,ncases,ncpts) # ncases x ncpts x npanel+1 x npanel+1
     
     # compute right hand side vector for the specified angle of attack 
-    b_2d          = np.zeros((npanel+1,nalpha, nRe))
+    b_2d          = np.zeros((npanel+1,ncases, ncpts))
     b_2d[:-1,:,:] = st*np.cos(alpha_2d) - np.sin(alpha_2d)*ct
     b_2d[-1,:,:]  = -(ct[0,:,:]*np.cos(alpha_2d[-1,:,:]) + st[0,:,:]*np.sin(alpha_2d[-1,:,:]))-(ct[-1,:,:]*np.cos(alpha_2d[-1,:,:]) +st[-1,:,:]*np.sin(alpha_2d[-1,:,:]))
       
@@ -69,6 +69,6 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel,batch_analyis):
     qg            = np.swapaxes(qg_T.T,1,2) 
     
     # compute the tangential velocity distribution at the midpoint of panels 
-    vt            = velocity_distribution(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha,Re,npanel)
+    vt            = velocity_distribution(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha_2d,npanel)
     
     return  xbar,ybar,vt,norm 
