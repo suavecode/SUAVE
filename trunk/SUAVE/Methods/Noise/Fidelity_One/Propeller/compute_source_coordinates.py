@@ -89,8 +89,8 @@ def compute_point_source_coordinates(conditions,rotors,mls,settings):
     mat_1 = np.matmul(rotation_1,mat_0) 
     mat_2 = np.matmul(translation_1,mat_1)
     mat_3 = np.matmul(rotation_2,mat_2) 
-    mat_4 = np.matmul(rotation_3,mat_3) 
-    mat_5 = np.matmul(translation_2,mat_4)
+    mat_4 = np.matmul(rotation_3,mat_3) # bug
+    mat_5 = np.matmul(translation_2,mat_3) # make 4 
     mat_5 = -mat_5
 
     # store points
