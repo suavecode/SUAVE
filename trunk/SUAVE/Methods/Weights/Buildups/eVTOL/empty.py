@@ -173,6 +173,14 @@ def empty(config,
     #-------------------------------------------------------------------------------
     config.systems.air_conditioner.origin[0][0]          = 0.51 * length_scale
     config.systems.air_conditioner.mass_properties.mass  = output.ECS
+    
+    #-------------------------------------------------------------------------------
+    # Seats
+    #-------------------------------------------------------------------------------
+    config.systems.furnishings.origin[0][0]          = 0.2 * length_scale
+    config.systems.furnishings.mass_properties.mass  = output.seats
+        
+    
 
     #-------------------------------------------------------------------------------
     # Network Weight
@@ -334,24 +342,49 @@ def empty(config,
 
     output.wiring            = total_wiring_weight
     output.total_wing_weight = total_wing_weight
+    
+    
+    #-------------------------------------------------------------------------------
+    # Control Systems
+    #-------------------------------------------------------------------------------
+    config.systems.control_systems.origin[0][0]          = 0.6 * length_scale
+    config.systems.control_systems.mass_properties.mass  = output.servos
+    
+    #-------------------------------------------------------------------------------
+    # Wiring
+    #-------------------------------------------------------------------------------
+    config.systems.electrical_systems.origin[0][0]          = 0.49 * length_scale
+    config.systems.electrical_systems.mass_properties.mass  = output.wiring
+    
+    #-------------------------------------------------------------------------------
+    # BRS (Optionals?)
+    #-------------------------------------------------------------------------------
+    config.systems.optionals.origin[0][0]          = 0.49 * length_scale
+    config.systems.optionals.mass_properties.mass  = output.BRS
+    
+    
+    #-------------------------------------------------------------------------------
+    # Pasengers are payload too
+    #-------------------------------------------------------------------------------
+    config.payload.passengers.origin[0][0]         = 0.2 * length_scale
+    config.payload.passengers.mass_properties.mass = output.passengers  
 
     #-------------------------------------------------------------------------------
     # Landing Gear Weight
     #-------------------------------------------------------------------------------
     if not hasattr(config.landing_gear, 'nose'):
         config.landing_gear.nose       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
-    config.landing_gear.nose.mass      = 0.0
+    config.landing_gear.nose.mass_properties.mass      = 0.0
     if not hasattr(config.landing_gear, 'main'):
         config.landing_gear.main       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
-    config.landing_gear.main.mass      = output.landing_gear
+    config.landing_gear.main.mass_properties.mass = output.landing_gear
 
     #-------------------------------------------------------------------------------
     # Fuselage  Weight
     #-------------------------------------------------------------------------------
     output.fuselage = fuselage(config) * Units.kg
     config.fuselages.fuselage.mass_properties.center_of_gravity[0][0] = .45*config.fuselages.fuselage.lengths.total
-    config.fuselages.fuselage.mass_properties.mass                    =  output.fuselage + output.passengers + output.seats +\
-                                                                         output.wiring + output.BRS
+    config.fuselages.fuselage.mass_properties.mass                    =  output.fuselage
 
     #-------------------------------------------------------------------------------
     # Pack Up Outputs

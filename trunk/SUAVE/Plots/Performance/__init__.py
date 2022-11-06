@@ -32,3 +32,5 @@ from .Airfoil_Plots       import plot_airfoil_polars
 
 from .Propeller_Plots     import plot_propeller_disc_performance
 from .Propeller_Plots     import plot_propeller_disc_inflow
+
+from .Weights_Plots       import weight_pie_charts
