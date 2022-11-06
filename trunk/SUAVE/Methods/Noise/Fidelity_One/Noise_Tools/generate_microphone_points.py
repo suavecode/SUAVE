@@ -6,6 +6,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------
+import SUAVE
 from SUAVE.Core import Units
 from scipy.interpolate import griddata
 import numpy as np
@@ -38,12 +39,12 @@ def generate_ground_microphone_points(settings):
     Properties Used:
         N/A       
     """       
-    
+
+    N_x                   = settings.microphone_x_resolution 
+    N_y                   = settings.microphone_y_resolution
+    num_gm                = N_x*N_y
+    gm_mic_locations      = np.zeros((num_gm,3))    
     if type(settings.topography_microphone_locations) is np.ndarray :  
-        N_x                   = settings.topography_microphone_x_resolution 
-        N_y                   = settings.topography_microphone_y_resolution
-        num_gm                = N_x*N_y
-        gm_mic_locations      = np.zeros((num_gm,3))    
         x_coords_0            = settings.topography_microphone_locations[:,:,0]
         y_coords_0            = settings.topography_microphone_locations[:,:,1]
         z_coords_0            = settings.topography_microphone_locations[:,:,2]     
@@ -51,11 +52,7 @@ def generate_ground_microphone_points(settings):
         min_x                 = settings.level_ground_microphone_min_x         
         max_x                 = settings.level_ground_microphone_max_x         
         min_y                 = settings.level_ground_microphone_min_y         
-        max_y                 = settings.level_ground_microphone_max_y         
-        N_x                   = settings.level_ground_microphone_x_resolution  
-        N_y                   = settings.level_ground_microphone_y_resolution   
-        num_gm                = N_x*N_y
-        gm_mic_locations      = np.zeros((num_gm,3))    
+        max_y                 = settings.level_ground_microphone_max_y   
         x_coords_0            = np.repeat(np.linspace(min_x,max_x,N_x)[:,np.newaxis],N_y, axis = 1)
         y_coords_0            = np.repeat(np.linspace(min_y,max_y,N_y)[:,np.newaxis],N_x, axis = 1).T
         z_coords_0            = np.zeros_like(x_coords_0) 
@@ -70,8 +67,8 @@ def generate_ground_microphone_points(settings):
 def generate_topography_points(topography_file,N_x,N_y):
     """This computes the absolute microphone/observer locations on a defined topography
             
-    Assumptions:
-        The earth is a perfect sphere with radius of earth = 6378.1 km
+    Assumptions: 
+        None
 
     Source:
         N/A  
@@ -91,9 +88,10 @@ def generate_topography_points(topography_file,N_x,N_y):
     data = np.loadtxt(topography_file)
     Long = data[:,0]
     Lat  = data[:,1]
-    Elev = data[:,2]    
-    
-    R                = 6378.1 * 1E3 # radius of earth
+    Elev = data[:,2]   
+
+    earth            = SUAVE.Attributes.Planets.Earth()
+    R                = earth.mean_radius     
     x_dist_max       = (np.max(Long)-np.min(Long))*Units.degrees * R # eqn for arc length,  assume earth is a perfect sphere 
     y_dist_max       = (np.max(Lat)-np.min(Lat))*Units.degrees * R   # eqn for arc length,  assume earth is a perfect sphere 
     

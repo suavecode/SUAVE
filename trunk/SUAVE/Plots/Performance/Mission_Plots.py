@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Units
+from SUAVE.Core import Units , Data
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
@@ -1954,37 +1954,26 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     
     Properties Used:
     N/A	
-    """        
-    # unpack 
-    dim_segs     = len(results.segments)
-    dim_gm       = results.segments[0].conditions.noise.number_ground_microphones
-    dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])  
-    N_gm_x       = results.segments[0].analyses.noise.settings.level_ground_microphone_x_resolution  
-    N_gm_y       = results.segments[0].analyses.noise.settings.level_ground_microphone_y_resolution 
-    gm           = results.segments[0].conditions.noise.ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3)
-    gm_x         = -gm[:,:,0]
-    gm_y         = -gm[:,:,1]
-    colors       = cm.jet(np.linspace(0, 1,N_gm_y))   
+    """     
+    
+    noise_data = post_process_noise_data(results) 
+    SPL        = noise_data.SPL_dBA_ground_mic      
+    gm         = noise_data.SPL_dBA_ground_mic_loc    
+    gm_x       = gm[:,:,0]
+    gm_y       = gm[:,:,1]
+    colors     = cm.jet(np.linspace(0, 1,noise_data.N_gm_y))   
     
     # figure parameters
     axis_font    = {'size':'14'} 
     fig          = plt.figure(save_filename)
     fig.set_size_inches(8, 8) 
     axes        = fig.add_subplot(1,1,1) 
-     
-    SPL = np.zeros((dim_segs,dim_ctrl_pts,N_gm_x,N_gm_y))
-    # loop through control points 
-    for i in range(dim_segs):  
-        for j in range(dim_ctrl_pts):
-            if results.segments[i].battery_discharge == False:
-                pass
-            else:
-                SPL[i,j,:] = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm].reshape(N_gm_x,N_gm_y)
-    max_SPL = np.max(np.max(SPL,axis=0),axis=0)
-    for k in range(N_gm_y):
-        axes.plot(gm_x[:,0]/Units.nmi, max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' )
+      
+    max_SPL = np.max(SPL,axis=0) 
+    for k in range(noise_data.N_gm_y):
+        axes.plot(gm_x[:,0], max_SPL[:,k], marker = 'o', color = colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' )
     axes.set_ylabel('SPL (dBA)',axis_font)
-    axes.set_xlabel('Range (nmi)',axis_font)
+    axes.set_xlabel('Range (m)',axis_font)
     set_axes(axes)
     axes.legend(loc='upper right')
     if save_figure:
@@ -1992,7 +1981,6 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
 
 
     return
-
 
 ## @ingroup Plots-Performance 
 def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure = False, save_filename = "Noise_Contour",show_figure = True):
@@ -2018,42 +2006,19 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     
     Properties Used:
     N/A	
-    """   
-    # unpack 
-    dim_segs       = len(results.segments)
-    dim_ctrl_pts   = len(results.segments[0].conditions.frames.inertial.time[:,0])
-    dim_gm         = results.segments[0].conditions.noise.number_ground_microphones
-    gm_N_x         = results.segments[0].analyses.noise.settings.level_ground_microphone_x_resolution
-    gm_N_y         = results.segments[0].analyses.noise.settings.level_ground_microphone_y_resolution
-    dim_bm         = results.segments[0].conditions.noise.number_building_microphones 
-    dim_mat        = dim_segs*dim_ctrl_pts 
-    SPL_contour_gm = np.zeros((dim_mat,dim_gm)) 
-    Range          = np.zeros((dim_mat,dim_gm)) 
-    Span           = np.zeros((dim_mat,dim_gm)) 
-    SPL_contour_bm = np.zeros((dim_mat,dim_bm))  
-    Aircraft_pos   = np.zeros((dim_mat,3)) 
-    plot_data       = []
+    """    
+
+    noise_data = post_process_noise_data(results)     
+
+    SPL_contour_gm  = noise_data.SPL_dBA_ground_mic      
+    SPL_contour_bm  = noise_data.SPL_dBA_building_mic    
+    Aircraft_pos    = noise_data.aircraft_position       
+    X               = noise_data.SPL_dBA_ground_mic_loc[:,:,0]  
+    Y               = noise_data.SPL_dBA_ground_mic_loc[:,:,1]  
+    Z               = noise_data.SPL_dBA_ground_mic_loc[:,:,2]  
      
-    for i in range(dim_segs):  
-        if  results.segments[i].battery_discharge == False:
-            pass
-        else:     
-            for j in range(dim_ctrl_pts):  
-                idx                    = i*dim_ctrl_pts + j
-                Aircraft_pos[idx ,0]   = results.segments[i].conditions.frames.inertial.position_vector[j,0] 
-                Aircraft_pos[idx ,2]   = -results.segments[i].conditions.frames.inertial.position_vector[j,2] 
-                SPL_contour_gm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,:dim_gm] 
-                
-                if dim_bm > 0:
-                    SPL_contour_bm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,-dim_bm:] 
-    
-    # Level Ground Noise Contour
-    gm_mic_loc          = results.segments[0].analyses.noise.settings.ground_microphone_locations  
-    Range               = gm_mic_loc[:,0].reshape(gm_N_x,gm_N_y)
-    Span                = gm_mic_loc[:,1].reshape(gm_N_x,gm_N_y)
-    ground_surface      = np.zeros(Range.shape) 
-    max_SPL_contour_gm  = np.max(SPL_contour_gm,axis=0)
-    SPL_gm              = max_SPL_contour_gm.reshape(gm_N_x,gm_N_y)
+    plot_data      = []  
+    max_SPL_gm     = np.max(SPL_contour_gm,axis=0) 
     
     # ---------------------------------------------------------------------------
     # Level ground contour 
@@ -2061,22 +2026,20 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     filename_1          = 'Level_Ground_' + save_filename
     fig                 = plt.figure(filename_1)
     fig.set_size_inches(10 ,10)
-    min_SPL             = 30
-    max_SPL             = 100
+    min_SPL             = 35
+    max_SPL             = 80
     levs                = np.linspace(min_SPL,max_SPL,25)
-    axes                = fig.add_subplot(1,1,1)
-    Range               = Range/Units.nmi
-    Span                = Span/Units.nmi
-    CS                  = axes.contourf(Range , Span,SPL_gm, levels  = levs, cmap=plt.cm.jet, extend='both')
+    axes                = fig.add_subplot(1,1,1) 
+    CS                  = axes.contourf(X,Y,max_SPL_gm, levels  = levs, cmap=plt.cm.jet, extend='both')
     cbar = fig.colorbar(CS)
     cbar.ax.set_ylabel('SPL (dBA)', rotation =  90)
-    axes.set_ylabel('Spanwise $x_{fp}$ (nmi)',labelpad = 15)
-    axes.set_xlabel('Streamwise $x_{fp}$ (nmi)')
+    axes.set_ylabel('Spanwise $x_{fp}$ (m)',labelpad = 15)
+    axes.set_xlabel('Streamwise $x_{fp}$ (m)')
 
     # ---------------------------------------------------------------------------
     # Comprehensive contour including buildings
     # ---------------------------------------------------------------------------
-    ground_contour      = contour_surface_slice(Range,Span, ground_surface , SPL_gm)
+    ground_contour   = contour_surface_slice(X,Y,Z,max_SPL_gm)
     plot_data.append(ground_contour)
 
     # Aircraft Trajectory
@@ -2093,8 +2056,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     # Adjust Plot Camera
     camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=-1., y=-1., z=.25))
     building_loc  = results.segments[0].analyses.noise.settings.building_locations
-    num_buildings = len( building_loc)
-
+    num_buildings = len( building_loc) 
     if num_buildings > 0:
         max_alt     = np.maximum(max_alt, max((np.array(building_loc))[:,2]))
         min_bm_SPL  = np.min(SPL_contour_bm)
@@ -2187,6 +2149,50 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     if show_figure:
         fig.show()
     return
+
+
+def post_process_noise_data(results): 
+
+    # unpack 
+    N_segs         = len(results.segments)
+    N_ctrl_pts     = len(results.segments[0].conditions.frames.inertial.time[:,0]) 
+    N_bm           = results.segments[0].conditions.noise.number_of_building_microphones 
+    N_gm_x         = results.segments[0].analyses.noise.settings.microphone_x_resolution
+    N_gm_y         = results.segments[0].analyses.noise.settings.microphone_y_resolution   
+    dim_mat        = N_segs*N_ctrl_pts 
+    SPL_contour_gm = np.ones((dim_mat,N_gm_x,N_gm_y))*30 
+    SPL_contour_bm = np.ones((dim_mat,N_bm))*30
+    Aircraft_pos   = np.zeros((dim_mat,3)) 
+    Mic_pos_gm     = results.segments[0].conditions.noise.total_ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3) 
+    
+    for i in range(N_segs):  
+        if  results.segments[i].battery_discharge == False:
+            pass
+        else:      
+            S_gm_x = results.segments[i].analyses.noise.settings.microphone_x_stencil
+            S_gm_y = results.segments[i].analyses.noise.settings.microphone_y_stencil
+            S_locs = results.segments[i].conditions.noise.ground_microphone_stencil_locations
+            for j in range(N_ctrl_pts):
+                idx                    = i*N_ctrl_pts + j 
+                Aircraft_pos[idx,0]    = results.segments[i].conditions.frames.inertial.position_vector[j,0] 
+                Aircraft_pos[idx,1]    = results.segments[i].conditions.frames.inertial.position_vector[j,1] 
+                Aircraft_pos[idx,2]    = -results.segments[i].conditions.frames.inertial.position_vector[j,2] 
+                stencil_length         = S_gm_x*2 + 1
+                stencil_width          = S_gm_y*2 + 1
+                SPL_contour_gm[idx,int(S_locs[j,0]):int(S_locs[j,1]),int(S_locs[j,2]):int(S_locs[j,3])]  = results.segments[i].conditions.noise.total_SPL_dBA[j].reshape(stencil_length ,stencil_width )  
+                if N_bm > 0:
+                    SPL_contour_bm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,-N_bm:]  
+    
+    noise_data                        = Data()
+    noise_data.SPL_dBA_ground_mic     = np.nan_to_num(SPL_contour_gm)
+    noise_data.SPL_dBA_building_mic   = np.nan_to_num(SPL_contour_bm)
+    noise_data.aircraft_position      = Aircraft_pos
+    noise_data.SPL_dBA_ground_mic_loc = Mic_pos_gm 
+    noise_data.N_gm_y                 = N_gm_y
+    noise_data.N_gm_x                 = N_gm_x  
+    
+    return noise_data
+
 
 
 def contour_surface_slice(x,y,z,values):

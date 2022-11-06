@@ -6,9 +6,9 @@
 # ----------------------------------------------------------------------
 #  Inports
 # ----------------------------------------------------------------------
+import SUAVE
 import numpy as np
 from SUAVE.Core import Units
-
 ## @ingroup Methods-Missions 
 def compute_ground_distance_and_true_course_angle(departure_coordinates,destination_coordinates):
     """This computes gound distance and the true course angle between two points
@@ -30,8 +30,9 @@ def compute_ground_distance_and_true_course_angle(departure_coordinates,destinat
     Properties Used:
         N/A       
     """      
-    R              = 6378.1 * 1E3 # radius of earth    
-     
+    earth            = SUAVE.Attributes.Planets.Earth()
+    R                = earth.mean_radius     
+    
     # Compute coordinates of departure and destination points to determine range 
     coord0_rad     = departure_coordinates*Units.degrees
     coord1_rad     = destination_coordinates*Units.degrees  

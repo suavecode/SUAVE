@@ -29,86 +29,83 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     Outputs: 
     GM_THETA   - angle measured from ground microphone in the x-z plane from microphone to aircraft 
     GM_PHI     - angle measured from ground microphone in the y-z plane from microphone to aircraft 
-    RGML       - relative ground microphone locations
+    REGML      - relative evaluation ground microphone locations
+    EGML       - evaluation ground microphone locations
+    TGML       - total ground microphone locations
     num_gm_mic - number of ground microphones
  
     Properties Used:
         N/A       
     """       
+ 
+    mic_stencil_x  = settings.microphone_x_stencil      
+    mic_stencil_y  = settings.microphone_y_stencil    
+    N_gm_x         = settings.microphone_x_resolution   
+    N_gm_y         = settings.microphone_y_resolution   
+    gml            = settings.ground_microphone_locations 
+    pos            = segment.state.conditions.frames.inertial.position_vector
+    ctrl_pts       = len(pos)  
+    TGML           = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0) # (cpts,mics,3)
     
-    if type(settings.topography_microphone_locations) is np.ndarray:
-
-        mic_stencil_x  = settings.topography_microphone_x_stencil      
-        mic_stencil_y  =  settings.topography_microphone_y_stencil     
-        N_gm_x         = settings.topography_microphone_x_resolution   
-        N_gm_y         = settings.topography_microphone_y_resolution   
-        gml            = settings.ground_microphone_locations 
-        pos            = segment.state.conditions.frames.inertial.position_vector
-        ctrl_pts       = len(pos)  
-        gml_3d_total   = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0) # (cpts,mics,3)
+    if (mic_stencil_x*2 + 1) > N_gm_x:
+        print("Resetting microphone stenxil in x direction")
+        mic_stencil_x = np.floor(N_gm_x/2 - 1)
+    
+    if (mic_stencil_y*2 + 1) > N_gm_y:
+        print("Resetting microphone stenxil in y direction")
+        mic_stencil_y = np.floor(N_gm_y/2 - 1)     
         
-        stencil_center_x_locs   = np.argmin(abs(np.tile(pos[:,0][:,None],(1,N_gm_x)) - np.tile(gml[:,0].reshape(N_gm_x,N_gm_y )[0,:][None,:],(ctrl_pts,1))),axis = 1) 
-        stencil_center_y_locs   = np.argmin(abs(np.tile(pos[:,1][:,None],(1,N_gm_y)) - np.tile(gml[:,1].reshape(N_gm_x,N_gm_y )[:,0][None,:],(ctrl_pts,1))),axis = 1)
         
-        # modify location of stencil center point if at edge 
-        # top 
-        locs_1 = np.where(stencil_center_x_locs > (N_gm_x-mic_stencil_x))[0]
-        stencil_center_x_locs[locs_1] = stencil_center_x_locs[locs_1] - ( mic_stencil_x - (N_gm_x - stencil_center_x_locs[locs_1]))
-        
-        # right 
-        locs_2 = np.where(stencil_center_y_locs > (N_gm_y-mic_stencil_y))[0]
-        stencil_center_y_locs[locs_2] = stencil_center_x_locs[locs_2] - ( mic_stencil_y - (N_gm_y - stencil_center_y_locs[locs_2]))     
-
-        # bottom
-        locs_3 = np.where(stencil_center_x_locs <  (mic_stencil_x))[0]
-        stencil_center_x_locs[locs_3] = stencil_center_x_locs[locs_3] + ( mic_stencil_x - stencil_center_x_locs[locs_3])
-        
-        # left
-        locs_4 = np.where(stencil_center_y_locs <  (mic_stencil_y))[0]
-        stencil_center_y_locs[locs_4] = stencil_center_y_locs[locs_4] + ( mic_stencil_y - stencil_center_y_locs[locs_4])
-         
-        start_x = stencil_center_x_locs - mic_stencil_x
-        start_y = stencil_center_y_locs - mic_stencil_y
-        end_x   = stencil_center_x_locs + mic_stencil_x + 1
-        end_y   = stencil_center_y_locs + mic_stencil_y + 1
-        
-        mic_stencil      = np.zeros((ctrl_pts,4))
-        mic_stencil[:,0] = start_x 
-        mic_stencil[:,1] = start_y 
-        mic_stencil[:,2] = end_x   
-        mic_stencil[:,3] = end_y   
-        
-        num_gm_mic  = (mic_stencil_x*2 + 1)*(mic_stencil_y*2 + 1)
-        GML         = np.zeros((ctrl_pts,num_gm_mic ,3))   
-        for cpt in range(ctrl_pts):
-            surface   = gml_3d_total[cpt,:,:].reshape((N_gm_x,N_gm_y,3))
-            GML[cpt]  = surface[start_x[cpt]:end_x[cpt],start_y[cpt]:end_y[cpt],:].reshape((num_gm_mic ,3)) 
-         
-    else:        
-        gml              = settings.ground_microphone_locations 
-        pos              = segment.state.conditions.frames.inertial.position_vector  
-        N_gm_x           = settings.level_ground_microphone_x_resolution
-        N_gm_y           = settings.level_ground_microphone_y_resolution
-        ctrl_pts         = len(pos) 
-        num_gm_mic       = len(gml)
-        GML              = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0)
-        mic_stencil      = np.zeros((ctrl_pts,4))
-        mic_stencil[:,2] = N_gm_x  
-        mic_stencil[:,3] = N_gm_y 
-        
-    RGML           = np.zeros_like(GML)
+    stencil_center_x_locs   = np.argmin(abs(np.tile(pos[:,0][:,None],(1,N_gm_x)) - np.tile( gml[:,0].reshape(N_gm_x,N_gm_y)[:,0][None,:],(ctrl_pts,1))),axis = 1) 
+    stencil_center_y_locs   = np.argmin(abs(np.tile(pos[:,1][:,None],(1,N_gm_y)) - np.tile(gml[:,1].reshape(N_gm_x,N_gm_y)[0,:][None,:],(ctrl_pts,1))),axis = 1)
+    
+    # modify location of stencil center point if at edge 
+    # top 
+    locs_1 = np.where(stencil_center_x_locs >= (N_gm_x-mic_stencil_x))[0]
+    stencil_center_x_locs[locs_1] = stencil_center_x_locs[locs_1] - ( mic_stencil_x - (N_gm_x - (stencil_center_x_locs[locs_1] + 1)))
+    
+    # right 
+    locs_2 = np.where(stencil_center_y_locs >= (N_gm_y-mic_stencil_y))[0]
+    stencil_center_y_locs[locs_2] = stencil_center_x_locs[locs_2] - ( mic_stencil_y - (N_gm_y - (stencil_center_y_locs[locs_2]+1)))     
+ 
+    # bottom
+    locs_3 = np.where(stencil_center_x_locs <  (mic_stencil_x))[0]
+    stencil_center_x_locs[locs_3] = stencil_center_x_locs[locs_3] + ( mic_stencil_x - stencil_center_x_locs[locs_3])
+    
+    # left
+    locs_4 = np.where(stencil_center_y_locs <  (mic_stencil_y))[0]
+    stencil_center_y_locs[locs_4] = stencil_center_y_locs[locs_4] + ( mic_stencil_y - stencil_center_y_locs[locs_4])
+     
+    start_x = stencil_center_x_locs - mic_stencil_x
+    start_y = stencil_center_y_locs - mic_stencil_y
+    end_x   = stencil_center_x_locs + mic_stencil_x + 1
+    end_y   = stencil_center_y_locs + mic_stencil_y + 1
+    
+    mic_stencil      = np.zeros((ctrl_pts,4))
+    mic_stencil[:,0] = start_x 
+    mic_stencil[:,1] = end_x   
+    mic_stencil[:,2] = start_y 
+    mic_stencil[:,3] = end_y   
+    
+    num_gm_mic  = (mic_stencil_x*2 + 1)*(mic_stencil_y*2 + 1)
+    EGML         = np.zeros((ctrl_pts,num_gm_mic ,3))   
+    for cpt in range(ctrl_pts):
+        surface    = TGML[cpt,:,:].reshape((N_gm_x,N_gm_y,3))
+        EGML[cpt]  = surface[start_x[cpt]:end_x[cpt],start_y[cpt]:end_y[cpt],:].reshape(num_gm_mic,3)
+          
+    REGML          = np.zeros_like(EGML)
     Aircraft_x     = np.repeat(np.atleast_2d(pos[:,0] ).T,num_gm_mic , axis = 1)
     Aircraft_y     = np.repeat(np.atleast_2d(pos[:,1]).T,num_gm_mic , axis = 1)
     Aircraft_z     = np.repeat(np.atleast_2d(-pos[:,2]).T,num_gm_mic , axis = 1)
-    RGML[:,:,0]    = Aircraft_x - GML[:,:,0] 
-    RGML[:,:,1]    = Aircraft_y - GML[:,:,1]        
-    RGML[:,:,2]    = Aircraft_z - GML[:,:,2]
-    GM_THETA       = np.zeros_like(RGML[:,:,2])
-    GM_PHI         = np.zeros_like(RGML[:,:,2])
-    GM_THETA       = np.arctan(RGML[:,:,2]/RGML[:,:,0]) 
-    GM_PHI         = np.arctan(RGML[:,:,2]/RGML[:,:,1])   
+    REGML[:,:,0]   = Aircraft_x - EGML[:,:,0] 
+    REGML[:,:,1]   = Aircraft_y - EGML[:,:,1]        
+    REGML[:,:,2]   = Aircraft_z - EGML[:,:,2]
+    GM_THETA       = np.zeros_like(REGML[:,:,2])
+    GM_PHI         = np.zeros_like(REGML[:,:,2])
+    GM_THETA       = np.arctan(REGML[:,:,2]/REGML[:,:,0]) 
+    GM_PHI         = np.arctan(REGML[:,:,2]/REGML[:,:,1])   
      
-    return GM_THETA,GM_PHI,RGML,GML,num_gm_mic,mic_stencil
+    return GM_THETA,GM_PHI,REGML,EGML,TGML,num_gm_mic,mic_stencil
 
 ## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
 def compute_building_noise_evaluation_locations(settings,segment):

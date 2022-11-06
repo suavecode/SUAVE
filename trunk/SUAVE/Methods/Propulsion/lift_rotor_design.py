@@ -298,6 +298,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     conditions.frames.inertial.velocity_vector             = np.array([[0, 0. ,V]])
     conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
+    conditions.frames.planet.true_course_rotation          = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]]) 
     
     # Run Propeller model 
     thrust , torque, power, Cp  , noise_data , etap        = rotor.spin(conditions)
@@ -527,7 +528,8 @@ def post_process(nexus):
     conditions.freestream.update(atmo_data) 
     conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V]])
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
-    conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])  
+    conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
+    conditions.frames.planet.true_course_rotation    = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])  
 
     # Run rotor model 
     thrust ,_, power, Cp  , noise_data , _ = rotor.spin(conditions) 

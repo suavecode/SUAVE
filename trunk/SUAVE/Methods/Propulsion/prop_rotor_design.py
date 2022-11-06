@@ -325,6 +325,7 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V_hover]]) 
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])   
+    conditions.frames.planet.true_course_rotation    = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])  
 
     # Run rotor model 
     thrust_hover, _, power_hover, Cp_hover,noise_data_hover, _ = prop_rotor.spin(conditions)
@@ -357,14 +358,15 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     mic_positions_cruise = np.array([[1E-3,S_cruise*np.sin(theta)  ,S_cruise*np.cos(theta)]])   
 
     # Set up for rotor model
-    prop_rotor.inputs.omega                                = np.atleast_2d(omega_cruise).T
-    prop_rotor.inputs.pitch_command                        = Beta_c[1]
-    prop_rotor.orientation_euler_angles                    = [0,0,0]  
-    conditions                                             = Aerodynamics()   
-    conditions.freestream.update(atmo_data_cruise)         
-    conditions.frames.inertial.velocity_vector             = np.array([[V_cruise, 0. ,0.]])
-    conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
-    conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+    prop_rotor.inputs.omega                          = np.atleast_2d(omega_cruise).T
+    prop_rotor.inputs.pitch_command                  = Beta_c[1]
+    prop_rotor.orientation_euler_angles              = [0,0,0]  
+    conditions                                       = Aerodynamics()   
+    conditions.freestream.update(atmo_data_cruise)   
+    conditions.frames.inertial.velocity_vector       = np.array([[V_cruise, 0. ,0.]])
+    conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
+    conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+    conditions.frames.planet.true_course_rotation    = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])  
 
     # Run rotor model 
     thrust_cruise , _, power_cruise, Cp_cruise  , noise_data_cruise , _ = prop_rotor.spin(conditions)
@@ -624,6 +626,7 @@ def post_process(nexus):
     conditions.frames.inertial.velocity_vector       = np.array([[0, 0. ,V_hover]]) 
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])  
+    conditions.frames.planet.true_course_rotation    = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])  
 
     # Run rotor model 
     thrust_hover,_, power_hover, Cp_hover,noise_data_hover, _ = prop_rotor_hover.spin(conditions) 
@@ -672,6 +675,7 @@ def post_process(nexus):
     conditions.frames.inertial.velocity_vector       = np.array([[V_cruise, 0. ,0.]])
     conditions.propulsion.throttle                   = np.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial     = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+    conditions.frames.planet.true_course_rotation    = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])  
 
     # Run Propeller model 
     thrust_cruise ,_, power_cruise, Cp_cruise  , noise_data_cruise , etap_cruise  = prop_rotor_cruise.spin(conditions)  

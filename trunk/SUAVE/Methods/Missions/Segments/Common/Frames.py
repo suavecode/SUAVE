@@ -191,8 +191,8 @@ def update_planet_position(segment):
     psi        = segment.true_course
     alpha      = conditions.aerodynamics.angle_of_attack[:,0]
     I          = segment.state.numerics.time.integrate
-    Re         = segment.analyses.planet.features.mean_radius
-
+    Re         = segment.analyses.planet.features.mean_radius  
+         
     # The flight path and radius
     gamma     = theta - alpha
     R         = altitude + Re
@@ -207,12 +207,14 @@ def update_planet_position(segment):
     shape     = np.shape(conditions.freestream.velocity)
     mu        = np.reshape(mu,shape)
     lamda     = np.reshape(lamda,shape)
+    phi       = np.array([[np.cos(psi),-np.sin(psi),0],[np.sin(psi),np.cos(psi),0],[0,0,1]])
 
     # Pack'r up
-    lat = conditions.frames.planet.latitude[0,0]
-    lon = conditions.frames.planet.longitude[0,0]
-    conditions.frames.planet.latitude  = lat + lamda
-    conditions.frames.planet.longitude = lon + mu
+    lat                                           = conditions.frames.planet.latitude[0,0]
+    lon                                           = conditions.frames.planet.longitude[0,0]
+    conditions.frames.planet.latitude             = lat + lamda
+    conditions.frames.planet.longitude            = lon + mu 
+    conditions.frames.planet.true_course_rotation = np.tile(phi[None,:,:],(len(V),1,1))    
 
     return
     

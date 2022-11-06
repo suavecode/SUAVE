@@ -67,7 +67,12 @@ def compute_point_source_coordinates(conditions,rotors,mls,settings):
     # rotation of vehicle about y axis by AoA 
     rotation_2                        = np.zeros((num_cpt,num_mic,num_rot,4,4))
     rotation_2[0:num_cpt,:,:,0:3,0:3] = conditions.frames.body.transform_to_inertial[:,np.newaxis,np.newaxis,:,:]
-    rotation_2[:,:,:,3,3]             = 1 
+    rotation_2[:,:,:,3,3]             = 1  
+
+    # rotation of vehicle about z axis by true course 
+    rotation_3                        = np.zeros((num_cpt,num_mic,num_rot,4,4))
+    rotation_3[0:num_cpt,:,:,0:3,0:3] = conditions.frames.planet.true_course_rotation[:,np.newaxis,np.newaxis,:,:]
+    rotation_3[:,:,:,3,3]             = 1  
 
     # translation of vehicle to air  
     translation_2               = np.tile(I[None,None,:,:,:],(num_cpt,num_mic,num_rot,1,1))    
@@ -84,8 +89,9 @@ def compute_point_source_coordinates(conditions,rotors,mls,settings):
     mat_1 = np.matmul(rotation_1,mat_0) 
     mat_2 = np.matmul(translation_1,mat_1)
     mat_3 = np.matmul(rotation_2,mat_2) 
-    mat_4 = np.matmul(translation_2,mat_3)
-    mat_4 = -mat_4
+    mat_4 = np.matmul(rotation_3,mat_3) 
+    mat_5 = np.matmul(translation_2,mat_4)
+    mat_5 = -mat_5
 
     # store points
     propeller_position_vector          = np.zeros((num_cpt,num_mic,num_rot,3))
