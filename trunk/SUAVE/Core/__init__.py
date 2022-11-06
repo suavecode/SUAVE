@@ -8,5 +8,5 @@ from .DataOrdered      import DataOrdered
 from .Diffed_Data      import Diffed_Data, diff
 from .Container        import Container
 from .ContainerOrdered import ContainerOrdered
-
-from .Units import Units
+from .Utilities        import *
+from .Units            import Units

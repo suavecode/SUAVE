@@ -2,6 +2,7 @@
 # aero_coeff.py
 
 # Created:  Mar 2021, M. Clarke
+# Modified: Sep 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -44,22 +45,22 @@ def aero_coeff(x,y,cp,al,npanel):
     dy      = y[1:]-y[:-1]
     xa      = 0.5*(x[1:] +x[:-1])-0.25
     ya      = 0.5*(y[1:] +y[:-1])
-    dcn     = cp[:-1]*dx
-    dca     = -cp[:-1]*dy
+    dcn     = -cp[:-1]*dx
+    dca     = cp[:-1]*dy
     
     # compute differential forces
-    cn      = np.sum(dcn,axis=0)
-    ca      = np.sum(dca,axis=0)
-    cm      = np.sum((-dcn*xa + dca*ya),axis=0) 
+    cn      = np.sum(dcn,axis=0).T
+    ca      = np.sum(dca,axis=0).T
+    cm      = np.sum((-dcn*xa + dca*ya),axis=0).T
     
     # orient normal and axial forces 
     cl      = cn*np.cos(al) - ca*np.sin(al) 
-    cd      = cn*np.sin(al) + ca*np.cos(al) 
+    cdpi    = cn*np.sin(al) + ca*np.cos(al)  
     
     # pack results
     AERO_RES = Data(
-        Cl = cl,
-        Cd = cd,
-        Cm = cm)
+        cl   = cl, 
+        cdpi = cdpi,
+        cm   = cm)
     
     return AERO_RES
