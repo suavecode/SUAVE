@@ -16,7 +16,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_v
 
 
 
-def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, dL=0.025, factor=0.5):
+def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, dL=0.025, factor=0.):
     """
     Inputs
        WD            - Rotor wake vortex distribution
@@ -46,9 +46,9 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
     Ny = round( (Ymax-Ymin) / dL )
     Nz = round( (Zmax-Zmin) / dL )
     
-    Xouter = np.linspace(Xmin, Xmax, Nx) 
-    Youter = np.linspace(Ymin, Ymax, Ny)
-    Zouter = np.linspace(Zmin, Zmax, Nz)
+    Xouter = np.linspace(Xmin, Xmax, max(2,Nx)) 
+    Youter = np.linspace(Ymin, Ymax, max(2,Ny))
+    Zouter = np.linspace(Zmin, Zmax, max(2,Nz))
     
     Xp, Yp, Zp = np.meshgrid(Xouter, Youter, Zouter, indexing='ij')
     
@@ -62,8 +62,7 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
     nevals = int(np.ceil(len(Xstacked) / maxPts))
     V_ind_network = np.zeros((1, len(Xstacked), 3))
     Vind_ext = np.zeros((1, len(Xstacked), 3))
-    import time
-    t0 = time.time()
+
     for i in range(nevals):
         iStart = i*maxPts
         if i == nevals-1:
@@ -81,7 +80,9 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
         # Step 1b: Compute induced velocities from each wake at these grid points
         #--------------------------------------------------------------------------------------------
         for WD in WD_network:
-            V_ind_network[:,iStart:iEnd,:] += compute_wake_induced_velocity(WD, GridPoints, cpts=1)
+            if np.size(WD.XA1) != 0:
+                # wake has begun shedding, add the influence from shed wake panels
+                V_ind_network[:,iStart:iEnd,:] += compute_wake_induced_velocity(WD, GridPoints, cpts=1)
         
         
         #--------------------------------------------------------------------------------------------    
@@ -102,9 +103,6 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
             
         else:
             Vind_ext = np.zeros_like(V_ind_network)        
-    
-    elapsed_time = time.time()-t0
-    print(elapsed_time)
     
     # Update induced velocities to appropriate shape
     Vind = np.zeros(np.append(np.shape(Xp), 3))
