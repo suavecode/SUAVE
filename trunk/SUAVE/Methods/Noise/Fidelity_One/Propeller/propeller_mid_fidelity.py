@@ -12,7 +12,7 @@ from SUAVE.Core import  Data
 import numpy as np   
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import SPL_spectra_arithmetic  
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_point_source_coordinates
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_blade_section_source_coordinates
+from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_blade_section_source_coordinates 
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise         import compute_harmonic_noise
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        import compute_broadband_noise
 
@@ -33,7 +33,7 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     Inputs:
         rotors                  - data structure of rotors                            [None]
         segment                 - flight segment data structure                       [None] 
-        aeroacoustic_data      - data structure of acoustic data                     [None]
+        aeroacoustic_data       - data structure of acoustic data                     [None]
         settings                - accoustic settings                                  [None]
                                
     Outputs:

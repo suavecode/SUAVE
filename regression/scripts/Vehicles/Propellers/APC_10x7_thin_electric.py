@@ -8,8 +8,11 @@
 import SUAVE
 from SUAVE.Core import Data, Units
 import numpy as np
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+     import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties import (
+    compute_airfoil_properties,
+)
 import os
 
 
@@ -93,34 +96,25 @@ def propeller_geometry():
         ]
     )
 
-    prop.pitch_command       = 0.0* Units.deg
-    prop.twist_distribution  = beta * Units.deg
-    prop.chord_distribution  = c_R * prop.tip_radius
-    prop.radius_distribution = r_R * prop.tip_radius
-    prop.max_thickness_distribution = 0.12
-    
-    prop.number_azimuthal_stations = 24
-    prop.number_radial_stations    = len(r_R)
-    
-    # Distance from mid chord to the line axis out of the center of the blade - In this case the 1/4 chords are all aligned 
-    MCA = prop.chord_distribution/4. - prop.chord_distribution[0]/4.  
-    prop.mid_chord_alignment = MCA
-    
-    airfoils_path = os.path.join(os.path.dirname(__file__), "../Airfoils/")
-    polars_path = os.path.join(os.path.dirname(__file__), "../Airfoils/Polars/")
-    airfoil_geometry = [airfoils_path + "Clark_y.txt"]
-    airfoil_polars = [
-        [   polars_path + "Clark_y_polar_Re_50000.txt",
-            polars_path + "Clark_y_polar_Re_100000.txt",
-            polars_path + "Clark_y_polar_Re_200000.txt",
-            polars_path + "Clark_y_polar_Re_500000.txt",
-            polars_path + "Clark_y_polar_Re_1000000.txt",
-        ],
-    ]
-    prop.airfoil_geometry_data  = import_airfoil_geometry(airfoil_geometry)
-    prop.airfoil_polar_data     = compute_airfoil_polars(airfoil_polars, prop.airfoil_geometry_data)
-    prop.airfoil_polar_stations = np.zeros(len(r_R))
-    prop.airfoil_polar_stations = list(prop.airfoil_polar_stations.astype(int))
-    
-    
+    prop.pitch_command               = 0.0* Units.deg
+    prop.twist_distribution          = beta * Units.deg
+    prop.chord_distribution          = c_R * prop.tip_radius
+    prop.radius_distribution         = r_R * prop.tip_radius
+    prop.max_thickness_distribution  = 0.12 
+    prop.number_azimuthal_stations   = 24
+    prop.number_radial_stations      = len(r_R)  
+    prop.mid_chord_alignment         = prop.chord_distribution/4. - prop.chord_distribution[0]/4.  
+    airfoils_path                    = os.path.join(os.path.dirname(__file__), "../Airfoils/")
+    polars_path                      = os.path.join(os.path.dirname(__file__), "../Airfoils/Polars/") 
+    airfoil                          = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file          = airfoils_path + "Clark_y.txt"
+    airfoil.polar_files              = [   polars_path + "Clark_y_polar_Re_50000.txt",
+                                         polars_path + "Clark_y_polar_Re_100000.txt",
+                                         polars_path + "Clark_y_polar_Re_200000.txt",
+                                         polars_path + "Clark_y_polar_Re_500000.txt",
+                                         polars_path + "Clark_y_polar_Re_1000000.txt"]
+    airfoil.geometry                 = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points)
+    airfoil.polars                   = compute_airfoil_properties(airfoil.geometry,airfoil.polar_files)
+    prop.append_airfoil(airfoil) 
+    prop.airfoil_polar_stations      = list(np.zeros(len(r_R)).astype(int))
     return prop

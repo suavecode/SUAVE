@@ -18,6 +18,7 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Core import ContainerOrdered 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
@@ -61,49 +62,80 @@ class Rotor(Energy_Component):
         None
         """
 
-        self.tag                          = 'rotor'
-        self.number_of_blades             = 0.0
-        self.tip_radius                   = 0.0
-        self.hub_radius                   = 0.0
-        self.twist_distribution           = 0.0
-        self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
-        self.chord_distribution           = 0.0 
-        self.thickness_to_chord           = 0.0
-        self.mid_chord_alignment          = 0.0 
-        self.blade_solidity               = 0.0
-        self.design_power                 = None
-        self.design_thrust                = None
-        self.airfoil_geometry_data        = None
-        self.airfoil_polar_data           = None
-        self.airfoil_polar_stations       = None
-        self.radius_distribution          = None
-        self.rotation                     = 1        
-        self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
-        self.ducted                       = False
-        self.number_azimuthal_stations    = 24
-        self.vtk_airfoil_points           = 40
-        self.induced_power_factor         = 1.48         # accounts for interference effects
-        self.profile_drag_coefficient     = .03
-        self.sol_tolerance                = 1e-8
-        self.design_power_coefficient     = 0.01
+        self.tag                               = 'rotor'
+        self.number_of_blades                  = 0.0
+        self.tip_radius                        = 0.0
+        self.hub_radius                        = 0.0
+        self.twist_distribution                = 0.0
+        self.sweep_distribution                = 0.0         # quarter chord offset from quarter chord of root airfoil
+        self.chord_distribution                = 0.0
+        self.thickness_to_chord                = 0.0
+        self.mid_chord_alignment               = 0.0
+        self.blade_solidity                    = 0.0
+        self.design_power                      = None
+        self.design_thrust                     = None
+        self.radius_distribution               = None
+        self.rotation                          = 1
+        self.orientation_euler_angles          = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
+        self.ducted                            = False
+        self.number_azimuthal_stations         = 24
+        self.vtk_airfoil_points                = 40
+        self.induced_power_factor              = 1.48         # accounts for interference effects
+        self.profile_drag_coefficient          = .03
+        self.sol_tolerance                     = 1e-8
+        self.design_power_coefficient          = 0.01
+        
+        self.Airfoils                          = ContainerOrdered()
+        self.airfoil_polar_stations            = None
 
-        
-        self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
-        self.nonuniform_freestream     = False
-        self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
-        self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
-        self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor
-        
-        self.start_angle               = 0.0      # angle of first blade from vertical
-        self.start_angle_idx           = 0        # azimuthal index at which the blade is started
-        self.inputs.y_axis_rotation    = 0.
-        self.inputs.pitch_command      = 0.
-        self.variable_pitch            = False
+        self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream             = False
+        self.axial_velocities_2d               = None     # user input for additional velocity influences at the rotor
+        self.tangential_velocities_2d          = None     # user input for additional velocity influences at the rotor
+        self.radial_velocities_2d              = None     # user input for additional velocity influences at the rotor
+
+        self.start_angle                       = 0.0      # angle of first blade from vertical
+        self.start_angle_idx                   = 0        # azimuthal index at which the blade is started
+        self.inputs.y_axis_rotation            = 0.
+        self.inputs.pitch_command              = 0.
+        self.variable_pitch                    = False
         
         # Initialize the default wake set to Fidelity Zero
-        self.Wake                      = Rotor_Wake_Fidelity_Zero()
-        
+        self.Wake                              = Rotor_Wake_Fidelity_Zero()
 
+    def append_airfoil(self,airfoil):
+        """ Adds an airfoil to the rotor
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """  
+        # assert database type
+        if not isinstance(airfoil,Data):
+            raise Exception('input component must be of type Data()')
+
+
+        # See if the component exists, if it does modify the name
+        keys = self.keys()
+        if airfoil.tag in keys:
+            string_of_keys = "".join(self.keys())
+            n_comps = string_of_keys.count(airfoil.tag)
+            airfoil.tag = airfoil.tag + str(n_comps+1)    
+            
+        # store data
+        self.Airfoils.append(airfoil)
+        
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
 
@@ -173,17 +205,16 @@ class Rotor(Energy_Component):
         """
 
         # Unpack rotor blade parameters
-        B       = self.number_of_blades
-        R       = self.tip_radius
-        beta_0  = self.twist_distribution
-        c       = self.chord_distribution
-        sweep   = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
-        r_1d    = self.radius_distribution
-        tc      = self.thickness_to_chord
-
-        # Unpack rotor airfoil polar data
-        a_loc       = self.airfoil_polar_stations
-        a_pol_data  = self.airfoil_polar_data
+        B        = self.number_of_blades
+        R        = self.tip_radius
+        beta_0   = self.twist_distribution
+        c        = self.chord_distribution
+        sweep    = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
+        r_1d     = self.radius_distribution
+        tc       = self.thickness_to_chord
+        a_loc    = self.airfoil_polar_stations
+        airfoils = self.Airfoils
+ 
 
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega
@@ -346,8 +377,7 @@ class Rotor(Energy_Component):
         # Total velocities
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
-        
-        
+
         #---------------------------------------------------------------------------
         # COMPUTE WAKE-INDUCED INFLOW VELOCITIES AND RESULTING ROTOR PERFORMANCE
         #---------------------------------------------------------------------------
@@ -375,7 +405,7 @@ class Rotor(Energy_Component):
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
-        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_pol_data,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         
         # compute HFW circulation at the blade
