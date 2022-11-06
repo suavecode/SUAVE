@@ -13,8 +13,7 @@ import matplotlib.pyplot as plt
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
      import import_airfoil_geometry  
 
-def plot_airfoil(airfoil_paths, line_color = 'k', line_style = '-',
-                 save_filename = "Airfoil_Geometry", save_figure = False, file_type = ".png"):
+def plot_airfoil(airfoil_paths, line_color = 'k', line_style = '-', save_filename = "Airfoil_Geometry", file_type = ".png"):
     """This plots all airfoil defined in the list "airfoil_names" 
 
     Assumptions:
@@ -41,8 +40,5 @@ def plot_airfoil(airfoil_paths, line_color = 'k', line_style = '-',
     axes.plot(airfoil_geometry.x_coordinates,airfoil_geometry.y_coordinates, 
               color = line_color, linestyle = line_style, label=save_filename)                  
     
-    axes.set_title(save_filename) 
-    if save_figure:
-        plt.savefig(save_filename.replace("_", " ") + file_type)           
-
+    axes.set_title(save_filename)
     return
