@@ -11,9 +11,10 @@
 # ---------------------------------------------------------------------- 
 import matplotlib.pyplot as plt   
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
-     import import_airfoil_geometry  
+     import import_airfoil_geometry 
+import os
 
-def plot_airfoil(airfoil_paths, line_color = 'k', line_style = '-', save_filename = "Airfoil_Geometry", file_type = ".png"):
+def plot_airfoil(airfoil_paths,line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry", file_type = ".png"):
     """This plots all airfoil defined in the list "airfoil_names" 
 
     Assumptions:
@@ -37,8 +38,10 @@ def plot_airfoil(airfoil_paths, line_color = 'k', line_style = '-', save_filenam
     fig  = plt.figure(save_filename)
     fig.set_size_inches(10, 4)
     axes = fig.add_subplot(1,1,1)   
-    axes.plot(airfoil_geometry.x_coordinates,airfoil_geometry.y_coordinates, 
-              color = line_color, linestyle = line_style, label=save_filename)                  
+    axes.plot(airfoil_geometry.x_coordinates,airfoil_geometry.y_coordinates , label=save_filename)                  
     
-    axes.set_title(save_filename)
+    axes.set_title(save_filename) 
+    if save_figure:
+        plt.savefig(save_filename.replace("_", " ") + file_type)           
+
     return
