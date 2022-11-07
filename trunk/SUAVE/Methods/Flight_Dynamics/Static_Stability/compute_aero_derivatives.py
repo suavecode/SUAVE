@@ -3,6 +3,7 @@
 # 
 # Created:   Aug 2021, R. Erhard
 # Modified: 
+# Nov 2022, D. Enriquez - added dCD_dAlpha
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -29,6 +30,7 @@ def compute_aero_derivatives(segment):
     Outputs: 
        segment.state.conditions.aero_derivatives
          .dCL_dAlpha       -   lift-curve slope                                                            [-]  
+         .dCD_dAlpha       -   derivative of inviscid drag with respect to angle of attack                 [-]
          .dCM_dAlpha       -   derivative of pitching moment coefficient with respect to angle of attack   [-] 
          .dCT_dAlpha       -   derivative of rotor thrust coefficient with respect to angle of attack      [-] 
          .dCP_dAlpha       -   derivative of rotor power coefficient with respect to angle of attack       [-] 
@@ -74,6 +76,7 @@ def compute_aero_derivatives(segment):
     # set segment derivatives based on perturbed segment
     dAlpha = perturbed_segment.state.conditions.aerodynamics.angle_of_attack - segment.state.conditions.aerodynamics.angle_of_attack
     dCL    = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
+    dCD    = perturbed_segment.state.conditions.aerodynamics.drag_coefficient - segment.state.conditions.aerodynamics.drag_coefficient #DE added
     
     if surrogate_used:
         dCM_dAlpha = segment.state.conditions.stability.static.Cm_alpha
@@ -86,10 +89,12 @@ def compute_aero_derivatives(segment):
     dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts)
         
     dCL_dAlpha = dCL/dAlpha
+    dCD_dAlpha = dCD/dAlpha
     dCT_dAlpha = dCT/dAlpha[None,:,:]
     dCP_dAlpha = dCP/dAlpha[None,:,:]
     
     segment.state.conditions.aero_derivatives.dCL_dAlpha = dCL_dAlpha
+    segment.state.conditions.aero_derivatives.dCD_dAlpha = dCD_dAlpha
     segment.state.conditions.aero_derivatives.dCM_dAlpha = dCM_dAlpha
     segment.state.conditions.aero_derivatives.dCT_dAlpha = dCT_dAlpha
     segment.state.conditions.aero_derivatives.dCP_dAlpha = dCP_dAlpha
