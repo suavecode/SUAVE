@@ -11,12 +11,18 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
 import SUAVE
+from SUAVE.Core import Data
+from SUAVE.Core.Utilities import interp2d
 import numpy as np
 import scipy as sp 
 from scipy.optimize import root 
-
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties \
+     import compute_airfoil_properties
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
+     import compute_naca_4series
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+     import import_airfoil_geometry
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
@@ -44,23 +50,20 @@ def propeller_design(prop,number_of_stations=20):
           Assumptions/ Source:
           Based on Design of Optimum Propellers by Adkins and Liebeck
           
-    """    
-    print('\nDesigning',prop.tag)
-    
+    """
     # Unpack
-    N          = number_of_stations       # this number determines the discretization of the propeller into stations 
-    B          = prop.number_of_blades
-    R          = prop.tip_radius
-    Rh         = prop.hub_radius
-    omega      = prop.angular_velocity    # Rotation Rate in rad/s 
-    V          = prop.freestream_velocity # Freestream Velocity
-    Cl         = prop.design_Cl           # Design Lift Coefficient
-    alt        = prop.design_altitude
-    Thrust     = prop.design_thrust
-    Power      = prop.design_power
-    a_pol_data = prop.airfoil_polar_data  
-    a_geo_data = prop.airfoil_geometry_data        
-    a_loc      = prop.airfoil_polar_stations    
+    N            = number_of_stations       # this number determines the discretization of the propeller into stations
+    B            = prop.number_of_blades
+    R            = prop.tip_radius
+    Rh           = prop.hub_radius
+    omega        = prop.angular_velocity    # Rotation Rate in rad/s
+    V            = prop.freestream_velocity # Freestream Velocity
+    Cl           = prop.design_Cl           # Design Lift Coefficient
+    alt          = prop.design_altitude
+    Thrust       = prop.design_thrust
+    Power        = prop.design_power
+    airfoils     = prop.Airfoils 
+    a_loc        = prop.airfoil_polar_stations
     
     if (Thrust == None) and (Power== None):
         raise AssertionError('Specify either design thrust or design power!')
@@ -75,6 +78,7 @@ def propeller_design(prop,number_of_stations=20):
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data = atmosphere.compute_values(alt)
     
+    p              = atmo_data.pressure[0]
     T              = atmo_data.temperature[0]
     rho            = atmo_data.density[0]
     speed_of_sound = atmo_data.speed_of_sound[0]
@@ -105,22 +109,27 @@ def propeller_design(prop,number_of_stations=20):
     x       = omega*r/V               # Nondimensional distance
     diff    = 1.0                     # Difference between zetas
     n       = omega/(2*np.pi)         # Cycles per second
-    D       = 2.*R
-    
-    c = 0.2 * np.ones_like(chi)
+    D       = 2.*R  
+    c       = 0.2 * np.ones_like(chi)
     
     # if user defines airfoil, check dimension of stations
-    if  a_geo_data != None and a_loc != None:
+    num_airfoils = len(airfoils.keys())
+    if num_airfoils>0:
         if len(a_loc) != N:
-            raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller')
-        airfoil_flag = True  
+            raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller') 
+        
+        for _,airfoil in enumerate(airfoils):  
+            if airfoil.geometry == None: # first, if airfoil geometry data not defined, import from geoemtry files
+                if airfoil.NACA_4_series_flag: # check if naca 4 series of airfoil from datafile
+                    airfoil.geometry = compute_naca_4series(airfoil.coordinate_file,airfoil.number_of_points)
+                else:
+                    airfoil.geometry = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points) 
+    
+            if airfoil.polars == None: # compute airfoil polars for airfoils
+                airfoil.polars = compute_airfoil_properties(airfoil.geometry, airfoil_polar_files= airfoil.polar_files) 
     else:
-        print('\nDefaulting to scaled DAE51')
-        airfoil_flag    = False   
+        print('\nDefaulting to scaled DAE51') 
         
-        
-    # Step 4, determine epsilon and alpha from airfoil data        
-     
     while diff>tol:      
         # assign chord distribution
         prop.chord_distribution = c  
@@ -140,19 +149,19 @@ def propeller_design(prop,number_of_stations=20):
         Ma      = Wc/speed_of_sound
         RE      = Wc/nu
 
-
-        if airfoil_flag:   
+        if num_airfoils>0:
             # assign initial values 
             alpha0   = np.ones(N)*0.05
             
             # solve for optimal alpha to meet design Cl target
-            sol      = root(objective, x0 = alpha0 , args=(a_pol_data, RE ,a_loc, Cl ,N))  
+            sol      = root(objective, x0 = alpha0 , args=(airfoils,a_loc,RE,Cl,N))
             alpha    = sol.x
             
             # query surrogate for sectional Cls at stations 
             Cdval    = np.zeros_like(RE) 
-            for j in range(len(a_pol_data.lift_coefficient_surrogates)):                 
-                Cdval_af    = a_pol_data.drag_coefficient_surrogates[a_pol_data.airfoil_names[j]]((RE,alpha))
+            for j,airfoil in enumerate(airfoils):                   
+                pd          = airfoil.polars
+                Cdval_af    = interp2d(RE,alpha,pd.reynolds_numbers, pd.angle_of_attacks, pd.drag_coefficients)
                 locs        = np.where(np.array(a_loc) == j )
                 Cdval[locs] = Cdval_af[locs]    
                 
@@ -171,8 +180,7 @@ def propeller_design(prop,number_of_stations=20):
         epsilon = Cd/Cl  
         
         #Step 6, determine a and a', and W 
-        a       = (zeta/2.)*(np.cos(phi)**2.)*(1.-epsilon*np.tan(phi))
-        aprime  = (zeta/(2.*x))*np.cos(phi)*np.sin(phi)*(1.+epsilon/np.tan(phi))
+        a       = (zeta/2.)*(np.cos(phi)**2.)*(1.-epsilon*np.tan(phi)) 
         W       = V*(1.+a)/np.sin(phi)
         
         #Step 7, compute the chord length and blade twist angle  
@@ -184,9 +192,7 @@ def propeller_design(prop,number_of_stations=20):
         Iprime2 = lamda*(Iprime1/(2.*chi))*(1.+epsilon/np.tan(phi)
                                             )*np.sin(phi)*np.cos(phi)
         Jprime1 = 4.*chi*G*(1.+epsilon/np.tan(phi))
-        Jprime2 = (Jprime1/2.)*(1.-epsilon*np.tan(phi))*(np.cos(phi)**2.)
-        
-        dR      = (r[1]-r[0])*np.ones_like(Jprime1)
+        Jprime2 = (Jprime1/2.)*(1.-epsilon*np.tan(phi))*(np.cos(phi)**2.) 
         dchi    = (chi[1]-chi[0])*np.ones_like(Jprime1)
         
         #Integrate derivatives from chi=chi0 to chi=1 
@@ -240,20 +246,19 @@ def propeller_design(prop,number_of_stations=20):
     Cp     = Power/(rho*(n*n*n)*(D*D*D*D*D))  
     
     # compute max thickness distribution  
-    if airfoil_flag:   
-        aNames = a_geo_data.airfoil_names
-        maxT  = np.zeros(len(aNames))    
-        T_C    = np.zeros(len(aNames))           
-        for j in range(len(aNames)):
-            maxT[j] = a_geo_data.max_thickness[aNames[j]]
-            T_C[j]  = a_geo_data.thickness_to_chord[aNames[j]]
-        t_max    = np.take(maxT,a_loc,axis=0)*c 
-        t_c      = np.take(T_C,a_loc,axis=0)  
+    t_max  = np.zeros(N)    
+    t_c    = np.zeros(N)   
+    if num_airfoils>0:
+        for j,airfoil in enumerate(airfoils): 
+            a_geo         = airfoil.geometry
+            locs          = np.where(np.array(a_loc) == j )
+            t_max[locs]   = a_geo.max_thickness*c[locs] 
+            t_c[locs]     = a_geo.thickness_to_chord 
     else:     
-        c_blade                    = np.repeat(np.atleast_2d(np.linspace(0,1,N)),N, axis = 0)* np.repeat(np.atleast_2d(c).T,N, axis = 1)
-        t                          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
-        t_max                      = np.max(t,axis = 1) 
-        t_c                        = np.max(t,axis = 1) /c  
+        c_blade = np.repeat(np.atleast_2d(np.linspace(0,1,N)),N, axis = 0)* np.repeat(np.atleast_2d(c).T,N, axis = 1)
+        t       = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
+        t_max   = np.max(t,axis = 1) 
+        t_c     = np.max(t,axis = 1) /c  
             
     # Nondimensional thrust
     if prop.design_power == None: 
@@ -266,27 +271,27 @@ def propeller_design(prop,number_of_stations=20):
     blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
     sigma      = blade_area[-1]/(np.pi*R**2)   
     
-    prop.design_torque                    = Power[0]/omega
-    prop.max_thickness_distribution       = t_max
-    prop.twist_distribution               = beta
-    prop.chord_distribution               = c
-    prop.radius_distribution              = r 
-    prop.number_of_blades                 = int(B) 
-    prop.design_power_coefficient         = Cp 
-    prop.design_thrust_coefficient        = Ct 
-    prop.mid_chord_alignment              = MCA
-    prop.thickness_to_chord               = t_c 
-    prop.blade_solidity                   = sigma  
-    prop.airfoil_flag                     = airfoil_flag 
+    prop.design_torque                          = Power[0]/omega
+    prop.max_thickness_distribution             = t_max
+    prop.twist_distribution                     = beta
+    prop.chord_distribution                     = c
+    prop.radius_distribution                    = r
+    prop.number_of_blades                       = int(B)
+    prop.design_power_coefficient               = Cp
+    prop.design_thrust_coefficient              = Ct
+    prop.mid_chord_alignment                    = MCA
+    prop.thickness_to_chord                     = t_c
+    prop.blade_solidity                         = sigma
 
     return prop
 
     
-def objective(x, a_pol_data, RE ,a_loc, Cl ,N):  
+def objective(x,airfoils,a_loc,RE,Cl,N):
     # query surrogate for sectional Cls at stations 
-    Cl_vals = np.zeros(N)     
-    for j in range(len(a_pol_data.lift_coefficient_surrogates)):                 
-        Cl_af         = a_pol_data.lift_coefficient_surrogates[a_pol_data.airfoil_names[j]]((RE,x))
+    Cl_vals          = np.zeros(N)       
+    for j,airfoil in enumerate(airfoils): 
+        pd            = airfoil.polars
+        Cl_af         = interp2d(RE,x,pd.reynolds_numbers, pd.angle_of_attacks, pd.lift_coefficients)
         locs          = np.where(np.array(a_loc) == j )
         Cl_vals[locs] = Cl_af[locs] 
         

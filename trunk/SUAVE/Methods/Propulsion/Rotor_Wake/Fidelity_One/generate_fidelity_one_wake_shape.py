@@ -138,25 +138,28 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     # put into velocity frame and find (y,z) components
     azi_y   = np.sin(panel_azimuthal_positions)
-    azi_z   = np.cos(panel_azimuthal_positions)
-        
-    airfoil_data = rotor.airfoil_geometry_data
-    a_secl       = rotor.airfoil_polar_stations
+    azi_z   = np.cos(panel_azimuthal_positions) 
    
-    # trailing edge points in airfoil coordinates
-    xupper         = np.take(airfoil_data.x_upper_surface.values(),a_secl,axis=0)
-    yupper         = np.take(airfoil_data.y_upper_surface.values(),a_secl,axis=0)   
+    # trailing edge points in airfoil coordinates 
+    airfoils = rotor.Airfoils
+    af       = airfoils[list(airfoils.keys())[0]]
+    a_loc    = rotor.airfoil_polar_stations
+    xupper   = np.zeros((Nr,len(af.geometry.x_upper_surface)))
+    yupper   = np.zeros((Nr,len(af.geometry.x_upper_surface)))
+    for i,airfoil in enumerate(airfoils):
+        a_geo        = airfoil.geometry
+        locs         = np.where(np.array(a_loc) == i )
+        xupper[locs] = a_geo.x_upper_surface 
+        yupper[locs] = a_geo.y_upper_surface 
     
     # Align the quarter chords of the airfoils (zero sweep)
     airfoil_le_offset = -c/2
     xte_airfoils      = xupper[:,-1]*c + airfoil_le_offset
-    yte_airfoils      = yupper[:,-1]*c 
-    
-    xle_airfoils = xupper[:,0]*c + airfoil_le_offset
-    yle_airfoils = yupper[:,0]*c 
-    
-    x_c_4_airfoils = (xle_airfoils - xte_airfoils)/4 - airfoil_le_offset
-    y_c_4_airfoils = (yle_airfoils - yte_airfoils)/4
+    yte_airfoils      = yupper[:,-1]*c  
+    xle_airfoils      = xupper[:,0]*c + airfoil_le_offset
+    yle_airfoils      = yupper[:,0]*c  
+    x_c_4_airfoils    = (xle_airfoils - xte_airfoils)/4 - airfoil_le_offset
+    y_c_4_airfoils    = (yle_airfoils - yte_airfoils)/4
     
     # apply blade twist rotation along rotor radius
     xte_twisted = np.cos(beta)*xte_airfoils - np.sin(beta)*yte_airfoils        
