@@ -5,6 +5,7 @@
 # Modified: Jul 2014, A. Wendorff
 #           Jan 2016, E. Botero
 #           May 2021, E. Botero
+#           Nov 2022, D. Enriquez
 
 # TO DO:
 #    - Add capability for multiple vertical tails
