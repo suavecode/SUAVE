@@ -12,6 +12,7 @@
 #           Sep 2020, M. Clarke 
 #           May 2021, E. Botero
 #           Jun 2021, R. Erhard
+#           Nov 2022, D. Enriquez
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -340,7 +341,7 @@ class Vortex_Lattice(Aerodynamics):
         
         # Evaluate the VLM
         # if in transonic regime, use surrogate
-        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution, \
+        inviscid_lift, inviscid_drag, inviscid_side, wing_lifts, wing_drags, wing_lift_distribution, \
         wing_drag_distribution, induced_angle_distribution, pressure_coefficient, CYMTOT,CRMTOT,CM = \
             calculate_VLM(conditions,settings,geometry)
         
@@ -358,6 +359,9 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.drag_breakdown.induced.inviscid_wings  = wing_drags
         conditions.aerodynamics.drag_breakdown.induced.wings_sectional = wing_drag_distribution 
         conditions.aerodynamics.drag_breakdown.induced.angle           = induced_angle_distribution
+        
+        #Side
+        conditions.aerodynamics.side_force_coefficient                 = inviscid_side
         
         # Pressure and moment coefficients
         conditions.aerodynamics.pressure_coefficient = pressure_coefficient
@@ -663,6 +667,7 @@ def calculate_VLM(conditions,settings,geometry):
     results = VLM(conditions,settings,geometry)
     total_lift_coeff          = results.CL
     total_induced_drag_coeff  = results.CDi
+    total_side_coef           = results.CYTOT
     CL_wing                   = results.CL_wing  
     CDi_wing                  = results.CDi_wing 
     cl_y                      = results.cl_y     
@@ -693,4 +698,4 @@ def calculate_VLM(conditions,settings,geometry):
             wing_induced_angle[wing.tag] = alpha_i[i]
         i+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, wing_induced_angle, CPi,CYMTOT,CRMTOT, CM
+    return total_lift_coeff, total_induced_drag_coeff, total_side_coef, wing_lifts, wing_drags, cl_y, cdi_y, wing_induced_angle, CPi,CYMTOT,CRMTOT, CM
