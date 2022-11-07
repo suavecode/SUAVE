@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units , Data
 from SUAVE.Components.Airfoils.Airfoil import Airfoil
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform, wing_segmented_planform
 import numpy as np
@@ -212,8 +212,9 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
                 segment.root_chord_percent    = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1))) * units_factor /root_chord
 
 
-            xsec_id = str(vsp.GetXSec(xsec_surf_id, jj))
-            airfoil = Airfoil()
+            xsec_id          = str(vsp.GetXSec(xsec_surf_id, jj))
+            airfoil          = Airfoil() 
+            airfoil.geometry = Data()
             if vsp.GetXSecShape(xsec_id) == vsp.XS_FOUR_SERIES: 	# XSec shape: NACA 4-series
                 camber = vsp.GetParmVal(wing_id, 'Camber', 'XSecCurve_' + str(jj))
 
@@ -222,7 +223,7 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
                 else:
                     camber_loc = vsp.GetParmVal(wing_id, 'CamberLoc', 'XSecCurve_' + str(jj))
 
-                airfoil.thickness_to_chord = thick_cord
+                airfoil.geometry.thickness_to_chord = thick_cord
                 camber_round               = int(np.around(camber*100))
                 camber_loc_round           = int(np.around(camber_loc*10))
                 thick_cord_round           = int(np.around(thick_cord*100))
@@ -239,7 +240,7 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
 
 
             elif vsp.GetXSecShape(xsec_id) == vsp.XS_FILE_AIRFOIL:	# XSec shape: 12 is type AF_FILE
-                airfoil.thickness_to_chord = thick_cord
+                airfoil.geometry.thickness_to_chord = thick_cord
                 # VSP airfoil API calls get coordinates and write files with the final argument being the fraction of segment position, regardless of relative spans.
                 # (Write the root airfoil with final arg = 0. Write 4th airfoil of 5 segments with final arg = .8)
 

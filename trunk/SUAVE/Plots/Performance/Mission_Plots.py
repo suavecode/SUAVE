@@ -2172,7 +2172,6 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
              title_x = 0.5,
              width   = 750,
              height  = 750,
-             font_family = "Times New Roman",
              font_size=18,
              scene_zaxis_range=[min_alt,max_alt],
              coloraxis=dict(colorscale='Jet',

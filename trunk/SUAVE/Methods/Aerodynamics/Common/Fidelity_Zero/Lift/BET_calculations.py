@@ -3,14 +3,14 @@
 # 
 # Created:  Jan 2022, R. Erhard
 # Modified:       
-
+from SUAVE.Core.Utilities import interp2d 
 import numpy as np
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_pol_data,ctrl_pts,Nr,Na,tc,use_2d_analysis):
+def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis):
     """
     Cl, Cdval = compute_airfoil_aerodynamics( beta,c,r,R,B,
                                               Wa,Wt,a,nu,
-                                              a_loc,a_geo,cl_sur,cd_sur,
+                                              airfoils,a_loc
                                               ctrl_pts,Nr,Na,tc,use_2d_analysis )
 
     Computes the aerodynamic forces at sectional blade locations. If airfoil
@@ -37,9 +37,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_pol_data,ctrl_p
        Wt                         tangential velocity                             [-]
        a                          speed of sound                                  [-]
        nu                         viscosity                                       [-]
-
-       a_loc                      Locations of specified airfoils                 [-]
-       a_pol_data                 Airfoil polar data                              [-]
+       airfoil_data               Data structure of airfoil polar information     [-]
        ctrl_pts                   Number of control points                        [-]
        Nr                         Number of radial blade sections                 [-]
        Na                         Number of azimuthal blade stations              [-]
@@ -51,24 +49,23 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_pol_data,ctrl_p
        Cdval                    Drag Coefficients  (before scaling)       [-]
        alpha                    section local angle of attack             [rad]
 
-    """
-
+    """ 
     alpha    = beta - np.arctan2(Wa,Wt)
     W        = (Wa*Wa + Wt*Wt)**0.5
     Ma       = W/a
     Re       = (W*c)/nu
 
     # If propeller airfoils are defined, use airfoil surrogate
-    if a_loc != None:
-        # Compute blade Cl and Cd distribution from the airfoil data
-        dim_sur = len(a_pol_data.lift_coefficient_surrogates)
+    if a_loc != None:  
+        # Compute blade Cl and Cd distribution from the airfoil data 
         if use_2d_analysis:
             # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
             Cl      = np.zeros((ctrl_pts,Nr,Na))
             Cdval   = np.zeros((ctrl_pts,Nr,Na))
-            for jj in range(dim_sur):
-                Cl_af           = a_pol_data.lift_coefficient_surrogates[a_pol_data.airfoil_names[jj]]((Re,alpha))
-                Cdval_af        = a_pol_data.drag_coefficient_surrogates[a_pol_data.airfoil_names[jj]]((Re,alpha))
+            for jj,airfoil in enumerate(airfoils):
+                pd              = airfoil.polars
+                Cl_af           = interp2d(Re,alpha,pd.reynolds_numbers, pd.angle_of_attacks, pd.lift_coefficients) 
+                Cdval_af        = interp2d(Re,alpha,pd.reynolds_numbers, pd.angle_of_attacks, pd.drag_coefficients)
                 locs            = np.where(np.array(a_loc) == jj )
                 Cl[:,locs,:]    = Cl_af[:,locs,:]
                 Cdval[:,locs,:] = Cdval_af[:,locs,:]
@@ -77,9 +74,10 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_pol_data,ctrl_p
             Cl      = np.zeros((ctrl_pts,Nr))
             Cdval   = np.zeros((ctrl_pts,Nr))
 
-            for jj in range(dim_sur):
-                Cl_af         = a_pol_data.lift_coefficient_surrogates[a_pol_data.airfoil_names[jj]]((Re,alpha))
-                Cdval_af      = a_pol_data.drag_coefficient_surrogates[a_pol_data.airfoil_names[jj]]((Re,alpha))
+            for jj,airfoil in enumerate(airfoils):
+                pd            = airfoil.polars
+                Cl_af         = interp2d(Re,alpha,pd.reynolds_numbers, pd.angle_of_attacks, pd.lift_coefficients)
+                Cdval_af      = interp2d(Re,alpha,pd.reynolds_numbers, pd.angle_of_attacks, pd.drag_coefficients)
                 locs          = np.where(np.array(a_loc) == jj )
                 Cl[:,locs]    = Cl_af[:,locs]
                 Cdval[:,locs] = Cdval_af[:,locs]
@@ -145,6 +143,6 @@ def compute_inflow_and_tip_loss(r,R,Wa,Wt,B,et1=1,et2=1,et3=1):
     tipfactor = B/2.0*(  (R/r)**et1 - 1  )**et2/lamdaw**et3 
 
     piece = np.exp(-tipfactor)
-    Ftip = 2.*np.arccos(piece)/np.pi  
+    Ftip  = 2.*np.arccos(piece)/np.pi  
 
     return lamdaw, Ftip, piece

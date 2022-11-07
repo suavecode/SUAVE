@@ -25,10 +25,8 @@ from .Mission_Plots       import plot_ground_noise_levels
 from .Mission_Plots       import plot_flight_profile_noise_contours 
 from .Mission_Plots       import plot_fuel_use
 
-from .Airfoil_Plots       import plot_airfoil_analysis_boundary_layer_properties 
-from .Airfoil_Plots       import plot_airfoil_analysis_polars
-from .Airfoil_Plots       import plot_airfoil_analysis_surface_forces  
-from .Airfoil_Plots       import plot_airfoil_polars
+from .Airfoil_Plots       import plot_airfoil_boundary_layer_properties
+from .Airfoil_Plots       import plot_airfoil_surface_forces
 
 from .Propeller_Plots     import plot_propeller_disc_performance
 from .Propeller_Plots     import plot_propeller_disc_inflow

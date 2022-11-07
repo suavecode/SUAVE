@@ -2,6 +2,7 @@
 # panel_geometry.py 
 
 # Created:  Mar 2021, M. Clarke
+# Modified: Sep 2022, M. Clarke
 
 # ---------------------------------------
 #-------------------------------
@@ -15,7 +16,7 @@ import numpy as np
 # panel_geometry.py
 # ----------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def panel_geometry(x,y,npanel,nalpha,nRe):
+def panel_geometry(x,y,npanel,ncases,ncpts):
     """Computes airfoil surface panelization parameters for later use in 
     the computation of the matrix of influence coefficients.        
 
@@ -48,7 +49,7 @@ def panel_geometry(x,y,npanel,nalpha,nRe):
     xbar = (x[1:] +x[:-1])/2
     ybar = (y[1:] +y[:-1])/2 
     
-    norm  = np.zeros((npanel,2,nalpha,nRe))
+    norm  = np.zeros((npanel,2,ncases,ncpts))
     norm[:,0,:,:]  =  -st
     norm[:,1,:,:]  =  ct 
     
