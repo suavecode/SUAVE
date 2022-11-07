@@ -21,7 +21,8 @@ import matplotlib.pyplot as plt
 def electric_payload_range(vehicle,
                            mission,
                            cruise_segment_tag,
-                           display_plot=True):
+                           display_plot=True,
+                           unit='mile'):
 
     """electric_payload_range(vehicle,
                            mission,
@@ -95,12 +96,13 @@ def electric_payload_range(vehicle,
     R = np.zeros(2)
 
     # Calculate Vehicle Range for Max Payload and Ferry Conditions
+    
 
     for i in range(2):
         mission.segments[0].analyses.weights.vehicle.mass_properties.takeoff = TOW[i]
         results = mission.evaluate()
         segment = results.segments[cruise_segment_tag]
-        R[i]    = segment.conditions.frames.inertial.position_vector[-1,0]
+        R[i]    = segment.conditions.frames.inertial.position_vector[-1,0] / Units[unit]
 
     # Insert Starting Point for Diagram Construction
 
@@ -118,7 +120,7 @@ def electric_payload_range(vehicle,
     if display_plot:
 
         plt.plot(R, PLD, 'r')
-        plt.xlabel('Range (m)')
+        plt.xlabel('Range ('+unit+')')
         plt.ylabel('Payload (kg)')
         plt.title('Payload Range Diagram')
         plt.grid(True) 
