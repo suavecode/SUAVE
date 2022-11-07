@@ -155,6 +155,13 @@ def import_airfoil_geometry(airfoil_geometry_file, npoints = 200,surface_interpo
     x_lo_surf = np.array(x_lo_surf)
     y_up_surf = np.array(y_up_surf)
     y_lo_surf = np.array(y_lo_surf)  
+    
+    # Check for extra zeros (OpenVSP exports extra zeros)
+    if (((x_up_surf[0]==0.) and (x_lo_surf[0]==0.)) and ((y_up_surf[0]==0.) and (y_lo_surf[0]==0.))):
+        x_up_surf = x_up_surf[1:]
+        x_lo_surf = x_lo_surf[1:]
+        y_up_surf = y_up_surf[1:]
+        y_lo_surf = y_lo_surf[1:]
 
     # create custom spacing for more points and leading and trailing edge
     t            = np.linspace(0,4,npoints-1)
