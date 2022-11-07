@@ -3,7 +3,7 @@
 # 
 # Created:   Aug 2021, R. Erhard
 # Modified: 
-# Nov 2022, D. Enriquez - added dCD_dAlpha
+# Nov 2022, D. Enriquez - added dCD_dAlpha, dCS_dBeta
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -34,8 +34,9 @@ def compute_aero_derivatives(segment):
          .dCM_dAlpha       -   derivative of pitching moment coefficient with respect to angle of attack   [-] 
          .dCT_dAlpha       -   derivative of rotor thrust coefficient with respect to angle of attack      [-] 
          .dCP_dAlpha       -   derivative of rotor power coefficient with respect to angle of attack       [-] 
-         .dCn_dBeta        -   derivative of yawing moment coefficient with respect to sideslip angle      [-] 
-         .dCl_dBeta        -   derivative of pitching moment with respect to angle of attack               [-] 
+         .dCn_dBeta        -   derivative of yawing moment coefficient with respect to sideslip angle      [-]
+         .dCS_dBeta        -   derivative of side force coeff with respect to sideslip angle               [-]
+         .dCl_dBeta        -   derivative of pitching moment with respect to sideslip angle                [-] 
          .dCT_dBeta        -   derivative of rotor thrust coefficient with respect to sideslip angle       [-] 
          .dCP_dBeta        -   derivative of rotor power coefficient with respect to sideslip angle        [-] 
          .dCL_dThrottle    -   derivative of lift coefficient with respect to throttle                     [-] 
@@ -130,8 +131,10 @@ def compute_aero_derivatives(segment):
         # use VLM outputs directly
         dCn = perturbed_segment.state.conditions.stability.static.yawing_moment_coefficient - segment.state.conditions.stability.static.yawing_moment_coefficient
         dCl = perturbed_segment.state.conditions.stability.static.rolling_moment_coefficient - segment.state.conditions.stability.static.rolling_moment_coefficient
+        dCS = perturbed_segment.state.conditions.aerodynamics.side_force_coefficient - segment.state.conditions.aerodynamics.side_force_coefficient 
         dCn_dBeta = dCn/dBeta
         dCl_dBeta = dCl/dBeta
+        dCS_dBeta = dCS/dBeta 
         
     # check for propellers
     dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts)  
@@ -141,6 +144,7 @@ def compute_aero_derivatives(segment):
     
     segment.state.conditions.aero_derivatives.dCn_dBeta = dCn_dBeta
     segment.state.conditions.aero_derivatives.dCl_dBeta = dCl_dBeta
+    segment.state.conditions.aero_derivatives.dCS_dBeta = dCS_dBeta 
     segment.state.conditions.aero_derivatives.dCT_dBeta = dCT_dBeta
     segment.state.conditions.aero_derivatives.dCP_dBeta = dCP_dBeta
     
