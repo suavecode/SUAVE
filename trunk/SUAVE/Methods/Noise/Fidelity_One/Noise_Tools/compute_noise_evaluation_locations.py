@@ -44,6 +44,7 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     N_gm_y         = settings.microphone_y_resolution   
     gml            = settings.ground_microphone_locations 
     pos            = segment.state.conditions.frames.inertial.position_vector
+    true_course    = segment.state.conditions.frames.planet.true_course_rotation
     ctrl_pts       = len(pos)  
     TGML           = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0) # (cpts,mics,3)
     
@@ -90,8 +91,14 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     num_gm_mic  = (mic_stencil_x*2 + 1)*(mic_stencil_y*2 + 1)
     EGML         = np.zeros((ctrl_pts,num_gm_mic ,3))   
     for cpt in range(ctrl_pts):
-        surface    = TGML[cpt,:,:].reshape((N_gm_x,N_gm_y,3))
-        EGML[cpt]  = surface[start_x[cpt]:end_x[cpt],start_y[cpt]:end_y[cpt],:].reshape(num_gm_mic,3)
+        surface      = TGML[cpt,:,:].reshape((N_gm_x,N_gm_y,3))
+        stencil      = surface[start_x[cpt]:end_x[cpt],start_y[cpt]:end_y[cpt],:].reshape(num_gm_mic,3)  # extraction of points 
+        stencil[:,0] = stencil[:,0] - np.ones(num_gm_mic)*surface[stencil_center_x_locs[cpt],0,0]   # shifting to x == 0
+        stencil[:,1] = stencil[:,1] - np.ones(num_gm_mic)*surface[0,stencil_center_y_locs[cpt],1]   # shifting to y == 0
+        stencil      = np.matmul(stencil,true_course[cpt])                                          # apply rotation of matrix about z axis to orient grid to true course direction
+        stencil[:,1] = stencil[:,1] + np.ones(num_gm_mic)*surface[0,stencil_center_y_locs[cpt],1]   # shifting to y == stencil_center_y_locs
+        stencil[:,0] = stencil[:,0] + np.ones(num_gm_mic)*surface[stencil_center_x_locs[cpt],0,0]   # shifting to x == stencil_center_x_locs 
+        EGML[cpt]    = stencil
           
     REGML          = np.zeros_like(EGML)
     Aircraft_x     = np.repeat(np.atleast_2d(pos[:,0] ).T,num_gm_mic , axis = 1)

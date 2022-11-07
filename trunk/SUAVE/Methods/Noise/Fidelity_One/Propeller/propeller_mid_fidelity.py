@@ -58,7 +58,7 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     conditions           = segment.state.conditions
     microphone_locations = conditions.noise.total_microphone_locations
     angle_of_attack      = conditions.aerodynamics.angle_of_attack 
-    velocity_vector      = conditions.frames.inertial.velocity_vector
+    velocity_vector      = conditions.frames.inertial.velocity_vector 
     freestream           = conditions.freestream  
     harmonics            = settings.harmonics    
     

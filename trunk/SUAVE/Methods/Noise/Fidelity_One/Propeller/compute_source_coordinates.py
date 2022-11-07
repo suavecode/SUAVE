@@ -67,12 +67,7 @@ def compute_point_source_coordinates(conditions,rotors,mls,settings):
     # rotation of vehicle about y axis by AoA 
     rotation_2                        = np.zeros((num_cpt,num_mic,num_rot,4,4))
     rotation_2[0:num_cpt,:,:,0:3,0:3] = conditions.frames.body.transform_to_inertial[:,np.newaxis,np.newaxis,:,:]
-    rotation_2[:,:,:,3,3]             = 1  
-
-    # rotation of vehicle about z axis by true course 
-    rotation_3                        = np.zeros((num_cpt,num_mic,num_rot,4,4))
-    rotation_3[0:num_cpt,:,:,0:3,0:3] = conditions.frames.planet.true_course_rotation[:,np.newaxis,np.newaxis,:,:]
-    rotation_3[:,:,:,3,3]             = 1  
+    rotation_2[:,:,:,3,3]             = 1   
 
     # translation of vehicle to air  
     translation_2               = np.tile(I[None,None,:,:,:],(num_cpt,num_mic,num_rot,1,1))    
@@ -88,16 +83,14 @@ def compute_point_source_coordinates(conditions,rotors,mls,settings):
     # execute operation  
     mat_1 = np.matmul(rotation_1,mat_0) 
     mat_2 = np.matmul(translation_1,mat_1)
-    mat_3 = np.matmul(rotation_2,mat_2) 
-    mat_4 = np.matmul(rotation_3,mat_3) # bug
-    mat_5 = np.matmul(translation_2,mat_3) # make 4 
-    mat_5 = -mat_5
+    mat_3 = np.matmul(rotation_2,mat_2)  
+    #mat_4 = np.matmul(translation_2,mat_3)  
 
     # store points
     propeller_position_vector          = np.zeros((num_cpt,num_mic,num_rot,3))
-    propeller_position_vector[:,:,:,0] = mat_4[:,:,:,0,0]
-    propeller_position_vector[:,:,:,1] = mat_4[:,:,:,1,0]
-    propeller_position_vector[:,:,:,2] = mat_4[:,:,:,2,0]
+    propeller_position_vector[:,:,:,0] = -np.matmul(translation_2,mat_3)[:,:,:,0,0]
+    propeller_position_vector[:,:,:,1] = -np.matmul(translation_2,mat_3)[:,:,:,1,0]
+    propeller_position_vector[:,:,:,2] = -np.matmul(translation_2,mat_3)[:,:,:,2,0]
      
     return propeller_position_vector
 
@@ -112,7 +105,7 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,rotors,mls,set
         N/A  
  
     Inputs:  
-        AoA                            - aircraft angle ofattack                     [rad]
+        AoA                            - aircraft angle of attack                    [rad] 
         acoustic_outputs               - outputs from propeller aerodynamic analysis [None]   
         mls                            - microphone locations                        [m]   
         rotors                         - rotors on network                           [None]  
@@ -152,7 +145,7 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,rotors,mls,set
     sin_alpha_eff        = np.tile(np.sin(alpha_eff0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
     cos_alpha_eff        = np.tile(np.cos(alpha_eff0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
     cos_t_v              = np.tile(np.cos(-AoA)[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))
-    sin_t_v              = np.tile(np.sin(-AoA)[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
+    sin_t_v              = np.tile(np.sin(-AoA)[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))   
     cos_t_v_t_r          = np.tile(np.array([body2thrust[0,0]])[:,None,None,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
     sin_t_v_t_r          = np.tile(np.array([body2thrust[0,2]])[:,None,None,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
     M_hub                = np.tile(rot_origins[None,None,:,None,None,None,:,None],(num_cpt,num_mic,1,num_sec,num_azi,num_cf,1,1))
@@ -163,14 +156,15 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,rotors,mls,set
     M_t      = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,3,3))
     M_phi    = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,3,3))
     M_theta  = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,3,3))
-    M_tv     = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,3,3))
+    M_tv     = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,3,3)) 
 
     M_tv[:,:,:,:,:,:,0,0]    = cos_t_v[:,:,:,:,:,:,0]
     M_tv[:,:,:,:,:,:,0,2]    = sin_t_v[:,:,:,:,:,:,0]
     M_tv[:,:,:,:,:,:,1,1]    = 1
     M_tv[:,:,:,:,:,:,2,0]    =-sin_t_v[:,:,:,:,:,:,0]
     M_tv[:,:,:,:,:,:,2,2]    = cos_t_v[:,:,:,:,:,:,0]
-    POS_1                    = np.matmul(M_tv,(POS_2 + M_hub)) # rotor hub position relative to center of aircraft
+     
+    POS_1                    = np.matmul(M_tv,(POS_2 + M_hub)) # np.matmul(M_tc,np.matmul(M_tv,(POS_2 + M_hub))) # rotor hub position relative to center of aircraft
 
     # twist angle matrix
     M_theta[:,:,:,:,:,:,0,0] =  cos_alpha_eff[:,:,:,:,:,:,0]
@@ -205,7 +199,7 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,rotors,mls,set
     blade_section_position_vectors.sin_alpha_eff                   = np.repeat(sin_alpha_eff,2,axis = 6)     
     blade_section_position_vectors.cos_alpha_eff                   = np.repeat(cos_alpha_eff,2,axis = 6) 
     blade_section_position_vectors.M_hub_X                         = np.repeat(M_hub[:,:,:,:,:,:,0,:],2,axis = 6)
-    blade_section_position_vectors.M_hub_Y                         = np.repeat(M_hub[:,:,:,:,:,:,2,:],2,axis = 6)
+    blade_section_position_vectors.M_hub_Y                         = np.repeat(M_hub[:,:,:,:,:,:,1,:],2,axis = 6)
     blade_section_position_vectors.M_hub_Z                         = np.repeat(M_hub[:,:,:,:,:,:,2,:],2,axis = 6)
     blade_section_position_vectors.cos_t_v                         = np.repeat(cos_t_v,2,axis = 6)
     blade_section_position_vectors.sin_t_v                         = np.repeat(sin_t_v,2,axis = 6)

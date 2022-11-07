@@ -2027,7 +2027,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     fig                 = plt.figure(filename_1)
     fig.set_size_inches(10 ,10)
     min_SPL             = 35
-    max_SPL             = 100
+    max_SPL             = 80
     levs                = np.linspace(min_SPL,max_SPL,25)
     axes                = fig.add_subplot(1,1,1) 
     CS                  = axes.contourf(X,Y,max_SPL_gm, levels  = levs, cmap=plt.cm.jet, extend='both')
@@ -2154,16 +2154,17 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
 def post_process_noise_data(results): 
 
     # unpack 
-    N_segs         = len(results.segments)
-    N_ctrl_pts     = len(results.segments[0].conditions.frames.inertial.time[:,0]) 
-    N_bm           = results.segments[0].conditions.noise.number_of_building_microphones 
-    N_gm_x         = results.segments[0].analyses.noise.settings.microphone_x_resolution
-    N_gm_y         = results.segments[0].analyses.noise.settings.microphone_y_resolution   
-    dim_mat        = N_segs*N_ctrl_pts 
-    SPL_contour_gm = np.ones((dim_mat,N_gm_x,N_gm_y))*30 
-    SPL_contour_bm = np.ones((dim_mat,N_bm))*30
-    Aircraft_pos   = np.zeros((dim_mat,3)) 
-    Mic_pos_gm     = results.segments[0].conditions.noise.total_ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3) 
+    background_noise_dbA = 35 
+    N_segs               = len(results.segments)
+    N_ctrl_pts           = len(results.segments[0].conditions.frames.inertial.time[:,0]) 
+    N_bm                 = results.segments[0].conditions.noise.number_of_building_microphones 
+    N_gm_x               = results.segments[0].analyses.noise.settings.microphone_x_resolution
+    N_gm_y               = results.segments[0].analyses.noise.settings.microphone_y_resolution   
+    dim_mat              = N_segs*N_ctrl_pts 
+    SPL_contour_gm       = np.ones((dim_mat,N_gm_x,N_gm_y))*background_noise_dbA
+    SPL_contour_bm       = np.ones((dim_mat,N_bm))*background_noise_dbA
+    Aircraft_pos         = np.zeros((dim_mat,3)) 
+    Mic_pos_gm           = results.segments[0].conditions.noise.total_ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3) 
     
     for i in range(N_segs):  
         if  results.segments[i].battery_discharge == False:
