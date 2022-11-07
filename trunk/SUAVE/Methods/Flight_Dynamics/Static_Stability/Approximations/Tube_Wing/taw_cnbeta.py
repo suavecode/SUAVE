@@ -193,7 +193,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     dsdb_e   = 0.724 + 3.06*((S_v/S)/k_sweep) + 0.4*z_w/h_max + 0.009*AR
     Cy_bv    = -k_v*CLa_v*dsdb_e*(S_v/S)  #ASSUMING SINGLE VERTICAL TAIL
     
-    CnBeta_v = -Cy_bv*l_v/b
+    CnBeta_v = -Cy_bv*l_v/b * (1 + geometry.wings['vertical_stabilizer'].symmetric)
     
     CnBeta   = CnBeta_w + CnBeta_v + fuse_cnb
     
