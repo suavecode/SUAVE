@@ -141,7 +141,7 @@ def import_airfoil_geometry(airfoil_geometry_file, npoints = 200,surface_interpo
                 next_line  = data_block[line_count+1].strip()
                 next_line  = next_line.replace(',','')
             
-                if next_line.split()[0]>line_check.split()[0] and next_line.split()[0] !=0.:
+                if next_line.split()[0]>line_check.split()[0] and float(next_line.split()[0]) >0.:
                     upper_surface_flag = False
                 
         # Upper surface values in Selig format are reversed from Lednicer format, so fix that
@@ -157,7 +157,7 @@ def import_airfoil_geometry(airfoil_geometry_file, npoints = 200,surface_interpo
     y_lo_surf = np.array(y_lo_surf)  
     
     # Check for extra zeros (OpenVSP exports extra zeros)
-    if (((x_up_surf[1]==0.) and (x_lo_surf[1]==0.)) and ((y_up_surf[1]==0.) and (y_lo_surf[1]==0.))):
+    if len(np.unique(x_up_surf))!=len(x_up_surf):
         x_up_surf = x_up_surf[1:]
         x_lo_surf = x_lo_surf[1:]
         y_up_surf = y_up_surf[1:]
