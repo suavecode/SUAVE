@@ -187,6 +187,9 @@ def VLM(conditions,settings,geometry):
     # generate vortex distribution (VLM steps 1-9)
     VD   = generate_vortex_distribution(geometry,settings)  
     
+    if not VD.is_postprocessed:
+        raise ValueError('postprocess_VD has not been called since the panels have been modified')
+    
     # Unpack vortex distribution
     n_cp         = VD.n_cp 
     n_sw         = VD.n_sw

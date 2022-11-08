@@ -9,7 +9,9 @@ from .generate_propeller_grid                 import generate_propeller_grid
 from .generate_wing_wake_grid                 import generate_wing_wake_grid
 from .compute_wing_wake                       import compute_wing_wake
 from .compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
-from .generate_vortex_distribution            import generate_vortex_distribution, compute_unit_normal 
+from .generate_vortex_distribution            import generate_vortex_distribution
 from .fuselage_correction                     import fuselage_correction
 from .make_VLM_wings                          import make_VLM_wings
+from .generate_VD_helpers                     import postprocess_VD, compute_panel_area, compute_unit_normal
 from .VLM                                     import VLM
+from .deflect_control_surface                 import deflect_control_surface
