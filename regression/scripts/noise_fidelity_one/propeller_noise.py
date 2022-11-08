@@ -210,7 +210,6 @@ def Hararmonic_Noise_Validation(PP):
     axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
     axes.plot(harmonics, ANOPP_PAS_Case_2_60deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_2_60deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,   label = 'Exp.')  
-    #axes.set_ylabel('SPL (dB)') 
     axes.set_title('60 deg. 60 deg. Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))   
     axes.minorticks_on()   
 

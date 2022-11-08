@@ -30,7 +30,7 @@ import time
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
 def prop_rotor_design(prop_rotor,number_of_stations = 20,solver_name= 'SLSQP',
-                      solver_sense_step = 1E-6,solver_tolerance = 1E-5,print_iterations = False):  
+                      solver_sense_step = 1E-5,solver_tolerance = 1E-4,print_iterations = False):  
     """ Optimizes prop-rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
@@ -509,7 +509,7 @@ def modify_blade_geometry(nexus):
     vehicle_cruise    = nexus.vehicle_configurations.cruise
     prop_rotor_hover  = vehicle_hover.networks.battery_propeller.propellers.prop_rotor 
     prop_rotor_cruise = vehicle_cruise.networks.battery_propeller.propellers.prop_rotor 
-    airfoils          = prop_rotor_hover.airfoils      
+    airfoils          = prop_rotor_hover.Airfoils      
     a_loc             = prop_rotor_hover.airfoil_polar_stations   
     
     # Update geometry of blade
