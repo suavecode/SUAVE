@@ -29,7 +29,7 @@ import time
 #  Rotor Design
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
-def prop_rotor_design(prop_rotor,number_of_stations = 20,solver_name= 'SLSQP',
+def prop_rotor_design(prop_rotor,number_of_stations = 20,solver_name= 'SLSQP',iterations = 200,
                       solver_sense_step = 1E-5,solver_tolerance = 1E-4,print_iterations = False):  
     """ Optimizes prop-rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
@@ -128,7 +128,7 @@ def prop_rotor_design(prop_rotor,number_of_stations = 20,solver_name= 'SLSQP',
     # start optimization   
     ti                   = time.time()     
     optimization_problem = rotor_optimization_setup(prop_rotor,print_iterations )  
-    output               = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, sense_step = solver_sense_step,tolerance = solver_tolerance)   
+    output               = scipy_setup.SciPy_Solve(optimization_problem,solver=solver_name, iter = iterations, sense_step = solver_sense_step,tolerance = solver_tolerance)   
     Beta_c               = np.array([output[10],output[11]])    
     tf                   = time.time()
     elapsed_time         = round((tf-ti)/60,2)
