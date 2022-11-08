@@ -86,12 +86,12 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
             for prop in net.propellers:
                 # plot propeller wake
                 if prop.Wake.wake_method =="Fidelity_One":
-                    plot_propeller_wake(axes, prop, wake_face_color, wake_edge_color, wake_alpha)
+                    plot_rotor_wake(axes, prop, wake_face_color, wake_edge_color, wake_alpha)
         if "lift_rotors" in net.keys():
             for rot in net.lift_rotors:
                 # plot rotor wake
                 if rot.Wake.wake_method =="Fidelity_One":
-                    plot_propeller_wake(axes, rot, wake_face_color, wake_edge_color, wake_alpha)            
+                    plot_rotor_wake(axes, rot, wake_face_color, wake_edge_color, wake_alpha)            
             
 
     # -------------------------------------------------------------------------
@@ -108,7 +108,7 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
         plot_fuselage_geometry(axes,fus_pts,fuselage_face_color,fuselage_edge_color,fuselage_alpha)
 
     # -------------------------------------------------------------------------
-    # PLOT ENGINE
+    # PLOT NACELLES
     # -------------------------------------------------------------------------
     nacelle_face_color       = 'darkred'
     nacelle_edge_color       = 'black'
@@ -182,7 +182,7 @@ def plot_wing(axes,VD,face_color,edge_color,alpha_val):
 
     return
 
-def plot_propeller_wake(axes, prop,face_color,edge_color,alpha,ctrl_pt=0):
+def plot_rotor_wake(axes, prop,face_color,edge_color,alpha,ctrl_pt=0):
     """ This plots a helical wake of a propeller or rotor
 
     Assumptions:
@@ -334,14 +334,14 @@ def plot_network(axes,network,number_of_airfoil_points,prop_face_color,prop_edge
         for prop in network.propellers:
 
             # Generate And Plot Propeller/Rotor Geometry
-            plot_propeller_geometry(axes,prop,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
+            plot_rotor_geometry(axes,prop,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
 
     if ('lift_rotors' in network.keys()):
 
         for rotor in network.lift_rotors:
 
             # Generate and Plot Propeller/Rotor Geometry
-            plot_propeller_geometry(axes,rotor,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
+            plot_rotor_geometry(axes,rotor,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
 
     return 
 
@@ -469,8 +469,9 @@ def plot_nacelle_geometry(axes,NAC_SURF_PTS,face_color,edge_color,alpha):
 
     return
 
-def plot_propeller_geometry(axes,prop,cpt=0,number_of_airfoil_points = 21,
-                            prop_face_color='red',prop_edge_color='darkred',prop_alpha=1):
+def plot_rotor_geometry(axes,rotor,cpt=0,number_of_airfoil_points = 21,
+                            rotor_face_color='red',rotor_edge_color='darkred',rotor_alpha=1): 
+    
     """ This plots a 3D surface of the  propeller
 
     Assumptions:
@@ -488,13 +489,13 @@ def plot_propeller_geometry(axes,prop,cpt=0,number_of_airfoil_points = 21,
 
     Properties Used:
     N/A
-    """
-    num_B     = prop.number_of_blades 
+    """  
+    num_B     = rotor.number_of_blades 
     af_pts    = number_of_airfoil_points-1
-    dim       = len(prop.radius_distribution)
+    dim       = len(rotor.radius_distribution)     
 
     for i in range(num_B):
-        G = get_blade_coordinates(prop,number_of_airfoil_points,dim,i)
+        G = get_blade_coordinates(rotor,number_of_airfoil_points,dim,i)
         # ------------------------------------------------------------------------
         # Plot Propeller Blade
         # ------------------------------------------------------------------------
@@ -512,15 +513,15 @@ def plot_propeller_geometry(axes,prop,cpt=0,number_of_airfoil_points = 21,
                      G.ZB1[cpt,sec,loc],
                      G.ZB2[cpt,sec,loc],
                      G.ZA2[cpt,sec,loc]]
-                prop_verts = [list(zip(X, Y, Z))]
-                prop_collection = Poly3DCollection(prop_verts)
-                prop_collection.set_facecolor(prop_face_color)
-                prop_collection.set_edgecolor(prop_edge_color)
-                prop_collection.set_alpha(prop_alpha)
-                axes.add_collection3d(prop_collection)
+                rotor_verts = [list(zip(X, Y, Z))]
+                rotor_collection = Poly3DCollection(rotor_verts)
+                rotor_collection.set_facecolor(rotor_face_color)
+                rotor_collection.set_edgecolor(rotor_edge_color)
+                rotor_collection.set_alpha(rotor_alpha)
+                axes.add_collection3d(rotor_collection)
     return
 
-def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
+def get_blade_coordinates(rotor,n_points,dim,i,aircraftRefFrame=True):
     """ This generates the coordinates of the blade surface for plotting in the aircraft frame (x-back, z-up)
 
     Assumptions:
@@ -540,24 +541,23 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     N/A
     """    
     # unpack
-    num_B        = prop.number_of_blades
-    airfoils     = prop.Airfoils 
-    beta         = prop.twist_distribution + prop.inputs.pitch_command
-    a_o          = prop.start_angle
-    b            = prop.chord_distribution
-    r            = prop.radius_distribution
-    MCA          = prop.mid_chord_alignment
-    t            = prop.max_thickness_distribution
-    a_loc        = prop.airfoil_polar_stations
-    origin       = prop.origin
-    
-    if prop.rotation==1:
+    num_B        = rotor.number_of_blades
+    airfoils     = rotor.Airfoils 
+    beta         = rotor.twist_distribution + rotor.inputs.pitch_command
+    a_o          = rotor.start_angle
+    b            = rotor.chord_distribution
+    r            = rotor.radius_distribution
+    MCA          = rotor.mid_chord_alignment
+    t            = rotor.max_thickness_distribution
+    a_loc        = rotor.airfoil_polar_stations
+    origin       = rotor.origin
+
+    if rotor.rotation==1:
         # negative chord and twist to give opposite rotation direction
-        b = -b    
+        b    = -b    
         beta = -beta
-    
-    theta  = np.linspace(0,2*np.pi,num_B+1)[:-1]
-    flip_1 =  (np.pi/2)
+
+    theta  = np.linspace(0,2*np.pi,num_B+1)[:-1] 
     flip_2 =  (np.pi/2)
 
     MCA_2d             = np.repeat(np.atleast_2d(MCA).T,n_points,axis=1)
@@ -571,9 +571,9 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
         xpts  = np.zeros((dim,n_points))
         zpts  = np.zeros((dim,n_points))
         max_t = np.zeros(dim)
-        for i,airfoil in enumerate(airfoils):
+        for af_idx,airfoil in enumerate(airfoils):
             geometry     = import_airfoil_geometry(airfoil.coordinate_file,n_points)
-            locs         = np.where(np.array(a_loc) == i )
+            locs         = np.where(np.array(a_loc) == af_idx)
             xpts[locs]   = geometry.x_coordinates  
             zpts[locs]   = geometry.y_coordinates  
             max_t[locs]  = geometry.thickness_to_chord 
@@ -583,7 +583,7 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
         xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
         zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
         max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0)
-            
+
     # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
     max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
 
@@ -591,37 +591,37 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     yp      = r_2d*np.ones_like(xp)                          # radial location
     zp      = zpts*(t_2d/max_t2d)                            # former airfoil y coord
 
-    prop_vel_to_body = prop.prop_vel_to_body()
-    cpts             = len(prop_vel_to_body[:,0,0])
-    
+    rotor_vel_to_body = rotor.prop_vel_to_body()
+    cpts              = len(rotor_vel_to_body[:,0,0])
+
     matrix        = np.zeros((len(zp),n_points,3)) # radial location, airfoil pts (same y)
     matrix[:,:,0] = xp
     matrix[:,:,1] = yp
     matrix[:,:,2] = zp
     matrix        = np.repeat(matrix[None,:,:,:], cpts, axis=0)
 
-    
+
     # ROTATION MATRICES FOR INNER SECTION
     # rotation about y axis to create twist and position blade upright
     trans_1        = np.zeros((dim,3,3))
-    trans_1[:,0,0] = np.cos(flip_1 - beta)
-    trans_1[:,0,2] = -np.sin(flip_1 - beta)
+    trans_1[:,0,0] = np.cos(- beta)
+    trans_1[:,0,2] = -np.sin(- beta)
     trans_1[:,1,1] = 1
-    trans_1[:,2,0] = np.sin(flip_1 - beta)
-    trans_1[:,2,2] = np.cos(flip_1 - beta)
+    trans_1[:,2,0] = np.sin(- beta)
+    trans_1[:,2,2] = np.cos(- beta)
     trans_1        = np.repeat(trans_1[None,:,:,:], cpts, axis=0)
 
     # rotation about x axis to create azimuth locations
     trans_2 = np.array([[1 , 0 , 0],
-                   [0 , np.cos(theta[i] + a_o + flip_2 ), -np.sin(theta[i] +a_o +  flip_2)],
+                        [0 , np.cos(theta[i] + a_o + flip_2 ), -np.sin(theta[i] +a_o +  flip_2)],
                    [0,np.sin(theta[i] + a_o + flip_2), np.cos(theta[i] + a_o + flip_2)]])
     trans_2 = np.repeat(trans_2[None,:,:], dim, axis=0)
     trans_2 = np.repeat(trans_2[None,:,:,:], cpts, axis=0)
 
     # rotation about y to orient propeller/rotor to thrust angle (from propeller frame to aircraft frame)
-    trans_3 =  prop_vel_to_body
+    trans_3 =  rotor_vel_to_body
     trans_3 =  np.repeat(trans_3[:, None,:,: ],dim,axis=1) 
-    
+
     trans     = np.matmul(trans_2,trans_1)
     rot_mat   = np.repeat(trans[:,:, None,:,:],n_points,axis=2)    
 
@@ -636,12 +636,12 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     # ---------------------------------------------------------------------------------------------
     # create empty data structure for storing geometry
     G = Data()
-    
+
     # store node points
     G.X  = mat[:,:,:,0] + origin[0][0]
     G.Y  = mat[:,:,:,1] + origin[0][1]
     G.Z  = mat[:,:,:,2] + origin[0][2]
-    
+
     # store points
     G.XA1  = mat[:,:-1,:-1,0] + origin[0][0]
     G.YA1  = mat[:,:-1,:-1,1] + origin[0][1]
@@ -656,5 +656,5 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     G.XB2  = mat[:,1:,1:,0]  + origin[0][0]
     G.YB2  = mat[:,1:,1:,1]  + origin[0][1]
     G.ZB2  = mat[:,1:,1:,2]  + origin[0][2]
-    
+
     return G

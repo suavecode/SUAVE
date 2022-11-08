@@ -48,8 +48,7 @@ def main():
     print('Wake Fidelity One, Identical Props')  
     t0=time.time()
     Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
-    print((time.time()-t0)/60)
-    
+    print((time.time()-t0)/60) 
 
     print('Wake Fidelity One, Non-Identical Props')      
     t0=time.time()
