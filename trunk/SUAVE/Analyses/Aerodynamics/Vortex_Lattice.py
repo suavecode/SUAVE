@@ -431,7 +431,7 @@ class Vortex_Lattice(Aerodynamics):
         konditions.freestream.mach_number       = Machs
         konditions.freestream.velocity          = zeros
         
-        total_lift, total_drag, wing_lifts, wing_drags, _, _, _, _, _, _, _ = calculate_VLM(konditions,settings,geometry)     
+        total_lift, total_drag, total_side, wing_lifts, wing_drags, _, _, _, _, _, _, _ = calculate_VLM(konditions,settings,geometry)     
     
         # Split subsonic from supersonic
         if np.sum(Machs<1.)==0:
