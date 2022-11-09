@@ -85,6 +85,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
             Cdval = jnp.where(aloc==jj,sub_cd,Cdval)
 
     else:
+        tc = tc*100
         # Estimate Cl max
         Cl_max_ref = jnp.atleast_2d(-0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005).T
         Re_ref     = 9.*10**6
