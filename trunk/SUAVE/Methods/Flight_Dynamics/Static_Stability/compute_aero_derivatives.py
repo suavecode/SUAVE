@@ -126,7 +126,13 @@ def compute_aero_derivatives(segment):
             dCl_dBeta = segment.state.conditions.stability.static.Cl_beta 
         else:
             print("No dCl_dBeta in surrogate output. dCl_dBeta not included in aerodynamic derivatives.")
-            dCl_dBeta = None            
+            dCl_dBeta = None 
+            
+        if 'CY_beta' in segment.state.conditions.stability.static.keys():
+            dCY_dBeta = segment.state.conditions.stability.static.CY_beta 
+        else:
+            print("No dCY_dBeta in surrogate output. dCY_dBeta not included in aerodynamic derivatives.")
+            dCY_dBeta = None
     else:
         # use VLM outputs directly
         dCn = perturbed_segment.state.conditions.stability.static.yawing_moment_coefficient - segment.state.conditions.stability.static.yawing_moment_coefficient
