@@ -49,7 +49,7 @@ def section_properties(state,settings,geometry):
     wing   = geometry
     re     = state.conditions.freestream.reynolds_number
     mac    = wing.chords.mean_aerodynamic
-    tc     = wing.thickness_to_chord
+    tc     = wing.thickness_to_chord * 100
     A0     = settings.section_zero_lift_angle_of_attack
     S1p    = settings.section_lift_curve_slope
     ACDmin = settings.section_minimum_drag_coefficient_angle_of_attack 
