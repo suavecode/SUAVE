@@ -85,9 +85,10 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
             Cdval = jnp.where(aloc==jj,sub_cd,Cdval)
 
     else:
-        tc = tc*100
+        tc_1 = tc*100
         # Estimate Cl max
-        Cl_max_ref = jnp.atleast_2d(-0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005).T
+        Cl_max_ref = jnp.atleast_2d(-0.0009*tc_1**3 + 0.0217*tc_1**2 - 0.0442*tc_1 + 0.7005).T
+        Cl_max_ref = jnp.where(Cl_max_ref<0.7,0.7,Cl_max_ref)
         Re_ref     = 9.*10**6
         Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
 
@@ -99,7 +100,8 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_s
         Cl = jnp.where(alpha>=jnp.pi/2,0,Cl)
 
         # Scale for Mach, this is Karmen_Tsien
-        Cl = jnp.where(Ma[:,:]<1.,Cl/((1-Ma*Ma)**0.5+((Ma*Ma)/(1+(1-Ma*Ma)**0.5))*Cl/2),Cl)
+        KT_cond = jnp.logical_and((Ma[:,:]<1.),(Cl>0.))
+        Cl = jnp.where(KT_cond,Cl/((1-Ma*Ma)**0.5+((Ma*Ma)/(1+(1-Ma*Ma)**0.5))*Cl/2),Cl)
 
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
