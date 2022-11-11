@@ -228,6 +228,20 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                 
                 new_vt = str(vt_C)
                 f.write("\n"+new_vt)                  
+    
+        # Third scalar value
+        f.write("\nSCALARS va float 1")
+        f.write("\nLOOKUP_TABLE default")   
+        va = Results['prop_outputs'].blade_axial_induced_velocity[0]
+        for B_idx in range(n_blades):
+            for i in range(cells_per_blade):
+                va_L = va[int(i%(n_radial_rings))]
+                va_R = va[int(i%(n_radial_rings))+1]
+                va_C = 0.5*(va_L+va_R)
+                
+                new_at = str(va_C)
+                f.write("\n"+new_at)         
+    
     f.close()
 
     # Loop over number of rotor blades

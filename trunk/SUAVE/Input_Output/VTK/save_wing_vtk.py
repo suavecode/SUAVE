@@ -55,9 +55,9 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step,
     
     if symmetric:
         # Split into half wings for plotting
-        sec_start = 0
-        sec_end   = len(VD_wing.XA1)
-        half_l    =  sec_end // 2
+        sec_1_start = 2 * np.sum(VD.n_cw[0:wing_instance_idx]*VD.n_sw[0:wing_instance_idx]) #0
+        sec_1_end   = sec_1_start + VD.n_cw[wing_instance_idx] * VD.n_sw[wing_instance_idx]#len(VD_wing.XA1)
+        sec_2_end   = sec_1_end +  VD.n_cw[wing_instance_idx] * VD.n_sw[wing_instance_idx]#len(VD_wing.XA1)
         
         n_cw_L = VD_wing.n_cw[0]
         n_sw_L = VD_wing.n_sw[0]
@@ -70,38 +70,42 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step,
         # split wing into two separate wings
         Rwing = Data()
         Lwing = Data()
-
-        Rwing.XA1 = VD_wing.XA1[sec_start:half_l] + origin_offset[0]
-        Rwing.XA2 = VD_wing.XA2[sec_start:half_l] + origin_offset[0]
-        Rwing.XB1 = VD_wing.XB1[sec_start:half_l] + origin_offset[0]
-        Rwing.XB2 = VD_wing.XB2[sec_start:half_l] + origin_offset[0]
-        Rwing.YA1 = VD_wing.YA1[sec_start:half_l] + origin_offset[1]
-        Rwing.YA2 = VD_wing.YA2[sec_start:half_l] + origin_offset[1]
-        Rwing.YB1 = VD_wing.YB1[sec_start:half_l] + origin_offset[1]
-        Rwing.YB2 = VD_wing.YB2[sec_start:half_l] + origin_offset[1]
-        Rwing.ZA1 = VD_wing.ZA1[sec_start:half_l] + origin_offset[2]
-        Rwing.ZA2 = VD_wing.ZA2[sec_start:half_l] + origin_offset[2]
-        Rwing.ZB1 = VD_wing.ZB1[sec_start:half_l] + origin_offset[2]
-        Rwing.ZB2 = VD_wing.ZB2[sec_start:half_l] + origin_offset[2]
+        half_l = len(VD_wing.XA1) //2
+        Rwing.XA1 = VD_wing.XA1[0:half_l] + origin_offset[0]
+        Rwing.XA2 = VD_wing.XA2[0:half_l] + origin_offset[0]
+        Rwing.XB1 = VD_wing.XB1[0:half_l] + origin_offset[0]
+        Rwing.XB2 = VD_wing.XB2[0:half_l] + origin_offset[0]
+        Rwing.YA1 = VD_wing.YA1[0:half_l] + origin_offset[1]
+        Rwing.YA2 = VD_wing.YA2[0:half_l] + origin_offset[1]
+        Rwing.YB1 = VD_wing.YB1[0:half_l] + origin_offset[1]
+        Rwing.YB2 = VD_wing.YB2[0:half_l] + origin_offset[1]
+        Rwing.ZA1 = VD_wing.ZA1[0:half_l] + origin_offset[2]
+        Rwing.ZA2 = VD_wing.ZA2[0:half_l] + origin_offset[2]
+        Rwing.ZB1 = VD_wing.ZB1[0:half_l] + origin_offset[2]
+        Rwing.ZB2 = VD_wing.ZB2[0:half_l] + origin_offset[2]
         
-        Lwing.XA1 = VD_wing.XA1[half_l:sec_end] + origin_offset[0]
-        Lwing.XA2 = VD_wing.XA2[half_l:sec_end] + origin_offset[0]
-        Lwing.XB1 = VD_wing.XB1[half_l:sec_end] + origin_offset[0]
-        Lwing.XB2 = VD_wing.XB2[half_l:sec_end] + origin_offset[0]
-        Lwing.YA1 = VD_wing.YA1[half_l:sec_end] + origin_offset[1]
-        Lwing.YA2 = VD_wing.YA2[half_l:sec_end] + origin_offset[1]
-        Lwing.YB1 = VD_wing.YB1[half_l:sec_end] + origin_offset[1]
-        Lwing.YB2 = VD_wing.YB2[half_l:sec_end] + origin_offset[1]
-        Lwing.ZA1 = VD_wing.ZA1[half_l:sec_end] + origin_offset[2]
-        Lwing.ZA2 = VD_wing.ZA2[half_l:sec_end] + origin_offset[2]
-        Lwing.ZB1 = VD_wing.ZB1[half_l:sec_end] + origin_offset[2]
-        Lwing.ZB2 = VD_wing.ZB2[half_l:sec_end] + origin_offset[2]
+        Lwing.XA1 = VD_wing.XA1[half_l:] + origin_offset[0]
+        Lwing.XA2 = VD_wing.XA2[half_l:] + origin_offset[0]
+        Lwing.XB1 = VD_wing.XB1[half_l:] + origin_offset[0]
+        Lwing.XB2 = VD_wing.XB2[half_l:] + origin_offset[0]
+        Lwing.YA1 = VD_wing.YA1[half_l:] + origin_offset[1]
+        Lwing.YA2 = VD_wing.YA2[half_l:] + origin_offset[1]
+        Lwing.YB1 = VD_wing.YB1[half_l:] + origin_offset[1]
+        Lwing.YB2 = VD_wing.YB2[half_l:] + origin_offset[1]
+        Lwing.ZA1 = VD_wing.ZA1[half_l:] + origin_offset[2]
+        Lwing.ZA2 = VD_wing.ZA2[half_l:] + origin_offset[2]
+        Lwing.ZB1 = VD_wing.ZB1[half_l:] + origin_offset[2]
+        Lwing.ZB2 = VD_wing.ZB2[half_l:] + origin_offset[2]
 
         R_Results = deepcopy(Results)
         L_Results = deepcopy(Results)
         if 'vlm_results' in Results.keys():
-            R_Results.vlm_results.CP = Results.vlm_results.CP[0][0:half_l]
-            L_Results.vlm_results.CP = Results.vlm_results.CP[0][half_l:]
+            if len(Results.vlm_results.CP[sec_1_start:sec_1_end]) == 1:
+                R_Results.vlm_results.CP = Results.vlm_results.CP[0][sec_1_start:sec_1_end]
+                L_Results.vlm_results.CP = Results.vlm_results.CP[0][sec_1_end:sec_2_end]                
+            else:
+                R_Results.vlm_results.CP = Results.vlm_results.CP[sec_1_start:sec_1_end] #[0][sec_1_start:sec_1_end]
+                L_Results.vlm_results.CP = Results.vlm_results.CP[sec_1_end:sec_2_end] #[0][sec_1_end:sec_2_end]
 
         sep  = filename.rfind('.')
 

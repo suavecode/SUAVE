@@ -323,7 +323,18 @@ def update_wake_position_time_marching(wake, rotor, conditions):
     #--------------------------------------------------------------------------------------------    
     # Step 6: Update the position of all wake panels 
     #--------------------------------------------------------------------------------------------
-
+    import pylab as plt
+    from SUAVE.Core import Units
+    alpha = rotor.orientation_euler_angles[1]/Units.deg
+    plt.plot(np.linspace(0,nts-2,nts-1), step_2_times,label="Step 2")
+    plt.plot(np.linspace(0,nts-2,nts-1), step_1_times,label="Step 1")
+    plt.xlabel('Time Step')
+    plt.ylabel('Process Runtime (sec)')
+    plt.title("Time Marching Free Wake Execution Times (Alpha = "+str(alpha)+")")
+    plt.legend()
+    plt.grid()
+    plt.savefig('/Users/rerha/Downloads/fvw_tm_runtimes_parallelized_Alpha'+str(alpha)+'.png', dpi=300)
+    
     return wake, rotor, interpolatedBoxData
   
 def generate_temp_wake(WD):
@@ -441,12 +452,13 @@ def compute_blade_circulation(wake, rotor, conditions, nts, va=0, vt=0):
     # compute HFW circulation at the blade
     gamma = 0.5*W*c*Cl        
     
-    gfit = np.zeros_like(r)
-    for cpt in range(ctrl_pts):
-        # FILTER OUTLIER DATA
-        for a in range(Na):
-            gPoly = np.poly1d(np.polyfit(r[0,:,0], gamma[cpt,:,a], 4))
-            gfit[cpt,:,a] = F[cpt,:,a]*gPoly(r[0,:,0])  
+    gfit = gamma
+    #gfit = np.zeros_like(r)
+    #for cpt in range(ctrl_pts):
+        ## FILTER OUTLIER DATA
+        #for a in range(Na):
+            #gPoly = np.poly1d(np.polyfit(r[0,:,0], gamma[cpt,:,a], 4))
+            #gfit[cpt,:,a] = F[cpt,:,a]*gPoly(r[0,:,0])  
             
     
     gamma_new = (gfit[:,:-1,:] + gfit[:,1:,:])*0.5  # [control points, Nr-1, Na ] one less radial station because ring

@@ -89,34 +89,18 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     lambda_tot   = np.atleast_2d((np.dot(V_inf,rots[0])  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 99 Leishman)
     mu_prop      = np.atleast_2d(np.dot(V_inf,rots[2]) ).T /(omega*R)                              # rotor advance ratio  (page 99 Leishman) 
-    Vx           = np.repeat(V_inf[:,0,None], Nr, axis=1) # shape: (m,Nr)
-    Vz           = np.repeat(V_inf[:,2,None], Nr, axis=1) # shape: (m,Nr)
-    V_prop       = np.sqrt((Vx  + axial_induced_velocity)**2 + Vz**2)
+    Vx           = V_inf[:,0]#np.repeat(V_inf[:,0,None], Nr, axis=1) # shape: (m,Nr)
+    Vz           = V_inf[:,2]#np.repeat(V_inf[:,2,None], Nr, axis=1) # shape: (m,Nr)
+    V_prop       = np.sqrt((Vx  + va*0)**2 + Vz**2)
 
     # wake skew angle 
     wake_skew_angle = -((np.arctan(mu_prop/lambda_tot))) # -(np.arctan(mu_prop/lambda_tot))
     wake_skew_angle = np.tile(wake_skew_angle[:,:,None],(1,Nr,nts))
-    
-    # reshape gamma to find the average between stations           
-    gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5  # [control points, Nr-1, Na ] one less radial station because ring
-    
-    num       = Na//B
-    time_idx  = np.arange(nts)
-    Gamma     = np.zeros((Na,m,B,Nr-1,nts))
-    
-    # generate Gamma for each start angle
-    for ito in range(Na):
-        t_idx     = np.atleast_2d(time_idx).T 
-        B_idx     = np.arange(B) 
-        B_loc     = (ito + B_idx*num - t_idx )%Na 
-        Gamma1    = gamma_new[:,:,B_loc]  
-        Gamma1    = Gamma1.transpose(0,3,1,2) 
-        Gamma[ito,:,:,:,:] = Gamma1
   
     # --------------------------------------------------------------------------------------------------------------
     #    ( control point , blade number , radial location on blade , time step )
     # --------------------------------------------------------------------------------------------------------------
-    V_p = np.repeat(V_prop[:,:,None],len(ts),axis=2)
+    V_p = np.repeat(V_prop, n_rotations, axis=2) #np.repeat(V_prop[:,:,None],len(ts),axis=2)
                     
     sx_inf0            = np.multiply(V_p*np.cos(wake_skew_angle), np.repeat(np.atleast_2d(ts)[:,None,:],Nr,axis=1))
     sx_inf             = np.tile(sx_inf0[None,:, None, :,:], (Na,1,B,1,1))
@@ -247,7 +231,23 @@ def generate_fidelity_one_wake_shape(wake,rotor):
         VD.Wake.YB2[:,:,0:B,:,:] = Y_pts[:, : , :, :-1  ,  1: ]
         VD.Wake.ZB2[:,:,0:B,:,:] = Z_pts[:, : , :, :-1  ,  1: ] 
         
-
+    # Append vortex distribution strength
+    # reshape gamma to find the average between stations           
+    gamma_new = (gamma[:,:-1,:] + gamma[:,1:,:])*0.5  # [control points, Nr-1, Na ] one less radial station because ring
+    
+    num       = Na//B
+    time_idx  = np.arange(nts)
+    Gamma     = np.zeros((Na,m,B,Nr-1,nts))
+    
+    # generate Gamma for each start angle
+    for ito in range(Na):
+        t_idx     = np.atleast_2d(time_idx).T 
+        B_idx     = np.arange(B) 
+        B_loc     = (ito + B_idx*num - t_idx )%Na 
+        Gamma1    = gamma_new[:,:,B_loc]  
+        Gamma1    = Gamma1.transpose(0,3,1,2) 
+        Gamma[ito,:,:,:,:] = Gamma1
+        
     VD.Wake.GAMMA[:,:,0:B,:,:] = Gamma 
     
     # Append wake geometry and vortex strengths to each individual propeller
@@ -288,7 +288,14 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     rotor.wake_skew_angle = wake_skew_angle
     
     #wake.rotate_propFrame_to_globalFrame(rotor) 
+    
+    ## update in WD_network if needed
+    #if wake.influencing_rotor_wake_network != None:
+        ## Update this rotor's wake in the netowrk
+        #wake.influencing_rotor_wake_network[wake.tag + "_vortex_distribution"]  = wake.vortex_distribution    
+
     rotor.Wake = wake
+    
     return wake, rotor
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One

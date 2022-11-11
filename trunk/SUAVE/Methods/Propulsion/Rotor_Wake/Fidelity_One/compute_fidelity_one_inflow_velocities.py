@@ -80,7 +80,6 @@ def compute_fidelity_one_inflow_velocities( wake, prop, cpts):
         VD.n_cp = np.size(VD.YC)
 
         # Compute induced velocities at blade from the helical fixed wake
-        #VD.Wake_collapsed = WD
         u = np.zeros((cpts, len(VD.XC)))
         v = np.zeros((cpts, len(VD.XC)))
         w = np.zeros((cpts, len(VD.XC)))
@@ -111,7 +110,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop, cpts):
 
         # Update velocities at the disc
         Va[:,:,i]  = up
-        Vt[:,:,i]  = rot*(vp*(np.cos(blade_angle)) - wp*(np.sin(blade_angle)) )  # velocity component in direction of rotation     
+        Vt[:,:,i]  = -rot*(vp*(np.cos(blade_angle)) - wp*(np.sin(blade_angle)) )  # velocity component in direction of rotation     
         
         # DEBUG: Checking that evaluation points are correctly aligned along the blade
         #from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
