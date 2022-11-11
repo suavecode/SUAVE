@@ -40,31 +40,27 @@ def generate_ground_microphone_points(settings):
         N/A       
     """       
 
-    N_x                   = settings.microphone_x_resolution 
-    N_y                   = settings.microphone_y_resolution
+    N_x                   = settings.ground_microphone_x_resolution 
+    N_y                   = settings.ground_microphone_y_resolution
     num_gm                = N_x*N_y
-    gm_mic_locations      = np.zeros((num_gm,3))    
-    if type(settings.topography_microphone_locations) is np.ndarray :  
-        x_coords_0            = settings.topography_microphone_locations[:,:,0]
-        y_coords_0            = settings.topography_microphone_locations[:,:,1]
-        z_coords_0            = settings.topography_microphone_locations[:,:,2]     
-    else:  
-        min_x                 = settings.level_ground_microphone_min_x         
-        max_x                 = settings.level_ground_microphone_max_x         
-        min_y                 = settings.level_ground_microphone_min_y         
-        max_y                 = settings.level_ground_microphone_max_y   
-        x_coords_0            = np.repeat(np.linspace(min_x,max_x,N_x)[:,np.newaxis],N_y, axis = 1)
-        y_coords_0            = np.repeat(np.linspace(min_y,max_y,N_y)[:,np.newaxis],N_x, axis = 1).T
-        z_coords_0            = np.zeros_like(x_coords_0) 
-    
+    gm_mic_locations      = np.zeros((num_gm,3))     
+    min_x                 = settings.ground_microphone_min_x         
+    max_x                 = settings.ground_microphone_max_x         
+    min_y                 = settings.ground_microphone_min_y         
+    max_y                 = settings.ground_microphone_max_y   
+    x_coords_0            = np.repeat(np.linspace(min_x,max_x,N_x)[:,np.newaxis],N_y, axis = 1)
+    y_coords_0            = np.repeat(np.linspace(min_y,max_y,N_y)[:,np.newaxis],N_x, axis = 1).T
+    z_coords_0            = np.zeros_like(x_coords_0) 
     gm_mic_locations[:,0] = x_coords_0.reshape(num_gm)
     gm_mic_locations[:,1] = y_coords_0.reshape(num_gm)
-    gm_mic_locations[:,2] = z_coords_0.reshape(num_gm)     
+    gm_mic_locations[:,2] = z_coords_0.reshape(num_gm) 
     
-    return gm_mic_locations 
+    # store ground microphone locations
+    settings.ground_microphone_locations = gm_mic_locations
+    return   
   
 ## @ingroup Methods-Noise-Fidelity_One-Noise_Tools  
-def generate_topography_points(topography_file,N_x,N_y):
+def preprocess_topography_and_route_data(topography_file,N_lat,N_long,departure_coordinates,destination_coordinates):
     """This computes the absolute microphone/observer locations on a defined topography
             
     Assumptions: 
@@ -74,13 +70,22 @@ def generate_topography_points(topography_file,N_x,N_y):
         N/A  
 
     Inputs:  
-        topography_file - file of lattide, longitude and elevation points                         [-]
-        N_x             - discretization of points in x dimension on building surface   [meters]
-        N_y             - discretization of points in y dimension on building surface   [meters] 
+        topography_file - file of lattide, longitude and elevation points  [-]
+        N_lat           - discretization of points in latitude direction   [meters]
+        N_long          - discretization of points in longitude direction  [meters] 
+        departure_coordinates
+        destination_coordinates
         
     Outputs: 
         cartesian_pts  - cartesian coordiates (x,y,z) of all microphones in domain                [meters]
         lat_long_pts   - latitude-longitude and elevation coordiates of all microphones in domain [deg,deg,m] 
+        aircraft_range - 
+        x0             -
+        y0             -
+        z0             -
+        z_fin          -
+        true_course    -
+    
     
     Properties Used:
         N/A       
@@ -90,19 +95,49 @@ def generate_topography_points(topography_file,N_x,N_y):
     Lat  = data[:,1]
     Elev = data[:,2]   
 
-    earth            = SUAVE.Attributes.Planets.Earth()
-    R                = earth.mean_radius     
-    x_dist_max       = (np.max(Long)-np.min(Long))*Units.degrees * R # eqn for arc length,  assume earth is a perfect sphere 
-    y_dist_max       = (np.max(Lat)-np.min(Lat))*Units.degrees * R   # eqn for arc length,  assume earth is a perfect sphere 
+    earth                 = SUAVE.Attributes.Planets.Earth()
+    R                     = earth.mean_radius      
+    x_dist_max            = (np.max(Lat)-np.min(Lat))*Units.degrees * R  
+    y_dist_max            = (np.max(Long)-np.min(Long))*Units.degrees * R   
+    [long_dist,lat_dist]  = np.meshgrid(np.linspace(0,y_dist_max,N_long),np.linspace(0,x_dist_max,N_lat))
+    [long_deg,lat_deg]    = np.meshgrid(np.linspace(np.min(Long),np.max(Long),N_long),np.linspace(np.min(Lat),np.max(Lat),N_lat)) 
+    z_deg                 = griddata((Lat,Long), Elev, (lat_deg, long_deg), method='linear')       
+    cartesian_pts         = np.dstack((np.dstack((lat_dist[:,:,None],long_dist[:,:,None] )),z_deg[:,:,None]))
+    lat_long_pts          = np.dstack((np.dstack((lat_deg[:,:,None],long_deg[:,:,None] )),z_deg[:,:,None]))  
+    cartesian_pts_vec     = cartesian_pts.reshape(N_lat*N_long,3)
+    lat_long_pts_vec      = lat_long_pts.reshape(N_lat*N_long,3)
+     
+    # Compute coordinates of departure and destination points to determine range 
+    coord0_rad            = departure_coordinates*Units.degrees
+    coord1_rad            = destination_coordinates*Units.degrees  
+    angle                 = np.arccos(np.sin(coord0_rad[0])*np.sin(coord1_rad[0]) + 
+                                      np.cos(coord0_rad[0])*np.cos(coord1_rad[0])*np.cos(coord0_rad[1] - coord1_rad[1]))
+    aircraft_range        = R*angle
+
+    # Compute heading from departure to destination    
+    true_course           = np.arcsin( np.sin(np.pi/2 - coord1_rad[0])* np.sin(coord1_rad[1] - coord0_rad[1])/np.sin(angle)) 
+    angle_vector          = destination_coordinates - departure_coordinates 
+    if angle_vector[0] < 0:
+        true_course       = np.pi - true_course 
     
-    [x_dist,y_dist]  = np.meshgrid(np.linspace(0,x_dist_max,N_x),np.linspace(0,y_dist_max,N_y))
-    [x_deg,y_deg]    = np.meshgrid(np.linspace(np.min(Long),np.max(Long),N_x),np.linspace(np.min(Lat),np.max(Lat),N_y)) 
-    z_deg            = griddata((Long, Lat), Elev, (x_deg, y_deg), method='linear')     
+    # Compute relative location on topographical grid
+    corner_lat            = lat_long_pts_vec[0,0]
+    corner_long           = lat_long_pts_vec[0,1]
+    if corner_long>180:
+        corner_long       = corner_long-360  
+    x0 = (coord0_rad[0] - corner_lat*Units.degrees)*R
+    y0 = (coord0_rad[1] - corner_long*Units.degrees)*R  
+   
+    # Compute departure and destination elevation  
+    flag_lat_locs  = np.where(departure_coordinates<0)[0]
+    departure_coordinates[flag_lat_locs] = departure_coordinates[flag_lat_locs] + 360 
+    flag_long_locs = np.where(destination_coordinates<0)[0]
+    destination_coordinates[flag_long_locs] = destination_coordinates[flag_long_locs] + 360  
+
+    z0      = griddata((Lat,Long), Elev, (np.array([departure_coordinates[0]]),np.array([departure_coordinates[1]])), method='linear')[0]
+    z_fin   = griddata((Lat,Long), Elev, (np.array([destination_coordinates[0]]),np.array([destination_coordinates[1]])), method='linear')[0]
     
-    cartesian_pts  = np.dstack((np.dstack((x_dist[:,:,None],y_dist[:,:,None] )),z_deg[:,:,None]))
-    lat_long_pts   = np.dstack((np.dstack((x_deg[:,:,None],y_deg[:,:,None] )),z_deg[:,:,None])) 
-    
-    return cartesian_pts, lat_long_pts
+    return cartesian_pts_vec, lat_long_pts_vec,aircraft_range,x0,y0,z0,z_fin,true_course 
     
 ## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
 def generate_building_microphone_points(building_locations,building_dimensions,N_x,N_y,N_z):

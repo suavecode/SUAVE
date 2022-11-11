@@ -74,12 +74,19 @@ class Fidelity_One(Noise):
         settings.approach                             = False
         settings.sideline                             = False
         settings.sideline_x_position                  = 0 
-        settings.print_noise_output                   = False  
+        settings.print_noise_output                   = False   
+        settings.aircraft_starting_location_x         = 0
+        settings.aircraft_starting_location_y         = 0
         
-        settings.microphone_x_resolution              = 100
-        settings.microphone_y_resolution              = 100
-        settings.microphone_x_stencil                 = 2
-        settings.microphone_y_stencil                 = 2
+        settings.ground_microphone_locations          = None   
+        settings.ground_microphone_x_resolution       = 100
+        settings.ground_microphone_y_resolution       = 100
+        settings.ground_microphone_x_stencil          = 2
+        settings.ground_microphone_y_stencil          = 2
+        settings.ground_microphone_min_x              = 1E-6
+        settings.ground_microphone_max_x              = 5000 
+        settings.ground_microphone_min_y              = 1E-6
+        settings.ground_microphone_max_y              = 450    
        
         # settings for building noise analysis 
         settings.building_analysis                    = False 
@@ -88,17 +95,8 @@ class Fidelity_One(Noise):
         settings.building_locations                   = []
         settings.building_microphone_x_resolution     = 4 
         settings.building_microphone_y_resolution     = 4
-        settings.building_microphone_z_resolution     = 16  
-        
-        # settings for topography analysis 
-        settings.topography_analysis                  = False 
-        settings.topography_microphone_locations      = None  
-        
-        # settings for flat surface analysis
-        settings.level_ground_microphone_min_x        = 1E-6
-        settings.level_ground_microphone_max_x        = 5000 
-        settings.level_ground_microphone_min_y        = 1E-6
-        settings.level_ground_microphone_max_y        = 450    
+        settings.building_microphone_z_resolution     = 16      
+         
                 
         # settings for acoustic frequency resolution
         settings.center_frequencies                   = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
@@ -141,7 +139,8 @@ class Fidelity_One(Noise):
         ctrl_pts      = int(segment.state.numerics.number_control_points) 
         
         # generate noise valuation points
-        settings.ground_microphone_locations = generate_ground_microphone_points(settings)     
+        if type(settings.ground_microphone_locations) is not np.ndarray: 
+            generate_ground_microphone_points(settings)     
         
         GM_THETA,GM_PHI,REGML,EGML,TGML,num_gm_mic,mic_stencil = compute_ground_noise_evaluation_locations(settings,segment)
         

@@ -2,10 +2,12 @@
 # Constant_Speed_Linear_Altitude.py 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jun 2017, E. Botero
+#           Nov 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  initialize conditions
 # ----------------------------------------------------------------------
+import numpy as np 
 
 ## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment):
@@ -44,20 +46,18 @@ def initialize_conditions(segment):
     if alt0 is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
         alt0 = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-    
-    # dimensionalize time
-    t_initial = conditions.frames.inertial.time[0,0]
-    t_final   = xf / air_speed + t_initial
-    t_nondim  = segment.state.numerics.dimensionless.control_points
-    time      = t_nondim * (t_final-t_initial) + t_initial
+     
+    climb_angle  = np.arctan((altf-alt0)/xf)
+    v_x          = np.cos(climb_angle)*air_speed
+    v_z          = np.sin(climb_angle)*air_speed 
+    t_nondim     = segment.state.numerics.dimensionless.control_points
     
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0    
     
-    segment.altitude = 0.5*(alt0 + altf)
-    
     # pack
-    segment.state.conditions.freestream.altitude[:,0]             = alt[:,0]
-    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
-    segment.state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
-    segment.state.conditions.frames.inertial.time[:,0]            = time[:,0]
+    conditions.freestream.altitude[:,0]             = alt[:,0]
+    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down 
+    conditions.frames.inertial.velocity_vector[:,0] = v_x
+    conditions.frames.inertial.velocity_vector[:,2] = -v_z    
+     

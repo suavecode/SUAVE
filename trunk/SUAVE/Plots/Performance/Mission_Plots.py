@@ -22,7 +22,7 @@ import matplotlib.ticker as ticker
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, save_filename = "Altitude_SFC_Weight" , file_type = ".png",
-                             width=8, height=5):
+                             width=10, height=7):
     """This plots the altitude, speficic fuel comsumption and vehicle weight
 
     Assumptions:
@@ -82,7 +82,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities", file_type = ".png",
-                             width=8, height=5):
+                             width=12, height=4):
     """This plots aircraft velocity, mach , true air speed
 
     Assumptions:
@@ -113,17 +113,17 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
         EAS      = velocity * np.sqrt(density/1.225)
         mach     = segment.conditions.freestream.mach_number[:,0]
 
-        axes = plt.subplot(3,1,1)
+        axes = plt.subplot(1,3,1)
         axes.plot( time , velocity / Units.kts, line_color)
         axes.set_ylabel('velocity (kts)',axis_font)
         set_axes(axes)
 
-        axes = plt.subplot(3,1,2)
+        axes = plt.subplot(1,3,2)
         axes.plot( time , EAS / Units.kts, line_color)
         axes.set_ylabel('Equivalent Airspeed',axis_font)
         set_axes(axes)
 
-        axes = plt.subplot(3,1,3)
+        axes = plt.subplot(1,3,3)
         axes.plot( time , mach , line_color)
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Mach',axis_font)
@@ -140,7 +140,7 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, save_filename = "Disc_Power_Loading", file_type = ".png",
-                            width=8, height=5):
+                            width=10, height=7):
     """This plots the propeller disc and power loadings
 
     Assumptions:
@@ -191,7 +191,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Fuel_Burnt", file_type = ".png",
-                  width=8, height=5):
+                  width=10, height=7):
     """This plots aircraft fuel usage
     Assumptions:
     None
@@ -279,7 +279,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Coefficients", file_type = ".png",
-                                  width=8, height=5):
+                                  width=10, height=7):
     """This plots the aerodynamic coefficients
 
     Assumptions:
@@ -344,7 +344,7 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Forces", file_type = ".png",
-                            width=8, height=5):
+                            width=10, height=7):
     """This plots the aerodynamic forces
 
     Assumptions:
@@ -409,7 +409,7 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components", file_type = ".png",
-                         width=8, height=5):
+                         width=10, height=7):
     """This plots the drag components of the aircraft
 
     Assumptions:
@@ -475,7 +475,7 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Pack_Conditions", file_type = ".png",
-                                 width=8, height=5):
+                                 width=10, height=7):
     """This plots the battery pack conditions of the network
 
     Assumptions:
@@ -502,8 +502,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
     axis_font = {'size':'14'}
 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(width, height)
-    fig.suptitle('Battery Pack Conditions')
+    fig.set_size_inches(width, height) 
     for i in range(len(results.segments)):
         time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         pack_power          = results.segments[i].conditions.propulsion.battery_power_draw[:,0]
@@ -585,7 +584,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png",
-                                 width=8, height=5):
+                                 width=10, height=7):
     """This plots the battery pack conditions of the network
 
     Assumptions:
@@ -711,7 +710,7 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', save_figure = False, save_filename = "Battery_Cell_Conditions", file_type = ".png",
-                             width=8, height=5):
+                             width=10, height=7):
     """This plots the battery cell degradation
 
     Assumptions:
@@ -787,7 +786,7 @@ def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', s
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Flight_Conditions", file_type = ".png",
-                           width=8, height=5):
+                           width=10, height=7):
     """This plots the flights the conditions
 
     Assumptions:
@@ -857,7 +856,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', save_figure = False, save_filename = "Flight_Trajectory", file_type = ".png",
-                           width=8, height=5):
+                           width=10, height=7):
     """This plots the 3D flight trajectory of the aircraft.
 
     Assumptions:
@@ -929,7 +928,7 @@ def plot_flight_trajectory(results, line_color = 'bo-', line_color2 = 'rs--', sa
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propeller", file_type = ".png",
-                              width=8, height=5):
+                              width=10, height=7):
     """This plots the propeller performance
 
     Assumptions:
@@ -1015,7 +1014,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
 
 ## @ingroup Plots-Performance
 def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False, save_filename="Tiltrotor", file_type=".png",
-                              width=8, height=5):
+                              width=10, height=7):
     """This plots the tiltrotor conditions
 
     Assumptions:
@@ -1130,7 +1129,7 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = False, save_filename = "eMotor_Prop_Propulsor", file_type = ".png",
-                                  width=8, height=5):
+                                  width=10, height=7):
     """This plots the electric driven network propeller efficiencies
 
     Assumptions:
@@ -1188,7 +1187,7 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Stability_Coefficients", file_type = ".png",
-                                width=8, height=5):
+                                width=10, height=7):
     """This plots the static stability characteristics of an aircraft
 
     Assumptions:
@@ -1255,7 +1254,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filename = "Solar_Flux", file_type = ".png",
-                    width=8, height=5):
+                    width=10, height=7):
     """This plots the solar flux and power train performance of an solar powered aircraft
 
     Assumptions:
@@ -1314,7 +1313,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
 def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', save_figure = False, save_filename = "Lift_Cruise_Network", file_type = ".png",
-                             width=8, height=5):
+                             width=12, height=7):
     """This plots the electronic and propulsor performance of a vehicle with a lift cruise network
 
     Assumptions:
@@ -1352,8 +1351,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
         specific_power = results.segments[i].conditions.propulsion.battery_specfic_power[:,0]
         volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0]
         volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]
-
-        plt.title('Battery Pack Conditions')
+ 
         axes = plt.subplot(2,2,1)
         axes.set_ylabel('Throttle',axis_font)
         set_axes(axes)
@@ -1412,11 +1410,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
         lift_rotor_torque = results.segments[i].conditions.propulsion.lift_rotor_motor_torque[:,0]
         lift_rotor_effp   = results.segments[i].conditions.propulsion.lift_rotor_efficiency[:,0]
         lift_rotor_effm   = results.segments[i].conditions.propulsion.lift_rotor_motor_efficiency[:,0]
-        lift_rotor_Cp     = results.segments[i].conditions.propulsion.lift_rotor_power_coefficient[:,0]
-
-        # title
-        plt.title("Prop-Rotor Network")
-
+        lift_rotor_Cp     = results.segments[i].conditions.propulsion.lift_rotor_power_coefficient[:,0] 
+        
         # plots
         axes = plt.subplot(2,3,1)
         axes.plot(time, prop_rpm, line_color)
@@ -1475,11 +1470,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
         torque = results.segments[i].conditions.propulsion.lift_rotor_motor_torque
         effp   = results.segments[i].conditions.propulsion.lift_rotor_efficiency[:,0]
         effm   = results.segments[i].conditions.propulsion.lift_rotor_motor_efficiency[:,0]
-        Cp     = results.segments[i].conditions.propulsion.lift_rotor_power_coefficient[:,0]
-
-        # title
-        plt.title("Lift Rotor")
-
+        Cp     = results.segments[i].conditions.propulsion.lift_rotor_power_coefficient[:,0] 
+        
         # plots
         axes = plt.subplot(2,3,1)
         axes.plot(time, rpm, line_color2)
@@ -1532,11 +1524,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
         torque = results.segments[i].conditions.propulsion.propeller_motor_torque[:,0]
         effp   = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
         effm   = results.segments[i].conditions.propulsion.propeller_motor_efficiency[:,0]
-        Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
-
-        # title
-        plt.title("Propeller")
-
+        Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0] 
+        
         # plots
         axes = plt.subplot(2,3,1)
         axes.plot(time, rpm,line_color)
@@ -1584,10 +1573,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         rtm  = results.segments[i].conditions.propulsion.lift_rotor_tip_mach[:,0]
         ptm  = results.segments[i].conditions.propulsion.propeller_tip_mach[:,0]
-
-        # title
-        plt.title("Tip Mach Number")
-
+ 
         # plots
         axes = plt.subplot(1,1,1)
         axes.set_ylabel('Mach',axis_font)
@@ -1932,7 +1918,8 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
 #   Rotor/Propeller Acoustics
 # ------------------------------------------------------------------
 ## @ingroup Plots-Performance
-def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, save_filename = "Sideline Noise Levels"):
+def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, save_filename = "Sideline Noise Levels",
+                             width=10, height=7):
     """This plots the A-weighted Sound Pressure Level as a function of time at various aximuthal angles 
     on the ground
     
@@ -1966,7 +1953,7 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     # figure parameters
     axis_font    = {'size':'14'} 
     fig          = plt.figure(save_filename)
-    fig.set_size_inches(8, 8) 
+    fig.set_size_inches(width, height)
     axes        = fig.add_subplot(1,1,1) 
       
     max_SPL = np.max(SPL,axis=0) 
@@ -2016,9 +2003,11 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     X               = noise_data.SPL_dBA_ground_mic_loc[:,:,0]  
     Y               = noise_data.SPL_dBA_ground_mic_loc[:,:,1]  
     Z               = noise_data.SPL_dBA_ground_mic_loc[:,:,2]  
+      
      
-    plot_data      = []  
-    max_SPL_gm     = np.max(SPL_contour_gm,axis=0) 
+    plot_data       = []  
+    max_SPL_gm      = np.max(SPL_contour_gm,axis=0) 
+    max_SPL_gm[Z<0] = np.nan
     
     # ---------------------------------------------------------------------------
     # Level ground contour 
@@ -2030,31 +2019,38 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     max_SPL             = 80
     levs                = np.linspace(min_SPL,max_SPL,25)
     axes                = fig.add_subplot(1,1,1) 
-    CS                  = axes.contourf(X,Y,max_SPL_gm, levels  = levs, cmap=plt.cm.jet, extend='both')
+    CS                  = axes.contourf(Y,X,max_SPL_gm, levels  = levs, cmap=plt.cm.jet, extend='both')
     cbar = fig.colorbar(CS)
-    cbar.ax.set_ylabel('SPL (dBA)', rotation =  90)
-    axes.set_ylabel('Spanwise $x_{fp}$ (m)',labelpad = 15)
-    axes.set_xlabel('Streamwise $x_{fp}$ (m)')
-
+    cbar.ax.set_ylabel('SPL (dBA)', rotation =  90) 
+    
+    CS2 = axes.contour( Y, X, Z, 10, colors='k')  # Negative contours default to dashed.
+    axes.clabel(CS2, fontsize=9, inline=True, fmt='%d')
+    
+    axes.set_ylabel('South <------- Distance (m) -----> North ',labelpad = 15)
+    axes.set_xlabel('West <------- Distance (m) -----> East ')
+ 
+    if save_figure:
+        plt.savefig(filename_1 + ".png")
+        
     # ---------------------------------------------------------------------------
     # Comprehensive contour including buildings
-    # ---------------------------------------------------------------------------
-    ground_contour   = contour_surface_slice(X,Y,Z,max_SPL_gm)
+    # --------------------------------------------------------------------------- 
+    max_SPL_gm       = np.max(SPL_contour_gm,axis=0)     
+    ground_contour   = contour_surface_slice(Y,X,Z,max_SPL_gm)
     plot_data.append(ground_contour)
 
     # Aircraft Trajectory
-    aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,0], y=Aircraft_pos[:,1], z=Aircraft_pos[:,2],
+    aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,1], y=Aircraft_pos[:,0], z=Aircraft_pos[:,2],
                                 mode='markers',
                                 marker=dict(size=6,color='black',opacity=0.8),
                                 line=dict(color='black',width=2))
     plot_data.append(aircraft_trajectory)
 
     # Define Colorbar Bounds
-    min_alt     = 0
-    max_alt     = np.max(Aircraft_pos[:,2])
+    min_alt     = np.minimum(np.min(Z),0)
+    max_alt     = np.maximum(np.max(Z), np.max(Aircraft_pos[:,2]))
 
     # Adjust Plot Camera
-    camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=-1., y=-1., z=.25))
     building_loc  = results.segments[0].analyses.noise.settings.building_locations
     num_buildings = len( building_loc) 
     if num_buildings > 0:
@@ -2128,21 +2124,24 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
                 bldg_surf_5  = contour_surface_slice(surf_5_x ,surf_5_y ,surf_5_z ,SPL_vals_5)
                 plot_data.append(bldg_surf_5)         
     
-    fig = go.Figure(data=plot_data)
+            
+    camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=-0.05, y=0, z=-0.25), eye=dict(x=-1., y=-1., z=.4))    
+    fig = go.Figure(data=plot_data)  
+    fig.update_scenes(aspectratio=dict(x = 1,y = 1,z =0.5)) 
     fig.update_layout(
              title_text= 'Flight_Profile_' + save_filename, 
-             title_x = 0.5,
-             width   = 750,
-             height  = 750,
-             font_size=18,
+             title_x   = 0.5,
+             width     = 1200,
+             height    = 900,
+             font_size = 12,
              scene_zaxis_range=[min_alt,max_alt], 
              coloraxis=dict(colorscale='Jet',
                             colorbar_thickness=50,
                             colorbar_nticks=20,
                             colorbar_title_text = 'SPL (dBA)',
-                            colorbar_tickfont_size=18,
+                            colorbar_tickfont_size=16,
                             colorbar_title_side="right",
-                            colorbar_ypad=60,
+                            colorbar_ypad= 50,
                             colorbar_len= 0.75,
                             **colorax(min_SPL, max_SPL)),
              scene_camera=camera)
@@ -2156,34 +2155,39 @@ def post_process_noise_data(results):
     # unpack 
     background_noise_dbA = 35 
     N_segs               = len(results.segments)
-    N_ctrl_pts           = len(results.segments[0].conditions.frames.inertial.time[:,0]) 
+    N_ctrl_pts = 0
+    for i in range(N_segs):  
+        N_ctrl_pts  += len(results.segments[0].conditions.frames.inertial.time[:,0])  
     N_bm                 = results.segments[0].conditions.noise.number_of_building_microphones 
-    N_gm_x               = results.segments[0].analyses.noise.settings.microphone_x_resolution
-    N_gm_y               = results.segments[0].analyses.noise.settings.microphone_y_resolution   
+    N_gm_x               = results.segments[0].analyses.noise.settings.ground_microphone_x_resolution
+    N_gm_y               = results.segments[0].analyses.noise.settings.ground_microphone_y_resolution   
     dim_mat              = N_segs*N_ctrl_pts 
     SPL_contour_gm       = np.ones((dim_mat,N_gm_x,N_gm_y))*background_noise_dbA
     SPL_contour_bm       = np.ones((dim_mat,N_bm))*background_noise_dbA
     Aircraft_pos         = np.zeros((dim_mat,3)) 
     Mic_pos_gm           = results.segments[0].conditions.noise.total_ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3) 
     
+    idx = 0 
     for i in range(N_segs):  
         if  results.segments[i].battery_discharge == False:
             pass
         else:      
-            S_gm_x = results.segments[i].analyses.noise.settings.microphone_x_stencil
-            S_gm_y = results.segments[i].analyses.noise.settings.microphone_y_stencil
+            S_gm_x = results.segments[i].analyses.noise.settings.ground_microphone_x_stencil
+            S_gm_y = results.segments[i].analyses.noise.settings.ground_microphone_y_stencil
             S_locs = results.segments[i].conditions.noise.ground_microphone_stencil_locations
-            for j in range(N_ctrl_pts):
-                idx                    = i*N_ctrl_pts + j 
-                Aircraft_pos[idx,0]    = results.segments[i].conditions.frames.inertial.position_vector[j,0] 
-                Aircraft_pos[idx,1]    = results.segments[i].conditions.frames.inertial.position_vector[j,1] 
+            x0     = results.segments[i].analyses.noise.settings.aircraft_starting_location_x
+            y0     = results.segments[i].analyses.noise.settings.aircraft_starting_location_y
+            N_ctrl_pts  = len(results.segments[i].conditions.frames.inertial.time[:,0])  
+            for j in range(N_ctrl_pts): 
+                Aircraft_pos[idx,0]    = results.segments[i].conditions.frames.inertial.position_vector[j,0]  + x0
+                Aircraft_pos[idx,1]    = results.segments[i].conditions.frames.inertial.position_vector[j,1]  + y0
                 Aircraft_pos[idx,2]    = -results.segments[i].conditions.frames.inertial.position_vector[j,2] 
                 stencil_length         = S_gm_x*2 + 1
                 stencil_width          = S_gm_y*2 + 1
                 SPL_contour_gm[idx,int(S_locs[j,0]):int(S_locs[j,1]),int(S_locs[j,2]):int(S_locs[j,3])]  = results.segments[i].conditions.noise.total_SPL_dBA[j].reshape(stencil_length ,stencil_width )  
                 if N_bm > 0:
                     SPL_contour_bm[idx,:]  = results.segments[i].conditions.noise.total_SPL_dBA[j,-N_bm:]  
-    
+                idx  += 1
     noise_data                        = Data()
     noise_data.SPL_dBA_ground_mic     = np.nan_to_num(SPL_contour_gm)
     noise_data.SPL_dBA_building_mic   = np.nan_to_num(SPL_contour_bm)
