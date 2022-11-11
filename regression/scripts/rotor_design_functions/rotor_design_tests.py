@@ -216,17 +216,10 @@ def lift_rotor_design_test():
     rotor.design_thrust                = 2000
     rotor.angular_velocity             = rotor.design_tip_mach* 343 /rotor.tip_radius  
     rotor.freestream_velocity          = np.sqrt(rotor.design_thrust/(2*1.2*np.pi*(rotor.tip_radius**2))) 
-    rotor.variable_pitch               = True      
-    airfoil                            = SUAVE.Components.Airfoils.Airfoil()
-    airfoil.tag                        = 'NACA_4412'  
-    airfoil.coordinate_file            = '4412'   
-    airfoil.NACA_4_series_flag         = True 
-    airfoil.number_of_points           = 30     
-    rotor.append_airfoil(airfoil)     
-    rotor.airfoil_polar_stations       = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
+    rotor.variable_pitch               = True       
     opt_params                         = rotor.optimization_parameters 
     opt_params.aeroacoustic_weight     = 0.5 # 1 means only perfomrance optimization 0.5 to weight noise equally  
-    rotor                              = lift_rotor_design(rotor,iterations=2)  # Reduced iteration for regression therefore optimal design is NOT reached!   
+    rotor                              = lift_rotor_design(rotor)  # Reduced iteration for regression therefore optimal design is NOT reached!   
     
     # Find the operating conditions
     atmosphere                                          = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -251,14 +244,14 @@ def lift_rotor_design_test():
     plot_results(output_rot, rotor,'green','-','^') 
 
     # Truth values for rotor with airfoil geometry defined  
-    F_rot_truth = 4.89626948248977 
+    F_rot_truth = 2001.9717143542043
 
     # Store errors 
     error = Data()  
     error.Thrust_rot = np.max(np.abs(np.linalg.norm(-F_rot)-F_rot_truth))/F_rot_truth   
-
-    print('Errors:')
-    print(error)
+    
+    print('Thrust: ' + str(np.linalg.norm(-F_rot))) 
+    print('Error: ' + str(error)) 
 
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)  
@@ -283,27 +276,14 @@ def prop_rotor_design_test():
     # CRUISE                         
     prop_rotor.design_altitude_cruise                   = 2500 * Units.feet                      
     prop_rotor.design_thrust_cruise                     = 1400 
-    prop_rotor.freestream_velocity_cruise               = 175*Units.mph 
-      
-      
-    airfoil                                             = SUAVE.Components.Airfoils.Airfoil()    
-    airfoil.coordinate_file                             =   '../Vehicles/Airfoils/NACA_4412.txt'
-    airfoil.polar_files                                 = [ '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
-                                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
-                                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
-                                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
-                                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt'] 
-    prop_rotor.append_airfoil(airfoil)   
-    prop_rotor.airfoil_polar_stations                   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]   
-
-  
+    prop_rotor.freestream_velocity_cruise               = 175*Units.mph  
     opt_params                                          = prop_rotor.optimization_parameters 
     opt_params.multiobjective_performance_weight        = 0.5
     opt_params.multiobjective_acoustic_weight           = 1.0  # Do not consider cruise noise 
     opt_params.aeroacoustic_weight                      = 0.5  # 1 means only perfomrance optimization 0.5 to weight noise equally
 
     # DESING ROTOR              
-    prop_rotor                                          = prop_rotor_design(prop_rotor,iterations=2)  # Reduced iteration for regression therefore optimal design is NOT reached! 
+    prop_rotor                                          = prop_rotor_design(prop_rotor)  # Reduced iteration for regression therefore optimal design is NOT reached! 
 
     # Find the operating conditions
     atmosphere                                          = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -330,14 +310,14 @@ def prop_rotor_design_test():
     plot_results(output_pr, prop_rotor,'blue','-','^') 
 
     # Truth values for rotor with airfoil geometry defined 
-    F_pr_truth = 3777.9505019877374
+    F_pr_truth = 4275.38389155336
 
     # Store errors 
     error = Data()  
     error.Thrust_pr = np.max(np.abs(np.linalg.norm(-F_pr)-F_pr_truth))/F_pr_truth 
 
-    print('Errors:')
-    print(error)
+    print('Thrust: ' + str(np.linalg.norm(-F_pr))) 
+    print('Error: ' + str(error))  
 
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)  
