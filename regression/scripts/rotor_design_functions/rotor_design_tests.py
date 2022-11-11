@@ -278,9 +278,9 @@ def prop_rotor_design_test():
     prop_rotor.design_thrust_cruise                     = 1400 
     prop_rotor.freestream_velocity_cruise               = 175*Units.mph  
     opt_params                                          = prop_rotor.optimization_parameters 
-    opt_params.multiobjective_performance_weight        = 0.5
+    opt_params.multiobjective_performance_weight        = 1.0  
     opt_params.multiobjective_acoustic_weight           = 1.0  # Do not consider cruise noise 
-    opt_params.aeroacoustic_weight                      = 0.5  # 1 means only perfomrance optimization 0.5 to weight noise equally
+    opt_params.aeroacoustic_weight                      = 1.0  # 1 means only perfomrance optimization 0.5 to weight noise equally
 
     # DESING ROTOR              
     prop_rotor                                          = prop_rotor_design(prop_rotor)  # Reduced iteration for regression therefore optimal design is NOT reached! 
@@ -310,7 +310,7 @@ def prop_rotor_design_test():
     plot_results(output_pr, prop_rotor,'blue','-','^') 
 
     # Truth values for rotor with airfoil geometry defined 
-    F_pr_truth = 4275.38389155336
+    F_pr_truth = 4275.471200006159
 
     # Store errors 
     error = Data()  
