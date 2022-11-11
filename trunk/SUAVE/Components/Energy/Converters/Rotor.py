@@ -578,7 +578,8 @@ class Rotor(Energy_Component):
                     rotor_drag                        = rotor_drag,
                     rotor_drag_coefficient            = Crd,
                     figure_of_merit                   = FoM,
-                    tip_mach                          = omega * R / conditions.freestream.speed_of_sound
+                    tip_mach                          = omega * R / conditions.freestream.speed_of_sound,
+                    wake_inputs                       = wake_inputs
             )
         self.outputs = outputs
 
