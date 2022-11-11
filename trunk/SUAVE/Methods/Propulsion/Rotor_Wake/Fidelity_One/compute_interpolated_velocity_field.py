@@ -13,8 +13,10 @@ from scipy.interpolate import RegularGridInterpolator
 from SUAVE.Core import Data
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity import compute_wing_induced_velocity
-
-
+import multiprocessing
+#import threading
+from multiprocessing.pool import Pool
+import time
 
 def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, dL=0.025, factor=0.):
     """
@@ -27,7 +29,7 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
        fun_V_induced - function of interpolated velocity based on (x,y,z) position
     
     """
-    
+           
     #--------------------------------------------------------------------------------------------
     # Step 1a: Generate coarse grid for external boundaries
     #--------------------------------------------------------------------------------------------   
@@ -58,51 +60,64 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
     Zstacked = np.reshape(Zp, np.size(Zp))  
     
     # split into multiple computations for reduced memory requirements and runtime
-    maxPts = 1000
+    #nevals = 6 # Number of jobs to split the computation into
+    #maxPts = int(np.ceil(len(Xstacked)/nevals))
+    maxPts = 100
     nevals = int(np.ceil(len(Xstacked) / maxPts))
     V_ind_network = np.zeros((1, len(Xstacked), 3))
     Vind_ext = np.zeros((1, len(Xstacked), 3))
 
-    for i in range(nevals):
-        iStart = i*maxPts
-        if i == nevals-1:
-            iEnd = len(Xstacked)
-        else:
-            iEnd = (i+1)*maxPts
+    sizeRef = np.size(WD_network[list(WD_network.keys())[0]].XA1)
+    
+    
+    #if sizeRef > 1: #2e5:
         
-        GridPoints = Data()
-        GridPoints.XC = Xstacked[iStart:iEnd]
-        GridPoints.YC = Ystacked[iStart:iEnd]
-        GridPoints.ZC = Zstacked[iStart:iEnd]
-        GridPoints.n_cp = len(Xstacked[iStart:iEnd])   
+    with Pool() as pool:
+        args = [(i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network, Vind_ext) for i in range(nevals)]
         
-        #--------------------------------------------------------------------------------------------
-        # Step 1b: Compute induced velocities from each wake at these grid points
-        #--------------------------------------------------------------------------------------------
-        for WD in WD_network:
-            if np.size(WD.XA1) != 0:
-                # wake has begun shedding, add the influence from shed wake panels
-                V_ind_network[:,iStart:iEnd,:] += compute_wake_induced_velocity(WD, GridPoints, cpts=1)
+        # execute tasks in order
+        i=0
+        for result in pool.starmap(multiprocessing_function, args):
+            iStart = i*maxPts
+            if i == nevals-1:
+                iEnd = len(Xstacked)
+            else:
+                iEnd = (i+1)*maxPts 
+                
+            # save results
+            Vind_ext[:,iStart:iEnd,:] = result[0]#result['Vind_ext']
+            V_ind_network[:,iStart:iEnd,:] = result[1]#result['V_ind_network']
+            i = i +1
         
         
-        #--------------------------------------------------------------------------------------------    
-        # Step 1c: Compute induced velocities at each evaluation point due to external VD
-        #--------------------------------------------------------------------------------------------
-        if VD is not None:   
-            VD_temp = copy.deepcopy(VD)
-            VD_temp.XC = GridPoints.XC
-            VD_temp.YC = GridPoints.YC
-            VD_temp.ZC = GridPoints.ZC
-            VD_temp.n_cp = len(GridPoints.ZC)
-            C_mn, _, _, _ = compute_wing_induced_velocity(VD_temp, mach=np.array([0]))
+        #manager = multiprocessing.Manager()
+        #return_dict = manager.dict()
+        #jobs = []
+        #for i in range(nevals):
+            ## RUN MULTI-PROCESSING ROUTINE
+            #p = multiprocessing.Process(target = multiprocessing_function, args =(multiprocessing_flag, i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network,Vind_ext, return_dict))
+            #jobs.append(p)
+            #p.start()
+        #for proc in jobs:
+            #proc.join()
+            ##multiprocessing_function(i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network,Vind_ext)
+        ##recombine
+        #for i in range(nevals):
+            #iStart = i*maxPts
+            #if i == nevals-1:
+                #iEnd = len(Xstacked)
+            #else:
+                #iEnd = (i+1)*maxPts            
+            #V_ind_network[:,iStart:iEnd,:] = return_dict[i]['V_ind_network_i']
+            #Vind_ext[:,iStart:iEnd,:] = return_dict[i]['Vind_ext_i']
+          
+    #else:
+        #multiprocessing_flag = False
+        #for i in range(nevals):
+            #Vind_ext, V_ind_network = multiprocessing_function(multiprocessing_flag, i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network, Vind_ext, return_dict=None)
             
-            Vext_x = (C_mn[:,:,:,0]@VD.gamma.T)
-            Vext_y = (C_mn[:,:,:,1]@VD.gamma.T)
-            Vext_z = (C_mn[:,:,:,2]@VD.gamma.T)
-            Vind_ext[:,iStart:iEnd,:] = np.concatenate([Vext_x, Vext_y, Vext_z],axis=2)
-            
-        else:
-            Vind_ext = np.zeros_like(V_ind_network)        
+        
+      
     
     # Update induced velocities to appropriate shape
     Vind = np.zeros(np.append(np.shape(Xp), 3))
@@ -152,3 +167,50 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
     #fun_V_induced.fun_Vy_induced = fun_Vy_induced
     #fun_V_induced.fun_Vz_induced = fun_Vz_induced
     return fun_V_induced, interpolatedBoxData
+
+def multiprocessing_function(i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network, Vind_ext):
+    t0=time.time()
+    iStart = i*maxPts
+    if i == nevals-1:
+        iEnd = len(Xstacked)
+    else:
+        iEnd = (i+1)*maxPts
+    
+    GridPoints = Data()
+    GridPoints.XC = Xstacked[iStart:iEnd]
+    GridPoints.YC = Ystacked[iStart:iEnd]
+    GridPoints.ZC = Zstacked[iStart:iEnd]
+    GridPoints.n_cp = len(Xstacked[iStart:iEnd])   
+    
+    #--------------------------------------------------------------------------------------------
+    # Step 1b: Compute induced velocities from each wake at these grid points
+    #--------------------------------------------------------------------------------------------
+    for WD in WD_network:
+        if np.size(WD.XA1) != 0:
+            # wake has begun shedding, add the influence from shed wake panels
+            V_ind_network[:,iStart:iEnd,:] += compute_wake_induced_velocity(WD, GridPoints, cpts=1)
+    
+    
+    #--------------------------------------------------------------------------------------------    
+    # Step 1c: Compute induced velocities at each evaluation point due to external VD
+    #--------------------------------------------------------------------------------------------
+    if VD is not None:   
+        VD_temp = copy.deepcopy(VD)
+        VD_temp.XC = GridPoints.XC
+        VD_temp.YC = GridPoints.YC
+        VD_temp.ZC = GridPoints.ZC
+        VD_temp.n_cp = len(GridPoints.ZC)
+        C_mn, _, _, _ = compute_wing_induced_velocity(VD_temp, mach=np.array([0]))
+        
+        Vext_x = (C_mn[:,:,:,0]@VD.gamma.T)
+        Vext_y = (C_mn[:,:,:,1]@VD.gamma.T)
+        Vext_z = (C_mn[:,:,:,2]@VD.gamma.T)
+        Vind_ext[:,iStart:iEnd,:] = np.concatenate([Vext_x, Vext_y, Vext_z],axis=2)
+        
+    else:
+        Vind_ext = np.zeros_like(V_ind_network)  
+    
+    eval_time = time.time()-t0
+    print("\tEvaluation %d out of %d completed in %f seconds" % (i+1, nevals, eval_time))
+
+    return Vind_ext[:,iStart:iEnd,:], V_ind_network[:,iStart:iEnd,:]
