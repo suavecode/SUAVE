@@ -6,9 +6,9 @@
 
 # ----------------------------------------------------------------------
 #  Imports
-# ----------------------------------------------------------------------
-
+# ---------------------------------------------------------------------- 
 import SUAVE
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  initialize conditions
@@ -46,8 +46,7 @@ def initialize_conditions(segment):
     altf       = segment.altitude_end
     xf         = segment.distance
     mach       = segment.mach
-    conditions = segment.state.conditions 
-    t_initial  = conditions.frames.inertial.time[0,0]    
+    conditions = segment.state.conditions  
     t_nondim   = segment.state.numerics.dimensionless.control_points
     
     # check for initial altitude
@@ -64,16 +63,17 @@ def initialize_conditions(segment):
     a          = conditions.freestream.speed_of_sound    
 
     # compute speed, constant with constant altitude
-    air_speed = mach * a
+    air_speed    = mach * a   
+    climb_angle  = np.arctan((altf-alt0)/xf)
+    v_x          = np.cos(climb_angle)*air_speed
+    v_z          = np.sin(climb_angle)*air_speed 
+    t_nondim     = segment.state.numerics.dimensionless.control_points
     
-    # dimensionalize time
-    t_final   = xf / air_speed + t_initial 
-    time      = t_nondim * (t_final-t_initial) + t_initial
-    
-    segment.altitude = 0.5*(alt0 + altf)
+    # discretize on altitude
+    alt = t_nondim * (altf-alt0) + alt0    
     
     # pack
-    segment.state.conditions.freestream.altitude[:,0]             = alt[:,0]
-    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
-    segment.state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0]
-    segment.state.conditions.frames.inertial.time[:,0]            = time[:,0]
+    conditions.freestream.altitude[:,0]             = alt[:,0]
+    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down 
+    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
+    conditions.frames.inertial.velocity_vector[:,2] = -v_z[:,0]      

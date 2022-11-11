@@ -79,20 +79,20 @@ def main():
     climb_throttle_3_truth   = 0.674660268669148 
     climb_throttle_4_truth   = 1.1315606426230955
     climb_throttle_5_truth   = 1.1836691794281005
-    climb_throttle_6_truth   = 0.7820927446131135
-    climb_throttle_7_truth   = 0.9575782120087092
-    climb_throttle_8_truth   = 1.1806251177582514
-    climb_throttle_9_truth   = 1.2803044387670226
+    climb_throttle_6_truth   = 0.8542025884352087
+    climb_throttle_7_truth   = 1.030452608240913
+    climb_throttle_8_truth   = 1.1665314723491604 
+    climb_throttle_9_truth   = 1.2625088598230252 
     climb_throttle_10_truth  = 1.0 
-    cruise_CL_1_truth        = 0.697527528118587  
-    cruise_CL_2_truth        = 0.6978305032649874  
-    cruise_CL_3_truth        = 0.7853555716641899  
-    descent_throttle_1_truth = 0.09557733021666127  
-    descent_throttle_2_truth = 0.2467066714518043  
-    single_pt_CL_1_truth     = 0.25119411851114865  
-    single_pt_CL_2_truth     = 0.2511952953215362 
-    loiter_CL_truth          = 0.5115243029776504 
-    descent_throttle_3_truth = 0.17985343172510482 
+    cruise_CL_1_truth        = 0.6857617083371911 
+    cruise_CL_2_truth        = 0.6860226628472235 
+    cruise_CL_3_truth        = 0.7805019166672017 
+    descent_throttle_1_truth = 0.09279795266262247 
+    descent_throttle_2_truth = 0.23994218072952092
+    single_pt_CL_1_truth     = 0.24695636714609792 
+    single_pt_CL_2_truth     = 0.24695878533146554
+    loiter_CL_truth          = 0.5029058752700512 
+    descent_throttle_3_truth = 0.17441749322730005 
     
     # Store errors 
     error = Data()
@@ -402,7 +402,9 @@ def mission_setup(analyses):
     segment = Segments.Climb.Constant_Mach_Linear_Altitude(base_segment)
     segment.tag = "climb_6"
     segment.analyses.extend( analyses.base )  
-    segment.altitude_end                     = 8.    * Units.km   
+    segment.altitude_start                   = 7.    * Units.km
+    segment.altitude_end                     = 8.    * Units.km    
+    segment.distance                         = 100. * Units.km
     segment.mach                             = 0.75  
 
     # add to misison
@@ -416,6 +418,7 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.base ) 
     segment.altitude_start                   = 8.    * Units.km
     segment.altitude_end                     = 9.    * Units.km   
+    segment.distance                         = 100. * Units.km
     segment.air_speed                        = 250.2 * Units.m / Units.s 
 
     # add to misison
