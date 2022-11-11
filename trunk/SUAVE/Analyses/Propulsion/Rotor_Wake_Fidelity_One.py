@@ -67,14 +67,16 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.vtk_save_loc               = None       # location to save vtk outputs of wake
         
         self.wake_settings              = Data()
-        self.wake_settings.number_rotor_rotations     = 5
+        self.wake_settings.number_rotor_rotations     = 4
         self.wake_settings.number_steps_per_rotation  = 72
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
         self.influencing_rotor_wake_network = None
         
         # wake convergence criteria
-        self.maximum_convergence_iteration            = 10
+        self.maximum_convergence_iteration_gamma      = 1#50
+        self.maximum_convergence_iteration_va         = 1#50
         self.axial_velocity_convergence_tolerance     = 1e-3
+        self.circulation_convergence_tolerance        = 1e-3
         
         # flags for slipstream interaction
         self.slipstream                 = False
