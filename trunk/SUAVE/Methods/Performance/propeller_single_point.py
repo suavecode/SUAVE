@@ -123,15 +123,21 @@ def propeller_single_point(prop,
     conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
 
     # Run Propeller BEVW
-    F, Q, P, Cp, outputs, etap = prop.spin(conditions)
-        
-    va_ind_BEVW         = outputs.disc_axial_induced_velocity[0, :, 0]
-    vt_ind_BEVW         = outputs.disc_tangential_induced_velocity[0, :, 0]
-    r_BEVW              = outputs.disc_radial_distribution[0, :, 0]
-    T_distribution_BEVW = outputs.disc_thrust_distribution[0, :, 0]
-    vt_BEVW             = outputs.disc_tangential_velocity[0, :, 0]
-    va_BEVW             = outputs.disc_axial_velocity[0, :, 0]
-    Q_distribution_BEVW = outputs.disc_torque_distribution[0, :, 0]
+    if prop.surrogate_spin_flag:
+        F, Q, P, Cp, outputs, etap = prop.spin_surrogate(conditions)
+    else:
+        F, Q, P, Cp, outputs, etap = prop.spin(conditions)
+    
+    try:
+        va_ind_BEVW         = outputs.disc_axial_induced_velocity[0, :, 0]
+        vt_ind_BEVW         = outputs.disc_tangential_induced_velocity[0, :, 0]
+        r_BEVW              = outputs.disc_radial_distribution[0, :, 0]
+        T_distribution_BEVW = outputs.disc_thrust_distribution[0, :, 0]
+        vt_BEVW             = outputs.disc_tangential_velocity[0, :, 0]
+        va_BEVW             = outputs.disc_axial_velocity[0, :, 0]
+        Q_distribution_BEVW = outputs.disc_torque_distribution[0, :, 0]
+    except:
+        print("No disc properties.")
 
     if print_results:
         print('Total Thrust:    {} N'.format(F[0][0]))
@@ -144,28 +150,31 @@ def propeller_single_point(prop,
     # ----------------------------------------------------------------------------
 
     if plots:
-        plt.figure(1)
-        plt.plot(r_BEVW, va_BEVW, 'ro-', label='axial BEVW')
-        plt.plot(r_BEVW, vt_BEVW, 'bo-', label='tangential BEVW')
-        plt.xlabel('Radial Location')
-        plt.ylabel('Velocity')
-        plt.legend(loc='lower right')
-
-        plt.figure(2)
-        plt.plot(r_BEVW, T_distribution_BEVW, 'ro-')
-        plt.xlabel('Radial Location')
-        plt.ylabel('Thrust, N')
-
-        plt.figure(3)
-        plt.plot(r_BEVW, Q_distribution_BEVW, 'ro-')
-        plt.xlabel('Radial Location')
-        plt.ylabel('Torque, N-m')
-
-        plt.figure(4)
-        plt.plot(r_BEVW, va_ind_BEVW, 'ro-', label='Axial')
-        plt.plot(r_BEVW, vt_ind_BEVW, 'bo-', label='Tangential')
-        plt.xlabel('Radial Location')
-        plt.ylabel('Induced Velocity') 
+        try:
+            plt.figure(1)
+            plt.plot(r_BEVW, va_BEVW, 'ro-', label='axial BEVW')
+            plt.plot(r_BEVW, vt_BEVW, 'bo-', label='tangential BEVW')
+            plt.xlabel('Radial Location')
+            plt.ylabel('Velocity')
+            plt.legend(loc='lower right')
+    
+            plt.figure(2)
+            plt.plot(r_BEVW, T_distribution_BEVW, 'ro-')
+            plt.xlabel('Radial Location')
+            plt.ylabel('Thrust, N')
+    
+            plt.figure(3)
+            plt.plot(r_BEVW, Q_distribution_BEVW, 'ro-')
+            plt.xlabel('Radial Location')
+            plt.ylabel('Torque, N-m')
+    
+            plt.figure(4)
+            plt.plot(r_BEVW, va_ind_BEVW, 'ro-', label='Axial')
+            plt.plot(r_BEVW, vt_ind_BEVW, 'bo-', label='Tangential')
+            plt.xlabel('Radial Location')
+            plt.ylabel('Induced Velocity') 
+        except:
+            print("No disc properties.")
 
     # Pack Results
 
@@ -175,13 +184,17 @@ def propeller_single_point(prop,
     results.power                       = P[0][0]
     results.power_coefficient           = Cp[0][0]
     results.efficiency                  = etap[0][0]
-    results.induced_axial_velocity      = va_ind_BEVW
-    results.induced_tangential_velocity = vt_ind_BEVW
-    results.radial_distribution         = r_BEVW
-    results.thrust_distribution         = T_distribution_BEVW
-    results.torque_distribution         = Q_distribution_BEVW
-    results.tangential_velocity         = vt_BEVW
-    results.axial_velocity              = va_BEVW
     results.outputs                     = outputs
+    
+    try:
+        results.induced_axial_velocity      = va_ind_BEVW
+        results.induced_tangential_velocity = vt_ind_BEVW
+        results.radial_distribution         = r_BEVW
+        results.thrust_distribution         = T_distribution_BEVW
+        results.torque_distribution         = Q_distribution_BEVW
+        results.tangential_velocity         = vt_BEVW
+        results.axial_velocity              = va_BEVW
+    except:
+        print("No disc properties.")
 
     return prop, results, conditions

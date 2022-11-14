@@ -193,7 +193,10 @@ class Battery_Propeller(Network):
                 prop.inputs.omega           = motor.outputs.omega 
                 
                 # step 4
-                F, Q, P, Cp, outputs, etap = prop.spin(conditions)
+                if prop.surrogate_spin_flag:
+                    F, Q, P, Cp, outputs, etap = prop.spin_surrogate(conditions)  
+                else:
+                    F, Q, P, Cp, outputs, etap = prop.spin(conditions)              
                     
                 # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
                 eta        = conditions.propulsion.throttle[:,0,None]

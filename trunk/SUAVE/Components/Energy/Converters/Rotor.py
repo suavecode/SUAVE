@@ -16,7 +16,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
@@ -30,6 +30,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_v
 import numpy as np
 import scipy as sp
 import copy
+import pandas as pd
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -102,6 +103,7 @@ class Rotor(Energy_Component):
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
+        self.surrogate_spin_flag       = False
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
@@ -563,6 +565,67 @@ class Rotor(Energy_Component):
             )
         self.outputs = outputs
 
+        return thrust_vector, torque, power, Cp, outputs , etap
+    
+    def spin_surrogate(self, conditions):
+        # get force coefficients from lookup table with interpolation
+        try:
+            surrogate_data_file = self.surrogate_data_file
+        except:
+            raise("Error: No surrogate data found.")
+        
+        # unpack
+        omega = self.inputs.omega
+        n     = omega/(2.*np.pi) 
+        D     = 2 * self.tip_radius
+        rho   = conditions.freestream.density[:,0,None]
+        Vvec  = conditions.frames.inertial.velocity_vector
+        cpts  = len(Vvec)
+        
+        # read in surrogate data
+        surrogate_data = pd.read_csv(surrogate_data_file)
+        V_sur = surrogate_data.V.to_numpy()
+        A_sur = surrogate_data.AlphaP.to_numpy() * Units.deg
+        J_sur = surrogate_data.J.to_numpy()
+        n_sur = V_sur / (J_sur * D) # J=V/nD
+        CT_sur = surrogate_data.CT.to_numpy()
+        CQ_sur = surrogate_data.CQ.to_numpy()
+        
+        # dimensionalize
+        thrust_sur = CT_sur * (rho[0][0]*(n_sur*n_sur)*(D*D*D*D))
+        torque_sur = CQ_sur * (rho[0][0]*(n_sur*n_sur)*(D*D*D*D*D))
+        
+        # compute T, Q for current prop state
+        V_sim = np.linalg.norm(Vvec,axis=1)
+        A_sim = np.repeat(self.orientation_euler_angles[1] , cpts)
+        J_sim = V_sim / (n.T * D)
+        thrust = np.atleast_2d(sp.interpolate.griddata((V_sur, A_sur, J_sur), thrust_sur, (V_sim, A_sim, J_sim), method='linear', fill_value=0.)*1).T
+        torque = np.atleast_2d(sp.interpolate.griddata((V_sur, A_sur, J_sur), torque_sur, (V_sim, A_sim, J_sim), method='linear', fill_value=0.)*1).T
+        
+        power = omega*torque
+        
+        # Thrust in the rotor frame
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        body2thrust     = self.body_to_prop_vel()
+        T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        
+        # Make the thrust a 3D vector
+        thrust_prop_frame      = np.zeros((cpts,3))
+        thrust_prop_frame[:,0] = thrust[:,0]
+        thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
+        
+        etap     = np.atleast_2d(V_sim).T*thrust/power
+        A        = np.pi*(self.tip_radius**2 - self.hub_radius**2)
+        FoM      = thrust*np.sqrt(thrust/(2*rho*A))    /power  
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
+        
+        results_conditions     = Data
+        outputs                = results_conditions( 
+            figure_of_merit    = FoM,
+            thrust_coefficient = thrust / (rho*(n*n)*(D*D*D*D)),
+            torque_coefficient = torque / (rho*(n*n)*(D*D*D*D*D)),
+            power_coefficient  = power / (rho*(n*n*n)*(D*D*D*D*D))
+        )
         return thrust_vector, torque, power, Cp, outputs , etap
     
     
