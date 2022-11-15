@@ -56,8 +56,8 @@ def compute_ground_noise_evaluation_locations(settings,segment):
         print("Resetting microphone stenxil in y direction")
         mic_stencil_y = np.floor(N_gm_y/2 - 1)      
          
-    stencil_center_x_locs   = np.argmin(abs(np.tile(pos[:,0][:,None],(1,N_gm_x)) + settings.aircraft_starting_location_x - np.tile(gml[:,0].reshape(N_gm_x,N_gm_y)[:,0][None,:],(ctrl_pts,1))),axis = 1) 
-    stencil_center_y_locs   = np.argmin(abs(np.tile(pos[:,1][:,None],(1,N_gm_y)) + settings.aircraft_starting_location_y - np.tile(gml[:,1].reshape(N_gm_x,N_gm_y)[0,:][None,:],(ctrl_pts,1))),axis = 1)
+    stencil_center_x_locs   = np.argmin(abs(np.tile(pos[:,0][:,None],(1,N_gm_x)) + settings.aircraft_departure_location[0] - np.tile(gml[:,0].reshape(N_gm_x,N_gm_y)[:,0][None,:],(ctrl_pts,1))),axis = 1) 
+    stencil_center_y_locs   = np.argmin(abs(np.tile(pos[:,1][:,None],(1,N_gm_y)) + settings.aircraft_departure_location[1] - np.tile(gml[:,1].reshape(N_gm_x,N_gm_y)[0,:][None,:],(ctrl_pts,1))),axis = 1)
     
     # modify location of stencil center point if at edge 
     # top 
@@ -100,8 +100,8 @@ def compute_ground_noise_evaluation_locations(settings,segment):
         EGML[cpt]    = stencil
           
     REGML          = np.zeros_like(EGML)
-    Aircraft_x     = np.repeat(np.atleast_2d(pos[:,0] ).T,num_gm_mic , axis = 1) + settings.aircraft_starting_location_x
-    Aircraft_y     = np.repeat(np.atleast_2d(pos[:,1]).T,num_gm_mic , axis = 1) + settings.aircraft_starting_location_y
+    Aircraft_x     = np.repeat(np.atleast_2d(pos[:,0] ).T,num_gm_mic , axis = 1) + settings.aircraft_departure_location[0]
+    Aircraft_y     = np.repeat(np.atleast_2d(pos[:,1]).T,num_gm_mic , axis = 1) + settings.aircraft_departure_location[1]
     Aircraft_z     = np.repeat(np.atleast_2d(-pos[:,2]).T,num_gm_mic , axis = 1)  
     REGML[:,:,0]   = Aircraft_x - EGML[:,:,0] 
     REGML[:,:,1]   = Aircraft_y - EGML[:,:,1]        

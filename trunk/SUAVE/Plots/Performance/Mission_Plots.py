@@ -2175,8 +2175,8 @@ def post_process_noise_data(results):
             S_gm_x = results.segments[i].analyses.noise.settings.ground_microphone_x_stencil
             S_gm_y = results.segments[i].analyses.noise.settings.ground_microphone_y_stencil
             S_locs = results.segments[i].conditions.noise.ground_microphone_stencil_locations
-            x0     = results.segments[i].analyses.noise.settings.aircraft_starting_location_x
-            y0     = results.segments[i].analyses.noise.settings.aircraft_starting_location_y
+            x0     = results.segments[i].analyses.noise.settings.aircraft_departure_location[0]
+            y0     = results.segments[i].analyses.noise.settings.aircraft_departure_location[1]
             N_ctrl_pts  = len(results.segments[i].conditions.frames.inertial.time[:,0])  
             for j in range(N_ctrl_pts): 
                 Aircraft_pos[idx,0]    = results.segments[i].conditions.frames.inertial.position_vector[j,0]  + x0

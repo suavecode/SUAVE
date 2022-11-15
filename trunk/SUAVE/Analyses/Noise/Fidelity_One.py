@@ -75,8 +75,8 @@ class Fidelity_One(Noise):
         settings.sideline                             = False
         settings.sideline_x_position                  = 0 
         settings.print_noise_output                   = False   
-        settings.aircraft_starting_location_x         = 0
-        settings.aircraft_starting_location_y         = 0
+        settings.aircraft_destination_location        = np.array([0,0,0])
+        settings.aircraft_departure_location          = np.array([0,0,0])
         
         settings.ground_microphone_locations          = None   
         settings.ground_microphone_x_resolution       = 100
