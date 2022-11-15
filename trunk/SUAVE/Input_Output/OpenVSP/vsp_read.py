@@ -229,7 +229,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
     for nac_id, nacelle_id in enumerate(vsp_nacelles):
         nacelle = read_vsp_nacelle(nacelle_id,vsp_nacelle_type[nac_id], units_type)
         if calculate_wetted_area:
-            nacelle.areas.wetted = measurements[vsp.GetGeomName(nac_id)] * (units_factor**2)         
+            nacelle.areas.wetted = measurements[vsp.GetGeomName(nacelle_id)] * (units_factor**2)         
         vehicle.append_component(nacelle)	  
     
     # --------------------------------------------------			    
