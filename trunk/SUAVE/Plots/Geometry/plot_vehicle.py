@@ -143,9 +143,9 @@ def plot_vehicle(vehicle,plot_axis = False, save_figure = False, plot_control_po
              width     = 1500,
              height    = 1500, 
              scene = dict(
-                        xaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis, zerolinecolor="white",),
-                        yaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis, zerolinecolor="white"),
-                        zaxis = dict(backgroundcolor="grey",gridcolor="white",showbackground=plot_axis,zerolinecolor="white",)),             
+                        xaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis, zerolinecolor="white", range=[-100,100]),
+                        yaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis, zerolinecolor="white", range=[-100,100]),
+                        zaxis = dict(backgroundcolor="grey",gridcolor="white",showbackground=plot_axis,zerolinecolor="white", range=[-100,100])),             
              scene_camera=camera) 
     fig.update_coloraxes(showscale=False)
     
