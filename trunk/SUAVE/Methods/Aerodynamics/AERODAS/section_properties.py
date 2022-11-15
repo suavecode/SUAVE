@@ -49,7 +49,7 @@ def section_properties(state,settings,geometry):
     wing   = geometry
     re     = state.conditions.freestream.reynolds_number
     mac    = wing.chords.mean_aerodynamic
-    tc     = wing.thickness_to_chord * 100
+    tc     = wing.thickness_to_chord
     A0     = settings.section_zero_lift_angle_of_attack
     S1p    = settings.section_lift_curve_slope
     ACDmin = settings.section_minimum_drag_coefficient_angle_of_attack 
@@ -59,7 +59,8 @@ def section_properties(state,settings,geometry):
     
     # Calculate 2-D CLmax
     # From 241 A/B notes
-    Cl_max_ref = -0.0009*tc*tc*tc + 0.0217*tc*tc - 0.0442*tc + 0.7005
+    tc_1 = tc*100
+    Cl_max_ref = -0.0009*tc_1*tc_1*tc_1 + 0.0217*tc_1*tc_1 - 0.0442*tc_1 + 0.7005
     Re_ref     = 9.*10**6
     #CL1maxp = Cl_max_ref * ( RE / Re_ref ) **0.1
     CL1maxp = 1.5 * np.ones_like(state.conditions.freestream.altitude)

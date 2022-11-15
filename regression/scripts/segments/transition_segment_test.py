@@ -56,9 +56,9 @@ def main():
     cruise_throttle        = results.segments.cruise.conditions.propulsion.throttle[:,0]
     
     # Truth values   
-    departure_throttle_truth          = 0.651687547816525
-    transition_1_throttle_truth       = 0.601399797479313
-    cruise_throttle_truth             = 0.4649280739025156
+    departure_throttle_truth          = 0.6516875478807475
+    transition_1_throttle_truth       = 0.6010312931740875
+    cruise_throttle_truth             = 0.4645791719250666
 
     # Store errors 
     error = Data()
