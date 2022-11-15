@@ -137,7 +137,8 @@ def propeller_single_point(prop,
         va_BEVW             = outputs.disc_axial_velocity[0, :, 0]
         Q_distribution_BEVW = outputs.disc_torque_distribution[0, :, 0]
     except:
-        print("No disc properties.")
+        #print("No disc properties.")
+        pass
 
     if print_results:
         print('Total Thrust:    {} N'.format(F[0][0]))
@@ -174,7 +175,8 @@ def propeller_single_point(prop,
             plt.xlabel('Radial Location')
             plt.ylabel('Induced Velocity') 
         except:
-            print("No disc properties.")
+            #print("No disc properties.")
+            pass
 
     # Pack Results
 
@@ -195,6 +197,7 @@ def propeller_single_point(prop,
         results.tangential_velocity         = vt_BEVW
         results.axial_velocity              = va_BEVW
     except:
-        print("No disc properties.")
+        #print("No disc properties.")
+        pass
 
     return prop, results, conditions
