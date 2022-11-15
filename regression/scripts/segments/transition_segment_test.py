@@ -55,17 +55,21 @@ def main():
     transition_1_throttle  = results.segments.transition_1.conditions.propulsion.throttle[:,0]
     cruise_throttle        = results.segments.cruise.conditions.propulsion.throttle[:,0]
     
+    print(departure_throttle)
+    print(transition_1_throttle)
+    print(cruise_throttle)
+    
     # Truth values   
     departure_throttle_truth          = 0.6516875478807475
-    transition_1_throttle_truth       = 0.6010312931740875
-    cruise_throttle_truth             = 0.4645791719250666
+    transition_1_throttle_truth       = 0.6013997974737667
+    cruise_throttle_truth             = 0.46492807449474316
 
     # Store errors 
     error = Data()
     error.departure_throttle          = np.abs(departure_throttle[-1] - departure_throttle_truth)
-    error.transition_1_throttle       = np.abs(transition_1_throttle[-1] - transition_1_throttle_truth)   
-    error.cruise_throttle             = np.abs(cruise_throttle[-1] - cruise_throttle_truth) 
-
+    error.transition_1_throttle       = np.abs(transition_1_throttle[-1] - transition_1_throttle_truth)
+    error.cruise_throttle             = np.abs(cruise_throttle[-1] - cruise_throttle_truth)
+    
     print('Errors:')
     print(error)
 
