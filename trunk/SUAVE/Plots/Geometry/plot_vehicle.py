@@ -477,9 +477,11 @@ def plot_rotor_geometry(prop,save_filename = "Rotor", save_figure = False, plot_
     Properties Used:
     N/A
     """
-    
+     
     if plot_data == None: 
         print("\nPlotting propeller") 
+    
+        plot_propeller_only = True         
         camera        = dict(up=dict(x=0.5, y=0.5, z=1), center=dict(x=0, y=0, z=-0.5), eye=dict(x=-1.5, y=-1.5, z=.8))
         plot_data     = []
         
@@ -505,7 +507,7 @@ def plot_rotor_geometry(prop,save_filename = "Rotor", save_figure = False, plot_
                 verts = contour_surface_slice(X, Y, Z ,values,color_scale)
                 plot_data.append(verts)      
                 
-    if plot_data == None:
+    if plot_propeller_only == None:
         fig = go.Figure(data=plot_data)
         fig.update_scenes(aspectmode   = 'auto',
                           xaxis_visible=plot_axis,
