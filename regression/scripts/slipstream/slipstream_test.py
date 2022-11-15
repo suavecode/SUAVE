@@ -44,17 +44,17 @@ def main():
     Propeller_Slipstream(wake_fidelity=0,identical_props=True)
     print((time.time()-t0)/60)
     
-    # fidelity one wakes
-    print('Wake Fidelity One, Identical Props')  
-    t0=time.time()
-    Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
-    print((time.time()-t0)/60)
+    ## fidelity one wakes
+    #print('Wake Fidelity One, Identical Props')  
+    #t0=time.time()
+    #Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
+    #print((time.time()-t0)/60)
     
 
-    print('Wake Fidelity One, Non-Identical Props')      
-    t0=time.time()
-    Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
-    print((time.time()-t0)/60)
+    #print('Wake Fidelity One, Non-Identical Props')      
+    #t0=time.time()
+    #Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
+    #print((time.time()-t0)/60)
     
     return
 
