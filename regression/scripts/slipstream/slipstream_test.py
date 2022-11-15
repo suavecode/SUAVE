@@ -141,7 +141,7 @@ def regress_1b(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
+    plot_vehicle(configs.base, save_figure = True, plot_control_points = False)
     plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
               
     return

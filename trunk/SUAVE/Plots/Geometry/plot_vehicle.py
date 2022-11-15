@@ -10,6 +10,7 @@
 # Modified: Feb 2022, R. Erhard
 # Modified: Mar 2022, R. Erhard
 # Modified: Sep 2022, M. Clarke
+# Modified: Nov 2022, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -23,8 +24,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distri
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 ## @ingroup Plots-Geometry
-def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,plot_axis = False,
-                 save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):
+def plot_vehicle(vehicle,plot_axis = False, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics
     Routine is initialized
 
@@ -45,7 +45,7 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     """
 
     print("\nPlotting vehicle") 
-    camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=-1., y=-1., z=.25))
+    camera        = dict(up=dict(x=0.5, y=0.5, z=1), center=dict(x=0, y=0, z=-0.5), eye=dict(x=-1.5, y=-1.5, z=.8))
     plot_data     = []
     
     # unpack vortex distribution
@@ -60,11 +60,6 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
         settings.model_nacelle             = False
         VD = generate_vortex_distribution(vehicle,settings)
 
-    ## initalize figure
-    #fig = plt.figure(save_filename)
-    #fig.set_size_inches(8,8)
-    #axes = plt.axes(projection='3d')
-    #axes.view_init(elev= elevation_angle, azim= azimuthal_angle)
 
     # -------------------------------------------------------------------------
     # PLOT WING
@@ -75,9 +70,9 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     plot_data       = plot_wing(plot_data,VD,wing_face_color,wing_edge_color,wing_alpha_val)
     if  plot_control_points: 
         ctrl_pts = go.Scatter3d(x=VD.XC, y=VD.YC, z=VD.ZC,
-                                    mode='markers',
-                                    marker=dict(size=6,color='red',opacity=0.8),
-                                    line=dict(color='red',width=2))
+                                    mode  = 'markers',
+                                    marker= dict(size=6,color='red',opacity=0.8),
+                                    line  = dict(color='red',width=2))
         plot_data.append(ctrl_pts)
         
 
@@ -138,30 +133,26 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     for network in vehicle.networks:
         plot_data = plot_network(plot_data,network,number_of_airfoil_points,network_face_color,network_edge_color,network_alpha )
 
-    #axes.set_xlim(0,axis_limits*2)
-    #axes.set_ylim(-axis_limits,axis_limits)
-    #axes.set_zlim(-axis_limits,axis_limits)
-    
-    
-
     fig = go.Figure(data=plot_data)
-    fig.update_layout(
-             title_x = 0.5,
-             width   = 750,
-             height  = 750,
-             font_size=18,
-             scene_camera=camera)
+    fig.update_scenes(aspectmode   = 'auto',
+                      xaxis_visible=plot_axis,
+                      yaxis_visible=plot_axis,
+                      zaxis_visible=plot_axis
+                      )
+    fig.update_layout( 
+             width     = 1500,
+             height    = 1500, 
+             scene = dict(
+                        xaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis, zerolinecolor="white",),
+                        yaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis, zerolinecolor="white"),
+                        zaxis = dict(backgroundcolor="grey",gridcolor="white",showbackground=plot_axis,zerolinecolor="white",)),             
+             scene_camera=camera) 
+    fig.update_coloraxes(showscale=False)
     
-    show_figure = True 
-    if show_figure:
-        fig.show()
+    if save_figure:
+        fig.write_image(save_filename + ".png")
+    fig.show()
         
-    #if not plot_axis:
-        #plt.axis('off')
-        #plt.grid(None)
-    
-    #if save_figure:
-        #fig.savefig(save_filename)
     return
 
 def plot_wing(plot_data,VD,face_color,edge_color,alpha_val):
@@ -329,21 +320,23 @@ def plot_network(plot_data,network,number_of_airfoil_points,prop_face_color,prop
 
     Properties Used:
     N/A
-    """
-
+    """ 
+    plot_axis     = False 
+    save_figure   = False 
+    save_filename = 'Rotor'
     if ('propellers' in network.keys()):
 
         for prop in network.propellers:
 
-            # Generate And Plot Propeller/Rotor Geometry
-            plot_data = plot_propeller_geometry(plot_data,prop,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
+            # Generate And Plot Propeller/Rotor Geometry 
+            plot_data = plot_rotor_geometry(prop,save_filename,save_figure,plot_data,plot_axis,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
 
     if ('lift_rotors' in network.keys()):
 
         for rotor in network.lift_rotors:
 
             # Generate and Plot Propeller/Rotor Geometry
-            plot_data = plot_propeller_geometry(plot_data,rotor,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
+            plot_data = plot_rotor_geometry(rotor,save_filename,save_figure,plot_data,plot_axis,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
 
     return plot_data
 
@@ -464,7 +457,7 @@ def plot_nacelle_geometry(plot_data,NAC_SURF_PTS,face_color,edge_color,alpha):
 
     return plot_data
 
-def plot_propeller_geometry(plot_data,prop,cpt=0,number_of_airfoil_points = 21,
+def plot_rotor_geometry(prop,save_filename = "Rotor", save_figure = False, plot_data = None,plot_axis = False, cpt=0,number_of_airfoil_points = 21,
                             prop_face_color='red',prop_edge_color='darkred',prop_alpha=1):
     """ This plots a 3D surface of the  propeller
 
@@ -484,6 +477,12 @@ def plot_propeller_geometry(plot_data,prop,cpt=0,number_of_airfoil_points = 21,
     Properties Used:
     N/A
     """
+    
+    if plot_data == None: 
+        print("\nPlotting propeller") 
+        camera        = dict(up=dict(x=0.5, y=0.5, z=1), center=dict(x=0, y=0, z=-0.5), eye=dict(x=-1.5, y=-1.5, z=.8))
+        plot_data     = []
+        
     num_B     = prop.number_of_blades 
     af_pts    = number_of_airfoil_points-1
     dim       = len(prop.radius_distribution)
@@ -504,8 +503,31 @@ def plot_propeller_geometry(plot_data,prop,cpt=0,number_of_airfoil_points = 21,
                 values = np.ones_like(X)
                 color_scale = 'Reds'
                 verts = contour_surface_slice(X, Y, Z ,values,color_scale)
-                plot_data.append(verts)                    
-    return plot_data
+                plot_data.append(verts)      
+                
+    if plot_data == None:
+        fig = go.Figure(data=plot_data)
+        fig.update_scenes(aspectmode   = 'auto',
+                          xaxis_visible=plot_axis,
+                          yaxis_visible=plot_axis,
+                          zaxis_visible=plot_axis
+                          )
+        fig.update_layout( 
+                 width     = 1500,
+                 height    = 1500, 
+                 scene = dict(
+                            xaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis, zerolinecolor="white",),
+                            yaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis, zerolinecolor="white"),
+                            zaxis = dict(backgroundcolor="grey",gridcolor="white",showbackground=plot_axis,zerolinecolor="white",)),             
+                 scene_camera=camera) 
+        fig.update_coloraxes(showscale=False)
+        
+        if save_figure: 
+            fig.write_image(save_filename + ".png")
+        fig.show()
+        return 
+    else: 
+        return plot_data
 
 def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     """ This generates the coordinates of the blade surface for plotting in the aircraft frame (x-back, z-up)
@@ -647,5 +669,5 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     return G 
 
 def contour_surface_slice(x,y,z,values,color_scale):
-    return go.Surface(x=x,y=y,z=z,surfacecolor=values,colorscale=color_scale,coloraxis='coloraxis')
+    return go.Surface(x=x,y=y,z=z,surfacecolor=values,colorscale=color_scale, showscale=False)
  
