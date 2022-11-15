@@ -1,6 +1,7 @@
+## @ingroup [ADD DOCUMENTATION GROUP]
 # plot_disc_power_loading.py
 # 
-# Created:    Nov 2022, jordan
+# Created:    Nov 2022, J. Smart
 # Modified:   
 
 # ----------------------------------------------------------------------
@@ -9,6 +10,7 @@
 
 # TODO: ADD IMPORTS
 
+## @ingroup [ADD DOCUMENTATION GROUP]
 def plot_disc_power_loading(*args, **kwargs):
     """ADD FUNCTION DESCRIPTION 
 

@@ -1,6 +1,7 @@
+## @ingroup [ADD DOCUMENTATION GROUP]
 # plot_solar_flux.py
 # 
-# Created:    Nov 2022, jordan
+# Created:    Nov 2022, J. Smart
 # Modified:   
 
 # ----------------------------------------------------------------------
@@ -9,6 +10,7 @@
 
 # TODO: ADD IMPORTS
 
+## @ingroup [ADD DOCUMENTATION GROUP]
 def plot_solar_flux(*args, **kwargs):
     """ADD FUNCTION DESCRIPTION 
 
