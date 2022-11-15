@@ -15,9 +15,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import numpy as np 
+import plotly.graph_objects as go 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series    import compute_naca_4series
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution    import generate_vortex_distribution 
@@ -45,8 +44,10 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     N/A
     """
 
-    print("\nPlotting vehicle")
-
+    print("\nPlotting vehicle") 
+    camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=-1., y=-1., z=.25))
+    plot_data     = []
+    
     # unpack vortex distribution
     try:
         VD = vehicle.vortex_distribution
@@ -59,11 +60,11 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
         settings.model_nacelle             = False
         VD = generate_vortex_distribution(vehicle,settings)
 
-    # initalize figure
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(8,8)
-    axes = plt.axes(projection='3d')
-    axes.view_init(elev= elevation_angle, azim= azimuthal_angle)
+    ## initalize figure
+    #fig = plt.figure(save_filename)
+    #fig.set_size_inches(8,8)
+    #axes = plt.axes(projection='3d')
+    #axes.view_init(elev= elevation_angle, azim= azimuthal_angle)
 
     # -------------------------------------------------------------------------
     # PLOT WING
@@ -71,9 +72,14 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     wing_face_color = 'darkgrey'
     wing_edge_color = 'grey'
     wing_alpha_val  = 1
-    plot_wing(axes,VD,wing_face_color,wing_edge_color,wing_alpha_val)
-    if  plot_control_points:
-        axes.scatter(VD.XC,VD.YC,VD.ZC, c='r', marker = 'o' )
+    plot_data       = plot_wing(plot_data,VD,wing_face_color,wing_edge_color,wing_alpha_val)
+    if  plot_control_points: 
+        ctrl_pts = go.Scatter3d(x=VD.XC, y=VD.YC, z=VD.ZC,
+                                    mode='markers',
+                                    marker=dict(size=6,color='red',opacity=0.8),
+                                    line=dict(color='red',width=2))
+        plot_data.append(ctrl_pts)
+        
 
     # -------------------------------------------------------------------------
     # PLOT WAKES
@@ -86,12 +92,12 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
             for prop in net.propellers:
                 # plot propeller wake
                 if prop.Wake.wake_method =="Fidelity_One":
-                    plot_propeller_wake(axes, prop, wake_face_color, wake_edge_color, wake_alpha)
+                    plot_data = plot_propeller_wake(plot_data, prop, wake_face_color, wake_edge_color, wake_alpha)
         if "lift_rotors" in net.keys():
             for rot in net.lift_rotors:
                 # plot rotor wake
                 if rot.Wake.wake_method =="Fidelity_One":
-                    plot_propeller_wake(axes, rot, wake_face_color, wake_edge_color, wake_alpha)            
+                    plot_data = plot_propeller_wake(plot_data, rot, wake_face_color, wake_edge_color, wake_alpha)            
             
 
     # -------------------------------------------------------------------------
@@ -105,7 +111,7 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
         fus_pts = generate_fuselage_points(fus)
 
         # Plot Fuselage Geometry
-        plot_fuselage_geometry(axes,fus_pts,fuselage_face_color,fuselage_edge_color,fuselage_alpha)
+        plot_data = plot_fuselage_geometry(plot_data,fus_pts,fuselage_face_color,fuselage_edge_color,fuselage_alpha)
 
     # -------------------------------------------------------------------------
     # PLOT ENGINE
@@ -119,7 +125,7 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
         nac_geo = generate_nacelle_points(nacelle,number_of_airfoil_points)
         
         # Plot Nacelle Geometry
-        plot_nacelle_geometry(axes,nac_geo,nacelle_face_color,nacelle_edge_color,nacelle_alpha ) 
+        plot_data = plot_nacelle_geometry(plot_data,nac_geo,nacelle_face_color,nacelle_edge_color,nacelle_alpha ) 
 
            
     # -------------------------------------------------------------------------
@@ -130,21 +136,35 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     network_alpha            = 1
     number_of_airfoil_points = 21
     for network in vehicle.networks:
-        plot_network(axes,network,number_of_airfoil_points,network_face_color,network_edge_color,network_alpha )
+        plot_data = plot_network(plot_data,network,number_of_airfoil_points,network_face_color,network_edge_color,network_alpha )
 
-    axes.set_xlim(0,axis_limits*2)
-    axes.set_ylim(-axis_limits,axis_limits)
-    axes.set_zlim(-axis_limits,axis_limits)
+    #axes.set_xlim(0,axis_limits*2)
+    #axes.set_ylim(-axis_limits,axis_limits)
+    #axes.set_zlim(-axis_limits,axis_limits)
     
-    if not plot_axis:
-        plt.axis('off')
-        plt.grid(None)
     
-    if save_figure:
-        fig.savefig(save_filename)
+
+    fig = go.Figure(data=plot_data)
+    fig.update_layout(
+             title_x = 0.5,
+             width   = 750,
+             height  = 750,
+             font_size=18,
+             scene_camera=camera)
+    
+    show_figure = True 
+    if show_figure:
+        fig.show()
+        
+    #if not plot_axis:
+        #plt.axis('off')
+        #plt.grid(None)
+    
+    #if save_figure:
+        #fig.savefig(save_filename)
     return
 
-def plot_wing(axes,VD,face_color,edge_color,alpha_val):
+def plot_wing(plot_data,VD,face_color,edge_color,alpha_val):
     """ This plots the wings of a vehicle
 
     Assumptions:
@@ -165,24 +185,20 @@ def plot_wing(axes,VD,face_color,edge_color,alpha_val):
     """
 
     n_cp = VD.n_cp
-    for i in range(n_cp):
+    for i in range(n_cp): 
 
-        X = [VD.XA1[i],VD.XB1[i],VD.XB2[i],VD.XA2[i]]
-        Y = [VD.YA1[i],VD.YB1[i],VD.YB2[i],VD.YA2[i]]
-        Z = [VD.ZA1[i],VD.ZB1[i],VD.ZB2[i],VD.ZA2[i]]
+        X = np.array([[VD.XA1[i],VD.XA2[i]],[VD.XB1[i],VD.XB2[i]]])
+        Y = np.array([[VD.YA1[i],VD.YA2[i]],[VD.YB1[i],VD.YB2[i]]])
+        Z = np.array([[VD.ZA1[i],VD.ZA2[i]],[VD.ZB1[i],VD.ZB2[i]]])           
+        
+        values      = np.ones_like(X)*0.5
+        color_scale = 'greys'
+        verts       = contour_surface_slice(X, Y, Z ,values,color_scale)
+        plot_data.append(verts)         
 
-        verts = [list(zip(X, Y, Z))]
+    return plot_data
 
-        collection = Poly3DCollection(verts)
-        collection.set_facecolor(face_color)
-        collection.set_edgecolor(edge_color)
-        collection.set_alpha(alpha_val)
-
-        axes.add_collection3d(collection)
-
-    return
-
-def plot_propeller_wake(axes, prop,face_color,edge_color,alpha,ctrl_pt=0):
+def plot_propeller_wake(plot_data, prop,face_color,edge_color,alpha,ctrl_pt=0):
     """ This plots a helical wake of a propeller or rotor
 
     Assumptions:
@@ -209,25 +225,19 @@ def plot_propeller_wake(axes, prop,face_color,edge_color,alpha,ctrl_pt=0):
     for t_idx in range(nts):
         for B_idx in range(num_B):
             for loc in range(dim_R):
-                X = [wVD.XA1[0,ctrl_pt,B_idx,loc,t_idx],
-                     wVD.XB1[0,ctrl_pt,B_idx,loc,t_idx],
-                     wVD.XB2[0,ctrl_pt,B_idx,loc,t_idx],
-                     wVD.XA2[0,ctrl_pt,B_idx,loc,t_idx]]
-                Y = [wVD.YA1[0,ctrl_pt,B_idx,loc,t_idx],
-                     wVD.YB1[0,ctrl_pt,B_idx,loc,t_idx],
-                     wVD.YB2[0,ctrl_pt,B_idx,loc,t_idx],
-                     wVD.YA2[0,ctrl_pt,B_idx,loc,t_idx]]
-                Z = [wVD.ZA1[0,ctrl_pt,B_idx,loc,t_idx],
-                     wVD.ZB1[0,ctrl_pt,B_idx,loc,t_idx],
-                     wVD.ZB2[0,ctrl_pt,B_idx,loc,t_idx],
-                     wVD.ZA2[0,ctrl_pt,B_idx,loc,t_idx]]
-                verts = [list(zip(X, Y, Z))]
-                collection = Poly3DCollection(verts)
-                collection.set_facecolor(face_color)
-                collection.set_edgecolor(edge_color)
-                collection.set_alpha(alpha)
-                axes.add_collection3d(collection)
-    return
+                X = np.array([[wVD.XA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XA2[0,ctrl_pt,B_idx,loc,t_idx]],
+                              [ wVD.XB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XB2[0,ctrl_pt,B_idx,loc,t_idx]]])
+                Y = np.array([[wVD.YA1[0,ctrl_pt,B_idx,loc,t_idx], wVD.YA2[0,ctrl_pt,B_idx,loc,t_idx]],
+                              [ wVD.YB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.YB2[0,ctrl_pt,B_idx,loc,t_idx]]])
+                Z = np.array([[wVD.ZA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZA2[0,ctrl_pt,B_idx,loc,t_idx]],
+                              [wVD.ZB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZB2[0,ctrl_pt,B_idx,loc,t_idx]]])
+        
+                values = np.ones_like(X)
+                color_scale = 'Blues'
+                verts = contour_surface_slice(X, Y, Z ,values,color_scale)
+                plot_data.append(verts)     
+                 
+    return plot_data
 
 
 def generate_fuselage_points(fus ,tessellation = 24 ):
@@ -263,7 +273,7 @@ def generate_fuselage_points(fus ,tessellation = 24 ):
     return fus_pts
 
 
-def plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha):
+def plot_fuselage_geometry(plot_data,fus_pts, face_color,edge_color,alpha):
     """ This plots the 3D surface of the fuselage
 
     Assumptions:
@@ -288,29 +298,21 @@ def plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha):
         tesselation  = len(fus_pts[0,:,0])
         for i_seg in range(num_fus_segs-1):
             for i_tes in range(tesselation-1):
-                X = [fus_pts[i_seg  ,i_tes  ,0],
-                     fus_pts[i_seg  ,i_tes+1,0],
-                     fus_pts[i_seg+1,i_tes+1,0],
-                     fus_pts[i_seg+1,i_tes  ,0]]
-                Y = [fus_pts[i_seg  ,i_tes  ,1],
-                     fus_pts[i_seg  ,i_tes+1,1],
-                     fus_pts[i_seg+1,i_tes+1,1],
-                     fus_pts[i_seg+1,i_tes  ,1]]
-                Z = [fus_pts[i_seg  ,i_tes  ,2],
-                     fus_pts[i_seg  ,i_tes+1,2],
-                     fus_pts[i_seg+1,i_tes+1,2],
-                     fus_pts[i_seg+1,i_tes  ,2]]
-                verts = [list(zip(X, Y, Z))]
-                collection = Poly3DCollection(verts)
-                collection.set_facecolor(face_color)
-                collection.set_edgecolor(edge_color)
-                collection.set_alpha(alpha)
-                axes.add_collection3d(collection)
+                X = np.array([[fus_pts[i_seg  ,i_tes,0],fus_pts[i_seg+1,i_tes  ,0]],
+                              [fus_pts[i_seg  ,i_tes+1,0],fus_pts[i_seg+1,i_tes+1,0]]])
+                Y = np.array([[fus_pts[i_seg  ,i_tes  ,1],fus_pts[i_seg+1,i_tes  ,1]],
+                              [fus_pts[i_seg  ,i_tes+1,1],fus_pts[i_seg+1,i_tes+1,1]]])
+                Z = np.array([[fus_pts[i_seg  ,i_tes  ,2],fus_pts[i_seg+1,i_tes  ,2]],
+                              [fus_pts[i_seg  ,i_tes+1,2],fus_pts[i_seg+1,i_tes+1,2]]])  
+                values = np.ones_like(X)*0.5
+                color_scale = 'greys'
+                verts = contour_surface_slice(X, Y, Z ,values,color_scale)
+                plot_data.append(verts)          
 
-    return
+    return plot_data
 
 
-def plot_network(axes,network,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha):
+def plot_network(plot_data,network,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha):
     """ This plots the 3D surface of the network
 
     Assumptions:
@@ -334,16 +336,16 @@ def plot_network(axes,network,number_of_airfoil_points,prop_face_color,prop_edge
         for prop in network.propellers:
 
             # Generate And Plot Propeller/Rotor Geometry
-            plot_propeller_geometry(axes,prop,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
+            plot_data = plot_propeller_geometry(plot_data,prop,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
 
     if ('lift_rotors' in network.keys()):
 
         for rotor in network.lift_rotors:
 
             # Generate and Plot Propeller/Rotor Geometry
-            plot_propeller_geometry(axes,rotor,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
+            plot_data = plot_propeller_geometry(plot_data,rotor,0,number_of_airfoil_points,prop_face_color,prop_edge_color,prop_alpha)
 
-    return 
+    return plot_data
 
 def generate_nacelle_points(nac,tessellation = 24,number_of_airfoil_points = 21):
     """ This generates the coordinate points on the surface of the nacelle
@@ -424,7 +426,7 @@ def generate_nacelle_points(nac,tessellation = 24,number_of_airfoil_points = 21)
     NAC_PTS[:,:,2] = NAC_PTS[:,:,2] + nac.origin[0][2]
     return NAC_PTS
 
-def plot_nacelle_geometry(axes,NAC_SURF_PTS,face_color,edge_color,alpha):
+def plot_nacelle_geometry(plot_data,NAC_SURF_PTS,face_color,edge_color,alpha):
     """ This plots a 3D surface of a nacelle  
 
     Assumptions:
@@ -448,28 +450,21 @@ def plot_nacelle_geometry(axes,NAC_SURF_PTS,face_color,edge_color,alpha):
     tesselation  = len(NAC_SURF_PTS[0,:,0]) 
     for i_seg in range(num_nac_segs-1):
         for i_tes in range(tesselation-1):
-            X = [NAC_SURF_PTS[i_seg  ,i_tes  ,0],
-                 NAC_SURF_PTS[i_seg  ,i_tes+1,0],
-                 NAC_SURF_PTS[i_seg+1,i_tes+1,0],
-                 NAC_SURF_PTS[i_seg+1,i_tes  ,0]]
-            Y = [NAC_SURF_PTS[i_seg  ,i_tes  ,1],
-                 NAC_SURF_PTS[i_seg  ,i_tes+1,1],
-                 NAC_SURF_PTS[i_seg+1,i_tes+1,1],
-                 NAC_SURF_PTS[i_seg+1,i_tes  ,1]]
-            Z = [NAC_SURF_PTS[i_seg  ,i_tes  ,2],
-                 NAC_SURF_PTS[i_seg  ,i_tes+1,2],
-                 NAC_SURF_PTS[i_seg+1,i_tes+1,2],
-                 NAC_SURF_PTS[i_seg+1,i_tes  ,2]]
-            verts = [list(zip(X, Y, Z))]
-            collection = Poly3DCollection(verts)
-            collection.set_facecolor(face_color)
-            collection.set_edgecolor(edge_color)
-            collection.set_alpha(alpha)
-            axes.add_collection3d(collection)
+            X = np.array([[NAC_SURF_PTS[i_seg  ,i_tes  ,0],NAC_SURF_PTS[i_seg+1,i_tes  ,0]],
+                 [NAC_SURF_PTS[i_seg  ,i_tes+1,0],NAC_SURF_PTS[i_seg+1,i_tes+1,0]]])
+            Y = np.array([[NAC_SURF_PTS[i_seg  ,i_tes  ,1],NAC_SURF_PTS[i_seg+1,i_tes  ,1]],
+                 [NAC_SURF_PTS[i_seg  ,i_tes+1,1],NAC_SURF_PTS[i_seg+1,i_tes+1,1]]])
+            Z = np.array([[NAC_SURF_PTS[i_seg  ,i_tes  ,2],NAC_SURF_PTS[i_seg+1,i_tes  ,2]],
+                 [NAC_SURF_PTS[i_seg  ,i_tes+1,2],NAC_SURF_PTS[i_seg+1,i_tes+1,2]]])
+             
+            values = np.ones_like(X)
+            color_scale = 'Reds'
+            verts = contour_surface_slice(X, Y, Z ,values,color_scale)
+            plot_data.append(verts)    
 
-    return
+    return plot_data
 
-def plot_propeller_geometry(axes,prop,cpt=0,number_of_airfoil_points = 21,
+def plot_propeller_geometry(plot_data,prop,cpt=0,number_of_airfoil_points = 21,
                             prop_face_color='red',prop_edge_color='darkred',prop_alpha=1):
     """ This plots a 3D surface of the  propeller
 
@@ -500,25 +495,17 @@ def plot_propeller_geometry(axes,prop,cpt=0,number_of_airfoil_points = 21,
         # ------------------------------------------------------------------------
         for sec in range(dim-1):
             for loc in range(af_pts):
-                X = [G.XA1[cpt,sec,loc],
-                     G.XB1[cpt,sec,loc],
-                     G.XB2[cpt,sec,loc],
-                     G.XA2[cpt,sec,loc]]
-                Y = [G.YA1[cpt,sec,loc],
-                     G.YB1[cpt,sec,loc],
-                     G.YB2[cpt,sec,loc],
-                     G.YA2[cpt,sec,loc]]
-                Z = [G.ZA1[cpt,sec,loc],
-                     G.ZB1[cpt,sec,loc],
-                     G.ZB2[cpt,sec,loc],
-                     G.ZA2[cpt,sec,loc]]
-                prop_verts = [list(zip(X, Y, Z))]
-                prop_collection = Poly3DCollection(prop_verts)
-                prop_collection.set_facecolor(prop_face_color)
-                prop_collection.set_edgecolor(prop_edge_color)
-                prop_collection.set_alpha(prop_alpha)
-                axes.add_collection3d(prop_collection)
-    return
+                X = np.array([[G.XA1[cpt,sec,loc],G.XA2[cpt,sec,loc]],
+                     [G.XB1[cpt,sec,loc],G.XB2[cpt,sec,loc]]])
+                Y = np.array([[G.YA1[cpt,sec,loc],G.YA2[cpt,sec,loc]],
+                     [G.YB1[cpt,sec,loc],G.YB2[cpt,sec,loc]]])
+                Z = np.array([[G.ZA1[cpt,sec,loc],G.ZA2[cpt,sec,loc]],
+                     [G.ZB1[cpt,sec,loc],G.ZB2[cpt,sec,loc]]]) 
+                values = np.ones_like(X)
+                color_scale = 'Reds'
+                verts = contour_surface_slice(X, Y, Z ,values,color_scale)
+                plot_data.append(verts)                    
+    return plot_data
 
 def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     """ This generates the coordinates of the blade surface for plotting in the aircraft frame (x-back, z-up)
@@ -657,4 +644,8 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     G.YB2  = mat[:,1:,1:,1]  + origin[0][1]
     G.ZB2  = mat[:,1:,1:,2]  + origin[0][2]
     
-    return G
+    return G 
+
+def contour_surface_slice(x,y,z,values,color_scale):
+    return go.Surface(x=x,y=y,z=z,surfacecolor=values,colorscale=color_scale,coloraxis='coloraxis')
+ 
