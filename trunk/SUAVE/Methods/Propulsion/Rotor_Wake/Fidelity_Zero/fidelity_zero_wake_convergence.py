@@ -53,6 +53,9 @@ def fidelity_zero_wake_convergence(wake,rotor,wake_inputs):
 
     if ier!=1:
         print("Rotor BEVW did not converge to a solution (Stall)")
+        rotor.converged=False
+    else:
+        rotor.converged=True
     
     # Calculate the velocities given PSI
     va, vt = va_vt(PSI_final, wake_inputs, rotor)
