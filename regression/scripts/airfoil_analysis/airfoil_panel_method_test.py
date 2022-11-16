@@ -32,7 +32,7 @@ def main():
     airfoil_properties_1 = airfoil_analysis(airfoil_geometry_1,AoA_vals,Re_vals)  
     
      # Plots    
-    plot_airfoil_surface_forces(airfoil_properties_1,show_legend = True )   
+    plot_airfoil_surface_forces(airfoil_properties_1)   
     plot_airfoil_boundary_layer_properties(airfoil_properties_1,show_legend = True )   
     
     # XFOIL Validation - Source   
