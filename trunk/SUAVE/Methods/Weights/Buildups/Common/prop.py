@@ -216,7 +216,7 @@ def prop(prop,
                         (2*bendUSS*maxThickness))+ \
                         skinLength*shearMGT*dx*shearDen
     m                 = m*np.ones(N)
-    error             = 1               # Initialize Error
+    error             = 1           # Initialize Error
     tolerance         = 1e-8        # Mass Tolerance
     massOld           = np.sum(m)
 
