@@ -111,7 +111,7 @@ def full_setup():
     # vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
-    plot_vehicle(vehicle,plot_control_points = False)
+    plot_3d_vehicle(vehicle,plot_control_points = False)
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)

@@ -30,3 +30,9 @@ from .Airfoil_Plots       import plot_airfoil_surface_forces
 
 from .Propeller_Plots     import plot_propeller_disc_performance
 from .Propeller_Plots     import plot_propeller_disc_inflow
+
+from . import Aerodynamics
+from . import Common
+from . import Energy
+from . import Mission
+from . import Noise
