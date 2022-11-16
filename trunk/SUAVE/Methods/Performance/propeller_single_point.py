@@ -10,10 +10,8 @@
 #-------------------------------------------------------------------------------
 
 import SUAVE
-
+from SUAVE.Plots.Performance import *
 from SUAVE.Core import Data
-
-import matplotlib.pyplot as plt
 import numpy as np
 
 # ------------------------------------------------------------------------------
@@ -142,28 +140,8 @@ def propeller_single_point(prop,
     # ----------------------------------------------------------------------------
 
     if plots:
-        plt.figure(1)
-        plt.plot(r_BEVW, va_BEVW, 'ro-', label='axial BEVW')
-        plt.plot(r_BEVW, vt_BEVW, 'bo-', label='tangential BEVW')
-        plt.xlabel('Radial Location')
-        plt.ylabel('Velocity')
-        plt.legend(loc='lower right')
+        plot_propeller_performance(prop)
 
-        plt.figure(2)
-        plt.plot(r_BEVW, T_distribution_BEVW, 'ro-')
-        plt.xlabel('Radial Location')
-        plt.ylabel('Thrust, N')
-
-        plt.figure(3)
-        plt.plot(r_BEVW, Q_distribution_BEVW, 'ro-')
-        plt.xlabel('Radial Location')
-        plt.ylabel('Torque, N-m')
-
-        plt.figure(4)
-        plt.plot(r_BEVW, va_ind_BEVW, 'ro-', label='Axial')
-        plt.plot(r_BEVW, vt_ind_BEVW, 'bo-', label='Tangential')
-        plt.xlabel('Radial Location')
-        plt.ylabel('Induced Velocity') 
 
     # Pack Results
 

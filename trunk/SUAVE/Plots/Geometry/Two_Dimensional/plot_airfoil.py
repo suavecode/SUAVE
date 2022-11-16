@@ -42,7 +42,6 @@ def plot_airfoil(airfoil_paths,line_color = 'k-', save_figure = False, save_file
     
     if save_figure:
         fig.write_image(save_filename.replace("_", " ") + file_type)  
-        
-    fig.show()
 
+    fig.show()
     return
