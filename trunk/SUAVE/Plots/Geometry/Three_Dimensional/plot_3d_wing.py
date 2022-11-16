@@ -47,12 +47,6 @@ def plot_3d_wing(plot_data,VD,color_map = 'greys'):
         
         values      = np.ones_like(X) 
         verts       = contour_surface_slice(X, Y, Z ,values,color_map)
-        #plot_data.append(verts)         
-        
-
-        ctrl_pts = go.Scatter3d(x=X, y=Y, z=Z, 
-                                    line  = dict(color='darkblue',width=2))
-        
-        plot_data.append(ctrl_pts)        
+        plot_data.append(verts)            
 
     return plot_data  
