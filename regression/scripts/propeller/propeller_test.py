@@ -10,7 +10,8 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Geometry import plot_rotor
+from SUAVE.Plots.Geometry.Two_Dimensional.plot_rotor      import plot_rotor 
+from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_rotor import plot_3d_rotor
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -107,6 +108,8 @@ def main():
     
     # plot propeller 
     plot_rotor(prop_a)
+    plot_3d_rotor(prop_a)
+    
  
     # Design the Propeller with airfoil  geometry defined 
     prop                           = SUAVE.Components.Energy.Converters.Propeller()

@@ -1,5 +1,5 @@
 ## @ingroup Plots-Geometry
-# plot_rotor.py
+# plot_2d_rotor.py
 # 
 # Created:  Mar 2020, M. Clarke
 # Modified: Apr 2020, M. Clarke
@@ -10,8 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------  
 from SUAVE.Core import Units
-import matplotlib.pyplot as plt     
-from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
+import matplotlib.pyplot as plt      
 
 ## @ingroup Plots-Geometry
 def plot_rotor(prop, face_color = 'red', edge_color = 'black' , save_figure = False, save_filename = "Propeller_Geometry", file_type = ".png"):
@@ -31,27 +30,7 @@ def plot_rotor(prop, face_color = 'red', edge_color = 'black' , save_figure = Fa
 
     Properties Used:
     N/A	
-    """	
-    # unpack  
-    
-    # initalize figure 
-    fig_1 = plt.figure(save_filename + '_3D') 
-    fig_1.set_size_inches(8,8) 
-    axes_1 = plt.axes(projection='3d')
-    axes_1.view_init(elev= 30, azim= 30)   
-    axes_1.set_xlim(-1,1)
-    axes_1.set_ylim(-1,1)
-    axes_1.set_zlim(-1,1) 
-    axes_1.set_xlabel('x')  
-    axes_1.set_ylabel('y')   
-    axes_1.set_zlabel('z')    
-    
-    # append a network for origin and thrust angle default values
-    network = Battery_Propeller()  
-    
-    if save_figure:
-        plt.savefig(save_filename + '_3D' + file_type)  
-        
+    """	     
     fig_2 = plt.figure(save_filename + '_2D')
     fig_2.set_size_inches(12, 8)    
     axes_1 = fig_2.add_subplot(2,2,1)

@@ -40,7 +40,7 @@ def save_fuselage_vtk(vehicle, filename, Results, origin_offset):
 
     """
     for fuselage in vehicle.fuselages:
-        fus_pts = generate_fuselage_points(fuselage)
+        fus_pts = generate_3d_fuselage_points(fuselage)
         num_fus_segs = np.shape(fus_pts)[0]
         if num_fus_segs == 0:
             print("No fuselage segments found!")
@@ -50,7 +50,7 @@ def save_fuselage_vtk(vehicle, filename, Results, origin_offset):
     return
 
 ## @ingroup Input_Output-VTK
-def generate_fuselage_points(fus ,tessellation = 24 ):
+def generate_3d_fuselage_points(fus ,tessellation = 24 ):
     """ This generates the coordinate points on the surface of the fuselage
 
     Assumptions:

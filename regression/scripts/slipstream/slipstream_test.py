@@ -18,8 +18,8 @@ import pylab as plt
 import sys
 
 from SUAVE.Plots.Performance.Mission_Plots import *
-from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle
-from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
+from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_vehicle                   import plot_3d_vehicle
+from SUAVE.Plots.Geometry.Three_Dimensional.plot_vehicle_3d_vlm_panelization  import plot_3d_vehicle_vlm_panelization
 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import  VLM  
@@ -44,17 +44,17 @@ def main():
     Propeller_Slipstream(wake_fidelity=0,identical_props=True)
     print((time.time()-t0)/60)
     
-    ## fidelity one wakes
-    #print('Wake Fidelity One, Identical Props')  
-    #t0=time.time()
-    #Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
-    #print((time.time()-t0)/60)
+    # fidelity one wakes
+    print('Wake Fidelity One, Identical Props')  
+    t0=time.time()
+    Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
+    print((time.time()-t0)/60)
     
 
-    #print('Wake Fidelity One, Non-Identical Props')      
-    #t0=time.time()
-    #Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
-    #print((time.time()-t0)/60)
+    print('Wake Fidelity One, Non-Identical Props')      
+    t0=time.time()
+    Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
+    print((time.time()-t0)/60)
     
     return
 
@@ -107,8 +107,8 @@ def regress_1a(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-    #plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    plot_3d_vehicle(configs.base, save_figure = False, plot_control_points = False)
+    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
               
     return
 
@@ -141,8 +141,8 @@ def regress_1b(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_vehicle(configs.base, save_figure = True, plot_control_points = False)
-    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    plot_3d_vehicle(configs.base, save_figure = True, plot_control_points = False)
+    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
               
     return
  
