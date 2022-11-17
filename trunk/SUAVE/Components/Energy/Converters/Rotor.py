@@ -105,12 +105,12 @@ class Rotor(Energy_Component):
         # Initialize the default wake set to Fidelity Zero 
         self.Wake                      = Rotor_Wake_Fidelity_Zero()
     
-        self.optimization_parameters                       = Data() 
-        self.optimization_parameters.tip_mach_range        = [0.3,0.7] 
-        self.optimization_parameters.microphone_angle      = 45 * Units.degrees    
-        self.optimization_parameters.slack_constaint       = 1E-3 # slack constraint 
-        self.optimization_parameters.ideal_SPL_dBA         = 45 
-        self.optimization_parameters.aeroacoustic_weight   = 1.   # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization  
+        self.optimization_parameters                             = Data() 
+        self.optimization_parameters.tip_mach_range              = [0.3,0.7] 
+        self.optimization_parameters.microphone_evaluation_angle = 135 * Units.degrees  # 45 degrees behind rotor plane   
+        self.optimization_parameters.slack_constaint             = 1E-3 # slack constraint 
+        self.optimization_parameters.ideal_SPL_dBA               = 45 
+        self.optimization_parameters.aeroacoustic_weight         = 1.   # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization  
           
 
     def append_airfoil(self,airfoil):

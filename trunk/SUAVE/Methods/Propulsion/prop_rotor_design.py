@@ -293,14 +293,13 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     prop_rotor_opt_cruise           = network_cruise.propellers.prop_rotor 
     r                               = prop_rotor.radius_distribution
     R                               = prop_rotor.tip_radius     
-    B                               = prop_rotor.number_of_blades  
-    theta                           = prop_rotor_opt_hover.optimization_parameters.microphone_angle    
+    B                               = prop_rotor.number_of_blades    
     prop_rotor.chord_distribution   = prop_rotor_opt_hover.chord_distribution
     prop_rotor.twist_distribution   = prop_rotor_opt_hover.twist_distribution
     c                               = prop_rotor.chord_distribution
     airfoils                        = prop_rotor.Airfoils      
     a_loc                           = prop_rotor.airfoil_polar_stations     
-    theta                           = prop_rotor.optimization_parameters.microphone_angle   
+    theta                           = prop_rotor.optimization_parameters.microphone_evaluation_angle   
 
     # ------------------------------------------------------------------
     # PROP ROTOR HOVER ANALYSIS
@@ -418,6 +417,8 @@ def set_optimized_rotor_planform(prop_rotor,optimization_problem,Beta_c):
     prop_rotor.design_thrust_coefficient_cruise  = noise_data_cruise.thrust_coefficient[0][0] 
     prop_rotor.mid_chord_alignment               = MCA
     prop_rotor.thickness_to_chord                = t_c
+    prop_rotor.design_Cl_hover                   = prop_rotor_opt_hover.design_Cl
+    prop_rotor.design_Cl_cruise                  = prop_rotor_opt_cruise.design_Cl
     prop_rotor.design_SPL_dBA_hover              = mean_SPL_hover
     prop_rotor.design_SPL_dBA_cruise             = mean_SPL_cruise
     prop_rotor.design_performance_hover          = noise_data_hover
@@ -597,7 +598,7 @@ def post_process(nexus):
     prop_rotor_hover     = propellers_hover.prop_rotor  
     beta_blade           = prop_rotor_hover.twist_distribution 
     c                    = prop_rotor_hover.chord_distribution  
-    theta                = prop_rotor_hover.optimization_parameters.microphone_angle
+    theta                = prop_rotor_hover.optimization_parameters.microphone_evaluation_angle
     alpha                = prop_rotor_hover.optimization_parameters.aeroacoustic_weight
     beta                 = prop_rotor_hover.optimization_parameters.multiobjective_performance_weight
     gamma                = prop_rotor_hover.optimization_parameters.multiobjective_acoustic_weight
@@ -749,6 +750,9 @@ def post_process(nexus):
     # blade twist consraint  
     summary.blade_twist_constraint = beta_blade[0] - beta_blade[-1] 
     
+    # pack cl
+    prop_rotor_cruise.design_Cl = mean_CL_cruise
+    prop_rotor_hover.design_Cl = mean_CL_hover
     # -------------------------------------------------------
     # OBJECTIVE FUNCTION
     # ------------------------------------------------------- 

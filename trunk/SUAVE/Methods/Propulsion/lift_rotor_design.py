@@ -274,7 +274,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     rotor.design_tip_mach    = rotor_opt.design_tip_mach
     V                        = rotor.freestream_velocity  
     alt                      = rotor.design_altitude 
-    theta                    = rotor.optimization_parameters.microphone_angle    
+    theta                    = rotor.optimization_parameters.microphone_evaluation_angle    
     rotor.chord_distribution = rotor_opt.chord_distribution
     rotor.twist_distribution = rotor_opt.twist_distribution 
     c                        = rotor.chord_distribution
@@ -505,7 +505,7 @@ def post_process(nexus):
     beta           = rotor.twist_distribution 
     V              = rotor.freestream_velocity     
     alt            = rotor.design_altitude
-    theta          = rotor.optimization_parameters.microphone_angle 
+    theta          = rotor.optimization_parameters.microphone_evaluation_angle 
     alpha          = rotor.optimization_parameters.aeroacoustic_weight
     epsilon        = rotor.optimization_parameters.slack_constaint 
     ideal_SPL      = rotor.optimization_parameters.ideal_SPL_dBA  

@@ -14,7 +14,7 @@ from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
 from SUAVE.Methods.Weights.Buildups.Common.wing import wing
-from SUAVE.Components.Energy.Converters import Propeller, Lift_Rotor
+from SUAVE.Components.Energy.Converters import Propeller, Lift_Rotor, Prop_Rotor
 from SUAVE.Components.Energy.Networks import Battery_Propeller
 from SUAVE.Components.Energy.Networks import Lift_Cruise
 
@@ -235,9 +235,10 @@ def empty(config,
                     props          = network.propellers
                     nThrustProps  +=1
     
-                elif type(props[list(props.keys())[rot_idx]]) == Lift_Rotor:    
-                    nLiftRotors   +=1  
-                    
+                elif type(props[list(props.keys())[rot_idx]]) == Lift_Rotor or  type(props[list(props.keys())[rot_idx]]) == Prop_Rotor:    
+                    nLiftRotors   +=1   
+            
+            # temporarily append lift-rotors for weight analysis
             if (nThrustProps == 0) and (nLiftRotors != 0):
                 network.lift_rotors           = network.propellers
                 rot_motors                    = network.propeller_motors  
@@ -288,7 +289,12 @@ def empty(config,
                 output.lift_rotors            += lift_rotor_mass
                 output.lift_rotor_motors      += liftmotor.mass_properties.mass
                 liftrotor.mass_properties.mass = lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
-
+            
+            # delete ghost lift rotors used for weight calculations 
+            if (nThrustProps == 0) and (nLiftRotors != 0):
+                del network['lift_rotors']    
+                del network['identical_lift_rotors']             
+            
         # Add associated weights
         output.servos += (nLiftRotors * lift_rotor_servo_weight + nThrustProps * prop_servo_weight)
         output.hubs   += (nLiftRotors * lift_rotor_hub_weight + nThrustProps * prop_hub_weight)
