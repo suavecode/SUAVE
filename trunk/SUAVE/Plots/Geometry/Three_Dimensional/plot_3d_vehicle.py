@@ -26,7 +26,7 @@ from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_nacelle  import plot_3d_nace
 from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_rotor    import plot_3d_rotor
 
 ## @ingroup Plots-Geometry-Three_Dimensional
-def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 , plot_control_points = True, save_filename = "Vehicle_Geometry"):
+def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 , plot_wing_control_points = True, plot_rotor_wake_vortex_core = False, save_filename = "Vehicle_Geometry"):
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics
     Routine is initialized
 
@@ -75,7 +75,7 @@ def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 
     # -------------------------------------------------------------------------
     color_map       = 'greys'  
     plot_data       = plot_3d_wing(plot_data,VD,color_map)
-    if  plot_control_points: 
+    if  plot_wing_control_points: 
         ctrl_pts = go.Scatter3d(x=VD.XC, y=VD.YC, z=VD.ZC,
                                     mode  = 'markers',
                                     marker= dict(size=6,color='red',opacity=0.8),
@@ -93,12 +93,14 @@ def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 
             for prop in net.propellers:
                 # plot propeller wake
                 if prop.Wake.wake_method =="Fidelity_One":
-                    plot_data = plot_3d_rotor_wake(plot_data, prop,color_map)
+                    plot_data = plot_3d_rotor_wake(plot_data, prop,color_map,
+                                                   plot_rotor_wake_vortex_core=plot_rotor_wake_vortex_core)
         if "lift_rotors" in net.keys():
             for rot in net.lift_rotors:
                 # plot rotor wake
                 if rot.Wake.wake_method =="Fidelity_One":
-                    plot_data = plot_3d_rotor_wake(plot_data, rot,color_map)   
+                    plot_data = plot_3d_rotor_wake(plot_data, rot,color_map,
+                                                   plot_rotor_wake_vortex_core=plot_rotor_wake_vortex_core)   
 
     # -------------------------------------------------------------------------
     # PLOT FUSELAGE

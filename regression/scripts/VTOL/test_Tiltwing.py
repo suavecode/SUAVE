@@ -40,7 +40,7 @@ def main():
     print(configs.base.mass_properties.center_of_gravity)
 
     # Plot vehicle 
-    plot_3d_vehicle(configs.cruise, save_figure = False, plot_control_points = False)
+    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = False)
 
     # evaluate mission    
     mission  = analyses.missions.base

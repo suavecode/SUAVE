@@ -95,7 +95,7 @@ def main():
         assert(np.abs(v)<1e-6)
  
     # Plot vehicle 
-    plot_3d_vehicle(configs.cruise, save_figure = False, plot_control_points = True)
+    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = True)
     
     return
 

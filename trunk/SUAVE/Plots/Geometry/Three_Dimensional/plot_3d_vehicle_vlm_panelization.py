@@ -15,7 +15,7 @@ from SUAVE.Plots.Geometry.Common.contour_surface_slice import contour_surface_sl
 
 ## @ingroup Plots-Geometry
 def plot_3d_vehicle_vlm_panelization(vehicle, alpha = 1.0 ,plot_axis = False,
-                                  save_figure = False, plot_control_points = True, save_filename = "VLM_Panelization"):
+                                  save_figure = False, plot_wing_control_points = True, save_filename = "VLM_Panelization"):
                                   
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
     Routine is initialized
@@ -67,7 +67,7 @@ def plot_3d_vehicle_vlm_panelization(vehicle, alpha = 1.0 ,plot_axis = False,
         plot_data.append(verts)                 
   
   
-    if  plot_control_points: 
+    if  plot_wing_control_points: 
         ctrl_pts = go.Scatter3d(x=VD.XC, y=VD.YC, z=VD.ZC,
                                     mode  = 'markers',
                                     marker= dict(size=6,color='red',opacity=0.8),

@@ -18,6 +18,7 @@
 from SUAVE.Core import Data
 import numpy as np 
 import plotly.graph_objects as go  
+from plotly.express.colors import sample_colorscale   
 from SUAVE.Plots.Geometry.Common.contour_surface_slice import contour_surface_slice
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series    import compute_naca_4series
@@ -240,7 +241,7 @@ def get_3d_blade_coordinates(rotor,n_points,dim,i,aircraftRefFrame=True):
     
     return G
 
-def plot_3d_rotor_wake(plot_data, rotor,color_map,alpha,ctrl_pt=0):
+def plot_3d_rotor_wake(plot_data,rotor,color_map,alpha,ctrl_pt=0,plot_rotor_wake_vortex_core = False):
     """ This plots a helical wake of a rotor or rotor
 
     Assumptions:
@@ -262,19 +263,36 @@ def plot_3d_rotor_wake(plot_data, rotor,color_map,alpha,ctrl_pt=0):
     num_B    = len(wVD.XA1[0,0,:,0,0])
     dim_R    = len(wVD.XA1[0,0,0,:,0])
     nts      = len(wVD.XA1[0,0,0,0,:])
+    r        = np.linspace(0,1,dim_R) 
     
     for t_idx in range(nts):
         for B_idx in range(num_B):
+            
             for loc in range(dim_R):
-                X = np.array([[wVD.XA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XA2[0,ctrl_pt,B_idx,loc,t_idx]],
-                              [ wVD.XB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XB2[0,ctrl_pt,B_idx,loc,t_idx]]])
-                Y = np.array([[wVD.YA1[0,ctrl_pt,B_idx,loc,t_idx], wVD.YA2[0,ctrl_pt,B_idx,loc,t_idx]],
-                              [ wVD.YB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.YB2[0,ctrl_pt,B_idx,loc,t_idx]]])
-                Z = np.array([[wVD.ZA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZA2[0,ctrl_pt,B_idx,loc,t_idx]],
-                              [wVD.ZB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZB2[0,ctrl_pt,B_idx,loc,t_idx]]])
-        
-                values = np.ones_like(X) 
-                verts = contour_surface_slice(X, Y, Z ,values,color_map)
-                plot_data.append(verts)     
+                if plot_rotor_wake_vortex_core:
+                    colors = sample_colorscale(color_map, list(r)) 
+                    X = np.mean([wVD.XA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XA2[0,ctrl_pt,B_idx,loc,t_idx],
+                                   wVD.XB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XB2[0,ctrl_pt,B_idx,loc,t_idx]])
+                    Y = np.mean([wVD.YA1[0,ctrl_pt,B_idx,loc,t_idx], wVD.YA2[0,ctrl_pt,B_idx,loc,t_idx],
+                                  wVD.YB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.YB2[0,ctrl_pt,B_idx,loc,t_idx]])
+                    Z = np.mean([wVD.ZA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZA2[0,ctrl_pt,B_idx,loc,t_idx],
+                                  wVD.ZB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZB2[0,ctrl_pt,B_idx,loc,t_idx]])
+                    ctrl_pts = go.Scatter3d(x=X, y=Y, z=Z,
+                                                mode  = 'markers',
+                                                marker= dict(size=6,color=colors[loc],opacity=0.8),
+                                                line  = dict(color=colors[loc],width=2))
+                    
+                    plot_data.append(ctrl_pts)
+                else:
+                    X = np.array([[wVD.XA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XA2[0,ctrl_pt,B_idx,loc,t_idx]],
+                                  [ wVD.XB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XB2[0,ctrl_pt,B_idx,loc,t_idx]]])
+                    Y = np.array([[wVD.YA1[0,ctrl_pt,B_idx,loc,t_idx], wVD.YA2[0,ctrl_pt,B_idx,loc,t_idx]],
+                                  [ wVD.YB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.YB2[0,ctrl_pt,B_idx,loc,t_idx]]])
+                    Z = np.array([[wVD.ZA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZA2[0,ctrl_pt,B_idx,loc,t_idx]],
+                                  [wVD.ZB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZB2[0,ctrl_pt,B_idx,loc,t_idx]]])
+            
+                    values = np.ones_like(X)*r[loc] 
+                    verts  = contour_surface_slice(X, Y, Z ,values,color_map)
+                    plot_data.append(verts)     
                  
     return plot_data
