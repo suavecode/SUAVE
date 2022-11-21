@@ -100,12 +100,19 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step,
         R_Results = deepcopy(Results)
         L_Results = deepcopy(Results)
         if 'vlm_results' in Results.keys():
-            if len(Results.vlm_results.CP[sec_1_start:sec_1_end]) == 1:
-                R_Results.vlm_results.CP = Results.vlm_results.CP[0][sec_1_start:sec_1_end]
-                L_Results.vlm_results.CP = Results.vlm_results.CP[0][sec_1_end:sec_2_end]                
-            else:
-                R_Results.vlm_results.CP = Results.vlm_results.CP[sec_1_start:sec_1_end] #[0][sec_1_start:sec_1_end]
-                L_Results.vlm_results.CP = Results.vlm_results.CP[sec_1_end:sec_2_end] #[0][sec_1_end:sec_2_end]
+
+            for key in list(Results.vlm_results.keys()):
+                dataRes = Results.vlm_results[key]
+                try:
+                    keyShape = np.shape(dataRes)
+                    keyLen = keyShape[0]
+                except:
+                    continue
+                if keyLen == VD.n_cp:
+                    # take corresponding wing half
+                    R_Results.vlm_results[key] = Results.vlm_results[key][sec_1_start:sec_1_end]
+                elif keyLen == VD.n_cp // VD.n_cw[0]:
+                    R_Results.vlm_results[key] = Results.vlm_results[key][sec_1_start:sec_1_end // VD.n_cw[0]]
 
         sep  = filename.rfind('.')
 
@@ -248,63 +255,30 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
         if Results is not None:
             if 'vlm_results' in Results.keys():
                 # Check for results
-                try:
-                    cl = Results.vlm_results.cl_y[0]
-                    f.write("\nSCALARS cl float 1")
-                    f.write("\nLOOKUP_TABLE default")
-                    for i in range(n_cp):
-                        new_cl = str(cl[int(i/n_cw)])
-                        f.write("\n"+new_cl)
-                except:
-                    print("No 'cl_y_DVE' in results. Skipping this scalar output.")
-    
-                try:
-                    cl = Results.vlm_results.cl_y[0]
-                    CL = Results.vlm_results.CL[0][0]
-                    f.write("\nSCALARS Cl/CL float 1")
-                    f.write("\nLOOKUP_TABLE default")
-    
-                    for i in range(n_cp):
-                        new_cl_CL = str(cl[int(i/n_cw)]/CL)
-                        f.write("\n"+new_cl_CL)
-                except:
-                    print("No 'CL' in Results.vlm_results. Skipping this scalar output.")
-    
-                try:
-                    cd = Results.vlm_results.cdi_y[0]
-                    f.write("\nSCALARS cdi float 1")
-                    f.write("\nLOOKUP_TABLE default")
-    
-                    for i in range(n_cp):
-                        new_cd = str(cd[int(i/n_cw)])
-                        f.write("\n"+new_cd)
-                except:
-                    print("No 'cdi_y' in Results.vlm_results. Skipping this scalar output.")
-    
-                try:
-                    cd = Results.vlm_results.cdi_y[0]
-                    CD = Results.vlm_results.CDi[0][0]
-    
-                    f.write("\nSCALARS cd_CD float 1")
-                    f.write("\nLOOKUP_TABLE default")
-    
-                    for i in range(n_cp):
-                        new_cd_CD = str(cd[int(i/n_cw)]/CD)
-                        f.write("\n"+new_cd_CD)
-                except:
-                    print("No 'CDi_wing_DVE' in results. Skipping this scalar output.")
-    
-                try:
-                    CP = Results.vlm_results.CP
-    
-                    f.write("\nSCALARS CP float 1")
-                    f.write("\nLOOKUP_TABLE default")
-    
-                    for i in range(n_cp):
-                        new_CP = str(CP[i])
-                        f.write("\n"+new_CP)
-                except:
-                    print("No 'CP' in results. Skipping this scalar output.")
-
+                for key in list(Results.vlm_results.keys()):
+                    dataRes = Results.vlm_results[key]
+                    try:
+                        keyShape = np.shape(dataRes)
+                        keyLen = keyShape[0]
+                    except:
+                        continue
+                    
+                    if keyLen == n_cp:
+                        # write new data result per cell
+                        f.write("\nSCALARS {} float 1".format(key))
+                        f.write("\nLOOKUP_TABLE default")
+        
+                        for i in range(n_cp):
+                            new_val = str(dataRes[i])
+                            f.write("\n"+new_val)       
+                    
+                    elif keyLen == n_cp // n_cw:
+                        # write new data result per spanwise strip
+                        f.write("\nSCALARS {} float 1".format(key))
+                        f.write("\nLOOKUP_TABLE default")
+        
+                        for i in range(n_cp):
+                            new_val = str(dataRes[int(i/n_cw)])
+                            f.write("\n"+new_val)       
     f.close()
     return
