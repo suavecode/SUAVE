@@ -90,7 +90,7 @@ def compute_naca_4series(airfoil_geometry_file,npoints= 200, leading_and_trailin
     geometry.x_lower_surface    = x_ls 
     geometry.y_upper_surface    = np.append(0,y_up_surf) 
     geometry.y_lower_surface    = y_lo_surf[::-1]           
-    geometry.camber_coordinates = camber         
+    geometry.camber_coordinates = c_ls      
     geometry.thickness_to_chord = t_c 
     
     return geometry
