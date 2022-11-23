@@ -15,6 +15,7 @@ import pandas as pd
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
      import import_airfoil_geometry 
 
+## @ingroup Plots-Geometry
 def plot_airfoil(airfoil_paths,line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry", file_type = ".png"):
     """This plots all airfoil defined in the list "airfoil_names" 
 
