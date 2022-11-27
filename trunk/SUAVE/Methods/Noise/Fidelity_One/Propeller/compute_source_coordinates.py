@@ -65,9 +65,9 @@ def compute_point_source_coordinates(conditions,rotors,mls,settings):
     # translation to location on propeller
     I             = jnp.atleast_3d(jnp.eye(4)).T
     translation_1 = jnp.tile(I[None,None,:,:,:],(num_cpt,num_mic,num_rot,1,1))
-    translation_1 = translation_1.at[:,:,:,0,3].set(to_jnumpy(np.tile(rot_origins[:,0][None,None,:],(num_cpt,num_mic,1))))
-    translation_1 = translation_1.at[:,:,:,1,3].set(to_jnumpy(np.tile(rot_origins[:,1][None,None,:],(num_cpt,num_mic,1))))
-    translation_1 = translation_1.at[:,:,:,2,3].set(to_jnumpy(np.tile(rot_origins[:,2][None,None,:],(num_cpt,num_mic,1))))
+    translation_1 = translation_1.at[:,:,:,0,3].set(jnp.tile(rot_origins[:,0][None,None,:],(num_cpt,num_mic,1)))
+    translation_1 = translation_1.at[:,:,:,1,3].set(jnp.tile(rot_origins[:,1][None,None,:],(num_cpt,num_mic,1)))
+    translation_1 = translation_1.at[:,:,:,2,3].set(jnp.tile(rot_origins[:,2][None,None,:],(num_cpt,num_mic,1)))
 
     # rotation of vehicle about y axis by AoA 
     rotation_2    = jnp.zeros((num_cpt,num_mic,num_rot,4,4))
@@ -132,31 +132,30 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,rotors,mls,set
     rot_origins = []
     for rotor in rotors:
         rot_origins.append(rotor.origin[0])
-    rot_origins = to_jnumpy(np.array(rot_origins))
+    rot_origins = jnp.array(rot_origins)
             
     rotor          = rotors[list(rotors.keys())[0]]
     num_cf         = len(settings.center_frequencies)
-    r              = to_jnumpy(rotor.radius_distribution)
+    r              = rotor.radius_distribution
     num_sec        = len(r)
-    phi_2d0        = to_jnumpy(acoustic_outputs.disc_azimuthal_distribution)
-    alpha_eff0     = to_jnumpy(acoustic_outputs.disc_effective_angle_of_attack)
+    phi_2d0        = acoustic_outputs.disc_azimuthal_distribution
+    alpha_eff0     = acoustic_outputs.disc_effective_angle_of_attack
     num_azi        = len(phi_2d0[0,0,:])  
     orientation    = jnp.array(rotor.orientation_euler_angles) * 1 
-    orientation[1] = orientation[1] + jnp.pi/2 # rotor tilt angle between the rotor hub plane and the vehicle hub plane
-    body2thrust    = sp.spatial.transform.Rotation.from_rotvec(orientation).as_matrix()
-
+    orientation    = orientation.at[1].set(orientation[1] + jnp.pi/2) # rotor tilt angle between the rotor hub plane and the vehicle hub plane
+    body2thrust    = rotor.body_to_prop_vel()[0]
     # Update dimensions for computation   
-    r                    = jnp.tile(r[None,None,None,:,None,None],(num_cpt,num_mic,num_rot,1,num_azi,num_cf))
-    sin_phi              = jnp.tile(jnp.sin(phi_2d0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
-    cos_phi              = jnp.tile(jnp.cos(phi_2d0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
-    sin_alpha_eff        = jnp.tile(jnp.sin(alpha_eff0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
-    cos_alpha_eff        = jnp.tile(jnp.cos(alpha_eff0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
-    cos_t_v              = jnp.tile(jnp.cos(-to_jnumpy(AoA))[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))
-    sin_t_v              = jnp.tile(jnp.sin(-to_jnumpy(AoA))[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
-    cos_t_v_t_r          = jnp.tile(to_jnumpy(np.array([body2thrust[0,0]]))[:,None,None,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
-    sin_t_v_t_r          = jnp.tile(to_jnumpy(np.array([body2thrust[0,2]]))[:,None,None,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
-    M_hub                = jnp.tile(rot_origins[None,None,:,None,None,None,:,None],(num_cpt,num_mic,1,num_sec,num_azi,num_cf,1,1))
-    POS_2                = jnp.tile(to_jnumpy(mls)[:,:,None,None,None,None,:,None],(1,1,num_rot,num_sec,num_azi,num_cf,1,1))
+    r              = jnp.tile(r[None,None,None,:,None,None],(num_cpt,num_mic,num_rot,1,num_azi,num_cf))
+    sin_phi        = jnp.tile(jnp.sin(phi_2d0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
+    cos_phi        = jnp.tile(jnp.cos(phi_2d0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
+    sin_alpha_eff  = jnp.tile(jnp.sin(alpha_eff0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
+    cos_alpha_eff  = jnp.tile(jnp.cos(alpha_eff0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
+    cos_t_v        = jnp.tile(jnp.cos(-AoA)[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))
+    sin_t_v        = jnp.tile(jnp.sin(-AoA)[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
+    cos_t_v_t_r    = jnp.tile(jnp.array([body2thrust[0,0]])[:,None,None,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,1))
+    sin_t_v_t_r    = jnp.tile(jnp.array([body2thrust[0,2]])[:,None,None,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,1))
+    M_hub          = jnp.tile(rot_origins[None,None,:,None,None,None,:,None],(num_cpt,num_mic,1,num_sec,num_azi,num_cf,1,1))
+    POS_2          = jnp.tile(mls[:,:,None,None,None,None,:,None],(1,1,num_rot,num_sec,num_azi,num_cf,1,1))
 
     # ------------------------------------------------------------
     # ****** COORDINATE TRANSFOMRATIONS ******  

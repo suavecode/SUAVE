@@ -78,7 +78,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     # Trailing Edge Noise
     # ---------------------------------------------------------------------------------- 
     p_ref              = 2E-5                               # referece atmospheric pressure
-    c_0                = to_jnumpy(freestream.speed_of_sound)         # speed of sound
+    c_0                = freestream.speed_of_sound          # speed of sound
     rho                = freestream.density                 # air density 
     dyna_visc          = freestream.dynamic_viscosity
     kine_visc          = dyna_visc/rho                      # kinematic viscousity    
@@ -87,26 +87,24 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     Va_2d              = aeroacoustic_data.disc_axial_velocity                
     blade_chords       = rotor.chord_distribution           # blade chord    
     r                  = rotor.radius_distribution          # radial location 
-    airfoils           = rotor.Airfoils
     a_loc              = rotor.airfoil_polar_stations 
     num_sec            = len(r) 
     num_azi            = len(aeroacoustic_data.disc_effective_angle_of_attack[0,0,:])
     
-    U_blade            = to_jnumpy(np.sqrt(Vt_2d**2 + Va_2d**2))
-    Re_blade           = to_jnumpy(U_blade*np.repeat(np.repeat(blade_chords[np.newaxis,:],num_cpt,axis=0)[:,:,np.newaxis],num_azi,axis=2)/\
-                          np.repeat(np.repeat((kine_visc),num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2))
-    rho_blade          = to_jnumpy(np.repeat(np.repeat(rho,num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2))
-    U_inf              = to_jnumpy(np.atleast_2d(np.linalg.norm(velocity_vector,axis=1)).T)
+    U_blade            = jnp.sqrt(Vt_2d**2 + Va_2d**2)
+    Re_blade           = U_blade*jnp.repeat(jnp.repeat(blade_chords[np.newaxis,:],num_cpt,axis=0)[:,:,jnp.newaxis],num_azi,axis=2)/\
+                          jnp.repeat(jnp.repeat((kine_visc),num_sec,axis=1)[:,:,jnp.newaxis],num_azi,axis=2)
+    rho_blade          = jnp.repeat(jnp.repeat(rho,num_sec,axis=1)[:,:,jnp.newaxis],num_azi,axis=2)
+    U_inf              = jnp.atleast_2d(jnp.linalg.norm(velocity_vector,axis=1)).T
     M                  = U_inf/c_0                                             
     B                  = rotor.number_of_blades             # number of rotor blades
-    Omega              = to_jnumpy(aeroacoustic_data.omega)            # angular velocity   
+    Omega              = aeroacoustic_data.omega            # angular velocity   
     beta_sq            = 1 - M**2                                  
     delta_r            = np.zeros_like(r)
     del_r              = r[1:] - r[:-1]
-    delta_r[0]         = 2*del_r[0]
-    delta_r[-1]        = 2*del_r[-1]
-    delta_r[1:-1]      = (del_r[:-1]+ del_r[1:])/2
-    delta_r            = to_jnumpy(delta_r) 
+    delta_r            = delta_r.at[0].set(2*del_r[0])
+    delta_r            = delta_r.at[-1].set(2*del_r[-1])
+    delta_r            = delta_r.at[1:-1].set((del_r[:-1]+ del_r[1:])/2)
 
     bstei   = 1      # bottom surface trailing edge index 
     ustei   = -bstei # upper surface trailing edge index 

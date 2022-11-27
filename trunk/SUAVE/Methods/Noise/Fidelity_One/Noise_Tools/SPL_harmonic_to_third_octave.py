@@ -10,6 +10,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import jax.numpy as jnp
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
 # ----------------------------------------------------------------------
 #  dbA Noise
@@ -51,17 +52,20 @@ def SPL_harmonic_to_third_octave(SPL,f,settings):
     dim_prop         = len(SPL[0,0,:,0])
     num_cf           = len(cf)
     num_f            = len(f[0,:])
-    SPL_third_octave = np.zeros((dim_cpt,dim_mic,dim_prop,num_cf)) 
+    SPL_third_octave = jnp.zeros((dim_cpt,dim_mic,dim_prop,num_cf)) 
+
+    uf_vals    = jnp.tile(uf[None,None,None,:,None],(dim_cpt,dim_mic,dim_prop,1,num_f))
+    lf_vals    = jnp.tile(lf[None,None,None,:,None],(dim_cpt,dim_mic,dim_prop,1,num_f))
+    f_vals     = jnp.tile(f[:,None,None,None,:],(1,dim_mic,dim_prop,num_cf,1))
+    SPL_vals   = jnp.tile(SPL[:,:,:,None,:],(1,1,1,num_cf,1))
     
-    # loop through 1/3 octave spectra and sum up components 
-    for i in range(dim_cpt):  
-        for j in range(num_cf):
-            SPL_in_range = np.empty(shape=[dim_mic,dim_prop,0 ])
-            for k in range(num_f):  
-                if (lf[j] <= f[i,k]) and (f[i,k] <= uf[j]):   
-                    SPL_in_range = np.concatenate((SPL_in_range,np.atleast_3d(SPL[i,:,:,k])), axis = 2) 
-                if len(SPL_in_range[0,0,:]) > 0:  
-                    SPL_in_range[SPL_in_range != 0]  
-                    SPL_third_octave[i,:,:,j] = SPL_arithmetic(SPL_in_range)   
-                    
+    # loop through 1/3 octave spectra and sum up components
+    upper_bool = (f_vals  <= uf_vals)
+    lower_bool = (lf_vals <= f_vals)
+    boolean    = jnp.logical_and(upper_bool,lower_bool)
+    SPL_array  = boolean*SPL_vals
+    
+    p_prefs          = 10**(SPL_array/10)
+    SPL_third_octave = 10*jnp.log10(jnp.sum(p_prefs, axis =4))
+
     return SPL_third_octave

@@ -9,7 +9,7 @@
 import numpy as np
 import jax.numpy as jnp
 from jax import  jit 
-#from tensorflow_probability.substrates import jax as tfp
+from tensorflow_probability.substrates import jax as tfp
  
 def interp2d(x,y,xp,yp,zp,fill_value= None):
     """
@@ -108,6 +108,8 @@ def jax_interp2d(x,y,xp,yp,zp,fill_value= None):
 
 @jit
 def jjv(v,z):
-    jiv = tfp.math.bessel_ive(v,z)/np.exp(-abs(z)) 
+    v = jnp.array(v,dtype=jnp.float32)
+    z = jnp.array(z,dtype=jnp.float32)
+    jiv = tfp.math.bessel_ive(v,z)/jnp.exp(-abs(z)) 
     jjv_val = jnp.exp((v*jnp.pi*1j)/2)*jiv 
     return jjv_val

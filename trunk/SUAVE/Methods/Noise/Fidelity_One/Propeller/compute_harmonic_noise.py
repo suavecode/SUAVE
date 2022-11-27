@@ -8,12 +8,9 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-from SUAVE.Core import to_jnumpy
 from jax import  jit
 import jax.numpy as jnp 
-import numpy as np 
 from SUAVE.Core.Utilities import jjv
-import scipy as sp
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise  import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import SPL_harmonic_to_third_octave
@@ -69,34 +66,33 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_rot      = len(position_vector[0,0,:,0])  
     rotor        = rotors[list(rotors.keys())[0]] 
     num_r        = len(rotor.radius_distribution) 
-    orientation  = to_jnumpy(np.array(rotor.orientation_euler_angles) * 1)
-    body2thrust  = to_jnumpy(sp.spatial.transform.Rotation.from_rotvec(orientation).as_matrix())
+    body2thrust  = rotor.body_to_prop_vel()
     
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
     # ----------------------------------------------------------------------------------  
     # [control point ,microphones, rotors, radial distribution, harmonics]  
-    m              = to_jnumpy(np.tile(harmonics[None,None,None,None,:],(num_cpt,num_mic,num_rot,num_r,1)))      # harmonic number 
-    m_1d           = to_jnumpy(harmonics)                                                                                         
+    m              = jnp.tile(harmonics[None,None,None,None,:],(num_cpt,num_mic,num_rot,num_r,1))      # harmonic number 
+    m_1d           = harmonics                                                                                       
     p_ref          = 2E-5                                                                                        # referece atmospheric pressure
-    a              = to_jnumpy(np.tile(freestream.speed_of_sound[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h)))     # speed of sound
-    rho            = to_jnumpy(np.tile(freestream.density[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h)))             # air density   
-    alpha          = to_jnumpy(np.tile((angle_of_attack + np.arccos(body2thrust[0,0]))[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h)))           
-    x              = to_jnumpy(np.tile(position_vector[:,:,:,0][:,:,:,None,None],(1,1,1,num_r,num_h)))                     # x component of position vector of rotor to microphone 
-    y              = to_jnumpy(np.tile(position_vector[:,:,:,1][:,:,:,None,None],(1,1,1,num_r,num_h)))                     # y component of position vector of rotor to microphone
-    z              = to_jnumpy(np.tile(position_vector[:,:,:,2][:,:,:,None,None],(1,1,1,num_r,num_h)))                     # z component of position vector of rotor to microphone
-    Vx             = to_jnumpy(np.tile(velocity_vector[:,0][:,None,None,None,None],(1,num_mic,num_rot,num_r,num_h)))        # x velocity of rotor  
-    Vy             = to_jnumpy(np.tile(velocity_vector[:,1][:,None,None,None,None],(1,num_mic,num_rot,num_r,num_h)))        # y velocity of rotor 
-    Vz             = to_jnumpy(np.tile(velocity_vector[:,2][:,None,None,None,None],(1,num_mic,num_rot,num_r,num_h)))        # z velocity of rotor 
-    B              = rotor.number_of_blades                                                                     # number of rotor blades
-    omega          = to_jnumpy(np.tile(aeroacoustic_data.omega[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h)))       # angular velocity       
-    dT_dr          = to_jnumpy(np.tile(aeroacoustic_data.blade_dT_dr[:,None,None,:,None],(1,num_mic,num_rot,1,num_h)))     # nondimensionalized differential thrust distribution 
-    dQ_dr          = to_jnumpy(np.tile(aeroacoustic_data.blade_dQ_dr[:,None,None,:,None],(1,num_mic,num_rot,1,num_h)))     # nondimensionalized differential torque distribution
-    R              = to_jnumpy(np.tile(rotor.radius_distribution[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h)))# radial location     
-    c              = to_jnumpy(np.tile(rotor.chord_distribution[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h))) # blade chord    
+    a              = jnp.tile(freestream.speed_of_sound[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))     # speed of sound
+    rho            = jnp.tile(freestream.density[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))             # air density   
+    alpha          = jnp.tile((angle_of_attack + jnp.arccos(body2thrust[0,0]))[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))           
+    x              = jnp.tile(position_vector[:,:,:,0][:,:,:,None,None],(1,1,1,num_r,num_h))                     # x component of position vector of rotor to microphone 
+    y              = jnp.tile(position_vector[:,:,:,1][:,:,:,None,None],(1,1,1,num_r,num_h))                     # y component of position vector of rotor to microphone
+    z              = jnp.tile(position_vector[:,:,:,2][:,:,:,None,None],(1,1,1,num_r,num_h))                     # z component of position vector of rotor to microphone
+    Vx             = jnp.tile(velocity_vector[:,0][:,None,None,None,None],(1,num_mic,num_rot,num_r,num_h))        # x velocity of rotor  
+    Vy             = jnp.tile(velocity_vector[:,1][:,None,None,None,None],(1,num_mic,num_rot,num_r,num_h))        # y velocity of rotor 
+    Vz             = jnp.tile(velocity_vector[:,2][:,None,None,None,None],(1,num_mic,num_rot,num_r,num_h))        # z velocity of rotor 
+    B              = rotor.number_of_blades                                                                      # number of rotor blades
+    omega          = jnp.tile(aeroacoustic_data.omega[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))       # angular velocity       
+    dT_dr          = jnp.tile(aeroacoustic_data.blade_dT_dr[:,None,None,:,None],(1,num_mic,num_rot,1,num_h))     # nondimensionalized differential thrust distribution 
+    dQ_dr          = jnp.tile(aeroacoustic_data.blade_dQ_dr[:,None,None,:,None],(1,num_mic,num_rot,1,num_h))     # nondimensionalized differential torque distribution
+    R              = jnp.tile(rotor.radius_distribution[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h))# radial location     
+    c              = jnp.tile(rotor.chord_distribution[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h)) # blade chord    
     R_tip          = rotor.tip_radius                                                     
-    t_c            = to_jnumpy(np.tile(rotor.thickness_to_chord[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h))) # thickness to chord ratio
-    MCA            = to_jnumpy(np.tile(rotor.mid_chord_alignment[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h)))# Mid Chord Alighment  
+    t_c            = jnp.tile(rotor.thickness_to_chord[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h)) # thickness to chord ratio
+    MCA            = jnp.tile(rotor.mid_chord_alignment[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h))# Mid Chord Alighment  
     
     
     res.f          = B*omega*m/(2*jnp.pi) 
@@ -132,8 +128,9 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     Jmb               = jjv(m*B,((m*B*r*M_t*jnp.sin(theta_r_prime))/(1 - M_x*jnp.cos(theta_r))))   
     phi_s             = ((2*m*B*M_t)/(M_r*(1 - M_x*jnp.cos(theta_r))))*(MCA/D)
     phi_prime_var     = (jnp.sin(theta_r)/jnp.sin(theta_r_prime))*jnp.cos(phi) 
-    pt_ids            = jnp.where(phi_prime_var>1.0) 
-    phi_prime_var     = phi_prime_var.at[pt_ids].set(0) 
+    #pt_ids            = jnp.where(phi_prime_var>1.0) 
+    #phi_prime_var     = phi_prime_var.at[pt_ids].set(0) 
+    phi_prime_var     = jnp.where(phi_prime_var>1.0,0,phi_prime_var) 
     phi_prime         = jnp.arccos(phi_prime_var)      
     S_r               = Y/(jnp.sin(theta_r))                                # distance in retarded reference frame                                                                             
     exponent_fraction = jnp.exp(1j*m_1d*B*((omega*S_r/a) +  phi_prime - jnp.pi/2))/(1 - M_x*jnp.cos(theta_r))
@@ -151,9 +148,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     res.SPL_prop_harmonic_bpf_spectrum_dBA = A_weighting(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,:,:,0,:]) 
     res.SPL_prop_harmonic_1_3_spectrum     = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,0,0,0,:],settings)         
     res.SPL_prop_harmonic_1_3_spectrum_dBA = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum_dBA,res.f[:,0,0,0,:],settings)  
-    inf_flag_1                             = jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum)
-    res.SPL_prop_harmonic_1_3_spectrum     = res.SPL_prop_harmonic_1_3_spectrum.at[inf_flag_1].set(0) 
-    inf_flag_2                             = jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum_dBA)
-    res.SPL_prop_harmonic_1_3_spectrum_dBA = res.SPL_prop_harmonic_1_3_spectrum_dBA.at[inf_flag_2].set(0)
+    res.SPL_prop_harmonic_1_3_spectrum     = jnp.where(jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum),0,res.SPL_prop_harmonic_1_3_spectrum)
+    res.SPL_prop_harmonic_1_3_spectrum_dBA = jnp.where(jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum_dBA),0,res.SPL_prop_harmonic_1_3_spectrum_dBA)
 
     return
