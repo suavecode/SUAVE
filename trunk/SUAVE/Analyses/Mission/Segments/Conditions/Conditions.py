@@ -13,6 +13,7 @@
 
 # python imports
 import numpy as np
+import jax.numpy as jnp
 
 
 # SUAVE imports
@@ -141,7 +142,7 @@ class Conditions(Data):
             elif rank == 2:
                 #Check if it's already expanded
                 if v.shape[0]<=1 or override:
-                    self[k] = np.resize(v,[rows,v.shape[1]])
+                    self[k] = jnp.resize(v,(rows,v.shape[1]))
         
         return
         
@@ -212,7 +213,7 @@ class expanded_array(Data):
         self._size = rows
         value      = self._array
         
-        return np.resize(value,[rows-adjustment,value.shape[1]])
+        return jnp.resize(value,[rows-adjustment,value.shape[1]])
     
     def __call__(self):
         """ This returns the value and shape of the array as is
