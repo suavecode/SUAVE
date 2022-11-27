@@ -561,13 +561,12 @@ def updated_blade_geometry(chi,c_r,p,q,c_t):
               Journal of Aircraft 52.3 (2015): 734-747.
               
     """           
-    b       = chi[-1]
-    r       = len(chi)                
-    n       = np.linspace(r-1,0,r)          
-    theta_n = n*(np.pi/2)/r              
-    y_n     = b*np.cos(theta_n)          
-    eta_n   = np.abs(y_n/b)            
-    x_cos   = c_r*(1 - eta_n**p)**q + c_t*eta_n 
+
+    n       = np.linspace(len(chi)-1,0,len(chi))          
+    theta_n = n*(np.pi/2)/len(chi)              
+    y_n     = chi[-1]*np.cos(theta_n)          
+    eta_n   = np.abs(y_n/chi[-1])            
+    x_cos   = c_r*(1 - eta_n**p)**q + c_t*eta_n  
     x_lin   = np.interp(chi,eta_n, x_cos)  
     return x_lin 
 
@@ -733,15 +732,9 @@ def post_process(nexus):
     summary.blade_taper_constraint_1  = blade_taper 
     summary.blade_taper_constraint_2  = blade_taper
     
-    # figure of merit for hover 
-    C_t_UIUC        = noise_data_hover.thrust_coefficient[0][0]
-    C_t_rot         = C_t_UIUC*8/(np.pi**3)
-    C_p_UIUC        = Cp_hover[0][0] 
-    C_q_UIUC        = C_p_UIUC/(2*np.pi) 
-    C_q_rot         = C_q_UIUC*16/(np.pi**3)   
-    C_p_rot         = C_q_rot 
+    # figure of merit for hover  
     ideal_FM_hover  = 1
-    FM_hover        = ((C_t_rot**1.5)/np.sqrt(2))/C_p_rot 
+    FM_hover        = noise_data_hover.figure_of_merit[0][0]   
     
     # efficiency for cruise 
     ideal_eta_cruise = 1 

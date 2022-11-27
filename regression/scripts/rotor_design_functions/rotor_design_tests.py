@@ -244,7 +244,7 @@ def lift_rotor_design_test():
     plot_results(output_rot, rotor,'green','-','^') 
 
     # Truth values for rotor with airfoil geometry defined  
-    F_rot_truth = 2000.4276652916858
+    F_rot_truth = 1999.3576010613065
 
     # Store errors 
     error = Data()  
@@ -310,7 +310,7 @@ def prop_rotor_design_test():
     plot_results(output_pr, prop_rotor,'blue','-','^') 
 
     # Truth values for rotor with airfoil geometry defined 
-    F_pr_truth = 4275.471200006159
+    F_pr_truth = 4275.471203996825
 
     # Store errors 
     error = Data()  

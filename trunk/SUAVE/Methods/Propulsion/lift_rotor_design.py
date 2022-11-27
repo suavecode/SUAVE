@@ -192,8 +192,8 @@ def rotor_optimization_setup(rotor,print_iterations ):
     constraints = [] 
     constraints.append([ 'thrust_power_residual'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])  
     constraints.append([ 'blade_taper_constraint_1' ,  '>'  ,  0.3 ,   1.0   , 1*Units.less])  
-    constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.9 ,   1.0   , 1*Units.less])
-    constraints.append([ 'blade_twist_constraint'   ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])
+    #constraints.append([ 'blade_taper_constraint_2' ,  '<'  ,  0.9 ,   1.0   , 1*Units.less])
+    #constraints.append([ 'blade_twist_constraint'   ,  '>'  ,  0.0 ,   1.0   , 1*Units.less])
     constraints.append([ 'max_sectional_cl'         ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])
     constraints.append([ 'chord_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])    
     constraints.append([ 'twist_p_to_q_ratio'       ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])   
@@ -215,8 +215,8 @@ def rotor_optimization_setup(rotor,print_iterations ):
     aliases.append([ 'Aero_Acoustic_Obj'         , 'summary.Aero_Acoustic_Obj'       ])  
     aliases.append([ 'thrust_power_residual'     , 'summary.thrust_power_residual'   ]) 
     aliases.append([ 'blade_taper_constraint_1'  , 'summary.blade_taper_constraint_1'])  
-    aliases.append([ 'blade_taper_constraint_2'  , 'summary.blade_taper_constraint_2'])   
-    aliases.append([ 'blade_twist_constraint'    , 'summary.blade_twist_constraint'])   
+    #aliases.append([ 'blade_taper_constraint_2'  , 'summary.blade_taper_constraint_2'])   
+    #aliases.append([ 'blade_twist_constraint'    , 'summary.blade_twist_constraint'])   
     aliases.append([ 'max_sectional_cl'          , 'summary.max_sectional_cl'])  
     aliases.append([ 'chord_p_to_q_ratio'        , 'summary.chord_p_to_q_ratio'    ])  
     aliases.append([ 'twist_p_to_q_ratio'        , 'summary.twist_p_to_q_ratio'    ])     
@@ -465,13 +465,11 @@ def updated_blade_geometry(chi,c_r,p,q,c_t):
               Traub, Lance W., et al. "Effect of taper ratio at low reynolds number."
               Journal of Aircraft 52.3 (2015): 734-747.
               
-    """           
-    b       = chi[-1]
-    r       = len(chi)                
-    n       = np.linspace(r-1,0,r)          
-    theta_n = n*(np.pi/2)/r              
-    y_n     = b*np.cos(theta_n)          
-    eta_n   = np.abs(y_n/b)            
+    """             
+    n       = np.linspace(len(chi)-1,0,len(chi))          
+    theta_n = n*(np.pi/2)/len(chi)              
+    y_n     = chi[-1]*np.cos(theta_n)          
+    eta_n   = np.abs(y_n/chi[-1])            
     x_cos   = c_r*(1 - eta_n**p)**q + c_t*eta_n 
     x_lin   = np.interp(chi,eta_n, x_cos)  
     return x_lin 
@@ -578,16 +576,9 @@ def post_process(nexus):
     # blade twist consraint  
     summary.blade_twist_constraint    = beta[0] - beta[-1] 
 
-    # figure of merit 
-    C_t_UIUC                = noise_data.thrust_coefficient[0][0]
-    C_t_rot                 = C_t_UIUC*8/(np.pi**3)
-    C_p_UIUC                = Cp[0][0] 
-    C_q_UIUC                = C_p_UIUC/(2*np.pi) 
-    C_q_rot                 = C_q_UIUC*16/(np.pi**3)   
-    C_p_rot                 = C_q_rot 
-    ideal_FM                = 1
-    FM                      = ((C_t_rot**1.5)/np.sqrt(2))/C_p_rot 
-    summary.figure_of_merit = FM
+    # figure of merit  
+    ideal_FM                = 1 
+    FM                      = noise_data.figure_of_merit[0][0] 
 
     # -------------------------------------------------------
     # OBJECTIVE FUNCTION
