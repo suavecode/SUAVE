@@ -49,7 +49,7 @@ def compute_point_source_coordinates(conditions,rotors,mls,settings):
     rot_origins = []
     for rotor in rotors:
         rot_origins.append(rotor.origin[0])
-    rot_origins = np.array(rot_origins)  
+    rot_origins = jnp.array(rot_origins)  
         
     # Get the rotation matrix
     prop2body   = rotor.prop_vel_to_body()
