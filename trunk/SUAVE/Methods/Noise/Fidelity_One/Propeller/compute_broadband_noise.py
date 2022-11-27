@@ -9,13 +9,8 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import numpy as np 
-from SUAVE.Core import to_jnumpy
 from jax import  jit
 import jax.numpy as jnp
-from jax.numpy import where as w
-from jax.numpy import newaxis as na
-#from scipy.special import fresnel
 from tensorflow.python.ops.special_math_ops import fresnel_sin, fresnel_cos
 from jax.experimental import jax2tf
 from SUAVE.Core.Utilities                                                       import interp2d
@@ -92,7 +87,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     num_azi            = len(aeroacoustic_data.disc_effective_angle_of_attack[0,0,:])
     
     U_blade            = jnp.sqrt(Vt_2d**2 + Va_2d**2)
-    Re_blade           = U_blade*jnp.repeat(jnp.repeat(blade_chords[np.newaxis,:],num_cpt,axis=0)[:,:,jnp.newaxis],num_azi,axis=2)/\
+    Re_blade           = U_blade*jnp.repeat(jnp.repeat(blade_chords[jnp.newaxis,:],num_cpt,axis=0)[:,:,jnp.newaxis],num_azi,axis=2)/\
                           jnp.repeat(jnp.repeat((kine_visc),num_sec,axis=1)[:,:,jnp.newaxis],num_azi,axis=2)
     rho_blade          = jnp.repeat(jnp.repeat(rho,num_sec,axis=1)[:,:,jnp.newaxis],num_azi,axis=2)
     U_inf              = jnp.atleast_2d(jnp.linalg.norm(velocity_vector,axis=1)).T
@@ -100,7 +95,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     B                  = rotor.number_of_blades             # number of rotor blades
     Omega              = aeroacoustic_data.omega            # angular velocity   
     beta_sq            = 1 - M**2                                  
-    delta_r            = np.zeros_like(r)
+    delta_r            = jnp.zeros_like(r)
     del_r              = r[1:] - r[:-1]
     delta_r            = delta_r.at[0].set(2*del_r[0])
     delta_r            = delta_r.at[-1].set(2*del_r[-1])
@@ -338,10 +333,8 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         Phi_pp                   = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue
 
     
-        inf_flag   = jnp.isinf(Phi_pp)
-        Phi_pp     = Phi_pp.at[inf_flag].set(0) 
-        nan_flag   = jnp.isnan(Phi_pp)
-        Phi_pp     = Phi_pp.at[nan_flag].set(0) 
+        Phi_pp     = jnp.where(jnp.isinf(Phi_pp),0,Phi_pp)
+        Phi_pp     = jnp.where(jnp.isnan(Phi_pp),0,Phi_pp)
  
         # Power Spectral Density from each blade
         mult       = ((omega/c_0)**2)*(c**2)*delta_r*(1/(32*jnp.pi**2))*(B/(2*jnp.pi))
@@ -351,8 +344,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
             
         # Sound Pressure Level
         SPL                        = 10*jnp.log10((2*jnp.pi*abs(S_pp))/((p_ref)**2))  
-        SPL_inf_flag               = jnp.isinf(SPL)
-        SPL                        = SPL.at[SPL_inf_flag].set(0)  
+        SPL                        = jnp.where(jnp.isinf(SPL),0,SPL)
         SPL_rotor                  = SPL_arithmetic(SPL_arithmetic(SPL, sum_axis = 5 ), sum_axis = 3 )
         
         # convert to 1/3 octave spectrum

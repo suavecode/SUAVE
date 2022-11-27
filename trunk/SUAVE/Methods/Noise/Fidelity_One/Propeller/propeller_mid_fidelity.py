@@ -83,26 +83,24 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
 
     # Combine Harmonic (periodic/tonal) and Broadband Noise
     Noise.SPL_total_1_3_spectrum      = 10*jnp.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10))  
-    inf_flag_1                        = jnp.isinf(Noise.SPL_total_1_3_spectrum)
-    Noise.SPL_total_1_3_spectrum      = Noise.SPL_total_1_3_spectrum.at[inf_flag_1].set(0)  
+    Noise.SPL_total_1_3_spectrum      = jnp.where(jnp.isinf(Noise.SPL_total_1_3_spectrum),0,Noise.SPL_total_1_3_spectrum)
     Noise.SPL_total_1_3_spectrum_dBA  = 10*jnp.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum_dBA/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum_dBA/10)) 
-    inf_flag_2                        = jnp.isinf(Noise.SPL_total_1_3_spectrum_dBA)
-    Noise.SPL_total_1_3_spectrum_dBA  = Noise.SPL_total_1_3_spectrum_dBA.at[inf_flag_2].set(0)  
+    Noise.SPL_total_1_3_spectrum_dBA  = jnp.where(jnp.isinf(Noise.SPL_total_1_3_spectrum_dBA),0,Noise.SPL_total_1_3_spectrum_dBA)  
 
     # Summation of spectra from propellers into into one SPL and store results
     Results.blade_passing_frequencies                     = Noise.f[:,0,0,0,:]       
-    Results.SPL                                           = to_numpy(SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum))  )     
-    Results.SPL_dBA                                       = to_numpy(SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA)))     
-    Results.SPL_harmonic_1_3_spectrum_dBA                 = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum_dBA)   )
-    Results.SPL_broadband_1_3_spectrum_dBA                = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum_dBA))
-    Results.SPL_harmonic_bpf_spectrum                     = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum ) )
-    Results.SPL_1_3_spectrum                              = to_numpy(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum)      )
-    Results.SPL_1_3_spectrum_dBA                          = to_numpy(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA)    )  
+    Results.SPL                                           = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum))    
+    Results.SPL_dBA                                       = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA))  
+    Results.SPL_harmonic_1_3_spectrum_dBA                 = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum_dBA)  
+    Results.SPL_broadband_1_3_spectrum_dBA                = SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum_dBA)
+    Results.SPL_harmonic_bpf_spectrum                     = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum )
+    Results.SPL_1_3_spectrum                              = SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum)     
+    Results.SPL_1_3_spectrum_dBA                          = SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA) 
     Results.one_third_frequency_spectrum                  = settings.center_frequencies 
-    Results.SPL_harmonic_bpf_spectrum_dBA                 = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum_dBA ))  
-    Results.SPL_harmonic                                  = to_numpy(SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum))  )  
-    Results.SPL_broadband                                 = to_numpy(SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum)) )
-    Results.SPL_harmonic_1_3_spectrum                     = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum) )      
-    Results.SPL_broadband_1_3_spectrum                    = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum) )
+    Results.SPL_harmonic_bpf_spectrum_dBA                 = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum_dBA )
+    Results.SPL_harmonic                                  = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum)) 
+    Results.SPL_broadband                                 = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum))
+    Results.SPL_harmonic_1_3_spectrum                     = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum)
+    Results.SPL_broadband_1_3_spectrum                    = SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum)
     
     return Results
