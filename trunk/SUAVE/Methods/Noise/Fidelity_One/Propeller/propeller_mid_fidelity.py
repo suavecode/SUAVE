@@ -8,11 +8,13 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-from SUAVE.Core import  Data 
+from SUAVE.Core import  Data , to_numpy
+from jax import  jit
+import jax.numpy as jnp 
 import numpy as np   
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import SPL_spectra_arithmetic  
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_point_source_coordinates
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_blade_section_source_coordinates
+from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_source_coordinates     import compute_blade_section_source_coordinates 
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise         import compute_harmonic_noise
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        import compute_broadband_noise
 
@@ -20,6 +22,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise        i
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
 # -------------------------------------------------------------------------------------
 ## @ingroup Methods-Noise-Fidelity_One-Propeller
+@jit
 def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
     and frequency spectrums of a system of rotating blades (i.e. propellers and lift_rotors)          
@@ -33,7 +36,7 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     Inputs:
         rotors                  - data structure of rotors                            [None]
         segment                 - flight segment data structure                       [None] 
-        aeroacoustic_data      - data structure of acoustic data                     [None]
+        aeroacoustic_data       - data structure of acoustic data                     [None]
         settings                - accoustic settings                                  [None]
                                
     Outputs:
@@ -79,25 +82,27 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,rotors,aeroacoustic_data,settings,Noise)
 
     # Combine Harmonic (periodic/tonal) and Broadband Noise
-    Noise.SPL_total_1_3_spectrum  = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10)) 
-    Noise.SPL_total_1_3_spectrum[np.isnan(Noise.SPL_total_1_3_spectrum)] = 0
-    Noise.SPL_total_1_3_spectrum_dBA  = 10*np.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum_dBA/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum_dBA/10))
-    Noise.SPL_total_1_3_spectrum_dBA[np.isnan(Noise.SPL_total_1_3_spectrum)] = 0
+    Noise.SPL_total_1_3_spectrum      = 10*jnp.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10))  
+    inf_flag_1                        = jnp.isinf(Noise.SPL_total_1_3_spectrum)
+    Noise.SPL_total_1_3_spectrum      = Noise.SPL_total_1_3_spectrum.at[inf_flag_1].set(0)  
+    Noise.SPL_total_1_3_spectrum_dBA  = 10*jnp.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum_dBA/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum_dBA/10)) 
+    inf_flag_2                        = jnp.isinf(Noise.SPL_total_1_3_spectrum_dBA)
+    Noise.SPL_total_1_3_spectrum_dBA  = Noise.SPL_total_1_3_spectrum_dBA.at[inf_flag_2].set(0)  
 
     # Summation of spectra from propellers into into one SPL and store results
     Results.blade_passing_frequencies                     = Noise.f[:,0,0,0,:]       
-    Results.SPL                                           = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum))       
-    Results.SPL_dBA                                       = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA))     
-    Results.SPL_harmonic_1_3_spectrum_dBA                 = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum_dBA)   
-    Results.SPL_broadband_1_3_spectrum_dBA                = SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum_dBA)
-    Results.SPL_harmonic_bpf_spectrum                     = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum ) 
-    Results.SPL_1_3_spectrum                              = SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum)      
-    Results.SPL_1_3_spectrum_dBA                          = SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA)      
+    Results.SPL                                           = to_numpy(SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum))  )     
+    Results.SPL_dBA                                       = to_numpy(SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA)))     
+    Results.SPL_harmonic_1_3_spectrum_dBA                 = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum_dBA)   )
+    Results.SPL_broadband_1_3_spectrum_dBA                = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum_dBA))
+    Results.SPL_harmonic_bpf_spectrum                     = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum ) )
+    Results.SPL_1_3_spectrum                              = to_numpy(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum)      )
+    Results.SPL_1_3_spectrum_dBA                          = to_numpy(SPL_spectra_arithmetic(Noise.SPL_total_1_3_spectrum_dBA)    )  
     Results.one_third_frequency_spectrum                  = settings.center_frequencies 
-    Results.SPL_harmonic_bpf_spectrum_dBA                 = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum_dBA )  
-    Results.SPL_harmonic                                  = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum))    
-    Results.SPL_broadband                                 = SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum)) 
-    Results.SPL_harmonic_1_3_spectrum                     = SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum)       
-    Results.SPL_broadband_1_3_spectrum                    = SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum) 
+    Results.SPL_harmonic_bpf_spectrum_dBA                 = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_bpf_spectrum_dBA ))  
+    Results.SPL_harmonic                                  = to_numpy(SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum))  )  
+    Results.SPL_broadband                                 = to_numpy(SPL_spectra_arithmetic(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum)) )
+    Results.SPL_harmonic_1_3_spectrum                     = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_harmonic_1_3_spectrum) )      
+    Results.SPL_broadband_1_3_spectrum                    = to_numpy(SPL_spectra_arithmetic(Noise.SPL_prop_broadband_1_3_spectrum) )
     
     return Results
