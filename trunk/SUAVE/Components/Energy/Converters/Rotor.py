@@ -80,8 +80,23 @@ class Rotor(Energy_Component):
         self.airfoil_data                 = None
         self.airfoil_polars               = None
         self.airfoil_polar_stations       = None
-        self.airfoil_cl_surrogates        = None
-        self.airfoil_cd_surrogates        = None
+        
+        # surrogates for airfoil properties 
+        self.airfoil_cl_surrogates                       = None
+        self.airfoil_cd_surrogates                       = None
+        self.airfoil_lower_surface_theta_surrogates      = None     
+        self.airfoil_lower_surface_delta_surrogates      = None     
+        self.airfoil_lower_surface_delta_star_surrogates = None
+        self.airfoil_lower_surface_cf_surrogates         = None        
+        self.airfoil_lower_surface_Ue_surrogates         = None        
+        self.airfoil_lower_surface_dp_dx_surrogates      = None     
+        self.airfoil_upper_surface_theta_surrogates      = None     
+        self.airfoil_upper_surface_delta_surrogates      = None     
+        self.airfoil_upper_surface_delta_star_surrogates = None
+        self.airfoil_upper_surface_cf_surrogates         = None        
+        self.airfoil_upper_surface_Ue_surrogates         = None        
+        self.airfoil_upper_surface_dp_dx_surrogates      = None     
+        
         self.radius_distribution          = None
         self.azimuthal_distribution       = None
         self.rotation                     = 1.        

@@ -133,7 +133,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     # Step 4, determine epsilon and alpha from airfoil data  
     if airfoil_flag:   
         # compute airfoil polars for airfoils 
-        airfoil_data    = compute_airfoil_polars(a_geo, a_pol,npoints = number_of_airfoil_section_points,use_pre_stall_data=True,linear_lift=True)  
+        airfoil_data ,airfoil_bl_data   = compute_airfoil_polars(a_geo, a_pol,npoints = number_of_airfoil_section_points,use_pre_stall_data=True,linear_lift=True)  
         
         airfoil_cl_surs = Data()
         airfoil_cd_surs = Data()
@@ -300,11 +300,35 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     prop.blade_solidity                   = sigma
     prop.airfoil_geometry                 = a_geo
     try:
-        prop.airfoil_cl_surrogates            = airfoil_data.lift_coefficient_surrogates
-        prop.airfoil_cd_surrogates            = airfoil_data.drag_coefficient_surrogates
+        prop.airfoil_cl_surrogates                       = airfoil_data.lift_coefficient_surrogates
+        prop.airfoil_cd_surrogates                       = airfoil_data.drag_coefficient_surrogates
+        prop.airfoil_lower_surface_theta_surrogates      = airfoil_bl_data.lower_surface_theta_surrogates          
+        prop.airfoil_lower_surface_delta_surrogates      = airfoil_bl_data.lower_surface_delta_surrogates          
+        prop.airfoil_lower_surface_delta_star_surrogates = airfoil_bl_data.lower_surface_delta_star_surrogates
+        prop.airfoil_lower_surface_cf_surrogates         = airfoil_bl_data.lower_surface_cf_surrogates                
+        prop.airfoil_lower_surface_Ue_surrogates         = airfoil_bl_data.lower_surface_Ue_surrogates                
+        prop.airfoil_lower_surface_dp_dx_surrogates      = airfoil_bl_data.lower_surface_dp_dx_surrogates          
+        prop.airfoil_upper_surface_theta_surrogates      = airfoil_bl_data.upper_surface_theta_surrogates          
+        prop.airfoil_upper_surface_delta_surrogates      = airfoil_bl_data.upper_surface_delta_surrogates          
+        prop.airfoil_upper_surface_delta_star_surrogates = airfoil_bl_data.upper_surface_delta_star_surrogates
+        prop.airfoil_upper_surface_cf_surrogates         = airfoil_bl_data.upper_surface_cf_surrogates                
+        prop.airfoil_upper_surface_Ue_surrogates         = airfoil_bl_data.upper_surface_Ue_surrogates                
+        prop.airfoil_upper_surface_dp_dx_surrogates      = airfoil_bl_data.upper_surface_dp_dx_surrogates       
     except:
-        prop.airfoil_cl_surrogates            = None
-        prop.airfoil_cd_surrogates            = None     
+        prop.airfoil_cl_surrogates                      = None
+        prop.airfoil_cd_surrogates                      = None   
+        prop.airfoil_lower_surface_theta_surrogates     = None 
+        prop.airfoil_lower_surface_delta_surrogates     = None 
+        prop.airfoil_lower_surface_delta_star_surrogates= None
+        prop.airfoil_lower_surface_cf_surrogates        = None
+        prop.airfoil_lower_surface_Ue_surrogates        = None
+        prop.airfoil_lower_surface_dp_dx_surrogates     = None
+        prop.airfoil_upper_surface_theta_surrogates     = None
+        prop.airfoil_upper_surface_delta_surrogates     = None
+        prop.airfoil_upper_surface_delta_star_surrogates= None
+        prop.airfoil_upper_surface_cf_surrogates        = None
+        prop.airfoil_upper_surface_Ue_surrogates        = None
+        prop.airfoil_upper_surface_dp_dx_surrogates     = None
         
     prop.airfoil_flag                     = airfoil_flag 
     prop.number_of_airfoil_section_points = number_of_airfoil_section_points

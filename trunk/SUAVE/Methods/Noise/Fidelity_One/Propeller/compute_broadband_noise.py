@@ -15,7 +15,7 @@ from tensorflow.python.ops.special_math_ops import fresnel_sin, fresnel_cos
 from jax.experimental import jax2tf
 from SUAVE.Core.Utilities                                                       import interp2d
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.SPL_harmonic_to_third_octave  import SPL_harmonic_to_third_octave  
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.convert_to_one_third_octave_band  import convert_to_one_third_octave_band
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic 
  
 # ----------------------------------------------------------------------
@@ -83,9 +83,23 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     blade_chords       = rotor.chord_distribution           # blade chord    
     r                  = rotor.radius_distribution          # radial location 
     a_loc              = rotor.airfoil_polar_stations 
-    num_sec            = len(r) 
-    num_azi            = len(aeroacoustic_data.disc_effective_angle_of_attack[0,0,:])
     
+    # unpack boundary layer data 
+    ls_theta_sur       = rotor.airfoil_lower_surface_theta_surrogates       
+    ls_delta_sur       = rotor.airfoil_lower_surface_delta_surrogates        
+    ls_delta_star_sur  = rotor.airfoil_lower_surface_delta_star_surrogates 
+    ls_cf_sur          = rotor.airfoil_lower_surface_cf_surrogates              
+    ls_Ue_sur          = rotor.airfoil_lower_surface_Ue_surrogates              
+    ls_dp_dx_sur       = rotor.airfoil_lower_surface_dp_dx_surrogates         
+    us_theta_sur       = rotor.airfoil_upper_surface_theta_surrogates         
+    us_delta_sur       = rotor.airfoil_upper_surface_delta_surrogates       
+    us_delta_star_sur  = rotor.airfoil_upper_surface_delta_star_surrogates 
+    us_cf_sur          = rotor.airfoil_upper_surface_cf_surrogates               
+    us_Ue_sur          = rotor.airfoil_upper_surface_Ue_surrogates               
+    us_dp_dx_sur       = rotor.airfoil_upper_surface_dp_dx_surrogates    
+    
+    num_sec            = len(r) 
+    num_azi            = len(aeroacoustic_data.disc_effective_angle_of_attack[0,0,:]) 
     U_blade            = jnp.sqrt(Vt_2d**2 + Va_2d**2)
     Re_blade           = U_blade*jnp.repeat(jnp.repeat(blade_chords[jnp.newaxis,:],num_cpt,axis=0)[:,:,jnp.newaxis],num_azi,axis=2)/\
                           jnp.repeat(jnp.repeat((kine_visc),num_sec,axis=1)[:,:,jnp.newaxis],num_azi,axis=2)
@@ -101,8 +115,8 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     delta_r            = delta_r.at[-1].set(2*del_r[-1])
     delta_r            = delta_r.at[1:-1].set((del_r[:-1]+ del_r[1:])/2)
 
-    bstei   = 1      # bottom surface trailing edge index 
-    ustei   = -bstei # upper surface trailing edge index 
+    lstei   = 1      # lower surface trailing edge index 
+    ustei   = -lstei # upper surface trailing edge index 
 
     if jnp.all(Omega == 0):
         res.p_pref_broadband                          = jnp.zeros((num_cpt,num_mic,num_rot,num_cf)) 
@@ -151,38 +165,39 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
             cf_us            = jnp.zeros((num_cpt,num_sec,num_azi))
             dcp_dx_us        = jnp.zeros((num_cpt,num_sec,num_azi))
 
-            for i_azi in range(num_azi):
-                for jj,airfoil in enumerate(airfoils):
-                    bl                            = airfoil.polars.boundary_layer
-                    local_aoa                     = alpha_blade[:,:,i_azi]
-                    local_Re                      = Re_blade[:,:,i_azi]
+            aloc  = jnp.atleast_3d(jnp.array(a_loc))
+            aloc  = jnp.broadcast_to(aloc,jnp.shape(theta_ls))
 
-                    theta_ls_data                 = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta_lower_surface[:,:,bstei])     
-                    delta_ls_data                 = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_lower_surface[:,:,bstei])        
-                    delta_star_ls_data            = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star_lower_surface[:,:,bstei])   
-                    Ue_Vinf_ls_data               = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf_lower_surface[:,:,bstei])      
-                    cf_ls_data                    = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf_lower_surface[:,:,bstei])           
-                    dcp_dx_ls_data                = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx_lower_surface[:,:,bstei])       
-                    theta_us_data                 = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta_upper_surface[:,:,ustei])        
-                    delta_us_data                 = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_upper_surface[:,:,ustei])       
-                    delta_star_us_data            = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star_upper_surface[:,:,ustei])   
-                    Ue_Vinf_us_data               = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf_upper_surface[:,:,ustei])   
-                    cf_us_data                    = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf_upper_surface[:,:,ustei])          
-                    dcp_dx_us_data                = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx_upper_surface[:,:,ustei])      
-                    locs                          = jnp.where(jnp.array(a_loc) == jj )
+            for i_azi in range(num_azi):  
+                local_aoa          = alpha_blade[:,:,i_azi]
+                local_Re           = Re_blade[:,:,i_azi]
+                for jj,(ls_theta,ls_delta,ls_delta_star,ls_Ue,ls_cf,ls_dp_dx,us_theta,us_delta,us_delta_star,us_Ue,us_cf,us_dp_dx) \
+                    in enumerate(zip(ls_theta_sur, ls_delta_sur ,ls_delta_star_sur,ls_Ue_sur ,ls_cf_sur ,ls_dp_dx_sur,us_theta_sur ,us_delta_sur,us_delta_star_sur,us_Ue_sur ,us_cf_sur ,us_dp_dx_sur) ):
+                    theta_ls_data      = interp2d(local_Re,local_aoa, ls_theta.RE_data     , ls_theta.aoa_data     , ls_theta.theta_lower_surface_data[:,:,lstei])
+                    delta_ls_data      = interp2d(local_Re,local_aoa, ls_delta.RE_data     , ls_delta.aoa_data     , ls_delta.delta_lower_surface_data[:,:,lstei])   
+                    delta_star_ls_data = interp2d(local_Re,local_aoa, ls_delta_star.RE_data, ls_delta_star.aoa_data, ls_delta_star.delta_star_lower_surface_data[:,:,lstei])
+                    Ue_Vinf_ls_data    = interp2d(local_Re,local_aoa, ls_Ue.RE_data        , ls_Ue.aoa_data        , ls_cf.Ue_Vinf_lower_surface_data[:,:,lstei]) 
+                    cf_ls_data         = interp2d(local_Re,local_aoa, ls_cf.RE_data        , ls_cf.aoa_data        , ls_Ue.cf_lower_surface_data[:,:,lstei])
+                    dcp_dx_ls_data     = interp2d(local_Re,local_aoa, ls_dp_dx.RE_data     , ls_dp_dx.aoa_data     , ls_dp_dx.dcp_dx_lower_surface_data[:,:,lstei]) 
+                    theta_us_data      = interp2d(local_Re,local_aoa, us_theta.RE_data     , us_theta.aoa_data     , us_theta.theta_upper_surface_data[:,:,ustei])
+                    delta_us_data      = interp2d(local_Re,local_aoa, us_delta.RE_data     , us_delta.aoa_data     , us_delta.delta_upper_surface_data[:,:,ustei] ) 
+                    delta_star_us_data = interp2d(local_Re,local_aoa, us_delta_star.RE_data, us_delta_star.aoa_data, us_delta_star.delta_star_upper_surface_data[:,:,ustei])
+                    Ue_Vinf_us_data    = interp2d(local_Re,local_aoa, us_Ue.RE_data        , us_Ue.aoa_data        , us_cf.Ue_Vinf_upper_surface_data[:,:,ustei] ) 
+                    cf_us_data         = interp2d(local_Re,local_aoa, us_cf.RE_data        , us_cf.aoa_data        , us_Ue.cf_upper_surface_data[:,:,ustei])
+                    dcp_dx_us_data     = interp2d(local_Re,local_aoa, us_dp_dx.RE_data     , us_dp_dx.aoa_data     , us_dp_dx.dcp_dx_upper_surface_data[:,:,ustei] ) 
 
-                    theta_ls      = theta_ls.at[:,locs,i_azi].set(theta_ls_data[:,locs])
-                    delta_ls      = delta_ls.at[:,locs,i_azi].set(delta_ls_data[:,locs])
-                    delta_star_ls = delta_star_ls.at[:,locs,i_azi].set(delta_star_ls_data[:,locs])
-                    Ue_Vinf_ls    = Ue_Vinf_ls.at[:,locs,i_azi].set(Ue_Vinf_ls_data[:,locs])
-                    cf_ls         = cf_ls.at[:,locs,i_azi].set(cf_ls_data[:,locs])
-                    dcp_dx_ls     = dcp_dx_ls.at[:,locs,i_azi].set(dcp_dx_ls_data[:,locs])
-                    theta_us      = theta_us.at[:,locs,i_azi].set(theta_us_data[:,locs])
-                    delta_us      = delta_us.at[:,locs,i_azi].set(delta_us_data[:,locs])
-                    delta_star_us = delta_star_us.at[:,locs,i_azi].set(delta_star_us_data[:,locs])
-                    Ue_Vinf_us    = Ue_Vinf_us.at[:,locs,i_azi].set(Ue_Vinf_us_data[:,locs])
-                    cf_us         = cf_us.at[:,locs,i_azi].set(cf_us_data[:,locs])
-                    dcp_dx_us     = dcp_dx_us.at[:,locs,i_azi].set(dcp_dx_us_data[:,locs])
+                    theta_ls           = jnp.where(aloc==jj,theta_ls_data,theta_ls)
+                    delta_ls           = jnp.where(aloc==jj,delta_ls_data , delta_ls )
+                    delta_star_ls      = jnp.where(aloc==jj,delta_star_ls_data , delta_star_ls )
+                    Ue_Vinf_ls         = jnp.where(aloc==jj,Ue_Vinf_ls_data , Ue_Vinf_ls )
+                    cf_ls              = jnp.where(aloc==jj,cf_ls_data , cf_ls )
+                    dcp_dx_ls          = jnp.where(aloc==jj,dcp_dx_ls_data , dcp_dx_ls )
+                    theta_us           = jnp.where(aloc==jj,theta_us_data , theta_us )
+                    delta_us           = jnp.where(aloc==jj,delta_us_data , delta_us )
+                    delta_star_us      = jnp.where(aloc==jj,delta_star_us_data , delta_star_us )
+                    Ue_Vinf_us         = jnp.where(aloc==jj,Ue_Vinf_us_data , Ue_Vinf_us )
+                    cf_us              = jnp.where(aloc==jj,cf_us_data , cf_us )
+                    dcp_dx_us          = jnp.where(aloc==jj,dcp_dx_us_data , dcp_dx_us )
 
             blade_chords_3d           = jnp.tile(jnp.tile(blade_chords[None,:],(num_cpt,1))[:,:,None],(1,1,num_azi))
             dP_dX_ls                  = dcp_dx_ls*(0.5*rho_blade*U_blade**2)/blade_chords_3d
@@ -217,35 +232,36 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
             local_aoa        = alpha_blade[:,:,0]
             local_Re         = Re_blade[:,:,0]
 
-            for jj,airfoil in enumerate(airfoils):
-                bl                       = airfoil.polars.boundary_layer
-                theta_ls_data           = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta_lower_surface[:,:,bstei])     
-                delta_ls_data           = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_lower_surface[:,:,bstei])        
-                delta_star_ls_data      = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star_lower_surface[:,:,bstei])   
-                Ue_Vinf_ls_data         = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf_lower_surface[:,:,bstei])      
-                cf_ls_data              = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf_lower_surface[:,:,bstei])           
-                dcp_dx_ls_data          = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx_lower_surface[:,:,bstei])       
-                theta_us_data           = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta_upper_surface[:,:,ustei])        
-                delta_us_data           = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_upper_surface[:,:,ustei])       
-                delta_star_us_data      = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star_upper_surface[:,:,ustei])   
-                Ue_Vinf_us_data         = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf_upper_surface[:,:,ustei])   
-                cf_us_data              = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf_upper_surface[:,:,ustei])          
-                dcp_dx_us_data          = interp2d(local_Re,local_aoa,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx_upper_surface[:,:,ustei])      
+            aloc  = jnp.atleast_3d(jnp.array(a_loc))
+            aloc  = jnp.broadcast_to(aloc,jnp.shape(theta_ls))
 
-                locs                    = jnp.where(jnp.array(a_loc) == jj )
+            for jj,(ls_theta,ls_delta,ls_delta_star,ls_Ue,ls_cf,ls_dp_dx,us_theta,us_delta,us_delta_star,us_Ue,us_cf,us_dp_dx) \
+                in enumerate(zip(ls_theta_sur, ls_delta_sur ,ls_delta_star_sur,ls_Ue_sur ,ls_cf_sur ,ls_dp_dx_sur,us_theta_sur ,us_delta_sur,us_delta_star_sur,us_Ue_sur ,us_cf_sur ,us_dp_dx_sur) ):
+                theta_ls_data      = interp2d(local_Re,local_aoa, ls_theta.RE_data     , ls_theta.aoa_data     , ls_theta.theta_lower_surface_data[:,:,lstei])
+                delta_ls_data      = interp2d(local_Re,local_aoa, ls_delta.RE_data     , ls_delta.aoa_data     , ls_delta.delta_lower_surface_data[:,:,lstei])   
+                delta_star_ls_data = interp2d(local_Re,local_aoa, ls_delta_star.RE_data, ls_delta_star.aoa_data, ls_delta_star.delta_star_lower_surface_data[:,:,lstei])
+                Ue_Vinf_ls_data    = interp2d(local_Re,local_aoa, ls_Ue.RE_data        , ls_Ue.aoa_data        , ls_cf.Ue_Vinf_lower_surface_data[:,:,lstei]) 
+                cf_ls_data         = interp2d(local_Re,local_aoa, ls_cf.RE_data        , ls_cf.aoa_data        , ls_Ue.cf_lower_surface_data[:,:,lstei])
+                dcp_dx_ls_data     = interp2d(local_Re,local_aoa, ls_dp_dx.RE_data     , ls_dp_dx.aoa_data     , ls_dp_dx.dcp_dx_lower_surface_data[:,:,lstei]) 
+                theta_us_data      = interp2d(local_Re,local_aoa, us_theta.RE_data     , us_theta.aoa_data     , us_theta.theta_upper_surface_data[:,:,ustei])
+                delta_us_data      = interp2d(local_Re,local_aoa, us_delta.RE_data     , us_delta.aoa_data     , us_delta.delta_upper_surface_data[:,:,ustei] ) 
+                delta_star_us_data = interp2d(local_Re,local_aoa, us_delta_star.RE_data, us_delta_star.aoa_data, us_delta_star.delta_star_upper_surface_data[:,:,ustei])
+                Ue_Vinf_us_data    = interp2d(local_Re,local_aoa, us_Ue.RE_data        , us_Ue.aoa_data        , us_cf.Ue_Vinf_upper_surface_data[:,:,ustei] ) 
+                cf_us_data         = interp2d(local_Re,local_aoa, us_cf.RE_data        , us_cf.aoa_data        , us_Ue.cf_upper_surface_data[:,:,ustei])
+                dcp_dx_us_data     = interp2d(local_Re,local_aoa, us_dp_dx.RE_data     , us_dp_dx.aoa_data     , us_dp_dx.dcp_dx_upper_surface_data[:,:,ustei] ) 
 
-                theta_ls      = theta_ls.at[:,locs].set(theta_ls_data[:,locs])
-                delta_ls      = delta_ls.at[:,locs].set(delta_ls_data[:,locs])
-                delta_star_ls = delta_star_ls.at[:,locs].set(delta_star_ls_data[:,locs])
-                Ue_Vinf_ls    = Ue_Vinf_ls.at[:,locs].set(Ue_Vinf_ls_data[:,locs])
-                cf_ls         = cf_ls.at[:,locs].set(cf_ls_data[:,locs])
-                dcp_dx_ls     = dcp_dx_ls.at[:,locs].set(dcp_dx_ls_data[:,locs])
-                theta_us      = theta_us.at[:,locs].set(theta_us_data[:,locs])
-                delta_us      = delta_us.at[:,locs].set(delta_us_data[:,locs])
-                delta_star_us = delta_star_us.at[:,locs].set(delta_star_us_data[:,locs])
-                Ue_Vinf_us    = Ue_Vinf_us.at[:,locs].set(Ue_Vinf_us_data[:,locs])
-                cf_us         = cf_us.at[:,locs].set(cf_us_data[:,locs])
-                dcp_dx_us     = dcp_dx_us.at[:,locs].set(dcp_dx_us_data[:,locs])
+                theta_ls           = jnp.where(aloc==jj,theta_ls_data,theta_ls)
+                delta_ls           = jnp.where(aloc==jj,delta_ls_data , delta_ls )
+                delta_star_ls      = jnp.where(aloc==jj,delta_star_ls_data , delta_star_ls )
+                Ue_Vinf_ls         = jnp.where(aloc==jj,Ue_Vinf_ls_data , Ue_Vinf_ls )
+                cf_ls              = jnp.where(aloc==jj,cf_ls_data , cf_ls )
+                dcp_dx_ls          = jnp.where(aloc==jj,dcp_dx_ls_data , dcp_dx_ls )
+                theta_us           = jnp.where(aloc==jj,theta_us_data , theta_us )
+                delta_us           = jnp.where(aloc==jj,delta_us_data , delta_us )
+                delta_star_us      = jnp.where(aloc==jj,delta_star_us_data , delta_star_us )
+                Ue_Vinf_us         = jnp.where(aloc==jj,Ue_Vinf_us_data , Ue_Vinf_us )
+                cf_us              = jnp.where(aloc==jj,cf_us_data , cf_us )
+                dcp_dx_us          = jnp.where(aloc==jj,dcp_dx_us_data , dcp_dx_us )
 
             blade_chords_2d           = jnp.tile(blade_chords[None,:],(num_cpt,1))
             dP_dX_ls                  = dcp_dx_ls*(0.5*rho_blade[:,:,0]*(U_blade[:,:,0]**2))/blade_chords_2d
@@ -352,9 +368,9 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
  
         res.SPL_prop_broadband_spectrum                   = SPL_rotor
         res.SPL_prop_broadband_spectrum_dBA               = A_weighting(SPL_rotor,frequency) 
-        res.SPL_prop_broadband_1_3_spectrum               = SPL_harmonic_to_third_octave(SPL_rotor,f,settings)
-        res.SPL_prop_broadband_1_3_spectrum_dBA           = SPL_harmonic_to_third_octave(A_weighting(SPL_rotor,frequency),f,settings) 
-        res.SPL_prop_broadband_1_3_spectrum               = SPL_harmonic_to_third_octave(SPL_rotor,f,settings)
+        res.SPL_prop_broadband_1_3_spectrum               = convert_to_one_third_octave_band(SPL_rotor,f,settings)
+        res.SPL_prop_broadband_1_3_spectrum_dBA           = convert_to_one_third_octave_band(A_weighting(SPL_rotor,frequency),f,settings)
+        res.SPL_prop_broadband_1_3_spectrum               = convert_to_one_third_octave_band(SPL_rotor,f,settings)
         
     return
 

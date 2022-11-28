@@ -13,7 +13,7 @@ import jax.numpy as jnp
 from SUAVE.Core.Utilities import jjv
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise  import A_weighting  
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import SPL_harmonic_to_third_octave
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import convert_to_one_third_octave_band
 
 # ----------------------------------------------------------------------
 # Harmonic Noise Domain Broadband Noise Computation
@@ -146,8 +146,8 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     # sound pressure levels  
     res.SPL_prop_harmonic_bpf_spectrum     = 20*jnp.log10((abs(p_mL_H_abs + p_mT_H_abs))/p_ref) 
     res.SPL_prop_harmonic_bpf_spectrum_dBA = A_weighting(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,:,:,0,:]) 
-    res.SPL_prop_harmonic_1_3_spectrum     = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,0,0,0,:],settings)         
-    res.SPL_prop_harmonic_1_3_spectrum_dBA = SPL_harmonic_to_third_octave(res.SPL_prop_harmonic_bpf_spectrum_dBA,res.f[:,0,0,0,:],settings)  
+    res.SPL_prop_harmonic_1_3_spectrum     = convert_to_one_third_octave_band(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,0,0,0,:],settings)
+    res.SPL_prop_harmonic_1_3_spectrum_dBA = convert_to_one_third_octave_band(res.SPL_prop_harmonic_bpf_spectrum_dBA,res.f[:,0,0,0,:],settings)
     res.SPL_prop_harmonic_1_3_spectrum     = jnp.where(jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum),0,res.SPL_prop_harmonic_1_3_spectrum)
     res.SPL_prop_harmonic_1_3_spectrum_dBA = jnp.where(jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum_dBA),0,res.SPL_prop_harmonic_1_3_spectrum_dBA)
 
