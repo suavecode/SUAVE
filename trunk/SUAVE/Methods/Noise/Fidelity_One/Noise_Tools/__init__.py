@@ -13,7 +13,7 @@ from .senel_noise                           import senel_noise
 from .decibel_arithmetic                    import pressure_ratio_to_SPL_arithmetic
 from .decibel_arithmetic                    import SPL_arithmetic 
 from .decibel_arithmetic                    import SPL_spectra_arithmetic
-from .SPL_harmonic_to_third_octave          import SPL_harmonic_to_third_octave
+from .convert_to_third_octave_band          import convert_to_third_octave_band
 from .print_engine_output                   import print_engine_output
 from .print_airframe_output                 import print_airframe_output
 from .print_propeller_output                import print_propeller_output
