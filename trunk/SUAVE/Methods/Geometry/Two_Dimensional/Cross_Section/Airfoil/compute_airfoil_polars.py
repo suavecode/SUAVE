@@ -67,7 +67,7 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True,
         num_polars = max(num_polars, n_p)        
 
     # read airfoil geometry  
-    airfoil_data = import_airfoil_geometry(a_geo, npoints = npoints)
+    airfoil_data = import_airfoil_geometry(a_geo[0], npoints = npoints)
 
     # Get all of the coefficients for AERODAS wings
     AoA_sweep_deg = np.linspace(-90,90,181)
@@ -94,20 +94,22 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True,
     state.conditions.aerodynamics.pre_stall_coefficients = Data()
     state.conditions.aerodynamics.post_stall_coefficients = Data()
 
-    # read airfoil polars 
-    airfoil_polar_data = import_airfoil_polars(a_polar)
     
     # AERODAS 
     for i in range(num_airfoils):
         
         # Modify the "wing" slightly:
-        geometry.thickness_to_chord = airfoil_data.thickness_to_chord[i]
+        geometry.thickness_to_chord = airfoil_data.thickness_to_chord 
+        
+        # read airfoil polars 
+        airfoil_polar_data = import_airfoil_polars(a_polar[i])
         
         for j in range(len(a_polar[i])):
+            
             # Extract from polars
-            airfoil_cl         = airfoil_polar_data.lift_coefficients[i,j] 
-            airfoil_cd         = airfoil_polar_data.drag_coefficients[i,j] 
-            airfoil_aoa        = airfoil_polar_data.angle_of_attacks  
+            airfoil_cl         = airfoil_polar_data.lift_coefficients[j] 
+            airfoil_cd         = airfoil_polar_data.drag_coefficients[j] 
+            airfoil_aoa        = airfoil_polar_data.angle_of_attacks[j]/Units.degrees 
             
             # computing approximate zero lift aoa
             airfoil_cl_plus = airfoil_cl[airfoil_cl>0]
@@ -179,7 +181,7 @@ def compute_airfoil_polars(a_geo,a_polar,npoints = 200 ,use_pre_stall_data=True,
         
         # remove placeholder values (for airfoils that have different number of polars)
         n_p      = len(a_polar[i])
-        RE_data  = to_jnumpy(airfoil_polar_data.reynolds_number[i][0:n_p])
+        RE_data  = to_jnumpy(airfoil_polar_data.reynolds_number[0:n_p])
         aoa_data = to_jnumpy(AoA_sweep_radians)
         
         CL_sur = Data()

@@ -12,7 +12,7 @@ from __future__ import division, unicode_literals, print_function, absolute_impo
 import copy
 import operator
 import functools
-from collections import Iterable
+from collections.abc import Iterable
 
 from .unit import DimensionalityError, UnitsContainer, UnitDefinition, UndefinedUnitError
 from .measurement import Measurement
