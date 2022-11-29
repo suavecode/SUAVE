@@ -343,8 +343,8 @@ def objective(x, airfoil_cl_surs, RE , a_geo ,a_loc, Cl):
     Cl_vals = jnp.zeros_like(RE)     
     aloc    = jnp.array(a_loc)
     for jj, cl in enumerate(airfoil_cl_surs):
-        sub_cl = interp2d(RE, x, cl.RE_data, cl.aoa_data, cl.CL_data)
-        Cl     = jnp.where(aloc==jj,sub_cl,Cl)
+        sub_cl  = interp2d(RE, x, cl.RE_data, cl.aoa_data, cl.CL_data)
+        Cl_vals = jnp.where(aloc==jj,sub_cl,Cl_vals)
         
     # compute Cl residual    
     Cl_residuals = Cl_vals - Cl 
