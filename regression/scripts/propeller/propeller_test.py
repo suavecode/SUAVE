@@ -88,7 +88,10 @@ def main():
                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
-                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt'],
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_3500000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_5000000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_7500000.txt'],
                                        ['../Vehicles/Airfoils/Polars/Clark_y_polar_Re_50000.txt',
                                         '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_100000.txt',
                                         '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_200000.txt',
@@ -139,7 +142,10 @@ def main():
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
-                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']]
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_3500000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_5000000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_7500000.txt']]               
 
     rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]    
     rot_a                          = propeller_design(rot_a) 
