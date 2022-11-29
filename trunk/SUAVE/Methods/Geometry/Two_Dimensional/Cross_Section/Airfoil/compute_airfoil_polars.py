@@ -328,17 +328,17 @@ def compute_boundary_layer_properties(airfoil_geometry_files):
         cf_upper_surface_surs[airfoil_geometry_files[i]]          = cf_upper_surface_sur      
         dcp_dx_upper_surface_surs[airfoil_geometry_files[i]]      = dcp_dx_upper_surface_sur      
  
-    airfoil_boundary_layer_data.theta_lower_surface_surrogates                 = af_res.theta_lower_surface_surs       
-    airfoil_boundary_layer_data.delta_lower_surface_surrogates                 = af_res.delta_lower_surface_surs    
-    airfoil_boundary_layer_data.delta_star_lower_surface_surrogates            = af_res.delta_star_lower_surface_surs 
-    airfoil_boundary_layer_data.Ue_Vinf_lower_surface_surrogates               = af_res.Ue_Vinf_lower_surface_surs   
-    airfoil_boundary_layer_data.cf_lower_surface_surrogates                    = af_res.cf_lower_surface_surs     
-    airfoil_boundary_layer_data.dcp_dx_lower_surface_surrogates                = af_res.dcp_dx_lower_surface_surs 
-    airfoil_boundary_layer_data.theta_upper_surface_surrogates                 = af_res.theta_upper_surface_surs       
-    airfoil_boundary_layer_data.delta_upper_surface_surrogates                 = af_res.delta_upper_surface_surs    
-    airfoil_boundary_layer_data.delta_star_upper_surface_surrogates            = af_res.delta_star_upper_surface_surs
-    airfoil_boundary_layer_data.Ue_Vinf_upper_surface_surrogates               = af_res.Ue_Vinf_upper_surface_surs    
-    airfoil_boundary_layer_data.cf_upper_surface_surrogates                    = af_res.cf_upper_surface_surs         
-    airfoil_boundary_layer_data.dcp_dx_upper_surface_surrogates                = af_res.dcp_dx_upper_surface_surs   
+    airfoil_boundary_layer_data.theta_lower_surface_surrogates                 = theta_lower_surface_surs       
+    airfoil_boundary_layer_data.delta_lower_surface_surrogates                 = delta_lower_surface_surs    
+    airfoil_boundary_layer_data.delta_star_lower_surface_surrogates            = delta_star_lower_surface_surs 
+    airfoil_boundary_layer_data.Ue_Vinf_lower_surface_surrogates               = Ue_Vinf_lower_surface_surs   
+    airfoil_boundary_layer_data.cf_lower_surface_surrogates                    = cf_lower_surface_surs     
+    airfoil_boundary_layer_data.dcp_dx_lower_surface_surrogates                = dcp_dx_lower_surface_surs 
+    airfoil_boundary_layer_data.theta_upper_surface_surrogates                 = theta_upper_surface_surs       
+    airfoil_boundary_layer_data.delta_upper_surface_surrogates                 = delta_upper_surface_surs    
+    airfoil_boundary_layer_data.delta_star_upper_surface_surrogates            = delta_star_upper_surface_surs
+    airfoil_boundary_layer_data.Ue_Vinf_upper_surface_surrogates               = Ue_Vinf_upper_surface_surs    
+    airfoil_boundary_layer_data.cf_upper_surface_surrogates                    = cf_upper_surface_surs         
+    airfoil_boundary_layer_data.dcp_dx_upper_surface_surrogates                = dcp_dx_upper_surface_surs   
 
     return airfoil_boundary_layer_data

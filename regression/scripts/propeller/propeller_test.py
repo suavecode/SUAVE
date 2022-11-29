@@ -11,6 +11,7 @@
 import SUAVE
 from SUAVE.Core import Units, to_numpy
 from SUAVE.Plots.Geometry import plot_propeller
+from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -69,6 +70,7 @@ def main():
 
     bad_prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
     bad_prop.design_thrust           = 100000
+    bad_prop.Wake = Rotor_Wake_Fidelity_Zero()
     bad_prop                         = propeller_design(bad_prop)  
     
     prop_a                          = SUAVE.Components.Energy.Converters.Propeller() 
@@ -97,10 +99,11 @@ def main():
 
     prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]  
     prop_a.design_thrust           = 3054.4809132125697
+    prop_a.Wake = Rotor_Wake_Fidelity_Zero()
     prop_a                         = propeller_design(prop_a)  
     
     # plot propeller 
-    plot_propeller(prop_a)
+    #plot_propeller(prop_a)
  
     # Design the Propeller with airfoil  geometry defined 
     prop                          = SUAVE.Components.Energy.Converters.Propeller()
@@ -117,6 +120,7 @@ def main():
     prop.origin                   = [[16.*0.3048 , 0. ,2.02*0.3048 ]]    
     prop.design_power             = gearbox.outputs.power  
     prop.number_azimuthal_stations= 1
+    prop.Wake = Rotor_Wake_Fidelity_Zero()
     prop                          = propeller_design(prop)      
     
     # Design a Rotor with airfoil  geometry defined  
@@ -141,7 +145,8 @@ def main():
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']]
 
-    rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]    
+    rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]   
+    rot_a.Wake = Rotor_Wake_Fidelity_Zero()
     rot_a                          = propeller_design(rot_a) 
     
     # Design a Rotor without airfoil geometry defined 
@@ -157,7 +162,8 @@ def main():
     rot.angular_velocity         = 258.9520059992501
     rot.design_Cl                = 0.7
     rot.design_altitude          = 20 * Units.feet                            
-    rot.design_thrust            = 2271.2220451593753  
+    rot.design_thrust            = 2271.2220451593753 
+    rot.Wake = Rotor_Wake_Fidelity_Zero()
     rot                          = propeller_design(rot) 
     
     # Find the operating conditions
