@@ -203,7 +203,7 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
     
 
         
-    # save converged wake:
-    wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
+    ## save converged wake:
+    #wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
     
     return wake.vortex_distribution, va, vt
