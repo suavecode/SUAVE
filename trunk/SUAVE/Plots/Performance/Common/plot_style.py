@@ -9,7 +9,7 @@
 # ---------------------------------------------------------------------- 
 
 from itertools import cycle
-
+import numpy as np
 import plotly
 
 ## @ingroup Plots-Performance-Common
@@ -98,8 +98,8 @@ def plot_style(fig, *args, **kwargs):
     # segments
 
     if len(segment_set) < len(fig.layout.colorway):
-        color_indicies = np.ceil([i/len(segment_set)*len(fig.layout.colorway)
-                                  for i in range(len(segment_set))])
+        color_indicies = np.array(np.ceil([i/len(segment_set)*len(fig.layout.colorway)
+                                  for i in range(len(segment_set))]),dtype=np.int32)
         color_list = [fig.layout.colorway[i] for i in color_indicies]
     else:
         color_list = fig.layout.colorway
