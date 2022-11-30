@@ -674,7 +674,7 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
 
 
         axes = plt.subplot(3,3,6)
-        axes.plot(time, cell_charge, line_color)
+        axes.plot(time, cell_current, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Current (A)',axis_font)
         set_axes(axes)

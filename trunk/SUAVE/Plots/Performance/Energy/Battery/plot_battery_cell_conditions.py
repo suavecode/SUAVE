@@ -84,7 +84,6 @@ def plot_battery_cell_conditions(results,
         cell_temp           = segment.conditions.propulsion.battery_cell_temperature[:,0]
         cell_charge         = segment.conditions.propulsion.battery_cell_charge_throughput[:,0]
         cell_current        = segment.conditions.propulsion.battery_cell_current[:,0]
-        cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts
 
         cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts
         cell_C_instant      = cell_current/cell_battery_amp_hr
