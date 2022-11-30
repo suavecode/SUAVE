@@ -31,7 +31,7 @@ def plot_battery_cell_conditions(results,
 
     Source:
 
-    Depricated SUAVE Mission Plots Functions
+    Deprecated SUAVE Mission Plots Functions
 
     Created:    Mar 2020, M. Clarke
     Modified:   Apr 2020, M. Clarke
