@@ -1,4 +1,4 @@
-## @ingroup [ADD DOCUMENTATION GROUP]
+## @ingroup Plots-Performance-Energy-Battery
 # plot_eMotor_Prop_efficiencies.py
 # 
 # Created:    Nov 2022, J. Smart
@@ -8,9 +8,17 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 
-# TODO: ADD IMPORTS
+from SUAVE.Core import Units
+from SUAVE.Plots.Performance.Common import plot_style, save_plot
 
-## @ingroup [ADD DOCUMENTATION GROUP]
+import numpy as np
+import pandas as pd
+
+import plotly.graph_objects as go
+
+from plotly.subplots import make_subplots
+
+## @ingroup Plots-Performance-Energy-Battery
 def plot_eMotor_Prop_efficiencies(results,
                                   save_figure = False,
                                   save_filename = "eMotor_Prop_Efficiencies",
