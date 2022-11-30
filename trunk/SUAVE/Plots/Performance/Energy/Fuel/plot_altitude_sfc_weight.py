@@ -8,8 +8,6 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 
-from itertools import cycle
-
 from SUAVE.Core import Units
 from SUAVE.Plots.Performance.Common import plot_style, save_plot
 
@@ -83,7 +81,7 @@ def plot_altitude_sfc_weight(results,
 
         df = df.append(segment_frame)
 
-    # Set plot parameters (3 x 1 subplots with grid lines showing)
+    # Set plot parameters
 
     fig = make_subplots(rows=3, cols=1,
                         vertical_spacing=0.05)
