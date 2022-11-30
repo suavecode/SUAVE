@@ -66,7 +66,7 @@ def plot_style(fig, *args, **kwargs):
     fig.update_layout(
         plot_bgcolor='white',
         margin = dict(t=0, l=0, b=0, r=0),
-        colorway=plotly.colors.sequential.Inferno[1:]) # Remove Lightest Color
+        colorway=plotly.colors.sequential.Inferno[:-1]) # Remove Lightest Color
 
     # Set Line and Marker Style
 
