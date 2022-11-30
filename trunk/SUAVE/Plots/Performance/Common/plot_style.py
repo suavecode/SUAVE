@@ -93,9 +93,16 @@ def plot_style(fig, *args, **kwargs):
     trace_list  = [fig.data[trace]['name'] for trace in range(len(fig.data))]
     segment_set = [i for n,i in enumerate(trace_list) if i not in trace_list[:n]]
 
+    if len(segment_set) < len(fig.layout.colorway):
+        color_indicies = np.ceil([i/len(segment_set)*len(fig.layout.colorway)
+                                  for i in range(len(segment_set))])
+        color_list = [fig.layout.colorway[i] for i in color_indicies]
+    else:
+        color_list = fig.layout.colorway
+
     # Create cycle-able iterator for assigning segment colors
 
-    colorcycler = cycle(fig.layout.colorway)
+    colorcycler = cycle(color_list)
 
     # Set segment line and marker color by iterating through the colorway
 
