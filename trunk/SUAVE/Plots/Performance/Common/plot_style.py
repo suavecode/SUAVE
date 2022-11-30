@@ -55,9 +55,19 @@ def plot_style(fig, *args, **kwargs):
 
     # Set for both X and Y Axes, setting X-axis to time-format
 
+    full_fig = fig.full_figure_for_development()
+    x_range = full_fig.layout.xaxis.range
+
+    if x_range[1] > 120.:
+        tick_time_interval = 60.
+    elif x_range[1] > 60.:
+        tick_time_interval = 15.
+    else:
+        tick_time_interval = 5.
+
     fig.update_xaxes(**axes_style,
                      tick0=0.0,
-                     dtick=60.0,
+                     dtick=tick_time_interval,
                      rangemode="nonnegative")
     fig.update_yaxes(**axes_style)
 
