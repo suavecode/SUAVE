@@ -66,7 +66,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_rot      = len(position_vector[0,0,:,0])  
     rotor        = rotors[list(rotors.keys())[0]] 
     num_r        = len(rotor.radius_distribution) 
-    body2thrust  = rotor.body_to_prop_vel()
+    body2thrust  = rotor.body_to_prop_vel()[0]
     
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
