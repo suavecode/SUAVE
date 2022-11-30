@@ -6,7 +6,7 @@
 
 
 ## @ingroup Plots-Performance-Common
-def save_plot(fig, *args, **kwargs):
+def save_plot(fig, save_filename, file_type, *args, **kwargs):
     """Save a plot, with an import check for kaleido
 
     Assumptions:

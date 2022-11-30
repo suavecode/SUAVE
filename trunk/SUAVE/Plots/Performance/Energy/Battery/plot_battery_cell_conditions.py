@@ -215,6 +215,6 @@ def plot_battery_cell_conditions(results,
     fig.show()
 
     if save_figure:
-        save_plot(fig)
+        save_plot(fig, save_filename, file_type)
 
     return
