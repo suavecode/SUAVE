@@ -11,6 +11,7 @@
 from itertools import cycle
 
 from SUAVE.Core import Units
+from SUAVE.Plots.Performance.Common import plot_style, save_plot
 
 import numpy as np
 import pandas as pd
@@ -21,19 +22,26 @@ from plotly.subplots import make_subplots
 
 ## @ingroup Plots-Performance-Energy-Fuel
 def plot_altitude_sfc_weight(results,
-                             segment_colors = 'Dark24',
                              save_figure = False,
                              save_filename = "Altitude_SFC_Weight" ,
                              file_type = ".png",
                              width=800,
                              height=500):
-    """This plots the altitude, specific fuel consumption and vehicle weight
+    """This plots the altitude, specific fuel consumption and vehicle weight.
 
     Assumptions:
     None
 
     Source:
-    None
+
+    Depricated SUAVE Mission Plots Functions
+
+    Created:    Mar 2020, M. Clarke
+    Modified:   Apr 2020, M. Clarke
+                Sep 2020, M. Clarke
+                Apr 2021, M. Clarke
+                Dec 2021, S. Claridge
+
 
     Inputs:
     results.segments.conditions.
@@ -80,90 +88,54 @@ def plot_altitude_sfc_weight(results,
     fig = make_subplots(rows=3, cols=1,
                         vertical_spacing=0.05)
 
-    # Create cyclic iterator for segment-by-segment coloration
-
-    coloriter = cycle(plotly.colors.get_colorscale(segment_colors))
-
-    # Add traces to the figure for each value by segment. Note that technically
-    # only the altitude trace is shown in the legend, but colors are matched for
-    # each value, so the legend remains accurate.
+    # Add traces to the figure for each value by segment.
 
     for seg, data in df.groupby("Segment"):
         seg_name = ' '.join(seg.split("_")).capitalize()
-        seg_color = next(coloriter)
 
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['Altitude'],
-            marker=dict(size=3, color=seg_color),
-            name=seg_name,
-            line=dict(color=seg_color)),
+            name=seg_name),
             row=1, col=1)
 
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['Mass'],
-            marker=dict(size=3, color=seg_color),
             name=seg_name,
-            line=dict(color=seg_color),
             showlegend=False),
             row=2, col=1)
 
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['SFC'],
-            marker=dict(size=3, color=seg_color),
             name=seg_name,
-            line=dict(color=seg_color),
             showlegend=False),
             row=3, col=1)
 
-    # Set axis titles and gridlines using a dictionary of keyword arguments
+    # Set sublot axis titles
 
-    plot_kwargs = dict(
-        ticks='outside', tickwidth=2, ticklen=6,
-        showline=True, linewidth=2, linecolor='black',
-        showgrid=True, gridwidth=1, gridcolor='grey',
-        zeroline=True, zerolinewidth=1, zerolinecolor='black'
-    )
+    fig.update_yaxes(title_text='Altitude (ft)', row=1, col=1)
+    fig.update_yaxes(title_text='Weight (lb)', row=2, col=1)
+    fig.update_yaxes(title_text='SFC (lb/lbf-hr)', row=3, col=1)
 
-    fig.update_yaxes(title_text='Altitude (ft)',
-                     **plot_kwargs,
-                     row=1, col=1)
-    fig.update_yaxes(title_text='Weight (lb)',
-                     **plot_kwargs,
-                     row=2, col=1)
-    fig.update_yaxes(title_text='SFC (lb/lbf-hr)',
-                     **plot_kwargs,
-                     row=3, col=1)
-
-    fig.update_xaxes(title_text='Time (min)',
-                     **plot_kwargs,
-                     row=3, col=1)
-    fig.update_xaxes(**plot_kwargs,
-                     row=2, col=1)
-    fig.update_xaxes(**plot_kwargs,
-                     row=1, col=1)
+    fig.update_xaxes(title_text='Time (min)', row=3, col=1)
 
     # Set overall figure layout style and legend title
 
     fig.update_layout(
-        plot_bgcolor='white',
         width=width, height=height,
-        margin=dict(t=0, l=0, b=0, r=0),
         legend_title_text='Segment',
     )
 
-    # Show the figure
+    # Update Figure Style and Show
+
+    fig - plot_style(fig)
     fig.show()
 
-    if save_figure:
-        try:
-            import kaleido
-            fig.write_image(save_filename.replace("_", " ") + file_type)
-        except ImportError:
-            raise ImportError(
-                'You need to install kaleido to save the figure.')
+    # Optionally save the figure with kaleido import check
 
+    if save_figure:
+        save_plot(fig)
 
     return

@@ -52,7 +52,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
         mass     = segment.conditions.weights.total_mass[:,0] / Units.lb
         altitude = segment.conditions.freestream.altitude[:,0] / Units.ft
         mdot     = segment.conditions.weights.vehicle_mass_rate[:,0]
-        thrust   =  segment.conditions.frames.body.thrust_force_vector[:,0]
+        thrust   = segment.conditions.frames.body.thrust_force_vector[:,0]
         sfc      = (mdot / Units.lb) / (thrust /Units.lbf) * Units.hr
 
         axes = plt.subplot(3,1,1)
