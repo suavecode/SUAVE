@@ -178,7 +178,6 @@ def plot_battery_pack_conditions(results,
     fig.update_yaxes(title_text='Inst. C-Rate (C)', row=3, col=2)
     fig.update_yaxes(title_text='Nom. C-Rate (C)', row=4, col=2)
 
-
     fig.update_xaxes(title_text='Time (min)', row=4, col=1)
     fig.update_xaxes(title_text='Time (min)', row=4, col=2)
 
@@ -186,7 +185,7 @@ def plot_battery_pack_conditions(results,
 
     fig.update_layout(
         width=width, height=height,
-        legend_title_text='Segment',
+        legend_title_text='Segment'
     )
 
     fig = plot_style(fig)
