@@ -1,35 +1,48 @@
-## @ingroup [ADD DOCUMENTATION GROUP]
+## @ingroup Plots-Performance-Aerodynamics
 # plot_aerodynamic_coefficients.py
 # 
-# Created:    Nov 2022, J. Smart
+# Created:    Nov 2022, E. Botero
 # Modified:   
 
 # ----------------------------------------------------------------------
-#  Imports
+#   Imports
 # ---------------------------------------------------------------------- 
 
-# TODO: ADD IMPORTS
+from SUAVE.Core import Units
 
-## @ingroup [ADD DOCUMENTATION GROUP]
-def plot_aerodynamic_coefficients(*args, **kwargs):
-    """ADD FUNCTION DESCRIPTION 
+# ---------------------------------------------------------------------- 
+#   Aerodynamic Coefficients
+# ---------------------------------------------------------------------- 
 
+## @ingroup Plots-Performance-Aerodynamics
+def plot_aerodynamic_coefficients(results):
+    """This plots the aerodynamic coefficients
+    
     Assumptions:
     None
-
+    
     Source:
     None
-
+    
     Inputs:
-    [FUNCTION INPUT]   <INPUT TYPE>
-
-    Outputs: 
-    [FUNCTION OUTPUT]   <OUTPUT TYPE>
-
+    results.segments.condtions.aerodynamics.
+        lift_coefficient
+        drag_coefficient
+        angle_of_attack
+        
+    Outputs:
+    Plots
+    
     Properties Used:
-    N/A	
+    N/A
     """
 
     # TODO: Write Function
+    for segment in results.segments.values():
+        time = segment.conditions.frames.inertial.time[:,0] / Units.min
+        cl   = segment.conditions.aerodynamics.lift_coefficient[:,0,None]
+        cd   = segment.conditions.aerodynamics.drag_coefficient[:,0,None]
+        aoa  = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        l_d  = cl/cd    
 
     return

@@ -1,35 +1,49 @@
-## @ingroup [ADD DOCUMENTATION GROUP]
+## @ingroup Plots-Performance-Aerodynamics
 # plot_drag_components.py
 # 
-# Created:    Nov 2022, J. Smart
+# Created:    Nov 2022, E. Botero
 # Modified:   
 
 # ----------------------------------------------------------------------
-#  Imports
+#   Imports
 # ---------------------------------------------------------------------- 
 
-# TODO: ADD IMPORTS
+from SUAVE.Core import Units
 
-## @ingroup [ADD DOCUMENTATION GROUP]
-def plot_drag_components(*args, **kwargs):
-    """ADD FUNCTION DESCRIPTION 
+# ---------------------------------------------------------------------- 
+#   Drag Components
+# ---------------------------------------------------------------------- 
 
+## @ingroup Plots-Performance-Aerodynamics
+def plot_drag_components(results):
+    """This plots the drag components of the aircraft
+    
     Assumptions:
     None
-
+    
     Source:
     None
-
+    
     Inputs:
-    [FUNCTION INPUT]   <INPUT TYPE>
-
-    Outputs: 
-    [FUNCTION OUTPUT]   <OUTPUT TYPE>
-
+    results.segments.condtions.aerodynamics.drag_breakdown
+          parasite.total
+          induced.total
+          compressible.total
+          miscellaneous.total
+          
+    Outputs:
+    Plots
+    
     Properties Used:
-    N/A	
+    N/A
     """
-
-    # TODO: Write Function
+    for i, segment in enumerate(results.segments.values()):
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
+        cdp = drag_breakdown.parasite.total[:,0]
+        cdi = drag_breakdown.induced.total[:,0]
+        cdc = drag_breakdown.compressible.total[:,0]
+        cdm = drag_breakdown.miscellaneous.total[:,0]
+        cd  = drag_breakdown.total[:,0]
 
     return
