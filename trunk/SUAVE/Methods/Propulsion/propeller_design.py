@@ -18,6 +18,12 @@ import scipy as sp
 from scipy.optimize import root 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties \
+     import compute_airfoil_properties
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
+     import compute_naca_4series
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+     import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry  import import_airfoil_geometry
 from jax import jit, jacobian
 import jax.numpy as jnp
@@ -119,6 +125,7 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     
     c = 0.2 * np.ones_like(chi)
     
+    
     # if user defines airfoil, check dimension of stations
     if  a_pol != None and a_loc != None:
         if len(a_loc) != N:
@@ -126,28 +133,15 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
         airfoil_flag = True  
     else:
         print('\nDefaulting to scaled DAE51')
-        airfoil_flag    = False   
-        airfoil_cl_surs = None
-        airfoil_cd_surs = None 
+        airfoil_flag    = False    
         
         
-    # Step 4, determine epsilon and alpha from airfoil data  
+    # Step 4, determine epsilon and alpha from airfoil data   
     if airfoil_flag:   
-        # compute airfoil polars for airfoils 
-        airfoil_geometry_data           = import_airfoil_geometry(a_geo[0])    
-        airfoil_data ,airfoil_bl_data   = compute_airfoil_polars(a_geo, a_pol,npoints = number_of_airfoil_section_points,use_pre_stall_data=True,linear_lift=True)  
-        
-        airfoil_cl_surs = Data()
-        airfoil_cd_surs = Data()
-        
-        for ii, key in enumerate(airfoil_data.lift_coefficient_surrogates.keys()):
-            airfoil_cl_surs[key] = airfoil_data.lift_coefficient_surrogates[key]
-        
-        for ii, key in enumerate(airfoil_data.drag_coefficient_surrogates.keys()):
-            airfoil_cd_surs[key] = airfoil_data.drag_coefficient_surrogates[key]
-            
+        airfoil_geometry_data  = import_airfoil_geometry(a_geo[0],number_of_airfoil_section_points) 
+        airfoil_polar_data     = compute_airfoil_properties(airfoil_geometry_data, airfoil_polar_files= a_pol[0],use_pre_stall_data=True,linear_lift=True )  
         jac       = jacobian(objective)
-     
+            
     while diff>tol:      
         # assign chord distribution
         prop.chord_distribution = c  
@@ -173,15 +167,15 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
             alpha0   = np.ones(N)*0.05
             
             # solve for optimal alpha to meet design Cl target
-            sol      = root(objective, x0 = alpha0 , jac=jac, args=(airfoil_cl_surs, RE , a_geo ,a_loc, Cl))  
+            sol      = root(objective, x0 = alpha0 , jac=jac, args=(airfoil_polar_data, RE , a_geo ,a_loc, Cl))  
             alpha    = sol.x
             
             # query surrogate for sectional Cls at stations 
             Cdval    = np.zeros_like(RE) 
-            for j, cd in enumerate(airfoil_cd_surs):
-                Cdval_af    = interp2d(RE, alpha, cd.RE_data, cd.aoa_data, cd.CD_data)
-                locs        = np.where(np.array(a_loc) == j )
-                Cdval[locs] = Cdval_af[locs]    
+            j = 0 
+            Cdval_af    = interp2d(RE, alpha,airfoil_polar_data.reynolds_numbers,airfoil_polar_data.angle_of_attacks, airfoil_polar_data.drag_coefficients)
+            locs        = np.where(np.array(a_loc) == j )
+            Cdval[locs] = Cdval_af[locs]    
                 
         else:    
             Cdval   = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./RE)**0.2)
@@ -270,8 +264,8 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     t_max  = np.zeros(N)    
     t_c    = np.zeros(N)   
     if airfoil_flag:      
-        t_max                 = airfoil_geometry_data.max_thickness*c 
-        t_c                   = airfoil_geometry_data.thickness_to_chord
+        t_max                      = airfoil_geometry_data.max_thickness*c 
+        t_c                        = airfoil_geometry_data.thickness_to_chord
     else:     
         c_blade                    = np.repeat(np.atleast_2d(np.linspace(0,1,N)),N, axis = 0)* np.repeat(np.atleast_2d(c).T,N, axis = 1)
         t                          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
@@ -302,35 +296,44 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     prop.blade_solidity                   = sigma
     prop.airfoil_geometry                 = a_geo
     try:
-        prop.airfoil_cl_surrogates                       = airfoil_data.lift_coefficient_surrogates
-        prop.airfoil_cd_surrogates                       = airfoil_data.drag_coefficient_surrogates
-        prop.airfoil_lower_surface_theta_surrogates      = airfoil_bl_data.theta_lower_surface_surrogates          
-        prop.airfoil_lower_surface_delta_surrogates      = airfoil_bl_data.delta_lower_surface_surrogates          
-        prop.airfoil_lower_surface_delta_star_surrogates = airfoil_bl_data.delta_star_lower_surface_surrogates         
-        prop.airfoil_lower_surface_Ue_surrogates         = airfoil_bl_data.Ue_Vinf_lower_surface_surrogates   
-        prop.airfoil_lower_surface_cf_surrogates         = airfoil_bl_data.cf_lower_surface_surrogates                  
-        prop.airfoil_lower_surface_dp_dx_surrogates      = airfoil_bl_data.dcp_dx_lower_surface_surrogates         
-        prop.airfoil_upper_surface_theta_surrogates      = airfoil_bl_data.theta_upper_surface_surrogates          
-        prop.airfoil_upper_surface_delta_surrogates      = airfoil_bl_data.delta_upper_surface_surrogates          
-        prop.airfoil_upper_surface_delta_star_surrogates = airfoil_bl_data.delta_star_upper_surface_surrogates           
-        prop.airfoil_upper_surface_Ue_surrogates         = airfoil_bl_data.Ue_Vinf_upper_surface_surrogates   
-        prop.airfoil_upper_surface_cf_surrogates         = airfoil_bl_data.cf_upper_surface_surrogates                
-        prop.airfoil_upper_surface_dp_dx_surrogates      = airfoil_bl_data.dcp_dx_upper_surface_surrogates      
+        prop.RE_data                                        = airfoil_polar_data.reynolds_numbers
+        prop.aoa_data                                       = airfoil_polar_data.angle_of_attacks
+        prop.airfoil_cl_surrogates                          = airfoil_polar_data.lift_coefficients
+        prop.airfoil_cd_surrogates                          = airfoil_polar_data.drag_coefficients
+        
+        prop.airfoil_bl_aoa_data                            = airfoil_polar_data.boundary_layer_angle_of_attacks           
+        prop.airfoil_bl_RE_data                             = airfoil_polar_data.boundary_layer_reynolds_numbers   
+        prop.airfoil_bl_lower_surface_theta_surrogates      = airfoil_polar_data.boundary_layer_theta_lower_surface           
+        prop.airfoil_bl_lower_surface_delta_surrogates      = airfoil_polar_data.boundary_layer_delta_lower_surface           
+        prop.airfoil_bl_lower_surface_delta_star_surrogates = airfoil_polar_data.boundary_layer_delta_star_lower_surface          
+        prop.airfoil_bl_lower_surface_Ue_surrogates         = airfoil_polar_data.boundary_layer_cf_lower_surface          
+        prop.airfoil_bl_lower_surface_cf_surrogates         = airfoil_polar_data.boundary_layer_Ue_Vinf_lower_surface              
+        prop.airfoil_bl_lower_surface_dp_dx_surrogates      = airfoil_polar_data.boundary_layer_dcp_dx_lower_surface          
+        prop.airfoil_bl_upper_surface_theta_surrogates      = airfoil_polar_data.boundary_layer_theta_upper_surface           
+        prop.airfoil_bl_upper_surface_delta_surrogates      = airfoil_polar_data.boundary_layer_delta_upper_surface           
+        prop.airfoil_bl_upper_surface_delta_star_surrogates = airfoil_polar_data.boundary_layer_delta_star_upper_surface            
+        prop.airfoil_bl_upper_surface_Ue_surrogates         = airfoil_polar_data.boundary_layer_cf_upper_surface          
+        prop.airfoil_bl_upper_surface_cf_surrogates         = airfoil_polar_data.boundary_layer_Ue_Vinf_upper_surface            
+        prop.airfoil_bl_upper_surface_dp_dx_surrogates      = airfoil_polar_data.boundary_layer_dcp_dx_upper_surface       
     except:
-        prop.airfoil_cl_surrogates                      = None
-        prop.airfoil_cd_surrogates                      = None   
-        prop.airfoil_lower_surface_theta_surrogates     = None 
-        prop.airfoil_lower_surface_delta_surrogates     = None 
-        prop.airfoil_lower_surface_delta_star_surrogates= None
-        prop.airfoil_lower_surface_Ue_surrogates        = None
-        prop.airfoil_lower_surface_cf_surrogates        = None
-        prop.airfoil_lower_surface_dp_dx_surrogates     = None
-        prop.airfoil_upper_surface_theta_surrogates     = None
-        prop.airfoil_upper_surface_delta_surrogates     = None
-        prop.airfoil_upper_surface_delta_star_surrogates= None
-        prop.airfoil_upper_surface_Ue_surrogates        = None
-        prop.airfoil_upper_surface_cf_surrogates        = None
-        prop.airfoil_upper_surface_dp_dx_surrogates     = None
+        prop.RE_data                                        = None
+        prop.aoa_data                                       = None
+        prop.airfoil_cl_surrogates                          = None
+        prop.airfoil_cd_surrogates                          = None
+        prop.airfoil_bl_aoa_data                            = None
+        prop.airfoil_bl_RE_data                             = None
+        prop.airfoil_bl_lower_surface_theta_surrogates      = None   
+        prop.airfoil_bl_lower_surface_delta_surrogates      = None   
+        prop.airfoil_bl_lower_surface_delta_star_surrogates = None       
+        prop.airfoil_bl_lower_surface_Ue_surrogates         = None
+        prop.airfoil_bl_lower_surface_cf_surrogates         = None        
+        prop.airfoil_bl_lower_surface_dp_dx_surrogates      = None   
+        prop.airfoil_bl_upper_surface_theta_surrogates      = None   
+        prop.airfoil_bl_upper_surface_delta_surrogates      = None   
+        prop.airfoil_bl_upper_surface_delta_star_surrogates = None         
+        prop.airfoil_bl_upper_surface_Ue_surrogates         = None
+        prop.airfoil_bl_upper_surface_cf_surrogates         = None      
+        prop.airfoil_bl_upper_surface_dp_dx_surrogates      = None
         
     prop.airfoil_flag                     = airfoil_flag 
     prop.number_of_airfoil_section_points = number_of_airfoil_section_points
@@ -338,13 +341,13 @@ def propeller_design(prop,number_of_stations=20,number_of_airfoil_section_points
     return prop
 
     
-def objective(x, airfoil_cl_surs, RE , a_geo ,a_loc, Cl):  
+def objective(x, airfoil_polar_data, RE , a_geo ,a_loc, Cl):  
     # query surrogate for sectional Cls at stations 
     Cl_vals = jnp.zeros_like(RE)     
-    aloc    = jnp.array(a_loc)
-    for jj, cl in enumerate(airfoil_cl_surs):
-        sub_cl  = interp2d(RE, x, cl.RE_data, cl.aoa_data, cl.CL_data)
-        Cl_vals = jnp.where(aloc==jj,sub_cl,Cl_vals)
+    aloc    = jnp.array(a_loc) 
+    jj      = 0 
+    sub_cl  = interp2d(RE, x,airfoil_polar_data.reynolds_numbers, airfoil_polar_data.angle_of_attacks, airfoil_polar_data.lift_coefficients)
+    Cl_vals = jnp.where(aloc==jj,sub_cl,Cl_vals)
         
     # compute Cl residual    
     Cl_residuals = Cl_vals - Cl 

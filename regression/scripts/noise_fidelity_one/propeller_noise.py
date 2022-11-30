@@ -2,7 +2,7 @@
 
 # Imports    
 import SUAVE
-from SUAVE.Core import Units, Data 
+from SUAVE.Core import Units, Data , to_numpy, to_jnumpy
 from SUAVE.Components.Energy.Networks.Battery_Propeller                                   import Battery_Propeller 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars  import compute_airfoil_polars
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
@@ -10,8 +10,12 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                    import propeller_mid_fidelity
 from SUAVE.Analyses.Mission.Segments.Conditions                                           import Aerodynamics , Conditions
 from SUAVE.Analyses.Mission.Segments.Segment                                              import Segment 
+from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from scipy.interpolate import interp1d  
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties \
+     import compute_airfoil_properties
 
+import jax.numpy as jnp
 # Python Imports 
 import os 
 import numpy as np 
@@ -26,20 +30,16 @@ def main():
     '''   
 
     net                                = Battery_Propeller()
-    net.number_of_propeller_engines    = 1                                      
-    prop                               = design_F8745D4_prop()  
+    net.number_of_propeller_engines    = 1                      
+    prop                               = design_F8745D4_prop()             
+    prop.Wake                          = Rotor_Wake_Fidelity_Zero()     
     net.identical_propellers           = True  
     net.propellers.append(prop)  
-
-    # Atmosheric & Run Conditions                                               
-    a                       = 343.376
-    T                       = 288.16889478  
-    density                 = 1.2250	
-    dynamic_viscosity       = 1.81E-5 
+ 
 
     theta                   = np.array([1,10,20,30.1,40,50,59.9,70,80,89.9,100,110,120.1,130,140,150.1,160,170,179])  
     S                       = 4.
-    test_omega              = np.array([2390,2710,2630]) * Units.rpm    
+    test_omega              = np.array([2390]) * Units.rpm    
     ctrl_pts                = len(test_omega)
 
     # Set twist target
@@ -50,47 +50,66 @@ def main():
     delta_beta              = three_quarter_twist-beta_75
     prop.twist_distribution = beta + delta_beta 
 
+
+    # Atmosheric & Run Conditions                                               
+    a                       = 343.376
+    T                       = 288.16889478  
+    density                 = 1.2250	
+    dynamic_viscosity       = 1.81E-5 
+
+
+    # Set up for Propeller Model
+    conditions                                             = Aerodynamics()   
+    conditions.freestream.density                          = jnp.ones((ctrl_pts,1)) * density
+    conditions.freestream.dynamic_viscosity                = jnp.ones((ctrl_pts,1)) * dynamic_viscosity   
+    conditions.freestream.speed_of_sound                   = jnp.ones((ctrl_pts,1)) * a 
+    conditions.freestream.temperature                      = jnp.ones((ctrl_pts,1)) * T 
+    conditions.frames.inertial.velocity_vector             = jnp.array([[77.2, 0. ,0.]])
+    conditions.propulsion.throttle                         = jnp.ones((ctrl_pts,1))*1.0
+    conditions.frames.body.transform_to_inertial           = jnp.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+    prop.inputs.omega                                      = jnp.atleast_2d(test_omega).T
+    
+    # Run Propeller model 
+    F, Q, P, Cp , noise_data , etap                        = to_numpy(prop.spin(conditions))   
+
     # microphone locations
     positions = np.zeros(( len(theta),3))
     for i in range(len(theta)):
         if theta[i]*Units.degrees < np.pi/2:
             positions[i][:] = [-S*np.cos(theta[i]*Units.degrees)  ,S*np.sin(theta[i]*Units.degrees), 0.0]
         else: 
-            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0] 
+            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2)  ,S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0]   
+ 
+    mic_positions_hover = to_jnumpy(positions)     
+    
+    ## Run noise model  
+    conditions.noise.total_microphone_locations      = jnp.repeat(mic_positions_hover[ jnp.newaxis,:,: ],1,axis=0)
+    #conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
+    #segment                                          = Segment() 
+    #segment.state.conditions                         = conditions
+    #segment.state.conditions.expand_rows(ctrl_pts)  
+    #noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
+    #settings                                         = noise.settings   
+    #num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
+    #conditions.noise.number_of_microphones           = num_mic    
+     
+     
 
-    # Set up for Propeller Model
-
-    conditions                                             = Aerodynamics()   
-    conditions.freestream.density                          = np.ones((ctrl_pts,1)) * density
-    conditions.freestream.dynamic_viscosity                = np.ones((ctrl_pts,1)) * dynamic_viscosity   
-    conditions.freestream.speed_of_sound                   = np.ones((ctrl_pts,1)) * a 
-    conditions.freestream.temperature                      = np.ones((ctrl_pts,1)) * T 
-    conditions.frames.inertial.velocity_vector             = np.array([[77.2, 0. ,0.],[ 77.0,0.,0.], [ 77.2, 0. ,0.]])
-    conditions.propulsion.throttle                         = np.ones((ctrl_pts,1))*1.0
-    conditions.frames.body.transform_to_inertial           = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+    #mic_positions_hover = jnp.array([[0.0 , S_hover*jnp.sin(theta)  ,S_hover*jnp.cos(theta)]])      
     
-    prop.inputs.omega                                      = np.atleast_2d(test_omega).T
-    prop.inputs.y_axis_rotation                           *= np.ones_like(prop.inputs.omega)
-    
-    # Run Propeller model 
-    F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions) 
-
-    # Prepare Inputs for Noise Model  
-    conditions.noise.total_microphone_locations            = np.repeat(positions[ np.newaxis,:,: ],1,axis=0)
-    conditions.aerodynamics.angle_of_attack                = np.ones((ctrl_pts,1))* 0. * Units.degrees 
-    segment                                                = Segment() 
-    segment.state.conditions                               = conditions
-    segment.state.conditions.expand_rows(ctrl_pts)
-    
-    
-    # Store Noise Data 
-    noise                                      = SUAVE.Analyses.Noise.Fidelity_One() 
-    settings                                   = noise.settings   
-    num_mic                                    = len(conditions.noise.total_microphone_locations[0] )  
-    conditions.noise.number_of_microphones     = num_mic
+    # Run noise model  
+    #conditions.noise.total_microphone_locations      = jnp.repeat(mic_positions_hover[ jnp.newaxis,:,: ],1,axis=0)
+    conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
+    segment                                          = Segment() 
+    segment.state.conditions                         = conditions
+    #segment.state.conditions.expand_rows(ctrl_pts)  
+    noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
+    settings                                         = noise.settings   
+    num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
+    conditions.noise.number_of_microphones           = num_mic    
     
     # Run Fidelity One    
-    propeller_noise                       = propeller_mid_fidelity(net.propellers,noise_data,segment,settings )
+    propeller_noise                       = to_numpy(propeller_mid_fidelity(net.propellers,noise_data,segment,settings ))
     F8745D4_SPL                           = propeller_noise.SPL     
     F8745D4_SPL_harmonic                  = propeller_noise.SPL_harmonic 
     F8745D4_SPL_broadband                 = propeller_noise.SPL_broadband  
@@ -284,25 +303,49 @@ def design_F8745D4_prop():
     prop.chord_distribution               = func_chord_distribution(new_radius_distribution)         
     prop.radius_distribution              = func_radius_distribution(new_radius_distribution)        
     prop.max_thickness_distribution       = func_max_thickness_distribution(new_radius_distribution) 
-    prop.thickness_to_chord               = prop.max_thickness_distribution/prop.chord_distribution  
+    prop.thickness_to_chord               = prop.max_thickness_distribution/prop.chord_distribution 
+    prop.mid_chord_alignment              = np.zeros_like(prop.chord_distribution) 
           
     ospath                                = os.path.abspath(__file__)
     separator                             = os.path.sep
     rel_path                              = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator
     prop.airfoil_geometry                 = [ rel_path +'Clark_y.txt']
-    prop.airfoil_polars                   = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
-                                              rel_path +'Polars/Clark_y_polar_Re_500000.txt',rel_path +'Polars/Clark_y_polar_Re_1000000.txt']]
+    prop.airfoil_polars                   = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,
+                                              rel_path +'Polars/Clark_y_polar_Re_100000.txt',
+                                              rel_path +'Polars/Clark_y_polar_Re_200000.txt',
+                                              rel_path +'Polars/Clark_y_polar_Re_500000.txt',
+                                              rel_path +'Polars/Clark_y_polar_Re_1000000.txt',
+                                              rel_path +'Polars/Clark_y_polar_Re_3500000.txt',
+                                              rel_path +'Polars/Clark_y_polar_Re_5000000.txt']]
     airfoil_polar_stations                = np.zeros(dim)
-    prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))     
-    airfoil_polars                        = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)  
-    airfoil_cl_surs                       = airfoil_polars.lift_coefficient_surrogates 
-    airfoil_cd_surs                       = airfoil_polars.drag_coefficient_surrogates     
+    prop.airfoil_polar_stations           = list(airfoil_polar_stations.astype(int))        
     prop.airfoil_flag                     = True 
-    prop.airfoil_cl_surrogates            = airfoil_cl_surs
-    prop.airfoil_cd_surrogates            = airfoil_cd_surs    
-    prop.mid_chord_alignment              = np.zeros_like(prop.chord_distribution)
-    prop.number_of_airfoil_section_points = 102
-    prop.airfoil_data                     = import_airfoil_geometry(prop.airfoil_geometry, npoints = prop.number_of_airfoil_section_points) 
+
+    prop.number_of_airfoil_section_points = 102     
+
+    airfoil_geometry_data                               = import_airfoil_geometry(prop.airfoil_geometry[0],npoints = prop.number_of_airfoil_section_points) 
+    airfoil_polar_data                                  = compute_airfoil_properties(airfoil_geometry_data, airfoil_polar_files= prop.airfoil_polars[0],use_pre_stall_data=True,linear_lift=True ) 
+     
+    prop.RE_data                                        = airfoil_polar_data.reynolds_numbers
+    prop.aoa_data                                       = airfoil_polar_data.angle_of_attacks
+    prop.airfoil_cl_surrogates                          = airfoil_polar_data.lift_coefficients
+    prop.airfoil_cd_surrogates                          = airfoil_polar_data.drag_coefficients
+    
+    prop.airfoil_bl_aoa_data                            = airfoil_polar_data.boundary_layer_angle_of_attacks           
+    prop.airfoil_bl_RE_data                             = airfoil_polar_data.boundary_layer_reynolds_numbers   
+    prop.airfoil_bl_lower_surface_theta_surrogates      = airfoil_polar_data.boundary_layer_theta_lower_surface           
+    prop.airfoil_bl_lower_surface_delta_surrogates      = airfoil_polar_data.boundary_layer_delta_lower_surface           
+    prop.airfoil_bl_lower_surface_delta_star_surrogates = airfoil_polar_data.boundary_layer_delta_star_lower_surface          
+    prop.airfoil_bl_lower_surface_Ue_surrogates         = airfoil_polar_data.boundary_layer_cf_lower_surface          
+    prop.airfoil_bl_lower_surface_cf_surrogates         = airfoil_polar_data.boundary_layer_Ue_Vinf_lower_surface              
+    prop.airfoil_bl_lower_surface_dp_dx_surrogates      = airfoil_polar_data.boundary_layer_dcp_dx_lower_surface          
+    prop.airfoil_bl_upper_surface_theta_surrogates      = airfoil_polar_data.boundary_layer_theta_upper_surface           
+    prop.airfoil_bl_upper_surface_delta_surrogates      = airfoil_polar_data.boundary_layer_delta_upper_surface           
+    prop.airfoil_bl_upper_surface_delta_star_surrogates = airfoil_polar_data.boundary_layer_delta_star_upper_surface            
+    prop.airfoil_bl_upper_surface_Ue_surrogates         = airfoil_polar_data.boundary_layer_cf_upper_surface          
+    prop.airfoil_bl_upper_surface_cf_surrogates         = airfoil_polar_data.boundary_layer_Ue_Vinf_upper_surface            
+    prop.airfoil_bl_upper_surface_dp_dx_surrogates      = airfoil_polar_data.boundary_layer_dcp_dx_upper_surface        
+    
 
     return prop
 if __name__ == '__main__': 

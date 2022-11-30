@@ -19,9 +19,9 @@ Data, Container,
 
 import numpy as np
 import copy, time
-from SUAVE.Methods.Propulsion import propeller_design
+from SUAVE.Methods.Propulsion import propeller_design 
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
-
+import jax 
 def main():
     
     # This is a local import because this test requires higher precision
@@ -100,7 +100,7 @@ def main():
                                         '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_500000.txt',
                                         '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_1000000.txt']] 
 
-    prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]  
+    prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
     prop_a.design_thrust           = 3054.4809132125697
     prop_a.Wake = Rotor_Wake_Fidelity_Zero()
     prop_a                         = propeller_design(prop_a)  
@@ -333,6 +333,6 @@ def plot_results(results,prop,c,ls,m):
 #   Call Main
 # ----------------------------------------------------------------------    
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     main()
     plt.show()
