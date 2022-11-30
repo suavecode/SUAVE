@@ -117,7 +117,7 @@ def plot_battery_cell_conditions(results,
 
     # Add traces to the figure for each value by segment
 
-    for seg, data in df.groupby("Segment"):
+    for seg, data in df.groupby("Segment", sort=False):
         seg_name = ' '.join(seg.split("_")).capitalize()
 
         fig.add_trace(go.Scatter(

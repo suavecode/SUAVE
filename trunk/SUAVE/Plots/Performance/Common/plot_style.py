@@ -93,6 +93,10 @@ def plot_style(fig, *args, **kwargs):
     trace_list  = [fig.data[trace]['name'] for trace in range(len(fig.data))]
     segment_set = [i for n,i in enumerate(trace_list) if i not in trace_list[:n]]
 
+    # If the number of segments is less than the number of colors in the
+    # colorway, then spread the indices out to get a better contrast between
+    # segments
+
     if len(segment_set) < len(fig.layout.colorway):
         color_indicies = np.ceil([i/len(segment_set)*len(fig.layout.colorway)
                                   for i in range(len(segment_set))])
