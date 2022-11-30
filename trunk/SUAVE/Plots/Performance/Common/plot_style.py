@@ -78,10 +78,10 @@ def plot_style(fig, *args, **kwargs):
             )
         )
 
-    # Get Set of Segments in the Plot
+    # Get List of Segments in the Plot
 
-    segment_set = set([fig.data[trace]['name']
-                       for trace in range(len(fig.data))])
+    trace_list  = [fig.data[trace]['name'] for trace in range(len(fig.data))]
+    segment_set = [i for n,i in enumerate(trace_list) if i not in trace_list[:n]]
 
     # Create cycle-able iterator for assigning segment colors
 
