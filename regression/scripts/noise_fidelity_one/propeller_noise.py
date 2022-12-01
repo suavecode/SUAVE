@@ -69,6 +69,7 @@ def main():
     conditions.propulsion.throttle                         = jnp.ones((ctrl_pts,1))*1.0
     conditions.frames.body.transform_to_inertial           = jnp.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
     prop.inputs.omega                                      = jnp.atleast_2d(test_omega).T
+    prop.inputs.y_axis_rotation                            = jnp.ones_like(prop.inputs.omega)
     
     # Run Propeller model 
     F, Q, P, Cp , noise_data , etap                        = to_numpy(prop.spin(conditions))   
@@ -107,7 +108,7 @@ def main():
     noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
     settings                                         = noise.settings   
     num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
-    conditions.noise.number_of_microphones           = num_mic    
+    conditions.noise.number_of_microphones           = num_mic     
     
     # Run Fidelity One    
     propeller_noise                       = to_numpy(propeller_mid_fidelity(net.propellers,noise_data,segment,settings ))
