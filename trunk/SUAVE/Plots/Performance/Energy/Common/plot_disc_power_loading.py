@@ -40,7 +40,7 @@ def plot_disc_power_loading(results,
                 Apr 2021, M. Clarke
                 Dec 2021, S. Claridge
 
-    results.segments.condtions.propulsion.
+    results.segments.conditions.propulsion.
         disc_loadings
         power_loading
 
