@@ -8,8 +8,11 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
+from SUAVE.Core import  to_jnumpy 
 from jax import  jit
 import jax.numpy as jnp 
+import numpy as np
+import scipy as sp
 from SUAVE.Core.Utilities import jjv
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise  import A_weighting  
@@ -71,7 +74,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     rotor        = rotors[list(rotors.keys())[0]] 
     num_r        = len(rotor.radius_distribution) 
     orientation  = np.array(rotor.orientation_euler_angles) * 1 
-    body2thrust  = sp.spatial.transform.Rotation.from_rotvec(orientation).as_matrix()
+    body2thrust  = to_jnumpy(sp.spatial.transform.Rotation.from_rotvec(rotor.orientation_euler_angles).as_matrix())
     
         
     
