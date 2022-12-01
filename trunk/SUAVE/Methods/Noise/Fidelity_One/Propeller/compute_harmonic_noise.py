@@ -64,9 +64,16 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_cpt      = len(angle_of_attack)
     num_mic      = len(position_vector[0,:,0,0])
     num_rot      = len(position_vector[0,0,:,0])  
+    rotor        = rotors[list(rotors.keys())[0]]   
+    phi_0        = jnp.zeros(num_rot)            # phase angle offset 
+    for r_idx,rotor in enumerate(rotors):
+        phi_0 = phi_0.at[r_idx].set(rotor.phase_offset_angle)
     rotor        = rotors[list(rotors.keys())[0]] 
     num_r        = len(rotor.radius_distribution) 
-    body2thrust  = rotor.body_to_prop_vel()
+    orientation  = np.array(rotor.orientation_euler_angles) * 1 
+    body2thrust  = sp.spatial.transform.Rotation.from_rotvec(orientation).as_matrix()
+    
+        
     
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
