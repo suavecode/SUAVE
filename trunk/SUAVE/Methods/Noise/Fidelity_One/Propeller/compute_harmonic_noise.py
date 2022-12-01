@@ -69,12 +69,9 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_rot      = len(position_vector[0,0,:,0])  
     rotor        = rotors[list(rotors.keys())[0]]    
     rotor        = rotors[list(rotors.keys())[0]] 
-    num_r        = len(rotor.radius_distribution) 
-    orientation  = np.array(rotor.orientation_euler_angles) * 1 
+    num_r        = len(rotor.radius_distribution)  
     body2thrust  = to_jnumpy(sp.spatial.transform.Rotation.from_rotvec(rotor.orientation_euler_angles).as_matrix())
-    
-        
-    
+      
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
     # ----------------------------------------------------------------------------------  

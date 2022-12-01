@@ -368,7 +368,6 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     res.SPL_prop_broadband_spectrum_dBA               = A_weighting(SPL_rotor,frequency) 
     res.SPL_prop_broadband_1_3_spectrum               = convert_to_one_third_octave_band(SPL_rotor,f,settings)
     res.SPL_prop_broadband_1_3_spectrum_dBA           = convert_to_one_third_octave_band(A_weighting(SPL_rotor,frequency),f,settings)
-    res.SPL_prop_broadband_1_3_spectrum               = convert_to_one_third_octave_band(SPL_rotor,f,settings)
         
     return
 
