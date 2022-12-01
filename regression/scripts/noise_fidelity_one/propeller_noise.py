@@ -38,7 +38,7 @@ def main():
     net.propellers.append(prop)  
  
 
-    theta                   = np.array([1,10,20,30.1,40,50,59.9,70,80,89.9,100,110,120.1,130,140,150.1,160,170,179])  
+    theta                   = np.array([45])  
     S                       = 4.
     test_omega              = np.array([2390]) * Units.rpm    
     ctrl_pts                = len(test_omega)

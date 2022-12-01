@@ -28,7 +28,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity          
 
 # package imports
 import numpy as np
-
+import jax.numpy as jnp
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
@@ -69,7 +69,7 @@ class Fidelity_One(Noise):
         
         # Initialize quantities                   
         settings                                      = self.settings
-        settings.harmonics                            = np.arange(1,30) 
+        settings.harmonics                            = jnp.arange(1,30) 
         settings.flyover                              = False    
         settings.approach                             = False
         settings.sideline                             = False
@@ -89,12 +89,12 @@ class Fidelity_One(Noise):
         settings.level_ground_microphone_max_y        = 450   # sideline microphone distance
         settings.level_ground_microphone_x_resolution = 5
         settings.level_ground_microphone_y_resolution = 5
-        settings.center_frequencies                   = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
+        settings.center_frequencies                   = jnp.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
                                                                   500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
                                                                   4000, 5000, 6300, 8000, 10000])        
-        settings.lower_frequencies                    = np.array([14,18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,\
+        settings.lower_frequencies                    = jnp.array([14,18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,\
                                                                   900,1120,1400,1800,2240,2800,3550,4500,5600,7100,9000 ])
-        settings.upper_frequencies                    = np.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
+        settings.upper_frequencies                    = jnp.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
                                                                  1400,1800,2240,2800,3550,4500,5600,7100,9000,11200 ])
         
         return
