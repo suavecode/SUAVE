@@ -360,6 +360,7 @@ class Lift_Cruise(Network):
                 conditions.propulsion.lift_rotor_disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
                 conditions.propulsion.lift_rotor_power_loading[:,ii]    = (F_mag[:,0])/(P_lift[:,0])  # N/W      
                 conditions.propulsion.lift_rotor_efficiency[:,ii]       = etap_lift[:,0]
+                conditions.propulsion.lift_rotor_figure_of_merit[:,ii]  = outputs_lift.figure_of_merit[:,0] 
                 conditions.propulsion.lift_rotor_motor_efficiency[:,ii] = etam_lift_rotor[:,0]
                 
                 
@@ -806,6 +807,7 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.lift_rotor_thrust            = 0. * ones_row(n_lift_rotors)         
         segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_efficiency        = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_figure_of_merit   = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_motor_efficiency  = 0. * ones_row(n_lift_rotors)
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
@@ -907,6 +909,7 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.lift_rotor_power_loading     = 0. * ones_row(n_lift_rotors)        
         segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)       
         segment.state.conditions.propulsion.lift_rotor_efficiency        = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_figure_of_merit   = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_motor_efficiency  = 0. * ones_row(n_lift_rotors)
 
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
@@ -1012,6 +1015,7 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_efficiency        = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_motor_efficiency  = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_figure_of_merit   = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor_y_axis_rotation   = 0. * ones_row(n_lift_rotors)
 
         # Ensure the mission knows how to pack and unpack the unknowns and residuals

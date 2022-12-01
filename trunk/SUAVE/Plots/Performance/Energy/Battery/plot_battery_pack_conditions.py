@@ -15,7 +15,6 @@ import numpy as np
 import pandas as pd
 
 import plotly.graph_objects as go
-
 from plotly.subplots import make_subplots
 
 ## @ingroup Plots-Performance-Energy-Battery
@@ -56,7 +55,6 @@ def plot_battery_pack_conditions(results,
     """
 
     # Create empty dataframe to be populated by the segment data
-
     plot_cols = ['SOC',
                  'Energy',
                  'Power',
@@ -70,7 +68,6 @@ def plot_battery_pack_conditions(results,
     df = pd.DataFrame(columns=plot_cols)
 
     # Get the segment-by-segment results
-
     for segment in results.segments.values():
 
         time                = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -86,7 +83,6 @@ def plot_battery_pack_conditions(results,
         pack_C_nominal      = pack_current/np.max(pack_battery_amp_hr)
 
         # Assemble data into temporary holding data frame
-
         segment_frame = pd.DataFrame(
             np.column_stack((pack_SOC,
                              (pack_energy/Units.Wh),
@@ -101,15 +97,12 @@ def plot_battery_pack_conditions(results,
         segment_frame['Segment'] = [segment.tag for i in range(len(time))]
 
         # Append to collecting data frame
-
         df = df.append(segment_frame)
 
     # Set plot parameters
-
     fig = make_subplots(rows=4, cols=2)
 
     # Add traces to the figure for each value by segment
-
     for seg, data in df.groupby("Segment", sort=False):
         seg_name = ' '.join(seg.split("_")).capitalize()
 
@@ -169,7 +162,6 @@ def plot_battery_pack_conditions(results,
             row=4, col=2)
 
     # Add subplot axis titles
-
     fig.update_yaxes(title_text='SOC', row=1, col=1)
     fig.update_yaxes(title_text='Energy (W-hr)', row=2, col=1)
     fig.update_yaxes(title_text='Power (W)', row=3, col=1)
@@ -183,7 +175,6 @@ def plot_battery_pack_conditions(results,
     fig.update_xaxes(title_text='Time (min)', row=4, col=2)
 
     # Set overall figure layout style and legend title
-
     fig.update_layout(
         width=width, height=height,
         legend_title_text='Segment'

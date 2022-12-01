@@ -110,7 +110,7 @@ def plot_lift_cruise_network(results,
         lift_rotor_thrust   = -segment.conditions.frames.body.thrust_force_vector[:,2]
         lift_rotor_torque   = segment.conditions.propulsion.lift_rotor_motor_torque[:,0]
         lift_rotor_effp     = segment.conditions.propulsion.lift_rotor_efficiency[:,0]
-        lift_rotor_effm     = segment.conditions.propulsion.lift_rotor_motor_efficiency[:,0]
+        lift_rotor_effm     = segment.conditions.propulsion.lift_rotor_figure_of_merit[:,0]
         lift_rotor_Cp       = segment.conditions.propulsion.lift_rotor_power_coefficient[:,0]
         rtm                 = segment.conditions.propulsion.lift_rotor_tip_mach[:, 0]
 
@@ -276,7 +276,7 @@ def plot_lift_cruise_network(results,
 
             lift_fig.add_trace(go.Scatter(
                 x=data.index,
-                y=data['Lift Efficiency'],
+                y=data['Lift FoM'],
                 name=seg_name,
                 showlegend=False),
                 row=1, col=3)
