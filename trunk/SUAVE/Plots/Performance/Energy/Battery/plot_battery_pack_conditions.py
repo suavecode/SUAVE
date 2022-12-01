@@ -22,6 +22,7 @@ from plotly.subplots import make_subplots
 def plot_battery_pack_conditions(results,
                                  save_figure=False,
                                  save_filename="Battery_Pack_Conditions",
+                                 file_type=".png",
                                  width = 1600, height = 665,
                                  *args, **kwargs):
     """Plots the pack-level conditions of the battery throughout flight.

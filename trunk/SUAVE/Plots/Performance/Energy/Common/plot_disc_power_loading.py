@@ -1,4 +1,4 @@
-## @ingroup Plots-Performance-Energy-Battery
+## @ingroup Plots-Performance-Energy-Common
 # plot_disc_power_loading.py
 # 
 # Created:    Nov 2022, J. Smart
@@ -18,10 +18,11 @@ import plotly.graph_objects as go
 
 from plotly.subplots import make_subplots
 
-## @ingroup Plots-Performance-Energy-Battery
+## @ingroup Plots-Performance-Energy-Common
 def plot_disc_power_loading(results,
                             save_figure=False,
                             save_filename="Disc_Power_Loading",
+                            file_type = ".png",
                             width = 800, height = 330,
                             *args, **kwargs):
     """Plots propeller disc and power loadings
