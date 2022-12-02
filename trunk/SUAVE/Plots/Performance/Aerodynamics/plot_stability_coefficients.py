@@ -102,22 +102,22 @@ def plot_stability_coefficients(results,
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['CM'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=1, col=2)        
 
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['CM_a'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=2, col=1)        
 
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['SM'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=2, col=2)        
 
     fig.update_yaxes(title_text='AoA (deg)', row=1, col=1)

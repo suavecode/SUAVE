@@ -102,22 +102,22 @@ def plot_aerodynamic_forces(results,
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['Lift'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=2, col=1)
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['Thrust'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=1, col=2)
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['Drag'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=2, col=2)
                                         
     fig.update_yaxes(title_text='Throttle', row=1, col=1)

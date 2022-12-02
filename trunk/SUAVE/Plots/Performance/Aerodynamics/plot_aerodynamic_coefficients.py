@@ -101,22 +101,22 @@ def plot_aerodynamic_coefficients(results,
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['CL'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=1, col=2)
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['CD'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=2, col=2)
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['L_D'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=2, col=1)        
     
     fig.update_yaxes(title_text='AoA (deg)', row=1, col=1)

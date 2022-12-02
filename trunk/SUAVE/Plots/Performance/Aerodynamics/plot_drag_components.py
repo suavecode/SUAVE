@@ -99,36 +99,36 @@ def plot_drag_components(results,
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['cdi'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=1, col=2)    
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['cdc'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=2, col=1)         
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['cdm'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=2, col=2)    
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['cde'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=3, col=1)           
 
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['cd'],
-            name=seg_name),
-            showlegend=False,
+            name=seg_name,
+            showlegend=False),
             row=3, col=2)           
                             
     # Add subplot axis titles
