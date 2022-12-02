@@ -419,30 +419,30 @@ def vehicle_setup():
 
     # Component 2 the Propeller 
     prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.tag                    = 'propeller_1'
-    prop.number_of_blades       = 3.0
-    prop.freestream_velocity    = 150.   * Units.knots
-    prop.angular_velocity       = 2400. * Units.rpm
-    prop.tip_radius             = 1.72/2  
-    prop.hub_radius             = 10.     * Units.inches
-    prop.design_Cl              = 0.8
-    prop.design_altitude        = 9000. * Units.feet  
-    prop.design_power           = 98 * 0.65  * Units.hp # assume 65 BHP at cruise
-    prop.origin                 = [[2.,2.5,0.784]]
-    prop.rotation               = -1
-    prop.symmetry               = True
-    prop.variable_pitch         = True 
-    prop.number_azimuthal_stations = 24 
-    
-    prop.airfoil_geometry       =  [base + '/Airfoils/NACA_4412.txt']
-    prop.airfoil_polars         = [[base + '/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                    base + '/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                    base + '/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                    base + '/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                    base + '/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-
-    prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    prop                        = propeller_design(prop,number_of_airfoil_section_points = 102)
+    prop.tag                       = 'propeller_1'
+    prop.number_of_blades          = 3.0
+    prop.freestream_velocity       = 150.   * Units.knots
+    prop.angular_velocity          = 2400. * Units.rpm
+    prop.tip_radius                = 1.72/2  
+    prop.hub_radius                = 10.     * Units.inches
+    prop.design_Cl                 = 0.8
+    prop.design_altitude           = 9000. * Units.feet  
+    prop.design_power              = 98 * 0.65  * Units.hp # assume 65 BHP at cruise
+    prop.origin                    = [[2.,2.5,0.784]]
+    prop.rotation                  = -1
+    prop.symmetry                  = True
+    prop.variable_pitch            = True 
+    airfoil                        = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.number_of_points       = 102
+    airfoil.coordinate_file        = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files            = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    prop.append_airfoil(airfoil) 
+    prop.airfoil_polar_stations    = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
+    prop                           = propeller_design(prop)  
 
     prop_left = deepcopy(prop)
     prop_left.tag = 'propeller_2' 
@@ -517,10 +517,8 @@ def configs_setup(vehicle):
     configs = SUAVE.Components.Configs.Config.Container()
 
     base_config = SUAVE.Components.Configs.Config(vehicle)
-    base_config.tag = 'base'
-    base_config.networks.battery_propeller.pitch_command = 0
-    configs.append(base_config)
-
+    base_config.tag = 'base' 
+    configs.append(base_config) 
 
     # done!
     return configs

@@ -15,7 +15,7 @@
 
 import numpy as np
 import SUAVE
-from SUAVE.Core import Units, to_numpy
+from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 
@@ -153,7 +153,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     # Fill out more segment properties automatically
-    wing = to_numpy(wing_segmented_planform(wing))
+    wing = wing_segmented_planform(wing)    
 
     # control surfaces -------------------------------------------
     slat                          = SUAVE.Components.Wings.Control_Surfaces.Slat()
@@ -242,7 +242,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     # Fill out more segment properties automatically
-    wing = to_numpy(wing_segmented_planform(wing))     
+    wing = wing_segmented_planform(wing)        
 
     # control surfaces -------------------------------------------
     elevator                       = SUAVE.Components.Wings.Control_Surfaces.Elevator()
@@ -324,7 +324,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     # Fill out more segment properties automatically
-    wing = to_numpy(wing_segmented_planform(wing))     
+    wing = wing_segmented_planform(wing)        
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -506,19 +506,19 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Nacelles
     # ------------------------------------------------------------------ 
-    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.tag                   = 'nacelle_1'
-    nacelle.length                = 2.71
-    nacelle.inlet_diameter        = 1.90
-    nacelle.diameter              = 2.05
-    nacelle.areas.wetted          = 1.1*np.pi*nacelle.diameter*nacelle.length
-    nacelle.origin                = [[13.72, -4.86,-1.9]]
-    nacelle.flow_through          = True   
-    nacelle.Airfoil.naca_4_series_airfoil = '2410' 
-
-    nacelle_2                     = deepcopy(nacelle)
-    nacelle_2.tag                 = 'nacelle_2'
-    nacelle_2.origin              = [[13.72, 4.86,-1.9]]
+    nacelle                            = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.tag                        = 'nacelle_1'
+    nacelle.length                     = 2.71
+    nacelle.inlet_diameter             = 1.90
+    nacelle.diameter                   = 2.05
+    nacelle.areas.wetted               = 1.1*np.pi*nacelle.diameter*nacelle.length
+    nacelle.origin                     = [[13.72, -4.86,-1.9]]
+    nacelle.flow_through               = True   
+    nacelle.Airfoil.NACA_4_series_flag = True 
+    nacelle.Airfoil.coordinate_file    = '2410'  
+    nacelle_2                          = deepcopy(nacelle)
+    nacelle_2.tag                      = 'nacelle_2'
+    nacelle_2.origin                   = [[13.72, 4.86,-1.9]]
     
     vehicle.append_component(nacelle)  
     vehicle.append_component(nacelle_2)     
@@ -812,7 +812,7 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag                                                       = 'cutback'
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
-    #config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
+    config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
     #Noise input for the landing gear                                
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Cutback_'
@@ -831,7 +831,7 @@ def configs_setup(vehicle):
     config.tag = 'landing'
 
     config.wings['main_wing'].control_surfaces.flap.deflection       = 30. * Units.deg
-    #config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg  
+    config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg  
     #Noise input for the landing gear                              
     config.landing_gear.gear_condition                               = 'down'    
     config.output_filename                                           = 'Approach_'
