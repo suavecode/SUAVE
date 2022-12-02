@@ -85,8 +85,8 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     a_loc              = rotor.airfoil_polar_stations 
     
     # unpack boundary layer data 
-    bl_RE_data                      = rotor.airfoil_bl_aoa_data                           
-    bl_aoa_data                     = rotor.airfoil_bl_RE_data                            
+    bl_RE_data                      = rotor.airfoil_bl_RE_data                           
+    bl_aoa_data                     = rotor.airfoil_bl_aoa_data                              
     theta_lower_surface_data        = rotor.airfoil_bl_lower_surface_theta_surrogates      
     delta_lower_surface_data        = rotor.airfoil_bl_lower_surface_delta_surrogates      
     delta_star_lower_surface_data   = rotor.airfoil_bl_lower_surface_delta_star_surrogates 
