@@ -519,30 +519,44 @@ class Rotor(Energy_Component):
         Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
         epsilon     = Cd/Cl
         epsilon     = jnp.where(epsilon==jnp.inf,10.,epsilon)
-    
+
+        # thrust and torque and their derivatives on the blade.
+        blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar
+        blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar
+        blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa))
+        blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r)
+        
         # thrust and torque and their derivatives on the blade 
         blade_dT_dr_2d          = rho*(Gamma*(Wt-epsilon*Wa))
         blade_dQ_dr_2d          = rho*(Gamma*(Wa+epsilon*Wt)*r)
         blade_T_distribution_2d = blade_dT_dr_2d*deltar
         blade_Q_distribution_2d = blade_dQ_dr_2d*deltar        
-
+        
         Va_avg     = jnp.average(Wa, axis=2)      # averaged around the azimuth
         Vt_avg     = jnp.average(Wt, axis=2)      # averaged around the azimuth
         Vt_ind_avg = jnp.average(vt, axis=2)
         Va_ind_avg = jnp.average(va, axis=2)
     
+
+        Va_2d           = Wa
+        Vt_2d           = Wt
+        blade_Gamma_2d  = Gamma
+        alpha_2d        = alpha 
+        Va_ind_2d       = va
+        Vt_ind_2d       = vt 
+ 
         # set 1d blade loadings to be the average:
         blade_T_distribution    = jnp.mean((blade_T_distribution_2d), axis = 2)
         blade_Q_distribution    = jnp.mean((blade_Q_distribution_2d), axis = 2)
         blade_dT_dr             = jnp.mean((blade_dT_dr_2d), axis = 2)
-        blade_dQ_dr             = jnp.mean((blade_dQ_dr_2d), axis = 2)
+        blade_dQ_dr             = jnp.mean((blade_dQ_dr_2d), axis = 2) 
     
         # compute the hub force / rotor drag distribution along the blade
         dL_2d    = 0.5*rho*c*Cd*omegar**2*deltar
         dD_2d    = 0.5*rho*c*Cl*omegar**2*deltar
     
-        rotor_drag_distribution = jnp.mean(dL_2d*jnp.sin(psi_2d) + dD_2d*jnp.cos(psi_2d),axis=2)
-    
+        rotor_drag_distribution = jnp.mean(dL_2d*jnp.sin(psi_2d) + dD_2d*jnp.cos(psi_2d),axis=2)  
+        
         # forces
         thrust                  = jnp.atleast_2d((B * jnp.sum(blade_T_distribution, axis = 1))).T
         torque                  = jnp.atleast_2d((B * jnp.sum(blade_Q_distribution, axis = 1))).T
@@ -596,20 +610,20 @@ class Rotor(Energy_Component):
                     blade_tangential_induced_velocity = Vt_ind_avg,
                     blade_axial_induced_velocity      = Va_ind_avg,
                     blade_tangential_velocity         = Vt_avg,
-                    blade_axial_velocity              = Va_avg,
-                    disc_tangential_induced_velocity  = vt,
-                    disc_axial_induced_velocity       = va,
-                    disc_tangential_velocity          = Wt,
-                    disc_axial_velocity               = Wa,
+                    blade_axial_velocity              = Va_avg, 
+                    disc_tangential_induced_velocity  = Vt_ind_2d,
+                    disc_axial_induced_velocity       = Va_ind_2d,
+                    disc_tangential_velocity          = Vt_2d,
+                    disc_axial_velocity               = Va_2d, 
                     drag_coefficient                  = Cd,
                     lift_coefficient                  = Cl,
                     omega                             = omega,
-                    disc_circulation                  = Gamma,
+                    disc_circulation                  = blade_Gamma_2d,
                     blade_dT_dr                       = blade_dT_dr,
                     disc_dT_dr                        = blade_dT_dr_2d,
                     blade_thrust_distribution         = blade_T_distribution,
                     disc_thrust_distribution          = blade_T_distribution_2d,
-                    disc_effective_angle_of_attack    = alpha,
+                    disc_effective_angle_of_attack    = alpha_2d,
                     thrust_per_blade                  = thrust/B,
                     thrust_coefficient                = Ct,
                     disc_azimuthal_distribution       = psi_2d,
