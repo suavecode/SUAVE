@@ -11,7 +11,8 @@
 from SUAVE.Core import Units, Data
 
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.express as px
+import pandas as pd
 
 #------------------------------------------------------------------------------
 # Electric Payload Range Function
@@ -118,11 +119,13 @@ def electric_payload_range(vehicle,
     payload_range.takeoff_weight    = TOW
 
     if display_plot:
-
-        plt.plot(R, PLD, 'r')
-        plt.xlabel('Range ('+unit+')')
-        plt.ylabel('Payload (kg)')
-        plt.title('Payload Range Diagram')
-        plt.grid(True) 
-
+        
+        col = 'Payload (kg)'
+        row = 'Range ('+unit+')'
+        
+        df = pd.DataFrame({col:R,row:PLD})
+        
+        fig = px.line(df, x=col, y=row, title='Payload Range Diagram')
+        fig.show()
+        
     return payload_range
