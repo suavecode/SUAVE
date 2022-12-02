@@ -23,7 +23,7 @@ def plot_disc_power_loading(results,
                             save_figure=False,
                             save_filename="Disc_Power_Loading",
                             file_type = ".png",
-                            width = 800, height = 330,
+                            width = 1600, height = 800,
                             *args, **kwargs):
     """Plots propeller disc and power loadings
 
@@ -84,7 +84,7 @@ def plot_disc_power_loading(results,
 
     # Set plot parameters
 
-    fig = make_subplots(rows=4, cols=2)
+    fig = make_subplots(rows=2, cols=2)
 
     # Add traces to the figure for each value by segment
 
@@ -113,7 +113,8 @@ def plot_disc_power_loading(results,
 
     fig.update_layout(
         width=width, height=height,
-        legend_title_text='Segment'
+        legend_title_text='Segment',
+        title_text = 'Blade Loadings'
     )
 
     fig = plot_style(fig)

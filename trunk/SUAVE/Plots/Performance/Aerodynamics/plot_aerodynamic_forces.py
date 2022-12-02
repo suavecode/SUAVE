@@ -103,18 +103,21 @@ def plot_aerodynamic_forces(results,
             x=data.index,
             y=data['Lift'],
             name=seg_name),
+            showlegend=False,
             row=2, col=1)
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['Thrust'],
             name=seg_name),
+            showlegend=False,
             row=1, col=2)
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['Drag'],
             name=seg_name),
+            showlegend=False,
             row=2, col=2)
                                         
     fig.update_yaxes(title_text='Throttle', row=1, col=1)
@@ -128,7 +131,8 @@ def plot_aerodynamic_forces(results,
     # Set overall figure layout style and legend title
     fig.update_layout(
         width=width, height=height,
-        legend_title_text='Segment'
+        legend_title_text='Segment',
+        title_text = 'Aerodynamic Forces'
     )
 
     fig = plot_style(fig)

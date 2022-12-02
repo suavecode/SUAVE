@@ -9,7 +9,7 @@
 # ---------------------------------------------------------------------- 
 
 from itertools import cycle
-import numpy as np
+import plotly.express as px
 import plotly
 
 ## @ingroup Plots-Performance-Common
@@ -75,8 +75,7 @@ def plot_style(fig, *args, **kwargs):
 
     fig.update_layout(
         plot_bgcolor='white',
-        margin = dict(t=0, l=0, b=0, r=0),
-        colorway=plotly.colors.sequential.Inferno[:-1]) # Remove Lightest Color
+        margin = dict(t=80, l=80, b=80, r=80))
 
     # Set Line and Marker Style
 
@@ -89,31 +88,22 @@ def plot_style(fig, *args, **kwargs):
         )
 
     # Get List of Segments in the Plot
-
     trace_list  = [fig.data[trace]['name'] for trace in range(len(fig.data))]
     segment_set = [i for n,i in enumerate(trace_list) if i not in trace_list[:n]]
 
-    # If the number of segments is less than the number of colors in the
-    # colorway, then spread the indices out to get a better contrast between
-    # segments
+    # Setup the colors
+    NS          = len(segment_set)+1
+    color_list  = px.colors.sample_colorscale("inferno", [n/(NS -1) for n in range(NS)])
+    
 
-    if len(segment_set) < len(fig.layout.colorway):
-        color_indicies = np.array(np.ceil([i/len(segment_set)*len(fig.layout.colorway)
-                                  for i in range(len(segment_set))]),dtype=np.int32)
-        color_list = [fig.layout.colorway[i] for i in color_indicies]
-    else:
-        color_list = fig.layout.colorway
-
-    # Create cycle-able iterator for assigning segment colors
-
+    # Create cycle-able iterator for assigning segment colors from inferno
     colorcycler = cycle(color_list)
 
     # Set segment line and marker color by iterating through the colorway
-
     for segment in segment_set:
         segment_color = next(colorcycler)
         fig.update_traces(marker=dict(line=dict(color=segment_color)),
                           line=dict(color=segment_color),
                           selector=dict(name=segment))
-
+        
     return fig

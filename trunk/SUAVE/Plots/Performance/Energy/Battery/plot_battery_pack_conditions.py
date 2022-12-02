@@ -22,7 +22,7 @@ def plot_battery_pack_conditions(results,
                                  save_figure=False,
                                  save_filename="Battery_Pack_Conditions",
                                  file_type=".png",
-                                 width = 1600, height = 665,
+                                 width = 1600, height = 800,
                                  *args, **kwargs):
     """Plots the pack-level conditions of the battery throughout flight.
 
@@ -131,7 +131,7 @@ def plot_battery_pack_conditions(results,
             y=data['Current'],
             name=seg_name,
             showlegend=False),
-            row=4, col=2)
+            row=4, col=1)
 
         fig.add_trace(go.Scatter(
             x=data.index,
@@ -177,7 +177,8 @@ def plot_battery_pack_conditions(results,
     # Set overall figure layout style and legend title
     fig.update_layout(
         width=width, height=height,
-        legend_title_text='Segment'
+        legend_title_text='Segment',
+        title_text = 'Battery Pack Conditions'
     )
 
     fig = plot_style(fig)

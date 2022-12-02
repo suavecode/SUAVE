@@ -102,24 +102,27 @@ def plot_aerodynamic_coefficients(results,
             x=data.index,
             y=data['CL'],
             name=seg_name),
+            showlegend=False,
             row=1, col=2)
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['CD'],
             name=seg_name),
+            showlegend=False,
             row=2, col=2)
         
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['L_D'],
             name=seg_name),
+            showlegend=False,
             row=2, col=1)        
     
     fig.update_yaxes(title_text='AoA (deg)', row=1, col=1)
     fig.update_yaxes(title_text='CL', row=1, col=2)
     fig.update_yaxes(title_text='CD', row=2, col=2)
-    fig.update_yaxes(title_text='L_D', row=2, col=1)
+    fig.update_yaxes(title_text='L/D', row=2, col=1)
     
     fig.update_xaxes(title_text='Time (min)', row=2, col=1)
     fig.update_xaxes(title_text='Time (min)', row=2, col=2)    
@@ -127,7 +130,8 @@ def plot_aerodynamic_coefficients(results,
     # Set overall figure layout style and legend title
     fig.update_layout(
         width=width, height=height,
-        legend_title_text='Segment'
+        legend_title_text='Segment',
+        title_text = 'Aerodynamic Coefficients'
     )
 
     fig = plot_style(fig)

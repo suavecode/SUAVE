@@ -26,7 +26,7 @@ def plot_stability_coefficients(results,
                                 save_figure=False,
                                 save_filename="Stability_Coefficents",
                                 file_type=".png",
-                                width = 1600, height = 665,
+                                width = 1600, height =800,
                                 *args, **kwargs):
     """This plots the static stability characteristics of an aircraft
     
@@ -103,18 +103,21 @@ def plot_stability_coefficients(results,
             x=data.index,
             y=data['CM'],
             name=seg_name),
+            showlegend=False,
             row=1, col=2)        
 
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['CM_a'],
             name=seg_name),
+            showlegend=False,
             row=2, col=1)        
 
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['SM'],
             name=seg_name),
+            showlegend=False,
             row=2, col=2)        
 
     fig.update_yaxes(title_text='AoA (deg)', row=1, col=1)
@@ -128,7 +131,8 @@ def plot_stability_coefficients(results,
     # Set overall figure layout style and legend title
     fig.update_layout(
         width=width, height=height,
-        legend_title_text='Segment'
+        legend_title_text='Segment',
+        title_text = 'Stability Coefficients'
     )
 
     fig = plot_style(fig)

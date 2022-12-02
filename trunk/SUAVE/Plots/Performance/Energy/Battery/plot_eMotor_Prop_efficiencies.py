@@ -23,7 +23,7 @@ def plot_eMotor_Prop_efficiencies(results,
                                   save_figure = False,
                                   save_filename = "eMotor_Prop_Efficiencies",
                                   file_type = ".png",
-                                  width = 800, height = 500,
+                                  width = 1600, height = 800,
                                   *args, **kwargs):
     """This plots the electric driven network propeller efficiencies
 
@@ -125,7 +125,8 @@ def plot_eMotor_Prop_efficiencies(results,
 
     fig.update_layout(
         width=width, height=height,
-        legend_title_text='Segment'
+        legend_title_text='Segment',
+        title_text = 'Propeller and Motor Conditions'
     )
 
     fig = plot_style(fig)

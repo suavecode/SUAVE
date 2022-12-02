@@ -28,7 +28,7 @@ def plot_lift_cruise_network(results,
                              lift_rotor_save_filename="Lift_Rotor_Conditions",
                              mach_save_filename="Tip_Mach_Numbers",
                              file_type=".png",
-                             width = 2400, height = 330,
+                             width = 1600, height = 800,
                              *args, **kwargs):
     """Plots the electric and propulsion network performance of a vehicle
     with a lift-cruise network.
@@ -377,7 +377,8 @@ def plot_lift_cruise_network(results,
             title=dict(text='Tip Mach Numbers',
                        xanchor='center', yanchor='top'),
             width=width/3, height=height,
-            legend_title_text='Segment'
+            legend_title_text='Segment',
+            title_text = 'Lift + Cruise Network'
         )
 
         # Set Style
