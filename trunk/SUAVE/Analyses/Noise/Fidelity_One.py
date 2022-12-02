@@ -77,6 +77,7 @@ class Fidelity_One(Noise):
         settings.fix_lateral_microphone_distance      = True
         settings.static_microphone_array              = False  
         settings.urban_canyon_microphone_locations    = None  
+        settings.floating_point_precision             = jnp.float64
         settings.urban_canyon_building_dimensions     = []
         settings.urban_canyon_building_locations      = []  
         settings.urban_canyon_microphone_x_resolution = 4 

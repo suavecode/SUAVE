@@ -126,6 +126,7 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,rotors,mls,set
     """
     
     # aquire dimension of matrix 
+    precision   = settings.floating_point_precision
     num_cpt     = len(AoA)
     num_mic     = len(mls[0,:,0])   
     num_rot     = len(rotors)  
@@ -199,8 +200,8 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,rotors,mls,set
     POS     = jnp.matmul(M_theta,mat1)
 
     blade_section_position_vectors = Data()
-    blade_section_position_vectors.blade_section_coordinate_sys    = POS 
-    blade_section_position_vectors.vehicle_coordinate_sys          = POS_2
+    blade_section_position_vectors.blade_section_coordinate_sys    = jnp.array(POS, dtype=precision)
+    blade_section_position_vectors.vehicle_coordinate_sys          = jnp.array(POS_2, dtype=precision)
     blade_section_position_vectors.cos_phi                         = jnp.repeat(cos_phi,2,axis = 6)  
     blade_section_position_vectors.sin_alpha_eff                   = jnp.repeat(sin_alpha_eff,2,axis = 6)     
     blade_section_position_vectors.cos_alpha_eff                   = jnp.repeat(cos_alpha_eff,2,axis = 6) 

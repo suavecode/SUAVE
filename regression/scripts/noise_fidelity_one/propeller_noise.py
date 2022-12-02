@@ -38,9 +38,14 @@ def main():
     noise with windtunnel ..." by Weir, D and Powers, J.
     '''   
 
+    # This is a local import because this test requires higher precision
+    from jax.config import config
+    config.update("jax_enable_x64", True)        
+
     net                                = Battery_Propeller()
     net.number_of_propeller_engines    = 1                      
-    prop                               = F8745_D4_Propeller()          
+    prop                               = F8745_D4_Propeller()    
+    prop.number_azimuthal_stations     = 24 # originally 24  
     prop.Wake                          = Rotor_Wake_Fidelity_Zero()     
     net.identical_propellers           = True  
     net.propellers.append(prop)  
