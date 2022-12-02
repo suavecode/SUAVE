@@ -83,7 +83,9 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts
                 Cdval[:,locs] = Cdval_af[:,locs]
     else:
         # Estimate Cl max
-        Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+        tc_1 = tc*100
+        Cl_max_ref = -0.0009*tc_1**3 + 0.0217*tc_1**2 - 0.0442*tc_1 + 0.7005
+        Cl_max_ref[Cl_max_ref<0.7] = 0.7
         Re_ref     = 9.*10**6
         Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
 
@@ -95,7 +97,8 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts
         Cl[alpha>=np.pi/2] = 0.
 
         # Scale for Mach, this is Karmen_Tsien
-        Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+        KT_cond = np.logical_and((Ma[:,:]<1.),(Cl>0))
+        Cl[KT_cond] = Cl[KT_cond]/((1-Ma[KT_cond]*Ma[KT_cond])**0.5+((Ma[KT_cond]*Ma[KT_cond])/(1+(1-Ma[KT_cond]*Ma[KT_cond])**0.5))*Cl[KT_cond]/2)
 
         # If the blade segments are supersonic, don't scale
         Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]
