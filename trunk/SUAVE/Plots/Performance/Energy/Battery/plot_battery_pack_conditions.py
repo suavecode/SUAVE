@@ -87,11 +87,12 @@ def plot_battery_pack_conditions(results,
             np.column_stack((pack_SOC,
                              (pack_energy/Units.Wh),
                              -pack_power,
+                             pack_current,
                              pack_volts,
                              pack_volts_oc,
                              pack_C_instant,
-                             pack_C_nominal,
-                             pack_current)),
+                             pack_C_nominal)
+                             ),
             columns = plot_cols[:-1], index=time
         )
         segment_frame['Segment'] = [segment.tag for i in range(len(time))]
