@@ -340,7 +340,10 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     a                        = (2.82*((delta/delta_star)**2)*(jnp.power((6.13*((delta/delta_star)**(-0.75)) + d),(3.7 + 1.5*beta_c))))*\
                                (4.2*((0.8*((beta_c + 0.5)**3/4))/(delta/delta_star)) + 1)
     d_star                   = d 
-    d_star                   = d_star.at[beta_c<0.5].set(jnp.maximum(ones,1.5*d))    
+    
+    #d_star[beta_c<0.5]       = np.maximum(ones,1.5*d)[beta_c<0.5]
+    vals                     = jnp.maximum(ones,1.5*d)
+    d_star                   = d_star.at[beta_c<0.5].set(vals[beta_c<0.5])    
     Phi_pp_expression        =  (jnp.maximum(a, (0.25*beta_c - 0.52)*a)*((omega*delta_star/Ue)**2))/(((4.76*((omega*delta_star/Ue)**0.75) \
                                 + d_star)**(3.7 + 1.5*beta_c))+ (jnp.power((8.8*(((delta/Ue)/(kine_visc/(((tau_w/rho)**0.5)**2)))**(-0.57))\
                                 *(omega*delta_star/Ue)),(jnp.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7)) ))
