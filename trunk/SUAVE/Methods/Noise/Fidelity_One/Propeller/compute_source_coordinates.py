@@ -143,7 +143,7 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,rotors,mls,set
     num_azi        = len(phi_2d0[0,0,:])  
     orientation    = np.array(rotor.orientation_euler_angles) * 1 
     orientation[1] += np.pi/2 # rotor tilt angle between the rotor hub plane and the vehicle hub plane  
-    body2thrust    = to_jnumpy(sp.spatial.transform.Rotation.from_rotvec(rotor.orientation_euler_angles).as_matrix())
+    body2thrust    = to_jnumpy(sp.spatial.transform.Rotation.from_rotvec(orientation).as_matrix())
          
     # Update dimensions for computation   
     r              = jnp.tile(r[None,None,None,:,None,None],(num_cpt,num_mic,num_rot,1,num_azi,num_cf))
