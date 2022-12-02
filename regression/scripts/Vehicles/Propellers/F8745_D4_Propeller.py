@@ -44,14 +44,14 @@ def F8745_D4_Propeller():
     ospath    = os.path.abspath(__file__)
     separator = os.path.sep
     rel_path  = os.path.dirname(ospath) + separator     
-    prop.airfoil_geometry            = rel_path +'../Airfoils/Clark_y.txt'
-    prop.airfoil_polars             = [rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt' ,
+    prop.airfoil_geometry            = [rel_path +'../Airfoils/Clark_y.txt']
+    prop.airfoil_polars             = [[rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt' ,
                                        rel_path +'../Airfoils/Polars/Clark_y_polar_Re_100000.txt',
                                        rel_path +'../Airfoils/Polars/Clark_y_polar_Re_200000.txt',
                                        rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',
                                        rel_path +'../Airfoils/Polars/Clark_y_polar_Re_1000000.txt',
                                        rel_path +'../Airfoils/Polars/Clark_y_polar_Re_3500000.txt',
-                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_5000000.txt'] 
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_5000000.txt']] 
     prop.airfoil_flag                     = True 
 
     prop.number_of_airfoil_section_points = 200   

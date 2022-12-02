@@ -21,7 +21,7 @@ import jax
 import os 
 import numpy as np 
 import matplotlib.pyplot as plt    
- 
+import sys 
 
 sys.path.append('../Vehicles/Propellers')
 # the analysis functions
