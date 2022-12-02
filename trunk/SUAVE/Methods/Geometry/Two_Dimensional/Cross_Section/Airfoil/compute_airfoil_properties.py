@@ -260,7 +260,7 @@ def compute_boundary_layer_properties(airfoil_geometry,Airfoil_Data):
         airfoil_geometry              = compute_naca_4series(a_names, npoints= 100)    
     
     AoA_sweep = np.array([-4,0,2,4,8,10,14])*Units.degrees 
-    Re_sweep  = np.array([1,5,10,30,50,75,100])*1E4  
+    Re_sweep  = np.array([1,5,10,30,50,75,100,200])*1E4  
     AoA_vals  = np.tile(AoA_sweep[None,:],(len(Re_sweep) ,1))
     Re_vals   = np.tile(Re_sweep[:,None],(1, len(AoA_sweep)))     
     
