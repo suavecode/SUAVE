@@ -40,15 +40,17 @@ def compressibility_drag_wing_total(state,settings,geometry):
     # unpack
     conditions             = state.conditions
     wings                  = geometry.wings 
+    S_ref                  = geometry.reference_area
     
     #compute parasite drag total
     total_compressibility_drag = 0.0
     
     # from wings
     for wing in wings.values():
+        s_wing = wing.areas.reference
         compressibility_drag = conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag
         conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag = compressibility_drag * 1. # avoid linking variables
-        total_compressibility_drag += compressibility_drag 
+        total_compressibility_drag += compressibility_drag * (s_wing/S_ref)
 
     conditions.aerodynamics.drag_breakdown.compressible.total  = total_compressibility_drag
         
