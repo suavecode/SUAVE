@@ -144,8 +144,9 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     p_mL_H            = jnp.trapz(p_mL_H_integral,x = r[0,0,0,:,0], axis = 3 ) 
     p_mL_H_abs        =  abs(p_mL_H)  
 
-    # sound pressure levels  
-    res.SPL_prop_harmonic_bpf_spectrum     = 20*jnp.log10((abs(p_mL_H_abs + p_mT_H_abs))/p_ref) 
+    # sound pressure levels   
+    res.SPL_prop_harmonic_bpf_spectrum     = 20*jnp.log10((abs(p_mL_H_abs + p_mT_H_abs))/p_ref)   
+    res.SPL_prop_harmonic_bpf_spectrum     =  jnp.nan_to_num(res.SPL_prop_harmonic_bpf_spectrum) # this line is to remove infinities  (very small number) for jax 
     res.SPL_prop_harmonic_bpf_spectrum_dBA = A_weighting(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,:,:,0,:]) 
     res.SPL_prop_harmonic_1_3_spectrum     = convert_to_one_third_octave_band(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,0,0,0,:],settings)
     res.SPL_prop_harmonic_1_3_spectrum_dBA = convert_to_one_third_octave_band(res.SPL_prop_harmonic_bpf_spectrum_dBA,res.f[:,0,0,0,:],settings)
