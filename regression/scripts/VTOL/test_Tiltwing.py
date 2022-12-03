@@ -12,7 +12,7 @@
 import SUAVE
 from SUAVE.Core import Units 
 from SUAVE.Plots.Performance.Mission_Plots import *  
-from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle 
+from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
 import numpy as np  
 import sys 
 
@@ -40,7 +40,7 @@ def main():
     print(configs.base.mass_properties.center_of_gravity)
 
     # Plot vehicle 
-    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = False)
+    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = False)
 
     # evaluate mission    
     mission  = analyses.missions.base

@@ -214,14 +214,15 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
     #   Plot Payload Range
     if iplot:
 
-        #import pylab
-        import pylab as plt
+        import pandas as pd
+        import plotly.express as px
 
-        title = "Payload Range Diagram"
-        plt.figure(0)
-        plt.plot(R,PLD,'r')
-        plt.xlabel('Range (nm)'); plt.ylabel('Payload (kg)'); plt.title(title)
-        plt.grid(True)
-        plt.show()
+        col = 'Payload (kg)'
+        row = 'Range ('+unit+')'
+        
+        df = pd.DataFrame({col:R,row:PLD})
+        
+        fig = px.line(df, x=col, y=row, title='Payload Range Diagram')
+        fig.show()
 
     return payload_range

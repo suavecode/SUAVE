@@ -28,7 +28,14 @@ from .Mission_Plots       import plot_fuel_use
 from .Airfoil_Plots       import plot_airfoil_boundary_layer_properties
 from .Airfoil_Plots       import plot_airfoil_surface_forces
 
+from .Propeller_Plots     import plot_propeller_performance
 from .Propeller_Plots     import plot_propeller_disc_performance
 from .Propeller_Plots     import plot_propeller_disc_inflow
 
 from .Weights_Plots       import weight_pie_charts
+
+from . import Aerodynamics
+from . import Common
+from . import Energy
+from . import Mission
+from . import Noise

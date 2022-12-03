@@ -12,7 +12,7 @@
 from SUAVE.Input_Output.VTK.write_azimuthal_cell_values import write_azimuthal_cell_values
 import numpy as np
 
-from SUAVE.Plots.Geometry.plot_vehicle import generate_nacelle_points
+from SUAVE.Plots.Geometry.plot_vehicle import generate_3d_nacelle_points
 
 
 #------------------------------
@@ -42,7 +42,7 @@ def save_nacelle_vtk(nacelle, filename, Results, origin_offset):
 
     """
 
-    nac_pts = generate_nacelle_points(nacelle)
+    nac_pts = generate_3d_nacelle_points(nacelle)
     num_nac_segs = np.shape(nac_pts)[0]
     if num_nac_segs == 0:
         print("No nacelle segments found!")

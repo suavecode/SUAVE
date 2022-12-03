@@ -5,17 +5,22 @@
 # Modified: Feb 2022, M. Clarke
 #           Aug 2022, R. Erhard
 #           Sep 2022, M. Clarke
+#           Nov 2022, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-from SUAVE.Core.Utilities import interp2d
 from SUAVE.Core import Units 
-import numpy as np 
-import matplotlib.pyplot as plt  
-import matplotlib.cm as cm
-import os
- 
+import plotly.figure_factory as ff
+from plotly.subplots import make_subplots
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly
+
+# ----------------------------------------------------------------------
+#  Plot Airfoil Boundary Layer Properties
+# ---------------------------------------------------------------------- 
+
 ## @ingroup Plots-Performance
 def plot_airfoil_boundary_layer_properties(ap,show_legend = False ):
     """Plots viscous distributions
@@ -36,42 +41,54 @@ def plot_airfoil_boundary_layer_properties(ap,show_legend = False ):
     N/A
     """            
     
-    plot_quantity(ap, ap.Ue_Vinf, r'$U_{e}/U_{inv}}$'  ,'inviscid edge velocity',show_legend) 
-    plot_quantity(ap, ap.H,  r'$H$'  ,'kinematic shape parameter',show_legend)
-    plot_quantity(ap, ap.delta_star, r'$\delta*$' ,'displacement thickness',show_legend)
-    plot_quantity(ap, ap.delta   , r'$\delta$' ,'boundary layer thickness',show_legend)
-    plot_quantity(ap, ap.theta, r'$\theta$' ,'momentum thickness',show_legend)
-    plot_quantity(ap, ap.cf, r'$c_f $'  ,   'skin friction coefficient',show_legend)
-    plot_quantity(ap, ap.Re_theta,  r'$Re_{\theta}$'  ,'theta Reynolds number',show_legend) 
+    plot_quantity(ap, ap.Ue_Vinf, r'$U_{e}/U_{inv}}$'  ,'Inviscid Edge Velocity',show_legend) 
+    plot_quantity(ap, ap.H,  r'$H$'  ,'Kinematic Shape Parameter',show_legend) 
+    plot_quantity(ap, ap.delta_star, r'$\delta*$' ,'Displacement Thickness',show_legend) 
+    plot_quantity(ap, ap.delta   , r'$\delta$' ,'Boundary Layer Thickness',show_legend) 
+    plot_quantity(ap, ap.theta, r'$\theta$' ,'Momentum Thickness',show_legend) 
+    plot_quantity(ap, ap.cf, r'$c_f $'  ,   'Skin Friction Coefficient',show_legend) 
+    plot_quantity(ap, ap.Re_theta,  r'$Re_{\theta}$'  ,'Theta Reynolds Number',show_legend) 
     
 
-    fig      = plt.figure()
-    axis     = fig.add_subplot(1,1,1)       
+    fig = make_subplots(rows=1, cols=1)
     n_cpts   = len(ap.AoA[:,0])
     n_cases  = len(ap.AoA[0,:]) 
 
-    # create array of colors for difference reynolds numbers     
-    blues  = cm.winter(np.linspace(0, 0.75,n_cases))    
-    reds   = cm.autumn(np.linspace(0, 0.75,n_cases)) 
+    # create array of colors for difference reynolds numbers         
+    b = plotly.colors.get_colorscale('blues')
+    r = plotly.colors.get_colorscale('reds')
+    blues = px.colors.n_colors(b[0][1], b[-1][1], n_cases,colortype='rgb')
+    reds  = px.colors.n_colors(r[0][1], r[-1][1], n_cases,colortype='rgb')
     
     for i in range(n_cpts):   
         for j in range(n_cases): 
             case_label = 'AoA: ' + str(round(ap.AoA[i,j]/Units.degrees, 2)) + ', Re: ' + str(ap.Re[i,j]) 
-            axis.plot(ap.x[i,j], ap.y[i,j], color = blues[j] , linewidth = 2, label = case_label ) 
-            axis.plot(ap.x_bl[i,j], ap.y_bl[i,j], color = reds[j] , marker = 'o', linewidth = 2, label = case_label ) 
             
-    axis.set_title('Airfoil with Boundary Layers')            
-    axis.set_ylabel(r'$y$') 
-    axis.set_xlabel(r'$x$') 
-    if show_legend:
-        axis.legend(loc='upper left', ncol=1)    
+            fig.add_trace(go.Scatter(x=ap.x[i,j],y=ap.y[i,j],showlegend=show_legend,mode='lines',name=case_label,line=dict(color=blues[j])))
+            fig.add_trace(go.Scatter(x=ap.x[i,j],y=ap.y_bl[i,j],showlegend=show_legend,mode='markers + lines',name=case_label,marker=dict(size = 3, symbol = 'circle',color = reds[j])))
+
+
+    fig.update_layout(
+        title='Airfoil with Boundary Layers',
+        xaxis_title=r'$y$',
+        yaxis_title=r'$x$',
+    )        
     
+    fig.update_yaxes(
+        scaleanchor = "x",
+        scaleratio = 1,
+      )              
     
+    fig.show()
+
     return    
  
+# ----------------------------------------------------------------------
+#  Plot Quantity
+# ----------------------------------------------------------------------  
 
 ## @ingroup Plots-Performance
-def plot_quantity(ap, q, qaxis, qname,show_legend):
+def plot_quantity(ap, q, qaxis, qname,show_legend=True):
     """Plots a quantity q over lower/upper/wake surfaces
     
     Assumptions:
@@ -93,28 +110,33 @@ def plot_quantity(ap, q, qaxis, qname,show_legend):
     N/A
     """          
 
-    fig      = plt.figure()
-    axis     = fig.add_subplot(1,1,1)       
     n_cpts   = len(ap.AoA[:,0])
     n_cases  = len(ap.AoA[0,:]) 
-
-    # create array of colors for difference reynolds numbers     
-    blues  = cm.winter(np.linspace(0, 0.75,n_cases)) 
+    fig = make_subplots(rows=1, cols=1)
     
     for i in range(n_cpts):   
         for j in range(n_cases): 
             case_label = 'AoA: ' + str(round(ap.AoA[i,j]/Units.degrees, 2)) + ', Re: ' + str(ap.Re[i,j]) 
-            axis.plot(ap.x[i,j], q[i,j], color = blues[j] , marker = 'o', linewidth = 2, label = case_label ) 
-            
-    axis.set_title(qname)            
-    axis.set_ylabel(qaxis) 
-    axis.set_xlabel(r'$x$') 
-    if show_legend:
-        axis.legend(loc='upper left', ncol=1)
+            fig.add_trace(go.Scatter(x=ap.x[i,j],y=q[i,j],showlegend=show_legend,mode='markers + lines',name=case_label,marker=dict(size = 5, symbol = 'circle')))
+
+        
+    fig.update_layout(
+        title=qname,
+        xaxis_title=qaxis,
+        yaxis_title=r'$x$',
+    )    
+          
+          
+    fig.show()
+    
     return  
  
+# ----------------------------------------------------------------------
+#  Plot Airfoil Surface Forces
+# ----------------------------------------------------------------------  
+ 
 ## @ingroup Plots-Performance
-def plot_airfoil_surface_forces(ap,show_legend= True,arrow_color = 'r'):  
+def plot_airfoil_surface_forces(ap):  
     """ This plots the forces on an airfoil surface
     
         Assumptions:
@@ -132,30 +154,36 @@ def plot_airfoil_surface_forces(ap,show_legend= True,arrow_color = 'r'):
     
     # determine dimension of angle of attack and reynolds number 
     n_cpts   = len(ap.AoA[:,0])
-    n_cases  = len(ap.AoA[0,:])
-    n_pts    = len(ap.x[0,0,:])-1
-    
+    n_cases  = len(ap.AoA[0,:])    
 
     for i in range(n_cpts):     
         for j in range(n_cases): 
+            dx_val = ap.normals[i,j,:-1,0]*abs(ap.cp[i,j,:])*0.5
+            dy_val = ap.normals[i,j,:-1,1]*abs(ap.cp[i,j,:])*0.5    
+            
+            fig = ff.create_quiver(ap.x[i,j,:-1], ap.y[i,j,:-1], dx_val, dy_val,showlegend=False)
+            
+            fig.add_trace(go.Scatter(x=ap.x[0,0,:],y=ap.y[0,0,:],showlegend=False))
+            
             label =  '_AoA_' + str(round(ap.AoA[i,j]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[i,j]/1000000,2)) + 'E6'
-            fig   = plt.figure('Airfoil_Pressure_Normals' + label )
-            axis = fig.add_subplot(1,1,1) 
-            axis.plot(ap.x[0,0,:], ap.y[0,0,:],'k-')   
-            for k in range(n_pts):
-                dx_val = ap.normals[i,j,k,0]*abs(ap.cp[i,j,k])*0.1
-                dy_val = ap.normals[i,j,k,1]*abs(ap.cp[i,j,k])*0.1
-                if ap.cp[i,j,k] < 0:
-                    plt.arrow(x= ap.x[i,j,k], y=ap.y[i,j,k] , dx= dx_val , dy = dy_val , 
-                              fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
-                else:
-                    plt.arrow(x= ap.x[i,j,k]+dx_val , y= ap.y[i,j,k]+dy_val , dx= -dx_val , dy = -dy_val , 
-                              fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
+            fig.update_layout(
+                title={'text': 'Airfoil_Pressure_Normals' + label})
+            fig.update_yaxes(
+                scaleanchor = "x",
+                scaleratio = 1,
+              )            
+
     
+    fig.show()
+        
     return   
 
+# ----------------------------------------------------------------------
+#  Plot Airfoil Polar Files
+# ----------------------------------------------------------------------  
+
 ## @ingroup Plots-Performance
-def plot_airfoil_polar_files(polar_data, line_color = 'k-', save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
+def plot_airfoil_polar_files(polar_data, save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
     """This plots all airfoil polars in the list "airfoil_polar_paths" 
 
     Assumptions:
@@ -180,89 +208,38 @@ def plot_airfoil_polar_files(polar_data, line_color = 'k-', save_figure = False,
     alpha        = polar_data.angle_of_attacks
     Re_raw       = polar_data.reynolds_numbers
     n_Re         = len(polar_data.re_from_polar)
-    cols         = cm.winter(np.linspace(0, 0.75,n_Re))   
+    b            = plotly.colors.get_colorscale('blues')
+    cols         = px.colors.n_colors(b[3][1], b[-1][1], n_Re,colortype='rgb')
         
-    # plot all Reynolds number polars for ith airfoil 
-    fig      = plt.figure(save_filename, figsize=(8,2*n_Re))
+    fig = make_subplots(rows=n_Re, cols=4)
       
     for j in range(n_Re):
-        ax1    = fig.add_subplot(n_Re,2,1+2*j)
-        ax2    = fig.add_subplot(n_Re,2,2+2*j)   
+        
+        # Plotly is 1 indexed for subplots
+        jj = j+1
+        
         Re_val = str(round(Re_raw[j])/1e6)+'e6'
         
-        ax1.plot(alpha/Units.degrees, CL[j,:], color= cols[j], linestyle = '--', label='Re='+Re_val)
-        ax2.plot(alpha/Units.degrees, CD[j,:], color= cols[j], linestyle = '--', label='Re='+Re_val)
-         
-        ax1.set_ylabel('$C_l$')   
-        ax2.set_ylabel('$C_d$')  
-        ax1.legend(loc='best')
-        
-    ax1.set_xlabel('AoA [deg]') 
-    ax2.set_xlabel('AoA [deg]') 
-    fig.tight_layout()
+        fig.add_trace(go.Scatter(x=alpha/Units.degrees,y=CL[j,:],showlegend=True,mode='lines',name='Re='+Re_val,line=dict(color=cols[j])),col=1,row=jj)
+        fig.add_trace(go.Scatter(x=alpha/Units.degrees,y=CD[j,:],showlegend=False,mode='lines',name='Re='+Re_val,line=dict(color=cols[j])),col=2,row=jj)
+        fig.add_trace(go.Scatter(x=CL[j,:],y=CD[j,:],showlegend=False,mode='lines',name='Re='+Re_val,line=dict(color=cols[j])),col=3,row=jj)
+        fig.add_trace(go.Scatter(x=alpha/Units.degrees,y=CL[j,:]/CD[j,:],showlegend=False,mode='lines',name='Re='+Re_val,line=dict(color=cols[j])),col=4,row=jj)        
+        fig.update_yaxes(title_text='$C_l$', row=jj, col=1)
+        fig.update_yaxes(title_text='$C_d$', row=jj, col=2)      
+        fig.update_yaxes(title_text='$C_d$', row=jj, col=3)
+        fig.update_yaxes(title_text='$Cl/Cd$', row=jj, col=4)            
     
-    if save_figure:
-        plt.savefig(save_filename.replace("_", " ") + file_type) 
-    return
-
-## @ingroup Plots-Performance
-def plot_airfoil_polars(polar_data, save_figure = False,save_filename = "Airfoil_Polars", file_type = ".png"):
-    """This plots all airfoil polars stored in the polar_data data_structure after AERODAS and smoothing corrections.
+    fig.update_xaxes(title_text='AoA [deg]', row=jj, col=1)
+    fig.update_xaxes(title_text='AoA [deg]', row=jj, col=2)     
+    fig.update_xaxes(title_text='Cl', row=jj, col=3)
+    fig.update_xaxes(title_text='AoA [deg]', row=jj, col=4)        
+        
     
-    Assumptions:
-    None
-    Source:
-    None
-    Inputs:
-    polar_data     - airfoil polar data 
-    aoa_sweep      - angles over which to plot the polars                [rad]
-    Re_sweep       - Reynolds numbers over which to plot the polars      [-]
+    fig.update_layout(title_text=save_filename)    
     
-    Outputs: 
-    Plots
-    Properties Used:
-    N/A	
-    """ 
-    #----------------------------------------------------------------------------
-    # plot airfoil polar surrogates
-    #----------------------------------------------------------------------------  
-    num_polars = len(polar_data.reynolds_numbers)
-    Re_sweep   = polar_data.reynolds_numbers 
-    aoa_sweep  = polar_data.angle_of_attacks
-    CL         = polar_data.lift_coefficients
-    CD         = polar_data.drag_coefficients
-    
-    fig, ((ax,ax2),(ax3,ax4))  = plt.subplots(2,2)
-    fig.set_figheight(8)
-    fig.set_figwidth(12)
-     
-    fig.suptitle(save_filename + " (Raw Polar Data)")
-    col_raw     = cm.jet(np.linspace(0, 1.0,num_polars))   
-    for ii in range(len(Re_sweep[:num_polars])):
+    #if save_figure:
+        #plt.savefig(save_filename.replace("_", " ") + file_type) 
         
-        ax.plot(aoa_sweep,CL[ii], color = col_raw[ii], label='Re='+str(Re_sweep[ii]))
-        ax.set_xlabel("Alpha (deg)")
-        ax.set_ylabel("Cl")
-        ax.legend()
-        ax.grid()
+    fig.show()
         
-        ax2.plot(aoa_sweep, CD[ii], color = col_raw[ii])
-        ax2.set_xlabel("Alpha (deg)")
-        ax2.set_ylabel("Cd")
-        ax2.grid()    
-        
-        ax3.plot(CD[ii], CL[ii], color = col_raw[ii])
-        ax3.set_xlabel("Cd")
-        ax3.set_ylabel("Cl")
-        ax3.grid() 
-
-        ax4.plot(aoa_sweep, CD[ii]/CL[ii], color = col_raw[ii])
-        ax4.set_xlabel("Alpha (deg)")
-        ax4.set_ylabel("Cd/Cl")
-        ax4.grid()             
-        
-    plt.tight_layout()
-
-    if save_figure:
-        plt.savefig(save_filename +'_'  + file_type)  
     return

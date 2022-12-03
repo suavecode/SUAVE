@@ -9,7 +9,7 @@
 
 import SUAVE
 
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units
 from SUAVE.Methods.Performance.electric_payload_range import electric_payload_range
 
 import numpy as np

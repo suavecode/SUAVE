@@ -18,8 +18,8 @@ import pylab as plt
 import sys
 
 from SUAVE.Plots.Performance.Mission_Plots import *
-from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle
-from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
+from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_vehicle                   import plot_3d_vehicle
+from SUAVE.Plots.Geometry.Three_Dimensional.plot_vehicle_3d_vlm_panelization  import plot_3d_vehicle_vlm_panelization
 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import  VLM  
@@ -107,8 +107,8 @@ def regress_1a(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False)
+    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True)
               
     return
 
@@ -141,8 +141,8 @@ def regress_1b(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    plot_3d_vehicle(configs.base, save_figure = True, plot_wing_control_points = False)
+    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True)
               
     return
  

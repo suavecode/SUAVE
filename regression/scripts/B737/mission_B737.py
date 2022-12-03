@@ -19,7 +19,7 @@
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Plots.Performance.Mission_Plots import *
-from SUAVE.Plots.Geometry import * 
+from SUAVE.Plots.Geometry.Three_Dimensional import * 
 import matplotlib.pyplot as plt  
 import numpy as np 
 
@@ -78,7 +78,7 @@ def main():
     # ------------------------------------------------------------------
     
     # plot vehicle 
-    plot_vehicle(configs.base,plot_control_points = True)      
+    plot_3d_vehicle(configs.base,plot_wing_control_points = True)      
     return
 
 

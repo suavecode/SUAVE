@@ -5,15 +5,17 @@
 # Modified:   Apr 2020, M. Clarke
 #             Jul 2020, M. Clarke
 #             May 2021, R. Erhard
+#             Nov 2022, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-import matplotlib.pyplot as plt   
+import plotly.express as px
+import pandas as pd
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
      import import_airfoil_geometry 
-import os
 
+## @ingroup Plots-Geometry
 def plot_airfoil(airfoil_paths,line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry", file_type = ".png"):
     """This plots all airfoil defined in the list "airfoil_names" 
 
@@ -34,14 +36,13 @@ def plot_airfoil(airfoil_paths,line_color = 'k-', save_figure = False, save_file
     """
     # get airfoil coordinate geometry     
     airfoil_geometry = import_airfoil_geometry(airfoil_paths)
-     
-    fig  = plt.figure(save_filename)
-    fig.set_size_inches(10, 4)
-    axes = fig.add_subplot(1,1,1)   
-    axes.plot(airfoil_geometry.x_coordinates,airfoil_geometry.y_coordinates , label=save_filename)                  
     
-    axes.set_title(save_filename) 
+    df = pd.DataFrame(dict(x=airfoil_geometry.x_coordinates, y=airfoil_geometry.y_coordinates))
+    fig = px.line(df, x='x', y='y',title=save_filename)
+    fig.update_layout(autosize=False, width=1200, height=500)
+    
     if save_figure:
-        plt.savefig(save_filename.replace("_", " ") + file_type)           
+        fig.write_image(save_filename.replace("_", " ") + file_type)  
 
+    fig.show()
     return
