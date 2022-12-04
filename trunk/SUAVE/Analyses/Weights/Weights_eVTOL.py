@@ -109,6 +109,6 @@ class Weights_eVTOL(Weights):
 
         vehicle.weight_breakdown = results
 
-        vehicle.mass_properties.operating_empty = results.empty
+        vehicle.mass_properties.operating_empty = results.empty.total
 
         return results

@@ -408,26 +408,70 @@ def empty(config,
     #-------------------------------------------------------------------------------
     # Bookkeeping
     #-------------------------------------------------------------------------------
-    output.structural = (output.lift_rotors +
-                         output.propellers +
-                         output.hubs +
-                         output.fuselage.total +
-                         output.nacelles +
-                         output.landing_gear +
-                         output.total_wing_weight) * Units.kg
+    output.motors       = Data()
+    output.motors.total = 0.0 * Units.kg
 
-    output.empty      = (contingency_factor *
-                         (output.structural +
-                          output.seats +
-                          output.avionics +
-                          output.ECS +
-                          output.motors +
-                          output.servos +
-                          output.wiring +
-                          output.BRS) +
-                         output.battery) *Units.kg
+    for key in [
+        'lift_rotor_motors',
+        'propeller_motors',
+    ]:
+        output.motors.total += output[key] * Units.kg
+        output.motors[key] = output[key]
+        del output[key]
 
-    output.total      = (output.empty +
+    output.structural       = Data()
+    output.structural.total = 0.0 * Units.kg
+
+    for key in [
+        'lift_rotors',
+        'propellers',
+        'hubs',
+        'nacelles',
+        'landing_gear',
+    ]:
+        output.structural.total += output[key] * Units.kg
+        output.structural[key] = output[key]
+        del output[key]
+
+    output.structural.wings = output.wings
+    output.structural.wings.total = total_wing_weight
+    del output['wings']
+    del output['total_wing_weight']
+
+    output.structural.fuselage = output.fuselage
+    output.structural.total += output.fuselage.total
+    del output['fuselage']
+
+    output.empty            = Data()
+    output.empty.total      = 0.0 * Units.kg
+
+    for key in [
+        'seats',
+        'avionics',
+        'ECS',
+        'servos',
+        'wiring',
+        'BRS',
+    ]:
+        output.empty.total += output[key] * Units.kg
+        output.empty[key] = output[key]
+        del output[key]
+
+    for key in [
+        'structural',
+        'motors',
+    ]:
+        output.empty[key] = output[key]
+        output.empty.total += output[key].total * Units.kg
+        del output[key]
+
+    output.empty.total *= contingency_factor
+
+    output.empty.battery = output.battery
+    output.empty.total += output.battery * Units.kg
+    del output['battery']
+
+    output.total      = (output.empty.total +
                          output.payload +
                          output.passengers)
 
