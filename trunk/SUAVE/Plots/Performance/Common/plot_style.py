@@ -9,8 +9,6 @@
 # ---------------------------------------------------------------------- 
 
 from itertools import cycle
-import plotly.express as px
-import plotly
 
 ## @ingroup Plots-Performance-Common
 def plot_style(fig, *args, **kwargs):
@@ -93,7 +91,9 @@ def plot_style(fig, *args, **kwargs):
 
     # Setup the colors
     NS          = len(segment_set)+1
-    color_list  = px.colors.sample_colorscale("inferno", [n/(NS -1) for n in range(NS)])
+    #color_list  = px.colors.sample_colorscale("inferno", [n/(NS -1) for n in range(NS)])
+    color_list  = px.colors.sample_colorscale("amp", [n/(NS -1) for n in range(NS)])
+    color_list.reverse()
     
 
     # Create cycle-able iterator for assigning segment colors from inferno

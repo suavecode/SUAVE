@@ -80,6 +80,7 @@ def plot_lift_cruise_network(results,
         'Lift Thrust',
         'Lift Torque',
         'Lift Efficiency',
+        'Lift FoM',
         'Lift Motor Efficiency',
         'Lift Power Coefficient',
         'Lift Tip Mach',
@@ -110,7 +111,8 @@ def plot_lift_cruise_network(results,
         lift_rotor_thrust   = -segment.conditions.frames.body.thrust_force_vector[:,2]
         lift_rotor_torque   = segment.conditions.propulsion.lift_rotor_motor_torque[:,0]
         lift_rotor_effp     = segment.conditions.propulsion.lift_rotor_efficiency[:,0]
-        lift_rotor_effm     = segment.conditions.propulsion.lift_rotor_figure_of_merit[:,0]
+        lift_rotor_fom      = segment.conditions.propulsion.lift_rotor_figure_of_merit[:,0]
+        lift_rotor_effm     = segment.conditions.propulsion.lift_rotor_efficiency[:,0]
         lift_rotor_Cp       = segment.conditions.propulsion.lift_rotor_power_coefficient[:,0]
         rtm                 = segment.conditions.propulsion.lift_rotor_tip_mach[:, 0]
 
@@ -135,6 +137,7 @@ def plot_lift_cruise_network(results,
                 lift_rotor_thrust ,
                 lift_rotor_torque ,
                 lift_rotor_effp   ,
+                lift_rotor_fom    ,
                 lift_rotor_effm   ,
                 lift_rotor_Cp     ,
                 rtm
@@ -190,14 +193,14 @@ def plot_lift_cruise_network(results,
 
             batt_fig.add_trace(go.Scatter(
                 x=data.index,
-                y=data['Voltage'],
+                y=data['Voltage Under Load'],
                 name=seg_name,
                 showlegend=False),
                 row=1, col=3)
 
             batt_fig.add_trace(go.Scatter(
                 x=data.index,
-                y=data['Voltage OC'],
+                y=data['Voltage Open Circuit'],
                 name=seg_name,
                 showlegend=False),
                 row=2, col=3)
@@ -383,16 +386,16 @@ def plot_lift_cruise_network(results,
 
         # Set Style
 
-        batt_fig = plot_style(fig)
+        batt_fig = plot_style(batt_fig)
         batt_fig.show()
 
-        prop_fig = plot_style(fig)
+        prop_fig = plot_style(prop_fig)
         prop_fig.show()
 
-        lift_fig = plot_style(fig)
+        lift_fig = plot_style(lift_fig)
         lift_fig.show()
 
-        mach_fig = plot_style(fig)
+        mach_fig = plot_style(mach_fig)
         mach_fig.show()
 
         if save_figure:
