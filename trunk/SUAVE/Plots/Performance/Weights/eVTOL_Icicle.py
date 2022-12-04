@@ -1,5 +1,5 @@
 ## @ingroup Plots-Performance-Weights
-# eVTOL_Sunburst.py
+# eVTOL_Icicle.py
 # 
 # Created:    Dec 2022, J. Smart
 # Modified:   
@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 
 ## @ingroup Plots-Performance-Weights
-def eVTOL_Sunburst(vehicle, *args, **kwargs):
+def eVTOL_Icicle(vehicle, *args, **kwargs):
     """Plots a sunburst plot based on the weight breakdown of the vehicle.
 
     Assumptions:
@@ -29,11 +29,11 @@ def eVTOL_Sunburst(vehicle, *args, **kwargs):
         vehicle                 [SUAVE.Vehicle]
             .weight_breakdown   [SUAVE.Data]
 
-    Outputs: 
+    Outputs:
     Plots
 
     Properties Used:
-    N/A	
+    N/A
     """
 
     weights = deepcopy(vehicle.weight_breakdown)
@@ -49,10 +49,10 @@ def eVTOL_Sunburst(vehicle, *args, **kwargs):
     parents.extend(new_parents)
     values.extend(new_values)
 
-    chart_df = pd.DataFrame(list(zip(labels, parents, values)), columns = ['Label', 'Parent', 'Value'])
-    filter_df = chart_df[chart_df['Value']>0]
+    chart_df = pd.DataFrame(list(zip(labels, parents, values)), columns=['Label', 'Parent', 'Value'])
+    filter_df = chart_df[chart_df['Value'] > 0]
 
-    fig = go.Figure(go.Sunburst(
+    fig = go.Figure(go.Icicle(
         labels=filter_df['Label'].tolist(),
         parents=filter_df['Parent'].tolist(),
         values=filter_df['Value'].tolist(),
@@ -65,8 +65,8 @@ def eVTOL_Sunburst(vehicle, *args, **kwargs):
 
     return
 
-def make_sunburst_lists(weights, parent="TOTAL"):
 
+def make_sunburst_lists(weights, parent="TOTAL"):
     new_labels = []
     new_parents = []
     new_values = []
