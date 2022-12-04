@@ -12,12 +12,12 @@ import warnings
 
 from SUAVE.Core import Units
 from SUAVE.Attributes.Solids import (
-    Bidirectional_Carbon_Fiber,
-    Unidirectional_Carbon_Fiber,
-    Carbon_Fiber_Honeycomb,
-    Paint,
-    Acrylic
+    Bidirectional_Carbon_Fiber as BiCRFP,
+    Carbon_Fiber_Honeycomb as CFHoneycomb,
+    Paint
 )
+
+from SUAVE.Methods.Weights.Buildups.Common import stack_mass
 
 import numpy as np
 
@@ -31,7 +31,7 @@ def elliptical_shell(component,
     Assumptions:
     Intended for use with fuselage and nacelle mass estimation for eVTOLs.
     If skin materials are not specified, a stack of composite materials is
-    assumed.
+    assumed and assigned.
 
     If the component does not have a specified wetted area, the wetted area
     will be approximated based on the length, width, height, and/or diameter
@@ -57,48 +57,60 @@ def elliptical_shell(component,
     try:
         shell_area = component.areas.wetted_area
     except:
-        try:    # Fuselage Style Geometry
-            l   = component.lengths.total
-            h   = component.heights.maximum
-            w   = component.width
+        area_backup(component)
 
-            # Thomsen elliptical approximation
-
-            shell_area = 4 * np.pi * (((l * w/4)**1.6
-                                    + (l * h/4)**1.6
-                                    + (w * h/4)**1.6)/3)**(1/1.6)
-        except: # Nacelle Style Geometry
-            try:
-                l = component.length
-                h = component.diameter
-                w - component.diameter
-
-                # Thomsen elliptical approximation
-
-                shell_area = 4 * np.pi * (((l * w/4)**1.6
-                                        + (l * h/4)**1.6
-                                        + (w * h/4)**1.6)/3)**(1/1.6)
-            except:
-                warnings.warn(f"{component.tag} has insufficient geometry for "+
-                              "weight estimation. Assigning zero mass.",
-                              stacklevel=1)
+    if shell_area == 0:
+        area_backup(component)
 
     # Determine mass per unit area
 
-    if skin_materials is not None:
+    if skin_materials is not None: # Function call overrides component materials
 
-        # Allow override of component assigned skin materials (e.g. for canopy)
-
-        shell_areal_mass = np.sum([(mat.minimum_gage_thickness * mat.density)
-                                  for mat in skin_materials])
+        shell_areal_mass = stack_mass(skin_materials)
 
     else:
+
         try:
-            shell_areal_mass = np.sum([(mat.minimum_gage_thickness * mat.density)
-                                      for mat in component.skin_materials])
-        except AttributeError:
-            shell_areal_mass = 1.2995 # Stack of BiCFRP, Honeycomb, Paint
+            shell_areal_mass = stack_mass(component.skin_materials)
+
+        except AttributeError: # If no skin materials is specified
+            component.materials.skin        = Data()
+            component.materials.skin.base   = Bidirectional_Carbon_Fiber()
+            component.materials.skin.core   = Carbon_Fiber_Honeycomb()
+            component.materials.skin.cover  = Paint()
+
+            shell_areal_mass = stack_mass(component.materials.skin)
 
     shell_mass = shell_area * shell_areal_mass
 
     return shell_mass
+
+def area_backup(component):
+
+    try:  # Fuselage Style Geometry
+        l = component.lengths.total
+        h = component.heights.maximum
+        w = component.width
+
+        # Thomsen elliptical approximation
+
+        shell_area = 4 * np.pi * (((l * w / 4) ** 1.6
+                                   + (l * h / 4) ** 1.6
+                                   + (w * h / 4) ** 1.6) / 3) ** (1 / 1.6)
+    except:  # Nacelle Style Geometry
+        try:
+            l = component.length
+            h = component.diameter
+            w - component.diameter
+
+            # Thomsen elliptical approximation
+
+            shell_area = 4 * np.pi * (((l * w / 4) ** 1.6
+                                       + (l * h / 4) ** 1.6
+                                       + (w * h / 4) ** 1.6) / 3) ** (1 / 1.6)
+        except:
+            warnings.warn(f"{component.tag} has insufficient geometry for " +
+                          "weight estimation. Assigning zero mass.",
+                          stacklevel=1)
+
+    return shell_area
