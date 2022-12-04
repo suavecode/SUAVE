@@ -110,6 +110,9 @@ def jax_interp2d(x,y,xp,yp,zp,fill_value= None):
 def jjv(v,z):
     v = jnp.array(v,dtype=jnp.float32)
     z = jnp.array(z,dtype=jnp.float32)
-    jiv = tfp.math.bessel_ive(v,z)/jnp.exp(-abs(z)) 
-    jjv_val = jnp.exp((v*jnp.pi*1j)/2)*jiv 
+    
+    I_ve_exp = tfp.math.bessel_ive(v,z) # exponentially scaled version of the modified Bessel function of the first kind # https://www.tensorflow.org/probability/api_docs/python/tfp/substrates/jax/math/bessel_ive  
+    I_ve     = I_ve_exp/jnp.exp(-abs(z))# unscaling 
+    #jjv_val = jnp.exp((v*jnp.pi*1j)/2)*I_ve
+    jjv_val  = (1j**(-v))*I_ve  # https://proofwiki.org/wiki/Bessel_Function_of_the_First_Kind_for_Imaginary_Argument
     return jjv_val

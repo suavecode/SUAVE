@@ -8,9 +8,10 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-from SUAVE.Core import  to_jnumpy 
+from SUAVE.Core import  to_jnumpy , to_numpy
 from jax import  jit
 import jax.numpy as jnp 
+from scipy.special import jv 
 import numpy as np
 import scipy as sp
 from SUAVE.Core.Utilities import jjv
@@ -128,7 +129,11 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     psi_L             = psi_L.at[:,:,:,1:,:].set((2/k_x[:,:,:,1:,:])*jnp.sin(0.5*k_x[:,:,:,1:,:]))                  
 
     # sound pressure for thickness noise   
-    Jmb               = jjv(m*B,((m*B*r*M_t*jnp.sin(theta_r_prime))/(1 - M_x*jnp.cos(theta_r))))   
+    #Jmb               = jjv(m*B,((m*B*r*M_t*jnp.sin(theta_r_prime))/(1 - M_x*jnp.cos(theta_r))))   
+    Jmb_arg_1          = to_numpy(m*B)
+    Jmb_arg_2          = to_numpy(((m*B*r*M_t*jnp.sin(theta_r_prime))/(1 - M_x*jnp.cos(theta_r))))
+    Jmb                = to_jnumpy(jv(Jmb_arg_1,Jmb_arg_2))
+    
     phi_s             = ((2*m*B*M_t)/(M_r*(1 - M_x*jnp.cos(theta_r))))*(MCA/D)
     phi_prime_var     = (jnp.sin(theta_r)/jnp.sin(theta_r_prime))*jnp.cos(phi)  
     phi_prime_var     = jnp.where(phi_prime_var>1.0,0,phi_prime_var) 
