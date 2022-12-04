@@ -27,15 +27,7 @@ import numpy as np
 ## @ingroup Methods-Weights-Buildups-eVTOL
 
 def empty(config,
-          settings,
-          contingency_factor            = 1.1,
-          speed_of_sound                = 340.294,
-          max_tip_mach                  = 0.65,
-          disk_area_factor              = 1.15,
-          safety_factor                 = 1.5,
-          max_thrust_to_weight_ratio    = 1.1,
-          max_g_load                    = 3.8,
-          motor_efficiency              = 0.85 * 0.98):
+          settings):
 
     """ Calculates the empty vehicle mass for an EVTOL-type aircraft including seats,
         avionics, servomotors, ballistic recovery system, rotor and hub assembly,
@@ -54,19 +46,20 @@ def empty(config,
 
         Inputs: 
             config:                     SUAVE Config Data Stucture
-            contingency_factor          Factor capturing uncertainty in vehicle weight [Unitless]
-            speed_of_sound:             Local Speed of Sound                           [m/s]
-            max_tip_mach:               Allowable Tip Mach Number                      [Unitless]
-            disk_area_factor:           Inverse of Disk Area Efficiency                [Unitless]
-            max_thrust_to_weight_ratio: Allowable Thrust to Weight Ratio               [Unitless]
-            safety_factor               Safety Factor in vehicle design                [Unitless]
-            max_g_load                  Maximum g-forces load for certification        [UNitless]
-            motor_efficiency:           Motor Efficiency                               [Unitless]
+            settings.method_settings.       [Data]
+                contingency_factor          [Float] Secondary Weight Est.
+                speed_of_sound              [Float] Design Point Speed of Sound
+                max_tip_mach                [Float] Max Rotor Tip Mach Number
+                disk_area_factor            [Float] Disk Area Factor (ref. Johnson 2-6.2)
+                safety_factor               [Float] Structural Factor of Safety
+                max_thrust_to_weight_ratio  [Float] Design T/W Ratio
+                max_g_load                  [Float] Design G Load
+                motor_efficiency            [Float] Design Point Motor Efficiency
 
         Outputs: 
             outputs:                    Data Dictionary of Component Masses [kg]
 
-        Output data dictionary has the following book-keeping hierarchical structure:
+        Output data dictionary has the following bookkeeping hierarchical structure:
 
             Output
                 Total.
@@ -89,6 +82,17 @@ def empty(config,
                     Payload
 
     """
+
+    # Unpack Settings
+
+    contingency_factor            = settings.method_settings.contingency_factor
+    speed_of_sound                = settings.method_settings.speed_of_sound
+    max_tip_mach                  = settings.method_settings.max_tip_mach
+    disk_area_factor              = settings.method_settings.disk_area_factor
+    safety_factor                 = settings.method_settings.safety_factor
+    max_thrust_to_weight_ratio    = settings.method_settings.max_thrust_to_weight_ratio
+    max_g_load                    = settings.method_settings.max_g_load
+    motor_efficiency              = settings.method_settings.motor_efficiency
 
     # Set up data structures for SUAVE weight methods
     output                   = Data()
