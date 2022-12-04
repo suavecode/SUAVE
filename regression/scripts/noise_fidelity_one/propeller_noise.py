@@ -20,7 +20,7 @@ sys.path.append('../Vehicles/Propellers')
 # the analysis functions
 
 from F8745_D4_Propeller  import F8745_D4_Propeller
-from APC_11x4_Propeller import APC_11x4_Propeller 
+from APC_11x4_Propeller  import APC_11x4_Propeller 
 # ----------------------------------------------------------------------
 #   Main
 # ---------------------------------------------------------------------- 
