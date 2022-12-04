@@ -119,164 +119,76 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     delta_r            = delta_r.at[0].set(2*del_r[0])
     delta_r            = delta_r.at[-1].set(2*del_r[-1])
     delta_r            = delta_r.at[1:-1].set((del_r[:-1]+ del_r[1:])/2)
-
-    lstei   = 1      # lower surface trailing edge index 
-    ustei   = -lstei # upper surface trailing edge index  
- 
-    delta        = jnp.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,2),dtype=precision) #  control points ,  number rotors, number blades , number sections , sides of airfoil
-    delta_star   = jnp.zeros_like(delta)
-    dp_dx        = jnp.zeros_like(delta)
-    tau_w        = jnp.zeros_like(delta)
-    Ue           = jnp.zeros_like(delta)
-    Theta        = jnp.zeros_like(delta)
- 
-    lower_surface_theta      = jnp.zeros((num_sec,num_azi),dtype=precision)
-    lower_surface_delta      = jnp.zeros_like(lower_surface_theta)
-    lower_surface_delta_star = jnp.zeros_like(lower_surface_theta)
-    lower_surface_cf         = jnp.zeros_like(lower_surface_theta)
-    lower_surface_Ue         = jnp.zeros_like(lower_surface_theta)
-    lower_surface_dp_dx      = jnp.zeros_like(lower_surface_theta)
-    upper_surface_theta      = jnp.zeros_like(lower_surface_theta)
-    upper_surface_delta      = jnp.zeros_like(lower_surface_theta)
-    upper_surface_delta_star = jnp.zeros_like(lower_surface_theta)
-    upper_surface_cf         = jnp.zeros_like(lower_surface_theta)
-    upper_surface_Ue         = jnp.zeros_like(lower_surface_theta)
-    upper_surface_dp_dx      = jnp.zeros_like(lower_surface_theta)
- 
-    if rotor.nonuniform_freestream: 
- 
-        # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
-        theta_ls         = jnp.zeros((num_cpt,num_sec,num_azi))
-        delta_ls         = jnp.zeros((num_cpt,num_sec,num_azi))
-        delta_star_ls    = jnp.zeros((num_cpt,num_sec,num_azi))
-        Ue_Vinf_ls       = jnp.zeros((num_cpt,num_sec,num_azi))
-        cf_ls            = jnp.zeros((num_cpt,num_sec,num_azi))
-        dcp_dx_ls        = jnp.zeros((num_cpt,num_sec,num_azi))
-        theta_us         = jnp.zeros((num_cpt,num_sec,num_azi))
-        delta_us         = jnp.zeros((num_cpt,num_sec,num_azi))
-        delta_star_us    = jnp.zeros((num_cpt,num_sec,num_azi))
-        Ue_Vinf_us       = jnp.zeros((num_cpt,num_sec,num_azi))
-        cf_us            = jnp.zeros((num_cpt,num_sec,num_azi))
-        dcp_dx_us        = jnp.zeros((num_cpt,num_sec,num_azi))
- 
-        aloc  = jnp.atleast_3d(jnp.array(a_loc))
-        aloc  = jnp.broadcast_to(aloc,jnp.shape(theta_ls))
- 
-        for i_azi in range(num_azi):  
-            local_aoa          = alpha_blade[:,:,i_azi]
-            local_Re           = Re_blade[:,:,i_azi]
-            jj = 0 
-            #for jj,(ls_theta,ls_delta,ls_delta_star,ls_Ue,ls_cf,ls_dp_dx,us_theta,us_delta,us_delta_star,us_Ue,us_cf,us_dp_dx) \
-                #in enumerate(zip(ls_theta_sur, ls_delta_sur ,ls_delta_star_sur,ls_Ue_sur ,ls_cf_sur ,ls_dp_dx_sur,us_theta_sur ,us_delta_sur,us_delta_star_sur,us_Ue_sur ,us_cf_sur ,us_dp_dx_sur) ):
-            theta_ls_data      = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,theta_lower_surface_data[:,:,lstei])
-            delta_ls_data      = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_lower_surface_data[:,:,lstei])   
-            delta_star_ls_data = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_star_lower_surface_data[:,:,lstei])
-            Ue_Vinf_ls_data    = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,Ue_Vinf_lower_surface_data[:,:,lstei]) 
-            cf_ls_data         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,cf_lower_surface_data[:,:,lstei])
-            dcp_dx_ls_data     = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,dcp_dx_lower_surface_data[:,:,lstei]) 
-            theta_us_data      = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,theta_upper_surface_data[:,:,ustei])
-            delta_us_data      = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_upper_surface_data[:,:,ustei] ) 
-            delta_star_us_data = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_star_upper_surface_data[:,:,ustei])
-            Ue_Vinf_us_data    = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,Ue_Vinf_upper_surface_data[:,:,ustei] ) 
-            cf_us_data         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,cf_upper_surface_data[:,:,ustei])
-            dcp_dx_us_data     = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,dcp_dx_upper_surface_data[:,:,ustei] ) 
- 
-            theta_ls           = jnp.where(aloc==jj,theta_ls_data,theta_ls)
-            delta_ls           = jnp.where(aloc==jj,delta_ls_data , delta_ls )
-            delta_star_ls      = jnp.where(aloc==jj,delta_star_ls_data , delta_star_ls )
-            Ue_Vinf_ls         = jnp.where(aloc==jj,Ue_Vinf_ls_data , Ue_Vinf_ls )
-            cf_ls              = jnp.where(aloc==jj,cf_ls_data , cf_ls )
-            dcp_dx_ls          = jnp.where(aloc==jj,dcp_dx_ls_data , dcp_dx_ls )
-            theta_us           = jnp.where(aloc==jj,theta_us_data , theta_us )
-            delta_us           = jnp.where(aloc==jj,delta_us_data , delta_us )
-            delta_star_us      = jnp.where(aloc==jj,delta_star_us_data , delta_star_us )
-            Ue_Vinf_us         = jnp.where(aloc==jj,Ue_Vinf_us_data , Ue_Vinf_us )
-            cf_us              = jnp.where(aloc==jj,cf_us_data , cf_us )
-            dcp_dx_us          = jnp.where(aloc==jj,dcp_dx_us_data , dcp_dx_us )
- 
-        blade_chords_3d           = jnp.tile(jnp.tile(blade_chords[None,:],(num_cpt,1))[:,:,None],(1,1,num_azi))
-        dP_dX_ls                  = dcp_dx_ls*(0.5*rho_blade*U_blade**2)/blade_chords_3d
-        dP_dX_us                  = dcp_dx_us*(0.5*rho_blade*U_blade**2)/blade_chords_3d
- 
-        lower_surface_theta       = theta_ls
-        lower_surface_delta       = delta_ls
-        lower_surface_delta_star  = delta_star_ls
-        lower_surface_cf          = cf_ls
-        lower_surface_Ue          = Ue_Vinf_ls*U_blade
-        lower_surface_dp_dx       = dP_dX_ls
-        upper_surface_theta       = theta_us
-        upper_surface_delta       = delta_us
-        upper_surface_delta_star  = delta_star_us
-        upper_surface_cf          = cf_us
-        upper_surface_Ue          = Ue_Vinf_us*U_blade
-        upper_surface_dp_dx       = dP_dX_us
- 
-    else:
-        theta_ls         = jnp.zeros((num_cpt,num_sec))
-        delta_ls         = jnp.zeros((num_cpt,num_sec))
-        delta_star_ls    = jnp.zeros((num_cpt,num_sec))
-        Ue_Vinf_ls       = jnp.zeros((num_cpt,num_sec))
-        cf_ls            = jnp.zeros((num_cpt,num_sec))
-        dcp_dx_ls        = jnp.zeros((num_cpt,num_sec))
-        theta_us         = jnp.zeros((num_cpt,num_sec))
-        delta_us         = jnp.zeros((num_cpt,num_sec))
-        delta_star_us    = jnp.zeros((num_cpt,num_sec))
-        Ue_Vinf_us       = jnp.zeros((num_cpt,num_sec))
-        cf_us            = jnp.zeros((num_cpt,num_sec))
-        dcp_dx_us        = jnp.zeros((num_cpt,num_sec))
-        local_aoa        = alpha_blade[:,:,0]
-        local_Re         = Re_blade[:,:,0]
- 
-        #aloc  = jnp.atleast_3d(jnp.array(a_loc))
-        #aloc  = jnp.broadcast_to(aloc,jnp.shape(theta_ls))
         
-        jj = 0
+    delta              = jnp.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,2),dtype=precision) #  control points ,  number rotors, number blades , number sections , sides of airfoil
+    delta_star         = jnp.zeros_like(delta)
+    dp_dx              = jnp.zeros_like(delta)
+    tau_w              = jnp.zeros_like(delta)
+    Ue                 = jnp.zeros_like(delta)
+    Theta              = jnp.zeros_like(delta)
+  
  
-        #for jj,(ls_theta,ls_delta,ls_delta_star,ls_Ue,ls_cf,ls_dp_dx,us_theta,us_delta,us_delta_star,us_Ue,us_cf,us_dp_dx) \
-            #in enumerate(zip(ls_theta_sur, ls_delta_sur ,ls_delta_star_sur,ls_Ue_sur ,ls_cf_sur ,ls_dp_dx_sur,us_theta_sur ,us_delta_sur,us_delta_star_sur,us_Ue_sur ,us_cf_sur ,us_dp_dx_sur) ):
-        theta_ls         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,theta_lower_surface_data[:,:,lstei])
-        delta_ls         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_lower_surface_data[:,:,lstei])   
-        delta_star_ls    = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_star_lower_surface_data[:,:,lstei])
-        Ue_Vinf_ls       = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,Ue_Vinf_lower_surface_data[:,:,lstei]) 
-        cf_ls            = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,cf_lower_surface_data[:,:,lstei])
-        dcp_dx_ls        = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,dcp_dx_lower_surface_data[:,:,lstei]) 
-        theta_us         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,theta_upper_surface_data[:,:,ustei])
-        delta_us         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_upper_surface_data[:,:,ustei] ) 
-        delta_star_us    = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_star_upper_surface_data[:,:,ustei])
-        Ue_Vinf_us       = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,Ue_Vinf_upper_surface_data[:,:,ustei] ) 
-        cf_us            = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,cf_upper_surface_data[:,:,ustei])
-        dcp_dx_us        = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,dcp_dx_upper_surface_data[:,:,ustei] )            
-   
-   
-        #theta_ls           = jnp.where(aloc==jj,theta_ls_data,theta_ls)
-        #delta_ls           = jnp.where(aloc==jj,delta_ls_data , delta_ls )
-        #delta_star_ls      = jnp.where(aloc==jj,delta_star_ls_data , delta_star_ls )
-        #Ue_Vinf_ls         = jnp.where(aloc==jj,Ue_Vinf_ls_data , Ue_Vinf_ls )
-        #cf_ls              = jnp.where(aloc==jj,cf_ls_data , cf_ls )
-        #dcp_dx_ls          = jnp.where(aloc==jj,dcp_dx_ls_data , dcp_dx_ls )
-        #theta_us           = jnp.where(aloc==jj,theta_us_data , theta_us )
-        #delta_us           = jnp.where(aloc==jj,delta_us_data , delta_us )
-        #delta_star_us      = jnp.where(aloc==jj,delta_star_us_data , delta_star_us )
-        #Ue_Vinf_us         = jnp.where(aloc==jj,Ue_Vinf_us_data , Ue_Vinf_us )
-        #cf_us              = jnp.where(aloc==jj,cf_us_data , cf_us )
-        #dcp_dx_us          = jnp.where(aloc==jj,dcp_dx_us_data , dcp_dx_us )
- 
-        blade_chords_2d           = jnp.tile(blade_chords[None,:],(num_cpt,1))
-        dP_dX_ls                  = dcp_dx_ls*(0.5*rho_blade[:,:,0]*(U_blade[:,:,0]**2))/blade_chords_2d
-        dP_dX_us                  = dcp_dx_us*(0.5*rho_blade[:,:,0]*(U_blade[:,:,0]**2))/blade_chords_2d
- 
-        lower_surface_theta       = jnp.tile(theta_ls[:,:,None],(1,1,num_azi))
-        lower_surface_delta       = jnp.tile((blade_chords_2d*delta_ls)[:,:,None],(1,1,num_azi))
-        lower_surface_delta_star  = jnp.tile(delta_star_ls[:,:,None],(1,1,num_azi))
-        lower_surface_cf          = jnp.tile(cf_ls[:,:,None],(1,1,num_azi))
-        lower_surface_Ue          = jnp.tile(Ue_Vinf_ls[:,:,None],(1,1,num_azi))*U_blade
-        lower_surface_dp_dx       = jnp.tile(dP_dX_ls[:,:,None],(1,1,num_azi))
-        upper_surface_theta       = jnp.tile(theta_us[:,:,None],(1,1,num_azi))
-        upper_surface_delta       = jnp.tile((blade_chords_2d*delta_us)[:,:,None],(1,1,num_azi))
-        upper_surface_delta_star  = jnp.tile(delta_star_us[:,:,None],(1,1,num_azi))
-        upper_surface_cf          = jnp.tile(cf_us[:,:,None],(1,1,num_azi))
-        upper_surface_Ue          = jnp.tile(Ue_Vinf_us[:,:,None],(1,1,num_azi))*U_blade
-        upper_surface_dp_dx       = jnp.tile(dP_dX_us[:,:,None],(1,1,num_azi))
+    # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
+    lower_surface_theta        = jnp.zeros((num_cpt,num_sec,num_azi),dtype=precision)
+    lower_surface_delta        = jnp.zeros_like(lower_surface_theta)
+    lower_surface_delta_star   = jnp.zeros_like(lower_surface_theta)
+    lower_surface_Ue           = jnp.zeros_like(lower_surface_theta)
+    lower_surface_cf           = jnp.zeros_like(lower_surface_theta)
+    lower_surface_dcp_dx       = jnp.zeros_like(lower_surface_theta)
+    upper_surface_theta        = jnp.zeros_like(lower_surface_theta)
+    upper_surface_delta        = jnp.zeros_like(lower_surface_theta)
+    upper_surface_delta_star   = jnp.zeros_like(lower_surface_theta)
+    upper_surface_Ue           = jnp.zeros_like(lower_surface_theta)
+    upper_surface_cf           = jnp.zeros_like(lower_surface_theta)
+    upper_surface_dcp_dx       = jnp.zeros_like(lower_surface_theta) 
+
+    aloc  = jnp.atleast_3d(jnp.array(a_loc))
+    aloc  = jnp.broadcast_to(aloc,jnp.shape(lower_surface_theta))
+
+    local_aoa          = alpha_blade 
+    local_Re           = Re_blade 
+    
+    # begin of loop 
+    #for jj in range(len(theta_lower_surface_data[0,0])): 
+    jj = 0  
+    lstei                 = 1      # lower surface trailing edge index 
+    ustei                 = -lstei # upper surface trailing edge index  
+    theta_ls_data         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,theta_lower_surface_data[:,:,lstei])
+    delta_ls_data         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_lower_surface_data[:,:,lstei])   
+    delta_star_ls_data    = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_star_lower_surface_data[:,:,lstei])
+    Ue_Vinf_ls_data       = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,Ue_Vinf_lower_surface_data[:,:,lstei]) 
+    cf_ls_data            = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,cf_lower_surface_data[:,:,lstei])
+    dcp_dx_ls_data        = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,dcp_dx_lower_surface_data[:,:,lstei]) 
+    theta_us_data         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,theta_upper_surface_data[:,:,ustei])
+    delta_us_data         = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_upper_surface_data[:,:,ustei] ) 
+    delta_star_us_data    = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,delta_star_upper_surface_data[:,:,ustei])
+    Ue_Vinf_us_data       = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,Ue_Vinf_upper_surface_data[:,:,ustei] ) 
+    cf_us_data            = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,cf_upper_surface_data[:,:,ustei])
+    dcp_dx_us_data        = interp2d(local_Re,local_aoa, bl_RE_data, bl_aoa_data,dcp_dx_upper_surface_data[:,:,ustei] )     
+
+    lower_surface_theta        = jnp.where(aloc==jj,theta_ls_data,lower_surface_theta)
+    lower_surface_delta        = jnp.where(aloc==jj,delta_ls_data , lower_surface_delta  )
+    lower_surface_delta_star   = jnp.where(aloc==jj,delta_star_ls_data ,lower_surface_delta_star)
+    lower_surface_Ue           = jnp.where(aloc==jj,Ue_Vinf_ls_data ,lower_surface_Ue )
+    lower_surface_cf           = jnp.where(aloc==jj,cf_ls_data ,lower_surface_cf )
+    lower_surface_dcp_dx       = jnp.where(aloc==jj,dcp_dx_ls_data ,lower_surface_dcp_dx)
+    upper_surface_theta        = jnp.where(aloc==jj,theta_us_data ,upper_surface_theta )
+    upper_surface_delta        = jnp.where(aloc==jj,delta_us_data , upper_surface_delta  )
+    upper_surface_delta_star   = jnp.where(aloc==jj,delta_star_us_data ,upper_surface_delta_star )
+    upper_surface_Ue           = jnp.where(aloc==jj,Ue_Vinf_us_data , upper_surface_Ue )
+    upper_surface_cf           = jnp.where(aloc==jj,cf_us_data , upper_surface_cf )
+    upper_surface_dcp_dx       = jnp.where(aloc==jj,dcp_dx_us_data , upper_surface_dcp_dx )
+    # end of loop 
+    
+    blade_chords_3d           = jnp.tile(jnp.tile(blade_chords[None,:],(num_cpt,1))[:,:,None],(1,1,num_azi))
+    dP_dX_ls                  = lower_surface_dcp_dx*(0.5*rho_blade*U_blade**2)/blade_chords_3d
+    dP_dX_us                  = upper_surface_dcp_dx*(0.5*rho_blade*U_blade**2)/blade_chords_3d
+
+    lower_surface_Ue          = lower_surface_Ue*U_blade  
+    upper_surface_Ue          = upper_surface_Ue*U_blade 
+    lower_surface_dp_dx       = dP_dX_ls
+    upper_surface_dp_dx       = dP_dX_us
+  
     # ------------------------------------------------------------
     # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******
  

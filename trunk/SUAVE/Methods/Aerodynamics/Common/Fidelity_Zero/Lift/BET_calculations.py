@@ -78,18 +78,15 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,a_loc,a_geo, RE_data, a
         # return the 2D Cl and CDval of shape (ctrl_pts, Nr, Na)
         Cl      = jnp.zeros(jnp.shape(Wa))
         Cdval   = jnp.zeros(jnp.shape(Wa)) 
-
+        
+        # begin of loop 
+        # for jj in range(len(cl_sur[0,0]))
         jj = 0
         sub_cl = interp2d(Re, alpha, RE_data, aoa_data, cl_sur)
         sub_cd = interp2d(Re, alpha, RE_data, aoa_data, cd_sur)
         Cl    = jnp.where(aloc==jj,sub_cl,Cl)
-        Cdval = jnp.where(aloc==jj,sub_cd,Cdval)
-        
-        #for jj, (cl, cd) in enumerate(zip(cl_sur,cd_sur)):
-            #sub_cl = interp2d(Re, alpha, cl.RE_data, cl.aoa_data, cl.CL_data)
-            #sub_cd = interp2d(Re, alpha, cd.RE_data, cd.aoa_data, cd.CD_data)
-            #Cl    = jnp.where(aloc==jj,sub_cl,Cl)
-            #Cdval = jnp.where(aloc==jj,sub_cd,Cdval)
+        Cdval = jnp.where(aloc==jj,sub_cd,Cdval) 
+        # end of loop 
 
     else:
         tc_1 = tc*100
