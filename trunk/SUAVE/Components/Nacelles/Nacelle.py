@@ -149,7 +149,7 @@ class Nacelle(Lofted_Body):
         """This rotates from the systems body frame to the nacelles velocity frame
 
         Assumptions:
-        There are two nacelle frames, the vehicle frame describing the location and the nacelle velocity frame
+        There are two nacelle frames, the vehicle frame describing the location and the nacelle
         velocity frame is X out the nose, Z towards the ground, and Y out the right wing
         vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
@@ -189,7 +189,7 @@ class Nacelle(Lofted_Body):
         """This rotates from the nacelles vehicle frame to the nacelles velocity frame
 
         Assumptions:
-        There are two nacelle frames, the vehicle frame describing the location and the nacelle velocity frame
+        There are two nacelle frames, the vehicle frame describing the location and the nacelle
         velocity frame is X out the nose, Z towards the ground, and Y out the right wing
         vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
