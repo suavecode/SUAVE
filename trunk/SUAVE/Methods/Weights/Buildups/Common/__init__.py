@@ -4,7 +4,7 @@
 # @ingroup Methods-Weights-Buildups
 
 from .elliptical_shell import elliptical_shell
-from . import stack_mass
+from .stack_mass import stack_mass
 from . import fuselage
 from . import prop
 from . import wing

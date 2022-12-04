@@ -183,8 +183,6 @@ def empty(config,
     #-------------------------------------------------------------------------------
     config.systems.furnishings.origin[0][0]          = 0.2 * length_scale
     config.systems.furnishings.mass_properties.mass  = output.seats
-        
-    
 
     #-------------------------------------------------------------------------------
     # Network Weight
@@ -368,7 +366,7 @@ def empty(config,
     
     
     #-------------------------------------------------------------------------------
-    # Pasengers are payload too
+    # Passengers are payload too
     #-------------------------------------------------------------------------------
     config.payload.passengers.origin[0][0]         = 0.2 * length_scale
     config.payload.passengers.mass_properties.mass = output.passengers  
@@ -386,7 +384,7 @@ def empty(config,
     #-------------------------------------------------------------------------------
     # Fuselage  Weight
     #-------------------------------------------------------------------------------
-    output.fuselage = fuselage(config) * Units.kg
+    output.fuselage = fuselage(config)
     config.fuselages.fuselage.mass_properties.center_of_gravity[0][0] = .45*config.fuselages.fuselage.lengths.total
     config.fuselages.fuselage.mass_properties.mass                    =  output.fuselage
 

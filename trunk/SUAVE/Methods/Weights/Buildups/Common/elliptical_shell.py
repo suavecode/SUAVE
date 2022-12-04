@@ -101,7 +101,7 @@ def area_backup(component):
         try:
             l = component.length
             h = component.diameter
-            w - component.diameter
+            w = component.diameter
 
             # Thomsen elliptical approximation
 
@@ -112,5 +112,6 @@ def area_backup(component):
             warnings.warn(f"{component.tag} has insufficient geometry for " +
                           "weight estimation. Assigning zero mass.",
                           stacklevel=1)
+            shell_area = 0.
 
     return shell_area
