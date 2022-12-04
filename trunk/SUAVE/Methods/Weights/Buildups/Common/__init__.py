@@ -5,7 +5,7 @@
 
 from .elliptical_shell import elliptical_shell
 from .stack_mass import stack_mass
-from . import fuselage
-from . import prop
-from . import wing
-from . import wiring
+from .fuselage import fuselage
+from .prop import prop
+from .wing import wing
+from .wiring import wiring
