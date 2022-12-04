@@ -15,15 +15,7 @@ from SUAVE.Core import Data
 
 ## @ingroup Methods-Weights-Buildups-eVTOL 
 def converge_evtol_weight(vehicle,
-                          print_iterations              = False,
-                          contingency_factor            = 1.1,
-                          speed_of_sound                = 340.294,
-                          max_tip_mach                  = 0.65,
-                          disk_area_factor              = 1.15,
-                          safety_factor                 = 1.5,
-                          max_thrust_to_weight_ratio    = 1.1,
-                          max_g_load                    = 3.8,
-                          motor_efficiency              = 0.85 * 0.98):
+                          print_iterations = False):
     '''Converges the maximum takeoff weight of an aircraft using the eVTOL 
     weight buildup routine.  
     
@@ -52,10 +44,19 @@ def converge_evtol_weight(vehicle,
     N/A
     '''
     settings       = Data()
-    breakdown      = empty(vehicle,settings,contingency_factor,
-                           speed_of_sound,max_tip_mach,disk_area_factor,
-                           safety_factor,max_thrust_to_weight_ratio,
-                           max_g_load,motor_efficiency) 
+
+    settings.method_settings = Data()
+
+    settings.method_settings.contingency_factor            = 1.1
+    settings.method_settings.speed_of_sound                = 340.294
+    settings.method_settings.max_tip_mach                  = 0.65
+    settings.method_settings.disk_area_factor              = 1.15
+    settings.method_settings.safety_factor                 = 1.5
+    settings.method_settings.max_thrust_to_weight_ratio    = 1.1
+    settings.method_settings.max_g_load                    = 3.8
+    settings.method_settings.motor_efficiency              = 0.85*0.98
+
+    breakdown      = empty(vehicle,settings)
     build_up_mass  = breakdown.total    
     diff           = vehicle.mass_properties.max_takeoff - build_up_mass
     iterations     = 0
@@ -66,10 +67,7 @@ def converge_evtol_weight(vehicle,
         # Note that 'diff' will be negative if buildup mass is larger than MTOW, so subtractive
         # iteration always moves MTOW toward buildup mass
         
-        breakdown      = empty(vehicle,settings,contingency_factor,
-                           speed_of_sound,max_tip_mach,disk_area_factor,
-                           safety_factor,max_thrust_to_weight_ratio,
-                           max_g_load,motor_efficiency)
+        breakdown      = empty(vehicle,settings)
         build_up_mass  = breakdown.total    
         diff           = vehicle.mass_properties.max_takeoff - build_up_mass 
         iterations     += 1
