@@ -6,12 +6,13 @@
 # Modified: Apr 2018, J. Smart
 #           Mar 2020, M. Clarke
 #           Mar 2020, J. Smart
+#           Dec 2022, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
 #-------------------------------------------------------------------------------
 
-from SUAVE.Core import Units
+from SUAVE.Core import Data, Container, Units
 from SUAVE.Attributes.Solids import (
     Bidirectional_Carbon_Fiber as BiCRFP,
     Unidirectional_Carbon_Fiber as UniCRFP,
@@ -20,7 +21,8 @@ from SUAVE.Attributes.Solids import (
     Acrylic,
     Steel)
 
-from SUAVE.Methods.Weights.Buildups.Common import elliptical_shell, stack_mass
+from SUAVE.Methods.Weights.Buildups.Common import elliptical_shell
+from SUAVE.Methods.Weights.Buildups.Common.stack_mass import stack_mass
 
 import numpy as np
 
@@ -89,6 +91,15 @@ def fuselage(config,
     # Bending Carrier
 
     try:
+        mats = fuse.materials
+    except AttributeError:
+        fuse.materials              = Data()
+        fuse.materials.keel         = Container()
+        fuse.materials.skin         = Container()
+        fuse.materials.canopy       = Container()
+        fuse.materials.landing_gear = Container()
+
+    try:
         rbmMat = fuse.materials.keel.bending_carrier
     except AttributeError:
         fuse.materials.keel.bending_carrier = UniCRFP()
@@ -126,26 +137,27 @@ def fuselage(config,
         fuse.materials.landing_gear.bolt = Steel()
         boltMat = fuse.materials.landing_gear.bolt
 
+    boltUSS = boltMat.ultimate_shear_strength
+
     # Skin Materials
 
-    try:
-        skinMats = fuse.materials.skin
-    except AttributeError:
-        fuse.materials.skin = Data()
-        fuse.materials.skin.base = Bidirectional_Carbon_Fiber()
-        fuse.materials.skin.core = Carbon_Fiber_Honeycomb()
-        fuse.materials.skin.cover = Paint()
+
+    skinMats = fuse.materials.skin
+
+    if len(skinMats)==0:
+        fuse.materials.skin.base    = BiCRFP()
+        fuse.materials.skin.core    = CFHoneycomb()
+        fuse.materials.skin.cover   = Paint()
         skinMats = fuse.materials.skin
 
     # Canopy Materials
 
-    try:
-        canopyMats = fuse.materials.canopy_materials
-    except AttributeError:
-        fuse.materials.canopy_materials = Data()
-        fuse.materials.canopy_materials.base = Acrylic()
+    canopyMats = fuse.materials.canopy
 
-        canopyMats = fuse.materials.canopy_materials
+    if len(canopyMats)==0:
+        fuse.materials.canopy.base = Acrylic()
+
+        canopyMats = fuse.materials.canopy
 
     # --------------------------------------------------------------------------
     # Unloaded Components

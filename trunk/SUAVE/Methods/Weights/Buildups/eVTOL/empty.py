@@ -1,8 +1,9 @@
 ## @ingroup Methods-Weights-Buildups-eVTOL
 # empty.py
 #
-# Created:    Apr, 2019, J. Smart
-# Modified:   July, 2021, R. Erhard
+# Created:      Apr 2019, J. Smart
+# Modified:     July 2021, R. Erhard
+#               Dec 2022, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -410,7 +411,7 @@ def empty(config,
     output.structural = (output.lift_rotors +
                          output.propellers +
                          output.hubs +
-                         output.fuselage +
+                         output.fuselage.total +
                          output.nacelles +
                          output.landing_gear +
                          output.total_wing_weight) * Units.kg

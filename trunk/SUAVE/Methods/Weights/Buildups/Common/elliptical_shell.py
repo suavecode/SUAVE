@@ -10,14 +10,14 @@
 
 import warnings
 
-from SUAVE.Core import Units
+from SUAVE.Core import Data, Container
 from SUAVE.Attributes.Solids import (
     Bidirectional_Carbon_Fiber as BiCRFP,
     Carbon_Fiber_Honeycomb as CFHoneycomb,
     Paint
 )
 
-from SUAVE.Methods.Weights.Buildups.Common import stack_mass
+from SUAVE.Methods.Weights.Buildups.Common.stack_mass import stack_mass
 
 import numpy as np
 
@@ -57,10 +57,10 @@ def elliptical_shell(component,
     try:
         shell_area = component.areas.wetted_area
     except:
-        area_backup(component)
+        shell_area = area_backup(component)
 
     if shell_area == 0:
-        area_backup(component)
+        shell_area = area_backup(component)
 
     # Determine mass per unit area
 
@@ -74,9 +74,10 @@ def elliptical_shell(component,
             shell_areal_mass = stack_mass(component.skin_materials)
 
         except AttributeError: # If no skin materials is specified
-            component.materials.skin        = Data()
-            component.materials.skin.base   = Bidirectional_Carbon_Fiber()
-            component.materials.skin.core   = Carbon_Fiber_Honeycomb()
+            component.materials             = Data()
+            component.materials.skin        = Container()
+            component.materials.skin.base   = BiCRFP()
+            component.materials.skin.core   = CFHoneycomb()
             component.materials.skin.cover  = Paint()
 
             shell_areal_mass = stack_mass(component.materials.skin)

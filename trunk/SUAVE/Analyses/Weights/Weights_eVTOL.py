@@ -70,13 +70,13 @@ class Weights_eVTOL(Weights):
 
         self.settings.method_settings = Data()
 
-        self.settings.method_settings.contingency_factor            = 1.1,
-        self.settings.method_settings.speed_of_sound                = 340.294,
-        self.settings.method_settings.max_tip_mach                  = 0.65,
-        self.settings.method_settings.disk_area_factor              = 1.15,
-        self.settings.method_settings.safety_factor                 = 1.5,
-        self.settings.method_settings.max_thrust_to_weight_ratio    = 1.1,
-        self.settings.method_settings.max_g_load                    = 3.8,
+        self.settings.method_settings.contingency_factor            = 1.1
+        self.settings.method_settings.speed_of_sound                = 340.294
+        self.settings.method_settings.max_tip_mach                  = 0.65
+        self.settings.method_settings.disk_area_factor              = 1.15
+        self.settings.method_settings.safety_factor                 = 1.5
+        self.settings.method_settings.max_thrust_to_weight_ratio    = 1.1
+        self.settings.method_settings.max_g_load                    = 3.8
         self.settings.method_settings.motor_efficiency              = 0.85*0.98
 
     def evaluate(self,conditions=None):
