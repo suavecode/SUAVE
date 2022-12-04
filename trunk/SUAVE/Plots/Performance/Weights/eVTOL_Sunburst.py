@@ -10,10 +10,12 @@
 
 import plotly
 import plotly.express as px
+import plotly.graph_objects as go
 
 from copy import deepcopy
 
 import pandas as pd
+import numpy as np
 
 ## @ingroup Plots-Performance-Weights
 def eVTOL_Sunburst(vehicle, *args, **kwargs):
@@ -52,13 +54,15 @@ def eVTOL_Sunburst(vehicle, *args, **kwargs):
     chart_df = pd.DataFrame(list(zip(labels, parents, values)), columns = ['Label', 'Parent', 'Value'])
     filter_df = chart_df[chart_df['Value']>0]
 
-    fig = px.sunburst(filter_df,
-                      names='Label',
-                      parents='Parent',
-                      values='Value',
-                      color='Value',
-                      color_continuous_scale='Inferno_r')
+    fig = go.Figure(go.Sunburst(
+        labels=filter_df['Label'].tolist(),
+        parents=filter_df['Parent'].tolist(),
+        values=filter_df['Value'].tolist(),
+        branchvalues="total",
+        marker=dict(colorscale='Inferno_r')
+    ))
 
+    fig.update_layout(margin=dict(t=0, l=0, r=0, b=0))
     fig.show()
 
     return

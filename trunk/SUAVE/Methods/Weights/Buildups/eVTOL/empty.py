@@ -435,6 +435,7 @@ def empty(config,
 
     output.structural.wings = output.wings
     output.structural.wings.total = total_wing_weight
+    output.structural.total += total_wing_weight
     del output['wings']
     del output['total_wing_weight']
 
