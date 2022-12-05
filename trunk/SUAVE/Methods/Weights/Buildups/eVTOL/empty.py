@@ -433,13 +433,16 @@ def empty(config,
         'lift_rotors',
         'propellers',
         'hubs',
-        'nacelles',
         'landing_gear',
     ]:
         output.structural.total += output[key] * Units.kg
         output.structural[key] = output[key]
         del output[key]
 
+    output.structural.nacelles = output.nacelles
+    output.structural.total += output.nacelles.total
+    del output['nacelles']
+    
     output.structural.wings = output.wings
     output.structural.wings.total = total_wing_weight
     output.structural.total += total_wing_weight
