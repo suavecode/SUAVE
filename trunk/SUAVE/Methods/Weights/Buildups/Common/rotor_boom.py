@@ -110,8 +110,8 @@ def rotor_boom(boom,
 
     # Bending Mass
 
-    M_max = rotor_thrust * arm_length           # Maximum Moment
-    A_bend = M_max * h/(4*rbmUTS*(h/2)**2)      # Required Bending Cross-Section
+    M_max   = safety_factor * rotor_thrust * arm_length # Maximum Moment
+    A_bend  = M_max * h/(4*rbmUTS*(h/2)**2)             # Bending Cross-Section
 
     keelMass = A_bend * l * rbmDen
 
@@ -121,6 +121,8 @@ def rotor_boom(boom,
     t       = 0.5 * M_max/(shearUSS*A_shear)    # Beam Thickness
 
     keelMass += (4*h)*t*shearDen
+
+    keelMass *= boom.number_of_rotors
 
     # --------------------------------------------------------------------------
     # Skin Mass

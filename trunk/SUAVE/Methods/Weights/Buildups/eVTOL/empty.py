@@ -397,15 +397,20 @@ def empty(config,
 
     total_nacelle_weight = 0. * Units.kg
     output.nacelles = Data()
+    output.nacelles.total       = 0.0 * Units.kg
+    output.nacelles.rotor_booms = 0.0 * Units.kg
 
     for nacelle in config.nacelles:
-        nacelle_weight = elliptical_shell(nacelle) * Units.kg
+        if isinstance(nacelle, SUAVE.Components.Nacelles.Rotor_Boom):
+            nacelle_weight = rotor_boom(nacelle, config).total * Units.kg
+            output.nacelles.rotor_booms += nacelle_weight
+        else:
+            nacelle_weight = elliptical_shell(nacelle) * Units.kg
+
         nacelle.mass_properties.mass = nacelle_weight
         nacelle.mass_properties.center_of_gravity[0][0] = 0.45 * nacelle.length
 
-        total_nacelle_weight  = total_nacelle_weight + nacelle_weight
-
-    output.nacelles = total_nacelle_weight
+        output.nacelles.total  += nacelle_weight
 
     #-------------------------------------------------------------------------------
     # Bookkeeping
