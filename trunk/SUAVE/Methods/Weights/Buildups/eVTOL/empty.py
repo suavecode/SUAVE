@@ -97,7 +97,6 @@ def empty(config,
     output.lift_rotor_motors = 0.0
     output.propeller_motors  = 0.0
     output.battery           = 0.0
-    output.payload           = 0.0
     output.servos            = 0.0
     output.hubs              = 0.0
     output.BRS               = 0.0
@@ -199,10 +198,13 @@ def empty(config,
         #-----------------------------------------------------------------------
         # Payload Weight
         #-----------------------------------------------------------------------
+        output.payload = Data()
+        output.payload.total = 0.0
+
         load = network.payload
         load.origin[0][0]                               = 0.51 * length_scale
         load.mass_properties.center_of_gravity[0][0]    = 0.0
-        output.payload += load.mass_properties.mass * Units.kg
+        output.payload.total += load.mass_properties.mass * Units.kg
 
         #-----------------------------------------------------------------------
         # Avionics Weight
@@ -471,6 +473,7 @@ def empty(config,
     output.empty.battery = output.battery
     output.empty.total += output.battery * Units.kg
     del output['battery']
+
 
     output.payload.passengers = output.passengers
     del output['passengers']
