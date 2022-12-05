@@ -479,6 +479,6 @@ def empty(config,
     del output['passengers']
 
     output.total      = (output.empty.total +
-                         output.payload)
+                         output.payload.total)
 
     return output

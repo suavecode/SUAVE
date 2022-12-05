@@ -38,12 +38,13 @@ def eVTOL_Sunburst(vehicle, *args, **kwargs):
 
     weights = deepcopy(vehicle.weight_breakdown)
 
-    labels = ["TOTAL"]
+
     parents = [""]
-    values = [weights.total]
+    values  = [weights.total]
+    labels  = ["TOTAL "+"{:.1f}".format(weights.total)]
     del weights['total']
 
-    new_labels, new_parents, new_values = make_sunburst_lists(weights)
+    new_labels, new_parents, new_values = make_sunburst_lists(weights,parent=labels[0])
 
     labels.extend(new_labels)
     parents.extend(new_parents)
@@ -77,16 +78,21 @@ def make_sunburst_lists(weights, parent="TOTAL"):
             continue
         else:
             if isinstance(weights[key], dict):
-                new_labels.append(' '.join(key.split("_")).upper())
+                label_str_text = ' '.join(key.split("_")).upper()+ ' '
+                label_val_text = "{:.1f}".format(weights[key].total)
+                label          = label_str_text + label_val_text
+                new_labels.append(label)
                 new_parents.append(parent)
                 new_values.append(weights[key].total)
-                new_parent = ' '.join(key.split("_")).upper()
+                new_parent = label
                 l, p, v = make_sunburst_lists(weights[key], parent=new_parent)
                 new_labels.extend(l)
                 new_parents.extend(p)
                 new_values.extend(v)
             else:
-                new_labels.append(' '.join(key.split("_")).upper())
+                label_str_text = ' '.join(key.split("_")).upper()+ ' '
+                label_val_text = "{:.1f}".format(weights[key])                
+                new_labels.append(label_str_text+label_val_text)
                 new_parents.append(parent)
                 new_values.append(weights[key])
 
