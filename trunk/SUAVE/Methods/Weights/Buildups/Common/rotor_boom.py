@@ -22,6 +22,7 @@ from SUAVE.Methods.Weights.Buildups.Common import elliptical_shell
 from SUAVE.Methods.Weights.Buildups.Common import stack_mass
 
 import numpy as np
+import scipy as sp
 
 ## @ingroup Methods-Weights-Buildups-Common
 def rotor_boom(boom,
@@ -110,11 +111,13 @@ def rotor_boom(boom,
 
     # Bending Mass
 
-    M_max   = safety_factor * rotor_thrust * arm_length # Maximum Moment
-    I = M_max/rbmUTS
-    coeffs = 0.25*np.pi*np.array([-1, 4*r, -6*r**2, 4*r**3])
-    coeffs = np.append(coeffs, -I)
-    t_bend = np.roots(coeffs)
+    M_max   = boom.number_of_rotors *  safety_factor * 5*rotor_thrust * arm_length # Maximum Moment
+    I = M_max*r/rbmUTS
+    
+    opt_res = sp.optimize.root(converge_me,0.01,args=(I,r))
+    t_bend  = opt_res.x[0]
+    
+    t_bend  = np.max([t_bend,rbmMat.minimum_gage_thickness])
 
     A_bend = t_bend * np.pi*r
 
@@ -122,8 +125,10 @@ def rotor_boom(boom,
 
     # Shear Mass
 
-    A_shear = np.pi*r**2                              # Beam Enclosed Area
-    t_shear       = 0.5 * M_max/(shearUSS*A_shear)    # Beam Thickness
+    A_shear = np.pi*r**2                        # Beam Enclosed Area
+    t_shear = 0.5 * M_max/(shearUSS*A_shear)    # Beam Thickness
+
+    t_shear  = np.max([t_shear,shearMat.minimum_gage_thickness])
 
     keelMass += (np.pi*r)*t_shear*shearDen
 
@@ -145,3 +150,11 @@ def rotor_boom(boom,
     results.skin    = skinMass              * Units.kg
 
     return results
+
+
+def converge_me(t,I,R):
+    return I-(1/4)*(np.pi)*(R**4 - (R-t)**4)
+    
+    
+    
+    
