@@ -381,7 +381,7 @@ def empty(config,
     config.landing_gear.main.mass_properties.mass = output.landing_gear
 
     #-------------------------------------------------------------------------------
-    # Fuselage  Weight
+    # Fuselage Weight
     #-------------------------------------------------------------------------------
     output.fuselage = fuselage(config)
 
@@ -472,8 +472,10 @@ def empty(config,
     output.empty.total += output.battery * Units.kg
     del output['battery']
 
+    output.payload.passengers = output.passengers
+    del output['passengers']
+
     output.total      = (output.empty.total +
-                         output.payload +
-                         output.passengers)
+                         output.payload)
 
     return output
