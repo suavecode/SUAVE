@@ -184,6 +184,8 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     dP_dX_ls                  = lower_surface_dcp_dx*(0.5*rho_blade*U_blade**2)/blade_chords_3d
     dP_dX_us                  = upper_surface_dcp_dx*(0.5*rho_blade*U_blade**2)/blade_chords_3d
 
+    lower_surface_delta       = lower_surface_delta*blade_chords_3d 
+    upper_surface_delta       = upper_surface_delta*blade_chords_3d  
     lower_surface_Ue          = lower_surface_Ue*U_blade  
     upper_surface_Ue          = upper_surface_Ue*U_blade 
     lower_surface_dp_dx       = dP_dX_ls

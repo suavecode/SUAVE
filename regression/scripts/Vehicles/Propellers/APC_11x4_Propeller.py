@@ -55,17 +55,48 @@ def APC_11x4_Propeller():
     prop.chord_distribution         = b_R*prop.tip_radius    
     prop.radius_distribution        = r_R*prop.tip_radius      
     prop.mid_chord_alignment        = np.zeros_like(prop.chord_distribution)   
-    prop.thickness_to_chord         = prop.max_thickness_distribution/prop.chord_distribution     
+    prop.thickness_to_chord         = prop.max_thickness_distribution/prop.chord_distribution      
+    
     ospath    = os.path.abspath(__file__)
     separator = os.path.sep
-    rel_path  = os.path.dirname(ospath) + separator   
-    airfoil                          = SUAVE.Components.Airfoils.Airfoil()   
-    airfoil.coordinate_file          = rel_path +'../Airfoils/Clark_y.txt'
-    airfoil.polar_files              = [rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt',
-                                      rel_path +'../Airfoils/Polars/Clark_y_polar_Re_100000.txt',rel_path +'../Airfoils/Polars/Clark_y_polar_Re_200000.txt',
-                                      rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',rel_path +'../Airfoils/Polars/Clark_y_polar_Re_1000000.txt']
-    airfoil.geometry                 = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points)
-    airfoil.polars                   = compute_airfoil_properties(airfoil.geometry,airfoil.polar_files)
-    prop.append_airfoil(airfoil) 
-    prop.airfoil_polar_stations      = list(np.zeros(len(prop.radius_distribution)).astype(int)) 
+    rel_path  = os.path.dirname(ospath) + separator     
+    prop.airfoil_geometry            = [rel_path +'../Airfoils/Clark_y.txt']
+    prop.airfoil_polars             = [[rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt' ,
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_100000.txt',
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_200000.txt',
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_1000000.txt',
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_3500000.txt',
+                                       rel_path +'../Airfoils/Polars/Clark_y_polar_Re_5000000.txt']] 
+    prop.airfoil_flag                     = True 
+
+    prop.number_of_airfoil_section_points = 200   
+     
+    
+    airfoil_geometry_data                               = import_airfoil_geometry(prop.airfoil_geometry[0],npoints = prop.number_of_airfoil_section_points) 
+    airfoil_polar_data                                  = compute_airfoil_properties(airfoil_geometry_data, airfoil_polar_files= prop.airfoil_polars[0],use_pre_stall_data=True,linear_lift=True ) 
+         
+   
+    prop.RE_data                                        = airfoil_polar_data.reynolds_numbers
+    prop.aoa_data                                       = airfoil_polar_data.angle_of_attacks
+    prop.airfoil_cl_surrogates                          = airfoil_polar_data.lift_coefficients
+    prop.airfoil_cd_surrogates                          = airfoil_polar_data.drag_coefficients
+    
+    prop.airfoil_bl_aoa_data                            = airfoil_polar_data.boundary_layer_angle_of_attacks           
+    prop.airfoil_bl_RE_data                             = airfoil_polar_data.boundary_layer_reynolds_numbers   
+    prop.airfoil_bl_lower_surface_theta_surrogates      = airfoil_polar_data.boundary_layer_theta_lower_surface           
+    prop.airfoil_bl_lower_surface_delta_surrogates      = airfoil_polar_data.boundary_layer_delta_lower_surface           
+    prop.airfoil_bl_lower_surface_delta_star_surrogates = airfoil_polar_data.boundary_layer_delta_star_lower_surface          
+    prop.airfoil_bl_lower_surface_Ue_surrogates         = airfoil_polar_data.boundary_layer_cf_lower_surface          
+    prop.airfoil_bl_lower_surface_cf_surrogates         = airfoil_polar_data.boundary_layer_Ue_Vinf_lower_surface              
+    prop.airfoil_bl_lower_surface_dp_dx_surrogates      = airfoil_polar_data.boundary_layer_dcp_dx_lower_surface          
+    prop.airfoil_bl_upper_surface_theta_surrogates      = airfoil_polar_data.boundary_layer_theta_upper_surface           
+    prop.airfoil_bl_upper_surface_delta_surrogates      = airfoil_polar_data.boundary_layer_delta_upper_surface           
+    prop.airfoil_bl_upper_surface_delta_star_surrogates = airfoil_polar_data.boundary_layer_delta_star_upper_surface            
+    prop.airfoil_bl_upper_surface_Ue_surrogates         = airfoil_polar_data.boundary_layer_cf_upper_surface          
+    prop.airfoil_bl_upper_surface_cf_surrogates         = airfoil_polar_data.boundary_layer_Ue_Vinf_upper_surface            
+    prop.airfoil_bl_upper_surface_dp_dx_surrogates      = airfoil_polar_data.boundary_layer_dcp_dx_upper_surface        
+     
+    prop.airfoil_polar_stations      = list(np.zeros_like(prop.chord_distribution).astype(int))  
+    prop.mid_chord_alignment         = np.zeros_like(prop.chord_distribution)      
     return prop

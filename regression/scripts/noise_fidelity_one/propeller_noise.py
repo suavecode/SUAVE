@@ -31,8 +31,56 @@ from APC_11x4_Propeller import APC_11x4_Propeller
 
 # ----------------------------------------------------------------------
 #   Main
+# ----------------------------------------------------------------------  
+ 
+# ----------------------------------------------------------------------
+#   Main
 # ---------------------------------------------------------------------- 
 def main(): 
+    '''This regression script is for validation and verification of the mid-fidelity acoustics
+    analysis routine. "Experimental Data is obtained from Comparisons of predicted propeller
+    noise with windtunnel ..." by Weir, D and Powers, J.
+    '''  
+
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    #  Plots
+    # ----------------------------------------------------------------------------------------------------------------------------------------    
+    # Universal Plot Settings 
+    plt.rcParams.update({'font.size': 12})
+    plt.rcParams['axes.linewidth'] = 1. 
+ 
+    PP = Data( 
+        lw  = 1,                             # line_width               
+        m   = 5,                             # markersize               
+        lf  = 10,                            # legend_font_size         
+        Slc = ['black','dimgray','silver' ], # SUAVE_line_colors        
+        Slm = '^',                           # SUAVE_line_markers       
+        Sls = '-',                           # SUAVE_line_styles        
+        Elc = ['darkred','red','tomato'],    # Experimental_line_colors 
+        Elm = 's',                           # Experimental_line_markers
+        Els = '',                            # Experimental_line_styles 
+        Rlc = ['darkblue','blue','cyan'],    # Ref_Code_line_colors     
+        Rlm = 'o',                           # Ref_Code_line_markers    
+        Rls = ':',                           # Ref_Code_line_styles     
+    )   
+   
+       
+    # harmonic noise test 
+    Hararmonic_Noise_Validation(PP)
+
+    # broadband nosie test function 
+    Broadband_Noise_Validation(PP)
+    
+    return 
+
+    
+    
+# ------------------------------------------------------------------ 
+# Harmonic Noise Validation
+# ------------------------------------------------------------------  
+def Hararmonic_Noise_Validation(PP):
+
     '''This regression script is for validation and verification of the mid-fidelity acoustics
     analysis routine. "Experimental Data is obtained from Comparisons of predicted propeller
     noise with windtunnel ..." by Weir, D and Powers, J.
@@ -275,13 +323,186 @@ def main():
     error.SPL_Case_1_90deg  = np.max(np.abs(F8745D4_SPL_harmonic_bpf_spectrum[0,9,:][:len(harmonics)] - Exp_Test_Case_1_90deg))
     
     print('Errors:')
+    print(error) 
+    
+    #for k,v in list(error.items()):
+    #    assert(np.abs(v)<1E0)
+
+    return    
+ 
+
+# ------------------------------------------------------------------ 
+# Broadband Noise Validation
+# ------------------------------------------------------------------     
+def Broadband_Noise_Validation(PP):  
+    APC_SF = APC_11x4_Propeller()   
+    APC_SF.number_azimuthal_stations     = 24 # originally 24  
+    APC_SF.Wake                          = Rotor_Wake_Fidelity_Zero() 
+    APC_SF_inflow_ratio = 0.08 
+
+    # Atmosheric conditions 
+    a                     = 343   
+    density               = 1.225
+    dynamic_viscosity     = 1.78899787e-05   
+    T                     = 286.16889478 
+
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # APC SF Rotor
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # Define Network
+    net_APC_SF                                  = Battery_Propeller()
+    net_APC_SF.number_of_propeller_engines      = 1        
+    net_APC_SF.identical_propellers             = True  
+    net_APC_SF.propellers.append(APC_SF)    
+
+    # Run conditions                            
+    APC_SF_RPM                                  = np.array([3600,4200,4800])
+    APC_SF_omega_vector                         = APC_SF_RPM * Units.rpm 
+    ctrl_pts                                    = len(APC_SF_omega_vector)   
+    velocity                                    = APC_SF_inflow_ratio*APC_SF_omega_vector*APC_SF.tip_radius 
+    theta                                       = np.array([45., 67.5, 90.001, 112.5 , 135.])  # np.linspace(0.1,180,100)  
+    S                                           = 1.905
+
+    # Microphone Locations 
+    positions = np.zeros((len(theta),3))
+    for i in range(len(theta)):
+        if theta[i]*Units.degrees < np.pi/2:
+            positions[i][:] = [-S*np.cos(theta[i]*Units.degrees),-S*np.sin(theta[i]*Units.degrees), 0.0]
+        else: 
+            positions[i][:] = [S*np.sin(theta[i]*Units.degrees- np.pi/2),-S*np.cos(theta[i]*Units.degrees - np.pi/2), 0.0] 
+    positions  = to_jnumpy(positions) 
+    
+    # Define conditions  
+    APC_SF.inputs.omega                                            = jnp.atleast_2d(to_jnumpy(APC_SF_omega_vector)).T
+    APC_SF_conditions                                              = Aerodynamics() 
+    APC_SF_conditions.freestream.density                           = jnp.ones((ctrl_pts,1)) * density
+    APC_SF_conditions.freestream.dynamic_viscosity                 = jnp.ones((ctrl_pts,1)) * dynamic_viscosity   
+    APC_SF_conditions.freestream.speed_of_sound                    = jnp.ones((ctrl_pts,1)) * a 
+    APC_SF_conditions.freestream.temperature                       = jnp.ones((ctrl_pts,1)) * T
+    v_mat                                                          = np.zeros((ctrl_pts,3))
+    v_mat[:,0]                                                     = velocity 
+    APC_SF_conditions.frames.inertial.velocity_vector              = to_jnumpy(v_mat)
+    APC_SF_conditions.propulsion.throttle                          = jnp.ones((ctrl_pts,1)) * 1.0 
+    APC_SF_conditions.frames.body.transform_to_inertial            = jnp.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+
+    # Run Propeller BEMT new model  
+    APC_SF_thrust, APC_SF_torque, APC_SF_power, APC_SF_Cp, acoustic_outputs  , APC_SF_etap  =  APC_SF.spin(APC_SF_conditions)  
+
+    # Prepare Inputs for Noise Model  
+    APC_SF_conditions.noise.total_microphone_locations             = jnp.repeat(positions[ jnp.newaxis,:,: ],ctrl_pts,axis=0)
+    APC_SF_conditions.aerodynamics.angle_of_attack                 = jnp.zeros((ctrl_pts,1))
+    APC_SF_segment                                                 = Segment() 
+    APC_SF_segment.state.conditions                                = APC_SF_conditions
+    APC_SF_segment.state.conditions.expand_rows(ctrl_pts) 
+
+    noise                                                   = SUAVE.Analyses.Noise.Fidelity_One() 
+    APC_SF_settings                                         = noise.settings     
+
+    # Run Noise Model    
+    APC_SF_propeller_noise             = to_numpy(propeller_mid_fidelity(net_APC_SF.propellers,acoustic_outputs,APC_SF_segment,APC_SF_settings ))    
+    APC_SF_1_3_Spectrum                = APC_SF_propeller_noise.SPL_1_3_spectrum 
+    APC_SF_SPL_broadband_1_3_spectrum  = APC_SF_propeller_noise.SPL_broadband_1_3_spectrum  
+     
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    #  Experimental Data
+    # ----------------------------------------------------------------------------------------------------------------------------------------      
+    Exp_APC_SF_freqency_spectrum =  np.array([100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 
+                                              2000, 2500, 3150,4000, 5000, 6300, 8000, 10000])   
+
+    Exp_APC_SF_1_3_Spectrum      = np.array([[22.149, 42.242, 24.252, 22.616, 26.121, 24.953, 28.925, 29.158, 39.205
+                                              , 42.943, 39.205, 38.971, 47.149, 45.280, 40.373, 38.738, 38.037, 39.906
+                                              , 41.308, 45.981, 42.710, 39.205, 41.775, 37.570, 34.065, 33.598 ],
+                                             [17.943,46.214,46.214,22.850,27.056,27.990,31.495,31.261,37.336,
+                                              42.242,50.186,40.373,45.280,42.476,45.747,43.878,43.878,48.084,
+                                              48.317,49.252,49.018,49.018,46.214,42.242,40.140,39.205 ],
+                                             [ 19.345, 18.411, 54.859, 24.018, 26.355, 34.065, 33.130, 33.130, 36.635
+                                               , 45.981, 45.046, 40.841, 42.710, 43.411, 44.813, 51.588, 45.981, 46.915
+                                              , 52.289, 48.551, 50.186, 48.551, 48.551, 48.317, 43.177, 41.308]])   
+
+    Exp_broadband_APC = np.array([[24.8571428,27.7142857,28.8571428,26.5714285,27.1428571,27.7142857,30.2857142,32,35.4285714,
+                                   39.1428571,40.5714285,39.4285714,40.5714285,40,41.1428571,40.2857142,41.7142857,44,44.5714285,
+                                   44.8571428,45.1428571],
+                                  [23.42857,26,27.14285,25.14285,25.71428,26.57142,28.28571,29.14285,34.28571,37.14285,
+                                   37.99999,34.57142,39.14285,34,35.71428,34.85714,35.99999,43.42857,39.14285,41.14285,
+                                   42.57142]]) 
+
+
+    fig_size_width  = 8 
+    fig_size_height = 6
+
+    # ----------------------------------------------------------------------------------------------------------------------------------------
+    #  Plots  
+    # ----------------------------------------------------------------------------------------------------------------------------------------   
+
+    # Figures 8 and 9 comparison 
+    fig1 = plt.figure('Noise_Validation_Total_1_3_Spectrum_3600')    
+    fig1.set_size_inches(fig_size_width,fig_size_height)  
+    axes1 = fig1.add_subplot(1,1,1)      
+    axes1.plot(Exp_APC_SF_freqency_spectrum , Exp_APC_SF_1_3_Spectrum[0,:-5]  , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw, label = 'Exp. 3600 RPM')            
+    axes1.plot(Exp_APC_SF_freqency_spectrum ,     APC_SF_1_3_Spectrum[0,0,8:]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label =' SUAVE 3600 RPM')    
+    axes1.set_xscale('log') 
+    axes1.set_ylabel(r'SPL$_{1/3}$ (dB)')
+    axes1.set_xlabel('Frequency (Hz)') 
+    axes1.legend(loc='lower right') 
+    axes1.set_ylim([15,60])   
+
+
+    fig2 = plt.figure('Noise_Validation_1_3_Spectrum_4800')    
+    fig2.set_size_inches(fig_size_width,fig_size_height)  
+    axes2 = fig2.add_subplot(1,1,1)           
+    axes2.plot(Exp_APC_SF_freqency_spectrum , Exp_APC_SF_1_3_Spectrum[2,:-5]  , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp. 4800 RPM')       
+    axes2.plot(Exp_APC_SF_freqency_spectrum ,     APC_SF_1_3_Spectrum[2,0,8:]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,label = ' SUAVE 4800 RPM')   
+    axes2.set_xscale('log') 
+    axes2.set_ylabel(r'SPL$_{1/3}$ (dB)')
+    axes2.set_xlabel('Frequency (Hz)') 
+    axes2.legend(loc='lower right')  
+    axes2.set_ylim([15,60])   
+
+
+    fig3 = plt.figure('Noise_Validation_Broadband_1_3_Spectrum_45_deg')    
+    fig3.set_size_inches(fig_size_width,fig_size_height)  
+    axes3 = fig3.add_subplot(1,1,1)           
+    axes3.plot(Exp_APC_SF_freqency_spectrum , Exp_broadband_APC[0,:], color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,    label = 'Exp. 45 $\degree$ mic.')    
+    axes3.plot(Exp_APC_SF_freqency_spectrum , APC_SF_SPL_broadband_1_3_spectrum[1,4,8:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'SUAVE 45 $\degree$ mic')     
+    axes3.set_xscale('log') 
+    axes3.set_ylabel(r'SPL$_{1/3}$ (dB)')
+    axes3.set_xlabel('Frequency (Hz)') 
+    axes3.legend(loc='lower right')  
+    axes3.set_ylim([15,50])   
+
+
+    fig4 = plt.figure('Noise_Validation_Broadband_1_3_Spectrum_22_deg')    
+    fig4.set_size_inches(fig_size_width,fig_size_height)  
+    axes4 = fig4.add_subplot(1,1,1)            
+    axes4.plot(Exp_APC_SF_freqency_spectrum , Exp_broadband_APC[1,:], color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,   label = 'Exp. 22.5 $\degree$ mic.')     
+    axes4.plot(Exp_APC_SF_freqency_spectrum , APC_SF_SPL_broadband_1_3_spectrum[1,3,8:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'SUAVE 22.5 $\degree$ mic.')   
+    axes4.set_xscale('log') 
+    axes4.set_ylabel(r'SPL$_{1/3}$ (dB)')
+    axes4.set_xlabel('Frequency (Hz)') 
+    axes4.legend(loc='lower right') 
+    axes4.set_ylim([15,50])   
+
+
+    fig1.tight_layout()
+    fig2.tight_layout()
+    fig3.tight_layout()
+    fig4.tight_layout()     
+    
+    
+    # Store errors 
+    error = Data()
+    error.SPL_Case_1_60deg  = np.max(np.abs(APC_SF_SPL_broadband_1_3_spectrum[1,3,8:]  - Exp_broadband_APC[1,:])/Exp_broadband_APC[1,:])
+    error.SPL_Case_1_90deg  = np.max(np.abs(APC_SF_SPL_broadband_1_3_spectrum[1,4,8:] - Exp_broadband_APC[0,:])/Exp_broadband_APC[0,:])
+    
+    print('Broadband Noise Errors:')
     print(error)
     
     #for k,v in list(error.items()):
-        #assert(np.abs(v)<5E0)
-
-    return
-
+    #    assert(np.abs(v)<1E0)
+        
+    return 
+ 
 
 if __name__ == '__main__':  
     with jax.disable_jit():
