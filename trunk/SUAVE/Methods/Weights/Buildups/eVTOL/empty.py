@@ -101,6 +101,9 @@ def empty(config,
     output.hubs              = 0.0
     output.BRS               = 0.0
 
+    output.payload = Data()
+    output.payload.total = 0.0
+
     C = SUAVE.Components
 
     config.payload.passengers           = C.Physical_Component()
@@ -198,9 +201,6 @@ def empty(config,
         #-----------------------------------------------------------------------
         # Payload Weight
         #-----------------------------------------------------------------------
-        output.payload = Data()
-        output.payload.total = 0.0
-
         load = network.payload
         load.origin[0][0]                               = 0.51 * length_scale
         load.mass_properties.center_of_gravity[0][0]    = 0.0
