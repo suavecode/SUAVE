@@ -111,16 +111,21 @@ def rotor_boom(boom,
     # Bending Mass
 
     M_max   = safety_factor * rotor_thrust * arm_length # Maximum Moment
-    A_bend  = M_max * h/(4*rbmUTS*(h/2)**2)             # Bending Cross-Section
+    I = M_max/rbmUTS
+    coeffs = 0.25*np.pi*np.array([-1, 4*r, -6*r**2, 4*r**3])
+    coeffs = np.append(coeffs, -I)
+    t_bend = np.roots(coeffs)
+
+    A_bend = t_bend * np.pi*r
 
     keelMass = A_bend * l * rbmDen
 
     # Shear Mass
 
-    A_shear = h**2                              # Beam Enclosed Area
-    t       = 0.5 * M_max/(shearUSS*A_shear)    # Beam Thickness
+    A_shear = np.pi*r**2                              # Beam Enclosed Area
+    t_shear       = 0.5 * M_max/(shearUSS*A_shear)    # Beam Thickness
 
-    keelMass += (4*h)*t*shearDen
+    keelMass += (np.pi*r)*t_shear*shearDen
 
     keelMass *= boom.number_of_rotors
 
