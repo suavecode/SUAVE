@@ -4,3 +4,4 @@
 
 # classes
 from .Nacelle import Nacelle
+from .Rotor_Boom import Rotor_Boom

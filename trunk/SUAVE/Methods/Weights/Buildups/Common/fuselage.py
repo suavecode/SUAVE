@@ -22,7 +22,7 @@ from SUAVE.Attributes.Solids import (
     Steel)
 
 from SUAVE.Methods.Weights.Buildups.Common import elliptical_shell
-from SUAVE.Methods.Weights.Buildups.Common.stack_mass import stack_mass
+from SUAVE.Methods.Weights.Buildups.Common import stack_mass
 
 import numpy as np
 
