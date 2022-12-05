@@ -31,12 +31,3 @@ class Rotor_Boom(Nacelle):
         """
         self.tag = 'rotor_boom'
         self.number_of_rotors = None
-
-    # def __init__(self, *args, **kwargs):
-    #     """
-    #     Initialization that builds the Rotor_Boom by running the initialization
-    #     of the super class and then setting extra defaults.
-    #     """
-    #
-    #     super().__init__()
-    #     self.__defaults__()
