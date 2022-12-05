@@ -17,7 +17,7 @@ from SUAVE.Attributes.Solids import (
     Paint
 )
 
-from SUAVE.Methods.Weights.Buildups.Common.stack_mass import stack_mass
+from SUAVE.Methods.Weights.Buildups.Common import stack_mass
 
 import numpy as np
 
