@@ -8,6 +8,7 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 
+import plotly.express as px
 from itertools import cycle
 
 ## @ingroup Plots-Performance-Common

@@ -28,7 +28,7 @@ def plot_lift_cruise_network(results,
                              lift_rotor_save_filename="Lift_Rotor_Conditions",
                              mach_save_filename="Tip_Mach_Numbers",
                              file_type=".png",
-                             width = 1600, height = 800,
+                             width = 1600, height = 665,
                              *args, **kwargs):
     """Plots the electric and propulsion network performance of a vehicle
     with a lift-cruise network.
@@ -112,7 +112,7 @@ def plot_lift_cruise_network(results,
         lift_rotor_torque   = segment.conditions.propulsion.lift_rotor_motor_torque[:,0]
         lift_rotor_effp     = segment.conditions.propulsion.lift_rotor_efficiency[:,0]
         lift_rotor_fom      = segment.conditions.propulsion.lift_rotor_figure_of_merit[:,0]
-        lift_rotor_effm     = segment.conditions.propulsion.lift_rotor_efficiency[:,0]
+        lift_rotor_effm     = segment.conditions.propulsion.lift_rotor_motor_efficiency[:,0]
         lift_rotor_Cp       = segment.conditions.propulsion.lift_rotor_power_coefficient[:,0]
         rtm                 = segment.conditions.propulsion.lift_rotor_tip_mach[:, 0]
 
@@ -151,257 +151,252 @@ def plot_lift_cruise_network(results,
 
         df = df.append(segment_frame)
 
-        # Set plot parameters
+    # Set plot parameters
 
-        batt_fig = make_subplots(rows=2, cols=3)
-        prop_fig = make_subplots(rows=2, cols=3)
-        lift_fig = make_subplots(rows=2, cols=3)
-        mach_fig = make_subplots(rows=2, cols=1)
+    batt_fig = make_subplots(rows=2, cols=3)
+    prop_fig = make_subplots(rows=2, cols=3)
+    lift_fig = make_subplots(rows=2, cols=3)
+    mach_fig = make_subplots(rows=2, cols=1)
 
-        for seg, data in df.groupby("Segment", sort=False):
+    for seg, data in df.groupby("Segment", sort=False):
 
-            seg_name = ' '.join(seg.split("_")).capitalize()
+        seg_name = ' '.join(seg.split("_")).capitalize()
 
-            # Battery Traces
+        # Battery Traces
 
-            batt_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Throttle'],
-                name=seg_name),
-                row=1, col=1)
+        batt_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Throttle'],
+            name=seg_name),
+            row=1, col=1)
 
-            batt_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Lift Throttle'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=1)
+        batt_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Lift Throttle'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=1)
 
-            batt_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Battery Energy'],
-                name=seg_name,
-                showlegend=False),
-                row=1, col=2)
+        batt_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Battery Energy'],
+            name=seg_name,
+            showlegend=False),
+            row=1, col=2)
 
-            batt_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Battery Specific Power'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=2)
+        batt_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Battery Specific Power'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=2)
 
-            batt_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Voltage Under Load'],
-                name=seg_name,
-                showlegend=False),
-                row=1, col=3)
+        batt_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Voltage Under Load'],
+            name=seg_name,
+            showlegend=False),
+            row=1, col=3)
 
-            batt_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Voltage Open Circuit'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=3)
+        batt_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Voltage Open Circuit'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=3)
 
-            # Propeller Traces
+        # Propeller Traces
 
-            prop_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Prop RPM'],
-                name=seg_name),
-                row=1, col=1)
+        prop_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Prop RPM'],
+            name=seg_name),
+            row=1, col=1)
 
-            prop_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Prop Motor Efficiency'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=1)
+        prop_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Prop Motor Efficiency'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=1)
 
-            prop_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Prop Thrust'],
-                name=seg_name,
-                showlegend=False),
-                row=1, col=2)
+        prop_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Prop Thrust'],
+            name=seg_name,
+            showlegend=False),
+            row=1, col=2)
 
-            prop_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Prop Torque'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=2)
+        prop_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Prop Torque'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=2)
 
-            prop_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Prop Efficiency'],
-                name=seg_name,
-                showlegend=False),
-                row=1, col=3)
+        prop_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Prop Efficiency'],
+            name=seg_name,
+            showlegend=False),
+            row=1, col=3)
 
-            prop_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Prop Power Coefficient'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=3)
+        prop_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Prop Power Coefficient'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=3)
 
-            # Lift Traces
+        # Lift Traces
 
-            lift_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Lift RPM'],
-                name=seg_name),
-                row=1, col=1)
+        lift_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Lift RPM'],
+            name=seg_name),
+            row=1, col=1)
 
-            lift_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Lift Motor Efficiency'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=1)
+        lift_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Lift Motor Efficiency'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=1)
 
-            lift_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Lift Thrust'],
-                name=seg_name,
-                showlegend=False),
-                row=1, col=2)
+        lift_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Lift Thrust'],
+            name=seg_name,
+            showlegend=False),
+            row=1, col=2)
 
-            lift_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Lift Torque'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=2)
+        lift_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Lift Torque'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=2)
 
-            lift_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Lift FoM'],
-                name=seg_name,
-                showlegend=False),
-                row=1, col=3)
+        lift_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Lift FoM'],
+            name=seg_name,
+            showlegend=False),
+            row=1, col=3)
 
-            lift_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Lift Power Coefficient'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=3)
+        lift_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Lift Power Coefficient'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=3)
 
-            # Mach Traces
+        # Mach Traces
 
-            mach_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Prop Tip Mach'],
-                name=seg_name),
-                row=1, col=1)
+        mach_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Prop Tip Mach'],
+            name=seg_name),
+            row=1, col=1)
 
-            mach_fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Lift Tip Mach'],
-                name=seg_name,
-                showlegend=False),
-                row=2, col=1)
+        mach_fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Lift Tip Mach'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=1)
 
 
-        # Add Titles
+    # Add Titles
 
-        # Battery Axes
+    # Battery Axes
 
-        batt_fig.update_yaxes(title_text='Prop. Throttle', row=1, col=1)
-        batt_fig.update_yaxes(title_text='Lift Throttle', row=2, col=1)
-        batt_fig.update_yaxes(title_text='Energy (W-hr)', row=1, col=2)
-        batt_fig.update_yaxes(title_text='Specific Power', row=2, col=2)
-        batt_fig.update_yaxes(title_text='Voltage (V)', row=1, col=3)
-        batt_fig.update_yaxes(title_text='Voltage OC (V)', row=2, col=3)
+    batt_fig.update_yaxes(title_text='Prop. Throttle', row=1, col=1)
+    batt_fig.update_yaxes(title_text='Lift Throttle', row=2, col=1)
+    batt_fig.update_yaxes(title_text='Energy (W-hr)', row=1, col=2)
+    batt_fig.update_yaxes(title_text='Specific Power', row=2, col=2)
+    batt_fig.update_yaxes(title_text='Voltage (V)', row=1, col=3)
+    batt_fig.update_yaxes(title_text='Voltage OC (V)', row=2, col=3)
 
-        batt_fig.update_xaxes(title_text='Time (min)', row=2, col=1)
-        batt_fig.update_xaxes(title_text='Time (min)', row=2, col=2)
-        batt_fig.update_xaxes(title_text='Time (min)', row=2, col=3)
+    batt_fig.update_xaxes(title_text='Time (min)', row=2, col=1)
+    batt_fig.update_xaxes(title_text='Time (min)', row=2, col=2)
+    batt_fig.update_xaxes(title_text='Time (min)', row=2, col=3)
 
-        batt_fig.update_layout(
-            title=dict(text='Battery Pack Conditions',
-                       xanchor='center', yanchor='top'),
-            width= width, height=height,
-            legend_title_text='Segment'
-        )
+    batt_fig.update_layout(
+        title_text='Battery Pack Conditions',
+        width= width, height=height,
+        legend_title_text='Segment'
+    )
 
-        # Prop Axes
+    # Prop Axes
 
-        prop_fig.update_yaxes(title_text='RPM', row=1, col=1)
-        prop_fig.update_yaxes(title_text='Motor Efficiency', row=2, col=1)
-        prop_fig.update_yaxes(title_text='Thrust (N)', row=1, col=2)
-        prop_fig.update_yaxes(title_text='Torque (N-m)', row=2, col=2)
-        prop_fig.update_yaxes(title_text='Efficiency', row=1, col=3)
-        prop_fig.update_yaxes(title_text='Power Coefficient', row=2, col=3)
+    prop_fig.update_yaxes(title_text='RPM', row=1, col=1)
+    prop_fig.update_yaxes(title_text='Motor Efficiency', row=2, col=1)
+    prop_fig.update_yaxes(title_text='Thrust (N)', row=1, col=2)
+    prop_fig.update_yaxes(title_text='Torque (N-m)', row=2, col=2)
+    prop_fig.update_yaxes(title_text='Efficiency', row=1, col=3)
+    prop_fig.update_yaxes(title_text='Power Coefficient', row=2, col=3)
 
-        prop_fig.update_xaxes(title_text='Time (min)', row=2, col=1)
-        prop_fig.update_xaxes(title_text='Time (min)', row=2, col=2)
-        prop_fig.update_xaxes(title_text='Time (min)', row=2, col=3)
+    prop_fig.update_xaxes(title_text='Time (min)', row=2, col=1)
+    prop_fig.update_xaxes(title_text='Time (min)', row=2, col=2)
+    prop_fig.update_xaxes(title_text='Time (min)', row=2, col=3)
 
-        prop_fig.update_layout(
-            title=dict(text='Propeller Conditions',
-                       xanchor='center', yanchor='top'),
-            width=width, height=height,
-            legend_title_text='Segment'
-        )
+    prop_fig.update_layout(
+        title_text='Propeller Conditions',
+        width=width, height=height,
+        legend_title_text='Segment'
+    )
 
-        # Lift Axes
+    # Lift Axes
 
-        lift_fig.update_yaxes(title_text='RPM', row=1, col=1)
-        lift_fig.update_yaxes(title_text='Motor Efficiency', row=2, col=1)
-        lift_fig.update_yaxes(title_text='Thrust (N)', row=1, col=2)
-        lift_fig.update_yaxes(title_text='Torque (N-m)', row=2, col=2)
-        lift_fig.update_yaxes(title_text='Efficiency', row=1, col=3)
-        lift_fig.update_yaxes(title_text='Power Coefficient', row=2, col=3)
+    lift_fig.update_yaxes(title_text='RPM', row=1, col=1)
+    lift_fig.update_yaxes(title_text='Motor Efficiency', row=2, col=1)
+    lift_fig.update_yaxes(title_text='Thrust (N)', row=1, col=2)
+    lift_fig.update_yaxes(title_text='Torque (N-m)', row=2, col=2)
+    lift_fig.update_yaxes(title_text='Efficiency', row=1, col=3)
+    lift_fig.update_yaxes(title_text='Power Coefficient', row=2, col=3)
 
-        lift_fig.update_xaxes(title_text='Time (min)', row=2, col=1)
-        lift_fig.update_xaxes(title_text='Time (min)', row=2, col=2)
-        lift_fig.update_xaxes(title_text='Time (min)', row=2, col=3)
+    lift_fig.update_xaxes(title_text='Time (min)', row=2, col=1)
+    lift_fig.update_xaxes(title_text='Time (min)', row=2, col=2)
+    lift_fig.update_xaxes(title_text='Time (min)', row=2, col=3)
 
-        lift_fig.update_layout(
-            title=dict(text='Lift Rotor Conditions',
-                       xanchor='center', yanchor='top'),
-            width=width, height=height,
-            legend_title_text='Segment'
-        )
+    lift_fig.update_layout(
+        title_text='Lift Rotor Conditions',
+        width=width, height=height,
+        legend_title_text='Segment'
+    )
 
-        # Tip Mach Axes
+    # Tip Mach Axes
 
-        mach_fig.update_yaxes(title_text='Propeller', row=1, col=1)
-        mach_fig.update_yaxes(title_text='Lift Rotor', row=2, col=1)
+    mach_fig.update_yaxes(title_text='Propeller', row=1, col=1)
+    mach_fig.update_yaxes(title_text='Lift Rotor', row=2, col=1)
 
-        mach_fig.update_xaxes(title_text='Time (min)', row=2, col=1)
+    mach_fig.update_xaxes(title_text='Time (min)', row=2, col=1)
 
-        mach_fig.update_layout(
-            title=dict(text='Tip Mach Numbers',
-                       xanchor='center', yanchor='top'),
-            width=width/3, height=height,
-            legend_title_text='Segment',
-            title_text = 'Lift + Cruise Network'
-        )
+    mach_fig.update_layout(
+        title_text='Tip Mach Numbers',
+        width=width/2, height=height,
+        legend_title_text='Segment',
+    )
 
-        # Set Style
+    # Set Style
 
-        batt_fig = plot_style(batt_fig)
-        batt_fig.show()
+    batt_fig = plot_style(batt_fig)
+    batt_fig.show()
 
-        prop_fig = plot_style(prop_fig)
-        prop_fig.show()
+    prop_fig = plot_style(prop_fig)
+    prop_fig.show()
 
-        lift_fig = plot_style(lift_fig)
-        lift_fig.show()
+    lift_fig = plot_style(lift_fig)
+    lift_fig.show()
 
-        mach_fig = plot_style(mach_fig)
-        mach_fig.show()
+    mach_fig = plot_style(mach_fig)
+    mach_fig.show()
 
-        if save_figure:
-            save_plot(batt_fig, battery_save_filename, file_type)
-            save_plot(prop_fig, propeller_save_filename, file_type)
-            save_plot(lift_fig, lift_rotor_save_filename, file_type)
-            save_plot(mach_fig, mach_save_filename, file_type)
+    if save_figure:
+        save_plot(batt_fig, battery_save_filename, file_type)
+        save_plot(prop_fig, propeller_save_filename, file_type)
+        save_plot(lift_fig, lift_rotor_save_filename, file_type)
+        save_plot(mach_fig, mach_save_filename, file_type)
 
         return
