@@ -15,6 +15,8 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity import compute_wing_induced_velocity
 
+from multiprocessing.pool import Pool
+import time
 
 
 def compute_exact_velocity_field(WD_network, rotor, conditions, VD_VLM=None, GridPointsFull=None):
@@ -56,39 +58,26 @@ def compute_exact_velocity_field(WD_network, rotor, conditions, VD_VLM=None, Gri
     #--------------------------------------------------------------------------------------------
     
     # split into multiple computations for reduced memory requirements and runtime
-    maxPts = 1000
+    maxPts = 100
     nevals = int(np.ceil(len(GridPointsFull.XC) / maxPts))
     V_ind_self = np.zeros((1, len(GridPointsFull.XC), 3))
-    import time
-    t0 = time.time()
-    for i in range(nevals):
-        iStart = i*maxPts
-        if i == nevals-1:
-            iEnd = len(GridPointsFull.XC)
-        else:
-            iEnd = (i+1)*maxPts
+  
+    with Pool() as pool:
+        args = [(i, nevals, maxPts, GridPointsFull, WD_network, V_ind_self) for i in range(nevals)]
         
-        GridPoints = Data()
-        GridPoints.XC = GridPointsFull.XC[iStart:iEnd]
-        GridPoints.YC = GridPointsFull.YC[iStart:iEnd]
-        GridPoints.ZC = GridPointsFull.ZC[iStart:iEnd]
-        GridPoints.n_cp = len(GridPointsFull.XC[iStart:iEnd])   
+        # execute tasks in order
+        i=0
+        for result in pool.starmap(multiprocessing_function, args):
+            iStart = i*maxPts
+            if i == nevals-1:
+                iEnd = len(GridPointsFull.XC)
+            else:
+                iEnd = (i+1)*maxPts 
+                
+            # save results
+            V_ind_self[:,iStart:iEnd,:] = result
+            i = i +1
         
-        #--------------------------------------------------------------------------------------------
-        # Step 1b: Compute induced velocities from each wake at these grid points
-        #--------------------------------------------------------------------------------------------
-        for WD in WD_network:
-            if np.size(WD.XA1) != 0:
-                # wake has begun shedding, add the influence from shed wake panels
-                V_ind_self[:,iStart:iEnd,:] += compute_wake_induced_velocity(WD, GridPoints, cpts=1)
-                
-                
-    print("\t" + str(time.time() - t0))
-    #Vind = np.zeros(np.append(np.shape(Xvals), 3))
-    #Vind[:,:,0] = np.reshape(V_ind_self[0,:,0], np.shape(Xvals))
-    #Vind[:,:,1] = np.reshape(V_ind_self[0,:,1], np.shape(Xvals))
-    #Vind[:,:,2] = np.reshape(V_ind_self[0,:,2], np.shape(Xvals))
-
     #--------------------------------------------------------------------------------------------    
     # Step 1c: Compute induced velocities at each evaluation point due to external VD
     #--------------------------------------------------------------------------------------------
@@ -121,3 +110,30 @@ def compute_exact_velocity_field(WD_network, rotor, conditions, VD_VLM=None, Gri
     #V_nodes.A1 = V_induced[0,:]
 
     return V_induced
+
+def multiprocessing_function(i, nevals, maxPts, GridPointsFull, WD_network, V_ind_self):
+
+    t0 = time.time()
+    iStart = i*maxPts
+    if i == nevals-1:
+        iEnd = len(GridPointsFull.XC)
+    else:
+        iEnd = (i+1)*maxPts
+    
+    GridPoints = Data()
+    GridPoints.XC = GridPointsFull.XC[iStart:iEnd]
+    GridPoints.YC = GridPointsFull.YC[iStart:iEnd]
+    GridPoints.ZC = GridPointsFull.ZC[iStart:iEnd]
+    GridPoints.n_cp = len(GridPointsFull.XC[iStart:iEnd])   
+    
+    #--------------------------------------------------------------------------------------------
+    # Step 1b: Compute induced velocities from each wake at these grid points
+    #--------------------------------------------------------------------------------------------
+    for WD in WD_network:
+        if np.size(WD.XA1) != 0:
+            # wake has begun shedding, add the influence from shed wake panels
+            V_ind_self[:,iStart:iEnd,:] += compute_wake_induced_velocity(WD, GridPoints, cpts=1)    
+
+    eval_time = time.time() - t0
+    print("\tEvaluation %d out of %d completed in %f seconds" % (i+1, nevals, eval_time))
+    return V_ind_self[:,iStart:iEnd,:]

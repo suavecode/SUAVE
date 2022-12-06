@@ -85,37 +85,9 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
                 iEnd = (i+1)*maxPts 
                 
             # save results
-            Vind_ext[:,iStart:iEnd,:] = result[0]#result['Vind_ext']
-            V_ind_network[:,iStart:iEnd,:] = result[1]#result['V_ind_network']
+            Vind_ext[:,iStart:iEnd,:] = result[0]
+            V_ind_network[:,iStart:iEnd,:] = result[1]
             i = i +1
-        
-        
-        #manager = multiprocessing.Manager()
-        #return_dict = manager.dict()
-        #jobs = []
-        #for i in range(nevals):
-            ## RUN MULTI-PROCESSING ROUTINE
-            #p = multiprocessing.Process(target = multiprocessing_function, args =(multiprocessing_flag, i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network,Vind_ext, return_dict))
-            #jobs.append(p)
-            #p.start()
-        #for proc in jobs:
-            #proc.join()
-            ##multiprocessing_function(i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network,Vind_ext)
-        ##recombine
-        #for i in range(nevals):
-            #iStart = i*maxPts
-            #if i == nevals-1:
-                #iEnd = len(Xstacked)
-            #else:
-                #iEnd = (i+1)*maxPts            
-            #V_ind_network[:,iStart:iEnd,:] = return_dict[i]['V_ind_network_i']
-            #Vind_ext[:,iStart:iEnd,:] = return_dict[i]['Vind_ext_i']
-          
-    #else:
-        #multiprocessing_flag = False
-        #for i in range(nevals):
-            #Vind_ext, V_ind_network = multiprocessing_function(multiprocessing_flag, i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network, Vind_ext, return_dict=None)
-            
         
       
     
