@@ -60,7 +60,7 @@ def compute_fidelity_one_inflow_velocities( wake, prop, cpts):
     Va = np.zeros((cpts,Nr,Na))
     Vt = np.zeros((cpts,Nr,Na))
     
-    for i in range(Na):
+    for i in range(np.shape(wake.vortex_distribution.XA1)[0]):
         # increment blade angle to new azimuthal position 
         blade_angle   = -rot*(omega[0]*t0 + i*(2*np.pi/(Na)))  # axial view of rotor, negative rotation --> positive blade angle
     
