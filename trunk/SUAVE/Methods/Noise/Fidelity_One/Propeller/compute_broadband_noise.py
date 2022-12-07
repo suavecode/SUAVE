@@ -13,7 +13,7 @@ from jax import  jit
 import jax.numpy as jnp
 from tensorflow.python.ops.special_math_ops import fresnel_sin, fresnel_cos
 from jax.experimental import jax2tf
-from SUAVE.Core import to_jnumpy, to_numpy
+from SUAVE.Core import to_jnumpy
 from SUAVE.Core.Utilities                                                       import interp2d
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.convert_to_one_third_octave_band  import convert_to_one_third_octave_band

@@ -116,3 +116,47 @@ def jjv(v,z):
     #jjv_val = jnp.exp((v*jnp.pi*1j)/2)*I_ve
     jjv_val  = (1j**(-v))*I_ve  # https://proofwiki.org/wiki/Bessel_Function_of_the_First_Kind_for_Imaginary_Argument
     return jjv_val
+
+
+import jax
+import jax.numpy as jnp
+import scipy.special
+from jax import custom_jvp, pure_callback, vmap
+
+# see https://github.com/google/jax/issues/11002
+
+
+def generate_bessel(function):
+    """function is Jv, Yv, Hv_1,Hv_2"""
+
+    @custom_jvp
+    def cv(v, x):
+        return pure_callback(
+            lambda vx: function(*vx),
+            x,
+            (v, x),
+            vectorized=True,
+        )
+
+    @cv.defjvp
+    def cv_jvp(primals, tangents):
+        v, x = primals
+        dv, dx = tangents
+        primal_out = cv(v, x)
+
+        # https://dlmf.nist.gov/10.6 formula 10.6.1
+        tangents_out = jax.lax.cond(
+            v == 0,
+            lambda: -cv(v + 1, x),
+            lambda: 0.5 * (cv(v - 1, x) - cv(v + 1, x)),
+        )
+
+        return primal_out, tangents_out * dx
+
+    return cv
+
+
+jv = generate_bessel(scipy.special.jv)
+yv = generate_bessel(scipy.special.yv)
+hankel1 = generate_bessel(scipy.special.hankel1)
+hankel2 = generate_bessel(scipy.special.hankel2)

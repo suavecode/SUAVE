@@ -11,13 +11,16 @@
 from SUAVE.Core import  to_jnumpy , to_numpy
 from jax import  jit
 import jax.numpy as jnp 
-from scipy.special import jv 
+#from scipy.special import jv 
 import numpy as np
 import scipy as sp
-from SUAVE.Core.Utilities import jjv
+from SUAVE.Core.Utilities import jv
+from jax.experimental import jax2tf
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise  import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import convert_to_one_third_octave_band
+
+from tensorflow_probability.python.math.bessel import bessel_ive
 
 # ----------------------------------------------------------------------
 # Harmonic Noise Domain Broadband Noise Computation
@@ -130,9 +133,9 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
 
     # sound pressure for thickness noise   
     #Jmb               = jjv(m*B,((m*B*r*M_t*jnp.sin(theta_r_prime))/(1 - M_x*jnp.cos(theta_r))))   
-    Jmb_arg_1          = to_numpy(m*B)
-    Jmb_arg_2          = to_numpy(((m*B*r*M_t*jnp.sin(theta_r_prime))/(1 - M_x*jnp.cos(theta_r))))
-    Jmb                = to_jnumpy(jv(Jmb_arg_1,Jmb_arg_2))
+    Jmb_arg_1          = m*B
+    Jmb_arg_2          = (m*B*r*M_t*jnp.sin(theta_r_prime))/(1 - M_x*jnp.cos(theta_r))
+    Jmb                = jv(Jmb_arg_1,Jmb_arg_2)
     
     phi_s             = ((2*m*B*M_t)/(M_r*(1 - M_x*jnp.cos(theta_r))))*(MCA/D)
     phi_prime_var     = (jnp.sin(theta_r)/jnp.sin(theta_r_prime))*jnp.cos(phi)  
@@ -159,3 +162,27 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     res.SPL_prop_harmonic_1_3_spectrum_dBA = jnp.where(jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum_dBA),0,res.SPL_prop_harmonic_1_3_spectrum_dBA)
 
     return
+
+#def jv(v,z):
+    #v32 = jnp.array(v,dtype=jnp.complex64)
+    #z32 = jnp.array(z,dtype=jnp.complex64)
+    
+    #z_i = z32/jnp.array([0+1.j],dtype=jnp.complex64)
+    
+    ## solve for ive
+    #ive_val = ive(v32, z_i)
+    
+    ## convert ive to iv
+    #iv = ive_val/(jnp.exp(-jnp.abs(z)))
+    
+    ## convert iv to jv
+    #jv_val = jnp.exp(v*jnp.pi*jnp.array([0+1.j]/2))*iv
+    
+    ### convert iv to jv
+    ##jv_val = iv/(jnp.array([0+1.j])**(-v))
+    
+    #return jv_val
+
+#def ive(v,z):
+    #ive_val = jax2tf.call_tf(bessel_ive)(v,z)
+    #return ive_val
