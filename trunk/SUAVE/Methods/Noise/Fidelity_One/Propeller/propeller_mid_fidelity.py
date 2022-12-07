@@ -73,7 +73,7 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     position_vector = compute_point_source_coordinates(conditions,rotors,microphone_locations,settings)  
 
     # Harmonic Noise    
-    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,rotors,aeroacoustic_data,settings,Noise)       
+    Noise = compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,rotors,aeroacoustic_data,settings,Noise)       
     
     # compute position vector of blade section source to microphones
     blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,aeroacoustic_data,rotors,microphone_locations,settings)

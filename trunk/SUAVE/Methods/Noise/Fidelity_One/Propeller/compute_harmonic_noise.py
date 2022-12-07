@@ -161,7 +161,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     res.SPL_prop_harmonic_1_3_spectrum     = jnp.where(jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum),0,res.SPL_prop_harmonic_1_3_spectrum)
     res.SPL_prop_harmonic_1_3_spectrum_dBA = jnp.where(jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum_dBA),0,res.SPL_prop_harmonic_1_3_spectrum_dBA)
 
-    return
+    return res
 
 #def jv(v,z):
     #v32 = jnp.array(v,dtype=jnp.complex64)
