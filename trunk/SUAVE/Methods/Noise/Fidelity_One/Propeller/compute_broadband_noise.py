@@ -243,12 +243,12 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     gamma         = jnp.sqrt(((mu/epsilon)**2)*(X**2 + beta_sq*(Z**2)))
     f_func_1      = (2*((((omega/(1 +  (Omega*r/c_0)*(X/R_s))) /(0.8*U_inf)) /c) + (mu/c)*M + (gamma/c)))
     f_func_2      = (2*((mu/c)*X/epsilon + (gamma/c)) )
-    ss_1,cc_1     = jax2tf.call_tf(fresnel_tf)(f_func_1)
-    ss_2,cc_2     = jax2tf.call_tf(fresnel_tf)(f_func_2)
-    #ss_1          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_1)
-    #cc_1          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_1)
-    #ss_2          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_2)
-    #cc_2          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_2)
+    #ss_1,cc_1     = jax2tf.call_tf(fresnel_tf)(f_func_1)
+    #ss_2,cc_2     = jax2tf.call_tf(fresnel_tf)(f_func_2)
+    ss_1          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_1)
+    cc_1          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_1)
+    ss_2          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_2)
+    cc_2          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_2)
         
     
     triangle      = (omega/(U_inf*c)) - (mu/c)*X/epsilon + (mu/c)*M

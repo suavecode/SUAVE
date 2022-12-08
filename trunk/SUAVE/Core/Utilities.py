@@ -144,12 +144,20 @@ def generate_bessel(function):
         dv, dx = tangents
         primal_out = cv(v, x)
 
-        # https://dlmf.nist.gov/10.6 formula 10.6.1
-        tangents_out = jax.lax.cond(
-            v == 0,
-            lambda: -cv(v + 1, x),
-            lambda: 0.5 * (cv(v - 1, x) - cv(v + 1, x)),
-        )
+        ## https://dlmf.nist.gov/10.6 formula 10.6.1
+        #tangents_out = jax.lax.cond(
+            #v == 0,
+            #lambda: -cv(v + 1, x),
+            #lambda: 0.5 * (cv(v - 1, x) - cv(v + 1, x)),
+        #)
+        
+        tcv_0 = -cv(v + 1, x)
+        tcv_p =  0.5 * (cv(v - 1, x) - cv(v + 1, x))
+        
+        where = v==0
+        
+        tangents_out = where*tcv_0 + (1-where)*tcv_p
+                
 
         return primal_out, tangents_out * dx
 
