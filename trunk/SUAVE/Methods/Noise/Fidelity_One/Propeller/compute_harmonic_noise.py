@@ -74,7 +74,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     rotor        = rotors[list(rotors.keys())[0]]    
     rotor        = rotors[list(rotors.keys())[0]] 
     num_r        = len(rotor.radius_distribution)  
-    body2thrust  = to_jnumpy(sp.spatial.transform.Rotation.from_rotvec(rotor.orientation_euler_angles).as_matrix())
+    body2thrust  = rotor.body_to_prop_vel()
       
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
@@ -162,27 +162,3 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     res.SPL_prop_harmonic_1_3_spectrum_dBA = jnp.where(jnp.isinf(res.SPL_prop_harmonic_1_3_spectrum_dBA),0,res.SPL_prop_harmonic_1_3_spectrum_dBA)
 
     return res
-
-#def jv(v,z):
-    #v32 = jnp.array(v,dtype=jnp.complex64)
-    #z32 = jnp.array(z,dtype=jnp.complex64)
-    
-    #z_i = z32/jnp.array([0+1.j],dtype=jnp.complex64)
-    
-    ## solve for ive
-    #ive_val = ive(v32, z_i)
-    
-    ## convert ive to iv
-    #iv = ive_val/(jnp.exp(-jnp.abs(z)))
-    
-    ## convert iv to jv
-    #jv_val = jnp.exp(v*jnp.pi*jnp.array([0+1.j]/2))*iv
-    
-    ### convert iv to jv
-    ##jv_val = iv/(jnp.array([0+1.j])**(-v))
-    
-    #return jv_val
-
-#def ive(v,z):
-    #ive_val = jax2tf.call_tf(bessel_ive)(v,z)
-    #return ive_val

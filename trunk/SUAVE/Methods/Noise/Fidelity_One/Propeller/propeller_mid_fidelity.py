@@ -79,7 +79,7 @@ def propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings):
     blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,aeroacoustic_data,rotors,microphone_locations,settings)
     
     # Broadband Noise
-    compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,rotors,aeroacoustic_data,settings,Noise)
+    Noise =  compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,rotors,aeroacoustic_data,settings,Noise)
 
     # Combine Harmonic (periodic/tonal) and Broadband Noise
     Noise.SPL_total_1_3_spectrum      = 10*jnp.log10( 10**(Noise.SPL_prop_harmonic_1_3_spectrum/10) + 10**(Noise.SPL_prop_broadband_1_3_spectrum/10))  

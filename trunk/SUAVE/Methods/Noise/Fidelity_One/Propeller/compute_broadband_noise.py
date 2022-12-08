@@ -18,6 +18,8 @@ from SUAVE.Core.Utilities                                                       
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.convert_to_one_third_octave_band  import convert_to_one_third_octave_band
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic 
+import tensorflow as tf
+#tf.function(jit_compile=True)
  
 # ----------------------------------------------------------------------
 # Frequency Domain Broadband Noise Computation
@@ -243,6 +245,12 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     f_func_2      = (2*((mu/c)*X/epsilon + (gamma/c)) )
     ss_1,cc_1     = jax2tf.call_tf(fresnel_tf)(f_func_1)
     ss_2,cc_2     = jax2tf.call_tf(fresnel_tf)(f_func_2)
+    #ss_1          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_1)
+    #cc_1          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_1)
+    #ss_2          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_2)
+    #cc_2          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_2)
+        
+    
     triangle      = (omega/(U_inf*c)) - (mu/c)*X/epsilon + (mu/c)*M
     norm_L_sq     = (1/triangle)*abs(jnp.exp(1j*2*triangle)*((1 - (1 + 1j)*(cc_1 - 1j*ss_1)) \
                     + ((jnp.exp(-1j*2*triangle))*(jnp.sqrt((((omega/(1 +  (Omega*r/c_0)*(X/R_s))) /(0.8*U_inf)) + mu*M + gamma)/(mu*X/epsilon +gamma))) \
@@ -257,9 +265,10 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
                                (4.2*((0.8*((beta_c + 0.5)**3/4))/(delta/delta_star)) + 1)
     d_star                   = d 
     
-    #d_star[beta_c<0.5]       = np.maximum(ones,1.5*d)[beta_c<0.5]
+    ##d_star[beta_c<0.5]       = np.maximum(ones,1.5*d)[beta_c<0.5]
     vals                     = jnp.maximum(ones,1.5*d)
-    d_star                   = d_star.at[beta_c<0.5].set(vals[beta_c<0.5])    
+    #d_star                   = d_star.at[beta_c<0.5].set(vals[beta_c<0.5])   
+    d_star                   = jnp.where(beta_c<0.5,vals,d_star)
     Phi_pp_expression        =  (jnp.maximum(a, (0.25*beta_c - 0.52)*a)*((omega*delta_star/Ue)**2))/(((4.76*((omega*delta_star/Ue)**0.75) \
                                 + d_star)**(3.7 + 1.5*beta_c))+ (jnp.power((8.8*(((delta/Ue)/(kine_visc/(((tau_w/rho)**0.5)**2)))**(-0.57))\
                                 *(omega*delta_star/Ue)),(jnp.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7)) ))
@@ -288,7 +297,10 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     res.SPL_prop_broadband_1_3_spectrum               = convert_to_one_third_octave_band(SPL_rotor,f,settings)
     res.SPL_prop_broadband_1_3_spectrum_dBA           = convert_to_one_third_octave_band(A_weighting(SPL_rotor,frequency),f,settings)
         
-    return
+    return res
 
 def fresnel_tf(z):
     return fresnel_sin(z), fresnel_cos(z)
+
+def fakesnel_tf_sin(z):
+    return tf.math.sin(z)

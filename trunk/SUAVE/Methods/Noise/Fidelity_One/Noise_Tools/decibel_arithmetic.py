@@ -8,6 +8,8 @@
 # ----------------------------------------------------------------------
 
 import numpy as np 
+
+import jax.numpy as jnp
 # -----------------------------------------------------------------------
 # Decibel Arithmetic
 # -----------------------------------------------------------------------
@@ -32,7 +34,7 @@ def pressure_ratio_to_SPL_arithmetic(p_pref_total):
         N/A 
     
     '''
-    SPL_total = 10*np.log10(np.sum(p_pref_total, axis = 3))
+    SPL_total = 10*jnp.log10(jnp.sum(p_pref_total, axis = 3))
     return SPL_total
 
 ## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
@@ -60,7 +62,7 @@ def SPL_arithmetic(SPL, sum_axis = 2):
         SPL_total = SPL 
     else:
         p_prefs   = 10**(SPL/10)
-        SPL_total = 10*np.log10(np.sum(p_prefs, axis = sum_axis))
+        SPL_total = 10*jnp.log10(jnp.sum(p_prefs, axis = sum_axis))
         
     return SPL_total
 
@@ -86,6 +88,6 @@ def SPL_spectra_arithmetic(SPL):
     
     ''' 
     p_prefs   = 10**(SPL/10)
-    SPL_total = 10*np.log10(np.sum(p_prefs, axis = 2))
+    SPL_total = 10*jnp.log10(jnp.sum(p_prefs, axis = 2))
         
     return SPL_total
