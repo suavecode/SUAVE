@@ -85,7 +85,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     p_ref          = 2E-5                                                                                        # referece atmospheric pressure
     a              = jnp.tile(freestream.speed_of_sound[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))     # speed of sound
     rho            = jnp.tile(freestream.density[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))             # air density   
-    alpha          = jnp.tile((angle_of_attack + jnp.arccos(body2thrust[0,0]))[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))           
+    alpha          = jnp.tile((angle_of_attack + jnp.atleast_2d(jnp.arccos(body2thrust[:,0,0])).T )[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))           
     x              = jnp.tile(position_vector[:,:,:,0][:,:,:,None,None],(1,1,1,num_r,num_h))                     # x component of position vector of rotor to microphone 
     y              = jnp.tile(position_vector[:,:,:,1][:,:,:,None,None],(1,1,1,num_r,num_h))                     # y component of position vector of rotor to microphone
     z              = jnp.tile(position_vector[:,:,:,2][:,:,:,None,None],(1,1,1,num_r,num_h))                     # z component of position vector of rotor to microphone
