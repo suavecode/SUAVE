@@ -186,7 +186,7 @@ def fresnel_sin_jvp(primal,tangent):
     z = primal[0]
     primal_out = fresnel_sin(z)
 
-    tangent_out = jnp.sin(z**2)*tangent[0]
+    tangent_out = jnp.sin((jnp.pi*z**2)/2)*tangent[0]
 
     return primal_out, tangent_out
 
@@ -201,7 +201,7 @@ def fresnel_cos_jvp(primal,tangent):
     z = primal[0]
     primal_out = fresnel_cos(z)
 
-    tangent_out = jnp.cos(z**2)*tangent[0]
+    tangent_out = jnp.cos((jnp.pi*z**2)/2)*tangent[0]
 
     return primal_out, tangent_out
 
