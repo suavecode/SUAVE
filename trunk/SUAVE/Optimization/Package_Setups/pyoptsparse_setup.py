@@ -212,7 +212,7 @@ def PyOpt_Problem(problem,xdict):
     print(const)
     
     if problem.record_objective:
-        filename, = problem.write_file
+        filename = problem.write_file
         problem.total_number_of_iterations += 1
         
         file=open(filename, 'a')
