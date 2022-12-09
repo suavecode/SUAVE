@@ -12,13 +12,13 @@
 from jax import  jit
 import jax.numpy as jnp
 #from tensorflow.python.ops.special_math_ops import fresnel_sin, fresnel_cos
-from jax.experimental import jax2tf
+#from jax.experimental import jax2tf
 from SUAVE.Core import to_jnumpy
 from SUAVE.Core.Utilities                                                       import interp2d
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.convert_to_one_third_octave_band  import convert_to_one_third_octave_band
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic 
-import tensorflow as tf
+#import tensorflow as tf
 
 #from SUAVE.Core.Utilities   import call_jax_other_device_FS
 from SUAVE.Core.Utilities   import fresnel_sin, fresnel_cos
@@ -307,8 +307,3 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         
     return res
 
-def fresnel_tf(z):
-    return fresnel_sin(z), fresnel_cos(z)
-
-def fakesnel_tf_sin(z):
-    return tf.math.sin(z)
