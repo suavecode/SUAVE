@@ -3,6 +3,7 @@
 # @ingroup Methods
  
 from .                                import Rotor_Wake
+from .                                import Rotor_Design
 from .ducted_fan_sizing               import ducted_fan_sizing
 from .propeller_design                import propeller_design
 from .lift_rotor_design               import lift_rotor_design

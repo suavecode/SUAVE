@@ -1,0 +1,117 @@
+## @ingroup Methods-Propulsion-Rotor_Design
+# blade_geometry_setup.py 
+#
+# Created: Feb 2022, M. Clarke
+
+# ----------------------------------------------------------------------        
+#   Imports
+# ----------------------------------------------------------------------  
+# SUAVE Imports 
+import SUAVE  
+from SUAVE.Components.Energy.Converters   import  Prop_Rotor 
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties import compute_airfoil_properties
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series       import compute_naca_4series
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry    import import_airfoil_geometry
+
+# Python package imports   
+import numpy as np  
+
+## @ingroup Methods-Propulsion-Rotor_Design
+def blade_geometry_setup(rotor,number_of_stations): 
+    """ Defines a dummy vehicle for prop-rotor blade optimization.
+          
+          Inputs:  
+             rotor   - rotor data structure             [None] 
+              
+          Outputs:  
+             configs - configuration used in optimization    [None]
+              
+          Assumptions: 
+             N/A 
+        
+          Source:
+             None
+    """    
+    
+    # Unpack prop-rotor geometry  
+    N                     = number_of_stations       
+    B                     = rotor.number_of_blades    
+    R                     = rotor.tip_radius
+    Rh                    = rotor.hub_radius 
+    design_thrust_hover   = rotor.hover.design_thrust
+    design_power_hover    = rotor.hover.design_power
+    chi0                  = Rh/R  
+    chi                   = np.linspace(chi0,1,N+1)  
+    chi                   = chi[0:N]
+    airfoils              = rotor.Airfoils      
+    a_loc                 = rotor.airfoil_polar_stations    
+    
+    # determine target values 
+    if (design_thrust_hover == None) and (design_power_hover== None):
+        raise AssertionError('Specify either design thrust or design power at hover!') 
+    elif (design_thrust_hover!= None) and (design_power_hover!= None):
+        raise AssertionError('Specify either design thrust or design power at hover!')      
+    if rotor.rotation == None:
+        rotor.rotation = list(np.ones(int(B))) 
+         
+    num_airfoils = len(airfoils.keys())
+    if num_airfoils>0:
+        if len(a_loc) != N:
+            raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller') 
+        
+        for _,airfoil in enumerate(airfoils):  
+            if airfoil.geometry == None: # first, if airfoil geometry data not defined, import from geoemtry files
+                if airfoil.NACA_4_series_flag: # check if naca 4 series of airfoil from datafile
+                    airfoil.geometry = compute_naca_4series(airfoil.coordinate_file,airfoil.number_of_points)
+                else:
+                    airfoil.geometry = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points) 
+    
+            if airfoil.polars == None: # compute airfoil polars for airfoils
+                airfoil.polars = compute_airfoil_properties(airfoil.geometry, airfoil_polar_files= airfoil.polar_files) 
+                     
+    # thickness to chord         
+    t_c           = np.zeros(N)    
+    if num_airfoils>0:
+        for j,airfoil in enumerate(airfoils): 
+            a_geo         = airfoil.geometry
+            locs          = np.where(np.array(a_loc) == j ) 
+            t_c[locs]     = a_geo.thickness_to_chord 
+            
+    # append additional prop-rotor  properties for optimization  
+    rotor.number_of_blades             = int(B)  
+    rotor.thickness_to_chord           = t_c
+    rotor.radius_distribution          = chi*R    
+    
+    vehicle                            = SUAVE.Vehicle()  
+    net                                = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net.number_of_propeller_engines    = 1
+    net.identical_propellers           = True  
+    net.propellers.append(rotor)  
+    vehicle.append_component(net)
+    
+    configs                             = SUAVE.Components.Configs.Config.Container()
+    base_config                         = SUAVE.Components.Configs.Config(vehicle) 
+    
+    config                              = SUAVE.Components.Configs.Config(base_config)
+    config.tag                          = 'hover' 
+    config.networks.battery_propeller.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0]    
+    configs.append(config)        
+
+    config                              = SUAVE.Components.Configs.Config(base_config)
+    config.tag                          = 'OEI' 
+    config.networks.battery_propeller.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0]    
+    configs.append(config)       
+    
+    if type(rotor) == Prop_Rotor:  
+        design_thrust_cruise  = rotor.cruise.design_thrust 
+        design_power_cruise   = rotor.cruise.design_power      
+        if (design_thrust_cruise == None) and (design_power_cruise== None):
+            raise AssertionError('Specify either design thrust or design power at cruise!') 
+        elif (design_thrust_cruise!= None) and (design_power_cruise!= None):
+            raise AssertionError('Specify either design thrust or design power at cruise!') 
+        
+        config                          = SUAVE.Components.Configs.Config(base_config)
+        config.tag                      = 'cruise'
+        config.networks.battery_propeller.propellers.rotor.orientation_euler_angles = [0.0,0.0,0.0]  
+        configs.append(config)
+    return configs 
