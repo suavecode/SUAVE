@@ -210,6 +210,26 @@ def PyOpt_Problem(problem,xdict):
     print(obj)
     print('Con')
     print(const)
+    
+    if problem.record_objective:
+        filename, = problem.write_file
+        problem.total_number_of_iterations += 1
+        
+        file=open(filename, 'a')
+        file.write('iteration = ')
+        file.write(str(problem.total_number_of_iterations))
+        file.write(' , ')
+        file.write('objective = ')
+        file.write(str(obj))
+        file.write(', inputs = ')
+        file.write(str(x))
+        file.write(', constraints = ')
+        file.write(str(const))
+        
+        file.write('\n') 
+        file.close()        
+        
+    
    
     return funcs,fail
 
