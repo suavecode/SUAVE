@@ -64,8 +64,9 @@ def optimization_setup(rotor,number_of_stations,print_iterations):
     inputs.append([ 'twist_p'               ,  1        , 0.25       , 2.0       , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_q'               ,  0.5      , 0.25       , 1.5       , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_t'               ,  np.pi/10 ,  0         , np.pi/4   , 1.0     ,  1*Units.less])  
+    inputs.append([ 'hover_collective_pitch', 0         , -np.pi/6   , np.pi/6   , 1.0     ,  1*Units.less]) 
     inputs.append([ 'hover_tip_mach'        , tm_0_h    , tm_ll_h    , tm_ul_h   , 1.0     ,  1*Units.less])
-    inputs.append([ 'OEI_tip_mach'          , tm_0_h    , tm_ll_h    , 0.85   , 1.0     ,  1*Units.less])
+    inputs.append([ 'OEI_tip_mach'          , tm_0_h    , tm_ll_h    , 0.85      , 1.0     ,  1*Units.less])
     inputs.append([ 'OEI_collective_pitch'  , 0        , -np.pi/6    , np.pi/6   , 1.0     ,  1*Units.less]) 
     if type(rotor) == Prop_Rotor:
         inputs.append([ 'cruise_tip_mach'         , tm_0_c , tm_ll_c    , tm_ul_c   , 1.0     ,  1*Units.less]) 
@@ -109,6 +110,7 @@ def optimization_setup(rotor,number_of_stations,print_iterations):
     aliases.append([ 'twist_q'                    , 'vehicle_configurations.*.networks.battery_propeller.propellers.rotor.twist_q' ])
     aliases.append([ 'twist_t'                    , 'vehicle_configurations.*.networks.battery_propeller.propellers.rotor.twist_t' ])    
     aliases.append([ 'hover_tip_mach'             , 'vehicle_configurations.hover.networks.battery_propeller.propellers.rotor.hover.design_tip_mach' ]) 
+    aliases.append([ 'hover_collective_pitch'     , 'vehicle_configurations.hover.networks.battery_propeller.propellers.rotor.inputs.pitch_command' ])
     aliases.append([ 'objective'                  , 'summary.objective'       ])  
     aliases.append([ 'hover_thrust_pow_res'       , 'summary.nominal_hover_thrust_power_residual'   ]) 
     aliases.append([ 'blade_taper_constraint_1'   , 'summary.blade_taper_constraint_1'])   

@@ -55,6 +55,9 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     rotor.hover.design_thrust_coefficient  = results.hover.thurst_c
     rotor.hover.design_power_coefficient   = results.hover.power_c
      
+
+    rotor.OEI.design_thrust                = results.OEI.thrust    
+    rotor.OEI.design_power                 = results.OEI.power 
     rotor.OEI.design_torque                = results.OEI.torque  
     rotor.OEI.design_angular_velocity      = results.OEI.omega   
     
@@ -100,8 +103,8 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
         rotor.hover.design_SPL_dBA = np.mean(propeller_noise.SPL_dBA)    
     else:
         
-        rotor.hover.design_noise               = optimal_hover_rotor.hover_noise_data
-        rotor.hover.design_SPL_dBA             = optimal_hover_rotor.hover_SPL_dBA
+        rotor.hover.design_noise               = results.hover.noise_data
+        rotor.hover.design_SPL_dBA             = results.hover.mean_SPL
 
     
     if optimization_problem.prop_rotor: 
@@ -161,8 +164,8 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
             rotor.cruise.design_noise   = propeller_noise
             rotor.cruise.design_SPL_dBA = np.mean(propeller_noise.SPL_dBA)    
         else: 
-            rotor.cruise.design_noise   = optimal_cruise_rotor.cruise_noise_data
-            rotor.cruise.design_SPL_dBA = optimal_cruise_rotor.cruise_SPL_dBA   
+            rotor.cruise.design_noise   = results.cruise.noise_data
+            rotor.cruise.design_SPL_dBA = results.cruise.mean_SPL
              
     rotor.max_thickness_distribution        = optimal_hover_rotor.max_thickness_distribution  
     rotor.radius_distribution               = optimal_hover_rotor.radius_distribution         

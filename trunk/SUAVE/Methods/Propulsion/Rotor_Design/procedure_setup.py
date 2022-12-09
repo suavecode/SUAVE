@@ -194,7 +194,7 @@ def run_rotor_OEI(nexus):
     F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
     
     # Pack the results
-    nexus.results.OEI.thrust       = np.linalg.norm(F)
+    nexus.results.OEI.thrust       = -F[0,2]
     nexus.results.OEI.torque       = Q
     nexus.results.OEI.power        = P
     nexus.results.OEI.power_c      = Cp
@@ -242,7 +242,7 @@ def run_rotor_hover(nexus):
     F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
     
     # Pack the results
-    nexus.results.hover.thrust           = np.linalg.norm(F)
+    nexus.results.hover.thrust           = -F[0,2]
     nexus.results.hover.torque           = Q[0][0]
     nexus.results.hover.power            = P[0][0]
     nexus.results.hover.power_c          = Cp[0][0]
@@ -296,7 +296,7 @@ def run_rotor_cruise(nexus):
         F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
         
         # Pack the results
-        nexus.results.cruise.thrust           = np.linalg.norm(F)
+        nexus.results.cruise.thrust           = F[0,0]
         nexus.results.cruise.torque           = Q[0][0]
         nexus.results.cruise.power            = P[0][0]
         nexus.results.cruise.power_c          = Cp[0][0]
@@ -353,15 +353,18 @@ def run_hover_noise(nexus):
         conditions.noise.number_of_microphones           = num_mic   
         
         try: 
-            propeller_noise_hover                            = propeller_mid_fidelity(rotors,full_results,segment,settings)   
-            mean_SPL_hover                                   = np.mean(propeller_noise_hover.SPL_dBA)    
+            propeller_noise_hover                        = propeller_mid_fidelity(rotors,full_results,segment,settings)   
+            mean_SPL_hover                               = np.mean(propeller_noise_hover.SPL_dBA)    
         except:
-            mean_SPL_hover = 100
+            propeller_noise_hover = None 
+            mean_SPL_hover        = 100
             
         # Pack
-        nexus.results.hover.mean_SPL = mean_SPL_hover 
+        nexus.results.hover.mean_SPL   = mean_SPL_hover 
+        nexus.results.hover.noise_data = propeller_noise_hover
     else:
-        nexus.results.hover.mean_SPL = 0
+        nexus.results.hover.mean_SPL  = 0
+        nexus.results.hover.noise_data = None 
 
     return nexus
 
@@ -383,14 +386,14 @@ def run_cruise_noise(nexus):
             full_results = nexus.results.cruise.full_results
         
             # microphone locations
-            altitude            = rotor.cruise.design_altitude
-            ctrl_pts            = 1 
-            theta               = rotor.optimization_parameters.noise_evaluation_angle 
-            S_hover             = np.maximum(altitude,20*Units.feet)  
-            mic_positions_hover = np.array([[0.0 , S_hover*np.sin(theta)  ,S_hover*np.cos(theta)]])      
+            altitude             = rotor.cruise.design_altitude
+            ctrl_pts             = 1 
+            theta                = rotor.optimization_parameters.noise_evaluation_angle 
+            S_hover              = np.maximum(altitude,20*Units.feet)  
+            mic_positions_cruise = np.array([[0.0 , S_hover*np.sin(theta)  ,S_hover*np.cos(theta)]])      
             
             # Run noise model  
-            conditions.noise.total_microphone_locations      = np.repeat(mic_positions_hover[ np.newaxis,:,: ],1,axis=0)
+            conditions.noise.total_microphone_locations      = np.repeat(mic_positions_cruise[ np.newaxis,:,: ],1,axis=0)
             conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
             segment                                          = Segment() 
             segment.state.conditions                         = conditions
@@ -400,17 +403,21 @@ def run_cruise_noise(nexus):
             num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
             conditions.noise.number_of_microphones           = num_mic   
             try: 
-                propeller_noise_hover                        = propeller_mid_fidelity(rotor,full_results,segment,settings)   
-                mean_SPL_hover                               = np.mean(propeller_noise_hover.SPL_dBA)    
+                propeller_noise_cruise                        = propeller_mid_fidelity(rotor,full_results,segment,settings)   
+                mean_SPL_cruise                               = np.mean(propeller_noise_cruise.SPL_dBA)    
             except:
-                mean_SPL_hover     = 100
+                mean_SPL_cruise        = 100
+                propeller_noise_cruise = None 
                 
             # Pack
-            nexus.results.cruise.mean_SPL = mean_SPL_hover 
+            nexus.results.cruise.mean_SPL   = mean_SPL_cruise 
+            nexus.results.cruise.noise_data = propeller_noise_cruise
         else:
-            nexus.results.cruise.mean_SPL = 0 
+            nexus.results.cruise.mean_SPL   = 0 
+            nexus.results.cruise.noise_data = None 
     else:
-        nexus.results.cruise.mean_SPL = 0 
+        nexus.results.cruise.mean_SPL   = 0 
+        nexus.results.cruise.noise_data = None 
         
     return nexus
 
@@ -471,9 +478,9 @@ def post_process(nexus):
     # -------------------------------------------------------
     # OBJECTIVE FUNCTION
     # -------------------------------------------------------   
-    performance_objective  = LA.norm((FM_hover -ideal_FoM)/ideal_FoM)*beta +  LA.norm((nexus.results.cruise.efficiency- ideal_efficiency)/ideal_efficiency)*(1-beta) 
+    performance_objective  = ((FM_hover -ideal_FoM)/ideal_FoM)*beta +  ((nexus.results.cruise.efficiency- ideal_efficiency)/ideal_efficiency)*(1-beta) 
     
-    acoustic_objective = LA.norm((nexus.results.hover.mean_SPL  - ideal_SPL)/ideal_SPL)*gamma  + LA.norm((nexus.results.cruise.mean_SPL - ideal_SPL)/ideal_SPL)*(1-gamma) 
+    acoustic_objective = ((nexus.results.hover.mean_SPL  - ideal_SPL)/ideal_SPL)*gamma  + ((nexus.results.cruise.mean_SPL - ideal_SPL)/ideal_SPL)*(1-gamma) 
  
     summary.objective = performance_objective*alpha + acoustic_objective*(1-alpha)  
     
@@ -497,7 +504,8 @@ def post_process(nexus):
         if rotor.hover.design_power == None: 
             print("Hover Thrust                 : " + str(nexus.results.hover.thrust))  
         print("Hover Average SPL            : " + str(nexus.results.hover.mean_SPL))    
-        print("Hover Tip Mach               : " + str(rotor.hover.design_tip_mach))  
+        print("Hover Tip Mach               : " + str(rotor.hover.design_tip_mach))
+        print("Hover Collective (deg)       : " + str(rotor.inputs.pitch_command/Units.degrees))   
         print("Hover Thrust/Power Residual  : " + str(summary.nominal_hover_thrust_power_residual)) 
         print("Hover Figure of Merit        : " + str(FM_hover))  
         print("Hover Max Sectional Cl       : " + str(summary.max_sectional_cl_hover)) 

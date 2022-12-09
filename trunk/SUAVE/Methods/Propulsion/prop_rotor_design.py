@@ -30,7 +30,7 @@ import time
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
 def prop_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',iterations = 500,
-                      solver_sense_step = 1E-3,solver_tolerance = 1E-2,print_iterations = False):  
+                      solver_sense_step = 1E-5,solver_tolerance = 1E-4,print_iterations = False):  
     """ Optimizes prop-rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
