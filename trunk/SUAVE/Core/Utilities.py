@@ -10,6 +10,14 @@ import numpy as np
 import jax.numpy as jnp
 from jax import  jit 
 from tensorflow_probability.substrates import jax as tfp
+import scipy.special as sp
+import tensorflow as tf
+from jax._src import api
+from jax.experimental import host_callback as hcb
+
+#from tensorflow.python.ops.special_math_ops import fresnel_sin, fresnel_cos
+
+import jax
  
 def interp2d(x,y,xp,yp,zp,fill_value= None):
     """
@@ -106,16 +114,16 @@ def jax_interp2d(x,y,xp,yp,zp,fill_value= None):
 
     return z
 
-@jit
-def jjv(v,z):
-    v = jnp.array(v,dtype=jnp.float32)
-    z = jnp.array(z,dtype=jnp.float32)
+#@jit
+#def jjv(v,z):
+    #v = jnp.array(v,dtype=jnp.float32)
+    #z = jnp.array(z,dtype=jnp.float32)
     
-    I_ve_exp = tfp.math.bessel_ive(v,z) # exponentially scaled version of the modified Bessel function of the first kind # https://www.tensorflow.org/probability/api_docs/python/tfp/substrates/jax/math/bessel_ive  
-    I_ve     = I_ve_exp/jnp.exp(-abs(z))# unscaling 
-    #jjv_val = jnp.exp((v*jnp.pi*1j)/2)*I_ve
-    jjv_val  = (1j**(-v))*I_ve  # https://proofwiki.org/wiki/Bessel_Function_of_the_First_Kind_for_Imaginary_Argument
-    return jjv_val
+    #I_ve_exp = tfp.math.bessel_ive(v,z) # exponentially scaled version of the modified Bessel function of the first kind # https://www.tensorflow.org/probability/api_docs/python/tfp/substrates/jax/math/bessel_ive  
+    #I_ve     = I_ve_exp/jnp.exp(-abs(z))# unscaling 
+    ##jjv_val = jnp.exp((v*jnp.pi*1j)/2)*I_ve
+    #jjv_val  = (1j**(-v))*I_ve  # https://proofwiki.org/wiki/Bessel_Function_of_the_First_Kind_for_Imaginary_Argument
+    #return jjv_val
 
 
 import jax
@@ -165,6 +173,92 @@ def generate_bessel(function):
 
 
 jv = generate_bessel(scipy.special.jv)
-yv = generate_bessel(scipy.special.yv)
-hankel1 = generate_bessel(scipy.special.hankel1)
-hankel2 = generate_bessel(scipy.special.hankel2)
+
+
+
+@custom_jvp
+def fresnel_sin(z):
+    return pure_callback(sp_fresnel_sin, jax.ShapeDtypeStruct(z.shape, np.float64),vectorized=True)
+
+@fresnel_sin.defjvp
+def fresnel_sin_jvp(primal,tangent):
+    # https://math.byu.edu/~bakker/Math113/Lectures/M113Lec01.pdf
+    z = primal[0]
+    primal_out = fresnel_sin(z)
+
+    tangent_out = jnp.sin(z**2)*tangent[0]
+
+    return primal_out, tangent_out
+
+
+@custom_jvp
+def fresnel_cos(z):
+    return pure_callback(sp_fresnel_cos, jax.ShapeDtypeStruct(z.shape, np.float64),vectorized=True)
+
+@fresnel_cos.defjvp
+def fresnel_cos_jvp(primal,tangent):
+    # https://math.byu.edu/~bakker/Math113/Lectures/M113Lec01.pdf
+    z = primal[0]
+    primal_out = fresnel_cos(z)
+
+    tangent_out = jnp.cos(z**2)*tangent[0]
+
+    return primal_out, tangent_out
+
+def sp_fresnel_sin(z): return sp.fresnel(z)[0]
+def sp_fresnel_cos(z): return sp.fresnel(z)[1]
+
+
+## ----------------------------------------------------------------------------------------------------------------------
+##  Host Fun Functions
+## ----------------------------------------------------------------------------------------------------------------------
+
+#def host_fresnel_sin(z: np.ndarray) -> np.ndarray:
+
+    #arr = sp.fresnel(z)
+
+    #return arr[0]
+
+
+#def host_fresnel_sin_auto(m: jnp.ndarray) -> jnp.ndarray:
+
+    #z = tf.Variable(z)
+    
+    #with tf.GradientTape() as tape:
+        #y = fresnel_sin(z)
+    
+    #dy_dz = tape.gradient(y,z)   
+
+    #return dy_dz.numpy()
+
+
+#def call_jax_other_device_FS(arg):
+    #"""Calls a JAX function on a specific device with simple support for reverse AD.
+    #Functions whose name starts with "jax_outside" are called on another device,
+    #by way of hcb.call.
+    #"""
+
+    #@api.custom_vjp
+    #def make_call(arg):
+        #return hcb.call(host_fresnel_sin, arg,
+                        #result_shape=jax.ShapeDtypeStruct(arg.shape, np.float64))
+
+    ## Define the fwd and bwd custom_vjp functions
+    #def make_call_vjp_fwd(arg):
+        ## Return the primal argument as the residual. Use `make_call` for the
+        ## primal computation to enable higher-order AD.
+        #return make_call(arg), arg  # Return the primal argument as the residual
+
+    #def make_call_vjp_bwd(res, ct_res):
+        #arg = res  # residual is the primal argument
+
+        #def jax_outside_vjp_fun(arg_and_ct):
+            #arg, ct = arg_and_ct
+            #_, f_vjp = api.vjp(host_fresnel_sin_auto, arg)
+            #ct_in, = f_vjp(ct)
+            #return ct_in
+
+        #return (call_jax_other_device_FS(jax_outside_vjp_fun, (arg, ct_res)),)
+
+    #make_call.defvjp(make_call_vjp_fwd, make_call_vjp_bwd)
+    #return make_call(arg)

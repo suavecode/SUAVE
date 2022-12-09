@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 from jax import  jit
 import jax.numpy as jnp
-from tensorflow.python.ops.special_math_ops import fresnel_sin, fresnel_cos
+#from tensorflow.python.ops.special_math_ops import fresnel_sin, fresnel_cos
 from jax.experimental import jax2tf
 from SUAVE.Core import to_jnumpy
 from SUAVE.Core.Utilities                                                       import interp2d
@@ -19,6 +19,9 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.convert_to_one_third_octave_band  import convert_to_one_third_octave_band
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic 
 import tensorflow as tf
+
+#from SUAVE.Core.Utilities   import call_jax_other_device_FS
+from SUAVE.Core.Utilities   import fresnel_sin, fresnel_cos
 #tf.function(jit_compile=True)
  
 # ----------------------------------------------------------------------
@@ -245,10 +248,15 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     f_func_2      = (2*((mu/c)*X/epsilon + (gamma/c)) )
     #ss_1,cc_1     = jax2tf.call_tf(fresnel_tf)(f_func_1)
     #ss_2,cc_2     = jax2tf.call_tf(fresnel_tf)(f_func_2)
-    ss_1          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_1)
-    cc_1          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_1)
-    ss_2          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_2)
-    cc_2          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_2)
+    #ss_1          = call_jax_other_device_FS(f_func_1)
+    #cc_1          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_1)
+    #ss_2          = call_jax_other_device_FS(f_func_2)
+    #cc_2          = jax2tf.call_tf(fakesnel_tf_sin)(f_func_2)
+    
+    ss_1          = fresnel_sin(f_func_1)
+    cc_1          = fresnel_cos(f_func_1)
+    ss_2          = fresnel_sin(f_func_2)
+    cc_2          = fresnel_cos(f_func_2)    
         
     
     triangle      = (omega/(U_inf*c)) - (mu/c)*X/epsilon + (mu/c)*M

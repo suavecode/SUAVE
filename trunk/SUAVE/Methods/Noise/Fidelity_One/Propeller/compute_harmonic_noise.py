@@ -14,13 +14,13 @@ import jax.numpy as jnp
 #from scipy.special import jv 
 import numpy as np
 import scipy as sp
-from SUAVE.Core.Utilities import jv
-from jax.experimental import jax2tf
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise  import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import convert_to_one_third_octave_band
 
-from tensorflow_probability.python.math.bessel import bessel_ive
+#from tensorflow_probability.python.math.bessel import bessel_ive
+
+from SUAVE.Core.Utilities import jv
 
 # ----------------------------------------------------------------------
 # Harmonic Noise Domain Broadband Noise Computation

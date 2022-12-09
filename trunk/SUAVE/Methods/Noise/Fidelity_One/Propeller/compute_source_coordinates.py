@@ -7,13 +7,9 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------
-from SUAVE.Core import to_jnumpy
 from jax import  jit
 import jax.numpy as jnp 
-import numpy as np 
-from SUAVE.Core.Utilities import jjv
 from SUAVE.Core import Data
-import scipy as sp
 # ----------------------------------------------------------------------
 #  Source Coordinates 
 # ---------------------------------------------------------------------
