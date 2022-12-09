@@ -9,11 +9,11 @@
 import numpy as np
 import jax.numpy as jnp
 from jax import  jit 
-from tensorflow_probability.substrates import jax as tfp
+#from tensorflow_probability.substrates import jax as tfp
 import scipy.special as sp
-import tensorflow as tf
-from jax._src import api
-from jax.experimental import host_callback as hcb
+#import tensorflow as tf
+#from jax._src import api
+#from jax.experimental import host_callback as hcb
 
 #from tensorflow.python.ops.special_math_ops import fresnel_sin, fresnel_cos
 
@@ -129,7 +129,7 @@ def jax_interp2d(x,y,xp,yp,zp,fill_value= None):
 import jax
 import jax.numpy as jnp
 import scipy.special
-from jax import custom_jvp, pure_callback, vmap
+from jax import custom_jvp, pure_callback
 
 # see https://github.com/google/jax/issues/11002
 

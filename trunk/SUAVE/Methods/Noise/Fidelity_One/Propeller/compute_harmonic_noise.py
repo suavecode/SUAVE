@@ -12,8 +12,8 @@ from SUAVE.Core import  to_jnumpy , to_numpy
 from jax import  jit
 import jax.numpy as jnp 
 #from scipy.special import jv 
-import numpy as np
-import scipy as sp
+#import numpy as np
+#import scipy as sp
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise  import A_weighting  
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import convert_to_one_third_octave_band
