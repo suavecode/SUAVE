@@ -66,6 +66,7 @@ def convert_to_one_third_octave_band(SPL,f,settings):
     SPL_array  = boolean*SPL_vals
     
     p_prefs          = 10**(SPL_array/10)
-    SPL_third_octave = 10*jnp.log10(jnp.sum(p_prefs, axis =4))
+    SPL_third_octave = 10*jnp.log10(jnp.sum(boolean*p_prefs, axis =4))
+    SPL_third_octave = jnp.where(jnp.isinf(SPL_third_octave),0,SPL_third_octave) 
 
     return SPL_third_octave
