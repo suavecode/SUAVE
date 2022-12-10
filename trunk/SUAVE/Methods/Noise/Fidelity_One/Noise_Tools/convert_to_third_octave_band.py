@@ -63,6 +63,6 @@ def convert_to_third_octave_band(SPL,f,settings):
     SPL_array        = boolean*SPL_vals
     p_prefs          = 10**(SPL_array/10)
     SPL_third_octave = 10*np.log10(np.sum(boolean*p_prefs, axis =4)) 
-    SPL_third_octave[np.isinf(SPL_third_octave)]         = 0 
+    SPL_third_octave[np.isinf(SPL_third_octave)]  = 0 
     
     return SPL_third_octave
