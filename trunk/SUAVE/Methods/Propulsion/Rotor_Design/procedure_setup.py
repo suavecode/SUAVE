@@ -194,7 +194,7 @@ def run_rotor_OEI(nexus):
     F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
     
     # Pack the results
-    nexus.results.OEI.thrust       = -F[0,2]
+    nexus.results.OEI.thrust       = -F[0,2]  
     nexus.results.OEI.torque       = Q
     nexus.results.OEI.power        = P
     nexus.results.OEI.power_c      = Cp
@@ -242,17 +242,17 @@ def run_rotor_hover(nexus):
     F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
     
     # Pack the results
-    nexus.results.hover.thrust           = -F[0,2]
+    nexus.results.hover.thrust           = -F[0,2]  
     nexus.results.hover.torque           = Q[0][0]
     nexus.results.hover.power            = P[0][0]
     nexus.results.hover.power_c          = Cp[0][0]
     nexus.results.hover.thurst_c         = outputs.thrust_coefficient[0][0]
     nexus.results.hover.omega            = omega[0][0]
-    nexus.results.hover.max_sectional_cl = np.max(outputs.lift_coefficient[0]) # np.sum(outputs.lift_coefficient**8)/8
+    nexus.results.hover.max_sectional_cl = np.max(outputs.lift_coefficient[0]) 
     nexus.results.hover.mean_CL          = np.mean(outputs.lift_coefficient[0])
-    nexus.results.hover.full_results     = outputs 
-     
-    # figure of merit   
+    nexus.results.hover.full_results     = outputs  
+
+    # figure of merit    
     nexus.results.hover.figure_of_merit  = outputs.figure_of_merit[0][0] 
     
     nexus.results.hover.efficiency       = etap[0][0] 
@@ -302,7 +302,7 @@ def run_rotor_cruise(nexus):
         nexus.results.cruise.power_c          = Cp[0][0]
         nexus.results.cruise.omega            = omega[0][0]
         nexus.results.cruise.thurst_c         = outputs.thrust_coefficient[0][0]
-        nexus.results.cruise.max_sectional_cl = np.max(outputs.lift_coefficient[0]) # np.sum(outputs.lift_coefficient**8)/8
+        nexus.results.cruise.max_sectional_cl = np.max(outputs.lift_coefficient[0]) 
         nexus.results.cruise.mean_CL          = np.mean(outputs.lift_coefficient[0])
         nexus.results.cruise.full_results     = outputs 
         nexus.results.cruise.efficiency       = etap[0][0]
@@ -478,9 +478,9 @@ def post_process(nexus):
     # -------------------------------------------------------
     # OBJECTIVE FUNCTION
     # -------------------------------------------------------   
-    performance_objective  = ((FM_hover -ideal_FoM)/ideal_FoM)*beta +  ((nexus.results.cruise.efficiency- ideal_efficiency)/ideal_efficiency)*(1-beta) 
+    performance_objective  = np.linalg.norm((FM_hover -ideal_FoM)/ideal_FoM)*beta +  np.linalg.norm((nexus.results.cruise.efficiency- ideal_efficiency)/ideal_efficiency)*(1-beta) 
     
-    acoustic_objective = ((nexus.results.hover.mean_SPL  - ideal_SPL)/ideal_SPL)*gamma  + ((nexus.results.cruise.mean_SPL - ideal_SPL)/ideal_SPL)*(1-gamma) 
+    acoustic_objective = np.linalg.norm((nexus.results.hover.mean_SPL  - ideal_SPL)/ideal_SPL)*gamma  + np.linalg.norm((nexus.results.cruise.mean_SPL - ideal_SPL)/ideal_SPL)*(1-gamma) 
  
     summary.objective = performance_objective*alpha + acoustic_objective*(1-alpha)  
     
@@ -496,7 +496,9 @@ def post_process(nexus):
         print("Aeroacoustic Weight          : " + str(alpha))  
         print("Multiobj. Performance Weight : " + str(beta))  
         print("Multiobj. Acoustic Weight    : " + str(gamma)) 
-        print("Aeroacoustic Obj             : " + str(summary.objective))     
+        print("Performance Obj              : " + str(performance_objective))   
+        print("Acoustic Obj                 : " + str(acoustic_objective))  
+        print("Aeroacoustic Obj             : " + str(summary.objective))    
         print("Blade Taper                  : " + str(blade_taper))
         print("Hover RPM                    : " + str(omega_hover/Units.rpm))     
         if rotor.hover.design_thrust == None: 
