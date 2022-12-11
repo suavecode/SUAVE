@@ -106,13 +106,13 @@ class Rotor(Energy_Component):
         self.Wake                      = Rotor_Wake_Fidelity_Zero() 
     
         self.optimization_parameters                                    = Data() 
-        self.optimization_parameters.tip_mach_range                     = [0.3,0.7] 
+        self.optimization_parameters.tip_mach_range                     = [0.3,0.65] 
         self.optimization_parameters.multiobjective_aeroacoustic_weight = 1.0
         self.optimization_parameters.multiobjective_performance_weight  = 1.0
         self.optimization_parameters.multiobjective_acoustic_weight     = 1.0
         self.optimization_parameters.noise_evaluation_angle             = 135 * Units.degrees 
-        self.optimization_parameters.tolerance                          = 1E-3
-        self.optimization_parameters.ideal_SPL_dBA                      = 40
+        self.optimization_parameters.tolerance                          = 1E-4
+        self.optimization_parameters.ideal_SPL_dBA                      = 30
         self.optimization_parameters.ideal_efficiency                   = 1.0     
         self.optimization_parameters.ideal_figure_of_merit              = 1.0
          

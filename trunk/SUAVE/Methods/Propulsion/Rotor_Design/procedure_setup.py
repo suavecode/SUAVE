@@ -478,11 +478,11 @@ def post_process(nexus):
     # -------------------------------------------------------
     # OBJECTIVE FUNCTION
     # -------------------------------------------------------   
-    performance_objective  = np.linalg.norm((FM_hover -ideal_FoM)/ideal_FoM)*beta +  np.linalg.norm((nexus.results.cruise.efficiency- ideal_efficiency)/ideal_efficiency)*(1-beta) 
+    performance_objective  = ((ideal_FoM - FM_hover)/ideal_FoM)*beta +  ((ideal_efficiency - nexus.results.cruise.efficiency)/ideal_efficiency)*(1-beta) 
     
-    acoustic_objective = np.linalg.norm((nexus.results.hover.mean_SPL  - ideal_SPL)/ideal_SPL)*gamma  + np.linalg.norm((nexus.results.cruise.mean_SPL - ideal_SPL)/ideal_SPL)*(1-gamma) 
+    acoustic_objective     = ((nexus.results.hover.mean_SPL  - ideal_SPL)/ideal_SPL)*gamma  + ((nexus.results.cruise.mean_SPL - ideal_SPL)/ideal_SPL)*(1-gamma) 
  
-    summary.objective = performance_objective*alpha + acoustic_objective*(1-alpha)  
+    summary.objective      = performance_objective*alpha + acoustic_objective*(1-alpha)  
     
 
     if nexus.prop_rotor:  
@@ -506,16 +506,15 @@ def post_process(nexus):
         if rotor.hover.design_power == None: 
             print("Hover Thrust                 : " + str(nexus.results.hover.thrust))  
         print("Hover Average SPL            : " + str(nexus.results.hover.mean_SPL))    
-        print("Hover Tip Mach               : " + str(rotor.hover.design_tip_mach))
-        print("Hover Collective (deg)       : " + str(rotor.inputs.pitch_command/Units.degrees))   
+        print("Hover Tip Mach               : " + str(rotor.hover.design_tip_mach)) 
         print("Hover Thrust/Power Residual  : " + str(summary.nominal_hover_thrust_power_residual)) 
         print("Hover Figure of Merit        : " + str(FM_hover))  
         print("Hover Max Sectional Cl       : " + str(summary.max_sectional_cl_hover)) 
         print("Hover Blade CL               : " + str(mean_CL_hover))    
-        #print("OEI Thrust                   : " + str(nexus.results.OEI.thrust)) 
-        #print("OEI Thrust/Power Residual    : " + str(summary.OEI_hover_thrust_power_residual)) 
-        #print("OEI Tip Mach                 : " + str(rotor_oei.OEI.design_tip_mach))  
-        #print("OEI Collective (deg)         : " + str(rotor_oei.inputs.pitch_command/Units.degrees)) 
+        print("OEI Thrust                   : " + str(nexus.results.OEI.thrust)) 
+        print("OEI Thrust/Power Residual    : " + str(summary.OEI_hover_thrust_power_residual)) 
+        print("OEI Tip Mach                 : " + str(rotor_oei.OEI.design_tip_mach))  
+        print("OEI Collective (deg)         : " + str(rotor_oei.inputs.pitch_command/Units.degrees)) 
         if nexus.prop_rotor:    
             print("Cruise RPM                   : " + str(nexus.results.cruise.omega/Units.rpm))    
             print("Cruise Collective (deg)      : " + str(rotor_cru.inputs.pitch_command/Units.degrees)) 

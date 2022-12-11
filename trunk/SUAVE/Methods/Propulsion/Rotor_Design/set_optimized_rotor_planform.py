@@ -55,10 +55,10 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
     rotor.hover.design_thrust_coefficient  = results.hover.thurst_c
     rotor.hover.design_power_coefficient   = results.hover.power_c
       
-    rotor.OEI.design_thrust                = results.OEI.thrust    
-    rotor.OEI.design_power                 = results.OEI.power 
-    rotor.OEI.design_torque                = results.OEI.torque  
-    rotor.OEI.design_angular_velocity      = results.OEI.omega   
+    #rotor.OEI.design_thrust                = results.OEI.thrust    
+    #rotor.OEI.design_power                 = results.OEI.power 
+    #rotor.OEI.design_torque                = results.OEI.torque  
+    #rotor.OEI.design_angular_velocity      = results.OEI.omega   
     
     if alpha == 1.0:
         
