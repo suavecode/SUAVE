@@ -16,7 +16,7 @@ from SUAVE.Methods.Propulsion.Rotor_Design.procedure_setup         import proced
 import numpy as np  
 
 ## @ingroup Methods-Propulsion-Rotor_Design
-def optimization_setup(rotor,include_OEI_constraint,number_of_stations,print_iterations):
+def optimization_setup(rotor,number_of_stations,print_iterations):
     """ Sets up rotor optimization problem including design variables, constraints and objective function
         using SUAVE's Nexus optimization framework. Appends methodolody of planform modification to Nexus.
           Inputs: 
@@ -35,7 +35,6 @@ def optimization_setup(rotor,include_OEI_constraint,number_of_stations,print_ite
     nexus                        = Nexus()
     problem                      = Data()
     nexus.optimization_problem   = problem
-    nexus.include_OEI_constraint = include_OEI_constraint
     if type(rotor) != Prop_Rotor or  type(rotor) != Lift_Rotor:
         assert('rotor must be of Lift-Rotor or Prop-Rotor class') 
     # -------------------------------------------------------------------
@@ -64,9 +63,8 @@ def optimization_setup(rotor,include_OEI_constraint,number_of_stations,print_ite
     inputs.append([ 'twist_q'               ,  0.5      , 0.25       , 1.5       , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_t'               ,  np.pi/10 , -np.pi/4   , np.pi/4   , 1.0     ,  1*Units.less])  
     inputs.append([ 'hover_tip_mach'        , tm_0_h    , tm_ll_h    , tm_ul_h   , 1.0     ,  1*Units.less])
-    if include_OEI_constraint:
-        inputs.append([ 'OEI_tip_mach'          , tm_0_h    , tm_ll_h    , 0.85      , 1.0     ,  1*Units.less])
-        inputs.append([ 'OEI_collective_pitch'  , 0         , -np.pi/6    , np.pi/6   , 1.0     ,  1*Units.less]) 
+    inputs.append([ 'OEI_tip_mach'          , tm_0_h    , tm_ll_h    , 0.85      , 1.0     ,  1*Units.less])
+    inputs.append([ 'OEI_collective_pitch'  , 0         , -np.pi/4    , np.pi/4   , 1.0     ,  1*Units.less]) 
     if type(rotor) == Prop_Rotor:
         inputs.append([ 'hover_collective_pitch'  , 0      , -np.pi/6   , np.pi/6   , 1.0     ,  1*Units.less]) 
         inputs.append([ 'cruise_tip_mach'         , tm_0_c , tm_ll_c    , tm_ul_c   , 1.0     ,  1*Units.less]) 
@@ -91,8 +89,7 @@ def optimization_setup(rotor,include_OEI_constraint,number_of_stations,print_ite
     constraints.append([ 'max_sectional_cl_hov'      ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])
     constraints.append([ 'chord_p_to_q_ratio'        ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])    
     constraints.append([ 'twist_p_to_q_ratio'        ,  '>'  ,  0.5 ,   1.0   , 1*Units.less])  
-    if include_OEI_constraint:
-        constraints.append([ 'OEI_hov_thrust_pow_res'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less]) 
+    constraints.append([ 'OEI_hov_thrust_pow_res'    ,  '>'  ,  0.0 ,   1.0   , 1*Units.less]) 
     if type(rotor) == Prop_Rotor:
         constraints.append([ 'cruise_thrust_pow_res'     ,  '>'  ,  0.0 ,   1.0   , 1*Units.less]) 
         constraints.append([ 'max_sectional_cl_cruise'   ,  '<'  ,  0.8 ,   1.0   , 1*Units.less])   
@@ -118,11 +115,10 @@ def optimization_setup(rotor,include_OEI_constraint,number_of_stations,print_ite
     aliases.append([ 'blade_twist_constraint'     , 'summary.blade_twist_constraint'])    
     aliases.append([ 'max_sectional_cl_hov'       , 'summary.max_sectional_cl_hover'])   
     aliases.append([ 'chord_p_to_q_ratio'         , 'summary.chord_p_to_q_ratio'    ])  
-    aliases.append([ 'twist_p_to_q_ratio'         , 'summary.twist_p_to_q_ratio'    ])  
-    if include_OEI_constraint:
-        aliases.append([ 'OEI_hov_thrust_pow_res' , 'summary.OEI_hover_thrust_power_residual'   ]) 
-        aliases.append([ 'OEI_collective_pitch'   , 'vehicle_configurations.oei.networks.battery_propeller.propellers.rotor.inputs.pitch_command' ]) 
-        aliases.append([ 'OEI_tip_mach'           , 'vehicle_configurations.oei.networks.battery_propeller.propellers.rotor.OEI.design_tip_mach' ]) 
+    aliases.append([ 'twist_p_to_q_ratio'         , 'summary.twist_p_to_q_ratio'    ])   
+    aliases.append([ 'OEI_hov_thrust_pow_res' , 'summary.OEI_hover_thrust_power_residual'   ]) 
+    aliases.append([ 'OEI_collective_pitch'   , 'vehicle_configurations.oei.networks.battery_propeller.propellers.rotor.inputs.pitch_command' ]) 
+    aliases.append([ 'OEI_tip_mach'           , 'vehicle_configurations.oei.networks.battery_propeller.propellers.rotor.OEI.design_tip_mach' ]) 
     if type(rotor) == Prop_Rotor:
         aliases.append([ 'hover_collective_pitch' , 'vehicle_configurations.hover.networks.battery_propeller.propellers.rotor.inputs.pitch_command' ])
         aliases.append([ 'cruise_tip_mach'        , 'vehicle_configurations.cruise.networks.battery_propeller.propellers.rotor.cruise.design_tip_mach' ])  

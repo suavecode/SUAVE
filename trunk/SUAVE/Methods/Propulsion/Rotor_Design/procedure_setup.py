@@ -163,58 +163,47 @@ def updated_blade_geometry(chi,c_r,p,q,c_t):
 # ---------------------------------------------------------------------- 
 def run_rotor_OEI(nexus):
     
-    # Unpack 
-    if nexus.include_OEI_constraint: 
-        rotor    = nexus.vehicle_configurations.oei.networks.battery_propeller.propellers.rotor
-        
-        # Setup Test conditions
-        speed    = rotor.OEI.design_freestream_velocity 
-        altitude = np.array([rotor.OEI.design_altitude]) 
-        R        = rotor.tip_radius
-        TM       = rotor.OEI.design_tip_mach   
+    # Unpack  
+    rotor    = nexus.vehicle_configurations.oei.networks.battery_propeller.propellers.rotor
     
-        # Calculate the atmospheric properties
-        atmosphere            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmosphere_conditions = atmosphere.compute_values(altitude)
+    # Setup Test conditions
+    speed    = rotor.OEI.design_freestream_velocity 
+    altitude = np.array([rotor.OEI.design_altitude]) 
+    R        = rotor.tip_radius
+    TM       = rotor.OEI.design_tip_mach   
+
+    # Calculate the atmospheric properties
+    atmosphere            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere_conditions = atmosphere.compute_values(altitude)
+
+    # Pack everything up
+    conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions.freestream.update(atmosphere_conditions)
+    conditions.frames.inertial.velocity_vector          = np.array([[0.,0.,speed]])
+    conditions.propulsion.throttle                      = np.array([[1.0]])
+    conditions.frames.body.transform_to_inertial        = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
     
-        # Pack everything up
-        conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-        conditions.freestream.update(atmosphere_conditions)
-        conditions.frames.inertial.velocity_vector          = np.array([[0.,0.,speed]])
-        conditions.propulsion.throttle                      = np.array([[1.0]])
-        conditions.frames.body.transform_to_inertial        = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
-        
-        # Calculate the RPM
-        tip_speed = atmosphere_conditions.speed_of_sound*TM
-        omega     = tip_speed/R
-        
-        # Set the RPM
-        rotor.inputs.omega = np.array(omega)    
-        
-        # Run the rotor
-        F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
-        
-        # Pack the results
-        nexus.results.OEI.thrust       = -F[0,2]  
-        nexus.results.OEI.torque       = Q
-        nexus.results.OEI.power        = P
-        nexus.results.OEI.power_c      = Cp
-        nexus.results.OEI.omega        = omega[0][0]
-        nexus.results.OEI.thurst_c     = outputs.thrust_coefficient[0][0]
-        nexus.results.OEI.full_results = outputs
-        nexus.results.OEI.efficiency   = etap 
-        nexus.results.OEI.conditions   = conditions
-    else:
-        nexus.results.OEI.thrust       = 0.0
-        nexus.results.OEI.torque       = 0.0
-        nexus.results.OEI.power        = 0.0
-        nexus.results.OEI.power_c      = 0.0
-        nexus.results.OEI.omega        = 0.0
-        nexus.results.OEI.thurst_c     = 0.0
-        nexus.results.OEI.full_results = 0.0
-        nexus.results.OEI.efficiency   = 0.0
-        nexus.results.OEI.conditions   = None
-        
+    # Calculate the RPM
+    tip_speed = atmosphere_conditions.speed_of_sound*TM
+    omega     = tip_speed/R
+    
+    # Set the RPM
+    rotor.inputs.omega = np.array(omega)    
+    
+    # Run the rotor
+    F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
+    
+    # Pack the results
+    nexus.results.OEI.thrust       = -F[0,2]  
+    nexus.results.OEI.torque       = Q
+    nexus.results.OEI.power        = P
+    nexus.results.OEI.power_c      = Cp
+    nexus.results.OEI.omega        = omega[0][0]
+    nexus.results.OEI.thurst_c     = outputs.thrust_coefficient[0][0]
+    nexus.results.OEI.full_results = outputs
+    nexus.results.OEI.efficiency   = etap 
+    nexus.results.OEI.conditions   = conditions 
+    
     return nexus
 
 # ----------------------------------------------------------------------
@@ -239,7 +228,7 @@ def run_rotor_hover(nexus):
     conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     conditions.freestream.update(atmosphere_conditions)
     conditions.frames.inertial.velocity_vector          = np.array([[0.,0.,speed]])
-    conditions.propulsion.throttle                      = np.array([[0.8]])
+    conditions.propulsion.throttle                      = np.array([[1.0]])
     conditions.frames.body.transform_to_inertial        = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]]) 
     
     # Calculate the RPM
@@ -293,7 +282,7 @@ def run_rotor_cruise(nexus):
         conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
         conditions.freestream.update(atmosphere_conditions)
         conditions.frames.inertial.velocity_vector          = np.array([[speed,0.,0.]])
-        conditions.propulsion.throttle                      = np.array([[0.5]])
+        conditions.propulsion.throttle                      = np.array([[1.0]])
         conditions.frames.body.transform_to_inertial        = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
         
         # Calculate the RPM
@@ -468,12 +457,11 @@ def post_process(nexus):
     beta_blade                      = rotor.twist_distribution 
     summary.blade_twist_constraint  = beta_blade[0] - beta_blade[-1]
     
-    # OEI  
-    if nexus.include_OEI_constraint: 
-        if rotor.OEI.design_thrust == None: 
-            summary.OEI_hover_thrust_power_residual =  tol*rotor.hover.design_thrust*1.1 -  abs(nexus.results.OEI.thrust - rotor.hover.design_thrust*1.1)  
-        else:
-            summary.OEI_hover_thrust_power_residual =  tol*rotor.OEI.design_thrust - abs(nexus.results.OEI.thrust - rotor.OEI.design_thrust)
+    # OEI   
+    if rotor.OEI.design_thrust == None: 
+        summary.OEI_hover_thrust_power_residual =  tol*rotor.hover.design_thrust*1.1 -  abs(nexus.results.OEI.thrust - rotor.hover.design_thrust*1.1)  
+    else:
+        summary.OEI_hover_thrust_power_residual =  tol*rotor.OEI.design_thrust - abs(nexus.results.OEI.thrust - rotor.OEI.design_thrust)
             
     # thrust/power residual 
     if rotor.hover.design_thrust == None:
@@ -523,12 +511,11 @@ def post_process(nexus):
         print("Hover Thrust/Power Residual  : " + str(summary.nominal_hover_thrust_power_residual)) 
         print("Hover Figure of Merit        : " + str(FM_hover))  
         print("Hover Max Sectional Cl       : " + str(summary.max_sectional_cl_hover)) 
-        print("Hover Blade CL               : " + str(mean_CL_hover))   
-        if nexus.include_OEI_constraint: 
-            print("OEI Thrust                   : " + str(nexus.results.OEI.thrust)) 
-            print("OEI Thrust/Power Residual    : " + str(summary.OEI_hover_thrust_power_residual)) 
-            print("OEI Tip Mach                 : " + str(rotor_oei.OEI.design_tip_mach))  
-            print("OEI Collective (deg)         : " + str(rotor_oei.inputs.pitch_command/Units.degrees)) 
+        print("Hover Blade CL               : " + str(mean_CL_hover))    
+        #print("OEI Thrust                   : " + str(nexus.results.OEI.thrust)) 
+        #print("OEI Thrust/Power Residual    : " + str(summary.OEI_hover_thrust_power_residual)) 
+        #print("OEI Tip Mach                 : " + str(rotor_oei.OEI.design_tip_mach))  
+        #print("OEI Collective (deg)         : " + str(rotor_oei.inputs.pitch_command/Units.degrees)) 
         if nexus.prop_rotor:    
             print("Cruise RPM                   : " + str(nexus.results.cruise.omega/Units.rpm))    
             print("Cruise Collective (deg)      : " + str(rotor_cru.inputs.pitch_command/Units.degrees)) 
