@@ -296,7 +296,7 @@ def run_rotor_cruise(nexus):
         F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
         
         # Pack the results
-        nexus.results.cruise.thrust           = F[0,0]
+        nexus.results.cruise.thrust           = F[0][0]
         nexus.results.cruise.torque           = Q[0][0]
         nexus.results.cruise.power            = P[0][0]
         nexus.results.cruise.power_c          = Cp[0][0]
@@ -351,13 +351,9 @@ def run_hover_noise(nexus):
         settings                                         = noise.settings   
         num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
         conditions.noise.number_of_microphones           = num_mic   
-        
-        try: 
-            propeller_noise_hover                        = propeller_mid_fidelity(rotors,full_results,segment,settings)   
-            mean_SPL_hover                               = np.mean(propeller_noise_hover.SPL_dBA)    
-        except:
-            propeller_noise_hover = None 
-            mean_SPL_hover        = 100
+         
+        propeller_noise_hover                        = propeller_mid_fidelity(rotors,full_results,segment,settings)   
+        mean_SPL_hover                               = np.mean(propeller_noise_hover.SPL_dBA)     
             
         # Pack
         nexus.results.hover.mean_SPL   = mean_SPL_hover 
@@ -401,13 +397,10 @@ def run_cruise_noise(nexus):
             noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
             settings                                         = noise.settings   
             num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
-            conditions.noise.number_of_microphones           = num_mic   
-            try: 
-                propeller_noise_cruise                        = propeller_mid_fidelity(rotor,full_results,segment,settings)   
-                mean_SPL_cruise                               = np.mean(propeller_noise_cruise.SPL_dBA)    
-            except:
-                mean_SPL_cruise        = 100
-                propeller_noise_cruise = None 
+            conditions.noise.number_of_microphones           = num_mic    
+            
+            propeller_noise_cruise                        = propeller_mid_fidelity(rotors,full_results,segment,settings)   
+            mean_SPL_cruise                               = np.mean(propeller_noise_cruise.SPL_dBA)    
                 
             # Pack
             nexus.results.cruise.mean_SPL   = mean_SPL_cruise 

@@ -63,12 +63,12 @@ def optimization_setup(rotor,number_of_stations,print_iterations):
     inputs.append([ 'twist_q'               ,  0.5      , 0.25       , 1.5       , 1.0     ,  1*Units.less])
     inputs.append([ 'twist_t'               ,  np.pi/10 , 0          , np.pi/4   , 1.0     ,  1*Units.less])  
     inputs.append([ 'hover_tip_mach'        , tm_0_h    , tm_ll_h    , tm_ul_h   , 1.0     ,  1*Units.less])
-    inputs.append([ 'OEI_tip_mach'          , tm_0_h    , tm_ll_h    , 0.75      , 1.0     ,  1*Units.less]) # 0.85 works
+    inputs.append([ 'OEI_tip_mach'          , tm_0_h    , tm_ll_h    , 0.85      , 1.0     ,  1*Units.less])  
     inputs.append([ 'OEI_collective_pitch'  , 0         , -np.pi/6    , np.pi/6   , 1.0     ,  1*Units.less]) 
     if type(rotor) == Prop_Rotor:
-        inputs.append([ 'hover_collective_pitch'  , 0      , -np.pi/6   , np.pi/6   , 1.0     ,  1*Units.less]) 
-        inputs.append([ 'cruise_tip_mach'         , tm_0_c , tm_ll_c    , tm_ul_c   , 1.0     ,  1*Units.less]) 
-        inputs.append([ 'cuise_collective_pitch'  , 0      , -np.pi/6   , np.pi/6   , 1.0     ,  1*Units.less]) 
+        inputs.append([ 'hover_collective_pitch'  , 0       , -np.pi/6   , np.pi/6   , 1.0     ,  1*Units.less]) 
+        inputs.append([ 'cruise_tip_mach'         ,  tm_ll_c , tm_ll_c    , tm_ul_c   , 1.0     ,  1*Units.less]) 
+        inputs.append([ 'cuise_collective_pitch'  ,-np.pi/6  , -np.pi/6   , np.pi/6   , 1.0     ,  1*Units.less]) 
     problem.inputs = np.array(inputs,dtype=object)   
 
     # -------------------------------------------------------------------
