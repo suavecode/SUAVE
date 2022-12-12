@@ -31,6 +31,10 @@ import numpy as np
 import scipy as sp
 import copy
 import pandas as pd
+from pykrige.uk import UniversalKriging
+from pykrige.ok import OrdinaryKriging as Kriging
+from csv import writer
+
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -565,12 +569,28 @@ class Rotor(Energy_Component):
             )
         self.outputs = outputs
 
+        # DEBUG
+        # append sample point to csv (V, Alpha, J, CT, CQ)
+        Alpha = np.atleast_2d(self.inputs.y_axis_rotation)
+        Vinf = np.atleast_2d(np.linalg.norm(Vv,axis=1)).T
+        J = Vinf / (n * D)        
+        for i in range(ctrl_pts):
+            newRow = [i, Vinf[i][0], Alpha[i][0], J[i][0], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
+            with open('/Users/rerha/Desktop/mission_sampled_points.csv', 'a') as file:
+                
+                writerObj = writer(file)
+                writerObj.writerow(newRow)
+                file.close()
+                
         return thrust_vector, torque, power, Cp, outputs , etap
     
     def spin_surrogate(self, conditions):
         # get force coefficients from lookup table with interpolation
         try:
-            surrogate_data_file = self.surrogate_data_file
+            #surrogate_data_file = self.surrogate_data_file
+            surrogate_data = self.surrogate_data #pd.read_csv(surrogate_data_file)
+            #CT_ok3d = self.Kriging_CT
+            #CQ_ok3d = self.Kriging_CQ
         except:
             raise("Error: No surrogate data found.")
         
@@ -582,25 +602,79 @@ class Rotor(Energy_Component):
         Vvec  = conditions.frames.inertial.velocity_vector
         cpts  = len(Vvec)
         
-        # read in surrogate data
-        surrogate_data = pd.read_csv(surrogate_data_file)
-        V_sur = surrogate_data.V.to_numpy()
-        A_sur = surrogate_data.AlphaP.to_numpy() * Units.deg
-        J_sur = surrogate_data.J.to_numpy()
-        n_sur = V_sur / (J_sur * D) # J=V/nD
-        CT_sur = surrogate_data.CT.to_numpy()
-        CQ_sur = surrogate_data.CQ.to_numpy()
         
-        # dimensionalize
-        thrust_sur = CT_sur * (rho[0][0]*(n_sur*n_sur)*(D*D*D*D))
-        torque_sur = CQ_sur * (rho[0][0]*(n_sur*n_sur)*(D*D*D*D*D))
         
         # compute T, Q for current prop state
         V_sim = np.linalg.norm(Vvec,axis=1)
-        A_sim = np.repeat(self.orientation_euler_angles[1] , cpts)
-        J_sim = V_sim / (n.T * D)
-        thrust = np.atleast_2d(sp.interpolate.griddata((V_sur, A_sur, J_sur), thrust_sur, (V_sim, A_sim, J_sim), method='linear', fill_value=0.)*1).T
-        torque = np.atleast_2d(sp.interpolate.griddata((V_sur, A_sur, J_sur), torque_sur, (V_sim, A_sim, J_sim), method='linear', fill_value=0.)*1).T
+        A_sim_tilt = self.inputs.y_axis_rotation #np.repeat(self.orientation_euler_angles[1] , cpts)
+        J_sim = V_sim / (n.T[0] * D)
+
+        # compute total prop angle to freestream (tilt + pitch)
+        try:
+            aircraft_pitch  = conditions.aerodynamics.angle_of_attack
+            A_sim = A_sim_tilt + aircraft_pitch
+        except:
+            A_sim = np.atleast_2d(np.repeat(self.orientation_euler_angles[1] , cpts))
+            A_sim_tilt = A_sim
+                
+        # extract surrogate data
+        V_sur = surrogate_data.V.to_numpy()
+        A_sur = surrogate_data.AlphaP.to_numpy() * Units.deg
+        J_sur = surrogate_data.J.to_numpy()    
+        CT_sur = surrogate_data.CT.to_numpy()
+        CQ_sur = surrogate_data.CQ.to_numpy()
+        
+        
+        thrust = np.zeros_like(V_sim)
+        torque = np.zeros_like(V_sim)
+        
+        # Use Kriging interpolation for (J-Alpha) space with linear interpolation in velocity dimension
+        for i, V_sim_i in enumerate(V_sim):
+            v_low = V_sur[np.round(V_sur,3) >= np.round(V_sim_i,3)].min()
+            v_high = V_sur[np.round(V_sur,3) <= np.round(V_sim_i,3)].max()
+        
+            vmodel = "linear" #"exponential" "spherical" "linear" "power" "gaussian"
+            if v_low==v_high:
+                # use exact V_sim_i
+                ids = np.where(np.round(V_sur,3) == np.round(v_low,3))
+                Kriging_CT = Kriging(A_sur[ids], J_sur[ids], CT_sur[ids], variogram_model=vmodel)
+                Kriging_CQ = Kriging(A_sur[ids], J_sur[ids], CQ_sur[ids], variogram_model=vmodel)
+        
+                CT_k, CT_ss = Kriging_CT.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                thrust[i] = CT_k * (rho[0][0]*(n[i]*n[i])*(D*D*D*D))        
+        
+                CQ_k, CQ_ss = Kriging_CQ.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                torque[i] = CQ_k * (rho[0][0]*(n[i]*n[i])*(D*D*D*D*D))       
+            else:
+                # interpolate between the two 
+                ids_low = np.where(np.round(V_sur,3) == np.round(v_low,3))
+                Kriging_CT_low = Kriging(A_sur[ids_low], J_sur[ids_low], CT_sur[ids_low], variogram_model=vmodel)
+                Kriging_CQ_low = Kriging(A_sur[ids_low], J_sur[ids_low], CQ_sur[ids_low], variogram_model=vmodel)
+                
+                CT_k_l, CT_ss_l = Kriging_CT_low.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                thrust_low = CT_k_l[0] * (rho[0][0]*(n[i]*n[i])*(D*D*D*D))          
+                CQ_k_l, CQ_ss_l = Kriging_CQ_low.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                torque_low = CQ_k_l[0] * (rho[0][0]*(n[i]*n[i])*(D*D*D*D*D))                 
+    
+                ids_high = np.where(np.round(V_sur,4) == np.round(v_high,4))
+                Kriging_CT_high = Kriging(A_sur[ids_high], J_sur[ids_high], CT_sur[ids_high], variogram_model=vmodel)
+                Kriging_CQ_high = Kriging(A_sur[ids_high], J_sur[ids_high], CQ_sur[ids_high], variogram_model=vmodel)  
+                
+    
+                CT_k_h, CT_ss_h = Kriging_CT_high.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                thrust_high = CT_k_h[0] * (rho[0][0]*(n[i]*n[i])*(D*D*D*D))          
+                CQ_k_h, CQ_ss_h = Kriging_CQ_high.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                torque_high = CQ_k_h[0] * (rho[0][0]*(n[i]*n[i])*(D*D*D*D*D))         
+                
+                Kriging_T_fun = sp.interpolate.interp1d(np.array([v_low, v_high]), np.array([thrust_low[0], thrust_high[0]]))
+                thrust[i] = Kriging_T_fun(V_sim_i)
+    
+                Kriging_Q_fun = sp.interpolate.interp1d(np.array([v_low, v_high]), np.array([torque_low[0], torque_high[0]]))
+                torque[i] = Kriging_Q_fun(V_sim_i) 
+        
+        thrust = np.atleast_2d(thrust).T
+        torque = np.atleast_2d(torque).T      
+                
         
         power = omega*torque
         
@@ -626,6 +700,17 @@ class Rotor(Energy_Component):
             torque_coefficient = torque / (rho*(n*n)*(D*D*D*D*D)),
             power_coefficient  = power / (rho*(n*n*n)*(D*D*D*D*D))
         )
+        
+        # DEBUG
+        # append sample point to csv (V, Alpha, J, CT, CQ)
+        for i in range(cpts):
+            newRow = [i, V_sim[i], A_sim_tilt[i][0], J_sim[i], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
+            with open('/Users/rerha/Desktop/mission_sampled_points_sur.csv', 'a') as file:
+                
+                writerObj = writer(file)
+                writerObj.writerow(newRow)
+                file.close()
+        
         return thrust_vector, torque, power, Cp, outputs , etap
     
     
