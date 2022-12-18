@@ -74,25 +74,25 @@ def main():
             print(val)
     
     # Truth values
-    climb_throttle_1_truth   = 1.0779171064877817
-    climb_throttle_2_truth   = 1.0825265840224687
-    climb_throttle_3_truth   = 0.674660268669148 
-    climb_throttle_4_truth   = 1.1315606426230955
-    climb_throttle_5_truth   = 1.1836691794281005
-    climb_throttle_6_truth   = 0.8542025884352087
-    climb_throttle_7_truth   = 1.030452608240913
-    climb_throttle_8_truth   = 1.1665314723491604 
-    climb_throttle_9_truth   = 1.2625088598230252 
-    climb_throttle_10_truth  = 1.0 
-    cruise_CL_1_truth        = 0.6857617083371911 
-    cruise_CL_2_truth        = 0.6860226628472235 
-    cruise_CL_3_truth        = 0.7805019166672017 
-    descent_throttle_1_truth = 0.09279795266262247 
-    descent_throttle_2_truth = 0.23994218072952092
-    single_pt_CL_1_truth     = 0.24695636714609792 
-    single_pt_CL_2_truth     = 0.24695878533146554
-    loiter_CL_truth          = 0.5029058752700512 
-    descent_throttle_3_truth = 0.17441749322730005 
+    climb_throttle_1_truth   = 1.0779172001984785 
+    climb_throttle_2_truth   = 1.0825266960649422
+    climb_throttle_3_truth   = 0.6746603423632908
+    climb_throttle_4_truth   = 1.1315607295783987
+    climb_throttle_5_truth   = 1.1836692607613328
+    climb_throttle_6_truth   = 1.8051361897078302
+    climb_throttle_7_truth   = 2.1717494235723596
+    climb_throttle_8_truth   = 1.1739505919865243
+    climb_throttle_9_truth   = 1.2718769123445912
+    climb_throttle_10_truth  = 1.0
+    cruise_CL_1_truth        = 0.6919820739276993
+    cruise_CL_2_truth        = 0.6922650073633557
+    cruise_CL_3_truth        = 0.7830669840218477
+    descent_throttle_1_truth = 0.09424418257693504 
+    descent_throttle_2_truth = 0.2434984264324653
+    single_pt_CL_1_truth     = 0.24919695910430895 
+    single_pt_CL_2_truth     = 0.24919870841385075
+    loiter_CL_truth          = 0.5074627850052399
+    descent_throttle_3_truth = 0.17727286857411245 
     
     # Store errors 
     error = Data()
@@ -402,9 +402,7 @@ def mission_setup(analyses):
     segment = Segments.Climb.Constant_Mach_Linear_Altitude(base_segment)
     segment.tag = "climb_6"
     segment.analyses.extend( analyses.base )  
-    segment.altitude_start                   = 7.    * Units.km
-    segment.altitude_end                     = 8.    * Units.km    
-    segment.distance                         = 100. * Units.km
+    segment.altitude_end                     = 8.    * Units.km   
     segment.mach                             = 0.75  
 
     # add to misison
@@ -418,7 +416,6 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.base ) 
     segment.altitude_start                   = 8.    * Units.km
     segment.altitude_end                     = 9.    * Units.km   
-    segment.distance                         = 100. * Units.km
     segment.air_speed                        = 250.2 * Units.m / Units.s 
 
     # add to misison
@@ -638,6 +635,8 @@ def missions_setup(base_mission):
     missions.base = base_mission
 
     # done!
-    return missions   
+    return missions  
+
+    return  
 if __name__ == '__main__': 
     main()    
