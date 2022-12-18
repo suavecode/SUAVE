@@ -48,7 +48,7 @@ def prop_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',iterati
               optimization_parameters.
                  slack_constaint               [None]
                  ideal_SPL_dbA                 [dBA]
-                 aeroacoustic_weight           [None]
+                 multiobjective_aeroacoustic_weight           [None]
             
           Outputs:
           Twist distribution                   [array of radians]

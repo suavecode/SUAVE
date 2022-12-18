@@ -54,6 +54,7 @@ class Lift_Rotor(Rotor):
         self.hover.design_power               = None
         self.hover.design_angular_velocity    = None
         self.hover.design_tip_mach            = None
+        self.hover.design_freestream_velocity = None
         self.hover.design_acoustics           = None
         self.hover.design_performance         = None
         self.hover.design_SPL_dBA             = None
@@ -61,16 +62,18 @@ class Lift_Rotor(Rotor):
         self.hover.design_thrust_coefficient  = None
         self.hover.design_power_coefficient   = None 
         
-        self.OEI                              = Data()
-        self.OEI.design_thrust                = None
-        self.OEI.design_torque                = None
-        self.OEI.design_power                 = None
-        self.OEI.design_angular_velocity      = None
-        self.OEI.design_tip_mach              = None
-        self.OEI.design_acoustics             = None
-        self.OEI.design_performance           = None
-        self.OEI.design_SPL_dBA               = None
-        self.OEI.design_Cl                    = None
-        self.OEI.design_thrust_coefficient    = None
-        self.OEI.design_power_coefficient     = None         
+        self.oei                              = Data()
+        self.oei.design_thrust                = None
+        self.oei.design_torque                = None
+        self.oei.design_power                 = None
+        self.oei.design_angular_velocity      = None
+        self.oei.design_freestream_velocity   = None
+        self.oei.design_tip_mach              = None  
+        self.oei.design_altitude              = None
+        self.oei.design_acoustics             = None
+        self.oei.design_performance           = None
+        self.oei.design_SPL_dBA               = None
+        self.oei.design_Cl                    = None
+        self.oei.design_thrust_coefficient    = None
+        self.oei.design_power_coefficient     = None         
          

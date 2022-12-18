@@ -53,7 +53,7 @@ class Motor(Energy_Component):
         self.resistance         = 0.0
         self.no_load_current    = 0.0
         self.speed_constant     = 0.0
-        self.propeller_radius   = 0.0
+        self.rotor_radius       = 0.0
         self.propeller_Cp       = 0.0
         self.efficiency         = 1.0
         self.gear_ratio         = 1.0
@@ -90,10 +90,9 @@ class Motor(Energy_Component):
           no_load_current                        [A]
           gear_ratio                             [-]
           speed_constant                         [radian/s/V]
-          propeller_radius                       [m]
+          rotor_radius                           [m]
         """           
-        # Unpack
-        V     = conditions.freestream.velocity[:,0,None]
+        # Unpack 
         rho   = conditions.freestream.density[:,0,None]
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
@@ -101,7 +100,7 @@ class Motor(Energy_Component):
         io    = self.no_load_current + exp_i*(1-etaG)
         G     = self.gear_ratio
         Kv    = self.speed_constant/G
-        R     = self.propeller_radius
+        R     = self.rotor_radius
         v     = self.inputs.voltage
         Cp    = self.inputs.propeller_CP
         

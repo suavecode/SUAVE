@@ -48,14 +48,14 @@ def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',iterati
               optimization_parameters.
                  slack_constaint               [None]
                  ideal_SPL_dbA                 [dBA]
-                 aeroacoustic_weight           [None]
+                 multiobjective_aeroacoustic_weight           [None]
             
           Outputs:
           Twist distribution                   [array of radians]
           Chord distribution                   [array of meters]
               
           Assumptions: 
-             N/A 
+             Rotor blade design considers one engine inoperative 
         
           Source:
              None 

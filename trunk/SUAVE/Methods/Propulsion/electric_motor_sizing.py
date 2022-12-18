@@ -100,7 +100,7 @@ def size_from_mass(motor):
     return motor 
 
 ## @ingroup Methods-Propulsion
-def size_optimal_motor(motor,prop):
+def size_optimal_motor(motor):
     ''' Optimizes the motor to obtain the best combination of speed constant and resistance values
     by essentially sizing the motor for a design RPM value. Note that this design RPM 
     value can be compute from design tip mach  
@@ -112,42 +112,27 @@ def size_optimal_motor(motor,prop):
     N/A
     
     Inputs:
-    prop.
-      design_torque          [Nm]
-      angular_velocity       [rad/s]
-      origin                 [m]
+    motor                         [-]  
       
     motor.     
-      no_load_current        [amps]
-      mass_properties.mass   [kg]
-      
-    Outputs:
-    motor.
-      speed_constant         [untiless]
-      design_torque          [Nm] 
-      motor.resistance       [Ohms]
-      motor.angular_velocity [rad/s]
-      motor.origin           [m]
+      no_load_current             [amps]
+      mass_properties.mass        [kg]
+           
+    Outputs:     
+    motor.     
+      speed_constant              [untiless]
+      design_torque               [Nm] 
+      motor.resistance            [Ohms]
+      motor.angular_velocity      [rad/s]
+      motor.origin                [m]
     '''    
-    
-    # assign propeller radius
-    motor.propeller_radius      = prop.tip_radius
-   
-    # append motor locations based on propeller locations 
-    motor.origin                = prop.origin  
-    
-    # motor design torque 
-    motor.design_torque         = prop.design_torque  
-    
+      
     # design conditions for motor 
     io                          = motor.no_load_current
     v                           = motor.nominal_voltage
-    omeg                        = prop.angular_velocity/motor.gear_ratio    
+    omeg                        = motor.angular_velocity     
     etam                        = motor.efficiency 
     Q                           = motor.design_torque 
-    
-    # motor design rpm 
-    motor.angular_velocity      = omeg
     
     # solve for speed constant   
     opt_params = optimize_kv(io, v , omeg,  etam ,  Q)
@@ -184,10 +169,9 @@ def optimize_kv(io, v , omeg,  etam ,  Q, kv_lower_bound =  0.01, Res_lower_boun
     
     slack_cons = [{'type':'eq', 'fun': slack_constraint_1,'args': args},
                   {'type':'eq', 'fun': slack_constraint_2,'args': args}] 
-  
-    torque_con = [{'type':'eq', 'fun': hard_constraint_2,'args': args}]
+   
     
-    bnds = ((kv_lower_bound, kv_upper_bound), (Res_lower_bound , Res_upper_bound))
+    bnds = ((kv_lower_bound, kv_upper_bound), (Res_lower_bound , Res_upper_bound)) 
     
     # try hard constraints to find optimum motor parameters
     sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=hard_cons) 
@@ -196,12 +180,9 @@ def optimize_kv(io, v , omeg,  etam ,  Q, kv_lower_bound =  0.01, Res_lower_boun
         # use slack constraints  if optimum motor parameters cannot be found 
         print('\n Optimum motor design failed. Using slack constraints')
         sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=slack_cons)
-        
-        # use one constraints as last resort if optimum motor parameters cannot be found 
+         
         if sol.success == False:
-            print ('\n Slack contraints failed. Using one constraint')
-            sol = minimize(objective, [10], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints= torque_con)
-    
+            assert('\n Slack contraints failed') 
     return sol.x   
   
 # objective function

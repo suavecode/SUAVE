@@ -572,53 +572,53 @@ def vehicle_setup():
     net.identical_lift_rotors = True
 
     # Thrust Propeller
-    propeller                        = SUAVE.Components.Energy.Converters.Propeller()
-    propeller.number_of_blades       = 3
-    propeller.freestream_velocity    = V_inf
-    propeller.tip_radius             = 1.0668
-    propeller.hub_radius             = 0.21336
-    propeller.design_tip_mach        = 0.5
-    propeller.angular_velocity       = propeller.design_tip_mach *speed_of_sound/propeller.tip_radius
-    propeller.design_Cl              = 0.7
-    propeller.design_altitude        = 1000 * Units.feet
-    propeller.design_thrust          = (Drag*2.5)/net.number_of_propeller_engines
-    propeller.variable_pitch         = True  
-    airfoil                          = SUAVE.Components.Airfoils.Airfoil()   
-    airfoil.coordinate_file          = '../Vehicles/Airfoils/NACA_4412.txt'
-    airfoil.polar_files              = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
-    propeller.append_airfoil(airfoil)  
-    propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    propeller                        = propeller_design(propeller) 
-    propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
+    propeller                                   = SUAVE.Components.Energy.Converters.Propeller()
+    propeller.number_of_blades                  = 3
+    propeller.tip_radius                        = 1.0668
+    propeller.hub_radius                        = 0.21336
+    propeller.cruise.design_freestream_velocity = V_inf
+    propeller.cruise.design_tip_mach            = 0.5
+    propeller.cruise.design_angular_velocity    = propeller.cruise.design_tip_mach *speed_of_sound/propeller.tip_radius
+    propeller.cruise.design_Cl                  = 0.7
+    propeller.cruise.design_altitude            = 1000 * Units.feet
+    propeller.cruise.design_thrust              = (Drag*2.5)/net.number_of_propeller_engines
+    propeller.variable_pitch                    = True  
+    airfoil                                     = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file                     = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files                         = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    propeller.append_airfoil(airfoil)       
+    propeller.airfoil_polar_stations            = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    propeller                                   = propeller_design(propeller) 
+    propeller.origin                            = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
     net.propellers.append(propeller)
 
-    # Lift Rotors
-    lift_rotor                            = SUAVE.Components.Energy.Converters.Lift_Rotor()
-    lift_rotor.tip_radius                 = 2.8 * Units.feet
-    lift_rotor.hub_radius                 = 0.35 * Units.feet
-    lift_rotor.number_of_blades           = 2
-    lift_rotor.design_tip_mach            = 0.65
-    lift_rotor.disc_area                  = np.pi*(lift_rotor.tip_radius**2)
-    lift_rotor.freestream_velocity        = 500. * Units['ft/min']
-    lift_rotor.angular_velocity           = lift_rotor.design_tip_mach* speed_of_sound /lift_rotor.tip_radius
-    lift_rotor.design_Cl                  = 0.7
-    lift_rotor.design_altitude            = 20 * Units.feet
-    lift_rotor.design_thrust              = Hover_Load/(net.number_of_lift_rotor_engines-1) # contingency for one-engine-inoperative condition
-    lift_rotor.variable_pitch             = True  
-    airfoil                               = SUAVE.Components.Airfoils.Airfoil()   
-    airfoil.coordinate_file               = '../Vehicles/Airfoils/NACA_4412.txt'
-    airfoil.polar_files                   = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
-    lift_rotor.append_airfoil(airfoil)    
-    lift_rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    lift_rotor                            = propeller_design(lift_rotor)  
+    # Lift Rotors  
+    lift_rotor                                  = SUAVE.Components.Energy.Converters.Propeller() # using propeller for for regression! 
+    lift_rotor.tip_radius                       = 2.8 * Units.feet
+    lift_rotor.hub_radius                       = 0.35 * Units.feet
+    lift_rotor.number_of_blades                 = 2 
+    lift_rotor.orientation_euler_angles         = [0.,np.pi/2.,0.] # This is Z-direction thrust up in vehicle frame    
+    lift_rotor.cruise.design_freestream_velocity= 500. * Units['ft/min']
+    lift_rotor.cruise.design_tip_mach           = 0.65
+    lift_rotor.cruise.design_angular_velocity   = lift_rotor.cruise.design_tip_mach* speed_of_sound /lift_rotor.tip_radius
+    lift_rotor.cruise.design_Cl                 = 0.7
+    lift_rotor.cruise.design_altitude           = 20 * Units.feet
+    lift_rotor.cruise.design_thrust             = Hover_Load/(net.number_of_lift_rotor_engines-1) # contingency for one-engine-inoperative condition
+    lift_rotor.variable_pitch                   = True  
+    airfoil                                     = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file                     = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files                         = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    lift_rotor.append_airfoil(airfoil)          
+    lift_rotor.airfoil_polar_stations           = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    lift_rotor                                  = propeller_design(lift_rotor)  
 
     # Appending rotors with different origins
     rotations = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
@@ -649,22 +649,26 @@ def vehicle_setup():
     propeller_motor.efficiency           = 0.95
     propeller_motor.nominal_voltage      = bat.max_voltage
     propeller_motor.mass_properties.mass = 2.0  * Units.kg
-    propeller_motor.origin               = propeller.origin
-    propeller_motor.propeller_radius     = propeller.tip_radius
-    propeller_motor.no_load_current      = 2.0
-    propeller_motor                      = size_optimal_motor(propeller_motor,propeller)
+    propeller_motor.origin               = propeller.origin 
+    propeller_motor.no_load_current      = 2.0 
+    propeller_motor.rotor_radius         = propeller.tip_radius
+    propeller_motor.design_torque        = propeller.cruise.design_torque
+    propeller_motor.angular_velocity     = propeller.cruise.design_angular_velocity/propeller_motor.gear_ratio     
+    propeller_motor                      = size_optimal_motor(propeller_motor) 
     net.propeller_motors.append(propeller_motor)
 
     # Rotor (Lift) Motor
-    lift_rotor_motor                         = SUAVE.Components.Energy.Converters.Motor()
-    lift_rotor_motor.efficiency              = 0.85
-    lift_rotor_motor.nominal_voltage         = bat.max_voltage*3/4
-    lift_rotor_motor.mass_properties.mass    = 3. * Units.kg
-    lift_rotor_motor.origin                  = lift_rotor.origin
-    lift_rotor_motor.propeller_radius        = lift_rotor.tip_radius
-    lift_rotor_motor.gearbox_efficiency      = 1.0
-    lift_rotor_motor.no_load_current         = 4.0
-    lift_rotor_motor                         = size_optimal_motor(lift_rotor_motor,lift_rotor)
+    lift_rotor_motor                          = SUAVE.Components.Energy.Converters.Motor()
+    lift_rotor_motor.efficiency               = 0.85
+    lift_rotor_motor.nominal_voltage          = bat.max_voltage*3/4 
+    lift_rotor_motor.mass_properties.mass     = 3. * Units.kg
+    lift_rotor_motor.origin                   = lift_rotor.origin
+    lift_rotor_motor.gearbox_efficiency       = 1.0
+    lift_rotor_motor.no_load_current          = 4.0 
+    lift_rotor_motor.rotor_radius             = lift_rotor.tip_radius
+    lift_rotor_motor.design_torque            = lift_rotor.cruise.design_torque
+    lift_rotor_motor.angular_velocity         = lift_rotor.cruise.design_angular_velocity/lift_rotor_motor.gear_ratio   
+    lift_rotor_motor                          = size_optimal_motor(lift_rotor_motor)
 
     # Appending motors with different origins
     for _ in range(12):

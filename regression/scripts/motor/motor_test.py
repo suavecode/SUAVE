@@ -23,41 +23,43 @@ def main():
     '''This script checks the functions in in Motor.py used to compute motor torques 
     and output voltage and currents'''
     # Propeller 
-    prop                         = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_of_blades        = 2.0 
-    prop.freestream_velocity     = 50.0
-    prop.angular_velocity        = 209.43951023931953
-    prop.tip_radius              = 1.5
-    prop.hub_radius              = 0.05
-    prop.design_Cl               = 0.7 
-    prop.design_altitude         = 0.0 * Units.km
-    prop.design_thrust           = 2271.2220451593753 
+    prop                                    = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_of_blades                   = 2.0 
+    prop.tip_radius                         = 1.5
+    prop.hub_radius                         = 0.05
+    prop.cruise.design_Cl                   = 0.7 
+    prop.cruise.design_freestream_velocity  = 50.0
+    prop.cruise.design_angular_velocity     = 209.43951023931953
+    prop.cruise.design_altitude             = 0.0 * Units.km
+    prop.cruise.design_thrust               = 2271.2220451593753 
 
-    airfoil                        = SUAVE.Components.Airfoils.Airfoil()    
-    airfoil.coordinate_file        = '../Vehicles/Airfoils/NACA_4412.txt'
-    airfoil.polar_files            = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
-    prop.append_airfoil(airfoil) 
-    prop.airfoil_polar_stations    = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    prop                           = propeller_design(prop)    
+    airfoil                                 = SUAVE.Components.Airfoils.Airfoil()    
+    airfoil.coordinate_file                 = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files                     = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    prop.append_airfoil(airfoil)           
+    prop.airfoil_polar_stations             = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    prop                                    = propeller_design(prop)    
     
     # Motor
     #------------------------------------------------------------------
     # Design Motors
     #------------------------------------------------------------------
     # Propeller (Thrust) motor
-    motor                      = SUAVE.Components.Energy.Converters.Motor()
-    motor.mass_properties.mass = 9. * Units.kg 
-    motor.efficiency           = 0.935
-    motor.gear_ratio           = 1. 
-    motor.gearbox_efficiency   = 1. # Gear box efficiency     
-    motor.no_load_current      = 2.0 
-    motor.propeller_radius     = prop.tip_radius
-    motor.nominal_voltage      = 400
-    motor                      = size_optimal_motor(motor,prop)  
+    motor                              = SUAVE.Components.Energy.Converters.Motor()
+    motor.mass_properties.mass         = 9. * Units.kg 
+    motor.efficiency                   = 0.935
+    motor.gear_ratio                   = 1. 
+    motor.gearbox_efficiency           = 1. # Gear box efficiency     
+    motor.no_load_current              = 2.0 
+    motor.nominal_voltage              = 400  
+    motor.rotor_radius                 = prop.tip_radius
+    motor.design_torque                = prop.cruise.design_torque
+    motor.angular_velocity             = prop.cruise.design_angular_velocity/motor.gear_ratio
+    motor                              = size_optimal_motor(motor)  
   
     # Propeller (Thrust) motor
     motor_low_fid                      = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
@@ -68,10 +70,9 @@ def main():
     size_from_mass(motor_low_fid)
     
     # Find the operating conditions
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions =  atmosphere.compute_values(prop.design_altitude) 
-    V  = prop.freestream_velocity
-    conditions = Data()
+    atmosphere                                          = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere_conditions                               = atmosphere.compute_values(prop.cruise.design_altitude)  
+    conditions                                          = Data()
     conditions.freestream                               = Data()
     conditions.propulsion                               = Data()
     conditions.frames                                   = Data()
@@ -79,7 +80,7 @@ def main():
     conditions.frames.inertial                          = Data()
     conditions.freestream.update(atmosphere_conditions)
     conditions.freestream.dynamic_viscosity             = atmosphere_conditions.dynamic_viscosity
-    conditions.freestream.velocity                      = np.array([[V,0,0]])
+    conditions.freestream.velocity                      = np.array([[ prop.cruise.design_freestream_velocity,0,0]])
     conditions.propulsion.throttle                      = np.array([[1.0]])
     conditions.frames.body.transform_to_inertial        = np.array([np.eye(3)]) 
     conditions.propulsion.propeller_power_coefficient   = np.array([[0.02]]) 
@@ -107,7 +108,7 @@ def main():
     
     # Define function specific inputs  
     motor_2.inputs.voltage = np.array([[voltage_1]])
-    motor_2.outputs.omega  = np.array([[prop.angular_velocity]])
+    motor_2.outputs.omega  = np.array([[prop.cruise.design_angular_velocity]])
     
     # Run Motor Current Function 
     i, etam = motor_2.current(conditions) 
@@ -121,7 +122,7 @@ def main():
     
     # Define function specific inputs  
     motor_3.inputs.voltage = np.array([[voltage_1]]) 
-    motor_3.inputs.omega  = np.array([[prop.angular_velocity]])   
+    motor_3.inputs.omega  = np.array([[prop.cruise.design_angular_velocity]])   
     
     # Run Motor Torque Function 
     motor_3.torque(conditions)

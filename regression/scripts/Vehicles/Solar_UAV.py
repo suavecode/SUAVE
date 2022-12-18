@@ -176,16 +176,16 @@ def vehicle_setup():
     
     # Component 5 the Propeller
     # Design the Propeller
-    prop                         = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_of_blades        = 2.0
-    prop.freestream_velocity     = 40.0 * Units['m/s']# freestream
-    prop.angular_velocity        = 150. * Units['rpm']
-    prop.tip_radius              = 4.25 * Units.meters
-    prop.hub_radius              = 0.05 * Units.meters
-    prop.design_Cl               = 0.7
-    prop.design_altitude         = 14.0 * Units.km
-    prop.design_thrust           = 110.  
-    prop                         = propeller_design(prop) 
+    prop                                       = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_of_blades                      = 2.0
+    prop.tip_radius                            = 4.25 * Units.meters
+    prop.hub_radius                            = 0.05 * Units.meters
+    prop.cruise.design_freestream_velocity     = 40.0 * Units['m/s']# freestream
+    prop.cruise.design_angular_velocity        = 150. * Units['rpm']
+    prop.cruise.design_Cl                      = 0.7
+    prop.cruise.design_altitude                = 14.0 * Units.km
+    prop.cruise.design_thrust                  = 110.  
+    prop                                       = propeller_design(prop) 
     net.propellers.append(prop)
 
     # Component 4 the Motor
@@ -193,8 +193,8 @@ def vehicle_setup():
     motor.resistance           = 0.008
     motor.no_load_current      = 4.5  * Units.ampere
     motor.speed_constant       = 120. * Units['rpm'] # RPM/volt converted to (rad/s)/volt    
-    motor.propeller_radius     = prop.tip_radius
-    motor.propeller_Cp         = prop.design_power_coefficient
+    motor.rotor_radius         = prop.tip_radius
+    motor.propeller_Cp         = prop.cruise.design_power_coefficient
     motor.gear_ratio           = 12. # Gear ratio
     motor.gearbox_efficiency   = .98 # Gear box efficiency
     motor.expected_current     = 160. # Expected current

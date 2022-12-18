@@ -29,14 +29,12 @@ def procedure_setup():
     
     # Run the rotor in hover
     procedure.hover       = run_rotor_hover
-    procedure.hover_noise = run_hover_noise
-     
-    # Run the rotor in the OEI condition
-    procedure.OEI         = run_rotor_OEI 
+    
+    # Run the rotor in the oei condition
+    procedure.oei         = run_rotor_OEI 
 
      # Run the rotor in cruise
-    procedure.run_rotor_cruise = run_rotor_cruise
-    procedure.cruise_noise     = run_cruise_noise 
+    procedure.ruise       = run_rotor_cruise
 
     # post process the results
     procedure.post_process = post_process
@@ -70,7 +68,7 @@ def modify_blade_geometry(nexus):
     vehicle_oei       = nexus.vehicle_configurations.oei
     rotor_oei         = vehicle_oei.networks.battery_propeller.propellers.rotor    
     
-    if nexus.prop_rotor:  
+    if nexus.prop_rotor_flag:  
         vehicle_cruise    = nexus.vehicle_configurations.cruise 
         rotor_cruise      = vehicle_cruise.networks.battery_propeller.propellers.rotor 
         
@@ -113,7 +111,7 @@ def modify_blade_geometry(nexus):
     rotor_oei.blade_solidity             = rotor_hover.blade_solidity    
     vehicle_oei.store_diff()     
      
-    if nexus.prop_rotor: 
+    if nexus.prop_rotor_flag: 
         rotor_cruise.chord_distribution         = rotor_hover.chord_distribution
         rotor_cruise.twist_distribution         = rotor_hover.twist_distribution
         rotor_cruise.mid_chord_alignment        = rotor_hover.mid_chord_alignment  
@@ -167,10 +165,10 @@ def run_rotor_OEI(nexus):
     rotor    = nexus.vehicle_configurations.oei.networks.battery_propeller.propellers.rotor
     
     # Setup Test conditions
-    speed    = rotor.OEI.design_freestream_velocity 
-    altitude = np.array([rotor.OEI.design_altitude]) 
+    speed    = rotor.oei.design_freestream_velocity 
+    altitude = np.array([rotor.oei.design_altitude]) 
     R        = rotor.tip_radius
-    TM       = rotor.OEI.design_tip_mach   
+    TM       = rotor.oei.design_tip_mach   
 
     # Calculate the atmospheric properties
     atmosphere            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -194,15 +192,16 @@ def run_rotor_OEI(nexus):
     F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
     
     # Pack the results
-    nexus.results.OEI.thrust       = -F[0,2]  
-    nexus.results.OEI.torque       = Q
-    nexus.results.OEI.power        = P
-    nexus.results.OEI.power_c      = Cp
-    nexus.results.OEI.omega        = omega[0][0]
-    nexus.results.OEI.thurst_c     = outputs.thrust_coefficient[0][0]
-    nexus.results.OEI.full_results = outputs
-    nexus.results.OEI.efficiency   = etap 
-    nexus.results.OEI.conditions   = conditions 
+    nexus.results.oei.thrust       = -F[0,2]  
+    nexus.results.oei.torque       = Q
+    nexus.results.oei.power        = P
+    nexus.results.oei.power_c      = Cp
+    nexus.results.oei.omega        = omega[0][0]
+    nexus.results.oei.thurst_c     = outputs.thrust_coefficient[0][0]
+    nexus.results.oei.collective   = rotor.inputs.pitch_command
+    nexus.results.oei.full_results = outputs
+    nexus.results.oei.efficiency   = etap 
+    nexus.results.oei.conditions   = conditions 
     
     return nexus
 
@@ -211,8 +210,10 @@ def run_rotor_OEI(nexus):
 # ----------------------------------------------------------------------  
 def run_rotor_hover(nexus):
      
-    # Unpack 
-    rotor   = nexus.vehicle_configurations.hover.networks.battery_propeller.propellers.rotor   
+    # Unpack   
+    rotors = nexus.vehicle_configurations.hover.networks.battery_propeller.propellers 
+    rotor  = rotors.rotor  
+    alpha  = rotor.optimization_parameters.multiobjective_aeroacoustic_weight
 
     # Setup Test conditions
     speed    = rotor.hover.design_freestream_velocity 
@@ -250,23 +251,49 @@ def run_rotor_hover(nexus):
     nexus.results.hover.omega            = omega[0][0]
     nexus.results.hover.max_sectional_cl = np.max(outputs.lift_coefficient[0]) 
     nexus.results.hover.mean_CL          = np.mean(outputs.lift_coefficient[0])
-    nexus.results.hover.full_results     = outputs  
-
-    # figure of merit    
-    nexus.results.hover.figure_of_merit  = outputs.figure_of_merit[0][0] 
-    
+    nexus.results.hover.full_results     = outputs   
+    nexus.results.hover.figure_of_merit  = outputs.figure_of_merit[0][0]  
     nexus.results.hover.efficiency       = etap[0][0] 
-    nexus.results.hover.conditions       = conditions
-    return nexus
+    nexus.results.hover.conditions       = conditions  
+    
+    # microphone locations
+    altitude            = rotor.hover.design_altitude
+    ctrl_pts            = 1 
+    theta               = rotor.optimization_parameters.noise_evaluation_angle 
+    S_hover             = np.maximum(altitude,20*Units.feet)  
+    mic_positions_hover = np.array([[0.0 , S_hover*np.sin(theta)  ,S_hover*np.cos(theta)]])      
+    
+    # Run noise model  
+    conditions.noise.total_microphone_locations      = np.repeat(mic_positions_hover[ np.newaxis,:,: ],1,axis=0)
+    conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
+    segment                                          = Segment() 
+    segment.state.conditions                         = conditions
+    segment.state.conditions.expand_rows(ctrl_pts)  
+    noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
+    settings                                         = noise.settings   
+    num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
+    conditions.noise.number_of_microphones           = num_mic   
+    
+    if alpha == 1: 
+        propeller_noise_hover                           = propeller_mid_fidelity(rotors,outputs,segment,settings)   
+        mean_SPL_hover                                  = np.mean(propeller_noise_hover.SPL_dBA) 
+        nexus.results.hover.mean_SPL   = mean_SPL_hover 
+        nexus.results.hover.noise_data = propeller_noise_hover     
+    else: 
+        nexus.results.hover.mean_SPL   = 0 
+        nexus.results.hover.noise_data = None 
 
+    return nexus
 
 # ----------------------------------------------------------------------
 #   Run the Rotor Cruise
 # ----------------------------------------------------------------------  
 def run_rotor_cruise(nexus):
  
-    if nexus.prop_rotor:     
-        rotor    = nexus.vehicle_configurations.cruise.networks.battery_propeller.propellers.rotor
+    if nexus.prop_rotor_flag:    
+        rotors = nexus.vehicle_configurations.cruise.networks.battery_propeller.propellers 
+        rotor  = rotors.rotor   
+        alpha  = rotor.optimization_parameters.multiobjective_aeroacoustic_weight       
         
         # Setup Test conditions
         speed    = rotor.cruise.design_freestream_velocity 
@@ -281,9 +308,9 @@ def run_rotor_cruise(nexus):
         # Pack everything up
         conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
         conditions.freestream.update(atmosphere_conditions)
-        conditions.frames.inertial.velocity_vector          = np.array([[speed,0.,0.]])
+        conditions.frames.inertial.velocity_vector          = np.array([[0,0.,speed]])
         conditions.propulsion.throttle                      = np.array([[1.0]])
-        conditions.frames.body.transform_to_inertial        = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+        conditions.frames.body.transform_to_inertial        = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., -1.]]])
         
         # Calculate the RPM
         tip_speed = atmosphere_conditions.speed_of_sound*TM
@@ -296,18 +323,49 @@ def run_rotor_cruise(nexus):
         F, Q, P, Cp, outputs, etap  = rotor.spin(conditions)
         
         # Pack the results
-        nexus.results.cruise.thrust           = F[0][0]
+        nexus.results.cruise.thrust           = -F[0,2] 
         nexus.results.cruise.torque           = Q[0][0]
         nexus.results.cruise.power            = P[0][0]
         nexus.results.cruise.power_c          = Cp[0][0]
         nexus.results.cruise.omega            = omega[0][0]
         nexus.results.cruise.thurst_c         = outputs.thrust_coefficient[0][0]
         nexus.results.cruise.max_sectional_cl = np.max(outputs.lift_coefficient[0]) 
-        nexus.results.cruise.mean_CL          = np.mean(outputs.lift_coefficient[0])
+        nexus.results.cruise.mean_CL          = np.mean(outputs.lift_coefficient[0]) 
+        nexus.results.cruise.collective       = rotor.inputs.pitch_command        
         nexus.results.cruise.full_results     = outputs 
         nexus.results.cruise.efficiency       = etap[0][0]
-        nexus.results.cruise.conditions       = conditions 
-    else: 
+        nexus.results.cruise.conditions       = conditions  
+         
+        # microphone locations
+        altitude             = rotor.cruise.design_altitude
+        ctrl_pts             = 1 
+        theta                = rotor.optimization_parameters.noise_evaluation_angle 
+        S_cruise              = np.maximum(altitude,20*Units.feet)  
+        mic_positions_cruise = np.array([[0.0 ,S_cruise*np.sin(theta)  ,S_cruise*np.cos(theta)]])      
+        
+        # Run noise model  
+        conditions.noise.total_microphone_locations      = np.repeat(mic_positions_cruise[ np.newaxis,:,: ],1,axis=0)
+        conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
+        segment                                          = Segment() 
+        segment.state.conditions                         = conditions
+        segment.state.conditions.expand_rows(ctrl_pts)  
+        noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
+        settings                                         = noise.settings   
+        num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
+        conditions.noise.number_of_microphones           = num_mic    
+        
+        if alpha == 1: 
+            propeller_noise_cruise                           = propeller_mid_fidelity(rotors,outputs,segment,settings)   
+            mean_SPL_cruise                                  = np.mean(propeller_noise_cruise.SPL_dBA)    
+                
+            # Pack
+            nexus.results.cruise.mean_SPL   = mean_SPL_cruise 
+            nexus.results.cruise.noise_data = propeller_noise_cruise 
+        else:
+            nexus.results.cruise.mean_SPL   = 0 
+            nexus.results.cruise.noise_data = None  
+            
+    else:     
         nexus.results.cruise.thrust           = 0.0
         nexus.results.cruise.torque           = 0.0
         nexus.results.cruise.power            = 0.0
@@ -317,102 +375,12 @@ def run_rotor_cruise(nexus):
         nexus.results.cruise.max_sectional_cl = 0.0
         nexus.results.cruise.mean_CL          = 0.0
         nexus.results.cruise.efficiency       = 0.0
+        nexus.results.cruise.collective       = 0.0   
+        nexus.results.cruise.mean_SPL         = 0 
+        nexus.results.cruise.noise_data       = None   
 
     return nexus
-
-# ----------------------------------------------------------------------
-#   Run the hover noise
-# ----------------------------------------------------------------------  
-def run_hover_noise(nexus):
-    
- 
-    rotors = nexus.vehicle_configurations.hover.networks.battery_propeller.propellers 
-    rotor  = rotors.rotor  
-    alpha  = rotor.optimization_parameters.multiobjective_aeroacoustic_weight
-    
-    if alpha != 1.0: 
-        conditions   = nexus.results.hover.conditions 
-        full_results = nexus.results.hover.full_results
-    
-        # microphone locations
-        altitude            = rotor.hover.design_altitude
-        ctrl_pts            = 1 
-        theta               = rotor.optimization_parameters.noise_evaluation_angle 
-        S_hover             = np.maximum(altitude,20*Units.feet)  
-        mic_positions_hover = np.array([[0.0 , S_hover*np.sin(theta)  ,S_hover*np.cos(theta)]])      
-        
-        # Run noise model  
-        conditions.noise.total_microphone_locations      = np.repeat(mic_positions_hover[ np.newaxis,:,: ],1,axis=0)
-        conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
-        segment                                          = Segment() 
-        segment.state.conditions                         = conditions
-        segment.state.conditions.expand_rows(ctrl_pts)  
-        noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
-        settings                                         = noise.settings   
-        num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
-        conditions.noise.number_of_microphones           = num_mic   
-         
-        propeller_noise_hover                        = propeller_mid_fidelity(rotors,full_results,segment,settings)   
-        mean_SPL_hover                               = np.mean(propeller_noise_hover.SPL_dBA)     
-            
-        # Pack
-        nexus.results.hover.mean_SPL   = mean_SPL_hover 
-        nexus.results.hover.noise_data = propeller_noise_hover
-    else:
-        nexus.results.hover.mean_SPL  = 0
-        nexus.results.hover.noise_data = None 
-
-    return nexus
-
-
-# ----------------------------------------------------------------------
-#   Run the cruise noise
-# ----------------------------------------------------------------------  
-def run_cruise_noise(nexus):
-    
-    # unpack
-    if nexus.prop_rotor: 
-        
-        rotors = nexus.vehicle_configurations.cruise.networks.battery_propeller.propellers 
-        rotor  = rotors.rotor   
-        alpha  = rotor.optimization_parameters.multiobjective_aeroacoustic_weight
-        
-        if alpha != 1.0:     
-            conditions   = nexus.results.cruise.conditions 
-            full_results = nexus.results.cruise.full_results
-        
-            # microphone locations
-            altitude             = rotor.cruise.design_altitude
-            ctrl_pts             = 1 
-            theta                = rotor.optimization_parameters.noise_evaluation_angle 
-            S_hover              = np.maximum(altitude,20*Units.feet)  
-            mic_positions_cruise = np.array([[0.0 , S_hover*np.sin(theta)  ,S_hover*np.cos(theta)]])      
-            
-            # Run noise model  
-            conditions.noise.total_microphone_locations      = np.repeat(mic_positions_cruise[ np.newaxis,:,: ],1,axis=0)
-            conditions.aerodynamics.angle_of_attack          = np.ones((ctrl_pts,1))* 0. * Units.degrees 
-            segment                                          = Segment() 
-            segment.state.conditions                         = conditions
-            segment.state.conditions.expand_rows(ctrl_pts)  
-            noise                                            = SUAVE.Analyses.Noise.Fidelity_One() 
-            settings                                         = noise.settings   
-            num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
-            conditions.noise.number_of_microphones           = num_mic    
-            
-            propeller_noise_cruise                        = propeller_mid_fidelity(rotors,full_results,segment,settings)   
-            mean_SPL_cruise                               = np.mean(propeller_noise_cruise.SPL_dBA)    
-                
-            # Pack
-            nexus.results.cruise.mean_SPL   = mean_SPL_cruise 
-            nexus.results.cruise.noise_data = propeller_noise_cruise
-        else:
-            nexus.results.cruise.mean_SPL   = 0 
-            nexus.results.cruise.noise_data = None 
-    else:
-        nexus.results.cruise.mean_SPL   = 0 
-        nexus.results.cruise.noise_data = None 
-        
-    return nexus
+   
 
 # ----------------------------------------------------------------------
 #   Post Process Results to give back to the optimizer
@@ -450,23 +418,28 @@ def post_process(nexus):
     beta_blade                      = rotor.twist_distribution 
     summary.blade_twist_constraint  = beta_blade[0] - beta_blade[-1]
     
-    # OEI   
-    if rotor.OEI.design_thrust == None: 
-        summary.OEI_hover_thrust_power_residual =  tol*rotor.hover.design_thrust*1.1 -  abs(nexus.results.OEI.thrust - rotor.hover.design_thrust*1.1)  
-    else:
-        summary.OEI_hover_thrust_power_residual =  tol*rotor.OEI.design_thrust - abs(nexus.results.OEI.thrust - rotor.OEI.design_thrust)
+    # oei     
+    summary.OEI_hover_thrust_power_residual =  tol*rotor.oei.design_thrust - abs(nexus.results.oei.thrust - rotor.oei.design_thrust)
             
-    # thrust/power residual 
+    # thrust/power residuals 
+    # hover 
     if rotor.hover.design_thrust == None:
-        summary.nominal_hover_thrust_power_residual = tol*rotor.hover.design_power - abs(nexus.results.hover.power - rotor.hover.design_power)
+        summary.hover_thrust_power_residual = tol*rotor.hover.design_power - abs(nexus.results.hover.power - rotor.hover.design_power)
     else: 
-        summary.nominal_hover_thrust_power_residual = tol*rotor.hover.design_thrust - abs(nexus.results.hover.thrust - rotor.hover.design_thrust)  
+        summary.hover_thrust_power_residual = tol*rotor.hover.design_thrust - abs(nexus.results.hover.thrust - rotor.hover.design_thrust)  
+
+    # oei
+    if rotor.oei.design_thrust == None:
+        summary.oei_thrust_power_residual = tol*rotor.oei.design_power - abs(nexus.results.oei.power - rotor.oei.design_power)
+    else: 
+        summary.oei_thrust_power_residual = tol*rotor.oei.design_thrust - abs(nexus.results.oei.thrust - rotor.oei.design_thrust)  
     
-    if nexus.prop_rotor: 
+        
+    if nexus.prop_rotor_flag: 
         if rotor.cruise.design_thrust == None:
-            summary.nominal_cruise_thrust_power_residual = tol*rotor.cruise.design_power  - abs(nexus.results.cruise.power - rotor.cruise.design_power) 
+            summary.cruise_thrust_power_residual = tol*rotor.cruise.design_power  - abs(nexus.results.cruise.power - rotor.cruise.design_power) 
         else: 
-            summary.nominal_cruise_thrust_power_residual = tol*rotor.cruise.design_thrust - abs(nexus.results.cruise.thrust - rotor.cruise.design_thrust)    
+            summary.cruise_thrust_power_residual = tol*rotor.cruise.design_thrust - abs(nexus.results.cruise.thrust - rotor.cruise.design_thrust)    
             
     # -------------------------------------------------------
     # OBJECTIVE FUNCTION
@@ -475,10 +448,10 @@ def post_process(nexus):
     
     acoustic_objective     = ((nexus.results.hover.mean_SPL  - ideal_SPL)/ideal_SPL)*gamma  + ((nexus.results.cruise.mean_SPL - ideal_SPL)/ideal_SPL)*(1-gamma) 
  
-    summary.objective      = performance_objective*alpha + acoustic_objective*(1-alpha)  
+    summary.objective      = (performance_objective*alpha + acoustic_objective*(1-alpha))  
     
 
-    if nexus.prop_rotor:  
+    if nexus.prop_rotor_flag:  
         rotor_cru  = nexus.vehicle_configurations.cruise.networks.battery_propeller.propellers.rotor         
         summary.max_sectional_cl_cruise = nexus.results.cruise.max_sectional_cl   
         
@@ -500,15 +473,15 @@ def post_process(nexus):
             print("Hover Thrust                 : " + str(nexus.results.hover.thrust))  
         print("Hover Average SPL            : " + str(nexus.results.hover.mean_SPL))    
         print("Hover Tip Mach               : " + str(rotor.hover.design_tip_mach)) 
-        print("Hover Thrust/Power Residual  : " + str(summary.nominal_hover_thrust_power_residual)) 
+        print("Hover Thrust/Power Residual  : " + str(summary.hover_thrust_power_residual)) 
         print("Hover Figure of Merit        : " + str(FM_hover))  
         print("Hover Max Sectional Cl       : " + str(summary.max_sectional_cl_hover)) 
         print("Hover Blade CL               : " + str(mean_CL_hover))    
-        print("OEI Thrust                   : " + str(nexus.results.OEI.thrust)) 
+        print("OEI Thrust                   : " + str(nexus.results.oei.thrust)) 
         print("OEI Thrust/Power Residual    : " + str(summary.OEI_hover_thrust_power_residual)) 
-        print("OEI Tip Mach                 : " + str(rotor_oei.OEI.design_tip_mach))  
+        print("OEI Tip Mach                 : " + str(rotor_oei.oei.design_tip_mach))  
         print("OEI Collective (deg)         : " + str(rotor_oei.inputs.pitch_command/Units.degrees)) 
-        if nexus.prop_rotor:    
+        if nexus.prop_rotor_flag:    
             print("Cruise RPM                   : " + str(nexus.results.cruise.omega/Units.rpm))    
             print("Cruise Collective (deg)      : " + str(rotor_cru.inputs.pitch_command/Units.degrees)) 
             if rotor_cru.cruise.design_thrust == None:  
@@ -516,7 +489,7 @@ def post_process(nexus):
             if rotor_cru.cruise.design_power == None:  
                 print("Cruise Thrust                : " + str(nexus.results.cruise.thrust))   
             print("Cruise Tip Mach              : " + str(rotor_cru.cruise.design_tip_mach))  
-            print("Cruise Thrust/Power Residual : " + str(summary.nominal_cruise_thrust_power_residual))
+            print("Cruise Thrust/Power Residual : " + str(summary.cruise_thrust_power_residual))
             print("Cruise Efficiency            : " + str(nexus.results.cruise.efficiency)) 
             print("Cruise Max Sectional Cl      : " + str(summary.max_sectional_cl_cruise))  
             print("Cruise Blade CL              : " + str(nexus.results.cruise.mean_CL))  

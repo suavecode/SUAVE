@@ -89,25 +89,25 @@ def ICE_CS(vehicle):
     net.engines.append(engine)
     
     # 
-    prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_of_blades       = 2.0
-    prop.freestream_velocity    = 119.   * Units.knots
-    prop.angular_velocity       = 2650.  * Units.rpm
-    prop.tip_radius             = 76./2. * Units.inches
-    prop.hub_radius             = 8.     * Units.inches
-    prop.design_Cl              = 0.8
-    prop.design_altitude        = 12000. * Units.feet
-    prop.design_power           = .64 * 180. * Units.horsepower 
-    airfoil                     = SUAVE.Components.Airfoils.Airfoil()   
-    airfoil.coordinate_file     = '../Vehicles/Airfoils/NACA_4412.txt'
-    airfoil.polar_files         = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    prop                                   = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_of_blades                  = 2.0
+    prop.tip_radius                        = 76./2. * Units.inches
+    prop.hub_radius                        = 8.     * Units.inches
+    prop.cruise.design_freestream_velocity = 119.   * Units.knots
+    prop.cruise.design_angular_velocity    = 2650.  * Units.rpm
+    prop.cruise.design_Cl                  = 0.8
+    prop.cruise.design_altitude            = 12000. * Units.feet
+    prop.cruise.design_power               = .64 * 180. * Units.horsepower 
+    airfoil                                = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file                = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files                    = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                           '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                           '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                           '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                           '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
     prop.append_airfoil(airfoil)  
-    prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    prop                        = propeller_design(prop)    
+    prop.airfoil_polar_stations            = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    prop                                   = propeller_design(prop)    
     
     net.propellers.append(prop)
     

@@ -20,6 +20,7 @@ import SUAVE
 import numpy as np
 from .Network import Network
 from SUAVE.Analyses.Mission.Segments.Conditions import Residuals
+from SUAVE.Components.Energy.Converters   import  Rotor, Propeller, Lift_Rotor, Prop_Rotor 
 from SUAVE.Components.Physical_Component import Container 
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
@@ -448,7 +449,10 @@ class Battery_Propeller(Network):
             
         if initial_power_coefficient==None:
             prop_key = list(self.propellers.keys())[0] # Use the first propeller
-            initial_power_coefficient = float(self.propellers[prop_key].design_power_coefficient)
+            if type(self.propellers[prop_key]) == Propeller or type(self.propellers[prop_key]) == Rotor:
+                initial_power_coefficient = float(self.propellers[prop_key].cruise.design_power_coefficient)
+            if type(self.propellers[prop_key]) == Lift_Rotor or type(self.propellers[prop_key]) == Prop_Rotor:
+                initial_power_coefficient = float(self.propellers[prop_key].hover.design_power_coefficient)
 
         # Count how many unknowns and residuals based on p
         if n_props!=n_motors!=n_eng:

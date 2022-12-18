@@ -225,31 +225,32 @@ def vehicle_setup():
     # Design Rotors  
     #------------------------------------------------------------------ 
     # atmosphere and flight conditions for propeller/lift_rotor design
-    g                            = 9.81                                   # gravitational acceleration  
-    speed_of_sound               = 340                                    # speed of sound 
-    Hover_Load                   = vehicle.mass_properties.takeoff*g      # hover load   
-    design_tip_mach              = 0.7                                    # design tip mach number 
-    
-    lift_rotor                        = SUAVE.Components.Energy.Converters.Lift_Rotor() 
-    lift_rotor.tip_radius             = 3.95 * Units.feet
-    lift_rotor.hub_radius             = 0.6  * Units.feet 
-    lift_rotor.disc_area              = np.pi*(lift_rotor.tip_radius**2) 
-    lift_rotor.number_of_blades       = 3
-    lift_rotor.freestream_velocity    = 10.0
-    lift_rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/lift_rotor.tip_radius   
-    lift_rotor.design_Cl              = 0.7
-    lift_rotor.design_altitude        = 1000 * Units.feet                   
-    lift_rotor.design_thrust          = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition  
-    airfoil                           = SUAVE.Components.Airfoils.Airfoil()   
-    airfoil.coordinate_file           = '../Vehicles/Airfoils/NACA_4412.txt'
-    airfoil.polar_files               = ['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
-    lift_rotor.append_airfoil(airfoil) 
-    lift_rotor.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
-    lift_rotor                         = propeller_design(lift_rotor)     
+    g                                            = 9.81                                   # gravitational acceleration   
+    Hover_Load                                   = vehicle.mass_properties.takeoff*g      # hover load  
+    speed_of_sound                               = 340                                    # speed of sound 
+    lift_rotor                                   = SUAVE.Components.Energy.Converters.Propeller() # using propeller for for regression! 
+    lift_rotor.tip_radius                        = 3.95 * Units.feet
+    lift_rotor.hub_radius                        = 0.6  * Units.feet 
+    lift_rotor.number_of_blades                  = 3
+    lift_rotor.orientation_euler_angles          = [0.,np.pi/2.,0.] # This is Z-direction thrust up in vehicle frame    
+    lift_rotor.disc_area                         = np.pi*(lift_rotor.tip_radius**2)  
+    lift_rotor.cruise.design_tip_mach            = 0.7                                    # design tip mach number 
+    lift_rotor.cruise.design_freestream_velocity = 10.0
+    lift_rotor.cruise.design_angular_velocity    = (lift_rotor.cruise.design_tip_mach*speed_of_sound)/lift_rotor.tip_radius  
+    lift_rotor.cruise.number_of_blades           = 3    
+    lift_rotor.cruise.design_Cl                  = 0.7
+    lift_rotor.cruise.design_altitude            = 1000 * Units.feet                   
+    lift_rotor.cruise.design_thrust              = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition  
+    airfoil                                      = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file                      = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files                          = ['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    lift_rotor.append_airfoil(airfoil)           
+    lift_rotor.airfoil_polar_stations            = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
+    lift_rotor                                   = propeller_design(lift_rotor)     
     
     # Appending rotors with different origins
     origins                 = [[ 0.,2.,1.4],[ 0.0,-2.,1.4],
@@ -266,19 +267,21 @@ def vehicle_setup():
     # Design Motors
     #------------------------------------------------------------------
     # Motor 
-    lift_motor                      = SUAVE.Components.Energy.Converters.Motor() 
-    lift_motor.efficiency           = 0.95
-    lift_motor.nominal_voltage      = bat.max_voltage * 0.5
-    lift_motor.mass_properties.mass = 3. * Units.kg 
-    lift_motor.origin               = lift_rotor.origin  
-    lift_motor.propeller_radius     = lift_rotor.tip_radius   
-    lift_motor.no_load_current      = 2.0     
-    lift_motor                      = size_optimal_motor(lift_motor,lift_rotor)
-    net.lift_motor                  = lift_motor  
+    lift_motor                         = SUAVE.Components.Energy.Converters.Motor() 
+    lift_motor.efficiency              = 0.95
+    lift_motor.nominal_voltage         = bat.max_voltage * 0.5 
+    lift_motor.mass_properties.mass    = 3. * Units.kg 
+    lift_motor.origin                  = lift_rotor.origin     
+    lift_motor.no_load_current         = 2.0   
+    lift_motor.rotor_radius            = lift_rotor.tip_radius
+    lift_motor.design_torque           = lift_rotor.cruise.design_torque
+    lift_motor.angular_velocity        = lift_rotor.cruise.design_angular_velocity/lift_motor.gear_ratio     
+    lift_motor                         = size_optimal_motor(lift_motor)
+    net.lift_motor                     = lift_motor  
                                                 
     # Define motor sizing parameters            
-    max_power  = lift_rotor.design_power * 1.2
-    max_torque = lift_rotor.design_torque * 1.2
+    max_power  = lift_rotor.cruise.design_power * 1.2
+    max_torque = lift_rotor.cruise.design_torque * 1.2
     
     # test high temperature superconducting motor weight function 
     mass = hts_motor(max_power) 

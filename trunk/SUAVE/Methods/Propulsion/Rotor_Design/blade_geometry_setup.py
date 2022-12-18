@@ -7,8 +7,7 @@
 #   Imports
 # ----------------------------------------------------------------------  
 # SUAVE Imports 
-import SUAVE  
-from SUAVE.Components.Energy.Converters   import  Prop_Rotor 
+import SUAVE   
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties import compute_airfoil_properties
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series       import compute_naca_4series
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry    import import_airfoil_geometry
@@ -44,7 +43,7 @@ def blade_geometry_setup(rotor,number_of_stations):
     chi                   = np.linspace(chi0,1,N+1)  
     chi                   = chi[0:N]
     airfoils              = rotor.Airfoils      
-    a_loc                 = rotor.airfoil_polar_stations    
+    a_loc                 = rotor.airfoil_polar_stations  
     
     # determine target values 
     if (design_thrust_hover == None) and (design_power_hover== None):
@@ -80,7 +79,19 @@ def blade_geometry_setup(rotor,number_of_stations):
     # append additional prop-rotor  properties for optimization  
     rotor.number_of_blades             = int(B)  
     rotor.thickness_to_chord           = t_c
-    rotor.radius_distribution          = chi*R    
+    rotor.radius_distribution          = chi*R  
+    
+    # set oei conditions if they are not set
+    if rotor.oei.design_freestream_velocity == None: 
+        rotor.oei.design_freestream_velocity = rotor.hover.design_freestream_velocity
+    if rotor.oei.design_altitude == None:
+        rotor.oei.design_altitude = rotor.hover.design_altitude
+    if design_thrust_hover == None:
+        if rotor.oei.design_power == None: 
+            rotor.oei.design_power = rotor.hover.design_power*1.1
+    elif  design_power_hover == None:
+        if rotor.oei.design_thrust == None: 
+            rotor.oei.design_thrust = rotor.hover.design_thrust*1.1
     
     vehicle                            = SUAVE.Vehicle()  
     net                                = SUAVE.Components.Energy.Networks.Battery_Propeller()
@@ -98,11 +109,11 @@ def blade_geometry_setup(rotor,number_of_stations):
     configs.append(config)        
 
     config                              = SUAVE.Components.Configs.Config(base_config)
-    config.tag                          = 'OEI' 
+    config.tag                          = 'oei' 
     config.networks.battery_propeller.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0]    
     configs.append(config)       
     
-    if type(rotor) == Prop_Rotor:  
+    if type(rotor) == SUAVE.Components.Energy.Converters.Prop_Rotor:  
         design_thrust_cruise  = rotor.cruise.design_thrust 
         design_power_cruise   = rotor.cruise.design_power      
         if (design_thrust_cruise == None) and (design_power_cruise== None):
@@ -112,6 +123,6 @@ def blade_geometry_setup(rotor,number_of_stations):
         
         config                          = SUAVE.Components.Configs.Config(base_config)
         config.tag                      = 'cruise'
-        config.networks.battery_propeller.propellers.rotor.orientation_euler_angles = [0.0,0.0,0.0]  
+        config.networks.battery_propeller.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0] 
         configs.append(config)
     return configs 
