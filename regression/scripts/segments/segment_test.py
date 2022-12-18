@@ -638,8 +638,6 @@ def missions_setup(base_mission):
     missions.base = base_mission
 
     # done!
-    return missions  
-
-    return  
+    return missions   
 if __name__ == '__main__': 
     main()    
