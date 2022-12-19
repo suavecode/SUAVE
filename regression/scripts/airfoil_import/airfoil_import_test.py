@@ -3,6 +3,7 @@
 # Created:  
 # Modified: Sep 2020, M. Clarke 
 #           May 2021, R. Erhard
+#           Dec 2022, J. Smart
 
 #----------------------------------------------------------------------
 #   Imports
@@ -12,10 +13,8 @@ import SUAVE
 from SUAVE.Core import Units, Data 
 from SUAVE.Plots.Geometry import plot_airfoil
 import matplotlib.pyplot as plt  
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
-     import import_airfoil_geometry
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties \
-     import compute_airfoil_properties 
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil\
+     import import_airfoil_geometry, compute_airfoil_properties, convert_airfoil_to_meshgrid
 from SUAVE.Plots.Performance.Airfoil_Plots import *
 import os
 import numpy as np
@@ -68,8 +67,18 @@ def main():
     for j in range(0, len(airfoil_geometry_3.camber_coordinates)):
         assert( np.abs(airfoil_geometry_3.camber_coordinates[j] - airfoil_geometry_4.camber_coordinates[j]) < 1E-8 )
 
-    plot_airfoil(airfoil_geometry_with_selig[0])
-    
+    A_MASK_1 = convert_airfoil_to_meshgrid(airfoil_geometry_1)
+    A_MASK_2 = convert_airfoil_to_meshgrid(airfoil_geometry_2)
+    A_MASK_3 = convert_airfoil_to_meshgrid(airfoil_geometry_3)
+    A_MASK_4 = convert_airfoil_to_meshgrid(airfoil_geometry_4)
+
+    assert (len(np.where(A_MASK_1)[0]) == 32313)
+    assert (len(np.where(A_MASK_2)[0]) == 32313)
+    assert (len(np.where(A_MASK_3)[0]) == 122051849)
+    assert (len(np.where(A_MASK_4)[0]) == 122051849)
+
+    plot_airfoil(airfoil_geometry_with_selig[1])
+
     return  
 
 if __name__ == '__main__': 

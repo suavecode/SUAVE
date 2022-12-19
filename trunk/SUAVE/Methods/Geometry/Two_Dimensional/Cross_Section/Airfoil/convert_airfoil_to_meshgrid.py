@@ -50,11 +50,11 @@ def convert_airfoil_to_meshgrid(airfoil_geometry, *args, **kwargs):
     # separation between any two x-coordinates.
 
     x_length = (
-        np.max(x_lower_surface) - np.min(x_lower_surface)
+        np.max(x_lower_surface)
     )
 
     Nx = np.ceil(
-        x_length / np.min( np.diff(x_lower_surface) )
+        x_length / np.abs(np.min(np.diff(x_lower_surface)))
     ).astype(int)
 
     # We determine the necessary number of y-coordinate points by taking the
@@ -105,6 +105,44 @@ def convert_airfoil_to_meshgrid(airfoil_geometry, *args, **kwargs):
             np.diff(X_INDICES),
             0
     )
+
+    # Need to hand the case where the X_INDICES aren't sorted, and swap
+    # some elements around to allow the masks to be created
+
+    if np.any(REPEATS<0):
+
+        REPEAT_FLAG = True
+
+        NEG_REPEATS = np.where(REPEATS<0)[0]
+
+        if np.any(np.diff(NEG_REPEATS) == 1):
+            print("Airfoil geometry contains sequential negative x-steps. Meshing Failed.")
+            return None
+
+        (X_INDICES[NEG_REPEATS],
+         X_INDICES[NEG_REPEATS + 1]) = (X_INDICES[NEG_REPEATS + 1],
+                                        X_INDICES[NEG_REPEATS])
+
+        (Y_LOWER_INDICES[NEG_REPEATS],
+         Y_LOWER_INDICES[NEG_REPEATS + 1]) = (Y_LOWER_INDICES[NEG_REPEATS + 1],
+                                              Y_LOWER_INDICES[NEG_REPEATS])
+
+        (Y_UPPER_INDICES[NEG_REPEATS],
+         Y_UPPER_INDICES[NEG_REPEATS + 1]) = (Y_UPPER_INDICES[NEG_REPEATS + 1],
+                                              Y_UPPER_INDICES[NEG_REPEATS])
+
+        REPEATS = np.append(
+            np.diff(X_INDICES),
+            0
+        )
+
+        Nx = np.sum(REPEATS)
+
+        Ny = np.ceil(
+            Nx * (np.max(y_upper_surface) - np.min(y_lower_surface))
+        ).astype(int)
+
+        X, Y = np.meshgrid(np.arange(Nx), np.arange(Ny), indexing="ij")
 
     Y_LOWER_INDICES = np.repeat(Y_LOWER_INDICES, REPEATS)
     Y_UPPER_INDICES = np.repeat(Y_UPPER_INDICES, REPEATS)
