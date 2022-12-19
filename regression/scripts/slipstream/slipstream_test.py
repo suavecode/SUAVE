@@ -38,11 +38,11 @@ import time
 # ----------------------------------------------------------------------
 
 def main():
-    # fidelity zero wakes
-    print('Wake Fidelity Zero, Identical Props')    
-    t0=time.time()
-    Propeller_Slipstream(wake_fidelity=0,identical_props=True)
-    print((time.time()-t0)/60)
+    ## fidelity zero wakes
+    #print('Wake Fidelity Zero, Identical Props')    
+    #t0=time.time()
+    #Propeller_Slipstream(wake_fidelity=0,identical_props=True)
+    #print((time.time()-t0)/60)
     
     # fidelity one wakes
     print('Wake Fidelity One, Identical Props')  
@@ -51,10 +51,10 @@ def main():
     print((time.time()-t0)/60)
     
 
-    print('Wake Fidelity One, Non-Identical Props')      
-    t0=time.time()
-    Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
-    print((time.time()-t0)/60)
+    #print('Wake Fidelity One, Non-Identical Props')      
+    #t0=time.time()
+    #Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
+    #print((time.time()-t0)/60)
     
     return
 
@@ -108,7 +108,7 @@ def regress_1a(results, configs):
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
     plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False)
-    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True)
+    #plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True)
               
     return
 

@@ -18,7 +18,6 @@ from .Mission_Plots       import plot_lift_cruise_network
 from .Mission_Plots       import plot_propeller_conditions 
 from .Mission_Plots       import plot_tiltrotor_conditions
 from .Mission_Plots       import plot_surface_pressure_contours
-from .Mission_Plots       import create_video_frames
 from .Mission_Plots       import plot_lift_distribution 
 from .Mission_Plots       import create_video_frames 
 from .Mission_Plots       import plot_ground_noise_levels  
