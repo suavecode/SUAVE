@@ -287,7 +287,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     rotor.wake_skew_angle = wake_skew_angle
     
-    #wake.rotate_propFrame_to_globalFrame(rotor) 
+    wake.rotate_propFrame_to_globalFrame(rotor) 
     
     ## update in WD_network if needed
     #if wake.influencing_rotor_wake_network != None:
