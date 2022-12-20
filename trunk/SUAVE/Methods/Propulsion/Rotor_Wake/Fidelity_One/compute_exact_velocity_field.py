@@ -104,14 +104,14 @@ def compute_exact_velocity_field(WD_network, rotor, conditions, VD_VLM=None, Gri
     rot_mat = rotor.body_to_prop_vel()
     vVec = np.matmul(Vinf, rot_mat)
     
-    V_induced = V_ind_self + V_ind_ext + vVec[0]
+    V_induced = V_ind_self + V_ind_ext + Vinf[0] #vVec[0]
     
     #V_nodes = Data()
     #V_nodes.A1 = V_induced[0,:]
 
     return V_induced
 
-def multiprocessing_function(i, nevals, maxPts, GridPointsFull, WD_network, V_ind_self):
+def multiprocessing_function(i, nevals, maxPts, GridPointsFull, WD_network, V_ind_self, verbose=False):
 
     t0 = time.time()
     iStart = i*maxPts
@@ -135,5 +135,6 @@ def multiprocessing_function(i, nevals, maxPts, GridPointsFull, WD_network, V_in
             V_ind_self[:,iStart:iEnd,:] += compute_wake_induced_velocity(WD, GridPoints, cpts=1)    
 
     eval_time = time.time() - t0
-    print("\tEvaluation %d out of %d completed in %f seconds" % (i+1, nevals, eval_time))
+    if verbose:
+        print("\tEvaluation %d out of %d completed in %f seconds" % (i+1, nevals, eval_time))
     return V_ind_self[:,iStart:iEnd,:]

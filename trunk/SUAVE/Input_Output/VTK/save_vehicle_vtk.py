@@ -24,7 +24,7 @@ import os
 
 ## @ingroup Input_Output-VTK
 def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
-                      time_step=0,origin_offset=np.array([0.,0.,0.]),VLM_settings=None, aircraftReferenceFrame=False,
+                      time_step=0,origin_offset=np.array([0.,0.,0.]),VLM_settings=None, aircraftReferenceFrame=True,
                       prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                       wake_filename="prop_wake.vtk", wing_vlm_filename="wing_vlm_horseshoes.vtk",wing_filename="wing_vlm.vtk",
                       fuselage_filename="fuselage.vtk", nacelle_filename="nacelle.vtk", baseName="", save_loc=None):
@@ -138,7 +138,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                     Results['prop_outputs'] = propi.outputs
 
                     # save prop wake
-                    save_prop_wake_vtk(propi, wVD, gamma, file, Results,start_angle_idx,origin_offset,rot=propi.rotation, aircraftReferenceFrame=aircraftReferenceFrame)
+                    save_prop_wake_vtk(propi, wVD, gamma, file, Results,start_angle_idx,origin_offset,rot=propi.rotation)
 
 
         try:

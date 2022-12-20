@@ -126,7 +126,7 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
     rot_mat = rotor.body_to_prop_vel()
     vVec = np.matmul(Vinf, rot_mat)
     
-    V_induced = Vind + V_ind_ext + vVec[0]
+    V_induced = Vind + V_ind_ext + Vinf[0] #vVec[0]
     
     #fun_V_induced = RegularGridInterpolator((XouterPadded,YouterPadded,ZouterPadded), V_induced,fill_value=None)
     fun_V_induced = RegularGridInterpolator((Xouter,Youter,Zouter), V_induced,bounds_error=False,fill_value=None, method="linear")
@@ -140,7 +140,7 @@ def compute_interpolated_velocity_field(WD_network, rotor, conditions, VD=None, 
     #fun_V_induced.fun_Vz_induced = fun_Vz_induced
     return fun_V_induced, interpolatedBoxData
 
-def multiprocessing_function(i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network, Vind_ext):
+def multiprocessing_function(i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD_network,VD, V_ind_network, Vind_ext, verbose=False):
     t0=time.time()
     iStart = i*maxPts
     if i == nevals-1:
@@ -183,6 +183,7 @@ def multiprocessing_function(i, nevals, maxPts, Xstacked, Ystacked, Zstacked, WD
         Vind_ext = np.zeros_like(V_ind_network)  
     
     eval_time = time.time()-t0
-    print("\tEvaluation %d out of %d completed in %f seconds" % (i+1, nevals, eval_time))
+    if verbose:
+        print("\tEvaluation %d out of %d completed in %f seconds" % (i+1, nevals, eval_time))
 
     return Vind_ext[:,iStart:iEnd,:], V_ind_network[:,iStart:iEnd,:]

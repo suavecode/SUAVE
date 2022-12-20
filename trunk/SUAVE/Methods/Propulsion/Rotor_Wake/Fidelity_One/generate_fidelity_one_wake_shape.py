@@ -166,7 +166,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     y_pts0 = y0 + yte_rotor
     z_pts0 = z0 + zte_rotor
     
-    x_c_4_rotor = x0 - np.tile(y_c_4_twisted[None,None,:,None], (m,B,1,nts))
+    x_c_4_rotor = np.zeros_like(y0) - np.tile(y_c_4_twisted[None,None,:,None], (m,B,1,nts))
     y_c_4_rotor = y0 + np.tile(x_c_4_twisted[None,None,:,None], (m,B,1,nts))*np.cos(panel_azimuthal_positions)
     z_c_4_rotor = z0 - np.tile(x_c_4_twisted[None,None,:,None], (m,B,1,nts))*np.sin(panel_azimuthal_positions)   
     
@@ -184,7 +184,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     #------------------------------------------------------     
     # Account for lifting line panels
     #------------------------------------------------------
-    x_c_4 = np.repeat(x_c_4_rotor[None,:,:,:,:], Na, axis=0) + rotor.origin[0][0]
+    x_c_4 = (x_c_4_rotor) + rotor.origin[0][0]
     y_c_4 = (y_c_4_rotor) + rotor.origin[0][1]
     z_c_4 = (z_c_4_rotor) + rotor.origin[0][2]
     
@@ -287,7 +287,7 @@ def generate_fidelity_one_wake_shape(wake,rotor):
     
     rotor.wake_skew_angle = wake_skew_angle
     
-    wake.rotate_propFrame_to_globalFrame(rotor) 
+    wake.rotate_propFrame_to_vehicleFrame(rotor) 
     
     ## update in WD_network if needed
     #if wake.influencing_rotor_wake_network != None:

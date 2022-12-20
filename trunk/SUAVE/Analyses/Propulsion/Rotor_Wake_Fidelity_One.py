@@ -74,7 +74,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # wake convergence criteria
         self.maximum_convergence_iteration_gamma      = 1#50
-        self.maximum_convergence_iteration_va         = 1#50
+        self.maximum_convergence_iteration_va         = 50
         self.axial_velocity_convergence_tolerance     = 1e-3
         self.circulation_convergence_tolerance        = 1e-3
         
@@ -302,7 +302,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.vortex_distribution = wVD
         return
     
-    def rotate_propFrame_to_globalFrame(self, rotor):
+    def rotate_propFrame_to_vehicleFrame(self, rotor):
         """
         This rotates all points in the vortex wake by the rotation angle. This is primarily
         used for transforming the wake from the prop to the vehicle frame to maintain consistent
@@ -312,6 +312,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         
         # rotate to prop frame
         rot_mat = rotor.vehicle_body_to_prop_vel()[0]
+
         if 'XC' in wVD.keys():
             C = np.matmul(rot_mat, np.array([wVD.XC,wVD.YC,wVD.ZC]))
             
@@ -363,6 +364,29 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         wVD.reshaped_wake.YB2 = np.reshape(rsB2[1,:], np.shape(wVD.reshaped_wake.XA1))
         wVD.reshaped_wake.ZB2 = np.reshape(rsB2[2,:], np.shape(wVD.reshaped_wake.XA1))              
         
+        
+        # convert blade coordinates too
+        if 'Xblades_te' in wVD.reshaped_wake.keys():
+            C = np.matmul(rot_mat, np.array([np.ravel(wVD.reshaped_wake.Xblades_te),np.ravel(wVD.reshaped_wake.Yblades_te),np.ravel(wVD.reshaped_wake.Zblades_te)]))
+            
+            wVD.reshaped_wake.Xblades_te = np.reshape(C[0,:], np.shape(wVD.reshaped_wake.Xblades_te))
+            wVD.reshaped_wake.Yblades_te = np.reshape(C[1,:], np.shape(wVD.reshaped_wake.Xblades_te))
+            wVD.reshaped_wake.Zblades_te = np.reshape(C[2,:], np.shape(wVD.reshaped_wake.Xblades_te))           
+        
+        if 'Xblades_c_4' in wVD.reshaped_wake.keys():
+            C = np.matmul(rot_mat, np.array([np.ravel(wVD.reshaped_wake.Xblades_c_4),np.ravel(wVD.reshaped_wake.Yblades_c_4),np.ravel(wVD.reshaped_wake.Zblades_c_4)]))
+            
+            wVD.reshaped_wake.Xblades_c_4 = np.reshape(C[0,:], np.shape(wVD.reshaped_wake.Xblades_c_4))
+            wVD.reshaped_wake.Yblades_c_4 = np.reshape(C[1,:], np.shape(wVD.reshaped_wake.Xblades_c_4))
+            wVD.reshaped_wake.Zblades_c_4 = np.reshape(C[2,:], np.shape(wVD.reshaped_wake.Xblades_c_4))         
+        
+        if 'Xblades_cp' in wVD.reshaped_wake.keys():
+            C = np.matmul(rot_mat, np.array([np.ravel(wVD.reshaped_wake.Xblades_cp),np.ravel(wVD.reshaped_wake.Yblades_cp),np.ravel(wVD.reshaped_wake.Zblades_cp)]))
+            
+            wVD.reshaped_wake.Xblades_cp = np.reshape(C[0,:], np.shape(wVD.reshaped_wake.Xblades_cp))
+            wVD.reshaped_wake.Yblades_cp = np.reshape(C[1,:], np.shape(wVD.reshaped_wake.Xblades_cp))
+            wVD.reshaped_wake.Zblades_cp = np.reshape(C[2,:], np.shape(wVD.reshaped_wake.Xblades_cp))     
+            
         self.vortex_distribution = wVD        
         return
     

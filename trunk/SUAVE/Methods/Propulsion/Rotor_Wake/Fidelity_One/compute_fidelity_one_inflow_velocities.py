@@ -94,9 +94,9 @@ def compute_fidelity_one_inflow_velocities( wake, prop, cpts):
         
         # rotate from vehicle to prop frame:
         rot_to_prop = prop.vec_to_prop_body()
-        uprop       = u#u*rot_to_prop[:,0,0][:,None] + w*rot_to_prop[:,0,2][:,None]
+        uprop       = u*rot_to_prop[:,0,0][:,None] + w*rot_to_prop[:,0,2][:,None]
         vprop       = v
-        wprop       = w#u*rot_to_prop[:,2,0][:,None] + w*rot_to_prop[:,2,2][:,None]     
+        wprop       = u*rot_to_prop[:,2,0][:,None] + w*rot_to_prop[:,2,2][:,None]     
         
         # interpolate to get values at rotor radial stations
         r_midpts = (r[1:] + r[:-1])/2
@@ -109,14 +109,14 @@ def compute_fidelity_one_inflow_velocities( wake, prop, cpts):
         wp = w_r(r)       
 
         # Update velocities at the disc
-        Va[:,:,i]  = up
-        Vt[:,:,i]  = -rot*(vp*(np.cos(blade_angle)) - wp*(np.sin(blade_angle)) )  # velocity component in direction of rotation     
+        Va[:,:,i]  = up 
+        Vt[:,:,i]  = -rot * (vp * (np.cos(blade_angle)) + wp * (np.sin(blade_angle)))
         
         # DEBUG: Checking that evaluation points are correctly aligned along the blade
         #from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
         #from DCode.Common.generalFunctions import save_single_prop_vehicle_vtk
-        #save_evaluation_points_vtk(VD, "/Users/rerha/Desktop/testEvalPts/evalTest.vtk")
-        #save_single_prop_vehicle_vtk(prop,save_loc="/Users/rerha/Desktop/testEvalPts/")
+        #save_evaluation_points_vtk(VD, "/Users/rerha/Desktop/testPropRotation/evalTest.vtk")
+        #save_single_prop_vehicle_vtk(prop,save_loc="/Users/rerha/Desktop/testPropRotation/")
         
         #prop.Wake.vortex_distribution = VD
     

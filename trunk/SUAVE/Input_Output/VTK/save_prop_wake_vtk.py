@@ -8,7 +8,7 @@ from SUAVE.Core import Data
 import numpy as np
 
 ## @ingroup Input_Output-VTK
-def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_offset,rot=-1,aircraftReferenceFrame=True):
+def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_offset,rot=-1):
     """
     Saves a SUAVE propeller wake as a VTK in legacy format.
 
@@ -80,13 +80,13 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
         matB2[:,:,:,:,:,1] = wVD.YB2 + origin_offset[1]
         matB2[:,:,:,:,:,2] = wVD.ZB2 + origin_offset[2]
         
-        if aircraftReferenceFrame:
-            # rotate points to aircraft frame
-            trans_3 =  prop.prop_vel_to_body() 
-            matA1 = np.matmul(matA1, trans_3)
-            matA2 = np.matmul(matA2, trans_3)
-            matB1 = np.matmul(matB1, trans_3)
-            matB2 = np.matmul(matB2, trans_3)
+        #if aircraftReferenceFrame:
+            ## rotate points to aircraft frame
+            #trans_3 =  prop.prop_vel_to_body() 
+            #matA1 = np.matmul(matA1, trans_3)
+            #matA2 = np.matmul(matA2, trans_3)
+            #matB1 = np.matmul(matB1, trans_3)
+            #matB2 = np.matmul(matB2, trans_3)
         
         
         if rot ==1:
