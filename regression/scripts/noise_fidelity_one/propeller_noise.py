@@ -3,7 +3,7 @@
 # Imports    
 import SUAVE
 from SUAVE.Core import Units, Data 
-from SUAVE.Components.Energy.Networks.Battery_Propeller                                       import Battery_Propeller
+from SUAVE.Components.Energy.Networks.Battery_Rotor                                           import Battery_Rotor
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties  import compute_airfoil_properties
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series        import compute_naca_4series
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                        import propeller_mid_fidelity
@@ -69,7 +69,7 @@ def main():
 # ------------------------------------------------------------------  
 def Hararmonic_Noise_Validation(PP):
 
-    net                                = Battery_Propeller()
+    net                                = Battery_Rotor()
     net.number_of_propeller_engines    = 1                                      
     prop                               = F8745_D4_Propeller()  
     net.identical_propellers           = True  
@@ -292,7 +292,7 @@ def Broadband_Noise_Validation(PP):
     # APC SF Rotor
     # ---------------------------------------------------------------------------------------------------------------------------
     # Define Network
-    net_APC_SF                                  = Battery_Propeller()
+    net_APC_SF                                  = Battery_Rotor()
     net_APC_SF.number_of_propeller_engines      = 1        
     net_APC_SF.identical_propellers             = True  
     net_APC_SF.propellers.append(APC_SF)    

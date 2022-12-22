@@ -184,7 +184,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # network
     #------------------------------------------------------------------
-    net                                = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net                                = SUAVE.Components.Energy.Networks.Battery_Rotor()
     net.number_of_propeller_engines    = 8
     net.y_axis_rotation                = 0.0   * Units.degrees #  conversion to radians,
     net.nacelle_diameter               = 0.2921 # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
