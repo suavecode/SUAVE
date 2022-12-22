@@ -199,11 +199,11 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                                = 0.0  * Units.ft
     segment.altitude_end                                  = 40.  * Units.ft
     segment.climb_rate                                    = 300. * Units['ft/min']
-    segment.battery_energy                                = vehicle.networks.battery_propeller.battery.max_energy
+    segment.battery_energy                                = vehicle.networks.battery_rotor.battery.max_energy
     segment.state.unknowns.throttle                       = 0.9 * ones_row(1)
     segment.process.iterate.conditions.stability          = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability       = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient=0.02)
+    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient=0.02)
 
     # add to misison
     mission.append_segment(segment)
@@ -218,7 +218,7 @@ def mission_setup(analyses,vehicle):
     segment.time                                            = 2*60
     segment.process.iterate.conditions.stability            = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability         = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment)
 
 
     # add to misison

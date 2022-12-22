@@ -33,7 +33,7 @@ from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append
 
 ## @ingroup Components-Energy-Networks
 class Lift_Cruise(Network):
-    """ This is a complex version of battery_propeller with a battery powering propellers through
+    """ This is a complex version of Battery_Rotor with a battery powering propellers through
         electric motors. In this case we have 2 sets of motors at different motors that can be controlled seperately
         
         This network adds 2 extra unknowns to the mission. The first is

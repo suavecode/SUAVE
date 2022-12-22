@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Networks
-# Battery_Propeller.py
+# Battery_Rotor.py
 # 
 # Created:  Jul 2015, E. Botero
 # Modified: Feb 2016, T. MacDonald
@@ -32,7 +32,7 @@ import copy
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Battery_Propeller(Network):
+class Battery_Rotor(Network):
     """ This is a simple network with a battery powering a propeller through
         an electric motor
         
@@ -75,7 +75,7 @@ class Battery_Propeller(Network):
         self.engine_length                = None
         self.number_of_propeller_engines  = None
         self.voltage                      = None
-        self.tag                          = 'Battery_Propeller'
+        self.tag                          = 'Battery_Rotor'
         self.use_surrogate                = False 
         self.generative_design_minimum    = 0 
         self.identical_propellers         = True

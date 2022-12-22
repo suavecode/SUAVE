@@ -64,13 +64,13 @@ def modify_blade_geometry(nexus):
     # Pull out the vehicles
 
     vehicle_hover     = nexus.vehicle_configurations.hover
-    rotor_hover       = vehicle_hover.networks.battery_propeller.propellers.rotor
+    rotor_hover       = vehicle_hover.networks.battery_rotor.propellers.rotor
     vehicle_oei       = nexus.vehicle_configurations.oei
-    rotor_oei         = vehicle_oei.networks.battery_propeller.propellers.rotor    
+    rotor_oei         = vehicle_oei.networks.battery_rotor.propellers.rotor    
     
     if nexus.prop_rotor_flag:  
         vehicle_cruise    = nexus.vehicle_configurations.cruise 
-        rotor_cruise      = vehicle_cruise.networks.battery_propeller.propellers.rotor 
+        rotor_cruise      = vehicle_cruise.networks.battery_rotor.propellers.rotor 
         
     airfoils = rotor_hover.Airfoils      
     a_loc    = rotor_hover.airfoil_polar_stations   
@@ -162,7 +162,7 @@ def updated_blade_geometry(chi,c_r,p,q,c_t):
 def run_rotor_OEI(nexus):
     
     # Unpack  
-    rotor    = nexus.vehicle_configurations.oei.networks.battery_propeller.propellers.rotor
+    rotor    = nexus.vehicle_configurations.oei.networks.battery_rotor.propellers.rotor
     
     # Setup Test conditions
     speed    = rotor.oei.design_freestream_velocity 
@@ -211,7 +211,7 @@ def run_rotor_OEI(nexus):
 def run_rotor_hover(nexus):
      
     # Unpack   
-    rotors = nexus.vehicle_configurations.hover.networks.battery_propeller.propellers 
+    rotors = nexus.vehicle_configurations.hover.networks.battery_rotor.propellers 
     rotor  = rotors.rotor  
     alpha  = rotor.optimization_parameters.multiobjective_aeroacoustic_weight
 
@@ -291,7 +291,7 @@ def run_rotor_hover(nexus):
 def run_rotor_cruise(nexus):
  
     if nexus.prop_rotor_flag:    
-        rotors = nexus.vehicle_configurations.cruise.networks.battery_propeller.propellers 
+        rotors = nexus.vehicle_configurations.cruise.networks.battery_rotor.propellers 
         rotor  = rotors.rotor   
         alpha  = rotor.optimization_parameters.multiobjective_aeroacoustic_weight       
         
@@ -388,8 +388,8 @@ def run_rotor_cruise(nexus):
 def post_process(nexus):
      
     summary             = nexus.summary 
-    rotor               = nexus.vehicle_configurations.hover.networks.battery_propeller.propellers.rotor  
-    rotor_oei           = nexus.vehicle_configurations.oei.networks.battery_propeller.propellers.rotor  
+    rotor               = nexus.vehicle_configurations.hover.networks.battery_rotor.propellers.rotor  
+    rotor_oei           = nexus.vehicle_configurations.oei.networks.battery_rotor.propellers.rotor  
     alpha               = rotor.optimization_parameters.multiobjective_aeroacoustic_weight
     beta                = rotor.optimization_parameters.multiobjective_performance_weight
     gamma               = rotor.optimization_parameters.multiobjective_acoustic_weight
@@ -452,7 +452,7 @@ def post_process(nexus):
     
 
     if nexus.prop_rotor_flag:  
-        rotor_cru  = nexus.vehicle_configurations.cruise.networks.battery_propeller.propellers.rotor         
+        rotor_cru  = nexus.vehicle_configurations.cruise.networks.battery_rotor.propellers.rotor         
         summary.max_sectional_cl_cruise = nexus.results.cruise.max_sectional_cl   
         
     # -------------------------------------------------------

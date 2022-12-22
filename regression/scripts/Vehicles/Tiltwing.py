@@ -384,7 +384,7 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover'
     vector_angle                                      = 90.0 * Units.degrees
-    for rotor in config.networks.battery_propeller.propellers: 
+    for rotor in config.networks.battery_rotor.propellers: 
         rotor.orientation_euler_angles                 = [0,vector_angle,0]
         rotor.inputs.pitch_command                     = 0.  * Units.degrees
     config.wings.main_wing.twists.root                = vector_angle
@@ -399,7 +399,7 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_climb'
     vector_angle                                      = 90.0 * Units.degrees 
-    for rotor in config.networks.battery_propeller.propellers: 
+    for rotor in config.networks.battery_rotor.propellers: 
         rotor.orientation_euler_angles                 = [0,vector_angle,0]
         rotor.inputs.pitch_command                     = -5.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
@@ -414,7 +414,7 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     vector_angle                                      = 45.0  * Units.degrees
     config.tag                                        = 'transition_seg_1_4'
-    for rotor in config.networks.battery_propeller.propellers: 
+    for rotor in config.networks.battery_rotor.propellers: 
         rotor.orientation_euler_angles                 = [0,vector_angle,0]
         rotor.inputs.pitch_command                     = 3.  * Units.degrees
     config.wings.main_wing.twists.root                = vector_angle
@@ -430,7 +430,7 @@ def configs_setup(vehicle):
     config.tag                                        = 'transition_seg_2_3'
     vector_angle                                      = 15.0  * Units.degrees
 
-    for rotor in config.networks.battery_propeller.propellers: 
+    for rotor in config.networks.battery_rotor.propellers: 
         rotor.orientation_euler_angles                 = [0,vector_angle,0]
         rotor.inputs.pitch_command                     = 5.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
@@ -445,7 +445,7 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'cruise'
     vector_angle                                      = 0.0 * Units.degrees 
-    for rotor in config.networks.battery_propeller.propellers: 
+    for rotor in config.networks.battery_rotor.propellers: 
         rotor.orientation_euler_angles                 = [0,vector_angle,0]
         rotor.inputs.pitch_command                     = 10.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
@@ -462,7 +462,7 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_descent'
     vector_angle                                      = 90.0  * Units.degrees 
-    for rotor in config.networks.battery_propeller.propellers: 
+    for rotor in config.networks.battery_rotor.propellers: 
         rotor.orientation_euler_angles                 = [0,vector_angle,0]
         rotor.inputs.pitch_command                     = -5.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle

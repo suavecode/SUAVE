@@ -169,7 +169,7 @@ def X57_setup(wake_fidelity, identical_props):
     # vehicle data
     vehicle  = vehicle_setup()
     # update wake method and rotation direction of rotors:
-    props = vehicle.networks.battery_propeller.propellers
+    props = vehicle.networks.battery_rotor.propellers
     for p in props:
         p.rotation = -1
         if wake_fidelity==1:
@@ -180,7 +180,7 @@ def X57_setup(wake_fidelity, identical_props):
 
     # test for non-identical propellers
     if not identical_props:
-        vehicle.networks.battery_propeller.identical_propellers = False
+        vehicle.networks.battery_rotor.identical_propellers = False
     configs  = configs_setup(vehicle)
 
     # vehicle analyses

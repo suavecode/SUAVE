@@ -35,7 +35,7 @@ def set_optimized_rotor_planform(rotor,optimization_problem):
              None
     """    
     results                         = optimization_problem.results
-    optimal_hover_rotor_network     = optimization_problem.vehicle_configurations.hover.networks.battery_propeller.propellers
+    optimal_hover_rotor_network     = optimization_problem.vehicle_configurations.hover.networks.battery_rotor.propellers
     optimal_hover_rotor             = optimal_hover_rotor_network.rotor      
     rotor.chord_distribution        = optimal_hover_rotor.chord_distribution
     rotor.twist_distribution        = optimal_hover_rotor.twist_distribution   

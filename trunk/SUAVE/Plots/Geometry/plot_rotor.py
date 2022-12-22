@@ -12,7 +12,7 @@
 from SUAVE.Core import Units
 import matplotlib.pyplot as plt    
 from SUAVE.Plots.Geometry.plot_vehicle import plot_rotor_geometry
-from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
+from SUAVE.Components.Energy.Networks.Battery_Rotor import Battery_Rotor
 
 ## @ingroup Plots-Geometry
 def plot_rotor(prop, face_color = 'red', edge_color = 'black' , save_figure = False, save_filename = "Propeller_Geometry", file_type = ".png"):
@@ -48,7 +48,7 @@ def plot_rotor(prop, face_color = 'red', edge_color = 'black' , save_figure = Fa
     axes_1.set_zlabel('z')    
     
     # append a network for origin and thrust angle default values
-    network = Battery_Propeller() 
+    network = Battery_Rotor() 
     
     # plot propeller geometry
     plot_rotor_geometry(axes_1,prop) 
