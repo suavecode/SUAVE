@@ -22,7 +22,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series    import compute_naca_4series 
 
 ## @ingroup Plots-Geometry-Three_Dimensional 
-def plot_3d_nacelle(plot_data,nacelle,tessellation = 24,number_of_airfoil_points = 21,color_map= 'reds'):
+def plot_3d_nacelle(plot_data,nacelle,tessellation = 24,number_of_airfoil_points = 21,color_map= 'darkmint'):
     """ This plots a 3D surface of a nacelle  
 
     Assumptions:
@@ -55,14 +55,14 @@ def plot_3d_nacelle(plot_data,nacelle,tessellation = 24,number_of_airfoil_points
             Z = np.array([[nac_pts[i_seg  ,i_tes  ,2],nac_pts[i_seg+1,i_tes  ,2]],
                  [nac_pts[i_seg  ,i_tes+1,2],nac_pts[i_seg+1,i_tes+1,2]]])
              
-            values = np.ones_like(X) 
+            values = np.zeros_like(X) 
             verts = contour_surface_slice(X, Y, Z ,values,color_map)
             plot_data.append(verts)    
 
     return plot_data
 
 ## @ingroup Plots-Geometry-Three_Dimensional 
-def generate_3d_nacelle_points(nac,tessellation = 24,number_of_airfoil_points = 21):
+def generate_3d_nacelle_points(nac,tessellation = 24 ,number_of_airfoil_points = 21):
     """ This generates the coordinate points on the surface of the nacelle
 
     Assumptions:
@@ -138,4 +138,5 @@ def generate_3d_nacelle_points(nac,tessellation = 24,number_of_airfoil_points = 
     NAC_PTS[:,:,0] = NAC_PTS[:,:,0] + nac.origin[0][0]
     NAC_PTS[:,:,1] = NAC_PTS[:,:,1] + nac.origin[0][1]
     NAC_PTS[:,:,2] = NAC_PTS[:,:,2] + nac.origin[0][2]
-    return NAC_PTS
+     
+    return NAC_PTS 

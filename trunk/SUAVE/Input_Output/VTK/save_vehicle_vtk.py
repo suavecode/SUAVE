@@ -73,15 +73,13 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
     # Save propellers and rotors to vtk
     #---------------------------
     for network in vehicle.networks:
-        try:
-            print("Attempting to save propeller.")
+        try: 
             propellers = network.propellers
             try:
                 n_props = len(propellers)
             except:
                 n_props   = int(network.number_of_engines)
-        except:
-            print("No propellers.")
+        except: 
             n_props = 0
 
         if n_props>0:
@@ -132,17 +130,14 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
                     save_prop_wake_vtk(propi, wVD, gamma, file, Results,start_angle_idx,origin_offset,rot=propi.rotation, aircraftReferenceFrame=aircraftReferenceFrame)
 
 
-        try:
-            print("Attempting to save rotor.")
+        try: 
             lift_rotors = network.lift_rotors
             if network.number_of_lift_rotor_engines is not None:
                 n_rots = int(network.number_of_lift_rotor_engines)
             else:
                 n_rots = 0
-        except:
-            print("No lift rotors.")
+        except: 
             n_rots = 0
-
 
         if n_rots > 0:
             for i in range(n_rots):

@@ -530,5 +530,14 @@ def configs_setup(vehicle):
     config.networks.battery_propeller.y_axis_rotation = vector_angle
     configs.append(config)
         
+
+    # ------------------------------------------------------------------
+    #   Cruise Configuration
+    # ------------------------------------------------------------------
+    config = SUAVE.Components.Configs.Config(base_config)
+    config.tag = 'descent'
+    vector_angle = 0.0 * Units.degrees
+    config.networks.battery_propeller.y_axis_rotation = vector_angle
+    configs.append(config)        
     # done!
     return configs

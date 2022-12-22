@@ -180,7 +180,12 @@ class Battery_Propeller(Network):
                 prop      = self.propellers[prop_key]
 
                 # Set rotor y-axis rotation                
-                prop.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation                    
+                prop.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation 
+                
+                if identical_flag:
+                    for idx in range(1,int(num_engines)) :
+                        prop_remainder      = self.propellers[list(props.keys())[idx]]
+                        prop_remainder.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation
                 
                 # link 
                 motor.inputs.voltage        = esc.outputs.voltageout

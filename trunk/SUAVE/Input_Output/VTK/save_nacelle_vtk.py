@@ -12,7 +12,7 @@
 from SUAVE.Input_Output.VTK.write_azimuthal_cell_values import write_azimuthal_cell_values
 import numpy as np
 
-from SUAVE.Plots.Geometry.plot_vehicle import generate_3d_nacelle_points
+from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_nacelle import generate_3d_nacelle_points
 
 
 #------------------------------

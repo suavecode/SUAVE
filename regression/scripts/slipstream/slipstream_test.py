@@ -17,9 +17,9 @@ import numpy as np
 import pylab as plt
 import sys
 
-from SUAVE.Plots.Performance.Mission_Plots import *
-from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_vehicle                   import plot_3d_vehicle
-from SUAVE.Plots.Geometry.Three_Dimensional.plot_vehicle_3d_vlm_panelization  import plot_3d_vehicle_vlm_panelization
+from SUAVE.Plots.Performance.Aerodynamics import *
+from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_vehicle                            import plot_3d_vehicle
+from SUAVE.Plots.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization           import plot_3d_vehicle_vlm_panelization  
 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import  VLM  
@@ -38,11 +38,14 @@ import time
 # ----------------------------------------------------------------------
 
 def main():
-    ## fidelity zero wakes
-    #print('Wake Fidelity Zero, Identical Props')    
-    #t0=time.time()
-    #Propeller_Slipstream(wake_fidelity=0,identical_props=True)
-    #print((time.time()-t0)/60)
+    
+    
+    
+    # fidelity zero wakes
+    print('Wake Fidelity Zero, Identical Props')    
+    t0=time.time()
+    Propeller_Slipstream(wake_fidelity=0,identical_props=True)
+    print((time.time()-t0)/60)
     
     # fidelity one wakes
     print('Wake Fidelity One, Identical Props')  
@@ -51,10 +54,10 @@ def main():
     print((time.time()-t0)/60)
     
 
-    #print('Wake Fidelity One, Non-Identical Props')      
-    #t0=time.time()
-    #Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
-    #print((time.time()-t0)/60)
+    print('Wake Fidelity One, Non-Identical Props')      
+    t0=time.time()
+    Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
+    print((time.time()-t0)/60)
     
     return
 
@@ -107,7 +110,7 @@ def regress_1a(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False)
+    #plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False)
     #plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True)
               
     return
@@ -118,14 +121,14 @@ def regress_1b(results, configs):
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       = 0.6020199509181722
-    sectional_lift_coeff_true   = np.array([5.75825222e-01, 5.03609039e-01, 4.82878213e-01, 4.20669705e-01,
-                                            8.18479211e-02, 5.81360461e-01, 5.26912066e-01, 4.91028606e-01,
-                                            4.24111363e-01, 8.25293663e-02, 9.65711331e-03, 8.26280093e-03,
-                                            6.24871066e-03, 5.37980377e-03, 3.68930535e-03, 5.38757509e-03,
-                                            3.32372651e-03, 2.14969443e-03, 2.03870963e-03, 1.54056812e-03,
-                                            3.89612810e-07, 2.15708160e-09, 1.68896860e-09, 4.29216200e-09,
-                                            2.59497273e-09])
+    lift_coefficient_true       = 0.6020886144805456 
+    sectional_lift_coeff_true   = np.array([5.76806744e-01, 5.07127163e-01, 4.85174693e-01, 4.21180804e-01,
+                                            8.20190073e-02, 5.80786371e-01, 5.26334659e-01, 4.88068047e-01,
+                                            4.22435157e-01, 8.22818867e-02, 7.57930897e-03, 6.08409827e-03,
+                                            4.28877462e-03, 3.85249022e-03, 2.76662518e-03, 4.51480220e-03,
+                                            2.59270958e-03, 1.38993854e-03, 1.40831464e-03, 1.15658863e-03,
+                                            2.05091472e-07, 9.99971822e-10, 1.12924489e-09, 2.64483046e-09,
+                                            1.57775188e-09])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')
@@ -147,16 +150,10 @@ def regress_1b(results, configs):
     return
  
 
-def plot_mission(results,vehicle):
-
-    # Plot surface pressure coefficient
-    plot_surface_pressure_contours(results,vehicle)
-
+def plot_mission(results,vehicle): 
+    
     # Plot lift distribution
     plot_lift_distribution(results,vehicle)
-
-    # Create Video Frames
-    create_video_frames(results,vehicle, save_figure = False)
 
     return
 

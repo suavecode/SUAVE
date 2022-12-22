@@ -26,7 +26,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4
 
 ## @ingroup Plots-Geometry-Three_Dimensional  
 def plot_3d_rotor(rotor,save_filename = "Rotor", save_figure = False, plot_data = None,plot_axis = True, cpt=0, number_of_airfoil_points = 21,
-                            color_map='reds',alpha=1):
+                            color_map='turbid',alpha=1):
     """ This plots a 3D surface of the  rotor
 
     Assumptions:
@@ -70,6 +70,7 @@ def plot_3d_rotor(rotor,save_filename = "Rotor", save_figure = False, plot_data 
                      [G.YB1[cpt,sec,loc],G.YB2[cpt,sec,loc]]])
                 Z = np.array([[G.ZA1[cpt,sec,loc],G.ZA2[cpt,sec,loc]],
                      [G.ZB1[cpt,sec,loc],G.ZB2[cpt,sec,loc]]]) 
+                 
                 values      = np.ones_like(X) 
                 verts       = contour_surface_slice(X, Y, Z ,values,color_map)
                 plot_data.append(verts)      
@@ -113,7 +114,7 @@ def get_3d_blade_coordinates(rotor,n_points,dim,i,aircraftRefFrame=True):
     None
 
     Inputs:
-    rotor             - SUAVE rotor
+    rotor            - SUAVE rotor
     n_points         - number of points around airfoils of each blade section
     dim              - number for radial dimension
     i                - blade number
@@ -125,7 +126,7 @@ def get_3d_blade_coordinates(rotor,n_points,dim,i,aircraftRefFrame=True):
     # unpack 
     num_B        = rotor.number_of_blades
     airfoils     = rotor.Airfoils 
-    beta         = rotor.twist_distribution + rotor.inputs.pitch_command
+    beta         = rotor.twist_distribution + rotor.inputs.pitch_command  
     a_o          = rotor.start_angle
     b            = rotor.chord_distribution
     r            = rotor.radius_distribution
@@ -240,59 +241,4 @@ def get_3d_blade_coordinates(rotor,n_points,dim,i,aircraftRefFrame=True):
     G.ZB2  = mat[:,1:,1:,2]  + origin[0][2]    
     
     return G
-
-def plot_3d_rotor_wake(plot_data,rotor,color_map,alpha,ctrl_pt=0,plot_rotor_wake_vortex_core = False):
-    """ This plots a helical wake of a rotor or rotor
-
-    Assumptions:
-    None
-
-    Source:
-    None
-
-    Inputs:
-    VD.Wake.
-       XA1...ZB2         - coordinates of wake vortex distribution
-    face_color           - color of panel
-    edge_color           - color of panel edge 
-
-    Properties Used:
-    N/A
-    """
-    wVD      = rotor.Wake.vortex_distribution.reshaped_wake 
-    num_B    = len(wVD.XA1[0,0,:,0,0])
-    dim_R    = len(wVD.XA1[0,0,0,:,0])
-    nts      = len(wVD.XA1[0,0,0,0,:])
-    r        = np.linspace(0,1,dim_R) 
-    
-    for t_idx in range(nts):
-        for B_idx in range(num_B):
-            
-            for loc in range(dim_R):
-                if plot_rotor_wake_vortex_core:
-                    colors = sample_colorscale(color_map, list(r)) 
-                    X = np.mean([wVD.XA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XA2[0,ctrl_pt,B_idx,loc,t_idx],
-                                   wVD.XB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XB2[0,ctrl_pt,B_idx,loc,t_idx]])
-                    Y = np.mean([wVD.YA1[0,ctrl_pt,B_idx,loc,t_idx], wVD.YA2[0,ctrl_pt,B_idx,loc,t_idx],
-                                  wVD.YB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.YB2[0,ctrl_pt,B_idx,loc,t_idx]])
-                    Z = np.mean([wVD.ZA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZA2[0,ctrl_pt,B_idx,loc,t_idx],
-                                  wVD.ZB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZB2[0,ctrl_pt,B_idx,loc,t_idx]])
-                    ctrl_pts = go.Scatter3d(x=X, y=Y, z=Z,
-                                                mode  = 'markers',
-                                                marker= dict(size=6,color=colors[loc],opacity=0.8),
-                                                line  = dict(color=colors[loc],width=2))
-                    
-                    plot_data.append(ctrl_pts)
-                else:
-                    X = np.array([[wVD.XA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XA2[0,ctrl_pt,B_idx,loc,t_idx]],
-                                  [ wVD.XB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.XB2[0,ctrl_pt,B_idx,loc,t_idx]]])
-                    Y = np.array([[wVD.YA1[0,ctrl_pt,B_idx,loc,t_idx], wVD.YA2[0,ctrl_pt,B_idx,loc,t_idx]],
-                                  [ wVD.YB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.YB2[0,ctrl_pt,B_idx,loc,t_idx]]])
-                    Z = np.array([[wVD.ZA1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZA2[0,ctrl_pt,B_idx,loc,t_idx]],
-                                  [wVD.ZB1[0,ctrl_pt,B_idx,loc,t_idx],wVD.ZB2[0,ctrl_pt,B_idx,loc,t_idx]]])
-            
-                    values = np.ones_like(X)*r[loc] 
-                    verts  = contour_surface_slice(X, Y, Z ,values,color_map)
-                    plot_data.append(verts)     
-                 
-    return plot_data
+ 

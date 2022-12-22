@@ -21,7 +21,7 @@ import plotly.graph_objects as go
 from SUAVE.Plots.Geometry.Common.contour_surface_slice import contour_surface_slice
 
 ## @ingroup Plots-Geometry-Three_Dimensional 
-def plot_3d_fuselage(plot_data,fus,tessellation = 24 ,color_map = 'greys'):
+def plot_3d_fuselage(plot_data,fus, tessellation = 24 ,color_map = 'teal'):
     """ This plots the 3D surface of the fuselage
 
     Assumptions:
@@ -51,8 +51,9 @@ def plot_3d_fuselage(plot_data,fus,tessellation = 24 ,color_map = 'greys'):
                               [fus_pts[i_seg  ,i_tes+1,1],fus_pts[i_seg+1,i_tes+1,1]]])
                 Z = np.array([[fus_pts[i_seg  ,i_tes  ,2],fus_pts[i_seg+1,i_tes  ,2]],
                               [fus_pts[i_seg  ,i_tes+1,2],fus_pts[i_seg+1,i_tes+1,2]]])  
+                 
                 values = np.ones_like(X) 
-                verts = contour_surface_slice(X, Y, Z ,values,color_map)
+                verts  = contour_surface_slice(X, Y, Z,values,color_map)
                 plot_data.append(verts)          
 
     return plot_data 

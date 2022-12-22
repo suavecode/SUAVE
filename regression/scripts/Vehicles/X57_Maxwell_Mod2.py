@@ -428,7 +428,7 @@ def vehicle_setup():
     prop.design_Cl                 = 0.8
     prop.design_altitude           = 9000. * Units.feet  
     prop.design_power              = 98 * 0.65  * Units.hp # assume 65 BHP at cruise
-    prop.origin                    = [[2.,2.5,0.784]]
+    prop.origin                    = [[2.5,2.5,0.95]]
     prop.rotation                  = -1
     prop.symmetry                  = True
     prop.variable_pitch            = True 
@@ -446,7 +446,7 @@ def vehicle_setup():
 
     prop_left = deepcopy(prop)
     prop_left.tag = 'propeller_2' 
-    prop_left.origin   = [[2.,-2.5,0.784]]
+    prop_left.origin   = [[2.5,-2.5,0.95]]
     prop_left.rotation = 1
     
     net.propellers.append(prop)
@@ -469,7 +469,7 @@ def vehicle_setup():
     motor                         = SUAVE.Components.Energy.Converters.Motor()
     motor.efficiency              = 0.95
     motor.gearbox_efficiency      = 1.
-    motor.origin                  = [[2.,  2.5, 0.95]]
+    motor.origin                  = [[3.0,  2.5, 0.95]]
     motor.nominal_voltage         = bat.max_voltage*0.8
     motor.propeller_radius        = prop.tip_radius
     motor.no_load_current         = 0.1
@@ -481,7 +481,7 @@ def vehicle_setup():
     
     # append left motor 
     motor_left = deepcopy(motor)
-    motor_left.origin = [[2., -2.5, 0.95]] 
+    motor_left.origin = [[3.0, -2.5, 0.95]] 
     net.propeller_motors.append(motor_left) 
 
     # Component 6 the Payload

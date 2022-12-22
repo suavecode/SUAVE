@@ -363,19 +363,12 @@ def save_transition_animation_paraview(results,configs,save_path=None):
 
     s_i = 0
     for s, seg in enumerate(results.segments):
-        config = configs[list(configs.keys())[s]]
-        y_rot = seg.conditions.propulsion.propeller_y_axis_rotation[:,0]
-        time = seg.conditions.frames.inertial.time[:,0] 
-        
-        if seg.tag == "Transition_1":
-            # expand for each second of transition
-            t_duration = time[-1] - time[0]
-            y_fun = sp.interpolate.interp1d(time,y_rot)
-            new_times = np.linspace(time[0],time[-1], int(t_duration))
-            new_y_rots = y_fun(new_times)
-            
-            for i in range(len(new_times)):
-                config.networks.battery_propeller.y_axis_rotation = new_y_rots[i]
+        config = seg.analyses.aerodynamics.geometry
+        cpts  = seg.state.numerics.number_control_points
+        if seg.tag == "Transition_1": # only save transition vtks for regression 
+            for cpt in range(cpts):
+                print('Timestep: ' + str(s_i))
+                config.networks.battery_propeller.y_axis_rotation =  seg.conditions.propulsion.propeller_y_axis_rotation[cpt,:]
                 # store vehicle for this control point
                 save_vehicle_vtks(config,time_step=s_i, save_loc=dirname)
                 s_i += 1       
