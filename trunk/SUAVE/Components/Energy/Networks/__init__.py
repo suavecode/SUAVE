@@ -16,7 +16,7 @@ from .Internal_Combustion_Propeller                import Internal_Combustion_Pr
 from .Lift_Cruise                                  import Lift_Cruise
 from .Serial_Hybrid_Ducted_Fan                     import Serial_Hybrid_Ducted_Fan
 from .Propulsor_Surrogate                          import Propulsor_Surrogate
-from .Battery_Propeller                            import Battery_Propeller
+from .Battery_Rotor                                import Battery_Rotor
 from .Ramjet                                       import Ramjet
 from .Scramjet                                     import Scramjet
 from .Liquid_Rocket                                import Liquid_Rocket

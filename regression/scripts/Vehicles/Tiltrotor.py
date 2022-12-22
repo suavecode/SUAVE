@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
+from SUAVE.Components.Energy.Networks.Battery_Rotor     import Battery_Rotor
 from SUAVE.Methods.Propulsion                           import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing                 import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing     import size_optimal_motor
@@ -387,7 +387,7 @@ def vehicle_setup():
     # DEFINE PROPELLER
     #---------------------------------------------------------------------------------------------
     # build network
-    net = Battery_Propeller()
+    net = Battery_Rotor()
     net.number_of_propeller_engines  = 2. 
     net.identical_propellers         = True 
 
@@ -502,7 +502,7 @@ def configs_setup(vehicle):
 
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
-    base_config.networks.battery_propeller.pitch_command = 0
+    base_config.networks.battery_rotor.pitch_command = 0
     configs.append(base_config)
     
     # ------------------------------------------------------------------
@@ -511,8 +511,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'hover_climb'
     vector_angle = 90.0 * Units.degrees
-    config.networks.battery_propeller.y_axis_rotation = vector_angle
-    config.networks.battery_propeller.pitch_command = 0. * Units.degrees
+    config.networks.battery_rotor.y_axis_rotation = vector_angle
+    config.networks.battery_rotor.pitch_command = 0. * Units.degrees
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -520,7 +520,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'transition_1'
-    config.networks.battery_propeller.pitch_command = 0. * Units.degrees
+    config.networks.battery_rotor.pitch_command = 0. * Units.degrees
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -529,7 +529,7 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'cruise'
     vector_angle = 0.0 * Units.degrees
-    config.networks.battery_propeller.y_axis_rotation = vector_angle
+    config.networks.battery_rotor.y_axis_rotation = vector_angle
     configs.append(config)
         
     # done!

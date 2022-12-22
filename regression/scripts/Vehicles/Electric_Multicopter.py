@@ -181,7 +181,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Network
     #------------------------------------------------------------------
-    net                                 = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net                                 = SUAVE.Components.Energy.Networks.Battery_Rotor()
     net.number_of_propeller_engines     = 6
     net.nacelle_diameter                = 0.6 * Units.feet # need to check 
     net.engine_length                   = 0.5 * Units.feet

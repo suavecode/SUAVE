@@ -94,7 +94,7 @@ def blade_geometry_setup(rotor,number_of_stations):
             rotor.oei.design_thrust = rotor.hover.design_thrust*1.1
     
     vehicle                            = SUAVE.Vehicle()  
-    net                                = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net                                = SUAVE.Components.Energy.Networks.Battery_Rotor()
     net.number_of_propeller_engines    = 1
     net.identical_propellers           = True  
     net.propellers.append(rotor)  
@@ -105,12 +105,12 @@ def blade_geometry_setup(rotor,number_of_stations):
     
     config                              = SUAVE.Components.Configs.Config(base_config)
     config.tag                          = 'hover' 
-    config.networks.battery_propeller.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0]    
+    config.networks.battery_rotor.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0]    
     configs.append(config)        
 
     config                              = SUAVE.Components.Configs.Config(base_config)
     config.tag                          = 'oei' 
-    config.networks.battery_propeller.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0]    
+    config.networks.battery_rotor.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0]    
     configs.append(config)       
     
     if type(rotor) == SUAVE.Components.Energy.Converters.Prop_Rotor:  
@@ -123,6 +123,6 @@ def blade_geometry_setup(rotor,number_of_stations):
         
         config                          = SUAVE.Components.Configs.Config(base_config)
         config.tag                      = 'cruise'
-        config.networks.battery_propeller.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0] 
+        config.networks.battery_rotor.propellers.rotor.orientation_euler_angles = [0.0,np.pi/2,0.0] 
         configs.append(config)
     return configs 

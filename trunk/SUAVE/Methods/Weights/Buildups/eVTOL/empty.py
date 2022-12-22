@@ -15,7 +15,7 @@ from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
 from SUAVE.Methods.Weights.Buildups.Common.wing import wing
 from SUAVE.Components.Energy.Converters import Propeller, Lift_Rotor, Prop_Rotor
-from SUAVE.Components.Energy.Networks import Battery_Propeller
+from SUAVE.Components.Energy.Networks import Battery_Rotor
 from SUAVE.Components.Energy.Networks import Lift_Cruise
 
 import numpy as np
@@ -224,7 +224,7 @@ def empty(config,
             prop_motors   = network.propeller_motors
             rot_motors    = network.lift_rotor_motors
 
-        elif isinstance(network, Battery_Propeller): 
+        elif isinstance(network, Battery_Rotor): 
             props         = network.propellers 
             prop_motors   = network.propeller_motors          
             nThrustProps  = 0  

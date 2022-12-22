@@ -21,10 +21,8 @@ from SUAVE.Input_Output.OpenVSP.vsp_wing             import read_vsp_wing
 from SUAVE.Input_Output.OpenVSP.vsp_nacelle          import read_vsp_nacelle
 from SUAVE.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements 
 
-from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
-from SUAVE.Components.Energy.Networks.Battery_Propeller        import Battery_Propeller
-
-from SUAVE.Core import Units, Data, Container
+from SUAVE.Components.Energy.Networks.Lift_Cruise    import Lift_Cruise
+from SUAVE.Components.Energy.Networks.Battery_Rotor  import Battery_PropelleBattery_Rotore import Units, Data, Container
 try:
     import vsp as vsp
 except ImportError:
@@ -268,9 +266,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
         if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
             net = Lift_Cruise()
         else:
-            net = Battery_Propeller() 
-    else:
-        net = specified_network
+            net = Battery_PropelleBattery_Rotor      net = specified_network
 
     # Create the rotor network
     if net.tag == "Lift_Cruise":
@@ -283,7 +279,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
             net.propellers.append(propellers[list(propellers.keys())[i]])
         net.number_of_propeller_engines = number_of_propeller_engines		
 
-    elif net.tag == "Battery_Propeller":
+    elif net.tag == "Battery_Rotor":
         # Append all rotors as propellers for the battery propeller network
         for i in range(number_of_lift_rotor_engines):
             # Accounts for multicopter configurations
