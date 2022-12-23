@@ -181,8 +181,13 @@ class Battery_Rotor(Network):
                 prop      = self.propellers[prop_key]
 
                 # Set rotor y-axis rotation                
-                prop.inputs.y_axis_rotation = conditions.propulsion.rotor_y_axis_rotation                    
-                
+                prop.inputs.y_axis_rotation = conditions.propulsion.rotor_y_axis_rotation    
+            
+                if identical_flag:
+                    for idx in range(1,int(num_engines)) :
+                        rotor_remainder      = self.rotors[list(props.keys())[idx]]
+                        rotor_remainder.inputs.y_axis_rotation = conditions.propulsion.rotor_y_axis_rotation
+                        
                 # link 
                 motor.inputs.voltage        = esc.outputs.voltageout
                 motor.inputs.propeller_CP   = np.atleast_2d(conditions.propulsion.propeller_power_coefficient[:,ii]).T
