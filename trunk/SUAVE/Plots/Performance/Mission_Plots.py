@@ -1027,7 +1027,7 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
     Inputs:
     results.segments.conditions.
         frames.inertial.time
-        propulsion.propeller_y_axis_rotation
+        propulsion.rotor_y_axis_rotation
 
     Outputs:
     Plots
@@ -1051,7 +1051,7 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
         Vz      = segment.state.conditions.frames.inertial.velocity_vector[:,2]
 
         body_angle = segment.state.conditions.frames.body.inertial_rotations[:,1] / Units.deg
-        y_rot      = segment.conditions.propulsion.propeller_y_axis_rotation[:,0] / Units.deg
+        y_rot      = segment.conditions.propulsion.rotor_y_axis_rotation[:,0] / Units.deg
         time       = segment.conditions.frames.inertial.time[:,0] / Units.min
         Vinf       = segment.conditions.freestream.velocity[:,0]
 

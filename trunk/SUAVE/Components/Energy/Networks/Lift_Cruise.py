@@ -1012,7 +1012,7 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.figure_of_merit            = 0. * ones_row(n_props)         
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.propeller_y_axis_rotation  = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor_y_axis_rotation      = 0. * ones_row(n_props)
 
         # Setup the conditions for the lift_rotors
         segment.state.conditions.propulsion.lift_rotor_motor_torque      = 0. * ones_row(n_lift_rotors)
