@@ -3,7 +3,7 @@
 # Imports    
 import SUAVE
 from SUAVE.Core import Units, Data 
-from SUAVE.Components.Energy.Networks.Battery_Propeller                                       import Battery_Propeller
+from SUAVE.Components.Energy.Networks.Battery_Rotor                                           import Battery_Rotor
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties  import compute_airfoil_properties
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series        import compute_naca_4series
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                        import propeller_mid_fidelity
@@ -20,7 +20,7 @@ sys.path.append('../Vehicles/Propellers')
 # the analysis functions
 
 from F8745_D4_Propeller  import F8745_D4_Propeller
-from APC_11x4_Propeller import APC_11x4_Propeller 
+from APC_11x4_Propeller  import APC_11x4_Propeller 
 # ----------------------------------------------------------------------
 #   Main
 # ---------------------------------------------------------------------- 
@@ -45,9 +45,9 @@ def main():
         Slc = ['black','dimgray','silver' ], # SUAVE_line_colors        
         Slm = '^',                           # SUAVE_line_markers       
         Sls = '-',                           # SUAVE_line_styles        
-        Elc = ['darkred','red','tomato'], # Experimental_line_colors 
+        Elc = ['darkred','red','tomato'],    # Experimental_line_colors 
         Elm = 's',                           # Experimental_line_markers
-        Els = '',                          # Experimental_line_styles 
+        Els = '',                            # Experimental_line_styles 
         Rlc = ['darkblue','blue','cyan'],    # Ref_Code_line_colors     
         Rlm = 'o',                           # Ref_Code_line_markers    
         Rls = ':',                           # Ref_Code_line_styles     
@@ -69,7 +69,7 @@ def main():
 # ------------------------------------------------------------------  
 def Hararmonic_Noise_Validation(PP):
 
-    net                                = Battery_Propeller()
+    net                                = Battery_Rotor()
     net.number_of_propeller_engines    = 1                                      
     prop                               = F8745_D4_Propeller()  
     net.identical_propellers           = True  
@@ -214,7 +214,6 @@ def Hararmonic_Noise_Validation(PP):
     axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
     axes.plot(harmonics, ANOPP_PAS_Case_2_60deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_2_60deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,   label = 'Exp.')  
-    #axes.set_ylabel('SPL (dB)') 
     axes.set_title('60 deg. 60 deg. Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))   
     axes.minorticks_on()   
 
@@ -297,7 +296,7 @@ def Broadband_Noise_Validation(PP):
     # APC SF Rotor
     # ---------------------------------------------------------------------------------------------------------------------------
     # Define Network
-    net_APC_SF                                  = Battery_Propeller()
+    net_APC_SF                                  = Battery_Rotor()
     net_APC_SF.number_of_propeller_engines      = 1        
     net_APC_SF.identical_propellers             = True  
     net_APC_SF.propellers.append(APC_SF)    

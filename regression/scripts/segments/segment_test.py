@@ -74,25 +74,25 @@ def main():
             print(val)
     
     # Truth values
-    climb_throttle_1_truth   = 1.0779171064877817
-    climb_throttle_2_truth   = 1.0825265840224687
-    climb_throttle_3_truth   = 0.674660268669148 
-    climb_throttle_4_truth   = 1.1315606426230955
-    climb_throttle_5_truth   = 1.1836691794281005
-    climb_throttle_6_truth   = 0.7820927446131135
-    climb_throttle_7_truth   = 0.9575782120087092
-    climb_throttle_8_truth   = 1.1806251177582514
-    climb_throttle_9_truth   = 1.2803044387670226
-    climb_throttle_10_truth  = 1.0 
-    cruise_CL_1_truth        = 0.697527528118587  
-    cruise_CL_2_truth        = 0.6978305032649874  
-    cruise_CL_3_truth        = 0.7853555716641899  
-    descent_throttle_1_truth = 0.09557733021666127  
-    descent_throttle_2_truth = 0.2467066714518043  
-    single_pt_CL_1_truth     = 0.25119411851114865  
-    single_pt_CL_2_truth     = 0.2511952953215362 
-    loiter_CL_truth          = 0.5115243029776504 
-    descent_throttle_3_truth = 0.17985343172510482 
+    climb_throttle_1_truth   = 1.0779172001580895
+    climb_throttle_2_truth   = 1.0825266956923534
+    climb_throttle_3_truth   = 0.674659924528744
+    climb_throttle_4_truth   = 1.1315563076928277
+    climb_throttle_5_truth   = 1.1836299998309165
+    climb_throttle_6_truth   = 1.8029235225146518
+    climb_throttle_7_truth   = 2.162410758508211
+    climb_throttle_8_truth   = 1.1553353775037472
+    climb_throttle_9_truth   = 1.2526488110631937
+    climb_throttle_10_truth  = 1.0
+    cruise_CL_1_truth        = 0.6922081900548479
+    cruise_CL_2_truth        = 0.6924899560446343
+    cruise_CL_3_truth        = 0.7831614422287909
+    descent_throttle_1_truth = 0.09429690800605248
+    descent_throttle_2_truth = 0.2436300668288393
+    single_pt_CL_1_truth     = 0.24927935053641762
+    single_pt_CL_2_truth     = 0.2492810778918667
+    loiter_CL_truth          = 0.5076303507170998
+    descent_throttle_3_truth = 0.17737866994148493
     
     # Store errors 
     error = Data()

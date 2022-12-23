@@ -64,6 +64,8 @@ class Rotor(Energy_Component):
         """
 
         self.tag                               = 'rotor'
+        
+        # geometry properties 
         self.number_of_blades                  = 0.0
         self.tip_radius                        = 0.0
         self.hub_radius                        = 0.0
@@ -71,31 +73,33 @@ class Rotor(Energy_Component):
         self.sweep_distribution                = 0.0         # quarter chord offset from quarter chord of root airfoil
         self.chord_distribution                = 0.0
         self.thickness_to_chord                = 0.0
-        self.mid_chord_alignment               = 0.0
-        self.blade_solidity                    = 0.0
-        self.design_power                      = None
-        self.design_thrust                     = None
         self.radius_distribution               = None
+        self.mid_chord_alignment               = 0.0
+        self.blade_solidity                    = 0.0 
+        self.number_azimuthal_stations         = 24  
+        self.vtk_airfoil_points                = 40        
+        self.Airfoils                          = Airfoil_Container()
+        self.airfoil_polar_stations            = None
+        
+        # design flight conditions 
+        self.cruise                            = Data() 
+        self.cruise.design_power               = None
+        self.cruise.design_thrust              = None
+        self.cruise.design_power_coefficient   = 0.01 
+
+        # operating conditions 
+        self.induced_power_factor              = 1.48         # accounts for interference effects
+        self.profile_drag_coefficient          = .03
         self.rotation                          = 1
         self.phase_offset_angle                = 0.0
         self.orientation_euler_angles          = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                            = False
-        self.number_azimuthal_stations         = 24
-        self.vtk_airfoil_points                = 40
-        self.induced_power_factor              = 1.48         # accounts for interference effects
-        self.profile_drag_coefficient          = .03
-        self.sol_tolerance                     = 1e-8
-        self.design_power_coefficient          = 0.01
-        
-        self.Airfoils                          = Airfoil_Container()
-        self.airfoil_polar_stations            = None
-
+        self.sol_tolerance                     = 1e-8 
         self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream             = False
         self.axial_velocities_2d               = None     # user input for additional velocity influences at the rotor
         self.tangential_velocities_2d          = None     # user input for additional velocity influences at the rotor
-        self.radial_velocities_2d              = None     # user input for additional velocity influences at the rotor
-
+        self.radial_velocities_2d              = None     # user input for additional velocity influences at the rotor 
         self.start_angle                       = 0.0      # angle of first blade from vertical
         self.start_angle_idx                   = 0        # azimuthal index at which the blade is started
         self.inputs.y_axis_rotation            = 0.
@@ -103,17 +107,20 @@ class Rotor(Energy_Component):
         self.variable_pitch                    = False
         
         # Initialize the default wake set to Fidelity Zero 
-        self.Wake                      = Rotor_Wake_Fidelity_Zero()
-    
-        self.optimization_parameters                       = Data() 
-        self.optimization_parameters.tip_mach_range        = [0.3,0.7] 
-        self.optimization_parameters.microphone_angle      = 45 * Units.degrees    
-        self.optimization_parameters.slack_constaint       = 1E-3 # slack constraint 
-        self.optimization_parameters.ideal_SPL_dBA         = 45 
-        self.optimization_parameters.aeroacoustic_weight   = 1.   # 1 = aerodynamic optimization, 0.5 = equally weighted aeroacoustic optimization, 0 = acoustic optimization  
+        self.Wake                      = Rotor_Wake_Fidelity_Zero() 
+        
+        # blade optimization parameters     
+        self.optimization_parameters                                    = Data() 
+        self.optimization_parameters.tip_mach_range                     = [0.3,0.7] 
+        self.optimization_parameters.multiobjective_aeroacoustic_weight = 1.0
+        self.optimization_parameters.multiobjective_performance_weight  = 0.5
+        self.optimization_parameters.multiobjective_acoustic_weight     = 1.0
+        self.optimization_parameters.noise_evaluation_angle             = 135 * Units.degrees 
+        self.optimization_parameters.tolerance                          = 1E-4
+        self.optimization_parameters.ideal_SPL_dBA                      = 30
+        self.optimization_parameters.ideal_efficiency                   = 1.0     
+        self.optimization_parameters.ideal_figure_of_merit              = 1.0
          
-
-
     def append_airfoil(self,airfoil):
         """ Adds an airfoil to the segment
 

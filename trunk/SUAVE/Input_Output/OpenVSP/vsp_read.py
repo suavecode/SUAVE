@@ -14,16 +14,15 @@
 
 from copy import deepcopy
 
-import SUAVE
-from SUAVE.Input_Output.OpenVSP.vsp_rotor     import read_vsp_protor
-from SUAVE.Input_Output.OpenVSP.vsp_fuselage  import read_vsp_fuselage
-from SUAVE.Input_Output.OpenVSP.vsp_wing      import read_vsp_wing
-from SUAVE.Input_Output.OpenVSP.vsp_nacelle   import read_vsp_nacelle
+import SUAVE 
+from SUAVE.Input_Output.OpenVSP.vsp_rotor            import read_vsp_rotor
+from SUAVE.Input_Output.OpenVSP.vsp_fuselage         import read_vsp_fuselage
+from SUAVE.Input_Output.OpenVSP.vsp_wing             import read_vsp_wing
+from SUAVE.Input_Output.OpenVSP.vsp_nacelle          import read_vsp_nacelle
+from SUAVE.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements 
 
-from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
-from SUAVE.Components.Energy.Networks.Battery_Propeller        import Battery_Propeller
-
-from SUAVE.Core import Units, Data, Container
+from SUAVE.Components.Energy.Networks.Lift_Cruise    import Lift_Cruise
+from SUAVE.Components.Energy.Networks.Battery_Rotor  import Battery_PropelleBattery_Rotore import Units, Data, Container
 try:
     import vsp as vsp
 except ImportError:
@@ -40,7 +39,7 @@ except ImportError:
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True): 
+def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calculate_wetted_area=True): 
     """This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
     Includes wings, fuselages, and propellers.
 
@@ -163,6 +162,17 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True):
         geom_name = vsp.GetGeomName(geom)
         geom_names.append(geom_name)
         print(str(geom_name) + ': ' + geom)
+        
+        
+    # Use OpenVSP to calculate wetted area
+    if calculate_wetted_area:
+        measurements = get_vsp_measurements()
+        if units_type == 'SI':
+            units_factor = Units.meter * 1.
+        elif units_type == 'imperial':
+            units_factor = Units.foot * 1.
+        elif units_type == 'inches':
+            units_factor = Units.inch * 1.	         
 
     # --------------------------------
     # AUTOMATIC VSP ENTRY & PROCESSING
@@ -196,6 +206,10 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True):
             sym_flag = [1] 
         for fux_idx in range(num_fus):	# loop through fuselages on aircraft 
             fuselage = read_vsp_fuselage(fuselage_id,fux_idx,sym_flag[fux_idx],units_type,use_scaling)
+            
+            if calculate_wetted_area:
+                fuselage.areas.wetted = measurements[vsp.GetGeomName(fuselage_id)] * (units_factor**2)
+            
             vehicle.append_component(fuselage)
         
     # --------------------------------------------------			    
@@ -203,6 +217,8 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True):
     # --------------------------------------------------			
     for wing_id in vsp_wings:
         wing = read_vsp_wing(wing_id, units_type,use_scaling)
+        if calculate_wetted_area:
+            wing.areas.wetted = measurements[vsp.GetGeomName(wing_id)] * (units_factor**2)  
         vehicle.append_component(wing)		 
         
     # --------------------------------------------------			    
@@ -210,6 +226,8 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True):
     # --------------------------------------------------			
     for nac_id, nacelle_id in enumerate(vsp_nacelles):
         nacelle = read_vsp_nacelle(nacelle_id,vsp_nacelle_type[nac_id], units_type)
+        if calculate_wetted_area:
+            nacelle.areas.wetted = measurements[vsp.GetGeomName(nacelle_id)] * (units_factor**2)         
         vehicle.append_component(nacelle)	  
     
     # --------------------------------------------------			    
@@ -248,9 +266,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True):
         if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
             net = Lift_Cruise()
         else:
-            net = Battery_Propeller() 
-    else:
-        net = specified_network
+            net = Battery_PropelleBattery_Rotor      net = specified_network
 
     # Create the rotor network
     if net.tag == "Lift_Cruise":
@@ -263,7 +279,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True):
             net.propellers.append(propellers[list(propellers.keys())[i]])
         net.number_of_propeller_engines = number_of_propeller_engines		
 
-    elif net.tag == "Battery_Propeller":
+    elif net.tag == "Battery_Rotor":
         # Append all rotors as propellers for the battery propeller network
         for i in range(number_of_lift_rotor_engines):
             # Accounts for multicopter configurations

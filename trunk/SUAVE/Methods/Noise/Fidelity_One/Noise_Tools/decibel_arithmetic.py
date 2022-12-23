@@ -63,29 +63,3 @@ def SPL_arithmetic(SPL, sum_axis = 2):
         SPL_total = 10*np.log10(np.sum(p_prefs, axis = sum_axis))
         
     return SPL_total
-
-## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
-def SPL_spectra_arithmetic(SPL):
-    '''This computes the total SPL spectra from multiple sources 
-    using decibel arithmetic  
-    
-    Assumptions:
-        None
-
-    Source:
-        None
-
-    Inputs:
-        SPL  -  Sound Pressure Level        [dB]
-
-    Outputs: 
-        SPL  -  Sound Pressure Level        [dB]
-    
-    Properties Used:
-        N/A 
-    
-    ''' 
-    p_prefs   = 10**(SPL/10)
-    SPL_total = 10*np.log10(np.sum(p_prefs, axis = 2))
-        
-    return SPL_total

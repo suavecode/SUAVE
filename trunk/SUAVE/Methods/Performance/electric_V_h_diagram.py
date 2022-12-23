@@ -81,8 +81,8 @@ def electric_V_h_diagram(vehicle,
     g               = analyses.atmosphere.planet.sea_level_gravity
     W               = vehicle.mass_properties.takeoff * g
     S               = vehicle.reference_area
-    Nprops          = int(vehicle.networks.battery_propeller.number_of_propeller_engines)
-    identical_props = vehicle.networks.battery_propeller.identical_propellers
+    Nprops          = int(vehicle.networks.battery_rotor.number_of_propeller_engines)
+    identical_props = vehicle.networks.battery_rotor.identical_propellers
 
     # Single Point Mission for Drag Determination
 
@@ -143,8 +143,8 @@ def electric_V_h_diagram(vehicle,
                 
                 Power = 0
                 for i in range(n_laps):
-                    prop_key = list(vehicle.networks.battery_propeller.propellers.keys())[i]
-                    _,res = propeller_single_point(vehicle.networks.battery_propeller.propellers[prop_key],
+                    prop_key = list(vehicle.networks.battery_rotor.propellers.keys())[i]
+                    _,res = propeller_single_point(vehicle.networks.battery_rotor.propellers[prop_key],
                                                analyses=analyses,
                                                pitch=0.,
                                                omega=test_omega,
@@ -155,7 +155,7 @@ def electric_V_h_diagram(vehicle,
                         
 
                 # Check if Propeller Power Exceeds Max Battery Power, Switch to Max Battery Power if So
-                P = np.min([Power, vehicle.networks.battery_propeller.battery.max_power])
+                P = np.min([Power, vehicle.networks.battery_rotor.battery.max_power])
 
                 # Determine Climb Rate (ref. Raymer)
 

@@ -170,7 +170,7 @@ class Fidelity_Zero(Stability):
             # Derivative of yawing moment with respect to the rate of yaw
             cDw = aero.drag_breakdown.parasite['main_wing'].parasite_drag_coefficient # Might not be the correct value
             l_v = geometry.wings['vertical_stabilizer'].origin[0][0] + geometry.wings['vertical_stabilizer'].aerodynamic_center[0] - geometry.wings['main_wing'].origin[0][0] - geometry.wings['main_wing'].aerodynamic_center[0]
-            stability.static.Cn_r = Supporting_Functions.cn_r(cDw, geometry.wings['vertical_stabilizer'].areas.reference, Sref, l_v, span, geometry.wings['vertical_stabilizer'].dynamic_pressure_ratio, geometry.wings['vertical_stabilizer'].CL_alpha)
+            stability.static.Cn_r = Supporting_Functions.cn_r(cDw, geometry.wings['vertical_stabilizer'].areas.reference, Sref, l_v, Span, geometry.wings['vertical_stabilizer'].dynamic_pressure_ratio, geometry.wings['vertical_stabilizer'].CL_alpha)
 
             # Derivative of rolling moment with respect to roll rate
             stability.static.Cl_p = Supporting_Functions.cl_p(conditions.lift_curve_slope, geometry)
@@ -185,7 +185,8 @@ class Fidelity_Zero(Stability):
 
             # Derivative of pitching moment with respect to pitch rate
             l_t                    = geometry.wings['horizontal_stabilizer'].origin[0][0] + geometry.wings['horizontal_stabilizer'].aerodynamic_center[0] - geometry.wings['main_wing'].origin[0][0] - geometry.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm       
-            stability.static.Cm_q  = Supporting_Functions.cm_q(conditions.lift_curve_slope, l_t,mac) # Need to check Cm_i versus Cm_alpha
+            vht                    = geometry.wings['horizontal_stabilizer'].areas.reference * l_t / (geometry.reference_area*geometry.wings['main_wing'].chords.mean_aerodynamic)
+            stability.static.Cm_q  = Supporting_Functions.cm_q(conditions.lift_curve_slope, vht, l_t,mac) # Need to check Cm_i versus Cm_alpha
 
             # Derivative of pitching rate with respect to d(alpha)/d(t)
             stability.static.Cm_alpha_dot = Supporting_Functions.cm_alphadot(stability.static.Cm_alpha, geometry.wings['horizontal_stabilizer'].ep_alpha, l_t, mac) # Need to check Cm_i versus Cm_alpha

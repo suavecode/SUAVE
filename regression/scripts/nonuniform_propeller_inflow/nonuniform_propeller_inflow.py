@@ -44,7 +44,7 @@ def case_1(vehicle, conditions):
     #-------------------------------------------------------------
     # set operating conditions for propeller test
     prop = vehicle.networks.prop_net.propeller
-    prop.inputs.omega = np.ones_like(conditions.aerodynamics.angle_of_attack)*prop.angular_velocity
+    prop.inputs.omega = np.ones_like(conditions.aerodynamics.angle_of_attack)*prop.cruise.design_angular_velocity
     prop.orientation_euler_angles  = [0.,20.*Units.degrees,0]
     prop.use_2d_analysis           = True
     
@@ -227,7 +227,7 @@ def vehicle_setup(Na, Nr):
     # ------------------------------------------------------------------
     #   Propulsion Properties
     # ------------------------------------------------------------------
-    net                          = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net                          = SUAVE.Components.Energy.Networks.Battery_Rotor()
     net.tag                      = 'prop_net'
     net.number_of_engines        = 2
 
@@ -249,28 +249,28 @@ def basic_prop(Na=24, Nr=101):
     # Design the Propeller
     prop = SUAVE.Components.Energy.Converters.Propeller()
 
-    prop.number_of_blades          = 2
-    prop.freestream_velocity       = 135.   * Units['mph']
-    prop.angular_velocity          = 1300.  * Units.rpm
-    prop.tip_radius                = 38.    * Units.inches
-    prop.hub_radius                = 8.     * Units.inches
-    prop.design_Cl                 = 0.8
-    prop.design_altitude           = 12000. * Units.feet
-    prop.design_thrust             = 1200.
-    prop.origin                    = [[0.,0.,0.]]
-    prop.number_azimuthal_stations = Na
-    prop.rotation                  = 1
-    prop.symmetry                  = True
-    airfoil                        = SUAVE.Components.Airfoils.Airfoil()    
-    airfoil.coordinate_file        = '../Vehicles/Airfoils/NACA_4412.txt'
-    airfoil.polar_files            = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                   '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
-    prop.append_airfoil(airfoil) 
-    prop.airfoil_polar_stations    = list(np.zeros(Nr).astype(int))
-    prop                           = propeller_design(prop,Nr)   
+    prop.number_of_blades                 = 2
+    prop.tip_radius                       = 38.    * Units.inches
+    prop.hub_radius                       = 8.     * Units.inches
+    prop.cruise.design_freestream_velocity= 135.   * Units['mph']
+    prop.cruise.design_angular_velocity   = 1300.  * Units.rpm
+    prop.cruise.design_Cl                 = 0.8
+    prop.cruise.design_altitude           = 12000. * Units.feet
+    prop.cruise.design_thrust             = 1200.
+    prop.origin                           = [[0.,0.,0.]]
+    prop.number_azimuthal_stations        = Na
+    prop.rotation                         = 1
+    prop.symmetry                         = True
+    airfoil                               = SUAVE.Components.Airfoils.Airfoil()    
+    airfoil.coordinate_file               = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files                   = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    prop.append_airfoil(airfoil)         
+    prop.airfoil_polar_stations           = list(np.zeros(Nr).astype(int))
+    prop                                  = propeller_design(prop,Nr)   
 
     return prop
 

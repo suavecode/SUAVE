@@ -34,8 +34,8 @@ def APC_11x4_Propeller():
                                                 [0.2952380952380953, 21.8436873747495    ],[0.3500000000000001, 20.741482965931866  ],[0.4023809523809523, 19.138276553106213  ],
                                                 [0.44761904761904736, 17.434869739478955 ],[0.5, 15.6312625250501                   ],[0.5500000000000003, 14.07815631262525   ],
                                                 [0.6000000000000001, 12.725450901803606  ],[0.6499999999999999, 11.57314629258517   ],[0.6976190476190478, 10.470941883767534  ],
-                                                [0.7476190476190476, 9.569138276553108   ], [0.7976190476190479, 8.667334669338675   ],[0.8500000000000001, 7.665330661322642   ],
-                                                [0.8999999999999999, 6.6633266533066156  ],[0.9500000000000002, 5.360721442885772   ],[0.99, 3.9579158316633247                  ]])
+                                                [0.7476190476190476, 9.569138276553108   ], [0.7976190476190479, 8.667334669338675  ],[0.8500000000000001, 7.665330661322642  ],
+                                                [0.8999999999999999, 6.6633266533066156  ],[0.9500000000000002, 5.360721442885772   ],[0.99, 3.9579158316633247                ]])
              
     r_R                             = dimensionless_radius_chord[:,0]
     b_R                             = dimensionless_radius_chord[:,1] 
@@ -56,16 +56,17 @@ def APC_11x4_Propeller():
     prop.radius_distribution        = r_R*prop.tip_radius      
     prop.mid_chord_alignment        = np.zeros_like(prop.chord_distribution)   
     prop.thickness_to_chord         = prop.max_thickness_distribution/prop.chord_distribution     
-    ospath    = os.path.abspath(__file__)
-    separator = os.path.sep
-    rel_path  = os.path.dirname(ospath) + separator   
-    airfoil                          = SUAVE.Components.Airfoils.Airfoil()   
-    airfoil.coordinate_file          = rel_path +'../Airfoils/Clark_y.txt'
-    airfoil.polar_files              = [rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt',
-                                      rel_path +'../Airfoils/Polars/Clark_y_polar_Re_100000.txt',rel_path +'../Airfoils/Polars/Clark_y_polar_Re_200000.txt',
-                                      rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',rel_path +'../Airfoils/Polars/Clark_y_polar_Re_1000000.txt']
-    airfoil.geometry                 = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points)
-    airfoil.polars                   = compute_airfoil_properties(airfoil.geometry,airfoil.polar_files)
+    ospath                          = os.path.abspath(__file__)
+    separator                       = os.path.sep
+    rel_path                        = os.path.dirname(ospath) + separator   
+    airfoil                         = SUAVE.Components.Airfoils.Airfoil()
+    airfoil.number_of_points        = 300
+    airfoil.coordinate_file         = rel_path +'../Airfoils/Clark_y.txt'
+    airfoil.polar_files             = [rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt',
+                                     rel_path +'../Airfoils/Polars/Clark_y_polar_Re_100000.txt',rel_path +'../Airfoils/Polars/Clark_y_polar_Re_200000.txt',
+                                     rel_path +'../Airfoils/Polars/Clark_y_polar_Re_500000.txt',rel_path +'../Airfoils/Polars/Clark_y_polar_Re_1000000.txt']
+    airfoil.geometry                = import_airfoil_geometry(airfoil.coordinate_file,airfoil.number_of_points)
+    airfoil.polars                  = compute_airfoil_properties(airfoil.geometry,airfoil.polar_files)
     prop.append_airfoil(airfoil) 
-    prop.airfoil_polar_stations      = list(np.zeros(len(prop.radius_distribution)).astype(int)) 
+    prop.airfoil_polar_stations     = list(np.zeros(len(prop.radius_distribution)).astype(int)) 
     return prop

@@ -11,15 +11,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUAVE imports
-from SUAVE.Analyses.Mission.Segments import Aerodynamic
-from SUAVE.Analyses.Mission.Segments import Conditions
-
-from SUAVE.Methods.Missions import Segments as Methods
-from SUAVE.Methods.skip import skip
-
-from .Unknown_Throttle import Unknown_Throttle
-from SUAVE.Analyses import Process
+# SUAVE imports 
+from SUAVE.Methods.Missions import Segments as Methods  
+from .Unknown_Throttle import Unknown_Throttle 
 
 # Units
 from SUAVE.Core import Units
@@ -61,8 +55,7 @@ class Constant_Speed_Linear_Altitude(Unknown_Throttle):
         
         # --------------------------------------------------------------
         #   User inputs
-        # --------------------------------------------------------------
-        self.altitude        = None
+        # -------------------------------------------------------------- 
         self.air_speed       = 10. * Units['km/hr']
         self.distance        = 10. * Units.km
         self.altitude_start  = None
@@ -78,4 +71,3 @@ class Constant_Speed_Linear_Altitude(Unknown_Throttle):
         initialize.conditions = Methods.Climb.Constant_Speed_Linear_Altitude.initialize_conditions  
 
         return
-

@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 # SUAVE imports
 from SUAVE.Components.Energy.Networks.Lift_Cruise import Lift_Cruise
-from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
+from SUAVE.Components.Energy.Networks.Battery_Rotor import Battery_Rotor
 from SUAVE.Core import Data
 import numpy as np
 # ----------------------------------------------------------------------

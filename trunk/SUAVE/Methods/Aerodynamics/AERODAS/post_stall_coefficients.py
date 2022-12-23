@@ -80,7 +80,7 @@ def post_stall_coefficients(state,settings,geometry):
     # Equation 11a,b,c
     con1      = np.logical_and(0<alpha,alpha<ACL1)
     con2      = np.logical_and(ACL1<=alpha,alpha<=(92.0*Units.deg))
-    con3      = [alpha>=(92.0*Units.deg)]
+    con3      = alpha>=(92.0*Units.deg)
     CL2       = np.zeros_like(alpha)
     CL2[con1] =  0
     CL2[con2] = -0.032*(alpha[con2]/Units.deg-92.0) - RCL2*((92.*Units.deg-alpha[con2])/(51.0*Units.deg))**N2

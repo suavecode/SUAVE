@@ -63,5 +63,5 @@ def A_weighting(SPL,f):
     """    
     Ra_f       = ((12194**2)*(f**4))/ (((f**2)+(20.6**2)) * ((f**2)+(12194**2)) * (((f**2) + 107.7**2)**0.5)*(((f**2)+ 737.9**2)**0.5)) 
     A_f        =  2.0  + 20*np.log10(Ra_f) 
-    SPL_dBA = SPL + A_f
+    SPL_dBA    = SPL + A_f
     return SPL_dBA

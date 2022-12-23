@@ -131,7 +131,7 @@ def GA_full_setup(battery_chemistry):
     vehicle  = GA_vehicle_setup()
     
     # Modify  Battery  
-    net = vehicle.networks.battery_propeller
+    net = vehicle.networks.battery_rotor
     bat = net.battery 
     if battery_chemistry == 'NMC': 
         bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
@@ -318,12 +318,12 @@ def GA_mission_setup(analyses,vehicle):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_1"
     segment.analyses.extend( analyses.base )
-    segment.battery_energy                   = vehicle.networks.battery_propeller.battery.max_energy * 0.89
+    segment.battery_energy                   = vehicle.networks.battery_rotor.battery.max_energy * 0.89
     segment.altitude_start                   = 2500.0  * Units.feet
     segment.altitude_end                     = 8012    * Units.feet 
     segment.air_speed                        = 96.4260 * Units['mph'] 
     segment.climb_rate                       = 700.034 * Units['ft/min']    
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005) 
+    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005) 
 
     # add to misison
     mission.append_segment(segment)
@@ -337,7 +337,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.altitude                  = 8012   * Units.feet
     segment.air_speed                 = 120.91 * Units['mph'] 
     segment.distance                  =  20.   * Units.nautical_mile   
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)   
+    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)   
 
     # add to misison
     mission.append_segment(segment)    
@@ -355,7 +355,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.air_speed_end                                    = 110 * Units['mph']   
     segment.climb_rate                                       = -200 * Units['ft/min']  
     segment.state.unknowns.throttle                          = 0.8 * ones_row(1)  
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)   
+    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficient = 0.005)   
     
     # add to misison
     mission.append_segment(segment)
@@ -369,7 +369,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.analyses.extend(analyses.base)           
     segment.battery_discharge                               = False      
     segment.increment_battery_cycle_day                     = True            
-    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)    
+    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment)    
     
     # add to misison
     mission.append_segment(segment)        

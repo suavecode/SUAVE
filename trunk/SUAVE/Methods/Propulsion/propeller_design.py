@@ -56,12 +56,12 @@ def propeller_design(prop,number_of_stations=20):
     B            = prop.number_of_blades
     R            = prop.tip_radius
     Rh           = prop.hub_radius
-    omega        = prop.angular_velocity    # Rotation Rate in rad/s
-    V            = prop.freestream_velocity # Freestream Velocity
-    Cl           = prop.design_Cl           # Design Lift Coefficient
-    alt          = prop.design_altitude
-    Thrust       = prop.design_thrust
-    Power        = prop.design_power
+    omega        = prop.cruise.design_angular_velocity    # Rotation Rate in rad/s
+    V            = prop.cruise.design_freestream_velocity # Freestream Velocity
+    Cl           = prop.cruise.design_Cl                  # Design Lift Coefficient
+    alt          = prop.cruise.design_altitude
+    Thrust       = prop.cruise.design_thrust
+    Power        = prop.cruise.design_power
     airfoils     = prop.Airfoils 
     a_loc        = prop.airfoil_polar_stations
     
@@ -261,24 +261,24 @@ def propeller_design(prop,number_of_stations=20):
         t_c     = np.max(t,axis = 1) /c  
             
     # Nondimensional thrust
-    if prop.design_power == None: 
-        prop.design_power = Power[0]        
-    elif prop.design_thrust == None: 
-        prop.design_thrust = Thrust[0]       
+    if prop.cruise.design_power == None: 
+        prop.cruise.design_power = Power[0]        
+    elif prop.cruise.design_thrust == None: 
+        prop.cruise.design_thrust = Thrust[0]       
     
     # blade solidity
     r          = chi*R                    # Radial coordinate   
     blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
     sigma      = blade_area[-1]/(np.pi*R**2)   
     
-    prop.design_torque                          = Power[0]/omega
+    prop.cruise.design_torque                   = Power[0]/omega
     prop.max_thickness_distribution             = t_max
     prop.twist_distribution                     = beta
     prop.chord_distribution                     = c
     prop.radius_distribution                    = r
     prop.number_of_blades                       = int(B)
-    prop.design_power_coefficient               = Cp
-    prop.design_thrust_coefficient              = Ct
+    prop.cruise.design_power_coefficient        = Cp
+    prop.cruise.design_thrust_coefficient       = Ct
     prop.mid_chord_alignment                    = MCA
     prop.thickness_to_chord                     = t_c
     prop.blade_solidity                         = sigma

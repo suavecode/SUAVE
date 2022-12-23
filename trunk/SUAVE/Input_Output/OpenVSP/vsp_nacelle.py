@@ -264,6 +264,7 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
         abs_x_location_vec = []
         abs_y_location_vec = []
         abs_z_location_vec = []
+        diameter       = 0
         
         for i in range(num_segs): 
             # Create the segment
@@ -274,7 +275,7 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
             # Pull out Parms that will be needed
             X_Loc_P = vsp.GetXSecParm(xsec_id, 'XDelta')
             Y_Loc_P = vsp.GetXSecParm(xsec_id, 'YDelta')
-            Z_Loc_P = vsp.GetXSecParm(xsec_id, 'XDelta') 
+            Z_Loc_P = vsp.GetXSecParm(xsec_id, 'ZDelta') 
             
             del_x = vsp.GetParmVal(X_Loc_P)
             del_y = vsp.GetParmVal(Y_Loc_P)
@@ -301,10 +302,13 @@ def read_vsp_nacelle(nacelle_id,vsp_nacelle_type, units_type='SI'):
                 segment.width  = vsp.GetXSecWidth(xsec_id) * units_factor  
                 if i == 0:
                     nacelle.flow_through = True 
+                    
+            diameter = np.max([np.sqrt(segment.height**2 + segment.width**2),diameter])
                 
             nacelle.Segments.append(segment)
             
-        nacelle.length = abs_x_location_vec[-1]  
+        nacelle.length   = abs_x_location_vec[-1] * units_factor
+        nacelle.diameter = diameter
         segs = nacelle.Segments
         for seg in range(num_segs):    
             segs[seg].percent_x_location = np.array(abs_x_location_vec[seg])/abs_x_location_vec[-1]

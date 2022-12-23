@@ -184,7 +184,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # network
     #------------------------------------------------------------------
-    net                                = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net                                = SUAVE.Components.Energy.Networks.Battery_Rotor()
     net.number_of_propeller_engines    = 8
     net.y_axis_rotation                = 0.0   * Units.degrees #  conversion to radians,
     net.nacelle_diameter               = 0.2921 # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
@@ -255,32 +255,33 @@ def vehicle_setup():
     # Design Rotors
     #------------------------------------------------------------------
     # atmosphere conditions
-    speed_of_sound               = 340
-
-    # Create propeller geometry
-    prop                          = SUAVE.Components.Energy.Converters.Propeller() # This is truly a prop because the default of the mission is pointing forward
-    prop.tip_radius               = 0.8875
-    prop.hub_radius               = 0.15
-    prop.disc_area                = np.pi*(prop.tip_radius**2)
-    prop.design_tip_mach          = 0.5
-    prop.number_of_blades         = 3
-    prop.freestream_velocity      = 10
-    prop.angular_velocity         = prop.design_tip_mach*speed_of_sound/prop.tip_radius
-    prop.design_Cl                = 0.7
-    prop.design_altitude          = 500 * Units.feet
-    Hover_Load                    = vehicle.mass_properties.takeoff*9.81
-    prop.design_thrust            = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
-    airfoil                       = SUAVE.Components.Airfoils.Airfoil()   
-    airfoil.coordinate_file       = '../Vehicles/Airfoils/NACA_4412.txt'
-    airfoil.polar_files           = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
-                                  '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
-                                  '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
-                                  '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
-                                  '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
-    prop.append_airfoil(airfoil)
-    prop.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
-    prop                          = propeller_design(prop)
-    prop.rotation                 = 1
+    speed_of_sound                          = 340
+         
+    # Create propeller geometry         
+    rotor                                   = SUAVE.Components.Energy.Converters.Propeller() # This is truly a rotor because the default of the mission is pointing forward
+    rotor.tip_radius                        = 0.8875
+    rotor.hub_radius                        = 0.15
+    rotor.disc_area                         = np.pi*(rotor.tip_radius**2)
+    rotor.design_tip_mach                   = 0.5
+    rotor.number_of_blades                  = 3
+             
+    Hover_Load                              = vehicle.mass_properties.takeoff*9.81
+    rotor.cruise.design_thrust              = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
+    rotor.cruise.design_freestream_velocity = 10
+    rotor.cruise.design_angular_velocity    = rotor.design_tip_mach*speed_of_sound/rotor.tip_radius
+    rotor.cruise.design_Cl                  = 0.7
+    rotor.cruise.design_altitude            = 500 * Units.feet
+    airfoil                                 = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil.coordinate_file                 = '../Vehicles/Airfoils/NACA_4412.txt'
+    airfoil.polar_files                     = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ] 
+    rotor.append_airfoil(airfoil)         
+    rotor.airfoil_polar_stations            = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
+    rotor                                   = propeller_design(rotor)
+    rotor.rotation                          = 1
 
     # Front Rotors Locations
 
@@ -288,7 +289,7 @@ def vehicle_setup():
                [4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54], [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
 
     for ii in range(8):
-        rotor          = deepcopy(prop)
+        rotor          = deepcopy(rotor)
         rotor.tag      = 'propeller'
         rotor.origin   = [origins[ii]]
         net.propellers.append(rotor)
@@ -302,9 +303,12 @@ def vehicle_setup():
     motor                      = SUAVE.Components.Energy.Converters.Motor()
     motor.efficiency           = 0.9
     motor.nominal_voltage      = bat.max_voltage *3/4
-    motor.propeller_radius     = prop.tip_radius
-    motor.no_load_current      = 2.0
-    motor                      = size_optimal_motor(motor,prop)
+    motor.rotor_radius         = rotor.tip_radius
+    motor.no_load_current      = 2.0 
+    motor.rotor_radius         = rotor.tip_radius
+    motor.design_torque        = rotor.cruise.design_torque
+    motor.angular_velocity     = rotor.cruise.design_angular_velocity/motor.gear_ratio     
+    motor                      = size_optimal_motor(motor)
     motor.mass_properties.mass = nasa_motor(motor.design_torque)
     net.motor                  = motor
 
@@ -346,7 +350,8 @@ def vehicle_setup():
     vehicle.append_component(net)
     
     converge_evtol_weight(vehicle,print_iterations=True)
-    vehicle.weight_breakdown  = empty(vehicle)
+    settings = Data()
+    vehicle.weight_breakdown  = empty(vehicle,settings)
     compute_component_centers_of_gravity(vehicle)
     vehicle.center_of_gravity()
 
@@ -379,9 +384,9 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover'
     vector_angle                                      = 90.0 * Units.degrees
-    for prop in config.networks.battery_propeller.propellers: 
-        prop.orientation_euler_angles                 = [0,vector_angle,0]
-        prop.inputs.pitch_command                     = 0.  * Units.degrees
+    for rotor in config.networks.battery_rotor.propellers: 
+        rotor.orientation_euler_angles                 = [0,vector_angle,0]
+        rotor.inputs.pitch_command                     = 0.  * Units.degrees
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
@@ -394,9 +399,9 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_climb'
     vector_angle                                      = 90.0 * Units.degrees 
-    for prop in config.networks.battery_propeller.propellers: 
-        prop.orientation_euler_angles                 = [0,vector_angle,0]
-        prop.inputs.pitch_command                     = -5.  * Units.degrees 
+    for rotor in config.networks.battery_rotor.propellers: 
+        rotor.orientation_euler_angles                 = [0,vector_angle,0]
+        rotor.inputs.pitch_command                     = -5.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
@@ -409,9 +414,9 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     vector_angle                                      = 45.0  * Units.degrees
     config.tag                                        = 'transition_seg_1_4'
-    for prop in config.networks.battery_propeller.propellers: 
-        prop.orientation_euler_angles                 = [0,vector_angle,0]
-        prop.inputs.pitch_command                     = 3.  * Units.degrees
+    for rotor in config.networks.battery_rotor.propellers: 
+        rotor.orientation_euler_angles                 = [0,vector_angle,0]
+        rotor.inputs.pitch_command                     = 3.  * Units.degrees
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
@@ -425,9 +430,9 @@ def configs_setup(vehicle):
     config.tag                                        = 'transition_seg_2_3'
     vector_angle                                      = 15.0  * Units.degrees
 
-    for prop in config.networks.battery_propeller.propellers: 
-        prop.orientation_euler_angles                 = [0,vector_angle,0]
-        prop.inputs.pitch_command                     = 5.  * Units.degrees 
+    for rotor in config.networks.battery_rotor.propellers: 
+        rotor.orientation_euler_angles                 = [0,vector_angle,0]
+        rotor.inputs.pitch_command                     = 5.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
@@ -440,9 +445,9 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'cruise'
     vector_angle                                      = 0.0 * Units.degrees 
-    for prop in config.networks.battery_propeller.propellers: 
-        prop.orientation_euler_angles                 = [0,vector_angle,0]
-        prop.inputs.pitch_command                     = 10.  * Units.degrees 
+    for rotor in config.networks.battery_rotor.propellers: 
+        rotor.orientation_euler_angles                 = [0,vector_angle,0]
+        rotor.inputs.pitch_command                     = 10.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
@@ -457,9 +462,9 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_descent'
     vector_angle                                      = 90.0  * Units.degrees 
-    for prop in config.networks.battery_propeller.propellers: 
-        prop.orientation_euler_angles                 = [0,vector_angle,0]
-        prop.inputs.pitch_command                     = -5.  * Units.degrees 
+    for rotor in config.networks.battery_rotor.propellers: 
+        rotor.orientation_euler_angles                 = [0,vector_angle,0]
+        rotor.inputs.pitch_command                     = -5.  * Units.degrees 
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
