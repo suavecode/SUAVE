@@ -11,8 +11,12 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units 
-from SUAVE.Plots.Performance.Mission_Plots import *  
-from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle 
+from SUAVE.Visualization.Performance.Vehicle_Aerodynamics import *  
+from SUAVE.Visualization.Performance.Mission import *  
+from SUAVE.Visualization.Performance.Energy.Common import *  
+from SUAVE.Visualization.Performance.Energy.Battery import *   
+from SUAVE.Visualization.Performance.Noise import *  
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
 import numpy as np  
 import sys 
 
@@ -40,7 +44,7 @@ def main():
     print(configs.base.mass_properties.center_of_gravity)
 
     # Plot vehicle 
-    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = False)
+    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = False)
 
     # evaluate mission    
     mission  = analyses.missions.base
@@ -267,7 +271,7 @@ def plot_mission(results,line_style = 'bo-'):
     plot_propeller_conditions(results, line_style) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_eMotor_Prop_efficiencies(results, line_style)
+    plot_electric_motor_and_rotor_efficiencies(results, line_style)
 
     # Plot propeller Disc and Power Loading
     plot_disc_power_loading(results, line_style)  

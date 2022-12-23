@@ -15,8 +15,7 @@ import numpy as np
 import SUAVE
 from SUAVE.Core                                                     import Data, Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift           import VLM as VLM
-from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization             import plot_vehicle_vlm_panelization
-
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization  import plot_3d_vehicle_vlm_panelization
 sys.path.append('../Vehicles')
 
 from Boeing_737  import vehicle_setup   as b737_setup
@@ -46,7 +45,7 @@ def main():
         data        = VLM(conditions, settings, geometry)
         
         plot_title  = "{}, deflection = {} degrees".format(geometry.tag, round(deflection/Units.degrees))
-        plot_vehicle_vlm_panelization(geometry, plot_control_points=False, save_filename=plot_title)        
+        plot_3d_vehicle_vlm_panelization(geometry, plot_wing_control_points=False, save_filename=plot_title)        
         
         results.CL  = np.append(results.CL , data.CL.flatten() )
         results.CDi = np.append(results.CDi, data.CDi.flatten())

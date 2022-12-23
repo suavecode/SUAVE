@@ -9,7 +9,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Performance.Mission_Plots import *  
+from SUAVE.Visualization.Performance.Mission_Plots import *  
 
 # ----------------------------------------------------------------------
 #   Plot Mission

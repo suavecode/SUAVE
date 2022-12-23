@@ -14,7 +14,7 @@ from SUAVE.Core import Units
 
 from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
-from SUAVE.Plots.Performance import *
+from SUAVE.Visualization.Performance import *
 from SUAVE.Core import Data
 
 import scipy as sp
@@ -337,7 +337,7 @@ def plot_mission(results,configs,line_style = 'bo-'):
     plot_propeller_conditions(results, line_style) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_eMotor_Prop_efficiencies(results, line_style)
+    plot_electric_motor_and_rotor_efficiencies(results, line_style)
     
     # Plot tiltrotor conditions
     plot_tiltrotor_conditions(results,configs,line_style)

@@ -9,9 +9,14 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units , Data
-from SUAVE.Plots.Performance.Mission_Plots import *
+from SUAVE.Visualization.Performance.Vehicle_Aerodynamics import *  
+from SUAVE.Visualization.Performance.Mission import *  
+from SUAVE.Visualization.Performance.Energy.Common import *  
+from SUAVE.Visualization.Performance.Energy.Battery import *   
+from SUAVE.Visualization.Performance.Noise import *  
 from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
-from SUAVE.Plots.Geometry import *
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
+from SUAVE.Visualization.Geometry import *
 import sys
 import numpy as np
 
@@ -111,7 +116,7 @@ def full_setup():
     # vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
-    plot_vehicle(vehicle,plot_control_points = False)
+    plot_3d_vehicle(vehicle,plot_wing_control_points = False)
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)

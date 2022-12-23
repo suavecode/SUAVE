@@ -1,5 +1,5 @@
-## @defgroup Visualization-Performance-Aerodynamics Aerodynamics
-# Plotting Functions for Aerodynamics
+## @defgroup Visualization-Performance-Vehicle_Aerodynamics Aerodynamics
+# Plotting Functions for Vehicle_Aerodynamics
 # @ingroup Visualization-Performance
 
 from .plot_aerodynamic_coefficients     import plot_aerodynamic_coefficients

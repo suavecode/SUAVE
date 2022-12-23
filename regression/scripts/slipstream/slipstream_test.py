@@ -8,22 +8,26 @@
 """
 # ----------------------------------------------------------------------
 #   Imports
-# ----------------------------------------------------------------------
-
-import SUAVE
-from SUAVE.Core import Units, Data
-
+# ---------------------------------------------------------------------- 
 import numpy as np
 import pylab as plt
-import sys
+import sys 
 
-from SUAVE.Plots.Performance.Mission_Plots import *
-from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle
-from SUAVE.Plots.Geometry.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
+# suave imports 
+import SUAVE
+from SUAVE.Core import Units, Data 
 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import  VLM  
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
+
+# plotting imports 
+from SUAVE.Visualization.Performance.Mission              import *
+from SUAVE.Visualization.Performance.Noise                import *
+from SUAVE.Visualization.Performance.Common               import *
+from SUAVE.Visualization.Performance.Vehicle_Aerodynamics import *  
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization  import plot_3d_vehicle_vlm_panelization
 
 
 sys.path.append('../Vehicles')
@@ -106,8 +110,8 @@ def regress_1a(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False)
+    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True)
               
     return
 
@@ -140,8 +144,8 @@ def regress_1b(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False)
+    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True)
               
     return
  
@@ -153,9 +157,6 @@ def plot_mission(results,vehicle):
 
     # Plot lift distribution
     plot_lift_distribution(results,vehicle)
-
-    # Create Video Frames
-    create_video_frames(results,vehicle, save_figure = False)
 
     return
 

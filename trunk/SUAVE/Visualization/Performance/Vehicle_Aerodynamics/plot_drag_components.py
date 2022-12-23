@@ -53,8 +53,10 @@ def plot_drag_components(results,
     # Create empty dataframe to be populated by the segment data
     plot_cols = ['cdp',
                  'cdi',
-                 'Drag',
-                 'eta',
+                 'cdc',
+                 'cdm',
+                 'cde',
+                 'cd',
                  'Segment']
 
     df = pd.DataFrame(columns=plot_cols)      
@@ -66,7 +68,7 @@ def plot_drag_components(results,
         cdi = drag_breakdown.induced.total[:,0]
         cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
-        cde = drag_breakdown.drag_coefficient_increment[:,0]
+        cde = np.ones_like(cdm)*drag_breakdown.drag_coefficient_increment
         cd  = drag_breakdown.total[:,0]
         
         # Assemble data into temporary holding data frame
@@ -75,6 +77,7 @@ def plot_drag_components(results,
                              cdi,
                              cdc,
                              cdm,
+                             cde,
                              cd)),
             columns = plot_cols[:-1], index=time
         )

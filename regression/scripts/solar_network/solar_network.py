@@ -10,7 +10,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Performance.Mission_Plots import *  
+from SUAVE.Visualization.Performance.Mission_Plots import *  
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -22,7 +22,7 @@ import copy, time
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle 
+from SUAVE.Visualization.Geometry.plot_3d_vehicle import plot_3d_vehicle 
 import sys
 
 sys.path.append('../Vehicles')
@@ -95,7 +95,7 @@ def main():
         assert(np.abs(v)<1e-6)
  
     # Plot vehicle 
-    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = True)
+    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = True)
     
     return
 

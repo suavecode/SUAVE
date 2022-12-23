@@ -1,5 +1,5 @@
 ## @ingroup Visualization-Geometry-Three_Dimensional
-# plot_vehicle.py
+# plot_3d_vehicle.py
 #
 # Created : Mar 2020, M. Clarke
 # Modified: Apr 2020, M. Clarke

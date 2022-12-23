@@ -11,7 +11,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Geometry import plot_rotor
+from SUAVE.Visualization.Geometry import plot_rotor
 import matplotlib.pyplot as plt  
 from SUAVE.Core import Data 
 

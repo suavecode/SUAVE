@@ -126,9 +126,8 @@ def plot_altitude_sfc_weight(results,
         legend_title_text='Segment',
     )
 
-    # Update Figure Style and Show
-
-    fig - plot_style(fig)
+    # Update Figure Style and Show 
+    fig = plot_style(fig)
     fig.show()
 
     # Optionally save the figure with kaleido import check

@@ -60,6 +60,8 @@ def plot_disc_power_loading(results,
         'Segment'
     ]
 
+    df = pd.DataFrame(columns=plot_cols)
+    
     for segment in results.segments.values():
 
         time  = segment.conditions.frames.inertial.time[:,0] / Units.min

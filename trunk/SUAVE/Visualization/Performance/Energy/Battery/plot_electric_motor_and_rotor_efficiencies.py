@@ -1,5 +1,5 @@
 ## @ingroup Visualization-Performance-Energy-Battery
-# plot_eMotor_Prop_efficiencies.py
+# plot_electric_motor_and_rotor_efficiencies.py
 # 
 # Created:    Nov 2022, J. Smart
 # Modified:   
@@ -19,7 +19,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 ## @ingroup Visualization-Performance-Energy-Battery
-def plot_eMotor_Prop_efficiencies(results,
+def plot_electric_motor_and_rotor_efficiencies(results,
                                   save_figure = False,
                                   save_filename = "eMotor_Prop_Efficiencies",
                                   file_type = ".png",

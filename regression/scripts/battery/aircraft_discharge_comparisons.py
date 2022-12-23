@@ -12,7 +12,7 @@
 import SUAVE
 from SUAVE.Core import Units 
 import numpy as np
-from SUAVE.Plots.Performance.Mission_Plots import *
+from SUAVE.Visualization.Performance.Mission_Plots import *
 from SUAVE.Core import Data
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty 
 from SUAVE.Methods.Power.Battery.Sizing         import initialize_from_mass
@@ -576,7 +576,7 @@ def plot_results(results,line_style,line_style2):
     plot_propeller_conditions(results, line_style) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_eMotor_Prop_efficiencies(results, line_style)
+    plot_electric_motor_and_rotor_efficiencies(results, line_style)
      
     return
  

@@ -185,7 +185,7 @@ class Battery_Rotor(Network):
             
                 if identical_flag:
                     for idx in range(1,int(num_engines)) :
-                        rotor_remainder      = self.rotors[list(props.keys())[idx]]
+                        rotor_remainder      = self.propellers[list(props.keys())[idx]]
                         rotor_remainder.inputs.y_axis_rotation = conditions.propulsion.rotor_y_axis_rotation
                         
                 # link 
