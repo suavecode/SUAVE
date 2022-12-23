@@ -1,6 +1,6 @@
-## @defgroup Plots-Performance Performance
-# Plots contains functions for generating common figures
-# @ingroup Plots
+## @defgroup Visualization-Performance Performance
+# Visualization contains functions for generating common figures
+# @ingroup Visualization
 
 from .Mission_Plots       import plot_flight_conditions 
 from .Mission_Plots       import plot_aerodynamic_coefficients
@@ -15,18 +15,23 @@ from .Mission_Plots       import plot_eMotor_Prop_efficiencies
 from .Mission_Plots       import plot_disc_power_loading
 from .Mission_Plots       import plot_solar_flux
 from .Mission_Plots       import plot_lift_cruise_network  
-from .Mission_Plots       import plot_propeller_conditions 
+from .Mission_Plots       import plot_rotor_conditions 
 from .Mission_Plots       import plot_tiltrotor_conditions
 from .Mission_Plots       import plot_surface_pressure_contours
-from .Mission_Plots       import create_video_frames
 from .Mission_Plots       import plot_lift_distribution 
-from .Mission_Plots       import create_video_frames 
 from .Mission_Plots       import plot_ground_noise_levels  
 from .Mission_Plots       import plot_flight_profile_noise_contours 
-from .Mission_Plots       import plot_fuel_use
+from .Mission_Plots       import plot_fuel_use 
 
 from .Airfoil_Plots       import plot_airfoil_boundary_layer_properties
 from .Airfoil_Plots       import plot_airfoil_surface_forces
 
+from .Propeller_Plots     import plot_propeller_performance
 from .Propeller_Plots     import plot_propeller_disc_performance
 from .Propeller_Plots     import plot_propeller_disc_inflow
+
+from . import Aerodynamics
+from . import Common
+from . import Energy
+from . import Mission
+from . import Noise
