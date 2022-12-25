@@ -63,6 +63,7 @@ def plot_fuel_use(results,
     prev_seg_fuel       = 0
     prev_seg_extra_fuel = 0
     total_fuel          = 0
+    
     for seg_idx in range(len(results.segments)): 
         segment  = results.segments[seg_idx] 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
