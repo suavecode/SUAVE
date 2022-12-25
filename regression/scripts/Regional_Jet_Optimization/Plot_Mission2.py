@@ -29,6 +29,8 @@ def plot_mission(results):
     
     plot_aircraft_velocities(results)
     
+    plot_stability_coefficients(results)
+    
     plot_drag_components(results)
 
 

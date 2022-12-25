@@ -11,7 +11,12 @@
 # TODO: ADD IMPORTS
 
 ## @ingroup [ADD DOCUMENTATION GROUP]
-def plot_fuel_use(*args, **kwargs):
+def plot_fuel_use(results,
+                    save_figure = False,
+                    save_filename = "Altitude_SFC_Weight" ,
+                    file_type = ".png",
+                    width=800,height=500,
+                    *args, **kwargs):
     """ADD FUNCTION DESCRIPTION 
 
     Assumptions:

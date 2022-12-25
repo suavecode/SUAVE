@@ -23,8 +23,8 @@ def plot_altitude_sfc_weight(results,
                              save_figure = False,
                              save_filename = "Altitude_SFC_Weight" ,
                              file_type = ".png",
-                             width=800,
-                             height=500):
+                             width=800,height=500,
+                             *args, **kwargs):
     """This plots the altitude, specific fuel consumption and vehicle weight.
 
     Assumptions:
