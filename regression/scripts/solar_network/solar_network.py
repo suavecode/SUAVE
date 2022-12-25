@@ -10,7 +10,11 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Visualization.Performance.Mission_Plots import *  
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission              import *  
+from SUAVE.Visualization.Performance.Energy.Common        import *  
+from SUAVE.Visualization.Performance.Energy.Battery       import *   
+from SUAVE.Visualization.Performance.Noise                import * 
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -238,7 +242,7 @@ def missions_setup(base_mission):
 def plot_mission(results,line_style='bo-'):     
     
     # Plot Propeller Performance 
-    plot_propeller_conditions(results,line_style)
+    plot_rotor_conditions(results,line_style)
     
     # Plot Power and Disc Loading
     plot_disc_power_loading(results,line_style)

@@ -65,8 +65,9 @@ def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 
     # -------------------------------------------------------------------------
     # DEFINE PLOT LIMITS 
     # -------------------------------------------------------------------------    
-    x_min,x_max = np.minimum(0,np.min(VD.XC)), np.max(VD.XC)*1.2
     y_min,y_max = np.min(VD.YC)*1.2, np.max(VD.YC)*1.2
+    x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2, 2*y_max)
+    z_min,z_max = -np.max(VD.ZC)*1.2, np.max(VD.ZC)*1.2
     
     # -------------------------------------------------------------------------
     # PLOT WING
@@ -112,11 +113,11 @@ def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 
              height    = 1500, 
              scene = dict(
                         xaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis,
-                                     zerolinecolor="white", range=[x_min,2*y_max]),
+                                     zerolinecolor="white", range=[x_min,x_max]),
                         yaxis = dict(backgroundcolor="grey", gridcolor="white", showbackground=plot_axis, 
                                      zerolinecolor="white", range=[y_min,y_max]),
                         zaxis = dict(backgroundcolor="grey",gridcolor="white",showbackground=plot_axis,
-                                     zerolinecolor="white", range=[y_min,y_max])),             
+                                     zerolinecolor="white", range=[z_min,z_max])),             
              scene_camera=camera) 
     fig.update_coloraxes(showscale=False)
     fig.update_traces(opacity = alpha)

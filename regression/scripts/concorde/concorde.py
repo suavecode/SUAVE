@@ -18,7 +18,12 @@
 import SUAVE
 # Units allow any units to be specificied with SUAVE then automatically converting them the standard
 from SUAVE.Core import Units
-from SUAVE.Visualization.Performance.Mission_Plots import * 
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission import *  
+from SUAVE.Visualization.Performance.Energy.Common import *  
+from SUAVE.Visualization.Performance.Energy.Battery import *   
+from SUAVE.Visualization.Performance.Energy.Fuel    import *  
+from SUAVE.Visualization.Performance.Noise import *  
 
 # Numpy is use extensively throughout SUAVE
 import numpy as np
@@ -220,17 +225,17 @@ def base_analysis(vehicle):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_style='bo-'):
+def plot_mission(results):
     
-    plot_altitude_sfc_weight(results, line_style) 
+    plot_altitude_sfc_weight(results) 
     
-    plot_flight_conditions(results, line_style) 
+    plot_flight_conditions(results) 
     
-    plot_aerodynamic_coefficients(results, line_style)  
+    plot_aerodynamic_coefficients(results)  
     
-    plot_aircraft_velocities(results, line_style)
+    plot_aircraft_velocities(results)
     
-    plot_drag_components(results, line_style)
+    plot_drag_components(results)
     return
 
 def simple_sizing(configs):

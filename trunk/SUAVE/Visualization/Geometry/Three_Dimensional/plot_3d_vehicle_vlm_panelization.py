@@ -40,17 +40,14 @@ def plot_3d_vehicle_vlm_panelization(vehicle, alpha = 1.0 ,plot_axis = False,
 
     camera        = dict(up=dict(x=0.5, y=0.5, z=1), center=dict(x=0, y=0, z=-0.5), eye=dict(x=-1.5, y=-1.5, z=.8))
     plot_data     = []     
-    
-
-
+     
     
     # -------------------------------------------------------------------------
     # DEFINE PLOT LIMITS 
     # -------------------------------------------------------------------------    
-    x_min,x_max = np.minimum(0,np.min(VD.XC)), np.max(VD.XC)*1.2
     y_min,y_max = np.min(VD.YC)*1.2, np.max(VD.YC)*1.2
-    z_min,z_max = np.minimum(np.min(VD.ZC)*1.2,-np.max(VD.ZC)), np.max(VD.ZC)*1.2
-    
+    x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2, 2*y_max)
+    z_min,z_max = -np.max(VD.ZC)*1.2, np.max(VD.ZC)*1.2
 
     # -------------------------------------------------------------------------
     # PLOT VORTEX LATTICE

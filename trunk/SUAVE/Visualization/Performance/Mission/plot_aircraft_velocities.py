@@ -25,7 +25,7 @@ def plot_aircraft_velocities(results,
                             save_figure=False,
                             save_filename="Aircraft Velocities",
                             file_type=".png",
-                            width = 1600, height = 665,
+                            width = 1400, height = 665,
                             *args, **kwargs):
     """This plots true, equivalent, and calibrated airspeeds along with mach
 

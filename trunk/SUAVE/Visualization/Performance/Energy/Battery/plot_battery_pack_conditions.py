@@ -22,7 +22,7 @@ def plot_battery_pack_conditions(results,
                                  save_figure=False,
                                  save_filename="Battery_Pack_Conditions",
                                  file_type=".png",
-                                 width = 1600, height = 800,
+                                 width = 1400, height = 800,
                                  *args, **kwargs):
     """Plots the pack-level conditions of the battery throughout flight.
 

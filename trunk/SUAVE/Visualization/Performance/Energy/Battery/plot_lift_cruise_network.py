@@ -28,7 +28,7 @@ def plot_lift_cruise_network(results,
                              lift_rotor_save_filename="Lift_Rotor_Conditions",
                              mach_save_filename="Tip_Mach_Numbers",
                              file_type=".png",
-                             width = 1600, height = 800,
+                             width = 1400, height = 800,
                              *args, **kwargs):
     """Plots the electric and propulsion network performance of a vehicle
     with a lift-cruise network.

@@ -9,14 +9,14 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units , Data
-from SUAVE.Visualization.Performance.Vehicle_Aerodynamics import *  
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
 from SUAVE.Visualization.Performance.Mission import *  
 from SUAVE.Visualization.Performance.Energy.Common import *  
 from SUAVE.Visualization.Performance.Energy.Battery import *   
 from SUAVE.Visualization.Performance.Noise import *  
-from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
 from SUAVE.Visualization.Geometry import *
+from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 import sys
 import numpy as np
 
@@ -307,22 +307,22 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results,vec_configs,line_style='bo-'):
+def plot_mission(results,vec_configs):
 
     # Plot Flight Conditions
-    plot_flight_conditions(results, line_style)
+    plot_flight_conditions(results)
 
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results, line_style)
+    plot_aerodynamic_coefficients(results)
 
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results, line_style)
+    plot_aircraft_velocities(results)
 
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results, line_style)
+    plot_battery_pack_conditions(results)
 
     # Plot Electric Motor and Propeller Efficiencies  of Lift Cruise Network
-    plot_lift_cruise_network(results, line_style)
+    plot_lift_cruise_network(results)
 
     return
 

@@ -15,7 +15,7 @@ from SUAVE.Visualization.Geometry.Two_Dimensional.plot_airfoil import plot_airfo
 import matplotlib.pyplot as plt  
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil\
      import import_airfoil_geometry, compute_airfoil_properties, convert_airfoil_to_meshgrid
-from SUAVE.Visualization.Performance.Airfoil_Aerodynamics import *
+from SUAVE.Visualization.Performance.Aerodynamics.Airfoil import *
 import os
 import numpy as np
 

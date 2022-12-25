@@ -12,7 +12,11 @@
 import SUAVE
 from SUAVE.Core import Units 
 import numpy as np
-from SUAVE.Visualization.Performance.Mission_Plots import *
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission              import *  
+from SUAVE.Visualization.Performance.Energy.Common        import *  
+from SUAVE.Visualization.Performance.Energy.Battery       import *   
+from SUAVE.Visualization.Performance.Noise                import * 
 from SUAVE.Core import Data
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty 
 from SUAVE.Methods.Power.Battery.Sizing         import initialize_from_mass
@@ -556,27 +560,27 @@ def missions_setup(base_mission):
     return missions  
 
 
-def plot_results(results,line_style,line_style2):  
+def plot_results(results):  
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results, line_style) 
+    plot_flight_conditions(results) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results, line_style)  
+    plot_aerodynamic_coefficients(results)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results, line_style)
+    plot_aircraft_velocities(results)
     
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results, line_style,line_style2) 
-    plot_battery_cell_conditions(results, line_style,line_style2)
+    plot_battery_pack_conditions(results) 
+    plot_battery_cell_conditions(results)
     plot_battery_degradation(results)
     
     # Plot Propeller Conditions 
-    plot_propeller_conditions(results, line_style) 
+    plot_rotor_conditions(results) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_electric_motor_and_rotor_efficiencies(results, line_style)
+    plot_electric_motor_and_rotor_efficiencies(results)
      
     return
  

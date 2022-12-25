@@ -23,7 +23,7 @@ def plot_electric_motor_and_rotor_efficiencies(results,
                                   save_figure = False,
                                   save_filename = "eMotor_Prop_Efficiencies",
                                   file_type = ".png",
-                                  width = 1600, height = 800,
+                                  width = 1400, height = 800,
                                   *args, **kwargs):
     """This plots the electric driven network propeller efficiencies
 

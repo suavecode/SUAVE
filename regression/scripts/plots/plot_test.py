@@ -8,10 +8,12 @@
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE 
-from SUAVE.Visualization.Performance.Vehicle_Aerodynamics import *  
-from SUAVE.Visualization.Performance.Mission import *  
-from SUAVE.Visualization.Performance.Energy.Fuel import *   
-from SUAVE.Visualization.Performance.Noise import *  
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission              import *  
+from SUAVE.Visualization.Performance.Energy.Common        import *  
+from SUAVE.Visualization.Performance.Energy.Battery       import *   
+from SUAVE.Visualization.Performance.Energy.Fuel          import *  
+from SUAVE.Visualization.Performance.Noise                import *    
 import matplotlib.pyplot as plt  
 
 def main():

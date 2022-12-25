@@ -133,6 +133,6 @@ def plot_altitude_sfc_weight(results,
     # Optionally save the figure with kaleido import check
 
     if save_figure:
-        save_plot(fig)
+        save_plot(fig, save_filename, file_type)
 
     return

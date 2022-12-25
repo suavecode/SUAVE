@@ -22,10 +22,11 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import  VLM
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 
 # plotting imports 
-from SUAVE.Visualization.Performance.Mission              import *
-from SUAVE.Visualization.Performance.Noise                import *
-from SUAVE.Visualization.Performance.Common               import *
-from SUAVE.Visualization.Performance.Vehicle_Aerodynamics import *  
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission import *  
+from SUAVE.Visualization.Performance.Energy.Common import *  
+from SUAVE.Visualization.Performance.Energy.Battery import *   
+from SUAVE.Visualization.Performance.Noise import *  
 from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle
 from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization  import plot_3d_vehicle_vlm_panelization
 
@@ -150,10 +151,7 @@ def regress_1b(results, configs):
     return
  
 
-def plot_mission(results,vehicle):
-
-    # Plot surface pressure coefficient
-    plot_surface_pressure_contours(results,vehicle)
+def plot_mission(results,vehicle): 
 
     # Plot lift distribution
     plot_lift_distribution(results,vehicle)

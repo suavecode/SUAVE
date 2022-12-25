@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Visualization.Performance.Vehicle_Aerodynamics import *  
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
 from SUAVE.Visualization.Performance.Mission import *  
 from SUAVE.Visualization.Performance.Energy.Common import *  
 from SUAVE.Visualization.Performance.Energy.Battery import *   
@@ -249,28 +249,28 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results,line_style='bo-'):
+def plot_mission(results):
 
     # Plot Flight Conditions
-    plot_flight_conditions(results, line_style)
+    plot_flight_conditions(results)
 
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results, line_style)
+    plot_aerodynamic_coefficients(results)
 
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results, line_style)
+    plot_aircraft_velocities(results)
 
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results, line_style)
+    plot_battery_pack_conditions(results)
 
     # Plot Propeller Conditions
-    plot_rotor_conditions(results, line_style)
+    plot_rotor_conditions(results)
 
     # Plot Electric Motor and Propeller Efficiencies
-    plot_electric_motor_and_rotor_efficiencies(results, line_style)
+    plot_electric_motor_and_rotor_efficiencies(results)
 
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results, line_style)
+    plot_disc_power_loading(results)
 
     return
 

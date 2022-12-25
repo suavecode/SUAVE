@@ -11,7 +11,7 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 from SUAVE.Core import Units 
-import plotly.figure_factory as ff
+from SUAVE.Visualization.Performance.Common import plot_style, save_plot
 from plotly.subplots import make_subplots
 import plotly.express as px
 import plotly.graph_objects as go
@@ -75,9 +75,10 @@ def plot_airfoil_polar_files(polar_data, save_figure = False, save_filename = "A
         
     
     fig.update_layout(title_text=save_filename)    
-    
-    #if save_figure:
-        #plt.savefig(save_filename.replace("_", " ") + file_type) 
+
+    fig = plot_style(fig)    
+    if save_figure:
+        save_plot(fig, save_filename, file_type)     
         
     fig.show()
         

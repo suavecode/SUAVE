@@ -7,15 +7,10 @@
 
 # ----------------------------------------------------------------------
 #  Imports
-# ----------------------------------------------------------------------
-from SUAVE.Core import Units
-
-import matplotlib.patches as patches
-import pandas as pd
-import matplotlib.pyplot as plt
+# ---------------------------------------------------------------------- 
+import pandas as pd 
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import numpy as np
+from plotly.subplots import make_subplots 
 
 ## @defgroup Visualization-Performance
 def plot_rotor_performance(prop, title=None, save_figure=False, save_filename='Propeller_Performance', file_type=".png"):
