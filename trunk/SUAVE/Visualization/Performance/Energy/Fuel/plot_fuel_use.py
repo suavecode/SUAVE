@@ -110,12 +110,11 @@ def plot_fuel_use(results,
             initial_weight  = results.segments[0].conditions.weights.total_mass[:,0][0]
      
             fuel        = segment.conditions.weights.total_mass[:,0] 
-            total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight )
-            
+            total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight ) 
 
             # Assemble data into temporary holding data frame 
             segment_frame = pd.DataFrame(
-            np.column_stack((np.negative(current_fuel) ,np.negative(current_alt_fuel ),np.negative(current_fuel + current_alt_fuel))),
+            np.column_stack((total_fuel)),
             columns=['Tot_Fuel'], index=time)
             segment_frame['Segment'] = [segment.tag for i in range(len(time))]
         
