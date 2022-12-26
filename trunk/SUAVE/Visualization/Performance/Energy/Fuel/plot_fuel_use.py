@@ -114,24 +114,25 @@ def plot_fuel_use(results,
 
             # Assemble data into temporary holding data frame 
             segment_frame = pd.DataFrame(
-            np.column_stack((total_fuel)),
-            columns=['Tot_Fuel'], index=time)
+            np.column_stack((total_fuel,total_fuel,total_fuel)),             
+            columns=['Fuel', 'Add_Fuel', 'Tot_Fuel'], index=time)
             segment_frame['Segment'] = [segment.tag for i in range(len(time))]
         
             # Append to collecting data-frame 
             df = df.append(segment_frame)  
+                       
                 
     # Set plot parameters 
     if additional_fuel_flag: 
         fig = make_subplots(rows=3, cols=1,vertical_spacing=0.05)
     else:
-        fig = make_subplots(rows=1, cols=1,vertical_spacing=0.05)
+        fig = make_subplots(rows=1, cols=1)
 
     # Add traces to the figure for each value by segment.
 
-    for seg, data in df.groupby("Segment"):
+    for seg, data in df.groupby("Segment", sort=False):
+        seg_name = ' '.join(seg.split("_")).capitalize()   
         if additional_fuel_flag: 
-            seg_name = ' '.join(seg.split("_")).capitalize()
     
             fig.add_trace(go.Scatter(
                 x=data.index,
@@ -153,12 +154,12 @@ def plot_fuel_use(results,
                 showlegend=False),
                           row=3, col=1)
         else:
-
+ 
             fig.add_trace(go.Scatter(
                 x=data.index,
                 y=data['Tot_Fuel'],
                 name=seg_name,
-                showlegend=False),
+                showlegend=True),
                           row=1, col=1)            
 
     # Set sublot axis titles 
@@ -177,6 +178,7 @@ def plot_fuel_use(results,
     fig.update_layout(
         width=width, height=height,
         legend_title_text='Segment',
+        title_text = 'Aircraft Fuel Burn'
     )
 
     # Update Figure Style and Show 

@@ -98,7 +98,7 @@ def run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=
     T, Q, P, Cp, outputs , etap = prop.spin(conditions)
     
     if plot_performance:
-        plot_propeller_disc_performance(prop,outputs)
+        plot_rotor_disc_performance(prop,outputs)
         
     return T, Q, P, Cp, outputs , etap
 
@@ -136,7 +136,7 @@ def compute_propeller_wake_velocities(prop,grid_settings,grid_points, conditions
     
     if plot_velocities:
         # plot the velocities input to downstream propeller
-        plot_propeller_disc_inflow(prop,propeller_wake,grid_points)
+        plot_rotor_disc_inflow(prop,propeller_wake,grid_points)
         
     
     return propeller_wake

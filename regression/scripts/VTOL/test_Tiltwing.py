@@ -56,7 +56,7 @@ def main():
     # save, load and plot old results 
     save_tiltwing_results(results)
     old_results = load_tiltwing_results() 
-    plot_mission(old_results,'k-')
+    plot_mission(old_results)
 
     # RPM check during hover
     RPM        = results.segments.departure.conditions.propulsion.propeller_rpm[0][0]

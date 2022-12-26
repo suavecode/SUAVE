@@ -26,7 +26,7 @@ import copy, time
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-from SUAVE.Visualization.Geometry.plot_3d_vehicle import plot_3d_vehicle 
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
 import sys
 
 sys.path.append('../Vehicles')

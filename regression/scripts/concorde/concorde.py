@@ -96,7 +96,7 @@ def main():
 
     # plt the old results
     plot_mission(results)
-    plot_mission(old_results,'k-')
+    plot_mission(old_results)
     plt.show()
 
     # check the results

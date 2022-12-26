@@ -70,12 +70,12 @@ def main():
     results   = mission.evaluate()
 
     # plot results
-    plot_mission(results,configs.base)
+    plot_mission(results)
 
     # save, load and plot old results
     #save_stopped_rotor_results(results)
     old_results  = load_stopped_rotor_results()
-    plot_mission(old_results,configs.base, 'k-')
+    plot_mission(old_results)
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[0][0]
@@ -307,7 +307,7 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results,vec_configs):
+def plot_mission(results):
 
     # Plot Flight Conditions
     plot_flight_conditions(results)

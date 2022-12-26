@@ -345,7 +345,7 @@ def plot_mission(results,configs):
     plot_electric_motor_and_rotor_efficiencies(results)
     
     # Plot tiltrotor conditions
-    plot_tiltrotor_conditions(results,configs,line_style)
+    plot_tiltrotor_conditions(results,configs)
 
     # Plot propeller Disc and Power Loading
     plot_disc_power_loading(results)  

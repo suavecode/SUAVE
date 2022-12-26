@@ -49,7 +49,7 @@ def main():
     # save, load and plot old results
     #save_multicopter_results(results)
     old_results = load_multicopter_results()
-    plot_mission(old_results,'k-')
+    plot_mission(old_results)
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.propeller_rpm[0][0]
@@ -272,8 +272,7 @@ def plot_mission(results):
     # Plot propeller Disc and Power Loading
     plot_disc_power_loading(results)
 
-    return
-
+    return 
 
 
 def load_multicopter_results():

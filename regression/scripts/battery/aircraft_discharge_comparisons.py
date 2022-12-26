@@ -71,7 +71,7 @@ def main():
         GA_results = GA_mission.evaluate() 
          
         # plot the results
-        plot_results(GA_results,line_style_new[i],line_style2_new[i])  
+        plot_results(GA_results)  
         
         # RPM of rotor check during hover
         GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0] 
@@ -103,7 +103,7 @@ def main():
         EVTOL_results = EVTOL_mission.evaluate()  
         
         # plot the results
-        plot_results(EVTOL_results,line_style_new[i],line_style2_new[i])  
+        plot_results(EVTOL_results)  
         
         # RPM of rotor check during hover
         EVTOL_RPM        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0] 
@@ -586,4 +586,3 @@ def plot_results(results):
  
 if __name__ == '__main__': 
     main()    
-    plt.show()

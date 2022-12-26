@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
-from SUAVE.Visualization.Geometry import plot_airfoil
+from SUAVE.Visualization.Geometry.Two_Dimensional import plot_airfoil
 import numpy as np
 import os
 

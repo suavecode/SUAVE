@@ -69,8 +69,7 @@ def main():
     
     # plt the old results
     plot_mission(results)
-    plot_mission(old_results,'k-')
-    #plt.show(block=True)    
+    plot_mission(old_results)
     
     # print weights breakdown
     print_weight_breakdown(configs.cruise)

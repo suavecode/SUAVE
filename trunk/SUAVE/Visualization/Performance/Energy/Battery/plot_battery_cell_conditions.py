@@ -65,7 +65,7 @@ def plot_battery_cell_conditions(results,
                  'C Rate Nominal',
                  'Current',
                  'Charge Throughput',
-                 'Temperature'
+                 'Temperature',
                  'Segment']
 
     df = pd.DataFrame(columns=plot_cols)

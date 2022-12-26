@@ -124,6 +124,8 @@ def plot_altitude_sfc_weight(results,
     fig.update_layout(
         width=width, height=height,
         legend_title_text='Segment',
+        title_text = 'Altitude SFC and Weight'
+        
     )
 
     # Update Figure Style and Show 
