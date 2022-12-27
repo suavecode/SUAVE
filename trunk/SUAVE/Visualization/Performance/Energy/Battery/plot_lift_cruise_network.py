@@ -315,14 +315,15 @@ def plot_lift_cruise_network(results,
         batt_fig.update_yaxes(title_text='Voltage OC (V)', row=3, col=1)
 
         batt_fig.update_xaxes(title_text='Time (min)', row=3, col=1)
-        batt_fig.update_xaxes(title_text='Time (min)', row=3, col=2) 
+        batt_fig.update_xaxes(title_text='Time (min)', row=3, col=2)  
 
         batt_fig.update_layout(
-            title=dict(text='Battery Pack Conditions',
-                       xanchor='center', yanchor='top'),
-            width= width, height=height,
-            legend_title_text='Segment'
+        width=width, height=height,
+        legend_title_text='Segment',
+        title_text = 'Battery Pack Conditions',
         )
+
+        
 
         # Prop Axes
 

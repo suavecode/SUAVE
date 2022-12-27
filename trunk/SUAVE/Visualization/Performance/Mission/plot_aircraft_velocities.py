@@ -125,7 +125,7 @@ def plot_aircraft_velocities(results,
     fig.update_layout(
         width=width, height=height,
         legend_title_text='Segment',
-        title_text = 'Flight Conditions'
+        title_text = 'Flight Conditions',
     )
 
     fig = plot_style(fig)
@@ -133,6 +133,6 @@ def plot_aircraft_velocities(results,
 
     if save_figure:
         save_plot(fig, save_filename, file_type)
-
+         
     return    
 

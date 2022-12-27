@@ -74,7 +74,7 @@ def plot_airfoil_polar_files(polar_data, save_figure = False, save_filename = "A
     fig.update_xaxes(title_text='AoA [deg]', row=jj, col=4)        
         
     
-    fig.update_layout(title_text=save_filename)    
+    fig.update_layout(title_text= 'Airfoil Polars')    
 
     fig = plot_style(fig)    
     if save_figure:

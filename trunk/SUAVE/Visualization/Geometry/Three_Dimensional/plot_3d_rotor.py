@@ -25,7 +25,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4
 
 
 ## @ingroup Visualization-Geometry-Three_Dimensional  
-def plot_3d_rotor(rotor,save_filename = "Rotor", save_figure = False, plot_data = None,plot_axis = True, cpt=0, number_of_airfoil_points = 21,
+def plot_3d_rotor(rotor,save_filename = "Rotor", save_figure = False, plot_data = None,plot_axis = False, cpt=0, number_of_airfoil_points = 21,
                             color_map='turbid',alpha=1):
     """ This plots a 3D surface of the  rotor
 
@@ -75,7 +75,7 @@ def plot_3d_rotor(rotor,save_filename = "Rotor", save_figure = False, plot_data 
                 verts       = contour_surface_slice(X, Y, Z ,values,color_map)
                 plot_data.append(verts)      
             
-    axis_limits = np.maximum(np.max(G.XA1), np.maximum(np.max(G.YA1),np.max(G.XA1)))*1.5 
+    axis_limits = np.maximum(np.max(G.XA1), np.maximum(np.max(G.YA1),np.max(G.ZA1)))*2 
     if plot_propeller_only:
         fig = go.Figure(data=plot_data)
         fig.update_scenes(aspectmode   = 'auto',

@@ -14,8 +14,15 @@ import plotly.graph_objects as go
 from SUAVE.Visualization.Geometry.Common.contour_surface_slice import contour_surface_slice
 
 ## @ingroup Visualization-Geometry
-def plot_3d_vehicle_vlm_panelization(vehicle, alpha = 1.0 ,plot_axis = False,
-                                  save_figure = False, plot_wing_control_points = True, save_filename = "VLM_Panelization"):
+def plot_3d_vehicle_vlm_panelization(vehicle,
+                                     alpha = 1.0,
+                                     plot_axis = False,
+                                     save_figure = False,
+                                     plot_wing_control_points = True,
+                                     save_filename = "VLM_Panelization",
+                                     x_axis_limit = None,
+                                     y_axis_limit = None,
+                                     z_axis_limit = None):
                                   
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
     Routine is initialized
@@ -45,9 +52,18 @@ def plot_3d_vehicle_vlm_panelization(vehicle, alpha = 1.0 ,plot_axis = False,
     # -------------------------------------------------------------------------
     # DEFINE PLOT LIMITS 
     # -------------------------------------------------------------------------    
-    y_min,y_max = np.min(VD.YC)*1.2, np.max(VD.YC)*1.2
-    x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2,10)
-    z_min,z_max = np.minimum(0,np.min(VD.ZC)), np.maxiumum(10,np.max(VD.ZC))
+    if x_axis_limit == None: 
+        x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2,10)
+    else:
+        x_min,x_max = x_axis_limit,x_axis_limit
+    if y_axis_limit == None: 
+        y_min,y_max = np.min(VD.YC)*1.2, np.max(VD.YC)*1.2
+    else:
+        y_min,y_max = y_axis_limit,y_axis_limit
+    if z_axis_limit == None: 
+        z_min,z_max = np.minimum(-10,np.min(VD.ZC)), np.minimum(20,np.max(VD.ZC))
+    else:
+        z_min,z_max = z_axis_limit,z_axis_limit
 
     # -------------------------------------------------------------------------
     # PLOT VORTEX LATTICE

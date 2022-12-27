@@ -25,7 +25,16 @@ from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_nacelle  import plot
 from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_rotor    import plot_3d_rotor
 
 ## @ingroup Visualization-Geometry-Three_Dimensional
-def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 , plot_wing_control_points = True, plot_rotor_wake_vortex_core = False, save_filename = "Vehicle_Geometry"):
+def plot_3d_vehicle(vehicle,
+                    plot_axis = False,
+                    save_figure = False,
+                    alpha = 1.0,
+                    plot_wing_control_points = True,
+                    plot_rotor_wake_vortex_core = False,
+                    save_filename = "Vehicle_Geometry",
+                    x_axis_limit = None,
+                    y_axis_limit = None,
+                    z_axis_limit = None):
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics
     Routine is initialized
 
@@ -64,10 +73,19 @@ def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 
     
     # -------------------------------------------------------------------------
     # DEFINE PLOT LIMITS 
-    # -------------------------------------------------------------------------    
-    y_min,y_max = np.min(VD.YC)*1.2, np.max(VD.YC)*1.2
-    x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2,10)
-    z_min,z_max = np.minimum(0,np.min(VD.ZC)), np.maxiumum(10,np.max(VD.ZC))
+    # -------------------------------------------------------------------------  
+    if x_axis_limit == None: 
+        x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2,10)
+    else:
+        x_min,x_max = x_axis_limit,x_axis_limit
+    if y_axis_limit == None: 
+        y_min,y_max = np.min(VD.YC)*1.2, np.max(VD.YC)*1.2
+    else:
+        y_min,y_max = y_axis_limit,y_axis_limit
+    if z_axis_limit == None: 
+        z_min,z_max = np.minimum(-20,np.min(VD.ZC)), np.maximum(20,np.max(VD.ZC))
+    else:
+        z_min,z_max = z_axis_limit,z_axis_limit
     
     # -------------------------------------------------------------------------
     # PLOT WING

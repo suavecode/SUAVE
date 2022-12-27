@@ -104,5 +104,4 @@ def plot_style(fig, *args, **kwargs):
         fig.update_traces(marker=dict(line=dict(color=segment_color)),
                           line=dict(color=segment_color),
                           selector=dict(name=segment)) 
-    
     return fig
