@@ -23,7 +23,7 @@ def plot_disc_power_loading(results,
                             save_figure=False,
                             save_filename="Disc_Power_Loading",
                             file_type = ".png",
-                            width = 1400, height = 800,
+                            width = 1200, height = 600,
                             *args, **kwargs):
     """Plots propeller disc and power loadings
 

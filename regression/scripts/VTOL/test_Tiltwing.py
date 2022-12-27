@@ -51,12 +51,7 @@ def main():
     results  = mission.evaluate()
 
     # plot results
-    plot_mission(results)   
-
-    # save, load and plot old results 
-    save_tiltwing_results(results)
-    old_results = load_tiltwing_results() 
-    plot_mission(old_results)
+    plot_mission(results)    
 
     # RPM check during hover
     RPM        = results.segments.departure.conditions.propulsion.propeller_rpm[0][0]
@@ -185,7 +180,7 @@ def mission_setup(analyses,vehicle):
 
     # base segment
     base_segment                                             = Segments.Segment()
-    base_segment.state.numerics.number_control_points        = 5
+    base_segment.state.numerics.number_control_points        = 4
     ones_row                                                 = base_segment.state.ones_row 
     base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
 
@@ -277,15 +272,6 @@ def plot_mission(results):
     plot_disc_power_loading(results)  
 
     return
-
-
-def load_tiltwing_results():
-    return SUAVE.Input_Output.SUAVE.load('results_tiltwing.res')
-
-def save_tiltwing_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'results_tiltwing.res')
-    return
-
+ 
 if __name__ == '__main__': 
-    main()     
-    plt.show(block=True)            
+    main()          

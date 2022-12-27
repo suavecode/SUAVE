@@ -22,7 +22,7 @@ from plotly.subplots import make_subplots
 def plot_battery_cell_conditions(results,
                                  save_figure=False,
                                  save_filename="Battery_Cell_Conditions",
-                                 width = 1400, height = 800,
+                                 width = 1200, height = 600,
                                  *args, **kwargs):
     """Plots the cell-level conditions of the battery throughout flight.
 

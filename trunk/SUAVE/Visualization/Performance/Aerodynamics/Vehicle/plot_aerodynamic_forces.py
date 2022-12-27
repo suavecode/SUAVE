@@ -26,7 +26,7 @@ def plot_aerodynamic_forces(results,
                             save_figure=False,
                             save_filename="Aerodynamic_Forces",
                             file_type=".png",
-                            width = 1400, height = 665,
+                            width = 1200, height = 600,
                             *args, **kwargs):
     """This plots the aerodynamic forces
     

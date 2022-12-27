@@ -70,12 +70,7 @@ def main():
     results   = mission.evaluate()
 
     # plot results
-    plot_mission(results)
-
-    # save, load and plot old results
-    #save_stopped_rotor_results(results)
-    old_results  = load_stopped_rotor_results()
-    plot_mission(old_results)
+    plot_mission(results) 
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[0][0]
@@ -317,27 +312,11 @@ def plot_mission(results):
 
     # Plot Aircraft Flight Speed
     plot_aircraft_velocities(results)
-
-    # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results)
-
+ 
     # Plot Electric Motor and Propeller Efficiencies  of Lift Cruise Network
     plot_lift_cruise_network(results)
 
     return
-
-def load_stopped_rotor_results():
-    return SUAVE.Input_Output.SUAVE.load('results_stopped_rotor.res')
-
-def save_stopped_rotor_results(results):
-
-    for segment in results.segments.values():
-        del segment.conditions.noise
-
-    SUAVE.Input_Output.SUAVE.archive(results,'results_stopped_rotor.res')
-    return
-
-
+ 
 if __name__ == '__main__':
-    main()
-    plt.show(block=True)
+    main() 

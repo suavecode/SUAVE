@@ -23,7 +23,7 @@ def plot_rotor_conditions(results,
                               save_figure = False,
                               save_filename = "Propeller_Conditions",
                               file_type = ".png",
-                              width = 1400, height = 800,
+                              width = 1200, height = 600,
                               *args, **kwargs):
     """Plots propeller performance conditions
 

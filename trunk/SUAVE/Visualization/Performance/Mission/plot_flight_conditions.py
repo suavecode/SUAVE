@@ -25,7 +25,7 @@ def plot_flight_conditions(results,
                             save_figure=False,
                             save_filename="Flight Conditions",
                             file_type=".png",
-                            width = 1400, height = 665,
+                            width = 1200, height = 600,
                             *args, **kwargs):
     """This plots the flights the conditions
 

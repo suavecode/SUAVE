@@ -77,8 +77,7 @@ def plot_style(fig, *args, **kwargs):
         plot_bgcolor='white',
         margin = dict(t=80, l=80, b=80, r=80))
 
-    # Set Line and Marker Style
-
+    # Set Line and Marker Style 
     fig.update_traces(
         marker=dict(
             size=10,
@@ -104,6 +103,6 @@ def plot_style(fig, *args, **kwargs):
         segment_color = next(colorcycler)
         fig.update_traces(marker=dict(line=dict(color=segment_color)),
                           line=dict(color=segment_color),
-                          selector=dict(name=segment))
-        
+                          selector=dict(name=segment)) 
+    
     return fig

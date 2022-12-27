@@ -66,8 +66,8 @@ def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 
     # DEFINE PLOT LIMITS 
     # -------------------------------------------------------------------------    
     y_min,y_max = np.min(VD.YC)*1.2, np.max(VD.YC)*1.2
-    x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2, 2*y_max)
-    z_min,z_max = -np.max(VD.ZC)*1.2, np.max(VD.ZC)*1.2
+    x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2,10)
+    z_min,z_max = np.minimum(0,np.min(VD.ZC)), np.maxiumum(10,np.max(VD.ZC))
     
     # -------------------------------------------------------------------------
     # PLOT WING
@@ -103,7 +103,7 @@ def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 
         plot_data = plot_3d_energy_network(plot_data,network,number_of_airfoil_points,color_map = 'turbid' )
 
     fig = go.Figure(data=plot_data)
-    fig.update_scenes(aspectmode   = 'auto',
+    fig.update_scenes(aspectmode   = 'cube',
                       xaxis_visible=plot_axis,
                       yaxis_visible=plot_axis,
                       zaxis_visible=plot_axis
@@ -119,7 +119,7 @@ def plot_3d_vehicle(vehicle,plot_axis = False, save_figure = False, alpha = 1.0 
                         zaxis = dict(backgroundcolor="grey",gridcolor="white",showbackground=plot_axis,
                                      zerolinecolor="white", range=[z_min,z_max])),             
              scene_camera=camera) 
-    fig.update_coloraxes(showscale=False)
+    fig.update_coloraxes(showscale=False) 
     fig.update_traces(opacity = alpha)
     if save_figure:
         fig.write_image(save_filename + ".png")
