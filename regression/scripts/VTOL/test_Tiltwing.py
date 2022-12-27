@@ -11,8 +11,12 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units 
-from SUAVE.Plots.Performance.Mission_Plots import *  
-from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle 
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission              import *  
+from SUAVE.Visualization.Performance.Energy.Common        import *  
+from SUAVE.Visualization.Performance.Energy.Battery       import *   
+from SUAVE.Visualization.Performance.Noise                import *  
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
 import numpy as np  
 import sys 
 
@@ -40,19 +44,14 @@ def main():
     print(configs.base.mass_properties.center_of_gravity)
 
     # Plot vehicle 
-    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = False)
+    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = False)
 
     # evaluate mission    
     mission  = analyses.missions.base
     results  = mission.evaluate()
 
     # plot results
-    plot_mission(results)   
-
-    # save, load and plot old results 
-    save_tiltwing_results(results)
-    old_results = load_tiltwing_results() 
-    plot_mission(old_results,'k-')
+    plot_mission(results)    
 
     # RPM check during hover
     RPM        = results.segments.departure.conditions.propulsion.propeller_rpm[0][0]
@@ -181,7 +180,7 @@ def mission_setup(analyses,vehicle):
 
     # base segment
     base_segment                                             = Segments.Segment()
-    base_segment.state.numerics.number_control_points        = 5
+    base_segment.state.numerics.number_control_points        = 4
     ones_row                                                 = base_segment.state.ones_row 
     base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
 
@@ -249,39 +248,30 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results,line_style = 'bo-'):  
+def plot_mission(results):  
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results, line_style) 
+    plot_flight_conditions(results) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results, line_style)  
+    plot_aerodynamic_coefficients(results)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results, line_style)
+    plot_aircraft_velocities(results)
     
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results, line_style)
+    plot_battery_pack_conditions(results)
     
     # Plot Propeller Conditions 
-    plot_propeller_conditions(results, line_style) 
+    plot_rotor_conditions(results) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_eMotor_Prop_efficiencies(results, line_style)
+    plot_electric_motor_and_rotor_efficiencies(results)
 
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results, line_style)  
+    plot_disc_power_loading(results)  
 
     return
-
-
-def load_tiltwing_results():
-    return SUAVE.Input_Output.SUAVE.load('results_tiltwing.res')
-
-def save_tiltwing_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'results_tiltwing.res')
-    return
-
+ 
 if __name__ == '__main__': 
-    main()     
-    plt.show(block=True)            
+    main()          

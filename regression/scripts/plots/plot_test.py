@@ -7,9 +7,13 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Plots.Performance.Mission_Plots import * 
+import SUAVE 
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission              import *  
+from SUAVE.Visualization.Performance.Energy.Common        import *  
+from SUAVE.Visualization.Performance.Energy.Battery       import *   
+from SUAVE.Visualization.Performance.Energy.Fuel          import *  
+from SUAVE.Visualization.Performance.Noise                import *    
 import matplotlib.pyplot as plt  
 
 def main():
@@ -56,8 +60,7 @@ def main():
     """
     # Compare Plot for Flight Trajectory
     """
-    plot_flight_trajectory(results)
-    
+    plot_flight_trajectory(results) 
 
     
     """

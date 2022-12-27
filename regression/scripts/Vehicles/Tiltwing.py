@@ -13,7 +13,7 @@ from SUAVE.Methods.Power.Battery.Sizing                                   import
 from SUAVE.Methods.Propulsion.electric_motor_sizing                       import  size_optimal_motor
 from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor
 from SUAVE.Methods.Propulsion                                             import propeller_design
-from SUAVE.Plots.Geometry                                                 import *
+from SUAVE.Visualization.Geometry                                                 import *
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Weights.Buildups.eVTOL.converge_evtol_weight           import converge_evtol_weight
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity

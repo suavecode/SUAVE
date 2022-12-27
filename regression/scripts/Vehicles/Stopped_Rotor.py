@@ -593,7 +593,7 @@ def vehicle_setup():
     propeller.append_airfoil(airfoil)       
     propeller.airfoil_polar_stations            = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     propeller                                   = propeller_design(propeller) 
-    propeller.origin                            = [[16.*0.3048 , 0. ,2.02*0.3048 ]]
+    propeller.origin                            = [[16.*0.3048 , 0. ,0.575]]
     net.propellers.append(propeller)
 
     # Lift Rotors  

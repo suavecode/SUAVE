@@ -10,7 +10,11 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Performance.Mission_Plots import *  
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission              import *  
+from SUAVE.Visualization.Performance.Energy.Common        import *  
+from SUAVE.Visualization.Performance.Energy.Battery       import *   
+from SUAVE.Visualization.Performance.Noise                import * 
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -22,7 +26,7 @@ import copy, time
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-from SUAVE.Plots.Geometry.plot_vehicle import plot_vehicle 
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
 import sys
 
 sys.path.append('../Vehicles')
@@ -95,7 +99,7 @@ def main():
         assert(np.abs(v)<1e-6)
  
     # Plot vehicle 
-    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = True)
+    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = True)
     
     return
 
@@ -238,7 +242,7 @@ def missions_setup(base_mission):
 def plot_mission(results,line_style='bo-'):     
     
     # Plot Propeller Performance 
-    plot_propeller_conditions(results,line_style)
+    plot_rotor_conditions(results,line_style)
     
     # Plot Power and Disc Loading
     plot_disc_power_loading(results,line_style)

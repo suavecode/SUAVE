@@ -143,7 +143,7 @@ class Aerodynamics(Basic):
         self.propulsion.battery_cycle_day                    = 0
         self.propulsion.battery_resistance_growth_factor     = 1.
         self.propulsion.battery_capacity_fade_factor         = 1. 
-        self.propulsion.propeller_y_axis_rotation            = ones_1col * 0
+        self.propulsion.rotor_y_axis_rotation                = ones_1col * 0
         self.propulsion.lift_rotor_y_axis_rotation           = ones_1col * 0
          
         # energy conditions

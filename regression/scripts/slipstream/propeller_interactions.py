@@ -14,7 +14,7 @@ from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelit
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_grid import generate_propeller_grid
-from SUAVE.Plots.Performance.Propeller_Plots import *
+from SUAVE.Visualization.Performance.Aerodynamics.Rotor import *
 
 import numpy as np
 import pylab as plt
@@ -98,7 +98,7 @@ def run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=
     T, Q, P, Cp, outputs , etap = prop.spin(conditions)
     
     if plot_performance:
-        plot_propeller_disc_performance(prop,outputs)
+        plot_rotor_disc_performance(prop,outputs)
         
     return T, Q, P, Cp, outputs , etap
 
@@ -136,7 +136,7 @@ def compute_propeller_wake_velocities(prop,grid_settings,grid_points, conditions
     
     if plot_velocities:
         # plot the velocities input to downstream propeller
-        plot_propeller_disc_inflow(prop,propeller_wake,grid_points)
+        plot_rotor_disc_inflow(prop,propeller_wake,grid_points)
         
     
     return propeller_wake

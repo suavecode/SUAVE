@@ -17,9 +17,14 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Plots.Performance.Mission_Plots import *
-from SUAVE.Plots.Geometry import * 
+from SUAVE.Core import Units 
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission              import *  
+from SUAVE.Visualization.Performance.Energy.Common        import *  
+from SUAVE.Visualization.Performance.Energy.Battery       import *   
+from SUAVE.Visualization.Performance.Energy.Fuel          import *  
+from SUAVE.Visualization.Performance.Noise                import * 
+from SUAVE.Visualization.Geometry.Three_Dimensional       import * 
 import matplotlib.pyplot as plt  
 import numpy as np 
 
@@ -64,8 +69,7 @@ def main():
     
     # plt the old results
     plot_mission(results)
-    plot_mission(old_results,'k-')
-    #plt.show(block=True)    
+    plot_mission(old_results)
     
     # print weights breakdown
     print_weight_breakdown(configs.cruise)
@@ -78,7 +82,7 @@ def main():
     # ------------------------------------------------------------------
     
     # plot vehicle 
-    plot_vehicle(configs.base,plot_control_points = True)      
+    plot_3d_vehicle(configs.base,plot_wing_control_points = True)      
     return
 
 
@@ -189,28 +193,28 @@ def base_analysis(vehicle):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_style='bo-'):
+def plot_mission(results):
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results, line_style)
+    plot_flight_conditions(results)
     
     # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results, line_style)
+    plot_aerodynamic_forces(results)
     
     # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results, line_style)
+    plot_aerodynamic_coefficients(results)
     
     # Plot Static Stability Coefficients 
-    plot_stability_coefficients(results, line_style)    
+    plot_stability_coefficients(results)    
     
     # Drag Components
-    plot_drag_components(results, line_style)
+    plot_drag_components(results)
     
     # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results, line_style)
+    plot_altitude_sfc_weight(results)
     
     # Plot Velocities 
-    plot_aircraft_velocities(results, line_style)  
+    plot_aircraft_velocities(results)  
 
     return
 

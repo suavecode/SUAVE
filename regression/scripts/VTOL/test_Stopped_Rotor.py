@@ -9,9 +9,14 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units , Data
-from SUAVE.Plots.Performance.Mission_Plots import *
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission import *  
+from SUAVE.Visualization.Performance.Energy.Common import *  
+from SUAVE.Visualization.Performance.Energy.Battery import *   
+from SUAVE.Visualization.Performance.Noise import *  
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
+from SUAVE.Visualization.Geometry import *
 from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
-from SUAVE.Plots.Geometry import *
 import sys
 import numpy as np
 
@@ -65,12 +70,7 @@ def main():
     results   = mission.evaluate()
 
     # plot results
-    plot_mission(results,configs.base)
-
-    # save, load and plot old results
-    #save_stopped_rotor_results(results)
-    old_results  = load_stopped_rotor_results()
-    plot_mission(old_results,configs.base, 'k-')
+    plot_mission(results) 
 
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[0][0]
@@ -111,7 +111,7 @@ def full_setup():
     # vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
-    plot_vehicle(vehicle,plot_control_points = False)
+    plot_3d_vehicle(vehicle,plot_wing_control_points = False)
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
@@ -302,37 +302,21 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results,vec_configs,line_style='bo-'):
+def plot_mission(results):
 
     # Plot Flight Conditions
-    plot_flight_conditions(results, line_style)
+    plot_flight_conditions(results)
 
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results, line_style)
+    plot_aerodynamic_coefficients(results)
 
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results, line_style)
-
-    # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results, line_style)
-
+    plot_aircraft_velocities(results)
+ 
     # Plot Electric Motor and Propeller Efficiencies  of Lift Cruise Network
-    plot_lift_cruise_network(results, line_style)
+    plot_lift_cruise_network(results)
 
     return
-
-def load_stopped_rotor_results():
-    return SUAVE.Input_Output.SUAVE.load('results_stopped_rotor.res')
-
-def save_stopped_rotor_results(results):
-
-    for segment in results.segments.values():
-        del segment.conditions.noise
-
-    SUAVE.Input_Output.SUAVE.archive(results,'results_stopped_rotor.res')
-    return
-
-
+ 
 if __name__ == '__main__':
-    main()
-    plt.show(block=True)
+    main() 

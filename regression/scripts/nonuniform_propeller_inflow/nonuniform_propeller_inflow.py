@@ -6,7 +6,7 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 from SUAVE.Methods.Propulsion import propeller_design
-from SUAVE.Plots.Performance.Propeller_Plots import *
+from SUAVE.Visualization.Performance.Aerodynamics.Rotor import *
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_wake import compute_wing_wake
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 
@@ -52,7 +52,7 @@ def case_1(vehicle, conditions):
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
 
     # plot velocities at propeller plane and resulting performance
-    plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
+    plot_rotor_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
     
     thrust   = np.linalg.norm(thrust)
     thrust_r = 1743.0258191335301
@@ -101,7 +101,7 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
 
     # plot velocities at propeller plane and resulting performance
-    plot_propeller_disc_performance(prop,outputs,title='Case 2: Arbitrary Freestream')
+    plot_rotor_disc_performance(prop,outputs,title='Case 2: Arbitrary Freestream')
 
     # expected results
     thrust   = np.linalg.norm(thrust)
@@ -167,7 +167,7 @@ def case_3(vehicle,conditions):
 
     # Plot results
     if plot_flag:
-        plot_propeller_disc_performance(prop,outputs, title='Case 3: Pusher Propeller')
+        plot_rotor_disc_performance(prop,outputs, title='Case 3: Pusher Propeller')
 
     return
 

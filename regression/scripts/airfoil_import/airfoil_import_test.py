@@ -11,11 +11,11 @@
 
 import SUAVE 
 from SUAVE.Core import Units, Data 
-from SUAVE.Plots.Geometry import plot_airfoil
+from SUAVE.Visualization.Geometry.Two_Dimensional.plot_airfoil import plot_airfoil
 import matplotlib.pyplot as plt  
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil\
      import import_airfoil_geometry, compute_airfoil_properties, convert_airfoil_to_meshgrid
-from SUAVE.Plots.Performance.Airfoil_Plots import *
+from SUAVE.Visualization.Performance.Aerodynamics.Airfoil import *
 import os
 import numpy as np
 

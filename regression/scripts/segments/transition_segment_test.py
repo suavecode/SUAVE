@@ -14,7 +14,12 @@ from SUAVE.Core import Units
 
 from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
-from SUAVE.Plots.Performance import *
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission              import *  
+from SUAVE.Visualization.Performance.Energy.Common        import *  
+from SUAVE.Visualization.Performance.Energy.Battery       import *   
+from SUAVE.Visualization.Performance.Energy.Fuel          import *  
+from SUAVE.Visualization.Performance.Noise                import *    
 from SUAVE.Core import Data
 
 import scipy as sp
@@ -319,31 +324,31 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results,configs,line_style = 'bo-'):  
+def plot_mission(results,configs):  
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results, line_style) 
+    plot_flight_conditions(results) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results, line_style)  
+    plot_aerodynamic_coefficients(results)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results, line_style)
+    plot_aircraft_velocities(results)
     
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results, line_style)
+    plot_battery_pack_conditions(results)
     
     # Plot Propeller Conditions 
-    plot_propeller_conditions(results, line_style) 
+    plot_rotor_conditions(results) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_eMotor_Prop_efficiencies(results, line_style)
+    plot_electric_motor_and_rotor_efficiencies(results)
     
     # Plot tiltrotor conditions
-    plot_tiltrotor_conditions(results,configs,line_style)
+    plot_tiltrotor_conditions(results,configs)
 
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results, line_style)  
+    plot_disc_power_loading(results)  
 
     return
 
