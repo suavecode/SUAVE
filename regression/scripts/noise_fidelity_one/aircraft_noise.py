@@ -13,7 +13,11 @@ import SUAVE
 from SUAVE.Core import Units 
 import numpy as np    
 from SUAVE.Core import Data 
-from SUAVE.Plots.Performance.Mission_Plots import *   
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
+from SUAVE.Visualization.Performance.Mission import *  
+from SUAVE.Visualization.Performance.Energy.Common import *  
+from SUAVE.Visualization.Performance.Energy.Battery import *   
+from SUAVE.Visualization.Performance.Noise import *   
 from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Noise.Certification import sideline_noise, flyover_noise, approach_noise

@@ -13,7 +13,7 @@ from SUAVE.Core import Data
 import numpy as np
 import copy
 
-from SUAVE.Plots.Geometry.plot_vehicle import get_blade_coordinates
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_rotor import get_3d_blade_coordinates
 
 ## @ingroup Input_Output-VTK
 def save_prop_vtk(prop, filename, Results, time_step, origin_offset=np.array([0,0,0]), aircraftReferenceFrame=True):
@@ -324,7 +324,7 @@ def generate_lofted_propeller_points(prop,aircraftReferenceFrame):
     
     for i in range(num_B):
         Gprops[i] = Data()
-        G = get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=aircraftReferenceFrame)
+        G = get_3d_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=aircraftReferenceFrame)
 
         # Store G for this blade:
         Gprops[i] = copy.deepcopy(G)

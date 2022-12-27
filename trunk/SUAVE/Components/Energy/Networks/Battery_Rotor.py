@@ -181,8 +181,13 @@ class Battery_Rotor(Network):
                 prop      = self.propellers[prop_key]
 
                 # Set rotor y-axis rotation                
-                prop.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation                    
-                
+                prop.inputs.y_axis_rotation = conditions.propulsion.rotor_y_axis_rotation    
+            
+                if identical_flag:
+                    for idx in range(1,int(num_engines)) :
+                        rotor_remainder      = self.propellers[list(props.keys())[idx]]
+                        rotor_remainder.inputs.y_axis_rotation = conditions.propulsion.rotor_y_axis_rotation
+                        
                 # link 
                 motor.inputs.voltage        = esc.outputs.voltageout
                 motor.inputs.propeller_CP   = np.atleast_2d(conditions.propulsion.propeller_power_coefficient[:,ii]).T
@@ -285,7 +290,7 @@ class Battery_Rotor(Network):
         results = Data()
         results.thrust_force_vector       = total_thrust
         results.vehicle_mass_rate         = state.ones_row(1)*0.0     
-        results.network_y_axis_rotation   = conditions.propulsion.propeller_y_axis_rotation
+        results.network_y_axis_rotation   = conditions.propulsion.rotor_y_axis_rotation
      
         return results
      
@@ -323,7 +328,7 @@ class Battery_Rotor(Network):
         # fixed y axis rotation
         net   = list(segment.analyses.energy.network.keys())[0]
         y_rot = segment.analyses.energy.network[net].y_axis_rotation
-        ss.conditions.propulsion.propeller_y_axis_rotation = y_rot * ones_row(1)
+        ss.conditions.propulsion.rotor_y_axis_rotation = y_rot * ones_row(1)
         self.y_axis_rotation = y_rot
         
         battery = self.battery 
@@ -341,7 +346,7 @@ class Battery_Rotor(Network):
             N/A
     
             Inputs:
-            state.unknowns.propeller_y_axis_rotation      [rad] 
+            state.unknowns.rotor_y_axis_rotation          [rad] 
             state.unknowns.propeller_power_coefficient    [None] 
             unknowns specific to the battery cell 
     
@@ -361,12 +366,12 @@ class Battery_Rotor(Network):
         if segment.battery_discharge:
             ss.conditions.propulsion.propeller_power_coefficient = ss.unknowns.propeller_power_coefficient       
             ss.conditions.propulsion.throttle                    = ss.unknowns.throttle
-            ss.conditions.propulsion.propeller_y_axis_rotation   = ss.unknowns.propeller_y_axis_rotation 
+            ss.conditions.propulsion.rotor_y_axis_rotation       = ss.unknowns.rotor_y_axis_rotation 
         else: 
             ss.conditions.propulsion.propeller_power_coefficient = 0. * ones_row(1)
         
         # update y axis rotation
-        self.y_axis_rotation = ss.conditions.propulsion.propeller_y_axis_rotation 
+        self.y_axis_rotation = ss.conditions.propulsion.rotor_y_axis_rotation 
         
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
@@ -520,7 +525,7 @@ class Battery_Rotor(Network):
             segment.state.unknowns.battery_voltage_under_load
             segment.state.unknowns.propeller_power_coefficient
             segment.state.unknowns.throttle
-            segment.state.unknowns.propeller_y_axis_rotation
+            segment.state.unknowns.rotor_y_axis_rotation
             segment.state.conditions.propulsion.propeller_motor_torque
             segment.state.conditions.propulsion.propeller_torque   
     
@@ -564,7 +569,7 @@ class Battery_Rotor(Network):
 
         if segment.battery_discharge: 
             segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)  
-            segment.state.unknowns.propeller_y_axis_rotation   = initial_y_axis_rotation * ones_row(1)  
+            segment.state.unknowns.rotor_y_axis_rotation   = initial_y_axis_rotation * ones_row(1)  
             segment.state.unknowns.throttle                    = 0.7 * ones_row(1)
         
         # Setup the conditions

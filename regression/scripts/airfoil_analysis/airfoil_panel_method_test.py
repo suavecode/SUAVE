@@ -13,7 +13,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4
      import  compute_naca_4series
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
-from SUAVE.Plots.Performance.Airfoil_Plots import * 
+from SUAVE.Visualization.Performance.Aerodynamics.Airfoil import * 
 import os 
 import numpy as np
 
@@ -32,7 +32,7 @@ def main():
     airfoil_properties_1 = airfoil_analysis(airfoil_geometry_1,AoA_vals,Re_vals)  
     
      # Plots    
-    plot_airfoil_surface_forces(airfoil_properties_1,show_legend = True )   
+    plot_airfoil_surface_forces(airfoil_properties_1)   
     plot_airfoil_boundary_layer_properties(airfoil_properties_1,show_legend = True )   
     
     # XFOIL Validation - Source   
