@@ -15,8 +15,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-import numpy as np 
-import plotly.graph_objects as go   
+import numpy as np     
 from SUAVE.Visualization.Geometry.Common.contour_surface_slice import contour_surface_slice
 
 ## @ingroup Visualization-Geometry-Three_Dimensional

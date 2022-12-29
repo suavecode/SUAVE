@@ -55,7 +55,7 @@ def plot_3d_vehicle(vehicle,
     """
 
     print("\nPlotting vehicle") 
-    camera        = dict(up=dict(x=0.5, y=0.5, z=1), center=dict(x=0, y=0, z=-0.5), eye=dict(x=-1.5, y=-1.5, z=.8))
+    camera        = dict(up=dict(x=0.5, y=0.5, z=1), center=dict(x=0, y=0, z= -.5), eye=dict(x=-1.5, y=-1.5, z=.8))
     plot_data     = []
     
     # unpack vortex distribution
@@ -83,7 +83,7 @@ def plot_3d_vehicle(vehicle,
     else:
         y_min,y_max = y_axis_limit,y_axis_limit
     if z_axis_limit == None: 
-        z_min,z_max = np.minimum(-20,np.min(VD.ZC)), np.maximum(20,np.max(VD.ZC))
+        z_min,z_max = np.minimum(-5,np.min(VD.ZC)), np.maximum(10,np.max(VD.ZC))
     else:
         z_min,z_max = z_axis_limit,z_axis_limit
     

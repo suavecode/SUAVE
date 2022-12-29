@@ -14,7 +14,8 @@ from SUAVE.Core import Data
 #-------------------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Buildups-eVTOL 
-def converge_evtol_weight(vehicle,
+def converge_evtol_weight(vehicle, 
+                          settings,                        
                           print_iterations              = False,
                           contingency_factor            = 1.1,
                           speed_of_sound                = 340.294,
@@ -51,7 +52,6 @@ def converge_evtol_weight(vehicle,
     Properties Used:
     N/A
     '''
-    settings       = Data()
     breakdown      = empty(vehicle,settings,contingency_factor,
                            speed_of_sound,max_tip_mach,disk_area_factor,
                            safety_factor,max_thrust_to_weight_ratio,

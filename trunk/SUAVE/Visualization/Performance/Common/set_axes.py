@@ -1,18 +1,15 @@
-## @ingroup [ADD DOCUMENTATION GROUP]
+## @ingroup Visualization-Performance-Common
 # set_axes.py
 # 
-# Created:    Nov 2022, J. Smart
+# Created:    Dec 2022, J. Smart
 # Modified:   
-
-# ----------------------------------------------------------------------
-#  Imports
-# ---------------------------------------------------------------------- 
-
-# TODO: ADD IMPORTS
-
-## @ingroup [ADD DOCUMENTATION GROUP]
-def set_axes(*args, **kwargs):
-    """ADD FUNCTION DESCRIPTION 
+ 
+# ------------------------------------------------------------------
+#   Set Axis Parameters
+# ------------------------------------------------------------------
+## @ingroup Visualization-Performance-Common
+def set_axes(axes):
+    """This sets the axis parameters for all plots
 
     Assumptions:
     None
@@ -20,16 +17,21 @@ def set_axes(*args, **kwargs):
     Source:
     None
 
-    Inputs:
-    [FUNCTION INPUT]   <INPUT TYPE>
+    Inputs
+    axes
 
-    Outputs: 
-    [FUNCTION OUTPUT]   <OUTPUT TYPE>
+    Outputs:
+    axes
 
     Properties Used:
-    N/A	
+    N/A
     """
 
-    # TODO: Write Function
+    axes.minorticks_on()
+    axes.grid(which='major', linestyle='-', linewidth=0.5, color='grey')
+    axes.grid(which='minor', linestyle=':', linewidth=0.5, color='grey')
+    axes.grid(True)
+    axes.get_yaxis().get_major_formatter().set_scientific(False)
+    axes.get_yaxis().get_major_formatter().set_useOffset(False)
 
     return

@@ -8,10 +8,10 @@
 # ----------------------------------------------------------------------  
 # SUAVE Imports 
 import SUAVE 
-from SUAVE.Core                                                                                import Units 
-from SUAVE.Analyses.Mission.Segments.Segment                                                   import Segment 
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                         import propeller_mid_fidelity 
-from SUAVE.Analyses.Process                                                                    import Process   
+from SUAVE.Core                                                  import Units 
+from SUAVE.Analyses.Mission.Segments.Segment                     import Segment 
+from SUAVE.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise    import total_rotor_noise 
+from SUAVE.Analyses.Process                                      import Process   
 
 # Python package imports  
 from numpy import linalg as LA  
@@ -95,7 +95,7 @@ def modify_blade_geometry(nexus):
             t_max[locs]   = a_geo.max_thickness*c[locs]   
      
     rotor_hover.chord_distribution          = c
-    rotor_hover.twist_distribution          = beta  
+    rotor_hover.twist_distribution          = beta + rotor_hover.twist_0
     rotor_hover.mid_chord_alignment         = c/4. - c[0]/4.
     rotor_hover.max_thickness_distribution  = t_max 
     rotor_hover.thickness_to_chord          = t_c
@@ -134,7 +134,7 @@ def updated_blade_geometry(chi,c_r,p,q,c_t):
              c_r - hyperparameter no. 1           [None]
              p   - hyperparameter no. 2           [None]
              q   - hyperparameter no. 3           [None]
-             c_t - hyperparameter no. 4           [None]
+             c_t - hyperparameter no. 4           [None] 
                    
           Outputs:       
              x_lin  - function distribution       [None]
@@ -274,8 +274,8 @@ def run_rotor_hover(nexus):
     num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
     conditions.noise.number_of_microphones           = num_mic   
     
-    if alpha == 1: 
-        propeller_noise_hover                           = propeller_mid_fidelity(rotors,outputs,segment,settings)   
+    if alpha != 1: 
+        propeller_noise_hover                           = total_rotor_noise(rotors,outputs,segment,settings)   
         mean_SPL_hover                                  = np.mean(propeller_noise_hover.SPL_dBA) 
         nexus.results.hover.mean_SPL   = mean_SPL_hover 
         nexus.results.hover.noise_data = propeller_noise_hover     
@@ -354,8 +354,8 @@ def run_rotor_cruise(nexus):
         num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
         conditions.noise.number_of_microphones           = num_mic    
         
-        if alpha == 1: 
-            propeller_noise_cruise                           = propeller_mid_fidelity(rotors,outputs,segment,settings)   
+        if alpha != 1: 
+            propeller_noise_cruise                           = total_rotor_noise(rotors,outputs,segment,settings)   
             mean_SPL_cruise                                  = np.mean(propeller_noise_cruise.SPL_dBA)    
                 
             # Pack

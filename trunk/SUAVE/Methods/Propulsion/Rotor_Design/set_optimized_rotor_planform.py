@@ -8,10 +8,10 @@
 # ----------------------------------------------------------------------  
 # SUAVE Imports 
 import SUAVE 
-from SUAVE.Core                                                                              import Units 
-from SUAVE.Analyses.Mission.Segments.Segment                                                 import Segment 
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                       import propeller_mid_fidelity 
-from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics                                 import Aerodynamics  
+from SUAVE.Core                                                 import Units 
+from SUAVE.Analyses.Mission.Segments.Segment                    import Segment 
+from SUAVE.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise   import total_rotor_noise 
+from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics    import Aerodynamics  
 
 # Python package imports   
 import numpy as np 

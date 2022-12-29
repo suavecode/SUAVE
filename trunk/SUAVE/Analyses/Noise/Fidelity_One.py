@@ -22,9 +22,8 @@ from SUAVE.Methods.Noise.Fidelity_One.Engine.noise_SAE                          
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric                    import noise_geometric
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic                 import SPL_arithmetic
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points         import generate_ground_microphone_points
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_evaluation_locations import compute_ground_noise_evaluation_locations
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_evaluation_locations import compute_building_noise_evaluation_locations
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity               import propeller_mid_fidelity 
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_evaluation_locations import compute_ground_noise_evaluation_locations 
+from SUAVE.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise                        import total_rotor_noise 
 
 # package imports
 import numpy as np
@@ -86,16 +85,7 @@ class Fidelity_One(Noise):
         settings.ground_microphone_min_x              = 1E-6
         settings.ground_microphone_max_x              = 5000 
         settings.ground_microphone_min_y              = 1E-6
-        settings.ground_microphone_max_y              = 450    
-       
-        # settings for building noise analysis 
-        settings.building_analysis                    = False 
-        settings.building_microphone_locations        = None
-        settings.building_dimensions                  = []
-        settings.building_locations                   = []
-        settings.building_microphone_x_resolution     = 4 
-        settings.building_microphone_y_resolution     = 4
-        settings.building_microphone_z_resolution     = 16      
+        settings.ground_microphone_max_y              = 450        
          
                 
         # settings for acoustic frequency resolution
@@ -143,15 +133,7 @@ class Fidelity_One(Noise):
             generate_ground_microphone_points(settings)     
         
         GM_THETA,GM_PHI,REGML,EGML,TGML,num_gm_mic,mic_stencil = compute_ground_noise_evaluation_locations(settings,segment)
-        
-        BM_THETA,BM_PHI,UCML,num_b_mic = compute_building_noise_evaluation_locations(settings,segment) 
-        
-        mic_locations  = np.concatenate((REGML,UCML),axis = 1) 
-        THETA          = np.concatenate((GM_THETA,BM_THETA),axis = 1) 
-        PHI            = np.concatenate((GM_PHI,BM_PHI),axis = 1)  
-        
-        num_mic = num_b_mic + num_gm_mic  
-        
+          
         # append microphone locations to conditions
         conditions.noise.ground_microphone_theta_angles        = GM_THETA
         conditions.noise.ground_microphone_phi_angles          = GM_PHI
@@ -159,23 +141,18 @@ class Fidelity_One(Noise):
         conditions.noise.evaluated_ground_microphone_locations = EGML       
         conditions.noise.total_ground_microphone_locations     = TGML
         conditions.noise.number_of_ground_microphones          = num_gm_mic
-        
-        conditions.noise.building_microphone_phi_angles        = BM_PHI
-        conditions.noise.building_microphone_theta_angles      = BM_THETA
-        conditions.noise.building_microphone_locations         = UCML
-        conditions.noise.number_of_building_microphones        = num_b_mic 
-   
-        conditions.noise.total_microphone_theta_angles         = THETA
-        conditions.noise.total_microphone_phi_angles           = PHI 
-        conditions.noise.total_microphone_locations            = mic_locations 
-        conditions.noise.total_number_of_microphones           = num_mic
+         
+        conditions.noise.total_microphone_theta_angles         = GM_THETA 
+        conditions.noise.total_microphone_phi_angles           = GM_PHI 
+        conditions.noise.total_microphone_locations            = REGML 
+        conditions.noise.total_number_of_microphones           = num_gm_mic 
         
         # create empty arrays for results  
         num_src            = len(config.networks) + 1 
         if ('lift_cruise') in config.networks.keys():
             num_src += 1
-        source_SPLs_dBA    = np.zeros((ctrl_pts,num_src,num_mic)) 
-        source_SPL_spectra = np.zeros((ctrl_pts,num_src,num_mic,dim_cf ))    
+        source_SPLs_dBA    = np.zeros((ctrl_pts,num_src,num_gm_mic)) 
+        source_SPL_spectra = np.zeros((ctrl_pts,num_src,num_gm_mic,dim_cf ))    
         
         si = 1  
         # iterate through sources 
@@ -188,7 +165,7 @@ class Fidelity_One(Noise):
                     if 'flap' in config.wings.main_wing.control_surfaces:            
                         airframe_noise                = noise_airframe_Fink(segment,analyses,config,settings)  
                         source_SPLs_dBA[:,si,:]       = airframe_noise.SPL_dBA          
-                        source_SPL_spectra[:,si,:,5:] = np.repeat(airframe_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1)
+                        source_SPL_spectra[:,si,:,5:] = np.repeat(airframe_noise.SPL_spectrum[:,np.newaxis,:], num_gm_mic , axis =1)
                     
                     
                     if bool(conditions.noise.sources[source].fan) and bool(conditions.noise.sources[source].core): 
@@ -197,8 +174,8 @@ class Fidelity_One(Noise):
                         config.networks[source].fan_nozzle.noise_speed   = conditions.noise.sources.turbofan.fan.exit_velocity 
                         config.networks[source].core_nozzle.noise_speed  = conditions.noise.sources.turbofan.core.exit_velocity
                         engine_noise                                      = noise_SAE(config.networks[source],segment,analyses,config,settings,ioprint = print_flag)  
-                        source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_mic, axis =1)     # noise measures at one microphone location in segment
-                        source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1) # noise measures at one microphone location in segment
+                        source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_gm_mic , axis =1)     # noise measures at one microphone location in segment
+                        source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_gm_mic , axis =1) # noise measures at one microphone location in segment
                           
                 elif (source  == 'propellers')  or (source   == 'lift_rotors'): 
                     if bool(conditions.noise.sources[source]) == True: 
@@ -214,16 +191,16 @@ class Fidelity_One(Noise):
                              
                         if identity_flag:
                             aeroacoustic_data  = acoustic_data[list(acoustic_data.keys())[0]] 
-                            propeller_noise    = propeller_mid_fidelity(rotors,aeroacoustic_data,segment,settings) 
+                            propeller_noise    = total_rotor_noise(rotors,aeroacoustic_data,segment,settings) 
                         else:
                             distributed_rotors                       = Container()
                             num_rotors                               = len(rotors)
-                            distributed_prop_noise_SPL_dBA           = np.zeros((num_rotors,ctrl_pts,num_mic)) 
-                            distributed_prop_noise_SPL_1_3_spectrum  = np.zeros((num_rotors,ctrl_pts,num_mic,dim_cf)) 
+                            distributed_prop_noise_SPL_dBA           = np.zeros((num_rotors,ctrl_pts,num_gm_mic )) 
+                            distributed_prop_noise_SPL_1_3_spectrum  = np.zeros((num_rotors,ctrl_pts,num_gm_mic ,dim_cf)) 
                             for r_idx , rotor  in enumerate(rotors): 
                                 aeroacoustic_data                               = acoustic_data[rotor.tag]                                    
                                 distributed_rotors.append(rotors[rotor.tag])       
-                                propeller_noise                                 = propeller_mid_fidelity(distributed_rotors,aeroacoustic_data,segment,settings) 
+                                propeller_noise                                 = total_rotor_noise(distributed_rotors,aeroacoustic_data,segment,settings) 
                                 distributed_prop_noise_SPL_dBA[r_idx]           = propeller_noise.SPL_dBA 
                                 distributed_prop_noise_SPL_1_3_spectrum[r_idx]  = propeller_noise.SPL_1_3_spectrum     
                             propeller_noise.SPL_dBA          = SPL_arithmetic(distributed_prop_noise_SPL_dBA ,sum_axis=0)

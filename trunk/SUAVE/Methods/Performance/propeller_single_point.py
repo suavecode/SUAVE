@@ -109,7 +109,8 @@ def propeller_single_point(prop,
     conditions.noise.sources.propellers             = Data()
     conditions.frames                               = Data()
     conditions.frames.inertial                      = Data()
-    conditions.frames.body                          = Data()    
+    conditions.frames.body                          = Data()  
+    conditions.frames.planet                        = Data()    
     conditions.freestream.density                   = np.ones((ctrl_pts, 1)) * density
     conditions.freestream.dynamic_viscosity         = np.ones((ctrl_pts, 1)) * dynamic_viscosity
     conditions.freestream.speed_of_sound            = np.ones((ctrl_pts, 1)) * a

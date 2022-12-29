@@ -15,9 +15,7 @@ from .decibel_arithmetic                    import SPL_arithmetic
 from .convert_to_third_octave_band          import convert_to_third_octave_band
 from .print_engine_output                   import print_engine_output
 from .print_airframe_output                 import print_airframe_output
-from .print_propeller_output                import print_propeller_output
-from .generate_microphone_points            import generate_building_microphone_points
+from .print_propeller_output                import print_propeller_output 
 from .generate_microphone_points            import generate_ground_microphone_points
 from .generate_microphone_points            import preprocess_topography_and_route_data
-from .compute_noise_evaluation_locations    import compute_ground_noise_evaluation_locations
-from .compute_noise_evaluation_locations    import compute_building_noise_evaluation_locations 
+from .compute_noise_evaluation_locations    import compute_ground_noise_evaluation_locations 
