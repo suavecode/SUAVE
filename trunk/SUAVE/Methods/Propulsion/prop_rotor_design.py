@@ -8,13 +8,13 @@
 # ----------------------------------------------------------------------  
 # SUAVE Imports 
 import SUAVE 
-from SUAVE.Core                                                                              import Units, Data  
-from SUAVE.Analyses.Mission.Segments.Segment                                                 import Segment 
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                       import propeller_mid_fidelity
-import SUAVE.Optimization.Package_Setups.scipy_setup                                         as scipy_setup 
-from SUAVE.Optimization                                                                      import Nexus       
-from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics                                 import Aerodynamics 
-from SUAVE.Analyses.Process                                                                  import Process   
+from SUAVE.Core                                                         import Units, Data  
+from SUAVE.Analyses.Mission.Segments.Segment                            import Segment 
+from SUAVE.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise           import total_rotor_noise
+import SUAVE.Optimization.Package_Setups.scipy_setup                    as scipy_setup 
+from SUAVE.Optimization                                                 import Nexus       
+from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics            import Aerodynamics 
+from SUAVE.Analyses.Process                                             import Process   
 
 from SUAVE.Methods.Propulsion.Rotor_Design.optimization_setup           import optimization_setup
 from SUAVE.Methods.Propulsion.Rotor_Design.set_optimized_rotor_planform import set_optimized_rotor_planform
@@ -29,8 +29,8 @@ import time
 #  Rotor Design
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
-def prop_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',iterations = 500,
-                      solver_sense_step = 1E-5,solver_tolerance = 1E-4,print_iterations = False):  
+def prop_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',iterations = 200,
+                      solver_sense_step = 1E-4,solver_tolerance = 1E-3,print_iterations = False):  
     """ Optimizes prop-rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.

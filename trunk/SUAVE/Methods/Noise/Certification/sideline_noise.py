@@ -64,8 +64,8 @@ def sideline_noise(analyses,noise_configs):
     for idx,coef in enumerate(coefs):
         x0 += coef * 304.8 ** (degree-idx) 
 
-    noise_segment.analyses.noise.settings.mic_x_position = x0   
-    noise_config.engine_flag                             = True 
+    noise_segment.analyses.noise.settings.sideline_x_position = x0   
+    noise_config.engine_flag                                  = True 
     
     if mission.npoints_sideline_sign == -1:
         noise_result_takeoff_SL = 500. + noise_segment.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points

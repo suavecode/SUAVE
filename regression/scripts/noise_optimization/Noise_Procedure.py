@@ -355,15 +355,15 @@ def noise_sideline(nexus):
     for idx,coef in enumerate(coefs):
         x0 += coef * 304.8 ** (degree-idx)
 
-    nexus.analyses.takeoff.noise.settings.mic_x_position = x0  
-    noise_segment                                        = results.sideline.segments.climb 
-    noise_settings                                       = nexus.analyses.takeoff.noise.settings
-    noise_config                                         = nexus.vehicle_configurations.takeoff
-    noise_analyses                                       = nexus.analyses.takeoff
-    noise_config.engine_flag                             = True
-    noise_config.print_output                            = 0
-    noise_config.output_file                             = 'Noise_Sideline.dat'
-    noise_config.output_file_engine                      = 'Noise_Sideline_Engine.dat'
+    nexus.analyses.takeoff.noise.settings.sideline_x_position = x0  
+    noise_segment                                             = results.sideline.segments.climb 
+    noise_settings                                            = nexus.analyses.takeoff.noise.settings
+    noise_config                                              = nexus.vehicle_configurations.takeoff
+    noise_analyses                                            = nexus.analyses.takeoff
+    noise_config.engine_flag                                  = True
+    noise_config.print_output                                 = 0
+    noise_config.output_file                                  = 'Noise_Sideline.dat'
+    noise_config.output_file_engine                           = 'Noise_Sideline_Engine.dat'
     
     
     if nexus.npoints_sideline_sign == -1:

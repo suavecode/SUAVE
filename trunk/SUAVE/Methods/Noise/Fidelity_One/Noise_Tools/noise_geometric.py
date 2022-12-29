@@ -44,7 +44,7 @@ def noise_geometric(noise_segment,analyses,config):
     sideline = analyses.noise.settings.sideline
     flyover  = analyses.noise.settings.flyover
     approach = analyses.noise.settings.approach
-    x0       = analyses.noise.settings.mic_x_position  
+    x0       = analyses.noise.settings.sideline_x_position  
     
     position_vector = noise_segment.conditions.frames.inertial.position_vector 
     altitude        = -noise_segment.conditions.frames.inertial.position_vector[:,2] 

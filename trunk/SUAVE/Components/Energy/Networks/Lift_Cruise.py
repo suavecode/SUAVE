@@ -755,11 +755,11 @@ class Lift_Cruise(Network):
             
         if initial_prop_power_coefficient==None:
             prop_key = list(self.propellers.keys())[0] # Use the first propeller
-            initial_prop_power_coefficient = float(self.propellers[prop_key].design_power_coefficient)          
+            initial_prop_power_coefficient = float(self.propellers[prop_key].cruise.design_power_coefficient)          
             
         if initial_lift_rotor_power_coefficient==None:
             prop_key = list(self.lift_rotors.keys())[0] # Use the first propeller
-            initial_lift_rotor_power_coefficient = float(self.lift_rotors[prop_key].design_power_coefficient)                
+            initial_lift_rotor_power_coefficient = float(self.lift_rotors[prop_key].hover.design_power_coefficient)                
             
         # Now check if the props/lift_rotors are all identical, in this case they have the same of residuals and unknowns
         if self.identical_propellers:

@@ -109,7 +109,8 @@ def propeller_single_point(prop,
     conditions.noise.sources.propellers             = Data()
     conditions.frames                               = Data()
     conditions.frames.inertial                      = Data()
-    conditions.frames.body                          = Data()    
+    conditions.frames.body                          = Data()  
+    conditions.frames.planet                        = Data()    
     conditions.freestream.density                   = np.ones((ctrl_pts, 1)) * density
     conditions.freestream.dynamic_viscosity         = np.ones((ctrl_pts, 1)) * dynamic_viscosity
     conditions.freestream.speed_of_sound            = np.ones((ctrl_pts, 1)) * a
@@ -118,7 +119,8 @@ def propeller_single_point(prop,
     velocity_vector                                 = np.array([[speed, 0., 0.]])
     conditions.propulsion.throttle                  = np.ones((ctrl_pts, 1)) * 1.
     conditions.frames.inertial.velocity_vector      = np.tile(velocity_vector, (ctrl_pts, 1))
-    conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
+    conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])
+    conditions.frames.planet.true_course_rotation   = np.array([[[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]]])  
 
     # Run Propeller BEVW
     F, Q, P, Cp, outputs, etap = prop.spin(conditions)

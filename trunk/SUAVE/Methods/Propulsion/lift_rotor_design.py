@@ -10,7 +10,7 @@
 import SUAVE 
 from SUAVE.Core                                                                                import Units, Data  
 from SUAVE.Analyses.Mission.Segments.Segment                                                   import Segment 
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                         import propeller_mid_fidelity
+from SUAVE.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise                                  import total_rotor_noise
 import SUAVE.Optimization.Package_Setups.scipy_setup                                           as scipy_setup
 from SUAVE.Optimization                                                                        import Nexus      
 from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics                                   import Aerodynamics 
@@ -29,30 +29,30 @@ import time
 #  Rotor Design
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
-def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',iterations = 500,
-                      solver_sense_step = 1E-5,solver_tolerance = 1E-4,print_iterations = False):  
+def lift_rotor_design(rotor,number_of_stations = 20,solver_name= 'SLSQP',iterations = 200,
+                      solver_sense_step = 1E-5,solver_tolerance = 1E-6,print_iterations = False):  
     """ Optimizes rotor chord and twist given input parameters to meet either design power or thurst. 
         This scrip adopts SUAVE's native optimization style where the objective function is expressed 
         as an aeroacoustic function, considering both efficiency and radiated noise.
           
           Inputs: 
           prop_attributes.
-              hub radius                       [m]
-              tip radius                       [m]
-              rotation rate                    [rad/s]
-              freestream velocity              [m/s]
-              number of blades                 [None]       
-              number of stations               [None]
-              design lift coefficient          [None]
-              airfoil data                     [None]
-              optimization_parameters.
-                 slack_constaint               [None]
-                 ideal_SPL_dbA                 [dBA]
-                 multiobjective_aeroacoustic_weight           [None]
+              hub radius                             [m]
+              tip radius                             [m]
+              rotation rate                          [rad/s]
+              freestream velocity                    [m/s]
+              number of blades                       [None]       
+              number of stations                     [None]
+              design lift coefficient                [None]
+              airfoil data                           [None]
+              optimization_parameters.         
+                 slack_constaint                     [None]
+                 ideal_SPL_dbA                       [dBA]
+                 multiobjective_aeroacoustic_weight  [None]
             
           Outputs:
-          Twist distribution                   [array of radians]
-          Chord distribution                   [array of meters]
+          Twist distribution                         [array of radians]
+          Chord distribution                         [array of meters]
               
           Assumptions: 
              Rotor blade design considers one engine inoperative 

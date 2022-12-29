@@ -113,7 +113,7 @@ class Rotor(Energy_Component):
         self.optimization_parameters                                    = Data() 
         self.optimization_parameters.tip_mach_range                     = [0.3,0.7] 
         self.optimization_parameters.multiobjective_aeroacoustic_weight = 1.0
-        self.optimization_parameters.multiobjective_performance_weight  = 0.5
+        self.optimization_parameters.multiobjective_performance_weight  = 1.0
         self.optimization_parameters.multiobjective_acoustic_weight     = 1.0
         self.optimization_parameters.noise_evaluation_angle             = 135 * Units.degrees 
         self.optimization_parameters.tolerance                          = 1E-4

@@ -188,11 +188,11 @@ def update_planet_position(segment):
     V          = conditions.freestream.velocity[:,0]
     altitude   = conditions.freestream.altitude[:,0] 
     theta      = conditions.frames.body.inertial_rotations[:,1]
-    psi        = segment.true_course
+    psi        = segment.true_course  # sign convetion is clockwise positive
     alpha      = conditions.aerodynamics.angle_of_attack[:,0]
     I          = segment.state.numerics.time.integrate
-    Re         = segment.analyses.planet.features.mean_radius
-
+    Re         = segment.analyses.planet.features.mean_radius  
+         
     # The flight path and radius
     gamma     = theta - alpha
     R         = altitude + Re
@@ -207,12 +207,14 @@ def update_planet_position(segment):
     shape     = np.shape(conditions.freestream.velocity)
     mu        = np.reshape(mu,shape)
     lamda     = np.reshape(lamda,shape)
+    phi       = np.array([[np.cos(psi),-np.sin(psi),0],[np.sin(psi),np.cos(psi),0],[0,0,1]])
 
     # Pack'r up
-    lat = conditions.frames.planet.latitude[0,0]
-    lon = conditions.frames.planet.longitude[0,0]
-    conditions.frames.planet.latitude  = lat + lamda
-    conditions.frames.planet.longitude = lon + mu
+    lat                                           = conditions.frames.planet.latitude[0,0]
+    lon                                           = conditions.frames.planet.longitude[0,0]
+    conditions.frames.planet.latitude             = lat + lamda
+    conditions.frames.planet.longitude            = lon + mu 
+    conditions.frames.planet.true_course_rotation = np.tile(phi[None,:,:],(len(V),1,1))    
 
     return
     
@@ -402,7 +404,7 @@ def integrate_inertial_horizontal_position(segment):
     """        
 
     conditions = segment.state.conditions
-    b          = segment.true_course
+    b          = segment.true_course # sign convetion is clockwise positive
     cpts       = int(segment.state.numerics.number_control_points)
     x0         = conditions.frames.inertial.position_vector[0,None,0:1+1]
     R0         = conditions.frames.inertial.aircraft_range[0,None,0:1+1]

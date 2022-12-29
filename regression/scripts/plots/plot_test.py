@@ -60,7 +60,7 @@ def main():
     """
     # Compare Plot for Flight Trajectory
     """
-    plot_flight_trajectory(results) 
+    plot_flight_trajectory(results)  
 
     
     """
