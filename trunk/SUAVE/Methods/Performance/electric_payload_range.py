@@ -120,8 +120,8 @@ def electric_payload_range(vehicle,
 
     if display_plot:
         
-        col = 'Payload (kg)'
-        row = 'Range ('+unit+')'
+        col = 'Range ('+unit+')'
+        row = 'Payload (kg)'
         
         df = pd.DataFrame({col:R,row:PLD})
         

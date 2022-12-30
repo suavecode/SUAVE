@@ -6,14 +6,24 @@
 # Modified: Apr 2018, J. Smart
 #           Mar 2020, M. Clarke
 #           Mar 2020, J. Smart
+#           Dec 2022, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
 #-------------------------------------------------------------------------------
 
-from SUAVE.Core import Units
+from SUAVE.Core import Data, Container, Units
 from SUAVE.Attributes.Solids import (
-    Bidirectional_Carbon_Fiber, Carbon_Fiber_Honeycomb, Paint, Unidirectional_Carbon_Fiber, Acrylic, Steel)
+    Bidirectional_Carbon_Fiber as BiCRFP,
+    Unidirectional_Carbon_Fiber as UniCRFP,
+    Carbon_Fiber_Honeycomb as CFHoneycomb,
+    Paint,
+    Acrylic,
+    Steel)
+
+from SUAVE.Methods.Weights.Buildups.Common import elliptical_shell
+from SUAVE.Methods.Weights.Buildups.Common import stack_mass
+
 import numpy as np
 
 
@@ -65,103 +75,146 @@ def fuselage(config,
     #-------------------------------------------------------------------------------
  
     fuse    = config.fuselages.fuselage 
-    fLength = fuse.lengths.total
-    fWidth  = fuse.width
-    fHeight = fuse.heights.maximum
-    maxSpan = config.wings["main_wing"].spans.projected 
+    l = fuse.lengths.total
+    w  = fuse.width
+    h = fuse.heights.maximum
+    b = config.wings["main_wing"].spans.projected
     MTOW    = config.mass_properties.max_takeoff
     G_max   = maximum_g_load
     LIF     = landing_impact_factor
     SF      = safety_factor
 
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     # Unpack Material Properties
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
+
+    # Bending Carrier
 
     try:
-        rbmMat = fuse.keel_materials.root_bending_moment_carrier
+        mats = fuse.materials
     except AttributeError:
-        rbmMat = Unidirectional_Carbon_Fiber()
+        fuse.materials              = Data()
+        fuse.materials.keel         = Container()
+        fuse.materials.skin         = Container()
+        fuse.materials.canopy       = Container()
+        fuse.materials.landing_gear = Container()
+
+    try:
+        rbmMat = fuse.materials.keel.bending_carrier
+    except AttributeError:
+        fuse.materials.keel.bending_carrier = UniCRFP()
+        rbmMat = fuse.materials.keel.bending_carrier
+
     rbmDen = rbmMat.density
     rbmUTS = rbmMat.ultimate_tensile_strength
 
+    # Shear Carrier
+
     try:
-        shearMat = fuse.keel_materials.shear_carrier
+        shearMat = fuse.materials.keel.shear_carrier
     except AttributeError:
-        shearMat = Bidirectional_Carbon_Fiber()
+        fuse.materials.keel.shear_carrier = BiCRFP()
+        shearMat = fuse.materials.keel.shear_carrier
+
     shearDen = shearMat.density
     shearUSS = shearMat.ultimate_shear_strength
 
+    # Landing Gear Bearing Material
+
     try:
-        bearingMat = fuse.keel_materials.bearing_carrier
+        bearingMat = fuse.materials.landing_gear.bearing_carrier
     except AttributeError:
-        bearingMat = Bidirectional_Carbon_Fiber()
+        fuse.materials.landing_gear.bearing_carrier = BiCRFP()
+        bearingMat = fuse.materials.landing_gear.bearing_carrier
     bearingDen = bearingMat.density
     bearingUBS = bearingMat.ultimate_bearing_strength
 
+    # Landing Gear Shear Bolt Material
+
     try:
-        boltMat = fuse.materials.bolt_materials.landing_pad_bolt
+        boltMat = fuse.materials.landing_gear.bolt
     except AttributeError:
-        boltMat = Steel()
+        fuse.materials.landing_gear.bolt = Steel()
+        boltMat = fuse.materials.landing_gear.bolt
+
     boltUSS = boltMat.ultimate_shear_strength
 
+    # Skin Materials
 
-    # Calculate Skin & Canopy Weight Per Unit Area (arealWeight) based on material
 
-    try:
-        skinArealWeight = np.sum([(mat.minimum_gage_thickness * mat.density) for mat in fuse.skin_materials])
-    except AttributeError:
-        skinArealWeight = 1.2995 # Stack of bidirectional CFRP, Honeycomb Core, Paint
+    skinMats = fuse.materials.skin
 
-    try:
-        canopyArealWeight = np.sum([(mat.minimum_gage_thickness * mat.density) for mat in fuse.canopy_materials])
-    except AttributeError:
-        canopyArealWeight = 3.7465 # Acrylic
+    if len(skinMats)==0:
+        fuse.materials.skin.base    = BiCRFP()
+        fuse.materials.skin.core    = CFHoneycomb()
+        fuse.materials.skin.cover   = Paint()
+        skinMats = fuse.materials.skin
 
-    # Calculate fuselage area (using assumption of ellipsoid), and weight:
+    # Canopy Materials
 
-    S_wet = 4 * np.pi * (((fLength * fWidth/4)**1.6
-        + (fLength * fHeight/4)**1.6
-        + (fWidth * fHeight/4)**1.6)/3)**(1/1.6)
-    skinMass = S_wet * skinArealWeight
+    canopyMats = fuse.materials.canopy
+
+    if len(canopyMats)==0:
+        fuse.materials.canopy.base = Acrylic()
+
+        canopyMats = fuse.materials.canopy
+
+    # --------------------------------------------------------------------------
+    # Unloaded Components
+    # --------------------------------------------------------------------------
+
+    # Calculate Skin & Canopy Weight Assuming 1/8 of the Wetted Area is Canopy
+
+    skinMass    = 0.875 * elliptical_shell(fuse)
+    canopyMass  = 0.125 * elliptical_shell(fuse, skin_materials=canopyMats)
 
     # Calculate the mass of a structural bulkhead
 
-    bulkheadMass = 3 * np.pi * fHeight * fWidth/4 * skinArealWeight
+    bulkheadMass = 3 * np.pi * h * w/4 * stack_mass(skinMats)
 
-    # Calculate the mass of a canopy
-
-    canopyMass = S_wet/8 * canopyArealWeight
+    # --------------------------------------------------------------------------
+    # Loaded Components
+    # --------------------------------------------------------------------------
 
     # Calculate keel mass needed to carry lifting moment
 
-    L_max       = G_max * MTOW * 9.8 * SF  # Max Lifting Load
-    M_lift      = L_max * fLength/2.       # Max Moment Due to Lift
-    beamWidth   = fWidth/3.                # Allowable Keel Width
-    beamHeight  = fHeight/10.              # Allowable Keel Height
+    L_max       = G_max * MTOW * 9.8 * SF   # Max Lifting Load
+    M_lift      = L_max * l/2.              # Max Moment Due to Lift
+    beamWidth   = w/3.                      # Allowable Keel Width
+    beamHeight  = h/10.                     # Allowable Keel Height
 
     beamArea    = M_lift * beamHeight/(4*rbmUTS*(beamHeight/2)**2)
-    massKeel    = beamArea * fLength * rbmDen
+    keelMass    = beamArea * l * rbmDen
 
     # Calculate keel mass needed to carry wing bending moment shear
 
-    M_bend      = L_max/2 * maxSpan/2                           # Max Bending Moment
-    beamArea    = beamHeight * beamWidth                        # Enclosed Beam Area
-    beamThk     = 0.5 * M_bend/(shearUSS * beamArea)            # Beam Thickness
-    massKeel   += 2*(beamHeight + beamWidth)*beamThk*shearDen
+    M_bend      = L_max/2 * b/2                         # Max Bending Moment
+    beamArea    = beamHeight * beamWidth                # Enclosed Beam Area
+    beamThk     = 0.5 * M_bend/(shearUSS * beamArea)    # Beam Thickness
+    keelMass   += 2*(beamHeight + beamWidth)*beamThk*shearDen
 
-    # Calculate keel mass needed to carry landing impact load assuming
+    # Calculate keel mass needed to carry landing impact load assuming 40 deg.
 
-    F_landing   = SF * MTOW * 9.8 * LIF * 0.6403        # Side Landing Force
+    shear_comp  = np.sin(np.deg2rad(40))                # Shear Force Component
+    F_landing   = SF * MTOW * 9.8 * LIF * shear_comp    # Side Landing Force
     boltArea    = F_landing/boltUSS                     # Required Bolt Area
     boltDiam    = 2 * np.sqrt(boltArea/np.pi)           # Bolt Diameter
     lamThk      = F_landing/(boltDiam*bearingUBS)       # Laminate Thickness
     lamVol      = (np.pi*(20*lamThk)**2)*(lamThk/3)     # Laminate Pad volume
-    massKeel   += 4*lamVol*bearingDen                   # Mass of 4 Pads
+    keelMass   += 4*lamVol*bearingDen                   # Mass of 4 Pads
 
     # Calculate total mass as the sum of skin mass, bulkhead mass, canopy pass,
     # and keel mass. Called weight by SUAVE convention
 
-    weight = skinMass + bulkheadMass + canopyMass + massKeel
+    # --------------------------------------------------------------------------
+    # Pack Results
+    # --------------------------------------------------------------------------
 
-    return weight
+    results             = Data()
+    results.total       = (skinMass+canopyMass+bulkheadMass+keelMass) * Units.kg
+    results.skin        = skinMass                                    * Units.kg
+    results.canopy      = canopyMass                                  * Units.kg
+    results.bulkheads   = bulkheadMass                                * Units.kg
+    results.keel        = keelMass                                    * Units.kg
+
+    return results

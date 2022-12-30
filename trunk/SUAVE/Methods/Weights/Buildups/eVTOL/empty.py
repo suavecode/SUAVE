@@ -1,8 +1,9 @@
 ## @ingroup Methods-Weights-Buildups-eVTOL
 # empty.py
 #
-# Created:    Apr, 2019, J. Smart
-# Modified:   July, 2021, R. Erhard
+# Created:      Apr 2019, J. Smart
+# Modified:     July 2021, R. Erhard
+#               Dec 2022, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -10,10 +11,7 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 
-from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
-from SUAVE.Methods.Weights.Buildups.Common.prop import prop
-from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
-from SUAVE.Methods.Weights.Buildups.Common.wing import wing
+from SUAVE.Methods.Weights.Buildups.Common import *
 from SUAVE.Components.Energy.Converters import Propeller, Lift_Rotor
 from SUAVE.Components.Energy.Networks import Battery_Propeller
 from SUAVE.Components.Energy.Networks import Lift_Cruise
@@ -27,68 +25,70 @@ import numpy as np
 ## @ingroup Methods-Weights-Buildups-eVTOL
 
 def empty(config,
-          settings,
-          contingency_factor            = 1.1,
-          speed_of_sound                = 340.294,
-          max_tip_mach                  = 0.65,
-          disk_area_factor              = 1.15,
-          safety_factor                 = 1.5,
-          max_thrust_to_weight_ratio    = 1.1,
-          max_g_load                    = 3.8,
-          motor_efficiency              = 0.85 * 0.98):
-
-    """ Calculates the empty vehicle mass for an EVTOL-type aircraft including seats,
-        avionics, servomotors, ballistic recovery system, rotor and hub assembly,
-        transmission, and landing gear. Incorporates the results of the following
-        common-use buildups:
-
-            fuselage.py
-            prop.py
-            wing.py
-            wiring.py
-
-        Sources:
-        Project Vahana Conceptual Trade Study
-        https://github.com/VahanaOpenSource
-
-
-        Inputs: 
-            config:                     SUAVE Config Data Stucture
-            contingency_factor          Factor capturing uncertainty in vehicle weight [Unitless]
-            speed_of_sound:             Local Speed of Sound                           [m/s]
-            max_tip_mach:               Allowable Tip Mach Number                      [Unitless]
-            disk_area_factor:           Inverse of Disk Area Efficiency                [Unitless]
-            max_thrust_to_weight_ratio: Allowable Thrust to Weight Ratio               [Unitless]
-            safety_factor               Safety Factor in vehicle design                [Unitless]
-            max_g_load                  Maximum g-forces load for certification        [UNitless]
-            motor_efficiency:           Motor Efficiency                               [Unitless]
-
-        Outputs: 
-            outputs:                    Data Dictionary of Component Masses [kg]
-
-        Output data dictionary has the following book-keeping hierarchical structure:
-
-            Output
-                Total.
-                    Empty.
-                        Structural.
-                            Fuselage
-                            Wings
-                            Landing Gear
-                            Rotors
-                            Hubs
-                        Seats
-                        Battery
-                        Motors
-                        Servo
-                    Systems.
-                        Avionics
-                        ECS               - Environmental Control System
-                        BRS               - Ballistic Recovery System
-                        Wiring            - Aircraft Electronic Wiring
-                    Payload
+          settings):
 
     """
+    Calculates the empty vehicle mass for an eVTOL aircraft including seats,
+    avionics, servomotors, ballistic recovery system, rotor and hub assembly,
+    transmission, and landing gear.
+
+    Sources:
+    Project Vahana Conceptual Trade Study
+    https://github.com/VahanaOpenSource
+
+
+    Inputs:
+        config:                     SUAVE Config Data Structure
+        settings.method_settings.       [Data]
+            contingency_factor          [Float] Secondary Weight Est.
+            speed_of_sound              [Float] Design Point Speed of Sound
+            max_tip_mach                [Float] Max Rotor Tip Mach Number
+            disk_area_factor            [Float] k (ref. Johnson 2-6.2)
+            safety_factor               [Float] Structural Factor of Safety
+            max_thrust_to_weight_ratio  [Float] Design T/W Ratio
+            max_g_load                  [Float] Design G Load
+            motor_efficiency            [Float] Design Point Motor Efficiency
+
+    Outputs:
+        outputs:                    Data Dictionary of Component Masses [kg]
+
+    Output data dictionary has the following bookkeeping  structure:
+
+        Output
+            Total.
+                Empty.
+                    Structural.
+                        Fuselage
+                        Nacelles
+                        Wings
+                        Landing Gear
+                        Rotors
+                        Hubs
+                    Seats
+                    Battery
+                    Motors
+                    Servo
+                Systems.
+                    Avionics
+                    ECS               - Environmental Control System
+                    BRS               - Ballistic Recovery System
+                    Wiring            - Aircraft Electronic Wiring
+                Payload
+
+    """
+
+    # Unpack Settings
+
+    options = settings.method_settings
+
+    contingency_factor            = options.contingency_factor
+    speed_of_sound                = options.speed_of_sound
+    max_tip_mach                  = options.max_tip_mach
+    disk_area_factor              = options.disk_area_factor
+    safety_factor                 = options.safety_factor
+    max_thrust_to_weight_ratio    = options.max_thrust_to_weight_ratio
+    max_g_load                    = options.max_g_load
+    motor_efficiency              = options.motor_efficiency
 
     # Set up data structures for SUAVE weight methods
     output                   = Data()
@@ -97,39 +97,43 @@ def empty(config,
     output.lift_rotor_motors = 0.0
     output.propeller_motors  = 0.0
     output.battery           = 0.0
-    output.payload           = 0.0
     output.servos            = 0.0
     output.hubs              = 0.0
     output.BRS               = 0.0
 
-    config.payload.passengers                      = SUAVE.Components.Physical_Component()
-    config.payload.baggage                         = SUAVE.Components.Physical_Component()
-    config.payload.cargo                           = SUAVE.Components.Physical_Component()
-    control_systems                                = SUAVE.Components.Physical_Component()
-    electrical_systems                             = SUAVE.Components.Physical_Component()
-    furnishings                                    = SUAVE.Components.Physical_Component()
-    air_conditioner                                = SUAVE.Components.Physical_Component()
-    fuel                                           = SUAVE.Components.Physical_Component()
-    apu                                            = SUAVE.Components.Physical_Component()
-    hydraulics                                     = SUAVE.Components.Physical_Component()
-    avionics                                       = SUAVE.Components.Energy.Peripherals.Avionics()
-    optionals                                      = SUAVE.Components.Physical_Component()
+    output.payload = Data()
+    output.payload.total = 0.0
+
+    C = SUAVE.Components
+
+    config.payload.passengers           = C.Physical_Component()
+    config.payload.baggage              = C.Physical_Component()
+    config.payload.cargo                = C.Physical_Component()
+    control_systems                     = C.Physical_Component()
+    electrical_systems                  = C.Physical_Component()
+    furnishings                         = C.Physical_Component()
+    air_conditioner                     = C.Physical_Component()
+    fuel                                = C.Physical_Component()
+    apu                                 = C.Physical_Component()
+    hydraulics                          = C.Physical_Component()
+    optionals                           = C.Physical_Component()
+    avionics                            = C.Energy.Peripherals.Avionics()
 
     # assign components to vehicle
-    config.systems.control_systems                 = control_systems
-    config.systems.electrical_systems              = electrical_systems
-    config.systems.avionics                        = avionics
-    config.systems.furnishings                     = furnishings
-    config.systems.air_conditioner                 = air_conditioner
-    config.systems.fuel                            = fuel
-    config.systems.apu                             = apu
-    config.systems.hydraulics                      = hydraulics
-    config.systems.optionals                       = optionals
+    config.systems.control_systems      = control_systems
+    config.systems.electrical_systems   = electrical_systems
+    config.systems.avionics             = avionics
+    config.systems.furnishings          = furnishings
+    config.systems.air_conditioner      = air_conditioner
+    config.systems.fuel                 = fuel
+    config.systems.apu                  = apu
+    config.systems.hydraulics           = hydraulics
+    config.systems.optionals            = optionals
 
 
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     # Fixed Weights
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     MTOW                = config.mass_properties.max_takeoff
     output.seats        = config.passengers * 15.   * Units.kg
     output.passengers   = config.passengers * 70.   * Units.kg
@@ -152,7 +156,7 @@ def empty(config,
     nose_length  = 0.
 
     # Check if there is a fuselage
-    C =  SUAVE.Components
+
     if len(config.fuselages) == 0.:
         for w  in config.wings:
             if isinstance(w ,C.Wings.Main_Wing):
@@ -168,53 +172,60 @@ def empty(config,
                 length_scale = length
                 nose_length  = nose
 
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     # Environmental Control System
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     config.systems.air_conditioner.origin[0][0]          = 0.51 * length_scale
     config.systems.air_conditioner.mass_properties.mass  = output.ECS
 
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
+    # Seats
+    #---------------------------------------------------------------------------
+    config.systems.furnishings.origin[0][0]          = 0.2 * length_scale
+    config.systems.furnishings.mass_properties.mass  = output.seats
+
+    #---------------------------------------------------------------------------
     # Network Weight
-    #-------------------------------------------------------------------------------
+    #---------------------------------------------------------------------------
     for network in config.networks:
 
-        #-------------------------------------------------------------------------------
+        #-----------------------------------------------------------------------
         # Battery Weight
-        #-------------------------------------------------------------------------------
-        network.battery.origin[0][0]                                   = 0.51 * length_scale
-        network.battery.mass_properties.center_of_gravity[0][0]        = 0.0
-        output.battery                                                += network.battery.mass_properties.mass * Units.kg
+        #-----------------------------------------------------------------------
+        batt = network.battery
+        batt.origin[0][0]                                = 0.51 * length_scale
+        batt.mass_properties.center_of_gravity[0][0]     = 0.0
 
-        #-------------------------------------------------------------------------------
+        output.battery += batt.mass_properties.mass * Units.kg
+
+        #-----------------------------------------------------------------------
         # Payload Weight
-        #-------------------------------------------------------------------------------
-        network.payload.origin[0][0]                                   = 0.51 * length_scale
-        network.payload.mass_properties.center_of_gravity[0][0]        = 0.0
-        output.payload                                                += network.payload.mass_properties.mass * Units.kg
+        #-----------------------------------------------------------------------
+        load = network.payload
+        load.origin[0][0]                               = 0.51 * length_scale
+        load.mass_properties.center_of_gravity[0][0]    = 0.0
+        output.payload.total += load.mass_properties.mass * Units.kg
 
-        #-------------------------------------------------------------------------------
+        #-----------------------------------------------------------------------
         # Avionics Weight
-        #-------------------------------------------------------------------------------
-        network.avionics.origin[0][0]                                  = 0.4 * nose_length
-        network.avionics.mass_properties.center_of_gravity[0][0]       = 0.0
-        network.avionics.mass_properties.mass                          = output.avionics
+        #-----------------------------------------------------------------------
+        avi = network.avionics
+        avi.origin[0][0]                            = 0.4 * nose_length
+        avi.mass_properties.center_of_gravity[0][0] = 0.0
+        avi.mass_properties.mass                    = output.avionics
 
-
-        #-------------------------------------------------------------------------------
+        #-----------------------------------------------------------------------
         # Servo, Hub and BRS Weights
-        #-------------------------------------------------------------------------------
+        #-----------------------------------------------------------------------
 
         lift_rotor_hub_weight   = 4.   * Units.kg
-        prop_hub_weight         = MTOW * 0.04  * Units.kg
+        prop_hub_weight         = 4    * Units.kg
 
         lift_rotor_BRS_weight   = 16.  * Units.kg
 
-
-
-        #-------------------------------------------------------------------------------
+        #-----------------------------------------------------------------------
         # Rotor, Propeller, parameters for sizing
-        #-------------------------------------------------------------------------------
+        #-----------------------------------------------------------------------
         if isinstance(network, Lift_Cruise):
             # Total number of rotors and propellers
             nLiftRotors   = network.number_of_lift_rotor_engines
@@ -244,7 +255,7 @@ def empty(config,
                 network.identical_lift_rotors = network.number_of_propeller_engines
         else:
             raise NotImplementedError("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
-            Weight buildup will not return information on propulsion system.""",RuntimeWarning)
+            Weight buildup will not return information on propulsion system.""", RuntimeWarning)
 
         
         nProps  = int(nLiftRotors + nThrustProps)  
@@ -334,34 +345,148 @@ def empty(config,
 
     output.wiring            = total_wiring_weight
     output.total_wing_weight = total_wing_weight
+    
+    
+    #-------------------------------------------------------------------------------
+    # Control Systems
+    #-------------------------------------------------------------------------------
+    config.systems.control_systems.origin[0][0]          = 0.6 * length_scale
+    config.systems.control_systems.mass_properties.mass  = output.servos
+    
+    #-------------------------------------------------------------------------------
+    # Wiring
+    #-------------------------------------------------------------------------------
+    config.systems.electrical_systems.origin[0][0]          = 0.49 * length_scale
+    config.systems.electrical_systems.mass_properties.mass  = output.wiring
+    
+    #-------------------------------------------------------------------------------
+    # BRS (Optionals?)
+    #-------------------------------------------------------------------------------
+    config.systems.optionals.origin[0][0]          = 0.49 * length_scale
+    config.systems.optionals.mass_properties.mass  = output.BRS
+    
+    
+    #-------------------------------------------------------------------------------
+    # Passengers are payload too
+    #-------------------------------------------------------------------------------
+    config.payload.passengers.origin[0][0]         = 0.2 * length_scale
+    config.payload.passengers.mass_properties.mass = output.passengers  
 
     #-------------------------------------------------------------------------------
     # Landing Gear Weight
     #-------------------------------------------------------------------------------
     if not hasattr(config.landing_gear, 'nose'):
         config.landing_gear.nose       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
-    config.landing_gear.nose.mass      = 0.0
+    config.landing_gear.nose.mass_properties.mass      = 0.0
     if not hasattr(config.landing_gear, 'main'):
         config.landing_gear.main       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
-    config.landing_gear.main.mass      = output.landing_gear
+    config.landing_gear.main.mass_properties.mass = output.landing_gear
 
     #-------------------------------------------------------------------------------
-    # Fuselage  Weight
+    # Fuselage Weight
     #-------------------------------------------------------------------------------
-    output.fuselage = fuselage(config) * Units.kg
-    config.fuselages.fuselage.mass_properties.center_of_gravity[0][0] = .45*config.fuselages.fuselage.lengths.total
-    config.fuselages.fuselage.mass_properties.mass                    =  output.fuselage + output.passengers + output.seats +\
-                                                                         output.wiring + output.BRS
+    output.fuselage = fuselage(config)
+
+    fuse = config.fuselages.fuselage
+    fuse.mass_properties.center_of_gravity[0][0] = .45 * fuse.lengths.total
+    fuse.mass_properties.mass                    =  output.fuselage.total
+
+    # -------------------------------------------------------------------------------
+    # Nacelle Weight
+    # -------------------------------------------------------------------------------
+
+    total_nacelle_weight = 0. * Units.kg
+    output.nacelles = Data()
+    output.nacelles.total       = 0.0 * Units.kg
+    output.nacelles.rotor_booms = 0.0 * Units.kg
+
+    for nacelle in config.nacelles:
+        if isinstance(nacelle, SUAVE.Components.Nacelles.Rotor_Boom):
+            nacelle_weight = rotor_boom(nacelle, config).total * Units.kg
+            output.nacelles.rotor_booms += nacelle_weight
+        else:
+            nacelle_weight = elliptical_shell(nacelle) * Units.kg
+
+        nacelle.mass_properties.mass = nacelle_weight
+        nacelle.mass_properties.center_of_gravity[0][0] = 0.45 * nacelle.length
+
+        output.nacelles.total  += nacelle_weight
 
     #-------------------------------------------------------------------------------
-    # Pack Up Outputs
+    # Bookkeeping
     #-------------------------------------------------------------------------------
-    output.structural = (output.lift_rotors + output.propellers + output.hubs +
-                                 output.fuselage + output.landing_gear +output.total_wing_weight)*Units.kg
+    output.motors       = Data()
+    output.motors.total = 0.0 * Units.kg
 
-    output.empty      = (contingency_factor * (output.structural + output.seats + output.avionics +output.ECS +\
-                        output.motors + output.servos + output.wiring + output.BRS) + output.battery) *Units.kg
+    for key in [
+        'lift_rotor_motors',
+        'propeller_motors',
+    ]:
+        output.motors.total += output[key] * Units.kg
+        output.motors[key] = output[key]
+        del output[key]
 
-    output.total      = output.empty + output.payload + output.passengers
+    output.structural       = Data()
+    output.structural.total = 0.0 * Units.kg
+
+    for key in [
+        'lift_rotors',
+        'propellers',
+        'hubs',
+        'landing_gear',
+    ]:
+        output.structural.total += output[key] * Units.kg
+        output.structural[key] = output[key]
+        del output[key]
+
+    output.structural.nacelles = output.nacelles
+    output.structural.total += output.nacelles.total
+    del output['nacelles']
+    
+    output.structural.wings = output.wings
+    output.structural.wings.total = total_wing_weight
+    output.structural.total += total_wing_weight
+    del output['wings']
+    del output['total_wing_weight']
+
+    output.structural.fuselage = output.fuselage
+    output.structural.total += output.fuselage.total
+    del output['fuselage']
+
+    output.empty            = Data()
+    output.empty.total      = 0.0 * Units.kg
+
+    for key in [
+        'seats',
+        'avionics',
+        'ECS',
+        'servos',
+        'wiring',
+        'BRS',
+    ]:
+        output.empty.total += output[key] * Units.kg
+        output.empty[key] = output[key]
+        del output[key]
+
+    for key in [
+        'structural',
+        'motors',
+    ]:
+        output.empty[key] = output[key]
+        output.empty.total += output[key].total * Units.kg
+        del output[key]
+
+    output.empty.total *= contingency_factor
+
+    output.empty.battery = output.battery
+    output.empty.total += output.battery * Units.kg
+    del output['battery']
+
+
+    output.payload.passengers = output.passengers
+    del output['passengers']
+
+    output.total      = (output.empty.total +
+                         output.payload.total)
 
     return output

@@ -30,6 +30,8 @@ from .Propeller_Plots     import plot_propeller_performance
 from .Propeller_Plots     import plot_propeller_disc_performance
 from .Propeller_Plots     import plot_propeller_disc_inflow
 
+from .Weights_Plots       import weight_pie_charts
+
 from . import Aerodynamics
 from . import Common
 from . import Energy

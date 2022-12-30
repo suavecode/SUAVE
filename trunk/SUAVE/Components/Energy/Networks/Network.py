@@ -20,7 +20,7 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Network(Physical_Component):
+class Network(Physical_Component.Container):
 
     """ SUAVE.Components.Energy.Networks.Network()
     
