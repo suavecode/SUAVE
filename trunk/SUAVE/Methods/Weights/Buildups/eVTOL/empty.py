@@ -14,9 +14,12 @@ from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
 from SUAVE.Methods.Weights.Buildups.Common.wing import wing
-from SUAVE.Components.Energy.Converters import Propeller, Lift_Rotor, Prop_Rotor
-from SUAVE.Components.Energy.Networks import Battery_Rotor
-from SUAVE.Components.Energy.Networks import Lift_Cruise
+import SUAVE.Components.Energy.Converters.Propeller  as Propeller
+import SUAVE.Components.Energy.Converters.Lift_Rotor as Lift_Rotor 
+import SUAVE.Components.Energy.Converters.Prop_Rotor as Prop_Rotor
+import SUAVE.Components.Energy.Converters.Rotor      as Rotor 
+import SUAVE.Components.Energy.Networks.Battery_Rotor as  Battery_Rotor
+import SUAVE.Components.Energy.Networks.Lift_Cruise as  Lift_Cruise
 
 import numpy as np
 
@@ -91,16 +94,17 @@ def empty(config,
     """
 
     # Set up data structures for SUAVE weight methods
-    output                   = Data()
-    output.lift_rotors       = 0.0
-    output.propellers        = 0.0
-    output.lift_rotor_motors = 0.0
-    output.propeller_motors  = 0.0
-    output.battery           = 0.0
-    output.payload           = 0.0
-    output.servos            = 0.0
-    output.hubs              = 0.0
-    output.BRS               = 0.0
+    weight                   = Data()  
+    weight.battery           = 0.0
+    weight.payload           = 0.0
+    weight.servos            = 0.0
+    weight.hubs              = 0.0
+    weight.BRS               = 0.0  
+    weight.motors            = 0.0
+    weight.rotors            = 0.0
+    weight.wiring            = 0.0
+    weight.wings             = Data()
+    weight.wings_total       = 0.0
 
     config.payload.passengers                      = SUAVE.Components.Physical_Component()
     config.payload.baggage                         = SUAVE.Components.Physical_Component()
@@ -131,11 +135,11 @@ def empty(config,
     # Fixed Weights
     #-------------------------------------------------------------------------------
     MTOW                = config.mass_properties.max_takeoff
-    output.seats        = config.passengers * 15.   * Units.kg
-    output.passengers   = config.passengers * 70.   * Units.kg
-    output.avionics     = 15.                       * Units.kg
-    output.landing_gear = MTOW * 0.02               * Units.kg
-    output.ECS          = config.passengers * 7.    * Units.kg
+    weight.seats        = config.passengers * 15.   * Units.kg
+    weight.passengers   = config.passengers * 70.   * Units.kg
+    weight.avionics     = 15.                       * Units.kg
+    weight.landing_gear = MTOW * 0.02               * Units.kg
+    weight.ECS          = config.passengers * 7.    * Units.kg
 
     # Inputs and other constants
     tipMach        = max_tip_mach
@@ -172,7 +176,7 @@ def empty(config,
     # Environmental Control System
     #-------------------------------------------------------------------------------
     config.systems.air_conditioner.origin[0][0]          = 0.51 * length_scale
-    config.systems.air_conditioner.mass_properties.mass  = output.ECS
+    config.systems.air_conditioner.mass_properties.mass  = weight.ECS
 
     #-------------------------------------------------------------------------------
     # Network Weight
@@ -184,162 +188,134 @@ def empty(config,
         #-------------------------------------------------------------------------------
         network.battery.origin[0][0]                                   = 0.51 * length_scale
         network.battery.mass_properties.center_of_gravity[0][0]        = 0.0
-        output.battery                                                += network.battery.mass_properties.mass * Units.kg
+        weight.battery                                                += network.battery.mass_properties.mass * Units.kg
 
         #-------------------------------------------------------------------------------
         # Payload Weight
         #-------------------------------------------------------------------------------
         network.payload.origin[0][0]                                   = 0.51 * length_scale
         network.payload.mass_properties.center_of_gravity[0][0]        = 0.0
-        output.payload                                                += network.payload.mass_properties.mass * Units.kg
+        weight.payload                                                += network.payload.mass_properties.mass * Units.kg
 
         #-------------------------------------------------------------------------------
         # Avionics Weight
         #-------------------------------------------------------------------------------
         network.avionics.origin[0][0]                                  = 0.4 * nose_length
         network.avionics.mass_properties.center_of_gravity[0][0]       = 0.0
-        network.avionics.mass_properties.mass                          = output.avionics
+        network.avionics.mass_properties.mass                          = weight.avionics
 
 
         #-------------------------------------------------------------------------------
         # Servo, Hub and BRS Weights
         #-------------------------------------------------------------------------------
-
         lift_rotor_hub_weight   = 4.   * Units.kg
         prop_hub_weight         = MTOW * 0.04  * Units.kg
-
         lift_rotor_BRS_weight   = 16.  * Units.kg
-
-
 
         #-------------------------------------------------------------------------------
         # Rotor, Propeller, parameters for sizing
-        #-------------------------------------------------------------------------------
-        if isinstance(network, Lift_Cruise):
-            # Total number of rotors and propellers
-            nLiftRotors   = network.number_of_lift_rotor_engines
-            nThrustProps  = network.number_of_propeller_engines
-            props         = network.propellers
-            rots          = network.lift_rotors
-            prop_motors   = network.propeller_motors
-            rot_motors    = network.lift_rotor_motors
-
-        elif isinstance(network, Battery_Rotor): 
-            props         = network.propellers 
-            prop_motors   = network.propeller_motors          
-            nThrustProps  = 0  
-            nLiftRotors   = 0    
-            nProps        = 0 
-            for rot_idx in range(len(props.keys())):               
-                if type(props[list(props.keys())[rot_idx]]) == Propeller: 
-                    props          = network.propellers
-                    nThrustProps  +=1
-    
-                elif type(props[list(props.keys())[rot_idx]]) == Lift_Rotor or  type(props[list(props.keys())[rot_idx]]) == Prop_Rotor:    
-                    nLiftRotors   +=1   
-            
-            # temporarily append lift-rotors for weight analysis
-            if (nThrustProps == 0) and (nLiftRotors != 0):
-                network.lift_rotors           = network.propellers
-                rot_motors                    = network.propeller_motors  
-                network.identical_lift_rotors = network.number_of_propeller_engines
-        else:
-            raise NotImplementedError("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
-            Weight buildup will not return information on propulsion system.""",RuntimeWarning)
+        #------------------------------------------------------------------------------- 
+        number_of_propellers    = 0.0  
+        number_of_lift_rotors   = 0.0   
+        total_number_of_rotors  = 0.0      
+        lift_rotor_servo_weight = 0.0
 
         
-        nProps  = int(nLiftRotors + nThrustProps)  
-        if nProps > 1:
+        if not (isinstance(network, Battery_Rotor) or isinstance(network, Lift_Cruise)):
+            raise NotImplementedError("""eVTOL weight buildup only supports the Battery Rotor and Lift Cruise energy networks.\n
+            Weight buildup will not return information on propulsion system.""",RuntimeWarning)
+        
+        compute_rotor_weight_flag = False 
+        for key in network.keys(): 
+            compute_rotor_weight_flag = False 
+            if key == 'propellers':
+                rotors                    = network.propellers
+                motors                    = network.propeller_motors
+                compute_rotor_weight_flag = True 
+                if len(rotors) != len(motors):
+                    assert("Number of propellers must be equal to the number of propeller motors")
+            if key == 'lift_rotors':
+                rotors                      = network.lift_rotors
+                motors                      = network.lift_rotor_motors
+                total_number_of_lift_rotors = len(rotors)
+                compute_rotor_weight_flag   = True 
+                if len(rotors) != len(motors):
+                    assert("Number of lift rotors must be equal to the number of lift rotor motors")
+            if key == 'rotors':
+                rotors                      = network.rotors
+                total_number_of_lift_rotors = len(rotors)
+                motors                      = network.rotor_motors
+                compute_rotor_weight_flag   = True 
+                if len(rotors) != len(motors):
+                    assert("Number of rotors must be equal to the number of rotor motors") 
+                    
+            if compute_rotor_weight_flag:
+                for i , rot in enumerate(rotors):  
+                    if type(rot) == Propeller:
+                        ''' Propeller Weight '''  
+                        number_of_propellers     += 1   
+                        rTip_ref                  = rot.tip_radius
+                        bladeSol_ref              = rot.blade_solidity  
+                        motor                     = motors[list(motors.keys())[i]]   
+                        if rot.variable_pitch:
+                            prop_servo_weight     = 5.2 * Units.kg  
+                        propeller_mass            = prop(rot, maxLift/5.) * Units.kg
+                        weight.rotors             += propeller_mass
+                        weight.motors             += motor.mass_properties.mass
+                        rot.mass_properties.mass  =  propeller_mass + prop_hub_weight + prop_servo_weight
+                        weight.servos             += prop_servo_weight
+                        weight.hubs               += prop_hub_weight
+                        
+                    if (type(rot) == Lift_Rotor or type(rot) == Prop_Rotor) or type(rot) == Rotor:
+                        ''' Lift Rotor, Prop-Rotor or Rotor Weight '''   
+                        number_of_lift_rotors   += 1  
+                        rTip_ref                = rot.tip_radius
+                        bladeSol_ref            = rot.blade_solidity  
+                        motor                   = motors[list(motors.keys())[i]]    
+                        if rot.variable_pitch:
+                            lift_rotor_servo_weight = 0.65 * Units.kg  
+                        lift_rotor_mass             = prop(rot, maxLift / max(total_number_of_lift_rotors - 1, 1))  * Units.kg
+                        weight.rotors               += lift_rotor_mass
+                        weight.motors               += motor.mass_properties.mass
+                        rot.mass_properties.mass    =  lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
+                        weight.servos               += lift_rotor_servo_weight
+                        weight.hubs                 += lift_rotor_hub_weight
+        
+        total_number_of_rotors  = int(number_of_lift_rotors + number_of_propellers)  
+        if total_number_of_rotors > 1:
             prop_BRS_weight     = 16.   * Units.kg
         else:
             prop_BRS_weight     = 0.   * Units.kg
-
-        prop_servo_weight  = 0.0
-
-        if nThrustProps > 0: 
-            for idx, propeller in enumerate(network.propellers):
-                proprotor    = propeller
-                propmotor    = prop_motors[list(prop_motors.keys())[idx]]
-                rTip_ref     = proprotor.tip_radius
-                bladeSol_ref = proprotor.blade_solidity
-
-                if proprotor.variable_pitch:
-                    prop_servo_weight  = 5.2  * Units.kg
-
-                # Compute and add propeller weights
-                propeller_mass                 = prop(proprotor, maxLift/5.) * Units.kg
-                output.propellers             += propeller_mass
-                output.propeller_motors       += propmotor.mass_properties.mass
-                proprotor.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
-
-        lift_rotor_servo_weight = 0.0
-        if nLiftRotors > 0: 
-            for idx, lift_rotor in enumerate(network.lift_rotors):
-                liftrotor    = lift_rotor
-                liftmotor    = rot_motors[list(rot_motors.keys())[idx]]
-                rTip_ref     = liftrotor.tip_radius
-                bladeSol_ref = liftrotor.blade_solidity
-
-
-                if liftrotor.variable_pitch:
-                    lift_rotor_servo_weight = 0.65 * Units.kg
-
-                # Compute and add lift_rotor weights
-                lift_rotor_mass                = prop(liftrotor, maxLift / max(nLiftRotors - 1, 1))  * Units.kg
-                output.lift_rotors            += lift_rotor_mass
-                output.lift_rotor_motors      += liftmotor.mass_properties.mass
-                liftrotor.mass_properties.mass = lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
-            
-            # delete ghost lift rotors used for weight calculations 
-            if (nThrustProps == 0) and (nLiftRotors != 0):
-                del network['lift_rotors']    
-                del network['identical_lift_rotors']             
-            
-        # Add associated weights
-        output.servos += (nLiftRotors * lift_rotor_servo_weight + nThrustProps * prop_servo_weight)
-        output.hubs   += (nLiftRotors * lift_rotor_hub_weight + nThrustProps * prop_hub_weight)
-        output.BRS    += (prop_BRS_weight + lift_rotor_BRS_weight)
-
+ 
+        # Add associated weights  
+        weight.BRS    += (prop_BRS_weight + lift_rotor_BRS_weight)  
         maxLiftPower   = 1.15*maxLift*(k*np.sqrt(maxLift/(2*rho_ref*np.pi*rTip_ref**2)) +
                                            bladeSol_ref*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTip_ref**2)))
         # Tail Rotor
-        if nLiftRotors == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor
+        if number_of_lift_rotors == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor
             
             maxLiftOmega   = maxVTip/rTip_ref
             maxLiftTorque  = maxLiftPower / maxLiftOmega
 
             tailrotor = next(iter(network.lift_rotors))
-            output.tail_rotor   = prop(tailrotor, 1.5*maxLiftTorque/(1.25*rTip_ref))*0.2 * Units.kg
-            output.lift_rotors += output.tail_rotor
-
-    # sum motor weight
-    output.motors = output.lift_rotor_motors + output.propeller_motors
+            weight.tail_rotor  = prop(tailrotor, 1.5*maxLiftTorque/(1.25*rTip_ref))*0.2 * Units.kg
+            weight.rotors     += weight.tail_rotor 
 
     #-------------------------------------------------------------------------------
     # Wing and Motor Wiring Weight
-    #-------------------------------------------------------------------------------
-    total_wing_weight   = 0.0
-    total_wiring_weight = 0.0
-    output.wings        = Data()
-    output.wiring       = Data()
-
+    #-------------------------------------------------------------------------------  
     for w in config.wings:
         if w.symbolic:
             wing_weight = 0
         else:
             wing_weight            = wing(w, config, maxLift/5, safety_factor= safety_factor, max_g_load =  max_g_load )
             wing_tag               = w.tag
-            output.wings[wing_tag] = wing_weight
-            w.mass_properties.mass = wing_weight
-
-        total_wing_weight    = total_wing_weight + wing_weight
+            weight.wings[wing_tag] = wing_weight
+            w.mass_properties.mass = wing_weight 
+        weight.wings_total         += wing_weight
 
         # wiring weight
-        wiring_weight        = wiring(w, config, maxLiftPower/(eta*nProps)) * Units.kg
-        total_wiring_weight  = total_wiring_weight + wiring_weight
-
-    output.wiring            = total_wiring_weight
-    output.total_wing_weight = total_wing_weight
+        weight.wiring  += wiring(w, config, maxLiftPower/(eta*total_number_of_rotors)) * Units.kg 
 
     #-------------------------------------------------------------------------------
     # Landing Gear Weight
@@ -349,25 +325,25 @@ def empty(config,
     config.landing_gear.nose.mass      = 0.0
     if not hasattr(config.landing_gear, 'main'):
         config.landing_gear.main       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
-    config.landing_gear.main.mass      = output.landing_gear
+    config.landing_gear.main.mass      = weight.landing_gear
 
     #-------------------------------------------------------------------------------
     # Fuselage  Weight
     #-------------------------------------------------------------------------------
-    output.fuselage = fuselage(config) * Units.kg
+    weight.fuselage = fuselage(config) * Units.kg
     config.fuselages.fuselage.mass_properties.center_of_gravity[0][0] = .45*config.fuselages.fuselage.lengths.total
-    config.fuselages.fuselage.mass_properties.mass                    =  output.fuselage + output.passengers + output.seats +\
-                                                                         output.wiring + output.BRS
+    config.fuselages.fuselage.mass_properties.mass                    =  weight.fuselage + weight.passengers + weight.seats +\
+                                                                         weight.wiring + weight.BRS
 
     #-------------------------------------------------------------------------------
     # Pack Up Outputs
     #-------------------------------------------------------------------------------
-    output.structural = (output.lift_rotors + output.propellers + output.hubs +
-                                 output.fuselage + output.landing_gear +output.total_wing_weight)*Units.kg
+    weight.structural = (weight.rotors + weight.hubs +
+                                 weight.fuselage + weight.landing_gear +weight.wings_total)*Units.kg
 
-    output.empty      = (contingency_factor * (output.structural + output.seats + output.avionics +output.ECS +\
-                        output.motors + output.servos + output.wiring + output.BRS) + output.battery) *Units.kg
+    weight.empty      = (contingency_factor * (weight.structural + weight.seats + weight.avionics +weight.ECS +\
+                        weight.motors + weight.servos + weight.wiring + weight.BRS) + weight.battery) *Units.kg
 
-    output.total      = output.empty + output.payload + output.passengers
+    weight.total      = weight.empty + weight.payload + weight.passengers
 
-    return output
+    return weight

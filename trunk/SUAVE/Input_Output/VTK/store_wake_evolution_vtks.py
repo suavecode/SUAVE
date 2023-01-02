@@ -69,7 +69,7 @@ def store_wake_evolution_vtks(wake,rotor,save_loc=None):
             net     = SUAVE.Components.Energy.Networks.Battery_Rotor()
             net.y_axis_rotation = rotor.inputs.y_axis_rotation
             net.number_of_engines  = 1
-            net.propellers.append(rotor)
+            net.rotors.append(rotor)
             vehicle.append_component(net) 
 
             save_vehicle_vtks(vehicle, Results=Data(), time_step=i,save_loc=save_loc)  

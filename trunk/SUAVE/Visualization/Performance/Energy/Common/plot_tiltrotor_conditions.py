@@ -39,7 +39,7 @@ def plot_tiltrotor_conditions(results,configs,
     
     results.segments.conditions.
         frames.inertial.time
-        propulsion.propeller_y_axis_rotation
+        propulsion.rotor_y_axis_rotation
 
 
     Outputs:
@@ -52,7 +52,7 @@ def plot_tiltrotor_conditions(results,configs,
 
     config = configs[list(configs.keys())[0]]
     net    = config.networks[list(config.networks.keys())[0]]
-    props  = net.propellers
+    props  = net.rotors
     D      = 2 * props[list(props.keys())[0]].tip_radius
     
 
@@ -84,7 +84,7 @@ def plot_tiltrotor_conditions(results,configs,
         thrust_angle  = np.arccos(Tx / np.sqrt(Tx**2 + Tz**2))
         velocity_angle = np.arctan(-Vz / Vx)
 
-        n     = segment.conditions.propulsion.propeller_rpm[:,0] / 60
+        n     = segment.conditions.propulsion.rotor_rpm[:,0] / 60
         J     = Vinf/(n*D)
 
         prop_incidence_angles =  thrust_angle - velocity_angle 

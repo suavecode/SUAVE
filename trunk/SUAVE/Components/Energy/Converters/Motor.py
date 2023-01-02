@@ -54,7 +54,7 @@ class Motor(Energy_Component):
         self.no_load_current    = 0.0
         self.speed_constant     = 0.0
         self.rotor_radius       = 0.0
-        self.propeller_Cp       = 0.0
+        self.rotor_CP       = 0.0
         self.efficiency         = 1.0
         self.gear_ratio         = 1.0
         self.gearbox_efficiency = 1.0
@@ -102,7 +102,7 @@ class Motor(Energy_Component):
         Kv    = self.speed_constant/G
         R     = self.rotor_radius
         v     = self.inputs.voltage
-        Cp    = self.inputs.propeller_CP
+        Cp    = self.inputs.rotor_CP
         
     
         # Omega

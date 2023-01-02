@@ -9,14 +9,14 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units , Data
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission import *  
-from SUAVE.Visualization.Performance.Energy.Common import *  
-from SUAVE.Visualization.Performance.Energy.Battery import *   
-from SUAVE.Visualization.Performance.Noise import *  
-from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
-from SUAVE.Visualization.Geometry import *
-from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
+from SUAVE.Visualization.Performance.Aerodynamics.Vehicle                 import *  
+from SUAVE.Visualization.Performance.Mission                              import *  
+from SUAVE.Visualization.Performance.Energy.Common                        import *  
+from SUAVE.Visualization.Performance.Energy.Battery                       import *   
+from SUAVE.Visualization.Performance.Noise                                import *  
+from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle       import plot_3d_vehicle 
+from SUAVE.Visualization.Geometry                                         import *
+from SUAVE.Methods.Performance.estimate_stall_speed                       import estimate_stall_speed
 import sys
 import numpy as np
 

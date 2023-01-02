@@ -21,11 +21,11 @@ from plotly.subplots import make_subplots
 ## @ingroup Visualization-Performance-Energy-Common
 def plot_rotor_conditions(results,
                               save_figure = False,
-                              save_filename = "Propeller_Conditions",
+                              save_filename = "Rotor_Conditions",
                               file_type = ".png",
                               width = 1200, height = 600,
                               *args, **kwargs):
-    """Plots propeller performance conditions
+    """Plots rotor performance conditions
 
     Assumptions:
     None
@@ -43,8 +43,8 @@ def plot_rotor_conditions(results,
         frames.inertial.time
         propulsion.rpm
         frames.body.thrust_force_vector
-        propulsion.propeller_motor_torque
-        propulsion.propeller_tip_mach
+        propulsion.rotor_motor_torque
+        propulsion.rotor_tip_mach
 
     Outputs: 
     Plots
@@ -72,11 +72,11 @@ def plot_rotor_conditions(results,
     for segment in results.segments.values():
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = segment.conditions.propulsion.propeller_rpm[:,0]
+        rpm    = segment.conditions.propulsion.rotor_rpm[:,0]
         thrust = np.linalg.norm(segment.conditions.frames.body.thrust_force_vector[:,:],axis=1)
-        torque = segment.conditions.propulsion.propeller_motor_torque[:,0]
-        tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
-        Cp     = segment.conditions.propulsion.propeller_power_coefficient[:,0]
+        torque = segment.conditions.propulsion.rotor_motor_torque[:,0]
+        tm     = segment.conditions.propulsion.rotor_tip_mach[:,0]
+        Cp     = segment.conditions.propulsion.rotor_power_coefficient[:,0]
         eta    = segment.conditions.propulsion.throttle[:,0]
 
         # Assemble the data into temporary holding dataframe

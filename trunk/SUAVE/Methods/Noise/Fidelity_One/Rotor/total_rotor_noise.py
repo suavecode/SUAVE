@@ -22,7 +22,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Rotor.compute_broadband_noise            i
 ## @ingroup Methods-Noise-Fidelity_One-Propeller
 def total_rotor_noise(rotors,aeroacoustic_data,segment,settings):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
-    and frequency spectrums of a system of rotating blades (i.e. propellers and lift_rotors)          
+    and frequency spectrums of a system of rotating blades           
         
     Assumptions:
     None

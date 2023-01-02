@@ -81,8 +81,8 @@ def electric_V_h_diagram(vehicle,
     g               = analyses.atmosphere.planet.sea_level_gravity
     W               = vehicle.mass_properties.takeoff * g
     S               = vehicle.reference_area
-    Nprops          = int(vehicle.networks.battery_rotor.number_of_propeller_engines)
-    identical_props = vehicle.networks.battery_rotor.identical_propellers
+    Nprops          = int(vehicle.networks.battery_rotor.number_of_rotor_engines)
+    identical_props = vehicle.networks.battery_rotor.identical_rotors
 
     # Single Point Mission for Drag Determination
 

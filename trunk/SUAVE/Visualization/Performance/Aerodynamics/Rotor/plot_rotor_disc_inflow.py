@@ -1,5 +1,5 @@
 ## @defgroup Visualization-Performance
-# Propeller_Plots.py
+# plot_rotor_disc_inflow.py
 #
 # Created:  Mar 2021, R. Erhard
 # Modified: Feb 2022, R. Erhard
@@ -26,7 +26,7 @@ def plot_rotor_disc_inflow(prop,velocities, grid_points):
     w = velocities.w_velocities
     vtot = np.sqrt(u**2 + v**2 + w**2)
     
-    # plot the velocities at propeller
+    # plot the velocities at rotor
     y = grid_points.ymesh
     z = grid_points.zmesh
 
@@ -57,13 +57,13 @@ def plot_rotor_disc_inflow(prop,velocities, grid_points):
     c4 = ax4.tricontourf(y,z, vtot, levels=levels, vmax=vmax, vmin=vmin, cmap='seismic')
     plt.colorbar(c4, ax=ax4)#, orientation="horizontal")    
     
-    # plot the propeller radius
+    # plot the rotor radius
     ax1.plot(R*np.cos(psi_360), R*np.sin(psi_360), 'k')
     ax2.plot(R*np.cos(psi_360), R*np.sin(psi_360), 'k')
     ax3.plot(R*np.cos(psi_360), R*np.sin(psi_360), 'k')
     ax4.plot(R*np.cos(psi_360), R*np.sin(psi_360), 'k')
     
-    # plot the propeller hub
+    # plot the rotor hub
     ax1.plot(Rh*np.cos(psi_360), Rh*np.sin(psi_360), 'k')
     ax2.plot(Rh*np.cos(psi_360), Rh*np.sin(psi_360), 'k')
     ax3.plot(Rh*np.cos(psi_360), Rh*np.sin(psi_360), 'k')
@@ -108,6 +108,6 @@ def plot_rotor_disc_inflow(prop,velocities, grid_points):
     ax3.set_title("Downwash Velocity, w")
     ax4.set_title("Total Velocity")
     
-    fig.suptitle("Induced Velocities at Propeller")
+    fig.suptitle("Induced Velocities at Rotor")
     
     return

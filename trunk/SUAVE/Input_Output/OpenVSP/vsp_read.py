@@ -14,15 +14,17 @@
 
 from copy import deepcopy
 
-import SUAVE 
-from SUAVE.Input_Output.OpenVSP.vsp_rotor            import read_vsp_rotor
+import SUAVE
+from SUAVE.Input_Output.OpenVSP.vsp_propeller        import read_vsp_propeller
 from SUAVE.Input_Output.OpenVSP.vsp_fuselage         import read_vsp_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_wing             import read_vsp_wing
 from SUAVE.Input_Output.OpenVSP.vsp_nacelle          import read_vsp_nacelle
-from SUAVE.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements 
+from SUAVE.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements
 
-from SUAVE.Components.Energy.Networks.Lift_Cruise    import Lift_Cruise
-from SUAVE.Components.Energy.Networks.Battery_Rotor  import Battery_PropelleBattery_Rotore import Units, Data, Container
+from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
+from SUAVE.Components.Energy.Networks.Battery_Rotor            import Battery_Rotor
+
+from SUAVE.Core import Units, Data, Container
 try:
     import vsp as vsp
 except ImportError:
@@ -239,7 +241,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
     lift_rotors = Container()
     propellers  = Container() 
     for prop_id in vsp_props:
-        prop = read_vsp_protor(prop_id,units_type)
+        prop = read_vsp_propeller(prop_id,units_type)
         prop.tag = vsp.GetGeomName(prop_id)
         if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
             lift_rotors.append(prop)
@@ -266,7 +268,9 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
         if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
             net = Lift_Cruise()
         else:
-            net = Battery_PropelleBattery_Rotor      net = specified_network
+            net = Battery_Rotor() 
+    else:
+        net = specified_network
 
     # Create the rotor network
     if net.tag == "Lift_Cruise":
@@ -279,16 +283,16 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
             net.propellers.append(propellers[list(propellers.keys())[i]])
         net.number_of_propeller_engines = number_of_propeller_engines		
 
-    elif net.tag == "Battery_Rotor":
+    elif net.tag == "Battery_Propeller":
         # Append all rotors as propellers for the battery propeller network
         for i in range(number_of_lift_rotor_engines):
             # Accounts for multicopter configurations
-            net.propellers.append(lift_rotors[list(lift_rotors.keys())[i]])
+            net.rotors.append(lift_rotors[list(lift_rotors.keys())[i]])
 
         for i in range(number_of_propeller_engines):
-            net.propellers.append(propellers[list(propellers.keys())[i]])
+            net.rotors.append(propellers[list(propellers.keys())[i]])
 
-        net.number_of_propeller_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
+        net.number_of_rotor_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
 
     vehicle.networks.append(net)
 

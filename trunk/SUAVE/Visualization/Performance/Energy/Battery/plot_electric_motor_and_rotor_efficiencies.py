@@ -25,7 +25,7 @@ def plot_electric_motor_and_rotor_efficiencies(results,
                                   file_type = ".png",
                                   width = 1200, height = 600,
                                   *args, **kwargs):
-    """This plots the electric driven network propeller efficiencies
+    """This plots the electric driven network rotor efficiencies
 
     Assumptions:
     None
@@ -54,7 +54,7 @@ def plot_electric_motor_and_rotor_efficiencies(results,
     # Create empty dataframe to be populated by the segment data
 
     plot_cols = [
-        "Propeller Efficiency",
+        "Efficiency",
         "Figure of Merit",
         "Motor Efficiency",
         "Segment"
@@ -67,9 +67,9 @@ def plot_electric_motor_and_rotor_efficiencies(results,
     for segment in results.segments.values():
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        effp   = segment.conditions.propulsion.propeller_efficiency[:,0]
+        effp   = segment.conditions.propulsion.rotor_efficiency[:,0]
         fom    = segment.conditions.propulsion.figure_of_merit[:,0]
-        effm   = segment.conditions.propulsion.propeller_motor_efficiency[:,0]
+        effm   = segment.conditions.propulsion.rotor_motor_efficiency[:,0]
 
         segment_frame = pd.DataFrame(
             np.column_stack((
@@ -117,7 +117,7 @@ def plot_electric_motor_and_rotor_efficiencies(results,
             showlegend=False),
             row=3, col=1)
 
-    fig.update_yaxes(title_text=r'Propeller Efficiency ($\eta_p$)', row=1, col=1)
+    fig.update_yaxes(title_text=r'Efficiency ($\eta_p$)', row=1, col=1)
     fig.update_yaxes(title_text='Figure of Merit', row=2, col=1)
     fig.update_yaxes(title_text=r'Motor Efficiency ($\eta_m$)', row=3, col=1)
 
@@ -126,7 +126,7 @@ def plot_electric_motor_and_rotor_efficiencies(results,
     fig.update_layout(
         width=width, height=height,
         legend_title_text='Segment',
-        title_text = 'Propeller and Motor Conditions'
+        title_text = 'Rotor and Motor Conditions'
     )
 
     fig = plot_style(fig)

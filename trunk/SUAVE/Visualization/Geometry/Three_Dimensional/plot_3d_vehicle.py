@@ -166,18 +166,14 @@ def plot_3d_energy_network(plot_data,network,number_of_airfoil_points,color_map)
     plot_axis     = False 
     save_figure   = False 
     save_filename = 'Rotor'
-    if ('propellers' in network.keys()):
-
-        for prop in network.propellers:
-
-            # Generate And Plot Propeller/Rotor Geometry 
-            plot_data = plot_3d_rotor(prop,save_filename,save_figure,plot_data,plot_axis,0,number_of_airfoil_points,color_map)
-
-    if ('lift_rotors' in network.keys()):
-
-        for rotor in network.lift_rotors:
-
-            # Generate and Plot Propeller/Rotor Geometry
-            plot_data = plot_3d_rotor(rotor,save_filename,save_figure,plot_data,plot_axis,0,number_of_airfoil_points,color_map)
-
+    if ('propellers' in network.keys()): 
+        rots = network.propellers
+    elif ('rotors' in network.keys()):
+        rots = network.rotors
+    elif ('lift_rotors' in network.keys()): 
+        rots = network.lift_rotor
+        
+    for rot in rots:  
+        plot_data = plot_3d_rotor(rot,save_filename,save_figure,plot_data,plot_axis,0,number_of_airfoil_points,color_map) 
+ 
     return plot_data

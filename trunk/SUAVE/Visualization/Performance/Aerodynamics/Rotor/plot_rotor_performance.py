@@ -1,5 +1,5 @@
 ## @defgroup Visualization-Performance
-# Propeller_Plots.py
+# plot_rotor_performance.py
 #
 # Created:  Mar 2021, R. Erhard
 # Modified: Feb 2022, R. Erhard
@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots 
 
 ## @defgroup Visualization-Performance
-def plot_rotor_performance(prop, title=None, save_figure=False, save_filename='Propeller_Performance', file_type=".png"):
+def plot_rotor_performance(prop, title=None, save_figure=False, save_filename='Rotor_Performance', file_type=".png"):
     # unpack
     outputs = prop.outputs
     r_distribution = outputs.disc_radial_distribution[0, :, 0]
@@ -44,7 +44,7 @@ def plot_rotor_performance(prop, title=None, save_figure=False, save_filename='P
     fig.update_xaxes(title_text="Radial Station", row=2, col=2)
     fig.update_yaxes(title_text="Torque, N-m", row=2, col=2)
     
-    fig.update_layout(title_text="Propeller Performance", height=700)
+    fig.update_layout(title_text="Rotor Performance", height=700)
     
     if save_figure:
         fig.write_image(save_filename + '_2D' + file_type) 

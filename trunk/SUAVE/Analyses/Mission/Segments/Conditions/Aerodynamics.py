@@ -162,3 +162,4 @@ class Aerodynamics(Basic):
         self.noise.sources                     = Conditions()
         self.noise.sources.propellers          = Conditions()
         self.noise.sources.lift_rotors         = Conditions()
+        self.noise.sources.rotors              = Conditions()

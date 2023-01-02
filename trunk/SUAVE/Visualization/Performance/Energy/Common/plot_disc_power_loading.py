@@ -25,7 +25,7 @@ def plot_disc_power_loading(results,
                             file_type = ".png",
                             width = 1200, height = 600,
                             *args, **kwargs):
-    """Plots propeller disc and power loadings
+    """Plots rotor disc and power loadings
 
     Assumptions:
     None

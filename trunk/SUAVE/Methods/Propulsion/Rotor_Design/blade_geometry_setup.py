@@ -96,8 +96,8 @@ def blade_geometry_setup(rotor,number_of_stations):
     vehicle                            = SUAVE.Vehicle()  
     net                                = SUAVE.Components.Energy.Networks.Battery_Rotor()
     net.number_of_propeller_engines    = 1
-    net.identical_propellers           = True  
-    net.propellers.append(rotor)  
+    net.identical_rotors           = True  
+    net.rotors.append(rotor)  
     vehicle.append_component(net)
     
     configs                             = SUAVE.Components.Configs.Config.Container()
