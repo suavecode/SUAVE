@@ -303,18 +303,18 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
             segment.state.unknowns.battery_current            [Amperes]
     
             Outputs: 
-            segment.state.conditions.propulsion.battery_cell_temperature  [Kelvin]  
-            segment.state.conditions.propulsion.battery_state_of_charge   [unitless]
-            segment.state.conditions.propulsion.battery_current           [Amperes]
+            segment.state.conditions.propulsion.battery.cell_temperature  [Kelvin]  
+            segment.state.conditions.propulsion.battery.state_of_charge   [unitless]
+            segment.state.conditions.propulsion.battery.current           [Amperes]
     
             Properties Used:
             N/A
         """
         propulsion = segment.state.conditions.propulsion
         
-        propulsion.battery_cell_temperature[1:,:]         = segment.state.unknowns.battery_cell_temperature[1:,:]  
-        propulsion.battery_state_of_charge[1:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
-        propulsion.battery_current                = segment.state.unknowns.battery_current          
+        propulsion.battery.cell_temperature[1:,:] = segment.state.unknowns.battery_cell_temperature[1:,:]  
+        propulsion.battery.state_of_charge[1:,0]  = segment.state.unknowns.battery_state_of_charge[:,0]
+        propulsion.battery.current                = segment.state.unknowns.battery_current          
 
         return     
     
@@ -344,13 +344,13 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
             None
         """      
         
-        SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
+        SOC_actual   = segment.state.conditions.propulsion.battery.state_of_charge
         SOC_predict  = segment.state.unknowns.battery_state_of_charge 
     
-        Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
+        Temp_actual  = segment.state.conditions.propulsion.battery.cell_temperature 
         Temp_predict = segment.state.unknowns.battery_cell_temperature   
     
-        i_actual     = segment.state.conditions.propulsion.battery_current
+        i_actual     = segment.state.conditions.propulsion.battery.current
         i_predict    = segment.state.unknowns.battery_current    
     
         # Return the residuals  
@@ -421,9 +421,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         n_parallel        = battery.pack_config.parallel
         
         # Unpack segment state properties  
-        SOC        = state.conditions.propulsion.battery_state_of_charge
-        T_cell     = state.conditions.propulsion.battery_cell_temperature
-        I_cell     = state.conditions.propulsion.battery_current/n_parallel 
+        SOC        = state.conditions.propulsion.battery.state_of_charge
+        T_cell     = state.conditions.propulsion.battery.cell_temperature
+        I_cell     = state.conditions.propulsion.battery.current/n_parallel 
 
         # Link Temperature and update
         battery.cell_temperature         = T_cell
@@ -463,11 +463,11 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         N/A 
         """    
         n_series   = self.pack_config.series
-        SOC        = segment.conditions.propulsion.battery_state_of_charge
-        V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
-        t          = segment.conditions.propulsion.battery_cycle_day         
-        Q_prior    = segment.conditions.propulsion.battery_cell_charge_throughput[-1,0] 
-        Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) 
+        SOC        = segment.conditions.propulsion.battery.state_of_charge
+        V_ul       = segment.conditions.propulsion.battery.voltage_under_load/n_series
+        t          = segment.conditions.propulsion.battery.cycle_day         
+        Q_prior    = segment.conditions.propulsion.battery.cell_charge_throughput[-1,0] 
+        Temp       = np.mean(segment.conditions.propulsion.battery.cell_temperature) 
         
         # aging model  
         delta_DOD = abs(SOC[0][0] - SOC[-1][0])
@@ -480,11 +480,11 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         E_fade_factor   = 1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior)   
         R_growth_factor = 1 + alpha_res*(t**0.75) + beta_res*Q_prior  
         
-        segment.conditions.propulsion.battery_capacity_fade_factor     = np.minimum(E_fade_factor,segment.conditions.propulsion.battery_capacity_fade_factor)
-        segment.conditions.propulsion.battery_resistance_growth_factor = np.maximum(R_growth_factor,segment.conditions.propulsion.battery_resistance_growth_factor)
+        segment.conditions.propulsion.battery.capacity_fade_factor     = np.minimum(E_fade_factor,segment.conditions.propulsion.battery.capacity_fade_factor)
+        segment.conditions.propulsion.battery.resistance_growth_factor = np.maximum(R_growth_factor,segment.conditions.propulsion.battery.resistance_growth_factor)
         
         if increment_battery_cycle_day:
-            segment.conditions.propulsion.battery_cycle_day += 1 # update battery age by one day 
+            segment.conditions.propulsion.battery.cycle_day += 1 # update battery age by one day 
       
         return  
 

@@ -17,7 +17,7 @@ import numpy as np
 import sys
 sys.path.append('../Vehicles')
 
-from Stopped_Rotor import vehicle_setup
+from Stopped_Rotor import 
 
 #-------------------------------------------------------------------------------
 # Test Function

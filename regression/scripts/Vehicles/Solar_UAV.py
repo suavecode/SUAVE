@@ -186,7 +186,7 @@ def vehicle_setup():
     prop.cruise.design_altitude                = 14.0 * Units.km
     prop.cruise.design_thrust                  = 110.  
     prop                                       = propeller_design(prop) 
-    net.propellers.append(prop)
+    net.rotors.append(prop)
 
     # Component 4 the Motor
     motor                      = SUAVE.Components.Energy.Converters.Motor()

@@ -99,12 +99,12 @@ class Serial_Hybrid_Ducted_Fan(Network):
         generator.calculate_power(conditions)
         
         # Set battery energy
-        battery.current_energy           = conditions.propulsion.battery_energy
-        battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
-        battery.cell_charge_throughput   = conditions.propulsion.battery_cell_charge_throughput     
-        battery.age                      = conditions.propulsion.battery_cycle_day          
-        battery.R_growth_factor          = conditions.propulsion.battery_resistance_growth_factor
-        battery.E_growth_factor          = conditions.propulsion.battery_capacity_fade_factor  
+        battery.current_energy           = conditions.propulsion.battery.energy
+        battery.pack_temperature         = conditions.propulsion.battery.pack_temperature
+        battery.cell_charge_throughput   = conditions.propulsion.battery.cell_charge_throughput     
+        battery.age                      = conditions.propulsion.battery.cycle_day          
+        battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
+        battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor  
         
         # Calculate ducted fan power
         results             = propulsor.evaluate_thrust(state)
@@ -151,9 +151,9 @@ class Serial_Hybrid_Ducted_Fan(Network):
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit 
         conditions.propulsion.current                      = current
-        conditions.propulsion.battery_power_draw           = battery_power_draw
-        conditions.propulsion.battery_energy               = battery_energy
-        conditions.propulsion.battery_voltage_open_circuit = voltage_open_circuit 
+        conditions.propulsion.battery.power_draw           = battery_power_draw
+        conditions.propulsion.battery.energy               = battery_energy
+        conditions.propulsion.battery.voltage_open_circuit = voltage_open_circuit 
         
         results.vehicle_mass_rate   = generator.outputs.vehicle_mass_rate
         return results

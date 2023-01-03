@@ -79,7 +79,7 @@ def X57_full_setup():
     
     
     # change identical propeller flag for regression coverage even though propellers are identical 
-    vehicle.networks.battery_rotor.identical_propellers = False
+    vehicle.networks.battery_rotor.identical_rotors = False
     
     # Set up configs
     configs  = X57_configs_setup(vehicle)

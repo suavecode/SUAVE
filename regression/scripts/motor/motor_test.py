@@ -93,8 +93,8 @@ def main():
     
     # Define function specific inputs 
     voltage_1 =  400
-    motor_1.inputs.voltage      = np.array([[voltage_1]]) 
-    motor_1.inputs.propeller_CP = conditions.propulsion.propeller_power_coefficient
+    motor_1.inputs.voltage  = np.array([[voltage_1]]) 
+    motor_1.inputs.rotor_CP = conditions.propulsion.propeller_power_coefficient
     
     # Run Motor Omega Function 
     omega_1  = motor_1.omega(conditions)   

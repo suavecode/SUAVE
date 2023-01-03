@@ -221,10 +221,10 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     # build network
-    net                                         = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
-    net.tag                                     = 'internal_combustion'
-    net.number_of_engines                       = 1.
-    net.identical_propellers                    = True
+    net                                     = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
+    net.tag                                 = 'internal_combustion'
+    net.number_of_engines                   = 1.
+    net.identical_rotors                    = True
                                                 
     # the engine                    
     engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
@@ -256,7 +256,7 @@ def vehicle_setup():
     prop.airfoil_polar_stations             = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
     prop                                    = propeller_design(prop)   
     
-    net.propellers.append(prop)
+    net.rotors.append(prop)
      
     
     # add the network to the vehicle

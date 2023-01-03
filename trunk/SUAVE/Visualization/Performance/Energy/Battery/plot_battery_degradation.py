@@ -45,21 +45,8 @@ def plot_battery_degradation(results,
     Properties Used:
     N/A
     """
-    # Create empty dataframe to be populated by the segment data
-
-    plot_cols = [
-        "Cycle",
-        "C", 
-        "R", 
-        "Charge",
-        "Segment"
-    ]
-
-    df = pd.DataFrame(columns=plot_cols)
-
-    # Get the segment-by-segment results
-
-
+    
+    # Create empty dataframe to be populated by the segment data  
     num_segs          = len(results.segments)
     time_hrs          = np.zeros(num_segs)
     capacity_fade     = np.zeros_like(time_hrs)
@@ -67,82 +54,52 @@ def plot_battery_degradation(results,
     cycle_day         = np.zeros_like(time_hrs)
     charge_throughput = np.zeros_like(time_hrs)
 
-    for segment in results.segments.values():
-        time_hrs            = segment.conditions.frames.inertial.time[-1,0] / Units.hour
-        cycle_day           = segment.conditions.propulsion.battery_cycle_day
-        capacity_fade       = segment.conditions.propulsion.battery_capacity_fade_factor
-        resistance_growth   = segment.conditions.propulsion.battery_resistance_growth_factor
-        charge_throughput   = segment.conditions.propulsion.battery_cell_charge_throughput[-1,0] 
+    for i in range(num_segs):
+        time_hrs[i]          = results.segments[i].conditions.frames.inertial.time[-1,0] / Units.hour
+        cycle_day[i]         = results.segments[i].conditions.propulsion.battery.cycle_day
+        capacity_fade[i]     = results.segments[i].conditions.propulsion.battery.capacity_fade_factor
+        resistance_growth[i] = results.segments[i].conditions.propulsion.battery.resistance_growth_factor
+        charge_throughput[i] = results.segments[i].conditions.propulsion.battery.cell_charge_throughput[-1,0] 
         
-        segment_frame = pd.DataFrame(
-            np.column_stack((
-                cycle_day,
-                capacity_fade,
-                resistance_growth,
-                charge_throughput,
-
-            )),
-            columns=plot_cols[:-1], index=time_hrs
-        )
-
-        segment_frame['Segment'] = [segment.tag for i in range(len(time_hrs))]
-
-        # Append to collecting dataframe
-
-        df = df.append(segment_frame)
 
     # Set plot properties
+    fig = make_subplots(rows=2, cols=3) 
+    fig.add_trace(go.Scatter(
+        x=charge_throughput,
+        y=capacity_fade,
+        showlegend=False),
+        row=1, col=1)
 
-    fig = make_subplots(rows=2, cols=3)
+    fig.add_trace(go.Scatter(
+        x=charge_throughput,
+        y= resistance_growth,
+        showlegend=False),
+        row=2, col=1) 
+    
+    fig.add_trace(go.Scatter(
+        x=time_hrs,
+        y=capacity_fade, 
+        showlegend=False),
+        row=1, col=2)   
+    
+    fig.add_trace(go.Scatter(
+        x=time_hrs,
+        y=resistance_growth, 
+        showlegend=False),
+        row=1, col=2) 
+    
+    fig.add_trace(go.Scatter(
+        x=cycle_day,
+        y=capacity_fade, 
+        showlegend=False),
+        row=1, col=3)    
+    
+    fig.add_trace(go.Scatter(
+        x=cycle_day,
+        y=resistance_growth, 
+        showlegend=False),
+        row=2, col=3)          
 
-    # Add traces to the figure for each value by segment
-
-    for seg, data in df.groupby("Segment", sort=False):
-
-        seg_name = ' '.join(seg.split("_")).capitalize()
-
-        fig.add_trace(go.Scatter(
-            x=data['Charge'],
-            y=data['C'],
-            name=seg_name),
-            row=1, col=1)
-
-        fig.add_trace(go.Scatter(
-            x=data['Charge'],
-            y= data['R'],
-            name=seg_name),
-            row=2, col=1)
-        
-        
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y= data['C'],
-            name=seg_name,
-            showlegend=False),
-            row=1, col=2)   
-        
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['R'],
-            name=seg_name,
-            showlegend=False),
-            row=1, col=2)
-        
-        
-        fig.add_trace(go.Scatter(
-            x=data['Cycle'],
-            y= data['C'],
-            name=seg_name,
-            showlegend=False),
-            row=1, col=3)    
-        
-        fig.add_trace(go.Scatter(
-            x=data['Cycle'],
-            y=data['R'],
-            name=seg_name,
-            showlegend=False),
-            row=2, col=3)          
- 
 
     fig.update_yaxes(title_text='% Capacity Fade', row=1, col=1)
     fig.update_yaxes(title_text='% Resistance Growth', row=2, col=1) 

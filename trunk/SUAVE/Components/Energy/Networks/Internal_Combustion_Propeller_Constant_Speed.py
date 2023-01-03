@@ -49,11 +49,11 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             N/A
         """        
         self.engines              = Container()
-        self.propellers           = Container()
+        self.rotors               = Container()
         self.engine_length        = None
         self.number_of_engines    = None
         self.rated_speed          = 0.0
-        self.identical_propellers = True
+        self.identical_rotors     = True
         
     
     # manage process with a driver function
@@ -72,9 +72,9 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                rpm                  [radians/sec]
-                propeller_torque     [N-M]
-                power                [W]
+                rpm                     [radians/sec]
+                torque                  [N-M]
+                power                   [W]
     
             Properties Used:
             Defaulted values
@@ -82,7 +82,7 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
         # unpack
         conditions  = state.conditions
         engines     = self.engines
-        propellers  = self.propellers
+        propellers  = self.rotors
         num_engines = self.number_of_engines
         rpm         = conditions.propulsion.rpm 
         
@@ -99,10 +99,10 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             
         # Setup conditions
         ones_row = conditions.ones_row
-        conditions.propulsion.disc_loading               = ones_row(n_evals)
-        conditions.propulsion.power_loading              = ones_row(n_evals)
-        conditions.propulsion.propeller_torque           = ones_row(n_evals)
-        conditions.propulsion.propeller_tip_mach         = ones_row(n_evals)
+        conditions.propulsion.rotor.disc_loading         = ones_row(n_evals)
+        conditions.propulsion.rotor.power_loading        = ones_row(n_evals)
+        conditions.propulsion.rotor.torque               = ones_row(n_evals)
+        conditions.propulsion.rotor.tip_mach             = ones_row(n_evals)
         conditions.propulsion.combustion_engine_throttle = ones_row(n_evals)
             
         # Setup numbers for iteration
@@ -137,12 +137,12 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             total_power         = total_power  + P * factor            
 
             # Pack the conditions
-            conditions.propulsion.propeller_torque[:,ii]     = Q[:,0]
-            conditions.propulsion.propeller_tip_mach[:,ii]   = (R*rpm[:,0]*Units.rpm)/a[:,0]
-            conditions.propulsion.disc_loading[:,ii]         = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
-            conditions.propulsion.power_loading[:,ii]        = (F_mag[:,0])/(P[:,0])      # N/W            
+            conditions.propulsion.rotor.torque[:,ii]         = Q[:,0]
+            conditions.propulsion.rotor.tip_mach[:,ii]       = (R*rpm[:,0]*Units.rpm)/a[:,0]
+            conditions.propulsion.rotor.disc_loading[:,ii]   = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
+            conditions.propulsion.rotor.power_loading[:,ii]  = (F_mag[:,0])/(P[:,0])      # N/W            
             conditions.propulsion.combustion_engine_throttle = engine_throttle
-            conditions.propulsion.propeller_efficiency       = etap[:,0]
+            conditions.propulsion.rotor.efficiency           = etap[:,0]
             
             
             conditions.noise.sources.propellers[prop.tag]    = outputs

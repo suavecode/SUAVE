@@ -388,8 +388,8 @@ def vehicle_setup():
     #---------------------------------------------------------------------------------------------
     # build network
     net = Battery_Rotor()
-    net.number_of_propeller_engines  = 2. 
-    net.identical_propellers         = True 
+    net.number_of_rotor_engines  = 2. 
+    net.identical_rotors         = True 
 
     # Component 1 the ESC
     esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
@@ -409,7 +409,7 @@ def vehicle_setup():
     prop.cruise.design_tip_mach               = 0.6
     prop.cruise.design_angular_velocity       = prop.cruise.design_tip_mach*340 /prop.tip_radius
     prop.cruise.design_altitude               = 3000. * Units.feet  
-    prop.cruise.design_thrust                 = (1.1*Hover_Load)/net.number_of_propeller_engines
+    prop.cruise.design_thrust                 = (1.1*Hover_Load)/net.number_of_rotor_engines
     prop.origin                               = [[2.,5.7,0.784]]
     prop.rotation                             = -1
     prop.sol_tolerance                        = 1e-4
@@ -431,8 +431,8 @@ def vehicle_setup():
     prop_left.origin   = [[2.,-5.7,0.784]]
     prop_left.rotation = 1
     
-    net.propellers.append(prop)
-    net.propellers.append(prop_left)
+    net.rotors.append(prop)
+    net.rotors.append(prop_left)
 
 
     # Component 3 the Battery
@@ -461,12 +461,12 @@ def vehicle_setup():
     motor.mass_properties.mass    = 10. * Units.kg 
     
     # append right motor
-    net.propeller_motors.append(motor)
+    net.rotor_motors.append(motor)
     
     # append left motor 
     motor_left = deepcopy(motor)
     motor_left.origin = [[2., -5.7, 0.95]] 
-    net.propeller_motors.append(motor_left) 
+    net.rotor_motors.append(motor_left) 
 
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()

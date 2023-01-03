@@ -70,10 +70,10 @@ def main():
 def Hararmonic_Noise_Validation(PP):
 
     net                                = Battery_Rotor()
-    net.number_of_propeller_engines    = 1                                      
+    net.number_of_rotor_engines    = 1                                      
     prop                               = F8745_D4_Propeller()  
-    net.identical_propellers           = True  
-    net.propellers.append(prop)  
+    net.identical_rotors           = True  
+    net.rotors.append(prop)  
 
     # Atmosheric & Run Conditions                                               
     a                       = 343.376
@@ -138,7 +138,7 @@ def Hararmonic_Noise_Validation(PP):
     conditions.noise.number_of_microphones     = num_mic
     
     # Run Fidelity One    
-    rotor_noise                           = total_rotor_noise(net.propellers,noise_data,segment,settings )
+    rotor_noise                           = total_rotor_noise(net.rotors,noise_data,segment,settings )
     F8745D4_SPL                           = rotor_noise.SPL     
     F8745D4_SPL_harmonic                  = rotor_noise.SPL_harmonic 
     F8745D4_SPL_broadband                 = rotor_noise.SPL_broadband  
@@ -297,8 +297,8 @@ def Broadband_Noise_Validation(PP):
     # ---------------------------------------------------------------------------------------------------------------------------
     # Define Network
     net_APC_SF                                  = Battery_Rotor()
-    net_APC_SF.number_of_propeller_engines      = 1        
-    net_APC_SF.identical_propellers             = True  
+    net_APC_SF.number_of_rotor_engines      = 1        
+    net_APC_SF.identical_rotors             = True  
     net_APC_SF.propellers.append(APC_SF)    
 
     # Run conditions                            

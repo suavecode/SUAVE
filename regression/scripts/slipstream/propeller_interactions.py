@@ -215,7 +215,7 @@ def vehicle_setup():
     # Propulsion Properties:
     net                   = SUAVE.Components.Energy.Networks.Battery_Rotor()
     net.tag               = 'prop_net'
-    net.number_of_propeller_engines = 2
+    net.number_of_rotor_engines = 2
 
     prop = SUAVE.Components.Energy.Converters.Propeller()
     prop = propeller_geometry() 

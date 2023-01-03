@@ -76,14 +76,14 @@ def plot_battery_cell_conditions(results,
     for segment in results.segments.values():
 
         time                = segment.conditions.frames.inertial.time[:,0] / Units.min
-        cell_power          = segment.conditions.propulsion.battery_cell_power_draw[:,0]
-        cell_energy         = segment.conditions.propulsion.battery_cell_energy[:,0]
-        cell_volts          = segment.conditions.propulsion.battery_cell_voltage_under_load[:,0]
-        cell_volts_oc       = segment.conditions.propulsion.battery_cell_voltage_open_circuit[:,0]
-        cell_current        = segment.conditions.propulsion.battery_cell_current[:,0]
-        cell_SOC            = segment.conditions.propulsion.battery_state_of_charge[:,0]
-        cell_temp           = segment.conditions.propulsion.battery_cell_temperature[:,0]
-        cell_charge         = segment.conditions.propulsion.battery_cell_charge_throughput[:,0]
+        cell_power          = segment.conditions.propulsion.battery.cell_power_draw[:,0]
+        cell_energy         = segment.conditions.propulsion.battery.cell_energy[:,0]
+        cell_volts          = segment.conditions.propulsion.battery.cell_voltage_under_load[:,0]
+        cell_volts_oc       = segment.conditions.propulsion.battery.cell_voltage_open_circuit[:,0]
+        cell_current        = segment.conditions.propulsion.battery.cell_current[:,0]
+        cell_SOC            = segment.conditions.propulsion.battery.state_of_charge[:,0]
+        cell_temp           = segment.conditions.propulsion.battery.cell_temperature[:,0]
+        cell_charge         = segment.conditions.propulsion.battery.cell_charge_throughput[:,0]
 
         cell_battery_amp_hr = (cell_energy/ Units.Wh )/cell_volts
         cell_C_instant      = cell_current/cell_battery_amp_hr

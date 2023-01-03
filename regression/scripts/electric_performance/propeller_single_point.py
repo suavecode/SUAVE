@@ -39,8 +39,8 @@ def test_1():
     This tests the propeller_single_point function using the Fidelity Zero rotor wake inflow model.
     """
     vehicle = vehicle_setup()
-    prop_key = list(vehicle.networks.battery_rotor.propellers.keys())[0]
-    prop = vehicle.networks.battery_rotor.propellers[prop_key]
+    prop_key = list(vehicle.networks.battery_rotor.rotors.keys())[0]
+    prop = vehicle.networks.battery_rotor.rotors[prop_key]
 
     _, results = propeller_single_point(prop,
                                      pitch=0.,
@@ -78,8 +78,8 @@ def test_2():
     This tests the propeller_single_point function using the Fidelity One rotor inflow model.
     """    
     vehicle = vehicle_setup()
-    prop_key = list(vehicle.networks.battery_rotor.propellers.keys())[0]
-    prop = vehicle.networks.battery_rotor.propellers[prop_key]
+    prop_key = list(vehicle.networks.battery_rotor.rotors.keys())[0]
+    prop = vehicle.networks.battery_rotor.rotors[prop_key]
     
     # update the wake method used for each prop
     prop.Wake = Rotor_Wake_Fidelity_One()

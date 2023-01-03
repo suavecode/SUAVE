@@ -31,12 +31,12 @@ def append_initial_battery_conditions(segment,battery):
             
             Optional:
             segment.
-                 battery_cycle_day                  [unitless]
-                 battery_pack_temperature           [Kelvin]
-                 battery_charge_throughput          [Ampere-Hours] 
-                 battery_resistance_growth_factor   [unitless]
-                 battery_capacity_fade_factor       [unitless]
-                 battery_discharge                  [boolean]
+                 battery.cycle_day                  [unitless]
+                 battery.pack_temperature           [Kelvin]
+                 battery.charge_throughput          [Ampere-Hours] 
+                 battery.resistance_growth_factor   [unitless]
+                 battery.capacity_fade_factor       [unitless]
+                 battery.discharge                  [boolean]
                  increment_battery_cycle_day        [boolean]
                
         Outputs:
@@ -44,15 +44,15 @@ def append_initial_battery_conditions(segment,battery):
                battery_discharge                    [boolean]
                increment_battery_cycle_day          [boolean]
             segment.state.conditions.propulsion
-               battery_discharge_flag               [boolean]
-               battery_max_initial_energy           [watts]
-               battery_energy                       [watts]
-               battery_max_aged_energy              [watts]    
-               battery_pack_temperature             [kelvin]
-               battery_cycle_day                    [int]
-               battery_cell_charge_throughput       [Ampere-Hours] 
-               battery_resistance_growth_factor     [unitless]
-               battery_capacity_fade_factor         [unitless]
+               battery.discharge_flag               [boolean]
+               battery.max_initial_energy           [watts]
+               battery.energy                       [watts]
+               battery.max_aged_energy              [watts]    
+               battery.pack_temperature             [kelvin]
+               battery.cycle_day                    [int]
+               battery.cell_charge_throughput       [Ampere-Hours] 
+               battery.resistance_growth_factor     [unitless]
+               battery.capacity_fade_factor         [unitless]
 
 
 
@@ -74,9 +74,9 @@ def append_initial_battery_conditions(segment,battery):
     # Set if it is a discharge segment
     if 'battery_discharge' not in segment:      
         segment.battery_discharge          = True
-        propulsion.battery_discharge_flag  = True
+        propulsion.battery.discharge_flag  = True
     else:
-        propulsion.battery_discharge_flag  = segment.battery_discharge
+        propulsion.battery.discharge_flag  = segment.battery_discharge
         
         
     # This is the only one besides energy and discharge flag that should be packed into the segment top level
@@ -88,8 +88,8 @@ def append_initial_battery_conditions(segment,battery):
         pack_temperature              = atmo_data.temperature[0,0]
     else:
         pack_temperature              = segment.battery_pack_temperature 
-    propulsion.battery_pack_temperature[:,0] = pack_temperature
-    propulsion.battery_cell_temperature[:,0] = pack_temperature
+    propulsion.battery.pack_temperature[:,0] = pack_temperature
+    propulsion.battery.cell_temperature[:,0] = pack_temperature
     
     
     if 'battery_max_aged_energy' in segment:
@@ -98,7 +98,7 @@ def append_initial_battery_conditions(segment,battery):
         battery_max_aged_energy = battery.max_energy
         
         
-    propulsion.battery_max_aged_energy = battery_max_aged_energy   
+    propulsion.battery.max_aged_energy = battery_max_aged_energy   
     
     
         
@@ -128,14 +128,14 @@ def append_initial_battery_conditions(segment,battery):
             capacity_fade_factor          = segment.battery_capacity_fade_factor
         
         # Pack into conditions
-        propulsion.battery_max_initial_energy           = initial_mission_energy
-        propulsion.battery_energy[:,0]                  = initial_segment_energy 
+        propulsion.battery.max_initial_energy           = initial_mission_energy
+        propulsion.battery.energy[:,0]                  = initial_segment_energy 
 
-        propulsion.battery_cycle_day                    = cycle_day        
-        propulsion.battery_cell_charge_throughput[:,0]  = cell_charge_throughput 
-        propulsion.battery_resistance_growth_factor     = resistance_growth_factor 
-        propulsion.battery_capacity_fade_factor         = capacity_fade_factor
-        propulsion.battery_state_of_charge[:,0]         = initial_mission_energy/battery_max_aged_energy
+        propulsion.battery.cycle_day                    = cycle_day        
+        propulsion.battery.cell_charge_throughput[:,0]  = cell_charge_throughput 
+        propulsion.battery.resistance_growth_factor     = resistance_growth_factor 
+        propulsion.battery.capacity_fade_factor         = capacity_fade_factor
+        propulsion.battery.state_of_charge[:,0]         = initial_mission_energy/battery_max_aged_energy
             
     return 
     

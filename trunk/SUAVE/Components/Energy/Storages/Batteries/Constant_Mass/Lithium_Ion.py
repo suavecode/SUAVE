@@ -261,13 +261,13 @@ class Lithium_Ion(Battery):
             state.unknowns.battery_voltage_under_load               [volts]
     
             Outputs: 
-            state.conditions.propulsion.battery_voltage_under_load  [volts]
+            state.conditions.propulsion.battery.voltage_under_load  [volts]
     
             Properties Used:
             N/A
         """             
         
-        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.battery.voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
         
         return 
     
@@ -282,8 +282,8 @@ class Lithium_Ion(Battery):
     
             Inputs:
             state.conditions.propulsion:
-                motor_torque                          [N-m]
-                propeller_torque                      [N-m]
+                motor.torque                          [N-m]
+                rotor.torque                          [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
             
@@ -293,7 +293,7 @@ class Lithium_Ion(Battery):
             Properties Used:
             network.voltage                           [volts]
         """     
-        v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
+        v_actual  = segment.state.conditions.propulsion.battery.voltage_under_load
         v_predict = segment.state.unknowns.battery_voltage_under_load
         v_max     = network.voltage
         
@@ -352,7 +352,7 @@ class Lithium_Ion(Battery):
             N/A
         """              
 
-        return state.conditions.propulsion.battery_voltage_under_load 
+        return state.conditions.propulsion.battery.voltage_under_load 
     
     def update_battery_state_of_health(self,segment,increment_battery_cycle_day = False):   
         print(' No aging model currently implemented for LFP cells. Pristine condition of \n '

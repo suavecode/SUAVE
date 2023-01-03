@@ -72,7 +72,7 @@ class Internal_Combustion_Propeller(Network):
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
                 rpm                  [radians/sec]
-                propeller_torque     [N-M]
+                propeller.torque     [N-M]
                 power                [W]
     
             Properties Used:
@@ -135,14 +135,14 @@ class Internal_Combustion_Propeller(Network):
             total_power         = total_power  + P * factor
               
             # Pack specific outputs
-            conditions.propulsion.engine_torque[:,ii]      = torque[:,0]
-            conditions.propulsion.propeller_torque[:,ii]   = Q[:,0]
-            conditions.propulsion.propeller_rpm[:,ii]      = rpm[:,0]
-            conditions.propulsion.propeller_tip_mach[:,ii] = (R*rpm[:,0]*Units.rpm)/a[:,0]
-            conditions.propulsion.disc_loading[:,ii]       = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
-            conditions.propulsion.power_loading[:,ii]      = (F_mag[:,0])/(P[:,0])      # N/W   
-            conditions.propulsion.propeller_efficiency     = etap[:,0]
-            conditions.propulsion.figure_of_merit          = outputs.figure_of_merit[:,0]
+            conditions.propulsion.engine_torque[:,ii]            = torque[:,0]
+            conditions.propulsion.propeller.torque[:,ii]         = Q[:,0]
+            conditions.propulsion.propeller.rpm[:,ii]            = rpm[:,0]
+            conditions.propulsion.propeller.tip_mach[:,ii]       = (R*rpm[:,0]*Units.rpm)/a[:,0]
+            conditions.propulsion.propeller.disc_loading[:,ii]   = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
+            conditions.propulsion.propeller.power_loading[:,ii]  = (F_mag[:,0])/(P[:,0])      # N/W   
+            conditions.propulsion.propeller.efficiency           = etap[:,0]
+            conditions.propulsion.propeller.figure_of_merit      = outputs.figure_of_merit[:,0]
             
             conditions.noise.sources.propellers[prop.tag]  = outputs
 
@@ -190,7 +190,7 @@ class Internal_Combustion_Propeller(Network):
         Inputs:
             segment.state.conditions.propulsion.
                 motor_torque                       [newtom-meters]                 
-                propeller_torque                   [newtom-meters] 
+                propeller.torque                   [newtom-meters] 
         
         Outputs:
             segment.state:
@@ -205,7 +205,7 @@ class Internal_Combustion_Propeller(Network):
         
         # Unpack
         q_motor   = segment.state.conditions.propulsion.engine_torque
-        q_prop    = segment.state.conditions.propulsion.propeller_torque
+        q_prop    = segment.state.conditions.propulsion.propeller.torque
         
         # Return the residuals
         segment.state.residuals.network = q_motor - q_prop
@@ -228,8 +228,8 @@ class Internal_Combustion_Propeller(Network):
             Outputs:
             segment.state.unknowns.battery_voltage_under_load
             segment.state.unknowns.propeller_power_coefficient
-            segment.state.conditions.propulsion.propeller_motor_torque
-            segment.state.conditions.propulsion.propeller_torque   
+            segment.state.conditions.propulsion.propeller_motor.torque
+            segment.state.conditions.propulsion.propeller.torque   
     
             Properties Used:
             N/A
@@ -260,14 +260,14 @@ class Internal_Combustion_Propeller(Network):
         segment.state.unknowns.rpm = rpm * ones_row(1) 
         
         # Setup the conditions
-        segment.state.conditions.propulsion.engine_torque          = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.propeller_torque       = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.propeller_rpm          = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.disc_loading           = 0. * ones_row(n_props)                 
-        segment.state.conditions.propulsion.power_loading          = 0. * ones_row(n_props)    
-        segment.state.conditions.propulsion.propeller_tip_mach     = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.propeller_efficiency   = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.figure_of_merit        = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.engine_torque             = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller.torque          = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller.rpm             = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller.disc_loading    = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.propeller.power_loading   = 0. * ones_row(n_props)    
+        segment.state.conditions.propulsion.propeller.tip_mach        = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller.efficiency      = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller.figure_of_merit = 0. * ones_row(n_props)
         
 
         # Ensure the mission knows how to pack and unpack the unknowns and residuals

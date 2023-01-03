@@ -105,7 +105,7 @@ class Battery_Rotor(Network):
                 battery_voltage_open_circuit [V]
                 battery_voltage_under_load   [V]
                 motor_torque                 [N-M]
-                rotor_torque             [N-M]
+                rotor.torque             [N-M]
     
             Properties Used:
             Defaulted values
@@ -125,14 +125,14 @@ class Battery_Rotor(Network):
 
         
         # Set battery energy
-        battery.current_energy           = conditions.propulsion.battery_energy
-        battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
-        battery.cell_charge_throughput   = conditions.propulsion.battery_cell_charge_throughput     
-        battery.age                      = conditions.propulsion.battery_cycle_day        
-        discharge_flag                   = conditions.propulsion.battery_discharge_flag    
-        battery.R_growth_factor          = conditions.propulsion.battery_resistance_growth_factor
-        battery.E_growth_factor          = conditions.propulsion.battery_capacity_fade_factor 
-        battery.max_energy               = conditions.propulsion.battery_max_aged_energy 
+        battery.current_energy           = conditions.propulsion.battery.energy
+        battery.pack_temperature         = conditions.propulsion.battery.pack_temperature
+        battery.cell_charge_throughput   = conditions.propulsion.battery.cell_charge_throughput     
+        battery.age                      = conditions.propulsion.battery.cycle_day        
+        discharge_flag                   = conditions.propulsion.battery.discharge_flag    
+        battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
+        battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor 
+        battery.max_energy               = conditions.propulsion.battery.max_aged_energy 
         n_series                         = battery.pack_config.series  
         n_parallel                       = battery.pack_config.parallel
         
@@ -181,16 +181,16 @@ class Battery_Rotor(Network):
                 prop      = self.rotors[prop_key]
 
                 # Set rotor y-axis rotation                
-                prop.inputs.y_axis_rotation = conditions.propulsion.rotor_y_axis_rotation    
+                prop.inputs.y_axis_rotation = conditions.propulsion.rotor.y_axis_rotation    
             
                 if identical_flag:
                     for idx in range(1,int(num_engines)) :
                         rotor_remainder      = self.rotors[list(props.keys())[idx]]
-                        rotor_remainder.inputs.y_axis_rotation = conditions.propulsion.rotor_y_axis_rotation
+                        rotor_remainder.inputs.y_axis_rotation = conditions.propulsion.rotor.y_axis_rotation
                         
                 # link 
                 motor.inputs.voltage        = esc.outputs.voltageout
-                motor.inputs.rotor_CP   = np.atleast_2d(conditions.propulsion.rotor_power_coefficient[:,ii]).T
+                motor.inputs.rotor_CP   = np.atleast_2d(conditions.propulsion.rotor.power_coefficient[:,ii]).T
                 
                 # step 3
                 motor.omega(conditions)
@@ -218,16 +218,16 @@ class Battery_Rotor(Network):
                 total_motor_current = total_motor_current + factor*motor.outputs.current
     
                 # Pack specific outputs
-                conditions.propulsion.rotor_motor_efficiency[:,ii] = etam[:,0]  
-                conditions.propulsion.rotor_motor_torque[:,ii]     = motor.outputs.torque[:,0]
-                conditions.propulsion.rotor_torque[:,ii]           = Q[:,0]
-                conditions.propulsion.rotor_thrust[:,ii]           = np.linalg.norm(total_thrust ,axis = 1) 
-                conditions.propulsion.rotor_rpm[:,ii]              = rpm[:,0]
-                conditions.propulsion.rotor_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
-                conditions.propulsion.disc_loading[:,ii]           = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
-                conditions.propulsion.power_loading[:,ii]          = (F_mag[:,0])/(P[:,0])       # N/W      
-                conditions.propulsion.rotor_efficiency[:,ii]       = etap[:,0]  
-                conditions.propulsion.figure_of_merit[:,ii]        = outputs.figure_of_merit[:,0] 
+                conditions.propulsion.rotor_motor.efficiency[:,ii]  = etam[:,0]  
+                conditions.propulsion.rotor_motor.torque[:,ii]      = motor.outputs.torque[:,0]
+                conditions.propulsion.rotor.torque[:,ii]            = Q[:,0]
+                conditions.propulsion.rotor.thrust[:,ii]            = np.linalg.norm(total_thrust ,axis = 1) 
+                conditions.propulsion.rotor.rpm[:,ii]               = rpm[:,0]
+                conditions.propulsion.rotor.tip_mach[:,ii]          = (R*rpm[:,0]*Units.rpm)/a[:,0]
+                conditions.propulsion.rotor.disc_loading[:,ii]      = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
+                conditions.propulsion.rotor.power_loading[:,ii]     = (F_mag[:,0])/(P[:,0])       # N/W      
+                conditions.propulsion.rotor.efficiency[:,ii]        = etap[:,0]  
+                conditions.propulsion.rotor.figure_of_merit[:,ii]   = outputs.figure_of_merit[:,0] 
                 
                 conditions.noise.sources.rotors[prop.tag]      = outputs
             
@@ -290,7 +290,7 @@ class Battery_Rotor(Network):
         results = Data()
         results.thrust_force_vector       = total_thrust
         results.vehicle_mass_rate         = state.ones_row(1)*0.0     
-        results.network_y_axis_rotation   = conditions.propulsion.rotor_y_axis_rotation
+        results.network_y_axis_rotation   = conditions.propulsion.rotor.y_axis_rotation
      
         return results
      
@@ -321,15 +321,15 @@ class Battery_Rotor(Network):
         # Here we are going to unpack the unknowns (Cp) provided for this network
         ss = segment.state 
         if segment.battery_discharge:
-            ss.conditions.propulsion.rotor_power_coefficient = ss.unknowns.rotor_power_coefficient   
+            ss.conditions.propulsion.rotor.power_coefficient = ss.unknowns.rotor_power_coefficient   
         else: 
-            ss.conditions.propulsion.rotor_power_coefficient = 0. * ones_row(1)
+            ss.conditions.propulsion.rotor.power_coefficient = 0. * ones_row(1)
         
         # fixed y axis rotation
-        net   = list(segment.analyses.energy.network.keys())[0]
-        y_rot = segment.analyses.energy.network[net].y_axis_rotation
-        ss.conditions.propulsion.rotor_y_axis_rotation = y_rot * ones_row(1)
-        self.y_axis_rotation = y_rot
+        net                                            = list(segment.analyses.energy.network.keys())[0]
+        y_rot                                          = segment.analyses.energy.network[net].y_axis_rotation
+        ss.conditions.propulsion.rotor.y_axis_rotation = y_rot * ones_row(1)
+        self.y_axis_rotation                           = y_rot
         
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
@@ -351,7 +351,7 @@ class Battery_Rotor(Network):
             unknowns specific to the battery cell 
     
             Outputs:
-            state.conditions.propulsion.rotor_power_coefficient [None] 
+            state.conditions.propulsion.rotor.power_coefficient [None] 
             conditions specific to the battery cell
     
             Properties Used:
@@ -364,14 +364,14 @@ class Battery_Rotor(Network):
         # Here we are going to unpack the unknowns (Cp) provided for this network
         ss = segment.state 
         if segment.battery_discharge:
-            ss.conditions.propulsion.rotor_power_coefficient = ss.unknowns.rotor_power_coefficient       
+            ss.conditions.propulsion.rotor.power_coefficient     = ss.unknowns.rotor.power_coefficient       
             ss.conditions.propulsion.throttle                    = ss.unknowns.throttle
-            ss.conditions.propulsion.rotor_y_axis_rotation       = ss.unknowns.rotor_y_axis_rotation 
+            ss.conditions.propulsion.rotor.y_axis_rotation       = ss.unknowns.rotor.y_axis_rotation 
         else: 
             ss.conditions.propulsion.rotor_power_coefficient = 0. * ones_row(1)
         
         # update y axis rotation
-        self.y_axis_rotation = ss.conditions.propulsion.rotor_y_axis_rotation 
+        self.y_axis_rotation = ss.conditions.propulsion.rotor.y_axis_rotation 
         
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
@@ -391,8 +391,8 @@ class Battery_Rotor(Network):
    
            Inputs:
            state.conditions.propulsion:
-               motor_torque                          [N-m]
-               rotor_torque                      [N-m] 
+               motor_torque                      [N-m]
+               rotor.torque                      [N-m] 
            unknowns specific to the battery cell 
            
            Outputs:
@@ -403,8 +403,8 @@ class Battery_Rotor(Network):
        """           
            
         if segment.battery_discharge:    
-            q_motor   = segment.state.conditions.propulsion.rotor_motor_torque
-            q_prop    = segment.state.conditions.propulsion.rotor_torque                
+            q_motor   = segment.state.conditions.propulsion.rotor_motor.torque
+            q_prop    = segment.state.conditions.propulsion.rotor.torque                
             segment.state.residuals.network.rotors = q_motor - q_prop
             
         network       = self
@@ -433,8 +433,8 @@ class Battery_Rotor(Network):
             Outputs:
             segment.state.unknowns.battery_voltage_under_load
             segment.state.unknowns.rotor_power_coefficient
-            segment.state.conditions.propulsion.rotor_motor_torque
-            segment.state.conditions.propulsion.rotor_torque   
+            segment.state.conditions.propulsion.rotor_motor.torque
+            segment.state.conditions.propulsion.rotor.torque   
     
             Properties Used:
             N/A
@@ -481,16 +481,16 @@ class Battery_Rotor(Network):
             segment.state.unknowns.rotor_power_coefficient = initial_power_coefficient * ones_row(n_props)  
         
         # Setup the conditions
-        segment.state.conditions.propulsion.rotor_motor_efficiency = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_motor_torque     = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_torque           = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_thrust           = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_rpm              = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.disc_loading               = 0. * ones_row(n_props)                 
-        segment.state.conditions.propulsion.power_loading              = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_tip_mach         = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_efficiency       = 0. * ones_row(n_props)   
-        segment.state.conditions.propulsion.figure_of_merit            = 0. * ones_row(n_props)      
+        segment.state.conditions.propulsion.rotor_motor.efficiency = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor_motor.torque     = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.torque           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.thrust           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.rpm              = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.disc_loading     = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.rotor.power_loading    = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.tip_mach         = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.efficiency       = 0. * ones_row(n_props)   
+        segment.state.conditions.propulsion.rotor.figure_of_merit  = 0. * ones_row(n_props)      
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns
@@ -526,8 +526,8 @@ class Battery_Rotor(Network):
             segment.state.unknowns.rotor_power_coefficient
             segment.state.unknowns.throttle
             segment.state.unknowns.rotor_y_axis_rotation
-            segment.state.conditions.propulsion.rotor_motor_torque
-            segment.state.conditions.propulsion.rotor_torque   
+            segment.state.conditions.propulsion.rotor_motor.torque
+            segment.state.conditions.propulsion.rotor.torque   
     
             Properties Used:
             N/A
@@ -570,19 +570,19 @@ class Battery_Rotor(Network):
         if segment.battery_discharge: 
             segment.state.unknowns.rotor_power_coefficient = initial_power_coefficient * ones_row(n_props)  
             segment.state.unknowns.rotor_y_axis_rotation   = initial_y_axis_rotation * ones_row(1)  
-            segment.state.unknowns.throttle                    = 0.7 * ones_row(1)
+            segment.state.unknowns.throttle                = 0.7 * ones_row(1)
         
         # Setup the conditions
-        segment.state.conditions.propulsion.rotor_motor_efficiency = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_motor_torque     = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_torque           = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_thrust           = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_rpm              = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.disc_loading               = 0. * ones_row(n_props)                 
-        segment.state.conditions.propulsion.power_loading              = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_tip_mach         = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_efficiency       = 0. * ones_row(n_props) 
-        segment.state.conditions.propulsion.figure_of_merit            = 0. * ones_row(n_props)       
+        segment.state.conditions.propulsion.rotor.motor_efficiency = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor_motor.torque     = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.torque           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.thrust           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.rpm              = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.disc_loading     = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.rotor.power_loading    = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.tip_mach         = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.efficiency       = 0. * ones_row(n_props) 
+        segment.state.conditions.propulsion.rotor.figure_of_merit  = 0. * ones_row(n_props)       
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_tiltrotor_transition_unknowns

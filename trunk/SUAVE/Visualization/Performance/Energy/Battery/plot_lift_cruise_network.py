@@ -95,24 +95,30 @@ def plot_lift_cruise_network(results,
         time                = segment.conditions.frames.inertial.time[:,0] / Units.min
         eta                 = segment.conditions.propulsion.throttle[:,0]
         eta_l               = segment.conditions.propulsion.throttle_lift[:,0]
-        energy              = segment.conditions.propulsion.battery_energy[:,0]/ Units.Wh
-        specific_power      = segment.conditions.propulsion.battery_specfic_power[:,0]
-        volts               = segment.conditions.propulsion.battery_voltage_under_load[:,0]
-        volts_oc            = segment.conditions.propulsion.battery_voltage_open_circuit[:,0]
-        prop_rpm            = segment.conditions.propulsion.propeller_rpm[:,0]
+        
+        energy              = segment.conditions.propulsion.battery.energy[:,0]/ Units.Wh
+        specific_power      = segment.conditions.propulsion.battery.specfic_power[:,0]
+        volts               = segment.conditions.propulsion.battery.voltage_under_load[:,0]
+        volts_oc            = segment.conditions.propulsion.battery.voltage_open_circuit[:,0]
+        
         prop_thrust         = segment.conditions.frames.body.thrust_force_vector[:,0]
-        prop_torque         = segment.conditions.propulsion.propeller_motor_torque[:,0]
-        prop_effp           = segment.conditions.propulsion.propeller_efficiency[:,0]
-        prop_effm           = segment.conditions.propulsion.propeller_motor_efficiency[:,0]
-        prop_Cp             = segment.conditions.propulsion.propeller_power_coefficient[:,0]
-        ptm                 = segment.conditions.propulsion.propeller_tip_mach[:, 0]
-        lift_rotor_rpm      = segment.conditions.propulsion.lift_rotor_rpm[:,0]
-        lift_rotor_thrust   = -segment.conditions.frames.body.thrust_force_vector[:,2]
-        lift_rotor_torque   = segment.conditions.propulsion.lift_rotor_motor_torque[:,0]
-        lift_rotor_effp     = segment.conditions.propulsion.lift_rotor_efficiency[:,0]
-        lift_rotor_effm     = segment.conditions.propulsion.lift_rotor_figure_of_merit[:,0]
-        lift_rotor_Cp       = segment.conditions.propulsion.lift_rotor_power_coefficient[:,0]
-        rtm                 = segment.conditions.propulsion.lift_rotor_tip_mach[:, 0]
+        lift_rotor_thrust   =-segment.conditions.frames.body.thrust_force_vector[:,2]
+        
+        prop_torque         = segment.conditions.propulsion.propeller_motor.torque[:,0]
+        prop_effm           = segment.conditions.propulsion.propeller_motor.efficiency[:,0]
+        
+        prop_rpm            = segment.conditions.propulsion.propeller.rpm[:,0]
+        prop_effp           = segment.conditions.propulsion.propeller.efficiency[:,0]
+        prop_Cp             = segment.conditions.propulsion.propeller.power_coefficient[:,0]
+        ptm                 = segment.conditions.propulsion.propeller.tip_mach[:, 0]
+        
+        lift_rotor_rpm      = segment.conditions.propulsion.lift_rotor.rpm[:,0]
+        lift_rotor_effp     = segment.conditions.propulsion.lift_rotor.efficiency[:,0]
+        lift_rotor_effm     = segment.conditions.propulsion.lift_rotor.figure_of_merit[:,0]
+        lift_rotor_Cp       = segment.conditions.propulsion.lift_rotor.power_coefficient[:,0]
+        rtm                 = segment.conditions.propulsion.lift_rotor.tip_mach[:, 0]
+        
+        lift_rotor_torque   = segment.conditions.propulsion.lift_rotor_motor.torque[:,0]
 
         # Assemble the data into temporary holding dataframe
 

@@ -593,7 +593,7 @@ class Rotor(Energy_Component):
                     power                             = power,
                     power_coefficient                 = Cp,
                     converged_inflow_ratio            = lamdaw,
-                    rotor_efficiency              = etap,
+                    rotor_efficiency                  = etap,
                     blade_H_distribution              = rotor_drag_distribution,
                     rotor_drag                        = rotor_drag,
                     rotor_drag_coefficient            = Crd,

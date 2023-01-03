@@ -143,8 +143,8 @@ def electric_V_h_diagram(vehicle,
                 
                 Power = 0
                 for i in range(n_laps):
-                    prop_key = list(vehicle.networks.battery_rotor.propellers.keys())[i]
-                    _,res = propeller_single_point(vehicle.networks.battery_rotor.propellers[prop_key],
+                    prop_key = list(vehicle.networks.battery_rotor.rotors.keys())[i]
+                    _,res = propeller_single_point(vehicle.networks.battery_rotor.rotors[prop_key],
                                                analyses=analyses,
                                                pitch=0.,
                                                omega=test_omega,

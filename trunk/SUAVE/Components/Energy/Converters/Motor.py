@@ -54,7 +54,7 @@ class Motor(Energy_Component):
         self.no_load_current    = 0.0
         self.speed_constant     = 0.0
         self.rotor_radius       = 0.0
-        self.rotor_CP       = 0.0
+        self.rotor_CP           = 0.0
         self.efficiency         = 1.0
         self.gear_ratio         = 1.0
         self.gearbox_efficiency = 1.0
@@ -74,7 +74,7 @@ class Motor(Energy_Component):
         conditions.
           freestream.velocity                    [m/s]
           freestream.density                     [kg/m^3]
-          propulsion.propeller_power_coefficient [-]
+          propulsion.propeller.power_coefficient [-]
         self.inputs.voltage                      [V]
 
         Outputs:

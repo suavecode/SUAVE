@@ -107,12 +107,12 @@ class Solar_Low_Fidelity(Network):
         num_engines = self.number_of_engines
         
         # Set battery energy
-        battery.current_energy           = conditions.propulsion.battery_energy
-        battery.pack_temperature         = conditions.propulsion.battery_pack_temperature
-        battery.cell_charge_throughput   = conditions.propulsion.battery_cell_charge_throughput     
-        battery.age                      = conditions.propulsion.battery_cycle_day          
-        battery.R_growth_factor          = conditions.propulsion.battery_resistance_growth_factor
-        battery.E_growth_factor          = conditions.propulsion.battery_capacity_fade_factor  
+        battery.current_energy           = conditions.propulsion.battery.energy
+        battery.pack_temperature         = conditions.propulsion.battery.pack_temperature
+        battery.cell_charge_throughput   = conditions.propulsion.battery.cell_charge_throughput     
+        battery.age                      = conditions.propulsion.battery.cycle_day          
+        battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
+        battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor  
         
         # step 1
         solar_flux.solar_radiation(conditions)
@@ -183,8 +183,8 @@ class Solar_Low_Fidelity(Network):
         pack_battery_conditions(conditions,battery,avionics_payload_power,P)     
         
         conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
-        conditions.propulsion.propeller_rpm      = rpm
-        conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
+        conditions.propulsion.rotor_rpm          = rpm
+        conditions.propulsion.rotor_tip_mach     = (R*rpm*Units.rpm)/a
         
      
         

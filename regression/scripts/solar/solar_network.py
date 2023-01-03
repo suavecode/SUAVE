@@ -72,7 +72,7 @@ def main():
     
     # Check Results 
     F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.propeller_rpm[1,0]
+    rpm     = results.segments.cruise1.conditions.propulsion.rotor_rpm[1,0]
     current = results.segments.cruise1.conditions.propulsion.battery_current[1,0]
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     

@@ -45,22 +45,18 @@ def main():
     print(configs.base.mass_properties.center_of_gravity) 
     
     # check weights
-    empty_r       = 1013.0718119599941
-    structural_r  = 330.4958877631757
-    total_r       = 1213.0718119599942
-    lift_rotors_r = 16.445392185186808
-    propellers_r  = 3.2944573008378044
-    prop_motors_r = 2.0
-    rot_motors_r  = 36.0
+    empty_thruth       = 1604.9299336715358
+    structural_thruth  = 819.2186670281883
+    total_thruth       = 1804.9299336715358
+    rotors_thruth      = 23.038001631037048
+    motors_thruth      = 38.0
 
     weights_error = Data()
-    weights_error.empty       = abs(empty_r - weights.empty)/empty_r
-    weights_error.structural  = abs(structural_r - weights.structural)/structural_r
-    weights_error.total       = abs(total_r - weights.total)/total_r
-    weights_error.lift_rotors = abs(lift_rotors_r - weights.lift_rotors)/lift_rotors_r
-    weights_error.propellers  = abs(propellers_r - weights.propellers)/propellers_r
-    weights_error.propellers  = abs(prop_motors_r - weights.propeller_motors)/prop_motors_r
-    weights_error.propellers  = abs(rot_motors_r - weights.lift_rotor_motors)/rot_motors_r
+    weights_error.empty       = abs(empty_thruth - weights.empty)/empty_thruth
+    weights_error.structural  = abs(structural_thruth - weights.structural)/structural_thruth
+    weights_error.total       = abs(total_thruth - weights.total)/total_thruth
+    weights_error.lift_rotors = abs(rotors_thruth - weights.rotors)/rotors_thruth 
+    weights_error.propellers  = abs(motors_thruth - weights.motors)/motors_thruth 
 
     for k, v in weights_error.items():
         assert (np.abs(v) < 1E-6)
@@ -217,8 +213,7 @@ def mission_setup(analyses,vehicle):
     # base segment
     base_segment                                             = Segments.Segment()
     base_segment.state.numerics.number_control_points        = 3 
-    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery 
     ones_row                                                 = base_segment.state.ones_row
     
     # VSTALL Calculation  
