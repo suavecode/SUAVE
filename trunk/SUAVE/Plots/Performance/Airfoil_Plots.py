@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt  
 import matplotlib.cm as cm
 import os
+import pandas as pd
 
 ## @ingroup Plots
 def plot_airfoil_analysis_boundary_layer_properties(ap,show_legend = True ):  
@@ -257,7 +258,7 @@ def plot_airfoil_polar_files(airfoil_path, airfoil_polar_paths, line_color = 'k-
     """
     shape = np.shape(airfoil_polar_paths)
     n_airfoils = shape[0]
-    n_Re       = shape[1]
+    n_Re       = np.shape(airfoil_polar_paths[-1])[0] #shape[1]
     
     if use_surrogate:
         # Compute airfoil surrogates
@@ -405,4 +406,183 @@ def plot_airfoil_aerodynamic_coefficients(airfoil_path, airfoil_polar_paths, lin
             plt.savefig(save_filename +'_' + str(i) + file_type)   
         if display_plot:
             plt.show()
+    return
+## @ingroup Plots-Performance
+def plot_airfoil_polars(airfoil_polar_data, aoa_sweep, Re_sweep, display_plot = False, 
+                        save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
+    """This plots all airfoil polars in the list "airfoil_polar_paths" 
+    Assumptions:
+    None
+    Source:
+    None
+    Inputs:
+    airfoil_data   - airfoil geometry and polar data (see outputs of compute_airfoil_polars.py)
+    aoa_sweep      - angles over which to plot the polars                [rad]
+    Re_sweep       - Reynolds numbers over which to plot the polars      [-]
+    
+    Outputs: 
+    Plots
+    Properties Used:
+    N/A	
+    """
+    # Extract surrogates from airfoil data
+    airfoil_names   = airfoil_polar_data.airfoil_names
+    airfoil_cl_surs = airfoil_polar_data.lift_coefficient_surrogates
+    airfoil_cd_surs = airfoil_polar_data.drag_coefficient_surrogates
+
+    #----------------------------------------------------------------------------
+    # plot airfoil polar surrogates
+    #----------------------------------------------------------------------------
+
+    col_raw = ['black','firebrick', 'darkorange', 'gold','forestgreen','teal','deepskyblue', 'blue',
+               'blueviolet', 'fuchsia', 'deeppink', 'gray'] 
+    for jj in range(len(airfoil_names)):
+        fig, ((ax,ax2),(ax3,ax4)) = plt.subplots(2,2)
+        fig.set_figheight(8)
+        fig.set_figwidth(12)
+        fig.suptitle(airfoil_names[jj])
+        for ii in range(len(Re_sweep)):
+            cl_sur = airfoil_cl_surs[airfoil_names[jj]](
+                (Re_sweep[ii], aoa_sweep)
+            )
+            cd_sur = airfoil_cd_surs[airfoil_names[jj]](
+                (Re_sweep[ii], aoa_sweep)
+            )
+            ax.plot(aoa_sweep / Units.deg, cl_sur, col_raw[ii], label="Re="+str(Re_sweep[ii]))
+            ax.set_xlabel("Alpha (deg)")
+            ax.set_ylabel("Cl")
+            ax.legend()
+            ax.grid()
+            
+            ax2.plot(aoa_sweep / Units.deg, cd_sur, col_raw[ii])
+            ax2.set_xlabel("Alpha (deg)")
+            ax2.set_ylabel("Cd")
+            ax2.grid()    
+            
+            ax3.plot(cd_sur, cl_sur, col_raw[ii])
+            ax3.set_xlabel("Cd")
+            ax3.set_ylabel("Cl")
+            ax3.grid() 
+
+            ax4.plot(aoa_sweep / Units.deg, cd_sur / cl_sur, col_raw[ii])
+            ax4.set_xlabel("Alpha (deg)")
+            ax4.set_ylabel("Cd/Cl")
+            ax4.grid()             
+        
+        plt.tight_layout()
+
+        if save_figure:
+            plt.savefig(save_filename + '_' + str(jj) + file_type)   
+        if display_plot:
+            plt.show()
+    return
+
+
+## @ingroup Plots-Performance
+def plot_raw_data_airfoil_polars(airfoil_names, airfoil_polars, display_plot = False, 
+                        save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
+    """This plots all airfoil polars in the list "airfoil_polar_paths" 
+    Assumptions:
+    None
+    Source:
+    None
+    Inputs:
+    airfoil_data   - airfoil geometry and polar data (see outputs of compute_airfoil_polars.py)
+    aoa_sweep      - angles over which to plot the polars                [rad]
+    Re_sweep       - Reynolds numbers over which to plot the polars      [-]
+    
+    Outputs: 
+    Plots
+    Properties Used:
+    N/A	
+    """
+    #airfoil_data = import_airfoil_polars(airfoil_polars)
+
+    #----------------------------------------------------------------------------
+    # plot airfoil polar surrogates
+    #----------------------------------------------------------------------------
+
+    # number of airfoils 
+    num_airfoils = len(airfoil_polars)  
+    
+    num_polars   = 0
+    for i in range(num_airfoils): 
+        n_p = len(airfoil_polars[i])
+        if n_p < 3:
+            raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+        
+        num_polars = max(num_polars, n_p)       
+    
+    
+    col_raw = ['black','firebrick', 'darkorange', 'gold','forestgreen','teal','deepskyblue', 'blue',
+               'blueviolet', 'fuchsia', 'deeppink', 'gray']     
+        
+    for i in range(num_airfoils): 
+
+        fig, ((ax,ax2),(ax3,ax4))  = plt.subplots(2,2)
+        fig.set_figheight(8)
+        fig.set_figwidth(12)    
+        fig.suptitle(airfoil_names[i].split("/")[-1] + " (Raw Polar Data)")
+        for j in range(len(airfoil_polars[i])):   
+        
+            # check for xfoil format
+            xFoilLine = pd.read_csv(airfoil_polars[i][j], sep="\t", skiprows=0, nrows=1)
+            if "XFOIL" in str(xFoilLine):
+                xfoilPolarFormat = True
+                polarData = pd.read_csv(airfoil_polars[i][j], skiprows=[1,2,3,4,5,6,7,8,9,11], skipinitialspace=True, delim_whitespace=True)
+            elif "xflr5" in str(xFoilLine):
+                xfoilPolarFormat = True
+                polarData = pd.read_csv(airfoil_polars[i][j], skiprows=[0,1,2,3,4,5,6,7,8,10], skipinitialspace=True, delim_whitespace=True)
+            else:
+                xfoilPolarFormat = False
+    
+            # Read data          
+            if xfoilPolarFormat:
+                # get data, extract Re, Ma
+                
+                headerLine = pd.read_csv(airfoil_polars[i][j], sep="\t", skiprows=7, nrows=1)
+                headerString = str(headerLine.iloc[0])
+                ReString = headerString.split('Re =',1)[1].split('e 6',1)[0]
+                MaString = headerString.split('Mach =',1)[1].split('Re',1)[0]                
+            else:
+                # get data, extract Re, Ma
+                polarData = pd.read_csv(airfoil_polars[i][j], sep=" ")  
+                ReString = airfoil_polars[i][j].split('Re_',1)[1].split('e6',1)[0]
+                MaString = airfoil_polars[i][j].split('Ma_',1)[1].split('_',1)[0]
+ 
+            airfoil_aoa = polarData["alpha"]
+            airfoil_cl = polarData["CL"]
+            airfoil_cd = polarData["CD"]
+            
+            
+            ax.plot(airfoil_aoa, airfoil_cl, col_raw[j], label='Re='+ReString)
+            ax.set_xlabel("Alpha (deg)")
+            ax.set_ylabel("Cl")
+            ax.legend()
+            ax.grid()
+            
+            ax2.plot(airfoil_aoa, airfoil_cd, col_raw[j])
+            ax2.set_xlabel("Alpha (deg)")
+            ax2.set_ylabel("Cd")
+            ax2.grid()    
+            
+            ax3.plot(airfoil_cd, airfoil_cl, col_raw[j])
+            ax3.set_xlabel("Cd")
+            ax3.set_ylabel("Cl")
+            ax3.grid() 
+
+            ax4.plot(airfoil_aoa, airfoil_cd/airfoil_cl, col_raw[j])
+            ax4.set_xlabel("Alpha (deg)")
+            ax4.set_ylabel("Cd/Cl")
+            ax4.grid()             
+            
+        plt.tight_layout()            
+            
+        if save_figure:
+            plt.savefig(save_filename +'_' + str(i) + file_type)   
+        if display_plot:
+            plt.show()             
+            
+            
+
     return
