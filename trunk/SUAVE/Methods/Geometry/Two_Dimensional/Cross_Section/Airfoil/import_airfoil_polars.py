@@ -49,8 +49,8 @@ def  import_airfoil_polars(airfoil_polar_files):
         num_polars = max(num_polars, n_p)       
     
     # create empty data structures 
-    dim_aoa = 180 * 4 + 1
-    AoA_interp = np.linspace(-90,90,dim_aoa)     
+    dim_aoa      = 35 * 4 + 1
+    AoA_interp   = np.linspace(-15,20,dim_aoa)
     airfoil_data = Data()
     CL           = np.zeros((num_airfoils,num_polars,dim_aoa))
     CD           = np.zeros((num_airfoils,num_polars,dim_aoa)) 
@@ -58,9 +58,9 @@ def  import_airfoil_polars(airfoil_polar_files):
     Ma           = np.zeros((num_airfoils,num_polars))
     
     for i in range(num_airfoils): 
-    
+
         for j in range(len(airfoil_polar_files[i])):   
-        
+
             # check for xfoil format
             xFoilLine = pd.read_csv(airfoil_polar_files[i][j], sep="\t", skiprows=0, nrows=1)
             if "XFOIL" in str(xFoilLine):
@@ -93,13 +93,13 @@ def  import_airfoil_polars(airfoil_polar_files):
             Re[i,j] = float (ReString) * 1e6
             Ma[i,j] = float (MaString)            
             CL[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cl)
-            CD[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cd)       
-                 
-        airfoil_data.angle_of_attacks  = AoA_interp
-        airfoil_data.reynolds_number   = Re
-        airfoil_data.mach_number       = Ma
-        airfoil_data.lift_coefficients = CL
-        airfoil_data.drag_coefficients = CD      
+            CD[i,j,:] = np.interp(AoA_interp,airfoil_aoa,airfoil_cd)
+        
+    airfoil_data.angle_of_attacks  = AoA_interp
+    airfoil_data.reynolds_number   = Re
+    airfoil_data.mach_number       = Ma
+    airfoil_data.lift_coefficients = CL
+    airfoil_data.drag_coefficients = CD      
      
     return airfoil_data 
 

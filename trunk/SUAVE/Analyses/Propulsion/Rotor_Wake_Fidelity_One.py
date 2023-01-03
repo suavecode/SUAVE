@@ -73,8 +73,8 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.influencing_rotor_wake_network = None
         
         # wake convergence criteria
-        self.maximum_convergence_iteration_gamma      = 1#50
-        self.maximum_convergence_iteration_va         = 50
+        self.maximum_convergence_iteration_gamma      = 10
+        self.maximum_convergence_iteration_va         = 10
         self.axial_velocity_convergence_tolerance     = 1e-3
         self.circulation_convergence_tolerance        = 1e-3
         
