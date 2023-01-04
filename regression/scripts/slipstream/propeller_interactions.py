@@ -213,8 +213,8 @@ def vehicle_setup():
     vehicle.tag = 'simple_vehicle'    
     
     # Propulsion Properties:
-    net                   = SUAVE.Components.Energy.Networks.Battery_Rotor()
-    net.tag               = 'prop_net'
+    net                         = SUAVE.Components.Energy.Networks.Battery_Rotor()
+    net.tag                     = 'prop_net'
     net.number_of_rotor_engines = 2
 
     prop = SUAVE.Components.Energy.Converters.Propeller()

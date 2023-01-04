@@ -59,7 +59,7 @@ def plot_battery_degradation(results,
         cycle_day[i]         = results.segments[i].conditions.propulsion.battery.cycle_day
         capacity_fade[i]     = results.segments[i].conditions.propulsion.battery.capacity_fade_factor
         resistance_growth[i] = results.segments[i].conditions.propulsion.battery.resistance_growth_factor
-        charge_throughput[i] = results.segments[i].conditions.propulsion.battery.cell_charge_throughput[-1,0] 
+        charge_throughput[i] = results.segments[i].conditions.propulsion.battery.cell.charge_throughput[-1,0] 
         
 
     # Set plot properties

@@ -222,11 +222,11 @@ def vehicle_setup():
     
     # Here we, are going to assume a battery pack module shape. This step is optional but
     # required for thermal analysis of tge pack
-    number_of_modules                = 10
-    bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
-    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
-    bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
-    net.battery              = bat 
+    number_of_modules                                  = 10
+    bat.module.geometrtic_configuration.total          = int(np.ceil(bat.pack.electrical_configuration.total/number_of_modules))
+    bat.module.geometrtic_configuration.normal_count   = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.series))
+    bat.module.geometrtic_configuration.parallel_count = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.parallel))
+    net.battery                                        = bat 
 
     # Component 9 Miscellaneous Systems
     sys = SUAVE.Components.Systems.System()
@@ -348,9 +348,8 @@ def vehicle_setup():
     vehicle.wings['main_wing'].motor_spanwise_locations   = motor_origins_rear[:,1]/ vehicle.wings['main_wing'].spans.projected
 
     vehicle.append_component(net)
-    
-    converge_evtol_weight(vehicle,print_iterations=True)
-    settings = Data()
+    settings=Data()
+    converge_evtol_weight(vehicle,settings,print_iterations=True)
     vehicle.weight_breakdown  = empty(vehicle,settings)
     compute_component_centers_of_gravity(vehicle)
     vehicle.center_of_gravity()

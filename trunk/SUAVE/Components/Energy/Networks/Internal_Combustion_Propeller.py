@@ -189,7 +189,7 @@ class Internal_Combustion_Propeller(Network):
         
         Inputs:
             segment.state.conditions.propulsion.
-                motor_torque                       [newtom-meters]                 
+                motor.torque                       [newtom-meters]                 
                 propeller.torque                   [newtom-meters] 
         
         Outputs:

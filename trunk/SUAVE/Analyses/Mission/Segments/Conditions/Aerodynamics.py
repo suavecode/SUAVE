@@ -147,13 +147,15 @@ class Aerodynamics(Basic):
         self.propulsion.lift_rotor.y_axis_rotation           = ones_1col * 0
         
         self.propulsion.battery                              = Conditions()  
+        self.propulsion.battery.pack                         = Conditions()
+        self.propulsion.battery.cell                         = Conditions()
         self.propulsion.battery.energy                       = ones_1col * 0
         self.propulsion.battery.voltage_under_load           = ones_1col * 0
         self.propulsion.battery.voltage_open_circuit         = ones_1col * 0
         self.propulsion.battery.state_of_charge              = ones_1col * 0
-        self.propulsion.battery.pack_temperature             = ones_1col * 0
-        self.propulsion.battery.cell_temperature             = ones_1col * 0 
-        self.propulsion.battery.cell_charge_throughput       = ones_1col * 0    
+        self.propulsion.battery.pack.temperature             = ones_1col * 0
+        self.propulsion.battery.cell.temperature             = ones_1col * 0 
+        self.propulsion.battery.cell.charge_throughput       = ones_1col * 0    
         self.propulsion.battery.cycle_day                    = 0
         self.propulsion.battery.resistance_growth_factor     = 1.
         self.propulsion.battery.capacity_fade_factor         = 1. 

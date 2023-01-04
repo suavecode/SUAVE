@@ -65,9 +65,9 @@ def main():
     print(cruise_throttle)
     
     # Truth values   
-    departure_throttle_truth          = 0.6516875478807475
-    transition_1_throttle_truth       = 0.6013997974737667
-    cruise_throttle_truth             = 0.46492807449474316
+    departure_throttle_truth          = 0.6517016379576587
+    transition_1_throttle_truth       = 0.6015133851981691
+    cruise_throttle_truth             = 0.4651332132881836
 
     # Store errors 
     error = Data()

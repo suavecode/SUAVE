@@ -109,7 +109,7 @@ def ICE_CS(vehicle):
     prop.airfoil_polar_stations            = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     prop                                   = propeller_design(prop)    
     
-    net.rotors.append(prop)
+    net.propellers.append(prop)
     
     # Replace the network
     vehicle.networks.internal_combustion = net

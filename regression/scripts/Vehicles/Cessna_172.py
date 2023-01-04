@@ -256,7 +256,7 @@ def vehicle_setup():
     prop.airfoil_polar_stations             = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
     prop                                    = propeller_design(prop)   
     
-    net.rotors.append(prop)
+    net.propellers.append(prop)
      
     
     # add the network to the vehicle

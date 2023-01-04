@@ -259,6 +259,8 @@ def empty(config,
                         motor                     = motors[list(motors.keys())[i]]   
                         if rot.variable_pitch:
                             prop_servo_weight     = 5.2 * Units.kg  
+                        else:
+                            prop_servo_weight     = 0
                         propeller_mass            = prop(rot, maxLift/5.) * Units.kg
                         weight.rotors             += propeller_mass
                         weight.motors             += motor.mass_properties.mass
@@ -273,7 +275,9 @@ def empty(config,
                         bladeSol_ref            = rot.blade_solidity  
                         motor                   = motors[list(motors.keys())[i]]    
                         if rot.variable_pitch:
-                            lift_rotor_servo_weight = 0.65 * Units.kg  
+                            lift_rotor_servo_weight = 0.65 * Units.kg 
+                        else:
+                            prop_servo_weight     = 0 
                         lift_rotor_mass             = prop(rot, maxLift / max(total_number_of_lift_rotors - 1, 1))  * Units.kg
                         weight.rotors               += lift_rotor_mass
                         weight.motors               += motor.mass_properties.mass

@@ -57,7 +57,7 @@ class Solar(Network):
         self.solar_flux                = None
         self.solar_panel               = None
         self.motors                    = Container()
-        self.rotors                = Container()
+        self.rotors                    = Container()
         self.esc                       = None
         self.avionics                  = None
         self.payload                   = None
@@ -68,7 +68,7 @@ class Solar(Network):
         self.tag                       = 'Solar'
         self.use_surrogate             = False
         self.generative_design_minimum = 0
-        self.identical_rotors      = True
+        self.identical_rotors          = True
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -87,13 +87,13 @@ class Solar(Network):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                solar_flux           [watts/m^2] 
-                rpm                  [radians/sec]
-                battery.current      [amps]
-                battery.power_draw   [watts]
-                battery.energy       [joules]
-                motor.torque         [N-M]
-                rotor.torque     [N-M]
+                solar_flux              [watts/m^2] 
+                rpm                     [radians/sec]
+                battery.current         [amps]
+                battery.power_draw      [watts]
+                battery.energy          [joules]
+                motor.torque            [N-M]
+                rotor.torque            [N-M]
     
             Properties Used:
             Defaulted values
@@ -118,8 +118,8 @@ class Solar(Network):
         
         # Set battery energy
         battery.current_energy           = conditions.propulsion.battery.energy
-        battery.pack_temperature         = conditions.propulsion.battery.pack_temperature
-        battery.cell_charge_throughput   = conditions.propulsion.battery.cell_charge_throughput     
+        battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
+        battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
         battery.age                      = conditions.propulsion.battery.cycle_day            
         battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
         battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor 
@@ -170,7 +170,7 @@ class Solar(Network):
         
             # link
             motor.inputs.voltage = esc.outputs.voltageout
-            motor.inputs.rotor_CP = np.atleast_2d(conditions.propulsion.rotor_power_coefficient[:,ii]).T
+            motor.inputs.rotor_CP = np.atleast_2d(conditions.propulsion.rotor.power_coefficient[:,ii]).T
             
             # step 5
             motor.omega(conditions)
@@ -272,7 +272,7 @@ class Solar(Network):
         """       
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.rotor_power_coefficient = segment.state.unknowns.rotor_power_coefficient
+        segment.state.conditions.propulsion.rotor.power_coefficient = segment.state.unknowns.rotor_power_coefficient
 
         return
     
@@ -301,7 +301,7 @@ class Solar(Network):
         
         # Unpack
         q_motor   = segment.state.conditions.propulsion.rotor_motor.torque
-        q_prop    = segment.state.conditions.propulsion.rotor_torque
+        q_prop    = segment.state.conditions.propulsion.rotor.torque
         
         # Return the residuals
         segment.state.residuals.network[:,0:] = q_motor - q_prop
@@ -367,14 +367,14 @@ class Solar(Network):
         segment.state.unknowns.rotor_power_coefficient = initial_power_coefficient * ones_row(n_props)
         
         # Setup the conditions
-        segment.state.conditions.propulsion.rotor.motor_efficiency = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor_motor.efficiency = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.rotor_motor.torque     = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_torque           = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_thrust           = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_rpm              = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.disc_loading               = 0. * ones_row(n_props)                 
-        segment.state.conditions.propulsion.power_loading              = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_tip_mach         = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.torque           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.thrust           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.rpm              = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.disc_loading     = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.rotor.power_loading    = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rotor.tip_mach         = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.rotor.efficiency       = 0. * ones_row(n_props)      
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals

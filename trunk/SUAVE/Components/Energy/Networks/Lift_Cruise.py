@@ -145,15 +145,15 @@ class Lift_Cruise(Network):
         #-----------------------------------------------------------------
         # Set battery energy
         battery.current_energy           = conditions.propulsion.battery.energy
-        battery.pack_temperature         = conditions.propulsion.battery.pack_temperature
-        battery.cell_charge_throughput   = conditions.propulsion.battery.cell_charge_throughput     
+        battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
+        battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
         battery.age                      = conditions.propulsion.battery.cycle_day         
         battery_discharge_flag           = conditions.propulsion.battery.discharge_flag    
         battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
         battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor 
         battery.max_energy               = conditions.propulsion.battery.max_aged_energy 
-        n_series                         = battery.pack_config.series  
-        n_parallel                       = battery.pack_config.parallel
+        n_series                         = battery.pack.electrical_configuration.series  
+        n_parallel                       = battery.pack.electrical_configuration.parallel
         
         # update ambient temperature based on altitude
         battery.ambient_temperature                   = conditions.freestream.temperature   
@@ -278,23 +278,24 @@ class Lift_Cruise(Network):
             #-------------------------------------------------------------------
             
             # Make a new set of konditions, since there are differences for the esc and motor
-            konditions                                        = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-            konditions._size                                  = conditions._size
-            konditions.propulsion                             = Data()
-            konditions.freestream                             = Data()
-            konditions.frames                                 = Data()
-            konditions.frames.inertial                        = Data()
-            konditions.frames.body                            = Data()
-            konditions.propulsion.throttle                    = conditions.propulsion.throttle_lift* 1.
-            konditions.propulsion.propeller.power_coefficient = conditions.propulsion.lift_rotor.power_coefficient * 1.
-            konditions.freestream.density                     = conditions.freestream.density * 1.
-            konditions.freestream.velocity                    = conditions.freestream.velocity * 1.
-            konditions.freestream.dynamic_viscosity           = conditions.freestream.dynamic_viscosity * 1.
-            konditions.freestream.speed_of_sound              = conditions.freestream.speed_of_sound *1.
-            konditions.freestream.temperature                 = conditions.freestream.temperature * 1.
-            konditions.freestream.altitude                    = conditions.freestream.altitude * 1.
-            konditions.frames.inertial.velocity_vector        = conditions.frames.inertial.velocity_vector *1.
-            konditions.frames.body.transform_to_inertial      = conditions.frames.body.transform_to_inertial
+            konditions                                         = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+            konditions._size                                   = conditions._size
+            konditions.propulsion                              = Data()
+            konditions.freestream                              = Data()
+            konditions.frames                                  = Data()
+            konditions.frames.inertial                         = Data()
+            konditions.frames.body                             = Data()
+            konditions.propulsion.throttle                     = conditions.propulsion.throttle_lift* 1.
+            konditions.propulsion.lift_rotor                   = Data()
+            konditions.propulsion.lift_rotor.power_coefficient = conditions.propulsion.lift_rotor.power_coefficient * 1.
+            konditions.freestream.density                      = conditions.freestream.density * 1.
+            konditions.freestream.velocity                     = conditions.freestream.velocity * 1.
+            konditions.freestream.dynamic_viscosity            = conditions.freestream.dynamic_viscosity * 1.
+            konditions.freestream.speed_of_sound               = conditions.freestream.speed_of_sound *1.
+            konditions.freestream.temperature                  = conditions.freestream.temperature * 1.
+            konditions.freestream.altitude                     = conditions.freestream.altitude * 1.
+            konditions.frames.inertial.velocity_vector         = conditions.frames.inertial.velocity_vector *1.
+            konditions.frames.body.transform_to_inertial       = conditions.frames.body.transform_to_inertial
     
             # Throttle the voltage
             lift_rotor_esc.voltageout(konditions)      
@@ -895,7 +896,7 @@ class Lift_Cruise(Network):
             segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)    
         
         # Setup the conditions for the propellers
-        segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_motor.torque     = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_motor.efficiency = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller.torque           = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller.rpm              = 0. * ones_row(n_props)      
@@ -908,7 +909,7 @@ class Lift_Cruise(Network):
         
         # Setup the conditions for the lift_rotors
         segment.state.conditions.propulsion.lift_rotor_motor.torque      = 0. * ones_row(n_lift_rotors)
-        segment.state.conditions.propulsion.lift_rotor.motor_efficiency  = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_motor.efficiency  = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor.torque            = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor.rpm               = 0. * ones_row(n_lift_rotors)
         segment.state.conditions.propulsion.lift_rotor.disc_loading      = 0. * ones_row(n_lift_rotors)               

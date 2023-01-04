@@ -46,13 +46,8 @@ def main():
     # plot results
     plot_mission(results)
 
-    # save, load and plot old results
-    #save_multicopter_results(results)
-    old_results = load_multicopter_results()
-    plot_mission(old_results)
-
     # RPM of rotor check during hover
-    RPM        = results.segments.climb.conditions.propulsion.rotor_rpm[0][0]
+    RPM        = results.segments.climb.conditions.propulsion.rotor.rpm[0][0]
     RPM_true   = 1573.7516164319331
 
     print(RPM)
@@ -62,7 +57,7 @@ def main():
     assert np.abs((RPM - RPM_true)/RPM_true) < 1e-3
 
     # Battery Energy Check During Transition
-    battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
+    battery_energy_transition         = results.segments.hover.conditions.propulsion.battery.energy[:,0]
     battery_energy_transition_true    = np.array([2.01217616e+08, 1.92155752e+08, 1.83082139e+08])
 
     print(battery_energy_transition)
@@ -273,14 +268,6 @@ def plot_mission(results):
     plot_disc_power_loading(results)
 
     return 
-
-
-def load_multicopter_results():
-    return SUAVE.Input_Output.SUAVE.load('results_multicopter.res')
-
-def save_multicopter_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'results_multicopter.res')
-    return
 
 if __name__ == '__main__':
     main()

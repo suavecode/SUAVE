@@ -44,39 +44,44 @@ class Lithium_Ion(Battery):
     def __defaults__(self):
             
         self.tag               = 'Generic_Lithium_Ion_Battery_Cell'  
-        self.cell              = Data()   
+        self.cell              = Data()  
+        self.pack              = Data()
         self.module            = Data()        
         self.pack_config       = Data()
         self.module_config     = Data() 
         
-        self.age                                           = 0       # [days]
-        self.cell.mass                                     = None
-        self.cell.charging_SOC_cutoff                      = 1. 
-        self.cell.charging_current                         = 3.0     # [Amps]
-        self.cell.charging_voltage                         = 3       # [Volts]
-                         
-        self.convective_heat_transfer_coefficient          = 35.     # [W/m^2K] 
-        self.heat_transfer_efficiency                      = 1.0       
-        
-        self.pack_config.series                            = 1
-        self.pack_config.parallel                          = 1  
-        self.pack_config.total                             = 1   
-        self.module_config.total                           = 1       
-        self.module_config.normal_count                    = 1       # number of cells normal to flow
-        self.module_config.parallel_count                  = 1       # number of cells parallel to flow      
-        self.module_config.normal_spacing                  = 0.02
-        self.module_config.parallel_spacing                = 0.02 
-        
-        self.cooling_fluid                                 = Air()    
-        self.cooling_fluid.cooling_flowspeed               = 0.01       
+        self.age                                                      = 0       # [days]
+        self.cell.mass                                                = None
+        self.cell.charging_SOC_cutoff                                 = 1. 
+        self.cell.charging_current                                    = 3.0     # [Amps]
+        self.cell.charging_voltage                                    = 3       # [Volts]
+                                     
+        self.convective_heat_transfer_coefficient                     = 35.     # [W/m^2K] 
+        self.heat_transfer_efficiency                                 = 1.0       
+                    
+        self.pack.electrical_configuration                            = Data()
+        self.pack.electrical_configuration.series                     = 1
+        self.pack.electrical_configuration.parallel                   = 1   
+        self.module.electrical_configuration                          = Data()
+        self.module.electrical_configuration.series                   = 1
+        self.module.electrical_configuration.parallel                 = 1   
+        self.module.geometrtic_configuration                          = Data()
+        self.module.geometrtic_configuration.total                    = 1       
+        self.module.geometrtic_configuration.normal_count             = 1       # number of cells normal to flow
+        self.module.geometrtic_configuration.parallel_count           = 1       # number of cells parallel to flow      
+        self.module.geometrtic_configuration.normal_spacing           = 0.02
+        self.module.geometrtic_configuration.parallel_spacing         = 0.02 
+                  
+        self.cooling_fluid                                            = Air()    
+        self.cooling_fluid.cooling_flowspeed                          = 0.01       
         
         # defaults that are overwritten if specific cell chemistry is used 
-        self.specific_energy                               = 200.    *Units.Wh/Units.kg    
-        self.specific_power                                = 1.      *Units.kW/Units.kg
-        self.ragone.const_1                                = 88.818  *Units.kW/Units.kg
-        self.ragone.const_2                                = -.01533 /(Units.Wh/Units.kg)
-        self.ragone.lower_bound                            = 60.     *Units.Wh/Units.kg
-        self.ragone.upper_bound                            = 225.    *Units.Wh/Units.kg    
+        self.specific_energy                                          = 200.    *Units.Wh/Units.kg    
+        self.specific_power                                           = 1.      *Units.kW/Units.kg
+        self.ragone.const_1                                           = 88.818  *Units.kW/Units.kg
+        self.ragone.const_2                                           = -.01533 /(Units.Wh/Units.kg)
+        self.ragone.lower_bound                                       = 60.     *Units.Wh/Units.kg
+        self.ragone.upper_bound                                       = 225.    *Units.Wh/Units.kg    
         return           
 
 
@@ -119,12 +124,12 @@ class Lithium_Ion(Battery):
            Outputs:
              battery.          
                   current_energy                                           [Joules]
-                  cell_temperature                                         [Kelvin]
                   resistive_losses                                         [Watts] 
                   load_power                                               [Watts]
                   current                                                  [Amps]
                   battery_voltage_open_circuit                             [Volts]
-                  cell_charge_throughput                                   [Amp-hrs]
+                  cell.temperature                                         [Kelvin]
+                  cell.charge_throughput                                   [Amp-hrs]
                   internal_resistance                                      [Ohms]
                   battery_state_of_charge                                  [unitless]
                   depth_of_discharge                                       [unitless]
@@ -139,10 +144,10 @@ class Lithium_Ion(Battery):
         V_max             = battery.max_voltage
         bat_mass          = battery.mass_properties.mass                
         bat_Cp            = battery.specific_heat_capacity    
-        T_current         = battery.pack_temperature   
+        T_current         = battery.pack.temperature   
         E_max             = battery.max_energy
         E_current         = battery.current_energy 
-        Q_prior           = battery.cell_charge_throughput 
+        Q_prior           = battery.cell.charge_throughput 
         R_growth_factor   = battery.R_growth_factor
         E_growth_factor   = battery.E_growth_factor 
         I                 = numerics.time.integrate
@@ -228,23 +233,22 @@ class Lithium_Ion(Battery):
         # Pack outputs
         battery.current_energy                     = E_current
         battery.resistive_losses                   = Q_heat_gen
-        battery.cell_temperature                   = T_current 
-        battery.pack_temperature                   = T_current 
+        battery.cell.temperature                   = T_current 
+        battery.pack.temperature                   = T_current 
         battery.load_power                         = V_ul*I_bat
         battery.state_of_charge                    = SOC_new 
         battery.depth_of_discharge                 = DOD_new
-        battery.cell_charge_throughput             = Q_total  
+        battery.cell.charge_throughput             = Q_total  
         battery.voltage_open_circuit               = V_oc
         battery.voltage_under_load                 = V_ul
-        battery.current                            = I_bat 
-        battery.pack_temperature                   = T_current 
-        battery.cell_joule_heat_fraction           = np.zeros_like(V_ul)
-        battery.cell_entropy_heat_fraction         = np.zeros_like(V_ul)  
-        battery.cell_voltage_open_circuit          = np.zeros_like(V_ul)
-        battery.cell_current                       = np.zeros_like(V_ul)
+        battery.current                            = I_bat  
+        battery.cell.joule_heat_fraction           = np.zeros_like(V_ul)
+        battery.cell.entropy_heat_fraction         = np.zeros_like(V_ul)  
+        battery.cell.voltage_open_circuit          = np.zeros_like(V_ul)
+        battery.cell.current                       = np.zeros_like(V_ul)
         battery.heat_energy_generated              = Q_heat_gen 
         battery.internal_resistance                = R_0 
-        battery.cell_voltage_under_load            = V_ul 
+        battery.cell.voltage_under_load            = V_ul 
         
         return      
     

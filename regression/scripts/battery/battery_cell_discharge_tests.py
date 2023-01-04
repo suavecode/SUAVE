@@ -58,8 +58,8 @@ def main():
     
     # make sure battery starts fully charged
     battery_li_ion.current_energy         = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
-    battery_li_ion.pack_temperature       = np.array([[20],[20]])
-    battery_li_ion.cell_charge_throughput = np.array([[0],[0]])
+    battery_li_ion.pack.temperature       = np.array([[20],[20]])
+    battery_li_ion.cell.charge_throughput = np.array([[0],[0]])
     battery_li_ion.R_growth_factor        = 1
     battery_li_ion.E_growth_factor        = 1 
     
@@ -107,7 +107,7 @@ def main():
             results = mission.evaluate()   
             
             # Voltage Regression
-            V_ul        = results.segments[0].conditions.propulsion.battery_voltage_under_load[2][0]   
+            V_ul        = results.segments[0].conditions.propulsion.battery.voltage_under_load[2][0]   
             print('Under Load Voltage: ' + str(V_ul))
             V_ul_diff   = np.abs(V_ul - V_ul_true[j,i])
             print('Under Load voltage difference')
@@ -115,7 +115,7 @@ def main():
             assert np.abs((V_ul_diff)/V_ul_true[j,i]) < 1e-6 
             
             # Temperature Regression
-            bat_temp        = results.segments[1].conditions.propulsion.battery_cell_temperature[2][0]  
+            bat_temp        = results.segments[1].conditions.propulsion.battery.cell.temperature[2][0]  
             print('Cell Temperature: ' + str(bat_temp))
             bat_temp_diff   = np.abs(bat_temp  - bat_temp_true[j,i]) 
             print('Battery temperature difference')
@@ -171,9 +171,9 @@ def plot_results(results,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, a
     
     for segment in results.segments.values():
         time          = segment.conditions.frames.inertial.time[:,0]/60 
-        volts         = segment.conditions.propulsion.battery_voltage_under_load[:,0]   
-        cell_temp     = segment.conditions.propulsion.battery_cell_temperature[:,0]   
-        Amp_Hrs       = segment.conditions.propulsion.battery_cell_charge_throughput[:,0]   
+        volts         = segment.conditions.propulsion.battery.voltage_under_load[:,0]   
+        cell_temp     = segment.conditions.propulsion.battery.cell.temperature[:,0]   
+        Amp_Hrs       = segment.conditions.propulsion.battery.cell.charge_throughput[:,0]   
         
         use_amp_hrs = True
         

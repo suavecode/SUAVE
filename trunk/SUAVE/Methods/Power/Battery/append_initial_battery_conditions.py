@@ -32,7 +32,7 @@ def append_initial_battery_conditions(segment,battery):
             Optional:
             segment.
                  battery.cycle_day                  [unitless]
-                 battery.pack_temperature           [Kelvin]
+                 battery.pack.temperature           [Kelvin]
                  battery.charge_throughput          [Ampere-Hours] 
                  battery.resistance_growth_factor   [unitless]
                  battery.capacity_fade_factor       [unitless]
@@ -48,9 +48,9 @@ def append_initial_battery_conditions(segment,battery):
                battery.max_initial_energy           [watts]
                battery.energy                       [watts]
                battery.max_aged_energy              [watts]    
-               battery.pack_temperature             [kelvin]
+               battery.pack.temperature             [kelvin]
                battery.cycle_day                    [int]
-               battery.cell_charge_throughput       [Ampere-Hours] 
+               battery.cell.charge_throughput       [Ampere-Hours] 
                battery.resistance_growth_factor     [unitless]
                battery.capacity_fade_factor         [unitless]
 
@@ -88,8 +88,8 @@ def append_initial_battery_conditions(segment,battery):
         pack_temperature              = atmo_data.temperature[0,0]
     else:
         pack_temperature              = segment.battery_pack_temperature 
-    propulsion.battery.pack_temperature[:,0] = pack_temperature
-    propulsion.battery.cell_temperature[:,0] = pack_temperature
+    propulsion.battery.pack.temperature[:,0] = pack_temperature
+    propulsion.battery.cell.temperature[:,0] = pack_temperature
     
     
     if 'battery_max_aged_energy' in segment:
@@ -132,7 +132,7 @@ def append_initial_battery_conditions(segment,battery):
         propulsion.battery.energy[:,0]                  = initial_segment_energy 
 
         propulsion.battery.cycle_day                    = cycle_day        
-        propulsion.battery.cell_charge_throughput[:,0]  = cell_charge_throughput 
+        propulsion.battery.cell.charge_throughput[:,0]  = cell_charge_throughput 
         propulsion.battery.resistance_growth_factor     = resistance_growth_factor 
         propulsion.battery.capacity_fade_factor         = capacity_fade_factor
         propulsion.battery.state_of_charge[:,0]         = initial_mission_energy/battery_max_aged_energy

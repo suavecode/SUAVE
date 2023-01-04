@@ -65,8 +65,8 @@ def plot_disc_power_loading(results,
     for segment in results.segments.values():
 
         time  = segment.conditions.frames.inertial.time[:,0] / Units.min
-        DL    = segment.conditions.propulsion.disc_loading
-        PL    = segment.conditions.propulsion.power_loading
+        DL    = segment.conditions.propulsion.rotor.disc_loading
+        PL    = segment.conditions.propulsion.rotor.power_loading
 
         # Assemble data into a temporary holding dataframe
 

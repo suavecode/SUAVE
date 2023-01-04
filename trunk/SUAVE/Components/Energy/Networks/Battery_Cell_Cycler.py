@@ -86,8 +86,8 @@ class Battery_Cell_Cycler(Network):
          
         # Set battery energy
         battery.current_energy           = conditions.propulsion.battery.energy
-        battery.pack_temperature         = conditions.propulsion.battery.pack_temperature
-        battery.cell_charge_throughput   = conditions.propulsion.battery.cell_charge_throughput     
+        battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
+        battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
         battery.age                      = conditions.propulsion.battery.cycle_day        
         battery_discharge_flag           = conditions.propulsion.battery.discharge_flag    
         battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor

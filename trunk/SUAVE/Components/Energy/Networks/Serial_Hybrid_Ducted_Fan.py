@@ -100,8 +100,8 @@ class Serial_Hybrid_Ducted_Fan(Network):
         
         # Set battery energy
         battery.current_energy           = conditions.propulsion.battery.energy
-        battery.pack_temperature         = conditions.propulsion.battery.pack_temperature
-        battery.cell_charge_throughput   = conditions.propulsion.battery.cell_charge_throughput     
+        battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
+        battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
         battery.age                      = conditions.propulsion.battery.cycle_day          
         battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
         battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor  
@@ -146,10 +146,10 @@ class Serial_Hybrid_Ducted_Fan(Network):
         battery.energy_calc(numerics)        
 
         # Pack the conditions for outputs
-        current              = esc.outputs.currentin
-        battery_power_draw   = battery.inputs.power_in
-        battery_energy       = battery.current_energy
-        voltage_open_circuit = battery.voltage_open_circuit 
+        current                                            = esc.outputs.currentin
+        battery_power_draw                                 = battery.inputs.power_in
+        battery_energy                                     = battery.current_energy
+        voltage_open_circuit                               = battery.voltage_open_circuit 
         conditions.propulsion.current                      = current
         conditions.propulsion.battery.power_draw           = battery_power_draw
         conditions.propulsion.battery.energy               = battery_energy

@@ -46,17 +46,17 @@ def compute_net_generated_battery_heat(n_total,battery,Q_heat_gen,numerics):
     D_cell                   = battery.cell.diameter                     
     H_cell                   = battery.cell.height     
     T_ambient                = battery.ambient_temperature 
-    T_current                = battery.pack_temperature      
-    T_cell                   = battery.cell_temperature       
+    T_current                = battery.pack.temperature      
+    T_cell                   = battery.cell.temperature       
     cell_mass                = battery.cell.mass    
     Cp                       = battery.cell.specific_heat_capacity       
     I                        = numerics.time.integrate      
     heat_transfer_efficiency = battery.heat_transfer_efficiency   
 
     # Calculate the current going into one cell   
-    n_total           = battery.pack_config.total
-    Nn                = battery.module_config.normal_count            
-    Np                = battery.module_config.parallel_count          
+    Nn                = battery.module.geometrtic_configuration.normal_count            
+    Np                = battery.module.geometrtic_configuration.parallel_count   
+    n_total           = Nn*Np       
     n_total_module    = Nn*Np    
     
     if n_total == 1: 
@@ -66,8 +66,8 @@ def compute_net_generated_battery_heat(n_total,battery,Q_heat_gen,numerics):
 
     else: 
         # Chapter 7 pg 437-446 of Fundamentals of heat and mass transfer 
-        S_T             = battery.module_config.normal_spacing          
-        S_L             = battery.module_config.parallel_spacing   
+        S_T             = battery.module.geometrtic_configuration.normal_spacing          
+        S_L             = battery.module.geometrtic_configuration.parallel_spacing   
         coolant         = battery.cooling_fluid
         K_coolant       = coolant.thermal_conductivity 
         Cp_coolant      = coolant.specific_heat_capacity  

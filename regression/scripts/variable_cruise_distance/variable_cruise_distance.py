@@ -64,14 +64,14 @@ def main():
     results_SR              = mission_SR.evaluate()
     results_SR              = results_SR.merged()
 
-    distance_regression_SR = 102657.56617749507
+    distance_regression_SR = 102682.68014720519
 
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc_SR = ', distance_calc_SR)
     error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)
     assert error_distance_SR < 1e-6
 
-    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.battery_state_of_charge[-1,0])
+    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.battery.state_of_charge[-1,0])
     print('landing state of charge error' , error_soc)
     assert error_soc < 1e-6
 

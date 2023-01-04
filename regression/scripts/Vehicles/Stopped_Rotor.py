@@ -548,11 +548,11 @@ def vehicle_setup():
     
     # Here we, are going to assume a battery pack module shape. This step is optional but
     # required for thermal analysis of tge pack
-    number_of_modules                = 10
-    bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
-    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
-    bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
-    net.battery              = bat       
+    number_of_modules                                  = 10
+    bat.module.geometrtic_configuration.total          = int(np.ceil(bat.pack.electrical_configuration.total/number_of_modules))
+    bat.module.geometrtic_configuration.normal_count   = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.series))
+    bat.module.geometrtic_configuration.parallel_count = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.parallel))
+    net.battery                                        = bat       
 
     #------------------------------------------------------------------
     # Design Rotors and Propellers

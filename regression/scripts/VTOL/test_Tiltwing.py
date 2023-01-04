@@ -54,7 +54,7 @@ def main():
     plot_mission(results)    
 
     # RPM check during hover
-    RPM        = results.segments.departure.conditions.propulsion.rotor_rpm[0][0]
+    RPM        = results.segments.departure.conditions.propulsion.rotor.rpm[0][0]
     RPM_true   = 1922.161595958687
     
     print(RPM) 

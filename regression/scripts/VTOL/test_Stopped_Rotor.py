@@ -69,7 +69,7 @@ def main():
     plot_mission(results) 
 
     # RPM of rotor check during hover
-    RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[0][0]
+    RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor.rpm[0][0]
     RPM_true   = 2403.004214209376
     print(RPM)
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -78,7 +78,7 @@ def main():
     assert np.abs((RPM - RPM_true)/RPM_true) < 1e-3
 
     # Battery Energy Check During Transition
-    battery_energy_hover_to_transition      = results.segments.climb_2.conditions.propulsion.battery_energy[:,0]
+    battery_energy_hover_to_transition      = results.segments.climb_2.conditions.propulsion.battery.energy[:,0]
     battery_energy_hover_to_transition_true = np.array([3.36361566e+08, 3.34748597e+08, 3.33134413e+08])
     
     print(battery_energy_hover_to_transition)

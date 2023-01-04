@@ -74,7 +74,7 @@ def plot_tiltrotor_conditions(results,configs,
         Vz      = segment.state.conditions.frames.inertial.velocity_vector[:,2]
 
         body_angle = segment.state.conditions.frames.body.inertial_rotations[:,1] / Units.deg
-        y_rot      = segment.conditions.propulsion.rotor_y_axis_rotation[:,0] / Units.deg
+        y_rot      = segment.conditions.propulsion.rotor.y_axis_rotation[:,0] / Units.deg
         time       = segment.conditions.frames.inertial.time[:,0] / Units.min
         Vinf       = segment.conditions.freestream.velocity[:,0]
 
@@ -84,7 +84,7 @@ def plot_tiltrotor_conditions(results,configs,
         thrust_angle  = np.arccos(Tx / np.sqrt(Tx**2 + Tz**2))
         velocity_angle = np.arctan(-Vz / Vx)
 
-        n     = segment.conditions.propulsion.rotor_rpm[:,0] / 60
+        n     = segment.conditions.propulsion.rotor.rpm[:,0] / 60
         J     = Vinf/(n*D)
 
         prop_incidence_angles =  thrust_angle - velocity_angle 

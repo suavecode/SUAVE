@@ -36,8 +36,8 @@ def initialize_conditions(segment):
     if segment.battery_discharge == False: 
         for network in segment.analyses.energy.network:  
             battery        = network.battery
-            charge_current = battery.cell.charging_current * battery.pack_config.parallel
-            charge_voltage = battery.cell.charging_voltage * battery.pack_config.series
+            charge_current = battery.cell.charging_current * battery.pack.electrical_configuration.parallel
+            charge_voltage = battery.cell.charging_voltage * battery.pack.electrical_configuration.series
             delta_energy   = segment_max_energy - intial_segment_energy
             duration       = delta_energy*overcharge_contingency/(charge_current*charge_voltage) 
         

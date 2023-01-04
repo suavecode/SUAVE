@@ -32,8 +32,7 @@ def initialize_from_mass(battery,module_weight_factor = 1.42 ):
     """     
     mass = battery.mass_properties.mass/module_weight_factor
     
-    if battery.cell.mass == None:
-        n_cells    = 1  
+    if battery.cell.mass == None: 
         n_series   = 1
         n_parallel = 1 
     else:
@@ -41,12 +40,12 @@ def initialize_from_mass(battery,module_weight_factor = 1.42 ):
         n_series   = int(battery.max_voltage/battery.cell.max_voltage)
         n_parallel = int(n_cells/n_series)
         
-    battery.max_energy           = mass*battery.specific_energy 
-    battery.min_energy           = mass*battery.specific_energy 
-    battery.max_power            = mass*battery.specific_power
-    battery.initial_max_energy   = battery.max_energy    
-    battery.pack_config.series   = n_series
-    battery.pack_config.parallel = n_parallel      
-    battery.pack_config.total    = n_cells 
-    battery.charging_voltage     = battery.cell.charging_voltage * battery.pack_config.series     
-    battery.charging_current     = battery.cell.charging_current * battery.pack_config.parallel        
+    battery.max_energy                                                = mass*battery.specific_energy 
+    battery.min_energy                                                = mass*battery.specific_energy 
+    battery.max_power                                                 = mass*battery.specific_power
+    battery.initial_max_energy                                        = battery.max_energy    
+    battery.pack.electrical_configuration.series                      = n_series
+    battery.pack.electrical_configuration.parallel                    = n_parallel 
+    battery.pack.electrical_configuration.total                       = n_parallel*n_series      
+    battery.charging_voltage                                          = battery.cell.charging_voltage * battery.pack.electrical_configuration.series     
+    battery.charging_current                                          = battery.cell.charging_current * battery.pack.electrical_configuration.parallel        

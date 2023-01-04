@@ -113,7 +113,7 @@ def main():
     conditions.freestream.dynamic_viscosity   = np.array([mu, mu])
     conditions.freestream.speed_of_sound      = np.array([a, a])
     conditions.freestream.altitude            = np.array([[1000.0],[1000.0]])
-    conditions.propulsion.battery_energy      = bat.max_energy*np.ones_like(conditions.freestream.altitude)
+    conditions.propulsion.battery.energy      = bat.max_energy*np.ones_like(conditions.freestream.altitude)
     conditions.frames.body.inertial_rotations = np.zeros([2,3])
     conditions.frames.inertial.time           = np.array([[0.0],[1.0]])
     numerics.time.integrate                   = np.array([[0, 0],[0, 1]])
@@ -141,8 +141,8 @@ def main():
     
     error = Data()
     error.Thrust = np.max(np.abs(F[:,0]-truth_F))
-    error.RPM = np.max(np.abs(conditions.propulsion.rotor_rpm-truth_rpm))
-    error.Current  = np.max(np.abs(conditions.propulsion.battery_current-truth_i))
+    error.RPM = np.max(np.abs(conditions.propulsion.rotor.rpm-truth_rpm))
+    error.Current  = np.max(np.abs(conditions.propulsion.battery.current-truth_i))
     error.Battery = np.max(np.abs(bat.current_energy-truth_bat))
     
     print(error)

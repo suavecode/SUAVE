@@ -25,7 +25,7 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
     """ An internal combustion engine with a constant speed propeller.
     
         Assumptions:
-        0.5 Throttle corresponds to 0 rotor pitch. Less than 0.5 throttle implies negative rotor pitch.
+        0.5 Throttle corresponds to 0 propeller pitch. Less than 0.5 throttle implies negative propeller pitch.
         
         Source:
         None
@@ -49,11 +49,11 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             N/A
         """        
         self.engines              = Container()
-        self.rotors               = Container()
+        self.propellers           = Container()
         self.engine_length        = None
         self.number_of_engines    = None
         self.rated_speed          = 0.0
-        self.identical_rotors     = True
+        self.identical_propellers = True
         
     
     # manage process with a driver function
@@ -82,7 +82,7 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
         # unpack
         conditions  = state.conditions
         engines     = self.engines
-        propellers  = self.rotors
+        propellers  = self.propellers
         num_engines = self.number_of_engines
         rpm         = conditions.propulsion.rpm 
         
@@ -99,10 +99,10 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             
         # Setup conditions
         ones_row = conditions.ones_row
-        conditions.propulsion.rotor.disc_loading         = ones_row(n_evals)
-        conditions.propulsion.rotor.power_loading        = ones_row(n_evals)
-        conditions.propulsion.rotor.torque               = ones_row(n_evals)
-        conditions.propulsion.rotor.tip_mach             = ones_row(n_evals)
+        conditions.propulsion.propeller.disc_loading         = ones_row(n_evals)
+        conditions.propulsion.propeller.power_loading        = ones_row(n_evals)
+        conditions.propulsion.propeller.torque               = ones_row(n_evals)
+        conditions.propulsion.propeller.tip_mach             = ones_row(n_evals)
         conditions.propulsion.combustion_engine_throttle = ones_row(n_evals)
             
         # Setup numbers for iteration
@@ -137,12 +137,12 @@ class Internal_Combustion_Propeller_Constant_Speed(Network):
             total_power         = total_power  + P * factor            
 
             # Pack the conditions
-            conditions.propulsion.rotor.torque[:,ii]         = Q[:,0]
-            conditions.propulsion.rotor.tip_mach[:,ii]       = (R*rpm[:,0]*Units.rpm)/a[:,0]
-            conditions.propulsion.rotor.disc_loading[:,ii]   = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
-            conditions.propulsion.rotor.power_loading[:,ii]  = (F_mag[:,0])/(P[:,0])      # N/W            
-            conditions.propulsion.combustion_engine_throttle = engine_throttle
-            conditions.propulsion.rotor.efficiency           = etap[:,0]
+            conditions.propulsion.propeller.torque[:,ii]         = Q[:,0]
+            conditions.propulsion.propeller.tip_mach[:,ii]       = (R*rpm[:,0]*Units.rpm)/a[:,0]
+            conditions.propulsion.propeller.disc_loading[:,ii]   = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
+            conditions.propulsion.propeller.power_loading[:,ii]  = (F_mag[:,0])/(P[:,0])      # N/W            
+            conditions.propulsion.combustion_engine_throttle     = engine_throttle
+            conditions.propulsion.propeller.efficiency           = etap[:,0]
             
             
             conditions.noise.sources.propellers[prop.tag]    = outputs

@@ -55,39 +55,39 @@ def main():
     
         
     for i in range(len(battery_chemistry)):
-        #print('***********************************')
-        #print(battery_chemistry[i] + ' Cell Powered Aircraft')
-        #print('***********************************')
+        print('***********************************')
+        print(battery_chemistry[i] + ' Cell Powered Aircraft')
+        print('***********************************')
         
-        #print('\nBattery Propeller Network Analysis')
-        #print('--------------------------------------')
+        print('\nBattery Propeller Network Analysis')
+        print('--------------------------------------')
         
-        #GA_configs, GA_analyses = GA_full_setup(battery_chemistry[i])  
-        #GA_configs.finalize()
-        #GA_analyses.finalize()   
+        GA_configs, GA_analyses = GA_full_setup(battery_chemistry[i])  
+        GA_configs.finalize()
+        GA_analyses.finalize()   
          
-        ## mission analysis
-        #GA_mission = GA_analyses.missions.base
-        #GA_results = GA_mission.evaluate() 
+        # mission analysis
+        GA_mission = GA_analyses.missions.base
+        GA_results = GA_mission.evaluate() 
          
-        ## plot the results
-        #plot_electric_GA_aircraft_results(GA_results)  
+        # plot the results
+        plot_electric_GA_aircraft_results(GA_results)  
         
-        ## RPM of rotor check during hover
-        #GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.rotor.rpm[3][0] 
-        #print('GA RPM: ' + str(GA_RPM))
-        #GA_diff_RPM   = np.abs(GA_RPM - GA_RPM_true[i])
-        #print('RPM difference')
-        #print(GA_diff_RPM)
-        #assert np.abs((GA_RPM - GA_RPM_true[i])/GA_RPM_true[i]) < 1e-6  
+        # RPM of rotor check during hover
+        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.rotor.rpm[3][0] 
+        print('GA RPM: ' + str(GA_RPM))
+        GA_diff_RPM   = np.abs(GA_RPM - GA_RPM_true[i])
+        print('RPM difference')
+        print(GA_diff_RPM)
+        assert np.abs((GA_RPM - GA_RPM_true[i])/GA_RPM_true[i]) < 1e-6  
         
-        ## lift Coefficient Check During Cruise
-        #GA_lift_coefficient        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
-        #print('GA CL: ' + str(GA_lift_coefficient)) 
-        #GA_diff_CL                 = np.abs(GA_lift_coefficient  - GA_lift_coefficient_true[i]) 
-        #print('CL difference')
-        #print(GA_diff_CL)
-        #assert np.abs((GA_lift_coefficient  - GA_lift_coefficient_true[i])/GA_lift_coefficient_true[i]) < 1e-6
+        # lift Coefficient Check During Cruise
+        GA_lift_coefficient        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
+        print('GA CL: ' + str(GA_lift_coefficient)) 
+        GA_diff_CL                 = np.abs(GA_lift_coefficient  - GA_lift_coefficient_true[i]) 
+        print('CL difference')
+        print(GA_diff_CL)
+        assert np.abs((GA_lift_coefficient  - GA_lift_coefficient_true[i])/GA_lift_coefficient_true[i]) < 1e-6
             
             
       
@@ -106,7 +106,7 @@ def main():
         plot_lift_cruise_network(EVTOL_results)  
         
         # RPM of rotor check during hover
-        EVTOL_RPM        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor_rpm[2][0] 
+        EVTOL_RPM        = EVTOL_results.segments.climb_1.conditions.propulsion.lift_rotor.rpm[2][0] 
         print('EVTOL RPM: ' + str(EVTOL_RPM)) 
         EVTOL_diff_RPM   = np.abs(EVTOL_RPM - EVTOL_RPM_true[i])
         print('EVTOL_RPM difference')
@@ -148,11 +148,11 @@ def GA_full_setup(battery_chemistry):
     
     # Assume a battery pack module shape. This step is optional but
     # required for thermal analysis of the pack
-    number_of_modules                = 10
-    bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
-    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
-    bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
-    net.battery                      = bat      
+    number_of_modules                                  = 10
+    bat.module.geometrtic_configuration.total          = int(np.ceil(bat.pack.electrical_configuration.total/number_of_modules))
+    bat.module.geometrtic_configuration.normal_count   = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.series))
+    bat.module.geometrtic_configuration.parallel_count = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.parallel))
+    net.battery                                        = bat      
     
     net.battery              = bat
     net.voltage              = bat.max_voltage     
@@ -195,10 +195,10 @@ def EVTOL_full_setup(battery_chemistry):
     # Assume a battery pack module shape. This step is optional but required for thermal analysis of the pack. We will assume that all cells electrically connected 
     # in series wihtin the module are arranged in one row normal direction to the airflow. Likewise ,
     # all cells electrically in paralllel are arranged in the direction to the cooling fluid  
-    number_of_modules                = 10
-    bat.module_config.total          = int(np.ceil(bat.pack_config.total/number_of_modules))
-    bat.module_config.normal_count   = int(np.ceil(bat.module_config.total/bat.pack_config.series))
-    bat.module_config.parallel_count = int(np.ceil(bat.module_config.total/bat.pack_config.parallel))
+    number_of_modules                                  = 10
+    bat.module.geometrtic_configuration.total          = int(np.ceil(bat.pack.electrical_configuration.total/number_of_modules))
+    bat.module.geometrtic_configuration.normal_count   = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.series))
+    bat.module.geometrtic_configuration.parallel_count = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.parallel))
     
     net.battery              = bat
     net.voltage              = bat.max_voltage     

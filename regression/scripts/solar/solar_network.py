@@ -60,21 +60,16 @@ def main():
     
     # mission analysis
     mission = analyses.missions.base
-    results = mission.evaluate()
-
-    # load older results
-    #save_results(results)
-    old_results = load_results()   
+    results = mission.evaluate()  
 
     ## plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-') 
+    plot_mission(results) 
     
     # Check Results 
     F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.rotor_rpm[1,0]
-    current = results.segments.cruise1.conditions.propulsion.battery_current[1,0]
-    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
+    rpm     = results.segments.cruise1.conditions.propulsion.rotor.rpm[1,0]
+    current = results.segments.cruise1.conditions.propulsion.battery.current[1,0]
+    energy  = results.segments.cruise1.conditions.propulsion.battery.energy[8,0]  
     
     # Truth results
 
@@ -250,15 +245,7 @@ def plot_mission(results,line_style='bo-'):
     # Plot Solar Radiation Flux
     plot_solar_flux(results,line_style) 
     
-    return
-
-def load_results():
-    return SUAVE.Input_Output.SUAVE.load('solar_uav_mission.res')
-
-def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'solar_uav_mission.res')
-    return
-
+    return 
 
 # ----------------------------------------------------------------------        
 #   Call Main

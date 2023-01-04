@@ -108,8 +108,8 @@ class Solar_Low_Fidelity(Network):
         
         # Set battery energy
         battery.current_energy           = conditions.propulsion.battery.energy
-        battery.pack_temperature         = conditions.propulsion.battery.pack_temperature
-        battery.cell_charge_throughput   = conditions.propulsion.battery.cell_charge_throughput     
+        battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
+        battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
         battery.age                      = conditions.propulsion.battery.cycle_day          
         battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
         battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor  
@@ -183,8 +183,8 @@ class Solar_Low_Fidelity(Network):
         pack_battery_conditions(conditions,battery,avionics_payload_power,P)     
         
         conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
-        conditions.propulsion.rotor_rpm          = rpm
-        conditions.propulsion.rotor_tip_mach     = (R*rpm*Units.rpm)/a
+        conditions.propulsion.rotor.rpm          = rpm
+        conditions.propulsion.rotor.tip_mach     = (R*rpm*Units.rpm)/a
         
      
         
@@ -192,8 +192,8 @@ class Solar_Low_Fidelity(Network):
         F                                        = num_engines * F * [1,0,0]      
         mdot                                     = state.conditions.ones_row(1)*0.0
         F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))  
-        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R)**2)   # N/m^2                 
-        conditions.propulsion.power_loading      = (F_mag.T)/(P )  # N/W                        
+        conditions.propulsion.rotor.disc_loading = (F_mag.T)/ (num_engines*np.pi*(R)**2)   # N/m^2                 
+        conditions.propulsion.rotor.power_loading= (F_mag.T)/(P )  # N/W                        
     
         results = Data()
         results.thrust_force_vector = F
