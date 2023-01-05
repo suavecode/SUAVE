@@ -206,7 +206,7 @@ def energy_network():
     conditions.freestream.velocity                     = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
     conditions.freestream.altitude                     = alt * ones_1col
     conditions.freestream.gravity                      = planet.compute_gravity(alt) * ones_1col
-    conditions.propulsion.battery_energy               = bat.max_energy * ones_1col
+    conditions.propulsion.battery_energy               = bat.pack.max_energy * ones_1col
     conditions.frames.inertial.time                    = np.array([[0.0],[1.0]])
     conditions.freestream.isentropic_expansion_factor  = ones_1col*working_fluid.compute_gamma(atmosphere_conditions.temperature,atmosphere_conditions.pressure)                                                                                             
     conditions.freestream.Cp                           = ones_1col*working_fluid.compute_cp(atmosphere_conditions.temperature,atmosphere_conditions.pressure)
@@ -219,7 +219,7 @@ def energy_network():
     
     # propulsion conditions
     conditions.propulsion.throttle                     = np.array([[1.0],[1.0]])
-    conditions.propulsion.battery_energy               = bat.max_energy*np.ones_like(ones_1col)
+    conditions.propulsion.battery_energy               = bat.pack.max_energy*np.ones_like(ones_1col)
     
     print("Design thrust ", hybrid_ducted_fan.propulsor.design_thrust 
           * hybrid_ducted_fan.number_of_engines)

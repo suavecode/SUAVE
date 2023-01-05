@@ -81,7 +81,7 @@ def mission_setup(vehicle, analyses):
     segment.altitude  = 1000.0 * Units.ft
     segment.air_speed = 110.   * Units['mph']
     segment.distance  = 80.    * Units.miles     
-    segment.battery_energy = vehicle.networks.lift_cruise.battery.max_energy
+    segment.battery_energy = vehicle.networks.lift_cruise.battery.pack.max_energy
     segment.state.unknowns.throttle = 0.80 * ones_row(1)
     segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16) 
 

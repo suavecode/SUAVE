@@ -81,7 +81,7 @@ def plot_battery_cell_conditions(results,
         cell_volts          = segment.conditions.propulsion.battery.cell.voltage_under_load[:,0]
         cell_volts_oc       = segment.conditions.propulsion.battery.cell.voltage_open_circuit[:,0]
         cell_current        = segment.conditions.propulsion.battery.cell.current[:,0]
-        cell_SOC            = segment.conditions.propulsion.battery.state_of_charge[:,0]
+        cell_SOC            = segment.conditions.propulsion.battery.cell.state_of_charge[:,0]
         cell_temp           = segment.conditions.propulsion.battery.cell.temperature[:,0]
         cell_charge         = segment.conditions.propulsion.battery.cell.charge_throughput[:,0]
 

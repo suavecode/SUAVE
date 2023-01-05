@@ -71,7 +71,7 @@ def main():
     error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)
     assert error_distance_SR < 1e-6
 
-    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.battery.state_of_charge[-1,0])
+    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.battery.pack.state_of_charge[-1,0])
     print('landing state of charge error' , error_soc)
     assert error_soc < 1e-6
 
@@ -314,7 +314,7 @@ def mission_setup_SR(vehicle,analyses):
     segment.altitude_start                                   = 0.0  * Units.ft
     segment.altitude_end                                     = 40.  * Units.ft
     segment.climb_rate                                       = 500. * Units['ft/min']
-    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.max_energy
+    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.pack.max_energy
     segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability          = SUAVE.Methods.skip

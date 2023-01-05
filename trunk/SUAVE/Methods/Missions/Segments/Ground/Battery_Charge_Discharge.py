@@ -12,8 +12,7 @@ import numpy as np
 # ----------------------------------------------------------------------  
 
 ## @ingroup Methods-Missions-Segments-Ground
-def unpack_unknowns(segment): 
-    
+def unpack_unknowns(segment):  
     pass
 
 # ----------------------------------------------------------------------
@@ -26,8 +25,8 @@ def initialize_conditions(segment):
     
     # unpack   
     if segment.state.initials:
-        intial_segment_energy = segment.state.initials.conditions.propulsion.battery.energy[-1,0]  
-        segment_max_energy    = segment.state.initials.conditions.propulsion.battery.max_aged_energy
+        intial_segment_energy = segment.state.initials.conditions.propulsion.battery.pack.energy[-1,0]  
+        segment_max_energy    = segment.state.initials.conditions.propulsion.battery.pack.max_aged_energy
     elif 'battery_energy' in segment:
         intial_segment_energy = segment.battery_energy  
         segment_max_energy    = segment.battery_energy

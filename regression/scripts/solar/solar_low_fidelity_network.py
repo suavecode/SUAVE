@@ -113,7 +113,7 @@ def main():
     conditions.freestream.dynamic_viscosity   = np.array([mu, mu])
     conditions.freestream.speed_of_sound      = np.array([a, a])
     conditions.freestream.altitude            = np.array([[1000.0],[1000.0]])
-    conditions.propulsion.battery.energy      = bat.max_energy*np.ones_like(conditions.freestream.altitude)
+    conditions.propulsion.battery.energy      = bat.pack.max_energy*np.ones_like(conditions.freestream.altitude)
     conditions.frames.body.inertial_rotations = np.zeros([2,3])
     conditions.frames.inertial.time           = np.array([[0.0],[1.0]])
     numerics.time.integrate                   = np.array([[0, 0],[0, 1]])

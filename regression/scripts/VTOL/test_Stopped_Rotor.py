@@ -78,7 +78,7 @@ def main():
     assert np.abs((RPM - RPM_true)/RPM_true) < 1e-3
 
     # Battery Energy Check During Transition
-    battery_energy_hover_to_transition      = results.segments.climb_2.conditions.propulsion.battery.energy[:,0]
+    battery_energy_hover_to_transition      = results.segments.climb_2.conditions.propulsion.battery.pack.energy[:,0]
     battery_energy_hover_to_transition_true = np.array([3.36361566e+08, 3.34748597e+08, 3.33134413e+08])
     
     print(battery_energy_hover_to_transition)
@@ -233,7 +233,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                                   = 0.0  * Units.ft
     segment.altitude_end                                     = 40.  * Units.ft
     segment.climb_rate                                       = 500. * Units['ft/min']
-    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.max_energy
+    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.pack.max_energy
     segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability          = SUAVE.Methods.skip  

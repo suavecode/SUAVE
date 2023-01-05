@@ -51,5 +51,5 @@ def initialize_from_energy_and_power(battery, energy, power, max='hard'):
         mass=np.maximum(energy_mass, power_mass)
 
     battery.mass_properties.mass = mass
-    battery.max_energy           = battery.specific_energy*mass
+    battery.pack.max_energy      = battery.specific_energy*mass
     battery.max_power            = battery.specific_power*mass

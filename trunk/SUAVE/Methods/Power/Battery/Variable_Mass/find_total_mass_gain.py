@@ -16,7 +16,7 @@ def find_total_mass_gain(battery):
     Earth Atmospheric composition
     
     Inputs:
-    battery.max_energy [J]
+    battery.pack.max_energy [J]
     battery.
       mass_gain_factor [kg/W]
       
@@ -27,6 +27,6 @@ def find_total_mass_gain(battery):
     
     
     
-    mgain=battery.max_energy*battery.mass_gain_factor
+    mgain=battery.pack.max_energy*battery.mass_gain_factor
     
     return mgain

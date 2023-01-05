@@ -107,12 +107,12 @@ class Solar_Low_Fidelity(Network):
         num_engines = self.number_of_engines
         
         # Set battery energy
-        battery.current_energy           = conditions.propulsion.battery.energy
+        battery.pack.current_energy      = conditions.propulsion.battery.pack.energy
         battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
         battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
-        battery.age                      = conditions.propulsion.battery.cycle_day          
-        battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
-        battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor  
+        battery.cell.age                 = conditions.propulsion.battery.cell.cycle_in_day          
+        battery.cell.R_growth_factor     = conditions.propulsion.battery.cell.resistance_growth_factor
+        battery.cell.E_growth_factor     = conditions.propulsion.battery.cell.capacity_fade_factor  
         
         # step 1
         solar_flux.solar_radiation(conditions)

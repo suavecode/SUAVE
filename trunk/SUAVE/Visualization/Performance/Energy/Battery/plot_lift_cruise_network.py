@@ -96,10 +96,10 @@ def plot_lift_cruise_network(results,
         eta                 = segment.conditions.propulsion.throttle[:,0]
         eta_l               = segment.conditions.propulsion.throttle_lift[:,0]
         
-        energy              = segment.conditions.propulsion.battery.energy[:,0]/ Units.Wh
-        specific_power      = segment.conditions.propulsion.battery.specfic_power[:,0]
-        volts               = segment.conditions.propulsion.battery.voltage_under_load[:,0]
-        volts_oc            = segment.conditions.propulsion.battery.voltage_open_circuit[:,0]
+        energy              = segment.conditions.propulsion.battery.pack.energy[:,0]/ Units.Wh
+        specific_power      = segment.conditions.propulsion.battery.pack.specfic_power[:,0]
+        volts               = segment.conditions.propulsion.battery.pack.voltage_under_load[:,0]
+        volts_oc            = segment.conditions.propulsion.battery.pack.voltage_open_circuit[:,0]
         
         prop_thrust         = segment.conditions.frames.body.thrust_force_vector[:,0]
         lift_rotor_thrust   =-segment.conditions.frames.body.thrust_force_vector[:,2]

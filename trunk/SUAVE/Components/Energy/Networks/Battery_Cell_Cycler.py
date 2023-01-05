@@ -85,14 +85,14 @@ class Battery_Cell_Cycler(Network):
         battery           = self.battery    
          
         # Set battery energy
-        battery.current_energy           = conditions.propulsion.battery.energy
-        battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
-        battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
-        battery.age                      = conditions.propulsion.battery.cycle_day        
-        battery_discharge_flag           = conditions.propulsion.battery.discharge_flag    
-        battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
-        battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor 
-        battery.max_energy               = conditions.propulsion.battery.max_aged_energy  
+        battery.pack.current_energy                   = conditions.propulsion.battery.pack.energy
+        battery.pack.max_energy                       = conditions.propulsion.battery.pack.max_aged_energy  
+        battery.pack.temperature                      = conditions.propulsion.battery.pack.temperature
+        battery.cell.charge_throughput                = conditions.propulsion.battery.cell.charge_throughput     
+        battery.cell.age                              = conditions.propulsion.battery.cell.cycle_in_day        
+        battery.cell.R_growth_factor                  = conditions.propulsion.battery.cell.resistance_growth_factor
+        battery.cell.E_growth_factor                  = conditions.propulsion.battery.cell.capacity_fade_factor 
+        battery_discharge_flag                        = conditions.propulsion.battery.discharge_flag    
     
         # update ambient temperature based on altitude
         battery.ambient_temperature                   = conditions.freestream.temperature   

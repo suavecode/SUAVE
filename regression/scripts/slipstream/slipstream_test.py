@@ -306,7 +306,7 @@ def X57_mission_setup(analyses,vehicle):
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise"
     segment.analyses.extend(analyses.base)
-    segment.battery_energy            = vehicle.networks[net_tag].battery.max_energy* 0.7
+    segment.battery_energy            = vehicle.networks[net_tag].battery.pack.max_energy* 0.7
     segment.altitude                  = 8012 * Units.feet
     segment.air_speed                 = 115. * Units['mph']
     segment.distance                  = 20.  * Units.nautical_mile

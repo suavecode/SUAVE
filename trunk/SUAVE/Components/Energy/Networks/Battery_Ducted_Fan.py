@@ -95,12 +95,12 @@ class Battery_Ducted_Fan(Network):
         battery    = self.battery
 
         # Set battery energy
-        battery.current_energy           = conditions.propulsion.battery.energy
-        battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
-        battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
-        battery.age                      = conditions.propulsion.battery.cycle_day         
-        battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
-        battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor  
+        battery.pack.current_energy           = conditions.propulsion.battery.pack.energy
+        battery.pack.temperature              = conditions.propulsion.battery.pack.temperature
+        battery.cell.charge_throughput        = conditions.propulsion.battery.cell.charge_throughput     
+        battery.cell.age                      = conditions.propulsion.battery.cell.cycle_in_day         
+        battery.cell.R_growth_factor          = conditions.propulsion.battery.cell.resistance_growth_factor
+        battery.cell.E_growth_factor          = conditions.propulsion.battery.cell.capacity_fade_factor  
         
         # Calculate ducted fan power 
         results             = propulsor.evaluate_thrust(state)
@@ -137,13 +137,13 @@ class Battery_Ducted_Fan(Network):
         # Pack the conditions for outputs
         current              = esc.outputs.currentin
         battery_power_draw   = battery.inputs.power_in 
-        battery_energy       = battery.current_energy
-        voltage_open_circuit = battery.voltage_open_circuit
+        battery_energy       = battery.pack.current_energy
+        voltage_open_circuit = battery.pack.voltage_open_circuit
           
-        conditions.propulsion.battery.current              = current
-        conditions.propulsion.battery.power_draw           = battery_power_draw
-        conditions.propulsion.battery.energy               = battery_energy
-        conditions.propulsion.battery.voltage_open_circuit = voltage_open_circuit
+        conditions.propulsion.battery.pack.current              = current
+        conditions.propulsion.battery.pack.power_draw           = battery_power_draw
+        conditions.propulsion.battery.pack.energy               = battery_energy
+        conditions.propulsion.battery.pack.voltage_open_circuit = voltage_open_circuit
         
         results.vehicle_mass_rate   = mdot
         return results

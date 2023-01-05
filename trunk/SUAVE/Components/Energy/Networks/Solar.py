@@ -84,16 +84,18 @@ class Solar(Network):
             state [state()]
     
             Outputs:
-            results.thrust_force_vector [newtons]
-            results.vehicle_mass_rate   [kg/s]
+            results.thrust_force_vector        [newtons]
+            results.vehicle_mass_rate          [kg/s]
             conditions.propulsion:
-                solar_flux              [watts/m^2] 
-                rpm                     [radians/sec]
-                battery.current         [amps]
-                battery.power_draw      [watts]
-                battery.energy          [joules]
-                motor.torque            [N-M]
-                rotor.torque            [N-M]
+                       solar_flux              [watts/m^2] 
+                       rpm                     [radians/sec]
+                       battery.
+                         pack.
+                            current            [amps]
+                            power_draw         [watts]
+                         energy.               [joules]
+                       motor.torque            [N-M]
+                       rotor.torque            [N-M]
     
             Properties Used:
             Defaulted values
@@ -117,13 +119,13 @@ class Solar(Network):
         a = conditions.freestream.speed_of_sound        
         
         # Set battery energy
-        battery.current_energy           = conditions.propulsion.battery.energy
-        battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
-        battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
-        battery.age                      = conditions.propulsion.battery.cycle_day            
-        battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
-        battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor 
-        battery.max_energy               = conditions.propulsion.battery.max_aged_energy   
+        battery.pack.current_energy           = conditions.propulsion.battery.pack.energy
+        battery.pack.temperature              = conditions.propulsion.battery.pack.temperature
+        battery.pack.max_energy               = conditions.propulsion.battery.pack.max_aged_energy   
+        battery.cell.charge_throughput        = conditions.propulsion.battery.cell.charge_throughput     
+        battery.cell.age                      = conditions.propulsion.battery.cell.cycle_in_day            
+        battery.cell.R_growth_factor          = conditions.propulsion.battery.cell.resistance_growth_factor
+        battery.cell.E_growth_factor          = conditions.propulsion.battery.cell.capacity_fade_factor 
         
         # step 1
         solar_flux.solar_radiation(conditions)

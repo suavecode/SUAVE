@@ -40,10 +40,10 @@ def initialize_from_mass(battery,module_weight_factor = 1.42 ):
         n_series   = int(battery.max_voltage/battery.cell.max_voltage)
         n_parallel = int(n_cells/n_series)
         
-    battery.max_energy                                                = mass*battery.specific_energy 
+    battery.pack.max_energy                                           = mass*battery.specific_energy 
     battery.min_energy                                                = mass*battery.specific_energy 
     battery.max_power                                                 = mass*battery.specific_power
-    battery.initial_max_energy                                        = battery.max_energy    
+    battery.initial_max_energy                                        = battery.pack.max_energy    
     battery.pack.electrical_configuration.series                      = n_series
     battery.pack.electrical_configuration.parallel                    = n_parallel 
     battery.pack.electrical_configuration.total                       = n_parallel*n_series      

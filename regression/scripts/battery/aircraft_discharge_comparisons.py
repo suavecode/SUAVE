@@ -322,7 +322,7 @@ def GA_mission_setup(analyses,vehicle):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_1"
     segment.analyses.extend( analyses.base )
-    segment.battery_energy                   = vehicle.networks.battery_rotor.battery.max_energy * 0.89
+    segment.battery_energy                   = vehicle.networks.battery_rotor.battery.pack.max_energy * 0.89
     segment.altitude_start                   = 2500.0  * Units.feet
     segment.altitude_end                     = 8012    * Units.feet 
     segment.air_speed                        = 96.4260 * Units['mph'] 
@@ -425,7 +425,7 @@ def EVTOL_mission_setup(analyses,vehicle):
     segment.altitude_start                                   = 0.0  * Units.ft
     segment.altitude_end                                     = 40.  * Units.ft
     segment.climb_rate                                       = 500. * Units['ft/min']
-    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.max_energy
+    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.pack.max_energy
     segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability          = SUAVE.Methods.skip   

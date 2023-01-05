@@ -71,12 +71,12 @@ def plot_battery_pack_conditions(results,
     for segment in results.segments.values():
 
         time                = segment.conditions.frames.inertial.time[:,0] / Units.min
-        pack_power          = segment.conditions.propulsion.battery.power_draw[:,0]
-        pack_energy         = segment.conditions.propulsion.battery.energy[:,0]
-        pack_volts          = segment.conditions.propulsion.battery.voltage_under_load[:,0]
-        pack_volts_oc       = segment.conditions.propulsion.battery.voltage_open_circuit[:,0]
-        pack_current        = segment.conditions.propulsion.battery.current[:,0]
-        pack_SOC            = segment.conditions.propulsion.battery.state_of_charge[:,0]
+        pack_power          = segment.conditions.propulsion.battery.pack.power_draw[:,0]
+        pack_energy         = segment.conditions.propulsion.battery.pack.energy[:,0]
+        pack_volts          = segment.conditions.propulsion.battery.pack.voltage_under_load[:,0]
+        pack_volts_oc       = segment.conditions.propulsion.battery.pack.voltage_open_circuit[:,0]
+        pack_current        = segment.conditions.propulsion.battery.pack.current[:,0]
+        pack_SOC            = segment.conditions.propulsion.battery.cell.state_of_charge[:,0]
 
         pack_battery_amp_hr = (pack_energy/ Units.Wh )/pack_volts
         pack_C_instant      = pack_current/pack_battery_amp_hr

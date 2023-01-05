@@ -68,8 +68,8 @@ def main():
     # Check Results 
     F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
     rpm     = results.segments.cruise1.conditions.propulsion.rotor.rpm[1,0]
-    current = results.segments.cruise1.conditions.propulsion.battery.current[1,0]
-    energy  = results.segments.cruise1.conditions.propulsion.battery.energy[8,0]  
+    current = results.segments.cruise1.conditions.propulsion.battery.pack.current[1,0]
+    energy  = results.segments.cruise1.conditions.propulsion.battery.pack.energy[8,0]  
     
     # Truth results
 
@@ -202,7 +202,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.1
     segment.distance       = 3050.0 * Units.km
-    segment.battery_energy = vehicle.networks.solar.battery.max_energy*0.3 #Charge the battery to start
+    segment.battery_energy = vehicle.networks.solar.battery.pack.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
     segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient = 0.05)    

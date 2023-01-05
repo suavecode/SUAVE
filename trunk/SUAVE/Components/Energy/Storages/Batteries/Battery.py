@@ -37,10 +37,11 @@ class Battery(Energy_Component):
         self.initial_temperature            = 20.0
         self.current_capacitor_charge       = 0.0
         self.resistance                     = 0.07446 # base internal resistance of battery in ohms  
-        self.specific_heat_capacity         = 1100.  
-        self.max_energy                     = 0.0
-        self.max_power                      = 0.0
-        self.max_voltage                    = 0.0
+        self.specific_heat_capacity         = 1100.   
+        self.pack                           = Data()
+        self.pack.max_energy                = 0.0
+        self.pack.max_power                 = 0.0
+        self.pack.max_voltage               = 0.0 
         self.discharge_performance_map      = None  
         self.ragone                         = Data()
         self.ragone.const_1                 = 0.0     # used for ragone functions; 

@@ -57,11 +57,11 @@ def main():
     test_initialize_from_mass(battery_li_ion,li_ion_mass)
     
     # make sure battery starts fully charged
-    battery_li_ion.current_energy         = np.array([[battery_li_ion.max_energy], [battery_li_ion.max_energy]]) #normally handle making sure arrays are same length in network
+    battery_li_ion.pack.current_energy    = np.array([[battery_li_ion.pack.max_energy], [battery_li_ion.pack.max_energy]]) #normally handle making sure arrays are same length in network
     battery_li_ion.pack.temperature       = np.array([[20],[20]])
     battery_li_ion.cell.charge_throughput = np.array([[0],[0]])
-    battery_li_ion.R_growth_factor        = 1
-    battery_li_ion.E_growth_factor        = 1 
+    battery_li_ion.cell.R_growth_factor   = 1
+    battery_li_ion.cell.E_growth_factor   = 1 
     
     # run discharge model
     battery_li_ion.energy_calc(numerics)
@@ -107,7 +107,7 @@ def main():
             results = mission.evaluate()   
             
             # Voltage Regression
-            V_ul        = results.segments[0].conditions.propulsion.battery.voltage_under_load[2][0]   
+            V_ul        = results.segments[0].conditions.propulsion.battery.pack.voltage_under_load[2][0]   
             print('Under Load Voltage: ' + str(V_ul))
             V_ul_diff   = np.abs(V_ul - V_ul_true[j,i])
             print('Under Load voltage difference')
@@ -171,7 +171,7 @@ def plot_results(results,j,bat_chem, axes1, axes2, axes3, axes4, axes5, axes6, a
     
     for segment in results.segments.values():
         time          = segment.conditions.frames.inertial.time[:,0]/60 
-        volts         = segment.conditions.propulsion.battery.voltage_under_load[:,0]   
+        volts         = segment.conditions.propulsion.battery.pack.voltage_under_load[:,0]   
         cell_temp     = segment.conditions.propulsion.battery.cell.temperature[:,0]   
         Amp_Hrs       = segment.conditions.propulsion.battery.cell.charge_throughput[:,0]   
         
@@ -379,7 +379,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,mAh):
     
    
     bat                                                      = vehicle.networks.battery_cell.battery    
-    base_segment.max_energy                                  = bat.max_energy
+    base_segment.max_energy                                  = bat.pack.max_energy
     base_segment.charging_SOC_cutoff                         = bat.cell.charging_SOC_cutoff 
     base_segment.charging_current                            = bat.charging_current
     base_segment.charging_voltage                            = bat.charging_voltage 
@@ -397,7 +397,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,mAh):
     segment.analyses.extend(analyses.base)       
     segment.tag                                         = discharge_tag
     segment.time                                        = discharge_time 
-    segment.battery_energy                              = bat.max_energy * 1.
+    segment.battery_energy                              = bat.pack.max_energy * 1.
     segment = vehicle.networks.battery_cell.add_unknowns_and_residuals_to_segment(segment,initial_battery_cell_temperature = 295 )    
     mission.append_segment(segment)         
     
@@ -446,7 +446,7 @@ def test_find_ragone_optimum(battery, energy, power):
     print(battery)
     
     print('specific_energy (Wh/kg)=',battery.specific_energy/(Units.Wh/Units.kg))
-    print('max_energy [W-h]=', battery.max_energy/Units.Wh)
+    print('max_energy [W-h]=', battery.pack.max_energy/Units.Wh)
     return
 
 def test_initialize_from_mass(battery,mass):

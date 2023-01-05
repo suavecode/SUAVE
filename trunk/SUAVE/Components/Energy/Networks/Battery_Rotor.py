@@ -125,14 +125,14 @@ class Battery_Rotor(Network):
 
         
         # Set battery energy
-        battery.current_energy           = conditions.propulsion.battery.energy
+        battery.pack.current_energy      = conditions.propulsion.battery.pack.energy
         battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
+        battery.pack.max_energy          = conditions.propulsion.battery.pack.max_aged_energy        
         battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
-        battery.age                      = conditions.propulsion.battery.cycle_day        
-        discharge_flag                   = conditions.propulsion.battery.discharge_flag    
-        battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
-        battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor 
-        battery.max_energy               = conditions.propulsion.battery.max_aged_energy 
+        battery.cell.age                 = conditions.propulsion.battery.cell.cycle_in_day  
+        battery.cell.R_growth_factor     = conditions.propulsion.battery.cell.resistance_growth_factor
+        battery.cell.E_growth_factor     = conditions.propulsion.battery.cell.capacity_fade_factor 
+        discharge_flag                   = conditions.propulsion.battery.discharge_flag   
         n_series                         = battery.pack.electrical_configuration.series  
         n_parallel                       = battery.pack.electrical_configuration.parallel
         
@@ -304,7 +304,7 @@ class Battery_Rotor(Network):
             N/A
     
             Inputs:
-            state.unknowns.rotor_power_coefficient [None] 
+            state.unknowns.rotor_power_coefficient              [None] 
             unknowns specific to the battery cell 
     
             Outputs:
@@ -346,8 +346,8 @@ class Battery_Rotor(Network):
             N/A
     
             Inputs:
-            state.unknowns.rotor_y_axis_rotation          [rad] 
-            state.unknowns.rotor_power_coefficient    [None] 
+            state.unknowns.rotor_y_axis_rotation                [rad] 
+            state.unknowns.rotor_power_coefficient              [None] 
             unknowns specific to the battery cell 
     
             Outputs:
@@ -427,8 +427,8 @@ class Battery_Rotor(Network):
     
             Inputs:
             segment
-            initial_voltage                   [v]
-            initial_power_coefficient         [float]s
+            initial_voltage                                        [v]
+            initial_power_coefficient                              [float]s
             
             Outputs:
             segment.state.unknowns.battery_voltage_under_load

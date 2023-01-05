@@ -20,12 +20,12 @@ def initialize_battery(segment):
         
         Inputs:
             segment.state.initials.conditions:
-                propulsion.battery.energy    [Joules]
+                propulsion.battery.pack.energy    [Joules]
             segment.battery_energy           [Joules]
             
         Outputs:
             segment.state.conditions:
-                propulsion.battery.energy    [Joules]
+                propulsion.battery.pack.energy    [Joules]
 
         Properties Used:
         N/A
@@ -37,24 +37,24 @@ def initialize_battery(segment):
 
         initials   = segment.state.initials.conditions.propulsion
         
-        initial_mission_energy       = initials.battery.max_initial_energy
-        battery_max_aged_energy      = initials.battery.max_aged_energy         
+        initial_mission_energy       = initials.battery.pack.max_initial_energy
+        battery_max_aged_energy      = initials.battery.pack.max_aged_energy         
         battery_discharge_flag       = segment.battery_discharge 
-        battery_capacity_fade_factor = initials.battery.capacity_fade_factor
+        battery_capacity_fade_factor = initials.battery.cell.capacity_fade_factor
         
         if battery_discharge_flag == False: 
             battery_max_aged_energy  = initial_mission_energy*battery_capacity_fade_factor    
         
-        conditions.battery.max_initial_energy          = initial_mission_energy
-        conditions.battery.energy[:,0]                 = initials.battery.energy[-1,0]
-        conditions.battery.max_aged_energy             = battery_max_aged_energy
-        conditions.battery.pack.temperature[:,0]       = initials.battery.pack.temperature[-1,0]
-        conditions.battery.cell.temperature[:,0]       = initials.battery.cell.temperature[-1,0]
-        conditions.battery.cycle_day                   = initials.battery.cycle_day      
-        conditions.battery.cell.charge_throughput[:,0] = initials.battery.cell.charge_throughput[-1,0]
-        conditions.battery.discharge_flag              = battery_discharge_flag
-        conditions.battery.resistance_growth_factor    = initials.battery.resistance_growth_factor
-        conditions.battery.capacity_fade_factor        = battery_capacity_fade_factor 
+        conditions.battery.pack.max_initial_energy      = initial_mission_energy
+        conditions.battery.pack.energy[:,0]             = initials.battery.pack.energy[-1,0]
+        conditions.battery.pack.max_aged_energy         = battery_max_aged_energy
+        conditions.battery.pack.temperature[:,0]        = initials.battery.pack.temperature[-1,0]
+        conditions.battery.cell.temperature[:,0]        = initials.battery.cell.temperature[-1,0]
+        conditions.battery.cell.cycle_in_day            = initials.battery.cell.cycle_in_day      
+        conditions.battery.cell.charge_throughput[:,0]  = initials.battery.cell.charge_throughput[-1,0]
+        conditions.battery.discharge_flag               = battery_discharge_flag
+        conditions.battery.cell.resistance_growth_factor= initials.battery.cell.resistance_growth_factor
+        conditions.battery.cell.capacity_fade_factor    = battery_capacity_fade_factor 
     
     if 'battery_pack_temperature' in segment: # rewrite initial temperature of the battery if it is known 
         conditions.battery.pack.temperature[:,0]       = segment.battery_pack_temperature

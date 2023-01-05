@@ -127,7 +127,7 @@ def residual_state_of_charge(segment):
     N/A
 
     Inputs:
-    segment.state.segments[-1].conditions.propulsion.battery.state_of_charge [None]
+    segment.state.segments[-1].conditions.propulsion.battery.cell.state_of_charge [None]
     segment.target_state_of_charge                                           [None]
 
     Outputs:
@@ -138,7 +138,7 @@ def residual_state_of_charge(segment):
     """      
     
     # unpack
-    end_SOC    = segment.segments[-1].state.conditions.propulsion.battery.state_of_charge[-1]
+    end_SOC    = segment.segments[-1].state.conditions.propulsion.battery.cell.state_of_charge[-1]
     target_SOC = segment.target_state_of_charge
     
     # this needs to go to zero for the solver to complete

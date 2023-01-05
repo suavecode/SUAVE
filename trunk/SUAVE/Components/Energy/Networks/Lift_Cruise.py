@@ -103,23 +103,23 @@ class Lift_Cruise(Network):
             state [state()]
     
             Outputs:
-            results.thrust_force_vector       [Newtons]
-            results.vehicle_mass_rate         [kg/s]
-            conditions.propulsion:
-                lift_rotor_rpm                [radians/sec]
-                rpm _forward                  [radians/sec]
-                lift_rotor.current_draw       [amps]
-                propeller.current_draw        [amps]
-                battery.power_draw            [watts]
-                battery.energy                [joules]
-                voltage_open_circuit          [volts]
-                voltage_under_load            [volts]
-                lift_rotor_motor.torque       [N-M]
-                propeller_motor.torque        [N-M]
-                lift_rotor.thrust             [N]
-                propeller.thrust              [N]
-                lift_rotor.torque             [N-M]
-                propeller.torque              [N-M]
+            results.thrust_force_vector           [Newtons]
+            results.vehicle_mass_rate             [kg/s]
+            conditions.propulsion:    
+                lift_rotor.rpm                    [radians/sec]
+                lift_rotor.current_draw           [amps]
+                lift_rotor.thrust                 [N]
+                lift_rotor.torque                 [N-M]
+                lift_rotor_motor.torque           [N-M]
+                propeller_motor.torque            [N-M]
+                propeller.thrust                  [N]
+                propeller.torque                  [N-M]
+                propeller.rpm                     [radians/sec]
+                propeller.current_draw            [amps]
+                battery.pack.power_draw           [watts]
+                battery.pack.energy               [joules]
+                battery.pack.voltage_open_circuit [volts]
+                battery.pack.voltage_under_load   [volts]
     
             Properties Used:
             Defaulted values
@@ -144,16 +144,16 @@ class Lift_Cruise(Network):
         # SETUP BATTERIES AND ESC's
         #-----------------------------------------------------------------
         # Set battery energy
-        battery.current_energy           = conditions.propulsion.battery.energy
-        battery.pack.temperature         = conditions.propulsion.battery.pack.temperature
-        battery.cell.charge_throughput   = conditions.propulsion.battery.cell.charge_throughput     
-        battery.age                      = conditions.propulsion.battery.cycle_day         
-        battery_discharge_flag           = conditions.propulsion.battery.discharge_flag    
-        battery.R_growth_factor          = conditions.propulsion.battery.resistance_growth_factor
-        battery.E_growth_factor          = conditions.propulsion.battery.capacity_fade_factor 
-        battery.max_energy               = conditions.propulsion.battery.max_aged_energy 
-        n_series                         = battery.pack.electrical_configuration.series  
-        n_parallel                       = battery.pack.electrical_configuration.parallel
+        battery.pack.current_energy                   = conditions.propulsion.battery.pack.energy
+        battery.pack.temperature                      = conditions.propulsion.battery.pack.temperature
+        battery.cell.charge_throughput                = conditions.propulsion.battery.cell.charge_throughput     
+        battery.cell.age                              = conditions.propulsion.battery.cell.cycle_in_day         
+        battery_discharge_flag                        = conditions.propulsion.battery.discharge_flag    
+        battery.cell.R_growth_factor                  = conditions.propulsion.battery.cell.resistance_growth_factor
+        battery.cell.E_growth_factor                  = conditions.propulsion.battery.cell.capacity_fade_factor 
+        battery.pack.max_energy                       = conditions.propulsion.battery.pack.max_aged_energy 
+        n_series                                      = battery.pack.electrical_configuration.series  
+        n_parallel                                    = battery.pack.electrical_configuration.parallel
         
         # update ambient temperature based on altitude
         battery.ambient_temperature                   = conditions.freestream.temperature   
@@ -240,12 +240,11 @@ class Lift_Cruise(Network):
                 conditions.propulsion.propeller.rpm[:,ii]              = rpm[:,0]
                 conditions.propulsion.propeller.thrust[:,ii]           = np.linalg.norm(total_prop_thrust ,axis = 1) 
                 conditions.propulsion.propeller.tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
-                conditions.propulsion.propeller.disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
-                conditions.propulsion.propeller.power_loading[:,ii]    = (F_mag[:,0])/(P_forward[:,0])  # N/W  
+                conditions.propulsion.propeller.disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))                 
+                conditions.propulsion.propeller.power_loading[:,ii]    = (F_mag[:,0])/(P_forward[:,0])   
                 conditions.propulsion.propeller.efficiency[:,ii]       = etap_forward[:,0]
-                conditions.propulsion.propeller.figure_of_merit[:,ii]  = outputs_forward.figure_of_merit[:,0] 
-                
-                conditions.noise.sources.propellers[prop.tag]      = outputs_forward
+                conditions.propulsion.propeller.figure_of_merit[:,ii]  = outputs_forward.figure_of_merit[:,0]  
+                conditions.noise.sources.propellers[prop.tag]          = outputs_forward
                 
                 
             if self.identical_propellers :
@@ -360,12 +359,10 @@ class Lift_Cruise(Network):
                 conditions.propulsion.lift_rotor.rpm[:,ii]              = rpm[:,0]
                 conditions.propulsion.lift_rotor.thrust[:,ii]           = np.linalg.norm(total_lift_rotor_thrust ,axis = 1) 
                 conditions.propulsion.lift_rotor.tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
-                conditions.propulsion.lift_rotor.disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
-                conditions.propulsion.lift_rotor.power_loading[:,ii]    = (F_mag[:,0])/(P_lift[:,0])  # N/W                     
+                conditions.propulsion.lift_rotor.disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))                  
+                conditions.propulsion.lift_rotor.power_loading[:,ii]    = (F_mag[:,0])/(P_lift[:,0])                 
                 conditions.propulsion.lift_rotor.figure_of_merit[:,ii]  = outputs_lift.figure_of_merit[:,0]     
-                conditions.propulsion.lift_rotor.efficiency[:,ii]       = etap_lift[:,0]
-                
-                
+                conditions.propulsion.lift_rotor.efficiency[:,ii]       = etap_lift[:,0] 
                 conditions.noise.sources.lift_rotors[lift_rotor.tag]    = outputs_lift
                 
                 
@@ -466,11 +463,11 @@ class Lift_Cruise(Network):
             state.unknowns.throttle                     [0-1]
     
             Outputs:
-            state.conditions.propulsion.lift_rotor.power_coefficient [None]
-            state.conditions.propulsion.propeller.power_coefficient  [None]
-            state.conditions.propulsion.battery.voltage_under_load   [volts]
-            state.conditions.propulsion.throttle_lift                [0-1]
-            state.conditions.propulsion.throttle                     [0-1]
+            state.conditions.propulsion.lift_rotor.power_coefficient      [None]
+            state.conditions.propulsion.propeller.power_coefficient       [None]
+            state.conditions.propulsion.battery.pack.voltage_under_load   [volts]
+            state.conditions.propulsion.throttle_lift                     [0-1]
+            state.conditions.propulsion.throttle                          [0-1]
     
             Properties Used:
             N/A
@@ -515,10 +512,10 @@ class Lift_Cruise(Network):
             state.unknowns.throttle                    [0-1]
     
             Outputs:
-            state.conditions.propulsion.propeller.power_coefficient [None]
-            state.conditions.propulsion.battery.voltage_under_load  [volts]
-            state.conditions.propulsion.throttle_lift               [0-1]
-            state.conditions.propulsion.throttle                    [0-1]
+            state.conditions.propulsion.propeller.power_coefficient      [None]
+            state.conditions.propulsion.battery.pack.voltage_under_load  [volts]
+            state.conditions.propulsion.throttle_lift                    [0-1]
+            state.conditions.propulsion.throttle                         [0-1]
     
             Properties Used:
             N/A
@@ -558,10 +555,10 @@ class Lift_Cruise(Network):
             state.unknowns.throttle                    [0-1]
     
             Outputs:
-            state.conditions.propulsion.propeller.power_coefficient [None]
-            state.conditions.propulsion.battery.voltage_under_load  [volts]
-            state.conditions.propulsion.throttle_lift               [0-1]
-            state.conditions.propulsion.throttle                    [0-1]
+            state.conditions.propulsion.propeller.power_coefficient      [None]
+            state.conditions.propulsion.battery.pack.voltage_under_load  [volts]
+            state.conditions.propulsion.throttle_lift                    [0-1]
+            state.conditions.propulsion.throttle                         [0-1]
     
             Properties Used:
             N/A
@@ -720,14 +717,14 @@ class Lift_Cruise(Network):
     
             Inputs:
             segment
-            initial_voltage                   [v]
-            initial_power_coefficient         [float]s
+            initial_voltage                                              [v]
+            initial_power_coefficient                                    [float]s
             
             Outputs:
-            segment.state.unknowns.battery_voltage_under_load
-            segment.state.unknowns.propeller_power_coefficient
-            segment.state.conditions.propulsion.propeller_motor.torque
-            segment.state.conditions.propulsion.propeller.torque   
+            segment.state.unknowns.battery_voltage_under_load            [v]
+            segment.state.unknowns.propeller_power_coefficient           [float]s
+            segment.state.conditions.propulsion.propeller_motor.torque   [N-m]
+            segment.state.conditions.propulsion.propeller.torque         [N-m]
     
             Properties Used:
             N/A
@@ -834,14 +831,14 @@ class Lift_Cruise(Network):
     
             Inputs:
             segment
-            initial_voltage                   [v]
-            initial_power_coefficient         [float]s
+            initial_voltage                                              [v]
+            initial_power_coefficient                                    [float]s
             
             Outputs:
-            segment.state.unknowns.battery_voltage_under_load
-            segment.state.unknowns.propeller_power_coefficient
-            segment.state.conditions.propulsion.propeller_motor.torque
-            segment.state.conditions.propulsion.propeller.torque   
+            segment.state.unknowns.battery_voltage_under_load            [v]
+            segment.state.unknowns.propeller_power_coefficient           [float]s
+            segment.state.conditions.propulsion.propeller_motor.torque   [N-m]
+            segment.state.conditions.propulsion.propeller.torque         [N-m]
     
             Properties Used:
             N/A
@@ -942,14 +939,14 @@ class Lift_Cruise(Network):
 
             Inputs:
             segment
-            initial_voltage                   [v]
-            initial_power_coefficient         [float]s
+            initial_voltage                                            [v]
+            initial_power_coefficient                                  [float]s
 
             Outputs:
-            segment.state.unknowns.battery_voltage_under_load
-            segment.state.unknowns.propeller.power_coefficient
-            segment.state.conditions.propulsion.propeller_motor.torque
-            segment.state.conditions.propulsion.propeller.torque   
+            segment.state.unknowns.battery_voltage_under_load          [v]
+            segment.state.unknowns.propeller.power_coefficient         [float]s
+            segment.state.conditions.propulsion.propeller_motor.torque [N-m]
+            segment.state.conditions.propulsion.propeller.torque       [N-m]
 
             Properties Used:
             N/A

@@ -61,8 +61,8 @@ def plot_solar_flux(results,
     for segment in results.segments.values():
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         flux   = segment.conditions.propulsion.solar_flux[:,0]
-        charge = segment.conditions.propulsion.battery.power_draw[:,0]
-        energy = segment.conditions.propulsion.battery.energy[:,0] / Units.MJ
+        charge = segment.conditions.propulsion.battery.pack.power_draw[:,0]
+        energy = segment.conditions.propulsion.battery.pack.energy[:,0] / Units.MJ
 
         segment_frame = pd.DataFrame(
             np.column_stack((
