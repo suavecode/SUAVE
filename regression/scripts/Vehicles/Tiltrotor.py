@@ -438,10 +438,10 @@ def vehicle_setup():
     # Component 3 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     bat.mass_properties.mass = 500. * Units.kg  
-    bat.max_voltage          = 400. 
+    bat.pack.max_voltage     = 400. 
     initialize_from_mass(bat)
     net.battery              = bat
-    net.voltage              = bat.max_voltage
+    net.voltage              = bat.pack.max_voltage
 
     # Component 4 Miscellaneous Systems
     sys = SUAVE.Components.Systems.System()
@@ -452,7 +452,7 @@ def vehicle_setup():
     motor.efficiency              = 0.95
     motor.gearbox_efficiency      = 1.
     motor.origin                  = [[2.,  5.7, 0.95]]
-    motor.nominal_voltage         = bat.max_voltage*0.8 
+    motor.nominal_voltage         = bat.pack.max_voltage*0.8 
     motor.no_load_current         = 0.1 
     motor.rotor_radius            = prop.tip_radius
     motor.design_torque           = prop.cruise.design_torque

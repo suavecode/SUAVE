@@ -217,7 +217,7 @@ def vehicle_setup():
     bat.mass_properties.mass = 90.0 * Units.kg
     bat.specific_energy      = 600. * Units.Wh/Units.kg
     bat.resistance           = 0.05
-    bat.max_voltage          = 45.0
+    bat.pack.max_voltage     = 45.0
     initialize_from_mass(bat)
     net.battery              = bat
    

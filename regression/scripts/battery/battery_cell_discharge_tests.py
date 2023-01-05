@@ -42,11 +42,11 @@ def main():
     numerics.time.control_points  = np.array([[0], [1]])
     
     # build battery_inputs(i.e. current it's run at, power, normally done from energy network
-    battery_inputs.current        = np.array([[90],[90]])*Units.amps
-    battery_inputs.power_in       = np.array([[Preq/2.] ,[ Preq]])
+    battery_inputs.current          = np.array([[90],[90]])*Units.amps
+    battery_inputs.power_in         = np.array([[Preq/2.] ,[ Preq]])
     print('battery_inputs=', battery_inputs)
-    battery_li_ion.inputs         = battery_inputs
-    battery_li_ion.max_voltage    = battery_li_ion.cell.max_voltage
+    battery_li_ion.inputs           = battery_inputs
+    battery_li_ion.pack.max_voltage = battery_li_ion.cell.max_voltage
     
     # run tests on functionality
     test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)

@@ -71,7 +71,7 @@ def main():
     error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)
     assert error_distance_SR < 1e-6
 
-    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.battery.pack.state_of_charge[-1,0])
+    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.battery.cell.state_of_charge[-1,0])
     print('landing state of charge error' , error_soc)
     assert error_soc < 1e-6
 

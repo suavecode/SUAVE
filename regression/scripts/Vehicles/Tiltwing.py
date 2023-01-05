@@ -217,7 +217,7 @@ def vehicle_setup():
     #------------------------------------------------------------------ 
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()   
     bat.mass_properties.mass = 200. * Units.kg  
-    bat.max_voltage          = net.voltage    
+    bat.pack.max_voltage     = net.voltage    
     initialize_from_mass(bat)
     
     # Here we, are going to assume a battery pack module shape. This step is optional but
@@ -302,7 +302,7 @@ def vehicle_setup():
     # Propeller (Thrust) motor
     motor                      = SUAVE.Components.Energy.Converters.Motor()
     motor.efficiency           = 0.9
-    motor.nominal_voltage      = bat.max_voltage *3/4
+    motor.nominal_voltage      = bat.pack.max_voltage *3/4
     motor.rotor_radius         = rotor.tip_radius
     motor.no_load_current      = 2.0 
     motor.rotor_radius         = rotor.tip_radius

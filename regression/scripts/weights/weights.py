@@ -89,14 +89,13 @@ def main():
     #but there is a huge spread among the GA designs, so individual components	
     #differ a good deal from the actual design	
 
-    vehicle        = vehicle_setup_general_aviation()	
-    weight         = General_Aviation.empty(vehicle)	
-    weight.fuel    = vehicle.fuel.mass_properties.mass	
-    actual         = Data()	
-    actual.bag     = 0.	
-    actual.empty   = 694.7649585502986
-    actual.fuel    = 53.66245194970156
-
+    vehicle                = vehicle_setup_general_aviation()	
+    weight                 = General_Aviation.empty(vehicle)	
+    weight.fuel            = vehicle.fuel.mass_properties.mass	
+    actual                 = Data()	
+    actual.bag             = 0.	
+    actual.fuel            = 53.66245194970156
+    actual.empty           = 694.7649585502986 
     actual.wing            = 147.65984323497554
     actual.fuselage        = 126.85012177631337
     actual.propulsion      = 224.40728553408732	

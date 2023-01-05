@@ -153,7 +153,7 @@ def energy_network():
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.specific_energy             = 300. * Units.Wh/Units.kg
     bat.resistance                  = 0.006
-    bat.max_voltage                 = 400.
+    bat.pack.max_voltage            = 400.
     bat.mass_properties.mass        = 1000. * Units.kg 
     initialize_from_mass(bat, bat.mass_properties.mass)
     battery_ducted_fan.battery      = bat

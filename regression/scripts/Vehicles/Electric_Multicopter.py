@@ -217,7 +217,7 @@ def vehicle_setup():
     #------------------------------------------------------------------ 
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     bat.mass_properties.mass = 300. * Units.kg  
-    bat.max_voltage          = net.voltage  
+    bat.pack.max_voltage     = net.voltage  
     initialize_from_mass(bat)
     net.battery              = bat  
 
@@ -269,7 +269,7 @@ def vehicle_setup():
     # Motor 
     lift_motor                         = SUAVE.Components.Energy.Converters.Motor() 
     lift_motor.efficiency              = 0.95
-    lift_motor.nominal_voltage         = bat.max_voltage * 0.5 
+    lift_motor.nominal_voltage         = bat.pack.max_voltage * 0.5 
     lift_motor.mass_properties.mass    = 3. * Units.kg 
     lift_motor.origin                  = lift_rotor.origin     
     lift_motor.no_load_current         = 2.0   

@@ -143,7 +143,7 @@ def GA_full_setup(battery_chemistry):
         bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()  
     
     bat.mass_properties.mass = 500. * Units.kg  
-    bat.max_voltage          = 500.             
+    bat.pack.max_voltage     = 500.             
     initialize_from_mass(bat)
     
     # Assume a battery pack module shape. This step is optional but
@@ -155,7 +155,7 @@ def GA_full_setup(battery_chemistry):
     net.battery                                        = bat      
     
     net.battery              = bat
-    net.voltage              = bat.max_voltage     
+    net.voltage              = bat.pack.max_voltage     
     
     # Set up configs
     configs  = GA_configs_setup(vehicle)
@@ -189,7 +189,7 @@ def EVTOL_full_setup(battery_chemistry):
         bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
     
     bat.mass_properties.mass = 500. * Units.kg  
-    bat.max_voltage          = 500.             
+    bat.pack.max_voltage     = 500.             
     initialize_from_mass(bat)
     
     # Assume a battery pack module shape. This step is optional but required for thermal analysis of the pack. We will assume that all cells electrically connected 
@@ -201,7 +201,7 @@ def EVTOL_full_setup(battery_chemistry):
     bat.module.geometrtic_configuration.parallel_count = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.parallel))
     
     net.battery              = bat
-    net.voltage              = bat.max_voltage     
+    net.voltage              = bat.pack.max_voltage     
      
     configs  = EVTOL_configs_setup(vehicle)
 
