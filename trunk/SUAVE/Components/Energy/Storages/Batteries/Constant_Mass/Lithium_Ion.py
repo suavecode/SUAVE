@@ -142,7 +142,7 @@ class Lithium_Ion(Battery):
         battery           = self
         I_bat             = battery.inputs.current
         P_bat             = battery.inputs.power_in   
-        V_max             = battery.max_voltage
+        V_max             = battery.pack.max_voltage
         bat_mass          = battery.mass_properties.mass                
         bat_Cp            = battery.specific_heat_capacity    
         T_current         = battery.pack.temperature   
@@ -333,7 +333,7 @@ class Lithium_Ion(Battery):
         
         ones_row = segment.state.ones_row 
         if initial_voltage==None:
-            initial_voltage = self.max_voltage 
+            initial_voltage = self.pack.max_voltage 
         segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1) 
         
         return  

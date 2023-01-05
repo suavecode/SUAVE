@@ -155,7 +155,7 @@ def electric_V_h_diagram(vehicle,
                         
 
                 # Check if Propeller Power Exceeds Max Battery Power, Switch to Max Battery Power if So
-                P = np.min([Power, vehicle.networks.battery_rotor.battery.max_power])
+                P = np.min([Power, vehicle.networks.battery_rotor.battery.pack.max_power])
 
                 # Determine Climb Rate (ref. Raymer)
 

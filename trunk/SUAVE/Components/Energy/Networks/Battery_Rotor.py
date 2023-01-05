@@ -450,7 +450,7 @@ class Battery_Rotor(Network):
         
         # unpack the initial values if the user doesn't specify
         if initial_voltage==None:
-            initial_voltage = self.battery.max_voltage
+            initial_voltage = self.battery.pack.max_voltage
             
         if initial_power_coefficient==None:
             prop_key = list(self.rotors.keys())[0] # Use the first rotor
@@ -543,7 +543,7 @@ class Battery_Rotor(Network):
         
         # unpack the initial values if the user doesn't specify
         if initial_voltage==None:
-            initial_voltage = self.battery.max_voltage
+            initial_voltage = self.battery.pack.max_voltage
             
         if initial_power_coefficient==None:
             prop_key = list(self.rotors.keys())[0] # Use the first rotor

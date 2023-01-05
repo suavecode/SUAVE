@@ -48,9 +48,7 @@ def find_ragone_optimum(battery, energy, power): #adds a battery that is optimiz
 
     Properties Used:
     N/A  
-    """
-
-    specific_energy_guess = battery.specific_energy
+    """ 
     
     lb = battery.ragone.lower_bound
     ub = battery.ragone.upper_bound

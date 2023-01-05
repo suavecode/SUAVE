@@ -50,6 +50,7 @@ def plot_solar_flux(results,
     plot_cols = [
         "Solar Flux",
         "Charging Power",
+        "Battery Current",
         "Battery Energy",
         "Segment"
     ]
@@ -62,12 +63,14 @@ def plot_solar_flux(results,
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         flux   = segment.conditions.propulsion.solar_flux[:,0]
         charge = segment.conditions.propulsion.battery.pack.power_draw[:,0]
+        current= segment.conditions.propulsion.battery.pack.current[:,0]
         energy = segment.conditions.propulsion.battery.pack.energy[:,0] / Units.MJ
 
         segment_frame = pd.DataFrame(
             np.column_stack((
                 flux,
                 charge,
+                current,
                 energy,
 
             )),
@@ -82,7 +85,7 @@ def plot_solar_flux(results,
 
     # Set plot properties
 
-    fig = make_subplots(rows=3, cols=1)
+    fig = make_subplots(rows=2, cols=2)
 
     # Add traces to the figure for each value by segment
 
@@ -101,20 +104,29 @@ def plot_solar_flux(results,
             y=data['Charging Power'],
             name=seg_name,
             showlegend=False),
-            row=2, col=1)
+            row=1, col=2)
 
+        fig.add_trace(go.Scatter(
+            x=data.index,
+            y=data['Battery Current'],
+            name=seg_name,
+            showlegend=False),
+            row=2, col=1)
+        
         fig.add_trace(go.Scatter(
             x=data.index,
             y=data['Battery Energy'],
             name=seg_name,
             showlegend=False),
-            row=3, col=1)
+            row=2, col=2)
 
-    fig.update_yaxes(title_text=r'Solar Flux (W/m$^2$)', row=1, col=1)
-    fig.update_yaxes(title_text='Charging Power (W)', row=2, col=1)
-    fig.update_yaxes(title_text='Battery Energy (MJ)', row=3, col=1) 
+    fig.update_yaxes(title_text='Solar Flux (W/m^2)', row=1, col=1)
+    fig.update_yaxes(title_text='Charging Power (W)', row=1, col=2)
+    fig.update_yaxes(title_text='Battery Current (A)', row=2, col=1) 
+    fig.update_yaxes(title_text='Battery Energy (MJ)', row=2, col=2) 
 
-    fig.update_xaxes(title_text='Time (min)', row=3, col=1)
+    fig.update_xaxes(title_text='Time (min)', row=2, col=1)
+    fig.update_xaxes(title_text='Time (min)', row=2, col=2)
 
     fig.update_layout(
         width=width, height=height,

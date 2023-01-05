@@ -102,7 +102,6 @@ modules = [
     'scripts/slipstream/slipstream_test.py',
     'scripts/slipstream/propeller_interactions.py',
     'scripts/solar/solar_network.py',
-    'scripts/solar/solar_low_fidelity_network.py',
     'scripts/solar/solar_radiation.py',
     'scripts/SU2_surrogate/BWB-450.py',
     'scripts/sweeps/test_sweeps.py',

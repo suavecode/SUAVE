@@ -10,7 +10,6 @@ from .Battery_Ducted_Fan                           import Battery_Ducted_Fan
 from .Battery_Cell_Cycler                          import Battery_Cell_Cycler
 from .Turbofan                                     import Turbofan
 from .Turbojet_Super                               import Turbojet_Super
-from .Solar_Low_Fidelity                           import Solar_Low_Fidelity
 from .Battery_Ducted_Fan                           import Battery_Ducted_Fan
 from .Internal_Combustion_Propeller                import Internal_Combustion_Propeller
 from .Lift_Cruise                                  import Lift_Cruise

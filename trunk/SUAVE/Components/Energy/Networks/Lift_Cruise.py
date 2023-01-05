@@ -749,7 +749,7 @@ class Lift_Cruise(Network):
             
         # unpack the initial values if the user doesn't specify
         if initial_voltage==None:
-            initial_voltage = self.battery.max_voltage
+            initial_voltage = self.battery.pack.max_voltage
             
         if initial_prop_power_coefficient==None:
             prop_key = list(self.propellers.keys())[0] # Use the first propeller
@@ -869,7 +869,7 @@ class Lift_Cruise(Network):
             
         # unpack the initial values if the user doesn't specify
         if initial_voltage==None:
-            initial_voltage = self.battery.max_voltage
+            initial_voltage = self.battery.pack.max_voltage
             
         if initial_prop_power_coefficient==None:
             prop_key = list(self.propellers.keys())[0] # Use the first propeller
@@ -957,7 +957,7 @@ class Lift_Cruise(Network):
 
         # unpack the initial values if the user doesn't specify
         if initial_voltage==None:
-            initial_voltage = self.battery.max_voltage    
+            initial_voltage = self.battery.pack.max_voltage    
             
         if initial_lift_rotor_power_coefficient==None:
             prop_key = list(self.lift_rotors.keys())[0] # Use the first propeller 

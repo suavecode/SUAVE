@@ -73,10 +73,10 @@ def main():
     
     # Truth results
 
-    truth_F   = 82.50753846534539
-    truth_rpm = 194.40119841317366
-    truth_i   = 86.06579017876555
-    truth_bat = 124628733.8676211
+    truth_F   = 82.50753846534745
+    truth_rpm = 194.40119841312963
+    truth_i   = -88.56579017873031
+    truth_bat = 124628733.86762737
     
     print('battery energy')
     print(energy)
@@ -118,7 +118,8 @@ def analyses_setup(configs):
 #   Define Base Analysis
 # ----------------------------------------------------------------------  
 
-def base_analysis(vehicle): # ------------------------------------------------------------------
+def base_analysis(vehicle):
+    # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
     analyses = SUAVE.Analyses.Vehicle()
