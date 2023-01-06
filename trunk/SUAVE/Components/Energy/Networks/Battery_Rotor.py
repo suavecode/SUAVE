@@ -70,10 +70,7 @@ class Battery_Rotor(Network):
         self.esc                          = None
         self.avionics                     = None
         self.payload                      = None
-        self.battery                      = None
-        self.nacelle_diameter             = None
-        self.engine_length                = None
-        self.number_of_rotor_engines      = None
+        self.battery                      = None  
         self.voltage                      = None
         self.tag                          = 'Battery_Rotor'
         self.use_surrogate                = False 
@@ -320,7 +317,18 @@ class Battery_Rotor(Network):
         """                          
         
         # unpack the ones function
-        ones_row = segment.state.ones_row
+        ones_row               = segment.state.ones_row  
+        rotor_group_indexes    = self.rotor_group_indexes
+        motor_group_indexes    = self.motor_group_indexes        
+        
+        # How many evaluations to do 
+        unique_rotor_groups,factors = np.unique(rotor_group_indexes, return_counts=True)
+        unique_motor_groups,factors = np.unique(motor_group_indexes, return_counts=True) 
+
+        y_rotations   = []
+        net           = list(segment.analyses.energy.network.keys())[0]
+        for rotor in segment.analyses.energy.network[net].rotors:
+            y_rotations.append(rotor.inputs.y_axis_rotation) 
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
         ss       = segment.state 
@@ -330,7 +338,9 @@ class Battery_Rotor(Network):
                 ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = ss.unknowns['rotor_power_coefficient_' + str(i)]  
             else: 
                 ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = 0. * ones_row(1)
-                
+            loc = np.where(unique_rotor_groups[i] == rotor_group_indexes)[0][0]
+            ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation = y_rotations[loc] * ones_row(1)
+                                
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
         
@@ -368,15 +378,18 @@ class Battery_Rotor(Network):
         for i in range(n_groups):  
             if segment.battery_discharge:    
                 ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = ss.unknowns['rotor_power_coefficient_' + str(i)]  
-                ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation         = ss.unknowns['y_axis_rotation_' + str(i)]                  
+                ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation         = ss.unknowns['y_axis_rotation_' + str(i)]        
+                ss.conditions.propulsion.throttle                                             = ss.unknowns.throttle           
             else: 
                 ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = 0. * ones_row(1)
                 ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation         = 0. * ones_row(1)
-          
+               
+        
+        # update y axis rotation
+        self.y_axis_rotation = ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation
+                
         battery = self.battery 
-        battery.append_battery_unknowns(segment)          
-        
-        
+        battery.append_battery_unknowns(segment)    
         return          
     
     
@@ -498,9 +511,9 @@ class Battery_Rotor(Network):
     
         for i in range(n_groups):         
             # Setup the conditions
-            segment.state.conditions.propulsion['propulsor_group_' + str(i)]       = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
-            segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
-            segment.state.conditions.propulsion['propulsor_group_' + str(i)].rotor = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
+            segment.state.conditions.propulsion['propulsor_group_' + str(i)]                        = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
+            segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor                  = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
+            segment.state.conditions.propulsion['propulsor_group_' + str(i)].rotor                  = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].throttle               = 0. * ones_row(n_groups)  
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation        = 0. * ones_row(n_groups) 
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor.efficiency       = 0. * ones_row(n_groups)
@@ -612,7 +625,7 @@ class Battery_Rotor(Network):
             for i in range(n_groups): 
                 segment.state.unknowns['rotor_power_coefficient_' + str(i)] = initial_rotor_power_coefficients[i] * ones_row(n_groups)  
                 segment.state.unknowns['y_axis_rotation_' + str(i)]         = initial_y_axis_rotations[i] * ones_row(1) 
-                segment.state.unknowns.throttle                    = 0.7 * ones_row(1) #OLD 
+                segment.state.unknowns.throttle                             = 0.7 * ones_row(1)  
     
         for i in range(n_groups):         
             # Setup the conditions
