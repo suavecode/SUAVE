@@ -247,8 +247,7 @@ class Solar(Network):
         # Create the outputs
         results = Data()
         results.thrust_force_vector     = total_thrust
-        results.vehicle_mass_rate       = state.ones_row(1)*0.0
-        results.network_y_axis_rotation = state.ones_row(1)*0.0
+        results.vehicle_mass_rate       = state.ones_row(1)*0.0 
 
         return results
     
@@ -311,7 +310,7 @@ class Solar(Network):
     
     
     
-    def add_unknowns_and_residuals_to_segment(self, segment, initial_power_coefficient = None):
+    def add_unknowns_and_residuals_to_segment(self, segment, initial_rotor_power_coefficients = None):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -323,7 +322,7 @@ class Solar(Network):
             Inputs:
             segment
             initial_voltage                   [v]
-            initial_power_coefficient         [float]s
+            initial_rotor_power_coefficients         [float]s
             
             Outputs:
             segment.state.unknowns.rotor_power_coefficient
@@ -350,9 +349,9 @@ class Solar(Network):
             n_props = 1
             
         # unpack the initial values if the user doesn't specify
-        if initial_power_coefficient==None:
+        if initial_rotor_power_coefficients==None:
             prop_key = list(self.rotors.keys())[0] # Use the first rotor
-            initial_power_coefficient = float(self.rotors[prop_key].design_power_coefficient)        
+            initial_rotor_power_coefficients = float(self.rotors[prop_key].design_power_coefficient)        
             
         # number of residuals, props plus the battery voltage
         n_res = n_props 
@@ -365,7 +364,7 @@ class Solar(Network):
         segment.state.residuals.network = 0. * ones_row(n_res)
         
         # Setup the unknowns
-        segment.state.unknowns.rotor_power_coefficient = initial_power_coefficient * ones_row(n_props)
+        segment.state.unknowns.rotor_power_coefficient = initial_rotor_power_coefficients * ones_row(n_props)
         
         # Setup the conditions
         segment.state.conditions.propulsion.motor.efficiency = 0. * ones_row(n_props)

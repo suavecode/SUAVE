@@ -440,8 +440,7 @@ class Lift_Cruise(Network):
 
         results = Data()
         results.thrust_force_vector       = F_total
-        results.vehicle_mass_rate         = state.ones_row(1)*0.0 
-        results.network_y_axis_rotation   = state.ones_row(1)*0.0
+        results.vehicle_mass_rate         = state.ones_row(1)*0.0  
         
         return results
     
@@ -718,7 +717,7 @@ class Lift_Cruise(Network):
             Inputs:
             segment
             initial_voltage                                              [v]
-            initial_power_coefficient                                    [float]s
+            initial_rotor_power_coefficients                                    [float]s
             
             Outputs:
             segment.state.unknowns.battery_voltage_under_load            [v]
@@ -832,7 +831,7 @@ class Lift_Cruise(Network):
             Inputs:
             segment
             initial_voltage                                              [v]
-            initial_power_coefficient                                    [float]s
+            initial_rotor_power_coefficients                                    [float]s
             
             Outputs:
             segment.state.unknowns.battery_voltage_under_load            [v]
@@ -940,7 +939,7 @@ class Lift_Cruise(Network):
             Inputs:
             segment
             initial_voltage                                            [v]
-            initial_power_coefficient                                  [float]s
+            initial_rotor_power_coefficients                                  [float]s
 
             Outputs:
             segment.state.unknowns.battery_voltage_under_load          [v]

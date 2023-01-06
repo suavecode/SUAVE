@@ -461,12 +461,12 @@ def vehicle_setup():
     motor.mass_properties.mass    = 10. * Units.kg 
     
     # append right motor
-    net.rotor_motors.append(motor)
+    net.motors.append(motor)
     
     # append left motor 
     motor_left = deepcopy(motor)
     motor_left.origin = [[2., -5.7, 0.95]] 
-    net.rotor_motors.append(motor_left) 
+    net.motors.append(motor_left) 
 
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()

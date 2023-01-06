@@ -86,7 +86,7 @@ def plot_battery_degradation(results,
         x=time_hrs,
         y=resistance_growth, 
         showlegend=False),
-        row=1, col=2) 
+        row=2, col=2) 
     
     fig.add_trace(go.Scatter(
         x=cycle_day,

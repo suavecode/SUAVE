@@ -74,7 +74,7 @@ def main():
         plot_electric_GA_aircraft_results(GA_results)  
         
         # RPM of rotor check during hover
-        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.rotor.rpm[3][0] 
+        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.propulsor_group_0.rotor.rpm[3][0] 
         print('GA RPM: ' + str(GA_RPM))
         GA_diff_RPM   = np.abs(GA_RPM - GA_RPM_true[i])
         print('RPM difference')
@@ -327,7 +327,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.altitude_end                     = 8012    * Units.feet 
     segment.air_speed                        = 96.4260 * Units['mph'] 
     segment.climb_rate                       = 700.034 * Units['ft/min']    
-    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficients = 0.005) 
+    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = [0.005]) 
 
     # add to misison
     mission.append_segment(segment)
@@ -341,7 +341,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.altitude                  = 8012   * Units.feet
     segment.air_speed                 = 120.91 * Units['mph'] 
     segment.distance                  =  20.   * Units.nautical_mile   
-    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficients = 0.005)   
+    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = [0.005])   
 
     # add to misison
     mission.append_segment(segment)    
@@ -359,7 +359,7 @@ def GA_mission_setup(analyses,vehicle):
     segment.air_speed_end                                    = 110 * Units['mph']   
     segment.climb_rate                                       = -200 * Units['ft/min']  
     segment.state.unknowns.throttle                          = 0.8 * ones_row(1)  
-    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_power_coefficients = 0.005)   
+    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = [0.005])   
     
     # add to misison
     mission.append_segment(segment)

@@ -132,19 +132,8 @@ class Aerodynamics(Basic):
         # propulsion conditions
         self.propulsion                                       = Conditions()
         self.propulsion.throttle                              = ones_1col * 0
-        self.propulsion.thrust_breakdown                      = Conditions()
-         
-        self.propulsion.rotor                                 = Conditions() 
-        self.propulsion.motor                                 = Conditions()  
-        self.propulsion.rotor.y_axis_rotation                 = ones_1col * 0
-         
-        self.propulsion.propeller                             = Conditions()
-        self.propulsion.propeller_motor                       = Conditions() 
-        self.propulsion.propeller.y_axis_rotation             = ones_1col * 0
-         
-        self.propulsion.lift_rotor                            = Conditions()  
-        self.propulsion.lift_rotor_motor                      = Conditions()  
-        self.propulsion.lift_rotor.y_axis_rotation            = ones_1col * 0
+        self.propulsion.number_of_propulsor_groups            = 1
+        self.propulsion.thrust_breakdown                      = Conditions() 
          
         self.propulsion.battery                               = Conditions()  
         self.propulsion.battery.pack                          = Conditions()

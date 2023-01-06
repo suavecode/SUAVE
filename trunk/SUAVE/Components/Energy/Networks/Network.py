@@ -128,8 +128,7 @@ class Container(Physical_Component.Container):
         
         results = Data()
         results.thrust_force_vector       = 0.*ones_row(3)
-        results.vehicle_mass_rate         = 0.*ones_row(1)
-        results.network_y_axis_rotation   = 0.*ones_row(1)
+        results.vehicle_mass_rate         = 0.*ones_row(1) 
 
         for net in self.values():
 

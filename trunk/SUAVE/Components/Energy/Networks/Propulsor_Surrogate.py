@@ -145,8 +145,7 @@ class Propulsor_Surrogate(Network):
         # Store Results
         results                           = Data() 
         results.thrust_force_vector       = thrust_force_vector
-        results.vehicle_mass_rate         = mdot
-        results.network_y_axis_rotation   = np.ones((ctrl_pts,1)) * 0.0
+        results.vehicle_mass_rate         = mdot 
    
         return results          
     

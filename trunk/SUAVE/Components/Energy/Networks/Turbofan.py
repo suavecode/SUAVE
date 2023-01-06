@@ -266,13 +266,11 @@ class Turbofan(Network):
         mdot         = thrust.outputs.fuel_flow_rate
         F_vec        = conditions.ones_row(3) * 0.0
         F_vec[:,0]   = F[:,0]
-        F            = F_vec
-        y_rot        = conditions.ones_row(1) * 0.0
+        F            = F_vec 
 
         results = Data()
         results.thrust_force_vector        = F
-        results.vehicle_mass_rate          = mdot
-        results.network_y_axis_rotation    = y_rot
+        results.vehicle_mass_rate          = mdot 
         
         # store data
         core_outputs = Data(
