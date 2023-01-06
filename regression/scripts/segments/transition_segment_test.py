@@ -220,85 +220,85 @@ def mission_setup(analyses,vehicle):
     # add to mission
     mission.append_segment(segment)
 
-    # --------------------------------------------------------------------------
-    #   Segment 1: First Transition Segment: Linear Speed, Constant Climb Rate
-    # --------------------------------------------------------------------------
-    # Use original transition segment, converge on rotor y-axis rotation and throttle
-    segment                                             = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
-    segment.tag                                         = "Transition_1"
-    segment.analyses.extend( analyses.transition_1 )
-    segment.altitude                                    = 40.0 * Units.ft
-    segment.acceleration                                = 2.3  * Units['m/s/s']
-    segment.air_speed_start                             = 0.0  * Units.mph              # starts from hover
-    segment.air_speed_end                               = 1.2  * V_stall         # increases linearly in time to stall speed
-    segment.pitch_initial                               = 0.0  * Units.degrees  
-    segment.pitch_final                                 = 3.6  * Units.degrees   
-    segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
-    segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
-                                                                                                            initial_rotor_power_coefficients = [0.03])
-    # add to misison
-    mission.append_segment(segment)
+    ## --------------------------------------------------------------------------
+    ##   Segment 1: First Transition Segment: Linear Speed, Constant Climb Rate
+    ## --------------------------------------------------------------------------
+    ## Use original transition segment, converge on rotor y-axis rotation and throttle
+    #segment                                             = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
+    #segment.tag                                         = "Transition_1"
+    #segment.analyses.extend( analyses.transition_1 )
+    #segment.altitude                                    = 40.0 * Units.ft
+    #segment.acceleration                                = 2.3  * Units['m/s/s']
+    #segment.air_speed_start                             = 0.0  * Units.mph              # starts from hover
+    #segment.air_speed_end                               = 1.2  * V_stall         # increases linearly in time to stall speed
+    #segment.pitch_initial                               = 0.0  * Units.degrees  
+    #segment.pitch_final                                 = 3.6  * Units.degrees   
+    #segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
+    #segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    #segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
+    #segment = vehicle.networks.battery_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
+                                                                                                            #initial_rotor_power_coefficients = [0.03])
+    ## add to misison
+    #mission.append_segment(segment)
     
-    # --------------------------------------------------------------------------
-    #   Segment 2a: Transition Segment: Linear Speed, Linear Climb
-    # --------------------------------------------------------------------------
-    # Use original transition segment, converge on rotor y-axis rotation and throttle
-    segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
-    segment.tag                                         = "Transition_2a"
-    segment.analyses.extend( analyses.transition_1 )
-    segment.altitude_start                              = 40.0 * Units.ft
-    segment.altitude_end                                = 100.0 * Units.ft
-    segment.acceleration                                = 0.5  * Units['m/s/s']
-    segment.climb_angle                                 = 7. * Units.deg
-    segment.pitch_initial                               = 3.6  * Units.degrees  
-    segment.pitch_final                                 = 4.0  * Units.degrees   
-    segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
-    segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
-                                                                                                            initial_rotor_power_coefficients = [0.03])
-    # add to misison
-    mission.append_segment(segment)
+    ## --------------------------------------------------------------------------
+    ##   Segment 2a: Transition Segment: Linear Speed, Linear Climb
+    ## --------------------------------------------------------------------------
+    ## Use original transition segment, converge on rotor y-axis rotation and throttle
+    #segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
+    #segment.tag                                         = "Transition_2a"
+    #segment.analyses.extend( analyses.transition_1 )
+    #segment.altitude_start                              = 40.0 * Units.ft
+    #segment.altitude_end                                = 100.0 * Units.ft
+    #segment.acceleration                                = 0.5  * Units['m/s/s']
+    #segment.climb_angle                                 = 7. * Units.deg
+    #segment.pitch_initial                               = 3.6  * Units.degrees  
+    #segment.pitch_final                                 = 4.0  * Units.degrees   
+    #segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
+    #segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    #segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
+    #segment = vehicle.networks.battery_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
+                                                                                                            #initial_rotor_power_coefficients = [0.03])
+    ## add to misison
+    #mission.append_segment(segment)
     
-    # --------------------------------------------------------------------------
-    #   Segment 2b: Transition Segment: Linear Speed, Linear Climb
-    # --------------------------------------------------------------------------
-    # Use original transition segment, converge on rotor y-axis rotation and throttle
-    segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
-    segment.tag                                         = "Transition_2b"
-    segment.analyses.extend( analyses.transition_1 )
-    segment.altitude_start                              = 100.0 * Units.ft
-    segment.altitude_end                                = 40.0 * Units.ft 
-    segment.acceleration                                = -0.25  * Units['m/s/s']
-    segment.climb_angle                                 = 7. * Units.deg
-    segment.pitch_initial                               = 4.0  * Units.degrees  
-    segment.pitch_final                                 = 3.6  * Units.degrees   
-    segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
-    segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
-                                                                                                            initial_rotor_power_coefficients = [0.03])
-    # add to misison
-    mission.append_segment(segment)    
+    ## --------------------------------------------------------------------------
+    ##   Segment 2b: Transition Segment: Linear Speed, Linear Climb
+    ## --------------------------------------------------------------------------
+    ## Use original transition segment, converge on rotor y-axis rotation and throttle
+    #segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
+    #segment.tag                                         = "Transition_2b"
+    #segment.analyses.extend( analyses.transition_1 )
+    #segment.altitude_start                              = 100.0 * Units.ft
+    #segment.altitude_end                                = 40.0 * Units.ft 
+    #segment.acceleration                                = -0.25  * Units['m/s/s']
+    #segment.climb_angle                                 = 7. * Units.deg
+    #segment.pitch_initial                               = 4.0  * Units.degrees  
+    #segment.pitch_final                                 = 3.6  * Units.degrees   
+    #segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
+    #segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    #segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
+    #segment = vehicle.networks.battery_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
+                                                                                                            #initial_rotor_power_coefficients = [0.03])
+    ## add to misison
+    #mission.append_segment(segment)    
     
-    # ------------------------------------------------------------------
-    #   Segment 3: Mini Cruise; Constant Acceleration, Constant Altitude
-    # ------------------------------------------------------------------ 
-    segment                                            = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag                                        = "Cruise" 
-    segment.analyses.extend(analyses.cruise) 
-    segment.altitude                                   = 40.0 * Units.ft
-    segment.air_speed                                  = 1.2  * V_stall
-    segment.distance                                   = 2.    * Units.miles   
-    segment.state.unknowns.throttle                    = 0.8    * ones_row(1) 
-    segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip   
-    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment)
+    ## ------------------------------------------------------------------
+    ##   Segment 3: Mini Cruise; Constant Acceleration, Constant Altitude
+    ## ------------------------------------------------------------------ 
+    #segment                                            = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    #segment.tag                                        = "Cruise" 
+    #segment.analyses.extend(analyses.cruise) 
+    #segment.altitude                                   = 40.0 * Units.ft
+    #segment.air_speed                                  = 1.2  * V_stall
+    #segment.distance                                   = 2.    * Units.miles   
+    #segment.state.unknowns.throttle                    = 0.8    * ones_row(1) 
+    #segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
+    #segment.process.finalize.post_process.stability    = SUAVE.Methods.skip   
+    #segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment)
     
-    # add to mission
-    mission.append_segment(segment)    
+    ## add to mission
+    #mission.append_segment(segment)    
 
 
     # ------------------------------------------------------------------
