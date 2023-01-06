@@ -200,8 +200,8 @@ class Solar(Network):
             total_motor_current = total_motor_current + factor*motor.outputs.current
 
             # Pack specific outputs
-            conditions.propulsion.rotor_motor.efficiency[:,ii] = etam[:,0]  
-            conditions.propulsion.rotor_motor.torque[:,ii]     = motor.outputs.torque[:,0]
+            conditions.propulsion.motor.efficiency[:,ii] = etam[:,0]  
+            conditions.propulsion.motor.torque[:,ii]     = motor.outputs.torque[:,0]
             conditions.propulsion.rotor.torque[:,ii]           = Q[:,0]
             conditions.propulsion.rotor.thrust[:,ii]           = np.linalg.norm(total_thrust ,axis = 1) 
             conditions.propulsion.rotor.rpm[:,ii]              = rpm[:,0]
@@ -301,7 +301,7 @@ class Solar(Network):
         # Here we are going to pack the residuals from the network
         
         # Unpack
-        q_motor   = segment.state.conditions.propulsion.rotor_motor.torque
+        q_motor   = segment.state.conditions.propulsion.motor.torque
         q_prop    = segment.state.conditions.propulsion.rotor.torque
         
         # Return the residuals
@@ -327,7 +327,7 @@ class Solar(Network):
             
             Outputs:
             segment.state.unknowns.rotor_power_coefficient
-            segment.state.conditions.propulsion.rotor_motor.torque
+            segment.state.conditions.propulsion.motor.torque
             segment.state.conditions.propulsion.rotor_torque   
     
             Properties Used:
@@ -368,8 +368,8 @@ class Solar(Network):
         segment.state.unknowns.rotor_power_coefficient = initial_power_coefficient * ones_row(n_props)
         
         # Setup the conditions
-        segment.state.conditions.propulsion.rotor_motor.efficiency = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rotor_motor.torque     = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.motor.efficiency = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.motor.torque     = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.rotor.torque           = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.rotor.thrust           = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.rotor.rpm              = 0. * ones_row(n_props)

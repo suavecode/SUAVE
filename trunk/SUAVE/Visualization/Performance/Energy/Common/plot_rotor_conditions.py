@@ -43,7 +43,7 @@ def plot_rotor_conditions(results,
         frames.inertial.time
         propulsion.rpm
         frames.body.thrust_force_vector
-        propulsion.rotor_motor.torque
+        propulsion.motor.torque
         propulsion.rotor_tip_mach
 
     Outputs: 
@@ -74,7 +74,7 @@ def plot_rotor_conditions(results,
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         rpm    = segment.conditions.propulsion.rotor.rpm[:,0]
         thrust = np.linalg.norm(segment.conditions.frames.body.thrust_force_vector[:,:],axis=1)
-        torque = segment.conditions.propulsion.rotor_motor.torque[:,0]
+        torque = segment.conditions.propulsion.motor.torque[:,0]
         tm     = segment.conditions.propulsion.rotor.tip_mach[:,0]
         Cp     = segment.conditions.propulsion.rotor.power_coefficient[:,0]
         eta    = segment.conditions.propulsion.throttle[:,0]

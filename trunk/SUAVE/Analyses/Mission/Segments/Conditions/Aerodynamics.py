@@ -135,7 +135,7 @@ class Aerodynamics(Basic):
         self.propulsion.thrust_breakdown                      = Conditions()
          
         self.propulsion.rotor                                 = Conditions() 
-        self.propulsion.rotor_motor                           = Conditions()  
+        self.propulsion.motor                                 = Conditions()  
         self.propulsion.rotor.y_axis_rotation                 = ones_1col * 0
          
         self.propulsion.propeller                             = Conditions()

@@ -410,7 +410,8 @@ def vehicle_setup():
     # build network
     net = Battery_Rotor()
     net.number_of_rotor_engines  = 2. 
-    net.identical_rotors         = True 
+    net.rotor_group_indexes      = [0,0]
+    net.motor_group_indexes      = [0,0]
 
     # Component 1 the ESC
     esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
@@ -479,12 +480,12 @@ def vehicle_setup():
     motor.mass_properties.mass    = 10. * Units.kg 
     
     # append right motor
-    net.rotor_motors.append(motor)
+    net.motors.append(motor)
     
     # append left motor 
     motor_left = deepcopy(motor)
     motor_left.origin = [[2., -2.5, 0.95]] 
-    net.rotor_motors.append(motor_left) 
+    net.motors.append(motor_left) 
 
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()

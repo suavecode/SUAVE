@@ -69,7 +69,7 @@ def plot_electric_motor_and_rotor_efficiencies(results,
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         effp   = segment.conditions.propulsion.rotor.efficiency[:,0]
         fom    = segment.conditions.propulsion.rotor.figure_of_merit[:,0]
-        effm   = segment.conditions.propulsion.rotor_motor.efficiency[:,0]
+        effm   = segment.conditions.propulsion.motor.efficiency[:,0]
 
         segment_frame = pd.DataFrame(
             np.column_stack((

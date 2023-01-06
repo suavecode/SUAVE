@@ -244,7 +244,7 @@ def empty(config,
             if key == 'rotors':
                 rotors                      = network.rotors
                 total_number_of_lift_rotors = len(rotors)
-                motors                      = network.rotor_motors
+                motors                      = network.motors
                 compute_rotor_weight_flag   = True 
                 if len(rotors) != len(motors):
                     assert("Number of rotors must be equal to the number of rotor motors") 
