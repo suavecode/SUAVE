@@ -368,18 +368,10 @@ class Battery_Rotor(Network):
         for i in range(n_groups):  
             if segment.battery_discharge:    
                 ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = ss.unknowns['rotor_power_coefficient_' + str(i)]  
-                ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation         = ss.unknowns['y_axis_rotation_' + str(i)]  
-                
-                #ss.conditions.propulsion.throttle                    = ss.unknowns.throttle
-                #ss.conditions.propulsion['propulsor_group_' + str(i)].throttle                    = ss.unknowns['throttle_' + str(i)]  
-                #ss.conditions.propulsion['propulsor_group_' + str(i)].throttle                    = ss.unknowns.throttle      
-                
+                ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation         = ss.unknowns['y_axis_rotation_' + str(i)]                  
             else: 
                 ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = 0. * ones_row(1)
                 ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation         = 0. * ones_row(1)
-        
-            # update y axis rotation
-            #self.y_axis_rotation = ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation 
           
         battery = self.battery 
         battery.append_battery_unknowns(segment)          
@@ -618,11 +610,9 @@ class Battery_Rotor(Network):
   
         if segment.battery_discharge:
             for i in range(n_groups): 
-                #segment.state.unknowns.throttle = 0.7 * ones_row(1)
-                #segment.state.unknowns['throttle_' + str(i)]                = 0.7 * ones_row(1)
                 segment.state.unknowns['rotor_power_coefficient_' + str(i)] = initial_rotor_power_coefficients[i] * ones_row(n_groups)  
                 segment.state.unknowns['y_axis_rotation_' + str(i)]         = initial_y_axis_rotations[i] * ones_row(1) 
-        
+                segment.state.unknowns.throttle                    = 0.7 * ones_row(1) #OLD 
     
         for i in range(n_groups):         
             # Setup the conditions
