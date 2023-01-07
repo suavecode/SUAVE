@@ -729,8 +729,29 @@ def configs_setup(vehicle):
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     base_config.networks.lift_cruise.pitch_command = 0
+    base_config.networks.lift_cruise.active_propulsor_groups= [True,True]
     configs.append(base_config)
 
 
+    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config.tag = 'cruise'
+    base_config.networks.lift_cruise.pitch_command = 0
+    base_config.networks.lift_cruise.active_propulsor_groups = [True,False]
+    configs.append(base_config) 
+
+
+    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config.tag = 'transitioning'
+    base_config.networks.lift_cruise.pitch_command = 0
+    base_config.networks.lift_cruise.active_propulsor_groups = [True,True]
+    configs.append(base_config)
+    
+
+    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config.tag = 'hover' 
+    base_config.networks.lift_cruise.pitch_command = 0
+    base_config.networks.lift_cruise.active_propulsor_groups = [False,True]
+    configs.append(base_config)    
+ 
     # done!
     return configs

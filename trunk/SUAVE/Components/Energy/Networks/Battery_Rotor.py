@@ -10,6 +10,7 @@
 #           Aug 2021, M. Clarke
 #           Feb 2022, R. Erhard
 #           Mar 2022, R. Erhard
+#           Jan 2023, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,13 +19,13 @@
 # package imports
 import SUAVE
 import numpy as np
-from .Network import Network
-from SUAVE.Analyses.Mission.Segments.Conditions import Residuals
-from SUAVE.Components.Energy.Converters   import  Rotor, Propeller, Lift_Rotor, Prop_Rotor 
-from SUAVE.Components.Physical_Component import Container 
-from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
+from .Network                                                      import Network
+from SUAVE.Analyses.Mission.Segments.Conditions                    import Residuals
+from SUAVE.Components.Energy.Converters                            import Propeller, Lift_Rotor, Prop_Rotor 
+from SUAVE.Components.Physical_Component                           import Container 
+from SUAVE.Methods.Power.Battery.pack_battery_conditions           import pack_battery_conditions
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions
-from SUAVE.Core import Data , Units 
+from SUAVE.Core                                                    import Data , Units 
 import copy
 
 # ----------------------------------------------------------------------
@@ -67,7 +68,7 @@ class Battery_Rotor(Network):
         
         self.motors                       = Container()
         self.rotors                       = Container()
-        self.esc                          = None
+        self.electronic_speed_controllers = Container()
         self.avionics                     = None
         self.payload                      = None
         self.battery                      = None  
@@ -77,6 +78,7 @@ class Battery_Rotor(Network):
         self.generative_design_minimum    = 0 
         self.rotor_group_indexes          = [0]
         self.motor_group_indexes          = [0]
+        self.active_propulsor_groups      = [True]
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -111,7 +113,7 @@ class Battery_Rotor(Network):
         # unpack  
         conditions             = state.conditions
         numerics               = state.numerics
-        esc                    = self.esc
+        escs                   = self.electronic_speed_controllers
         avionics               = self.avionics
         payload                = self.payload
         battery                = self.battery  
@@ -149,11 +151,6 @@ class Battery_Rotor(Network):
         # Run Motor, Avionics and Systems (Discharge Model)
         # --------------------------------------------------------------------------------    
         if discharge_flag:    
-            # Step 1 battery power
-            esc.inputs.voltagein = volts
-            
-            # Step 2 throttle the voltage
-            esc.voltageout(conditions)
             
             # How many evaluations to do 
             unique_rotor_groups,factors = np.unique(rotor_group_indexes, return_counts=True)
@@ -172,16 +169,26 @@ class Battery_Rotor(Network):
             # Setup numbers for iteration
             total_motor_current = 0.
             total_thrust        = 0. * state.ones_row(3)
+            total_rotor_power   = 0.
             total_power         = 0.
+            system_current      = 0. 
+            system_power        = 0. 
             
             # Iterate over motor/props
             for ii in range(n_evals):
-                
                 # Unpack the motor and props
                 motor_key = list(motors.keys())[motor_indexes[ii]]
                 prop_key  = list(props.keys())[rotor_indexes[ii]]
+                esc_key   = list(escs.keys())[motor_indexes[ii]]
                 motor     = self.motors[motor_key]
                 rotor     = self.rotors[prop_key]
+                esc       = self.electronic_speed_controllers[esc_key]
+                
+                # Step 1 battery power
+                esc.inputs.voltagein = volts
+                
+                # Step 2 throttle the voltage
+                esc.voltageout(conditions)     
 
                 # Set rotor y-axis rotation                
                 rotor.inputs.y_axis_rotation = conditions.propulsion['propulsor_group_' + str(ii)].y_axis_rotation    
@@ -211,9 +218,9 @@ class Battery_Rotor(Network):
                 R                   = rotor.tip_radius
                 rpm                 = motor.outputs.omega / Units.rpm
                 F_mag               = np.atleast_2d(np.linalg.norm(F, axis=1)).T
-                total_thrust        = total_thrust + F * factor[ii]
-                total_power         = total_power  + P * factor[ii]
-                total_motor_current = total_motor_current + factor[ii]*motor.outputs.current
+                total_thrust        =+ F * factor[ii]
+                total_power         =+ P * factor[ii]
+                total_motor_current =+ factor[ii]*motor.outputs.current
     
                 # Pack specific outputs
                 conditions.propulsion['propulsor_group_' + str(ii)].motor.efficiency[:,ii]        = etam[:,0]  
@@ -245,30 +252,36 @@ class Battery_Rotor(Network):
                         identical_rotor.Wake.shift_wake_VD(wake_vd, origin_offset)   
                         
                     elif rotor.Wake.wake_method=="Fidelity_Zero":
-                        identical_rotor.outputs = outputs 
-                 
-                    
+                        identical_rotor.outputs = outputs  
+            
+                # link
+                esc.inputs.currentout = total_motor_current
+        
+                # Run the esc
+                esc.currentin(conditions)  
+                
+                system_current =+ esc.outputs.currentin
+                
+                total_rotor_power =+ P # INCORRECT 
+                
             # Run the avionics
             avionics.power()
     
             # Run the payload
             payload.power()
             
-            # link
-            esc.inputs.currentout = total_motor_current
-    
-            # Run the esc
-            esc.currentin(conditions)  
-            
             # Calculate avionics and payload power
             avionics_payload_power = avionics.outputs.power + payload.outputs.power
         
             # Calculate avionics and payload current
             avionics_payload_current = avionics_payload_power/self.voltage 
-        
+            
+            system_current =+ avionics_payload_current
+            system_power   = system_current*volts   
+                    
             # link
-            battery.inputs.current  =   esc.outputs.currentin + avionics_payload_current
-            battery.inputs.power_in = -(esc.outputs.power_in  + avionics_payload_power)
+            battery.inputs.current  = system_current
+            battery.inputs.power_in = -system_power
             battery.energy_calc(numerics,discharge_flag)         
              
         # --------------------------------------------------------------------------------
@@ -283,10 +296,10 @@ class Battery_Rotor(Network):
             
             avionics_payload_power   = np.zeros((len(volts),1)) 
             total_thrust             = np.zeros((len(volts),3)) 
-            P                        = battery.inputs.power_in
+            total_rotor_power        = battery.inputs.power_in
             
         # Pack the conditions for outputs
-        pack_battery_conditions(conditions,battery,avionics_payload_power,P)  
+        pack_battery_conditions(conditions,battery,avionics_payload_power,total_rotor_power)  # INCORRECT  
         
          # Create the outputs
         results = Data()
@@ -317,9 +330,10 @@ class Battery_Rotor(Network):
         """                          
         
         # unpack the ones function
-        ones_row               = segment.state.ones_row  
-        rotor_group_indexes    = self.rotor_group_indexes
-        motor_group_indexes    = self.motor_group_indexes        
+        ones_row                = segment.state.ones_row  
+        rotor_group_indexes     = self.rotor_group_indexes
+        motor_group_indexes     = self.motor_group_indexes     
+        active_propulsor_groups = self.active_propulsor_groups    
         
         # How many evaluations to do 
         unique_rotor_groups,factors = np.unique(rotor_group_indexes, return_counts=True)
@@ -336,8 +350,10 @@ class Battery_Rotor(Network):
         for i in range(n_groups):  
             if segment.battery_discharge:            
                 ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = ss.unknowns['rotor_power_coefficient_' + str(i)]  
+                #ss.conditions.propulsion['propulsor_group_' + str(i)].throttle                = active_propulsor_groups[i]*ss.unknowns['throttle_' + str(i)] 
             else: 
                 ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = 0. * ones_row(1)
+                #ss.conditions.propulsion['propulsor_group_' + str(i)].throttle                = 0. * ones_row(1)
             loc = np.where(unique_rotor_groups[i] == rotor_group_indexes)[0][0]
             ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation = y_rotations[loc] * ones_row(1)
                                 
@@ -429,7 +445,7 @@ class Battery_Rotor(Network):
         return     
     
     ## @ingroup Components-Energy-Networks
-    def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, initial_rotor_power_coefficients = None,
+    def add_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, initial_throttles = None ,initial_rotor_power_coefficients = None,
                                               initial_battery_cell_temperature = 283. , initial_battery_state_of_charge = 0.5,
                                               initial_battery_cell_current = 5.):
         """ This function sets up the information that the mission needs to run a mission segment using this network
@@ -454,10 +470,11 @@ class Battery_Rotor(Network):
             Properties Used:
             N/A
         """            
-        rotor_group_indexes    = self.rotor_group_indexes
-        motor_group_indexes    = self.motor_group_indexes
-        n_rotors               = len(self.rotors)
-        n_motors               = len(self.motors)
+        rotor_group_indexes     = self.rotor_group_indexes
+        motor_group_indexes     = self.motor_group_indexes
+        active_propulsor_groups = self.active_propulsor_groups
+        n_rotors                = len(self.rotors)
+        n_motors                = len(self.motors)
         
         # unpack the ones function
         ones_row = segment.state.ones_row
@@ -479,12 +496,16 @@ class Battery_Rotor(Network):
         else:
             rotor_indexes = rotor_group_indexes
             n_groups      = len(rotor_group_indexes)  
+            
+        if len(active_propulsor_groups)!= n_groups:
+            assert('The dimension of propulsor groups rotors must be equal to the number of distinct groups')
+                 
         segment.state.conditions.propulsion.number_of_propulsor_groups = n_groups
             
         # unpack the initial values if the user doesn't specify
         if initial_voltage==None:
             initial_voltage = self.battery.pack.max_voltage    
-                
+        
         if initial_rotor_power_coefficients==None:  
             initial_rotor_power_coefficients = []
             for i in range(n_groups):             
@@ -493,7 +514,10 @@ class Battery_Rotor(Network):
                     initial_rotor_power_coefficients.append(float(identical_rotor.cruise.design_power_coefficient))
                 if type(identical_rotor) == Lift_Rotor or type(identical_rotor) == Prop_Rotor:
                     initial_rotor_power_coefficients.append(float(identical_rotor.hover.design_power_coefficient))  
-
+        
+        if initial_throttles == None: 
+            initial_throttles = list(np.ones(n_groups)*0.5)
+            
         # Assign initial segment conditions to segment if missing
         battery = self.battery
         append_initial_battery_conditions(segment,battery)          
@@ -503,11 +527,20 @@ class Battery_Rotor(Network):
         battery.append_battery_unknowns_and_residuals_to_segment(segment,initial_voltage,
                                               initial_battery_cell_temperature , initial_battery_state_of_charge,
                                               initial_battery_cell_current)  
-
+ 
         if segment.battery_discharge:
             for i in range(n_groups): 
-                segment.state.unknowns['rotor_power_coefficient_' + str(i)] = initial_rotor_power_coefficients[i] * ones_row(n_groups)  
-        
+                if active_propulsor_groups[i]: 
+                    segment.state.unknowns['rotor_power_coefficient_' + str(i)]         =  ones_row(n_groups)  
+ 
+                    
+        #segment.state.unknowns.__delitem__('throttle')
+        #if segment.battery_discharge:
+            #for i in range(n_groups): 
+                #if active_propulsor_groups[i]:
+                    ##segment.state.residuals.network['propulsor_group_' + str(i)]        =  0. * ones_row(n_groups) # CORRECT 
+                    #segment.state.unknowns['rotor_power_coefficient_' + str(i)]         = initial_rotor_power_coefficients[i] * ones_row(n_groups)  
+                    #segment.state.unknowns['throttle_' + str(i)]                        = initial_throttles[i] * ones_row(n_groups)  
     
         for i in range(n_groups):         
             # Setup the conditions
@@ -567,10 +600,11 @@ class Battery_Rotor(Network):
             Properties Used:
             N/A
         """            
-        rotor_group_indexes    = self.rotor_group_indexes
-        motor_group_indexes    = self.motor_group_indexes
-        n_rotors               = len(self.rotors)
-        n_motors               = len(self.motors)
+        rotor_group_indexes     = self.rotor_group_indexes
+        motor_group_indexes     = self.motor_group_indexes
+        active_propulsor_groups = self.active_propulsor_groups
+        n_rotors                = len(self.rotors)
+        n_motors                = len(self.motors)
         
         # unpack the ones function
         ones_row = segment.state.ones_row 
@@ -581,7 +615,7 @@ class Battery_Rotor(Network):
         if n_motors!=len(motor_group_indexes):
             assert('The number of motor group indexes must be equal to the number of motors') 
         if len(rotor_group_indexes)!=len(motor_group_indexes):
-            assert('The number of rotors is not the same as the number of motors')
+            assert('The number of rotors must be equal to the number of motors')
             
         # Count the number of unique pairs of rotors and motors to determine number of unique pairs of residuals and unknowns 
         unique_rotor_groups = np.unique(rotor_group_indexes)
@@ -592,6 +626,11 @@ class Battery_Rotor(Network):
         else:
             rotor_indexes = rotor_group_indexes
             n_groups      = len(rotor_group_indexes)  
+            
+             
+        if len(active_propulsor_groups)!= n_groups:
+            assert('The dimension of propulsor groups rotors must be equal to the number of distinct groups')
+            
         segment.state.conditions.propulsion.number_of_propulsor_groups = n_groups  
     
         # unpack the initial values if the user doesn't specify
