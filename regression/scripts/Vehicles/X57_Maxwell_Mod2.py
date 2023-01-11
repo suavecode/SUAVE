@@ -12,7 +12,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units , Data 
-from SUAVE.Components.Energy.Networks.Battery_Rotor     import Battery_Rotor
+from SUAVE.Components.Energy.Networks.Battery_Electric_Rotor     import Battery_Electric_Rotor
 from SUAVE.Methods.Propulsion                           import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing                 import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing     import size_optimal_motor
@@ -408,15 +408,14 @@ def vehicle_setup():
     # DEFINE PROPELLER
     #---------------------------------------------------------------------------------------------
     # build network
-    net = Battery_Rotor()
-    net.number_of_rotor_engines  = 2. 
+    net = Battery_Electric_Rotor()  
     net.rotor_group_indexes      = [0,0]
     net.motor_group_indexes      = [0,0]
 
     # Component 1 the ESC
     esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
     esc.efficiency = 0.95 # Gundlach for brushless motors
-    net.electronic_speed_controllers.append(esc)
+    net.electronic_speed_controllers.append(esc) 
     
     # Component 2 the Propeller 
     prop                                  = SUAVE.Components.Energy.Converters.Propeller()

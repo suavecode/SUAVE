@@ -13,6 +13,7 @@
 # package imports
 import numpy as np
 from .Network import Network
+from SUAVE.Components.Physical_Component import Container 
 
 # ----------------------------------------------------------------------
 #  Network
@@ -49,16 +50,16 @@ class Serial_Hybrid_Ducted_Fan(Network):
             N/A
         """         
         
-        self.propulsor              = None
-        self.battery                = None
-        self.motor_efficiency       = 0.0 
-        self.esc                    = None
-        self.avionics               = None
-        self.payload                = None
-        self.voltage                = None
-        self.generator              = None
-        self.tag                    = 'Network'
-        self.OpenVSP_flow_through   = False
+        self.propulsor                     = None
+        self.battery                       = None
+        self.motor_efficiency              = 0.0 
+        self.electronic_speed_controllers  = Container()
+        self.avionics                      = None
+        self.payload                       = None
+        self.voltage                       = None
+        self.generator                     = None
+        self.tag                           = 'Network'
+        self.OpenVSP_flow_through          = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -87,7 +88,7 @@ class Serial_Hybrid_Ducted_Fan(Network):
         # unpack
         conditions = state.conditions
         numerics   = state.numerics
-        esc        = self.esc
+        escs       = self.electronic_speed_controllers
         avionics   = self.avionics
         payload    = self.payload 
         battery    = self.battery
@@ -110,11 +111,12 @@ class Serial_Hybrid_Ducted_Fan(Network):
         propulsive_power    = np.reshape(results.power, (-1,1))
         motor_power         = propulsive_power/self.motor_efficiency 
       
-        # Set the esc input voltage
+        # Set the esc input voltage  
+        esc       = self.electronic_speed_controllers[list(escs.keys())[0]]        
         esc.inputs.voltagein = self.voltage
 
         # Calculate the esc output voltage
-        esc.voltageout(conditions)
+        esc.voltageout(conditions.propulsion.throttle)
 
         # Run the avionics
         avionics.power()
@@ -126,7 +128,7 @@ class Serial_Hybrid_Ducted_Fan(Network):
         esc.inputs.currentout = motor_power/esc.outputs.voltageout
         
         # Run the esc
-        esc.currentin(conditions)
+        esc.currentin(conditions.propulsion.throttle)
 
         # Calculate avionics and payload power
         avionics_payload_power = avionics.outputs.power + payload.outputs.power

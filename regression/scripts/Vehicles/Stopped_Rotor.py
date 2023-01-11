@@ -8,8 +8,8 @@
 # ---------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units, Data
-import copy
-from SUAVE.Components.Energy.Networks.Lift_Cruise                         import Lift_Cruise
+import copy 
+from SUAVE.Components.Energy.Networks.Battery_Electric_Rotor              import Battery_Electric_Rotor
 from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion                                             import propeller_design
@@ -501,27 +501,16 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # network
     #------------------------------------------------------------------
-    net                              = Lift_Cruise()
-    net.number_of_lift_rotor_engines = 12
-    net.number_of_propeller_engines  = 1
-    net.identical_propellers         = True
-    net.identical_lift_rotors        = True 
+    net                              = Battery_Electric_Rotor()
+    net.rotor_group_indexes          = [0,1,1,1,1,1,1,1,1,1,1,1,1]
+    net.motor_group_indexes          = [0,1,1,1,1,1,1,1,1,1,1,1,1] 
+    net.active_propulsor_groups      = [True,True]
     net.nacelle_diameter             = 0.6 * Units.feet
     net.engine_length                = 0.5 * Units.feet
     net.areas                        = Data()
     net.areas.wetted                 = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
     net.voltage                      = 500.
-
-    #------------------------------------------------------------------
-    # Design Electronic Speed Controller
-    #------------------------------------------------------------------
-    lift_rotor_esc              = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    lift_rotor_esc.efficiency   = 0.95
-    net.lift_rotor_esc          = lift_rotor_esc
-
-    propeller_esc            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    propeller_esc.efficiency = 0.95
-    net.propeller_esc        = propeller_esc
+ 
 
     #------------------------------------------------------------------
     # Design Payload
@@ -553,11 +542,17 @@ def vehicle_setup():
     bat.module.geometrtic_configuration.normal_count   = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.series))
     bat.module.geometrtic_configuration.parallel_count = int(np.ceil(bat.module.geometrtic_configuration.total/bat.pack.electrical_configuration.parallel))
     net.battery                                        = bat       
-
-    #------------------------------------------------------------------
-    # Design Rotors and Propellers
-    #------------------------------------------------------------------
-    # atmosphere and flight conditions for propeller/rotor design
+    
+    # --------------------------------------------------------------
+    # Forward Cruise Propulsor System 
+    # --------------------------------------------------------------
+    # 1. Electronic Speed Controller 
+    propeller_esc            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    propeller_esc.tag        = 'propeller_esc'
+    propeller_esc.efficiency = 0.95
+    net.electronic_speed_controllers.append(propeller_esc) 
+    
+    # 2. Propeller 
     g                                = 9.81                                   # gravitational acceleration
     S                                = vehicle.reference_area                 # reference area
     speed_of_sound                   = 340                                    # speed of sound
@@ -569,7 +564,8 @@ def vehicle_setup():
     Cd                               = Cd0 + Cdi                              # total drag
     V_inf                            = 110.* Units['mph']                     # freestream velocity
     Drag                             = S * (0.5*rho*V_inf**2 )*Cd             # cruise drag
-    Hover_Load                       = vehicle.mass_properties.takeoff*g      # hover load 
+    Hover_Load                       = vehicle.mass_properties.takeoff*g      # hover load  
+    
     # Thrust Propeller
     propeller                                   = SUAVE.Components.Energy.Converters.Propeller()
     propeller.number_of_blades                  = 3
@@ -580,7 +576,7 @@ def vehicle_setup():
     propeller.cruise.design_angular_velocity    = propeller.cruise.design_tip_mach *speed_of_sound/propeller.tip_radius
     propeller.cruise.design_Cl                  = 0.7
     propeller.cruise.design_altitude            = 1000 * Units.feet
-    propeller.cruise.design_thrust              = (Drag*2.5)/net.number_of_propeller_engines
+    propeller.cruise.design_thrust              = Drag*2.5
     propeller.variable_pitch                    = True  
     airfoil                                     = SUAVE.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                     = '../Vehicles/Airfoils/NACA_4412.txt'
@@ -593,9 +589,34 @@ def vehicle_setup():
     propeller.airfoil_polar_stations            = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     propeller                                   = propeller_design(propeller) 
     propeller.origin                            = [[16.*0.3048 , 0. ,0.575]]
-    net.propellers.append(propeller)
+    net.rotors.append(propeller)
+    
 
-    # Lift Rotors  
+    # 3. Propeller Motors 
+    propeller_motor                      = SUAVE.Components.Energy.Converters.Motor()
+    propeller_motor.tag                  = 'propeller_motor'
+    propeller_motor.efficiency           = 0.95
+    propeller_motor.nominal_voltage      = bat.pack.max_voltage
+    propeller_motor.mass_properties.mass = 2.0  * Units.kg
+    propeller_motor.origin               = propeller.origin 
+    propeller_motor.no_load_current      = 2.0 
+    propeller_motor.rotor_radius         = propeller.tip_radius
+    propeller_motor.design_torque        = propeller.cruise.design_torque
+    propeller_motor.angular_velocity     = propeller.cruise.design_angular_velocity/propeller_motor.gear_ratio     
+    propeller_motor                      = size_optimal_motor(propeller_motor) 
+    net.motors.append(propeller_motor)
+     
+    
+    # --------------------------------------------------------------
+    # Lift Propulsor System 
+    # -------------------------------------------------------------- 
+    # 1. Electronic Speed Controller 
+    lift_rotor_esc              = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    lift_rotor_esc.tag           = 'lift_rotor_esc'
+    lift_rotor_esc.efficiency   = 0.95
+    net.electronic_speed_controllers.append(lift_rotor_esc)
+    
+    # 2. Lift Rotors  
     lift_rotor                                  = SUAVE.Components.Energy.Converters.Propeller() # using propeller for for regression! 
     lift_rotor.tip_radius                       = 2.8 * Units.feet
     lift_rotor.hub_radius                       = 0.35 * Units.feet
@@ -606,7 +627,7 @@ def vehicle_setup():
     lift_rotor.cruise.design_angular_velocity   = lift_rotor.cruise.design_tip_mach* speed_of_sound /lift_rotor.tip_radius
     lift_rotor.cruise.design_Cl                 = 0.7
     lift_rotor.cruise.design_altitude           = 20 * Units.feet
-    lift_rotor.cruise.design_thrust             = Hover_Load/(net.number_of_lift_rotor_engines-1) # contingency for one-engine-inoperative condition
+    lift_rotor.cruise.design_thrust             = Hover_Load/(12-1) # contingency for one-engine-inoperative condition
     lift_rotor.variable_pitch                   = True  
     airfoil                                     = SUAVE.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                     = '../Vehicles/Airfoils/NACA_4412.txt'
@@ -618,7 +639,7 @@ def vehicle_setup():
     lift_rotor.append_airfoil(airfoil)          
     lift_rotor.airfoil_polar_stations           = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     lift_rotor                                  = propeller_design(lift_rotor)  
-
+   
     # Appending rotors with different origins
     rotations = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
     origins   = [[0.543,  1.63  , -0.126] ,[0.543, -1.63  ,  -0.126],
@@ -633,29 +654,9 @@ def vehicle_setup():
         lift_rotor.tag      = 'lift_rotor'
         lift_rotor.rotation = rotations[ii]
         lift_rotor.origin   = [origins[ii]]
-        net.lift_rotors.append(lift_rotor)
-
-
-    # append propellers to vehicle
-    net.lift_rotor = lift_rotor
-
-    #------------------------------------------------------------------
-    # Design Motors
-    #------------------------------------------------------------------
-    # Propeller (Thrust) motor
-    propeller_motor                      = SUAVE.Components.Energy.Converters.Motor()
-    propeller_motor.efficiency           = 0.95
-    propeller_motor.nominal_voltage      = bat.pack.max_voltage
-    propeller_motor.mass_properties.mass = 2.0  * Units.kg
-    propeller_motor.origin               = propeller.origin 
-    propeller_motor.no_load_current      = 2.0 
-    propeller_motor.rotor_radius         = propeller.tip_radius
-    propeller_motor.design_torque        = propeller.cruise.design_torque
-    propeller_motor.angular_velocity     = propeller.cruise.design_angular_velocity/propeller_motor.gear_ratio     
-    propeller_motor                      = size_optimal_motor(propeller_motor) 
-    net.propeller_motors.append(propeller_motor)
-
-    # Rotor (Lift) Motor
+        net.rotors.append(lift_rotor) 
+         
+    # 3. Lift Rotor Motors 
     lift_rotor_motor                          = SUAVE.Components.Energy.Converters.Motor()
     lift_rotor_motor.efficiency               = 0.85
     lift_rotor_motor.nominal_voltage          = bat.pack.max_voltage*3/4 
@@ -671,8 +672,8 @@ def vehicle_setup():
     # Appending motors with different origins
     for _ in range(12):
         lift_rotor_motor = deepcopy(lift_rotor_motor)
-        lift_rotor_motor.tag = 'motor'
-        net.lift_rotor_motors.append(lift_rotor_motor)
+        lift_rotor_motor.tag = 'lift_motor'
+        net.motors.append(lift_rotor_motor)
 
 
     # append motor origin spanwise locations onto wing data structure
@@ -728,30 +729,30 @@ def configs_setup(vehicle):
 
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
-    base_config.networks.lift_cruise.pitch_command = 0
-    base_config.networks.lift_cruise.active_propulsor_groups= [True,True]
+    base_config.networks.battery_electric_rotor.pitch_command = 0
+    base_config.networks.battery_electric_rotor.active_propulsor_groups= [True,True]
     configs.append(base_config)
 
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
-    base_config.tag = 'cruise'
-    base_config.networks.lift_cruise.pitch_command = 0
-    base_config.networks.lift_cruise.active_propulsor_groups = [True,False]
-    configs.append(base_config) 
+    forward_config = SUAVE.Components.Configs.Config(vehicle)
+    forward_config.tag = 'forward_flight'
+    forward_config.networks.battery_electric_rotor.pitch_command = 0
+    forward_config.networks.battery_electric_rotor.active_propulsor_groups = [True,False]
+    configs.append(forward_config) 
 
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
-    base_config.tag = 'transitioning'
-    base_config.networks.lift_cruise.pitch_command = 0
-    base_config.networks.lift_cruise.active_propulsor_groups = [True,True]
-    configs.append(base_config)
+    transition_config = SUAVE.Components.Configs.Config(vehicle)
+    transition_config.tag = 'transition_flight'
+    transition_config.networks.battery_electric_rotor.pitch_command = 0
+    transition_config.networks.battery_electric_rotor.active_propulsor_groups = [True,True]
+    configs.append(transition_config)
     
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
-    base_config.tag = 'hover' 
-    base_config.networks.lift_cruise.pitch_command = 0
-    base_config.networks.lift_cruise.active_propulsor_groups = [False,True]
-    configs.append(base_config)    
+    vertical_config = SUAVE.Components.Configs.Config(vehicle)
+    vertical_config.tag = 'vertical_flight' 
+    vertical_config.networks.battery_electric_rotor.pitch_command = 0
+    vertical_config.networks.battery_electric_rotor.active_propulsor_groups = [False,True]
+    configs.append(vertical_config)    
  
     # done!
     return configs

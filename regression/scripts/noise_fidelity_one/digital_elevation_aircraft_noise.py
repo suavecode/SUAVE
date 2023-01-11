@@ -79,7 +79,7 @@ def X57_full_setup():
     
     
     # change identical propeller flag for regression coverage even though propellers are identical 
-    vehicle.networks.battery_rotor.identical_rotors = False
+    vehicle.networks.battery_electric_rotor.identical_rotors = False
     
     # Set up configs
     configs  = X57_configs_setup(vehicle)
@@ -247,7 +247,7 @@ def X57_mission_setup(analyses,vehicle,topography_data):
     segment.climb_rate                                       = 600 * Units['ft/min']  
     segment.state.unknowns.throttle                          = 0.75 * ones_row(1)  
     segment.true_course                                      = topography_data.true_course    
-    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = 0.005)  
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = 0.005)  
     mission.append_segment(segment) 
 
     return mission

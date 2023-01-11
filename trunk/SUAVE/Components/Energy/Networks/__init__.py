@@ -11,11 +11,10 @@ from .Battery_Cell_Cycler                          import Battery_Cell_Cycler
 from .Turbofan                                     import Turbofan
 from .Turbojet_Super                               import Turbojet_Super
 from .Battery_Ducted_Fan                           import Battery_Ducted_Fan
-from .Internal_Combustion_Propeller                import Internal_Combustion_Propeller
-from .Lift_Cruise                                  import Lift_Cruise
+from .Internal_Combustion_Propeller                import Internal_Combustion_Propeller 
 from .Serial_Hybrid_Ducted_Fan                     import Serial_Hybrid_Ducted_Fan
 from .Propulsor_Surrogate                          import Propulsor_Surrogate
-from .Battery_Rotor                                import Battery_Rotor
+from .Battery_Electric_Rotor                                import Battery_Electric_Rotor
 from .Ramjet                                       import Ramjet
 from .Scramjet                                     import Scramjet
 from .Liquid_Rocket                                import Liquid_Rocket

@@ -45,10 +45,10 @@ def main():
     print(configs.base.mass_properties.center_of_gravity) 
     
     # check weights
-    empty_thruth       = 1604.9299336715358
-    structural_thruth  = 819.2186670281883
-    total_thruth       = 1804.9299336715358
-    rotors_thruth      = 23.038001631037048
+    empty_thruth       = 1610.7272217061286
+    structural_thruth  = 819.2186670281882
+    total_thruth       = 1810.7272217061286
+    rotors_thruth      = 23.038001631037044
     motors_thruth      = 38.0
 
     weights_error = Data()
@@ -69,8 +69,8 @@ def main():
     plot_mission(results) 
 
     # RPM of rotor check during hover
-    RPM        = results.segments.climb_1.conditions.propulsion.lift_rotor.rpm[0][0]
-    RPM_true   = 2403.004214209376
+    RPM        = results.segments.climb_1.conditions.propulsion.propulsor_group_1.rotor.rpm[0][0]
+    RPM_true   = 2403.00421420597
     print(RPM)
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -79,7 +79,7 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.climb_2.conditions.propulsion.battery.pack.energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.36361566e+08, 3.34748597e+08, 3.33134413e+08])
+    battery_energy_hover_to_transition_true = np.array([3.19800413e+08, 3.18203003e+08, 3.16604274e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true)
@@ -89,7 +89,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.8281462046145501
+    lift_coefficient_true   = 0.8281462047156696
 
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true)
@@ -221,40 +221,83 @@ def mission_setup(analyses,vehicle):
     reference_area = vehicle.reference_area
     altitude       = 0.0 
     CL_max         = 1.2  
-    Vstall         = estimate_stall_speed(vehicle_mass,reference_area,altitude,CL_max)       
-
+    Vstall         = estimate_stall_speed(vehicle_mass,reference_area,altitude,CL_max)      
 
     # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
     segment     = Segments.Hover.Climb(base_segment)
     segment.tag = "climb_1"
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.vertical_flight )
     segment.altitude_start                                   = 0.0  * Units.ft
     segment.altitude_end                                     = 40.  * Units.ft
     segment.climb_rate                                       = 500. * Units['ft/min']
-    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.pack.max_energy
+    segment.battery_energy                                   = vehicle.networks.battery_electric_rotor.battery.pack.max_energy
     segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability          = SUAVE.Methods.skip  
-    segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment,\
-                                                                                    initial_lift_rotor_power_coefficient = 0.01,
-                                                                                    initial_throttle_lift = 0.9)
+    segment.process.finalize.post_process.stability          = SUAVE.Methods.skip   
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,\
+                                                                                    initial_rotor_power_coefficients = [0.02,0.01],
+                                                                                    initial_throttles =  [0.7,0.9] )
     # add to misison
     mission.append_segment(segment)
+
+    # ------------------------------------------------------------------
+    #   First Cruise Segment: Transition
+    # ------------------------------------------------------------------
+    segment                                            = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
+    segment.tag                                        = "transition_1"
+    segment.analyses.extend( analyses.transition_flight )  
+    segment.altitude                                   = 40.  * Units.ft
+    segment.air_speed_start                            = 500. * Units['ft/min']
+    segment.air_speed_end                              = 0.8 * Vstall
+    segment.acceleration                               = 0.5 * Units['m/s/s']
+    segment.pitch_initial                              = 0.0 * Units.degrees
+    segment.pitch_final                                = 5. * Units.degrees  
+    segment.process.iterate.unknowns.mission           = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip 
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
+                                                         initial_rotor_power_coefficients = [ 0.2, 0.01],
+                                                         initial_throttles = [0.95,0.9] )
+    # add to misison
+    mission.append_segment(segment)
+
+    # ------------------------------------------------------------------
+    #   First Cruise Segment: Transition
+    # ------------------------------------------------------------------
+    segment                                             = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
+    segment.tag                                         = "transition_2"
+    segment.analyses.extend( analyses.transition_flight )
+    segment.altitude_start                          = 40.0 * Units.ft
+    segment.altitude_end                            = 50.0 * Units.ft
+    segment.climb_angle                             = 1 * Units.degrees
+    segment.acceleration                            = 0.5 * Units['m/s/s']
+    segment.pitch_initial                           = 5. * Units.degrees
+    segment.pitch_final                             = 7. * Units.degrees 
+    segment.process.iterate.unknowns.mission        = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability = SUAVE.Methods.skip
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
+                                                         initial_rotor_power_coefficients = [ 0.2, 0.01],
+                                                         initial_throttles = [0.95,0.9] )
+
+    # add to misison
+    mission.append_segment(segment)
+
 
     # ------------------------------------------------------------------
     #   Second Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
     segment                                            = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag                                        = "climb_2"
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.forward_flight)
     segment.air_speed                                  = 1.1*Vstall
     segment.altitude_start                             = 50.0 * Units.ft
     segment.altitude_end                               = 300. * Units.ft
-    segment.climb_rate                                 = 500. * Units['ft/min'] 
-    segment.state.unknowns.throttle                    =  0.80 * ones_row(1)
-    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)
+    segment.climb_rate                                 = 500. * Units['ft/min']  
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
+                                                         initial_throttles =[0.8,0.9] )
 
     # add to misison
     mission.append_segment(segment)
@@ -264,18 +307,18 @@ def mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     segment                                            = Segments.Cruise.Constant_Speed_Constant_Altitude_Loiter(base_segment)
     segment.tag                                        = "departure_terminal_procedures"
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.forward_flight )
     segment.altitude                                   = 300.0 * Units.ft
     segment.time                                       = 60.   * Units.second
-    segment.air_speed                                  = 1.2*Vstall
-    segment.state.unknowns.throttle                    =  0.80 * ones_row(1)
-    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,\
-                                                                                          initial_prop_power_coefficient = 0.16)
-
+    segment.air_speed                                  = 1.2*Vstall 
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,\
+                                                                                          initial_rotor_power_coefficients = [0.16,0.7],
+                                                                                          initial_throttles = [0.8,0.9] )
     # add to misison
-    mission.append_segment(segment)
+    mission.append_segment(segment) 
+ 
+ 
     
-
     return mission
 
 def missions_setup(base_mission):
@@ -309,7 +352,7 @@ def plot_mission(results):
     plot_aircraft_velocities(results)
  
     # Plot Electric Motor and Propeller Efficiencies  of Lift Cruise Network
-    plot_lift_cruise_network(results)
+    plot_electric_motor_and_rotor_efficiencies(results)
 
     return
  

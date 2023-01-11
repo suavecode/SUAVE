@@ -96,34 +96,12 @@ def generate_wing_wake_grid(geometry, H, L, hf, x_plane, Nzo=20, Nzf=35, Nyo=20,
         
         plot_prop=True
         if plot_prop:
-            for net in list(geometry.networks.keys()): 
-                if ('propellers' in geometry.networks[net].keys()):                
-                    for prop in list(geometry.networks[net].propellers.keys()):
-                        R      = geometry.networks[net].propellers[prop].tip_radius
-                        origin = geometry.networks[net].propellers[prop].origin
-                        Na     = geometry.networks[net].propellers[prop].number_azimuthal_stations
-                        
-                        psi    = np.linspace(0,2*np.pi,Na+1)[:-1]
-                        ycoords = origin[0][1] + R*np.cos(psi)
-                        zcoords = origin[0][2] + R*np.sin(psi)
-                        axes.plot(ycoords,zcoords,'r')
-        
-                if ('lift_rotors' in geometry.networks[net].keys()):                
-                    for prop in list(geometry.networks[net].lift_rotors.keys()):
-                        R      = geometry.networks[net].lift_rotors[prop].tip_radius
-                        origin = geometry.networks[net].lift_rotors[prop].origin
-                        Na     = geometry.networks[net].lift_rotors[prop].number_azimuthal_stations
-                        
-                        psi    = np.linspace(0,2*np.pi,Na+1)[:-1]
-                        ycoords = origin[0][1] + R*np.cos(psi)
-                        zcoords = origin[0][2] + R*np.sin(psi)
-                        axes.plot(ycoords,zcoords,'r')                        
-
+            for net in list(geometry.networks.keys()):  
                 if ('rotors' in geometry.networks[net].keys()):                
-                    for prop in list(geometry.networks[net].rotors.keys()):
-                        R      = geometry.networks[net].rotors[prop].tip_radius
-                        origin = geometry.networks[net].rotors[prop].origin
-                        Na     = geometry.networks[net].rotors[prop].number_azimuthal_stations
+                    for rotor in list(geometry.networks[net].rotors.keys()):
+                        R      = geometry.networks[net].rotors[rotor].tip_radius
+                        origin = geometry.networks[net].rotors[rotor].origin
+                        Na     = geometry.networks[net].rotors[rotor].number_azimuthal_stations
                         
                         psi    = np.linspace(0,2*np.pi,Na+1)[:-1]
                         ycoords = origin[0][1] + R*np.cos(psi)

@@ -109,7 +109,7 @@ def mission_setup(analyses,vehicle):
     ones_row                                        = segment.state.ones_row   
     segment.state.numerics.number_control_points    = 4
     segment.state.unknowns.throttle                 = 1.0 * ones_row(1)
-    segment = vehicle.networks.internal_combustion.add_unknowns_and_residuals_to_segment(segment,rpm=2650)
+    segment = vehicle.networks.internal_combustion.add_unknowns_and_residuals_to_segment(segment,rpms=[2650])
     
     
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip

@@ -181,21 +181,17 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Network
     #------------------------------------------------------------------
-    net                                 = SUAVE.Components.Energy.Networks.Battery_Rotor()
-    net.number_of_rotor_engines     = 6
-    net.nacelle_diameter                = 0.6 * Units.feet # need to check 
-    net.engine_length                   = 0.5 * Units.feet
-    net.areas                           = Data()
-    net.areas.wetted                    = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
-    net.voltage                         =  500.
-    net.identical_rotors            = True
+    net                                 = SUAVE.Components.Energy.Networks.Battery_Electric_Rotor()
+    net.rotor_group_indexes             = [0,0,0,0,0,0]
+    net.motor_group_indexes             = [0,0,0,0,0,0] 
+    net.voltage                         =  500. 
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
     #------------------------------------------------------------------
     esc             = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
     esc.efficiency  = 0.95
-    net.esc         = esc
+    net.electronic_speed_controllers.append(esc)
     
     #------------------------------------------------------------------
     # Design Payload
@@ -240,7 +236,7 @@ def vehicle_setup():
     lift_rotor.cruise.number_of_blades           = 3    
     lift_rotor.cruise.design_Cl                  = 0.7
     lift_rotor.cruise.design_altitude            = 1000 * Units.feet                   
-    lift_rotor.cruise.design_thrust              = Hover_Load/(net.number_of_rotor_engines-1) # contingency for one-engine-inoperative condition  
+    lift_rotor.cruise.design_thrust              = Hover_Load/(6-1) # contingency for one-engine-inoperative condition  
     airfoil                                      = SUAVE.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                      = '../Vehicles/Airfoils/NACA_4412.txt'
     airfoil.polar_files                          = ['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
@@ -276,8 +272,7 @@ def vehicle_setup():
     lift_motor.rotor_radius            = lift_rotor.tip_radius
     lift_motor.design_torque           = lift_rotor.cruise.design_torque
     lift_motor.angular_velocity        = lift_rotor.cruise.design_angular_velocity/lift_motor.gear_ratio     
-    lift_motor                         = size_optimal_motor(lift_motor)
-    net.lift_motor                     = lift_motor  
+    lift_motor                         = size_optimal_motor(lift_motor) 
                                                 
     # Define motor sizing parameters            
     max_power  = lift_rotor.cruise.design_power * 1.2
@@ -297,7 +292,7 @@ def vehicle_setup():
     for ii in range(6):
         lift_rotor_motor = deepcopy(lift_motor)
         lift_rotor_motor.tag = 'motor'
-        net.rotor_motors.append(lift_rotor_motor)        
+        net.motors.append(lift_rotor_motor)        
 
     
     vehicle.append_component(net)

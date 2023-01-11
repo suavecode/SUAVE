@@ -12,7 +12,8 @@
 
 # package imports
 import numpy as np
-from .Network import Network
+from .Network import Network 
+from SUAVE.Components.Physical_Component import Container 
 
 # ----------------------------------------------------------------------
 #  Network
@@ -49,17 +50,17 @@ class Battery_Ducted_Fan(Network):
             N/A
         """         
 
-        self.propulsor                 = None
-        self.battery                   = None
-        self.motor_efficiency          = 0.0
-        self.tag                       = 'Battery_Ducted_Fan'
-        self.number_of_engines         = 0. 
-        self.esc                       = None
-        self.avionics                  = None
-        self.payload                   = None
-        self.voltage                   = None
-        self.tag                       = 'Network'
-        self.generative_design_minimum = 0
+        self.propulsor                     = None
+        self.battery                       = None
+        self.motor_efficiency              = 0.0
+        self.tag                           = 'Battery_Ducted_Fan'
+        self.number_of_engines             = 0. 
+        self.electronic_speed_controllers  = Container()
+        self.avionics                      = None
+        self.payload                       = None
+        self.voltage                       = None
+        self.tag                           = 'Network'
+        self.generative_design_minimum     = 0
 
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -87,7 +88,7 @@ class Battery_Ducted_Fan(Network):
          # unpack
         conditions = state.conditions
         numerics   = state.numerics
-        esc        = self.esc
+        escs       = self.electronic_speed_controllers
         avionics   = self.avionics
         payload    = self.payload 
         battery    = self.battery
@@ -107,11 +108,12 @@ class Battery_Ducted_Fan(Network):
         propulsive_power    = np.reshape(results.power, (-1,1))
         motor_power         = propulsive_power/self.motor_efficiency 
 
-        # Run the ESC
+        # Run the ESC 
+        esc                     = self.electronic_speed_controllers[list(escs.keys())[0]]          
         esc.inputs.voltagein    = self.voltage
-        esc.voltageout(conditions)
+        esc.voltageout(conditions.propulsion.throttle)
         esc.inputs.currentout   = motor_power/esc.outputs.voltageout
-        esc.currentin(conditions)
+        esc.currentin(conditions.propulsion.throttle)
         esc_power               = esc.outputs.power_in
         
         # Run the avionics

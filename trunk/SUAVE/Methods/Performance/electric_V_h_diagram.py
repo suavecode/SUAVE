@@ -78,11 +78,26 @@ def electric_V_h_diagram(vehicle,
 
     # Unpack Inputs
 
-    g               = analyses.atmosphere.planet.sea_level_gravity
-    W               = vehicle.mass_properties.takeoff * g
-    S               = vehicle.reference_area
-    Nprops          = int(vehicle.networks.battery_rotor.number_of_rotor_engines)
-    identical_props = vehicle.networks.battery_rotor.identical_rotors
+    g                   = analyses.atmosphere.planet.sea_level_gravity
+    W                   = vehicle.mass_properties.takeoff * g
+    S                   = vehicle.reference_area 
+
+    rotors              = vehicle.networks.battery_electric_rotorrotors    
+    rotor_group_indexes = vehicle.networks.battery_electric_rotor.rotor_group_indexes
+    motor_group_indexes = vehicle.networks.battery_electric_rotor.motor_group_indexes    
+    
+
+    # How many evaluations to do 
+    unique_rotor_groups,factors = np.unique(rotor_group_indexes, return_counts=True)
+    unique_motor_groups,factors = np.unique(motor_group_indexes, return_counts=True)
+    if (unique_rotor_groups == unique_motor_groups).all(): # rotors and motors are paired 
+        n_evals = len(unique_rotor_groups) 
+        rotor_indexes = unique_rotor_groups 
+        p_factor      = factors
+    else:
+        n_evals = len(rotor_group_indexes) 
+        rotor_indexes = rotor_group_indexes
+        p_factor      = np.ones_like(motor_group_indexes)    
 
     # Single Point Mission for Drag Determination
 
@@ -132,19 +147,13 @@ def electric_V_h_diagram(vehicle,
 
                 D = -results.segments.single_point.conditions.frames.wind.drag_force_vector[0][0]
 
-                # Determine Propeller Power at Altitude and Speed
-                
-                if identical_props:
-                    n_laps = 1
-                    p_factor = Nprops
-                else:
-                    n_laps = Nprops
-                    p_factor = 1
-                
+                # Determine Propeller Power at Altitude and Speed 
                 Power = 0
-                for i in range(n_laps):
-                    prop_key = list(vehicle.networks.battery_rotor.rotors.keys())[i]
-                    _,res = propeller_single_point(vehicle.networks.battery_rotor.rotors[prop_key],
+    
+                for i in range(n_evals):   
+                    rotor_key = list(rotors.keys())[rotor_indexes[i]]  
+                    rotor     = rotors[rotor_key]  
+                    _,res = propeller_single_point(rotor,
                                                analyses=analyses,
                                                pitch=0.,
                                                omega=test_omega,
@@ -155,7 +164,7 @@ def electric_V_h_diagram(vehicle,
                         
 
                 # Check if Propeller Power Exceeds Max Battery Power, Switch to Max Battery Power if So
-                P = np.min([Power, vehicle.networks.battery_rotor.battery.pack.max_power])
+                P = np.min([Power, vehicle.networks.battery_electric_rotor.battery.pack.max_power])
 
                 # Determine Climb Rate (ref. Raymer)
 

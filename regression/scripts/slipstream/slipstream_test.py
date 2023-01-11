@@ -44,28 +44,23 @@ import time
 
 def main():
     # fidelity zero wakes
-    print('Wake Fidelity Zero, Identical Props')    
+    print('Wake Fidelity Zero')    
     t0=time.time()
-    Propeller_Slipstream(wake_fidelity=0,identical_props=True)
+    Propeller_Slipstream(wake_fidelity=0)
     print((time.time()-t0)/60)
     
     # fidelity one wakes
-    print('Wake Fidelity One, Identical Props')  
+    print('Wake Fidelity One')  
     t0=time.time()
-    Propeller_Slipstream(wake_fidelity=1,identical_props=True)  
+    Propeller_Slipstream(wake_fidelity=1)  
     print((time.time()-t0)/60) 
 
-    print('Wake Fidelity One, Non-Identical Props')      
-    t0=time.time()
-    Propeller_Slipstream(wake_fidelity=1,identical_props=False)  
-    print((time.time()-t0)/60)
-    
     return
 
 
-def Propeller_Slipstream(wake_fidelity,identical_props):
+def Propeller_Slipstream(wake_fidelity):
     # setup configs, analyses
-    configs, analyses  = X57_setup(wake_fidelity=wake_fidelity, identical_props=identical_props)
+    configs, analyses  = X57_setup(wake_fidelity)
     
     # finalize configs
     configs.finalize()
@@ -163,12 +158,12 @@ def plot_mission(results,vehicle):
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def X57_setup(wake_fidelity, identical_props):
+def X57_setup(wake_fidelity):
 
     # vehicle data
     vehicle  = vehicle_setup()
     # update wake method and rotation direction of rotors:
-    props = vehicle.networks.battery_rotor.rotors
+    props = vehicle.networks.battery_electric_rotor.rotors
     for p in props:
         p.rotation = -1
         if wake_fidelity==1:
@@ -176,10 +171,6 @@ def X57_setup(wake_fidelity, identical_props):
             p.Wake.wake_settings.number_rotor_rotations = 1  # reduced for regression speed
             p.Wake.wake_settings.number_steps_per_rotation = 24  # reduced for regression speed
             
-
-    # test for non-identical propellers
-    if not identical_props:
-        vehicle.networks.battery_rotor.identical_rotors = False
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
@@ -336,33 +327,6 @@ def missions_setup(base_mission):
 
     # done!
     return missions
-
-
-def Stopped_Rotor_vehicle(wake_fidelity, identical_props):
-
-    # vehicle data
-    vehicle  = V2()
-    # update wake method and rotation direction of rotors:
-    props = vehicle.networks.lift_cruise.propellers
-    lift_rots = vehicle.networks.lift_cruise.lift_rotors
-    for p in props:
-        p.rotation = -1
-        if wake_fidelity==1:
-            p.Wake = Rotor_Wake_Fidelity_One()    
-            p.Wake.wake_settings.number_rotor_rotations = 1  # reduced for regression speed
-    for r in lift_rots:
-        r.rotation = -1
-        if wake_fidelity==1:
-            r.Wake = Rotor_Wake_Fidelity_One()  
-            r.Wake.wake_settings.number_rotor_rotations = 1  # reduced for regression speed      
-
-    # test for non-identical propellers
-    if not identical_props:
-        vehicle.networks.lift_cruise.identical_propellers = False
-        vehicle.networks.lift_cruise.identical_lift_rotors = False
-
-    return vehicle
-
 
 if __name__ == '__main__':
     main()

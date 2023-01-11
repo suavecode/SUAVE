@@ -87,7 +87,7 @@ def compute_aero_derivatives(segment):
         dCM_dAlpha = dCM/dAlpha
         
     # propeller derivatives
-    dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts)
+    dCT, dCP = rotor_derivatives(segment, perturbed_segment, n_cpts)
         
     dCL_dAlpha = dCL/dAlpha
     dCD_dAlpha = dCD/dAlpha
@@ -143,7 +143,7 @@ def compute_aero_derivatives(segment):
         dCY_dBeta = dCY/dBeta 
         
     # check for propellers
-    dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts)  
+    dCT, dCP = rotor_derivatives(segment, perturbed_segment, n_cpts)  
 
     dCT_dBeta = dCT/dBeta
     dCP_dBeta = dCP/dBeta
@@ -171,7 +171,7 @@ def compute_aero_derivatives(segment):
     dCD       = perturbed_segment.state.conditions.aerodynamics.drag_coefficient - segment.state.conditions.aerodynamics.drag_coefficient
 
     # check for propellers
-    dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts)  
+    dCT, dCP = rotor_derivatives(segment, perturbed_segment, n_cpts)  
 
     dCL_dThrottle = dCL/dThrottle
     dCD_dThrottle = dCD/dThrottle
@@ -215,7 +215,7 @@ def compute_aero_derivatives(segment):
                     dCM = perturbed_segment.state.conditions.aerodynamics.moment_coefficient - segment.state.conditions.aerodynamics.moment_coefficient
                     
                 # propeller derivatives 
-                dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts) 
+                dCT, dCP = rotor_derivatives(segment, perturbed_segment, n_cpts) 
                     
                 dCL_dDelta      = dCL/dDelta 
                 dCD_dDelta      = dCD/dDelta
@@ -265,9 +265,9 @@ def compute_aero_derivatives(segment):
     
     return 
 
-def propeller_derivatives(segment, perturbed_segment, n_cpts):
-    props = segment.state.conditions.noise.sources.propellers
-    perturbed_props = perturbed_segment.state.conditions.noise.sources.propellers
+def rotor_derivatives(segment, perturbed_segment, n_cpts):
+    props = segment.state.conditions.noise.sources.rotors
+    perturbed_props = perturbed_segment.state.conditions.noise.sources.rotors
     dCT = np.zeros((len(props),n_cpts,1))
     dCP = np.zeros((len(props),n_cpts,1))
     for i in range(len(props)):

@@ -314,13 +314,13 @@ def mission_setup_SR(vehicle,analyses):
     segment.altitude_start                                   = 0.0  * Units.ft
     segment.altitude_end                                     = 40.  * Units.ft
     segment.climb_rate                                       = 500. * Units['ft/min']
-    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.pack.max_energy
+    segment.battery_energy                                   = vehicle.networks.battery_electric_rotor.battery.pack.max_energy
     segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability          = SUAVE.Methods.skip
-    segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment,\
-                                                                                    initial_lift_rotor_power_coefficient = 0.01,
-                                                                                    initial_throttle_lift = 0.9)
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,\
+                                                                                    initial_rotor_power_coefficients = [0.0,0.01],
+                                                                                    initial_throttles = [0.0,0.9])
     # add to misison
     mission.append_segment(segment)
 
@@ -335,10 +335,9 @@ def mission_setup_SR(vehicle,analyses):
 
     segment.altitude  = 1000.0 * Units.ft
     segment.air_speed = 110.   * Units['mph']
-    segment.distance  = 40.    * Units.miles
-    segment.state.unknowns.throttle = 0.80 * ones_row(1)
-
-    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16)
+    segment.distance  = 40.    * Units.miles 
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
+                                                                                            initial_rotor_power_coefficients=[0.16,0])
 
     mission.append_segment(segment)
 

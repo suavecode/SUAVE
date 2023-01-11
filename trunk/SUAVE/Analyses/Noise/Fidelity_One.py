@@ -147,74 +147,95 @@ class Fidelity_One(Noise):
         conditions.noise.total_microphone_locations            = REGML 
         conditions.noise.total_number_of_microphones           = num_gm_mic 
         
-        # create empty arrays for results  
-        num_src            = len(config.networks) + 1 
-        if ('lift_cruise') in config.networks.keys():
-            num_src += 1
-        source_SPLs_dBA    = np.zeros((ctrl_pts,num_src,num_gm_mic)) 
-        source_SPL_spectra = np.zeros((ctrl_pts,num_src,num_gm_mic,dim_cf ))    
-        
-        si = 1  
+        # create empty arrays for results      
+        total_SPL_dBA          = np.empty((ctrl_pts,0,num_gm_mic)) 
+        total_SPL_spectra      = np.empty((ctrl_pts,0,num_gm_mic,dim_cf)) 
+         
         # iterate through sources 
         for source in conditions.noise.sources.keys():  
-            for network in config.networks.keys():                 
-                if source  == 'turbofan':
+            for network in config.networks.keys(): 
+                if source  == 'turbofan': 
+                    
                     geometric = noise_geometric(segment,analyses,config)  
                      
                     # flap noise - only applicable for turbofan aircraft
-                    if 'flap' in config.wings.main_wing.control_surfaces:            
-                        airframe_noise                = noise_airframe_Fink(segment,analyses,config,settings)  
-                        source_SPLs_dBA[:,si,:]       = airframe_noise.SPL_dBA          
-                        source_SPL_spectra[:,si,:,5:] = np.repeat(airframe_noise.SPL_spectrum[:,np.newaxis,:], num_gm_mic , axis =1)
+                    if 'flap' in config.wings.main_wing.control_surfaces:   
+                
+                        source_SPLs_dBA    = np.zeros((ctrl_pts,1,num_gm_mic)) 
+                        source_SPL_spectra = np.zeros((ctrl_pts,1,num_gm_mic,dim_cf))
+                        
+                        airframe_noise               = noise_airframe_Fink(segment,analyses,config,settings)  
+                        source_SPLs_dBA[:,0,:]       = airframe_noise.SPL_dBA          
+                        source_SPL_spectra[:,0,:,5:] = np.repeat(airframe_noise.SPL_spectrum[:,np.newaxis,:], num_gm_mic , axis =1)
+                        
+                        # add noise 
+                        total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA,source_SPLs_dBA),axis =1),sum_axis=1)
+                        total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra,source_SPL_spectra),axis =1),sum_axis=1)
                     
                     
                     if bool(conditions.noise.sources[source].fan) and bool(conditions.noise.sources[source].core): 
+
+                        source_SPLs_dBA    = np.zeros((ctrl_pts,1,num_gm_mic)) 
+                        source_SPL_spectra = np.zeros((ctrl_pts,1,num_gm_mic,dim_cf ))
+                                                
                                               
                         config.networks[source].fan.rotation             = 0 # FUTURE WORK: NEED TO UPDATE ENGINE MODEL WITH FAN SPEED in RPM
                         config.networks[source].fan_nozzle.noise_speed   = conditions.noise.sources.turbofan.fan.exit_velocity 
                         config.networks[source].core_nozzle.noise_speed  = conditions.noise.sources.turbofan.core.exit_velocity
-                        engine_noise                                      = noise_SAE(config.networks[source],segment,analyses,config,settings,ioprint = print_flag)  
-                        source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_gm_mic , axis =1)     # noise measures at one microphone location in segment
-                        source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_gm_mic , axis =1) # noise measures at one microphone location in segment
-                          
-                elif ((source  == 'rotors')  or (source  == 'propellers'))  or (source   == 'lift_rotors'): 
-                    if bool(conditions.noise.sources[source]) == True: 
-                        net                          = config.networks[network] 
-                        acoustic_data                = conditions.noise.sources[source]
+                        engine_noise                                     = noise_SAE(config.networks[source],segment,analyses,config,settings,ioprint = print_flag)  
+                        source_SPLs_dBA[:,0,:]                          = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_gm_mic , axis =1)     # noise measures at one microphone location in segment
+                        source_SPL_spectra[:,0,:,5:]                    = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_gm_mic , axis =1) # noise measures at one microphone location in segment
+                   
+                        # add noise 
+                        total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA,source_SPLs_dBA),axis =1),sum_axis=1)
+                        total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra,source_SPL_spectra),axis =1),sum_axis=1)
                         
-                        if source == 'propellers':
-                            rotors        = net.propellers
-                            identity_flag = net.identical_propellers
-                        elif source == 'lift_rotors':
-                            rotors        = net.lift_rotors 
-                            identity_flag = net.identical_lift_rotors
-                        elif source == 'rotors':
-                            rotors        = net.rotors 
-                            identity_flag = net.identical_rotors
-                             
-                        if identity_flag:
-                            aeroacoustic_data  = acoustic_data[list(acoustic_data.keys())[0]] 
-                            propeller_noise    = total_rotor_noise(rotors,aeroacoustic_data,segment,settings) 
-                        else:
-                            distributed_rotors                       = Container()
-                            num_rotors                               = len(rotors)
-                            distributed_prop_noise_SPL_dBA           = np.zeros((num_rotors,ctrl_pts,num_gm_mic )) 
-                            distributed_prop_noise_SPL_1_3_spectrum  = np.zeros((num_rotors,ctrl_pts,num_gm_mic ,dim_cf)) 
-                            for r_idx , rotor  in enumerate(rotors): 
-                                aeroacoustic_data                               = acoustic_data[rotor.tag]                                    
-                                distributed_rotors.append(rotors[rotor.tag])       
-                                propeller_noise                                 = total_rotor_noise(distributed_rotors,aeroacoustic_data,segment,settings) 
-                                distributed_prop_noise_SPL_dBA[r_idx]           = propeller_noise.SPL_dBA 
-                                distributed_prop_noise_SPL_1_3_spectrum[r_idx]  = propeller_noise.SPL_1_3_spectrum     
-                            propeller_noise.SPL_dBA          = SPL_arithmetic(distributed_prop_noise_SPL_dBA ,sum_axis=0)
-                            propeller_noise.SPL_1_3_spectrum = SPL_arithmetic(distributed_prop_noise_SPL_1_3_spectrum ,sum_axis=0)
-                     
-                        source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
-                        source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_1_3_spectrum    
-                           
-                        si += 1
+                elif source  == 'rotors':   
+
+                    source_SPLs_dBA    = np.zeros((ctrl_pts,1,num_gm_mic)) 
+                    source_SPL_spectra = np.zeros((ctrl_pts,1,num_gm_mic,dim_cf))
+                                        
+                        
+                    if bool(conditions.noise.sources[source]) == True: # if results are present in rotors data structure
+                        net                                       = config.networks[network]      # get network  
+                        active_groups                             = net.active_propulsor_groups   # determine what groups of propulsors are active
+                        unique_rot_groups,identical_rots          = np.unique(net.rotor_group_indexes, return_counts=True)  
+                        rotor_noise_sources                       = conditions.noise.sources.rotors 
+                        rotor_noise_source_keys                   = list(conditions.noise.sources.rotors.keys())
+                        distributed_rotor_noise_SPL_dBA           = np.zeros((sum(active_groups),ctrl_pts,num_gm_mic)) 
+                        distributed_rotor_noise_SPL_1_3_spectrum  = np.zeros((sum(active_groups),ctrl_pts,num_gm_mic,dim_cf)) 
+                        
+                        k_idx = 0
+                        for i in range(len(unique_rot_groups)):
+                            # if group was active, run rotor noise computation, else skip 
+                            if active_groups[i]:    
+                                
+                                # get stored aeroacoustic data  
+                                aeroacoustic_data  = rotor_noise_sources[rotor_noise_source_keys[k_idx]]  
+                                
+                                # get the rotors associated with aeroaoustic data
+                                rotor_group        = Container() 
+                                for r_idx , rotor  in enumerate(net.rotors):       
+                                    if net.rotor_group_indexes[r_idx] == unique_rot_groups[i]: 
+                                        rotor_group.append(rotor)                                  
+                                rotor_noise                                      = total_rotor_noise(rotor_group,aeroacoustic_data,segment,settings) 
+                                distributed_rotor_noise_SPL_dBA[k_idx]           = rotor_noise.SPL_dBA 
+                                distributed_rotor_noise_SPL_1_3_spectrum[k_idx]  = rotor_noise.SPL_1_3_spectrum_dBA                                   
+                                k_idx += 1
+                                
+                        rotor_noise.SPL_dBA          = SPL_arithmetic(distributed_rotor_noise_SPL_dBA ,sum_axis=0)
+                        rotor_noise.SPL_1_3_spectrum = SPL_arithmetic(distributed_rotor_noise_SPL_1_3_spectrum ,sum_axis=0)                                
+                                
+                        source_SPLs_dBA[:,0,:]      = rotor_noise.SPL_dBA 
+                        source_SPL_spectra[:,0,:,:] = rotor_noise.SPL_1_3_spectrum 
+                        
+                        # add noise  
+                        total_SPL_dBA    = SPL_arithmetic(np.concatenate((total_SPL_dBA,source_SPLs_dBA),axis =1),sum_axis=1)
+                        total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra,source_SPL_spectra),axis =1),sum_axis=1)
+                            
              
-        conditions.noise.total_SPL_dBA = SPL_arithmetic(source_SPLs_dBA,sum_axis=1)
+        conditions.noise.total_SPL_dBA              = total_SPL_dBA
+        conditions.noise.total_SPL_1_3_spectrum_dBA = total_SPL_spectra
         
         return   
 

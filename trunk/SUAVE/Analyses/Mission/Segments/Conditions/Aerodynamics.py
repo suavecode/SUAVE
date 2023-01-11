@@ -134,6 +134,9 @@ class Aerodynamics(Basic):
         self.propulsion.throttle                              = ones_1col * 0
         self.propulsion.number_of_propulsor_groups            = 1
         self.propulsion.thrust_breakdown                      = Conditions() 
+        self.propulsion.propulsor_group_0                     = Conditions() 
+        self.propulsion.propulsor_group_0.rotor               = Conditions() 
+         
          
         self.propulsion.battery                               = Conditions()  
         self.propulsion.battery.pack                          = Conditions()
@@ -162,7 +165,5 @@ class Aerodynamics(Basic):
         # noise conditions        
         self.noise                                            = Conditions()
         self.noise.total                                      = Conditions()
-        self.noise.sources                                    = Conditions()
-        self.noise.sources.propellers                         = Conditions()
-        self.noise.sources.lift_rotors                        = Conditions()
+        self.noise.sources                                    = Conditions() 
         self.noise.sources.rotors                             = Conditions()

@@ -140,7 +140,8 @@ def energy_network():
     # Create ESC and add to the network
     esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
     esc.efficiency                  = 0.97
-    hybrid_ducted_fan.esc          = esc
+    hybrid_ducted_fan.electronic_speed_controllers.append(esc)
+    
 
     # Create payload and add to the network
     payload = SUAVE.Components.Energy.Peripherals.Avionics()

@@ -47,8 +47,8 @@ def main():
     plot_mission(results)
 
     # RPM of rotor check during hover
-    RPM        = results.segments.climb.conditions.propulsion.rotor.rpm[0][0]
-    RPM_true   = 1573.7516164319331
+    RPM        = results.segments.climb.conditions.propulsion.propulsor_group_0.rotor.rpm[0][0]
+    RPM_true   = 1573.750927471253
 
     print(RPM)
     diff_RPM = np.abs(RPM - RPM_true)
@@ -58,7 +58,7 @@ def main():
 
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery.pack.energy[:,0]
-    battery_energy_transition_true    = np.array([2.01217616e+08, 1.92155752e+08, 1.83082139e+08])
+    battery_energy_transition_true    = np.array([2.01220172e+08, 1.92176107e+08, 1.83120690e+08])
 
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true)
@@ -197,11 +197,12 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                                = 0.0  * Units.ft
     segment.altitude_end                                  = 40.  * Units.ft
     segment.climb_rate                                    = 300. * Units['ft/min']
-    segment.battery_energy                                = vehicle.networks.battery_rotor.battery.pack.max_energy
-    segment.state.unknowns.throttle                       = 0.9 * ones_row(1)
+    segment.battery_energy                                = vehicle.networks.battery_electric_rotor.battery.pack.max_energy 
     segment.process.iterate.conditions.stability          = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability       = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,initial_rotor_power_coefficients=0.02)
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
+                                                                                            initial_throttles = [0.90],
+                                                                                            initial_rotor_power_coefficients=[0.02])
 
     # add to misison
     mission.append_segment(segment)
@@ -216,7 +217,7 @@ def mission_setup(analyses,vehicle):
     segment.time                                            = 2*60
     segment.process.iterate.conditions.stability            = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability         = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment)
 
 
     # add to misison

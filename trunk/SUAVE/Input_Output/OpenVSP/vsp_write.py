@@ -135,27 +135,12 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=False, write_file=True, OML
     ## This was a place to start and may not still be functional   
     for network in vehicle.networks:
     
-        if 'propellers' in  network:
-            for prop in network.propellers:
-                if verbose:
-                    print('Writing '+prop.tag+' to OpenVSP Model')
-                vsp_bem_filename = prop.tag + '.bem' 
-                write_vsp_rotor_bem(vsp_bem_filename,prop) 
-    
-        if 'lift_rotors' in network:
-            for rot in network.lift_rotors:
+        if 'rotors' in  network:
+            for rot in network.rotors:
                 if verbose:
                     print('Writing '+rot.tag+' to OpenVSP Model')
                 vsp_bem_filename = rot.tag + '.bem' 
                 write_vsp_rotor_bem(vsp_bem_filename,rot)    
-                
-        
-        if 'prop_rotors' in network:
-            for prop_rot in network.prop_rotors:
-                if verbose:
-                    print('Writing '+prop_rot.tag+' to OpenVSP Model')
-                vsp_bem_filename = prop_rot.tag + '.bem' 
-                write_vsp_rotor_bem(vsp_bem_filename,prop_rot)    
                         
     # -------------
     # Nacelle

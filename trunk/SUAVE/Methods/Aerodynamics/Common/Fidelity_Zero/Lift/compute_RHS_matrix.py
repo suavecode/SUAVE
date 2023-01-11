@@ -88,22 +88,13 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
     for network in geometry.networks:
         if propeller_wake_model:
             # include the propeller wake effect on the wing
-            if 'propellers' in network.keys(): 
+            if 'rotors' in network.keys(): 
                 # extract the propeller wake and compute resulting induced velocities data structure
-                props           = network.propellers
+                rots           = network.rotors
                 prop_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
                 
-                for p in props:
-                    prop_V_wake_ind += p.Wake.evaluate_slipstream(p,geometry,num_ctrl_pts)
-                    
-                    
-            if 'lift_rotors' in network.keys(): 
-                # extract the rotor wake and compute resulting induced velocities data structure
-                rots           = network.lift_rotors
-                rot_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
-                
                 for r in rots:
-                    rot_V_wake_ind += r.Wake.evaluate_slipstream(r,geometry,num_ctrl_pts)
+                    prop_V_wake_ind += p.Wake.evaluate_slipstream(r,geometry,num_ctrl_pts) 
                     
                     
             # update the total induced velocity distribution

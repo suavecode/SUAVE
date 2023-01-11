@@ -194,12 +194,12 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                             = 0.0  * Units.ft
     segment.altitude_end                               = 40.  * Units.ft
     segment.climb_rate                                 = 300. * Units['ft/min']
-    segment.battery_energy                             = vehicle.networks.battery_rotor.battery.pack.max_energy   
-    segment.state.unknowns.throttle                    = 1.0 * ones_row(1) 
+    segment.battery_energy                             = vehicle.networks.battery_electric_rotor.battery.pack.max_energy    
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip
-    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,\
-                                                                                         initial_rotor_power_coefficients = 0.06)
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
+                                                                                            initial_throttles = [1.0],
+                                                                                            initial_rotor_power_coefficients = [0.06])
 
     # add to misison
     mission.append_segment(segment) 
@@ -214,12 +214,12 @@ def mission_setup(analyses,vehicle):
     segment.air_speed_start                            = 85.   * Units['mph']
     segment.air_speed_end                              = 130.   * Units['mph']
     segment.altitude_start                             = 40.0 * Units.ft
-    segment.altitude_end                               = 600.0 * Units.ft    
-    segment.state.unknowns.throttle                    = 0.80 * ones_row(1)    
+    segment.altitude_end                               = 600.0 * Units.ft      
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip      
-    segment = vehicle.networks.battery_rotor.add_unknowns_and_residuals_to_segment(segment,\
-                                                                                         initial_rotor_power_coefficients = 0.03)
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
+                                                                                            initial_throttles = [0.80],
+                                                                                            initial_rotor_power_coefficients = [0.03])
 
     # add to misison
     mission.append_segment(segment) 

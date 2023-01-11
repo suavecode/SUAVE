@@ -227,7 +227,7 @@ def vehicle_setup(Na, Nr):
     # ------------------------------------------------------------------
     #   Propulsion Properties
     # ------------------------------------------------------------------
-    net                          = SUAVE.Components.Energy.Networks.Battery_Rotor()
+    net                          = SUAVE.Components.Energy.Networks.Battery_Electric_Rotor()
     net.tag                      = 'prop_net'
     net.number_of_engines        = 2
 

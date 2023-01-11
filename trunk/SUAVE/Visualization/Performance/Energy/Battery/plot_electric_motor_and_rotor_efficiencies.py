@@ -132,7 +132,7 @@ def plot_electric_motor_and_rotor_efficiencies(results,
         fig.update_layout(
             width=width, height=height,
             legend_title_text='Segment',
-            title_text = 'Propulsor Group ' + str(pg) + ' Rotor and Motor Conditions'
+            title_text = 'Propulsor Group ' + str(pg) + ': Rotor and Motor Conditions'
         )
     
         fig = plot_style(fig)

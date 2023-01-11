@@ -70,23 +70,23 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
 
 
     #---------------------------
-    # Save propellers and rotors to vtk
+    # Save rotors to vtk
     #---------------------------
     for network in vehicle.networks:
         try:
             print("Attempting to save propeller.")
-            propellers = network.propellers
+            rotors = network.rotors
             try:
-                n_props = len(propellers)
+                n_props = len(rotors)
             except:
                 n_props   = int(network.number_of_engines)
         except:
-            print("No propellers.")
+            print("No rotors.")
             n_props = 0
 
         if n_props>0:
             for i in range(n_props):
-                propi = propellers[list(propellers.keys())[i]]
+                propi = rotors[list(rotors.keys())[i]]
 
                 start_angle = propi.start_angle
                 Na = propi.number_azimuthal_stations
@@ -130,68 +130,7 @@ def save_vehicle_vtks(vehicle, conditions=None, Results=Data(),
 
                     # save prop wake
                     save_prop_wake_vtk(propi, wVD, gamma, file, Results,start_angle_idx,origin_offset,rot=propi.rotation, aircraftReferenceFrame=aircraftReferenceFrame)
-
-
-        try:
-            print("Attempting to save rotor.")
-            lift_rotors = network.lift_rotors
-            if network.number_of_lift_rotor_engines is not None:
-                n_rots = int(network.number_of_lift_rotor_engines)
-            else:
-                n_rots = 0
-        except:
-            print("No lift rotors.")
-            n_rots = 0
-
-
-        if n_rots > 0:
-            for i in range(n_rots):
-                roti = lift_rotors[list(lift_rotors.keys())[i]]
-
-
-                start_angle = roti.start_angle
-                Na = roti.number_azimuthal_stations
-                angles = np.linspace(0,2*np.pi,Na+1)[1:]
-                start_angle_idx = np.where(start_angle==angles)
-
-
-                # save the ith rotor
-                if save_loc ==None:
-                    filename = prop_filename
-                else:
-                    filename = save_loc + rot_filename
-                sep  = filename.rfind('.')
-                file = filename[0:sep]+str(i)+filename[sep:]
-
-                save_prop_vtk(roti, file, Results,i,time_step, origin_offset, aircraftReferenceFrame=aircraftReferenceFrame)
-
-                try:
-                    # check if rotor has wake present
-                    gamma = roti.vortex_distribution.reshaped_wake.GAMMA
-                    wVD = propi.vortex_distribution.reshaped_wake
-                    wake_present = True
-                except:
-                    wake_present = False
-                    pass
-
-                if wake_present:
-                    #---------------------------
-                    # Save propeller wake to vtk
-                    #---------------------------
-                    # save the wake of the ith propeller
-                    if save_loc ==None:
-                        filename = wake_filename
-                    else:
-                        filename = save_loc + wake_filename
-                    sep  = filename.rfind('.')
-                    file = filename[0:sep]+str(i)+"_t."+str(time_step)+filename[sep:]
-
-                    roti_key = list(Results['all_prop_outputs'].keys())[i]
-                    Results['prop_outputs'] = Results['all_prop_outputs'][roti_key]
-
-                    # save prop wake
-                    save_prop_wake_vtk(propi, wVD, gamma, file, Results,origin_offset,rot=roti.rotation,aircraftReferenceFrame=aircraftReferenceFrame)
-
+ 
 
     #---------------------------
     # Save wing results to vtk

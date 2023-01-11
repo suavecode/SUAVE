@@ -18,8 +18,7 @@ import SUAVE.Components.Energy.Converters.Propeller  as Propeller
 import SUAVE.Components.Energy.Converters.Lift_Rotor as Lift_Rotor 
 import SUAVE.Components.Energy.Converters.Prop_Rotor as Prop_Rotor
 import SUAVE.Components.Energy.Converters.Rotor      as Rotor 
-import SUAVE.Components.Energy.Networks.Battery_Rotor as  Battery_Rotor
-import SUAVE.Components.Energy.Networks.Lift_Cruise as  Lift_Cruise
+import SUAVE.Components.Energy.Networks.Battery_Electric_Rotor as  Battery_Electric_Rotor 
 
 import numpy as np
 
@@ -221,70 +220,72 @@ def empty(config,
         lift_rotor_servo_weight = 0.0
 
         
-        if not (isinstance(network, Battery_Rotor) or isinstance(network, Lift_Cruise)):
-            raise NotImplementedError("""eVTOL weight buildup only supports the Battery Rotor and Lift Cruise energy networks.\n
+        if not isinstance(network, Battery_Electric_Rotor):
+            raise NotImplementedError("""eVTOL weight buildup only supports the Battery Electric Rotor energy network.\n
             Weight buildup will not return information on propulsion system.""",RuntimeWarning)
         
-        compute_rotor_weight_flag = False 
-        for key in network.keys(): 
-            compute_rotor_weight_flag = False 
-            if key == 'propellers':
-                rotors                    = network.propellers
-                motors                    = network.propeller_motors
-                compute_rotor_weight_flag = True 
-                if len(rotors) != len(motors):
-                    assert("Number of propellers must be equal to the number of propeller motors")
-            if key == 'lift_rotors':
-                rotors                      = network.lift_rotors
-                motors                      = network.lift_rotor_motors
-                total_number_of_lift_rotors = len(rotors)
-                compute_rotor_weight_flag   = True 
-                if len(rotors) != len(motors):
-                    assert("Number of lift rotors must be equal to the number of lift rotor motors")
-            if key == 'rotors':
-                rotors                      = network.rotors
-                total_number_of_lift_rotors = len(rotors)
-                motors                      = network.motors
-                compute_rotor_weight_flag   = True 
-                if len(rotors) != len(motors):
-                    assert("Number of rotors must be equal to the number of rotor motors") 
-                    
-            if compute_rotor_weight_flag:
-                for i , rot in enumerate(rotors):  
-                    if type(rot) == Propeller:
-                        ''' Propeller Weight '''  
-                        number_of_propellers     += 1   
-                        rTip_ref                  = rot.tip_radius
-                        bladeSol_ref              = rot.blade_solidity  
-                        motor                     = motors[list(motors.keys())[i]]   
-                        if rot.variable_pitch:
-                            prop_servo_weight     = 5.2 * Units.kg  
-                        else:
-                            prop_servo_weight     = 0
-                        propeller_mass            = prop(rot, maxLift/5.) * Units.kg
-                        weight.rotors             += propeller_mass
-                        weight.motors             += motor.mass_properties.mass
-                        rot.mass_properties.mass  =  propeller_mass + prop_hub_weight + prop_servo_weight
-                        weight.servos             += prop_servo_weight
-                        weight.hubs               += prop_hub_weight
-                        
-                    if (type(rot) == Lift_Rotor or type(rot) == Prop_Rotor) or type(rot) == Rotor:
-                        ''' Lift Rotor, Prop-Rotor or Rotor Weight '''   
-                        number_of_lift_rotors   += 1  
-                        rTip_ref                = rot.tip_radius
-                        bladeSol_ref            = rot.blade_solidity  
-                        motor                   = motors[list(motors.keys())[i]]    
-                        if rot.variable_pitch:
-                            lift_rotor_servo_weight = 0.65 * Units.kg 
-                        else:
-                            prop_servo_weight     = 0 
-                        lift_rotor_mass             = prop(rot, maxLift / max(total_number_of_lift_rotors - 1, 1))  * Units.kg
-                        weight.rotors               += lift_rotor_mass
-                        weight.motors               += motor.mass_properties.mass
-                        rot.mass_properties.mass    =  lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
-                        weight.servos               += lift_rotor_servo_weight
-                        weight.hubs                 += lift_rotor_hub_weight
         
+
+        # How many evaluations to do 
+        rotor_group_indexes     = network.rotor_group_indexes
+        motor_group_indexes     = network.motor_group_indexes
+        motors                  = network.motors
+        rotors                  = network.rotors
+        n_rotors                = len(rotors)
+        n_motors                = len(motors) 
+        
+        unique_rotor_groups,factors = np.unique(rotor_group_indexes, return_counts=True)
+        unique_motor_groups,factors = np.unique(motor_group_indexes, return_counts=True) 
+                
+        # Count how many unknowns and residuals based on p)  
+        if n_rotors!=len(rotor_group_indexes):
+            assert('The number of rotor group indexes must be equal to the number of rotors')
+        if n_motors!=len(motor_group_indexes):
+            assert('The number of motor group indexes must be equal to the number of motors') 
+        if len(rotor_group_indexes)!=len(motor_group_indexes):
+            assert('The number of rotors is not the same as the number of motors')        
+        i = 0
+        for rotor,motor in zip(rotors,motors):    
+            rotors           = network.rotors
+            number_of_rotors = factors[rotor_group_indexes[i]]
+            
+            if len(rotors) != len(motors):
+                assert("Number of rotors must be equal to the number of rotor motors") 
+                  
+            if type(rotor) == Propeller:
+                ''' Propeller Weight '''  
+                number_of_propellers     += 1   
+                rTip_ref                  = rotor.tip_radius
+                bladeSol_ref              = rotor.blade_solidity    
+                if rotor.variable_pitch:
+                    prop_servo_weight     = 5.2 * Units.kg  
+                else:
+                    prop_servo_weight     = 0
+                propeller_mass            = prop(rotor, maxLift/5.) * Units.kg
+                weight.rotors             += propeller_mass
+                weight.motors             += motor.mass_properties.mass
+                rotor.mass_properties.mass  =  propeller_mass + prop_hub_weight + prop_servo_weight
+                weight.servos             += prop_servo_weight
+                weight.hubs               += prop_hub_weight
+                
+            if (type(rotor) == Lift_Rotor or type(rotor) == Prop_Rotor) or type(rotor) == Rotor:
+                ''' Lift Rotor, Prop-Rotor or Rotor Weight '''   
+                number_of_lift_rotors   += 1  
+                rTip_ref                = rotor.tip_radius
+                bladeSol_ref            = rotor.blade_solidity      
+                if rotor.variable_pitch:
+                    lift_rotor_servo_weight = 0.65 * Units.kg 
+                else:
+                    prop_servo_weight     = 0 
+                lift_rotor_mass             = prop(rotor, maxLift / max(number_of_rotors - 1, 1))  * Units.kg
+                weight.rotors               += lift_rotor_mass
+                weight.motors               += motor.mass_properties.mass
+                rotor.mass_properties.mass    =  lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
+                weight.servos               += lift_rotor_servo_weight
+                weight.hubs                 += lift_rotor_hub_weight
+                
+            i += 1
+         
         total_number_of_rotors  = int(number_of_lift_rotors + number_of_propellers)  
         if total_number_of_rotors > 1:
             prop_BRS_weight     = 16.   * Units.kg

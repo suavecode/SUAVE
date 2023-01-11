@@ -15,14 +15,12 @@
 from copy import deepcopy
 
 import SUAVE
-from SUAVE.Input_Output.OpenVSP.vsp_propeller        import read_vsp_propeller
-from SUAVE.Input_Output.OpenVSP.vsp_fuselage         import read_vsp_fuselage
-from SUAVE.Input_Output.OpenVSP.vsp_wing             import read_vsp_wing
-from SUAVE.Input_Output.OpenVSP.vsp_nacelle          import read_vsp_nacelle
-from SUAVE.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements
-
-from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
-from SUAVE.Components.Energy.Networks.Battery_Rotor            import Battery_Rotor
+from SUAVE.Input_Output.OpenVSP.vsp_propeller                 import read_vsp_propeller
+from SUAVE.Input_Output.OpenVSP.vsp_fuselage                  import read_vsp_fuselage
+from SUAVE.Input_Output.OpenVSP.vsp_wing                      import read_vsp_wing
+from SUAVE.Input_Output.OpenVSP.vsp_nacelle                   import read_vsp_nacelle
+from SUAVE.Input_Output.OpenVSP.get_vsp_measurements          import get_vsp_measurements 
+from SUAVE.Components.Energy.Networks.Battery_Electric_Rotor  import Battery_Electric_Rotor
 
 from SUAVE.Core import Units, Data, Container
 try:
@@ -43,10 +41,10 @@ except ImportError:
 ## @ingroup Input_Output-OpenVSP
 def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calculate_wetted_area=True): 
     """This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
-    Includes wings, fuselages, and propellers.
+    Includes wings, fuselages, and rotors.
 
     Assumptions:
-    1. OpenVSP vehicle is composed of conventionally shaped fuselages, wings, and propellers. 
+    1. OpenVSP vehicle is composed of conventionally shaped fuselages, wings, and rotors. 
     1a. OpenVSP fuselage: generally narrow at nose and tail, wider in center). 
     1b. Fuselage is designed in VSP as it appears in real life. That is, the VSP model does not rely on
        superficial elements such as canopies, stacks, or additional fuselages to cover up internal lofting oddities.
@@ -235,65 +233,33 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
     # --------------------------------------------------			    
     # Read Propellers/Rotors and assign to a network
     # --------------------------------------------------			
-    # Initialize rotor network elements
-    number_of_lift_rotor_engines = 0
-    number_of_propeller_engines  = 0
-    lift_rotors = Container()
-    propellers  = Container() 
+    # Initialize rotor network elements 
+    number_of_rotors  = 0 
+    rotors  = Container() 
     for prop_id in vsp_props:
         prop = read_vsp_propeller(prop_id,units_type)
-        prop.tag = vsp.GetGeomName(prop_id)
-        if prop.orientation_euler_angles[1] >= 70 * Units.degrees:
-            lift_rotors.append(prop)
-            number_of_lift_rotor_engines += 1 
-            
-            if vsp.GetParmVal(prop_id, 'Sym_Planar_Flag', 'Sym')== 2.0:
-                number_of_lift_rotor_engines += 1 
-                prop_sym = deepcopy(prop)
-                prop_sym.origin[0][1] = - prop_sym.origin[0][1]
-                lift_rotors.append(prop_sym)
-            
-        else:
-            propellers.append(prop)
-            number_of_propeller_engines += 1  
-            
-            if vsp.GetParmVal(prop_id, 'Sym_Planar_Flag', 'Sym')== 2.0:
-                number_of_propeller_engines += 1      
-                prop_sym = deepcopy(prop)
-                prop_sym.origin[0][1] = - prop_sym.origin[0][1]   
-                propellers.append(prop_sym)
+        prop.tag = vsp.GetGeomName(prop_id) 
+        rotors.append(prop)
+        number_of_rotors += 1  
+        
+        if vsp.GetParmVal(prop_id, 'Sym_Planar_Flag', 'Sym')== 2.0:
+            number_of_rotors += 1      
+            prop_sym = deepcopy(prop)
+            prop_sym.origin[0][1] = - prop_sym.origin[0][1]   
+            rotors.append(prop_sym)
 
     if specified_network == None:
-        # If no network specified, assign a network
-        if number_of_lift_rotor_engines>0 and number_of_propeller_engines>0:
-            net = Lift_Cruise()
-        else:
-            net = Battery_Rotor() 
+        # If no network specified, assign a network 
+        net = Battery_Electric_Rotor() 
     else:
         net = specified_network
 
-    # Create the rotor network
-    if net.tag == "Lift_Cruise":
-        # Lift + Cruise network
-        for i in range(number_of_lift_rotor_engines):
-            net.lift_rotors.append(lift_rotors[list(lift_rotors.keys())[i]])
-        net.number_of_lift_rotor_engines = number_of_lift_rotor_engines	
-
-        for i in range(number_of_propeller_engines):
-            net.propellers.append(propellers[list(propellers.keys())[i]])
-        net.number_of_propeller_engines = number_of_propeller_engines		
-
-    elif net.tag == "Battery_Propeller":
-        # Append all rotors as propellers for the battery propeller network
-        for i in range(number_of_lift_rotor_engines):
-            # Accounts for multicopter configurations
-            net.rotors.append(lift_rotors[list(lift_rotors.keys())[i]])
-
-        for i in range(number_of_propeller_engines):
-            net.rotors.append(propellers[list(propellers.keys())[i]])
-
-        net.number_of_rotor_engines = number_of_lift_rotor_engines + number_of_propeller_engines	
-
+    # Create the rotor network 
+    if net.tag == "Battery_Electric_Rotor":
+        # Append all rotors as rotors for the battery propeller network  
+        for i in range(number_of_rotors):
+            net.rotors.append(rotors[list(rotors.keys())[i]]) 
+            
     vehicle.networks.append(net)
 
     return vehicle

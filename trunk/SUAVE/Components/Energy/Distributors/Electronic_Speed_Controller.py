@@ -41,7 +41,7 @@ class Electronic_Speed_Controller(Energy_Component):
         
         self.efficiency = 0.0
     
-    def voltageout(self,conditions):
+    def voltageout(self,eta):
         """ The voltage out of the electronic speed controller
         
             Assumptions:
@@ -61,10 +61,7 @@ class Electronic_Speed_Controller(Energy_Component):
             Properties Used:
             None
            
-        """
-        # Unpack, don't modify the throttle
-        eta = (conditions.propulsion.throttle[:,0,None])*1.0
-        
+        """ 
         # Negative throttle is bad
         eta[eta<=0.0] = 0.0
         
@@ -79,7 +76,7 @@ class Electronic_Speed_Controller(Energy_Component):
         
         return voltsout
     
-    def currentin(self,conditions):
+    def currentin(self,eta):
         """ The current going into the speed controller
         
             Assumptions:
@@ -96,8 +93,7 @@ class Electronic_Speed_Controller(Energy_Component):
                
         """
         
-        # Unpack, don't modify the throttle
-        eta = (conditions.propulsion.throttle[:,0,None])*1.0        
+        # Unpack, don't modify the throttle       
         eff        = self.efficiency
         currentout = self.inputs.currentout
         currentin  = currentout*eta/eff # The inclusion of eta satisfies a power balance: p_in = p_out/eff

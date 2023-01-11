@@ -172,7 +172,7 @@ def vehicle_setup():
     # Component 3 the ESC
     esc            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
     esc.efficiency = 0.95 # Gundlach for brushless motors
-    net.esc        = esc
+    net.electronic_speed_controllers.append(esc)
     
     # Component 5 the Propeller
     # Design the Propeller

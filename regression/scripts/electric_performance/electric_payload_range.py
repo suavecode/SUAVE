@@ -25,13 +25,27 @@ from Stopped_Rotor import *
 
 def main():
 
-    vehicle     = vehicle_setup()
-    analyses    = base_analysis(vehicle)
-    mission     = mission_setup(vehicle, analyses)
+    vehicle     = vehicle_setup() 
+    configs     = configs_setup(vehicle)
 
-    analyses.mission = mission
+    # vehicle analyses
+    configs_analyses = analyses_setup(configs)
 
-    analyses.finalize()
+    # mission analyses
+
+    mission  = mission_setup(configs_analyses,vehicle)
+    missions_analyses = missions_setup(mission)
+
+
+    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses.configs  = configs_analyses
+    analyses.missions = missions_analyses
+ 
+    configs.finalize()
+    analyses.finalize()   
+
+    # mission analysis
+    mission = EVTOL_analyses.missions.base 
 
     payload_range = electric_payload_range(vehicle, mission, 'cruise', display_plot=True)
 
@@ -77,17 +91,33 @@ def mission_setup(vehicle, analyses):
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise"
 
-    segment.analyses.extend(analyses)  
+    segment.analyses.extend(analyses.forward_flight)  
     segment.altitude  = 1000.0 * Units.ft
     segment.air_speed = 110.   * Units['mph']
     segment.distance  = 80.    * Units.miles     
-    segment.battery_energy = vehicle.networks.lift_cruise.battery.pack.max_energy
-    segment.state.unknowns.throttle = 0.80 * ones_row(1)
-    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16) 
+    segment.battery_energy = vehicle.networks.battery_electric_rotor.battery.pack.max_energy 
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
+                                                                                            initial_throttles = [0.8,0],
+                                                                                            initial_rotor_power_coefficients=[0.16,0]) 
 
     mission.append_segment(segment)
 
     return mission
+
+# ----------------------------------------------------------------------
+#   Define the Vehicle Analyses
+# ----------------------------------------------------------------------
+
+def analyses_setup(configs):
+
+    analyses = SUAVE.Analyses.Analysis.Container()
+
+    # build a base analysis for each config
+    for tag,config in configs.items():
+        analysis = base_analysis(config)
+        analyses[tag] = analysis
+
+    return analyses
 
 def base_analysis(vehicle):
 
