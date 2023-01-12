@@ -536,11 +536,13 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     a_sec  = prop.airfoil_geometry
     a_secl = prop.airfoil_polar_stations
     beta   = prop.twist_distribution + prop.inputs.pitch_command
-    a_o    = prop.start_angle
+    a_idx  = prop.start_angle_idx
     b      = prop.chord_distribution
     r      = prop.radius_distribution
     MCA    = prop.mid_chord_alignment
     t      = prop.max_thickness_distribution
+    Na     = prop.number_azimuthal_stations
+    a_o    = 2*np.pi*(a_idx / Na) * prop.rotation # radians
     origin = prop.origin
     
     if prop.rotation==1:
@@ -646,5 +648,8 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     G.XB2  = mat[:,1:,1:,0]  + origin[0][0]
     G.YB2  = mat[:,1:,1:,1]  + origin[0][1]
     G.ZB2  = mat[:,1:,1:,2]  + origin[0][2]
+    
+
+    
     
     return G

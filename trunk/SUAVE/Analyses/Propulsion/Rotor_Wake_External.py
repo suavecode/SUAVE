@@ -97,7 +97,7 @@ class Rotor_Wake_External(Energy_Component):
         else:
             va = 0
             vt = 0  
-            print("External inflow not specified for rotor wake Fidelity Two!")
+            print("External inflow not specified!")
       
         
 
