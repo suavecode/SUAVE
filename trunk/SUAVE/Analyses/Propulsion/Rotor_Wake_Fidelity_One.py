@@ -13,6 +13,8 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.fidelity_one_wake_convergence import fidelity_one_wake_convergence
 from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.high_resolution_vortex_wake_interpolation import high_resolution_vortex_wake_interpolation
+from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_vortex_wake_miss_distances import compute_vortex_wake_miss_distances
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
@@ -69,12 +71,13 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.wake_settings              = Data()
         self.wake_settings.number_rotor_rotations     = 4
         self.wake_settings.number_steps_per_rotation  = 72
+        self.wake_settings.high_resolution_azimuthals = 720
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
         self.influencing_rotor_wake_network = None
         
         # wake convergence criteria
-        self.maximum_convergence_iteration_gamma      = 10
-        self.maximum_convergence_iteration_va         = 10
+        self.maximum_convergence_iteration_gamma      = 1#0
+        self.maximum_convergence_iteration_va         = 1#0
         self.axial_velocity_convergence_tolerance     = 1e-3
         self.circulation_convergence_tolerance        = 1e-3
         
@@ -260,6 +263,21 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         rot_V_wake_ind  = compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts,azi_start_idx)        
         
         return rot_V_wake_ind
+    
+    def high_resolution_wake_interpolation(self,rotor):
+        """
+        This takes the vortex wake system and interpolates the geometry onto a higher resolution azimuthal
+        grid. This is necessary for BVI analysis.
+        
+        """
+        high_resolution_vortex_wake_interpolation(self,rotor)
+        
+        
+        return
+    
+    def compute_miss_distance(self,rotor):
+        compute_vortex_wake_miss_distances(self,rotor)
+        return
     
     def shift_wake_VD(self,wVD, offset):
         """

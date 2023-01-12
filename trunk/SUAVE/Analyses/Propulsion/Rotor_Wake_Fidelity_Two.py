@@ -73,6 +73,7 @@ class Rotor_Wake_Fidelity_Two(Rotor_Wake_Fidelity_One):
         self.wake_settings.number_steps_per_rotation  = 72
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
         self.time_marching                            = True # If false, uses iteration method
+        self.wake_settings.high_resolution_azimuthals = 720
         
         # wake convergence criteria
         self.maximum_convergence_iteration_va       = 10
