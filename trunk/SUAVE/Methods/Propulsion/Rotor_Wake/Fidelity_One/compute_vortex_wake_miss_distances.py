@@ -14,12 +14,16 @@ import numpy as np
 from DCode.Common.plottingFunctions import *
 from DCode.Common.generalFunctions import *
 from DCode.Common.Visualization_Tools.plane_contour_field_vtk import plane_contour_field_vtk
+from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-def compute_vortex_wake_miss_distances(wake,rotor, h=0.1):  
+def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6, clip_tip=True):  
     """
     This uses a planar geometric method to compute the miss-distances of the rotor wake system
     in the vertical plane of each blade.
+    
+    Inputs
+       clip_tip - flag to clip the interactions only for the tip vortices [Boolean]
     
     """
     # Extract wake parameters and vortex distribution
@@ -35,7 +39,7 @@ def compute_vortex_wake_miss_distances(wake,rotor, h=0.1):
     Nr = nmax + 1
     
     VD = wake.vortex_distribution.reshaped_wake
-    tol = 1e-3
+    h = h_c * np.max(rotor.chord_distribution)
     
     # 
     psi = np.linspace(0,2*np.pi,Na_high_res+1)[:-1]
@@ -85,8 +89,7 @@ def compute_vortex_wake_miss_distances(wake,rotor, h=0.1):
         Zb   = wake.vortex_distribution.reshaped_wake.Zblades_cp[a,0,0,:,0]
         Xb   = wake.vortex_distribution.reshaped_wake.Xblades_cp[a,0,0,:,0]        
         
-        rotor_line = np.matmul(rot_mat, ((Xb[1:] + Xb[:-1])/2, (Yb[1:] + Yb[:-1])/2,  (Zb[1:] + Zb[:-1])/2))
-        rotor_line = np.tile(rotor_line[:,None,None,:,None], (1, m, B, 1, nts-1))
+        rotor_line = 0.5*np.concatenate([(Xb[1:] + Xb[:-1])[None,:], (Yb[1:] + Yb[:-1])[None,:],  (Zb[1:] + Zb[:-1])[None,:]]) 
         
         n_hat = np.cross((pB-pA), (pC-pB))
         d = -np.dot(n_hat, pA)
@@ -171,11 +174,40 @@ def compute_vortex_wake_miss_distances(wake,rotor, h=0.1):
         
         
         # record distances from each intersecting element
-        xA_I = np.reshape(xA_I, np.shape(np.repeat(XA1[None,:,:,:,:],3,axis=0)))
-        d_A_I = np.linalg.norm(xA_I - rotor_line, axis=0) # fix this: distance not to corresponding radial station but shortest distance to rotor disc plane
+        # find position of closest blade element to each xA_I
+        # distance of each xA_I element to each radial station
 
+        dX = (xA_I[0].reshape(1,-1) - rotor_line[0].reshape(-1,1))
+        dY = (xA_I[1].reshape(1,-1) - rotor_line[1].reshape(-1,1))
+        dZ = (xA_I[2].reshape(1,-1) - rotor_line[2].reshape(-1,1))
+        distances = np.sqrt(dX**2 + dY**2 + dZ**2)
+        indices = np.abs(distances).argmin(axis=0)
+        #residual = np.diagonal(distances[indices,])
+        
+        blade_element_position_A = rotor_line[:,indices]
+        
+
+        dX = (xB_I[0].reshape(1,-1) - rotor_line[0].reshape(-1,1))
+        dY = (xB_I[1].reshape(1,-1) - rotor_line[1].reshape(-1,1))
+        dZ = (xB_I[2].reshape(1,-1) - rotor_line[2].reshape(-1,1))
+        distances = np.sqrt(dX**2 + dY**2 + dZ**2)
+        indices = np.abs(distances).argmin(axis=0)
+        #residual = np.diagonal(distances[indices,])
+        
+        blade_element_position_B = rotor_line[:,indices]        
+        
+        d_A_I = np.reshape(np.linalg.norm(xA_I - blade_element_position_A, axis=0),  np.shape(XA1))# fix this: distance not to corresponding radial station but shortest distance to rotor disc plane
+        xA_I = np.reshape(xA_I, np.shape(np.repeat(XA1[None,:,:,:,:],3,axis=0)))
+
+        d_B_I = np.reshape(np.linalg.norm(xB_I - blade_element_position_B, axis=0), np.shape(XA1))# fix this: distance not to corresponding radial station but shortest distance to rotor disc plane
         xB_I = np.reshape(xB_I, np.shape(np.repeat(XA1[None,:,:,:,:],3,axis=0)))
-        d_B_I = np.linalg.norm(xB_I - rotor_line, axis=0)        
+        #d_B_I = np.linalg.norm(xB_I - rotor_line, axis=0)     
+        
+        if clip_tip:
+            # remove all but tip vortex range points
+            inLineA[:,:,0:Nr-2,:] = False
+            inLineB[:,:,0:Nr-2,:] = False
+        
         
         missDistances[a][inLineA] = d_A_I[inLineA]
         planeIntersectionPoints[0][a][inLineA] = xA_I[0][inLineA]
@@ -185,7 +217,11 @@ def compute_vortex_wake_miss_distances(wake,rotor, h=0.1):
         missDistances[a][inLineB] = d_B_I[inLineB]
         planeIntersectionPoints[0][a][inLineB] = xB_I[0][inLineB]  
         planeIntersectionPoints[1][a][inLineB] = xB_I[1][inLineB]  
-        planeIntersectionPoints[2][a][inLineB] = xB_I[2][inLineB]        
+        planeIntersectionPoints[2][a][inLineB] = xB_I[2][inLineB]     
+        
+        ## record all bvi events at this azimuth 
+        ## find closest radial station for each event
+        #bvi[a,:,:] # [Na, B, Nr]
     
         # record points with miss distance values and output the VTK for each time step
         saveDir = "/Users/rerha/Desktop/missDistanceDebug/"
@@ -201,8 +237,16 @@ def compute_vortex_wake_miss_distances(wake,rotor, h=0.1):
             point_data.missDistance = np.ravel(missDistances[a,0,b,:,:])
             points.point_data = point_data
             
-            from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
             save_evaluation_points_vtk(points, filename=saveDir+"bvi_blade_{}.vtk".format(b),time_step=a)
+        
+        # DEBUG: plot vtk of rotor line
+        #pts = Data()
+        #pts.XC = rotor_line[0,:]
+        #pts.YC = rotor_line[1,:]
+        #pts.ZC = rotor_line[2,:]
+        #pts.point_data = Data()
+        #save_evaluation_points_vtk(pts, filename=saveDir+"rotor_line.vtk",time_step=a)
+        
             
         
         points=Data()
