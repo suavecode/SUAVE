@@ -17,7 +17,7 @@ from DCode.Common.Visualization_Tools.plane_contour_field_vtk import plane_conto
 from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6, clip_tip=True):  
+def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6):  
     """
     This uses a planar geometric method to compute the miss-distances of the rotor wake system
     in the vertical plane of each blade.
@@ -31,7 +31,6 @@ def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6, clip_tip=True):
     
     VD_low_res = wake.vortex_distribution
     VD_lr_shape = np.shape(VD_low_res.reshaped_wake.XA1)
-    Na_low_res = VD_lr_shape[0]
     m = VD_lr_shape[1]
     B = VD_lr_shape[2]
     nmax = VD_lr_shape[3]
@@ -46,22 +45,18 @@ def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6, clip_tip=True):
     Rh = rotor.hub_radius
     R = rotor.tip_radius
     
-    missDistances = np.ones((Na_high_res, m, B, Nr-1, nts-1)) * np.nan #np.ones_like(VD.XA1) * np.nan
-    planeIntersectionPoints = np.ones((3, Na_high_res, m, B, Nr-1, nts-1)) * np.nan #np.ones_like(np.repeat(VD.XA1[None,:,:,:,:], 3, axis=0)) * np.nan
+    tipMissDistances = np.ones((Na_high_res, m, B, nts-1)) * np.nan
+    tipPlaneIntersectionPoints = np.ones((3, Na_high_res, m, B, nts-1)) * np.nan
+    bvi_radial_locations = np.ones((Na_high_res, m, B, nts-1)) * np.nan
+    
     for a in range(Na_high_res):
-        # neglect lifting line panel rows
-        XA1 = VD.XA1[a,:,:,:,1:]
-        XA2 = VD.XA2[a,:,:,:,1:]
-        XB1 = VD.XB1[a,:,:,:,1:]
-        XB2 = VD.XB2[a,:,:,:,1:]
-        YA1 = VD.YA1[a,:,:,:,1:]
-        YA2 = VD.YA2[a,:,:,:,1:]
-        YB1 = VD.YB1[a,:,:,:,1:]
-        YB2 = VD.YB2[a,:,:,:,1:]      
-        ZA1 = VD.ZA1[a,:,:,:,1:]
-        ZA2 = VD.ZA2[a,:,:,:,1:]
-        ZB1 = VD.ZB1[a,:,:,:,1:]
-        ZB2 = VD.ZB2[a,:,:,:,1:] 
+        # neglect lifting line panel rows, and clip_tip/ only consider the Nr'th vortex panels
+        XB1 = VD.XB1[a,:,:,-1,1:]
+        XB2 = VD.XB2[a,:,:,-1,1:]
+        YB1 = VD.YB1[a,:,:,-1,1:]
+        YB2 = VD.YB2[a,:,:,-1,1:]      
+        ZB1 = VD.ZB1[a,:,:,-1,1:]
+        ZB2 = VD.ZB2[a,:,:,-1,1:] 
         
         # compute distance of all filaments to rotor blade
         x_min_rotor_frame = -h
@@ -89,30 +84,22 @@ def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6, clip_tip=True):
         Zb   = wake.vortex_distribution.reshaped_wake.Zblades_cp[a,0,0,:,0]
         Xb   = wake.vortex_distribution.reshaped_wake.Xblades_cp[a,0,0,:,0]        
         
-        rotor_line = 0.5*np.concatenate([(Xb[1:] + Xb[:-1])[None,:], (Yb[1:] + Yb[:-1])[None,:],  (Zb[1:] + Zb[:-1])[None,:]]) 
+        rotor_line = np.concatenate([Xb[None,:], Yb[None,:],  Zb[None,:]]) #0.5*np.concatenate([(Xb[1:] + Xb[:-1])[None,:], (Yb[1:] + Yb[:-1])[None,:],  (Zb[1:] + Zb[:-1])[None,:]]) 
         
         n_hat = np.cross((pB-pA), (pC-pB))
         d = -np.dot(n_hat, pA)
         
         # compute line equations
-        PA1 = np.reshape(np.concatenate([XA1[None,:,:,:,:], YA1[None,:,:,:,:], ZA1[None,:,:,:,:]]), (3, np.size(XA1)))
-        PA2 = np.reshape(np.concatenate([XA2[None,:,:,:,:], YA2[None,:,:,:,:], ZA2[None,:,:,:,:]]), (3, np.size(XA1)))
-        PB1 = np.reshape(np.concatenate([XB1[None,:,:,:,:], YB1[None,:,:,:,:], ZB1[None,:,:,:,:]]), (3, np.size(XA1)))
-        PB2 = np.reshape(np.concatenate([XB2[None,:,:,:,:], YB2[None,:,:,:,:], ZB2[None,:,:,:,:]]), (3, np.size(XA1)))
-        
+        PB1 = np.reshape(np.concatenate([XB1[None,:,:,:], YB1[None,:,:,:], ZB1[None,:,:,:]]), (3, np.size(XB1)))
+        PB2 = np.reshape(np.concatenate([XB2[None,:,:,:], YB2[None,:,:,:], ZB2[None,:,:,:]]), (3, np.size(XB1)))
+    
         # solve for t (inf if no intersection, as denominator will go to zero)
-        tA = (np.matmul(n_hat, PA1) - d) / -(np.matmul(n_hat, (PA2-PA1)))
         tB = (np.matmul(n_hat, PB1) - d) / -(np.matmul(n_hat, (PB2-PB1)))
         
         # find intersection points with plane
-        xA_I = PA1 + (PA2 - PA1) * tA
         xB_I = PB1 + (PB2 - PB1) * tB
         
         # check if intersection point lies between point 1 and point 2 (not just along the line created by these points)
-        dLA = np.linalg.norm(PA1 - PA2, axis=0)
-        dLA_sum = np.linalg.norm(PA1 - xA_I, axis=0) + np.linalg.norm(PA2 - xA_I, axis=0)
-        inLineA = np.isclose(dLA, dLA_sum)
-        
         dLB = np.linalg.norm(PB1 - PB2, axis=0)
         dLB_sum = np.linalg.norm(PB1 - xB_I, axis=0) + np.linalg.norm(PB2 - xB_I, axis=0)
         inLineB = np.isclose(dLB, dLB_sum)      
@@ -120,31 +107,6 @@ def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6, clip_tip=True):
         # ------------------------------------------------------------------------------------------------
         # remove intersection points that are outside the blade projection plane
         # ------------------------------------------------------------------------------------------------
-        # A points
-        d_IA = np.linalg.norm((xA_I.T - pA).T, axis=0)
-        d_IB = np.linalg.norm((xA_I.T - pB).T, axis=0)
-        d_IC = np.linalg.norm((xA_I.T - pC).T, axis=0)
-        d_ID = np.linalg.norm((xA_I.T - pD).T, axis=0)
-        
-        d_AD = np.linalg.norm(pA-pD)
-        d_AB = np.linalg.norm(pA-pB)
-        d_CD = np.linalg.norm(pC-pD)
-        d_BC = np.linalg.norm(pB-pC)
-        
-        s_ADI = 0.5 * (d_AD + d_IA + d_ID)
-        s_ABI = 0.5 * (d_AB + d_IA + d_IB)
-        s_CDI = 0.5 * (d_CD + d_IC + d_ID)
-        s_BCI = 0.5 * (d_BC + d_IB + d_IC)
-        area_ADI = np.sqrt( s_ADI * (s_ADI - d_AD) * (s_ADI - d_IA) * (s_ADI - d_ID) )
-        area_ABI = np.sqrt( s_ABI * (s_ABI - d_AB) * (s_ABI - d_IA) * (s_ABI - d_IB) )
-        area_CDI = np.sqrt( s_CDI * (s_CDI - d_CD) * (s_CDI - d_IC) * (s_CDI - d_ID) )
-        area_BCI = np.sqrt( s_BCI * (s_BCI - d_BC) * (s_BCI - d_IB) * (s_BCI - d_IC) )
-        point_rect_area = area_ADI + area_ABI + area_CDI + area_BCI
-        rect_area = d_AD * d_AB
-        in_rect = np.isclose(point_rect_area, rect_area)
-        
-        inLineA[~in_rect] = False
-        inLineA = np.reshape(inLineA, np.shape(XA1))
         
         # B points
         d_IA = np.linalg.norm((xB_I.T - pA).T, axis=0)
@@ -176,17 +138,7 @@ def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6, clip_tip=True):
         # record distances from each intersecting element
         # find position of closest blade element to each xA_I
         # distance of each xA_I element to each radial station
-
-        dX = (xA_I[0].reshape(1,-1) - rotor_line[0].reshape(-1,1))
-        dY = (xA_I[1].reshape(1,-1) - rotor_line[1].reshape(-1,1))
-        dZ = (xA_I[2].reshape(1,-1) - rotor_line[2].reshape(-1,1))
-        distances = np.sqrt(dX**2 + dY**2 + dZ**2)
-        indices = np.abs(distances).argmin(axis=0)
-        #residual = np.diagonal(distances[indices,])
         
-        blade_element_position_A = rotor_line[:,indices]
-        
-
         dX = (xB_I[0].reshape(1,-1) - rotor_line[0].reshape(-1,1))
         dY = (xB_I[1].reshape(1,-1) - rotor_line[1].reshape(-1,1))
         dZ = (xB_I[2].reshape(1,-1) - rotor_line[2].reshape(-1,1))
@@ -196,56 +148,42 @@ def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6, clip_tip=True):
         
         blade_element_position_B = rotor_line[:,indices]        
         
-        d_A_I = np.reshape(np.linalg.norm(xA_I - blade_element_position_A, axis=0),  np.shape(XA1))# fix this: distance not to corresponding radial station but shortest distance to rotor disc plane
-        xA_I = np.reshape(xA_I, np.shape(np.repeat(XA1[None,:,:,:,:],3,axis=0)))
+        d_B_I = np.reshape(np.linalg.norm(xB_I - blade_element_position_B, axis=0), np.shape(XB1))# fix this: distance not to corresponding radial station but shortest distance to rotor disc plane
+        xB_I = np.reshape(xB_I, np.shape(np.repeat(XB1[None,:,:,:],3,axis=0)))   
+        blade_element_position_B = np.reshape(blade_element_position_B, np.shape(np.repeat(XB1[None,:,:,:],3,axis=0)))
+        
+        tipMissDistances[a][inLineB] = d_B_I[inLineB]
+        tipPlaneIntersectionPoints[0][a][inLineB] = xB_I[0][inLineB]  
+        tipPlaneIntersectionPoints[1][a][inLineB] = xB_I[1][inLineB]  
+        tipPlaneIntersectionPoints[2][a][inLineB] = xB_I[2][inLineB]     
 
-        d_B_I = np.reshape(np.linalg.norm(xB_I - blade_element_position_B, axis=0), np.shape(XA1))# fix this: distance not to corresponding radial station but shortest distance to rotor disc plane
-        xB_I = np.reshape(xB_I, np.shape(np.repeat(XA1[None,:,:,:,:],3,axis=0)))
-        #d_B_I = np.linalg.norm(xB_I - rotor_line, axis=0)     
-        
-        if clip_tip:
-            # remove all but tip vortex range points
-            inLineA[:,:,0:Nr-2,:] = False
-            inLineB[:,:,0:Nr-2,:] = False
-        
-        
-        missDistances[a][inLineA] = d_A_I[inLineA]
-        planeIntersectionPoints[0][a][inLineA] = xA_I[0][inLineA]
-        planeIntersectionPoints[1][a][inLineA] = xA_I[1][inLineA]
-        planeIntersectionPoints[2][a][inLineA] = xA_I[2][inLineA]
-
-        missDistances[a][inLineB] = d_B_I[inLineB]
-        planeIntersectionPoints[0][a][inLineB] = xB_I[0][inLineB]  
-        planeIntersectionPoints[1][a][inLineB] = xB_I[1][inLineB]  
-        planeIntersectionPoints[2][a][inLineB] = xB_I[2][inLineB]     
-        
-        ## record all bvi events at this azimuth 
-        ## find closest radial station for each event
-        #bvi[a,:,:] # [Na, B, Nr]
+        # record closest radial disc location of BVI
+        bvi_event = np.argwhere(~np.isnan(tipMissDistances[a]) )
+        radial_stations_bvi = np.linalg.norm(blade_element_position_B, axis=0)
+        bvi_radial_locations[a][inLineB] = radial_stations_bvi[tuple(bvi_event.T)]
     
         # record points with miss distance values and output the VTK for each time step
         saveDir = "/Users/rerha/Desktop/missDistanceDebug/"
         for b in range(B):
             points = Data()
-            points.XC = np.ravel(planeIntersectionPoints[0,a,0,b,:,:])
-            points.YC = np.ravel(planeIntersectionPoints[1,a,0,b,:,:])
-            points.ZC = np.ravel(planeIntersectionPoints[2,a,0,b,:,:])
+            points.XC = np.ravel(tipPlaneIntersectionPoints[0,a,0,b,:])
+            points.YC = np.ravel(tipPlaneIntersectionPoints[1,a,0,b,:])
+            points.ZC = np.ravel(tipPlaneIntersectionPoints[2,a,0,b,:])
             
             point_data = Data()
-            point_data.radialOrigin = np.ravel(np.tile(np.arange(Nr-1)[:,None], (1,nts)))
-            point_data.bladeOrigin = np.ones_like(point_data.radialOrigin) * b
-            point_data.missDistance = np.ravel(missDistances[a,0,b,:,:])
+            point_data.bladeOrigin = np.ones_like(points.XC) * b
+            point_data.missDistance = np.ravel(tipMissDistances[a,0,b,:])
             points.point_data = point_data
             
             save_evaluation_points_vtk(points, filename=saveDir+"bvi_blade_{}.vtk".format(b),time_step=a)
         
         # DEBUG: plot vtk of rotor line
-        #pts = Data()
-        #pts.XC = rotor_line[0,:]
-        #pts.YC = rotor_line[1,:]
-        #pts.ZC = rotor_line[2,:]
-        #pts.point_data = Data()
-        #save_evaluation_points_vtk(pts, filename=saveDir+"rotor_line.vtk",time_step=a)
+        pts = Data()
+        pts.XC = rotor_line[0,:]
+        pts.YC = rotor_line[1,:]
+        pts.ZC = rotor_line[2,:]
+        pts.point_data = Data()
+        save_evaluation_points_vtk(pts, filename=saveDir+"rotor_line.vtk",time_step=a)
         
             
         
@@ -265,6 +203,20 @@ def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6, clip_tip=True):
         stateData.alphaDeg = 0
         plane_contour_field_vtk(planeData, stateData, filename=saveDir + "bvi_contour_plane.vtk", iteration=a)
         
-        
+    # debug: polar plot of disk contour bvi events
+    theta = 2*np.pi*np.linspace(0, 1, Na_high_res+1)[:-1]
+    cols = ['black','red','blue','green']
+    fig0, axis0 = plt.subplots(subplot_kw=dict(projection='polar'))
+    for a in range(Na_high_res):
+        for b in range(B):
+            # plot bvis that originate from blade b
+            r_locs = bvi_radial_locations[a,0,b,:][~np.isnan(bvi_radial_locations[a,0,b,:])]
+            axis0.plot(np.ones_like(r_locs)*theta[a], r_locs, 'x',color=cols[b])    # -np.pi+psi turns it 
+
+    axis0.set_title("BVI Occurrence") 
+    axis0.set_rorigin(0)
+    axis0.set_theta_zero_location("S")
+    axis0.set_yticklabels([])
+    plt.show()
     return
   
