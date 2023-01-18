@@ -17,7 +17,7 @@ from DCode.Common.Visualization_Tools.plane_contour_field_vtk import plane_conto
 from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
 
 ## @ingroup Methods-Propulsion-Rotor_Wake-Fidelity_One
-def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6):  
+def compute_vortex_wake_miss_distances(wake,rotor, h_c=3):  
     """
     This uses a planar geometric method to compute the miss-distances of the rotor wake system
     in the vertical plane of each blade.
@@ -155,12 +155,18 @@ def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6):
         tipMissDistances[a][inLineB] = d_B_I[inLineB]
         tipPlaneIntersectionPoints[0][a][inLineB] = xB_I[0][inLineB]  
         tipPlaneIntersectionPoints[1][a][inLineB] = xB_I[1][inLineB]  
-        tipPlaneIntersectionPoints[2][a][inLineB] = xB_I[2][inLineB]     
+        tipPlaneIntersectionPoints[2][a][inLineB] = xB_I[2][inLineB]    
+        
+        # rotate to get position in rotor frame
+        rot_mat2 = rotor.prop_vel_to_vehicle_body()[0]
+        tipPlaneIntersectionPoints_RotorFrame = np.matmul(rot_mat2, np.reshape(tipPlaneIntersectionPoints,(3, Na_high_res*m*B*(nts-1) )))
+        tipPlaneIntersectionPoints_RotorFrame = np.reshape(tipPlaneIntersectionPoints_RotorFrame, (3,Na_high_res, m, B, (nts-1)))
+        bvi_radial_locations[a][inLineB] = np.sqrt(tipPlaneIntersectionPoints_RotorFrame[1][a][inLineB] **2 + tipPlaneIntersectionPoints_RotorFrame[2][a][inLineB] **2 )
 
-        # record closest radial disc location of BVI
-        bvi_event = np.argwhere(~np.isnan(tipMissDistances[a]) )
-        radial_stations_bvi = np.linalg.norm(blade_element_position_B, axis=0)
-        bvi_radial_locations[a][inLineB] = radial_stations_bvi[tuple(bvi_event.T)]
+        ## record closest radial disc location of BVI
+        #bvi_event = np.argwhere(~np.isnan(tipMissDistances[a]) )
+        #radial_stations_bvi = np.linalg.norm(blade_element_position_B, axis=0)
+        #bvi_radial_locations[a][inLineB] = radial_stations_bvi[tuple(bvi_event.T)]
     
         # record points with miss distance values and output the VTK for each time step
         saveDir = "/Users/rerha/Desktop/missDistanceDebug/"
@@ -210,13 +216,23 @@ def compute_vortex_wake_miss_distances(wake,rotor, h_c=0.6):
     for a in range(Na_high_res):
         for b in range(B):
             # plot bvis that originate from blade b
-            r_locs = bvi_radial_locations[a,0,b,:][~np.isnan(bvi_radial_locations[a,0,b,:])]
-            axis0.plot(np.ones_like(r_locs)*theta[a], r_locs, 'x',color=cols[b])    # -np.pi+psi turns it 
+            nan_ids = np.isnan(bvi_radial_locations[a,0,b,:])
+            r_locs = bvi_radial_locations[a,0,b,:][~nan_ids]
+            if len(r_locs) != 0:
+                mSize = 50 - 45 * tipMissDistances[a,0,b,:][~nan_ids] / np.max(tipMissDistances[~np.isnan(tipMissDistances)])                
+                axis0.scatter(np.ones_like(r_locs)*theta[a], r_locs,color=cols[b], s=mSize)    # -np.pi+psi turns it 
 
     axis0.set_title("BVI Occurrence") 
     axis0.set_rorigin(0)
     axis0.set_theta_zero_location("S")
     axis0.set_yticklabels([])
+    plt.plot([],[],'ko',label='Blade 0')
+    plt.plot([],[],'ro',label='Blade 1')
+    plt.plot([],[],'bo',label='Blade 2')
+    plt.plot([],[],'go',label='Blade 3')
+    plt.legend(loc='lower right',bbox_to_anchor=(1.5,0.5))
+    plt.tight_layout()
+    fig0.savefig("/Users/rerha/Downloads/bvi_occurrence.png", dpi=300)
     plt.show()
     return
   
