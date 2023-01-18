@@ -58,7 +58,7 @@ def plot_ground_noise_levels(results,
     
 
     # Setup the colors
-    NS           = N_gm_y+1
+    NS           = 10+1
     color_list   = px.colors.sample_colorscale("plasma", [n/(NS -1) for n in range(NS)]) 
     colorcycler  = cycle(color_list) 
     fig          = make_subplots(rows=1, cols=1) 

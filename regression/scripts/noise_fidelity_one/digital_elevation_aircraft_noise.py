@@ -51,7 +51,7 @@ def main():
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
 
     X57_SPL        = np.max(X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA) 
-    X57_SPL_true   = 57.31878154046895
+    X57_SPL_true   = 54.80060022697681
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
@@ -240,14 +240,14 @@ def X57_mission_setup(analyses,vehicle,topography_data):
     segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
     segment.tag = 'Departure_End_of_Runway'    
     segment.analyses.extend(analyses.base)      
-    segment.altitude_start                                   = 0.0 * Units.feet
+    segment.altitude_start                                   = 0.0 * Units.feet 
+    segment.battery_energy                                   = vehicle.networks.battery_electric_rotor.battery.pack.max_energy    
     segment.altitude_end                                     = 50.0 * Units.feet
     segment.air_speed_start                                  = Vstall*1.1 
     segment.air_speed_end                                    = Vstall*1.2       
-    segment.climb_rate                                       = 600 * Units['ft/min']  
-    segment.state.unknowns.throttle                          = 0.75 * ones_row(1)  
+    segment.climb_rate                                       = 600 * Units['ft/min']
     segment.true_course                                      = topography_data.true_course    
-    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = 0.005)  
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment)  
     mission.append_segment(segment) 
 
     return mission

@@ -67,7 +67,7 @@ def main():
     
     # Check Results 
     F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.rotor.rpm[1,0]
+    rpm     = results.segments.cruise1.conditions.propulsion.propulsor_group_0.rotor.rpm[1,0]
     current = results.segments.cruise1.conditions.propulsion.battery.pack.current[1,0]
     energy  = results.segments.cruise1.conditions.propulsion.battery.pack.energy[8,0]  
     
@@ -206,7 +206,7 @@ def mission_setup(analyses,vehicle):
     segment.battery_energy = vehicle.networks.solar.battery.pack.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
-    segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment,initial_rotor_power_coefficients = 0.05)    
+    segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment,initial_rotor_power_coefficients = [0.05])    
     
     
     mission.append_segment(segment)    

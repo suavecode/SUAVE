@@ -43,8 +43,6 @@ def main():
     print(configs.base.weight_breakdown)
     print(configs.base.mass_properties.center_of_gravity)
 
-    # Plot vehicle 
-    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = False)
 
     # evaluate mission    
     mission  = analyses.missions.base
@@ -53,8 +51,11 @@ def main():
     # plot results
     plot_mission(results)    
 
+    # Plot vehicle 
+    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = False)
+    
     # RPM check during hover
-    RPM        = results.segments.departure.conditions.propulsion.rotor.rpm[0][0]
+    RPM        = results.segments.departure.conditions.propulsion.propulsor_group_0.rotor.rpm[0][0]
     RPM_true   = 1922.161595958687
     
     print(RPM) 
@@ -198,8 +199,8 @@ def mission_setup(analyses,vehicle):
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip
     segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
-                                                                                            initial_throttles = [1.0],
-                                                                                            initial_rotor_power_coefficients = [0.06])
+                                                                                            initial_throttles = [0.50],
+                                                                                            initial_rotor_power_coefficients = [0.05])
 
     # add to misison
     mission.append_segment(segment) 

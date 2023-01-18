@@ -82,7 +82,7 @@ def electric_V_h_diagram(vehicle,
     W                   = vehicle.mass_properties.takeoff * g
     S                   = vehicle.reference_area 
 
-    rotors              = vehicle.networks.battery_electric_rotorrotors    
+    rotors              = vehicle.networks.battery_electric_rotor.rotors    
     rotor_group_indexes = vehicle.networks.battery_electric_rotor.rotor_group_indexes
     motor_group_indexes = vehicle.networks.battery_electric_rotor.motor_group_indexes    
     

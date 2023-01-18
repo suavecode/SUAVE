@@ -55,7 +55,7 @@ def main():
     # run the BEVW for upstream isolated propeller
     T_iso, Q_iso, P_iso, Cp_iso, outputs_iso , etap_iso = prop.spin(conditions)
     
-    conditions.noise.sources.propellers[prop.tag] = outputs_iso
+    conditions.noise.sources.rotors[prop.tag] = outputs_iso
     
     # compute the induced velocities from upstream propeller at the grid points on the downstream propeller
     propeller_wake = compute_propeller_wake_velocities(prop, grid_settings, grid_points, conditions, plot_velocities=plot_flag)

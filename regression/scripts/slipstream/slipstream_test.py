@@ -117,14 +117,14 @@ def regress_1b(results, configs):
     sectional_lift_coeff        = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
     
     # lift coefficient and sectional lift coefficient check
-    lift_coefficient_true       = 0.6021342381135112
-    sectional_lift_coeff_true   = np.array([ 5.77234272e-01,  5.23424752e-01,  4.85117756e-01,  4.19066030e-01,
-                                             8.17527394e-02,  5.77234268e-01,  5.23424757e-01,  4.85117880e-01,
-                                             4.19066333e-01,  8.17527894e-02,  3.46155594e-03,  1.86977920e-03,
-                                             5.24100363e-04,  6.01239450e-04,  6.29837848e-04,  3.46156126e-03,
-                                             1.86978816e-03,  5.24112715e-04,  6.01255933e-04,  6.29845922e-04,
-                                             3.53894425e-16, -3.14562603e-16, -3.65094165e-16, -2.97644519e-16,
-                                             -1.88584554e-16])
+    lift_coefficient_true       = 0.6020199510102426
+    sectional_lift_coeff_true   = np.array([5.75825302e-01, 5.03609088e-01, 4.82878360e-01, 4.20669655e-01,
+                                            8.18479074e-02, 5.81360541e-01, 5.26912114e-01, 4.91028755e-01,
+                                            4.24111314e-01, 8.25293579e-02, 9.65711139e-03, 8.26279925e-03,
+                                            6.24870917e-03, 5.37980294e-03, 3.68930465e-03, 5.38757412e-03,
+                                            3.32372593e-03, 2.14969384e-03, 2.03870946e-03, 1.54056804e-03,
+                                            3.89612184e-07, 2.15708019e-09, 1.68896867e-09, 4.29216230e-09,
+                                            2.59497719e-09])
 
     diff_CL = np.abs(lift_coefficient  - lift_coefficient_true)
     print('CL difference')

@@ -50,8 +50,7 @@ def plot_flight_profile_noise_contours(results,
     Y               = noise_data.SPL_dBA_ground_mic_loc[:,:,1]  
     Z               = noise_data.SPL_dBA_ground_mic_loc[:,:,2]  
     plot_data       = []  
-    max_SPL_gm      = np.max(SPL_contour_gm,axis=0) 
-    max_SPL_gm[Z<0] = np.nan
+    max_SPL_gm      = np.max(SPL_contour_gm,axis=0)  
 
     # ---------------------------------------------------------------------------
     # TWO DIMENSIONAL NOISE CONTOUR
@@ -61,8 +60,8 @@ def plot_flight_profile_noise_contours(results,
                                          contours=dict(
                                                   start= min_SPL,
                                                   end  = max_SPL,
-                                                  size = 19),                                      
-                                      colorbar=dict(
+                                                  size = 5),                                       
+                                          colorbar=dict(
                                           title='SPL (dBA)',  
                                           titleside='right',
                                           titlefont=dict(size=14))))
@@ -78,8 +77,7 @@ def plot_flight_profile_noise_contours(results,
     # ---------------------------------------------------------------------------
     # TRHEE DIMENSIONAL NOISE CONTOUR
     # --------------------------------------------------------------------------- 
-    # TERRAIN CONTOUR
-    max_SPL_gm       = np.max(SPL_contour_gm,axis=0)     
+    # TERRAIN CONTOUR 
     ground_contour   = contour_surface_slice(Y,X,Z,max_SPL_gm,color_scale=colormap)
     plot_data.append(ground_contour)
 

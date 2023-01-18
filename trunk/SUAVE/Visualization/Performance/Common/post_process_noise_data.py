@@ -59,8 +59,13 @@ def post_process_noise_data(results):
                 stencil_width          = S_gm_y*2 + 1
                 SPL_contour_gm[idx,int(S_locs[j,0]):int(S_locs[j,1]),int(S_locs[j,2]):int(S_locs[j,3])]  = results.segments[i].conditions.noise.total_SPL_dBA[j].reshape(stencil_length ,stencil_width )   
                 idx  += 1
+                
+    # make any readings less that background noise equal to background noise
+    SPL_dBA_ground_mic = np.nan_to_num(SPL_contour_gm) 
+    SPL_dBA_ground_mic[SPL_dBA_ground_mic<35] = 35       
+    
     noise_data                        = Data()
-    noise_data.SPL_dBA_ground_mic     = np.nan_to_num(SPL_contour_gm) 
+    noise_data.SPL_dBA_ground_mic     = SPL_dBA_ground_mic
     noise_data.aircraft_position      = Aircraft_pos
     noise_data.SPL_dBA_ground_mic_loc = Mic_pos_gm 
     noise_data.N_gm_y                 = N_gm_y

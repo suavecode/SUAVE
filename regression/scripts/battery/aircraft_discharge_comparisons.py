@@ -454,8 +454,7 @@ def EVTOL_mission_setup(analyses,vehicle,evtol_throttles):
     segment.pitch_final                                = 5. * Units.degrees  
     segment.process.iterate.unknowns.mission           = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip
-    
+    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip 
     segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
                                                          initial_rotor_power_coefficients = [0.05,0.05], 
                                                          initial_throttles = evtol_throttles[1] )

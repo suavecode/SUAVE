@@ -237,8 +237,8 @@ class Battery_Electric_Rotor(Network):
                     conditions.noise.sources.rotors[rotor.tag]                                  = outputs 
     
                     identical_rotors = np.where(rotor_indexes[ii] == rotor_group_indexes)[0] 
-                    for idx in range(len(identical_rotors)) :
-                        identical_rotor = self.rotors[list(rotors.keys())[rotor_group_indexes[idx]]]
+                    for idx in range(1,len(identical_rotors)) :
+                        identical_rotor = self.rotors[list(rotors.keys())[identical_rotors[idx]]]
                         identical_rotor.inputs.y_axis_rotation = conditions.propulsion['propulsor_group_' + str(ii)].y_axis_rotation 
                         if rotor.Wake.wake_method=="Fidelity_One":
     
@@ -388,10 +388,7 @@ class Battery_Electric_Rotor(Network):
     
             Properties Used:
             N/A
-        """                          
-
-        active_propulsor_groups = self.active_propulsor_groups   
-        
+        """                           
         # unpack the ones function
         ones_row = segment.state.ones_row    
         
@@ -444,8 +441,7 @@ class Battery_Electric_Rotor(Network):
 
         active_propulsor_groups = segment.analyses.energy.network.battery_electric_rotor.active_propulsor_groups
            
-        if segment.battery_discharge:      
-            #segment.state.residuals.network.rotors = Residuals()  
+        if segment.battery_discharge:       
             for i in range(segment.state.conditions.propulsion.number_of_propulsor_groups):
                 if active_propulsor_groups[i]:
                     q_motor   = segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor.torque

@@ -317,8 +317,7 @@ def vehicle_setup():
         rotor_motor = deepcopy(motor)
         rotor_motor.tag    = 'motor'
         rotor_motor.origin = [origins[ii]]
-        net.rotor_motors.append(rotor_motor)
-
+        net.motors.append(rotor_motor) 
 
 
     # Add extra drag sources from motors, props, and landing gear. All of these hand measured

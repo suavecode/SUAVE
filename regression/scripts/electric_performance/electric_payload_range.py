@@ -31,11 +31,9 @@ def main():
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
 
-    # mission analyses
-
-    mission  = mission_setup(configs_analyses,vehicle)
-    missions_analyses = missions_setup(mission)
-
+    # mission analyses 
+    mission  = mission_setup(vehicle,configs_analyses)
+    missions_analyses = missions_setup(mission) 
 
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
@@ -45,11 +43,11 @@ def main():
     analyses.finalize()   
 
     # mission analysis
-    mission = EVTOL_analyses.missions.base 
+    mission = analyses.missions.base 
 
     payload_range = electric_payload_range(vehicle, mission, 'cruise', display_plot=True)
 
-    payload_range_r = [ 0.        , 65.71898603, 70.01635985]
+    payload_range_r = [ 0.        , 65.73869933, 70.03824318]
 
     assert (np.abs(payload_range.range[1] - payload_range_r[1]) / payload_range_r[1] < 1e-6), "Payload Range Regression Failed at Max Payload Test"
     assert (np.abs(payload_range.range[2] - payload_range_r[2]) / payload_range_r[2] < 1e-6), "Payload Range Regression Failed at Ferry Range Test"
@@ -163,6 +161,22 @@ def base_analysis(vehicle):
     analyses.append(atmosphere)
 
     return analyses
+
+
+def missions_setup(base_mission):
+
+    # the mission container
+    missions = SUAVE.Analyses.Mission.Mission.Container()
+
+    # ------------------------------------------------------------------
+    #   Base Mission
+    # ------------------------------------------------------------------
+
+    missions.base = base_mission
+
+
+    # done!
+    return missions  
 
 if __name__ == '__main__':
     main()

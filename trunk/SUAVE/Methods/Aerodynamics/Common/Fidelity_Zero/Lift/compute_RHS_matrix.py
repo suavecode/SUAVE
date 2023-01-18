@@ -93,8 +93,8 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                 rots           = network.rotors
                 prop_V_wake_ind = np.zeros((num_ctrl_pts,num_eval_pts,3))
                 
-                for r in rots:
-                    prop_V_wake_ind += p.Wake.evaluate_slipstream(r,geometry,num_ctrl_pts) 
+                for r in rots: 
+                    prop_V_wake_ind += r.Wake.evaluate_slipstream(r,geometry,num_ctrl_pts) 
                     
                     
             # update the total induced velocity distribution

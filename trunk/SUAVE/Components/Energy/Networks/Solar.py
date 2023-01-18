@@ -16,6 +16,7 @@ import SUAVE
 import numpy as np
 from .Network import Network
 from SUAVE.Components.Physical_Component import Container
+from SUAVE.Analyses.Mission.Segments.Conditions import Residuals
 from SUAVE.Methods.Power.Battery.pack_battery_conditions import pack_battery_conditions
 from SUAVE.Components.Energy.Converters   import Propeller, Lift_Rotor, Prop_Rotor 
 from SUAVE.Methods.Power.Battery.append_initial_battery_conditions import append_initial_battery_conditions 
@@ -70,7 +71,7 @@ class Solar(Network):
         self.use_surrogate                   = False
         self.generative_design_minimum       = 0
         self.rotor_group_indexes             = [0]
-        self.motor_group_indexes             = [0]
+        self.motor_group_indexes             = [0] 
         self.active_propulsor_groups         = [True]
     
     # manage process with a driver function
@@ -186,7 +187,7 @@ class Solar(Network):
         
                 # link
                 motor.inputs.voltage  = esc.outputs.voltageout
-                motor.inputs.rotor_CP = conditions.propulsion.rotor.power_coefficient
+                motor.inputs.rotor_CP = conditions.propulsion['propulsor_group_' + str(ii)].rotor.power_coefficient
                 
                 # step 5
                 motor.omega(conditions)
@@ -285,10 +286,14 @@ class Solar(Network):
             Properties Used:
             N/A
         """       
-        
+         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.propulsor_group_0.rotor.power_coefficient = segment.state.unknowns.rotor_power_coefficient
-
+        ss       = segment.state 
+        n_groups = ss.conditions.propulsion.number_of_propulsor_groups   
+        for i in range(n_groups):   
+            if segment.battery_discharge:           
+                ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = ss.unknowns['rotor_power_coefficient_' + str(i)] 
+                    
         return
     
     def residuals(self,segment):
@@ -311,15 +316,11 @@ class Solar(Network):
             Properties Used:
             None
         """  
-        
-        # Here we are going to pack the residuals from the network
-        
-        # Unpack
-        q_motor   = segment.state.conditions.propulsion.propulsor_group_0.motor.torque
-        q_prop    = segment.state.conditions.propulsion.propulsor_group_0.rotor.torque
-        
-        # Return the residuals
-        segment.state.residuals.network[:,0:] = q_motor - q_prop
+         
+        for i in range(segment.state.conditions.propulsion.number_of_propulsor_groups): 
+            q_motor   = segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor.torque
+            q_prop    = segment.state.conditions.propulsion['propulsor_group_' + str(i)].rotor.torque 
+            segment.state.residuals.network['propulsor_group_' + str(i)] = q_motor - q_prop 
         
         return
     
@@ -355,7 +356,7 @@ class Solar(Network):
 
         rotor_group_indexes     = self.rotor_group_indexes
         motor_group_indexes     = self.motor_group_indexes
-        active_propulsor_groups = segment.analyses.energy.network.battery_electric_rotor.active_propulsor_groups
+        active_propulsor_groups = segment.analyses.energy.network.solar.active_propulsor_groups
         n_rotors                = len(self.rotors)
         n_motors                = len(self.motors)
          
@@ -398,6 +399,7 @@ class Solar(Network):
         # Assign initial segment conditions to segment if missing
         battery = self.battery
         append_initial_battery_conditions(segment,battery)           
+        segment.state.residuals.network = Residuals() 
 
         for i in range(n_groups):  
             if active_propulsor_groups[i]:                

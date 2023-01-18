@@ -148,8 +148,8 @@ class Fidelity_One(Noise):
         conditions.noise.total_number_of_microphones           = num_gm_mic 
         
         # create empty arrays for results      
-        total_SPL_dBA          = np.empty((ctrl_pts,0,num_gm_mic)) 
-        total_SPL_spectra      = np.empty((ctrl_pts,0,num_gm_mic,dim_cf)) 
+        total_SPL_dBA          = np.ones((ctrl_pts,num_gm_mic))*1E-16 
+        total_SPL_spectra      = np.ones((ctrl_pts,num_gm_mic,dim_cf))*1E-16  
          
         # iterate through sources 
         for source in conditions.noise.sources.keys():  
@@ -169,8 +169,8 @@ class Fidelity_One(Noise):
                         source_SPL_spectra[:,0,:,5:] = np.repeat(airframe_noise.SPL_spectrum[:,np.newaxis,:], num_gm_mic , axis =1)
                         
                         # add noise 
-                        total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA,source_SPLs_dBA),axis =1),sum_axis=1)
-                        total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra,source_SPL_spectra),axis =1),sum_axis=1)
+                        total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA[:,None,:],source_SPLs_dBA),axis =1),sum_axis=1)
+                        total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra[:,None,:,:],source_SPL_spectra),axis =1),sum_axis=1)
                     
                     
                     if bool(conditions.noise.sources[source].fan) and bool(conditions.noise.sources[source].core): 
@@ -183,12 +183,12 @@ class Fidelity_One(Noise):
                         config.networks[source].fan_nozzle.noise_speed   = conditions.noise.sources.turbofan.fan.exit_velocity 
                         config.networks[source].core_nozzle.noise_speed  = conditions.noise.sources.turbofan.core.exit_velocity
                         engine_noise                                     = noise_SAE(config.networks[source],segment,analyses,config,settings,ioprint = print_flag)  
-                        source_SPLs_dBA[:,0,:]                          = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_gm_mic , axis =1)     # noise measures at one microphone location in segment
-                        source_SPL_spectra[:,0,:,5:]                    = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_gm_mic , axis =1) # noise measures at one microphone location in segment
+                        source_SPLs_dBA[:,0,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_gm_mic , axis =1)     # noise measures at one microphone location in segment
+                        source_SPL_spectra[:,0,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_gm_mic , axis =1) # noise measures at one microphone location in segment
                    
                         # add noise 
-                        total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA,source_SPLs_dBA),axis =1),sum_axis=1)
-                        total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra,source_SPL_spectra),axis =1),sum_axis=1)
+                        total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA[:,None,:],source_SPLs_dBA),axis =1),sum_axis=1)
+                        total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra[:,None,:,:],source_SPL_spectra),axis =1),sum_axis=1)
                         
                 elif source  == 'rotors':   
 
@@ -230,8 +230,8 @@ class Fidelity_One(Noise):
                         source_SPL_spectra[:,0,:,:] = rotor_noise.SPL_1_3_spectrum 
                         
                         # add noise  
-                        total_SPL_dBA    = SPL_arithmetic(np.concatenate((total_SPL_dBA,source_SPLs_dBA),axis =1),sum_axis=1)
-                        total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra,source_SPL_spectra),axis =1),sum_axis=1)
+                        total_SPL_dBA     = SPL_arithmetic(np.concatenate((total_SPL_dBA[:,None,:],source_SPLs_dBA),axis =1),sum_axis=1)
+                        total_SPL_spectra = SPL_arithmetic(np.concatenate((total_SPL_spectra[:,None,:,:],source_SPL_spectra),axis =1),sum_axis=1)
                             
              
         conditions.noise.total_SPL_dBA              = total_SPL_dBA
