@@ -353,124 +353,137 @@ def advance_panels(wake, rotor, conditions, VD, new_wake, time_index, nts, dt, f
     # Step 1: Forward Euler Predictor ; Advance all previously shed wake elements one step in time
     # -------------------------------------------------------------------------------------------------------------------------    
     # extract all previously shed panel positions
-    xpts_a2 = np.ravel(new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:])
-    ypts_a2 = np.ravel(new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:])
-    zpts_a2 = np.ravel(new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:])
-    xpts_b2 = np.ravel(new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:])
-    ypts_b2 = np.ravel(new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:])
-    zpts_b2 = np.ravel(new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:])    
 
-    xpts_a1 = np.ravel(new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:])
-    ypts_a1 = np.ravel(new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:])
-    zpts_a1 = np.ravel(new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:])
-    xpts_b1 = np.ravel(new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:])
-    ypts_b1 = np.ravel(new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:])
-    zpts_b1 = np.ravel(new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:])
+    shape_1 = np.shape(new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:])
+    shape_2 = np.shape(new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:])
+    a = shape_1[0]
+    m = shape_1[1]
+    B = shape_1[2]
+    Nr = shape_1[3] + 1
+    nts_cur_1 = shape_1[4]
+    nts_cur_2 = shape_2[4]
+    
+    # only take unique lagrangian markers (repeated on connecting panel corner nodes)
+    xpts_1 = np.ravel(np.append(new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:], new_wake.reshaped_wake.XA1[:,:,:,-1:,nts-time_index:], axis=3))
+    ypts_1 = np.ravel(np.append(new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:], new_wake.reshaped_wake.YA1[:,:,:,-1:,nts-time_index:], axis=3))
+    zpts_1 = np.ravel(np.append(new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:], new_wake.reshaped_wake.ZA1[:,:,:,-1:,nts-time_index:], axis=3))
+
+    xpts_2 = np.ravel(np.append(new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:], new_wake.reshaped_wake.XA2[:,:,:,-1:,nts-1-time_index:], axis=3))
+    ypts_2 = np.ravel(np.append(new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:], new_wake.reshaped_wake.YA2[:,:,:,-1:,nts-1-time_index:], axis=3))
+    zpts_2 = np.ravel(np.append(new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:], new_wake.reshaped_wake.ZA2[:,:,:,-1:,nts-1-time_index:], axis=3))   
     
     if use_exact_velocities:
-        va1, va2, vb1, vb2 = get_exact_panel_velocities(rotor, wake, conditions, VD, new_wake, xpts_a1, xpts_a2, xpts_b1, xpts_b2, ypts_a1, ypts_a2, ypts_b1, ypts_b2, zpts_a1, zpts_a2, zpts_b1, zpts_b2)                     
+        v1, v2 = get_exact_panel_velocities(rotor, wake, conditions, VD, new_wake, xpts_1, xpts_2, ypts_1, ypts_2, zpts_1, zpts_2)                     
     else:
-        va1 = fun_V_induced((xpts_a1, ypts_a1, zpts_a1))
-        va2 = fun_V_induced((xpts_a2, ypts_a2, zpts_a2))
-        vb1 = fun_V_induced((xpts_b1, ypts_b1, zpts_b1))
-        vb2 = fun_V_induced((xpts_b2, ypts_b2, zpts_b2))    
+        v1 = fun_V_induced((xpts_1, ypts_1, zpts_1))
+        v2 = fun_V_induced((xpts_2, ypts_2, zpts_2)) 
         
         
     # compute the velocities at all panel nodes
-    Va1 = np.reshape( va1, np.append( np.shape(new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:]),3) )
-    Vb1 = np.reshape( vb1, np.append( np.shape(new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:]),3) )
-    Va2 = np.reshape( va2, np.append( np.shape(new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:]),3) )
-    Vb2 = np.reshape( vb2, np.append( np.shape(new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:]),3) )
+    V1 = np.reshape( v1, (a, m, B, Nr, nts_cur_1, 3))
+    V2 = np.reshape( v2, (a, m, B, Nr, nts_cur_2, 3))
+
 
     if use_RK2:
-        XA1_next_predictor = np.ravel(new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,0] * dt))
-        XB1_next_predictor = np.ravel(new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,0] * dt))  
-        YA1_next_predictor = np.ravel(new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,1] * dt))
-        YB1_next_predictor = np.ravel(new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,1] * dt))
-        ZA1_next_predictor = np.ravel(new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,2] * dt))
-        ZB1_next_predictor = np.ravel(new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,2] * dt))            
-        XA2_next_predictor = np.ravel(new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,0] * dt))
-        XB2_next_predictor = np.ravel(new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,0] * dt))
-        YA2_next_predictor = np.ravel(new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,1] * dt))
-        YB2_next_predictor = np.ravel(new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,1] * dt))
-        ZA2_next_predictor = np.ravel(new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,2] * dt))
-        ZB2_next_predictor = np.ravel(new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,2] * dt))   
+        X1_next_predictor = np.ravel(np.append( new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] , 
+                                                new_wake.reshaped_wake.XA1[:,:,:,-1:,nts-time_index:], axis = 3) + (V1[:,:,:,:,:,0] * dt))
+
+        Y1_next_predictor = np.ravel(np.append( new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] , 
+                                                new_wake.reshaped_wake.YA1[:,:,:,-1:,nts-time_index:], axis = 3) + (V1[:,:,:,:,:,1] * dt))        
+
+        Z1_next_predictor = np.ravel(np.append( new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] , 
+                                                new_wake.reshaped_wake.ZA1[:,:,:,-1:,nts-time_index:], axis = 3) + (V1[:,:,:,:,:,2] * dt))
+        
+        X2_next_predictor = np.ravel(np.append( new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] , 
+                                                new_wake.reshaped_wake.XA2[:,:,:,-1:,nts-1-time_index:], axis = 3) + (V1[:,:,:,:,:,0] * dt))
+
+        Y2_next_predictor = np.ravel(np.append( new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] , 
+                                                new_wake.reshaped_wake.YA2[:,:,:,-1:,nts-1-time_index:], axis = 3) + (V1[:,:,:,:,:,1] * dt))        
+
+        Z2_next_predictor = np.ravel(np.append( new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] , 
+                                                new_wake.reshaped_wake.ZA2[:,:,:,-1:,nts-1-time_index:], axis = 3) + (V1[:,:,:,:,:,2] * dt))
+
         
         new_wake2 = copy.deepcopy(new_wake)
-        new_wake2.reshaped_wake.XA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,0] * dt)
-        new_wake2.reshaped_wake.XB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,0] * dt)  
-        new_wake2.reshaped_wake.YA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,1] * dt)
-        new_wake2.reshaped_wake.YB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,1] * dt)
-        new_wake2.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,2] * dt)
-        new_wake2.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,2] * dt)            
-        new_wake2.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,0] * dt)
-        new_wake2.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,0] * dt)
-        new_wake2.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,1] * dt)
-        new_wake2.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,1] * dt)
-        new_wake2.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,2] * dt)
-        new_wake2.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,2] * dt)               
+        new_wake2.reshaped_wake.XA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] + (V1[:,:,:,1:,:,0] * dt)
+        new_wake2.reshaped_wake.YA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] + (V1[:,:,:,1:,:,1] * dt)
+        new_wake2.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] + (V1[:,:,:,1:,:,2] * dt)
+        
+        new_wake2.reshaped_wake.XB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] + (V1[:,:,:,0:-1,:,0] * dt)  
+        new_wake2.reshaped_wake.YB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] + (V1[:,:,:,0:-1,:,1] * dt)
+        new_wake2.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] + (V1[:,:,:,0:-1,:,2] * dt)            
+        
+        new_wake2.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,1:,:,0] * dt)
+        new_wake2.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,1:,:,1] * dt)
+        new_wake2.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,1:,:,2] * dt)
+        
+        new_wake2.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,0:-1,:,0] * dt)
+        new_wake2.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,0:-1,:,1] * dt)
+        new_wake2.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,0:-1,:,2] * dt)               
         
         # -------------------------------------------------------------------------------------------------------------------------
         # Step 2: Compute velocities at predictor locations 
         # -------------------------------------------------------------------------------------------------------------------------    
         if use_exact_velocities: # FIX: use next time step wake geometry, not just probe at those locations with current wake
-            va1_plus, va2_plus, vb1_plus, vb2_plus = get_exact_panel_velocities(rotor, wake, conditions, VD, new_wake2, 
-                                                                                XA1_next_predictor, XA2_next_predictor, XB1_next_predictor, XB2_next_predictor, 
-                                                                                YA1_next_predictor, YA2_next_predictor, YB1_next_predictor, YB2_next_predictor, 
-                                                                                ZA1_next_predictor, ZA2_next_predictor, ZB1_next_predictor, ZB2_next_predictor)                                 
+            v1_plus, v2_plus = get_exact_panel_velocities(rotor, wake, conditions, VD, new_wake2, 
+                                                        X1_next_predictor, X2_next_predictor, 
+                                                        Y1_next_predictor, Y2_next_predictor,  
+                                                        Z1_next_predictor, Z2_next_predictor)                                 
         else:
-            va1_plus = fun_V_induced((XA1_next_predictor, YA1_next_predictor, ZA1_next_predictor))
-            va2_plus = fun_V_induced((XA2_next_predictor, YA2_next_predictor, ZA2_next_predictor))
-            vb1_plus = fun_V_induced((XB1_next_predictor, YB1_next_predictor, ZB1_next_predictor))
-            vb2_plus = fun_V_induced((XB2_next_predictor, YB2_next_predictor, ZB2_next_predictor))  
+            v1_plus = fun_V_induced((X1_next_predictor, Y1_next_predictor, Z1_next_predictor))
+            v2_plus = fun_V_induced((X2_next_predictor, Y2_next_predictor, Z2_next_predictor))
         
     
-        Va1_plus = np.reshape( va1_plus, np.append( np.shape(new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:]),3) )
-        Vb1_plus = np.reshape( vb1_plus, np.append( np.shape(new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:]),3) )
-        Va2_plus = np.reshape( va2_plus, np.append( np.shape(new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:]),3) )
-        Vb2_plus = np.reshape( vb2_plus, np.append( np.shape(new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:]),3) )        
+        V1_plus = np.reshape( v1_plus, (a, m, B, Nr, nts_cur_1, 3) )
+        V2_plus = np.reshape( v2_plus, (a, m, B, Nr, nts_cur_1, 3) )
         
 
         # -------------------------------------------------------------------------------------------------------------------------
         # Step 3: Correct panel positions with 2nd order Runge Kutta integration scheme
         # -------------------------------------------------------------------------------------------------------------------------    
 
-        new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,0] + Va1_plus[:,:,:,:,:,0])* dt/2
-        new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,0] + Vb1_plus[:,:,:,:,:,0])* dt/2  
-        new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,1] + Va1_plus[:,:,:,:,:,1])* dt/2
-        new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,1] + Vb1_plus[:,:,:,:,:,1])* dt/2
-        new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,2] + Va1_plus[:,:,:,:,:,2])* dt/2
-        new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,2] + Vb1_plus[:,:,:,:,:,2])* dt/2            
-        new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,0] + Va2_plus[:,:,:,:,:,0])* dt/2
-        new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,0] + Vb2_plus[:,:,:,:,:,0])* dt/2
-        new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,1] + Va2_plus[:,:,:,:,:,1])* dt/2
-        new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,1] + Vb2_plus[:,:,:,:,:,1])* dt/2
-        new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,2] + Va2_plus[:,:,:,:,:,2])* dt/2
-        new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,2] + Vb2_plus[:,:,:,:,:,2])* dt/2               
+        new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] + (V1[:,:,:,1:,:,0] + V1_plus[:,:,:,1:,:,0])* dt/2
+        new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] + (V1[:,:,:,1:,:,1] + V1_plus[:,:,:,1:,:,1])* dt/2
+        new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] + (V1[:,:,:,1:,:,2] + V1_plus[:,:,:,1:,:,2])* dt/2
+        
+        new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] + (V1[:,:,:,0:-1,:,0] + V1_plus[:,:,:,0:-1,:,0])* dt/2          
+        new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] + (V1[:,:,:,0:-1,:,1] + V1_plus[:,:,:,0:-1,:,1])* dt/2
+        new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] + (V1[:,:,:,0:-1,:,2] + V1_plus[:,:,:,0:-1,:,2])* dt/2            
+        
+        new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,1:,:,0] + V2_plus[:,:,:,1:,:,0])* dt/2
+        new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,1:,:,1] + V2_plus[:,:,:,1:,:,1])* dt/2
+        new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,1:,:,2] + V2_plus[:,:,:,1:,:,2])* dt/2
+        
+        new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,0:-1,:,0] + V2_plus[:,:,:,0:-1,:,0])* dt/2
+        new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,0:-1,:,1] + V2_plus[:,:,:,0:-1,:,1])* dt/2
+        new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,0:-1,:,2] + V2_plus[:,:,:,0:-1,:,2])* dt/2               
         
     else:
         # use simple forward euler advection scheme
         # Update the new panel node positions
-        new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,0] * dt)
-        new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,0] * dt)  
-        new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,1] * dt)
-        new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,1] * dt)
-        new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] + (Va1[:,:,:,:,:,2] * dt)
-        new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] + (Vb1[:,:,:,:,:,2] * dt)            
-        new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,0] * dt)
-        new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,0] * dt)
-        new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,1] * dt)
-        new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,1] * dt)
-        new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] + (Va2[:,:,:,:,:,2] * dt)
-        new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] + (Vb2[:,:,:,:,:,2] * dt)       
+        new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XA1[:,:,:,:,nts-time_index:] + (V1[:,:,:,1:,:,0] * dt)
+        new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YA1[:,:,:,:,nts-time_index:] + (V1[:,:,:,1:,:,1] * dt)
+        new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZA1[:,:,:,:,nts-time_index:] + (V1[:,:,:,1:,:,2] * dt)
+        
+        new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.XB1[:,:,:,:,nts-time_index:] + (V1[:,:,:,0:-1,:,0] * dt)  
+        new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.YB1[:,:,:,:,nts-time_index:] + (V1[:,:,:,0:-1,:,1] * dt)
+        new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] = new_wake.reshaped_wake.ZB1[:,:,:,:,nts-time_index:] + (V1[:,:,:,0:-1,:,2] * dt)            
+        
+        new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XA2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,1:,:,0] * dt)
+        new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YA2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,1:,:,1] * dt)
+        new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZA2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,1:,:,2] * dt)
+        
+        new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.XB2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,0:-1,:,0] * dt)
+        new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.YB2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,0:-1,:,1] * dt)
+        new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] = new_wake.reshaped_wake.ZB2[:,:,:,:,nts-1-time_index:] + (V2[:,:,:,0:-1,:,2] * dt)       
     return
   
-def get_exact_panel_velocities(rotor, wake, conditions, VD, new_wake, xpts_a1, xpts_a2, xpts_b1, xpts_b2, ypts_a1, ypts_a2, ypts_b1, ypts_b2, zpts_a1, zpts_a2, zpts_b1, zpts_b2):
+def get_exact_panel_velocities(rotor, wake, conditions, VD, new_wake, xpts_1, xpts_2, ypts_1, ypts_2, zpts_1, zpts_2):
     # extract panel nodes shed that are affected by velocity influences
     collocationPoints      = Data()
-    collocationPoints.XC   = np.concatenate([np.reshape(xpts_a1, np.size(xpts_a1)), np.reshape(xpts_a2, np.size(xpts_a2)) , np.reshape(xpts_b1, np.size(xpts_b1)), np.reshape(xpts_b2, np.size(xpts_b2))])
-    collocationPoints.YC   = np.concatenate([np.reshape(ypts_a1, np.size(ypts_a1)), np.reshape(ypts_a2, np.size(ypts_a2)) , np.reshape(ypts_b1, np.size(ypts_b1)), np.reshape(ypts_b2, np.size(ypts_b2))])
-    collocationPoints.ZC   = np.concatenate([np.reshape(zpts_a1, np.size(zpts_a1)), np.reshape(zpts_a2, np.size(zpts_a2)) , np.reshape(zpts_b1, np.size(zpts_b1)), np.reshape(zpts_b2, np.size(zpts_b2))])
+    collocationPoints.XC   = np.concatenate([xpts_1, xpts_2])
+    collocationPoints.YC   = np.concatenate([ypts_1, ypts_2])
+    collocationPoints.ZC   = np.concatenate([zpts_1, zpts_2])
     collocationPoints.n_cp = np.size(collocationPoints.XC)
 
     # extract only already shed vortices for influences
@@ -479,11 +492,9 @@ def get_exact_panel_velocities(rotor, wake, conditions, VD, new_wake, xpts_a1, x
     WD_Network[wake.tag + "_vortex_distribution"] = new_wake_reduced
     V_induced = compute_exact_velocity_field(WD_Network, rotor, conditions, VD_VLM=VD, GridPointsFull=collocationPoints)        
 
-    va1 = V_induced[0, 0 : np.size(xpts_a1), :]
-    va2 = V_induced[0, np.size(xpts_a1): (np.size(xpts_a1) + np.size(xpts_a2)), :]
-    vb1 = V_induced[0, (np.size(xpts_a1) + np.size(xpts_a2)) : (np.size(xpts_a1) + np.size(xpts_a2) + np.size(xpts_b1)),:]
-    vb2 = V_induced[0, (np.size(xpts_a1) + np.size(xpts_a2) + np.size(xpts_b1)) : (np.size(xpts_a1) + np.size(xpts_a2) + np.size(xpts_b1) + np.size(xpts_b2)),:]    
-    return va1, va2, vb1, vb2
+    v1 = V_induced[0, 0 : np.size(xpts_1), :]
+    v2 = V_induced[0, np.size(xpts_1) :, :]
+    return v1, v2
 
 def generate_temp_wake(WD):
     temp_wake = Data()
