@@ -250,6 +250,10 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
         rings.coordinates = []
         rings.vortex_strengths = []
         
+        filaments = Data()
+        filaments.coordinates = []
+        filaments.vortex_strengths = []
+        
         # Loop over number of "chordwise" panels in the wake distribution
         for t_idx in range(n_time_steps):
             g        = gamma[m,B_idx,:,t_idx] # circulation distribution on current blade at current timestep
@@ -294,6 +298,16 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
                     rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring
+                    
+                    # left edge
+                    filaments.coordinates.append(p_r_t)         # bottom left node  (Left edge)
+                    filaments.coordinates.append(p_r_tp)        # top left node     (Left edge)
+                    filaments.vortex_strengths.append(g_r_t)    # left edge of first ring (only current ring vortex)  
+
+                    # Right edge
+                    filaments.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    filaments.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    filaments.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                    
                 
                 
                     
@@ -314,7 +328,12 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                     # Right edge
                     rings.coordinates.append(p_rp_t)
                     rings.coordinates.append(p_rp_tp)   
-                    rings.vortex_strengths.append(g_r_t )  # right segment of tip ring (only has current ring vortex)                    
+                    rings.vortex_strengths.append(g_r_t )  # right segment of tip ring (only has current ring vortex)       
+
+                    # Right edge
+                    filaments.coordinates.append(p_rp_t)
+                    filaments.coordinates.append(p_rp_tp)   
+                    filaments.vortex_strengths.append(g_r_t )  # right segment of tip ring (only has current ring vortex)                         
                 
                 elif t_idx==0:
                     #     
@@ -334,7 +353,12 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                        
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring     
+
+                    # Right edge
+                    filaments.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    filaments.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    filaments.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                        
                 
                 elif t_idx==(n_time_steps-1) and r_idx==0:
                     #  
@@ -352,7 +376,18 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring          
+
+                    # Left edge
+                    filaments.coordinates.append(p_r_t)      # bottom left node  (Left edge)
+                    filaments.coordinates.append(p_r_tp)     # top left node     (Left edge)
+                    filaments.vortex_strengths.append(g_r_t) # left edge of first ring (only current ring vortex)
+                    
+                    # Right edge
+                    filaments.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    filaments.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    filaments.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring    
+                    
                 elif r_idx==0:
                     # 
                     g_rp_t = gamma[m,B_idx,r_idx+1,t_idx]    
@@ -371,6 +406,16 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
                     rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring
+                    
+                    # Left edge
+                    filaments.coordinates.append(p_r_t)      # bottom left node  (Left edge)
+                    filaments.coordinates.append(p_r_tp)     # top left node     (Left edge)
+                    filaments.vortex_strengths.append(g_r_t) # left edge of first ring (only current ring vortex)
+                    
+                    # Right edge
+                    filaments.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    filaments.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    filaments.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                    
                 
                 elif t_idx==(n_time_steps-1) and r_idx==(n_radial_rings-1):
                     # 
@@ -382,7 +427,12 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(g_r_t )  # right segment of ring     
+                    rings.vortex_strengths.append(g_r_t )  # right segment of ring   
+
+                    # Right edge
+                    filaments.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    filaments.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    filaments.vortex_strengths.append(g_r_t )  # right segment of ring                        
                     
                 elif r_idx==n_radial_rings-1:
                      
@@ -395,7 +445,12 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                     # Right edge
                     rings.coordinates.append(p_rp_t)      # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)     # top right node     (Right edge)
-                    rings.vortex_strengths.append(g_r_t)  # right segment of ring         
+                    rings.vortex_strengths.append(g_r_t)  # right segment of ring  
+
+                    # Right edge
+                    filaments.coordinates.append(p_rp_t)      # bottom right node  (Right edge)
+                    filaments.coordinates.append(p_rp_tp)     # top right node     (Right edge)
+                    filaments.vortex_strengths.append(g_r_t)  # right segment of ring                      
 
                 elif t_idx==(n_time_steps-1):
                     # 
@@ -408,7 +463,12 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                     # Right edge
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
-                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                            
+                    rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring      
+
+                    # Right edge
+                    filaments.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    filaments.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    filaments.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                      
                            
                 else:           
                     g_rp_t = gamma[m,B_idx,r_idx+1,t_idx]
@@ -423,12 +483,19 @@ def save_prop_wake_vtk(prop,wVD,gamma,filename,Results,start_angle_idx,origin_of
                     rings.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
                     rings.coordinates.append(p_rp_tp)              # top right node     (Right edge)
                     rings.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring    
-                    
+
+                    # Right edge
+                    filaments.coordinates.append(p_rp_t)               # bottom right node  (Right edge)
+                    filaments.coordinates.append(p_rp_tp)              # top right node     (Right edge)
+                    filaments.vortex_strengths.append(-gamma_slope_sign[r_idx]*(g_r_t - g_rp_t))  # right segment of ring                        
                 
         # Store vortex distribution for this blade
         sep  = filename.rfind('_')
         VD_filename = filename[0:sep]+"_VD_blade"+str(B_idx)+filename[sep:]  
         write_VD(rings,n_time_steps,n_radial_rings, VD_filename)
+
+        VD_filename = filename[0:sep]+"_VortexLines_blade"+str(B_idx)+filename[sep:]          
+        write_filaments(filaments,n_time_steps,n_radial_rings, VD_filename)
     return
 
 def write_VD(rings, nt,nr, filename):
@@ -519,5 +586,97 @@ def write_VD(rings, nt,nr, filename):
         for i in range(n_edges):
             # bound vortex scalar circulation
             f.write("\n"+str(ring_circulations[i])) 
+                    
+    return
+
+
+def write_filaments(filaments, nt,nr, filename):
+    
+    
+    # Create file
+    with open(filename, 'w') as f:    
+        #---------------------
+        # Write header
+        #---------------------
+        header = ["# vtk DataFile Version 4.0" ,     # File version and identifier
+                  "\nWake vortex distribution " ,    # Title
+                  "\nASCII"              ,           # Data type
+                  "\nDATASET UNSTRUCTURED_GRID"    ] # Dataset structure / topology
+        f.writelines(header)   
+        
+        # --------------------
+        # Write Points
+        # --------------------   
+        n_edges       = (nt*(nr+1))
+        pts_per_edge  = 2
+        n_pts         = n_edges*pts_per_edge # total number of node vertices 
+        points_header = "\n\nPOINTS "+str(n_pts) +" float"
+        
+        f.write(points_header)     
+        for i in range(n_edges):
+            # write the nodes for each filament
+            p1 = filaments.coordinates[2*i]
+            p2 = filaments.coordinates[2*i+1]
+            f.write("\n"+str(p1[0])+" "+str(p1[1])+" "+str(p1[2]))
+            f.write("\n"+str(p2[0])+" "+str(p2[1])+" "+str(p2[2]))
+        
+        
+        #---------------------    
+        # Write Cells:
+        #---------------------    
+        v_per_cell = 2
+        size       = n_edges*(1+v_per_cell)
+        
+        cell_header  = "\n\nCELLS "+str(n_edges)+" "+str(size)
+        f.write(cell_header)
+        for i in range(n_edges):
+            # write the cells for the side vortices for each panel
+            base_node = i*2
+            new_poly_line = "\n2 "+str(base_node)+" "+str(base_node+1)
+            f.write(new_poly_line )    
+    
+        #---------------------        
+        # Write Cell Types:
+        #---------------------
+        cell_type_header  = "\n\nCELL_TYPES "+str(n_edges)
+        f.write(cell_type_header)        
+        for i in range(n_edges):
+            # cell type
+            f.write("\n4")
+            
+        #--------------------------        
+        # Write VTK Poly Line Data:
+        #--------------------------
+        cell_data_header  = "\n\nCELL_DATA "+str(n_edges)
+        f.write(cell_data_header)      
+        
+        # First scalar value
+        f.write("\nSCALARS i float 1")
+        f.write("\nLOOKUP_TABLE default")   
+        
+        for i in range(n_edges):
+            # vortex scalar i
+            f.write("\n"+str(i))   
+        # Second scalar value
+        f.write("\nSCALARS circulation float 1")
+        f.write("\nLOOKUP_TABLE default")   
+    
+        filament_circulations = filaments.vortex_strengths
+        
+        # flag to zero-out lifting line panel (for visualizing shed vortices)
+        zero_llps = True  
+        if zero_llps:
+            filament_circulations = np.array(filament_circulations)
+            
+            bools = np.zeros_like(filament_circulations).astype(bool)
+            bools[0] = True
+            bools[4::3][0:nr-1] = True
+            
+            
+            filament_circulations[bools] = 0
+            
+        for i in range(n_edges):
+            # bound vortex scalar circulation
+            f.write("\n"+str(filament_circulations[i])) 
                     
     return
