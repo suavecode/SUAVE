@@ -22,7 +22,10 @@ def initialize_conditions(segment):
     segment.altitude                [meters]
     segment.air_speed_start         [meters/second]
     segment.air_speed_end           [meters/second]
-    segment.acceleration            [meters/second^2]
+    segment.acceleration_initial    [meters/second^2]
+    segment.acceleration_final      [meters/second^2]
+    segment.pitch_initial           [meters/second^2]
+    segment.pitch_final             [meters/second^2]
     conditions.frames.inertial.time [seconds]
 
     Outputs:
@@ -71,7 +74,7 @@ def initialize_conditions(segment):
     b[0] = v0
     b[-1] = -vf
     
-    # solve for x
+    # solve for control point velocities and delta time step between them
     x = np.linalg.solve(Amat, b)
     vx_t = np.atleast_2d(np.hstack((v0, x[0:-1], vf))).T
     dt = x[-1]

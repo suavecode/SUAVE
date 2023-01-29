@@ -27,7 +27,7 @@ from SUAVE.Core import Units
 
 ## @ingroup Analyses-Mission-Segments-Transition
 class Linear_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
-    """ Vehicle accelerates at a constant rate between two airspeeds.
+    """ Vehicle accelerates linearly between two airspeeds.
     
         Assumptions:
         None
