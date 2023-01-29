@@ -960,6 +960,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
                 heights[i_seg] = fus.Segments[i_seg].height
             mean_width   = np.mean(widths)
             mean_height  = np.mean(heights)
+            
         else:
             mean_width   = fus.diameter
             mean_height  = fus.diameter
@@ -973,11 +974,14 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
         spacing    = np.cos((2*si - 1)/(2*len(si))*np.pi)
         h_array    = semispan_h*spacing[0:int((len(si)+1)/2)][::-1]
         v_array    = semispan_v*spacing[0:int((len(si)+1)/2)][::-1]
+        
 
         for i in range(n_sw+1):
             fhs.chord[i]      = length
             fvs.chord[i]      = length
-
+    # sym plane for fus
+    FusOrigin = np.array(fus.origin)
+    symY = FusOrigin[0][1]    
     # ---------------------------------------------------------------------------------------
     # STEP 9: Define coordinates of panels horseshoe vortices and control points  
     # ---------------------------------------------------------------------------------------        
@@ -1110,37 +1114,37 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     # store points of horizontal section of fuselage 
     fhs_cs  = np.concatenate([fhs_cs, fhs_cs])
     fhs_xah = np.concatenate([fhs_xah, fhs_xah])
-    fhs_yah = np.concatenate([fhs_yah,-fhs_yah])
+    fhs_yah = np.concatenate([fhs_yah, symY - (fhs_yah - symY)])
     fhs_zah = np.concatenate([fhs_zah, fhs_zah])
     fhs_xbh = np.concatenate([fhs_xbh, fhs_xbh])
-    fhs_ybh = np.concatenate([fhs_ybh,-fhs_ybh])
+    fhs_ybh = np.concatenate([fhs_ybh, symY - (fhs_ybh-symY)])
     fhs_zbh = np.concatenate([fhs_zbh, fhs_zbh])
     fhs_xch = np.concatenate([fhs_xch, fhs_xch])
-    fhs_ych = np.concatenate([fhs_ych,-fhs_ych])
+    fhs_ych = np.concatenate([fhs_ych, symY - (fhs_ych-symY)])
     fhs_zch = np.concatenate([fhs_zch, fhs_zch])
     fhs_xa1 = np.concatenate([fhs_xa1, fhs_xa1])
-    fhs_ya1 = np.concatenate([fhs_ya1,-fhs_ya1])
+    fhs_ya1 = np.concatenate([fhs_ya1, symY - (fhs_ya1-symY)])
     fhs_za1 = np.concatenate([fhs_za1, fhs_za1])
     fhs_xa2 = np.concatenate([fhs_xa2, fhs_xa2])
-    fhs_ya2 = np.concatenate([fhs_ya2,-fhs_ya2])
+    fhs_ya2 = np.concatenate([fhs_ya2, symY - (fhs_ya2-symY)])
     fhs_za2 = np.concatenate([fhs_za2, fhs_za2])
     fhs_xb1 = np.concatenate([fhs_xb1, fhs_xb1])
-    fhs_yb1 = np.concatenate([fhs_yb1,-fhs_yb1])    
+    fhs_yb1 = np.concatenate([fhs_yb1, symY - (fhs_yb1-symY)])    
     fhs_zb1 = np.concatenate([fhs_zb1, fhs_zb1])
     fhs_xb2 = np.concatenate([fhs_xb2, fhs_xb2])
-    fhs_yb2 = np.concatenate([fhs_yb2,-fhs_yb2])            
+    fhs_yb2 = np.concatenate([fhs_yb2, symY - (fhs_yb2-symY)])            
     fhs_zb2 = np.concatenate([fhs_zb2, fhs_zb2])
     fhs_xac = np.concatenate([fhs_xac, fhs_xac])
-    fhs_yac = np.concatenate([fhs_yac,-fhs_yac])
+    fhs_yac = np.concatenate([fhs_yac, symY - (fhs_yac-symY)])
     fhs_zac = np.concatenate([fhs_zac, fhs_zac])            
     fhs_xbc = np.concatenate([fhs_xbc, fhs_xbc])
-    fhs_ybc = np.concatenate([fhs_ybc,-fhs_ybc])
+    fhs_ybc = np.concatenate([fhs_ybc, symY - (fhs_ybc-symY)])
     fhs_zbc = np.concatenate([fhs_zbc, fhs_zbc])
     fhs_xc  = np.concatenate([fhs_xc , fhs_xc ])
-    fhs_yc  = np.concatenate([fhs_yc ,-fhs_yc])
+    fhs_yc  = np.concatenate([fhs_yc , symY - (fhs_yc-symY)])
     fhs_zc  = np.concatenate([fhs_zc , fhs_zc ])     
     fhs_x   = np.concatenate([fhs_x  , fhs_x  ])
-    fhs_y   = np.concatenate([fhs_y  ,-fhs_y ])
+    fhs_y   = np.concatenate([fhs_y  , symY - (fhs_y-symY) ])
     fhs_z   = np.concatenate([fhs_z  , fhs_z  ])      
     
     if model_geometry == True:
