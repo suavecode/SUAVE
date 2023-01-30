@@ -255,6 +255,7 @@ def mission_setup(analyses,vehicle):
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
                                                                                                             initial_power_coefficient = 0.03)
+    segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
     # add to misison
     mission.append_segment(segment)
     
