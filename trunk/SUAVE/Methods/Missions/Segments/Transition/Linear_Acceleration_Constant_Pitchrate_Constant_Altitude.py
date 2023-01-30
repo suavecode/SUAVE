@@ -14,6 +14,7 @@ def initialize_conditions(segment):
 
     Assumptions:
     Linear acceleration, constant pitch rate, and constant altitude
+    Requires linearly spaced control points 
 
     Source:
     N/A
@@ -58,8 +59,12 @@ def initialize_conditions(segment):
         T0  =  segment.state.initials.conditions.frames.body.inertial_rotations[-1,1]
         segment.pitch_initial = T0    
     
-    # compute control point accelerations
+    # check for linearity of control points (required for this method) 
     t_nondim = segment.state.numerics.dimensionless.control_points  
+    if len(np.unique(np.round(np.diff(t_nondim.T),5)))!=1: raise AttributeError('Linear numerics required for linear acceleration segment!')
+        
+    
+    # compute control point accelerations
     n_cp     = len(t_nondim)
     ax_t     = ax0 + (t_nondim * (axf-ax0))  # linear acceleration
     

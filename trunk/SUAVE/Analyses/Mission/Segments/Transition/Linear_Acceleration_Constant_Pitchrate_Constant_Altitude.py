@@ -19,6 +19,7 @@ from SUAVE.Analyses import Process
 
 # Units
 from SUAVE.Core import Units
+import SUAVE
 
 
 # ----------------------------------------------------------------------
@@ -67,7 +68,6 @@ class Linear_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         self.pitch_final          = 0.0 * Units['rad']
         self.true_course          = 0.0 * Units.degrees 
         
-
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
@@ -78,6 +78,7 @@ class Linear_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.residuals.forces   = ones_row(2) * 0.0 
+        self.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
         
         
         # --------------------------------------------------------------
