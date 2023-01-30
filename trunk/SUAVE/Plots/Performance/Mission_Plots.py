@@ -1224,6 +1224,8 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
 
     plt.legend(bbox_to_anchor=(1.04,0.5), loc="center left", borderaxespad=0)
     plt.tight_layout()
+    if save_figure:
+        plt.savefig(save_filename +"2" + file_type, dpi=300)    
 
     return
 
