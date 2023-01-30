@@ -62,7 +62,7 @@ def main():
     # Truth values   
     departure_throttle_truth          = 0.6516875478807475
     transition_1_throttle_truth       = 0.6013997974737667
-    cruise_throttle_truth             = 0.46492807449474316
+    cruise_throttle_truth             = 0.46508811557252966
 
     # Store errors 
     error = Data()
@@ -233,6 +233,29 @@ def mission_setup(analyses,vehicle):
     segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
                                                                                                             initial_power_coefficient = 0.03)
+    # add to misison
+    mission.append_segment(segment)
+    
+    # --------------------------------------------------------------------------
+    #   Segment 1b: Transition Segment: Linear Acceleration, Constant Climb Rate
+    # --------------------------------------------------------------------------
+    # Use original transition segment, converge on rotor y-axis rotation and throttle
+    segment                                             = Segments.Transition.Linear_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
+    segment.tag                                         = "Transition_1b"
+    segment.analyses.extend( analyses.transition_1 )
+    segment.altitude                                    = 40.0 * Units.ft
+    segment.acceleration_initial                        = 2.3  * Units['m/s/s']
+    segment.acceleration_final                          = 2.35  * Units['m/s/s']
+    segment.air_speed_start                             = 1.2  * V_stall
+    segment.air_speed_end                               = 1.3 * V_stall
+    segment.pitch_initial                               = 0.0  * Units.degrees  
+    segment.pitch_final                                 = 3.6  * Units.degrees   
+    segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
+    segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
+    segment = vehicle.networks.battery_propeller.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
+                                                                                                            initial_power_coefficient = 0.03)
+    segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
     # add to misison
     mission.append_segment(segment)
     
