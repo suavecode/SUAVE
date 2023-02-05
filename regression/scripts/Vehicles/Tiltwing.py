@@ -186,12 +186,8 @@ def vehicle_setup():
     #------------------------------------------------------------------
     net                            = SUAVE.Components.Energy.Networks.Battery_Electric_Rotor()
     net.rotor_group_indexes        = [0,0,0,0,0,0,0,0]
-    net.motor_group_indexes        = [0,0,0,0,0,0,0,0]
-    #net.number_of_rotor_engines    = 8 
-    #net.nacelle_diameter           = 0.2921 # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
-    #net.engine_length              = 0.95
-    #net.areas                      = Data()
-    #net.areas.wetted               = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
+    net.motor_group_indexes        = [0,0,0,0,0,0,0,0] 
+    net.esc_group_indexes          = [0,0,0,0,0,0,0,0] 
     net.voltage                    = 400.
     net.identical_rotors           = True
 
@@ -199,8 +195,11 @@ def vehicle_setup():
     # Design Electronic Speed Controller
     #------------------------------------------------------------------
     esc                          = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    esc.efficiency               = 0.95
-    net.electronic_speed_controllers.append(esc)
+    esc.efficiency               = 0.95 
+    for ii in range(8):
+        ESC          = deepcopy(esc)
+        ESC.tag      = 'esc' + str(ii + 1) 
+        net.electronic_speed_controllers.append(ESC)  
 
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()

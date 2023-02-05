@@ -130,8 +130,7 @@ class Battery_Cell_Cycler(Network):
         
         # Pack the conditions for outputs     
         avionics_payload_power = np.zeros((len(volts),1)) 
-        P                      =  battery.inputs.power_in
-        pack_battery_conditions(conditions,battery,avionics_payload_power,P) 
+        pack_battery_conditions(conditions,battery,avionics_payload_power) 
           
         F     = np.zeros_like(volts)  * [0,0,0]      
         mdot  = state.ones_row(1)*0.0

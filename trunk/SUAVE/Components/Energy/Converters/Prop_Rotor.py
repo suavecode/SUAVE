@@ -87,4 +87,6 @@ class Prop_Rotor(Rotor):
         self.cruise.design_SPL_dBA               = None
         self.cruise.design_Cl                    = None
         self.cruise.design_thrust_coefficient    = None
-        self.cruise.design_power_coefficient     = None         
+        self.cruise.design_power_coefficient     = None       
+        
+        self.optimization_parameters.multiobjective_performance_weight  = 0.5

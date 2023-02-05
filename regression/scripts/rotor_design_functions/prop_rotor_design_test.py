@@ -76,7 +76,7 @@ def main():
     plot_results(output_pr, prop_rotor,'blue','-','^') 
 
     # Truth values for rotor with airfoil geometry defined 
-    F_pr_truth = 3559.688987104335
+    F_pr_truth = 3559.689350071597
 
     # Store errors 
     error = Data()  

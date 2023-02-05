@@ -95,7 +95,7 @@ def modify_blade_geometry(nexus):
             t_max[locs]   = a_geo.max_thickness*c[locs]   
      
     rotor_hover.chord_distribution          = c
-    rotor_hover.twist_distribution          = beta + rotor_hover.twist_0
+    rotor_hover.twist_distribution          = beta  
     rotor_hover.mid_chord_alignment         = c/4. - c[0]/4.
     rotor_hover.max_thickness_distribution  = t_max 
     rotor_hover.thickness_to_chord          = t_c

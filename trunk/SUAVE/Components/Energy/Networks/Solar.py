@@ -258,7 +258,7 @@ class Solar(Network):
         
         # Pack the conditions for outputs 
         conditions.propulsion.solar_flux   = solar_flux.outputs.flux          
-        pack_battery_conditions(conditions,battery,avionics_payload_power,P)  
+        pack_battery_conditions(conditions,battery,avionics_payload_power)  
 
         # Create the outputs
         results = Data()

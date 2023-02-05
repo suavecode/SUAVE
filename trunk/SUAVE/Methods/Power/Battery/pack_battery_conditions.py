@@ -7,7 +7,7 @@
 #  Methods
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Power-Battery 
-def pack_battery_conditions(conditions,battery,avionics_payload_power,P): 
+def pack_battery_conditions(conditions,battery,avionics_payload_power): 
     """ Packs the results from the network into propulsion data structures.
     
         Assumptions:
@@ -72,8 +72,7 @@ def pack_battery_conditions(conditions,battery,avionics_payload_power,P):
     n_parallel         = battery.pack.electrical_configuration.parallel
     n_total            = n_series*n_parallel 
     battery_power_draw = battery.inputs.power_in    
-    
-    conditions.propulsion.electronics_efficiency               = -(P)/battery_power_draw    
+       
     conditions.propulsion.payload_efficiency                   = (battery_power_draw+avionics_payload_power)/battery_power_draw  
     conditions.propulsion.battery.pack.current                 = battery.inputs.current
     conditions.propulsion.battery.pack.energy                  = battery.pack.current_energy

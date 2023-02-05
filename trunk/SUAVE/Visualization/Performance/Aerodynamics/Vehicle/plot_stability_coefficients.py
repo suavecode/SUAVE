@@ -121,8 +121,8 @@ def plot_stability_coefficients(results,
             row=2, col=2)        
 
     fig.update_yaxes(title_text='AoA (deg)', row=1, col=1)
-    fig.update_yaxes(title_text='$C_M$', row=1, col=2)
-    fig.update_yaxes(title_text='$C_M\alpha$', row=2, col=1)
+    fig.update_yaxes(title_text='CM', row=1, col=2)
+    fig.update_yaxes(title_text='CM alpha', row=2, col=1)
     fig.update_yaxes(title_text='Static Margin (%)', row=2, col=2)
     
     fig.update_xaxes(title_text='Time (min)', row=2, col=1)

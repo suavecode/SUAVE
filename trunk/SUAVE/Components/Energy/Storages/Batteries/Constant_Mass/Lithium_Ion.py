@@ -61,11 +61,14 @@ class Lithium_Ion(Battery):
                     
         self.pack.electrical_configuration                            = Data()
         self.pack.electrical_configuration.series                     = 1
-        self.pack.electrical_configuration.parallel                   = 1   
-        
+        self.pack.electrical_configuration.parallel                   = 1  
+        self.pack.electrical_configuration.total                      = 1    
+         
+        self.module.number_of_modules                                 = 1                   
         self.module.electrical_configuration                          = Data()
         self.module.electrical_configuration.series                   = 1
         self.module.electrical_configuration.parallel                 = 1   
+        self.module.electrical_configuration.total                    = 1   
         self.module.geometrtic_configuration                          = Data()
         self.module.geometrtic_configuration.total                    = 1       
         self.module.geometrtic_configuration.normal_count             = 1       # number of cells normal to flow

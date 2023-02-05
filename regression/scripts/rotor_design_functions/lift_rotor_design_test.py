@@ -39,7 +39,7 @@ def main():
     rotor.variable_pitch                                = True       
     opt_params                                          = rotor.optimization_parameters 
     opt_params.multiobjective_aeroacoustic_weight       = 0.5 # 1 means only perfomrance optimization 0.5 to weight noise equally  
-    rotor                                               = lift_rotor_design(rotor)  # Reduced iteration for regression therefore optimal design is NOT reached!   
+    rotor                                               = lift_rotor_design(rotor,print_iterations= True)  # Reduced iteration for regression therefore optimal design is NOT reached!   
     
     # Find the operating conditions
     atmosphere                                          = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -64,7 +64,7 @@ def main():
     plot_results(output_rot, rotor,'green','-','^') 
 
     # Truth values for rotor with airfoil geometry defined  
-    F_rot_truth = 1999.7999999998628
+    F_rot_truth = 1999.8000374824578
 
     # Store errors 
     error = Data()  

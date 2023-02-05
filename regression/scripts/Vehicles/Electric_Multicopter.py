@@ -184,14 +184,18 @@ def vehicle_setup():
     net                                 = SUAVE.Components.Energy.Networks.Battery_Electric_Rotor()
     net.rotor_group_indexes             = [0,0,0,0,0,0]
     net.motor_group_indexes             = [0,0,0,0,0,0] 
-    net.voltage                         =  500. 
+    net.esc_group_indexes               = [0,0,0,0,0,0] 
+    net.voltage                         = 500. 
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
     #------------------------------------------------------------------
     esc             = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    esc.efficiency  = 0.95
-    net.electronic_speed_controllers.append(esc)
+    esc.efficiency  = 0.95 
+    for ii in range(6):
+        ESC          = deepcopy(esc)
+        ESC.tag      = 'esc' + str(ii + 1) 
+        net.electronic_speed_controllers.append(ESC) 
     
     #------------------------------------------------------------------
     # Design Payload
@@ -254,10 +258,10 @@ def vehicle_setup():
                                 [5.0,2.,1.4] ,[5.0,-2.,1.4]]  
     
     for ii in range(6):
-        lift_rotor          = deepcopy(lift_rotor)
-        lift_rotor.tag      = 'lift_rotor'
-        lift_rotor.origin   = [origins[ii]]
-        net.rotors.append(lift_rotor)
+        rotor          = deepcopy(lift_rotor)
+        rotor.tag      = 'lift_rotor' + str(ii + 1)
+        rotor.origin   = [origins[ii]]
+        net.rotors.append(rotor)
     
     #------------------------------------------------------------------
     # Design Motors

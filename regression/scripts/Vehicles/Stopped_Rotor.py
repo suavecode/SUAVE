@@ -503,7 +503,8 @@ def vehicle_setup():
     #------------------------------------------------------------------
     net                              = Battery_Electric_Rotor()
     net.rotor_group_indexes          = [0,1,1,1,1,1,1,1,1,1,1,1,1]
-    net.motor_group_indexes          = [0,1,1,1,1,1,1,1,1,1,1,1,1] 
+    net.motor_group_indexes          = [0,1,1,1,1,1,1,1,1,1,1,1,1]  
+    net.esc_group_indexes            = [0,1,1,1,1,1,1,1,1,1,1,1,1]     
     net.active_propulsor_groups      = [True,True]
     net.nacelle_diameter             = 0.6 * Units.feet
     net.engine_length                = 0.5 * Units.feet
@@ -547,9 +548,9 @@ def vehicle_setup():
     # Forward Cruise Propulsor System 
     # --------------------------------------------------------------
     # 1. Electronic Speed Controller 
-    propeller_esc            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    propeller_esc.tag        = 'propeller_esc'
-    propeller_esc.efficiency = 0.95
+    propeller_esc            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller() 
+    propeller_esc.efficiency = 0.95  
+    propeller_esc.tag        = 'propeller_esc'  
     net.electronic_speed_controllers.append(propeller_esc) 
     
     # 2. Propeller 
@@ -611,10 +612,12 @@ def vehicle_setup():
     # Lift Propulsor System 
     # -------------------------------------------------------------- 
     # 1. Electronic Speed Controller 
-    lift_rotor_esc              = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    lift_rotor_esc.tag           = 'lift_rotor_esc'
-    lift_rotor_esc.efficiency   = 0.95
-    net.electronic_speed_controllers.append(lift_rotor_esc)
+    lift_rotor_esc              = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller() 
+    lift_rotor_esc.efficiency   = 0.95 
+    for ii in range(12):
+        lift_rotor_ESC          = deepcopy(lift_rotor_esc)
+        lift_rotor_ESC.tag      = 'lift_rotor_esc' + str(ii + 1)  
+        net.electronic_speed_controllers.append(lift_rotor_ESC)  
     
     # 2. Lift Rotors  
     lift_rotor                                  = SUAVE.Components.Energy.Converters.Propeller() # using propeller for for regression! 

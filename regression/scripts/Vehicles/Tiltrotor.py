@@ -390,11 +390,19 @@ def vehicle_setup():
     net = Battery_Electric_Rotor()   
     net.rotor_group_indexes      = [0,0]
     net.motor_group_indexes      = [0,0] 
+    net.esc_group_indexes        = [0,0] 
 
     # Component 1 the ESC
-    esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    esc.efficiency = 0.95 # Gundlach for brushless motors
-    net.electronic_speed_controllers.append(esc)
+    esc_1            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    esc_1.efficiency = 0.95 
+    esc_1.tag        = 'esc_1'
+    net.electronic_speed_controllers.append(esc_1) 
+
+    esc_2            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    esc_2.efficiency = 0.95 
+    esc_2.tag        = 'esc_1'
+    net.electronic_speed_controllers.append(esc_2)
+    
 
     Hover_Load = vehicle.mass_properties.takeoff * 9.81
     
