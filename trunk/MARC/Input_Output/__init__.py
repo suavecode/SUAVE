@@ -7,6 +7,5 @@ from . import D3JS
 from . import Results
 
 from . import XML
-from . import SU2
 from . import OpenVSP
 from . import GMSH
