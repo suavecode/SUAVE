@@ -9,13 +9,13 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission import *  
-from SUAVE.Visualization.Performance.Energy.Common import *  
-from SUAVE.Visualization.Performance.Energy.Battery import *   
-from SUAVE.Visualization.Performance.Noise import *  
+import MARC
+from MARC.Core import Units
+from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
+from MARC.Visualization.Performance.Mission import *  
+from MARC.Visualization.Performance.Energy.Common import *  
+from MARC.Visualization.Performance.Energy.Battery import *   
+from MARC.Visualization.Performance.Noise import *  
 import numpy as np
 import sys
 
@@ -86,7 +86,7 @@ def full_setup():
     mission  = mission_setup(configs_analyses,vehicle)
     missions_analyses = missions_setup(mission)
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
 
@@ -97,7 +97,7 @@ def full_setup():
 # ----------------------------------------------------------------------
 
 def analyses_setup(configs):
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
@@ -116,9 +116,9 @@ def configs_setup(vehicle):
     #   Initialize Configurations
     # ------------------------------------------------------------------
 
-    configs = SUAVE.Components.Configs.Config.Container()
+    configs = MARC.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config = MARC.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
 
@@ -129,34 +129,34 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
 
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_eVTOL()
+    weights = MARC.Analyses.Weights.Weights_eVTOL()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
+    energy= MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
 
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)
 
@@ -169,23 +169,23 @@ def mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
-    mission     = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission     = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'mission'
 
     # airport
-    airport            = SUAVE.Attributes.Airports.Airport()
+    airport            = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
     mission.airport    = airport
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.iterate.initials.initialize_battery = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.state.numerics.number_control_points        = 3
 
     # ------------------------------------------------------------------
@@ -198,8 +198,8 @@ def mission_setup(analyses,vehicle):
     segment.altitude_end                                  = 40.  * Units.ft
     segment.climb_rate                                    = 300. * Units['ft/min']
     segment.battery_energy                                = vehicle.networks.battery_electric_rotor.battery.pack.max_energy 
-    segment.process.iterate.conditions.stability          = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability       = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability          = MARC.Methods.skip
+    segment.process.finalize.post_process.stability       = MARC.Methods.skip
     segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
                                                                                             initial_throttles = [0.90],
                                                                                             initial_rotor_power_coefficients=[0.02])
@@ -215,8 +215,8 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.base)
     segment.altitude                                        = 40.  * Units.ft
     segment.time                                            = 2*60
-    segment.process.iterate.conditions.stability            = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability         = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability            = MARC.Methods.skip
+    segment.process.finalize.post_process.stability         = MARC.Methods.skip
     segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment)
 
 
@@ -229,7 +229,7 @@ def mission_setup(analyses,vehicle):
 def missions_setup(base_mission):
 
     # the mission container
-    missions = SUAVE.Analyses.Mission.Mission.Container()
+    missions = MARC.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission

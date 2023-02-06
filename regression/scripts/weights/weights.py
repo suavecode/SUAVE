@@ -2,20 +2,20 @@
 # Created:
 # Modified: Mar 2020, M. Clarke
 
-import SUAVE
+import MARC
 import numpy as np
-from SUAVE.Core import Units
-from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-from SUAVE.Methods.Weights.Correlations import Transport as Transport
-from SUAVE.Methods.Weights.Correlations import Common as Common
-from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
-from SUAVE.Methods.Weights.Correlations import BWB as BWB
-from SUAVE.Methods.Weights.Correlations import Human_Powered as HP
-from SUAVE.Input_Output.SUAVE.load import load as load_results
-from SUAVE.Input_Output.SUAVE.archive import archive as save_results
+from MARC.Core import Units
+from MARC.Methods.Weights.Correlations import Propulsion as Propulsion
+from MARC.Methods.Weights.Correlations import Transport as Transport
+from MARC.Methods.Weights.Correlations import Common as Common
+from MARC.Methods.Weights.Correlations import General_Aviation as General_Aviation
+from MARC.Methods.Weights.Correlations import BWB as BWB
+from MARC.Methods.Weights.Correlations import Human_Powered as HP
+from MARC.Input_Output.MARC.load import load as load_results
+from MARC.Input_Output.MARC.archive import archive as save_results
 
-from SUAVE.Core import (Data, Container,)
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from MARC.Core import (Data, Container,)
+from MARC.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 import sys
 
@@ -34,7 +34,7 @@ def main():
     # Transport Weights
     vehicle = vehicle_setup()
     
-    method_types = ['SUAVE', 'New SUAVE', 'FLOPS Simple', 'FLOPS Complex', 'Raymer']
+    method_types = ['MARC', 'New MARC', 'FLOPS Simple', 'FLOPS Complex', 'Raymer']
     
     for method_type in method_types:
         print('Testing Method: '+method_type)

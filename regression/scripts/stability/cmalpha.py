@@ -5,9 +5,9 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import SUAVE
+import MARC
 import numpy as np
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha import taw_cmalpha
+from MARC.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha import taw_cmalpha
 
 import sys
 sys.path.append('../Vehicles')
@@ -16,8 +16,8 @@ sys.path.append('../Vehicles')
 
 
 
-from SUAVE.Core import Units
-from SUAVE.Core import (
+from MARC.Core import Units
+from MARC.Core import (
     Data, Container,
 )
 def main():

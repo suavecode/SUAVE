@@ -7,13 +7,13 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE 
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission              import *  
-from SUAVE.Visualization.Performance.Energy.Common        import *  
-from SUAVE.Visualization.Performance.Energy.Battery       import *   
-from SUAVE.Visualization.Performance.Energy.Fuel          import *  
-from SUAVE.Visualization.Performance.Noise                import *    
+import MARC 
+from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
+from MARC.Visualization.Performance.Mission              import *  
+from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Energy.Battery       import *   
+from MARC.Visualization.Performance.Energy.Fuel          import *  
+from MARC.Visualization.Performance.Noise                import *    
 import matplotlib.pyplot as plt  
 
 def main():
@@ -72,7 +72,7 @@ def main():
     return 
 
 def load_plt_data():
-    return SUAVE.Input_Output.SUAVE.load('../B737/results_mission_B737.res')
+    return MARC.Input_Output.MARC.load('../B737/results_mission_B737.res')
 
 if __name__ == '__main__':     
     main()  

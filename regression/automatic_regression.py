@@ -1,9 +1,9 @@
 # automatic_regression.py
 #
 # Created:  Jun 2014, T. Lukaczyk
-# Modified: Jun 2014, SUAVE Team
-#           Jul 2017, SUAVE Team
-#           Jan 2018, SUAVE Team
+# Modified: Jun 2014, SUAVE Team (Stanford University)
+#           Jul 2017, SUAVE Team (Stanford University)
+#           Jan 2018, SUAVE Team (Stanford University)
 #           May 2019, T. MacDonald
 #           Mar 2020, M. Clarke
 
@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
-import SUAVE
-from SUAVE.Core.DataOrdered import DataOrdered
+import MARC
+from MARC.Core.DataOrdered import DataOrdered
 import sys, os, traceback, time
 
 
@@ -103,7 +103,6 @@ modules = [
     'scripts/slipstream/propeller_interactions.py',
     'scripts/solar/solar_network.py',
     'scripts/solar/solar_radiation.py',
-    'scripts/SU2_surrogate/BWB-450.py',
     'scripts/sweeps/test_sweeps.py',
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',
@@ -129,7 +128,7 @@ def main():
         results[module] = 'Untested'
 
     sys.stdout.write('# --------------------------------------------------------------------- \n')
-    sys.stdout.write('#   SUAVE Automatic Regression \n')
+    sys.stdout.write('#   MARC Automatic Regression \n')
     sys.stdout.write('#   %s \n' % time.strftime("%B %d, %Y - %H:%M:%S", time.gmtime()) )
     sys.stdout.write('# --------------------------------------------------------------------- \n')
     sys.stdout.write(' \n')

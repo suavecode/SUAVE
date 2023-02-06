@@ -10,7 +10,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
+import MARC
 
 import numpy as np
 import pylab as plt
@@ -45,7 +45,7 @@ def define_vehicle():
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    
     
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
     vehicle.tag = 'A Flying Machine'
     
     # ------------------------------------------------------------------
@@ -66,7 +66,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
     
     # ------------------------------------------------------------------    

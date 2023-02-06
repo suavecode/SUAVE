@@ -10,13 +10,13 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units 
+import MARC
+from MARC.Core import Units 
 import numpy as np 
 
 import copy, time 
 
-from SUAVE.Core import (
+from MARC.Core import (
 Data, Container,
 )
 
@@ -52,14 +52,14 @@ def main():
     run_new_regression = False
     
     # append AVL aerodynamic analysis
-    aerodynamics                                      = SUAVE.Analyses.Aerodynamics.AVL()  
+    aerodynamics                                      = MARC.Analyses.Aerodynamics.AVL()  
     aerodynamics.settings.number_spanwise_vortices    = 30        
     aerodynamics.settings.keep_files                  = True 
     aerodynamics.geometry                             = copy.deepcopy(configs.cruise)    
     configs_analyses.cruise.append(aerodynamics)                 
                                                                  
     # append AVL stability analysis                              
-    stability                                         = SUAVE.Analyses.Stability.AVL()   
+    stability                                         = MARC.Analyses.Stability.AVL()   
     stability.settings.number_spanwise_vortices       = 30   
     stability.settings.keep_files                     = True   
     stability.geometry                                = copy.deepcopy(configs.cruise) 
@@ -88,18 +88,18 @@ def main():
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
@@ -126,7 +126,7 @@ def main():
 
     missions_analyses = missions_setup(mission)
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
     

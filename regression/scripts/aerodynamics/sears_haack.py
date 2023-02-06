@@ -8,16 +8,16 @@
 # ----------------------------------------------------------------------
 
 
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Core import Data
+import MARC
+from MARC.Core import Units
+from MARC.Core import Data
 
 import numpy as np
 import pylab as plt
 
 import copy, time
 import random
-from SUAVE.Attributes.Gases.Air import Air
+from MARC.Attributes.Gases.Air import Air
 import sys
 #import vehicle file
 sys.path.append('../Vehicles')
@@ -31,7 +31,7 @@ def main():
         
         
     # initalize the aero model
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()      
+    aerodynamics = MARC.Analyses.Aerodynamics.Supersonic_Zero()      
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     aerodynamics.settings.span_efficiency = 0.95
@@ -48,8 +48,8 @@ def main():
     
     
     # Cruise conditions (except Mach number)
-    state = SUAVE.Analyses.Mission.Segments.Conditions.State()
-    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    state = MARC.Analyses.Mission.Segments.Conditions.State()
+    state.conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     
     state.expand_rows(test_num)    
@@ -124,10 +124,10 @@ def main():
     return
 
 def load_results():
-    return SUAVE.Input_Output.SUAVE.load('sears_haack_results.res')
+    return MARC.Input_Output.MARC.load('sears_haack_results.res')
 
 def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'sears_haack_results.res')
+    MARC.Input_Output.MARC.archive(results,'sears_haack_results.res')
     return    
 
 def check_results(new_results,old_results):

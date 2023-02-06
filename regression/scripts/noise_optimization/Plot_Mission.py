@@ -7,15 +7,15 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission              import *  
-from SUAVE.Visualization.Performance.Energy.Common        import *  
-from SUAVE.Visualization.Performance.Energy.Battery       import *   
-from SUAVE.Visualization.Performance.Energy.Fuel          import *  
-from SUAVE.Visualization.Performance.Noise                import * 
-from SUAVE.Visualization.Geometry.Three_Dimensional       import * 
+import MARC
+from MARC.Core import Units
+from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
+from MARC.Visualization.Performance.Mission              import *  
+from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Energy.Battery       import *   
+from MARC.Visualization.Performance.Energy.Fuel          import *  
+from MARC.Visualization.Performance.Noise                import * 
+from MARC.Visualization.Geometry.Three_Dimensional       import * 
 
 import pylab as plt
 

@@ -1,14 +1,14 @@
 
 
 
-import SUAVE
+import MARC
 import json, yaml
 
-data = SUAVE.Core.Data()
+data = MARC.Core.Data()
 
 data.x = 'x'
 data.y = 'y'
-data.sub = SUAVE.Core.Data()
+data.sub = MARC.Core.Data()
 data.sub.z = 'z'
 data.sub.a = 1
 
@@ -17,12 +17,12 @@ data.sub.a = 1
 
 
 
-from SUAVE.Core import Data
+from MARC.Core import Data
 
 
-vehicle = SUAVE.Vehicle()
+vehicle = MARC.Vehicle()
 
-SUAVE.Input_Output.D3JS.save_tree(vehicle,'tree.json')
+MARC.Input_Output.D3JS.save_tree(vehicle,'tree.json')
 
 
 

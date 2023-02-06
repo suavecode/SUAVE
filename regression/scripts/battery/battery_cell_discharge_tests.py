@@ -7,32 +7,32 @@
 # ----------------------------------------------------------------------
 import sys
 sys.path.append('../trunk')
-import SUAVE  
-from SUAVE.Core import Units, Data 
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass  
-from SUAVE.Components.Energy.Storages.Batteries import Battery
-from SUAVE.Core import Units 
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass, initialize_from_circuit_configuration
-from SUAVE.Core import Data
-from SUAVE.Methods.Power.Battery.Ragone import find_ragone_properties, find_specific_power, find_ragone_optimum
-from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate, find_total_mass_gain
+import MARC  
+from MARC.Core import Units, Data 
+from MARC.Methods.Power.Battery.Sizing import initialize_from_mass  
+from MARC.Components.Energy.Storages.Batteries import Battery
+from MARC.Core import Units 
+from MARC.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass, initialize_from_circuit_configuration
+from MARC.Core import Data
+from MARC.Methods.Power.Battery.Ragone import find_ragone_properties, find_specific_power, find_ragone_optimum
+from MARC.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate, find_total_mass_gain
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 def main():
     # size the battery
-    Mission_total = SUAVE.Analyses.Mission.Sequential_Segments()
+    Mission_total = MARC.Analyses.Mission.Sequential_Segments()
     Ereq          = 4000*Units.Wh # required energy for the mission in Joules 
     Preq          = 3000. # maximum power requirements for mission in W
     
     numerics                      = Data()
     battery_inputs                = Data() #create inputs data structure for inputs for testing discharge model
     specific_energy_guess         = 500*Units.Wh/Units.kg
-    battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
-    battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()    
-    battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
-    battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
+    battery_li_air                = MARC.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
+    battery_al_air                = MARC.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()    
+    battery_li_ion                = MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
+    battery_li_s                  = MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
     li_ion_mass                   = 10*Units.kg
     
     # build numerics
@@ -214,7 +214,7 @@ def full_setup(current,battery_chemistry,mAh ):
     mission  = mission_setup(configs_analyses,vehicle,battery_chemistry,current,mAh )
     missions_analyses = missions_setup(mission)
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
 
@@ -227,7 +227,7 @@ def full_setup(current,battery_chemistry,mAh ):
 # ----------------------------------------------------------------------
 def vehicle_setup(current,battery_chemistry): 
 
-    vehicle                       = SUAVE.Vehicle() 
+    vehicle                       = MARC.Vehicle() 
     vehicle.tag                   = 'battery'   
     vehicle.reference_area        = 1
 
@@ -243,7 +243,7 @@ def vehicle_setup(current,battery_chemistry):
     # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------   
-    wing                         = SUAVE.Components.Wings.Wing()
+    wing                         = MARC.Components.Wings.Wing()
     wing.tag                     = 'main_wing' 
     wing.areas.reference         = 1.
     wing.spans.projected         = 1.
@@ -262,15 +262,15 @@ def vehicle_setup(current,battery_chemistry):
     vehicle.append_component(wing)
      
 
-    net                           = SUAVE.Components.Energy.Networks.Battery_Cell_Cycler()
+    net                           = MARC.Components.Energy.Networks.Battery_Cell_Cycler()
     net.tag                       ='battery_cell'   
     net.dischage_model_fidelity   = battery_chemistry
 
     # Battery    
     if battery_chemistry == 'NMC': 
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
+        bat= MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650() 
+        bat= MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650() 
     bat.charging_voltage            = bat.cell.nominal_voltage    
     bat.charging_current            = current   
     bat.convective_heat_transfer_coefficient = 7.17
@@ -280,7 +280,7 @@ def vehicle_setup(current,battery_chemistry):
     
     vehicle.mass_properties.takeoff = bat.mass_properties.mass 
 
-    avionics                      = SUAVE.Components.Energy.Peripherals.Avionics()
+    avionics                      = MARC.Components.Energy.Peripherals.Avionics()
     avionics.current              = current 
     net.avionics                  = avionics  
 
@@ -290,7 +290,7 @@ def vehicle_setup(current,battery_chemistry):
 
 def analyses_setup(configs):
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
@@ -303,47 +303,47 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
 
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_eVTOL()
+    weights = MARC.Analyses.Weights.Weights_eVTOL()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)  
 
     # ------------------------------------------------------------------	
     #  Stability Analysis	
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()    	
+    stability = MARC.Analyses.Stability.Fidelity_Zero()    	
     stability.geometry = vehicle	
     analyses.append(stability) 
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
+    energy= MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
 
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)   
 
@@ -353,8 +353,8 @@ def base_analysis(vehicle):
 
 
 def configs_setup(vehicle): 
-    configs         = SUAVE.Components.Configs.Config.Container()  
-    base_config     = SUAVE.Components.Configs.Config(vehicle)
+    configs         = MARC.Components.Configs.Config.Container()  
+    base_config     = MARC.Components.Configs.Config(vehicle)
     base_config.tag = 'base' 
     configs.append(base_config)   
     return configs
@@ -365,17 +365,17 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,mAh):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission     = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission     = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'  
        
     # unpack Segments module
-    Segments     = SUAVE.Analyses.Mission.Segments
+    Segments     = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment                                                              = Segments.Segment()
     ones_row                                                                  = base_segment.state.ones_row
-    base_segment.process.initialize.initialize_battery                        = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery 
-    base_segment.process.finalize.post_process.update_battery_state_of_health = SUAVE.Methods.Missions.Segments.Common.Energy.update_battery_state_of_health    
+    base_segment.process.initialize.initialize_battery                        = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery 
+    base_segment.process.finalize.post_process.update_battery_state_of_health = MARC.Methods.Missions.Segments.Common.Energy.update_battery_state_of_health    
     
    
     bat                                                      = vehicle.networks.battery_cell.battery    
@@ -415,7 +415,7 @@ def mission_setup(analyses,vehicle,battery_chemistry,current,mAh):
 def missions_setup(base_mission):
 
     # the mission container
-    missions = SUAVE.Analyses.Mission.Mission.Container()
+    missions = MARC.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission

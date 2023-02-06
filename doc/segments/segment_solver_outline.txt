@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------
 #   Segment Evaluation
 # ---------------------------------------------------------------------
-SUAVE/Methods/Performance/evaluate_segment.py
+MARC/Methods/Performance/evaluate_segment.py
 
 The basic flow for mission evaluation is below.
 One of the best ways to see this in action is to step through it
@@ -29,7 +29,7 @@ some more detail on the inner workings is at the end of this document
 # ---------------------------------------------------------------------
 #   Base_Segment
 # ---------------------------------------------------------------------
-SUAVE/Attributes/Missions/Segments/Base_Segment.py
+MARC/Attributes/Missions/Segments/Base_Segment.py
 
 This is the base segment class, it sets up data dictionaries of
 conditions, unknowns and residuals.  You can check these out in the
@@ -52,7 +52,7 @@ violation of style to use it without good reason.
 # ---------------------------------------------------------------------
 #   Aerodynamic Segment
 # ---------------------------------------------------------------------
-SUAVE/Attributes/Missions/Segments/Aerodynamic_Segment.py
+MARC/Attributes/Missions/Segments/Aerodynamic_Segment.py
 
 This is an important segment class because it defines the conditions
 data structure and implements many helper methods for the segments
@@ -63,13 +63,13 @@ we've been using.
 #   Starting a New Segment
 # ---------------------------------------------------------------------
 check out 
-SUAVE/Attributes/Missions/Segments/Empty_Segment.py
+MARC/Attributes/Missions/Segments/Empty_Segment.py
 
 
 # ---------------------------------------------------------------------
 #   Top level mission evaluation
 # ---------------------------------------------------------------------
-SUAVE.Methods.Performance.evaluate_mission()
+MARC.Methods.Performance.evaluate_mission()
     for each segment:
         evaluage_segment()
 
@@ -77,13 +77,13 @@ SUAVE.Methods.Performance.evaluate_mission()
 # ---------------------------------------------------------------------
 #   Segment evaluator
 # ---------------------------------------------------------------------
-SUAVE.Methods.Performance.evaluate_segment()
+MARC.Methods.Performance.evaluate_segment()
     
     #unpack 
     unknowns, residuals, conditions, numerics
     
     # works on a segment, see
-    # SUAVE.Analyses.Mission.Segments.Segment()
+    # MARC.Analyses.Mission.Segments.Segment()
     
     # initialize arrays in unknowns, residuals, conditions
     segment.initialize_differentials()    
@@ -110,7 +110,7 @@ SUAVE.Methods.Performance.evaluate_segment()
 # ---------------------------------------------------------------------
 #   Segment solver
 # ---------------------------------------------------------------------
-SUAVE.Methods.Performance.evaluate_segment.segment_residuals():
+MARC.Methods.Performance.evaluate_segment.segment_residuals():
     # this function is called iteratively to converges residuals to zero
     
     # unpack 

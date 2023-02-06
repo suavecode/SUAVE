@@ -11,22 +11,22 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Core import (
+import MARC
+from MARC.Core import Units
+from MARC.Core import (
     Data, Container,
 )
-from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
+from MARC.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
+from MARC.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
+from MARC.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
 
 def vehicle_setup():
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
     vehicle.mass_properties.max_takeoff      = 4727*Units.kg #from Wikipedia
     vehicle.mass_properties.empty            = 2515*Units.kg
     vehicle.mass_properties.max_zero_fuel    =vehicle.mass_properties.max_takeoff-vehicle.mass_properties.empty+15.*225*Units.lbs #15 passenger ac
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = MARC.Components.Wings.Wing()
     wing.tag                                 = 'main_wing'
     wing.areas.reference                     = 280.0 * Units.feet**2
     wing.spans.projected                     = 46.0  * Units.feet
@@ -48,7 +48,7 @@ def vehicle_setup():
     
    
     Mach                                  = np.array([0.152])
-    reference                             = SUAVE.Core.Container()
+    reference                             = MARC.Core.Container()
     conditions                            = Data()
     conditions.lift_curve_slope           = datcom(wing,Mach)    
     conditions.weights                    =Data()
@@ -57,7 +57,7 @@ def vehicle_setup():
     vehicle.reference_area                = wing.areas.reference
                                           
     # control surfaces -------------------------------------------
-    flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
+    flap                       = MARC.Components.Wings.Control_Surfaces.Flap() 
     flap.tag                   = 'flap' 
     flap.span_fraction_start   = 0.15    # not correct, only placeholder
     flap.span_fraction_end     = 0.324   # not correct, only placeholder 
@@ -65,7 +65,7 @@ def vehicle_setup():
     flap.chord_fraction        = 0.19    # not correct, only placeholder
     wing.append_control_surface(flap)    
     
-    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat                       = MARC.Components.Wings.Control_Surfaces.Slat() 
     slat.tag                   = 'slat' 
     slat.span_fraction_start   = 0.324  # not correct, only placeholder 
     slat.span_fraction_end     = 0.963  # not correct, only placeholder   
@@ -78,7 +78,7 @@ def vehicle_setup():
     main_wing_CLa = wing.CL_alpha
     main_wing_ar  = wing.aspect_ratio
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = MARC.Components.Wings.Wing()
     wing.tag                      = 'horizontal_stabilizer'
     wing.areas.reference          = 100.5 * Units.feet**2
     wing.spans.projected          = 22.5  * Units.feet
@@ -95,7 +95,7 @@ def vehicle_setup():
     wing.CL_alpha                 = datcom(wing,Mach)
     vehicle.append_component(wing)
     
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
+    fuselage = MARC.Components.Fuselages.Fuselage()
     fuselage.tag                  = 'fuselage'
     fuselage.x_root_quarter_chord = 5.4 * Units.feet
     fuselage.lengths.total        = 44.0  * Units.feet
@@ -103,7 +103,7 @@ def vehicle_setup():
     vehicle.append_component(fuselage)
     
     vehicle.mass_properties.center_of_gravity = np.array([[17.2,0,0]]) * Units.feet  
-    fuel                                      = SUAVE.Components.Physical_Component()
+    fuel                                      = MARC.Components.Physical_Component()
     fuel.origin                               = wing.origin
     fuel.mass_properties.center_of_gravity    = wing.mass_properties.center_of_gravity
     fuel.mass_properties.mass                 = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
@@ -124,15 +124,15 @@ def configs_setup(vehicle):
      # ------------------------------------------------------------------
     #   Initialize Configurations
     # ------------------------------------------------------------------
-    configs = SUAVE.Components.Configs.Config.Container()
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    configs = MARC.Components.Configs.Config.Container()
+    base_config = MARC.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
     
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------ 
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'cruise' 
     configs.append(config)
                    
@@ -140,7 +140,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Takeoff Configuration
     # ------------------------------------------------------------------ 
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'takeoff'    
     config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection = 25. * Units.deg 
@@ -151,7 +151,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Landing Configuration
     # ------------------------------------------------------------------  
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'landing'    
     config.wings['main_wing'].flaps_angle = 30. * Units.deg
     config.wings['main_wing'].slats_angle = 25. * Units.deg

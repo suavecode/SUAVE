@@ -12,21 +12,21 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Core import (
+import MARC
+from MARC.Core import Units
+from MARC.Core import (
     Data, Container,
 )
-from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
-from SUAVE.Methods.Propulsion import propeller_design
+from MARC.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
+from MARC.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
+from MARC.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
+from MARC.Methods.Propulsion import propeller_design
 
 def vehicle_setup(): 
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------        
-    vehicle                                     = SUAVE.Vehicle()
+    vehicle                                     = MARC.Vehicle()
     vehicle.tag                                 = 'Cessna_172_SP'
                                                 
     # ------------------------------------------------------------------
@@ -45,7 +45,7 @@ def vehicle_setup():
                                                 
     cruise_speed                                = 124. * Units.kts
     altitude                                    = 8500. * Units.ft
-    atmo                                        = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo                                        = MARC.Analyses.Atmospheric.US_Standard_1976()
     freestream                                  = atmo.compute_values (0.)
     freestream0                                 = atmo.compute_values (altitude)
     mach_number                                 = (cruise_speed/freestream.speed_of_sound)[0][0] 
@@ -60,7 +60,7 @@ def vehicle_setup():
     #   Main Wing
     # ------------------------------------------------------------------        
 
-    wing                                        = SUAVE.Components.Wings.Main_Wing()
+    wing                                        = MARC.Components.Wings.Main_Wing()
     wing.tag                                    = 'main_wing'    
     wing.sweeps.quarter_chord                   = 0.0 * Units.deg
     wing.thickness_to_chord                     = 0.12
@@ -81,7 +81,7 @@ def vehicle_setup():
     wing.dynamic_pressure_ratio                 = 1.0 
                                           
     # control surfaces -------------------------------------------
-    flap                                        = SUAVE.Components.Wings.Control_Surfaces.Flap() 
+    flap                                        = MARC.Components.Wings.Control_Surfaces.Flap() 
     flap.tag                                    = 'flap' 
     flap.span_fraction_start                    = 0.15 
     flap.span_fraction_end                      = 0.324    
@@ -89,7 +89,7 @@ def vehicle_setup():
     flap.chord_fraction                         = 0.19    
     wing.append_control_surface(flap)           
                                                 
-    slat                                        = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat                                        = MARC.Components.Wings.Control_Surfaces.Slat() 
     slat.tag                                    = 'slat' 
     slat.span_fraction_start                    = 0.324 
     slat.span_fraction_end                      = 0.963     
@@ -97,7 +97,7 @@ def vehicle_setup():
     slat.chord_fraction                         = 0.1      
     wing.append_control_surface(slat)  
     
-    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing) 
+    MARC.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing) 
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -107,7 +107,7 @@ def vehicle_setup():
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
                                                 
-    wing                                        = SUAVE.Components.Wings.Wing()
+    wing                                        = MARC.Components.Wings.Wing()
     wing.tag                                    = 'horizontal_stabilizer' 
     wing.sweeps.quarter_chord                   = 0.0 * Units.deg
     wing.thickness_to_chord                     = 0.12
@@ -133,7 +133,7 @@ def vehicle_setup():
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
 
-    wing                                        = SUAVE.Components.Wings.Wing()
+    wing                                        = MARC.Components.Wings.Wing()
     wing.tag                                    = 'vertical_stabilizer' 
     wing.sweeps.quarter_chord                   = 25. * Units.deg
     wing.thickness_to_chord                     = 0.12
@@ -161,7 +161,7 @@ def vehicle_setup():
     #  Fuselage
     # ------------------------------------------------------------------
 
-    fuselage                                    = SUAVE.Components.Fuselages.Fuselage()
+    fuselage                                    = MARC.Components.Fuselages.Fuselage()
     fuselage.tag                                = 'fuselage'
     fuselage.number_coach_seats                 = 4.       
     fuselage.tag                                = 'fuselage'    
@@ -191,9 +191,9 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Landing gear
     # ------------------------------------------------------------------  
-    landing_gear                                = SUAVE.Components.Landing_Gear.Landing_Gear()
-    main_gear                                   = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
-    nose_gear                                   = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
+    landing_gear                                = MARC.Components.Landing_Gear.Landing_Gear()
+    main_gear                                   = MARC.Components.Landing_Gear.Main_Landing_Gear()
+    nose_gear                                   = MARC.Components.Landing_Gear.Nose_Landing_Gear()
     main_gear.strut_length                      = 12. * Units.inches #guess based on picture
     nose_gear.strut_length                      = 6. * Units.inches 
                                                 
@@ -207,8 +207,8 @@ def vehicle_setup():
     #   Fuel
     # ------------------------------------------------------------------    
     # define fuel weight needed to size fuel system
-    fuel                                        = SUAVE.Attributes.Propellants.Aviation_Gasoline()
-    fuel.mass_properties                        = SUAVE.Components.Mass_Properties() 
+    fuel                                        = MARC.Attributes.Propellants.Aviation_Gasoline()
+    fuel.mass_properties                        = MARC.Components.Mass_Properties() 
     fuel.number_of_tanks                        = 1.
     fuel.origin                                 = wing.origin
     fuel.internal_volume                        = fuel.mass_properties.mass/fuel.density #all of the fuel volume is internal
@@ -221,13 +221,13 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     # build network
-    net                                     = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
+    net                                     = MARC.Components.Energy.Networks.Internal_Combustion_Propeller()
     net.tag                                 = 'internal_combustion'
     net.number_of_engines                   = 1.
     net.identical_rotors                    = True
                                                 
     # the engine                    
-    engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
+    engine                                  = MARC.Components.Energy.Converters.Internal_Combustion_Engine()
     engine.sea_level_power                  = 180. * Units.horsepower
     engine.flat_rate_altitude               = 0.0
     engine.rated_speed                      = 2700. * Units.rpm
@@ -235,7 +235,7 @@ def vehicle_setup():
     net.engines.append(engine)
     
     # the prop
-    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop = MARC.Components.Energy.Converters.Propeller()
     prop.number_of_blades                   = 2.0
     prop.tip_radius                         = 76./2. * Units.inches
     prop.hub_radius                         = 8.     * Units.inches
@@ -245,7 +245,7 @@ def vehicle_setup():
     prop.cruise.design_altitude             = 12000. * Units.feet
     prop.cruise.design_power                = .64 * 180. * Units.horsepower
     prop.variable_pitch                     = True 
-    airfoil                                 = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil                                 = MARC.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                 = '../Vehicles/Airfoils/NACA_4412.txt'
     airfoil.polar_files                     = ['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                             '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
@@ -264,7 +264,7 @@ def vehicle_setup():
 
     #find uninstalled avionics weight
     Wuav                                        = 2. * Units.lbs
-    avionics                                    = SUAVE.Components.Energy.Peripherals.Avionics()
+    avionics                                    = MARC.Components.Energy.Peripherals.Avionics()
     avionics.mass_properties.uninstalled        = Wuav
     vehicle.avionics                            = avionics     
 
@@ -278,15 +278,15 @@ def configs_setup(vehicle):
      # ------------------------------------------------------------------
     #   Initialize Configurations
     # ------------------------------------------------------------------ 
-    configs                                                    = SUAVE.Components.Configs.Config.Container() 
-    base_config                                                = SUAVE.Components.Configs.Config(vehicle)
+    configs                                                    = MARC.Components.Configs.Config.Container() 
+    base_config                                                = MARC.Components.Configs.Config(vehicle)
     base_config.tag                                            = 'base'
     configs.append(base_config)
     
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------ 
-    config                                                     = SUAVE.Components.Configs.Config(base_config)
+    config                                                     = MARC.Components.Configs.Config(base_config)
     config.tag                                                 = 'cruise' 
     configs.append(config)
     
@@ -294,7 +294,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Takeoff Configuration
     # ------------------------------------------------------------------ 
-    config                                                     = SUAVE.Components.Configs.Config(base_config)
+    config                                                     = MARC.Components.Configs.Config(base_config)
     config.tag                                                 = 'takeoff' 
     config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
     config.V2_VS_ratio                                         = 1.21
@@ -307,7 +307,7 @@ def configs_setup(vehicle):
     #   Landing Configuration
     # ------------------------------------------------------------------
 
-    config                                                     = SUAVE.Components.Configs.Config(base_config)
+    config                                                     = MARC.Components.Configs.Config(base_config)
     config.tag                                                 = 'landing' 
     config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
     config.Vref_VS_ratio                                       = 1.23

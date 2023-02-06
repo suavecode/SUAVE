@@ -6,12 +6,12 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Data
+import MARC
+from MARC.Core import Data
 
 import numpy as np
 
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform import fuselage_planform
+from MARC.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform import fuselage_planform
 
 # ---------------------------------------------------------------------- 
 #   Main
@@ -24,7 +24,7 @@ def main():
     # ------------------------------------------------------------------
 
     # Setup
-    fuselage          = SUAVE.Components.Fuselages.Fuselage()
+    fuselage          = MARC.Components.Fuselages.Fuselage()
     
     fuselage.number_coach_seats = 170.
     fuselage.seat_pitch         = 1.0 

@@ -8,21 +8,21 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 import numpy as np
 import copy
-from SUAVE.Analyses.Process import Process
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
+from MARC.Analyses.Process import Process
+from MARC.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from MARC.Methods.Performance.estimate_stall_speed import estimate_stall_speed
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
 
 # noise imports  
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_certification_limits import noise_certification_limits
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric            import noise_geometric 
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise              import compute_noise
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.noise_certification_limits import noise_certification_limits
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric            import noise_geometric 
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise              import compute_noise
 #
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff    import compute_max_lift_coeff
+from MARC.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff    import compute_max_lift_coeff
 # ----------------------------------------------------------------------        
 #   Setup
 # ----------------------------------------------------------------------   
@@ -69,7 +69,7 @@ def initial_sizing(nexus):
         config.mass_properties.max_zero_fuel = nexus.MZFW_ratio*config.mass_properties.max_takeoff
             
         for wing in config.wings:
-            wing = SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+            wing = MARC.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
             
             wing.areas.exposed  = 0.8 * wing.areas.wetted
             wing.areas.affected = 0.6 * wing.areas.reference
@@ -78,7 +78,7 @@ def initial_sizing(nexus):
         
         air_speed   = nexus.missions.base.segments['cruise'].air_speed 
         altitude    = nexus.missions.base.segments['climb_5'].altitude_end
-        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
        
         
         freestream             = atmosphere.compute_values(altitude) #freestream conditions
@@ -87,7 +87,7 @@ def initial_sizing(nexus):
         freestream.velocity    = air_speed
         freestream.gravity     = 9.81
         
-        conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+        conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
         conditions.freestream = freestream 
         
         turbofan_sizing(config.networks['turbofan'], mach_number, altitude)
@@ -520,7 +520,7 @@ def noise_takeoff_init(nexus):
 def takeoff_field_length(nexus):
     
     # import tofl analysis module
-    estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
+    estimate_tofl = MARC.Methods.Performance.estimate_take_off_field_length
     
     # unpack data 
     summary  = nexus.summary
@@ -545,7 +545,7 @@ def takeoff_field_length(nexus):
 def landing_field_length(nexus):
     
     # import tofl analysis module
-    estimate_landing = SUAVE.Methods.Performance.estimate_landing_field_length
+    estimate_landing = MARC.Methods.Performance.estimate_landing_field_length
     
     # unpack data 
     summary  = nexus.summary
@@ -569,7 +569,7 @@ def landing_field_length(nexus):
 def short_takeoff_field_length(nexus):
     
     # import tofl analysis module
-    estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
+    estimate_tofl = MARC.Methods.Performance.estimate_take_off_field_length
     
     # unpack data 
     summary  = nexus.summary
@@ -613,8 +613,8 @@ def post_process(nexus):
 
 
 def load_results(filename):
-    return SUAVE.Input_Output.SUAVE.load(filename)
+    return MARC.Input_Output.MARC.load(filename)
 
 def save_results(results,filename):
-    SUAVE.Input_Output.SUAVE.archive(results,filename)
+    MARC.Input_Output.MARC.archive(results,filename)
     return

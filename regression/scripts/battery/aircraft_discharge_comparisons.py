@@ -9,17 +9,17 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units 
+import MARC
+from MARC.Core import Units 
 import numpy as np
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission              import *  
-from SUAVE.Visualization.Performance.Energy.Common        import *  
-from SUAVE.Visualization.Performance.Energy.Battery       import *   
-from SUAVE.Visualization.Performance.Noise                import * 
-from SUAVE.Core import Data
-from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty 
-from SUAVE.Methods.Power.Battery.Sizing         import initialize_from_mass
+from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
+from MARC.Visualization.Performance.Mission              import *  
+from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Energy.Battery       import *   
+from MARC.Visualization.Performance.Noise                import * 
+from MARC.Core import Data
+from MARC.Methods.Weights.Buildups.eVTOL.empty import empty 
+from MARC.Methods.Power.Battery.Sizing         import initialize_from_mass
 import sys
 
 sys.path.append('../Vehicles')
@@ -142,9 +142,9 @@ def GA_full_setup(battery_chemistry,unknown_throttles):
     net = vehicle.networks.battery_electric_rotor
     bat = net.battery 
     if battery_chemistry == 'NMC': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
+        bat = MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()  
     elif battery_chemistry == 'LFP': 
-        bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()  
+        bat = MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()  
     
     bat.mass_properties.mass = 500. * Units.kg  
     bat.pack.max_voltage     = 500.             
@@ -171,7 +171,7 @@ def GA_full_setup(battery_chemistry,unknown_throttles):
     mission  = GA_mission_setup(configs_analyses,vehicle,unknown_throttles)
     missions_analyses = missions_setup(mission)
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
 
@@ -188,9 +188,9 @@ def EVTOL_full_setup(battery_chemistry,evtol_throttles):
     net = vehicle.networks.battery_electric_rotor
     bat = net.battery 
     if battery_chemistry == 'NMC': 
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
+        bat= MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     elif battery_chemistry == 'LFP': 
-        bat= SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
+        bat= MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4_18650()
     
     bat.mass_properties.mass = 500. * Units.kg  
     bat.pack.max_voltage     = 500.             
@@ -216,7 +216,7 @@ def EVTOL_full_setup(battery_chemistry,evtol_throttles):
     mission  = EVTOL_mission_setup(configs_analyses,vehicle,evtol_throttles)
     missions_analyses = missions_setup(mission)
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
 
@@ -228,7 +228,7 @@ def EVTOL_full_setup(battery_chemistry,evtol_throttles):
 
 def analyses_setup(configs):
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
@@ -242,47 +242,47 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
 
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_eVTOL()
+    weights = MARC.Analyses.Weights.Weights_eVTOL()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)  
 
     # ------------------------------------------------------------------	
     #  Stability Analysis	
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()    	
+    stability = MARC.Analyses.Stability.Fidelity_Zero()    	
     stability.geometry = vehicle	
     analyses.append(stability) 
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
+    energy= MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
 
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)   
 
@@ -297,25 +297,25 @@ def GA_mission_setup(analyses,vehicle,unknown_throttles):
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'mission'
 
     # airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0. * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
 
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments 
+    Segments = MARC.Analyses.Mission.Segments 
     
     # base segment
     base_segment = Segments.Segment()
     ones_row     = base_segment.state.ones_row
-    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.process.initialize.initialize_battery       = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.iterate.conditions.planet_position  = MARC.Methods.skip
     base_segment.state.numerics.number_control_points        = 4  
     base_segment.battery_age_in_days                         = 1 # optional but added for regression
     base_segment.temperature_deviation                       = 1 # Kelvin #  optional but added for regression
@@ -390,31 +390,31 @@ def EVTOL_mission_setup(analyses,vehicle,evtol_throttles):
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
-    mission            = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission            = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag        = 'the_mission'
 
     # airport
-    airport            = SUAVE.Attributes.Airports.Airport()
+    airport            = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
 
     mission.airport    = airport
 
     # unpack Segments module
-    Segments                                                 = SUAVE.Analyses.Mission.Segments
+    Segments                                                 = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment                                             = Segments.Segment()
     base_segment.state.numerics.number_control_points        = 3 
-    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.process.initialize.initialize_battery       = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.iterate.conditions.planet_position  = MARC.Methods.skip
 
     # VSTALL Calculation
     m      = vehicle.mass_properties.max_takeoff
     g      = 9.81
     S      = vehicle.reference_area
-    atmo   = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo   = MARC.Analyses.Atmospheric.US_Standard_1976()
     rho    = atmo.compute_values(1000.*Units.feet,0.).density
     CLmax  = 1.2
     Vstall = float(np.sqrt(2.*m*g/(rho*S*CLmax)))
@@ -430,9 +430,9 @@ def EVTOL_mission_setup(analyses,vehicle,evtol_throttles):
     segment.altitude_end                                     = 40.  * Units.ft
     segment.climb_rate                                       = 500. * Units['ft/min']
     segment.battery_energy                                   = vehicle.networks.battery_electric_rotor.battery.pack.max_energy
-    segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability          = SUAVE.Methods.skip   
+    segment.process.iterate.unknowns.mission                 = MARC.Methods.skip
+    segment.process.iterate.conditions.stability             = MARC.Methods.skip
+    segment.process.finalize.post_process.stability          = MARC.Methods.skip   
     segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,\
                                                                                     initial_rotor_power_coefficients = [0.02,0.01],
                                                                                     initial_throttles = evtol_throttles[0])
@@ -452,9 +452,9 @@ def EVTOL_mission_setup(analyses,vehicle,evtol_throttles):
     segment.acceleration                               = 9.8/5
     segment.pitch_initial                              = 0.0 * Units.degrees
     segment.pitch_final                                = 5. * Units.degrees  
-    segment.process.iterate.unknowns.mission           = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip 
+    segment.process.iterate.unknowns.mission           = MARC.Methods.skip
+    segment.process.iterate.conditions.stability       = MARC.Methods.skip
+    segment.process.finalize.post_process.stability    = MARC.Methods.skip 
     segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
                                                          initial_rotor_power_coefficients = [0.05,0.05], 
                                                          initial_throttles = evtol_throttles[1] )
@@ -474,9 +474,9 @@ def EVTOL_mission_setup(analyses,vehicle,evtol_throttles):
     segment.acceleration                            = 0.5 * Units['m/s/s']
     segment.pitch_initial                           = 5. * Units.degrees
     segment.pitch_final                             = 7. * Units.degrees 
-    segment.process.iterate.unknowns.mission        = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability = SUAVE.Methods.skip
+    segment.process.iterate.unknowns.mission        = MARC.Methods.skip
+    segment.process.iterate.conditions.stability    = MARC.Methods.skip
+    segment.process.finalize.post_process.stability = MARC.Methods.skip
     segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,
                                                          initial_rotor_power_coefficients = [ 0.2, 0.01],
                                                          initial_throttles = evtol_throttles[2] )
@@ -548,7 +548,7 @@ def EVTOL_mission_setup(analyses,vehicle,evtol_throttles):
 def missions_setup(base_mission):
 
     # the mission container
-    missions = SUAVE.Analyses.Mission.Mission.Container()
+    missions = MARC.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission

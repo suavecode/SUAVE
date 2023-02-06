@@ -1,10 +1,10 @@
 # DC_10_noise.py
 
-import SUAVE
+import MARC
 import numpy as np
-from SUAVE.Core import Units
-from SUAVE.Methods.Noise.Fidelity_Zero.shevell import shevell
-from SUAVE.Core import Data, Container 
+from MARC.Core import Units
+from MARC.Methods.Noise.Fidelity_Zero.shevell import shevell
+from MARC.Core import Data, Container 
 
 def main():
 

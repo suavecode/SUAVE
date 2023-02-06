@@ -6,14 +6,14 @@
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 import numpy as np
 import vehicle_opt_pack
 import procedure_opt_pack 
-from SUAVE.Optimization import Nexus, carpet_plot 
-import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
-import SUAVE.Optimization.write_optimization_outputs as write_optimization_outputs
+from MARC.Optimization import Nexus, carpet_plot 
+import MARC.Optimization.Package_Setups.scipy_setup as scipy_setup
+import MARC.Optimization.write_optimization_outputs as write_optimization_outputs
 import os , sys
 # ----------------------------------------------------------------------        
 #   Run the whole thing

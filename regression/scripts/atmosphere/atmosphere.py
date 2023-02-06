@@ -7,10 +7,10 @@
 #   Imports
 # ----------------------------------------------------------------------  
 
-import SUAVE
+import MARC
 import numpy as np
 import matplotlib.pyplot as plt
-from SUAVE.Core import Units
+from MARC.Core import Units
 
 
 # ----------------------------------------------------------------------        
@@ -24,7 +24,7 @@ def main():
     # ------------------------------------------------------------------    
 
     # initialize atmospheric models
-    atm = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atm = MARC.Analyses.Atmospheric.US_Standard_1976()
     
     # test elevations -3 km <= z <= 90 km
     z = np.linspace(-3,90,100) * Units.km

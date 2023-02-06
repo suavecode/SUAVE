@@ -7,9 +7,9 @@
 #   Imports
 # ---------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Components.Energy.Networks.Propulsor_Surrogate import Propulsor_Surrogate
-from SUAVE.Core import Data
+import MARC
+from MARC.Components.Energy.Networks.Propulsor_Surrogate import Propulsor_Surrogate
+from MARC.Core import Data
 
 import numpy as np
 

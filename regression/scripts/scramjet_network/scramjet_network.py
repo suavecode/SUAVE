@@ -11,13 +11,13 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 
 import numpy as np
 
-from SUAVE.Components.Energy.Networks.Scramjet import Scramjet
-from SUAVE.Methods.Propulsion.scramjet_sizing import scramjet_sizing
+from MARC.Components.Energy.Networks.Scramjet import Scramjet
+from MARC.Methods.Propulsion.scramjet_sizing import scramjet_sizing
 
 # ----------------------------------------------------------------------
 #   Main
@@ -42,7 +42,7 @@ def energy_network():
     ones_1col = np.ones([1,1])    
     
     # setup conditions
-    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     # freestream conditions
     eval                             = conditions.freestream
@@ -50,15 +50,15 @@ def energy_network():
     conditions.M                     = eval.mach_number
     eval.altitude                    = ones_1col*20000.
     
-    atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere                       = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                        = atmosphere.compute_values(eval.altitude,0,True) 
-    working_fluid                    = SUAVE.Attributes.Gases.Air()
+    working_fluid                    = MARC.Attributes.Gases.Air()
                             
     eval.pressure                    = ones_1col*atmo_data.pressure
     eval.temperature                 = ones_1col*atmo_data.temperature
     eval.density                     = ones_1col*atmo_data.density
     eval.dynamic_viscosity           = ones_1col* atmo_data.dynamic_viscosity
-    eval.gravity                     = ones_1col* SUAVE.Attributes.Planets.Earth().compute_gravity(eval.altitude)
+    eval.gravity                     = ones_1col* MARC.Attributes.Planets.Earth().compute_gravity(eval.altitude)
     eval.isentropic_expansion_factor = working_fluid.compute_gamma(eval.temperature,eval.pressure)
     eval.Cp                          = working_fluid.compute_cp(eval.temperature,eval.pressure)                                                                               
     eval.R                           = working_fluid.gas_specific_constant
@@ -79,7 +79,7 @@ def energy_network():
     ones_1col = np.ones([1,1])    
     
     # setup conditions
-    conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions_sizing = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
 
     # freestream conditions
     size                             = conditions_sizing.freestream
@@ -87,15 +87,15 @@ def energy_network():
     conditions_sizing.M              = size.mach_number
     size.altitude                    = ones_1col*20000.  
     
-    atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere                       = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                        = atmosphere.compute_values(size.altitude,0,True) 
-    working_fluid                    = SUAVE.Attributes.Gases.Air()    
+    working_fluid                    = MARC.Attributes.Gases.Air()    
 
     size.pressure                    = ones_1col*atmo_data.pressure
     size.temperature                 = ones_1col*atmo_data.temperature
     size.density                     = ones_1col*atmo_data.density
     size.dynamic_viscosity           = ones_1col*atmo_data.dynamic_viscosity
-    size.gravity                     = ones_1col*SUAVE.Attributes.Planets.Earth().compute_gravity(size.altitude)
+    size.gravity                     = ones_1col*MARC.Attributes.Planets.Earth().compute_gravity(size.altitude)
     size.isentropic_expansion_factor = working_fluid.compute_gamma(size.temperature,size.pressure)
     size.Cp                          = working_fluid.compute_cp(size.temperature,size.pressure)                                                                               
     size.R                           = working_fluid.gas_specific_constant
@@ -120,7 +120,7 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     # instantiate the ramjet network
-    scramjet = SUAVE.Components.Energy.Networks.Scramjet()
+    scramjet = MARC.Components.Energy.Networks.Scramjet()
     scramjet.tag = 'scramjet'
     
     # setup
@@ -129,14 +129,14 @@ def energy_network():
     scramjet.inlet_diameter    = 0.21 * Units.meter
     
     # working fluid
-    scramjet.working_fluid = SUAVE.Attributes.Gases.Air()
+    scramjet.working_fluid = MARC.Attributes.Gases.Air()
 
     # ------------------------------------------------------------------
     #   Component 1 - Ram
     #   to convert freestream static to stagnation quantities
    
     # instantiate
-    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram = MARC.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
     
     # add to the network
@@ -146,7 +146,7 @@ def energy_network():
     #  Component 2 - Inlet Nozzle
     
     # instantiate
-    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle = MARC.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
@@ -163,14 +163,14 @@ def energy_network():
     #  Component 3 - Combustor
     
     # instantiate    
-    combustor = SUAVE.Components.Energy.Converters.Combustor()   
+    combustor = MARC.Components.Energy.Converters.Combustor()   
     combustor.tag = 'combustor'
     
     # setup
     combustor.efficiency                = 0.90 
     combustor.pressure_ratio            = 1.0
     combustor.area_ratio                = 2.0
-    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Liquid_H2()  
+    combustor.fuel_data                 = MARC.Attributes.Propellants.Liquid_H2()  
     combustor.burner_drag_coefficient   = 0.01
     combustor.fuel_equivalency_ratio    = 1.0
     
@@ -181,7 +181,7 @@ def energy_network():
     #  Component 4 - Core Nozzle
     
     # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Supersonic_Nozzle()   
+    nozzle = MARC.Components.Energy.Converters.Supersonic_Nozzle()   
     nozzle.tag = 'core_nozzle'
     
     # setup
@@ -195,7 +195,7 @@ def energy_network():
     #  Component 5 - Thrust
     
     # instantiate
-    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust = MARC.Components.Energy.Processes.Thrust()       
     thrust.tag ='thrust'
     
     # setup

@@ -1,0 +1,162 @@
+## @ingroup Components-Energy-Networks
+# Battery_Ducted_Fan.py
+#
+# Created:  Sep 2014, M. Vegh
+# Modified: Jan 2016, T. MacDonaldb
+#           Apr 2019, C. McMillan
+#           Aug 2021, M. Clarke
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+# package imports
+import numpy as np
+from .Network import Network
+from MARC.Components.Physical_Component import Container 
+
+# ----------------------------------------------------------------------
+#  Network
+# ----------------------------------------------------------------------
+
+## @ingroup Components-Energy-Networks
+class Serial_Hybrid_Ducted_Fan(Network):
+    """ Connects a generator to a battery to a ducted fan, with assumed motor & generator efficiencies
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """
+    
+    def __defaults__(self):
+        """ This sets the default values for the network to function.
+            This network operates slightly different than most as it attaches a propulsor to the net.
+    
+            Assumptions:
+            None
+
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """         
+        
+        self.propulsor                     = None
+        self.battery                       = None
+        self.motor_efficiency              = 0.0 
+        self.electronic_speed_controllers  = Container()
+        self.avionics                      = None
+        self.payload                       = None
+        self.voltage                       = None
+        self.generator                     = None
+        self.tag                           = 'Network'
+        self.OpenVSP_flow_through          = False
+    
+    # manage process with a driver function
+    def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
+    
+            Assumptions:
+            Constant mass batteries
+            A DC distribution architecture  with no bus loses
+            DC motor
+            ESC input voltage is constant at max battery voltage
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            results.thrust_force_vector [newtons]
+            results.vehicle_mass_rate   [kg/s]
+    
+            Properties Used:
+            Defaulted values
+        """ 
+
+        # unpack
+        conditions = state.conditions
+        numerics   = state.numerics
+        escs       = self.electronic_speed_controllers
+        avionics   = self.avionics
+        payload    = self.payload 
+        battery    = self.battery
+        propulsor  = self.propulsor
+        generator  = self.generator
+        
+        # Run the generator        
+        generator.calculate_power(conditions)
+        
+        # Set battery energy
+        battery.pack.current_energy           = conditions.propulsion.battery.pack.energy
+        battery.pack.temperature              = conditions.propulsion.battery.pack.temperature
+        battery.cell.charge_throughput        = conditions.propulsion.battery.cell.charge_throughput     
+        battery.cell.age                      = conditions.propulsion.battery.cell.cycle_in_day          
+        battery.cell.R_growth_factor          = conditions.propulsion.battery.cell.resistance_growth_factor
+        battery.cell.E_growth_factor          = conditions.propulsion.battery.cell.capacity_fade_factor  
+        
+        # Calculate ducted fan power
+        results             = propulsor.evaluate_thrust(state)
+        propulsive_power    = np.reshape(results.power, (-1,1))
+        motor_power         = propulsive_power/self.motor_efficiency 
+      
+        # Set the esc input voltage  
+        esc       = self.electronic_speed_controllers[list(escs.keys())[0]]        
+        esc.inputs.voltagein = self.voltage
+
+        # Calculate the esc output voltage
+        esc.voltageout(conditions.propulsion.throttle)
+
+        # Run the avionics
+        avionics.power()
+
+        # Run the payload
+        payload.power()
+
+        # Calculate the esc input current
+        esc.inputs.currentout = motor_power/esc.outputs.voltageout
+        
+        # Run the esc
+        esc.currentin(conditions.propulsion.throttle)
+
+        # Calculate avionics and payload power
+        avionics_payload_power = avionics.outputs.power + payload.outputs.power
+
+        # Calculate avionics and payload current
+        avionics_payload_current = avionics_payload_power/self.voltage
+
+        # link to the battery
+        battery.inputs.current  = esc.outputs.currentin + avionics_payload_current - \
+            generator.outputs.power_generated/self.voltage
+            
+        battery.inputs.power_in = -((esc.inputs.voltagein)*esc.outputs.currentin + avionics_payload_power) + (
+                generator.outputs.power_generated)
+        
+        # Run the battery
+        battery.energy_calc(numerics)        
+
+        # Pack the conditions for outputs
+        current                                                 = esc.outputs.currentin
+        battery_power_draw                                      = battery.inputs.power_in
+        battery_energy                                          = battery.pack.current_energy
+        voltage_open_circuit                                    = battery.pack.voltage_open_circuit 
+        conditions.propulsion.battery.pack.current              = current
+        conditions.propulsion.battery.pack.power_draw           = battery_power_draw
+        conditions.propulsion.battery.pack.energy               = battery_energy
+        conditions.propulsion.battery.pack.voltage_open_circuit = voltage_open_circuit 
+        
+        results.vehicle_mass_rate   = generator.outputs.vehicle_mass_rate
+        return results
+            
+    __call__ = evaluate_thrust

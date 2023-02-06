@@ -8,25 +8,25 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission              import *  
-from SUAVE.Visualization.Performance.Energy.Common        import *  
-from SUAVE.Visualization.Performance.Energy.Battery       import *   
-from SUAVE.Visualization.Performance.Noise                import * 
+import MARC
+from MARC.Core import Units
+from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
+from MARC.Visualization.Performance.Mission              import *  
+from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Energy.Battery       import *   
+from MARC.Visualization.Performance.Noise                import * 
 import matplotlib.pyplot as plt  
-from SUAVE.Core import (
+from MARC.Core import (
 Data, Container,
 )
 
 import numpy as np
 import copy, time
 
-from SUAVE.Components.Energy.Networks.Solar import Solar
-from SUAVE.Methods.Propulsion import propeller_design
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
+from MARC.Components.Energy.Networks.Solar import Solar
+from MARC.Methods.Propulsion import propeller_design
+from MARC.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
+from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
 import sys
 
 sys.path.append('../Vehicles')
@@ -48,7 +48,7 @@ def main():
     mission  = mission_setup(configs_analyses,vehicle)
     missions_analyses = missions_setup(mission)
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
     
@@ -105,7 +105,7 @@ def main():
 
 def analyses_setup(configs):
     
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     
     # build a base analysis for each config
     for tag,config in configs.items():
@@ -122,25 +122,25 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
     
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
     
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_UAV()
+    weights = MARC.Analyses.Weights.Weights_UAV()
     weights.settings.empty_weight_method = \
-        SUAVE.Methods.Weights.Correlations.Human_Powered.empty
+        MARC.Methods.Weights.Correlations.Human_Powered.empty
     weights.vehicle = vehicle
     analyses.append(weights)
     
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     aerodynamics.settings.span_efficiency = 0.98
@@ -148,18 +148,18 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Energy
-    energy = SUAVE.Analyses.Energy.Energy()
+    energy = MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
     
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
     
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)   
  
@@ -175,24 +175,24 @@ def mission_setup(analyses,vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
 
-    mission.atmosphere  = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    mission.planet      = SUAVE.Attributes.Planets.Earth()
+    mission.atmosphere  = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
+    mission.planet      = MARC.Attributes.Planets.Earth()
     
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
     
     # base segment
     base_segment = Segments.Segment()
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.iterate.initials.initialize_battery = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Mach_Constant_Altitude(base_segment)
+    segment = MARC.Analyses.Mission.Segments.Cruise.Constant_Mach_Constant_Altitude(base_segment)
     segment.tag = "cruise1"
     
     # connect vehicle configuration
@@ -221,7 +221,7 @@ def mission_setup(analyses,vehicle):
 def missions_setup(base_mission):
 
     # the mission container
-    missions = SUAVE.Analyses.Mission.Mission.Container()
+    missions = MARC.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission

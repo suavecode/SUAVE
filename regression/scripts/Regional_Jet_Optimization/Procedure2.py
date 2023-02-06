@@ -7,15 +7,15 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 import numpy as np
 import copy
-from SUAVE.Analyses.Process import Process
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
-from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff import compute_max_lift_coeff
+from MARC.Analyses.Process import Process
+from MARC.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
+from MARC.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
+from MARC.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff import compute_max_lift_coeff
 
 
 # ----------------------------------------------------------------------        
@@ -107,7 +107,7 @@ def simple_sizing(nexus):
     #find conditions
     air_speed   = nexus.missions.base.segments['cruise'].air_speed 
     altitude    = nexus.missions.base.segments['climb_5'].altitude_end
-    atmosphere  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere  = MARC.Analyses.Atmospheric.US_Standard_1976()
     
     freestream  = atmosphere.compute_values(altitude)
     freestream0 = atmosphere.compute_values(6000.*Units.ft)  #cabin altitude
@@ -125,7 +125,7 @@ def simple_sizing(nexus):
     freestream.mach_number = mach_number
     freestream.gravity     = 9.81
     
-    conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for network sizing
+    conditions             = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for network sizing
     conditions.freestream  = freestream
     
     
@@ -135,7 +135,7 @@ def simple_sizing(nexus):
             
         for wing in config.wings:
             
-            wing = SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+            wing = MARC.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
             
             wing.areas.exposed  = 0.8 * wing.areas.wetted
             wing.areas.affected = 0.6 * wing.areas.reference
@@ -164,7 +164,7 @@ def simple_sizing(nexus):
     
     # Landing CL_max
     altitude                                      = nexus.missions.base.segments[-1].altitude_end
-    atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere                                    = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                                     = atmosphere.compute_values(altitude)
     state.conditions.freestream.velocity          = nexus.missions.base.segments['descent_3'].air_speed
     state.conditions.freestream.density           = atmo_data.density
@@ -178,7 +178,7 @@ def simple_sizing(nexus):
     #Takeoff CL_max
     takeoff                                       = nexus.vehicle_configurations.takeoff
     altitude                                      = nexus.missions.base.airport.altitude
-    atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere                                    = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                                     = atmosphere.compute_values(altitude)
     state.conditions.freestream.velocity          = nexus.missions.base.segments.climb_1.air_speed
     state.conditions.freestream.density           = atmo_data.density
@@ -190,7 +190,7 @@ def simple_sizing(nexus):
     #Base config CL_max
     base                                          = nexus.vehicle_configurations.base
     altitude                                      = nexus.missions.base.airport.altitude
-    atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere                                    = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                                     = atmosphere.compute_values(altitude)
     state.conditions.freestream.velocity          = nexus.missions.base.segments.climb_1.air_speed
     state.conditions.freestream.density           = atmo_data.density

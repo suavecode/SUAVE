@@ -6,17 +6,17 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
-from SUAVE.Core import (
+from MARC.Core import (
 Data, Container,
 )
 
 import numpy as np
 import copy, time
 
-#from SUAVE.Components.Energy.Processes import Solar_Radiation as Solar_Radiation
+#from MARC.Components.Energy.Processes import Solar_Radiation as Solar_Radiation
 def main():
     
     # Setup and pack inputs, test several cases
@@ -38,7 +38,7 @@ def main():
     conditions.frames.inertial.time = np.array([[0.0],[0.0],[0.0],[43200]])
     
     # Call solar radiation
-    rad = SUAVE.Components.Energy.Processes.Solar_Radiation()
+    rad = MARC.Components.Energy.Processes.Solar_Radiation()
     fluxes = rad.solar_radiation(conditions)
     
     print('Solar Fluxes')

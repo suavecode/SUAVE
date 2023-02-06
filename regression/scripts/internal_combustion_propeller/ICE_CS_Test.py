@@ -9,12 +9,12 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units 
+import MARC
+from MARC.Core import Units 
 import numpy as np 
  
 
-from SUAVE.Core import (
+from MARC.Core import (
 Data, Container,
 )
 
@@ -24,7 +24,7 @@ sys.path.append('../Vehicles')
 # the analysis functions 
  
 from Cessna_172      import vehicle_setup  
-from SUAVE.Methods.Propulsion import propeller_design
+from MARC.Methods.Propulsion import propeller_design
 
 # ----------------------------------------------------------------------
 #   Main
@@ -73,14 +73,14 @@ def ICE_CS(vehicle):
     # Let's assume its an STC or 172RG 
     
     # build network
-    net                                         = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller_Constant_Speed()
+    net                                         = MARC.Components.Energy.Networks.Internal_Combustion_Propeller_Constant_Speed()
     net.tag                                     = 'internal_combustion'
     net.number_of_engines                       = 1.
     net.rated_speed                             = 2700. * Units.rpm
     net.rated_power                             = 180.  * Units.hp
     
     # Component 1 the engine                    
-    engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
+    engine                                  = MARC.Components.Energy.Converters.Internal_Combustion_Engine()
     engine.sea_level_power                  = 180. * Units.horsepower
     engine.flat_rate_altitude               = 0.0
     engine.rated_speed                      = 2700. * Units.rpm
@@ -89,7 +89,7 @@ def ICE_CS(vehicle):
     net.engines.append(engine)
     
     # 
-    prop                                   = SUAVE.Components.Energy.Converters.Propeller()
+    prop                                   = MARC.Components.Energy.Converters.Propeller()
     prop.number_of_blades                  = 2.0
     prop.tip_radius                        = 76./2. * Units.inches
     prop.hub_radius                        = 8.     * Units.inches
@@ -98,7 +98,7 @@ def ICE_CS(vehicle):
     prop.cruise.design_Cl                  = 0.8
     prop.cruise.design_altitude            = 12000. * Units.feet
     prop.cruise.design_power               = .64 * 180. * Units.horsepower 
-    airfoil                                = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil                                = MARC.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                = '../Vehicles/Airfoils/NACA_4412.txt'
     airfoil.polar_files                    = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
@@ -128,18 +128,18 @@ def mission_setup(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
     mission.airport    = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
@@ -174,41 +174,41 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
 
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Transport()
+    weights = MARC.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
+    energy= MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
 
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
 
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)   
 

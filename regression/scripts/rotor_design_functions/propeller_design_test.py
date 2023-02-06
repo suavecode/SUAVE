@@ -9,15 +9,15 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Visualization.Geometry.Three_Dimensional import plot_3d_rotor
+import MARC
+from MARC.Core import Units
+from MARC.Visualization.Geometry.Three_Dimensional import plot_3d_rotor
 import matplotlib.pyplot as plt  
-from SUAVE.Core import Data 
+from MARC.Core import Data 
 
 import numpy as np
 import copy 
-from SUAVE.Methods.Propulsion import propeller_design 
+from MARC.Methods.Propulsion import propeller_design 
 
 def main():
 
@@ -27,7 +27,7 @@ def main():
     # analysis scripts 
   
     # Design Gearbox 
-    gearbox                   = SUAVE.Components.Energy.Converters.Gearbox()
+    gearbox                   = MARC.Components.Energy.Converters.Gearbox()
     gearbox.gearwheel_radius1 = 1
     gearbox.gearwheel_radius2 = 1
     gearbox.efficiency        = 0.95
@@ -38,7 +38,7 @@ def main():
 
 
     # Design the Propeller with airfoil  geometry defined                      
-    bad_prop                                   = SUAVE.Components.Energy.Converters.Propeller() 
+    bad_prop                                   = MARC.Components.Energy.Converters.Propeller() 
     bad_prop.tag                               = "Prop_W_Aifoil"
     bad_prop.number_of_blades                  = 2
     bad_prop.number_of_engines                 = 1
@@ -50,7 +50,7 @@ def main():
     bad_prop.cruise.design_thrust              = 100000
     bad_prop.cruise.design_Cl                  = 0.7
     bad_prop.cruise.design_altitude            = 1. * Units.km  
-    airfoil                                    = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil                                    = MARC.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                    ='4412'   
     airfoil.NACA_4_series_flag                 = True 
     airfoil.polar_files                        =  ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
@@ -61,7 +61,7 @@ def main():
     bad_prop.append_airfoil(airfoil)          
     bad_prop.airfoil_polar_stations            =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     bad_prop                                   = propeller_design(bad_prop)
-    prop_a                                     = SUAVE.Components.Energy.Converters.Propeller()
+    prop_a                                     = MARC.Components.Energy.Converters.Propeller()
     prop_a.tag                                 = "Prop_W_Aifoil"
     prop_a.number_of_blades                    = 3
     prop_a.number_of_engines                   = 1
@@ -75,7 +75,7 @@ def main():
     prop_a.cruise.design_thrust                = 3054.4809132125697
   
     # define first airfoil   
-    airfoil_1                                  = SUAVE.Components.Airfoils.Airfoil()
+    airfoil_1                                  = MARC.Components.Airfoils.Airfoil()
     airfoil_1.tag                              = 'NACA_4412' 
     airfoil_1.coordinate_file                  = '../Vehicles/Airfoils/NACA_4412.txt'   # absolute path   
     airfoil_1.polar_files                      = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
@@ -86,7 +86,7 @@ def main():
     prop_a.append_airfoil(airfoil_1)           # append first airfoil 
 
     # define  second airfoil 
-    airfoil_2                                = SUAVE.Components.Airfoils.Airfoil()  
+    airfoil_2                                = MARC.Components.Airfoils.Airfoil()  
     airfoil_2.tag                            = 'Clark_Y' 
     airfoil_2.coordinate_file                = '../Vehicles/Airfoils/Clark_y.txt' 
     airfoil_2.polar_files                    = ['../Vehicles/Airfoils/Polars/Clark_y_polar_Re_50000.txt',
@@ -104,7 +104,7 @@ def main():
     plot_3d_rotor(prop_a)
 
     # Design the Propeller with airfoil  geometry defined 
-    prop                                   = SUAVE.Components.Energy.Converters.Propeller()
+    prop                                   = MARC.Components.Energy.Converters.Propeller()
     prop.tag                               = "Prop_No_Aifoil"
     prop.number_of_blades                  = 3
     prop.number_of_engines                 = 1
@@ -120,9 +120,9 @@ def main():
     prop                                   = propeller_design(prop)  
 
     # Find the operating conditions
-    atmosphere                                          = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere                                          = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere_conditions                               = atmosphere.compute_values(prop.cruise.design_altitude)  
-    conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions                                          = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
     conditions._size                                    = 1
     conditions.freestream                               = Data()
     conditions.propulsion                               = Data()

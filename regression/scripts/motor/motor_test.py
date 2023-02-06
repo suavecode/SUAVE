@@ -8,14 +8,14 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
-from SUAVE.Core import (
+from MARC.Core import (
 Data, Container,
 )
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
-from SUAVE.Methods.Propulsion                       import propeller_design
+from MARC.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
+from MARC.Methods.Propulsion                       import propeller_design
 import numpy as np
 import copy, time
 
@@ -23,7 +23,7 @@ def main():
     '''This script checks the functions in in Motor.py used to compute motor torques 
     and output voltage and currents'''
     # Propeller 
-    prop                                    = SUAVE.Components.Energy.Converters.Propeller()
+    prop                                    = MARC.Components.Energy.Converters.Propeller()
     prop.number_of_blades                   = 2.0 
     prop.tip_radius                         = 1.5
     prop.hub_radius                         = 0.05
@@ -33,7 +33,7 @@ def main():
     prop.cruise.design_altitude             = 0.0 * Units.km
     prop.cruise.design_thrust               = 2271.2220451593753 
 
-    airfoil                                 = SUAVE.Components.Airfoils.Airfoil()    
+    airfoil                                 = MARC.Components.Airfoils.Airfoil()    
     airfoil.coordinate_file                 = '../Vehicles/Airfoils/NACA_4412.txt'
     airfoil.polar_files                     = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                             '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
@@ -49,7 +49,7 @@ def main():
     # Design Motors
     #------------------------------------------------------------------
     # Propeller (Thrust) motor
-    motor                              = SUAVE.Components.Energy.Converters.Motor()
+    motor                              = MARC.Components.Energy.Converters.Motor()
     motor.mass_properties.mass         = 9. * Units.kg 
     motor.efficiency                   = 0.935
     motor.gear_ratio                   = 1. 
@@ -62,7 +62,7 @@ def main():
     motor                              = size_optimal_motor(motor)  
   
     # Propeller (Thrust) motor
-    motor_low_fid                      = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
+    motor_low_fid                      = MARC.Components.Energy.Converters.Motor_Lo_Fid()
     motor_low_fid.motor_efficiency     = 0.98
     motor_low_fid.rated_power          = 1000
     motor_low_fid.rated_voltage        = 200
@@ -70,7 +70,7 @@ def main():
     size_from_mass(motor_low_fid)
     
     # Find the operating conditions
-    atmosphere                                          = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere                                          = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere_conditions                               = atmosphere.compute_values(prop.cruise.design_altitude)  
     conditions                                          = Data()
     conditions.freestream                               = Data()

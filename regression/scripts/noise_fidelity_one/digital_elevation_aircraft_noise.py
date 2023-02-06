@@ -6,17 +6,17 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units 
+import MARC
+from MARC.Core import Units 
 import numpy as np    
-from SUAVE.Core import Data 
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission import *  
-from SUAVE.Visualization.Performance.Energy.Common import *  
-from SUAVE.Visualization.Performance.Energy.Battery import *   
-from SUAVE.Visualization.Performance.Noise import *   
-from SUAVE.Methods.Performance.estimate_stall_speed import estimate_stall_speed 
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import preprocess_topography_and_route_data
+from MARC.Core import Data 
+from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
+from MARC.Visualization.Performance.Mission import *  
+from MARC.Visualization.Performance.Energy.Common import *  
+from MARC.Visualization.Performance.Energy.Battery import *   
+from MARC.Visualization.Performance.Noise import *   
+from MARC.Methods.Performance.estimate_stall_speed import estimate_stall_speed 
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import preprocess_topography_and_route_data
 import matplotlib.pyplot as plt 
 
 import sys
@@ -33,7 +33,7 @@ from X57_Maxwell_Mod2  import configs_setup as  X57_configs_setup
 
 def main():   
     # ----------------------------------------------------------------------
-    # SUAVE Frequency Domain Propeller Aircraft Noise Model 
+    # MARC Frequency Domain Propeller Aircraft Noise Model 
     # ---------------------------------------------------------------------- 
     configs, analyses = X57_full_setup()  
     
@@ -48,7 +48,7 @@ def main():
     plot_results(X57_results)  
     
     # SPL of rotor check during hover
-    print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
+    print('\n\n MARC Frequency Domain Propeller Aircraft Noise Model')
 
     X57_SPL        = np.max(X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA) 
     X57_SPL_true   = 54.80060022697681
@@ -91,7 +91,7 @@ def X57_full_setup():
     mission  = X57_mission_setup(configs_analyses,vehicle,topography_data)
     missions_analyses = X57_missions_setup(mission)
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
 
@@ -102,26 +102,26 @@ def base_analysis(vehicle,topography_data):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
 
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
     # ------------------------------------------------------------------
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
 
     # ------------------------------------------------------------------
     #  Weights
     # ------------------------------------------------------------------
-    weights = SUAVE.Analyses.Weights.Weights_Transport()
+    weights = MARC.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     # ------------------------------------------------------------------
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000 
     analyses.append(aerodynamics)
@@ -129,7 +129,7 @@ def base_analysis(vehicle,topography_data):
     # ------------------------------------------------------------------
     #  Noise Analysis 
     # ------------------------------------------------------------------   
-    noise = SUAVE.Analyses.Noise.Fidelity_One()   
+    noise = MARC.Analyses.Noise.Fidelity_One()   
     noise.geometry = vehicle
     noise.settings.ground_microphone_x_resolution   = topography_data.ground_microphone_x_resolution           
     noise.settings.ground_microphone_y_resolution   = topography_data.ground_microphone_y_resolution          
@@ -147,20 +147,20 @@ def base_analysis(vehicle,topography_data):
     # ------------------------------------------------------------------
     #  Energy
     # ------------------------------------------------------------------
-    energy= SUAVE.Analyses.Energy.Energy()
+    energy= MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
     #  Planet Analysis
     # ------------------------------------------------------------------
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
 
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
     # ------------------------------------------------------------------
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)   
 
@@ -172,7 +172,7 @@ def base_analysis(vehicle,topography_data):
 
 def analyses_setup(configs,topography_data):
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
@@ -214,24 +214,24 @@ def X57_mission_setup(analyses,vehicle,topography_data):
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'mission'
 
     # airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0. * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
 
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments 
+    Segments = MARC.Analyses.Mission.Segments 
     
     # base segment
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row 
-    base_segment.process.initialize.initialize_battery       = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.initialize.initialize_battery       = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.state.numerics.number_control_points        = 4   
     
     # ------------------------------------------------------------------
@@ -255,7 +255,7 @@ def X57_mission_setup(analyses,vehicle,topography_data):
 def X57_missions_setup(base_mission):
 
     # the mission container
-    missions = SUAVE.Analyses.Mission.Mission.Container()
+    missions = MARC.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission

@@ -7,10 +7,10 @@
 # Imports
 #_______________________________________________________________________________
 
-import SUAVE
+import MARC
 
-from SUAVE.Core import Units, Data
-from SUAVE.Methods.Performance.electric_V_h_diagram import electric_V_h_diagram
+from MARC.Core import Units, Data
+from MARC.Methods.Performance.electric_V_h_diagram import electric_V_h_diagram
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,33 +28,33 @@ def main():
 
     vehicle = vehicle_setup()
 
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
 
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
 
-    weights = SUAVE.Analyses.Weights.Weights_Transport()
+    weights = MARC.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
-    aerodynamics = SUAVE.Analyses.Aerodynamics.AERODAS()
+    aerodynamics = MARC.Analyses.Aerodynamics.AERODAS()
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
+    stability = MARC.Analyses.Stability.Fidelity_Zero()
     stability.geometry = vehicle
     analyses.append(stability)
 
-    energy = SUAVE.Analyses.Energy.Energy()
+    energy = MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks
     analyses.append(energy)
 
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
 
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)
 

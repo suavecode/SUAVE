@@ -6,18 +6,18 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 import numpy as np
 import pylab as plt
 import copy, time
 
-from SUAVE.Core import (
+from MARC.Core import (
 Data, Container
 )
 
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
+from MARC.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
 # ----------------------------------------------------------------------
 #   Define the Vehicle
 # ----------------------------------------------------------------------
@@ -28,7 +28,7 @@ def vehicle_setup():
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    
 
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
     vehicle.tag = 'BWB'    
 
     # ------------------------------------------------------------------
@@ -56,7 +56,7 @@ def vehicle_setup():
     #   Main Wing
     # ------------------------------------------------------------------        
 
-    wing = SUAVE.Components.Wings.Main_Wing()
+    wing = MARC.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
     
@@ -79,7 +79,7 @@ def vehicle_setup():
     wing.high_lift               = True
     wing.dynamic_pressure_ratio  = 1.0
     
-    segment = SUAVE.Components.Wings.Segment()
+    segment = MARC.Components.Wings.Segment()
     segment.tag                   = 'fuselage_edge'
     segment.percent_span_location = 7.0/wing.spans.projected
     segment.twist                 = -2. * Units.deg
@@ -90,7 +90,7 @@ def vehicle_setup():
         
     wing.Segments.append(segment)
     
-    segment = SUAVE.Components.Wings.Segment()
+    segment = MARC.Components.Wings.Segment()
     segment.tag                   = 'Outboard'
     segment.percent_span_location = 0.3
     segment.twist                 = 0.0 * Units.deg
@@ -109,7 +109,7 @@ def vehicle_setup():
     #  Fuselage
     # ------------------------------------------------------------------
 
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
+    fuselage = MARC.Components.Fuselages.Fuselage()
     fuselage.tag                                = 'fuselage_bwb'
     fuselage.fineness.nose                      = 0.65
     fuselage.fineness.tail                      = 0.5
@@ -140,7 +140,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     #instantiate the gas turbine network
-    turbofan = SUAVE.Components.Energy.Networks.Turbofan()
+    turbofan = MARC.Components.Energy.Networks.Turbofan()
     turbofan.tag = 'turbofan'
 
     # setup
@@ -168,9 +168,9 @@ def configs_setup(vehicle):
     #   Initialize Configurations
     # ------------------------------------------------------------------
 
-    configs = SUAVE.Components.Configs.Config.Container()
+    configs = MARC.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config = MARC.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
 

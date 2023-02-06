@@ -6,16 +6,16 @@
 #----------------------------------------------------------------------
 #   Imports
 # ---------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 import copy 
-from SUAVE.Components.Energy.Networks.Battery_Electric_Rotor              import Battery_Electric_Rotor
-from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
-from SUAVE.Methods.Propulsion                                             import propeller_design
-from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
-from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
+from MARC.Components.Energy.Networks.Battery_Electric_Rotor              import Battery_Electric_Rotor
+from MARC.Methods.Power.Battery.Sizing                                   import initialize_from_mass
+from MARC.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
+from MARC.Methods.Propulsion                                             import propeller_design
+from MARC.Methods.Weights.Buildups.eVTOL.empty                           import empty
+from MARC.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
+from MARC.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 
 
 import numpy as np
@@ -30,7 +30,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------
-    vehicle               = SUAVE.Vehicle()
+    vehicle               = MARC.Vehicle()
     vehicle.tag           = 'Lift_Cruise_CRM'
     vehicle.configuration = 'eVTOL'
 
@@ -53,7 +53,7 @@ def vehicle_setup():
     # WINGS
     # ------------------------------------------------------------------
     # WING PROPERTIES
-    wing                          = SUAVE.Components.Wings.Main_Wing()
+    wing                          = MARC.Components.Wings.Main_Wing()
     wing.tag                      = 'main_wing'
     wing.aspect_ratio             = 10.76
     wing.sweeps.quarter_chord     = 0.0  * Units.degrees
@@ -77,7 +77,7 @@ def vehicle_setup():
     wing.vertical                 = False
 
     # Segment
-    segment                       = SUAVE.Components.Wings.Segment()
+    segment                       = MARC.Components.Wings.Segment()
     segment.tag                   = 'Section_1'
     segment.percent_span_location = 0.
     segment.twist                 = 0.
@@ -88,7 +88,7 @@ def vehicle_setup():
     wing.Segments.append(segment)
 
     # Segment
-    segment                       = SUAVE.Components.Wings.Segment()
+    segment                       = MARC.Components.Wings.Segment()
     segment.tag                   = 'Section_2'
     segment.percent_span_location = 0.227
     segment.twist                 = 0.
@@ -99,7 +99,7 @@ def vehicle_setup():
     wing.Segments.append(segment)
 
     # Segment
-    segment                       = SUAVE.Components.Wings.Segment()
+    segment                       = MARC.Components.Wings.Segment()
     segment.tag                   = 'Section_3'
     segment.percent_span_location = 1.0
     segment.twist                 = 0.
@@ -116,7 +116,7 @@ def vehicle_setup():
     vehicle.append_component(wing)
 
     # WING PROPERTIES
-    wing                          = SUAVE.Components.Wings.Wing()
+    wing                          = MARC.Components.Wings.Wing()
     wing.tag                      = 'horizontal_tail'
     wing.aspect_ratio             = 4.0
     wing.sweeps.quarter_chord     = 0.0
@@ -142,7 +142,7 @@ def vehicle_setup():
 
 
     # WING PROPERTIES
-    wing                          = SUAVE.Components.Wings.Wing()
+    wing                          = MARC.Components.Wings.Wing()
     wing.tag                      = 'vertical_tail_1'
     wing.aspect_ratio             = 2.
     wing.sweeps.quarter_chord     = 20.0 * Units.degrees
@@ -169,7 +169,7 @@ def vehicle_setup():
 
 
     # WING PROPERTIES
-    wing                         = SUAVE.Components.Wings.Wing()
+    wing                         = MARC.Components.Wings.Wing()
     wing.tag                     = 'vertical_tail_2'
     wing.aspect_ratio            = 2.
     wing.sweeps.quarter_chord    = 20.0 * Units.degrees
@@ -198,7 +198,7 @@ def vehicle_setup():
     # FUSELAGE
     # ---------------------------------------------------------------
     # FUSELAGE PROPERTIES
-    fuselage                                    = SUAVE.Components.Fuselages.Fuselage()
+    fuselage                                    = MARC.Components.Fuselages.Fuselage()
     fuselage.tag                                = 'fuselage'
     fuselage.configuration                      = 'Tube_Wing'
     fuselage.seats_abreast                      = 2.
@@ -220,7 +220,7 @@ def vehicle_setup():
     fuselage.differential_pressure              = 0.
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_0'
     segment.percent_x_location        = 0.
     segment.percent_z_location        = -0.267/4.10534
@@ -229,7 +229,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_1'
     segment.percent_x_location        = 0.2579 /4.10534
     segment.percent_z_location        = -0.05881/1.372
@@ -238,7 +238,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_2'
     segment.percent_x_location        =  0.9939/4.10534
     segment.percent_z_location        =  -0.0446/4.10534
@@ -247,7 +247,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_3'
     segment.percent_x_location        =  1.95060 /4.10534
     segment.percent_z_location        =  0
@@ -256,7 +256,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_4'
     segment.percent_x_location        = 3.02797/4.10534
     segment.percent_z_location        = 0.25/4.10534
@@ -265,7 +265,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_5'
     segment.percent_x_location        = 1.
     segment.percent_z_location        = 0.42522/4.10534
@@ -280,7 +280,7 @@ def vehicle_setup():
    #-------------------------------------------------------------------
     # INNER BOOMS
     #-------------------------------------------------------------------
-    long_boom                                    = SUAVE.Components.Fuselages.Fuselage()
+    long_boom                                    = MARC.Components.Fuselages.Fuselage()
     long_boom.tag                                = 'boom_1r'
     long_boom.configuration                      = 'boom'
     long_boom.origin                             = [[0.543,1.630, -0.326]]
@@ -305,7 +305,7 @@ def vehicle_setup():
     long_boom.index                              = 1
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_1'
     segment.percent_x_location        = 0.
     segment.percent_z_location        = 0.0
@@ -314,7 +314,7 @@ def vehicle_setup():
     long_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_2'
     segment.percent_x_location        = 0.2/ 5.6
     segment.percent_z_location        = 0.
@@ -323,7 +323,7 @@ def vehicle_setup():
     long_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_3'
     segment.percent_x_location        = 5.4/5.6
     segment.percent_z_location        = 0.
@@ -332,7 +332,7 @@ def vehicle_setup():
     long_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_4'
     segment.percent_x_location        = 1.
     segment.percent_z_location        = 0.
@@ -354,7 +354,7 @@ def vehicle_setup():
     #-------------------------------------------------------------------
     # OUTER BOOMS
     #-------------------------------------------------------------------
-    short_boom                                    = SUAVE.Components.Fuselages.Fuselage()
+    short_boom                                    = MARC.Components.Fuselages.Fuselage()
     short_boom.tag                                = 'boom_2r'
     short_boom.configuration                      = 'boom'
     short_boom.origin                             = [[0.543,2.826, -0.326]]
@@ -381,7 +381,7 @@ def vehicle_setup():
     short_boom.index                              = 1
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_1'
     segment.percent_x_location        = 0.
     segment.percent_z_location        = 0.0
@@ -390,7 +390,7 @@ def vehicle_setup():
     short_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_2'
     segment.percent_x_location        = 0.2/3.3
     segment.percent_z_location        = 0.
@@ -399,7 +399,7 @@ def vehicle_setup():
     short_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_3'
     segment.percent_x_location        = 3.1/3.3
     segment.percent_z_location        = 0.
@@ -408,7 +408,7 @@ def vehicle_setup():
     short_boom.Segments.append(segment)
 
     # Segment
-    segment                           = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                           = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                       = 'segment_4'
     segment.percent_x_location        = 1.
     segment.percent_z_location        = 0.
@@ -442,7 +442,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Nacelles
     #------------------------------------------------------------------ 
-    rotor_nacelle                         = SUAVE.Components.Nacelles.Nacelle()
+    rotor_nacelle                         = MARC.Components.Nacelles.Nacelle()
     rotor_nacelle.tag                     = 'rotor_nacelle'    
     rotor_nacelle_origins                 =  [[0.543,  1.63  , -0.126] ,[0.543, -1.63  ,  -0.126 ] ,
                                              [3.843,  1.63  , -0.126] ,[3.843, -1.63  ,  -0.126] ,
@@ -455,35 +455,35 @@ def vehicle_setup():
     rotor_nacelle.orientation_euler_angles  = [0,-90*Units.degrees,0.]    
     rotor_nacelle.flow_through   = False  
     
-    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment                    = MARC.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_1'
     nac_segment.percent_x_location = 0.0  
     nac_segment.height             = 0.2
     nac_segment.width              = 0.2
     rotor_nacelle.append_segment(nac_segment)    
     
-    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment                    = MARC.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_2'
     nac_segment.percent_x_location = 0.25  
     nac_segment.height             = 0.25
     nac_segment.width              = 0.25
     rotor_nacelle.append_segment(nac_segment)    
     
-    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment                    = MARC.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_3'
     nac_segment.percent_x_location = 0.5 
     nac_segment.height             = 0.3
     nac_segment.width              = 0.3
     rotor_nacelle.append_segment(nac_segment)    
 
-    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment                    = MARC.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_4'
     nac_segment.percent_x_location = 0.75
     nac_segment.height             = 0.25
     nac_segment.width              = 0.25
     rotor_nacelle.append_segment(nac_segment)        
 
-    nac_segment                    = SUAVE.Components.Lofted_Body_Segment.Segment()
+    nac_segment                    = MARC.Components.Lofted_Body_Segment.Segment()
     nac_segment.tag                = 'segment_5'
     nac_segment.percent_x_location = 1.0
     nac_segment.height             = 0.2
@@ -516,7 +516,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Payload
     #------------------------------------------------------------------
-    payload                      = SUAVE.Components.Energy.Peripherals.Avionics()
+    payload                      = MARC.Components.Energy.Peripherals.Avionics()
     payload.power_draw           = 0.
     payload.mass_properties.mass = 200. * Units.kg
     net.payload                  = payload
@@ -524,14 +524,14 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Avionics
     #------------------------------------------------------------------
-    avionics            = SUAVE.Components.Energy.Peripherals.Avionics()
+    avionics            = MARC.Components.Energy.Peripherals.Avionics()
     avionics.power_draw = 200. * Units.watts
     net.avionics        = avionics
 
     #------------------------------------------------------------------
     # Design Battery
     #------------------------------------------------------------------
-    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650() 
+    bat                      = MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650() 
     bat.mass_properties.mass = 500. * Units.kg  
     bat.pack.max_voltage     = net.voltage   
     initialize_from_mass(bat)
@@ -548,7 +548,7 @@ def vehicle_setup():
     # Forward Cruise Propulsor System 
     # --------------------------------------------------------------
     # 1. Electronic Speed Controller 
-    propeller_esc            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller() 
+    propeller_esc            = MARC.Components.Energy.Distributors.Electronic_Speed_Controller() 
     propeller_esc.efficiency = 0.95  
     propeller_esc.tag        = 'propeller_esc'  
     net.electronic_speed_controllers.append(propeller_esc) 
@@ -568,7 +568,7 @@ def vehicle_setup():
     Hover_Load                       = vehicle.mass_properties.takeoff*g      # hover load  
     
     # Thrust Propeller
-    propeller                                   = SUAVE.Components.Energy.Converters.Propeller()
+    propeller                                   = MARC.Components.Energy.Converters.Propeller()
     propeller.number_of_blades                  = 3
     propeller.tip_radius                        = 1.0668
     propeller.hub_radius                        = 0.21336
@@ -579,7 +579,7 @@ def vehicle_setup():
     propeller.cruise.design_altitude            = 1000 * Units.feet
     propeller.cruise.design_thrust              = Drag*2.5
     propeller.variable_pitch                    = True  
-    airfoil                                     = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil                                     = MARC.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                     = '../Vehicles/Airfoils/NACA_4412.txt'
     airfoil.polar_files                         = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
@@ -594,7 +594,7 @@ def vehicle_setup():
     
 
     # 3. Propeller Motors 
-    propeller_motor                      = SUAVE.Components.Energy.Converters.Motor()
+    propeller_motor                      = MARC.Components.Energy.Converters.Motor()
     propeller_motor.tag                  = 'propeller_motor'
     propeller_motor.efficiency           = 0.95
     propeller_motor.nominal_voltage      = bat.pack.max_voltage
@@ -612,7 +612,7 @@ def vehicle_setup():
     # Lift Propulsor System 
     # -------------------------------------------------------------- 
     # 1. Electronic Speed Controller 
-    lift_rotor_esc              = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller() 
+    lift_rotor_esc              = MARC.Components.Energy.Distributors.Electronic_Speed_Controller() 
     lift_rotor_esc.efficiency   = 0.95 
     for ii in range(12):
         lift_rotor_ESC          = deepcopy(lift_rotor_esc)
@@ -620,7 +620,7 @@ def vehicle_setup():
         net.electronic_speed_controllers.append(lift_rotor_ESC)  
     
     # 2. Lift Rotors  
-    lift_rotor                                  = SUAVE.Components.Energy.Converters.Propeller() # using propeller for for regression! 
+    lift_rotor                                  = MARC.Components.Energy.Converters.Propeller() # using propeller for for regression! 
     lift_rotor.tip_radius                       = 2.8 * Units.feet
     lift_rotor.hub_radius                       = 0.35 * Units.feet
     lift_rotor.number_of_blades                 = 2 
@@ -632,7 +632,7 @@ def vehicle_setup():
     lift_rotor.cruise.design_altitude           = 20 * Units.feet
     lift_rotor.cruise.design_thrust             = Hover_Load/(12-1) # contingency for one-engine-inoperative condition
     lift_rotor.variable_pitch                   = True  
-    airfoil                                     = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil                                     = MARC.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                     = '../Vehicles/Airfoils/NACA_4412.txt'
     airfoil.polar_files                         = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                                 '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
@@ -660,7 +660,7 @@ def vehicle_setup():
         net.rotors.append(lift_rotor) 
          
     # 3. Lift Rotor Motors 
-    lift_rotor_motor                          = SUAVE.Components.Energy.Converters.Motor()
+    lift_rotor_motor                          = MARC.Components.Energy.Converters.Motor()
     lift_rotor_motor.efficiency               = 0.85
     lift_rotor_motor.nominal_voltage          = bat.pack.max_voltage*3/4 
     lift_rotor_motor.mass_properties.mass     = 3. * Units.kg
@@ -728,30 +728,30 @@ def configs_setup(vehicle):
     #   Initialize Configurations
     # ------------------------------------------------------------------
 
-    configs = SUAVE.Components.Configs.Config.Container()
+    configs = MARC.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config = MARC.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     base_config.networks.battery_electric_rotor.pitch_command = 0
     base_config.networks.battery_electric_rotor.active_propulsor_groups= [True,True]
     configs.append(base_config)
 
 
-    forward_config = SUAVE.Components.Configs.Config(vehicle)
+    forward_config = MARC.Components.Configs.Config(vehicle)
     forward_config.tag = 'forward_flight'
     forward_config.networks.battery_electric_rotor.pitch_command = 0
     forward_config.networks.battery_electric_rotor.active_propulsor_groups = [True,False]
     configs.append(forward_config) 
 
 
-    transition_config = SUAVE.Components.Configs.Config(vehicle)
+    transition_config = MARC.Components.Configs.Config(vehicle)
     transition_config.tag = 'transition_flight'
     transition_config.networks.battery_electric_rotor.pitch_command = 0
     transition_config.networks.battery_electric_rotor.active_propulsor_groups = [True,True]
     configs.append(transition_config)
     
 
-    vertical_config = SUAVE.Components.Configs.Config(vehicle)
+    vertical_config = MARC.Components.Configs.Config(vehicle)
     vertical_config.tag = 'vertical_flight' 
     vertical_config.networks.battery_electric_rotor.pitch_command = 0
     vertical_config.networks.battery_electric_rotor.active_propulsor_groups = [False,True]

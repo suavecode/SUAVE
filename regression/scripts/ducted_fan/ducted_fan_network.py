@@ -9,21 +9,21 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
 import numpy as np
 import pylab as plt
 
 import copy, time
 
-from SUAVE.Core import (
+from MARC.Core import (
 Data, Container,
 )
 
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Components.Energy.Networks.Ducted_Fan import Ducted_Fan
-from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
+from MARC.Components import Component, Physical_Component, Lofted_Body
+from MARC.Components.Energy.Networks.Ducted_Fan import Ducted_Fan
+from MARC.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 
 # ----------------------------------------------------------------------
 #   Main
@@ -42,7 +42,7 @@ def energy_network():
     
     # Setup Conditions        
     ones_1col  = np.ones([1,1])    
-    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
        
     # Freestream conditions
     conditions.freestream.mach_number                 = ones_1col*0.4
@@ -73,7 +73,7 @@ def energy_network():
         
     # Setup Conditions        
     ones_1col = np.ones([1,1])       
-    conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions_sizing = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
  
     # freestream conditions
     conditions_sizing.freestream.mach_number                 = ones_1col*0.5
@@ -106,7 +106,7 @@ def energy_network():
     # ------------------------------------------------------------------    
 
     #instantiate the ducted fan network
-    ductedfan = SUAVE.Components.Energy.Networks.Ducted_Fan()
+    ductedfan = MARC.Components.Energy.Networks.Ducted_Fan()
     ductedfan.tag = 'ductedfan'
     
     # setup
@@ -116,14 +116,14 @@ def energy_network():
     ductedfan.nacelle_diameter  = 0.5
     
     # working fluid
-    ductedfan.working_fluid = SUAVE.Attributes.Gases.Air()
+    ductedfan.working_fluid = MARC.Attributes.Gases.Air()
     
     # ------------------------------------------------------------------
     #   Component 1 - Ram
     # to convert freestream static to stagnation quantities
     
     # instantiate
-    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram = MARC.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
     
     # add to the network
@@ -133,7 +133,7 @@ def energy_network():
     #  Component 2 - Inlet Nozzle   
 
     # instantiate
-    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle = MARC.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
@@ -147,7 +147,7 @@ def energy_network():
     #  Component 3 - Fan
     
     # instantiate 
-    fan = SUAVE.Components.Energy.Converters.Fan()    
+    fan = MARC.Components.Energy.Converters.Fan()    
     fan.tag = 'fan'
 
     # setup
@@ -161,7 +161,7 @@ def energy_network():
     #  Component 4 - outlet_nozzle
 
     # instantiate
-    fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()    
+    fan_nozzle = MARC.Components.Energy.Converters.Expansion_Nozzle()    
     fan_nozzle.tag = 'fan_nozzle'
     
     # setup
@@ -176,7 +176,7 @@ def energy_network():
     # to compute thrust
     
     # instantiate
-    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust = MARC.Components.Energy.Processes.Thrust()       
     thrust.tag ='thrust'
     
     # setup

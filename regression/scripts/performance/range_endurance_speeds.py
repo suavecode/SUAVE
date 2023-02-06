@@ -5,19 +5,19 @@
 # ----------------------------------------------------------------------
 
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
 import scipy as sp
 import numpy as np
 
 
-#SUAVE.Analyses.Process.verbose = True
+#MARC.Analyses.Process.verbose = True
 import sys
 sys.path.append('../Vehicles')
 from Stopped_Rotor import vehicle_setup as vehicle_setup_SR 
 
-from SUAVE.Methods.Performance.propeller_range_endurance_speeds import propeller_range_endurance_speeds
+from MARC.Methods.Performance.propeller_range_endurance_speeds import propeller_range_endurance_speeds
 
 # ----------------------------------------------------------------------
 #  Main
@@ -69,41 +69,41 @@ def base_analysis_SR(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
 
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_eVTOL()
+    weights = MARC.Analyses.Weights.Weights_eVTOL()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.4*vehicle.excrescence_area_spin / vehicle.reference_area
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
+    energy= MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
 
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)   
 

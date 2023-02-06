@@ -13,21 +13,21 @@ note that it does not include an engine; current values only used to test stabil
 # ----------------------------------------------------------------------
 
 import numpy as np
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Core import (
+import MARC
+from MARC.Core import Units
+from MARC.Core import (
     Data, Container,
 )
-from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from MARC.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
+from MARC.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
+from MARC.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
+from MARC.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
+from MARC.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from copy import deepcopy
 
 def vehicle_setup():
 
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
 
     #print vehicle
     vehicle.mass_properties.max_zero_fuel   = 238780*Units.kg
@@ -45,7 +45,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Main Wing
     # ------------------------------------------------------------------
-    wing = SUAVE.Components.Wings.Main_Wing()
+    wing = MARC.Components.Wings.Main_Wing()
     wing.tag                                  = 'main_wing'
     wing.areas.reference                      = 5500.0 * Units.feet**2
     wing.spans.projected                      = 196.0  * Units.feet
@@ -77,7 +77,7 @@ def vehicle_setup():
     vehicle.reference_area                = wing.areas.reference
 
     # control surfaces -------------------------------------------
-    flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap()
+    flap                       = MARC.Components.Wings.Control_Surfaces.Flap()
     flap.tag                   = 'flap'
     flap.span_fraction_start   = 0.15
     flap.span_fraction_end     = 0.324
@@ -85,7 +85,7 @@ def vehicle_setup():
     flap.chord_fraction        = 0.19
     wing.append_control_surface(flap)
 
-    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat()
+    slat                       = MARC.Components.Wings.Control_Surfaces.Slat()
     slat.tag                   = 'slat'
     slat.span_fraction_start   = 0.324
     slat.span_fraction_end     = 0.963
@@ -101,7 +101,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------
-    wing                        = SUAVE.Components.Wings.Horizontal_Tail()
+    wing                        = MARC.Components.Wings.Horizontal_Tail()
     wing.tag                    = 'horizontal_stabilizer'
     wing.areas.reference        = 1490.55* Units.feet**2
     wing.areas.wetted           = 1490.55 * Units.feet ** 2
@@ -124,7 +124,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
-    wing = SUAVE.Components.Wings.Vertical_Tail()
+    wing = MARC.Components.Wings.Vertical_Tail()
     wing.tag                       = 'vertical_stabilizer'
     wing.spans.exposed             = 32.4  * Units.feet
     wing.chords.root               = 38.7  * Units.feet      # vertical.chords.fuselage_intersect
@@ -158,7 +158,7 @@ def vehicle_setup():
     #  Fuselage
     # ------------------------------------------------------------------
 
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
+    fuselage = MARC.Components.Fuselages.Fuselage()
     fuselage.tag                                = 'fuselage'
     fuselage.lengths.total                      = 229.7   * Units.feet
     fuselage.areas.side_projected               = 4696.16 * Units.feet**2 #used for cnbeta
@@ -178,7 +178,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Nacelle  
     # ------------------------------------------------------------------
-    nacelle              = SUAVE.Components.Nacelles.Nacelle()
+    nacelle              = MARC.Components.Nacelles.Nacelle()
     nacelle.diameter     = 2.428
     nacelle.length       = 3.934
     nacelle.tag          = 'nacelle_1'
@@ -206,14 +206,14 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     # instantiate the gas turbine network
-    turbofan                    = SUAVE.Components.Energy.Networks.Turbofan()
+    turbofan                    = MARC.Components.Energy.Networks.Turbofan()
     turbofan.tag                = 'turbofan' 
     turbofan.number_of_engines  = 4.0
     turbofan.bypass_ratio       = 4.8
     turbofan.origin             = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]    
 
     # working fluid
-    turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
+    turbofan.working_fluid = MARC.Attributes.Gases.Air()
 
     # ------------------------------------------------------------------
     #   Component 1 - Ram
@@ -221,7 +221,7 @@ def vehicle_setup():
     # to convert freestream static to stagnation quantities
 
     # instantiate
-    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram = MARC.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
 
     # add to the network
@@ -231,7 +231,7 @@ def vehicle_setup():
     #  Component 2 - Inlet Nozzle
 
     # instantiate
-    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle = MARC.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet_nozzle'
 
     # setup
@@ -245,7 +245,7 @@ def vehicle_setup():
     #  Component 3 - Low Pressure Compressor
 
     # instantiate
-    compressor = SUAVE.Components.Energy.Converters.Compressor()
+    compressor = MARC.Components.Energy.Converters.Compressor()
     compressor.tag = 'low_pressure_compressor'
 
     # setup
@@ -259,7 +259,7 @@ def vehicle_setup():
     #  Component 4 - High Pressure Compressor
 
     # instantiate
-    compressor = SUAVE.Components.Energy.Converters.Compressor()
+    compressor = MARC.Components.Energy.Converters.Compressor()
     compressor.tag = 'high_pressure_compressor'
 
     # setup
@@ -273,7 +273,7 @@ def vehicle_setup():
     #  Component 5 - Low Pressure Turbine
 
     # instantiate
-    turbine = SUAVE.Components.Energy.Converters.Turbine()
+    turbine = MARC.Components.Energy.Converters.Turbine()
     turbine.tag = 'low_pressure_turbine'
 
     # setup
@@ -287,7 +287,7 @@ def vehicle_setup():
     #  Component 6 - High Pressure Turbine
 
     # instantiate
-    turbine = SUAVE.Components.Energy.Converters.Turbine()
+    turbine = MARC.Components.Energy.Converters.Turbine()
     turbine.tag = 'high_pressure_turbine'
 
     # setup
@@ -301,7 +301,7 @@ def vehicle_setup():
     #  Component 7 - Combustor
 
     # instantiate
-    combustor = SUAVE.Components.Energy.Converters.Combustor()
+    combustor = MARC.Components.Energy.Converters.Combustor()
     combustor.tag = 'combustor'
 
     # setup
@@ -309,7 +309,7 @@ def vehicle_setup():
     combustor.alphac                    = 1.0
     combustor.turbine_inlet_temperature = 1450
     combustor.pressure_ratio            = 0.95
-    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()
+    combustor.fuel_data                 = MARC.Attributes.Propellants.Jet_A()
 
     # add to network
     turbofan.append(combustor)
@@ -318,7 +318,7 @@ def vehicle_setup():
     #  Component 8 - Core Nozzle
 
     # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
+    nozzle = MARC.Components.Energy.Converters.Expansion_Nozzle()
     nozzle.tag = 'core_nozzle'
 
     # setup
@@ -332,7 +332,7 @@ def vehicle_setup():
     #  Component 9 - Fan Nozzle
 
     # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
+    nozzle = MARC.Components.Energy.Converters.Expansion_Nozzle()
     nozzle.tag = 'fan_nozzle'
 
     # setup
@@ -346,7 +346,7 @@ def vehicle_setup():
     #  Component 10 - Fan
 
     # instantiate
-    fan = SUAVE.Components.Energy.Converters.Fan()
+    fan = MARC.Components.Energy.Converters.Fan()
     fan.tag = 'fan'
 
     # setup
@@ -358,7 +358,7 @@ def vehicle_setup():
 
     # ------------------------------------------------------------------
     # Component 10 : thrust (to compute the thrust)
-    thrust = SUAVE.Components.Energy.Processes.Thrust()
+    thrust = MARC.Components.Energy.Processes.Thrust()
     thrust.tag = 'compute_thrust'
 
     # total design thrust (includes all the engines)
@@ -382,7 +382,7 @@ def vehicle_setup():
     vehicle.append_component(turbofan)
 
     #configuration.mass_properties.zero_fuel_center_of_gravity=np.array([76.5,0,0])*Units.feet #just put a number here that got the expected value output; may want to change
-    fuel                                                     =SUAVE.Components.Physical_Component()
+    fuel                                                     =MARC.Components.Physical_Component()
     fuel.origin                                              =wing.origin
     fuel.mass_properties.center_of_gravity                   =wing.mass_properties.center_of_gravity
     fuel.mass_properties.mass                                =vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
@@ -404,9 +404,9 @@ def configs_setup(vehicle):
     #   Initialize Configurations
     # ------------------------------------------------------------------
 
-    configs = SUAVE.Components.Configs.Config.Container()
+    configs = MARC.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config = MARC.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
 
@@ -414,7 +414,7 @@ def configs_setup(vehicle):
     #   Cruise Configuration
     # ------------------------------------------------------------------
 
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'cruise'
     configs.append(config)
 
@@ -423,7 +423,7 @@ def configs_setup(vehicle):
     #   Takeoff Configuration
     # ------------------------------------------------------------------
 
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
     config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection = 25. * Units.deg
@@ -437,7 +437,7 @@ def configs_setup(vehicle):
     #   Landing Configuration
     # ------------------------------------------------------------------
 
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'landing'
     config.wings['main_wing'].control_surfaces.flap.deflection = 30. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection = 25. * Units.deg

@@ -1,6 +1,6 @@
 # concorde.py
 # 
-# Created:  Aug 2014, SUAVE Team
+# Created:  Aug 2014, SUAVE Team (Stanford University)
 # Modified: Nov 2016, T. MacDonald
 #           Jul 2017, T. MacDonald
 #           Aug 2018, T. MacDonald
@@ -15,38 +15,38 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-# Units allow any units to be specificied with SUAVE then automatically converting them the standard
-from SUAVE.Core import Units
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission import *  
-from SUAVE.Visualization.Performance.Energy.Common import *  
-from SUAVE.Visualization.Performance.Energy.Battery import *   
-from SUAVE.Visualization.Performance.Energy.Fuel    import *  
-from SUAVE.Visualization.Performance.Noise import *  
+import MARC
+# Units allow any units to be specificied with MARC then automatically converting them the standard
+from MARC.Core import Units
+from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
+from MARC.Visualization.Performance.Mission import *  
+from MARC.Visualization.Performance.Energy.Common import *  
+from MARC.Visualization.Performance.Energy.Battery import *   
+from MARC.Visualization.Performance.Energy.Fuel    import *  
+from MARC.Visualization.Performance.Noise import *  
 
-# Numpy is use extensively throughout SUAVE
+# Numpy is use extensively throughout MARC
 import numpy as np
 
 # Post processing plotting tools are imported here
 import pylab as plt
 
-# More basic SUAVE function
-from SUAVE.Core import Data
+# More basic MARC function
+from MARC.Core import Data
 
 import sys
 sys.path.append('../Vehicles')
 from Concorde import vehicle_setup, configs_setup
 
 # This is a sizing function to fill turbojet parameters
-from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
+from MARC.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
      import compute_fuel_center_of_gravity_longitudinal_range
-from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
+from MARC.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
      import plot_cg_map 
 
 
 # This imports lift equivalent area
-from SUAVE.Methods.Noise.Boom.lift_equivalent_area import lift_equivalent_area
+from MARC.Methods.Noise.Boom.lift_equivalent_area import lift_equivalent_area
 
 # ----------------------------------------------------------------------
 #   Main
@@ -65,8 +65,8 @@ def main():
     analyses.finalize()
     
     ## Use these scripts to test OpenVSP functionality if desired
-    #from SUAVE.Input_Output.OpenVSP.vsp_write import write
-    #from SUAVE.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements
+    #from MARC.Input_Output.OpenVSP.vsp_write import write
+    #from MARC.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements
     #write(configs.base,'Concorde')
     #get_vsp_measurements(filename='Unnamed_CompGeom.csv', measurement_type='wetted_area')
     #get_vsp_measurements(filename='Unnamed_CompGeom.csv', measurement_type='wetted_volume')
@@ -124,7 +124,7 @@ def full_setup():
     mission  = mission_setup(configs_analyses)
     missions_analyses = missions_setup(mission)
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses        
     
@@ -162,7 +162,7 @@ def equivalent_area(vehicle,analyses,conditions):
 
 def analyses_setup(configs):
     
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     
     # build a base analysis for each config
     for tag,config in list(configs.items()):
@@ -176,23 +176,23 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
     
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
     
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Transport()
+    weights = MARC.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
     
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
+    aerodynamics = MARC.Analyses.Aerodynamics.Supersonic_Zero()
     aerodynamics.geometry = vehicle
     aerodynamics.settings.number_spanwise_vortices     = 5
     aerodynamics.settings.number_chordwise_vortices    = 2       
@@ -203,18 +203,18 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
+    energy= MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
     
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
     
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)   
     
@@ -279,19 +279,19 @@ def mission_setup(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
     
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
     
     mission.airport = airport    
     
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
     
     # base segment
     base_segment = Segments.Segment()
@@ -519,7 +519,7 @@ def mission_setup(analyses):
 def missions_setup(base_mission):
 
     # the mission container
-    missions = SUAVE.Analyses.Mission.Mission.Container()
+    missions = MARC.Analyses.Mission.Mission.Container()
     
     # ------------------------------------------------------------------
     #   Base Mission
@@ -568,10 +568,10 @@ def check_results(new_results,old_results):
 
 
 def load_results():
-    return SUAVE.Input_Output.SUAVE.load('results_mission_concorde.res')
+    return MARC.Input_Output.MARC.load('results_mission_concorde.res')
 
 def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_concorde.res')
+    MARC.Input_Output.MARC.archive(results,'results_mission_concorde.res')
     return    
         
 if __name__ == '__main__': 

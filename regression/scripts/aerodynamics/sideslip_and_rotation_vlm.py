@@ -12,10 +12,10 @@
 import sys
 import numpy as np 
 
-import SUAVE
-from SUAVE.Core                                                                      import Data, Units
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift                            import VLM as VLM
-from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization import plot_3d_vehicle_vlm_panelization
+import MARC
+from MARC.Core                                                                      import Data, Units
+from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift                            import VLM as VLM
+from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization import plot_3d_vehicle_vlm_panelization
 sys.path.append('../Vehicles')
 
 from Boeing_737  import vehicle_setup   as b737_setup
@@ -76,8 +76,8 @@ def get_conditions():
     ROLLQs     = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees #roll  rate      in degrees/s
     YAWQs      = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees #yaw   rate      in degrees/s       
     
-    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-    atmosphere                              = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    atmosphere                              = MARC.Analyses.Atmospheric.US_Standard_1976()
     speeds_of_sound                         = atmosphere.compute_values(altitudes).speed_of_sound
     v_infs                                  = machs * speeds_of_sound.flatten()
     conditions.freestream.velocity          = np.atleast_2d(v_infs).T
@@ -91,7 +91,7 @@ def get_conditions():
     return conditions
 
 def get_settings():
-    settings = SUAVE.Analyses.Aerodynamics.Vortex_Lattice().settings
+    settings = MARC.Analyses.Aerodynamics.Vortex_Lattice().settings
     settings.number_spanwise_vortices        = 7 
     settings.number_chordwise_vortices       = 4   
     settings.propeller_wake_model            = None
@@ -111,11 +111,11 @@ def get_settings():
 #   Save/Load Utility Functions
 # ----------------------------------------------------------------------
 def load_results():
-    return SUAVE.Input_Output.SUAVE.load('sideslip_and_rotation_vlm_results.res')
+    return MARC.Input_Output.MARC.load('sideslip_and_rotation_vlm_results.res')
 
 def save_results(results):
     print('!####! SAVING NEW REGRESSION RESULTS !####!')
-    SUAVE.Input_Output.SUAVE.archive(results,'sideslip_and_rotation_vlm_results.res')
+    MARC.Input_Output.MARC.archive(results,'sideslip_and_rotation_vlm_results.res')
     return
 
 # ----------------------------------------------------------------------        

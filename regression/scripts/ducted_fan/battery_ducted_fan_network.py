@@ -10,14 +10,14 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Core import Data
+import MARC
+from MARC.Core import Units
+from MARC.Core import Data
 
 import numpy as np
 
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
-from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
+from MARC.Methods.Power.Battery.Sizing import initialize_from_mass
+from MARC.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -34,7 +34,7 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     #instantiate the ducted fan network
-    ducted_fan = SUAVE.Components.Energy.Networks.Ducted_Fan()
+    ducted_fan = MARC.Components.Energy.Networks.Ducted_Fan()
     ducted_fan.tag = 'ducted fan'
     
     # setup
@@ -47,14 +47,14 @@ def energy_network():
     ducted_fan.areas.wetted      = 1.1*np.pi*ducted_fan.nacelle_diameter*ducted_fan.engine_length
     
     # working fluid
-    ducted_fan.working_fluid = SUAVE.Attributes.Gases.Air()
+    ducted_fan.working_fluid = MARC.Attributes.Gases.Air()
 
     # ------------------------------------------------------------------
     #   Component 1 - Ram
     
     # to convert freestream static to stagnation quantities
     # instantiate
-    ram         = SUAVE.Components.Energy.Converters.Ram()
+    ram         = MARC.Components.Energy.Converters.Ram()
     ram.tag     = 'ram'
     
     # add to the network
@@ -64,7 +64,7 @@ def energy_network():
     #  Component 2 - Inlet Nozzle
     
     # instantiate
-    inlet_nozzle        = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle        = MARC.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag    = 'inlet_nozzle'
     
     # setup
@@ -78,7 +78,7 @@ def energy_network():
     #  Component 3 - Fan
     
     # instantiate
-    fan = SUAVE.Components.Energy.Converters.Fan()   
+    fan = MARC.Components.Energy.Converters.Fan()   
     fan.tag                   = 'fan'
 
     # setup
@@ -92,7 +92,7 @@ def energy_network():
     #  Component 4 - Fan Nozzle
     
     # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    nozzle = MARC.Components.Energy.Converters.Expansion_Nozzle()   
     nozzle.tag = 'fan_nozzle'
 
     # setup
@@ -104,7 +104,7 @@ def energy_network():
 
     # ------------------------------------------------------------------
     #Component 5 : thrust (to compute the thrust)
-    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust = MARC.Components.Energy.Processes.Thrust()       
     thrust.tag                 ='thrust'
  
     #total design thrust (includes all the engines)
@@ -121,7 +121,7 @@ def energy_network():
     #size the ducted fan
     ducted_fan_sizing(ducted_fan,mach_number,altitude)
     
-    battery_ducted_fan                      = SUAVE.Components.Energy.Networks.Battery_Ducted_Fan()
+    battery_ducted_fan                      = MARC.Components.Energy.Networks.Battery_Ducted_Fan()
     battery_ducted_fan.tag                  = 'battery_ducted_fan'
     battery_ducted_fan.nacelle_diameter     = ducted_fan.nacelle_diameter
     battery_ducted_fan.areas                = Data()
@@ -134,23 +134,23 @@ def energy_network():
     battery_ducted_fan.propulsor            = ducted_fan
 
     # Create ESC and add to the network
-    esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    esc = MARC.Components.Energy.Distributors.Electronic_Speed_Controller()
     esc.efficiency                  = 0.97 
     battery_ducted_fan.electronic_speed_controllers.append(esc)    
 
     # Create payload and add to the network
-    payload = SUAVE.Components.Energy.Peripherals.Avionics()
+    payload = MARC.Components.Energy.Peripherals.Avionics()
     payload.power_draw              = 0.
     payload.mass_properties.mass    = 0. * Units.kg 
     battery_ducted_fan.payload      = payload
 
     # Create avionics and add to the network
-    avionics = SUAVE.Components.Energy.Peripherals.Avionics()
+    avionics = MARC.Components.Energy.Peripherals.Avionics()
     avionics.power_draw             = 200. * Units.watts 
     battery_ducted_fan.avionics     = avionics
 
     # Create the battery and add to the network
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
+    bat = MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.specific_energy             = 300. * Units.Wh/Units.kg
     bat.resistance                  = 0.006
     bat.pack.max_voltage            = 400.
@@ -168,17 +168,17 @@ def energy_network():
     
     # Setup the conditions to run the network
     state               = Data()
-    state.numerics      = SUAVE.Analyses.Mission.Segments.Conditions.Numerics()
-    state.conditions    = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    state.numerics      = MARC.Analyses.Mission.Segments.Conditions.Numerics()
+    state.conditions    = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     conditions          = state.conditions
     numerics            = state.numerics
     
-    planet              = SUAVE.Attributes.Planets.Earth()   
-    working_fluid       = SUAVE.Attributes.Gases.Air()    
+    planet              = MARC.Attributes.Planets.Earth()   
+    working_fluid       = MARC.Attributes.Gases.Air()    
     
      # Calculate atmospheric properties
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere_conditions =  atmosphere.compute_values(alt)
     rho = atmosphere_conditions.density[0,:]
     a   = atmosphere_conditions.speed_of_sound[0,:]

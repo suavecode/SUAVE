@@ -73,10 +73,10 @@ nosetests.xml
 *.pdf
 *.png
 
-ide/Wing/SUAVE.wpr
+ide/Wing/MARC.wpr
 /doc/html
 /doc/latex
 
-!/doc/suave_logo.png
-/trunk/SUAVE/version.py
+!/doc/marc_logo.png
+/trunk/MARC/version.py
 

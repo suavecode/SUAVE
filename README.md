@@ -1,5 +1,5 @@
 
-[MARC: MIT Aerospace Research Code](http://matthewaclarke.com)
+[MARC: MIT Aerospace Research Code](https://www.matthewaclarke.com/marc)
 =======
 
 Forked from [SUAVE] (http://suave.stanford.edu), MARC is the 
@@ -12,7 +12,7 @@ for future aircraft incorporating advanced technologies.
  
 License: MIT 
 
-Guides and Forum available at [suave.stanford.edu](http://suave.stanford.edu).
+Guides at [www.matthewaclarke.com/marc](https://www.matthewaclarke.com/marc).
 
 Contributing Developers
 -----------------------
@@ -30,6 +30,6 @@ numpy, scipy, matplotlib, pip, scikit-learn, plotly
 Developer Install
 ----------------- 
 
-Citing SUAVE
+Citing MARC
 -----------------
 

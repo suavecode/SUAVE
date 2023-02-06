@@ -1,40 +1,40 @@
-This file describes capabilities or files that have previously existed within SUAVE and have since been removed.
+This file describes capabilities or files that have previously existed within MARC and have since been removed.
 
 All of these files below can be found in the initial public release of the code (0.2.0)
 
-* /SUAVE/Methods/Structures/
+* /MARC/Methods/Structures/
 	a place for structures methods
 
-* /SUAVE/Methods/Solvers/
+* /MARC/Methods/Solvers/
 	various solvers that have not been used since the beginning of the code  including:
 	line search
 	newton solver
-	pseudospectral methods that is already incorporated in SUAVE
+	pseudospectral methods that is already incorporated in MARC
 	runge_kutta 45 
 	Jacobians for missions including using AD
 	Residuals
 
-	Many of these are either handled by SciPy or integrated within SUAVE
+	Many of these are either handled by SciPy or integrated within MARC
 
-* /SUAVE/Methods/Utilities/Chebyshev/cosine_space.py
+* /MARC/Methods/Utilities/Chebyshev/cosine_space.py
 	already integrated into other functions
 
-* /SUAVE/Methods/Utilities/Chebyshev/chebyshev_interpolate.py
+* /MARC/Methods/Utilities/Chebyshev/chebyshev_interpolate.py
 	already integrated into Utilities
 
-* /SUAVE/Methods/Utilities/Chebyshev/chebyshev_basis_function.py
+* /MARC/Methods/Utilities/Chebyshev/chebyshev_basis_function.py
 	already integrated into Utilities
 
-* /SUAVE/Methods/Utilities/switch
+* /MARC/Methods/Utilities/switch
 	an old class that is no longer used, can be found here: http://code.activestate.com/recipes/410692/
 
-* /SUAVE/Methods/Utilities/Chebyshev/chebyshev_fit.py
+* /MARC/Methods/Utilities/Chebyshev/chebyshev_fit.py
 	already integrated into Utilities
 
-* /SUAVE/Methods/Utilities/Chebyshev/PlotDock.py
+* /MARC/Methods/Utilities/Chebyshev/PlotDock.py
 	a function which allowed for interactive plotting
 	
-* /SUAVE/Methods/Utilities/Utilities.py
+* /MARC/Methods/Utilities/Utilities.py
         A variety of mathematical utilities that were not in used or tested:
 	runge_kutta_45
 	psuedospectral
@@ -53,17 +53,17 @@ All of these files below can be found in the initial public release of the code 
 	create_state_data
 	assign_values
 
-* /SUAVE/Weights/Correlations/Tube_Wing_Torenbeek
+* /MARC/Weights/Correlations/Tube_Wing_Torenbeek
 	These correlations were old and it was decided not to update them to the current code standards
 
-* /SUAVE/Methods/Performance/weight_maneuver.py
+* /MARC/Methods/Performance/weight_maneuver.py
 	could be useful in the future for estimating extra fuel burn
 
-* /SUAVE/Methods/Performance/climb_gradient.py
+* /MARC/Methods/Performance/climb_gradient.py
 	used AA 241 notes from section 11.3, however it was too old to be updated directly
 
-* /SUAVE/Methods/Performance/cruise_range.py
+* /MARC/Methods/Performance/cruise_range.py
 	used AA 241 notes from section 11.4 and the breguet range equation, however it was too old to be updated directly
 
-* /SUAVE/Methods/Performance/weight_climb_added.py
+* /MARC/Methods/Performance/weight_climb_added.py
 	used AA 241 notes from section 11.3, however it was too old to be updated directly

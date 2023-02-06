@@ -6,12 +6,12 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Data
+import MARC
+from MARC.Core import Data
 
 import numpy as np
 
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_fuel_volume
+from MARC.Methods.Geometry.Two_Dimensional.Planform import wing_fuel_volume
 
 # ---------------------------------------------------------------------- 
 #   Main

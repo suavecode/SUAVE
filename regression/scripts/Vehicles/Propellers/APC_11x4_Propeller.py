@@ -3,10 +3,10 @@
 # Created:  Oct 2022, M. Clarke
 
 # Imports
-import SUAVE
-from SUAVE.Core import Units, Data  
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties  import compute_airfoil_properties
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
+import MARC
+from MARC.Core import Units, Data  
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties  import compute_airfoil_properties
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
      import import_airfoil_geometry    
 from scipy.interpolate import interp1d
 import os
@@ -15,7 +15,7 @@ import numpy as np
 # design propeller 
 
 def APC_11x4_Propeller():          
-    prop                            = SUAVE.Components.Energy.Converters.Rotor()
+    prop                            = MARC.Components.Energy.Converters.Rotor()
     prop.inputs                     = Data() 
     prop.inputs.pitch_command       = 0 
     prop.inputs.y_axis_rotation     = 0.
@@ -59,7 +59,7 @@ def APC_11x4_Propeller():
     ospath                          = os.path.abspath(__file__)
     separator                       = os.path.sep
     rel_path                        = os.path.dirname(ospath) + separator   
-    airfoil                         = SUAVE.Components.Airfoils.Airfoil()
+    airfoil                         = MARC.Components.Airfoils.Airfoil()
     airfoil.number_of_points        = 300
     airfoil.coordinate_file         = rel_path +'../Airfoils/Clark_y.txt'
     airfoil.polar_files             = [rel_path +'../Airfoils/Polars/Clark_y_polar_Re_50000.txt',

@@ -5,12 +5,12 @@
 # APC 10x7 Thin Electric Propeller Geometry from UIUC Propeller Database.
 
 
-import SUAVE
-from SUAVE.Core import Data, Units
+import MARC
+from MARC.Core import Data, Units
 import numpy as np
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties import (
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties import (
     compute_airfoil_properties,
 )
 import os
@@ -23,7 +23,7 @@ def propeller_geometry():
     # Propeller Geometry:
     # --------------------------------------------------------------------------------------------------
 
-    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop = MARC.Components.Energy.Converters.Propeller()
     
     prop.tag              = 'apc_10x7_propeller'
     prop.tip_radius       = 5 * Units.inches
@@ -106,7 +106,7 @@ def propeller_geometry():
     prop.mid_chord_alignment         = prop.chord_distribution/4. - prop.chord_distribution[0]/4.  
     airfoils_path                    = os.path.join(os.path.dirname(__file__), "../Airfoils/")
     polars_path                      = os.path.join(os.path.dirname(__file__), "../Airfoils/Polars/") 
-    airfoil                          = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil                          = MARC.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file          = airfoils_path + "Clark_y.txt"
     airfoil.polar_files              = [   polars_path + "Clark_y_polar_Re_50000.txt",
                                          polars_path + "Clark_y_polar_Re_100000.txt",

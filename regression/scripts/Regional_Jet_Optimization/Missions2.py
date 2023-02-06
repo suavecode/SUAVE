@@ -8,8 +8,8 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
 import numpy as np
 
@@ -20,7 +20,7 @@ import numpy as np
 def setup(analyses):
     
     # the mission container
-    missions = SUAVE.Analyses.Mission.Mission.Container()
+    missions = MARC.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission
@@ -38,24 +38,24 @@ def base(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere =  SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere =  MARC.Analyses.Atmospheric.US_Standard_1976()
 
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
-    atmosphere=SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    planet = SUAVE.Attributes.Planets.Earth()
+    atmosphere=MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
+    planet = MARC.Attributes.Planets.Earth()
     
     # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Rate

@@ -7,12 +7,12 @@
 # ----------------------------------------------------------------------
 import sys
 sys.path.append('../trunk')
-import SUAVE
-from SUAVE.Components.Energy.Storages.Batteries import Battery
-from SUAVE.Core import Units, Data
-from SUAVE.Core import Data
-from SUAVE.Methods.Power.Fuel_Cell.Discharge import larminie, setup_larminie, zero_fidelity
-from SUAVE.Methods.Power.Fuel_Cell.Sizing import initialize_from_power, initialize_larminie_from_power
+import MARC
+from MARC.Components.Energy.Storages.Batteries import Battery
+from MARC.Core import Units, Data
+from MARC.Core import Data
+from MARC.Methods.Power.Fuel_Cell.Discharge import larminie, setup_larminie, zero_fidelity
+from MARC.Methods.Power.Fuel_Cell.Sizing import initialize_from_power, initialize_larminie_from_power
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -21,7 +21,7 @@ def main():
     numerics                      =Data()
     power                         =np.array([100])
    
-    fuel_cell                     = SUAVE.Components.Energy.Converters.Fuel_Cell()
+    fuel_cell                     = MARC.Components.Energy.Converters.Fuel_Cell()
     fuel_cell.inputs.power_in     = power
     
     initialize_from_power(fuel_cell, power*2)

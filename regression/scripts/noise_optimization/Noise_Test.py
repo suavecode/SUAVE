@@ -7,13 +7,13 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 import numpy as np
 import Noise_Analyses
 import Noise_Missions
 import Noise_Procedure 
-from SUAVE.Optimization.Nexus import Nexus 
+from MARC.Optimization.Nexus import Nexus 
 import sys
 sys.path.append('../Vehicles')
 # the analysis functions

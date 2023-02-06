@@ -8,12 +8,12 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
-import SUAVE
-from SUAVE.Core            import Data
-from SUAVE.Core import Units
+# MARC Imports
+import MARC
+from MARC.Core            import Data
+from MARC.Core import Units
 
-from SUAVE.Methods.Performance.estimate_take_off_field_length import estimate_take_off_field_length
+from MARC.Methods.Performance.estimate_take_off_field_length import estimate_take_off_field_length
 
 
 import sys
@@ -40,7 +40,7 @@ def main():
     configuration.wings['main_wing'].slats_angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     configuration.V2_VS_ratio = 1.21
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses = base_analysis(vehicle)
     analyses.aerodynamics.settings.maximum_lift_coefficient_factor = 0.90
 
@@ -48,11 +48,11 @@ def main():
     # configuration.maximum_lift_coefficient = 2.XX
 
     # --- Airport definition ---
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.tag = 'airport'
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere =  SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere =  MARC.Analyses.Atmospheric.US_Standard_1976()
     
     w_vec = np.linspace(40000.,52000.,10)
     engines = (2,3,4)
@@ -141,28 +141,28 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
    
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     
     # ------------------------------------------------------------------
     #  Energy Analysis
-    energy  = SUAVE.Analyses.Energy.Energy()
+    energy  = MARC.Analyses.Energy.Energy()
     energy.network=vehicle.networks
     analyses.append(energy)
     
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)    
     
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)     
     

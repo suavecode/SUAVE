@@ -7,11 +7,11 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 import numpy as np
 import copy
-from SUAVE.Analyses.Process import Process
+from MARC.Analyses.Process import Process
 
 
 # ----------------------------------------------------------------------        

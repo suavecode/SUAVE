@@ -13,22 +13,22 @@ import numpy as np
 import pylab as plt
 import sys 
 
-# suave imports 
-import SUAVE
-from SUAVE.Core import Units, Data 
+# MARC imports 
+import MARC
+from MARC.Core import Units, Data 
 
-from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import  VLM  
-from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
+from MARC.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
+from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import  VLM  
+from MARC.Analyses.Aerodynamics import Vortex_Lattice
 
 # plotting imports 
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission import *  
-from SUAVE.Visualization.Performance.Energy.Common import *  
-from SUAVE.Visualization.Performance.Energy.Battery import *   
-from SUAVE.Visualization.Performance.Noise import *  
-from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle
-from SUAVE.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization  import plot_3d_vehicle_vlm_panelization
+from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
+from MARC.Visualization.Performance.Mission import *  
+from MARC.Visualization.Performance.Energy.Common import *  
+from MARC.Visualization.Performance.Energy.Battery import *   
+from MARC.Visualization.Performance.Noise import *  
+from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle
+from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization  import plot_3d_vehicle_vlm_panelization
 
 
 sys.path.append('../Vehicles')
@@ -180,7 +180,7 @@ def X57_setup(wake_fidelity):
     mission  = X57_mission_setup(configs_analyses,vehicle)
     missions_analyses = missions_setup(mission)
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
 
@@ -192,7 +192,7 @@ def X57_setup(wake_fidelity):
 
 def analyses_setup(configs):
 
-    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses = MARC.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
@@ -206,23 +206,23 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
 
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
-    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing = MARC.Analyses.Sizing.Sizing()
     sizing.features.vehicle = vehicle
     analyses.append(sizing)
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Transport()
+    weights = MARC.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.settings.use_surrogate              = False
     aerodynamics.settings.propeller_wake_model       = True
 
@@ -234,24 +234,24 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Stability Analysis
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
+    stability = MARC.Analyses.Stability.Fidelity_Zero()
     stability.geometry = vehicle
     analyses.append(stability)
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
+    energy= MARC.Analyses.Energy.Energy()
     energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
 
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)
 
@@ -269,25 +269,25 @@ def X57_mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'mission'
 
     # airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0. * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
 
     mission.airport = airport
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
     ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.process.iterate.initials.initialize_battery = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.iterate.conditions.planet_position  = MARC.Methods.skip
     base_segment.state.numerics.number_control_points        = 2
     base_segment.state.numerics.tolerance_solution           = 1e-10
 
@@ -304,7 +304,7 @@ def X57_mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle   = 0.85 * ones_row(1)
 
     # post-process aerodynamic derivatives in cruise
-    segment.process.finalize.post_process.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Static_Stability.compute_aero_derivatives
+    segment.process.finalize.post_process.aero_derivatives = MARC.Methods.Flight_Dynamics.Static_Stability.compute_aero_derivatives
     
     segment = vehicle.networks[net_tag].add_unknowns_and_residuals_to_segment(segment)
 
@@ -317,7 +317,7 @@ def X57_mission_setup(analyses,vehicle):
 def missions_setup(base_mission):
 
     # the mission container
-    missions = SUAVE.Analyses.Mission.Mission.Container()
+    missions = MARC.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission

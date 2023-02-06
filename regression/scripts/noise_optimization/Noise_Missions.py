@@ -8,8 +8,8 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
 import numpy as np
 
@@ -20,7 +20,7 @@ import numpy as np
 def setup(analyses):
     
     # the mission container
-    missions = SUAVE.Analyses.Mission.Mission.Container()
+    missions = MARC.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission
@@ -51,14 +51,14 @@ def setup(analyses):
     # ------------------------------------------------------------------
     #   Mission for Takeoff Field Lengths
     # ------------------------------------------------------------------    
-    takeoff = SUAVE.Analyses.Mission.Mission(base_mission) #Short_Field_Constrained()
+    takeoff = MARC.Analyses.Mission.Mission(base_mission) #Short_Field_Constrained()
     takeoff.tag = 'takeoff_field'    
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   = 0.0  
     airport.delta_isa  = 0.0
-    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
 
     takeoff.airport = airport    
     missions.append(takeoff)
@@ -72,26 +72,26 @@ def base(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'base'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   = 0.0  
     airport.delta_isa  = 0.0
-    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
 
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment() 
-    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    base_segment.state.numerics.discretization_method = MARC.Methods.Utilities.Chebyshev.linear_data
     
-    atmosphere=SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    planet = SUAVE.Attributes.Planets.Earth()
+    atmosphere=MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
+    planet = MARC.Attributes.Planets.Earth()
      # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Throttle
     # ------------------------------------------------------------------
@@ -387,26 +387,26 @@ def max_range_setup(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
 
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
-    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    base_segment.state.numerics.discretization_method = MARC.Methods.Utilities.Chebyshev.linear_data
     
-    atmosphere=SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    planet = SUAVE.Attributes.Planets.Earth()
+    atmosphere=MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
+    planet = MARC.Attributes.Planets.Earth()
     # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Throttle
     # ------------------------------------------------------------------
@@ -693,26 +693,26 @@ def short_field_setup(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
 
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
-    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    base_segment.state.numerics.discretization_method = MARC.Methods.Utilities.Chebyshev.linear_data
     
-    atmosphere=SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    planet = SUAVE.Attributes.Planets.Earth()
+    atmosphere=MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
+    planet = MARC.Attributes.Planets.Earth()
     # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Throttle
     # ------------------------------------------------------------------
@@ -1008,22 +1008,22 @@ def takeoff_mission_setup(analyses):
     # ------------------------------------------------------------------
     #   Initialize the Mission segment for takeoff
     # ------------------------------------------------------------------
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'takeoff'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
-    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    base_segment.state.numerics.discretization_method = MARC.Methods.Utilities.Chebyshev.linear_data
     
     # Climb Segment: Constant throttle, constant speed
     segment = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
@@ -1054,22 +1054,22 @@ def sideline_mission_setup(analyses):
     # ------------------------------------------------------------------
     #   Initialize the Mission segment for takeoff
     # ------------------------------------------------------------------
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'sideline_takeoff'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     mission.airport = airport
     
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
-    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    base_segment.state.numerics.discretization_method = MARC.Methods.Utilities.Chebyshev.linear_data
     
     # Climb Segment: Constant throttle, constant speed
     segment = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
@@ -1093,22 +1093,22 @@ def takeoff_mission_initialization(analyses):
     # ------------------------------------------------------------------
     #   Initialize the Mission segment for takeoff
     # ------------------------------------------------------------------
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'takeoff_initialization'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
-    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    base_segment.state.numerics.discretization_method = MARC.Methods.Utilities.Chebyshev.linear_data
     
     # Climb Segment: Constant speed, constant segment angle
     segment = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
@@ -1133,22 +1133,22 @@ def landing_mission_setup(analyses):
     # ------------------------------------------------------------------
     #   Initialize the Mission segment for landing
     # ------------------------------------------------------------------
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = MARC.Analyses.Mission.Sequential_Segments()
     mission.tag = 'landing'
 
     #airport
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = MARC.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()   
-    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    base_segment.state.numerics.discretization_method = MARC.Methods.Utilities.Chebyshev.linear_data
     
     # ------------------------------------------------------------------
     #   Descent Segment: Constant speed, constant segment angle

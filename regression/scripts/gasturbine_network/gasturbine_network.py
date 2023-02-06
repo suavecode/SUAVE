@@ -11,21 +11,21 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
 import numpy as np
 import pylab as plt
 
 import copy, time
 
-from SUAVE.Core import (
+from MARC.Core import (
 Data, Container,
 )
 
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Components.Energy.Networks.Turbofan import Turbofan
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from MARC.Components import Component, Physical_Component, Lofted_Body
+from MARC.Components.Energy.Networks.Turbofan import Turbofan
+from MARC.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 # ----------------------------------------------------------------------
 #   Main
@@ -48,11 +48,11 @@ def energy_network():
     alt                                                = 10.0
     
     # Setup conditions
-    planet     = SUAVE.Attributes.Planets.Earth()   
-    atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    planet     = MARC.Attributes.Planets.Earth()   
+    atmosphere                       = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                        = atmosphere.compute_values(alt,0,True) 
-    working_fluid                    = SUAVE.Attributes.Gases.Air()    
-    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    working_fluid                    = MARC.Attributes.Gases.Air()    
+    conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
   
     # freestream conditions
     conditions.freestream.altitude                     = ones_1col*alt   
@@ -82,11 +82,11 @@ def energy_network():
     ones_1col = np.ones([1,1])    
     alt_size  = 10000.0
     # Setup conditions
-    planet     = SUAVE.Attributes.Planets.Earth()   
-    atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    planet     = MARC.Attributes.Planets.Earth()   
+    atmosphere                       = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                        = atmosphere.compute_values(alt_size,0,True) 
-    working_fluid                    = SUAVE.Attributes.Gases.Air()    
-    conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    working_fluid                    = MARC.Attributes.Gases.Air()    
+    conditions_sizing = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
 
     # freestream conditions
     conditions_sizing.freestream.altitude                     = ones_1col*alt_size     
@@ -120,7 +120,7 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     # Instantiate the gas turbine network
-    turbofan     = SUAVE.Components.Energy.Networks.Turbofan()
+    turbofan     = MARC.Components.Energy.Networks.Turbofan()
     turbofan.tag = 'turbofan'
     
     # setup
@@ -130,14 +130,14 @@ def energy_network():
     turbofan.nacelle_diameter  = 1.580
     
     # working fluid
-    turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
+    turbofan.working_fluid = MARC.Attributes.Gases.Air()
     
     
     # ------------------------------------------------------------------
     #   Component 1 - Ram
         
     # instantiate
-    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram = MARC.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
     
     # add to the network
@@ -147,7 +147,7 @@ def energy_network():
     #  Component 2 - Inlet Nozzle
     
     # instantiate
-    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle = MARC.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
@@ -162,7 +162,7 @@ def energy_network():
     #  Component 3 - Low Pressure Compressor
     
     # instantiate 
-    compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    compressor = MARC.Components.Energy.Converters.Compressor()    
     compressor.tag = 'low_pressure_compressor'
 
     # setup
@@ -176,7 +176,7 @@ def energy_network():
     #  Component 4 - High Pressure Compressor
     
     # instantiate
-    compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    compressor = MARC.Components.Energy.Converters.Compressor()    
     compressor.tag = 'high_pressure_compressor'
     
     # setup
@@ -190,7 +190,7 @@ def energy_network():
     #  Component 5 - Low Pressure Turbine
     
     # instantiate
-    turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    turbine = MARC.Components.Energy.Converters.Turbine()   
     turbine.tag='low_pressure_turbine'
     
     # setup
@@ -204,7 +204,7 @@ def energy_network():
     #  Component 6 - High Pressure Turbine
     
     # instantiate
-    turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    turbine = MARC.Components.Energy.Converters.Turbine()   
     turbine.tag='high_pressure_turbine'
 
     # setup
@@ -218,7 +218,7 @@ def energy_network():
     #  Component 7 - Combustor
     
     # instantiate    
-    combustor = SUAVE.Components.Energy.Converters.Combustor()   
+    combustor = MARC.Components.Energy.Converters.Combustor()   
     combustor.tag = 'combustor'
     
     # setup
@@ -226,7 +226,7 @@ def energy_network():
     combustor.alphac                    = 1.0     
     combustor.turbine_inlet_temperature = 1450
     combustor.pressure_ratio            = 0.95
-    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
+    combustor.fuel_data                 = MARC.Attributes.Propellants.Jet_A()    
     
     # add to network
     turbofan.append(combustor)
@@ -235,7 +235,7 @@ def energy_network():
     #  Component 8 - Core Nozzle
     
     # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    nozzle = MARC.Components.Energy.Converters.Expansion_Nozzle()   
     nozzle.tag = 'core_nozzle'
     
     # setup
@@ -249,7 +249,7 @@ def energy_network():
     #  Component 9 - Fan Nozzle
     
     # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    nozzle = MARC.Components.Energy.Converters.Expansion_Nozzle()   
     nozzle.tag = 'fan_nozzle'
 
     # setup
@@ -263,7 +263,7 @@ def energy_network():
     #  Component 10 - Fan
     
     # instantiate
-    fan = SUAVE.Components.Energy.Converters.Fan()   
+    fan = MARC.Components.Energy.Converters.Fan()   
     fan.tag = 'fan'
 
     # setup
@@ -277,7 +277,7 @@ def energy_network():
     #  Component 10 - Thrust
         
     # instantiate
-    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust = MARC.Components.Energy.Processes.Thrust()       
     thrust.tag ='thrust'
     
     # setup

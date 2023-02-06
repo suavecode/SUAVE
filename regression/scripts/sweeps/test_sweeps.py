@@ -9,8 +9,8 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Optimization import carpet_plot, line_plot
-from SUAVE.Core import Units
+from MARC.Optimization import carpet_plot, line_plot
+from MARC.Core import Units
 
 import sys
 sys.path.append('../Regional_Jet_Optimization')

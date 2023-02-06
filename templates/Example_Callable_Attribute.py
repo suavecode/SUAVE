@@ -14,9 +14,9 @@
 # ----------------------------------------------------------------------
 ## remove any unnecessary imports
 
-# suave imports
-## these should start with SUAVE, unless importing locally
-from SUAVE.Core import (
+# MARC imports
+## these should start with MARC, unless importing locally
+from MARC.Core import (
     Function, Data, Container
 )
 
@@ -194,7 +194,7 @@ class Example_Callable_Attribute(Function):
 # ----------------------------------------------------------------------
 #   Helper Functions
 # ----------------------------------------------------------------------
-# these will not be available in the SUAVE namespace
+# these will not be available in the MARC namespace
 ## @ingroup templates
 def helper_function(input1,inputs2=None):
     """<Description>

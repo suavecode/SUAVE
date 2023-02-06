@@ -4,11 +4,11 @@
 
 '''
 # About
-Exports a SUAVE Release to Releases/Release_*
+Exports a MARC Release to Releases/Release_*
 
 # How to Use
 
-Open a command line in the SUAVE_Project folder.
+Open a command line in the MARC_Project folder.
 Run this command -
 
 $ python release_export.py <branch> <version>

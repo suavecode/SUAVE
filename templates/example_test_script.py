@@ -10,8 +10,8 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
 import numpy as np
 import matplotlib.pyplot as plt

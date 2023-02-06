@@ -3,11 +3,11 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Visualization.Performance.Aerodynamics.Vehicle import *  
-from SUAVE.Visualization.Performance.Mission              import *  
-from SUAVE.Visualization.Performance.Energy.Common        import *  
-from SUAVE.Visualization.Performance.Energy.Fuel          import *   
-from SUAVE.Visualization.Performance.Noise                import * 
+from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
+from MARC.Visualization.Performance.Mission              import *  
+from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Energy.Fuel          import *   
+from MARC.Visualization.Performance.Noise                import * 
 
 def plot_mission(results): 
     

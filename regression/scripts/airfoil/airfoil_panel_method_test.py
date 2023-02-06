@@ -6,14 +6,14 @@
 #----------------------------------------------------------------------
 #   Imports
 # ---------------------------------------------------------------------
-from SUAVE.Core import Units
-from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis 
+from MARC.Core import Units
+from MARC.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis 
 import matplotlib.pyplot as plt   
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
      import  compute_naca_4series
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
-from SUAVE.Visualization.Performance.Aerodynamics.Airfoil import * 
+from MARC.Visualization.Performance.Aerodynamics.Airfoil import * 
 import os 
 import numpy as np
 

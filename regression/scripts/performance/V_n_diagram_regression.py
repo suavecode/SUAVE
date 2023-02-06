@@ -1,13 +1,13 @@
 # test_Weights.py
 
-import SUAVE
+import MARC
 import numpy as np
-from SUAVE.Core import Units
-from SUAVE.Methods.Performance import V_n_diagram
-from SUAVE.Core import (
+from MARC.Core import Units
+from MARC.Methods.Performance import V_n_diagram
+from MARC.Core import (
     Data, Container,
 )
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from MARC.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 import sys
 
@@ -33,15 +33,15 @@ from Pilatus_PC12_wing_only import vehicle_setup as vehicle_setup_Pilatus_PC12
 
 def main():
 
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planets.Planet()
+    planet = MARC.Analyses.Planets.Planet()
     analyses.append(planet)
 
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)      
     

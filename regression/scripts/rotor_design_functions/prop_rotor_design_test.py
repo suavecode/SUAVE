@@ -9,19 +9,19 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Visualization.Geometry.Three_Dimensional import plot_3d_rotor
+import MARC
+from MARC.Core import Units
+from MARC.Visualization.Geometry.Three_Dimensional import plot_3d_rotor
 import matplotlib.pyplot as plt  
-from SUAVE.Core import Data 
+from MARC.Core import Data 
 
 import numpy as np
 import copy 
-from SUAVE.Methods.Propulsion import  prop_rotor_design  
+from MARC.Methods.Propulsion import  prop_rotor_design  
 
 def main(): 
     
-    prop_rotor                                          = SUAVE.Components.Energy.Converters.Prop_Rotor() 
+    prop_rotor                                          = MARC.Components.Energy.Converters.Prop_Rotor() 
     prop_rotor.tag                                      = 'prop_rotor'     
     prop_rotor.tip_radius                               = 3/2
     prop_rotor.hub_radius                               = 0.2 * prop_rotor.tip_radius
@@ -53,9 +53,9 @@ def main():
     prop_rotor                                          = prop_rotor_design(prop_rotor)  # Reduced iteration for regression therefore optimal design is NOT reached! 
 
     # Find the operating conditions
-    atmosphere                                          = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere                                          = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmosphere_conditions                               =  atmosphere.compute_values(prop_rotor.hover.design_altitude)  
-    conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions                                          = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
     conditions._size                                    = 1
     conditions.freestream                               = Data()
     conditions.propulsion                               = Data()

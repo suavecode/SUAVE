@@ -7,14 +7,14 @@
 #----------------------------------------------------------------------
 #   Imports
 # ---------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core                                                           import Units, Data
-from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
-from SUAVE.Methods.Propulsion                                             import propeller_design
-from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
-from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_optimal_motor
-from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor, hts_motor , air_cooled_motor
+import MARC
+from MARC.Core                                                           import Units, Data
+from MARC.Methods.Power.Battery.Sizing                                   import initialize_from_mass
+from MARC.Methods.Propulsion                                             import propeller_design
+from MARC.Methods.Weights.Buildups.eVTOL.empty                           import empty
+from MARC.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
+from MARC.Methods.Propulsion.electric_motor_sizing                       import size_optimal_motor
+from MARC.Methods.Weights.Correlations.Propulsion                        import nasa_motor, hts_motor , air_cooled_motor
 import numpy as np
 from copy import deepcopy
 
@@ -26,7 +26,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    
-    vehicle                                     = SUAVE.Vehicle()
+    vehicle                                     = MARC.Vehicle()
     vehicle.tag                                 = 'multicopter'
     vehicle.configuration                       = 'eVTOL'
     # ------------------------------------------------------------------
@@ -44,7 +44,7 @@ def vehicle_setup():
     vehicle.envelope.ultimate_load              = 5.7   
     vehicle.envelope.limit_load                 = 3.  
                                                 
-    wing = SUAVE.Components.Wings.Main_Wing()   
+    wing = MARC.Components.Wings.Main_Wing()   
     wing.tag                                    = 'main_wing'  
     wing.aspect_ratio                           = 1.  
     wing.spans.projected                        = 0.1
@@ -58,7 +58,7 @@ def vehicle_setup():
     # FUSELAGE    
     # ------------------------------------------------------    
     # FUSELAGE PROPERTIES
-    fuselage                                    = SUAVE.Components.Fuselages.Fuselage()
+    fuselage                                    = MARC.Components.Fuselages.Fuselage()
     fuselage.tag                                = 'fuselage'
     fuselage.configuration                      = 'Tube_Wing'  
     fuselage.seats_abreast                      = 2.  
@@ -80,7 +80,7 @@ def vehicle_setup():
     fuselage.differential_pressure              = 0. 
     
     # Segment  
-    segment                          = SUAVE.Components.Lofted_Body_Segment.Segment() 
+    segment                          = MARC.Components.Lofted_Body_Segment.Segment() 
     segment.tag                      = 'segment_1'  
     segment.origin                   = [0., 0. ,0.]  
     segment.percent_x_location       = 0.  
@@ -92,7 +92,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                   
-    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                         = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_2'  
     segment.origin                  = [4.*0.3048 , 0. ,0.1*0.3048 ]  
     segment.percent_x_location      = 0.25  
@@ -104,7 +104,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                   
-    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                         = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_3'  
     segment.origin                  = [8.*0.3048 , 0. ,0.34*0.3048 ]  
     segment.percent_x_location      = 0.5  
@@ -116,7 +116,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                  
-    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                         = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_4'  
     segment.origin                  = [12.*0.3048 , 0. ,0.77*0.3048 ] 
     segment.percent_x_location      = 0.75 
@@ -128,7 +128,7 @@ def vehicle_setup():
     fuselage.append_segment(segment)            
                                                 
     # Segment                                   
-    segment                         = SUAVE.Components.Lofted_Body_Segment.Segment()
+    segment                         = MARC.Components.Lofted_Body_Segment.Segment()
     segment.tag                     = 'segment_5'  
     segment.origin                  = [16.*0.3048 , 0. ,2.02*0.3048 ] 
     segment.percent_x_location      = 1.0
@@ -145,7 +145,7 @@ def vehicle_setup():
     # -----------------------------------------------------------------
     # Design the Nacelle
     # ----------------------------------------------------------------- 
-    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
+    nacelle                 = MARC.Components.Nacelles.Nacelle()
     nacelle.diameter        =  0.6 * Units.feet # need to check 
     nacelle.length          =  0.5 * Units.feet  
     nacelle.tag             = 'nacelle_1'
@@ -181,7 +181,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Network
     #------------------------------------------------------------------
-    net                                 = SUAVE.Components.Energy.Networks.Battery_Electric_Rotor()
+    net                                 = MARC.Components.Energy.Networks.Battery_Electric_Rotor()
     net.rotor_group_indexes             = [0,0,0,0,0,0]
     net.motor_group_indexes             = [0,0,0,0,0,0] 
     net.esc_group_indexes               = [0,0,0,0,0,0] 
@@ -190,7 +190,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
     #------------------------------------------------------------------
-    esc             = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    esc             = MARC.Components.Energy.Distributors.Electronic_Speed_Controller()
     esc.efficiency  = 0.95 
     for ii in range(6):
         ESC          = deepcopy(esc)
@@ -200,7 +200,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Payload
     #------------------------------------------------------------------
-    payload                       = SUAVE.Components.Energy.Peripherals.Avionics()
+    payload                       = MARC.Components.Energy.Peripherals.Avionics()
     payload.power_draw            = 0.
     payload.mass_properties.mass  = 200. * Units.kg
     net.payload                   = payload
@@ -208,14 +208,14 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Avionics
     #------------------------------------------------------------------
-    avionics            = SUAVE.Components.Energy.Peripherals.Avionics()
+    avionics            = MARC.Components.Energy.Peripherals.Avionics()
     avionics.power_draw = 200. * Units.watts
     net.avionics        = avionics
                                                 
     #------------------------------------------------------------------
     # Design Battery
     #------------------------------------------------------------------ 
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
+    bat = MARC.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiNiMnCoO2_18650()
     bat.mass_properties.mass = 300. * Units.kg  
     bat.pack.max_voltage     = net.voltage  
     initialize_from_mass(bat)
@@ -228,7 +228,7 @@ def vehicle_setup():
     g                                            = 9.81                                   # gravitational acceleration   
     Hover_Load                                   = vehicle.mass_properties.takeoff*g      # hover load  
     speed_of_sound                               = 340                                    # speed of sound 
-    lift_rotor                                   = SUAVE.Components.Energy.Converters.Propeller() # using propeller for for regression! 
+    lift_rotor                                   = MARC.Components.Energy.Converters.Propeller() # using propeller for for regression! 
     lift_rotor.tip_radius                        = 3.95 * Units.feet
     lift_rotor.hub_radius                        = 0.6  * Units.feet 
     lift_rotor.number_of_blades                  = 3
@@ -241,7 +241,7 @@ def vehicle_setup():
     lift_rotor.cruise.design_Cl                  = 0.7
     lift_rotor.cruise.design_altitude            = 1000 * Units.feet                   
     lift_rotor.cruise.design_thrust              = Hover_Load/(6-1) # contingency for one-engine-inoperative condition  
-    airfoil                                      = SUAVE.Components.Airfoils.Airfoil()   
+    airfoil                                      = MARC.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                      = '../Vehicles/Airfoils/NACA_4412.txt'
     airfoil.polar_files                          = ['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                                  '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
@@ -267,7 +267,7 @@ def vehicle_setup():
     # Design Motors
     #------------------------------------------------------------------
     # Motor 
-    lift_motor                         = SUAVE.Components.Energy.Converters.Motor() 
+    lift_motor                         = MARC.Components.Energy.Converters.Motor() 
     lift_motor.efficiency              = 0.95
     lift_motor.nominal_voltage         = bat.pack.max_voltage * 0.5 
     lift_motor.mass_properties.mass    = 3. * Units.kg 

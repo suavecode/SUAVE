@@ -6,12 +6,12 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Data
+import MARC
+from MARC.Core import Data
 
 import numpy as np
 
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil import compute_naca_4series
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil import compute_naca_4series
 
 # ---------------------------------------------------------------------- 
 #   Main

@@ -12,17 +12,17 @@
 # Python Imports
 import numpy as np
 
-# SUAVE Imports
-import SUAVE
-from SUAVE.Core import Data, Units
-from SUAVE.Core import (
+# MARC Imports
+import MARC
+from MARC.Core import Data, Units
+from MARC.Core import (
     Data, Container,
 )
 
 
 def vehicle_setup():
           
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
     vehicle.tag = 'Cirrus_SR22'    
     
     # ------------------------------------------------------------------
@@ -53,7 +53,7 @@ def vehicle_setup():
     #   Main Wing
     # ------------------------------------------------------------------        
     
-    wing = SUAVE.Components.Wings.Main_Wing()
+    wing = MARC.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 11.1
@@ -87,16 +87,16 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Initialize Configurations
     # ------------------------------------------------------------------
-    configs = SUAVE.Components.Configs.Config.Container()
+    configs = MARC.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config = MARC.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
 
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'cruise'
     configs.append(config)
 

@@ -3,11 +3,11 @@
 # Modified: Feb 2017, M. Vegh
 # Reference: Aircraft Dynamics: from Modeling to Simulation, by M. R. Napolitano
 
-import SUAVE
+import MARC
 import numpy as np
-from SUAVE.Core import Units
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cnbeta import taw_cnbeta
-from SUAVE.Core import (
+from MARC.Core import Units
+from MARC.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cnbeta import taw_cnbeta
+from MARC.Core import (
     Data, Container,
 )
 
@@ -23,10 +23,10 @@ def main():
     
     Mach                          = np.array([0.198])
     
-    segment                              = SUAVE.Analyses.Mission.Segments.Segment()
+    segment                              = MARC.Analyses.Mission.Segments.Segment()
     segment.freestream                   = Data()
     segment.freestream.mach_number       = Mach
-    segment.atmosphere                   = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    segment.atmosphere                   = MARC.Analyses.Atmospheric.US_Standard_1976()
     altitude                             = 0.0 * Units.feet
     conditions                           = segment.atmosphere.compute_values(altitude / Units.km)
     segment.a                            = conditions.speed_of_sound

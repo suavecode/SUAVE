@@ -6,16 +6,16 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 import numpy as np
 import Analyses2
 import Missions2
 import Procedure2
 import Plot_Mission2
 import matplotlib.pyplot as plt
-from SUAVE.Optimization import Nexus, carpet_plot
-import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
+from MARC.Optimization import Nexus, carpet_plot
+import MARC.Optimization.Package_Setups.scipy_setup as scipy_setup
 import sys
 sys.path.append('../Vehicles')
 from Embraer_190 import vehicle_setup, configs_setup

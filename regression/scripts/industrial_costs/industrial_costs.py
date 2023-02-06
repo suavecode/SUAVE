@@ -7,9 +7,9 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Core import Data
+import MARC
+from MARC.Core import Units
+from MARC.Core import Data
 
 import numpy as np
 
@@ -28,7 +28,7 @@ def main():
     # loop to compute industrial cost of each airplane
     for idx,item in enumerate(config_list):
         config = define_config(item)
-        costs         = SUAVE.Analyses.Costs.Costs()
+        costs         = MARC.Analyses.Costs.Costs()
         costs.vehicle = config
         costs.evaluate()
 
@@ -46,9 +46,9 @@ def main():
 
 def define_config(tag):
 
-    config         = SUAVE.Vehicle()
+    config         = MARC.Vehicle()
     config.tag     = tag
-    gt_engine      = SUAVE.Components.Energy.Networks.Turbofan()
+    gt_engine      = MARC.Components.Energy.Networks.Turbofan()
     gt_engine.tag  = 'turbofan'
     manufact_costs = config.costs.industrial
 # ===================================

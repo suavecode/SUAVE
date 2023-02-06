@@ -11,20 +11,20 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
-from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan   
+from MARC.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan   
 
-from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
+from MARC.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 
-from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
+from MARC.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
 
 from copy import deepcopy
 
-from SUAVE.Attributes.Solids.Copper import Copper
+from MARC.Attributes.Solids.Copper import Copper
 
-from SUAVE.Attributes.Gases import Air
+from MARC.Attributes.Gases import Air
 
 
 # ----------------------------------------------------------------------
@@ -39,7 +39,7 @@ def vehicle_setup():
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    
     
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
     vehicle.tag = 'Boeing_737-800'    
     
     # ------------------------------------------------------------------
@@ -81,7 +81,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------ 
     
     # The settings here can be used for noise analysis, but are not used in this tutorial
-    landing_gear = SUAVE.Components.Landing_Gear.Landing_Gear()
+    landing_gear = MARC.Components.Landing_Gear.Landing_Gear()
     landing_gear.tag = "main_landing_gear"
     
     landing_gear.main_tire_diameter = 1.12000 * Units.m
@@ -100,13 +100,13 @@ def vehicle_setup():
     
     # This main wing is approximated as a simple trapezoid. A segmented wing can also be created if
     # desired. Segmented wings appear in later tutorials, and a version of the 737 with segmented
-    # wings can be found in the SUAVE testing scripts.
+    # wings can be found in the MARC testing scripts.
     
-    # SUAVE allows conflicting geometric values to be set in terms of items such as aspect ratio
+    # MARC allows conflicting geometric values to be set in terms of items such as aspect ratio
     # when compared with span and reference area. Sizing scripts may be used to enforce 
     # consistency if desired.
     
-    wing = SUAVE.Components.Wings.Main_Wing()
+    wing = MARC.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 10.18
@@ -143,7 +143,7 @@ def vehicle_setup():
     
     # Deflections will typically be specified separately in individual vehicle configurations.
     
-    flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
+    flap                       = MARC.Components.Wings.Control_Surfaces.Flap() 
     flap.tag                   = 'flap' 
     flap.span_fraction_start   = 0.20 
     flap.span_fraction_end     = 0.70   
@@ -153,7 +153,7 @@ def vehicle_setup():
     flap.chord_fraction        = 0.30   
     wing.append_control_surface(flap)   
         
-    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat                       = MARC.Components.Wings.Control_Surfaces.Slat() 
     slat.tag                   = 'slat' 
     slat.span_fraction_start   = 0.324 
     slat.span_fraction_end     = 0.963     
@@ -161,7 +161,7 @@ def vehicle_setup():
     slat.chord_fraction        = 0.1  	 
     wing.append_control_surface(slat)  
         
-    aileron                       = SUAVE.Components.Wings.Control_Surfaces.Aileron() 
+    aileron                       = MARC.Components.Wings.Control_Surfaces.Aileron() 
     aileron.tag                   = 'aileron' 
     aileron.span_fraction_start   = 0.7 
     aileron.span_fraction_end     = 0.963 
@@ -176,7 +176,7 @@ def vehicle_setup():
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
     
-    wing = SUAVE.Components.Wings.Horizontal_Tail()
+    wing = MARC.Components.Wings.Horizontal_Tail()
     wing.tag = 'horizontal_stabilizer'
     
     wing.aspect_ratio            = 6.16     
@@ -202,7 +202,7 @@ def vehicle_setup():
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
     
-    wing = SUAVE.Components.Wings.Vertical_Tail()
+    wing = MARC.Components.Wings.Vertical_Tail()
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91
@@ -230,7 +230,7 @@ def vehicle_setup():
     #  Fuselage
     # ------------------------------------------------------------------
     
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
+    fuselage = MARC.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
     
     # Number of coach seats is used in some weights methods
@@ -272,7 +272,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Nacelles
     # ------------------------------------------------------------------ 
-    nacelle                            = SUAVE.Components.Nacelles.Nacelle()
+    nacelle                            = MARC.Components.Nacelles.Nacelle()
     nacelle.tag                        = 'nacelle_1'
     nacelle.length                     = 2.71
     nacelle.inlet_diameter             = 1.90
@@ -280,7 +280,7 @@ def vehicle_setup():
     nacelle.areas.wetted               = 1.1*np.pi*nacelle.diameter*nacelle.length
     nacelle.origin                     = [[13.72, -4.86,-1.9]]
     nacelle.flow_through               = True  
-    nacelle_airfoil                    = SUAVE.Components.Airfoils.Airfoil() 
+    nacelle_airfoil                    = MARC.Components.Airfoils.Airfoil() 
     nacelle_airfoil.NACA_4_series_flag = True 
     nacelle_airfoil.coordinate_file    = '2410'
     nacelle.append_airfoil(nacelle_airfoil) 
@@ -320,7 +320,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #Component 1 - Ducted Fan
     
-    efan.ducted_fan                    = SUAVE.Components.Energy.Networks.Ducted_Fan()
+    efan.ducted_fan                    = MARC.Components.Energy.Networks.Ducted_Fan()
     efan.ducted_fan.tag                = 'ducted_fan'
     efan.ducted_fan.number_of_engines  = 12.
     efan.number_of_engines             = efan.ducted_fan.number_of_engines
@@ -350,14 +350,14 @@ def vehicle_setup():
 
 
     # working fluid
-    efan.ducted_fan.working_fluid = SUAVE.Attributes.Gases.Air()
+    efan.ducted_fan.working_fluid = MARC.Attributes.Gases.Air()
     
     # ------------------------------------------------------------------
     #   Component 1.1 - Ram
     
     # to convert freestream static to stagnation quantities
     # instantiate
-    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram = MARC.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
     
     # add to the network
@@ -367,7 +367,7 @@ def vehicle_setup():
     #  Component 1.2 - Inlet Nozzle
     
     # instantiate
-    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle = MARC.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
@@ -381,7 +381,7 @@ def vehicle_setup():
     #  Component 1.3 - Fan Nozzle
     
     # instantiate
-    fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    fan_nozzle = MARC.Components.Energy.Converters.Expansion_Nozzle()   
     fan_nozzle.tag = 'fan_nozzle'
 
     # setup
@@ -395,7 +395,7 @@ def vehicle_setup():
     #  Component 1.4 - Fan
     
     # instantiate
-    fan = SUAVE.Components.Energy.Converters.Fan()
+    fan = MARC.Components.Energy.Converters.Fan()
     fan.tag = 'fan'
 
     # setup
@@ -409,7 +409,7 @@ def vehicle_setup():
     # Component 1.5 : thrust
 
     # To compute the thrust
-    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust = MARC.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
 
     # total design thrust (includes all the propulsors)
@@ -425,7 +425,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     # Component 2 : HTS motor
     
-    efan.motor = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
+    efan.motor = MARC.Components.Energy.Converters.Motor_Lo_Fid()
     efan.motor.tag = 'motor'
     # number_of_motors is not used as the motor count is assumed to match the engine count
 
@@ -438,11 +438,11 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Component 3 - Powersupply
     
-    efan.powersupply                        = SUAVE.Components.Energy.Converters.Turboelectric()
+    efan.powersupply                        = MARC.Components.Energy.Converters.Turboelectric()
     efan.powersupply.tag                    = 'powersupply'
 
     efan.number_of_powersupplies            = 2.
-    efan.powersupply.propellant             = SUAVE.Attributes.Propellants.Jet_A()
+    efan.powersupply.propellant             = MARC.Attributes.Propellants.Jet_A()
     efan.powersupply.oxidizer               = Air()
     efan.powersupply.number_of_engines      = 2.0                   # number of turboelectric machines, not propulsors
     efan.powersupply.efficiency             = .37                   # Approximate average gross efficiency across the product range.
@@ -455,7 +455,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Component 4 - Electronic Speed Controller (ESC)
     
-    efan.esc = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()     # Could make this where the ESC is defined as a Siemens SD104
+    efan.esc = MARC.Components.Energy.Distributors.HTS_DC_Supply()     # Could make this where the ESC is defined as a Siemens SD104
     efan.esc.tag = 'esc'
 
     efan.esc.efficiency             =   0.95                 # Siemens SD104 SiC Power Electronicss reported to be this efficient
@@ -463,7 +463,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Component 5 - HTS rotor (part of the propulsor motor)
     
-    efan.rotor = SUAVE.Components.Energy.Converters.Motor_HTS_Rotor()
+    efan.rotor = MARC.Components.Energy.Converters.Motor_HTS_Rotor()
     efan.rotor.tag = 'rotor'
 
     efan.rotor.temperature              =    50.0       # [K]
@@ -481,7 +481,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Component 6 - Copper Supply Leads of propulsion motor rotors
     
-    efan.lead = SUAVE.Components.Energy.Distributors.Cryogenic_Lead()
+    efan.lead = MARC.Components.Energy.Distributors.Cryogenic_Lead()
     efan.lead.tag = 'lead'
 
     copper = Copper()
@@ -495,14 +495,14 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Component 7 - Rotor Constant Current Supply (CCS)
     
-    efan.ccs = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()
+    efan.ccs = MARC.Components.Energy.Distributors.HTS_DC_Supply()
     efan.ccs.tag = 'ccs'
 
     efan.ccs.efficiency             =   0.95               # Siemens SD104 SiC Power Electronics reported to be this efficient
     # ------------------------------------------------------------------
     #  Component 8 - Cryocooler, to cool the HTS Rotor
  
-    efan.cryocooler = SUAVE.Components.Energy.Cooling.Cryocooler()
+    efan.cryocooler = MARC.Components.Energy.Cooling.Cryocooler()
     efan.cryocooler.tag = 'cryocooler'
 
     efan.cryocooler.cooler_type        = 'GM'
@@ -511,10 +511,10 @@ def vehicle_setup():
 
     # ------------------------------------------------------------------
     #  Component 9 - Cryogenic Heat Exchanger, to cool the HTS Rotor
-    efan.heat_exchanger = SUAVE.Components.Energy.Cooling.Cryogenic_Heat_Exchanger()
+    efan.heat_exchanger = MARC.Components.Energy.Cooling.Cryogenic_Heat_Exchanger()
     efan.heat_exchanger.tag = 'heat_exchanger'
 
-    efan.heat_exchanger.cryogen                         = SUAVE.Attributes.Cryogens.Liquid_H2()
+    efan.heat_exchanger.cryogen                         = MARC.Attributes.Cryogens.Liquid_H2()
     efan.heat_exchanger.cryogen_inlet_temperature       =     20.0                  # [K]
     efan.heat_exchanger.cryogen_outlet_temperature      = efan.rotor.temperature    # [K]
     efan.heat_exchanger.cryogen_pressure                = 100000.0                  # [Pa]
@@ -548,23 +548,23 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Initialize Configurations
     # ------------------------------------------------------------------
-    configs = SUAVE.Components.Configs.Config.Container()
+    configs = MARC.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config = MARC.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
 
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'cruise'
     configs.append(config)
 
     # ------------------------------------------------------------------
     #   Takeoff Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
     config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection = 25. * Units.deg
@@ -576,7 +576,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Cutback Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'cutback'
     config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection = 20. * Units.deg
@@ -588,7 +588,7 @@ def configs_setup(vehicle):
     #   Landing Configuration
     # ------------------------------------------------------------------
 
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'landing'
 
     config.wings['main_wing'].control_surfaces.flap.deflection = 30. * Units.deg
@@ -601,7 +601,7 @@ def configs_setup(vehicle):
     #   Short Field Takeoff Configuration
     # ------------------------------------------------------------------ 
 
-    config = SUAVE.Components.Configs.Config(base_config)
+    config = MARC.Components.Configs.Config(base_config)
     config.tag = 'short_field_takeoff'
     
     config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg

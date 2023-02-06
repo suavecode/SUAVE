@@ -1,7 +1,7 @@
 
 # full_setup.py
 #
-# Created:  SUAVE Team, Aug 2014
+# Created:  SUAVE Team (Stanford University), Aug 2014
 # Modified:
 
 """ setup file for a mission with a E190
@@ -12,15 +12,15 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
 import numpy as np
 import pylab as plt
 
 import copy, time
 
-from SUAVE.Core import (
+from MARC.Core import (
 Data, Container,
 )
 
@@ -29,7 +29,7 @@ from plot_mission import plot_mission
 
 from mission_Embraer_E190_constThr_payload_range import full_setup
 
-from SUAVE.Methods.Performance  import payload_range
+from MARC.Methods.Performance  import payload_range
 
 # ----------------------------------------------------------------------
 #   Main

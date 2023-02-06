@@ -11,16 +11,16 @@
 # ----------------------------------------------------------------------
 
 
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Core import Data
+import MARC
+from MARC.Core import Units
+from MARC.Core import Data
 
 import numpy as np
 import pylab as plt
 
 import copy, time
 import random
-from SUAVE.Attributes.Gases.Air import Air
+from MARC.Attributes.Gases.Air import Air
 import sys
 #import vehicle file
 sys.path.append('../Vehicles')
@@ -38,7 +38,7 @@ def main():
         
         
     # initalize the aero model
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.settings.number_spanwise_vortices  = 5
     aerodynamics.settings.number_chordwise_vortices = 2
     aerodynamics.geometry = vehicle
@@ -54,8 +54,8 @@ def main():
     
     
     # Cruise conditions (except Mach number)
-    state = SUAVE.Analyses.Mission.Segments.Conditions.State()
-    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    state = MARC.Analyses.Mission.Segments.Conditions.State()
+    state.conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     
     state.expand_rows(test_num)    
@@ -269,12 +269,12 @@ def regression_results_filename():
     return 'aerodynamics_results.res'
 
 def load_results():
-    return SUAVE.Input_Output.SUAVE.load(regression_results_filename())
+    return MARC.Input_Output.MARC.load(regression_results_filename())
 
 def save_results(results, SAVE=False):
     if SAVE==True:
         print('!####! SAVING NEW REGRESSION RESULTS !####!')
-        SUAVE.Input_Output.SUAVE.archive(results,regression_results_filename())        
+        MARC.Input_Output.MARC.archive(results,regression_results_filename())        
     return
 
 # ----------------------------------------------------------------------

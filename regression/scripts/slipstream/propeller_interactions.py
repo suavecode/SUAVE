@@ -7,14 +7,14 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 
-from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
-from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_grid import generate_propeller_grid
-from SUAVE.Visualization.Performance.Aerodynamics.Rotor import *
+from MARC.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
+from MARC.Methods.Propulsion.Rotor_Wake.Fidelity_One.compute_wake_induced_velocity import compute_wake_induced_velocity
+from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
+from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_grid import generate_propeller_grid
+from MARC.Visualization.Performance.Aerodynamics.Rotor import *
 
 import numpy as np
 import pylab as plt
@@ -110,7 +110,7 @@ def compute_propeller_wake_velocities(prop,grid_settings,grid_points, conditions
     prop_copy                = copy.deepcopy(prop)
     cpts                     = 1 # only testing one condition
     
-    props = SUAVE.Core.Container()
+    props = MARC.Core.Container()
     props.append(prop_copy)
     
     WD = prop.Wake.vortex_distribution
@@ -148,14 +148,14 @@ def simulation_conditions(prop):
     # --------------------------------------------------------------------------------------------------
     # Atmosphere Conditions:
     # --------------------------------------------------------------------------------------------------
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data  = atmosphere.compute_values(altitude=14000 * Units.ft)
     rho        = atmo_data.density
     mu         = atmo_data.dynamic_viscosity
     T          = atmo_data.temperature
     a          = atmo_data.speed_of_sound
     
-    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
     conditions.freestream.density           = rho
     conditions.freestream.dynamic_viscosity = mu
     conditions.freestream.speed_of_sound    = a
@@ -209,15 +209,15 @@ def simulation_settings(vehicle):
 def vehicle_setup():
     
     # Vehicle Initialization:
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
     vehicle.tag = 'simple_vehicle'    
     
     # Propulsion Properties:
-    net                         = SUAVE.Components.Energy.Networks.Battery_Electric_Rotor()
+    net                         = MARC.Components.Energy.Networks.Battery_Electric_Rotor()
     net.tag                     = 'prop_net'
     net.number_of_rotor_engines = 2
 
-    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop = MARC.Components.Energy.Converters.Propeller()
     prop = propeller_geometry() 
     
     # assign wake fidelity

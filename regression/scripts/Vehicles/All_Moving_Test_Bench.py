@@ -10,8 +10,8 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
+import MARC
+from MARC.Core import Units
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -20,7 +20,7 @@ def vehicle_setup(deflection_config=None):
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
     vehicle.tag = 'All_Moving_Test_Bench'
     
     # ------------------------------------------------------------------
@@ -72,7 +72,7 @@ def vehicle_setup(deflection_config=None):
 #   Stabilator Construction Function
 # ------------------------------------------------------------------ 
 def make_stabilator():
-    wing = SUAVE.Components.Wings.Stabilator()
+    wing = MARC.Components.Wings.Stabilator()
 
     wing.spans.projected         = 7.
     
@@ -90,7 +90,7 @@ def make_stabilator():
     wing.dynamic_pressure_ratio  = 0.9    
     
     # Wing Segments
-    segment                        = SUAVE.Components.Wings.Segment()
+    segment                        = MARC.Components.Wings.Segment()
     segment.tag                    = 'root_segment'
     segment.percent_span_location  = 0.0
     segment.twist                  = 0. * Units.deg
@@ -100,7 +100,7 @@ def make_stabilator():
     segment.thickness_to_chord     = .1
     wing.append_segment(segment)
 
-    segment                        = SUAVE.Components.Wings.Segment()
+    segment                        = MARC.Components.Wings.Segment()
     segment.tag                    = 'tip_segment'
     segment.percent_span_location  = 1.
     segment.twist                  = 0. * Units.deg
@@ -116,7 +116,7 @@ def make_stabilator():
 #   Stabilator Construction Function
 # ------------------------------------------------------------------ 
 def make_all_moving_vert_tail():
-    wing = SUAVE.Components.Wings.Vertical_Tail_All_Moving()
+    wing = MARC.Components.Wings.Vertical_Tail_All_Moving()
     
     wing.spans.projected         = 7.
     
@@ -134,7 +134,7 @@ def make_all_moving_vert_tail():
     wing.dynamic_pressure_ratio  = 0.9    
     
     # Wing Segments
-    segment                        = SUAVE.Components.Wings.Segment()
+    segment                        = MARC.Components.Wings.Segment()
     segment.tag                    = 'root_segment'
     segment.percent_span_location  = 0.0
     segment.twist                  = 0. * Units.deg
@@ -144,7 +144,7 @@ def make_all_moving_vert_tail():
     segment.thickness_to_chord     = .1
     wing.append_segment(segment)
 
-    segment                        = SUAVE.Components.Wings.Segment()
+    segment                        = MARC.Components.Wings.Segment()
     segment.tag                    = 'tip_segment'
     segment.percent_span_location  = 1.
     segment.twist                  = 0. * Units.deg

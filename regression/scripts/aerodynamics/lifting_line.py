@@ -7,15 +7,15 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Core import Data
+import MARC
+from MARC.Core import Units
+from MARC.Core import Data
 
 import numpy as np
 
 import copy, time
 import random
-from SUAVE.Attributes.Gases.Air import Air
+from MARC.Attributes.Gases.Air import Air
 import sys
 #import vehicle file
 sys.path.append('../Vehicles')
@@ -34,8 +34,8 @@ def main():
         wing.areas.affected = 0.6 * wing.areas.wetted  
         
     # initalize the aero model
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.process.compute.lift.inviscid_wings = SUAVE.Analyses.Aerodynamics.Lifting_Line()
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics.process.compute.lift.inviscid_wings = MARC.Analyses.Aerodynamics.Lifting_Line()
     aerodynamics.geometry = vehicle
     aerodynamics.initialize()    
     
@@ -46,8 +46,8 @@ def main():
     angle_of_attacks = np.linspace(-.174,.174,test_num)[:,None] #* Units.deg
     
     # Cruise conditions (except Mach number)
-    state = SUAVE.Analyses.Mission.Segments.Conditions.State()
-    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    state = MARC.Analyses.Mission.Segments.Conditions.State()
+    state.conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     state.expand_rows(test_num)    
         

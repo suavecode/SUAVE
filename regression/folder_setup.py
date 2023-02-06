@@ -5,13 +5,13 @@
 '''
 # About
 
-This script creates a set of folders and clones SUAVE repo's.
+This script creates a set of folders and clones MARC repo's.
 
 
 # How to use this script
 
 Open a command line terminal, and change directories to
-the folder in which you want to start a new SUAVE Project.
+the folder in which you want to start a new MARC Project.
 Windows users, download msysgit (msysgit.github.io) and
 type "git bash" in the start menu to get a command line.
 
@@ -38,10 +38,8 @@ import sys, os, shutil
 # ----------------------------------------------------------------------
 
 urls = {
-    'source'       : 'suavecode/SUAVE.git',
-    'tutorials'    : 'suavecode/Tutorials.git',
-    'experimental' : 'suavecode/Experimental.git',
-    'website'      : 'suavecode/suavecode.github.io.git',
+    'source'       : 'mitleads/MARC.git', 
+    'website'      : 'https://www.matthewaclarke.com/marc',
 }
 
 argv = sys.argv
@@ -61,27 +59,15 @@ def git_clone(url):
 # ----------------------------------------------------------------------
 
 # Project    
-os.mkdir('SUAVE_Project')
-os.chdir('SUAVE_Project')
+os.mkdir('MARC_Project')
+os.chdir('MARC_Project')
 
 # Source
 git_clone(urls['source'])
-os.rename('SUAVE','Source')
-
-# Tutorials
-git_clone(urls['tutorials'])
+os.rename('MARC','Source') 
 
 # Workspace
 os.mkdir('Workspace')
-
-if dev:
-    
-    # Experimental 
-    git_clone(urls['experimental'])
-    
-    # Website
-    git_clone(urls['website'])
-    os.rename('suavecode.github.io','Website')
 
 # move this file
 shutil.move('../folder_setup.py','.')

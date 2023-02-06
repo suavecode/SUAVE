@@ -1,11 +1,8 @@
 # setup.py
 # 
-# Created:  Dec 2013, T. Lukaczyk 
-# Modified: Jan 2017, E. Botero
-#           Sep 2021, M. Clarke
-#           Oct 2021, E. Botero
+# Created:  Feb 2023, M. Clarke 
 
-""" SUAVE setup script
+""" MARC setup script
 """
 
 # ----------------------------------------------------------------------
@@ -17,9 +14,9 @@ def main():
     # imports
     import sys
     
-    the_package = 'SUAVE'
-    version     = '2.5.2'
-    date        = 'Mar 16, 2022'
+    the_package = 'MARC'
+    version     = '1.0.0'
+    date        = 'Feb 06, 2023'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]
@@ -36,7 +33,7 @@ def main():
 #   Main - Run Setup
 # ----------------------------------------------------------------------   
 
-def write_version_py(version,filename='SUAVE/version.py'):
+def write_version_py(version,filename='MARC/version.py'):
     cnt = """
 # THIS FILE IS GENERATED
 version = '%(version)s'
@@ -66,26 +63,25 @@ def install(the_package,version,date):
     # test for requirements
     import_tests()
     
-    # list all SUAVE sub packages
+    # list all MARC sub packages
     #print 'Listing Packages and Sub-Packages:'
     packages = list_subpackages(the_package,verbose=False)
     packages = list(map( '.'.join, packages ))
     
-    requires = ['numpy','scipy','sklearn','plotly','matplotlib']
+    requires = ['numpy','scipy','sklearn','plotly','matplotlib','kaleido']
     python_v = '>=3.6'
 
     # run the setup!!!
     setup(
         name = the_package,
         version = version, 
-        description = 'SUAVE: Stanford University Aerospace Vehicle Environment',
-        author = 'Stanford University Aerospace Design Lab (ADL)',
-        author_email = 'suave-developers@lists.stanford.edu',
-        maintainer = 'The Developers',
-        url = 'suave.stanford.edu',
+        description = 'MARC: MIT Aerospace Research Code',
+        author = 'MIT Laboratory for Electric Aircraft Design and Sustainability (MIT-LEADS)',
+        maintainer = 'MARC Developers',
+        url = 'https://www.matthewaclarke.com/marc',
         packages = packages,
         include_package_data = True,
-        license = 'LGPL-2.1',
+        license = 'MIT',
         platforms = ['Win, Linux, Unix, Mac OS-X'],
         zip_safe  = False,
         requires  = requires,

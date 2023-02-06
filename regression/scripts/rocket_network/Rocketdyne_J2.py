@@ -12,13 +12,13 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units, Data
+import MARC
+from MARC.Core import Units, Data
 
 import numpy as np
 
-from SUAVE.Components.Energy.Networks.Liquid_Rocket import Liquid_Rocket
-from SUAVE.Methods.Propulsion.liquid_rocket_sizing  import liquid_rocket_sizing
+from MARC.Components.Energy.Networks.Liquid_Rocket import Liquid_Rocket
+from MARC.Methods.Propulsion.liquid_rocket_sizing  import liquid_rocket_sizing
 
 # ----------------------------------------------------------------------
 #   Main
@@ -42,8 +42,8 @@ def energy_network():
     # ------------------------------------------------------------------      
     
     # setup conditions
-    conditions            = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-    planet                = SUAVE.Attributes.Planets.Earth()
+    conditions            = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    planet                = MARC.Attributes.Planets.Earth()
     ones_1col             = np.ones([1,1])   
     conditions.freestream = Data()
     conditions.propulsion = Data()
@@ -62,7 +62,7 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     # setup conditions
-    conditions_sls                    = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()      
+    conditions_sls                    = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()      
     ones_1col                         = np.ones([1,1]) 
     conditions_sls.freestream         = Data()
     conditions_sls.propulsion         = Data()
@@ -71,7 +71,7 @@ def energy_network():
     SLS                               = conditions_sls.freestream
     SLS.altitude                      = ones_1col*0.0
     
-    atmosphere                        = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere                        = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                         = atmosphere.compute_values(SLS.altitude,0,True) 
     
     SLS.pressure                      = ones_1col*atmo_data.pressure
@@ -96,7 +96,7 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     # instantiate the ramjet network
-    liquid_rocket = SUAVE.Components.Energy.Networks.Liquid_Rocket()
+    liquid_rocket = MARC.Components.Energy.Networks.Liquid_Rocket()
     liquid_rocket.tag = 'liquid_rocket'
     
     # setup
@@ -109,11 +109,11 @@ def energy_network():
     #   Component 1 - Combustor
      
     # instantiate    
-    combustor = SUAVE.Components.Energy.Converters.Rocket_Combustor()   
+    combustor = MARC.Components.Energy.Converters.Rocket_Combustor()   
     combustor.tag = 'combustor'
     
     # setup  
-    combustor.propellant_data                = SUAVE.Attributes.Propellants.LOX_LH2()
+    combustor.propellant_data                = MARC.Attributes.Propellants.LOX_LH2()
     combustor.inputs.combustion_pressure     = 5261000.0 
     
     # add to network
@@ -123,7 +123,7 @@ def energy_network():
     #  Component 2 - Core Nozzle
     
     # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.de_Laval_Nozzle()   
+    nozzle = MARC.Components.Energy.Converters.de_Laval_Nozzle()   
     nozzle.tag = 'core_nozzle'
     
     # setup
@@ -141,7 +141,7 @@ def energy_network():
     #  Component 4 - Thrust
     
     # instantiate
-    thrust = SUAVE.Components.Energy.Processes.Rocket_Thrust()       
+    thrust = MARC.Components.Energy.Processes.Rocket_Thrust()       
     thrust.tag ='thrust'
     
     # setup

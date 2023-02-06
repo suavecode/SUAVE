@@ -3,15 +3,15 @@
 # Created:   Mar 2021, R. Erhard
 # Modified:  Feb 2022, R. Erhard
 
-import SUAVE
-from SUAVE.Core import Units, Data
-from SUAVE.Methods.Propulsion import propeller_design
-from SUAVE.Visualization.Performance.Aerodynamics.Rotor import *  
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_wake import compute_wing_wake
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
+import MARC
+from MARC.Core import Units, Data
+from MARC.Methods.Propulsion import propeller_design
+from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
+from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_wake import compute_wing_wake
+from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 
 
-from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
+from MARC.Analyses.Propulsion.Rotor_Wake_Fidelity_One import Rotor_Wake_Fidelity_One
 import numpy as np
 import pylab as plt
 
@@ -175,7 +175,7 @@ def test_conditions():
     # --------------------------------------------------------------------------------------------------
     # Atmosphere Conditions:
     # --------------------------------------------------------------------------------------------------
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere = MARC.Analyses.Atmospheric.US_Standard_1976()
     atmo_data  = atmosphere.compute_values(altitude=14000 * Units.ft)
     rho        = atmo_data.density
     mu         = atmo_data.dynamic_viscosity
@@ -190,7 +190,7 @@ def test_conditions():
 
     mach  = Vv/a
 
-    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions = MARC.Analyses.Mission.Segments.Conditions.Aerodynamics()
     conditions.freestream.density           = rho* ones
     conditions.freestream.dynamic_viscosity = mu* ones
     conditions.freestream.speed_of_sound    = a* ones
@@ -215,7 +215,7 @@ def vehicle_setup(Na, Nr):
     #-----------------------------------------------------------------
     #   Vehicle Initialization:
     #-----------------------------------------------------------------
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
     vehicle.tag = 'simple_vehicle'
 
     # ------------------------------------------------------------------
@@ -227,11 +227,11 @@ def vehicle_setup(Na, Nr):
     # ------------------------------------------------------------------
     #   Propulsion Properties
     # ------------------------------------------------------------------
-    net                          = SUAVE.Components.Energy.Networks.Battery_Electric_Rotor()
+    net                          = MARC.Components.Energy.Networks.Battery_Electric_Rotor()
     net.tag                      = 'prop_net'
     net.number_of_engines        = 2
 
-    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop = MARC.Components.Energy.Converters.Propeller()
     prop = basic_prop()
 
     # adjust propeller location and rotation:
@@ -247,7 +247,7 @@ def vehicle_setup(Na, Nr):
 def basic_prop(Na=24, Nr=101):
 
     # Design the Propeller
-    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop = MARC.Components.Energy.Converters.Propeller()
 
     prop.number_of_blades                  = 2
     prop.tip_radius                        = 38.    * Units.inches
@@ -261,7 +261,7 @@ def basic_prop(Na=24, Nr=101):
     prop.number_azimuthal_stations         = Na
     prop.rotation                          = 1
     prop.symmetry                          = True
-    airfoil                                = SUAVE.Components.Airfoils.Airfoil()    
+    airfoil                                = MARC.Components.Airfoils.Airfoil()    
     airfoil.coordinate_file                = '../Vehicles/Airfoils/NACA_4412.txt'
     airfoil.polar_files                    = ['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                            '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
@@ -290,7 +290,7 @@ def basic_wing():
     # ------------------------------------------------------------------
     # Initialize the Main Wing
     # ------------------------------------------------------------------
-    wing = SUAVE.Components.Wings.Main_Wing()
+    wing = MARC.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = AR
@@ -318,7 +318,7 @@ def simulation_settings(vehicle):
     grid_settings.length = 1.2
     grid_settings.height_fine = 0.2
 
-    VLM_settings        = SUAVE.Analyses.Aerodynamics.Vortex_Lattice().settings
+    VLM_settings        = MARC.Analyses.Aerodynamics.Vortex_Lattice().settings
     VLM_settings.number_spanwise_vortices        = 16
     VLM_settings.number_chordwise_vortices       = 4
     VLM_settings.use_surrogate                   = True

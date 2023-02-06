@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------  
 
 import filecmp
-import SUAVE
+import MARC
 
 # ----------------------------------------------------------------------        
 #   The Test
@@ -16,11 +16,11 @@ import SUAVE
 
 def main():
     
-    data = SUAVE.Input_Output.XML.load('example.xml')
+    data = MARC.Input_Output.XML.load('example.xml')
     
     print(data)
     
-    SUAVE.Input_Output.XML.save(data,'output.xml')
+    MARC.Input_Output.XML.save(data,'output.xml')
     
     result = filecmp.cmp('example.xml','output.xml')
     

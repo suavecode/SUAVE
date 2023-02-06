@@ -8,12 +8,12 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
-import SUAVE
-from SUAVE.Core            import Data
-from SUAVE.Core import Units
-from SUAVE.Core import Units
-from SUAVE.Methods.Performance.estimate_landing_field_length import estimate_landing_field_length
+# MARC Imports
+import MARC
+from MARC.Core            import Data
+from MARC.Core import Units
+from MARC.Core import Units
+from MARC.Methods.Performance.estimate_landing_field_length import estimate_landing_field_length
 import sys
 sys.path.append('../Vehicles')
 
@@ -30,10 +30,10 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
-    analyses = SUAVE.Analyses.Vehicle()
+    analyses = MARC.Analyses.Vehicle()
    
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics = MARC.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -66,11 +66,11 @@ def main():
     analyses.aerodynamics.settings.maximum_lift_coefficient_factor = 0.90
 
     # --- Airport definition ---
-    airport = SUAVE.Attributes.Airports.Airport()
+    airport = MARC.Attributes.Airports.Airport()
     airport.tag = 'airport'
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere =  SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    airport.atmosphere =  MARC.Analyses.Atmospheric.US_Standard_1976()
 
     # =====================================
     # Landing field length evaluation

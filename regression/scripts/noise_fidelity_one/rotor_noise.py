@@ -1,14 +1,14 @@
-# SUAVE Imports 
+# MARC Imports 
 
 # Imports    
-import SUAVE
-from SUAVE.Core import Units, Data 
-from SUAVE.Components.Energy.Networks.Battery_Electric_Rotor                                           import Battery_Electric_Rotor
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties  import compute_airfoil_properties
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series        import compute_naca_4series
-from SUAVE.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise                                 import total_rotor_noise
-from SUAVE.Analyses.Mission.Segments.Conditions                                               import Aerodynamics , Conditions
-from SUAVE.Analyses.Mission.Segments.Segment                                                  import Segment
+import MARC
+from MARC.Core import Units, Data 
+from MARC.Components.Energy.Networks.Battery_Electric_Rotor                                           import Battery_Electric_Rotor
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_properties  import compute_airfoil_properties
+from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series        import compute_naca_4series
+from MARC.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise                                 import total_rotor_noise
+from MARC.Analyses.Mission.Segments.Conditions                                               import Aerodynamics , Conditions
+from MARC.Analyses.Mission.Segments.Segment                                                  import Segment
 from scipy.interpolate import interp1d  
 
 # Python Imports  
@@ -42,9 +42,9 @@ def main():
         lw  = 1,                             # line_width               
         m   = 5,                             # markersize               
         lf  = 10,                            # legend_font_size         
-        Slc = ['black','dimgray','silver' ], # SUAVE_line_colors        
-        Slm = '^',                           # SUAVE_line_markers       
-        Sls = '-',                           # SUAVE_line_styles        
+        Slc = ['black','dimgray','silver' ], # MARC_line_colors        
+        Slm = '^',                           # MARC_line_markers       
+        Sls = '-',                           # MARC_line_styles        
         Elc = ['darkred','red','tomato'],    # Experimental_line_colors 
         Elm = 's',                           # Experimental_line_markers
         Els = '',                            # Experimental_line_styles 
@@ -132,7 +132,7 @@ def Hararmonic_Noise_Validation(PP):
     
     
     # Store Noise Data 
-    noise                                      = SUAVE.Analyses.Noise.Fidelity_One() 
+    noise                                      = MARC.Analyses.Noise.Fidelity_One() 
     settings                                   = noise.settings   
     num_mic                                    = len(conditions.noise.total_microphone_locations[0] )  
     conditions.noise.number_of_microphones     = num_mic
@@ -201,7 +201,7 @@ def Hararmonic_Noise_Validation(PP):
     fig = plt.figure('Harmonic Test')
     fig.set_size_inches(12, 8)   
     axes = fig.add_subplot(2,3,1) 
-    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[0,6,:][:len(harmonics)]   , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'SUAVE')    
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[0,6,:][:len(harmonics)]   , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'MARC')    
     axes.plot(harmonics, ANOPP_PAS_Case_1_60deg                                      , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw, label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_1_60deg                                       , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')    
     axes.set_title('Case 1, $C_P$ = ' + str(round(Cp[0,0],3)))
@@ -211,7 +211,7 @@ def Hararmonic_Noise_Validation(PP):
 
     # Test Case 2
     axes = fig.add_subplot(2,3,2) 
-    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'MARC')    
     axes.plot(harmonics, ANOPP_PAS_Case_2_60deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_2_60deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,   label = 'Exp.')  
     axes.set_title('60 deg. 60 deg. Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))   
@@ -219,7 +219,7 @@ def Hararmonic_Noise_Validation(PP):
 
     # Test Case 3
     axes = fig.add_subplot(2,3,3) 
-    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[2,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[2,6,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'MARC')    
     axes.plot(harmonics, ANOPP_PAS_Case_3_60deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_3_60deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')        
     axes.set_title('60 deg. Case 3, $C_P$ = ' +  str(round(Cp[2,0],3))) 
@@ -227,7 +227,7 @@ def Hararmonic_Noise_Validation(PP):
     plt.tight_layout()
  
     axes = fig.add_subplot(2,3,4)    
-    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[0,9,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'SUAVE')    
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[0,9,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'MARC')    
     axes.plot(harmonics, ANOPP_PAS_Case_1_90deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_1_90deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')       
     axes.set_title('90 deg. Case 1, $C_P$ = ' + str(round(Cp[0,0],3)))
@@ -236,7 +236,7 @@ def Hararmonic_Noise_Validation(PP):
     axes.minorticks_on() 
 
     axes = fig.add_subplot(2,3,5)              
-    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,9,:][:len(harmonics)]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'SUAVE')    
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[1,9,:][:len(harmonics)]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label = 'MARC')    
     axes.plot(harmonics, ANOPP_PAS_Case_2_90deg                                     , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw, label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_2_90deg                                      , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw, label = 'Exp.')   
     axes.set_title('90 deg. Case 2, $C_P$ = ' +  str(round(Cp[1,0],3)))   
@@ -245,7 +245,7 @@ def Hararmonic_Noise_Validation(PP):
     axes.minorticks_on() 
 
     axes = fig.add_subplot(2,3,6)    
-    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[2,9,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'SUAVE')    
+    axes.plot(harmonics, F8745D4_SPL_harmonic_bpf_spectrum[2,9,:][:len(harmonics)] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,   label = 'MARC')    
     axes.plot(harmonics, ANOPP_PAS_Case_3_90deg                                    , color = PP.Rlc[0] , linestyle = PP.Rls, marker = PP.Rlm , markersize = PP.m , linewidth = PP.lw,   label = 'ANOPP PAS')       
     axes.plot(harmonics, Exp_Test_Case_3_90deg                                     , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp.')     
     axes.set_title('90 deg. Case 3, $C_P$ = ' +  str(round(Cp[2,0],3)))     
@@ -385,7 +385,7 @@ def Broadband_Noise_Validation(PP):
     fig1.set_size_inches(fig_size_width,fig_size_height)  
     axes1 = fig1.add_subplot(1,1,1)      
     axes1.plot(Exp_APC_SF_freqency_spectrum , Exp_APC_SF_1_3_Spectrum[0,:-5]  , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw, label = 'Exp. 3600 RPM')            
-    axes1.plot(Exp_APC_SF_freqency_spectrum ,     APC_SF_1_3_Spectrum[0,0,8:]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label =' SUAVE 3600 RPM')    
+    axes1.plot(Exp_APC_SF_freqency_spectrum ,     APC_SF_1_3_Spectrum[0,0,8:]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw, label =' MARC 3600 RPM')    
     axes1.set_xscale('log') 
     axes1.set_ylabel(r'SPL$_{1/3}$ (dB)')
     axes1.set_xlabel('Frequency (Hz)') 
@@ -397,7 +397,7 @@ def Broadband_Noise_Validation(PP):
     fig2.set_size_inches(fig_size_width,fig_size_height)  
     axes2 = fig2.add_subplot(1,1,1)           
     axes2.plot(Exp_APC_SF_freqency_spectrum , Exp_APC_SF_1_3_Spectrum[2,:-5]  , color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,  label = 'Exp. 4800 RPM')       
-    axes2.plot(Exp_APC_SF_freqency_spectrum ,     APC_SF_1_3_Spectrum[2,0,8:]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,label = ' SUAVE 4800 RPM')   
+    axes2.plot(Exp_APC_SF_freqency_spectrum ,     APC_SF_1_3_Spectrum[2,0,8:]  , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,label = ' MARC 4800 RPM')   
     axes2.set_xscale('log') 
     axes2.set_ylabel(r'SPL$_{1/3}$ (dB)')
     axes2.set_xlabel('Frequency (Hz)') 
@@ -409,7 +409,7 @@ def Broadband_Noise_Validation(PP):
     fig3.set_size_inches(fig_size_width,fig_size_height)  
     axes3 = fig3.add_subplot(1,1,1)           
     axes3.plot(Exp_APC_SF_freqency_spectrum , Exp_broadband_APC[0,:], color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,    label = 'Exp. 45 $\degree$ mic.')    
-    axes3.plot(Exp_APC_SF_freqency_spectrum , APC_SF_SPL_broadband_1_3_spectrum[1,4,8:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'SUAVE 45 $\degree$ mic')     
+    axes3.plot(Exp_APC_SF_freqency_spectrum , APC_SF_SPL_broadband_1_3_spectrum[1,4,8:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'MARC 45 $\degree$ mic')     
     axes3.set_xscale('log') 
     axes3.set_ylabel(r'SPL$_{1/3}$ (dB)')
     axes3.set_xlabel('Frequency (Hz)') 
@@ -421,7 +421,7 @@ def Broadband_Noise_Validation(PP):
     fig4.set_size_inches(fig_size_width,fig_size_height)  
     axes4 = fig4.add_subplot(1,1,1)            
     axes4.plot(Exp_APC_SF_freqency_spectrum , Exp_broadband_APC[1,:], color = PP.Elc[0] , linestyle = PP.Els, marker = PP.Elm , markersize = PP.m , linewidth = PP.lw,   label = 'Exp. 22.5 $\degree$ mic.')     
-    axes4.plot(Exp_APC_SF_freqency_spectrum , APC_SF_SPL_broadband_1_3_spectrum[1,3,8:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'SUAVE 22.5 $\degree$ mic.')   
+    axes4.plot(Exp_APC_SF_freqency_spectrum , APC_SF_SPL_broadband_1_3_spectrum[1,3,8:] , color = PP.Slc[0] , linestyle = PP.Sls, marker = PP.Slm , markersize = PP.m , linewidth = PP.lw,  label = 'MARC 22.5 $\degree$ mic.')   
     axes4.set_xscale('log') 
     axes4.set_ylabel(r'SPL$_{1/3}$ (dB)')
     axes4.set_xlabel('Frequency (Hz)') 

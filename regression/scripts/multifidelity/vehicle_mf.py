@@ -5,7 +5,7 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import SUAVE
+import MARC
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -25,7 +25,7 @@ def base_setup():
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    
 
-    vehicle = SUAVE.Vehicle()
+    vehicle = MARC.Vehicle()
     vehicle.tag = 'Multifidelity'    
 
 
@@ -56,9 +56,9 @@ def configs_setup(vehicle):
     #   Initialize Configurations
     # ------------------------------------------------------------------
 
-    configs = SUAVE.Components.Configs.Config.Container()
+    configs = MARC.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config = MARC.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
 

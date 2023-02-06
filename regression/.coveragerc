@@ -1,5 +1,5 @@
 [run]
-source = SUAVE
+source = MARC
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -22,13 +22,13 @@ exclude_lines =
 ignore_errors = True
 
 omit =
-    ../trunk/SUAVE/Plugins/pint/*
-    ../trunk/SUAVE/Optimization/Package_Setups/pyoptsparse_setup.py
-    ../trunk/SUAVE/Optimization/Package_Setups/pyopt_setup.py
-    ../trunk/SUAVE/Optimization/Package_Setups/pyopt_surrogate_setup.py
-    ../trunk/SUAVE/Optimization/Package_Setups/ipopt_setup.py
-    ../trunk/SUAVE/Components/Energy/Networks/PyCycle.py 
-    ../trunk/SUAVE/Input_Output/OpenVSP/*
-    ../trunk/SUAVE/Input_Output/VTK/*
+    ../trunk/MARC/Plugins/pint/*
+    ../trunk/MARC/Optimization/Package_Setups/pyoptsparse_setup.py
+    ../trunk/MARC/Optimization/Package_Setups/pyopt_setup.py
+    ../trunk/MARC/Optimization/Package_Setups/pyopt_surrogate_setup.py
+    ../trunk/MARC/Optimization/Package_Setups/ipopt_setup.py
+    ../trunk/MARC/Components/Energy/Networks/PyCycle.py 
+    ../trunk/MARC/Input_Output/OpenVSP/*
+    ../trunk/MARC/Input_Output/VTK/*
 
 
