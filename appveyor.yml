@@ -1,14 +1,14 @@
-version: 2.4.{build}
+version: 1.0.{build}
 branches:
   only:
-  - master
   - develop
+  - master
 image: Ubuntu2004
 build: off
 
 environment:
   COVERALLS_SERVICE_NAME: appveyor
-  COVERALLS_REPO_TOKEN: m09oo3So3XLf7Xx2GzsylzegXi64U9IOG
+  COVERALLS_REPO_TOKEN: esWXrgD2XvtSU7Hg3yrgykjGiuiBQOJY
 
 init:
     - sudo apt-get update
@@ -22,6 +22,7 @@ install:
     - python3 -m pip install --upgrade scikit-learn
     - python3 -m pip install --upgrade matplotlib
     - python3 -m pip install --upgrade plotly
+    - python3 -m pip install --upgrade kaleido
     - PATH=$PATH:/home/appveyor/.local/bin
     - python3 -m pip install coveralls==3.2.0
     - python3 setup.py develop --user

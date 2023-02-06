@@ -24,7 +24,7 @@ Contributing Institutions
 Requirements
 ------------
 
-numpy, scipy, matplotlib, pip, scikit-learn, plotly
+numpy, scipy, matplotlib, pip, scikit-learn, plotly, kaleido
 
 
 Developer Install
