@@ -81,7 +81,7 @@ def install(the_package,version,date):
         url = 'https://www.matthewaclarke.com/marc',
         packages = packages,
         include_package_data = True,
-        license = 'MIT',
+        license = 'LGPL-2.1',
         platforms = ['Win, Linux, Unix, Mac OS-X'],
         zip_safe  = False,
         requires  = requires,
@@ -215,7 +215,17 @@ def import_tests():
     try:
         import plotly
     except ImportError:
-        raise ImportError('plotly is required for this package')
+        raise ImportError('plotly is required for this package') 
+    
+    try:
+        import kaleido
+    except ImportError:
+        raise ImportError('kaleido is required for this package')   
+
+    try:
+        import pandas
+    except ImportError:
+        raise ImportError('plotly is required for this package')    
     
     return
     

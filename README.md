@@ -10,7 +10,7 @@ Its purpose is to credibly produce conceptual-level design conclusions
 for future aircraft incorporating advanced technologies.
 
  
-License: MIT 
+License: LGPL-2.1
 
 Guides at [www.matthewaclarke.com/marc](https://www.matthewaclarke.com/marc).
 
