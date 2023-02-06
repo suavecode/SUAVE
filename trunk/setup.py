@@ -68,7 +68,7 @@ def install(the_package,version,date):
     packages = list_subpackages(the_package,verbose=False)
     packages = list(map( '.'.join, packages ))
     
-    requires = ['numpy','scipy','sklearn','plotly','matplotlib','kaleido']
+    requires = ['numpy','scipy','sklearn','plotly','matplotlib','kaleido','pandas']
     python_v = '>=3.6'
 
     # run the setup!!!

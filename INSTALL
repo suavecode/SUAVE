@@ -26,7 +26,7 @@ Let us know if you find that it works on additonal versions.
 
 # Package Requirements
 
-numpy, scipy, matplotlib, pip, plotly, kaleido
+numpy, scipy, matplotlib, pip, plotly, kaleido, pandas
 
 The above can be obtained at once with the installation of python 
 distributions like "Anaconda" and "Enthought"
