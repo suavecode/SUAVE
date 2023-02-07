@@ -94,7 +94,7 @@ def main():
         assert(np.abs(v)<1e-6)
  
     # Plot vehicle 
-    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = True)
+    plot_3d_vehicle(configs.cruise, save_figure = False, plot_wing_control_points = True,show_figure = False)
     
     return
 
@@ -238,13 +238,13 @@ def missions_setup(base_mission):
 def plot_mission(results,line_style='bo-'):     
     
     # Plot Propeller Performance 
-    plot_rotor_conditions(results,line_style)
+    plot_rotor_conditions(results,line_style,show_figure=False)
     
     # Plot Power and Disc Loading
-    plot_disc_power_loading(results,line_style)
+    plot_disc_power_loading(results,line_style,show_figure=False)
     
     # Plot Solar Radiation Flux
-    plot_solar_flux(results,line_style) 
+    plot_solar_flux(results,line_style,show_figure=False) 
     
     return 
 

@@ -25,8 +25,9 @@ from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4s
 
 
 ## @ingroup Visualization-Geometry-Three_Dimensional  
-def plot_3d_rotor(rotor,save_filename = "Rotor", save_figure = False, plot_data = None,plot_axis = False, cpt=0, number_of_airfoil_points = 21,
-                            color_map='turbid',alpha=1):
+def plot_3d_rotor(rotor,save_filename = "Rotor", save_figure = False, plot_data = None,
+                  show_figure  = True, plot_axis = False, cpt=0, number_of_airfoil_points = 21,
+                    color_map='turbid',alpha=1):
     """ This plots a 3D surface of the  rotor
 
     Assumptions:
@@ -98,7 +99,8 @@ def plot_3d_rotor(rotor,save_filename = "Rotor", save_figure = False, plot_data 
         fig.update_traces(opacity = alpha) 
         if save_figure: 
             fig.write_image(save_filename + ".png")
-        fig.show()
+        if show_figure:
+            fig.show()
         return 
     else: 
         return plot_data

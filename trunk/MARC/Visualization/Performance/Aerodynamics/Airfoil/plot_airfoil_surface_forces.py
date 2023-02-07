@@ -11,17 +11,14 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 from MARC.Core import Units 
-import plotly.figure_factory as ff
-from plotly.subplots import make_subplots
-import plotly.express as px
+import plotly.figure_factory as ff 
 import plotly.graph_objects as go
-import plotly 
 # ----------------------------------------------------------------------
 #  Plot Airfoil Surface Forces
 # ----------------------------------------------------------------------  
  
 ## @ingroup Visualization-Performance
-def plot_airfoil_surface_forces(ap):  
+def plot_airfoil_surface_forces(ap,show_figure = True):  
     """ This plots the forces on an airfoil surface
     
         Assumptions:
@@ -57,8 +54,8 @@ def plot_airfoil_surface_forces(ap):
                 scaleanchor = "x",
                 scaleratio = 1,
               )            
-
     
-    fig.show()
+    if show_figure:
+        fig.show()
         
     return

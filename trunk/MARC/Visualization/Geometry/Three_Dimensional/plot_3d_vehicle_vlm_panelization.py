@@ -22,7 +22,8 @@ def plot_3d_vehicle_vlm_panelization(vehicle,
                                      save_filename = "VLM_Panelization",
                                      x_axis_limit = None,
                                      y_axis_limit = None,
-                                     z_axis_limit = None):
+                                     z_axis_limit = None,
+                                     show_figure = True):
                                   
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
     Routine is initialized
@@ -53,7 +54,7 @@ def plot_3d_vehicle_vlm_panelization(vehicle,
     # DEFINE PLOT LIMITS 
     # -------------------------------------------------------------------------    
     if x_axis_limit == None: 
-        x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2,10)
+        x_min,x_max = np.minimum(-1,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2,10)
     else:
         x_min,x_max = x_axis_limit,x_axis_limit
     if y_axis_limit == None: 
@@ -110,5 +111,7 @@ def plot_3d_vehicle_vlm_panelization(vehicle,
     fig.update_traces(opacity = alpha)
     if save_figure:
         fig.write_image(save_filename + ".png")
-    fig.show()     
+        
+    if show_figure:
+        fig.show()     
     return 

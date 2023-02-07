@@ -17,7 +17,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 ## @ingroup Visualization-Geometry
-def plot_rotor(prop, face_color = 'red', edge_color = 'black' , save_figure = False, save_filename = "Propeller_Geometry", file_type = ".png"):
+def plot_rotor(prop, face_color = 'red', edge_color = 'black' ,show_figure = True, save_figure = False, save_filename = "Propeller_Geometry", file_type = ".png"):
     """This plots the geometry of a propeller or rotor
 
     Assumptions:
@@ -61,7 +61,8 @@ def plot_rotor(prop, face_color = 'red', edge_color = 'black' , save_figure = Fa
 
     if save_figure:
         fig.write_image(save_filename + '_2D' + file_type)
-
-    fig.show()
+    
+    if show_figure:
+        fig.show()
 
     return

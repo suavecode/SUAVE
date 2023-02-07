@@ -16,6 +16,7 @@ from MARC.Visualization.Performance.Common.post_process_noise_data import post_p
 ## @ingroup Visualization-Performance-Noise
 def plot_flight_profile_noise_contours(results,
                                        save_figure=False,
+                                       show_figure=False,
                                        save_filename="Noise_Contour",
                                        colormap = 'plasma',
                                        file_type=".png",
@@ -69,8 +70,9 @@ def plot_flight_profile_noise_contours(results,
     fig_2d.update_xaxes(title_text='West <------- Distance (m) -----> East ')
     fig_2d.update_yaxes(title_text='South <------- Distance (m) -----> North ')   
     fig_2d.update_layout(title_text= '2D Noise Contour')       
- 
-    fig_2d.show() 
+
+    if show_figure: 
+        fig_2d.show() 
     if save_figure:
         save_plot(fig_2d, save_filename + '_2D', file_type)
         
@@ -112,8 +114,9 @@ def plot_flight_profile_noise_contours(results,
                             colorbar_len= 0.75,
                             **colorax(min_SPL, max_SPL)),
              scene_camera=camera) 
- 
-    fig_3d.show() 
+    
+    if show_figure:
+        fig_3d.show() 
     if save_figure:
         save_plot(fig_3d, save_filename + '_3D', file_type)
          

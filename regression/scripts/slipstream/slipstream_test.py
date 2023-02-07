@@ -106,8 +106,8 @@ def regress_1a(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False)
-    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True)
+    plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False,show_figure= False)
+    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True,show_figure= False)
               
     return
 
@@ -140,8 +140,8 @@ def regress_1b(results, configs):
 
     # plot results, vehicle, and vortex distribution
     plot_mission(results,configs.base)
-    plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False)
-    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True)
+    plot_3d_vehicle(configs.base, save_figure = False, plot_wing_control_points = False,show_figure= False)
+    plot_3d_vehicle_vlm_panelization(configs.base, save_figure=False, plot_wing_control_points=True,show_figure= False)
               
     return
  
@@ -149,7 +149,7 @@ def regress_1b(results, configs):
 def plot_mission(results,vehicle): 
 
     # Plot lift distribution
-    plot_lift_distribution(results,vehicle)
+    plot_lift_distribution(results,vehicle,show_figure=False)
 
     return
 

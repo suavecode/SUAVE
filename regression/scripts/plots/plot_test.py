@@ -24,49 +24,49 @@ def main():
     """
     # Compare Plot for  Aerodynamic Forces 
     """
-    plot_aerodynamic_forces(results)
+    plot_aerodynamic_forces(results,show_figure=False)
     
     
     """
     # Compare Plot for  Aerodynamic Coefficients 
     """
-    plot_aerodynamic_coefficients(results) 
+    plot_aerodynamic_coefficients(results,show_figure=False) 
     
     
     """
     # Compare Plot for Drag Components
     """
-    plot_drag_components(results)
+    plot_drag_components(results,show_figure=False)
     
     
     """
     # Compare Plot for  Altitude, sfc, vehicle weight 
     """
-    plot_altitude_sfc_weight(results)
+    plot_altitude_sfc_weight(results,show_figure=False)
     
     
     """
     # Compare Plot for Aircraft Velocities 
     """
-    plot_aircraft_velocities(results)      
+    plot_aircraft_velocities(results,show_figure=False)      
 
 
     """
     # Compare Plot for Flight Conditions   
     """
-    plot_flight_conditions(results)
+    plot_flight_conditions(results,show_figure=False)
     
 
     """
     # Compare Plot for Flight Trajectory
     """
-    plot_flight_trajectory(results)  
+    plot_flight_trajectory(results,show_figure=False)  
 
     
     """
     # Compare Plot for Fuel Tracking 
     """
-    plot_fuel_use(results)
+    plot_fuel_use(results,show_figure=False)
 
 
     return 

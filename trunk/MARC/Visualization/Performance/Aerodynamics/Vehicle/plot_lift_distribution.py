@@ -19,10 +19,11 @@ from plotly.subplots import make_subplots
 ## @ingroup Visualization-Performance-Aerodynamics
 def plot_lift_distribution(results,vehicle,
                            save_figure=False,
-                            save_filename="Lift_Distribution",
-                            file_type=".png",
-                            width = 1200, height = 600,
-                            *args, **kwargs):   
+                           show_figure = True,
+                           save_filename="Lift_Distribution",
+                           file_type=".png",
+                           width = 1200, height = 600,
+                           *args, **kwargs):   
    """This plots the sectional lift distrubtion at all control points
     on all lifting surfaces of the aircraft
     
@@ -100,6 +101,7 @@ def plot_lift_distribution(results,vehicle,
          if save_figure:
             save_plot(fig, save_filename, file_type)     
       
-         fig.show() 
+         if show_figure:
+            fig.show()
 
    return

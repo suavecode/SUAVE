@@ -7,8 +7,7 @@
 #   Imports
 # ---------------------------------------------------------------------
 from MARC.Core import Units
-from MARC.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis 
-import matplotlib.pyplot as plt   
+from MARC.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis   
 from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
      import  compute_naca_4series
 from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
@@ -32,8 +31,8 @@ def main():
     airfoil_properties_1 = airfoil_analysis(airfoil_geometry_1,AoA_vals,Re_vals)  
     
      # Plots    
-    plot_airfoil_surface_forces(airfoil_properties_1)   
-    plot_airfoil_boundary_layer_properties(airfoil_properties_1,show_legend = True )   
+    plot_airfoil_surface_forces(airfoil_properties_1,show_figure=False)   
+    plot_airfoil_boundary_layer_properties(airfoil_properties_1,show_legend = True,show_figure=False )   
     
     # XFOIL Validation - Source   
     xfoil_data_cl   = 0.803793
@@ -93,5 +92,4 @@ def main():
     
 
 if __name__ == '__main__': 
-    main() 
-    plt.show()
+    main()  

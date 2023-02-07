@@ -34,7 +34,7 @@ def main():
     data        = VLM(conditions, settings, geometry)
     
     plot_title  = geometry.tag
-    plot_3d_vehicle_vlm_panelization(geometry, plot_wing_control_points=False, save_filename=plot_title)
+    plot_3d_vehicle_vlm_panelization(geometry, plot_wing_control_points=False, save_filename=plot_title,show_figure=False)
 
     # save/load results
     results = Data()

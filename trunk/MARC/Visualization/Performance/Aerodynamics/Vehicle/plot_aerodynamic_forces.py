@@ -24,6 +24,7 @@ from plotly.subplots import make_subplots
 ## @ingroup Visualization-Performance-Aerodynamics
 def plot_aerodynamic_forces(results,
                             save_figure=False,
+                            show_figure = True,
                             save_filename="Aerodynamic_Forces",
                             file_type=".png",
                             width = 1200, height = 600,
@@ -136,7 +137,8 @@ def plot_aerodynamic_forces(results,
     )
 
     fig = plot_style(fig)
-    fig.show()
+    if show_figure:
+        fig.show()
 
     if save_figure:
         save_plot(fig, save_filename, file_type)

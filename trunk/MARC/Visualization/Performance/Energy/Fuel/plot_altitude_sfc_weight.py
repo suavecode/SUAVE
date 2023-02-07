@@ -21,6 +21,7 @@ from plotly.subplots import make_subplots
 ## @ingroup Visualization-Performance-Energy-Fuel
 def plot_altitude_sfc_weight(results,
                              save_figure = False,
+                             show_figure = True,
                              save_filename = "Altitude_SFC_Weight" ,
                              file_type = ".png",
                              width=800,height=500,
@@ -130,7 +131,8 @@ def plot_altitude_sfc_weight(results,
 
     # Update Figure Style and Show 
     fig = plot_style(fig)
-    fig.show()
+    if show_figure:
+        fig.show()
 
     # Optionally save the figure with kaleido import check
 

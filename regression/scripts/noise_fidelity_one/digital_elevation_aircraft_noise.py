@@ -268,10 +268,10 @@ def X57_missions_setup(base_mission):
 def plot_results(results):   
     
     # Plot noise level
-    plot_ground_noise_levels(results)
+    plot_ground_noise_levels(results,show_figure=False)
     
     # Plot noise contour
-    plot_flight_profile_noise_contours(results)   
+    plot_flight_profile_noise_contours(results,show_figure=False)   
                         
     return  
 

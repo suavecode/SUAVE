@@ -23,6 +23,7 @@ def plot_flight_trajectory(results,
                             save_figure=False,
                             save_filename="Flight_Trajectory",
                             file_type=".png",
+                            show_figure = True,
                             width = 1200, height = 600,
                             *args, **kwargs):
     """This plots the 3D flight trajectory of the aircraft.
@@ -146,7 +147,8 @@ def plot_flight_trajectory(results,
     )
 
     fig = plot_style(fig)
-    fig.show()
+    if show_figure:
+        fig.show()
 
     if save_figure:
         save_plot(fig, save_filename + '_2D', file_type) 
@@ -169,9 +171,10 @@ def plot_flight_trajectory(results,
                              yaxis = dict(backgroundcolor="white", gridcolor="grey", showbackground=plot_axis, 
                                      zerolinecolor="grey", range=[y_min,y_max]),
                              zaxis = dict(backgroundcolor="white",gridcolor="grey",showbackground=plot_axis,
-                                     zerolinecolor="grey", range=[0,z_max])))
- 
-    fig_3d.show()
+                                     zerolinecolor="grey", range=[0,z_max]))) 
+
+    if show_figure:  
+        fig_3d.show()
     if save_figure:
         save_plot(fig_3d, save_filename + '_3D', file_type)  
         

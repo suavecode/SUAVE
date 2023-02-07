@@ -10,8 +10,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-from MARC.Core import Units 
-import plotly.figure_factory as ff
+from MARC.Core import Units
 from plotly.subplots import make_subplots
 import plotly.express as px
 import plotly.graph_objects as go
@@ -22,7 +21,7 @@ import plotly
 # ---------------------------------------------------------------------- 
 
 ## @ingroup Visualization-Performance
-def plot_airfoil_boundary_layer_properties(ap,show_legend = False ):
+def plot_airfoil_boundary_layer_properties(ap,show_legend = False,show_figure = True ):
     """Plots viscous distributions
     
     Assumptions:
@@ -41,13 +40,13 @@ def plot_airfoil_boundary_layer_properties(ap,show_legend = False ):
     N/A
     """            
     
-    plot_quantity(ap, ap.Ue_Vinf, r'$U_{e}/U_{inv}}$'  ,'Inviscid Edge Velocity',show_legend) 
-    plot_quantity(ap, ap.H,  r'$H$'  ,'Kinematic Shape Parameter',show_legend) 
-    plot_quantity(ap, ap.delta_star, r'$\delta*$' ,'Displacement Thickness',show_legend) 
-    plot_quantity(ap, ap.delta   , r'$\delta$' ,'Boundary Layer Thickness',show_legend) 
-    plot_quantity(ap, ap.theta, r'$\theta$' ,'Momentum Thickness',show_legend) 
-    plot_quantity(ap, ap.cf, r'$c_f $'  ,   'Skin Friction Coefficient',show_legend) 
-    plot_quantity(ap, ap.Re_theta,  r'$Re_{\theta}$'  ,'Theta Reynolds Number',show_legend) 
+    plot_quantity(ap, ap.Ue_Vinf, r'$U_{e}/U_{inv}}$'  ,'Inviscid Edge Velocity',show_figure,show_legend) 
+    plot_quantity(ap, ap.H,  r'$H$'  ,'Kinematic Shape Parameter',show_figure,show_legend) 
+    plot_quantity(ap, ap.delta_star, r'$\delta*$' ,'Displacement Thickness',show_figure,show_legend) 
+    plot_quantity(ap, ap.delta   , r'$\delta$' ,'Boundary Layer Thickness',show_figure,show_legend) 
+    plot_quantity(ap, ap.theta, r'$\theta$' ,'Momentum Thickness',show_figure,show_legend) 
+    plot_quantity(ap, ap.cf, r'$c_f $'  ,   'Skin Friction Coefficient',show_figure,show_legend) 
+    plot_quantity(ap, ap.Re_theta,  r'$Re_{\theta}$'  ,'Theta Reynolds Number',show_figure,show_legend) 
     
 
     fig = make_subplots(rows=1, cols=1)
@@ -78,8 +77,9 @@ def plot_airfoil_boundary_layer_properties(ap,show_legend = False ):
         scaleanchor = "x",
         scaleratio = 1,
       )              
-    
-    fig.show()
+     
+    if show_figure:
+        fig.show()
 
     return    
  
@@ -88,7 +88,7 @@ def plot_airfoil_boundary_layer_properties(ap,show_legend = False ):
 # ----------------------------------------------------------------------  
 
 ## @ingroup Visualization-Performance
-def plot_quantity(ap, q, qaxis, qname,show_legend=True):
+def plot_quantity(ap, q, qaxis, qname,show_figure = True,show_legend=True):
     """Plots a quantity q over lower/upper/wake surfaces
     
     Assumptions:
@@ -117,17 +117,15 @@ def plot_quantity(ap, q, qaxis, qname,show_legend=True):
     for i in range(n_cpts):   
         for j in range(n_cases): 
             case_label = 'AoA: ' + str(round(ap.AoA[i,j]/Units.degrees, 2)) + ', Re: ' + str(ap.Re[i,j]) 
-            fig.add_trace(go.Scatter(x=ap.x[i,j],y=q[i,j],showlegend=show_legend,mode='markers + lines',name=case_label,marker=dict(size = 5, symbol = 'circle')))
-
+            fig.add_trace(go.Scatter(x=ap.x[i,j],y=q[i,j],showlegend=show_legend,mode='markers + lines',name=case_label,marker=dict(size = 5, symbol = 'circle'))) 
         
     fig.update_layout(
         title=qname,
         xaxis_title=qaxis,
         yaxis_title=r'$x$',
     )    
-          
-          
-    fig.show()
-    
+            
+    if show_figure:
+        fig.show()
     return  
   

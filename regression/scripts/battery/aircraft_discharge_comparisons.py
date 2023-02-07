@@ -562,24 +562,24 @@ def missions_setup(base_mission):
 def plot_results(results):  
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results) 
+    plot_flight_conditions(results,show_figure=False) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results)  
+    plot_aerodynamic_coefficients(results,show_figure=False)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results)
+    plot_aircraft_velocities(results,show_figure=False)
     
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results) 
-    plot_battery_cell_conditions(results)
-    plot_battery_degradation(results)
+    plot_battery_pack_conditions(results,show_figure=False) 
+    plot_battery_cell_conditions(results,show_figure=False)
+    plot_battery_degradation(results,show_figure=False)
     
     # Plot Propeller Conditions 
-    plot_rotor_conditions(results) 
+    plot_rotor_conditions(results,show_figure=False) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_electric_motor_and_rotor_efficiencies(results)
+    plot_electric_motor_and_rotor_efficiencies(results,show_figure=False)
      
     return
 

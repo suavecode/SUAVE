@@ -78,7 +78,7 @@ def install(the_package,version,date):
         description = 'MARC: MIT Aerospace Research Code',
         author = 'MIT Laboratory for Electric Aircraft Design and Sustainability (MIT-LEADS)',
         maintainer = 'MARC Developers',
-        url = 'https://www.matthewaclarke.com/marc',
+        url = 'www.matthewaclarke.com/marc',
         packages = packages,
         include_package_data = True,
         license = 'LGPL-2.1',
@@ -225,7 +225,7 @@ def import_tests():
     try:
         import pandas
     except ImportError:
-        raise ImportError('plotly is required for this package')    
+        raise ImportError('pandas is required for this package')
     
     return
     

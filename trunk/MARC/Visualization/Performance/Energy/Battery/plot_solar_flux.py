@@ -21,11 +21,12 @@ from plotly.subplots import make_subplots
 
 ## @ingroup Visualization-Performance-Energy-Battery
 def plot_solar_flux(results,
-                                  save_figure = False,
-                                  save_filename = "Solar_Flux",
-                                  file_type = ".png",
-                                  width = 1200, height = 600,
-                                  *args, **kwargs):
+                    save_figure   = False,
+                    show_figure   = True,
+                    save_filename = "Solar_Flux",
+                    file_type     = ".png",
+                    width         = 1200, height = 600,
+                    *args, **kwargs):
     """This plots the solar flux and power train performance of an solar powered aircraft
 
     Assumptions:
@@ -135,7 +136,8 @@ def plot_solar_flux(results,
     )
 
     fig = plot_style(fig)
-    fig.show()
+    if show_figure:
+        fig.show()
 
     if save_figure:
         save_plot(fig, save_filename, file_type)

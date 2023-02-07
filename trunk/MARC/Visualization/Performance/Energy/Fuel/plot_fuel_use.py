@@ -19,6 +19,7 @@ from plotly.subplots import make_subplots
 ## @ingroup Visualization-Performance-Energy-Fuel
 def plot_fuel_use(results,
                     save_figure = False,
+                    show_figure = True,
                     save_filename = "Aircraft_Fuel_Burnt" ,
                     file_type = ".png",
                     width=800,height=500,
@@ -183,7 +184,8 @@ def plot_fuel_use(results,
 
     # Update Figure Style and Show 
     fig = plot_style(fig)
-    fig.show()
+    if show_figure:
+        fig.show()
 
     # Optionally save the figure with kaleido import check
 

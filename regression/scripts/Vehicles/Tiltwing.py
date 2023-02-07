@@ -12,8 +12,7 @@ from MARC.Core import Units, Data
 from MARC.Methods.Power.Battery.Sizing                                   import initialize_from_mass
 from MARC.Methods.Propulsion.electric_motor_sizing                       import  size_optimal_motor
 from MARC.Methods.Weights.Correlations.Propulsion                        import nasa_motor
-from MARC.Methods.Propulsion                                             import propeller_design
-from MARC.Visualization.Geometry                                                 import *
+from MARC.Methods.Propulsion                                             import propeller_design 
 from MARC.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from MARC.Methods.Weights.Buildups.eVTOL.converge_evtol_weight           import converge_evtol_weight
 from MARC.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
@@ -285,7 +284,7 @@ def vehicle_setup():
 
     # Front Rotors Locations
 
-    origins = [[-0.2, 1.347, 0.0], [-0.2, 3.2969999999999997, 0.0], [-0.2, -1.347, 0.0], [-0.2, -3.2969999999999997, 0.0],\
+    origins = [[-0.2, 1.347, 0.0], [-0.2, 3.2969999999999997, 0.0], [-0.2, -1.347, 0.0], [-0.2, -3.2969999999999997, 0.0],
                [4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54], [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
 
     for ii in range(8):

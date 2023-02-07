@@ -23,6 +23,7 @@ from plotly.subplots import make_subplots
 ## @defgroup Visualization-Performance-Mission 
 def plot_aircraft_velocities(results,
                             save_figure=False,
+                            show_figure = True,
                             save_filename="Aircraft Velocities",
                             file_type=".png",
                             width = 1200, height = 600,
@@ -129,7 +130,8 @@ def plot_aircraft_velocities(results,
     )
 
     fig = plot_style(fig)
-    fig.show()
+    if show_figure:
+        fig.show()
 
     if save_figure:
         save_plot(fig, save_filename, file_type)

@@ -101,7 +101,7 @@ def main():
     prop_a                                  = propeller_design(prop_a)
 
     # plot propeller 
-    plot_3d_rotor(prop_a)
+    plot_3d_rotor(prop_a,show_figure=False)
 
     # Design the Propeller with airfoil  geometry defined 
     prop                                   = MARC.Components.Energy.Converters.Propeller()

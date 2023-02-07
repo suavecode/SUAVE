@@ -16,7 +16,7 @@ from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_
      import import_airfoil_geometry 
 
 ## @ingroup Visualization-Geometry
-def plot_airfoil(airfoil_paths,line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry", file_type = ".png"):
+def plot_airfoil(airfoil_paths,line_color = 'k-', save_figure = False,show_figure = True, save_filename = "Airfoil_Geometry", file_type = ".png"):
     """This plots all airfoil defined in the list "airfoil_names" 
 
     Assumptions:
@@ -43,6 +43,7 @@ def plot_airfoil(airfoil_paths,line_color = 'k-', save_figure = False, save_file
     
     if save_figure:
         fig.write_image(save_filename.replace("_", " ") + file_type)  
-
-    fig.show()
+    
+    if show_figure:
+        fig.show()
     return

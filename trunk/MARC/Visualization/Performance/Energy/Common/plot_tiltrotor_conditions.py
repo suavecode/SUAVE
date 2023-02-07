@@ -21,6 +21,7 @@ from plotly.subplots import make_subplots
 ## @ingroup Visualization-Performance-Energy-Common
 def plot_tiltrotor_conditions(results,configs,
                               save_figure = False,
+                              show_figure  = True,
                               save_filename = "Tiltrotor",
                               file_type = ".png",
                               width = 1200, height = 600,
@@ -162,7 +163,8 @@ def plot_tiltrotor_conditions(results,configs,
         )
     
         fig = plot_style(fig)
-        fig.show()
+        if show_figure:
+            fig.show()
     
         if save_figure:
             save_plot(fig, save_filename, file_type)

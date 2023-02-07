@@ -21,6 +21,7 @@ from MARC.Visualization.Performance.Common.post_process_noise_data import post_p
 ## @ingroup Visualization-Performance-Noise
 def plot_ground_noise_levels(results,
                             save_figure=False,
+                            show_figure = True,
                             save_filename="Sideline Noise Levels",
                             file_type=".png",
                             width = 1200, height = 600,
@@ -79,7 +80,8 @@ def plot_ground_noise_levels(results,
     if save_figure:
         save_plot(fig, save_filename, file_type)     
         
-    fig.show() 
+    if show_figure:
+        fig.show()
          
     return    
  

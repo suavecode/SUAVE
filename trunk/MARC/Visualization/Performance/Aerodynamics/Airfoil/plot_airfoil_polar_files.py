@@ -22,7 +22,7 @@ import plotly
 # ----------------------------------------------------------------------  
 
 ## @ingroup Visualization-Performance
-def plot_airfoil_polar_files(polar_data, save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
+def plot_airfoil_polar_files(polar_data, save_figure = False,show_figure = True, save_filename = "Airfoil_Polars", file_type = ".png"):
     """This plots all airfoil polars in the list "airfoil_polar_paths" 
 
     Assumptions:
@@ -80,6 +80,7 @@ def plot_airfoil_polar_files(polar_data, save_figure = False, save_filename = "A
     if save_figure:
         save_plot(fig, save_filename, file_type)     
         
-    fig.show()
+    if show_figure:
+        fig.show()
         
     return

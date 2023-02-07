@@ -136,8 +136,7 @@ def compute_propeller_wake_velocities(prop,grid_settings,grid_points, conditions
     
     if plot_velocities:
         # plot the velocities input to downstream propeller
-        plot_rotor_disc_inflow(prop,propeller_wake,grid_points)
-        
+        plot_rotor_disc_inflow(prop,propeller_wake,grid_points) 
     
     return propeller_wake
 

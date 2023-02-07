@@ -66,8 +66,8 @@ def main():
     
     # Truth values   
     departure_throttle_truth          = 0.6517016153400099
-    transition_1_throttle_truth       = 0.6015133122785277
-    cruise_throttle_truth             = 0.465133091409524
+    transition_1_throttle_truth       = 0.6010587464782999
+    cruise_throttle_truth             = 0.46469250335732526
     
     # Store errors 
     error = Data()
@@ -327,28 +327,28 @@ def missions_setup(base_mission):
 def plot_mission(results,configs):  
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results) 
+    plot_flight_conditions(results,show_figure=False) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results)  
+    plot_aerodynamic_coefficients(results,show_figure=False)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results)
+    plot_aircraft_velocities(results,show_figure=False)
     
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results)
+    plot_battery_pack_conditions(results,show_figure=False)
     
     # Plot Propeller Conditions 
-    plot_rotor_conditions(results) 
+    plot_rotor_conditions(results,show_figure=False) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_electric_motor_and_rotor_efficiencies(results)
+    plot_electric_motor_and_rotor_efficiencies(results,show_figure=False)
     
     # Plot tiltrotor conditions
-    plot_tiltrotor_conditions(results,configs)
+    plot_tiltrotor_conditions(results,configs,show_figure=False)
 
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results)  
+    plot_disc_power_loading(results,show_figure=False)  
 
     return
 

@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots 
 
 ## @defgroup Visualization-Performance
-def plot_rotor_performance(prop, title=None, save_figure=False, save_filename='Rotor_Performance', file_type=".png"):
+def plot_rotor_performance(prop, title=None, show_figure = True,save_figure=False, save_filename='Rotor_Performance', file_type=".png"):
     # unpack
     outputs = prop.outputs
     r_distribution = outputs.disc_radial_distribution[0, :, 0]
@@ -49,6 +49,7 @@ def plot_rotor_performance(prop, title=None, save_figure=False, save_filename='R
     if save_figure:
         fig.write_image(save_filename + '_2D' + file_type) 
     
-    fig.show()   
+    if show_figure:
+        fig.show()  
     return
  

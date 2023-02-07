@@ -107,7 +107,7 @@ def full_setup():
     # vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
-    plot_3d_vehicle(vehicle,plot_wing_control_points = False)
+    plot_3d_vehicle(vehicle,plot_wing_control_points = False,show_figure=False)
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
@@ -330,8 +330,7 @@ def missions_setup(base_mission):
     #   Base Mission
     # ------------------------------------------------------------------
 
-    missions.base = base_mission
-
+    missions.base = base_mission 
 
     # done!
     return missions  
@@ -343,16 +342,16 @@ def missions_setup(base_mission):
 def plot_mission(results):
 
     # Plot Flight Conditions
-    plot_flight_conditions(results)
+    plot_flight_conditions(results,show_figure=False)
 
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results)
+    plot_aerodynamic_coefficients(results,show_figure=False)
 
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results)
+    plot_aircraft_velocities(results,show_figure=False)
  
     # Plot Electric Motor and Propeller Efficiencies  of Lift Cruise Network
-    plot_electric_motor_and_rotor_efficiencies(results)
+    plot_electric_motor_and_rotor_efficiencies(results,show_figure=False)
 
     return
  

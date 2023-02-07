@@ -26,15 +26,16 @@ from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_rotor    import plot_
 
 ## @ingroup Visualization-Geometry-Three_Dimensional
 def plot_3d_vehicle(vehicle,
-                    plot_axis = False,
-                    save_figure = False,
-                    alpha = 1.0,
+                    plot_axis    = False,
+                    save_figure  = False,
+                    alpha        = 1.0,
                     plot_wing_control_points = True,
                     plot_rotor_wake_vortex_core = False,
                     save_filename = "Vehicle_Geometry",
-                    x_axis_limit = None,
-                    y_axis_limit = None,
-                    z_axis_limit = None):
+                    x_axis_limit  = None,
+                    y_axis_limit  = None,
+                    z_axis_limit  = None,
+                    show_figure   = True):
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics
     Routine is initialized
 
@@ -75,7 +76,7 @@ def plot_3d_vehicle(vehicle,
     # DEFINE PLOT LIMITS 
     # -------------------------------------------------------------------------  
     if x_axis_limit == None: 
-        x_min,x_max = np.minimum(0,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2,10)
+        x_min,x_max = np.minimum(-1,np.min(VD.XC)*1.2), np.maximum(np.max(VD.XC)*1.2,10)
     else:
         x_min,x_max = x_axis_limit,x_axis_limit
     if y_axis_limit == None: 
@@ -141,7 +142,9 @@ def plot_3d_vehicle(vehicle,
     fig.update_traces(opacity = alpha)
     if save_figure:
         fig.write_image(save_filename + ".png")
-    fig.show()
+        
+    if show_figure:
+        fig.show()
         
     return 
 
@@ -165,10 +168,11 @@ def plot_3d_energy_network(plot_data,network,number_of_airfoil_points,color_map)
     """ 
     plot_axis     = False 
     save_figure   = False 
+    show_figure   = False
     save_filename = 'Rotor'
     if ('rotors' in network.keys()):
         rots = network.rotors 
         for rot in rots:  
-            plot_data = plot_3d_rotor(rot,save_filename,save_figure,plot_data,plot_axis,0,number_of_airfoil_points,color_map) 
+            plot_data = plot_3d_rotor(rot,save_filename,save_figure,plot_data,show_figure,plot_axis,0,number_of_airfoil_points,color_map) 
  
     return plot_data

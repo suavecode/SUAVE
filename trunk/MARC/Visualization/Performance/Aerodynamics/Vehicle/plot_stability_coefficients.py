@@ -24,6 +24,7 @@ from plotly.subplots import make_subplots
 ## @ingroup Visualization-Performance-Aerodynamics
 def plot_stability_coefficients(results,
                                 save_figure=False,
+                                show_figure = True,
                                 save_filename="Stability_Coefficents",
                                 file_type=".png",
                                 width = 1400, height =800,
@@ -136,8 +137,8 @@ def plot_stability_coefficients(results,
     )
 
     fig = plot_style(fig)
-    fig.show()
-
+    if show_figure:
+        fig.show()
     if save_figure:
         save_plot(fig, save_filename, file_type)
 
