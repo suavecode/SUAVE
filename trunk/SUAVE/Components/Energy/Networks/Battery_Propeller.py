@@ -218,6 +218,7 @@ class Battery_Propeller(Network):
                 conditions.propulsion.propeller_motor_efficiency[:,ii] = etam[:,0]  
                 conditions.propulsion.propeller_motor_torque[:,ii]     = motor.outputs.torque[:,0]
                 conditions.propulsion.propeller_torque[:,ii]           = Q[:,0]
+                conditions.propulsion.propeller_power[:,ii]            = P[:,0]
                 conditions.propulsion.propeller_thrust[:,ii]           = np.linalg.norm(total_thrust ,axis = 1) 
                 conditions.propulsion.propeller_rpm[:,ii]              = rpm[:,0]
                 conditions.propulsion.propeller_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
@@ -478,6 +479,7 @@ class Battery_Propeller(Network):
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_torque           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_power            = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_thrust           = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_rpm              = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.disc_loading               = 0. * ones_row(n_props)                 
@@ -570,6 +572,7 @@ class Battery_Propeller(Network):
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_torque           = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_power            = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_thrust           = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_rpm              = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.disc_loading               = 0. * ones_row(n_props)                 
