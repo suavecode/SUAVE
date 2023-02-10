@@ -27,7 +27,7 @@ import numpy as np
 ## @ingroup Methods-Weights-Buildups-eVTOL
 
 def empty(config,
-          settings,
+          settings = None,
           contingency_factor            = 1.1,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
@@ -52,7 +52,7 @@ def empty(config,
         https://github.com/VahanaOpenSource
 
 
-        Inputs: 
+        Inputs:
             config:                     SUAVE Config Data Stucture
             contingency_factor          Factor capturing uncertainty in vehicle weight [Unitless]
             speed_of_sound:             Local Speed of Sound                           [m/s]
@@ -63,7 +63,7 @@ def empty(config,
             max_g_load                  Maximum g-forces load for certification        [UNitless]
             motor_efficiency:           Motor Efficiency                               [Unitless]
 
-        Outputs: 
+        Outputs:
             outputs:                    Data Dictionary of Component Masses [kg]
 
         Output data dictionary has the following book-keeping hierarchical structure:
@@ -224,30 +224,30 @@ def empty(config,
             prop_motors   = network.propeller_motors
             rot_motors    = network.lift_rotor_motors
 
-        elif isinstance(network, Battery_Propeller): 
-            props         = network.propellers 
-            prop_motors   = network.propeller_motors          
-            nThrustProps  = 0  
-            nLiftRotors   = 0    
-            nProps        = 0 
-            for rot_idx in range(len(props.keys())):               
-                if type(props[list(props.keys())[rot_idx]]) == Propeller: 
+        elif isinstance(network, Battery_Propeller):
+            props         = network.propellers
+            prop_motors   = network.propeller_motors
+            nThrustProps  = 0
+            nLiftRotors   = 0
+            nProps        = 0
+            for rot_idx in range(len(props.keys())):
+                if type(props[list(props.keys())[rot_idx]]) == Propeller:
                     props          = network.propellers
                     nThrustProps  +=1
-    
-                elif type(props[list(props.keys())[rot_idx]]) == Lift_Rotor:    
-                    nLiftRotors   +=1  
-                    
+
+                elif type(props[list(props.keys())[rot_idx]]) == Lift_Rotor:
+                    nLiftRotors   +=1
+
             if (nThrustProps == 0) and (nLiftRotors != 0):
                 network.lift_rotors           = network.propellers
-                rot_motors                    = network.propeller_motors  
+                rot_motors                    = network.propeller_motors
                 network.identical_lift_rotors = network.number_of_propeller_engines
         else:
             raise NotImplementedError("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
             Weight buildup will not return information on propulsion system.""",RuntimeWarning)
 
-        
-        nProps  = int(nLiftRotors + nThrustProps)  
+
+        nProps  = int(nLiftRotors + nThrustProps)
         if nProps > 1:
             prop_BRS_weight     = 16.   * Units.kg
         else:
@@ -255,7 +255,7 @@ def empty(config,
 
         prop_servo_weight  = 0.0
 
-        if nThrustProps > 0: 
+        if nThrustProps > 0:
             for idx, propeller in enumerate(network.propellers):
                 proprotor    = propeller
                 propmotor    = prop_motors[list(prop_motors.keys())[idx]]
@@ -272,7 +272,7 @@ def empty(config,
                 proprotor.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
 
         lift_rotor_servo_weight = 0.0
-        if nLiftRotors > 0: 
+        if nLiftRotors > 0:
             for idx, lift_rotor in enumerate(network.lift_rotors):
                 liftrotor    = lift_rotor
                 liftmotor    = rot_motors[list(rot_motors.keys())[idx]]
@@ -298,7 +298,7 @@ def empty(config,
                                            bladeSol_ref*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTip_ref**2)))
         # Tail Rotor
         if nLiftRotors == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor
-            
+
             maxLiftOmega   = maxVTip/rTip_ref
             maxLiftTorque  = maxLiftPower / maxLiftOmega
 
