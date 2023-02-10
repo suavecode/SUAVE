@@ -701,15 +701,15 @@ class Rotor(Energy_Component):
             power_coefficient  = power / (rho*(n*n*n)*(D*D*D*D*D))
         )
         
-        # DEBUG
-        # append sample point to csv (V, Alpha, J, CT, CQ)
-        for i in range(cpts):
-            newRow = [i, V_sim[i], A_sim_tilt[i][0], J_sim[i], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
-            with open('/Users/rerha/Desktop/mission_sampled_points_sur.csv', 'a') as file:
+        ## DEBUG
+        ## append sample point to csv (V, Alpha, J, CT, CQ)
+        #for i in range(cpts):
+            #newRow = [i, V_sim[i], A_sim_tilt[i][0], J_sim[i], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
+            #with open('/Users/rerha/Desktop/mission_sampled_points_sur.csv', 'a') as file:
                 
-                writerObj = writer(file)
-                writerObj.writerow(newRow)
-                file.close()
+                #writerObj = writer(file)
+                #writerObj.writerow(newRow)
+                #file.close()
         
         return thrust_vector, torque, power, Cp, outputs , etap
     
