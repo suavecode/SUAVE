@@ -58,7 +58,7 @@ def main():
     Hararmonic_Noise_Validation(PP)
 
     # broadband nosie test function 
-    #Broadband_Noise_Validation(PP)
+    Broadband_Noise_Validation(PP)
     
     return 
 
@@ -296,10 +296,8 @@ def Broadband_Noise_Validation(PP):
     # APC SF Rotor
     # ---------------------------------------------------------------------------------------------------------------------------
     # Define Network
-    net_APC_SF                                  = Battery_Electric_Rotor()
-    net_APC_SF.number_of_rotor_engines      = 1        
-    net_APC_SF.identical_rotors             = True  
-    net_APC_SF.propellers.append(APC_SF)    
+    net_APC_SF                                  = Battery_Electric_Rotor() 
+    net_APC_SF.rotors.append(APC_SF)    
 
     # Run conditions                            
     APC_SF_RPM                                  = np.array([3600,4200,4800])
@@ -345,7 +343,7 @@ def Broadband_Noise_Validation(PP):
     APC_SF_settings                                                = setup_noise_settings(APC_SF_segment)   
 
     # Run Noise Model    
-    APC_SF_rotor_noise             = total_rotor_noise(net_APC_SF.propellers,acoustic_outputs,APC_SF_segment,APC_SF_settings )    
+    APC_SF_rotor_noise                 = total_rotor_noise(net_APC_SF.rotors,acoustic_outputs,APC_SF_segment,APC_SF_settings )    
     APC_SF_1_3_Spectrum                = APC_SF_rotor_noise.SPL_1_3_spectrum 
     APC_SF_SPL_broadband_1_3_spectrum  = APC_SF_rotor_noise.SPL_broadband_1_3_spectrum  
 

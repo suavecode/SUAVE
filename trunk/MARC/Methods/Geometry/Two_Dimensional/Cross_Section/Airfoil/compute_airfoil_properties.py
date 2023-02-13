@@ -45,24 +45,15 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_
         aoa_sweep                           [unitless]
         
         # raw data                          [unitless]
-        theta_lower_surface                 [unitless]
-        delta_lower_surface                 [unitless]
-        delta_star_lower_surface            [unitless] 
+        theta                 [unitless]
+        delta                 [unitless]
+        delta_star            [unitless] 
         sa_lower_surface                    [unitless]
         ue_lower_surface                    [unitless]
-        cf_lower_surface                    [unitless]
-        dcp_dx_lower_surface                [unitless] 
+        cf                    [unitless]
+        dcp_dx                [unitless] 
         Ret_lower_surface                   [unitless]
-        H_lower_surface                     [unitless]
-        theta_upper_surface                 [unitless]
-        delta_upper_surface                 [unitless]
-        delta_star_upper_surface            [unitless] 
-        sa_upper_surface                    [unitless]
-        ue_upper_surface                    [unitless]
-        cf_upper_surface                    [unitless]
-        dcp_dx_upper_surface                [unitless] 
-        Ret_upper_surface                   [unitless]
-        H_upper_surface                     [unitless] 
+        H_lower_surface                     [unitless] 
     
     Properties Used:
     N/A
@@ -298,25 +289,19 @@ def compute_boundary_layer_properties(airfoil_geometry,Airfoil_Data):
     af_res    = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals) 
     
     # store data
-    Airfoil_Data.aoa_from_polar                                     = np.tile(AoA_sweep[None,:],(len(Re_sweep),1)) 
-    Airfoil_Data.re_from_polar                                      = Re_sweep 
-    Airfoil_Data.lift_coefficients                                  = af_res.cl
-    Airfoil_Data.drag_coefficients                                  = af_res.cd
-    Airfoil_Data.cm                                                 = af_res.cm
-    Airfoil_Data.boundary_layer                                     = Data() 
-    Airfoil_Data.boundary_layer.angle_of_attacks                    = AoA_sweep 
-    Airfoil_Data.boundary_layer.reynolds_numbers                    = Re_sweep      
-    Airfoil_Data.boundary_layer.theta_lower_surface                 = af_res.theta 
-    Airfoil_Data.boundary_layer.delta_lower_surface                 = af_res.delta  
-    Airfoil_Data.boundary_layer.delta_star_lower_surface            = af_res.delta_star  
-    Airfoil_Data.boundary_layer.Ue_Vinf_lower_surface               = af_res.Ue_Vinf   
-    Airfoil_Data.boundary_layer.cf_lower_surface                    = af_res.cf   
-    Airfoil_Data.boundary_layer.dcp_dx_lower_surface                = af_res.dcp_dx 
-    Airfoil_Data.boundary_layer.theta_upper_surface                 = af_res.theta 
-    Airfoil_Data.boundary_layer.delta_upper_surface                 = af_res.delta 
-    Airfoil_Data.boundary_layer.delta_star_upper_surface            = af_res.delta_star   
-    Airfoil_Data.boundary_layer.Ue_Vinf_upper_surface               = af_res.Ue_Vinf     
-    Airfoil_Data.boundary_layer.cf_upper_surface                    = af_res.cf   
-    Airfoil_Data.boundary_layer.dcp_dx_upper_surface                = af_res.dcp_dx   
+    Airfoil_Data.aoa_from_polar                       = np.tile(AoA_sweep[None,:],(len(Re_sweep),1)) 
+    Airfoil_Data.re_from_polar                        = Re_sweep 
+    Airfoil_Data.lift_coefficients                    = af_res.cl
+    Airfoil_Data.drag_coefficients                    = af_res.cd
+    Airfoil_Data.cm                                   = af_res.cm
+    Airfoil_Data.boundary_layer                       = Data() 
+    Airfoil_Data.boundary_layer.angle_of_attacks      = AoA_sweep 
+    Airfoil_Data.boundary_layer.reynolds_numbers      = Re_sweep      
+    Airfoil_Data.boundary_layer.theta                 = af_res.theta 
+    Airfoil_Data.boundary_layer.delta                 = af_res.delta  
+    Airfoil_Data.boundary_layer.delta_star            = af_res.delta_star  
+    Airfoil_Data.boundary_layer.Ue_Vinf               = af_res.Ue_Vinf   
+    Airfoil_Data.boundary_layer.cf                    = af_res.cf   
+    Airfoil_Data.boundary_layer.dcp_dx                = af_res.dcp_dx 
     
     return Airfoil_Data

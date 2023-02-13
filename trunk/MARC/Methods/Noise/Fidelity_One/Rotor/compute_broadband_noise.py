@@ -100,7 +100,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     delta_r[1:-1]      = (del_r[:-1]+ del_r[1:])/2
 
 
-    bstei   = 1      # bottom surface trailing edge index 
+    bstei   = 4      # bottom surface trailing edge index 
     ustei   = -bstei # upper surface trailing edge index 
 
     if np.all(Omega == 0):
@@ -139,22 +139,20 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         aloc  = np.atleast_3d(np.array(a_loc))
         aloc  = np.broadcast_to(aloc,np.shape(lower_surface_theta))
     
-        for jj,airfoil in enumerate(airfoils): 
-            lstei                         = 1      # lower surface trailing edge index 
-            ustei                         = -lstei # upper surface trailing edge index 
+        for jj,airfoil in enumerate(airfoils):  
             bl                            = airfoil.polars.boundary_layer
-            theta_ls_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta_lower_surface[:,:,bstei])     
-            delta_ls_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_lower_surface[:,:,bstei])        
-            delta_star_ls_data            = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star_lower_surface[:,:,bstei])   
-            Ue_Vinf_ls_data               = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf_lower_surface[:,:,bstei])      
-            cf_ls_data                    = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf_lower_surface[:,:,bstei])           
-            dcp_dx_ls_data                = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx_lower_surface[:,:,bstei])       
-            theta_us_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta_upper_surface[:,:,ustei])        
-            delta_us_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_upper_surface[:,:,ustei])       
-            delta_star_us_data            = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star_upper_surface[:,:,ustei])   
-            Ue_Vinf_us_data               = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf_upper_surface[:,:,ustei])   
-            cf_us_data                    = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf_upper_surface[:,:,ustei])          
-            dcp_dx_us_data                = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx_upper_surface[:,:,ustei])      
+            theta_ls_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta[:,:,bstei])     
+            delta_ls_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta[:,:,bstei])        
+            delta_star_ls_data            = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star[:,:,bstei])   
+            Ue_Vinf_ls_data               = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf[:,:,bstei])      
+            cf_ls_data                    = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf[:,:,bstei])           
+            dcp_dx_ls_data                = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx[:,:,bstei])       
+            theta_us_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta[:,:,ustei])        
+            delta_us_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta[:,:,ustei])       
+            delta_star_us_data            = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star[:,:,ustei])   
+            Ue_Vinf_us_data               = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf[:,:,ustei])   
+            cf_us_data                    = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf[:,:,ustei])          
+            dcp_dx_us_data                = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx[:,:,ustei])      
     
             locs                                 = np.where(np.array(a_loc) == jj )  
             lower_surface_theta[:,locs,:]        = theta_ls_data[:,locs]
