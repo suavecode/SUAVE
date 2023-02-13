@@ -147,7 +147,7 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd
     # prevent zero Cl to keep Cd/Cl from breaking in BET
     Cl[Cl==0] = 1e-6
 
-    return Cl, Cdval, alpha, Ma, W
+    return Cl, Cdval, alpha, Ma, W, Re
 
 
 

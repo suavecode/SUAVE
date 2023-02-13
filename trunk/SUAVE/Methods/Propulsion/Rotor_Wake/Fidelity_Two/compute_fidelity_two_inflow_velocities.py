@@ -49,7 +49,7 @@ def compute_fidelity_two_inflow_velocities(wake, rotor, wake_inputs, conditions)
         
         # blade forces
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B)
-        Cl, Cdval, alpha, Ma, W = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis=True)
+        Cl, Cdval, alpha, Ma, W, Re = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis=True)
 
         # circulation at the blade        
         Gamma = 0.5*W*c*Cl*F     
