@@ -1197,7 +1197,7 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
         plt.savefig(save_filename + file_type, dpi=300)
 
 
-    fig2 = plt.figure("Rotor Operation")
+    fig2 = plt.figure("Rotor Operation 1")
     fig2.set_size_inches(width, height)
     #marks = ['bs', 'oo', 'go', 'r^', 'ms','k-','ro','gs','yo']
     for s, segment in enumerate(results.segments.values()):
@@ -1227,6 +1227,35 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
     if save_figure:
         plt.savefig(save_filename +"2" + file_type, dpi=300)    
 
+    fig2 = plt.figure("Rotor Operation 2")
+    fig2.set_size_inches(width, height)
+    #marks = ['bs', 'oo', 'go', 'r^', 'ms','k-','ro','gs','yo']
+    for s, segment in enumerate(results.segments.values()):
+
+        Vinf    = segment.conditions.freestream.velocity[:,0]
+
+
+        conditions = segment.state.conditions
+        body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        T = orientation_product(T_body2inertial,body_thrust_force_vector)      
+        thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2))
+        
+        n     = segment.conditions.propulsion.propeller_rpm[:,0] / 60
+        J     = Vinf/(n*D)
+
+        prop_incidence_angles =  thrust_angle
+
+        axes = plt.subplot(1,1,1)
+        axes.scatter(Vinf, prop_incidence_angles/Units.deg, label=segment.tag)
+        axes.set_xlabel("Airspeed [m/s]")
+        axes.set_ylabel("Propeller Incidence Angle [deg]")
+        set_axes(axes)
+
+    plt.legend(bbox_to_anchor=(1.04,0.5), loc="center left", borderaxespad=0)
+    plt.tight_layout()
+    if save_figure:
+        plt.savefig(save_filename +"3" + file_type, dpi=300)    
     return
 
 # ------------------------------------------------------------------
