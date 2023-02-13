@@ -435,7 +435,7 @@ def compute_blade_circulation(wake, rotor, conditions, nts, va=0, vt=0):
     lamdaw, F, _ = compute_inflow_and_tip_loss(r,R, Rh,Wa,Wt,B)
 
     # Compute aerodynamic forces based on specified input airfoil or surrogate
-    Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+    Cl, Cdval, alpha, Ma, W, Re = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
     
     
     # compute HFW circulation at the blade
