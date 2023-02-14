@@ -10,10 +10,11 @@
 import MARC
 from MARC.Core import Units, Data
 
-from MARC.Methods.Weights.Buildups.Common.fuselage import fuselage
-from MARC.Methods.Weights.Buildups.Common.prop import prop
-from MARC.Methods.Weights.Buildups.Common.wiring import wiring
-from MARC.Methods.Weights.Buildups.Common.wing import wing
+from MARC.Methods.Weights.Buildups.Common.fuselage  import fuselage
+from MARC.Methods.Weights.Buildups.Common.boom      import boom
+from MARC.Methods.Weights.Buildups.Common.prop      import prop
+from MARC.Methods.Weights.Buildups.Common.wiring    import wiring
+from MARC.Methods.Weights.Buildups.Common.wing      import wing
 import MARC.Components.Energy.Converters.Propeller  as Propeller
 import MARC.Components.Energy.Converters.Lift_Rotor as Lift_Rotor 
 import MARC.Components.Energy.Converters.Prop_Rotor as Prop_Rotor
@@ -98,6 +99,7 @@ def empty(config,
     weight.payload           = 0.0
     weight.servos            = 0.0
     weight.hubs              = 0.0
+    weight.booms             = 0.0
     weight.BRS               = 0.0  
     weight.motors            = 0.0
     weight.rotors            = 0.0
@@ -340,11 +342,20 @@ def empty(config,
     config.fuselages.fuselage.mass_properties.mass                    =  weight.fuselage + weight.passengers + weight.seats +\
                                                                          weight.wiring + weight.BRS
 
+
+    #-------------------------------------------------------------------------------
+    # Boom Weight
+    #-------------------------------------------------------------------------------
+    for b in config.booms:
+        boom_weight                               = boom(b) * Units.kg
+        weight.booms                              += boom_weight
+        b.mass_properties.center_of_gravity[0][0] = .5*b.lengths.total
+        b.mass_properties.mass                    =  boom_weight
+    
     #-------------------------------------------------------------------------------
     # Pack Up Outputs
     #-------------------------------------------------------------------------------
-    weight.structural = (weight.rotors + weight.hubs +
-                                 weight.fuselage + weight.landing_gear +weight.wings_total)*Units.kg
+    weight.structural = (weight.rotors + weight.hubs + weight.booms + weight.fuselage + weight.landing_gear +weight.wings_total)*Units.kg
 
     weight.empty      = (contingency_factor * (weight.structural + weight.seats + weight.avionics +weight.ECS +\
                         weight.motors + weight.servos + weight.wiring + weight.BRS) + weight.battery) *Units.kg

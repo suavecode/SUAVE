@@ -163,6 +163,16 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=False, write_file=True, OML
             area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind,
                                            OML_set_ind)
     
+        
+    # -------------
+    # Boom
+    # -------------     
+    for key, boom in vehicle.booms.items():
+        if verbose:
+            print('Writing '+boom.tag+' to OpenVSP Model') 
+        area_tags = write_vsp_fuselage(boom, area_tags, None, fuel_tank_set_ind,
+                                       OML_set_ind)
+                    
     vsp.Update()
     
     # Write the vehicle to the file    
