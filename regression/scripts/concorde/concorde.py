@@ -91,18 +91,15 @@ def main():
     
     # leave uncommented for regression 
     save_results(results)  
-    old_results = load_results()   
+    old_results = load_results()    
     
-
     # plt the old results
     plot_mission(results)
     plot_mission(old_results)
     plt.show()
 
     # check the results
-    check_results(results,old_results)
-    
-
+    check_results(results,old_results)  
     
     return
 
@@ -561,8 +558,7 @@ def check_results(new_results,old_results):
         print('Error at Min:' , err)
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
 
-        print('')
-
+        print('') 
 
     return
 
