@@ -42,8 +42,6 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
     """
 
     # unpack inputs
-    configuration = settings
-     
     vehicle_reference_area = geometry.reference_area
     ones_1col              = state.conditions.freestream.mach_number *0.+1
         

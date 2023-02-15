@@ -9,11 +9,9 @@
 
 #-------------------------------------------------------------------------------
 # Imports
-#-------------------------------------------------------------------------------
-
-from MARC.Core import Units
+#------------------------------------------------------------------------------- 
 from MARC.Attributes.Solids import (
-    Bidirectional_Carbon_Fiber, Carbon_Fiber_Honeycomb, Paint, Unidirectional_Carbon_Fiber, Acrylic, Steel)
+    Bidirectional_Carbon_Fiber, Unidirectional_Carbon_Fiber, Steel)
 import numpy as np
 
 

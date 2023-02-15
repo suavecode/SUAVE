@@ -133,6 +133,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
     vsp.ReadVSPFile(tag)	
 
     vsp_fuselages     = []
+    vsp_booms         = []
     vsp_wings         = []	
     vsp_props         = [] 
     vsp_nacelles      = [] 
@@ -184,6 +185,8 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
 
         if geom_type == 'Fuselage':
             vsp_fuselages.append(geom)
+        if geom_type == 'Boom':
+            vsp_booms.append(geom)
         if geom_type == 'Wing':
             vsp_wings.append(geom)
         if geom_type == 'Propeller':
@@ -212,6 +215,28 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
             
             vehicle.append_component(fuselage)
         
+        
+    # --------------------------------------------------			
+    # Read Booms
+    # --------------------------------------------------			    
+    for boom_id in vsp_booms:
+        sym_planar = vsp.GetParmVal(boom_id, 'Sym_Planar_Flag', 'Sym') # Check for symmetry
+        sym_origin = vsp.GetParmVal(boom_id, 'Sym_Ancestor_Origin_Flag', 'Sym') 
+        if sym_planar == 2. and sym_origin == 1.:  
+            num_booms  = 2 
+            sym_flag   = [1,-1]
+        else: 
+            num_booms  = 1 
+            sym_flag   = [1] 
+        for boom_idx in range(num_booms):	# loop through fuselages on aircraft 
+            boom = read_vsp_fuselage(boom_id,boom_idx,sym_flag[boom_idx],units_type,use_scaling)
+            
+            if calculate_wetted_area:
+                boom.areas.wetted = measurements[vsp.GetGeomName(boom_id)] * (units_factor**2)
+            
+            vehicle.append_component(boom)        
+            
+            
     # --------------------------------------------------			    
     # Read Wings 
     # --------------------------------------------------			

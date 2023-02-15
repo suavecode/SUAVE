@@ -57,6 +57,7 @@ class Vehicle(Data):
             """          
         self.tag = 'vehicle'
         self.fuselages              = Components.Fuselages.Fuselage.Container()
+        self.booms                  = Components.Booms.Boom.Container()
         self.wings                  = Components.Wings.Wing.Container()
         self.networks               = Components.Energy.Networks.Network.Container()
         self.nacelles               = Components.Nacelles.Nacelle.Container()
@@ -95,6 +96,7 @@ class Vehicle(Data):
 
         self._component_root_map = {
             Components.Fuselages.Fuselage              : self['fuselages']        ,
+            Components.Booms.Boom                      : self['booms']        ,
             Components.Wings.Wing                      : self['wings']            ,
             Components.Systems.System                  : self['systems']          ,
             Components.Energy.Networks.Network         : self['networks']         ,

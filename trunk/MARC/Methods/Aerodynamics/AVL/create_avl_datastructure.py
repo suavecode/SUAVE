@@ -405,7 +405,8 @@ def append_avl_wing_control_surfaces(marc_wing,avl_wing,semispan,root_chord_perc
 
         avl_wing.append_section(section)  
                         
-    return 
+    return
+
 def populate_body_sections(avl_body,marc_body):
     """ Creates sections of body geometry and populates the AVL body data structure
 
@@ -419,8 +420,8 @@ def populate_body_sections(avl_body,marc_body):
         avl_wing.symmetric                       [boolean]
         avl_body.widths.maximum                  [meters]
         avl_body.heights.maximum                 [meters]
-        marc_body.fineness.nose                 [meters]
-        marc_body.fineness.tail                 [meters]
+        marc_body.fineness.nose                  [meters]
+        marc_body.fineness.tail                  [meters]
         avl_body.lengths.total                   [meters]
         avl_body.lengths.nose                    [meters] 
         avl_body.lengths.tail                    [meters]  

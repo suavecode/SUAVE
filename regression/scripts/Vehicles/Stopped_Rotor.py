@@ -280,7 +280,7 @@ def vehicle_setup():
    #-------------------------------------------------------------------
     # INNER BOOMS
     #-------------------------------------------------------------------
-    long_boom                                    = MARC.Components.Fuselages.Fuselage()
+    long_boom                                    = MARC.Components.Booms.Boom()
     long_boom.tag                                = 'boom_1r'
     long_boom.configuration                      = 'boom'
     long_boom.origin                             = [[0.543,1.630, -0.326]]
@@ -344,7 +344,7 @@ def vehicle_setup():
     vehicle.append_component(long_boom)
 
     # add left long boom
-    long_boom              = deepcopy(vehicle.fuselages.boom_1r)
+    long_boom              = deepcopy(vehicle.booms.boom_1r)
     long_boom.origin[0][1] = -long_boom.origin[0][1]
     long_boom.tag          = 'Boom_1L'
     long_boom.index        = 1
@@ -354,7 +354,7 @@ def vehicle_setup():
     #-------------------------------------------------------------------
     # OUTER BOOMS
     #-------------------------------------------------------------------
-    short_boom                                    = MARC.Components.Fuselages.Fuselage()
+    short_boom                                    = MARC.Components.Booms.Boom()
     short_boom.tag                                = 'boom_2r'
     short_boom.configuration                      = 'boom'
     short_boom.origin                             = [[0.543,2.826, -0.326]]
@@ -420,20 +420,20 @@ def vehicle_setup():
     vehicle.append_component(short_boom)
 
     # add outer right boom
-    short_boom              = deepcopy(vehicle.fuselages.boom_2r)
+    short_boom              = deepcopy(vehicle.booms.boom_2r)
     short_boom.origin[0][1] = short_boom.y_pitch + short_boom.origin[0][1]
     short_boom.tag          = 'boom_3r'
     short_boom.index        = 1
     vehicle.append_component(short_boom)
 
     # add inner left boom
-    short_boom              = deepcopy(vehicle.fuselages.boom_2r)
+    short_boom              = deepcopy(vehicle.booms.boom_2r)
     short_boom.origin[0][1] = - (short_boom.origin[0][1])
     short_boom.tag          = 'boom_2l'
     short_boom.index        = 1
     vehicle.append_component(short_boom)
 
-    short_boom              = deepcopy(vehicle.fuselages.boom_2r)
+    short_boom              = deepcopy(vehicle.booms.boom_2r)
     short_boom.origin[0][1] = - (short_boom.origin[0][1] + short_boom.y_pitch)
     short_boom.tag          = 'boom_3l'
     short_boom.index        = 1

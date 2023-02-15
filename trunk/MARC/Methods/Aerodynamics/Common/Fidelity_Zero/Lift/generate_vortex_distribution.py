@@ -15,6 +15,7 @@ import numpy as np
 from MARC.Core import  Data
 from MARC.Components.Wings import All_Moving_Surface
 from MARC.Components.Fuselages import Fuselage
+from MARC.Components.Booms     import Boom
 from MARC.Components.Nacelles  import Nacelle
 from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_VD_helpers import postprocess_VD
 from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
@@ -243,20 +244,27 @@ def generate_vortex_distribution(geometry,settings):
     VD.wing_areas = np.array(VD.wing_areas, dtype=precision)
     for fus in geometry.fuselages:
         if show_prints: print('discretizing ' + fus.tag)
-        VD = generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,precision,model_fuselage)
-
-
+        VD = generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,precision,model_fuselage) 
+        
     # ---------------------------------------------------------------------------------------
-    # STEP 10: Deflect Control Surfaces
+    # STEP 10: Unpack aircraft boom geometry
+    # ---------------------------------------------------------------------------------------
+    VD.wing_areas = np.array(VD.wing_areas, dtype=precision)
+    for boom in geometry.booms:
+        if show_prints: print('discretizing ' + boom.tag)
+        VD = generate_fuselage_and_nacelle_vortex_distribution(VD,boom,n_cw_fuse,n_sw_fuse,precision,model_fuselage)
+        
+    # ---------------------------------------------------------------------------------------
+    # STEP 11: Deflect Control Surfaces
     # ---------------------------------------------------------------------------------------      
     for wing in VD.VLM_wings:
         wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)        
         if wing.is_a_control_surface or wing_is_all_moving:
             # Deflect the control surface
             VD, wing = deflect_control_surface(VD, wing)
-            
+        
     # ---------------------------------------------------------------------------------------
-    # STEP 11: Postprocess VD information
+    # STEP 12: Postprocess VD information
     # ---------------------------------------------------------------------------------------  
     
     VD = postprocess_VD(VD, settings)
@@ -916,7 +924,7 @@ def generate_fuselage_and_nacelle_vortex_distribution(VD,fus,n_cw,n_sw,precision
     fvs.chord  = np.zeros((n_sw+1)) 
     fvs.sweep  = np.zeros((n_sw+1))
 
-    if isinstance(fus, Fuselage):
+    if isinstance(fus, Fuselage) or isinstance(fus, Boom):
 
         # Compute the curvature of the nose/tail given fineness ratio. Curvature is derived from general quadratic equation
         # This method relates the fineness ratio to the quadratic curve formula via a spline fit interpolation

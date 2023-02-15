@@ -55,10 +55,15 @@ def write_geometry(avl_object,run_script_path):
             wing_text     = make_surface_text(avl_wing,number_spanwise_vortices,number_chordwise_vortices)
             geometry.write(wing_text)  
             
-        for b in aircraft.fuselages:
-            avl_body  = translate_avl_body(b)
-            body_text = make_body_text(avl_body,number_chordwise_vortices)
-            geometry.write(body_text)
+        for f in aircraft.fuselages:
+            avl_body      = translate_avl_body(f)
+            fuselage_text = make_body_text(avl_body,number_chordwise_vortices)
+            geometry.write(fuselage_text) 
+
+        for b in aircraft.booms:
+            avl_boom  = translate_avl_body(b)
+            boom_text = make_body_text(avl_boom,number_chordwise_vortices)
+            geometry.write(boom_text)            
             
     return
 
