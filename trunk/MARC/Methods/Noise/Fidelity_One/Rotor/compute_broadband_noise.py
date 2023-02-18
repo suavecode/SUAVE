@@ -88,11 +88,10 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     Re_blade           = U_blade*np.repeat(np.repeat(blade_chords[np.newaxis,:],num_cpt,axis=0)[:,:,np.newaxis],num_azi,axis=2)/\
                           np.repeat(np.repeat((kine_visc),num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2)
     rho_blade          = np.repeat(np.repeat(rho,num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2)
-    U_inf              = np.atleast_2d(np.linalg.norm(velocity_vector,axis=1)).T
-    M                  = U_inf/c_0                                             
+    U                  = np.atleast_2d(np.linalg.norm(velocity_vector,axis=1)).T
+    M                  = U/c_0                                             
     B                  = rotor.number_of_blades             # number of rotor blades
-    Omega              = aeroacoustic_data.omega            # angular velocity   
-    beta_sq            = 1 - M**2                                  
+    Omega              = aeroacoustic_data.omega            # angular velocity    
     delta_r            = np.zeros_like(r)
     del_r              = r[1:] - r[:-1]
     delta_r[0]         = 2*del_r[0]
@@ -181,7 +180,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         
         # ------------------------------------------------------------
         # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******
-
+        
         delta[:,:,:,:,:,:,0]        = np.tile(lower_surface_delta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # lower surface boundary layer thickness
         delta[:,:,:,:,:,:,1]        = np.tile(upper_surface_delta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface boundary layer thickness
         delta_star[:,:,:,:,:,:,0]   = np.tile(lower_surface_delta_star[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf)) # lower surface displacement thickness
@@ -194,68 +193,41 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         tau_w[:,:,:,:,:,:,1]        = np.tile((upper_surface_cf*(0.5*rho_blade*(U_blade**2)))[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface wall shear stress
         Theta[:,:,:,:,:,:,0]        = np.tile(lower_surface_theta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # lower surface momentum thickness
         Theta[:,:,:,:,:,:,1]        = np.tile(upper_surface_theta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface momentum thickness
-
-        # Update dimensions for computation
-        r         = np.tile(r[None,None,None,:,None,None],(num_cpt,num_mic,num_rot,1,num_azi,num_cf))
-        c         = np.tile(blade_chords[None,None,None,:,None,None],(num_cpt,num_mic,num_rot,1,num_azi,num_cf))
-        delta_r   = np.tile(delta_r[None,None,None,:,None,None],(num_cpt,num_mic,num_rot,1,num_azi,num_cf))
-        M         = np.tile(M[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
-        c_0       = np.tile(c_0[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,2))
-        beta_sq   = np.tile(beta_sq[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,2))
-        Omega     = np.tile(Omega[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,2))
-        U_inf     = np.tile(U_inf[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,2))
-        rho       = np.tile(rho[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,2))
-        kine_visc = np.tile(kine_visc[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,2))
-
-        X   = np.repeat(bspv.blade_section_coordinate_sys[:,:,:,:,:,:,0,:],2,axis = 6)
-        Y   = np.repeat(bspv.blade_section_coordinate_sys[:,:,:,:,:,:,1,:],2,axis = 6)
-        Z   = np.repeat(bspv.blade_section_coordinate_sys[:,:,:,:,:,:,2,:],2,axis = 6)
-
-        # ------------------------------------------------------------
-        # ****** BLADE MOTION CALCULATIONS ******
-        # the rotational Mach number of the blade section
-        omega   = np.tile((2*np.pi*frequency)[None,None,None,None,None,:,None],(num_cpt,num_mic,num_rot,num_sec,num_azi,1,2))
-        r       = np.repeat(r[:,:,:,:,:,:,np.newaxis],2,axis = 6)
-        c       = np.repeat(c[:,:,:,:,:,:,np.newaxis],2,axis = 6)/2
-        delta_r = np.repeat(delta_r[:,:,:,:,:,:,np.newaxis],2,axis = 6)
-        M       = np.repeat(M,2,axis = 6)
-        R_s     = np.repeat(np.linalg.norm(bspv.blade_section_coordinate_sys,axis = 6),2,axis = 6)
-        mu      = (omega/(1 +(Omega*r/c_0)*(X/R_s)))*M/(U_inf*beta_sq)
-
-        # ------------------------------------------------------------
-        # ****** LOADING TERM CALCULATIONS ******
-        # equation 7
-        epsilon       = X**2 + (beta_sq)*(Y**2 + Z**2)
-        gamma         = np.sqrt(((mu/epsilon)**2)*(X**2 + beta_sq*(Z**2)))
-        ss_1, cc_1    = fresnel(2*((((omega/(1 +  (Omega*r/c_0)*(X/R_s))) /(0.8*U_inf)) /c) + (mu/c)*M + (gamma/c)))
-        ss_2, cc_2    = fresnel(2*((mu/c)*X/epsilon + (gamma/c)) )
-        triangle      = (omega/(U_inf*c)) - (mu/c)*X/epsilon + (mu/c)*M
-        norm_L_sq     = (1/triangle)*abs(np.exp(1j*2*triangle)*((1 - (1 + 1j)*(cc_1 - 1j*ss_1)) \
-                        + ((np.exp(-1j*2*triangle))*(np.sqrt((((omega/(1 +  (Omega*r/c_0)*(X/R_s))) /(0.8*U_inf)) + mu*M + gamma)/(mu*X/epsilon +gamma))) \
-                           *(1 + 1j)*(cc_2 - 1j*ss_2)) ))
-
-        # ------------------------------------------------------------
-        # ****** EMPIRICAL WALL PRESSURE SPECTRUM ******
-        ones                     = np.ones_like(Theta)
-        beta_c                   = (Theta/tau_w)*dp_dx 
-        d                        = 4.76*((1.4/(delta/delta_star))**0.75)*(0.375*(3.7 + 1.5*beta_c) - 1)
-        a                        = (2.82*((delta/delta_star)**2)*(np.power((6.13*((delta/delta_star)**(-0.75)) + d),(3.7 + 1.5*beta_c))))*\
-                                   (4.2*((0.8*((beta_c + 0.5)**3/4))/(delta/delta_star)) + 1)
-        d_star                   = d
-        d_star[beta_c<0.5]       = np.maximum(ones,1.5*d)[beta_c<0.5]
-        Phi_pp_expression        =  (np.maximum(a, (0.25*beta_c - 0.52)*a)*((omega*delta_star/Ue)**2))/(((4.76*((omega*delta_star/Ue)**0.75) \
-                                    + d_star)**(3.7 + 1.5*beta_c))+ (np.power((8.8*(((delta/Ue)/(kine_visc/(((tau_w/rho)**0.5)**2)))**(-0.57))\
-                                    *(omega*delta_star/Ue)),(np.minimum(3*ones,(0.139 + 3.1043*beta_c)) + 7)) ))
-        Phi_pp                   = ((tau_w**2)*delta_star*Phi_pp_expression)/Ue
-        Phi_pp[np.isinf(Phi_pp)] = 0.
-        Phi_pp[np.isnan(Phi_pp)] = 0.
  
-        # Power Spectral Density from each blade
-        mult       = ((omega/c_0)**2)*(c**2)*delta_r*(1/(32*np.pi**2))*(B/(2*np.pi))
-        int_x      = np.linspace(0,2*np.pi,num_azi)  
-        S_pp       = mult[:,:,:,:,0,:,:]*np.trapz(((Z/(X**2 + (1-M**2)*(Y**2 + Z**2)))**2)*norm_L_sq*\
-                                                  (1.6*(0.8*U_inf)/omega)*Phi_pp,x = int_x,axis = 4) 
-            
+   
+       # BPM model 
+       Re_c= 0
+       Re_delta_star_p= 0
+       L= 0
+       D_bar_h= 0
+       
+       # Turbulent Boundary Layer - Trailing Edge 
+       G_TBL_TE_p = ((delta_star[:,:,:,:,:,:,0]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,0]/U),M,Re_c.Re_delta_star_p)  # eqn 3
+       G_TBL_TE_s = ((delta_star[:,:,:,:,:,:,1]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,1]/U),M,Re_c)# eqn 4
+       G_TBL_TE_a = 0  # eqn 5
+       
+       G_TBL_TE = G_TBL_TE_p + G_TBL_TE_s + G_TBL_TE_a  # eqn 2
+       
+       # Laminar Boundary Layer - Vortex Shedding 
+       G_LBL_VS  = 0 # eqn 9
+       
+       # Blunt Trailing Edge 
+       
+       G_BTE   =0  # eqn 10 
+       
+       
+       # Tip Noise 
+       G_Tip = 0 # eqn 11 
+       
+       # BWI
+       G_BWI = 0 
+       
+       # Total Self Noise 
+       G_self   = G_TBL_TE + G_LBL_VS + G_BTE + G_Tip   # eqn 1 
+   
+   
+   
+   
         # Sound Pressure Level
         SPL                        = 10*np.log10((2*np.pi*abs(S_pp))/((p_ref)**2)) 
         SPL[np.isinf(SPL)]         = 0   
@@ -270,4 +242,4 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         res.SPL_prop_broadband_1_3_spectrum_dBA           = convert_to_third_octave_band(A_weighting(SPL_rotor,frequency),f,settings)  
         
     return
-
+ 
