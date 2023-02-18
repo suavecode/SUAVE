@@ -92,11 +92,11 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     M                  = U/c_0                                             
     B                  = rotor.number_of_blades             # number of rotor blades
     Omega              = aeroacoustic_data.omega            # angular velocity    
-    delta_r            = np.zeros_like(r)
+    L                  = np.zeros_like(r)
     del_r              = r[1:] - r[:-1]
-    delta_r[0]         = 2*del_r[0]
-    delta_r[-1]        = 2*del_r[-1]
-    delta_r[1:-1]      = (del_r[:-1]+ del_r[1:])/2
+    L[0]               = 2*del_r[0]
+    L[-1]              = 2*del_r[-1]
+    L[1:-1]            = (del_r[:-1]+ del_r[1:])/2
 
 
     bstei   = 4      # bottom surface trailing edge index 
@@ -196,34 +196,33 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
  
    
        # BPM model 
-       Re_c= 0
-       Re_delta_star_p= 0
-       L= 0
-       D_bar_h= 0
+       Re_c           = 0
+       Re_delta_star_p= 0 # Reynolds number based on momentum thickness 
+       D_bar_h        = 0 # high frequency directivity function 
        
        # Turbulent Boundary Layer - Trailing Edge 
-       G_TBL_TE_p = ((delta_star[:,:,:,:,:,:,0]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,0]/U),M,Re_c.Re_delta_star_p)  # eqn 3
-       G_TBL_TE_s = ((delta_star[:,:,:,:,:,:,1]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,1]/U),M,Re_c)# eqn 4
-       G_TBL_TE_a = 0  # eqn 5
+       #G_TBL_TE_p = ((delta_star[:,:,:,:,:,:,0]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,0]/U),M,Re_c.Re_delta_star_p)  # eqn 3
+       #G_TBL_TE_s = ((delta_star[:,:,:,:,:,:,1]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,1]/U),M,Re_c)# eqn 4
+       #G_TBL_TE_a = 0  # eqn 5
        
-       G_TBL_TE = G_TBL_TE_p + G_TBL_TE_s + G_TBL_TE_a  # eqn 2
+       #G_TBL_TE = G_TBL_TE_p + G_TBL_TE_s + G_TBL_TE_a  # eqn 2
        
-       # Laminar Boundary Layer - Vortex Shedding 
-       G_LBL_VS  = 0 # eqn 9
+       ## Laminar Boundary Layer - Vortex Shedding 
+       #G_LBL_VS  = 0 # eqn 9
        
-       # Blunt Trailing Edge 
+       ## Blunt Trailing Edge 
        
-       G_BTE   =0  # eqn 10 
+       #G_BTE   =0  # eqn 10 
        
        
-       # Tip Noise 
-       G_Tip = 0 # eqn 11 
+       ## Tip Noise 
+       #G_Tip = 0 # eqn 11 
        
-       # BWI
-       G_BWI = 0 
+       ## BWI
+       #G_BWI = 0 
        
-       # Total Self Noise 
-       G_self   = G_TBL_TE + G_LBL_VS + G_BTE + G_Tip   # eqn 1 
+       ## Total Self Noise 
+       #G_self   = G_TBL_TE + G_LBL_VS + G_BTE + G_Tip   # eqn 1 
    
    
    
@@ -243,3 +242,14 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         
     return
  
+ def H_p():
+     
+     return 
+ 
+ def H_s():
+     
+     return  
+ 
+ def H_a_star():
+     
+     return   
