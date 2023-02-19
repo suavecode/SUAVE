@@ -536,6 +536,7 @@ class Rotor(Energy_Component):
                     drag_coefficient                  = Cd,
                     lift_coefficient                  = Cl,
                     Reynolds_numbers                  = Re,
+                    Mach_numbers                      = Ma,
                     omega                             = omega,
                     disc_circulation                  = blade_Gamma_2d,
                     blade_dT_dr                       = blade_dT_dr,

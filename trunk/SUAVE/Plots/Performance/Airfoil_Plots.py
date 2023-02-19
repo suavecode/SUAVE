@@ -298,7 +298,7 @@ def plot_airfoil_polar_files(airfoil_path, airfoil_polar_paths, line_color = 'k-
             
         # plot all Reynolds number polars for ith airfoil
         fig  = plt.figure(save_filename +'_'+ str(i))
-        fig.set_size_inches(10, 4)
+        fig.set_size_inches(6, 4)
         axes = fig.add_subplot(1,1,1)
         axes.set_title(airfoil_name)            
         for j in range(n_Re):
@@ -308,7 +308,7 @@ def plot_airfoil_polar_files(airfoil_path, airfoil_polar_paths, line_color = 'k-
         axes.set_xlabel('$C_D$')  
         axes.set_ylabel('$C_L$')  
         axes.legend(bbox_to_anchor=(1,1), loc='upper left', ncol=1)
-        
+        plt.tight_layout()
         if save_figure:
             plt.savefig(save_filename +'_' + str(i) + file_type)   
         if display_plot:
@@ -426,7 +426,7 @@ def plot_airfoil_polars(airfoil_polar_data, aoa_sweep, Re_sweep, display_plot = 
     N/A	
     """
     # Extract surrogates from airfoil data
-    airfoil_names   = airfoil_polar_data.airfoil_names
+    airfoil_names   = list(airfoil_polar_data.drag_coefficient_surrogates.keys())# airfoil_polar_data.airfoil_names
     airfoil_cl_surs = airfoil_polar_data.lift_coefficient_surrogates
     airfoil_cd_surs = airfoil_polar_data.drag_coefficient_surrogates
 
