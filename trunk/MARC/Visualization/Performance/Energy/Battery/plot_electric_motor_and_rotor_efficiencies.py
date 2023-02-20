@@ -74,6 +74,8 @@ def plot_electric_motor_and_rotor_efficiencies(results,
         for segment in results.segments.values():
     
             time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+            r_tag  = segment.conditions.propulsion['propulsor_group_' + str(pg)].rotor.tag 
+            m_tag  = segment.conditions.propulsion['propulsor_group_' + str(pg)].motor.tag 
             effp   = segment.conditions.propulsion['propulsor_group_' + str(pg)].rotor.efficiency[:,0]
             fom    = segment.conditions.propulsion['propulsor_group_' + str(pg)].rotor.figure_of_merit[:,0]
             effm   = segment.conditions.propulsion['propulsor_group_' + str(pg)].motor.efficiency[:,0]
@@ -133,7 +135,7 @@ def plot_electric_motor_and_rotor_efficiencies(results,
         fig.update_layout(
             width=width, height=height,
             legend_title_text='Segment',
-            title_text = 'Propulsor Group ' + str(pg) + ': Rotor and Motor Conditions'
+            title_text = r_tag +' and '+ m_tag  + ' Efficiencies'
         )
     
         fig = plot_style(fig)

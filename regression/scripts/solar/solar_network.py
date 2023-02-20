@@ -235,16 +235,18 @@ def missions_setup(base_mission):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_style='bo-'):     
+def plot_mission(results,line_style='bo-'):   
+    
+    show_figure_flag = False # Set to false for regressions.To show plots, change this to true.
     
     # Plot Propeller Performance 
-    plot_rotor_conditions(results,line_style,show_figure=False)
+    plot_rotor_conditions(results,line_style,show_figure=show_figure_flag)
     
     # Plot Power and Disc Loading
-    plot_disc_power_loading(results,line_style,show_figure=False)
+    plot_disc_power_loading(results,line_style,show_figure=show_figure_flag)
     
     # Plot Solar Radiation Flux
-    plot_solar_flux(results,line_style,show_figure=False) 
+    plot_solar_flux(results,line_style,show_figure=show_figure_flag) 
     
     return 
 

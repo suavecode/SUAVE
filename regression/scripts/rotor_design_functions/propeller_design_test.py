@@ -152,13 +152,13 @@ def main():
     plot_results(output, prop,'red','-','o')
 
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3040.8279405853377
-    Q_a_truth       = 888.55038334
-    P_a_truth       = 184073.52335802
-    Cplast_a_truth  = 0.10448797
+    F_a_truth       = 3039.859213812399
+    Q_a_truth       = 889.23123349
+    P_a_truth       = 184214.56936727
+    Cplast_a_truth  = 0.10456803
 
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2423.475147297527 
+    F_truth         = 2423.475147297528 
     Q_truth         = 727.12650888
     P_truth         = 150632.69447246
     Cplast_truth    = 0.08550553

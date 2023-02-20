@@ -19,54 +19,57 @@ import matplotlib.pyplot as plt
 def main():
     """This test loads results from the B737 regression to test the plot functions 
     """
+    
+    show_figure_flag = False # Set to false for regressions.To show plots, change this to true.
+    
     results = load_plt_data()
     
     """
     # Compare Plot for  Aerodynamic Forces 
     """
-    plot_aerodynamic_forces(results,show_figure=False)
+    plot_aerodynamic_forces(results,show_figure=show_figure_flag)
     
     
     """
     # Compare Plot for  Aerodynamic Coefficients 
     """
-    plot_aerodynamic_coefficients(results,show_figure=False) 
+    plot_aerodynamic_coefficients(results,show_figure=show_figure_flag) 
     
     
     """
     # Compare Plot for Drag Components
     """
-    plot_drag_components(results,show_figure=False)
+    plot_drag_components(results,show_figure=show_figure_flag)
     
     
     """
     # Compare Plot for  Altitude, sfc, vehicle weight 
     """
-    plot_altitude_sfc_weight(results,show_figure=False)
+    plot_altitude_sfc_weight(results,show_figure=show_figure_flag)
     
     
     """
     # Compare Plot for Aircraft Velocities 
     """
-    plot_aircraft_velocities(results,show_figure=False)      
+    plot_aircraft_velocities(results,show_figure=show_figure_flag)      
 
 
     """
     # Compare Plot for Flight Conditions   
     """
-    plot_flight_conditions(results,show_figure=False)
+    plot_flight_conditions(results,show_figure=show_figure_flag)
     
 
     """
     # Compare Plot for Flight Trajectory
     """
-    plot_flight_trajectory(results,show_figure=False)  
+    plot_flight_trajectory(results,show_figure=show_figure_flag)  
 
     
     """
     # Compare Plot for Fuel Tracking 
     """
-    plot_fuel_use(results,show_figure=False)
+    plot_fuel_use(results,show_figure=show_figure_flag)
 
 
     return 

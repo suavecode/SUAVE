@@ -11,6 +11,7 @@ from MARC.Core import Units, Data
 import copy 
 from MARC.Components.Energy.Networks.Battery_Electric_Rotor              import Battery_Electric_Rotor
 from MARC.Methods.Power.Battery.Sizing                                   import initialize_from_mass
+from MARC.Methods.Performance.estimate_cruise_drag                       import estimate_cruise_drag
 from MARC.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
 from MARC.Methods.Propulsion                                             import propeller_design
 from MARC.Methods.Weights.Buildups.eVTOL.empty                           import empty
@@ -554,17 +555,9 @@ def vehicle_setup():
     net.electronic_speed_controllers.append(propeller_esc) 
     
     # 2. Propeller 
-    g                                = 9.81                                   # gravitational acceleration
-    S                                = vehicle.reference_area                 # reference area
-    speed_of_sound                   = 340                                    # speed of sound
-    rho                              = 1.22                                   # reference density
-    fligth_CL                        = 0.75                                   # cruise target lift coefficient
-    AR                               = vehicle.wings.main_wing.aspect_ratio   # aspect ratio
-    Cd0                              = 0.06                                   # profile drag
-    Cdi                              = fligth_CL**2/(np.pi*AR*0.98)           # induced drag
-    Cd                               = Cd0 + Cdi                              # total drag
-    V_inf                            = 110.* Units['mph']                     # freestream velocity
-    Drag                             = S * (0.5*rho*V_inf**2 )*Cd             # cruise drag
+    g                                = 9.81                                   # gravitational acceleration 
+    speed_of_sound                   = 340                                    # speed of sound 
+    Drag                             = estimate_cruise_drag(vehicle,altitude = 1400. * Units.ft,speed= 110.* Units['mph'] ,lift_coefficient = 0.5 ,profile_drag = 0.06)
     Hover_Load                       = vehicle.mass_properties.takeoff*g      # hover load  
     
     # Thrust Propeller
@@ -572,12 +565,12 @@ def vehicle_setup():
     propeller.number_of_blades                  = 3
     propeller.tip_radius                        = 1.0668
     propeller.hub_radius                        = 0.21336
-    propeller.cruise.design_freestream_velocity = V_inf
+    propeller.cruise.design_freestream_velocity = 110.* Units['mph']
     propeller.cruise.design_tip_mach            = 0.5
     propeller.cruise.design_angular_velocity    = propeller.cruise.design_tip_mach *speed_of_sound/propeller.tip_radius
     propeller.cruise.design_Cl                  = 0.7
     propeller.cruise.design_altitude            = 1000 * Units.feet
-    propeller.cruise.design_thrust              = Drag*2.5
+    propeller.cruise.design_thrust              = Drag*3
     propeller.variable_pitch                    = True  
     airfoil                                     = MARC.Components.Airfoils.Airfoil()   
     airfoil.coordinate_file                     = '../Vehicles/Airfoils/NACA_4412.txt'

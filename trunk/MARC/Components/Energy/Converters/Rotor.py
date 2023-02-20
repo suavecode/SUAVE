@@ -94,7 +94,7 @@ class Rotor(Energy_Component):
         self.phase_offset_angle                = 0.0
         self.orientation_euler_angles          = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                            = False
-        self.sol_tolerance                     = 1e-8 
+        self.sol_tolerance                     = 1e-10
         self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream             = False
         self.axial_velocities_2d               = None     # user input for additional velocity influences at the rotor
@@ -423,7 +423,7 @@ class Rotor(Energy_Component):
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
-        Cl, Cdval, alpha, Ma,W, Re, alpha = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, Ma,W, Re, alpha = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         
         # compute HFW circulation at the blade
