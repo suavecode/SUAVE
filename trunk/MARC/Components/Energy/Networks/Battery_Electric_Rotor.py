@@ -183,7 +183,7 @@ class Battery_Electric_Rotor(Network):
             
             # Iterate over motor/rotors
             for ii in range(n_evals):
-                if active_propulsor_groups[ii]:
+                if active_propulsor_groups[ii]:                     
                     motor_key = list(motors.keys())[motor_indexes[ii]]
                     rotor_key = list(rotors.keys())[rotor_indexes[ii]]
                     esc_key   = list(escs.keys())[esc_indexes[ii]]
@@ -477,11 +477,9 @@ class Battery_Electric_Rotor(Network):
         unique_rotor_groups = np.unique(rotor_group_indexes)
         unique_motor_groups = np.unique(motor_group_indexes)
         unique_esc_groups   = np.unique(esc_group_indexes)
-        if (unique_rotor_groups == unique_motor_groups).all() and (unique_esc_groups == unique_motor_groups).all():
-            rotor_indexes = unique_rotor_groups
+        if (unique_rotor_groups == unique_motor_groups).all() and (unique_esc_groups == unique_motor_groups).all(): 
             n_groups      = len(unique_rotor_groups) 
-        else:
-            rotor_indexes = rotor_group_indexes
+        else: 
             n_groups      = len(rotor_group_indexes)  
                 
         if len(active_propulsor_groups)!= n_groups:
@@ -533,8 +531,8 @@ class Battery_Electric_Rotor(Network):
         for i in range(n_groups):         
             # Setup the conditions 
             idx = np.where(i == np.array(rotor_group_indexes))[0][0]
-            identical_rotor = self.rotors[list(self.rotors.keys())[idx]] 
-            identical_motor = self.motors[list(self.motors.keys())[idx]] 
+            identical_rotor   = rotors[list(rotors.keys())[idx]] 
+            identical_motor   = motors[list(motors.keys())[idx]] 
             
             segment.state.conditions.propulsion['propulsor_group_' + str(i)]                         = MARC.Analyses.Mission.Segments.Conditions.Conditions()
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor                   = MARC.Analyses.Mission.Segments.Conditions.Conditions()
