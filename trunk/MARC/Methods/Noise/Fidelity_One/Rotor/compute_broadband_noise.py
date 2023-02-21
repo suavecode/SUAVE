@@ -195,36 +195,36 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         Theta[:,:,:,:,:,:,1]        = np.tile(upper_surface_theta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface momentum thickness
  
    
-       # BPM model 
-       Re_c           = 0
-       Re_delta_star_p= 0 # Reynolds number based on momentum thickness 
-       D_bar_h        = 0 # high frequency directivity function 
-       
-       # Turbulent Boundary Layer - Trailing Edge 
-       #G_TBL_TE_p = ((delta_star[:,:,:,:,:,:,0]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,0]/U),M,Re_c.Re_delta_star_p)  # eqn 3
-       #G_TBL_TE_s = ((delta_star[:,:,:,:,:,:,1]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,1]/U),M,Re_c)# eqn 4
-       #G_TBL_TE_a = 0  # eqn 5
-       
-       #G_TBL_TE = G_TBL_TE_p + G_TBL_TE_s + G_TBL_TE_a  # eqn 2
-       
-       ## Laminar Boundary Layer - Vortex Shedding 
-       #G_LBL_VS  = 0 # eqn 9
-       
-       ## Blunt Trailing Edge 
-       
-       #G_BTE   =0  # eqn 10 
-       
-       
-       ## Tip Noise 
-       #G_Tip = 0 # eqn 11 
-       
-       ## BWI
-       #G_BWI = 0 
-       
-       ## Total Self Noise 
-       #G_self   = G_TBL_TE + G_LBL_VS + G_BTE + G_Tip   # eqn 1 
-   
-   
+        # BPM model 
+        Re_c           = 0
+        Re_delta_star_p= 0 # Reynolds number based on momentum thickness 
+        D_bar_h        = 0 # high frequency directivity function 
+        
+        # Turbulent Boundary Layer - Trailing Edge 
+        #G_TBL_TE_p = ((delta_star[:,:,:,:,:,:,0]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,0]/U),M,Re_c.Re_delta_star_p)  # eqn 3
+        #G_TBL_TE_s = ((delta_star[:,:,:,:,:,:,1]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,1]/U),M,Re_c)# eqn 4
+        #G_TBL_TE_a = 0  # eqn 5
+        
+        #G_TBL_TE = G_TBL_TE_p + G_TBL_TE_s + G_TBL_TE_a  # eqn 2
+        
+        ## Laminar Boundary Layer - Vortex Shedding 
+        #G_LBL_VS  = 0 # eqn 9
+        
+        ## Blunt Trailing Edge 
+        
+        #G_BTE   =0  # eqn 10 
+        
+        
+        ## Tip Noise 
+        #G_Tip = 0 # eqn 11 
+        
+        ## BWI
+        #G_BWI = 0 
+        
+        ## Total Self Noise 
+        #G_self   = G_TBL_TE + G_LBL_VS + G_BTE + G_Tip   # eqn 1 
+    
+    
    
    
         # Sound Pressure Level
@@ -242,14 +242,14 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         
     return
  
- def H_p():
+def H_p():
      
-     return 
+    return 
  
- def H_s():
+def H_s():
      
-     return  
+    return  
  
- def H_a_star():
+def H_a_star():
      
-     return   
+    return   
