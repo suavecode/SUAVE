@@ -45,5 +45,5 @@ def plot_airfoil(airfoil_paths,line_color = 'k-', save_figure = False,show_figur
         fig.write_image(save_filename.replace("_", " ") + file_type)  
     
     if show_figure:
-        fig.show()
+        fig.write_html( save_filename + '.html', auto_open=True)
     return

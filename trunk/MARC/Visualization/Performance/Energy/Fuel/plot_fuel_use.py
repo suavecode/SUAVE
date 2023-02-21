@@ -184,8 +184,8 @@ def plot_fuel_use(results,
 
     # Update Figure Style and Show 
     fig = plot_style(fig)
-    if show_figure:
-        fig.show()
+    if show_figure: 
+        fig.write_html( save_filename + '.html', auto_open=True)
 
     # Optionally save the figure with kaleido import check
 
