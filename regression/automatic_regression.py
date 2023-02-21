@@ -72,7 +72,7 @@ modules = [
     'scripts/industrial_costs/industrial_costs.py',
     'scripts/internal_combustion_propeller/ICE_Test.py',
     'scripts/internal_combustion_propeller/ICE_CS_Test.py',
-    'scripts/learning_marc/learning_marc_tutorial',
+    'scripts/learning_marc/learning_marc_tutorial.py',
     'scripts/mission_range_and_weight_sizing/landing_field_length.py',
     'scripts/mission_range_and_weight_sizing/take_off_field_length.py',
     'scripts/mission_range_and_weight_sizing/take_off_weight_from_tofl.py',
