@@ -151,7 +151,7 @@ def plot_3d_vehicle(vehicle,
         fig.write_image(save_filename + ".png")
         
     if show_figure:
-        fig.show()
+        fig.write_html( save_filename + '.html', auto_open=True)
         
     return 
 

@@ -81,6 +81,6 @@ def plot_airfoil_polar_files(polar_data, save_figure = False,show_figure = True,
         save_plot(fig, save_filename, file_type)     
         
     if show_figure:
-        fig.show()
+        fig.write_html( save_filename + '.html', auto_open=True)
         
     return

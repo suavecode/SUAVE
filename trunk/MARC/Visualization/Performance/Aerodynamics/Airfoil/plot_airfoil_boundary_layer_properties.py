@@ -79,7 +79,7 @@ def plot_airfoil_boundary_layer_properties(ap,show_legend = False,show_figure = 
       )              
      
     if show_figure:
-        fig.show()
+        fig.write_html( save_filename + '.html', auto_open=True)
 
     return    
  
@@ -126,6 +126,6 @@ def plot_quantity(ap, q, qaxis, qname,show_figure = True,show_legend=True):
     )    
             
     if show_figure:
-        fig.show()
+        fig.write_html( save_filename + '.html', auto_open=True)
     return  
   

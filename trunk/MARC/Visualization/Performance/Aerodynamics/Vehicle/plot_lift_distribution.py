@@ -102,6 +102,6 @@ def plot_lift_distribution(results,vehicle,
             save_plot(fig, save_filename, file_type)     
       
          if show_figure:
-            fig.show()
+            fig.write_html( save_filename + '.html', auto_open=True)
 
    return
