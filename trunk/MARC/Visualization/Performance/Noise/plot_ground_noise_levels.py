@@ -81,7 +81,7 @@ def plot_ground_noise_levels(results,
         save_plot(fig, save_filename, file_type)     
         
     if show_figure:
-        fig.show()
+        fig.write_html( save_filename + '.html', auto_open=True)
          
     return    
  

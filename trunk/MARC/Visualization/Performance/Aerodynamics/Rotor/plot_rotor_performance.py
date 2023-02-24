@@ -50,6 +50,6 @@ def plot_rotor_performance(prop, title=None, show_figure = True,save_figure=Fals
         fig.write_image(save_filename + '_2D' + file_type) 
     
     if show_figure:
-        fig.show()  
+        fig.write_html( save_filename + '.html', auto_open=True)
     return
  

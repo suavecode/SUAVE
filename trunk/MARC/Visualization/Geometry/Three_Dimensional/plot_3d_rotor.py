@@ -100,7 +100,7 @@ def plot_3d_rotor(rotor,save_filename = "Rotor", save_figure = False, plot_data 
         if save_figure: 
             fig.write_image(save_filename + ".png")
         if show_figure:
-            fig.show()
+            fig.write_html( save_filename + '.html', auto_open=True)
         return 
     else: 
         return plot_data

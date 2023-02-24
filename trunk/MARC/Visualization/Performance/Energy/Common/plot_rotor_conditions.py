@@ -171,7 +171,7 @@ def plot_rotor_conditions(results,
     
         fig = plot_style(fig)
         if show_figure:
-            fig.show()
+            fig.write_html( save_filename + '.html', auto_open=True)
     
         if save_figure:
             save_plot(fig, save_filename, file_type)

@@ -56,6 +56,6 @@ def plot_airfoil_surface_forces(ap,show_figure = True):
               )            
     
     if show_figure:
-        fig.show()
+        fig.write_html( save_filename + '.html', auto_open=True)
         
     return
