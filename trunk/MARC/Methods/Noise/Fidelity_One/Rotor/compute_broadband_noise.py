@@ -1,4 +1,4 @@
-## @ingroup Methods-Noise-Fidelity_One-Propeller
+## @ingroup Methods-Noise-Fidelity_One-Rotor
 # compute_broadband_noise.py
 #
 # Created:   Mar 2021, M. Clarke
@@ -9,12 +9,17 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import numpy as np 
-from MARC.Core.Utilities                                                       import interp2d
+import numpy as np  
+from MARC.Core import Units
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools.convert_to_third_octave_band  import convert_to_third_octave_band  
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic
-from scipy.special                                                              import fresnel
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic 
+
+from MARC.Methods.Noise.Fidelity_One.Rotor.compute_BPM_boundary_layer_properties import compute_BPM_boundary_layer_properties
+from MARC.Methods.Noise.Fidelity_One.Rotor.compute_LBL_VS_broadband_noise        import compute_LBL_VS_broadband_noise
+from MARC.Methods.Noise.Fidelity_One.Rotor.compute_TBL_TE_broadband_noise        import compute_TBL_TE_broadband_noise
+from MARC.Methods.Noise.Fidelity_One.Rotor.compute_TIP_broadband_noise           import compute_TIP_broadband_noise 
+from MARC.Methods.Noise.Fidelity_One.Rotor.compute_noise_directivities           import compute_noise_directivities
  
 # ----------------------------------------------------------------------
 # Frequency Domain Broadband Noise Computation
@@ -80,15 +85,12 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     Va_2d              = aeroacoustic_data.disc_axial_velocity                
     blade_chords       = rotor.chord_distribution           # blade chord    
     r                  = rotor.radius_distribution          # radial location 
-    airfoils           = rotor.Airfoils
-    a_loc              = rotor.airfoil_polar_stations 
     num_sec            = len(r) 
     num_azi            = len(aeroacoustic_data.disc_effective_angle_of_attack[0,0,:])    
-    U_blade            = np.sqrt(Vt_2d**2 + Va_2d**2)
-    Re_blade           = U_blade*np.repeat(np.repeat(blade_chords[np.newaxis,:],num_cpt,axis=0)[:,:,np.newaxis],num_azi,axis=2)/\
+    U                  = np.sqrt(Vt_2d**2 + Va_2d**2)
+    R_c                = U*np.repeat(np.repeat(blade_chords[np.newaxis,:],num_cpt,axis=0)[:,:,np.newaxis],num_azi,axis=2)/\
                           np.repeat(np.repeat((kine_visc),num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2)
-    rho_blade          = np.repeat(np.repeat(rho,num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2)
-    U                  = np.atleast_2d(np.linalg.norm(velocity_vector,axis=1)).T
+    rho                = np.repeat(np.repeat(rho,num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2) 
     M                  = U/c_0                                             
     B                  = rotor.number_of_blades             # number of rotor blades
     Omega              = aeroacoustic_data.omega            # angular velocity    
@@ -97,10 +99,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     L[0]               = 2*del_r[0]
     L[-1]              = 2*del_r[-1]
     L[1:-1]            = (del_r[:-1]+ del_r[1:])/2
-
-
-    bstei   = 4      # bottom surface trailing edge index 
-    ustei   = -bstei # upper surface trailing edge index 
+ 
 
     if np.all(Omega == 0):
         res.p_pref_broadband                          = np.zeros((num_cpt,num_mic,num_rot,num_cf)) 
@@ -114,127 +113,80 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         res.SPL_prop_azimuthal_broadband_spectrum_dBA = np.zeros_like(res.p_pref_azimuthal_broadband)
     else:
         
-        delta        = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,2)) #  control points ,  number rotors, number blades , number sections , sides of airfoil
-        delta_star   = np.zeros_like(delta)
-        dp_dx        = np.zeros_like(delta)
-        tau_w        = np.zeros_like(delta)
-        Ue           = np.zeros_like(delta)
-        Theta        = np.zeros_like(delta)
-    
-        # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
-        lower_surface_theta        = np.zeros((num_cpt,num_sec,num_azi))
-        lower_surface_delta        = np.zeros_like(lower_surface_theta)
-        lower_surface_delta_star   = np.zeros_like(lower_surface_theta)
-        lower_surface_Ue           = np.zeros_like(lower_surface_theta)
-        lower_surface_cf           = np.zeros_like(lower_surface_theta)
-        lower_surface_dcp_dx       = np.zeros_like(lower_surface_theta)
-        upper_surface_theta        = np.zeros_like(lower_surface_theta)
-        upper_surface_delta        = np.zeros_like(lower_surface_theta)
-        upper_surface_delta_star   = np.zeros_like(lower_surface_theta)
-        upper_surface_Ue           = np.zeros_like(lower_surface_theta)
-        upper_surface_cf           = np.zeros_like(lower_surface_theta)
-        upper_surface_dcp_dx       = np.zeros_like(lower_surface_theta) 
-    
-        aloc  = np.atleast_3d(np.array(a_loc))
-        aloc  = np.broadcast_to(aloc,np.shape(lower_surface_theta))
-    
-        for jj,airfoil in enumerate(airfoils):  
-            bl                            = airfoil.polars.boundary_layer
-            theta_ls_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta[:,:,bstei])     
-            delta_ls_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta[:,:,bstei])        
-            delta_star_ls_data            = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star[:,:,bstei])   
-            Ue_Vinf_ls_data               = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf[:,:,bstei])      
-            cf_ls_data                    = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf[:,:,bstei])           
-            dcp_dx_ls_data                = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx[:,:,bstei])       
-            theta_us_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.theta[:,:,ustei])        
-            delta_us_data                 = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta[:,:,ustei])       
-            delta_star_us_data            = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.delta_star[:,:,ustei])   
-            Ue_Vinf_us_data               = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.Ue_Vinf[:,:,ustei])   
-            cf_us_data                    = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.cf[:,:,ustei])          
-            dcp_dx_us_data                = interp2d(Re_blade,alpha_blade,bl.reynolds_numbers, bl.angle_of_attacks, bl.dcp_dx[:,:,ustei])      
-    
-            locs                                 = np.where(np.array(a_loc) == jj )  
-            lower_surface_theta[:,locs,:]        = theta_ls_data[:,locs]
-            lower_surface_delta[:,locs,:]        = delta_ls_data[:,locs]         
-            lower_surface_delta_star[:,locs,:]   = delta_star_ls_data[:,locs]    
-            lower_surface_Ue[:,locs,:]           = Ue_Vinf_ls_data[:,locs]            
-            lower_surface_cf[:,locs,:]           = cf_ls_data[:,locs]            
-            lower_surface_dcp_dx[:,locs,:]       = dcp_dx_ls_data[:,locs]        
-            upper_surface_theta[:,locs,:]        = theta_us_data[:,locs]
-            upper_surface_delta[:,locs,:]        = delta_us_data[:,locs]         
-            upper_surface_delta_star[:,locs,:]   = delta_star_us_data[:,locs]    
-            upper_surface_Ue[:,locs,:]           = Ue_Vinf_us_data[:,locs]
-            upper_surface_cf[:,locs,:]           = cf_us_data[:,locs]    
-            upper_surface_dcp_dx[:,locs,:]       = dcp_dx_us_data[:,locs] 
-    
-        blade_chords_3d           = np.tile(np.tile(blade_chords[None,:],(num_cpt,1))[:,:,None],(1,1,num_azi))
-        dP_dX_ls                  = lower_surface_dcp_dx*(0.5*rho_blade*U_blade**2)/blade_chords_3d
-        dP_dX_us                  = upper_surface_dcp_dx*(0.5*rho_blade*U_blade**2)/blade_chords_3d
-        
-        lower_surface_delta       = lower_surface_delta*blade_chords_3d 
-        upper_surface_delta       = upper_surface_delta*blade_chords_3d 
-        lower_surface_Ue          = lower_surface_Ue*U_blade  
-        upper_surface_Ue          = upper_surface_Ue*U_blade 
-        lower_surface_dp_dx       = dP_dX_ls
-        upper_surface_dp_dx       = dP_dX_us 
-        
         # ------------------------------------------------------------
-        # ****** TRAILING EDGE BOUNDARY LAYER PROPERTY CALCULATIONS  ******
+        # BMP Model 
+        # ------------------------------------------------------------ 
         
-        delta[:,:,:,:,:,:,0]        = np.tile(lower_surface_delta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # lower surface boundary layer thickness
-        delta[:,:,:,:,:,:,1]        = np.tile(upper_surface_delta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface boundary layer thickness
-        delta_star[:,:,:,:,:,:,0]   = np.tile(lower_surface_delta_star[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf)) # lower surface displacement thickness
-        delta_star[:,:,:,:,:,:,1]   = np.tile(upper_surface_delta_star[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf)) # upper surface displacement thickness
-        dp_dx[:,:,:,:,:,:,0]        = np.tile(lower_surface_dp_dx[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # lower surface pressure differential
-        dp_dx[:,:,:,:,:,:,1]        = np.tile(upper_surface_dp_dx[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface pressure differential
-        Ue[:,:,:,:,:,:,0]           = np.tile(lower_surface_Ue[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))         # lower surface boundary layer edge velocity
-        Ue[:,:,:,:,:,:,1]           = np.tile(upper_surface_Ue[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))         # upper surface boundary layer edge velocity
-        tau_w[:,:,:,:,:,:,0]        = np.tile((lower_surface_cf*(0.5*rho_blade*(U_blade**2)))[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))       # lower surface wall shear stress
-        tau_w[:,:,:,:,:,:,1]        = np.tile((upper_surface_cf*(0.5*rho_blade*(U_blade**2)))[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface wall shear stress
-        Theta[:,:,:,:,:,:,0]        = np.tile(lower_surface_theta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # lower surface momentum thickness
-        Theta[:,:,:,:,:,:,1]        = np.tile(upper_surface_theta[:,None,None,:,:,None],(1,num_mic,num_rot,1,1,num_cf))      # upper surface momentum thickness
- 
-   
-        # BPM model 
-        Re_c           = 0
-        Re_delta_star_p= 0 # Reynolds number based on momentum thickness 
-        D_bar_h        = 0 # high frequency directivity function 
-        
-        # Turbulent Boundary Layer - Trailing Edge 
-        #G_TBL_TE_p = ((delta_star[:,:,:,:,:,:,0]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,0]/U),M,Re_c.Re_delta_star_p)  # eqn 3
-        #G_TBL_TE_s = ((delta_star[:,:,:,:,:,:,1]*(M**5) *L*D_bar_h)/(r_e**2))*H_p((f*delta_star[:,:,:,:,:,:,1]/U),M,Re_c)# eqn 4
-        #G_TBL_TE_a = 0  # eqn 5
-        
-        #G_TBL_TE = G_TBL_TE_p + G_TBL_TE_s + G_TBL_TE_a  # eqn 2
-        
-        ## Laminar Boundary Layer - Vortex Shedding 
-        #G_LBL_VS  = 0 # eqn 9
-        
-        ## Blunt Trailing Edge 
-        
-        #G_BTE   =0  # eqn 10 
+        '''
+        dimensions of variables are  chords x aoas x Re
+        '''
+       
+        r_e      = 1.22                 # distance from observer
+        Theta_e  = 90 *Units.degrees    # see Figure B3 for definition 
+        Phi_e    = 90 *Units.degrees    # see Figure B3 for definition   
+          
+        f          = np.tile(frequency[None,None,None,:],(num_cpt,num_mic,num_rot,num_sec,num_azi,1))
         
         
-        ## Tip Noise 
-        #G_Tip = 0 # eqn 11 
+        # flatten
+        c          = np.reshape(c,(num_cpt*num_mic*num_rot*num_sec*num_azi*num_cf))
+        alpha_star = np.reshape(alpha_blade,(num_cpt*num_mic*num_rot*num_sec*num_azi*num_cf))
+        U          = np.reshape(U,(num_cpt*num_mic*num_rot*num_sec*num_azi*num_cf))
+        f          = np.reshape(f,(num_cpt*num_mic*num_rot*num_sec*num_azi*num_cf))
+          
         
-        ## BWI
-        #G_BWI = 0 
+        '''calculation of boundary layer properties
+        eqns 2 - 16 '''   
         
-        ## Total Self Noise 
-        #G_self   = G_TBL_TE + G_LBL_VS + G_BTE + G_Tip   # eqn 1 
+        # boundary layer properies of tripped and untripped at 0 angle of attack   
+        boundary_layer_data  = compute_BPM_boundary_layer_properties(R_c,c,alpha_star) 
+        
     
-    
-   
-   
-        # Sound Pressure Level
-        SPL                        = 10*np.log10((2*np.pi*abs(S_pp))/((p_ref)**2)) 
-        SPL[np.isinf(SPL)]         = 0   
-        SPL_rotor                  = SPL_arithmetic(SPL_arithmetic(SPL, sum_axis = 5 ), sum_axis = 3 )
+        ''' 
+        define simulation variables/constants  
+        '''        
         
-        # convert to 1/3 octave spectrum
-        f = np.repeat(np.atleast_2d(frequency),num_cpt,axis = 0)
- 
+        R_delta_star_p_untripped = boundary_layer_data.delta_star_p_untripped*U*dyna_visc/rho 
+        R_delta_star_p_tripped   = boundary_layer_data.delta_star_p_tripped*U*dyna_visc/rho 
+        
+    
+        ''' 
+        calculation of directivitiy terms 
+        eqns 24 - 50
+        '''   
+        Dbar_h, Dbar_l = compute_noise_directivities(Theta_e,Phi_e,M)
+        
+        
+        ''' 
+        calculation of turbulent boundary layer - trailing edge noise 
+        eqns 24 - 50
+        '''  
+            
+        SPL_TBL_TE_tripped   = compute_TBL_TE_broadband_noise(f,r_e,L,U,M,R_c,Dbar_h,Dbar_l,R_delta_star_p_tripped,
+                                                  boundary_layer_data.delta_star_p_tripped,
+                                                  boundary_layer_data.delta_star_s_tripped,
+                                                  alpha_star) 
+        
+        SPL_TBL_TE_untripped = compute_TBL_TE_broadband_noise(f,r_e,L,U,M,R_c,Dbar_h,Dbar_l,R_delta_star_p_untripped,
+                                                  boundary_layer_data.delta_star_p_untripped,
+                                                  boundary_layer_data.delta_star_s_untripped,
+                                                  alpha_star)  
+     
+        '''
+        calculation of laminar boundary layer - vortex shedding
+        eqns 53 - 60
+        '''
+        SPL_LBL_VS = compute_LBL_VS_broadband_noise(R_c,alpha_star,boundary_layer_data.delta_star_p_untripped,r_e,L,M,Dbar_h,f,U)
+      
+    
+        '''
+        calculation of tip vortex noise
+        eqns 61 - 67
+        '''
+        alpha_TIP = alpha_star
+        SPL_TIP   = compute_TIP_broadband_noise(alpha_TIP,M,c,c_0,f,Dbar_h,r_e) 
+        
+     
         res.SPL_prop_broadband_spectrum                   = SPL_rotor
         res.SPL_prop_broadband_spectrum_dBA               = A_weighting(SPL_rotor,frequency) 
         res.SPL_prop_broadband_1_3_spectrum               = convert_to_third_octave_band(SPL_rotor,f,settings)
@@ -242,14 +194,3 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         
     return
  
-def H_p():
-     
-    return 
- 
-def H_s():
-     
-    return  
- 
-def H_a_star():
-     
-    return   
