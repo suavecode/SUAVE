@@ -65,9 +65,9 @@ def main():
     print(cruise_throttle)
     
     # Truth values   
-    departure_throttle_truth          = 0.6517016153400099
-    transition_1_throttle_truth       = 0.6010587464782999
-    cruise_throttle_truth             = 0.46469250335732526
+    departure_throttle_truth          = 0.6517016151646159
+    transition_1_throttle_truth       = 0.6015133121458709
+    cruise_throttle_truth             = 0.46524972293796674
     
     # Store errors 
     error = Data()
@@ -79,7 +79,7 @@ def main():
     print(error)
 
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-3)  # NEED TO FIX
+        assert(np.abs(v)<1e-6)   
 
     plt.show()    
     return
