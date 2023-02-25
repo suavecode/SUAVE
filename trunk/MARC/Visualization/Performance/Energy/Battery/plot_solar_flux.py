@@ -7,26 +7,21 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
+
 from MARC.Core import Units
-from MARC.Visualization.Performance.Common import plot_style, save_plot
-from MARC.Visualization.Performance.Energy.Battery import *
-from MARC.Visualization.Performance.Energy.Common import *
+from MARC.Visualization.Performance.Common import set_axes, plot_style
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np 
 
-import numpy as np
-import pandas as pd
-
-import plotly.graph_objects as go
-
-from plotly.subplots import make_subplots
 
 ## @ingroup Visualization-Performance-Energy-Battery
 def plot_solar_flux(results,
-                    save_figure   = False,
-                    show_figure   = True,
+                    save_figure = False,
+                    show_legend=True,
                     save_filename = "Solar_Flux",
-                    file_type     = ".png",
-                    width         = 1200, height = 600,
-                    *args, **kwargs):
+                    file_type = ".png",
+                    width = 12, height = 7):
     """This plots the solar flux and power train performance of an solar powered aircraft
 
     Assumptions:
@@ -46,100 +41,66 @@ def plot_solar_flux(results,
     Properties Used:
     N/A
     """
-    # Create empty dataframe to be populated by the segment data
+    
+    # get plotting style 
+    ps      = plot_style()  
 
-    plot_cols = [
-        "Solar Flux",
-        "Charging Power",
-        "Battery Current",
-        "Battery Energy",
-        "Segment"
-    ]
+    parameters = {'axes.labelsize': ps.axis_font_size,
+                  'xtick.labelsize': ps.axis_font_size,
+                  'ytick.labelsize': ps.axis_font_size,
+                  'axes.titlesize': ps.title_font_size}
+    plt.rcParams.update(parameters)
+     
+    # get line colors for plots 
+    line_colors   = cm.inferno(np.linspace(0,0.9,len(results.segments)))     
+     
+    fig   = plt.figure()
+    fig.set_size_inches(width,height)
+    
+    for i in range(len(results.segments)): 
 
-    df = pd.DataFrame(columns=plot_cols)
-
-    # Get the segment-by-segment results
-
-    for segment in results.segments.values():
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        flux   = segment.conditions.propulsion.solar_flux[:,0]
-        charge = segment.conditions.propulsion.battery.pack.power_draw[:,0]
-        current= segment.conditions.propulsion.battery.pack.current[:,0]
-        energy = segment.conditions.propulsion.battery.pack.energy[:,0] / Units.MJ
-
-        segment_frame = pd.DataFrame(
-            np.column_stack((
-                flux,
-                charge,
-                current,
-                energy,
-
-            )),
-            columns=plot_cols[:-1], index=time
-        )
-
-        segment_frame['Segment'] = [segment.tag for i in range(len(time))]
-
-        # Append to collecting dataframe
-
-        df = df.append(segment_frame)
-
-    # Set plot properties
-
-    fig = make_subplots(rows=2, cols=2)
-
-    # Add traces to the figure for each value by segment
-
-    for seg, data in df.groupby("Segment", sort=False):
-
-        seg_name = ' '.join(seg.split("_")).capitalize()
-
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['Solar Flux'],
-            name=seg_name),
-            row=1, col=1)
-
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['Charging Power'],
-            name=seg_name,
-            showlegend=False),
-            row=1, col=2)
-
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['Battery Current'],
-            name=seg_name,
-            showlegend=False),
-            row=2, col=1)
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        flux   = results.segments[i].conditions.propulsion.solar_flux[:,0]
+        charge = results.segments[i].conditions.propulsion.battery.pack.power_draw[:,0]
+        current= results.segments[i].conditions.propulsion.battery.pack.current[:,0]
+        energy = results.segments[i].conditions.propulsion.battery.pack.energy[:,0] / Units.MJ
         
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['Battery Energy'],
-            name=seg_name,
-            showlegend=False),
-            row=2, col=2)
+                       
+        segment_tag  =  results.segments[i].tag
+        segment_name = segment_tag.replace('_', ' ')
+        axes_1 = plt.subplot(2,2,1)
+        axes_1.plot(time, flux, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width, label = segment_name)
+        axes_1.set_ylabel(r'Solar Flux (W/m^2)')
+        set_axes(axes_1)    
+        
+        axes_2 = plt.subplot(2,2,2)
+        axes_2.plot(time, charge, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width) 
+        axes_2.set_ylabel(r'Charging Power (W)')
+        set_axes(axes_2) 
 
-    fig.update_yaxes(title_text='Solar Flux (W/m^2)', row=1, col=1)
-    fig.update_yaxes(title_text='Charging Power (W)', row=1, col=2)
-    fig.update_yaxes(title_text='Battery Current (A)', row=2, col=1) 
-    fig.update_yaxes(title_text='Battery Energy (MJ)', row=2, col=2) 
-
-    fig.update_xaxes(title_text='Time (min)', row=2, col=1)
-    fig.update_xaxes(title_text='Time (min)', row=2, col=2)
-
-    fig.update_layout(
-        width=width, height=height,
-        legend_title_text='Segment',
-        title_text = 'Solar Flux Conditions'
-    )
-
-    fig = plot_style(fig)
-    if show_figure:
-        fig.write_html( save_filename + '.html', auto_open=True)
-
+        axes_3 = plt.subplot(2,2,3)
+        axes_3.plot(time, current, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
+        axes_3.set_xlabel('Time (mins)')
+        axes_3.set_ylabel(r'Battery Current (A)')
+        set_axes(axes_3) 
+        
+        axes_4 = plt.subplot(2,2,4)
+        axes_4.plot(time, energy, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
+        axes_4.set_xlabel('Time (mins)')
+        axes_4.set_ylabel(r'Battery Energy (MJ)')
+        set_axes(axes_4) 
+    
+    if show_legend:        
+        leg =  fig.legend(bbox_to_anchor=(0.5, 0.95), loc='upper center', ncol = 5) 
+        leg.set_title('Flight Segment', prop={'size': ps.legend_font_size, 'weight': 'heavy'})    
+    
+    # Adjusting the sub-plots for legend 
+    fig.subplots_adjust(top=0.8)
+    
+    # set title of plot 
+    title_text    = 'Solar Flux Conditions'      
+    fig.suptitle(title_text)
+    
     if save_figure:
-        save_plot(fig, save_filename, file_type)
-
+        plt.savefig(save_filename + file_type)   
     return

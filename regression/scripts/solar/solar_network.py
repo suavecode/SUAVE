@@ -12,7 +12,7 @@ import MARC
 from MARC.Core import Units
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
 from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
 from MARC.Visualization.Performance.Energy.Battery       import *   
 from MARC.Visualization.Performance.Noise                import * 
 import matplotlib.pyplot as plt  
@@ -238,13 +238,13 @@ def missions_setup(base_mission):
 def plot_mission(results,line_style='bo-'):     
     
     # Plot Propeller Performance 
-    plot_rotor_conditions(results,line_style,show_figure=False)
+    plot_rotor_conditions(results,line_style)
     
     # Plot Power and Disc Loading
-    plot_disc_power_loading(results,line_style,show_figure=False)
+    plot_disc_power_loading(results,line_style)
     
     # Plot Solar Radiation Flux
-    plot_solar_flux(results,line_style,show_figure=False) 
+    plot_solar_flux(results,line_style) 
     
     return 
 

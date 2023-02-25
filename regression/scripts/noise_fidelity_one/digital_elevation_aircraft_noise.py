@@ -11,10 +11,10 @@ from MARC.Core import Units
 import numpy as np    
 from MARC.Core import Data 
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission import *  
-from MARC.Visualization.Performance.Energy.Common import *  
+from MARC.Visualization.Performance.Mission import *     
 from MARC.Visualization.Performance.Energy.Battery import *   
-from MARC.Visualization.Performance.Noise import *   
+from MARC.Visualization.Performance.Noise import *     
+from MARC.Visualization.Topography import *   
 from MARC.Methods.Performance.estimate_stall_speed import estimate_stall_speed 
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import preprocess_topography_and_route_data
 import matplotlib.pyplot as plt 
@@ -68,6 +68,8 @@ def X57_full_setup():
 
     # vehicle data
     vehicle  = X57_vehicle_setup()
+    
+    plot_digital_elevation_contour('LA_Metropolitan_Area.txt')
 
     topography_data = preprocess_topography_and_route_data(topography_file                       = 'LA_Metropolitan_Area.txt',
                                                            departure_coordinates                 = [33.94067953101678, -118.40513722978149],
@@ -268,10 +270,10 @@ def X57_missions_setup(base_mission):
 def plot_results(results):   
     
     # Plot noise level
-    plot_ground_noise_levels(results,show_figure=False)
+    plot_ground_noise_levels(results)
     
     # Plot noise contour
-    plot_flight_profile_noise_contours(results,show_figure=False)   
+    plot_flight_profile_noise_contours(results)   
                         
     return  
 

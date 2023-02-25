@@ -6,8 +6,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------   
-from MARC.Core import Units
-from MARC.Visualization.Performance.Common import save_plot 
+from MARC.Core import Units 
 import numpy as np  
 import plotly.graph_objects as go
 from MARC.Visualization.Geometry.Common.contour_surface_slice      import contour_surface_slice
@@ -18,7 +17,7 @@ def plot_flight_profile_noise_contours(results,
                                        save_figure=False,
                                        show_figure=False,
                                        save_filename="Noise_Contour",
-                                       colormap = 'plasma',
+                                       colormap = 'jet',
                                        file_type=".png",
                                        width = 1200, height = 600,
                                        *args, **kwargs): 
@@ -74,7 +73,8 @@ def plot_flight_profile_noise_contours(results,
     if show_figure: 
         fig_2d.show() 
     if save_figure:
-        save_plot(fig_2d, save_filename + '_2D', file_type)
+        save_filename_2d = save_filename.replace("_", " ")  + '_2D'
+        fig_2d.write_image(save_filename_2d + file_type) 
         
     # ---------------------------------------------------------------------------
     # TRHEE DIMENSIONAL NOISE CONTOUR
@@ -118,7 +118,7 @@ def plot_flight_profile_noise_contours(results,
     if show_figure:
         fig_3d.show() 
     if save_figure:
-        save_plot(fig_3d, save_filename + '_3D', file_type)
+        fig_3d.write_image(save_filename + '_3D', file_type)
          
     return        
 

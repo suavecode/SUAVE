@@ -23,8 +23,7 @@ from MARC.Analyses.Aerodynamics import Vortex_Lattice
 
 # plotting imports 
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission import *  
-from MARC.Visualization.Performance.Energy.Common import *  
+from MARC.Visualization.Performance.Mission import *    
 from MARC.Visualization.Performance.Energy.Battery import *   
 from MARC.Visualization.Performance.Noise import *  
 from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle
@@ -149,7 +148,7 @@ def regress_1b(results, configs):
 def plot_mission(results,vehicle): 
 
     # Plot lift distribution
-    plot_lift_distribution(results,vehicle,show_figure=False)
+    plot_lift_distribution(results,vehicle)
 
     return
 

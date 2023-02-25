@@ -14,7 +14,7 @@ from MARC.Core import Units
 import numpy as np
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
 from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Aerodynamics.Rotor   import *  
 from MARC.Visualization.Performance.Energy.Battery       import *   
 from MARC.Visualization.Performance.Noise                import * 
 from MARC.Core import Data
@@ -27,7 +27,7 @@ from X57_Maxwell_Mod2    import vehicle_setup as   GA_vehicle_setup
 from X57_Maxwell_Mod2    import configs_setup as   GA_configs_setup
 from Stopped_Rotor       import vehicle_setup as   EVTOL_vehicle_setup 
 from Stopped_Rotor       import configs_setup as   EVTOL_configs_setup
-
+import matplotlib.pyplot as plt  
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -38,9 +38,7 @@ def main():
     ga_unknown_throttles    =  [[0.005,0.005,0.005],
                                 [0.005,0.005,0.005]]
     evtol_unknown_throttles = [[ [0.7,0.9] , [0.7,0.7] ,[0.95,0.9] ,[0.8,0.9] ,[0.8,0.9],[0.8,0.9] ],
-                               [ [0.7,0.9] , [0.9,0.95] ,[0.95,0.9], [0.8,0.9], [0.8,0.9],[0.8,0.9] ]]
-    line_style_new          =  ['bo-','ro-','ko-']
-    line_style2_new         =  ['bs-','rs-','ks-'] 
+                               [ [0.7,0.9] , [0.9,0.95] ,[0.95,0.9], [0.8,0.9], [0.8,0.9],[0.8,0.9] ]] 
     
     # ----------------------------------------------------------------------
     #  True Values  
@@ -48,8 +46,8 @@ def main():
 
     # General Aviation Aircraft   
 
-    GA_RPM_true              = [2285.817951592137,2285.8179515925012]
-    GA_lift_coefficient_true = [0.5474716961620836,0.5474716961620837]
+    GA_RPM_true              = [2268.2896745614694,2268.2896745666226]
+    GA_lift_coefficient_true = [0.5405968044232964,0.5405968044232964]
     
 
     # EVTOL Aircraft      
@@ -78,7 +76,7 @@ def main():
         plot_results(GA_results)  
         
         # RPM of rotor check during hover
-        GA_RPM        = GA_results.segments.climb_1.conditions.propulsion.propulsor_group_0.rotor.rpm[3][0] 
+        GA_RPM        = GA_results.segments.climb_1_f_1_d1.conditions.propulsion.propulsor_group_0.rotor.rpm[3][0] 
         print('GA RPM: ' + str(GA_RPM))
         GA_diff_RPM   = np.abs(GA_RPM - GA_RPM_true[i])
         print('RPM difference')
@@ -86,7 +84,7 @@ def main():
         assert np.abs((GA_RPM - GA_RPM_true[i])/GA_RPM_true[i]) < 1e-6  
         
         # lift Coefficient Check During Cruise
-        GA_lift_coefficient        = GA_results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0] 
+        GA_lift_coefficient        = GA_results.segments.cruise_f_1_d1.conditions.aerodynamics.lift_coefficient[2][0] 
         print('GA CL: ' + str(GA_lift_coefficient)) 
         GA_diff_CL                 = np.abs(GA_lift_coefficient  - GA_lift_coefficient_true[i]) 
         print('CL difference')
@@ -304,9 +302,12 @@ def GA_mission_setup(analyses,vehicle,unknown_throttles):
     airport = MARC.Attributes.Airports.Airport()
     airport.altitude   =  0. * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976()
-
+    airport.atmosphere = MARC.Attributes.Atmospheres.Earth.US_Standard_1976() 
     mission.airport = airport    
+
+    atmosphere         = MARC.Analyses.Atmospheric.US_Standard_1976() 
+    atmo_data          = atmosphere.compute_values(altitude = airport.altitude,temperature_deviation= 1.)  
+    
 
     # unpack Segments module
     Segments = MARC.Analyses.Mission.Segments 
@@ -314,73 +315,98 @@ def GA_mission_setup(analyses,vehicle,unknown_throttles):
     # base segment
     base_segment = Segments.Segment()
     ones_row     = base_segment.state.ones_row
-    base_segment.process.initialize.initialize_battery       = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.conditions.planet_position  = MARC.Methods.skip
-    base_segment.state.numerics.number_control_points        = 4  
-    base_segment.battery_age_in_days                         = 1 # optional but added for regression
-    base_segment.temperature_deviation                       = 1 # Kelvin #  optional but added for regression
+    base_segment.process.initialize.initialize_battery                        = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.iterate.conditions.planet_position                   = MARC.Methods.skip
+    base_segment.process.finalize.post_process.update_battery_state_of_health = MARC.Methods.Missions.Segments.Common.Energy.update_battery_state_of_health  
+    base_segment.state.numerics.number_control_points                         = 4   
+    bat                                                                       = vehicle.networks.battery_electric_rotor.battery
+    base_segment.charging_SOC_cutoff                                          = bat.cell.charging_SOC_cutoff 
+    base_segment.charging_current                                             = bat.charging_current
+    base_segment.charging_voltage                                             = bat.charging_voltage 
+    base_segment.battery_discharge                                            = True   
     
-    # ------------------------------------------------------------------
-    #   Climb 1 : constant Speed, constant rate segment 
-    # ------------------------------------------------------------------ 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb_1"
-    segment.analyses.extend( analyses.base )
-    segment.battery_energy                   = vehicle.networks.battery_electric_rotor.battery.pack.max_energy * 0.89
-    segment.altitude_start                   = 2500.0  * Units.feet
-    segment.altitude_end                     = 8012    * Units.feet 
-    segment.air_speed                        = 96.4260 * Units['mph'] 
-    segment.climb_rate                       = 700.034 * Units['ft/min']    
-    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = [unknown_throttles[0]]) 
+    flights_per_day = 2 
+    simulated_days  = 2
+    for day in range(simulated_days): 
 
-    # add to misison
-    mission.append_segment(segment)
-
-    # ------------------------------------------------------------------
-    #   Cruise Segment: constant Speed, constant altitude
-    # ------------------------------------------------------------------ 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "cruise" 
-    segment.analyses.extend(analyses.base) 
-    segment.altitude                  = 8012   * Units.feet
-    segment.air_speed                 = 120.91 * Units['mph'] 
-    segment.distance                  =  20.   * Units.nautical_mile   
-    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = [unknown_throttles[1]])   
-
-    # add to misison
-    mission.append_segment(segment)    
-
-
-    # ------------------------------------------------------------------
-    #   Descent Segment Flight 1   
-    # ------------------------------------------------------------------ 
-    segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
-    segment.tag = "decent"  
-    segment.analyses.extend( analyses.base )       
-    segment.altitude_start                                   = 8012 * Units.feet  
-    segment.altitude_end                                     = 2500.0 * Units.feet
-    segment.air_speed_start                                  = 175.* Units['mph']  
-    segment.air_speed_end                                    = 110 * Units['mph']   
-    segment.climb_rate                                       = -200 * Units['ft/min']  
-    segment.state.unknowns.throttle                          = 0.8 * ones_row(1)  
-    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = [unknown_throttles[2]])   
+        # compute daily temperature in san francisco: link: https://www.usclimatedata.com/climate/san-francisco/california/united-states/usca0987/2019/1
+        daily_temp = (13.5 + (day)*(-0.00882) + (day**2)*(0.00221) + (day**3)*(-0.0000314) + (day**4)*(0.000000185)  + \
+                      (day**5)*(-0.000000000483)  + (day**6)*(4.57E-13)) + 273.2
+        
+        base_segment.temperature_deviation = daily_temp - atmo_data.temperature[0][0]
+        
+                
+        print(' ***********  Day ' + str(day+1) + ' ***********  ')
+        for flight_no in range(flights_per_day): 
     
-    # add to misison
-    mission.append_segment(segment)
-    
-    # ------------------------------------------------------------------
-    #  Charge Segment: 
-    # ------------------------------------------------------------------     
-    # Charge Model 
-    segment                                                 = Segments.Ground.Battery_Charge_Discharge(base_segment)     
-    segment.tag                                             = 'Charge'
-    segment.analyses.extend(analyses.base)           
-    segment.battery_discharge                               = False      
-    segment.increment_battery_cycle_day                     = True            
-    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment)    
-    
-    # add to misison
-    mission.append_segment(segment)        
+            # ------------------------------------------------------------------
+            #   Climb 1 : constant Speed, constant rate segment 
+            # ------------------------------------------------------------------  
+
+            segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+            segment.tag = "Climb_1"  + "_F_" + str(flight_no+ 1) + "_D" + str (day+1) 
+            segment.analyses.extend( analyses.base ) 
+            segment.battery_energy                                   = vehicle.networks.battery_electric_rotor.battery.pack.max_energy * 0.89
+            segment.altitude_start                                   = 2500.0  * Units.feet
+            segment.altitude_end                                     = 8012    * Units.feet 
+            segment.air_speed                                        = 96.4260 * Units['mph'] 
+            segment.climb_rate                                       = 700.034 * Units['ft/min']     
+            segment.battery_pack_temperature                         = atmo_data.temperature[0,0]
+            if (day == 0) and (flight_no == 0):        
+                segment.battery_energy                               = vehicle.networks.battery_electric_rotor.battery.pack.max_energy   
+                segment.initial_battery_resistance_growth_factor     = 1
+                segment.initial_battery_capacity_fade_factor         = 1
+            segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment)          
+            # add to misison
+            mission.append_segment(segment) 
+            
+        
+            # ------------------------------------------------------------------
+            #   Cruise Segment: constant Speed, constant altitude
+            # ------------------------------------------------------------------ 
+            segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+            segment.tag = "Cruise"  + "_F_" + str(flight_no+ 1) + "_D" + str (day+ 1) 
+            segment.analyses.extend(analyses.base) 
+            segment.altitude                  = 8012   * Units.feet
+            segment.air_speed                 = 120.91 * Units['mph'] 
+            segment.distance                  =  20.   * Units.nautical_mile   
+            segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = [unknown_throttles[1]])   
+        
+            # add to misison
+            mission.append_segment(segment)    
+        
+        
+            # ------------------------------------------------------------------
+            #   Descent Segment Flight 1   
+            # ------------------------------------------------------------------ 
+            segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
+            segment.tag = "Decent"   + "_F_" + str(flight_no+ 1) + "_D" + str (day+ 1) 
+            segment.analyses.extend( analyses.base )       
+            segment.altitude_start                                   = 8012 * Units.feet  
+            segment.altitude_end                                     = 2500.0 * Units.feet
+            segment.air_speed_start                                  = 175.* Units['mph']  
+            segment.air_speed_end                                    = 110 * Units['mph']   
+            segment.climb_rate                                       = -200 * Units['ft/min']  
+            segment.state.unknowns.throttle                          = 0.8 * ones_row(1)  
+            segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,  initial_rotor_power_coefficients = [unknown_throttles[2]])   
+            
+            # add to misison
+            mission.append_segment(segment)
+            
+            # ------------------------------------------------------------------
+            #  Charge Segment: 
+            # ------------------------------------------------------------------     
+            # Charge Model 
+            segment                                                 = Segments.Ground.Battery_Charge_Discharge(base_segment)     
+            segment.tag                                             = 'Charge'  + "_F_" + str(flight_no+ 1) + "_D" + str (day+ 1) 
+            segment.analyses.extend(analyses.base)           
+            segment.battery_discharge                               = False    
+            if flight_no  == flights_per_day:  
+                segment.increment_battery_cycle_day=True                        
+            segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment)    
+            
+            # add to misison
+            mission.append_segment(segment)        
 
     return mission
 
@@ -562,26 +588,27 @@ def missions_setup(base_mission):
 def plot_results(results):  
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results,show_figure=False) 
+    plot_flight_conditions(results) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results,show_figure=False)  
+    plot_aerodynamic_coefficients(results)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results,show_figure=False)
+    plot_aircraft_velocities(results)
     
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results,show_figure=False) 
-    plot_battery_cell_conditions(results,show_figure=False)
-    plot_battery_degradation(results,show_figure=False)
+    plot_battery_pack_conditions(results) 
+    plot_battery_cell_conditions(results)
+    plot_battery_degradation(results)
     
     # Plot Propeller Conditions 
-    plot_rotor_conditions(results,show_figure=False) 
+    plot_rotor_conditions(results) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_electric_motor_and_rotor_efficiencies(results,show_figure=False)
+    plot_electric_motor_and_rotor_efficiencies(results)
      
     return
 
 if __name__ == '__main__': 
     main()    
+    plt.show()

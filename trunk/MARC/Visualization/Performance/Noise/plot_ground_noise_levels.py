@@ -9,23 +9,18 @@
 # ---------------------------------------------------------------------- 
 
 from MARC.Core import Units
-from MARC.Visualization.Performance.Common import plot_style, save_plot
-import numpy as np  
-import plotly.graph_objects as go 
-from plotly.subplots import make_subplots 
-from itertools import cycle
-import plotly.express as px
-import plotly
+from MARC.Visualization.Performance.Common import set_axes, plot_style
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np 
 from MARC.Visualization.Performance.Common.post_process_noise_data import post_process_noise_data
   
 ## @ingroup Visualization-Performance-Noise
 def plot_ground_noise_levels(results,
                             save_figure=False,
-                            show_figure = True,
                             save_filename="Sideline Noise Levels",
                             file_type=".png",
-                            width = 1200, height = 600,
-                            *args, **kwargs): 
+                            width = 12, height = 7): 
     """This plots the A-weighted Sound Pressure Level as a function of time at various aximuthal angles
     on the ground
 
@@ -58,31 +53,29 @@ def plot_ground_noise_levels(results,
     max_SPL      = np.max(SPL,axis=0)  
     
 
-    # Setup the colors
-    NS           = 10+1
-    color_list   = px.colors.sample_colorscale("plasma", [n/(NS -1) for n in range(NS)]) 
-    colorcycler  = cycle(color_list) 
-    fig          = make_subplots(rows=1, cols=1) 
-      
-    for j in range(N_gm_y):  
-        segment_color = next(colorcycler) 
-        fig.add_trace(go.Scatter(x= gm_x[:,0],
-                                 y= max_SPL[:,j],
-                                 showlegend=True,
-                                 mode='lines',
-                                 name=r'y = ' + str(round(gm_y[0,j],1)) + r' m' ,
-                                 line=dict(color=segment_color)),
-                                 col=1,row=1)           
- 
-    fig.update_yaxes(title_text='$SPL (dBA)$', row=1, col=1)  
-    fig.update_xaxes(title_text='Range (m)', row=1, col=1)   
-    fig.update_layout(title_text= 'Microphone Noise') 
-    if save_figure:
-        save_plot(fig, save_filename, file_type)     
-        
-    if show_figure:
-        fig.write_html( save_filename + '.html', auto_open=True)
-         
-    return    
- 
+    # get plotting style 
+    ps      = plot_style()  
 
+    parameters = {'axes.labelsize': ps.axis_font_size,
+                  'xtick.labelsize': ps.axis_font_size,
+                  'ytick.labelsize': ps.axis_font_size,
+                  'axes.titlesize': ps.title_font_size}
+    plt.rcParams.update(parameters) 
+      
+    fig   = plt.figure()
+    fig.set_size_inches(width,height)
+    axes        = fig.add_subplot(1,1,1) 
+    
+    # get line colors for plots 
+    line_colors   = cm.inferno(np.linspace(0,0.9,N_gm_y))  
+      
+    for k in range(N_gm_y):    
+        axes.plot(gm_x[:,0]/Units.nmi, max_SPL[:,k], marker = 'o', color = line_colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
+    axes.set_ylabel('SPL (dBA)')
+    axes.set_xlabel('Range (nmi)')  
+    set_axes(axes)
+    axes.legend(loc='upper right')         
+    if save_figure:
+        plt.savefig(save_filename + ".png")    
+        
+    return

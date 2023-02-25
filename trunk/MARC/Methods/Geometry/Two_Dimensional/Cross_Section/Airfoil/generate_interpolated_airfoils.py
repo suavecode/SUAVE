@@ -94,6 +94,6 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, npoints=200, save_filename
     if plot_airfoils:
         for airfoil_file in airfoil_files:
             name = os.path.basename(airfoil_file)
-            plot_airfoil(airfoil_file,save_filename = name[:-4],show_figure = False) 
+            plot_airfoil(airfoil_file,save_filename = name[:-4]) 
     
     return airfoil_files
