@@ -570,18 +570,18 @@ class Rotor(Energy_Component):
             )
         self.outputs = outputs
 
-        # DEBUG
-        # append sample point to csv (V, Alpha, J, CT, CQ)
-        Alpha = np.atleast_2d(self.inputs.y_axis_rotation)
-        Vinf = np.atleast_2d(np.linalg.norm(Vv,axis=1)).T
-        J = Vinf / (n * D)        
-        for i in range(ctrl_pts):
-            newRow = [i, Vinf[i][0], Alpha[i][0], J[i][0], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
-            with open('/Users/rerha/Desktop/mission_sampled_points.csv', 'a') as file:
+        ## DEBUG
+        ## append sample point to csv (V, Alpha, J, CT, CQ)
+        #Alpha = np.atleast_2d(self.inputs.y_axis_rotation)
+        #Vinf = np.atleast_2d(np.linalg.norm(Vv,axis=1)).T
+        #J = Vinf / (n * D)        
+        #for i in range(ctrl_pts):
+            #newRow = [i, Vinf[i][0], Alpha[i][0], J[i][0], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
+            #with open('/Users/rerha/Desktop/mission_sampled_points.csv', 'a') as file:
                 
-                writerObj = writer(file)
-                writerObj.writerow(newRow)
-                file.close()
+                #writerObj = writer(file)
+                #writerObj.writerow(newRow)
+                #file.close()
                 
         return thrust_vector, torque, power, Cp, outputs , etap
     
