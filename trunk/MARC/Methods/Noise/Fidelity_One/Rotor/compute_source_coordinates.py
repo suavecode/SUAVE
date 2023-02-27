@@ -8,7 +8,7 @@
 #  Imports
 # ---------------------------------------------------------------------
 import numpy as np 
-from MARC.Core import Data
+from MARC.Core import Data, Units
 import scipy as sp
 # ----------------------------------------------------------------------
 #  Source Coordinates 
@@ -128,82 +128,87 @@ def compute_blade_section_source_coordinates(AoA,acoustic_outputs,rotors,mls,set
     rot_origins = np.array(rot_origins) 
             
     rotor          = rotors[list(rotors.keys())[0]]
+    num_blades     = rotor.number_of_blades
     num_cf         = len(settings.center_frequencies)
     r              = rotor.radius_distribution
     num_sec        = len(r)
-    phi_2d0        = acoustic_outputs.disc_azimuthal_distribution 
-    alpha_eff0     = acoustic_outputs.disc_effective_angle_of_attack
-    num_azi        = len(phi_2d0[0,0,:])  
+    phi            = np.ones(num_sec)*((2*np.pi)/num_blades)
+    phi_2d0        = acoustic_outputs.disc_azimuthal_distribution
+    beta_p         = 90*np.ones(num_sec)*Units.degrees  # no flapping 
+    theta_tot      = rotor.twist_distribution + rotor.inputs.pitch_command # collective and pitch 
+    alpha_eff0     = acoustic_outputs.blade_effective_angle_of_attack 
     orientation    = np.array(rotor.orientation_euler_angles) * 1 
     orientation[1] = orientation[1] + np.pi/2 # rotor tilt angle between the rotor hub plane and the vehicle hub plane
     body2thrust    = sp.spatial.transform.Rotation.from_rotvec(orientation).as_matrix()
 
     # Update dimensions for computation   
-    r                    = np.tile(r[None,None,None,:,None,None],(num_cpt,num_mic,num_rot,1,num_azi,num_cf))
-    sin_phi              = np.tile(np.sin(phi_2d0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
-    cos_phi              = np.tile(np.cos(phi_2d0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
-    sin_alpha_eff        = np.tile(np.sin(alpha_eff0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
-    cos_alpha_eff        = np.tile(np.cos(alpha_eff0)[:,None,None,:,:,None,None],(1,num_mic,num_rot,1,1,num_cf,1))
-    cos_t_v              = np.tile(np.cos(-AoA)[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))
-    sin_t_v              = np.tile(np.sin(-AoA)[:,None,None,None,None,None,:],(1,num_mic,num_rot,num_sec,num_azi,num_cf,1))   
-    cos_t_v_t_r          = np.tile(np.array([body2thrust[0,0]])[:,None,None,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
-    sin_t_v_t_r          = np.tile(np.array([body2thrust[0,2]])[:,None,None,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,1))  
-    M_hub                = np.tile(rot_origins[None,None,:,None,None,None,:,None],(num_cpt,num_mic,1,num_sec,num_azi,num_cf,1,1))
-    POS_2                = np.tile(mls[:,:,None,None,None,None,:,None],(1,1,num_rot,num_sec,num_azi,num_cf,1,1))
+    r                    = np.tile(r[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_cf))
+    sin_phi              = np.tile(np.sin(phi)[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_cf))  
+    cos_phi              = np.tile(np.cos(phi)[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_cf)) 
+    sin_beta_p           = np.tile(np.sin(beta_p)[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_cf))  
+    cos_beta_p           = np.tile(np.cos(beta_p)[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_cf))  
+    sin_theta_tot        = np.tile(np.sin(theta_tot)[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_cf)) 
+    cos_theta_tot        = np.tile(np.cos(theta_tot)[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_cf))
+    sin_alpha_eff        = np.tile(np.sin(alpha_eff0)[:,None,None,:,None],(1,num_mic,num_rot,1,num_cf))
+    cos_alpha_eff        = np.tile(np.cos(alpha_eff0)[:,None,None,:,None],(1,num_mic,num_rot,1,num_cf))
+    cos_t_v              = np.tile(np.cos(-AoA)[:,None,None,None,:],(1,num_mic,num_rot,num_sec,num_cf))
+    sin_t_v              = np.tile(np.sin(-AoA)[:,None,None,None,:],(1,num_mic,num_rot,num_sec,num_cf))   
+    cos_t_v_t_r          = np.tile(np.array([body2thrust[0,0]])[:,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_cf))  
+    sin_t_v_t_r          = np.tile(np.array([body2thrust[0,2]])[:,None,None,None,None],(num_cpt,num_mic,num_rot,num_sec,num_cf))  
+    M_hub                = np.tile(rot_origins[None,None,:,None,None,:,None],(num_cpt,num_mic,1,num_sec,num_cf,1,1))
+    POS_2                = np.tile(mls[:,:,None,None,None,:,None],(num_cpt,1,num_rot,num_sec,num_cf,1,1))
 
     # ------------------------------------------------------------
     # ****** COORDINATE TRANSFOMRATIONS ******  
-    M_t      = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,3,3))
-    M_phi    = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,3,3))
-    M_theta  = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,3,3))
-    M_tv     = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_azi,num_cf,3,3)) 
+    M_t      = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_cf,3,3))
+    M_phi    = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_cf,3,3))
+    M_theta  = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_cf,3,3))
+    M_tv     = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_cf,3,3)) 
+    M_beta_p = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_cf,3,1)) 
 
-    M_tv[:,:,:,:,:,:,0,0]    = cos_t_v[:,:,:,:,:,:,0]
-    M_tv[:,:,:,:,:,:,0,2]    = sin_t_v[:,:,:,:,:,:,0]
-    M_tv[:,:,:,:,:,:,1,1]    = 1
-    M_tv[:,:,:,:,:,:,2,0]    =-sin_t_v[:,:,:,:,:,:,0]
-    M_tv[:,:,:,:,:,:,2,2]    = cos_t_v[:,:,:,:,:,:,0]
+    M_tv[:,:,:,:,:,0,0]    = cos_t_v 
+    M_tv[:,:,:,:,:,0,2]    = sin_t_v 
+    M_tv[:,:,:,:,:,1,1]    = 1
+    M_tv[:,:,:,:,:,2,0]    =-sin_t_v 
+    M_tv[:,:,:,:,:,2,2]    = cos_t_v 
+    
+
+    M_beta_p[:,:,:,:,:,0,0]  = -r* sin_beta_p * cos_phi
+    M_beta_p[:,:,:,:,:,1,0]  = -r* sin_beta_p * sin_phi
+    M_beta_p[:,:,:,:,:,2,0]  =  r* cos_beta_p 
      
-    POS_1                    = np.matmul(M_tv,(POS_2 + M_hub)) # np.matmul(M_tc,np.matmul(M_tv,(POS_2 + M_hub))) # rotor hub position relative to center of aircraft
+    POS_1                    = np.matmul(M_tv,(POS_2 + M_hub))  # eqn 4 and 5 
 
     # twist angle matrix
-    M_theta[:,:,:,:,:,:,0,0] =  cos_alpha_eff[:,:,:,:,:,:,0]
-    M_theta[:,:,:,:,:,:,0,2] =  sin_alpha_eff[:,:,:,:,:,:,0]
-    M_theta[:,:,:,:,:,:,1,1] = 1
-    M_theta[:,:,:,:,:,:,2,0] = -sin_alpha_eff[:,:,:,:,:,:,0]
-    M_theta[:,:,:,:,:,:,2,2] =  cos_alpha_eff[:,:,:,:,:,:,0]
+    M_theta[:,:,:,:,:,0,0] = cos_theta_tot 
+    M_theta[:,:,:,:,:,0,2] = sin_theta_tot 
+    M_theta[:,:,:,:,:,1,1] = 1
+    M_theta[:,:,:,:,:,2,0] = -sin_theta_tot 
+    M_theta[:,:,:,:,:,2,2] = cos_theta_tot 
 
     # azimuth motion matrix
-    M_phi[:,:,:,:,:,:,0,0] =  sin_phi[:,:,:,:,:,:,0]
-    M_phi[:,:,:,:,:,:,0,1] = -cos_phi[:,:,:,:,:,:,0]
-    M_phi[:,:,:,:,:,:,1,0] =  cos_phi[:,:,:,:,:,:,0]
-    M_phi[:,:,:,:,:,:,1,1] =  sin_phi[:,:,:,:,:,:,0]
-    M_phi[:,:,:,:,:,:,2,2] = 1
+    M_phi[:,:,:,:,:,0,0] = sin_phi 
+    M_phi[:,:,:,:,:,0,1] = -cos_phi 
+    M_phi[:,:,:,:,:,1,0] = cos_phi 
+    M_phi[:,:,:,:,:,1,1] = sin_phi 
+    M_phi[:,:,:,:,:,2,2] = 1
 
     # tilt motion matrix 
-    M_t[:,:,:,:,:,:,0,0] =  cos_t_v_t_r[:,:,:,:,:,:,0]
-    M_t[:,:,:,:,:,:,0,2] =  sin_t_v_t_r[:,:,:,:,:,:,0]
-    M_t[:,:,:,:,:,:,1,1] =  1
-    M_t[:,:,:,:,:,:,2,0] = -sin_t_v_t_r[:,:,:,:,:,:,0]
-    M_t[:,:,:,:,:,:,2,2] =  cos_t_v_t_r[:,:,:,:,:,:,0] 
+    M_t[:,:,:,:,:,0,0] =  cos_t_v_t_r 
+    M_t[:,:,:,:,:,0,2] =  sin_t_v_t_r 
+    M_t[:,:,:,:,:,1,1] =  1
+    M_t[:,:,:,:,:,2,0] = -sin_t_v_t_r 
+    M_t[:,:,:,:,:,2,2] =  cos_t_v_t_r 
     
     # transformation of geographical global reference frame to the sectional local coordinate
-    mat0    = np.matmul(M_t,POS_1)   
+    mat0    = np.matmul(M_t,(POS_1 + M_beta_p))   
     mat1    = np.matmul(M_phi,mat0)
     POS     = np.matmul(M_theta,mat1)
 
-    blade_section_position_vectors = Data()
-    blade_section_position_vectors.blade_section_coordinate_sys    = POS 
-    blade_section_position_vectors.vehicle_coordinate_sys          = POS_2
-    blade_section_position_vectors.cos_phi                         = np.repeat(cos_phi,2,axis = 6)  
-    blade_section_position_vectors.sin_alpha_eff                   = np.repeat(sin_alpha_eff,2,axis = 6)     
-    blade_section_position_vectors.cos_alpha_eff                   = np.repeat(cos_alpha_eff,2,axis = 6) 
-    blade_section_position_vectors.M_hub_X                         = np.repeat(M_hub[:,:,:,:,:,:,0,:],2,axis = 6)
-    blade_section_position_vectors.M_hub_Y                         = np.repeat(M_hub[:,:,:,:,:,:,1,:],2,axis = 6)
-    blade_section_position_vectors.M_hub_Z                         = np.repeat(M_hub[:,:,:,:,:,:,2,:],2,axis = 6)
-    blade_section_position_vectors.cos_t_v                         = np.repeat(cos_t_v,2,axis = 6)
-    blade_section_position_vectors.sin_t_v                         = np.repeat(sin_t_v,2,axis = 6)
-    blade_section_position_vectors.cos_t_v_t_r                     = np.repeat(cos_t_v_t_r,2,axis = 6)
-    blade_section_position_vectors.sin_t_v_t_r                     = np.repeat(sin_t_v_t_r,2,axis = 6)
+    blade_section_position_vectors = Data() 
+    blade_section_position_vectors.blade_section_coordinate_sys         = POS
+    blade_section_position_vectors.vehicle_coordinate_sys               = POS_2 
+    blade_section_position_vectors.sin_alpha_eff                        = sin_alpha_eff      
+    blade_section_position_vectors.cos_alpha_eff                        = cos_alpha_eff
 
     return blade_section_position_vectors

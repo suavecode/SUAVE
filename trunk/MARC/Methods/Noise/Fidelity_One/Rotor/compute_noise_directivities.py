@@ -9,7 +9,7 @@
 import numpy as np   
 
 ## @ingroup Methods-Noise-Fidelity_One-Rotor
-def compute_noise_directivities(Theta_e,Phi_e,M):
+def compute_noise_directivities(Theta_er,Phi_er,zeta_r,M_tot):
     '''This computes the laminar boundary layer compoment of broadband noise using the method outlined by the 
     Brooks, Pope and Marcolini (BPM) Model
     
@@ -32,9 +32,8 @@ def compute_noise_directivities(Theta_e,Phi_e,M):
        
     Properties Used:
        N/A   
-    '''     
-    M_c      = 0.8*M
-    Dbar_h   = (2*np.sin((Theta_e/2))*(np.sin(Phi_e)**2))/((1+M*np.cos(Theta_e))*(1 + (M - M_c)*np.cos(Theta_e))**2) # eqn B1 
-    Dbar_l   = ((np.sin(Theta_e)**2)*(np.sin(Phi_e)**2))/((1 + M*np.cos(Theta_e))**4)                                # eqn B2
+    '''      
+    Dbar_l   = ((np.sin(Theta_er)**2)*((np.sin(Phi_er))**2) )/((1 - M_tot*np.cos(zeta_r))**4)  # eqn 19 Brooks & Burley 
+    Dbar_h   = (2*(np.sin(Theta_er/2)**2)*((np.sin(Phi_er))**2) )/((1 - M_tot*np.cos(zeta_r))**4)  # eqn 20 Brooks & Burley 
     
     return Dbar_h,Dbar_l 

@@ -66,8 +66,8 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     '''     
 
     num_cpt       = len(angle_of_attack)
-    num_rot       = len(bspv.blade_section_coordinate_sys[0,0,:,0,0,0,0,0])
-    num_mic       = len(bspv.blade_section_coordinate_sys[0,:,0,0,0,0,0,0])  
+    num_rot       = len(bspv.blade_section_coordinate_sys[0,0,:,0,0,0,0])
+    num_mic       = len(bspv.blade_section_coordinate_sys[0,:,0,0,0,0,0])  
     rotor         = rotors[list(rotors.keys())[0]]
     frequency     = settings.center_frequencies
     num_cf        = len(frequency)     
@@ -76,22 +76,18 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     # Trailing Edge Noise
     # ---------------------------------------------------------------------------------- 
     p_ref              = 2E-5                               # referece atmospheric pressure
-    c_0                = freestream.speed_of_sound          # speed of sound
-    rho                = freestream.density                 # air density 
+    speed_of_sound     = freestream.speed_of_sound          # speed of sound
+    density            = freestream.density                 # air density 
     dyna_visc          = freestream.dynamic_viscosity
-    kine_visc          = dyna_visc/rho                      # kinematic viscousity    
-    alpha_blade        = aeroacoustic_data.disc_effective_angle_of_attack 
-    Vt_2d              = aeroacoustic_data.disc_tangential_velocity  
-    Va_2d              = aeroacoustic_data.disc_axial_velocity                
+    velocity           = freestream.velocity
+    kine_visc          = dyna_visc/density                  # kinematic viscousity    
+    alpha              = aeroacoustic_data.blade_effective_angle_of_attack 
+    X_e                = bspv.blade_section_coordinate_sys   
+    Vt                 = aeroacoustic_data.blade_tangential_velocity  
+    Va                 = aeroacoustic_data.blade_axial_velocity                
     blade_chords       = rotor.chord_distribution           # blade chord    
     r                  = rotor.radius_distribution          # radial location 
-    num_sec            = len(r) 
-    num_azi            = len(aeroacoustic_data.disc_effective_angle_of_attack[0,0,:])    
-    U                  = np.sqrt(Vt_2d**2 + Va_2d**2)
-    R_c                = U*np.repeat(np.repeat(blade_chords[np.newaxis,:],num_cpt,axis=0)[:,:,np.newaxis],num_azi,axis=2)/\
-                          np.repeat(np.repeat((kine_visc),num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2)
-    rho                = np.repeat(np.repeat(rho,num_sec,axis=1)[:,:,np.newaxis],num_azi,axis=2) 
-    M                  = U/c_0                                             
+    num_sec            = len(r)                                 
     B                  = rotor.number_of_blades             # number of rotor blades
     Omega              = aeroacoustic_data.omega            # angular velocity    
     L                  = np.zeros_like(r)
@@ -107,32 +103,59 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         res.SPL_prop_broadband_spectrum_dBA           = np.zeros_like(res.p_pref_broadband)
         res.SPL_prop_broadband_1_3_spectrum           = np.zeros((num_cpt,num_mic,num_rot,num_cf))
         res.SPL_prop_broadband_1_3_spectrum_dBA       = np.zeros((num_cpt,num_mic,num_rot,num_cf))
-        res.p_pref_azimuthal_broadband                = np.zeros((num_cpt,num_mic,num_rot,num_azi,num_cf))
+        res.p_pref_azimuthal_broadband                = np.zeros((num_cpt,num_mic,num_rot,num_cf))
         res.p_pref_azimuthal_broadband_dBA            = np.zeros_like(res.p_pref_azimuthal_broadband)
         res.SPL_prop_azimuthal_broadband_spectrum     = np.zeros_like(res.p_pref_azimuthal_broadband)
         res.SPL_prop_azimuthal_broadband_spectrum_dBA = np.zeros_like(res.p_pref_azimuthal_broadband)
     else:
+    
+        c              = np.tile(blade_chords[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_cf))
+        f              = np.tile(frequency[None,None,None,None,:],(num_cpt,num_mic,num_rot,num_sec,1))
+        alpha_blade    = np.tile(alpha[:,None,None,:,None],(1,num_mic,num_rot,1,num_cf))
+        V              = np.sqrt(Vt**2 + Va**2)
+        V_tot          = np.tile(V[:,None,None,:,None],(1,num_mic,num_rot,1,num_cf))
+        U_inf          = np.tile(velocity[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
+        nu             = np.tile(kine_visc[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
+        c_0            = np.tile(speed_of_sound[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
+        rho            = np.tile(density[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
+        X_er           = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_cf,3,1))
+        R_c            = # V_tot*c/nu
+        M_tot          =  # V_tot/c_0                   
+        M_x            = U_inf/c_0  
+        x_e            = X_e[:,:,:,:,0,0]
+        y_e            = X_e[:,:,:,:,1,0]
+        z_e            = X_e[:,:,:,:,2,0] 
+        r_e            = np.sqrt(x_e**2 + y_e**2 + z_e**2)              
+        theta_e        = np.arccos(x_e/r_e)       
+        Theta_er       = np.arccos(np.cos(theta_e)*np.sqrt(1 - (M_x**2)*(np.sin(theta_e))**2) + M_x*(np.sin(theta_e))**2 )  
+        Y_e            = np.sqrt(y_e**2 + z_e**2)  
+        r_er           = Y_e/(np.sin(Theta_er))  
         
-        # ------------------------------------------------------------
-        # BMP Model 
-        # ------------------------------------------------------------ 
-        
-        '''
-        dimensions of variables are  chords x aoas x Re
-        '''
+        x_er           = np.cos(Theta_er)*r_er                                        # eqn 21 , Brooks & Burley   
+        y_er, z_er     = y_e,z_e
+            
+        # in the following expressions, we are assuming a compact blade
+        X_er[:,:,:,:,:,0,0] = x_er
+        X_er[:,:,:,:,:,1,0] = y_er
+        X_er[:,:,:,:,:,2,0] = z_er
+        zeta_r            = np.acos(np.dot(X_er, (V_tot/((r_er *V_tot))) ))              # eqn 18 , Brooks & Burley  
+        sigma_sq          = (r_er**2)*((1 - M_tot*np.cos(zeta_r))**2)                   # eqn 16 , Brooks & Burley 
+        Phi_er            = np.acos(y_er/ np.sqrt(y_er**2 + z_er**2))                   # eqn 21 , Brooks & Burley 
        
-        r_e      = 1.22                 # distance from observer
-        Theta_e  = 90 *Units.degrees    # see Figure B3 for definition 
-        Phi_e    = 90 *Units.degrees    # see Figure B3 for definition   
-          
-        f          = np.tile(frequency[None,None,None,:],(num_cpt,num_mic,num_rot,num_sec,num_azi,1))
-        
-        
-        # flatten
-        c          = np.reshape(c,(num_cpt*num_mic*num_rot*num_sec*num_azi*num_cf))
-        alpha_star = np.reshape(alpha_blade,(num_cpt*num_mic*num_rot*num_sec*num_azi*num_cf))
-        U          = np.reshape(U,(num_cpt*num_mic*num_rot*num_sec*num_azi*num_cf))
-        f          = np.reshape(f,(num_cpt*num_mic*num_rot*num_sec*num_azi*num_cf))
+        # flatten 
+        R_c        = 0
+        c          = 0
+        alpha_star = np.reshape(alpha_blade,(num_cpt*num_mic*num_rot*num_sec*num_cf))
+        U          = np.reshape(U,(num_cpt*num_mic*num_rot*num_sec*num_cf)) 
+        zeta_r     = 0
+        M_tot      = 0
+        f          = 0
+        r_e        = 0
+        L          = 0
+        U          = 0
+        M          = 0
+        Dbar_h     = 0
+        Dbar_l     = 0
           
         
         '''calculation of boundary layer properties
@@ -154,7 +177,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         calculation of directivitiy terms 
         eqns 24 - 50
         '''   
-        Dbar_h, Dbar_l = compute_noise_directivities(Theta_e,Phi_e,M)
+        Dbar_h, Dbar_l = compute_noise_directivities(Theta_er,Phi_er,zeta_r,M_tot)
         
         
         ''' 
@@ -184,8 +207,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         eqns 61 - 67
         '''
         alpha_TIP = alpha_star
-        SPL_TIP   = compute_TIP_broadband_noise(alpha_TIP,M,c,c_0,f,Dbar_h,r_e) 
-        
+        SPL_TIP   = compute_TIP_broadband_noise(alpha_TIP,M,c,c_0,f,Dbar_h,r_e)  
      
         res.SPL_prop_broadband_spectrum                   = SPL_rotor
         res.SPL_prop_broadband_spectrum_dBA               = A_weighting(SPL_rotor,frequency) 

@@ -111,7 +111,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     B_D            = c/D                                                                                         
     phi            = np.arctan(z/y) + phi_0_vec                                                                  # tangential angle   
 
-    # retarted  theta angle in the retarded reference frame
+    # retarted theta angle in the retarded reference frame
     theta_r        = np.arccos(np.cos(theta)*np.sqrt(1 - (M_x**2)*(np.sin(theta))**2) + M_x*(np.sin(theta))**2 )   
     theta_r_prime  = np.arccos(np.cos(theta_r)*np.cos(alpha) + np.sin(theta_r)*np.sin(phi)*np.sin(alpha) )
 
