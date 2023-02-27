@@ -206,7 +206,7 @@ def mission_setup(analyses,vehicle):
     segment.battery_energy = vehicle.networks.solar.battery.pack.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
-    segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment,initial_rotor_power_coefficients = [0.05])    
+    segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment)    
     
     
     mission.append_segment(segment)    
@@ -235,16 +235,18 @@ def missions_setup(base_mission):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_style='bo-'):     
+def plot_mission(results,line_style='bo-'):   
+    
+    show_figure_flag = False # Set to false for regressions.To show plots, change this to true.
     
     # Plot Propeller Performance 
-    plot_rotor_conditions(results,line_style,show_figure=False)
+    plot_rotor_conditions(results,line_style,show_figure=show_figure_flag)
     
     # Plot Power and Disc Loading
-    plot_disc_power_loading(results,line_style,show_figure=False)
+    plot_disc_power_loading(results,line_style,show_figure=show_figure_flag)
     
     # Plot Solar Radiation Flux
-    plot_solar_flux(results,line_style,show_figure=False) 
+    plot_solar_flux(results,line_style,show_figure=show_figure_flag) 
     
     return 
 

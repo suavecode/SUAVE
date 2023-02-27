@@ -246,27 +246,29 @@ def missions_setup(base_mission):
 #   Plot Results
 # ----------------------------------------------------------------------
 def plot_mission(results):
+    
+    show_figure_flag = False # Set to false for regressions.To show plots, change this to true.
 
     # Plot Flight Conditions
-    plot_flight_conditions(results,show_figure=False)
+    plot_flight_conditions(results,show_figure=show_figure_flag)
 
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results,show_figure=False)
+    plot_aerodynamic_coefficients(results,show_figure=show_figure_flag)
 
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results,show_figure=False)
+    plot_aircraft_velocities(results,show_figure=show_figure_flag)
 
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results,show_figure=False)
+    plot_battery_pack_conditions(results,show_figure=show_figure_flag)
 
     # Plot Propeller Conditions
-    plot_rotor_conditions(results,show_figure=False)
+    plot_rotor_conditions(results,show_figure=show_figure_flag)
 
     # Plot Electric Motor and Propeller Efficiencies
-    plot_electric_motor_and_rotor_efficiencies(results,show_figure=False)
+    plot_electric_motor_and_rotor_efficiencies(results,show_figure=show_figure_flag)
 
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results,show_figure=False)
+    plot_disc_power_loading(results,show_figure=show_figure_flag)
 
     return 
 

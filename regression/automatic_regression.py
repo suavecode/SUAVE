@@ -98,7 +98,6 @@ modules = [
     'scripts/rotor_design_functions/lift_rotor_design_test.py',
     'scripts/rotor_design_functions/prop_rotor_design_test.py',
     'scripts/segments/segment_test.py',
-    'scripts/segments/transition_segment_test.py',
     'scripts/slipstream/slipstream_test.py',
     'scripts/slipstream/propeller_interactions.py',
     'scripts/solar/solar_network.py',

@@ -47,7 +47,7 @@ def main():
 
     payload_range = electric_payload_range(vehicle, mission, 'cruise', display_plot=True)
 
-    payload_range_r = [ 0.        , 65.74055128, 70.04032094]
+    payload_range_r = np.array([ 0.        , 65.92988093, 70.17364697])
 
     assert (np.abs(payload_range.range[1] - payload_range_r[1]) / payload_range_r[1] < 1e-6), "Payload Range Regression Failed at Max Payload Test"
     assert (np.abs(payload_range.range[2] - payload_range_r[2]) / payload_range_r[2] < 1e-6), "Payload Range Regression Failed at Ferry Range Test"

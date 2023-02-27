@@ -74,9 +74,10 @@ def plot_rotor_conditions(results,
         # Get the segment-by-segment results 
         for segment in results.segments.values(): 
             time   = segment.conditions.frames.inertial.time[:,0] / Units.min 
+            r_tag  = segment.conditions.propulsion['propulsor_group_' + str(pg)].rotor.tag 
             rpm    = segment.conditions.propulsion['propulsor_group_' + str(pg)].rotor.rpm[:,0]
-            thrust = np.linalg.norm(segment.conditions.frames.body.thrust_force_vector[:,:],axis=1)
-            torque = segment.conditions.propulsion['propulsor_group_' + str(pg)].motor.torque[:,0]
+            thrust = segment.conditions.propulsion['propulsor_group_' + str(pg)].rotor.thrust 
+            torque = segment.conditions.propulsion['propulsor_group_' + str(pg)].rotor.torque[:,0]
             tm     = segment.conditions.propulsion['propulsor_group_' + str(pg)].rotor.tip_mach[:,0]
             Cp     = segment.conditions.propulsion['propulsor_group_' + str(pg)].rotor.power_coefficient[:,0]
             eta    = segment.conditions.propulsion['propulsor_group_' + str(pg)].throttle[:,0]
@@ -166,7 +167,7 @@ def plot_rotor_conditions(results,
         fig.update_layout(
             width=width, height=height,
             legend_title_text='Segment',
-            title_text = 'Propulsor Group ' + str(pg) + ': Rotor Conditions'
+            title_text = r_tag + ' Operating Conditions',
         )
     
         fig = plot_style(fig)

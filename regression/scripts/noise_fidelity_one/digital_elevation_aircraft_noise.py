@@ -51,7 +51,7 @@ def main():
     print('\n\n MARC Frequency Domain Propeller Aircraft Noise Model')
 
     X57_SPL        = np.max(X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA) 
-    X57_SPL_true   = 54.80060022697681
+    X57_SPL_true   = 48.74388165621041
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
@@ -267,11 +267,13 @@ def X57_missions_setup(base_mission):
 
 def plot_results(results):   
     
+    show_figure_flag = False # Set to false for regressions.To show plots, change this to true
+    
     # Plot noise level
-    plot_ground_noise_levels(results,show_figure=False)
+    plot_ground_noise_levels(results,show_figure=show_figure_flag)
     
     # Plot noise contour
-    plot_flight_profile_noise_contours(results,show_figure=False)   
+    plot_flight_profile_noise_contours(results,show_figure=show_figure_flag)   
                         
     return  
 

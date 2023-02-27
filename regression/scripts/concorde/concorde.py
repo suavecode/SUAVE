@@ -224,15 +224,17 @@ def base_analysis(vehicle):
 
 def plot_mission(results):
     
-    plot_altitude_sfc_weight(results,show_figure=False) 
+    show_figure_flag = False # Set to false for regressions.To show plots, change this to true
     
-    plot_flight_conditions(results,show_figure=False) 
+    plot_altitude_sfc_weight(results,show_figure=show_figure_flag) 
     
-    plot_aerodynamic_coefficients(results,show_figure=False)  
+    plot_flight_conditions(results,show_figure=show_figure_flag) 
     
-    plot_aircraft_velocities(results,show_figure=False)
+    plot_aerodynamic_coefficients(results,show_figure=show_figure_flag)  
     
-    plot_drag_components(results,show_figure=False)
+    plot_aircraft_velocities(results,show_figure=show_figure_flag)
+    
+    plot_drag_components(results,show_figure=show_figure_flag)
     return
 
 def simple_sizing(configs):

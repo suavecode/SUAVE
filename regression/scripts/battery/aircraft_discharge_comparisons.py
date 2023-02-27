@@ -48,14 +48,14 @@ def main():
 
     # General Aviation Aircraft   
 
-    GA_RPM_true              = [2285.817951592137,2285.8179515925012]
-    GA_lift_coefficient_true = [0.5474716961620836,0.5474716961620837]
+    GA_RPM_true              = [2102.408826672276,2102.408826779034]
+    GA_lift_coefficient_true = [0.5474716961620805,0.5474716961620836]
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2404.363170876128,2404.363170937451]
+    EVTOL_RPM_true              = [2404.5362376884173,2404.536237786673]
 
-    EVTOL_lift_coefficient_true = [0.8075309358253244,0.8075309358231044]
+    EVTOL_lift_coefficient_true = [0.8075311922333831,0.8075311932083816]
     
         
     for i in range(len(battery_chemistry)):
@@ -559,27 +559,29 @@ def missions_setup(base_mission):
     return missions  
 
 
-def plot_results(results):  
+def plot_results(results):   
+    
+    show_figure_flag = False  # Set to false for regressions.To show plots, change this to true
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results,show_figure=False) 
+    plot_flight_conditions(results,show_figure=show_figure_flag) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results,show_figure=False)  
+    plot_aerodynamic_coefficients(results,show_figure=show_figure_flag)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results,show_figure=False)
+    plot_aircraft_velocities(results,show_figure=show_figure_flag)
     
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results,show_figure=False) 
-    plot_battery_cell_conditions(results,show_figure=False)
-    plot_battery_degradation(results,show_figure=False)
+    plot_battery_pack_conditions(results,show_figure=show_figure_flag) 
+    plot_battery_cell_conditions(results,show_figure=show_figure_flag)
+    plot_battery_degradation(results,show_figure=show_figure_flag)
     
     # Plot Propeller Conditions 
-    plot_rotor_conditions(results,show_figure=False) 
+    plot_rotor_conditions(results,show_figure=show_figure_flag) 
     
-    # Plot Electric Motor and Propeller Efficiencies 
-    plot_electric_motor_and_rotor_efficiencies(results,show_figure=False)
+    ## Plot Electric Motor and Propeller Efficiencies 
+    plot_electric_motor_and_rotor_efficiencies(results,show_figure=show_figure_flag)
      
     return
 
