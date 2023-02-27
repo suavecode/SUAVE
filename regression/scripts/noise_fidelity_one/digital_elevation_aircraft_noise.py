@@ -11,10 +11,10 @@ from MARC.Core import Units
 import numpy as np    
 from MARC.Core import Data 
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission import *  
-from MARC.Visualization.Performance.Energy.Common import *  
+from MARC.Visualization.Performance.Mission import *     
 from MARC.Visualization.Performance.Energy.Battery import *   
-from MARC.Visualization.Performance.Noise import *   
+from MARC.Visualization.Performance.Noise import *     
+from MARC.Visualization.Topography import *   
 from MARC.Methods.Performance.estimate_stall_speed import estimate_stall_speed 
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import preprocess_topography_and_route_data
 import matplotlib.pyplot as plt 
@@ -51,7 +51,7 @@ def main():
     print('\n\n MARC Frequency Domain Propeller Aircraft Noise Model')
 
     X57_SPL        = np.max(X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA) 
-    X57_SPL_true   = 48.74388165621041
+    X57_SPL_true   = 48.74388165677021
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
@@ -68,6 +68,8 @@ def X57_full_setup():
 
     # vehicle data
     vehicle  = X57_vehicle_setup()
+    
+    plot_digital_elevation_contour('LA_Metropolitan_Area.txt')
 
     topography_data = preprocess_topography_and_route_data(topography_file                       = 'LA_Metropolitan_Area.txt',
                                                            departure_coordinates                 = [33.94067953101678, -118.40513722978149],
@@ -267,13 +269,11 @@ def X57_missions_setup(base_mission):
 
 def plot_results(results):   
     
-    show_figure_flag = False # Set to false for regressions.To show plots, change this to true
-    
     # Plot noise level
-    plot_ground_noise_levels(results,show_figure=show_figure_flag)
+    plot_ground_noise_levels(results)
     
     # Plot noise contour
-    plot_flight_profile_noise_contours(results,show_figure=show_figure_flag)   
+    plot_flight_profile_noise_contours(results)   
                         
     return  
 

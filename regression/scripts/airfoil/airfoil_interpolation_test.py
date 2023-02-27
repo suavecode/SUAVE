@@ -6,10 +6,8 @@
 
 from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.generate_interpolated_airfoils import generate_interpolated_airfoils 
 from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
-import pylab as plt
+import matplotlib.pyplot as plt  
 import os
-
-
 
 def main():
     ospath        = os.path.abspath(__file__)
@@ -36,6 +34,6 @@ def main():
      
     return
 
-
 if __name__ == "__main__":
     main()
+    plt.show()

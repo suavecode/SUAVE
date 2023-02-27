@@ -12,8 +12,8 @@
 import MARC
 from MARC.Core import Units
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission import *  
-from MARC.Visualization.Performance.Energy.Common import *  
+from MARC.Visualization.Performance.Aerodynamics.Rotor   import *  
+from MARC.Visualization.Performance.Mission import *    
 from MARC.Visualization.Performance.Energy.Battery import *   
 from MARC.Visualization.Performance.Noise import *  
 import numpy as np
@@ -246,29 +246,27 @@ def missions_setup(base_mission):
 #   Plot Results
 # ----------------------------------------------------------------------
 def plot_mission(results):
-    
-    show_figure_flag = False # Set to false for regressions.To show plots, change this to true.
 
     # Plot Flight Conditions
-    plot_flight_conditions(results,show_figure=show_figure_flag)
+    plot_flight_conditions(results)
 
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results,show_figure=show_figure_flag)
+    plot_aerodynamic_coefficients(results)
 
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results,show_figure=show_figure_flag)
+    plot_aircraft_velocities(results)
 
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results,show_figure=show_figure_flag)
+    plot_battery_pack_conditions(results)
 
     # Plot Propeller Conditions
-    plot_rotor_conditions(results,show_figure=show_figure_flag)
+    plot_rotor_conditions(results)
 
     # Plot Electric Motor and Propeller Efficiencies
-    plot_electric_motor_and_rotor_efficiencies(results,show_figure=show_figure_flag)
+    plot_electric_motor_and_rotor_efficiencies(results)
 
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results,show_figure=show_figure_flag)
+    plot_disc_power_loading(results)
 
     return 
 

@@ -10,7 +10,7 @@
 import MARC 
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
 from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
 from MARC.Visualization.Performance.Energy.Battery       import *   
 from MARC.Visualization.Performance.Energy.Fuel          import *  
 from MARC.Visualization.Performance.Noise                import *    
@@ -19,57 +19,54 @@ import matplotlib.pyplot as plt
 def main():
     """This test loads results from the B737 regression to test the plot functions 
     """
-    
-    show_figure_flag = False # Set to false for regressions.To show plots, change this to true.
-    
     results = load_plt_data()
     
     """
     # Compare Plot for  Aerodynamic Forces 
     """
-    plot_aerodynamic_forces(results,show_figure=show_figure_flag)
+    plot_aerodynamic_forces(results)
     
     
     """
     # Compare Plot for  Aerodynamic Coefficients 
     """
-    plot_aerodynamic_coefficients(results,show_figure=show_figure_flag) 
+    plot_aerodynamic_coefficients(results) 
     
     
     """
     # Compare Plot for Drag Components
     """
-    plot_drag_components(results,show_figure=show_figure_flag)
+    plot_drag_components(results)
     
     
     """
     # Compare Plot for  Altitude, sfc, vehicle weight 
     """
-    plot_altitude_sfc_weight(results,show_figure=show_figure_flag)
+    plot_altitude_sfc_weight(results)
     
     
     """
     # Compare Plot for Aircraft Velocities 
     """
-    plot_aircraft_velocities(results,show_figure=show_figure_flag)      
+    plot_aircraft_velocities(results)      
 
 
     """
     # Compare Plot for Flight Conditions   
     """
-    plot_flight_conditions(results,show_figure=show_figure_flag)
+    plot_flight_conditions(results)
     
 
     """
     # Compare Plot for Flight Trajectory
     """
-    plot_flight_trajectory(results,show_figure=show_figure_flag)  
+    plot_flight_trajectory(results)  
 
     
     """
     # Compare Plot for Fuel Tracking 
     """
-    plot_fuel_use(results,show_figure=show_figure_flag)
+    plot_fuel_use(results)
 
 
     return 

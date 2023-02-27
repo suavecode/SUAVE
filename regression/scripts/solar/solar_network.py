@@ -12,7 +12,7 @@ import MARC
 from MARC.Core import Units
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
 from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
 from MARC.Visualization.Performance.Energy.Battery       import *   
 from MARC.Visualization.Performance.Noise                import * 
 import matplotlib.pyplot as plt  
@@ -206,7 +206,7 @@ def mission_setup(analyses,vehicle):
     segment.battery_energy = vehicle.networks.solar.battery.pack.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
-    segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment)    
+    segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment,initial_rotor_power_coefficients = [0.05])    
     
     
     mission.append_segment(segment)    
@@ -235,18 +235,16 @@ def missions_setup(base_mission):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_style='bo-'):   
-    
-    show_figure_flag = False # Set to false for regressions.To show plots, change this to true.
+def plot_mission(results,line_style='bo-'):     
     
     # Plot Propeller Performance 
-    plot_rotor_conditions(results,line_style,show_figure=show_figure_flag)
+    plot_rotor_conditions(results,line_style)
     
     # Plot Power and Disc Loading
-    plot_disc_power_loading(results,line_style,show_figure=show_figure_flag)
+    plot_disc_power_loading(results,line_style)
     
     # Plot Solar Radiation Flux
-    plot_solar_flux(results,line_style,show_figure=show_figure_flag) 
+    plot_solar_flux(results,line_style) 
     
     return 
 

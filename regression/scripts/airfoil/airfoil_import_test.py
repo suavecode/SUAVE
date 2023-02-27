@@ -46,7 +46,7 @@ def main():
     # plot airfoil polar data with and without surrogate
     airfoil_geometry_1   = import_airfoil_geometry(airfoil_geometry_files)  
     airfoil_polar_data_1 = compute_airfoil_properties(airfoil_geometry_1,airfoil_polar_files) 
-    plot_airfoil_polar_files(airfoil_polar_data_1,show_figure=False) 
+    plot_airfoil_polar_files(airfoil_polar_data_1) 
 
     # ----------------------------------------------------------------------------------------------------------------
     #  
@@ -72,7 +72,7 @@ def main():
 
     assert (len(np.where(A_MASK_1)[0]) == 32313)
 
-    plot_airfoil(airfoil_geometry_with_selig[1],show_figure=False)
+    plot_airfoil(airfoil_geometry_with_selig[1])
 
     return  
 

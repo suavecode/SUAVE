@@ -13,7 +13,7 @@ import MARC
 from MARC.Core import Units 
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
 from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
 from MARC.Visualization.Performance.Energy.Battery       import *   
 from MARC.Visualization.Performance.Noise                import *  
 from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
@@ -56,7 +56,7 @@ def main():
     
     # RPM check during hover
     RPM        = results.segments.departure.conditions.propulsion.propulsor_group_0.rotor.rpm[0][0]
-    RPM_true   = 1913.1958123855252
+    RPM_true   = 1913.1958124004252 
     
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -66,7 +66,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.climb.conditions.aerodynamics.lift_coefficient[0][0] 
-    lift_coefficient_true   = 1.0303444618450293
+    lift_coefficient_true   = 1.0303444618450088
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -251,28 +251,26 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 def plot_mission(results):  
     
-    show_figure_flag = False # Set to false for regressions.To show plots, change this to true.
-    
     # Plot Flight Conditions 
-    plot_flight_conditions(results,show_figure=show_figure_flag) 
+    plot_flight_conditions(results) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results,show_figure=show_figure_flag)  
+    plot_aerodynamic_coefficients(results)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results,show_figure=show_figure_flag)
+    plot_aircraft_velocities(results)
     
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results,show_figure=show_figure_flag)
+    plot_battery_pack_conditions(results)
     
     # Plot Propeller Conditions 
-    plot_rotor_conditions(results,show_figure=show_figure_flag) 
+    plot_rotor_conditions(results) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_electric_motor_and_rotor_efficiencies(results,show_figure=show_figure_flag)
+    plot_electric_motor_and_rotor_efficiencies(results)
 
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results,show_figure=show_figure_flag)  
+    plot_disc_power_loading(results)  
 
     return
  

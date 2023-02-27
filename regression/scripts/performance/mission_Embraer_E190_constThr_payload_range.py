@@ -18,7 +18,7 @@ import numpy as np
 
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
 from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
 from MARC.Visualization.Performance.Energy.Fuel          import *   
 from MARC.Visualization.Performance.Noise                import *   
 
