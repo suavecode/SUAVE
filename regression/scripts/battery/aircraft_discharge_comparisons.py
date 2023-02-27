@@ -46,14 +46,14 @@ def main():
 
     # General Aviation Aircraft   
 
-    GA_RPM_true              = [2268.2896745614694,2268.2896745666226]
-    GA_lift_coefficient_true = [0.5405968044232964,0.5405968044232964]
+    GA_RPM_true              = [2091.395261509943,2091.3952611039645]
+    GA_lift_coefficient_true = [0.5405968044257309,0.5405968044232964]
     
 
     # EVTOL Aircraft      
-    EVTOL_RPM_true              = [2404.363170876128,2404.363170937451]
+    EVTOL_RPM_true              = [2404.536237686741,2404.5362377849333]
 
-    EVTOL_lift_coefficient_true = [0.8075309358253244,0.8075309358231044]
+    EVTOL_lift_coefficient_true = [0.807531192240349,0.8075311932083833]
     
         
     for i in range(len(battery_chemistry)):
@@ -115,7 +115,7 @@ def main():
         print(EVTOL_diff_RPM)
         assert np.abs((EVTOL_RPM - EVTOL_RPM_true[i])/EVTOL_RPM_true[i]) < 1e-6  
         
-        # lift Coefficient Check During Cruise
+        # lift Coefficient Check During Cruise 
         EVTOL_lift_coefficient        = EVTOL_results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[2][0] 
         print('EVTOL CL: ' + str(EVTOL_lift_coefficient)) 
         EVTOL_diff_CL                 = np.abs(EVTOL_lift_coefficient  - EVTOL_lift_coefficient_true[i]) 

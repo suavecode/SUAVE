@@ -357,10 +357,10 @@ class Solar(Network):
         rotor_group_indexes     = self.rotor_group_indexes
         motor_group_indexes     = self.motor_group_indexes
         active_propulsor_groups = segment.analyses.energy.network.solar.active_propulsor_groups
-        n_rotors                = len(self.rotors)
-        n_motors                = len(self.motors)
-         
-
+        motors                  = self.motors
+        rotors                  = self.rotors 
+        n_rotors                = len(motors)
+        n_motors                = len(rotors)  
 
         # Count how many unknowns and residuals based on p)  
         if n_rotors!=len(rotor_group_indexes):
@@ -407,7 +407,12 @@ class Solar(Network):
                 segment.state.unknowns['rotor_power_coefficient_' + str(i)]  = initial_rotor_power_coefficients[i] * ones_row(1)  
  
 
-        for i in range(n_groups):         
+        for i in range(n_groups):     
+            # Setup the conditions 
+            idx = np.where(i == np.array(rotor_group_indexes))[0][0]
+            identical_rotor   = rotors[list(rotors.keys())[idx]] 
+            identical_motor   = motors[list(motors.keys())[idx]] 
+            
             # Setup the conditions
             segment.state.conditions.propulsion['propulsor_group_' + str(i)]       = MARC.Analyses.Mission.Segments.Conditions.Conditions()
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor = MARC.Analyses.Mission.Segments.Conditions.Conditions()
@@ -415,6 +420,8 @@ class Solar(Network):
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].throttle               = 0. * ones_row(n_groups)   
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor.efficiency       = 0. * ones_row(n_groups)
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor.torque           = 0. * ones_row(n_groups) 
+            segment.state.conditions.propulsion['propulsor_group_' + str(i)].motor.tag              = identical_rotor.tag 
+            segment.state.conditions.propulsion['propulsor_group_' + str(i)].rotor.tag              = identical_motor.tag
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].rotor.torque           = 0. * ones_row(n_groups)
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].rotor.thrust           = 0. * ones_row(n_groups)
             segment.state.conditions.propulsion['propulsor_group_' + str(i)].rotor.rpm              = 0. * ones_row(n_groups)

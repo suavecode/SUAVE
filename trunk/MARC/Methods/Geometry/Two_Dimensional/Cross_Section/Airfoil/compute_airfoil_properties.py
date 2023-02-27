@@ -86,12 +86,7 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_
         
     # Get all of the coefficients for AERODAS wings
     AoA_sweep_deg         = np.linspace(-14,90,105)
-    AoA_sweep_rad         = AoA_sweep_deg*Units.degrees    
-    
-    # Create an infinite aspect ratio wing
-    geometry              = MARC.Components.Wings.Wing()
-    geometry.aspect_ratio = np.inf
-    geometry.section      = Data()  
+    AoA_sweep_rad         = AoA_sweep_deg*Units.degrees
     
     # AERODAS   
     CL = np.zeros((num_polars,len(AoA_sweep_deg)))
@@ -102,7 +97,7 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_
         airfoil_aoa = Airfoil_Data.aoa_from_polar[j,:]/Units.degrees 
     
         # compute airfoil cl and cd for extended AoA range 
-        CL[j,:],CD[j,:] = compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geometry,use_pre_stall_data)  
+        CL[j,:],CD[j,:] = compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg)  
          
     # ----------------------------------------------------------------------------------------
     # Store data 
@@ -114,7 +109,7 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_
         
     return Airfoil_Data
  
-def compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geometry,use_pre_stall_data): 
+def compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg): 
     """ Computes the aerodynamic polars of an airfoil over an extended angle of attack range
     
     Assumptions:
@@ -128,8 +123,7 @@ def compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geom
     airfoil_cd          [unitless]
     airfoil_aoa         [degrees]
     AoA_sweep_deg       [unitless]
-    geometry            [N/A]
-    use_pre_stall_data  [boolean]
+    
     Outputs: 
     CL                  [unitless]
     CD                  [unitless]       
@@ -139,120 +133,14 @@ def compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geom
     """    
     
     # Create dummy settings and state
-    settings                                              = Data()
-    state                                                 = Data()
-    state.conditions                                      = Data()
-    state.conditions.aerodynamics                         = Data()
-    state.conditions.aerodynamics.pre_stall_coefficients  = Data()
-    state.conditions.aerodynamics.post_stall_coefficients = Data()  
+    start_loc = np.where(airfoil_aoa==-5)[0][0]
+    end_loc   = np.where(airfoil_aoa== 8)[0][0]
+    p1        = np.polyfit(airfoil_aoa[start_loc:end_loc], airfoil_cl[start_loc:end_loc], 1)
+    CL        = p1[0]*AoA_sweep_deg + p1[1]  
+    p2        = np.polyfit(airfoil_aoa[start_loc:end_loc], airfoil_cd[start_loc:end_loc], 4)
+    CD        = p2[0]*(AoA_sweep_deg**4) + p2[1]*(AoA_sweep_deg**3) + p2[2]*(AoA_sweep_deg**2) + p2[3]*(AoA_sweep_deg**1) + p2[4] 
     
-    # computing approximate zero lift aoa
-    AoA_sweep_radians    = AoA_sweep_deg*Units.degrees
-    airfoil_cl_plus      = airfoil_cl[airfoil_cl>0]
-    idx_zero_lift        = np.where(airfoil_cl == min(airfoil_cl_plus))[0][0]
-    airfoil_cl_crossing  = airfoil_cl[idx_zero_lift-1:idx_zero_lift+1]
-    airfoil_aoa_crossing = airfoil_aoa[idx_zero_lift-1:idx_zero_lift+1]
-    try:
-        A0  = np.interp(0,airfoil_cl_crossing, airfoil_aoa_crossing)* Units.deg 
-    except:
-        A0 = airfoil_aoa[idx_zero_lift] * Units.deg 
-
-    # max lift coefficent and associated aoa
-    CL1max                  = np.max(airfoil_cl)
-    idx_aoa_max_prestall_cl = np.where(airfoil_cl == CL1max)[0][0]
-    ACL1                    = airfoil_aoa[idx_aoa_max_prestall_cl] * Units.degrees
-
-    # computing approximate lift curve slope
-    linear_idxs             = [int(np.where(airfoil_aoa==0)[0]),int(np.where(airfoil_aoa==4)[0])]
-    cl_range                = airfoil_cl[linear_idxs]
-    aoa_range               = airfoil_aoa[linear_idxs] * Units.degrees
-    S1                      = (cl_range[1]-cl_range[0])/(aoa_range[1]-aoa_range[0])
-
-    # max drag coefficent and associated aoa
-    CD1max                  = np.max(airfoil_cd) 
-    idx_aoa_max_prestall_cd = np.where(airfoil_cd == CD1max)[0][0]
-    ACD1                    = airfoil_aoa[idx_aoa_max_prestall_cd] * Units.degrees     
-    
-    # Find the point of lowest drag and the CD
-    idx_CD_min              = np.where(airfoil_cd==min(airfoil_cd))[0][0]
-    ACDmin                  = airfoil_aoa[idx_CD_min] * Units.degrees
-    CDmin                   = airfoil_cd[idx_CD_min]    
-    
-    # Setup data structures for this run
-    ones                                                      = np.ones_like(AoA_sweep_radians)
-    settings.section_zero_lift_angle_of_attack                = A0
-    state.conditions.aerodynamics.angle_of_attack             = AoA_sweep_radians* ones  
-    geometry.section.angle_attack_max_prestall_lift           = ACL1 * ones 
-    geometry.pre_stall_maximum_drag_coefficient_angle         = ACD1 * ones 
-    geometry.pre_stall_maximum_lift_coefficient               = CL1max * ones 
-    geometry.pre_stall_maximum_lift_drag_coefficient          = CD1max * ones 
-    geometry.section.minimum_drag_coefficient                 = CDmin * ones 
-    geometry.section.minimum_drag_coefficient_angle_of_attack = ACDmin
-    geometry.pre_stall_lift_curve_slope                       = S1
-    
-    # Get prestall coefficients
-    CL1, CD1 = pre_stall_coefficients(state,settings,geometry)
-    
-    # Get poststall coefficents
-    CL2, CD2 = post_stall_coefficients(state,settings,geometry)
-    
-    # Take the maxes
-    CL_ij = np.fmax(CL1,CL2)
-    CL_ij[AoA_sweep_radians<=A0] = np.fmin(CL1[AoA_sweep_radians<=A0],CL2[AoA_sweep_radians<=A0])
-    
-    CD_ij = np.fmax(CD1,CD2)
-    
-    # Pack this loop
-    CL = CL_ij
-    CD = CD_ij
-    
-    if use_pre_stall_data == True:
-        CL, CD = apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL, CD)
-        
     return CL,CD
-
-def apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL, CD): 
-    '''Applies prestall data to lift and drag curve slopes
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    
-    Inputs:
-    AoA_sweep_deg  [degrees]
-    airfoil_aoa    [degrees]
-    airfoil_cl     [unitless]
-    airfoil_cd     [unitless]
-    CL             [unitless] 
-    CD             [unitless]
-    
-    Outputs
-    CL             [unitless]
-    CD             [unitless] 
-    
-    
-    Properties Used:
-    N/A
-    
-    '''
-
-    # Coefficients in pre-stall regime taken from experimental data:
-    aoa_locs    = (AoA_sweep_deg>=airfoil_aoa[0]) * (AoA_sweep_deg<=airfoil_aoa[-1])
-    aoa_in_data = AoA_sweep_deg[aoa_locs]
-    
-    # if the data is within experimental use it, if not keep the surrogate values
-    CL[aoa_locs] = airfoil_cl[abs(aoa_in_data[:,None] - airfoil_aoa[None,:]).argmin(axis=-1)]
-    CD[aoa_locs] = airfoil_cd[abs(aoa_in_data[:,None] - airfoil_aoa[None,:]).argmin(axis=-1)]
-    
-    # remove kinks/overlap between pre- and post-stall                
-    data_lb       = np.where(CD == airfoil_cd[0])[0][0]
-    data_ub       = np.where(CD == airfoil_cd[-1])[0][-1]
-    CD[0:data_lb] = np.maximum(CD[0:data_lb], CD[data_lb]*np.ones_like(CD[0:data_lb]))
-    CD[data_ub:]  = np.maximum(CD[data_ub:],  CD[data_ub]*np.ones_like(CD[data_ub:])) 
-    
-    return CL, CD
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def compute_boundary_layer_properties(airfoil_geometry,Airfoil_Data): 
