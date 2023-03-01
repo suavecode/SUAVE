@@ -10,11 +10,12 @@
 # ---------------------------------------------------------------------- 
 from MARC.Core import  Data 
 import numpy as np   
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic           import SPL_arithmetic  
-from MARC.Methods.Noise.Fidelity_One.Rotor.compute_source_coordinates         import compute_point_source_coordinates
-from MARC.Methods.Noise.Fidelity_One.Rotor.compute_source_coordinates         import compute_blade_section_source_coordinates 
-from MARC.Methods.Noise.Fidelity_One.Rotor.compute_harmonic_noise             import compute_harmonic_noise
-from MARC.Methods.Noise.Fidelity_One.Rotor.compute_broadband_noise            import compute_broadband_noise
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic                 import SPL_arithmetic  
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_source_coordinates   import compute_rotor_point_source_coordinates
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_source_coordinates   import new_compute_rotor_point_source_coordinates
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_source_coordinates   import compute_rotor_blade_section_source_coordinates  
+from MARC.Methods.Noise.Fidelity_One.Rotor.compute_harmonic_noise                   import compute_harmonic_noise
+from MARC.Methods.Noise.Fidelity_One.Rotor.compute_broadband_noise                  import compute_broadband_noise
 
 # -------------------------------------------------------------------------------------
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
@@ -67,13 +68,14 @@ def total_rotor_noise(rotors,aeroacoustic_data,segment,settings):
     Results = Data()
                      
      # compute position vector from point source at rotor hub to microphones
-    position_vector = compute_point_source_coordinates(conditions,rotors,microphone_locations,settings)  
+    position_vector = compute_rotor_point_source_coordinates(conditions,rotors,microphone_locations,settings)  
+    new_position_vector = new_compute_rotor_point_source_coordinates(conditions,rotors,microphone_locations,settings)  
 
     # Harmonic Noise    
     compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,rotors,aeroacoustic_data,settings,Noise)       
     
     # compute position vector of blade section source to microphones
-    blade_section_position_vectors = compute_blade_section_source_coordinates(angle_of_attack,aeroacoustic_data,rotors,microphone_locations,settings)
+    blade_section_position_vectors = compute_rotor_blade_section_source_coordinates(angle_of_attack,aeroacoustic_data,rotors,microphone_locations,settings)
     
     # Broadband Noise
     compute_broadband_noise(freestream,angle_of_attack,blade_section_position_vectors,velocity_vector,rotors,aeroacoustic_data,settings,Noise)

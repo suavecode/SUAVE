@@ -119,8 +119,8 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         c_0            = np.tile(speed_of_sound[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
         rho            = np.tile(density[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
         X_er           = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_cf,3,1))
-        R_c            = # V_tot*c/nu
-        M_tot          =  # V_tot/c_0                   
+        R_c            = 0 # V_tot*c/nu
+        M_tot          = 0  # V_tot/c_0                   
         M_x            = U_inf/c_0  
         x_e            = X_e[:,:,:,:,0,0]
         y_e            = X_e[:,:,:,:,1,0]
