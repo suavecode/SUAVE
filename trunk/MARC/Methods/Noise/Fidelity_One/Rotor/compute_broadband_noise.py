@@ -26,7 +26,7 @@ from MARC.Methods.Noise.Fidelity_One.Rotor.compute_noise_directivities          
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Noise-Fidelity_One-Propeller   
-def compute_broadband_noise(freestream,angle_of_attack,bspv,
+def compute_broadband_noise(freestream,angle_of_attack,coordinates,
                             velocity_vector,rotors,aeroacoustic_data,settings,res):
     '''This computes the trailing edge noise compoment of broadband noise of a propeller or 
     lift-rotor in the frequency domain. Boundary layer properties are computed using MARC's 
@@ -65,9 +65,11 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         N/A   
     '''     
 
-    num_cpt       = len(angle_of_attack)
-    num_rot       = len(bspv.blade_section_coordinate_sys[0,0,:,0,0,0,0])
-    num_mic       = len(bspv.blade_section_coordinate_sys[0,:,0,0,0,0,0])  
+    num_cpt       = len(coordinates.X[:,0,0,0,0,0])
+    num_mic       = len(coordinates.X[0,:,0,0,0,0])  
+    num_rot       = len(coordinates.X[0,0,:,0,0,0])
+    num_blades    = len(coordinates.X[0,0,0,:,0,0])
+    num_sec       = len(coordinates.X[0,0,0,0,:,0])
     rotor         = rotors[list(rotors.keys())[0]]
     frequency     = settings.center_frequencies
     num_cf        = len(frequency)     
@@ -78,22 +80,19 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
     p_ref              = 2E-5                               # referece atmospheric pressure
     speed_of_sound     = freestream.speed_of_sound          # speed of sound
     density            = freestream.density                 # air density 
-    dyna_visc          = freestream.dynamic_viscosity
-    velocity           = freestream.velocity
-    kine_visc          = dyna_visc/density                  # kinematic viscousity    
-    alpha              = aeroacoustic_data.blade_effective_angle_of_attack 
-    X_e                = bspv.blade_section_coordinate_sys   
+    dyna_visc          = freestream.dynamic_viscosity  
+    alpha              = aeroacoustic_data.blade_effective_angle_of_attack  
+    blade_Re           = aeroacoustic_data.blade_reynolds_number
+    blade_speed        = aeroacoustic_data.blade_velocity
     Vt                 = aeroacoustic_data.blade_tangential_velocity  
     Va                 = aeroacoustic_data.blade_axial_velocity                
     blade_chords       = rotor.chord_distribution           # blade chord    
-    r                  = rotor.radius_distribution          # radial location 
-    num_sec            = len(r)                                 
-    B                  = rotor.number_of_blades             # number of rotor blades
+    r                  = rotor.radius_distribution          # radial location   
     Omega              = aeroacoustic_data.omega            # angular velocity    
     L                  = np.zeros_like(r)
     del_r              = r[1:] - r[:-1]
-    L[0]               = 2*del_r[0]
-    L[-1]              = 2*del_r[-1]
+    L[0]               = del_r[0]
+    L[-1]              = del_r[-1]
     L[1:-1]            = (del_r[:-1]+ del_r[1:])/2
  
 
@@ -108,55 +107,51 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         res.SPL_prop_azimuthal_broadband_spectrum     = np.zeros_like(res.p_pref_azimuthal_broadband)
         res.SPL_prop_azimuthal_broadband_spectrum_dBA = np.zeros_like(res.p_pref_azimuthal_broadband)
     else:
-    
-        c              = np.tile(blade_chords[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_cf))
-        f              = np.tile(frequency[None,None,None,None,:],(num_cpt,num_mic,num_rot,num_sec,1))
-        alpha_blade    = np.tile(alpha[:,None,None,:,None],(1,num_mic,num_rot,1,num_cf))
-        V              = np.sqrt(Vt**2 + Va**2)
-        V_tot          = np.tile(V[:,None,None,:,None],(1,num_mic,num_rot,1,num_cf))
-        U_inf          = np.tile(velocity[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
-        nu             = np.tile(kine_visc[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
-        c_0            = np.tile(speed_of_sound[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
-        rho            = np.tile(density[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_cf))
-        X_er           = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_cf,3,1))
-        R_c            = 0 # V_tot*c/nu
-        M_tot          = 0  # V_tot/c_0                   
-        M_x            = U_inf/c_0  
-        x_e            = X_e[:,:,:,:,0,0]
-        y_e            = X_e[:,:,:,:,1,0]
-        z_e            = X_e[:,:,:,:,2,0] 
-        r_e            = np.sqrt(x_e**2 + y_e**2 + z_e**2)              
-        theta_e        = np.arccos(x_e/r_e)       
-        Theta_er       = np.arccos(np.cos(theta_e)*np.sqrt(1 - (M_x**2)*(np.sin(theta_e))**2) + M_x*(np.sin(theta_e))**2 )  
-        Y_e            = np.sqrt(y_e**2 + z_e**2)  
-        r_er           = Y_e/(np.sin(Theta_er))  
         
-        x_er           = np.cos(Theta_er)*r_er                                        # eqn 21 , Brooks & Burley   
-        y_er, z_er     = y_e,z_e
-            
-        # in the following expressions, we are assuming a compact blade
-        X_er[:,:,:,:,:,0,0] = x_er
-        X_er[:,:,:,:,:,1,0] = y_er
-        X_er[:,:,:,:,:,2,0] = z_er
-        zeta_r            = np.acos(np.dot(X_er, (V_tot/((r_er *V_tot))) ))              # eqn 18 , Brooks & Burley  
-        sigma_sq          = (r_er**2)*((1 - M_tot*np.cos(zeta_r))**2)                   # eqn 16 , Brooks & Burley 
-        Phi_er            = np.acos(y_er/ np.sqrt(y_er**2 + z_er**2))                   # eqn 21 , Brooks & Burley 
-       
-        # flatten 
-        R_c        = 0
-        c          = 0
-        alpha_star = np.reshape(alpha_blade,(num_cpt*num_mic*num_rot*num_sec*num_cf))
-        U          = np.reshape(U,(num_cpt*num_mic*num_rot*num_sec*num_cf)) 
-        zeta_r     = 0
-        M_tot      = 0
-        f          = 0
-        r_e        = 0
-        L          = 0
-        U          = 0
-        M          = 0
-        Dbar_h     = 0
-        Dbar_l     = 0
+        # dimension of matrices [control point, microphone , num rotors , number of blades, number of sections ,num center frequencies ] 
+        c                 = np.tile(blade_chords[None,None,None,None,:,None],(num_cpt,num_mic,num_rot,num_blades,1,num_cf))
+        L                  = np.tile(L[None,None,None,None,:,None],(num_cpt,num_mic,num_rot,num_blades,1,num_cf))
+        f                 = np.tile(frequency[None,None,None,None,None,:],(num_cpt,num_mic,num_rot,num_blades,num_sec,1))
+        alpha_blade       = np.tile(alpha[:,None,None,None,:,None],(1,num_mic,num_rot,num_blades,1,num_cf))
+        V                 = np.zeros((num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf,3))
+        V[:,:,:,:,:,:,0]  = -np.tile(Vt[:,None,None,None,:,None],(1,num_mic,num_rot,num_blades,1,num_cf)) 
+        V[:,:,:,:,:,:,2]  = np.tile(Va[:,None,None,None,:,None],(1,num_mic,num_rot,num_blades,1,num_cf))  
+        V_tot             = np.linalg.norm(V,axis= 6)
+        #U_inf             = np.tile(velocity_vector[:,:,None,None,None,None,None],(1,1,num_mic,num_rot,num_blades,num_sec,num_cf)) 
+        c_0               = np.tile(speed_of_sound[:,:,None,None,None,None],(1,num_mic,num_rot,num_blades,num_sec,num_cf))
+        rho               = np.tile(density[:,:,None,None,None,None],(1,num_mic,num_rot,num_blades,num_sec,num_cf)) 
+        mu                = np.tile(dyna_visc[:,:,None,None,None,None],(1,num_mic,num_rot,num_blades,num_sec,num_cf)) 
+        R_c               = np.tile(blade_Re[:,None,None,None,:,None],(1,num_mic,num_rot,num_blades,1,num_cf))
+        U                 = np.tile(blade_speed[:,None,None,None,:,None],(1,num_mic,num_rot,num_blades,1,num_cf))
+        M                 = U/c_0 
+        M_tot             = V_tot/c_0   
           
+        X_prime_r         = np.tile(coordinates.X_prime_r[:,:,:,:,:,None,:],(1,1,1,1,1,num_cf,1))
+        cos_zeta_r        = np.sum(X_prime_r*V, axis = 6)/(np.linalg.norm(X_prime_r, axis = 6)*np.linalg.norm(V, axis = 6) )                 
+        norm_X_r          = np.tile(np.linalg.norm(coordinates.X_r,axis = 5)[:,:,:,:,:,None],(1,1,1,1,1,num_cf)) 
+        sigma             = np.sqrt((norm_X_r**2)*((1 - M_tot*cos_zeta_r)**2))  
+        Y_er              = np.tile(np.sqrt(coordinates.X_e_r[:,:,:,:,:,1]**2 +  coordinates.X_e_r[:,:,:,:,:,2]**2)[:,:,:,:,:,None],(1,1,1,1,1,num_cf))                      
+        r_er              = np.tile(np.linalg.norm(coordinates.X_e_r, axis = 5)[:,:,:,:,:,None],(1,1,1,1,1,num_cf))           
+        Phi_er            = np.arcsin(np.tile(coordinates.X_e_r[:,:,:,:,:,1,None],(1,1,1,1,1,num_cf))/Y_er)  
+        Theta_er          = np.tile(coordinates.theta_e_r[:,:,:,:,:,None],(1,1,1,1,1,num_cf))    
+        
+        # flatten matrices 
+        R_c        = flatten_matrix(R_c,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        c          = flatten_matrix(c,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        alpha_star = flatten_matrix(alpha_blade,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        U          = flatten_matrix(U,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        cos_zeta_r = flatten_matrix(cos_zeta_r,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        M_tot      = flatten_matrix(M_tot,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        f          = flatten_matrix(f,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        c_0        = flatten_matrix(c_0,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        rho        = flatten_matrix(rho,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        r_er       = flatten_matrix(r_er,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        mu         = flatten_matrix(mu,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        L          = flatten_matrix(L,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        M          = flatten_matrix(M,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        Phi_er     = flatten_matrix(Phi_er,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        Theta_er   = flatten_matrix(Theta_er,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        
         
         '''calculation of boundary layer properties
         eqns 2 - 16 '''   
@@ -169,15 +164,15 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         define simulation variables/constants  
         '''        
         
-        R_delta_star_p_untripped = boundary_layer_data.delta_star_p_untripped*U*dyna_visc/rho 
-        R_delta_star_p_tripped   = boundary_layer_data.delta_star_p_tripped*U*dyna_visc/rho 
+        Re_delta_star_p_untripped = boundary_layer_data.delta_star_p_untripped*U*rho/mu
+        Re_delta_star_p_tripped   = boundary_layer_data.delta_star_p_tripped*U*rho/mu 
         
     
         ''' 
         calculation of directivitiy terms 
         eqns 24 - 50
         '''   
-        Dbar_h, Dbar_l = compute_noise_directivities(Theta_er,Phi_er,zeta_r,M_tot)
+        Dbar_h, Dbar_l = compute_noise_directivities(Theta_er,Phi_er,cos_zeta_r,M_tot)
         
         
         ''' 
@@ -185,12 +180,12 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         eqns 24 - 50
         '''  
             
-        SPL_TBL_TE_tripped   = compute_TBL_TE_broadband_noise(f,r_e,L,U,M,R_c,Dbar_h,Dbar_l,R_delta_star_p_tripped,
+        SPL_TBL_TE_tripped   = compute_TBL_TE_broadband_noise(f,r_er,L,U,M,R_c,Dbar_h,Dbar_l,Re_delta_star_p_tripped,
                                                   boundary_layer_data.delta_star_p_tripped,
                                                   boundary_layer_data.delta_star_s_tripped,
                                                   alpha_star) 
         
-        SPL_TBL_TE_untripped = compute_TBL_TE_broadband_noise(f,r_e,L,U,M,R_c,Dbar_h,Dbar_l,R_delta_star_p_untripped,
+        SPL_TBL_TE_untripped = compute_TBL_TE_broadband_noise(f,r_er,L,U,M,R_c,Dbar_h,Dbar_l,Re_delta_star_p_untripped,
                                                   boundary_layer_data.delta_star_p_untripped,
                                                   boundary_layer_data.delta_star_s_untripped,
                                                   alpha_star)  
@@ -199,7 +194,7 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         calculation of laminar boundary layer - vortex shedding
         eqns 53 - 60
         '''
-        SPL_LBL_VS = compute_LBL_VS_broadband_noise(R_c,alpha_star,boundary_layer_data.delta_star_p_untripped,r_e,L,M,Dbar_h,f,U)
+        SPL_LBL_VS = compute_LBL_VS_broadband_noise(R_c,alpha_star,boundary_layer_data.delta_star_p_untripped,r_er,L,M,Dbar_h,f,U)
       
     
         '''
@@ -207,12 +202,39 @@ def compute_broadband_noise(freestream,angle_of_attack,bspv,
         eqns 61 - 67
         '''
         alpha_TIP = alpha_star
-        SPL_TIP   = compute_TIP_broadband_noise(alpha_TIP,M,c,c_0,f,Dbar_h,r_e)  
-     
-        res.SPL_prop_broadband_spectrum                   = SPL_rotor
-        res.SPL_prop_broadband_spectrum_dBA               = A_weighting(SPL_rotor,frequency) 
-        res.SPL_prop_broadband_1_3_spectrum               = convert_to_third_octave_band(SPL_rotor,f,settings)
-        res.SPL_prop_broadband_1_3_spectrum_dBA           = convert_to_third_octave_band(A_weighting(SPL_rotor,frequency),f,settings)  
+        SPL_TIP   = compute_TIP_broadband_noise(alpha_TIP,M,c,c_0,f,Dbar_h,r_er)  
+        
+
+        '''
+        TO DO : Compute BWI
+        '''
+        
+
+        '''
+        TO DO : Compute BVI
+        '''        
+ 
+        SPL_TBL_TE_tripped   = unflatten_matrix(SPL_TBL_TE_tripped,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf) 
+        SPL_TBL_TE_untripped = unflatten_matrix(SPL_TBL_TE_untripped,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
+        SPL_LBL_VS           = unflatten_matrix(SPL_LBL_VS,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)          
+        SPL_TIP              = unflatten_matrix(SPL_TIP,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)   
+ 
+        broadband_SPLs    = np.zeros((3,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf))
+        broadband_SPLs[0] = SPL_TBL_TE_tripped 
+        broadband_SPLs[1] = SPL_LBL_VS
+        broadband_SPLs[2] = SPL_TIP          
+        SPL_rotor         = SPL_arithmetic(broadband_SPLs, sum_axis=0) 
+         
+        res.SPL_prop_broadband_spectrum                   = SPL_arithmetic(SPL_arithmetic(SPL_rotor,sum_axis=3),sum_axis=3)
+        res.SPL_prop_broadband_spectrum_dBA               = A_weighting(res.SPL_prop_broadband_spectrum,frequency) 
+        res.SPL_prop_broadband_1_3_spectrum               = res.SPL_prop_broadband_spectrum # already in 1/3 octave specturm 
+        res.SPL_prop_broadband_1_3_spectrum_dBA           = res.SPL_prop_broadband_spectrum_dBA # already in 1/3 octave specturm 
         
     return
  
+def flatten_matrix(x,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf):
+    return np.reshape(x,(num_cpt*num_mic*num_rot*num_blades*num_sec*num_cf))
+
+
+def unflatten_matrix(x,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf):
+    return np.reshape(x,(num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf))

@@ -77,7 +77,7 @@ def compute_TBL_TE_broadband_noise(f,r_e,L,U,M,R_c,Dbar_h,Dbar_l,R_delta_star_p,
     
     SPL_p[alpha_star_0_bool]             = -np.inf # eqn 28
     SPL_s[alpha_star_0_bool]             = -np.inf # eqn 29 
-    SPL_alpha[alpha_star_0_bool]         = 10*np.log10((delta_star_s[alpha_star_0_bool]*(M[alpha_star_0_bool]**5)*L*Dbar_l[alpha_star_0_bool])/(r_e**2))  + A_prime[alpha_star_0_bool]+ K_2[alpha_star_0_bool]  
+    SPL_alpha[alpha_star_0_bool]         = 10*np.log10((delta_star_s[alpha_star_0_bool]*(M[alpha_star_0_bool]**5)*L[alpha_star_0_bool]*Dbar_l[alpha_star_0_bool])/(r_e[alpha_star_0_bool]**2))  + A_prime[alpha_star_0_bool]+ K_2[alpha_star_0_bool]  
              
     SPL_TBL_TE                           = 10*np.log10( 10**(SPL_alpha/10) + 10**(SPL_s/10) + 10**(SPL_p/10) ) # eqn 24 
 

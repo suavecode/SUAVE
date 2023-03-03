@@ -17,11 +17,6 @@ from .print_engine_output                   import print_engine_output
 from .print_airframe_output                 import print_airframe_output
 from .print_propeller_output                import print_propeller_output 
 from .compute_noise_source_coordinates      import compute_rotor_point_source_coordinates
-from .compute_noise_source_coordinates      import compute_rotor_blade_section_source_coordinates
-
-from .compute_noise_source_coordinates      import new_compute_rotor_point_source_coordinates
-
-
 from .generate_microphone_points            import generate_ground_microphone_points
 from .generate_microphone_points            import preprocess_topography_and_route_data
 from .compute_noise_evaluation_locations    import compute_ground_noise_evaluation_locations 

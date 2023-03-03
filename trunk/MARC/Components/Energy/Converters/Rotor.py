@@ -76,6 +76,7 @@ class Rotor(Energy_Component):
         self.radius_distribution               = None
         self.mid_chord_alignment               = 0.0
         self.blade_solidity                    = 0.0 
+        self.flap_angle                        = 0.0
         self.number_azimuthal_stations         = 24  
         self.vtk_airfoil_points                = 40        
         self.Airfoils                          = Airfoil_Container()
@@ -568,6 +569,7 @@ class Rotor(Energy_Component):
                     blade_effective_angle_of_attack   = alpha,
                     blade_tangential_velocity         = Vt_avg,
                     blade_axial_velocity              = Va_avg,
+                    blade_velocity                    = W,
                     disc_tangential_induced_velocity  = Vt_ind_2d,
                     disc_axial_induced_velocity       = Va_ind_2d,
                     disc_tangential_velocity          = Vt_2d,
