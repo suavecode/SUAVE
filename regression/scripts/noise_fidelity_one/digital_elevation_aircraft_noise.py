@@ -51,7 +51,7 @@ def main():
     print('\n\n MARC Frequency Domain Propeller Aircraft Noise Model')
 
     X57_SPL        = np.max(X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA) 
-    X57_SPL_true   = 54.80060022697681
+    X57_SPL_true   = 88.67373182110012
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)

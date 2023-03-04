@@ -71,7 +71,7 @@ def main():
     error.Thrust_rot = np.max(np.abs(np.linalg.norm(F_rot)-F_rot_truth))/F_rot_truth   
     
     print('Thrust: ' + str(np.linalg.norm(-F_rot))) 
-    print('Error: ' + str(error)) 
+    print('Error: ' + str(error.Thrust_rot)) 
 
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)  

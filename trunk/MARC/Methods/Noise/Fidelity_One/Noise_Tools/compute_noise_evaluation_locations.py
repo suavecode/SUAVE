@@ -44,7 +44,7 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     N_gm_y         = settings.ground_microphone_y_resolution   
     gml            = settings.ground_microphone_locations 
     pos            = segment.state.conditions.frames.inertial.position_vector
-    true_course    = segment.state.conditions.frames.planet.true_course_rotation
+    true_course    = segment.state.conditions.frames.planet.true_course_angle
     ctrl_pts       = len(pos)  
     TGML           = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0) 
     

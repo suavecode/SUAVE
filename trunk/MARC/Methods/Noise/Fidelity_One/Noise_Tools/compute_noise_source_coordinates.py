@@ -133,9 +133,9 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     # translation matrix of rotor to the relative location on the vehicle
     # -----------------------------------------------------------------------------------------------------------------------------
     Translation_origin_to_rel_loc                 = np.tile(I[None,None,None,None,:,:,:],(num_cpt,num_mic,num_rot,num_blades,num_sec,1,1)) 
-    Translation_origin_to_rel_loc[:,:,:,:,:,0,3]  = np.tile(rot_origins[:,0][None,None,None,None,:],(num_cpt,num_mic,1,num_blades,num_sec))
-    Translation_origin_to_rel_loc[:,:,:,:,:,1,3]  = np.tile(rot_origins[:,1][None,None,None,None,:],(num_cpt,num_mic,1,num_blades,num_sec))     
-    Translation_origin_to_rel_loc[:,:,:,:,:,2,3]  = np.tile(rot_origins[:,2][None,None,None,None,:],(num_cpt,num_mic,1,num_blades,num_sec))  
+    Translation_origin_to_rel_loc[:,:,:,:,:,0,3]  = np.tile(rot_origins[:,0][None,None,:,None,None],(num_cpt,num_mic,1,num_blades,num_sec))
+    Translation_origin_to_rel_loc[:,:,:,:,:,1,3]  = np.tile(rot_origins[:,1][None,None,:,None,None],(num_cpt,num_mic,1,num_blades,num_sec))     
+    Translation_origin_to_rel_loc[:,:,:,:,:,2,3]  = np.tile(rot_origins[:,2][None,None,:,None,None],(num_cpt,num_mic,1,num_blades,num_sec))  
     rev_Translation_origin_to_rel_loc             = np.linalg.inv(Translation_origin_to_rel_loc) 
     
     # -----------------------------------------------------------------------------------------------------------------------------
@@ -253,7 +253,7 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     x_hub_r        = Y_hub/(np.tan(theta_hub_r))    
     
     phi_e          = np.arccos(X_e[:,:,:,:,:,1]/Y_e) 
-    phi_hub        = np.arccos(X_hub[:,:,:,:,:,1]/Y)
+    phi_hub        = np.arccos(X_hub[:,:,:,:,:,1]/Y_hub)
 
     X_prime_r      = np.zeros_like(X_prime)  
     X_e_r          = np.zeros_like(X_e)   

@@ -214,7 +214,7 @@ def update_planet_position(segment):
     lon                                           = conditions.frames.planet.longitude[0,0]
     conditions.frames.planet.latitude             = lat + lamda
     conditions.frames.planet.longitude            = lon + mu 
-    conditions.frames.planet.true_course_rotation = np.tile(phi[None,:,:],(len(V),1,1))    
+    conditions.frames.planet.true_course_angle    = np.tile(phi[None,:,:],(len(V),1,1))    
 
     return
     
