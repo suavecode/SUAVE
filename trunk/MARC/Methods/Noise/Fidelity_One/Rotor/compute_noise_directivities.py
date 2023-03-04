@@ -21,8 +21,8 @@ def compute_noise_directivities(Theta_er,Phi_er,cos_zeta_r,M_tot):
         Marcolini. Airfoil self-noise and prediction. No. L-16528. 1989.
     
     Inputs:  
-       Theta_e      - Radiation angle with respect to free stream x (chordwise) [deg]
-       Phi_e        - Radiation angle with respect to free stream y (spanwise)  [deg]
+       Theta_e      - Radiation angle with respect to free stream x (chordwise) [rad]
+       Phi_e        - Radiation angle with respect to free stream y (spanwise)  [rad]
        M_c          - Convection Mach number                                    [-]  
        M            - Mach number                                               [-] 
     
@@ -33,7 +33,6 @@ def compute_noise_directivities(Theta_er,Phi_er,cos_zeta_r,M_tot):
     Properties Used:
        N/A   
     '''      
-    Dbar_l   = ((np.sin(Theta_er)**2)*((np.sin(Phi_er))**2) )/((1 - M_tot*cos_zeta_r)**4)  # eqn 19 Brooks & Burley 
-    Dbar_h   = (2*(np.sin(Theta_er/2)**2)*((np.sin(Phi_er))**2) )/((1 - M_tot*cos_zeta_r)**4)  # eqn 20 Brooks & Burley 
-    
+    Dbar_h   = (2*(np.sin(Theta_er/2)**2)*((np.sin(Phi_er))**2) )/((1 - M_tot*cos_zeta_r)**4)  # eqn 20 Brooks & Burley
+    Dbar_l   = ((np.sin(Theta_er)**2)*((np.sin(Phi_er))**2) )/((1 - M_tot*cos_zeta_r)**4)  # eqn 19 Brooks & Burley  
     return Dbar_h,Dbar_l 

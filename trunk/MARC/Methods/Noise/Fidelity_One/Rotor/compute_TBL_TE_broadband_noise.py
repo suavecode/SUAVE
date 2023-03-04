@@ -101,7 +101,7 @@ def spectral_shape_function_A(St,St_peak,R_c):
 
 def spectral_shape_function_B(St_s,St_2,R_c): 
     b                   = abs(np.log10(St_s/St_2))                    # 43  
-    b_0                 = (-4.48E-13)*((R_c - 8.57E5)**2) + 0.56      # 44
+    b_0                 = (-4.48*(10**(-13)))*((R_c - 8.57E5)**2) + 0.56      # 44
     b_0[R_c < 9.52E4]   = 0.30                         # 44
     b_0[R_c > 8.57E5]   = 0.56                         # 44 
     
@@ -111,7 +111,7 @@ def spectral_shape_function_B(St_s,St_2,R_c):
     B_max_b_0 = B_max_function(b_0)  # eqn 42 
  
     B_R_b_0   = (-20 - B_min_b_0)/(B_max_b_0 - B_min_b_0)  # eqn 45
-    B         = B_min + B_R_b_0*abs(B_max -B_min )         # eqn 40  
+    B         = B_min + B_R_b_0*(B_max -B_min )         # eqn 40  
     return B
 
 def A_min_function(a):   

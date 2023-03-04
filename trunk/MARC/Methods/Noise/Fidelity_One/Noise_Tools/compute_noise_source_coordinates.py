@@ -251,11 +251,15 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     x_prime_r      = Y_prime/(np.tan(theta_prime_r))                             
     x_e_r          = Y_e/(np.tan(theta_e_r))                             
     x_hub_r        = Y_hub/(np.tan(theta_hub_r))    
+    
+    phi_e          = np.arccos(X_e[:,:,:,:,:,1]/Y_e) 
+    phi_hub        = np.arccos(X_hub[:,:,:,:,:,1]/Y)
 
     X_prime_r      = np.zeros_like(X_prime)  
     X_e_r          = np.zeros_like(X_e)   
     X_r            = np.zeros_like(X)   
-    X_hub_r        = np.zeros_like(X_hub)  
+    X_hub_r        = np.zeros_like(X_hub)
+     
 
     # update x coordiates of matrics 
     X_prime_r[:,:,:,:,:,0]  = x_prime_r 
@@ -269,8 +273,7 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     X_r[:,:,:,:,:,2]        = X[:,:,:,:,:,2]  
     X_hub_r[:,:,:,:,:,0]    = x_hub_r   
     X_hub_r[:,:,:,:,:,1]    = X_hub[:,:,:,:,:,1] 
-    X_hub_r[:,:,:,:,:,2]    = X_hub[:,:,:,:,:,2] 
-     
+    X_hub_r[:,:,:,:,:,2]    = X_hub[:,:,:,:,:,2]  
     coordinates        = Data(
         X_prime        = X_prime,
         X_e            = X_e,
@@ -284,6 +287,8 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
         theta_prime_r  = theta_prime_r,
         theta_e        = theta_e, 
         theta_e_r      = theta_e_r,
+        phi_e_r        = phi_e,
+        phi_hub_r      = phi_hub,
         theta_hub      = theta_hub,
         theta_hub_r    = theta_hub_r)
     

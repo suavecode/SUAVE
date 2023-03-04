@@ -102,7 +102,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,coordinates,
     M_r            = np.sqrt(M_x**2 + (r**2)*(M_t**2))                                                           # section relative Mach number     
     B_D            = c/D     
      
-    phi            = np.arccos(np.tile(coordinates.X_hub[:,:,:,0,:,1][:,:,:,:,None],(1,1,1,1,num_h))/Y) + phi_0_vec 
+    phi            = np.tile(coordinates.phi_hub_r[:,:,:,0,:,None],(1,1,1,1,num_h)) + phi_0_vec 
 
     # retarted theta angle in the retarded reference frame
     theta_r        = np.tile(coordinates.theta_hub_r[:,:,:,0,:,None],(1,1,1,1,num_h))  
