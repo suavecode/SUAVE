@@ -154,33 +154,18 @@ def compute_broadband_noise(freestream,angle_of_attack,coordinates,
         Theta_er   = flatten_matrix(Theta_er,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
         
         
-        '''calculation of boundary layer properties
-        eqns 2 - 16 '''   
-        
+        # calculation of boundary layer properties, eqns 2 - 16   
         # boundary layer properies of tripped and untripped at 0 angle of attack   
-        boundary_layer_data  = compute_BPM_boundary_layer_properties(R_c,c,alpha_star) 
-        
+        boundary_layer_data  = compute_BPM_boundary_layer_properties(R_c,c,alpha_star)  
     
-        ''' 
-        define simulation variables/constants  
-        '''        
-         
+        # define simulation variables/constants   
         Re_delta_star_p_untripped = boundary_layer_data.delta_star_p_untripped*U*rho/mu
-        Re_delta_star_p_tripped   = boundary_layer_data.delta_star_p_tripped*U*rho/mu 
-        
+        Re_delta_star_p_tripped   = boundary_layer_data.delta_star_p_tripped*U*rho/mu  
     
-        ''' 
-        calculation of directivitiy terms 
-        eqns 24 - 50
-        '''   
-        Dbar_h, Dbar_l = compute_noise_directivities(Theta_er,Phi_er,cos_zeta_r,M_tot)
-        
-        
-        ''' 
-        calculation of turbulent boundary layer - trailing edge noise 
-        eqns 24 - 50
-        '''  
-            
+        # calculation of directivitiy terms , eqns 24 - 50 
+        Dbar_h, Dbar_l = compute_noise_directivities(Theta_er,Phi_er,cos_zeta_r,M_tot) 
+          
+        # calculation of turbulent boundary layer - trailing edge noise,  eqns 24 - 50 
         SPL_TBL_TE_tripped   = compute_TBL_TE_broadband_noise(f,r_er,L,U,M,R_c,Dbar_h,Dbar_l,Re_delta_star_p_tripped,
                                                   boundary_layer_data.delta_star_p_tripped,
                                                   boundary_layer_data.delta_star_s_tripped,
@@ -190,47 +175,36 @@ def compute_broadband_noise(freestream,angle_of_attack,coordinates,
                                                   boundary_layer_data.delta_star_p_untripped,
                                                   boundary_layer_data.delta_star_s_untripped,
                                                   alpha_star)  
-     
-        '''
-        calculation of laminar boundary layer - vortex shedding
-        eqns 53 - 60
-        '''
-        SPL_LBL_VS = compute_LBL_VS_broadband_noise(R_c,alpha_star,boundary_layer_data.delta_star_p_untripped,r_er,L,M,Dbar_h,f,U)
       
-    
-        '''
-        calculation of tip vortex noise
-        eqns 61 - 67
-        ''' 
+        # calculation of laminar boundary layer - vortex shedding, eqns 53 - 60 
+        SPL_LBL_VS = compute_LBL_VS_broadband_noise(R_c,alpha_star,boundary_layer_data.delta_star_p_untripped,r_er,L,M,Dbar_h,f,U)
+       
+        # calculation of tip vortex noise, eqns 61 - 67 
         alpha_TIP = abs(alpha_tip)
         SPL_TIP   = compute_TIP_broadband_noise(alpha_TIP,M,c,c_0,f,Dbar_h,r_er)  
+         
+        # TO DO : Compute BWI  
+         
+        # TO DO : Compute BVI 
         
-
-        '''
-        TO DO : Compute BWI
-        '''
-        
-
-        '''
-        TO DO : Compute BVI
-        '''        
- 
+        # Unflatten Matices 
         SPL_TBL_TE_tripped   = unflatten_matrix(SPL_TBL_TE_tripped,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf) 
         SPL_TBL_TE_untripped = unflatten_matrix(SPL_TBL_TE_untripped,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)
         SPL_LBL_VS           = unflatten_matrix(SPL_LBL_VS,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)          
         SPL_TIP              = unflatten_matrix(SPL_TIP,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf)[:,:,:,:,0,:]     
         
+        # Sum broadband compoments along blade sections and blades to get noise per rotor 
         broadband_SPLs    = np.zeros((2,num_cpt,num_mic,num_rot,num_blades,num_sec,num_cf))
         broadband_SPLs[0] = SPL_TBL_TE_tripped 
         broadband_SPLs[1] = SPL_LBL_VS  
-        SUM_1             = SPL_arithmetic(broadband_SPLs, sum_axis=0) 
-        SUM_2             = SPL_arithmetic(SUM_1, sum_axis=4) 
-        SUM_3             = 10*np.log10( 10**(SUM_2/10) + 10**(SPL_TIP/10) ) 
-         
-        SPL_rotor =   SPL_arithmetic(SUM_3, sum_axis=3)
-        res.SPL_prop_broadband_spectrum                   = SPL_rotor
+        SPLb_sum_1        = SPL_arithmetic(broadband_SPLs, sum_axis=0) 
+        SPLb_sum_2        = SPL_arithmetic(SPLb_sum_1, sum_axis=4) 
+        SPLb_sum_3        = 10*np.log10( 10**(SPLb_sum_2/10) + 10**(SPL_TIP/10) ) 
+        
+        # store results 
+        res.SPL_prop_broadband_spectrum                   = SPL_arithmetic(SPLb_sum_3, sum_axis=3)
         res.SPL_prop_broadband_spectrum_dBA               = A_weighting(res.SPL_prop_broadband_spectrum,frequency) 
-        res.SPL_prop_broadband_1_3_spectrum               = res.SPL_prop_broadband_spectrum # already in 1/3 octave specturm 
+        res.SPL_prop_broadband_1_3_spectrum               = res.SPL_prop_broadband_spectrum     # already in 1/3 octave specturm 
         res.SPL_prop_broadband_1_3_spectrum_dBA           = res.SPL_prop_broadband_spectrum_dBA # already in 1/3 octave specturm 
         
     return
