@@ -106,6 +106,13 @@ def plot_3d_vehicle(vehicle,
     for fus in vehicle.fuselages:
         plot_data = plot_3d_fuselage(plot_data,fus,color_map = 'teal')
 
+    
+    # -------------------------------------------------------------------------
+    # PLOT BOOMS
+    # ------------------------------------------------------------------------- 
+    for boom in vehicle.booms:
+        plot_data = plot_3d_fuselage(plot_data,boom,color_map = 'gray')
+            
     # -------------------------------------------------------------------------
     # PLOT NACELLE
     # ------------------------------------------------------------------------- 
@@ -144,7 +151,7 @@ def plot_3d_vehicle(vehicle,
         fig.write_image(save_filename + ".png")
         
     if show_figure:
-        fig.show()
+        fig.write_html( save_filename + '.html', auto_open=True)
         
     return 
 

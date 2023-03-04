@@ -7,24 +7,18 @@
 #  Imports
 # ----------------------------------------------------------------------  
 from MARC.Core import Units
-from MARC.Visualization.Performance.Common import plot_style, save_plot
-
-import numpy as np
-import pandas as pd
-
-import plotly.graph_objects as go
-
-from plotly.subplots import make_subplots
+from MARC.Visualization.Performance.Common import set_axes, plot_style
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np 
 
 ## @ingroup Visualization-Performance-Energy-Fuel
 def plot_fuel_use(results,
                     save_figure = False,
-                    show_figure = True,
-                    save_filename = "Aircraft_Fuel_Burnt" ,
+                    show_legend=True,
+                    save_filename = "Aircraft_Fuel_Burnt",
                     file_type = ".png",
-                    width=800,height=500,
-                    *args, **kwargs):
-     
+                    width = 12, height = 7): 
 
     """This plots aircraft fuel usage
     
@@ -55,141 +49,87 @@ def plot_fuel_use(results,
     Properties Used:
     N/A	"""
 
+    # get plotting style 
+    ps      = plot_style()  
 
-    # Create empty data frame to be populated by the segment data 
-    df = pd.DataFrame(columns=['Fuel', 'Add_Fuel', 'Tot_Fuel', 'Segment'])
+    parameters = {'axes.labelsize': ps.axis_font_size,
+                  'xtick.labelsize': ps.axis_font_size,
+                  'ytick.labelsize': ps.axis_font_size,
+                  'axes.titlesize': ps.title_font_size}
+    plt.rcParams.update(parameters)
+     
+    # get line colors for plots 
+    line_colors   = cm.inferno(np.linspace(0,0.9,len(results.segments)))       
+  
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(width,height)
 
-    # Get the segment-by-segment results for altitude, mass, and the
-    # SFC (calculated)
-    prev_seg_fuel        = 0
-    prev_seg_extra_fuel  = 0
-    total_fuel           = 0
-    additional_fuel_flag = False 
-    
-    for seg_idx in range(len(results.segments)): 
-        segment  = results.segments[seg_idx] 
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
-        
+    prev_seg_fuel       = 0
+    prev_seg_extra_fuel = 0
+    total_fuel          = 0
+
+    axes = plt.subplot(1,1,1)
+            
+    for i in range(len(results.segments)):
+
+        segment  = results.segments[i]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min  
+        segment_tag  =  results.segments[i].tag
+        segment_name = segment_tag.replace('_', ' ')        
+
         if "has_additional_fuel" in segment.conditions.weights and segment.conditions.weights.has_additional_fuel == True:
-            additional_fuel_flag = True 
-            fuel                 = segment.conditions.weights.fuel_mass[:,0]
-            alt_fuel             = segment.conditions.weights.additional_fuel_mass[:,0]
-        
-            if seg_idx == 0:
-        
+
+
+            fuel     = segment.conditions.weights.fuel_mass[:,0]
+            alt_fuel = segment.conditions.weights.additional_fuel_mass[:,0]
+
+            if i == 0:
+
                 plot_fuel     = np.negative(fuel)
                 plot_alt_fuel = np.negative(alt_fuel)
-                total_fuel    = np.add(plot_fuel, plot_alt_fuel)
-                
-                # Assemble data into temporary holding data frame
-            
-                segment_frame = pd.DataFrame(
-                np.column_stack((plot_fuel,plot_alt_fuel,total_fuel)),
-                columns=['Fuel', 'Add_Fuel', 'Tot_Fuel'], index=time)
-                segment_frame['Segment'] = [segment.tag for i in range(len(time))]
-            
-                # Append to collecting data-frame 
-                df = df.append(segment_frame)
-                 
-        
+
+                axes.plot( time , plot_fuel , 'ro-', marker = ps.marker, linewidth = ps.line_width , label = 'fuel')
+                axes.plot( time , plot_alt_fuel , 'bo-', marker = ps.marker, linewidth = ps.line_width, label = 'additional fuel' )
+                axes.plot( time , np.add(plot_fuel, plot_alt_fuel), 'go-', marker = ps.marker, linewidth = ps.line_width, label = 'total fuel' )
+
+                axes.legend(loc='center right')   
+
             else:
-                prev_seg_fuel       += results.segments[seg_idx-1].conditions.weights.fuel_mass[-1]
-                prev_seg_extra_fuel += results.segments[seg_idx-1].conditions.weights.additional_fuel_mass[-1]
-            
+                prev_seg_fuel       += results.segments[i-1].conditions.weights.fuel_mass[-1]
+                prev_seg_extra_fuel += results.segments[i-1].conditions.weights.additional_fuel_mass[-1]
+
                 current_fuel         = np.add(fuel, prev_seg_fuel)
-                current_alt_fuel     = np.add(alt_fuel, prev_seg_extra_fuel) 
+                current_alt_fuel     = np.add(alt_fuel, prev_seg_extra_fuel)
 
-                # Assemble data into temporary holding data frame 
-                segment_frame = pd.DataFrame(
-                np.column_stack((np.negative(current_fuel) ,np.negative(current_alt_fuel ),np.negative(current_fuel + current_alt_fuel))),
-                columns=['Fuel', 'Add_Fuel', 'Tot_Fuel'], index=time)
-                segment_frame['Segment'] = [segment.tag for i in range(len(time))]
-            
-                # Append to collecting data-frame 
-                df = df.append(segment_frame) 
-        else: 
-            initial_weight  = results.segments[0].conditions.weights.total_mass[:,0][0]
-     
-            fuel        = segment.conditions.weights.total_mass[:,0] 
-            total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight ) 
+                axes.plot( time , np.negative(current_fuel)  , 'ro-' , marker = ps.marker, linewidth = ps.line_width)
+                axes.plot( time , np.negative(current_alt_fuel ), 'bo-', marker = ps.marker, linewidth = ps.line_width)
+                axes.plot( time , np.negative(current_fuel + current_alt_fuel), 'go-', marker = ps.marker, linewidth = ps.line_width)
 
-            # Assemble data into temporary holding data frame 
-            segment_frame = pd.DataFrame(
-            np.column_stack((total_fuel,total_fuel,total_fuel)),             
-            columns=['Fuel', 'Add_Fuel', 'Tot_Fuel'], index=time)
-            segment_frame['Segment'] = [segment.tag for i in range(len(time))]
-        
-            # Append to collecting data-frame 
-            df = df.append(segment_frame)  
-                       
-                
-    # Set plot parameters 
-    if additional_fuel_flag: 
-        fig = make_subplots(rows=3, cols=1,vertical_spacing=0.05)
-    else:
-        fig = make_subplots(rows=1, cols=1)
-
-    # Add traces to the figure for each value by segment.
-
-    for seg, data in df.groupby("Segment", sort=False):
-        seg_name = ' '.join(seg.split("_")).capitalize()   
-        if additional_fuel_flag: 
-    
-            fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Fuel'],
-                name=seg_name),
-                          row=1, col=1)
-    
-            fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Add_Fuel'],
-                name=seg_name,
-                showlegend=False),
-                          row=2, col=1)
-    
-            fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Tot_Fuel'],
-                name=seg_name,
-                showlegend=False),
-                          row=3, col=1)
         else:
- 
-            fig.add_trace(go.Scatter(
-                x=data.index,
-                y=data['Tot_Fuel'],
-                name=seg_name,
-                showlegend=True),
-                          row=1, col=1)            
+            
+            initial_weight  = results.segments[0].conditions.weights.total_mass[:,0][0] 
+            fuel            = results.segments[i].conditions.weights.total_mass[:,0]
+            time            = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
+            total_fuel      = np.negative(results.segments[i].conditions.weights.total_mass[:,0] - initial_weight )
+            axes.plot( time, total_fuel, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width, label = segment_name)
 
-    # Set sublot axis titles 
-    if additional_fuel_flag:
-        fig.update_yaxes(title_text='Fuel (kg)', row=1, col=1)
-        fig.update_yaxes(title_text='Additional Fuel (kg)', row=2, col=1)
-        fig.update_yaxes(title_text='Total Fuel (kg)', row=3, col=1) 
-        fig.update_xaxes(title_text='Time (min)', row=3, col=1)
-    else: 
-        if additional_fuel_flag:
-            fig.update_yaxes(title_text='Fuel (kg)', row=1, col=1) 
-            fig.update_xaxes(title_text='Time (min)', row=1, col=1)        
+    axes.set_ylabel('Fuel (kg)')
+    axes.set_xlabel('Time (min)')
 
-    # Set overall figure layout style and legend title
+    set_axes(axes)  
 
-    fig.update_layout(
-        width=width, height=height,
-        legend_title_text='Segment',
-        title_text = 'Aircraft Fuel Burn'
-    )
-
-    # Update Figure Style and Show 
-    fig = plot_style(fig)
-    if show_figure:
-        fig.show()
-
-    # Optionally save the figure with kaleido import check
+    if show_legend:    
+        leg =  fig.legend(bbox_to_anchor=(0.5, 0.95), loc='upper center', ncol = 5) 
+        leg.set_title('Flight Segment', prop={'size': ps.legend_font_size, 'weight': 'heavy'})    
+    
+    # Adjusting the sub-plots for legend 
+    fig.subplots_adjust(top=0.8)
+    
+    # set title of plot 
+    title_text    = 'Aircraft Fuel Burnt'      
+    fig.suptitle(title_text) 
 
     if save_figure:
-        save_plot(fig, save_filename, file_type)
- 
+        plt.savefig(save_filename + file_type)  
+        
     return

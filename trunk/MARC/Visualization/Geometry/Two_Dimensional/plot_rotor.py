@@ -63,6 +63,6 @@ def plot_rotor(prop, face_color = 'red', edge_color = 'black' ,show_figure = Tru
         fig.write_image(save_filename + '_2D' + file_type)
     
     if show_figure:
-        fig.show()
+        fig.write_html( save_filename + '.html', auto_open=True)
 
     return

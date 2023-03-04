@@ -40,7 +40,7 @@ def initialize_conditions(segment):
     alt0        = segment.altitude_start 
     altf        = segment.altitude_end 
     climb_angle = segment.climb_angle
-    v0          = segment.air_speed 
+    v0          = segment.air_speed_start 
     ax          = segment.acceleration   
     T0          = segment.pitch_initial
     Tf          = segment.pitch_final     

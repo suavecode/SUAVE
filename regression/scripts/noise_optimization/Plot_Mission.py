@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------  
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
 from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
 from MARC.Visualization.Performance.Energy.Battery       import *   
 from MARC.Visualization.Performance.Energy.Fuel          import *  
 from MARC.Visualization.Performance.Noise                import * 
@@ -24,25 +24,25 @@ def plot_mission(results):
     
 
     # Plot Flight Conditions 
-    plot_flight_conditions(results,show_figure=False)
+    plot_flight_conditions(results)
     
     # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results,show_figure=False)
+    plot_aerodynamic_forces(results)
     
     # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results,show_figure=False)
+    plot_aerodynamic_coefficients(results)
     
     # Plot Static Stability Coefficients 
-    plot_stability_coefficients(results,show_figure=False)    
+    plot_stability_coefficients(results)    
     
     # Drag Components
-    plot_drag_components(results,show_figure=False)
+    plot_drag_components(results)
     
     # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results,show_figure=False)
+    plot_altitude_sfc_weight(results)
     
     # Plot Velocities 
-    plot_aircraft_velocities(results,show_figure=False)   
+    plot_aircraft_velocities(results)   
      
     return
 

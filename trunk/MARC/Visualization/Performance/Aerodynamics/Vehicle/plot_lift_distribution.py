@@ -7,101 +7,78 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------  
-from MARC.Visualization.Performance.Common import plot_style, save_plot 
+from MARC.Core import Units
+from MARC.Visualization.Performance.Common import set_axes, plot_style
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np 
-
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 # ---------------------------------------------------------------------- 
 #   Sectional Lift Distribution
 # ---------------------------------------------------------------------- 
 
 ## @ingroup Visualization-Performance-Aerodynamics
 def plot_lift_distribution(results,vehicle,
-                           save_figure=False,
-                           show_figure = True,
-                           save_filename="Lift_Distribution",
-                           file_type=".png",
-                           width = 1200, height = 600,
-                           *args, **kwargs):   
-   """This plots the sectional lift distrubtion at all control points
-    on all lifting surfaces of the aircraft
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    
-    Inputs:
-    results.segments.aerodynamics.
-        inviscid_wings_sectional_lift
-    vehicle.vortex_distribution.
-       n_sw
-       n_w
-       
-    Outputs:
-    Plots
-    
-    Properties Used:
-    N/A
-    """
-   VD         = vehicle.vortex_distribution
-   n_w        = VD.n_w
-   b_sw       = np.concatenate(([0],np.cumsum(VD.n_sw)))
-   
-   wing_names     = []
-   symmetric_flag = []
-   num_wings      = len(vehicle.wings)
-   for wing in vehicle.wings:
-      wing_names.append(wing.tag) 
-      if wing.symmetric:
-         symmetric_flag.append(1)  
-      else:
-         symmetric_flag.append(0)
-      
-   for segment in results.segments.values():
-      num_ctrl_pts = len(segment.conditions.frames.inertial.time)
-      for ti in range(num_ctrl_pts): 
-         fig       = make_subplots(rows=1, cols=1) 
-         cl_y      = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[ti]
-         time_step = segment.conditions.frames.inertial.time[ti]  
-         start     = 0 
-         end       = 1 
-         for i in range(num_wings): 
-            cl_vals  = cl_y[b_sw[start]:b_sw[end]]
-            y_pts    = VD.Y_SW[b_sw[start]:b_sw[end]]             
-            if symmetric_flag[i]: 
-               start += 1     
-               end   += 1 
-               cl_vals  = np.hstack(( cl_y[b_sw[start]:b_sw[end]][::-1],cl_vals ))
-               y_pts    = np.hstack(( VD.Y_SW[b_sw[start]:b_sw[end]][::-1], y_pts)) 
-            
-            fig.add_trace(go.Scatter(x=y_pts,
-                                    y=cl_vals  ,
-                                    name=wing_names[i]),
-                                    row=1, col=1)     
- 
-            start += 1     
-            end   += 1             
-            
-         fig.update_yaxes(title_text='$C_{Ly}$', row=1, col=1)  
-         fig.update_xaxes(title_text='Spanwise Location (m)', row=1, col=1) 
-      
-         fig = plot_style(fig)    
-         fig.update_xaxes(rangemode="normal") # update plot so that negative axis is plotted 
-         
-         # Set overall figure layout style and legend title
-         fig.update_layout(
-             width=width, height=height,
-              legend_title_text='Wing',
-              title_text = 'Segment: '+ segment.tag + 'Times: ' + str(time_step) 
-          )
-         
-         if save_figure:
-            save_plot(fig, save_filename, file_type)     
-      
-         if show_figure:
-            fig.show()
+                           save_figure = False,
+                           save_filename = "Lift_Distribution",
+                           file_type = ".png",
+                           width = 12, height = 7):
+    """This plots the sectional lift distrubtion at all control points
+     on all lifting surfaces of the aircraft
 
-   return
+     Assumptions:
+     None
+
+     Source:
+     None
+
+     Inputs:
+     results.segments.aerodynamics.
+         inviscid_wings_sectional_lift
+     vehicle.vortex_distribution.
+        n_sw
+        n_w
+
+     Outputs: 
+     Plots
+
+     Properties Used:
+     N/A	
+     """   
+
+    # get plotting style 
+    ps      = plot_style()  
+
+    parameters = {'axes.labelsize': ps.axis_font_size,
+                      'xtick.labelsize': ps.axis_font_size,
+                  'ytick.labelsize': ps.axis_font_size,
+                  'axes.titlesize': ps.title_font_size}
+    plt.rcParams.update(parameters)
+
+    VD         = vehicle.vortex_distribution	 	
+    n_w        = VD.n_w
+    b_sw       = np.concatenate(([0],np.cumsum(VD.n_sw)))
+
+    img_idx    = 1
+    seg_idx    = 1
+    for segment in results.segments.values():   	
+        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
+        for ti in range(num_ctrl_pts):  
+            cl_y = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[ti] 
+            line = ['-b','-b','-r','-r','-k']
+            fig  = plt.figure()
+            fig.set_size_inches(8,8)  
+            fig.set_size_inches(width,height)     
+            axes = plt.subplot(1,1,1)
+            for i in range(n_w): 
+                y_pts = VD.Y_SW[b_sw[i]:b_sw[i+1]]
+                z_pts = cl_y[b_sw[i]:b_sw[i+1]]
+                axes.plot(y_pts, z_pts, line[i] ) 
+            axes.set_xlabel("Spanwise Location (m)")
+            axes.set_title('$C_{Ly}$')  
+
+            if save_figure: 
+                plt.savefig( save_filename + '_' + str(img_idx) + file_type) 	
+            img_idx += 1
+        seg_idx +=1
+
+    return 

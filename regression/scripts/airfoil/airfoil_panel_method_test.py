@@ -15,6 +15,7 @@ from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_
 from MARC.Visualization.Performance.Aerodynamics.Airfoil import * 
 import os 
 import numpy as np
+import matplotlib.pyplot as plt  
 
 # ----------------------------------------------------------------------
 #   Main
@@ -31,8 +32,9 @@ def main():
     airfoil_properties_1 = airfoil_analysis(airfoil_geometry_1,AoA_vals,Re_vals)  
     
      # Plots    
-    plot_airfoil_surface_forces(airfoil_properties_1,show_figure=False)   
-    plot_airfoil_boundary_layer_properties(airfoil_properties_1,show_legend = True,show_figure=False )   
+    plot_airfoil_surface_forces(airfoil_properties_1)   
+    plot_airfoil_boundary_layer_properties(airfoil_properties_1,show_legend = True )  
+    plot_airfoil_polars(airfoil_properties_1)
     
     # XFOIL Validation - Source   
     xfoil_data_cl   = 0.803793
@@ -92,4 +94,5 @@ def main():
     
 
 if __name__ == '__main__': 
-    main()  
+    main()
+    plt.show()

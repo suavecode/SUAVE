@@ -10,8 +10,7 @@
 import MARC
 from MARC.Core import Units , Data
 from MARC.Visualization.Performance.Aerodynamics.Vehicle                 import *  
-from MARC.Visualization.Performance.Mission                              import *  
-from MARC.Visualization.Performance.Energy.Common                        import *  
+from MARC.Visualization.Performance.Mission                              import *   
 from MARC.Visualization.Performance.Energy.Battery                       import *   
 from MARC.Visualization.Performance.Noise                                import *  
 from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle       import plot_3d_vehicle 
@@ -341,16 +340,16 @@ def missions_setup(base_mission):
 def plot_mission(results):
 
     # Plot Flight Conditions
-    plot_flight_conditions(results,show_figure=False)
+    plot_flight_conditions(results)
 
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results,show_figure=False)
+    plot_aerodynamic_coefficients(results)
 
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results,show_figure=False)
+    plot_aircraft_velocities(results)
  
     # Plot Electric Motor and Propeller Efficiencies  of Lift Cruise Network
-    plot_electric_motor_and_rotor_efficiencies(results,show_figure=False)
+    plot_electric_motor_and_rotor_efficiencies(results)
 
     return
  

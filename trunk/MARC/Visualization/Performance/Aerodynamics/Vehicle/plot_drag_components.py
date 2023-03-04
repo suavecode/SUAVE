@@ -9,13 +9,11 @@
 # ---------------------------------------------------------------------- 
 
 from MARC.Core import Units
-from MARC.Visualization.Performance.Common import plot_style, save_plot
+from MARC.Visualization.Performance.Common import set_axes, plot_style
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np 
 
-import numpy as np
-import pandas as pd
-
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 # ---------------------------------------------------------------------- 
 #   Drag Components
@@ -24,11 +22,10 @@ from plotly.subplots import make_subplots
 ## @ingroup Visualization-Performance-Aerodynamics
 def plot_drag_components(results,
                          save_figure=False,
-                         show_figure = True,
+                         show_legend= True,
                          save_filename="Drag_Components",
                          file_type=".png",
-                         width = 1200, height = 600,
-                         *args, **kwargs):
+                        width = 12, height = 7):
     """This plots the drag components of the aircraft
     
     Assumptions:
@@ -49,115 +46,81 @@ def plot_drag_components(results,
     
     Properties Used:
     N/A
-    """
-    
-    # Create empty dataframe to be populated by the segment data
-    plot_cols = ['cdp',
-                 'cdi',
-                 'cdc',
-                 'cdm',
-                 'cde',
-                 'cd',
-                 'Segment']
+    """ 
+    # get plotting style 
+    ps      = plot_style()  
 
-    df = pd.DataFrame(columns=plot_cols)      
+    parameters = {'axes.labelsize': ps.axis_font_size,
+                  'xtick.labelsize': ps.axis_font_size,
+                  'ytick.labelsize': ps.axis_font_size,
+                  'axes.titlesize': ps.title_font_size}
+    plt.rcParams.update(parameters)
+     
+    # get line colors for plots 
+    line_colors   = cm.inferno(np.linspace(0,0.9,len(results.segments)))     
+     
+    fig   = plt.figure()
+    fig.set_size_inches(12,height)
     
-    for i, segment in enumerate(results.segments.values()):
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
+    for i in range(len(results.segments)): 
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
+        drag_breakdown = results.segments[i].conditions.aerodynamics.drag_breakdown
         cdp = drag_breakdown.parasite.total[:,0]
         cdi = drag_breakdown.induced.total[:,0]
         cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cde = np.ones_like(cdm)*drag_breakdown.drag_coefficient_increment
         cd  = drag_breakdown.total[:,0]
+         
+            
+        segment_tag  =  results.segments[i].tag
+        segment_name = segment_tag.replace('_', ' ')
         
-        # Assemble data into temporary holding data frame
-        segment_frame = pd.DataFrame(
-            np.column_stack((cdp,
-                             cdi,
-                             cdc,
-                             cdm,
-                             cde,
-                             cd)),
-            columns = plot_cols[:-1], index=time
-        )
-        segment_frame['Segment'] = [segment.tag for i in range(len(time))]
+        
+        axes_1 = plt.subplot(3,2,1)
+        axes_1.plot(time, cdp, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width, label = segment_name)
+        axes_1.set_ylabel(r'$C_{Dp}$')
+        set_axes(axes_1)    
+        
+        axes_2 = plt.subplot(3,2,2)
+        axes_2.plot(time,cdi, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width) 
+        axes_2.set_ylabel(r'$C_{Di}$')
+        set_axes(axes_2) 
 
-        # Append to collecting data frame
-        df = df.append(segment_frame)           
+        axes_3 = plt.subplot(3,2,3)
+        axes_3.plot(time, cdc, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width) 
+        axes_3.set_ylabel(r'$C_{Dc}$')
+        set_axes(axes_3) 
         
-    # Set plot parameters
-    fig = make_subplots(rows=3, cols=2)
+        axes_4 = plt.subplot(3,2,4)
+        axes_4.plot(time, cdm, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
+        axes_4.set_ylabel(r'$C_{Dm}$')
+        set_axes(axes_4)    
+        
+        axes_5 = plt.subplot(3,2,5)
+        axes_5.plot(time, cde, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
+        axes_5.set_xlabel('Time (mins)')
+        axes_5.set_ylabel(r'$C_{De}$')
+        set_axes(axes_5) 
+
+        axes_6 = plt.subplot(3,2,6)
+        axes_6.plot(time, cd, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
+        axes_6.set_xlabel('Time (mins)')
+        axes_6.set_ylabel(r'$C_D$')
+        set_axes(axes_6) 
+        
     
-    # Add traces to the figure for each value by segment
-    for seg, data in df.groupby("Segment", sort=False):
-        seg_name = ' '.join(seg.split("_")).capitalize()
-        
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['cdp'],
-            name=seg_name),
-            row=1, col=1)    
-        
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['cdi'],
-            name=seg_name,
-            showlegend=False),
-            row=1, col=2)    
-        
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['cdc'],
-            name=seg_name,
-            showlegend=False),
-            row=2, col=1)         
-        
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['cdm'],
-            name=seg_name,
-            showlegend=False),
-            row=2, col=2)    
-        
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['cde'],
-            name=seg_name,
-            showlegend=False),
-            row=3, col=1)           
-
-        fig.add_trace(go.Scatter(
-            x=data.index,
-            y=data['cd'],
-            name=seg_name,
-            showlegend=False),
-            row=3, col=2)           
-                            
-    # Add subplot axis titles
-    fig.update_yaxes(title_text='Parasitic CD', row=1, col=1)
-    fig.update_yaxes(title_text='Induced CD', row=1, col=2)
-    fig.update_yaxes(title_text='Compressibility CD', row=2, col=1)
-    fig.update_yaxes(title_text='Miscellaneous CD', row=2, col=2)
-    fig.update_yaxes(title_text='Excrescence CD', row=3, col=1)
-    fig.update_yaxes(title_text='Total CD', row=3, col=2)
-
-    fig.update_xaxes(title_text='Time (min)', row=3, col=1)
-    fig.update_xaxes(title_text='Time (min)', row=3, col=2)
-
-    # Set overall figure layout style and legend title
-    fig.update_layout(
-        width=width, height=height,
-        legend_title_text='Segment',
-        title_text = 'Drag Components'
-    )
-
-    fig = plot_style(fig)
-    if show_figure:
-        fig.show()
-
+    if show_legend:                    
+        leg =  fig.legend(bbox_to_anchor=(1.0, 0.5), loc='center right', ncol = 1) 
+        leg.set_title('Flight Segment', prop={'size': ps.legend_font_size, 'weight': 'heavy'})    
+    
+    # Adjusting the sub-plots for legend 
+    fig.subplots_adjust(right=0.9)
+    
+    # set title of plot 
+    title_text    = 'Drag Components'      
+    fig.suptitle(title_text)
+    
     if save_figure:
-        save_plot(fig, save_filename, file_type)    
-
+        plt.savefig(save_filename + file_type)   
     return

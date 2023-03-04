@@ -16,7 +16,7 @@ from MARC.Methods.Performance.estimate_stall_speed import estimate_stall_speed
 from MARC.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
 from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
 from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Energy.Common        import *  
+from MARC.Visualization.Performance.Aerodynamics.Rotor   import *  
 from MARC.Visualization.Performance.Energy.Battery       import *   
 from MARC.Visualization.Performance.Energy.Fuel          import *  
 from MARC.Visualization.Performance.Noise                import *    
@@ -65,9 +65,9 @@ def main():
     print(cruise_throttle)
     
     # Truth values   
-    departure_throttle_truth          = 0.6517016153400099
-    transition_1_throttle_truth       = 0.6010587464782999
-    cruise_throttle_truth             = 0.46469250335732526
+    departure_throttle_truth          = 0.6517016151646159
+    transition_1_throttle_truth       = 0.6015133121458709
+    cruise_throttle_truth             = 0.46524972293796674
     
     # Store errors 
     error = Data()
@@ -79,7 +79,7 @@ def main():
     print(error)
 
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-3)  # NEED TO FIX
+        assert(np.abs(v)<1e-3)   
 
     plt.show()    
     return
@@ -215,8 +215,7 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                    = 1.0 * ones_row(1) 
     segment.process.iterate.conditions.stability       = MARC.Methods.skip
     segment.process.finalize.post_process.stability    = MARC.Methods.skip
-    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment,\
-                                                                                         initial_rotor_power_coefficients =[0.06])
+    segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment)
     # add to mission
     mission.append_segment(segment)
 
@@ -236,8 +235,7 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                     = 0.95  * ones_row(1)
     segment.process.iterate.conditions.stability        = MARC.Methods.skip
     segment.process.finalize.post_process.stability     = MARC.Methods.skip
-    segment = vehicle.networks.battery_electric_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
-                                                                                                            initial_rotor_power_coefficients = [0.03])
+    segment = vehicle.networks.battery_electric_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment)
     # add to misison
     mission.append_segment(segment)
     
@@ -257,8 +255,7 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                     = 0.9  * ones_row(1)
     segment.process.iterate.conditions.stability        = MARC.Methods.skip
     segment.process.finalize.post_process.stability     = MARC.Methods.skip
-    segment = vehicle.networks.battery_electric_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment, 
-                                                                                                            initial_rotor_power_coefficients = [0.03])
+    segment = vehicle.networks.battery_electric_rotor.add_tiltrotor_transition_unknowns_and_residuals_to_segment(segment)
     # add to misison
     mission.append_segment(segment)
     
@@ -270,7 +267,7 @@ def mission_setup(analyses,vehicle):
     segment.tag                                         = "Transition_2b"
     segment.analyses.extend( analyses.transition_1 )
     segment.altitude_start                              = 100.0 * Units.ft
-    segment.altitude_end                                = 40.0 * Units.ft 
+    segment.altitude_end                                = 140.0 * Units.ft 
     segment.acceleration                                = -0.25  * Units['m/s/s']
     segment.climb_angle                                 = 7. * Units.deg
     segment.pitch_initial                               = 4.0  * Units.degrees  
@@ -289,7 +286,7 @@ def mission_setup(analyses,vehicle):
     segment                                            = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag                                        = "Cruise" 
     segment.analyses.extend(analyses.cruise) 
-    segment.altitude                                   = 40.0 * Units.ft
+    segment.altitude                                   = 140.0 * Units.ft
     segment.air_speed                                  = 1.2  * V_stall
     segment.distance                                   = 2.    * Units.miles 
     segment.state.unknowns.throttle                    = 0.8    * ones_row(1) 
@@ -327,28 +324,27 @@ def missions_setup(base_mission):
 def plot_mission(results,configs):  
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results,show_figure=False) 
+    plot_flight_conditions(results) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results,show_figure=False)  
+    plot_aerodynamic_coefficients(results)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results,show_figure=False)
+    plot_aircraft_velocities(results)
     
     # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results,show_figure=False)
+    plot_battery_pack_conditions(results)
+    plot_battery_health_conditions(results)
+    plot_battery_c_ratings(results)
     
     # Plot Propeller Conditions 
-    plot_rotor_conditions(results,show_figure=False) 
+    plot_rotor_conditions(results) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_electric_motor_and_rotor_efficiencies(results,show_figure=False)
+    plot_electric_motor_and_rotor_efficiencies(results) 
     
-    # Plot tiltrotor conditions
-    plot_tiltrotor_conditions(results,configs,show_figure=False)
-
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results,show_figure=False)  
+    plot_disc_power_loading(results)  
 
     return
 
@@ -389,5 +385,6 @@ def save_transition_animation_paraview(results,configs,save_path=None):
 
 
 if __name__ == '__main__': 
-    main()    
+    main()   
+    plt.show()
     

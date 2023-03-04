@@ -10,15 +10,17 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
+import MARC
 from MARC.Core import Units 
-import plotly.figure_factory as ff 
-import plotly.graph_objects as go
+import numpy as np 
+import matplotlib.pyplot as plt   
+
 # ----------------------------------------------------------------------
 #  Plot Airfoil Surface Forces
 # ----------------------------------------------------------------------  
  
 ## @ingroup Visualization-Performance
-def plot_airfoil_surface_forces(ap,show_figure = True):  
+def plot_airfoil_surface_forces(ap, save_figure = False , arrow_color = 'red',save_filename = 'Airfoil_Cp_Distribution', show_figure = True, file_type = ".png"):  
     """ This plots the forces on an airfoil surface
     
         Assumptions:
@@ -35,27 +37,27 @@ def plot_airfoil_surface_forces(ap,show_figure = True):
         """        
     
     # determine dimension of angle of attack and reynolds number 
-    n_cpts   = len(ap.AoA[:,0])
-    n_cases  = len(ap.AoA[0,:])    
+    n_cpts   = len(ap.AoA)
+    nAoA     = len(ap.AoA[0])
+    n_pts    = len(ap.x[0,0,:])- 1 
+     
 
     for i in range(n_cpts):     
-        for j in range(n_cases): 
-            dx_val = ap.normals[i,j,:-1,0]*abs(ap.cp[i,j,:])*0.5
-            dy_val = ap.normals[i,j,:-1,1]*abs(ap.cp[i,j,:])*0.5    
-            
-            fig = ff.create_quiver(ap.x[i,j,:-1], ap.y[i,j,:-1], dx_val, dy_val,showlegend=False)
-            
-            fig.add_trace(go.Scatter(x=ap.x[0,0,:],y=ap.y[0,0,:],showlegend=False))
-            
-            label =  '_AoA_' + str(round(ap.AoA[i,j]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[i,j]/1000000,2)) + 'E6'
-            fig.update_layout(
-                title={'text': 'Airfoil_Pressure_Normals' + label})
-            fig.update_yaxes(
-                scaleanchor = "x",
-                scaleratio = 1,
-              )            
+        for j in range(nAoA): 
+            label =  '_AoA_' + str(round(ap.AoA[i][j]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[i][j]/1000000,2)) + 'E6'
+            fig   = plt.figure('Airfoil_Pressure_Normals' + label )
+            axis = fig.add_subplot(1,1,1) 
+            axis.plot(ap.x[0,0,:], ap.y[0,0,:],'k-')   
+            for k in range(n_pts):
+                dx_val = ap.normals[i,j,k,0]*abs(ap.cp[i,j,k])*0.1
+                dy_val = ap.normals[i,j,k,1]*abs(ap.cp[i,j,k])*0.1
+                if ap.cp[i,j,k] < 0:
+                    plt.arrow(x= ap.x[i,j,k], y=ap.y[i,j,k] , dx= dx_val , dy = dy_val , 
+                              fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
+                else:
+                    plt.arrow(x= ap.x[i,j,k]+dx_val , y= ap.y[i,j,k]+dy_val , dx= -dx_val , dy = -dy_val , 
+                              fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
     
-    if show_figure:
-        fig.show()
-        
-    return
+    
+    return   
+

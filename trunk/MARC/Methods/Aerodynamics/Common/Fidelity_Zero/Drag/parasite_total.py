@@ -34,6 +34,7 @@ def parasite_total(state,settings,geometry):
     conditions.aerodynamics.drag_breakdown.
       parasite[wing.tag].parasite_drag_coefficient      [Unitless]
       parasite[fuselage.tag].parasite_drag_coefficient  [Unitless]
+      parasite[boom.tag].parasite_drag_coefficient  [Unitless]
       parasite[nacelle.tag].parasite_drag_coefficient   [Unitless]
 
 
@@ -48,6 +49,7 @@ def parasite_total(state,settings,geometry):
     conditions             =  state.conditions
     wings                  = geometry.wings
     fuselages              = geometry.fuselages
+    booms                  = geometry.booms
     nacelles               = geometry.nacelles 
     vehicle_reference_area = geometry.reference_area
     
@@ -67,8 +69,15 @@ def parasite_total(state,settings,geometry):
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient 
         conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
         total_parasite_drag += parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
+        
     
-    # from pnacelles
+    # from fuselage
+    for boom in booms.values(): 
+        parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[boom.tag].parasite_drag_coefficient 
+        conditions.aerodynamics.drag_breakdown.parasite[boom.tag].parasite_drag_coefficient = parasite_drag * boom.areas.front_projected/vehicle_reference_area
+        total_parasite_drag += parasite_drag * boom.areas.front_projected/vehicle_reference_area        
+    
+    # from nacelles
     for nacelle in nacelles.values():
         ref_area = nacelle.diameter**2 / 4 * np.pi
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].parasite_drag_coefficient 

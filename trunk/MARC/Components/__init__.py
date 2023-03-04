@@ -14,6 +14,7 @@ from .Envelope import Envelope
 # packages
 from . import Wings
 from . import Fuselages
+from . import Booms
 from . import Payloads
 from . import Energy
 from . import Systems

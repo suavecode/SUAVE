@@ -276,6 +276,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Lithium_Ion):
         battery.pack.heat_energy_generated         = Q_heat_gen*n_total_module    
         battery.pack.internal_resistance           = R_0*n_series
         battery.pack.voltage_under_load            = V_ul*n_series 
+        battery.pack.state_of_charge               = SOC_new
         battery.cell.voltage_open_circuit          = V_oc
         battery.cell.current                       = I_cell
         battery.cell.charge_throughput             = Q_total   
