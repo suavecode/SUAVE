@@ -584,8 +584,107 @@ class Rotor(Energy_Component):
                 #file.close()
                 
         return thrust_vector, torque, power, Cp, outputs , etap
-    
+
     def spin_surrogate(self, conditions):
+        # get force coefficients from lookup table with interpolation
+        try:
+            #surrogate_data_file = self.surrogate_data_file
+            surrogate_data = self.surrogate_data #pd.read_csv(surrogate_data_file)
+            #CT_ok3d = self.Kriging_CT
+            #CQ_ok3d = self.Kriging_CQ
+        except:
+            raise("Error: No surrogate data found.")
+        
+        # unpack
+        omega = self.inputs.omega
+        n     = omega/(2.*np.pi) 
+        D     = 2 * self.tip_radius
+        rho   = conditions.freestream.density[:,0,None]
+        Vvec  = conditions.frames.inertial.velocity_vector
+        cpts  = len(Vvec)
+        
+        
+        
+        # compute T, Q for current prop state
+        V_sim = np.linalg.norm(Vvec,axis=1)
+        A_sim_tilt = self.inputs.y_axis_rotation[:,0] #np.repeat(self.orientation_euler_angles[1] , cpts)
+        J_sim = V_sim / (n.T[0] * D)
+
+        # compute total prop angle to freestream (tilt + pitch)
+        try:
+            aircraft_pitch  = conditions.aerodynamics.angle_of_attack[:,0]
+            A_sim = A_sim_tilt + aircraft_pitch
+        except:
+            A_sim = np.repeat(self.orientation_euler_angles[1] , cpts) #np.atleast_2d(np.repeat(self.orientation_euler_angles[1] , cpts))
+            A_sim_tilt = A_sim
+        
+        # extract surrogate data
+        A_sur = surrogate_data.AlphaP.to_numpy() * Units.deg
+        J_sur = surrogate_data.J.to_numpy()    
+        CT_sur = surrogate_data.CT.to_numpy()
+        CQ_sur = surrogate_data.CQ.to_numpy()
+        
+        
+        thrust = np.zeros_like(V_sim)
+        torque = np.zeros_like(V_sim)
+        
+        # Use Kriging interpolation for (J-Alpha) space
+        for i, V_sim_i in enumerate(V_sim):
+        
+            vmodel = "linear" #"exponential" "spherical" "linear" "power" "gaussian"
+            
+            # use exact
+            Kriging_CT = Kriging(A_sur, J_sur, CT_sur, variogram_model=vmodel)
+            Kriging_CQ = Kriging(A_sur, J_sur, CQ_sur, variogram_model=vmodel)
+    
+            CT_k, CT_ss = Kriging_CT.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+            thrust[i] = CT_k * (rho[i,0]*(n[i,0]*n[i,0])*(D*D*D*D))        
+    
+            CQ_k, CQ_ss = Kriging_CQ.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+            torque[i] = CQ_k * (rho[i,0]*(n[i,0]*n[i,0])*(D*D*D*D*D))      
+
+        thrust = np.atleast_2d(thrust).T
+        torque = np.atleast_2d(torque).T      
+                
+        
+        power = omega*torque
+        
+        # Thrust in the rotor frame
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        body2thrust     = self.body_to_prop_vel()
+        T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        
+        # Make the thrust a 3D vector
+        thrust_prop_frame      = np.zeros((cpts,3))
+        thrust_prop_frame[:,0] = thrust[:,0]
+        thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
+        
+        etap     = np.atleast_2d(V_sim).T*thrust/power
+        A        = np.pi*(self.tip_radius**2 - self.hub_radius**2)
+        FoM      = thrust*np.sqrt(thrust/(2*rho*A))    /power  
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
+        
+        results_conditions     = Data
+        outputs                = results_conditions( 
+            figure_of_merit    = FoM,
+            thrust_coefficient = thrust / (rho*(n*n)*(D*D*D*D)),
+            torque_coefficient = torque / (rho*(n*n)*(D*D*D*D*D)),
+            power_coefficient  = power / (rho*(n*n*n)*(D*D*D*D*D))
+        )
+        
+        # DEBUG
+        # append sample point to csv (V, Alpha, J, CT, CQ)
+        for i in range(cpts):
+            newRow = [i, V_sim[i], A_sim[i]/Units.deg, J_sim[i], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
+            with open('/Users/rerha/Desktop/mission_sampled_points_MFGP.csv', 'a') as file:
+                
+                writerObj = writer(file)
+                writerObj.writerow(newRow)
+                file.close()
+        
+        return thrust_vector, torque, power, Cp, outputs , etap
+        
+    def spin_surrogate_old(self, conditions):
         # get force coefficients from lookup table with interpolation
         try:
             #surrogate_data_file = self.surrogate_data_file
