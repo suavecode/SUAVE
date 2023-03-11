@@ -42,7 +42,7 @@ def main():
         lw  = 1,                             # line_width               
         m   = 5,                             # markersize               
         lf  = 10,                            # legend_font_size         
-        Slc = ['black','dimgray','silver' ], # MARC_line_colors        
+        Slc = ['black','red','blue' ], # MARC_line_colors        
         Slm = ['^','o','s'],                 # MARC_line_markers       
         Sls = '-',                           # MARC_line_styles        
         Elc = ['darkred','red','tomato'],    # Experimental_line_colors 
@@ -283,6 +283,7 @@ def Hararmonic_Noise_Validation(PP):
     axis2.plot(-theta*Units.degrees,F8745D4_SPL_broadband[0,:] , color = PP.Slc[2] , linestyle = PP.Sls, marker = PP.Slm[0] , markersize = PP.m , linewidth = PP.lw, label = 'Broadband' )     
     axis2.set_yticks(np.arange(50,150,25))     
     axis2.grid(True)  
+    axis2.legend(loc='upper right', prop={'size': PP.lf} , bbox_to_anchor=(1.2,1.5))
 
     # Store errors 
     error = Data()

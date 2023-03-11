@@ -15,7 +15,7 @@ from MARC.Visualization.Performance.Common.post_process_noise_data import post_p
 ## @ingroup Visualization-Performance-Noise
 def plot_flight_profile_noise_contours(results,
                                        save_figure=False,
-                                       show_figure=False,
+                                       show_figure=True,
                                        save_filename="Noise_Contour",
                                        colormap = 'jet',
                                        file_type=".png",
