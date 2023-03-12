@@ -93,7 +93,7 @@ def update_wake_position_time_marching(wake, rotor, conditions):
     rotor.Wake.vortex_distribution = wakeTemp
     wake.vortex_distribution = wakeTemp
     
-    if True:#debug:
+    if False:#debug:
         for a in range(Na):
             rotor.start_angle_idx = a
             save_single_prop_vehicle_vtk(rotor, time_step=a, save_loc="/Users/rerha/Desktop/test_relaxed_wake_2/")         
@@ -104,6 +104,7 @@ def update_wake_position_time_marching(wake, rotor, conditions):
     import pylab as plt
     from SUAVE.Core import Units
     alpha = rotor.orientation_euler_angles[1]/Units.deg
+    plt.figure("fvw_tm_runtimes_parallelized_Alpha")
     plt.plot(np.linspace(0,nts-1,nts), step_2_times,label="Step 2")
     plt.plot(np.linspace(0,nts-1,nts), step_1_times,label="Step 1")
     plt.xlabel('Time Step')
