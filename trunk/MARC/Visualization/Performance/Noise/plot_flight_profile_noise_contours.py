@@ -80,11 +80,11 @@ def plot_flight_profile_noise_contours(results,
     # TRHEE DIMENSIONAL NOISE CONTOUR
     # --------------------------------------------------------------------------- 
     # TERRAIN CONTOUR 
-    ground_contour   = contour_surface_slice(Y,X,Z,max_SPL_gm,color_scale=colormap)
+    ground_contour   = contour_surface_slice(X,Y,Z,max_SPL_gm,color_scale=colormap)
     plot_data.append(ground_contour)
 
     # AIRCRAFT TRAJECTORY
-    aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,1], y=Aircraft_pos[:,0], z=Aircraft_pos[:,2],
+    aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,0], y=Aircraft_pos[:,1], z=Aircraft_pos[:,2],
                                        mode='markers',
                                 marker=dict(size=6,color='black',opacity=0.8),
                                 line=dict(color='black',width=2))

@@ -55,9 +55,10 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     if (mic_stencil_y*2 + 1) > N_gm_y:
         print("Resetting microphone stenxil in y direction")
         mic_stencil_y = np.floor(N_gm_y/2 - 1)      
-         
-    stencil_center_x_locs   = np.argmin(abs(np.tile(pos[:,0][:,None],(1,N_gm_x)) + settings.aircraft_departure_location[0] - np.tile(gml[:,0].reshape(N_gm_x,N_gm_y)[:,0][None,:],(ctrl_pts,1))),axis = 1) 
-    stencil_center_y_locs   = np.argmin(abs(np.tile(pos[:,1][:,None],(1,N_gm_y)) + settings.aircraft_departure_location[1] - np.tile(gml[:,1].reshape(N_gm_x,N_gm_y)[0,:][None,:],(ctrl_pts,1))),axis = 1)
+    
+    # index location that is closest to the position of the aircraft 
+    stencil_center_x_locs   = np.argmin(abs(np.tile((pos[:,0]+ settings.aircraft_departure_location[0])[:,None,None],(1,N_gm_x,N_gm_y)) -  np.tile(gml[:,0].reshape(N_gm_x,N_gm_y)[None,:,:],(ctrl_pts,1,1))),axis = 1)[:,0] 
+    stencil_center_y_locs   = np.argmin(abs(np.tile((pos[:,1]+ settings.aircraft_departure_location[1])[:,None,None],(1,N_gm_x,N_gm_y)) -  np.tile(gml[:,1].reshape(N_gm_x,N_gm_y)[None,:,:],(ctrl_pts,1,1))),axis = 2)[:,0]
     
     # modify location of stencil center point if at edge 
     # top 
@@ -88,28 +89,23 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     mic_stencil[:,3] = end_y   
     
     num_gm_mic  = (mic_stencil_x*2 + 1)*(mic_stencil_y*2 + 1)
-    EGML         = np.zeros((ctrl_pts,num_gm_mic ,3))   
+    EGML         = np.zeros((ctrl_pts,num_gm_mic,3))   
+    REGML        = np.zeros_like(EGML)
     for cpt in range(ctrl_pts):
-        surface      = TGML[cpt,:,:].reshape((N_gm_x,N_gm_y,3))
-        stencil      = surface[start_x[cpt]:end_x[cpt],start_y[cpt]:end_y[cpt],:].reshape(num_gm_mic,3)  # extraction of points 
-        stencil[:,0] = stencil[:,0] - np.ones(num_gm_mic)*surface[stencil_center_x_locs[cpt],0,0]   # shifting to x == 0
-        stencil[:,1] = stencil[:,1] - np.ones(num_gm_mic)*surface[0,stencil_center_y_locs[cpt],1]   # shifting to y == 0
-        stencil      = np.matmul(stencil,true_course[cpt])                                          # apply rotation of matrix about z axis to orient grid to true course direction
-        stencil[:,1] = stencil[:,1] + np.ones(num_gm_mic)*surface[0,stencil_center_y_locs[cpt],1]   # shifting to y == stencil_center_y_locs
-        stencil[:,0] = stencil[:,0] + np.ones(num_gm_mic)*surface[stencil_center_x_locs[cpt],0,0]   # shifting to x == stencil_center_x_locs 
-        EGML[cpt]    = stencil
-          
-    REGML          = np.zeros_like(EGML)
-    Aircraft_x     = np.repeat(np.atleast_2d(pos[:,0] ).T,num_gm_mic , axis = 1) + settings.aircraft_departure_location[0]
-    Aircraft_y     = np.repeat(np.atleast_2d(pos[:,1]).T,num_gm_mic , axis = 1) + settings.aircraft_departure_location[1]
-    Aircraft_z     = np.repeat(np.atleast_2d(-pos[:,2]).T,num_gm_mic , axis = 1)  
-    REGML[:,:,0]   = Aircraft_x - EGML[:,:,0] 
-    REGML[:,:,1]   = Aircraft_y - EGML[:,:,1]        
-    REGML[:,:,2]   = Aircraft_z - EGML[:,:,2]
-    GM_THETA       = np.zeros_like(REGML[:,:,2])
-    GM_PHI         = np.zeros_like(REGML[:,:,2])
-    GM_THETA       = np.arctan(REGML[:,:,2]/REGML[:,:,0]) 
-    GM_PHI         = np.arctan(REGML[:,:,2]/REGML[:,:,1])   
+        surface         = TGML[cpt,:,:].reshape((N_gm_x,N_gm_y,3))
+        stencil         = surface[start_x[cpt]:end_x[cpt],start_y[cpt]:end_y[cpt],:].reshape(num_gm_mic,3,1)  # extraction of points 
+        
+        EGML[cpt]       = stencil[:,:,0]
+        
+        relative_locations           = np.zeros((num_gm_mic,3,1))
+        relative_locations[:,0,0]    = stencil[:,0,0] -  (pos[cpt,0] + settings.aircraft_departure_location[0])
+        relative_locations[:,1,0]    = stencil[:,1,0] -  (pos[cpt,1] + settings.aircraft_departure_location[1])
+        relative_locations[:,2,0]    = stencil[:,2,0] -  (pos[cpt,2]) 
+
+        # apply rotation of matrix about z axis to orient grid to true course direction
+        rotated_points   = np.matmul(np.tile(np.linalg.inv(true_course[cpt])[None,:,:],(num_gm_mic,1,1)),relative_locations)   
+        REGML[cpt,:,:]   = rotated_points[:,:,0]  
+        #REGML[cpt,:,:]   = relative_locations[:,:,0] 
      
-    return GM_THETA,GM_PHI,REGML,EGML,TGML,num_gm_mic,mic_stencil
+    return REGML,EGML,TGML,num_gm_mic,mic_stencil
  
