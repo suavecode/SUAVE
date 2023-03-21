@@ -53,11 +53,11 @@ class Constant_Mach_Linear_Altitude(Unknown_Throttle):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.mach           = 0.5
-        self.distance       = 10. * Units.km
-        self.altitude_start = None
-        self.altitude_end   = None
-        self.true_course    = 0.0 * Units.degrees    
+        self.mach              = 0.5
+        self.distance          = 10. * Units.km
+        self.altitude_start    = None
+        self.altitude_end      = None
+        self.true_course_angle = 0.0 * Units.degrees    
         
         
         # --------------------------------------------------------------

@@ -59,11 +59,11 @@ class Constant_Speed_Constant_Angle_Noise(Unknown_Throttle):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start = None # Optional
-        self.altitude_end   = 0.0 * Units.km
-        self.descent_angle  = 3.  * Units.deg
-        self.air_speed      = 100 * Units.m / Units.s
-        self.true_course    = 0.0 * Units.degrees 
+        self.altitude_start    = None # Optional
+        self.altitude_end      = 0.0 * Units.km
+        self.descent_angle     = 3.  * Units.deg
+        self.air_speed         = 100 * Units.m / Units.s
+        self.true_course_angle = 0.0 * Units.degrees 
         
         self.state.numerics.discretization_method = MARC.Methods.Utilities.Chebyshev.linear_data
         # --------------------------------------------------------------

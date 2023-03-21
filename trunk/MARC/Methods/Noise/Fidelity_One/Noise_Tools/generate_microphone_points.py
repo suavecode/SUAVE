@@ -98,7 +98,7 @@ def preprocess_ground_microphone_data(ground_microphone_min_x            = 0*Uni
         cartesian_micrphone_locations          - cartesian coordinates (x,y,z) of all microphones in domain                     [meters]       
         latitude_longitude_micrphone_locations - latitude-longitude and elevation coordinates of all microphones in domain      [deg,deg,m]  
         flight_range                           - gound distance between departure and destination location                      [meters]              
-        true_course                            - true course angle measured clockwise from true north                           [radians]                      
+        true_course_angle                            - true course angle measured clockwise from true north                           [radians]                      
         departure_location                     - cartesial coordinates of departure location relative to computational domain   [meters]                   
         destination_location                   - cartesial coordinates of destination location relative to computational domain [meters]    
     
@@ -141,7 +141,8 @@ def preprocess_topography_and_route_data(topography_file                       =
                                          number_of_latitudinal_microphones     = 101,
                                          number_of_longitudinal_microphones    = 101,
                                          latitudinal_microphone_stencil_size   = 3,
-                                         longitudinal_microphone_stencil_size  = 3 ):
+                                         longitudinal_microphone_stencil_size  = 3, 
+                                         range_difference                      = 0):
     """This computes the absolute microphone/observer locations on a defined topography
             
     Assumptions: 
@@ -157,6 +158,7 @@ def preprocess_topography_and_route_data(topography_file                       =
         number_of_latitudinal_microphones      - number of points on computational domain in latitudal direction                [-]
         number_of_longitudinal_microphones     - number of points on computational domain in  longitidinal direction            [-] 
         latitudinal_microphone_stencil_size    - number of points in stencil in latitudal direction                             [-] 
+        range_difference             - distance used to modify cruise to ensure desired range is met                  [-]
         longitudinal_microphone_stencil_size   - number of points in stencil in in longitidinal direction                       [-] 
         
     Outputs: 
@@ -172,7 +174,7 @@ def preprocess_topography_and_route_data(topography_file                       =
         cartesian_micrphone_locations          - cartesian coordinates (x,y,z) of all microphones in domain                     [meters]       
         latitude_longitude_micrphone_locations - latitude-longitude and elevation coordinates of all microphones in domain      [deg,deg,m]  
         flight_range                           - gound distance between departure and destination location                      [meters]              
-        true_course                            - true course angle measured clockwise from true north                           [radians]                      
+        true_course_angle                            - true course angle measured clockwise from true north                     [radians]                      
         departure_location                     - cartesial coordinates of departure location relative to computational domain   [meters]                   
         destination_location                   - cartesial coordinates of destination location relative to computational domain [meters]    
     
@@ -242,11 +244,12 @@ def preprocess_topography_and_route_data(topography_file                       =
         ground_microphone_min_x                 = x_pts[0,0],               
         ground_microphone_max_x                 = x_pts[0,-1], 
         ground_microphone_min_y                 = y_pts[0,0],                   
-        ground_microphone_max_y                 = y_pts[0,-1],                      
+        ground_microphone_max_y                 = y_pts[0,-1],  
+        range_difference              = range_difference,
         cartesian_microphone_locations          = cartesian_pts,
         latitude_longitude_microphone_locations = lat_long_pts, 
         flight_range                            = distance,
-        true_course                             = gamma,
+        true_course_angle                       = gamma,
         departure_location                      = dep_loc,
         destination_location                    = des_loc)
     

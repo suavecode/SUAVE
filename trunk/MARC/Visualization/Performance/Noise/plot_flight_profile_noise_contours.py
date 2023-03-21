@@ -96,13 +96,14 @@ def plot_flight_profile_noise_contours(results,
 
     camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=-0.05, y=0, z=-0.25), eye=dict(x=-1., y=-1., z=.4))    
     fig_3d = go.Figure(data=plot_data)  
-    fig_3d.update_scenes(aspectratio=dict(x = 1,y = 1,z =0.5)) 
+    #fig_3d.update_scenes(aspectmode='data') # aspectratio=dict(x = 1,y = 1,z = 0.5)) 
     fig_3d.update_layout(
         title_text= 'Flight_Profile_' + save_filename, 
              title_x   = 0.5,
              width     = 1200,
              height    = 900,
              font_size = 12,
+             scene=dict( aspectmode='data'),            
              scene_zaxis_range=[min_alt,max_alt], 
              coloraxis=dict(colorscale=colormap,
                             colorbar_thickness=50,

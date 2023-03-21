@@ -38,15 +38,15 @@ def compute_ground_noise_evaluation_locations(settings,segment):
         N/A       
     """       
  
-    mic_stencil_x  = settings.ground_microphone_x_stencil      
-    mic_stencil_y  = settings.ground_microphone_y_stencil    
-    N_gm_x         = settings.ground_microphone_x_resolution   
-    N_gm_y         = settings.ground_microphone_y_resolution   
-    gml            = settings.ground_microphone_locations 
-    pos            = segment.state.conditions.frames.inertial.position_vector
-    true_course    = segment.state.conditions.frames.planet.true_course_angle
-    ctrl_pts       = len(pos)  
-    TGML           = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0) 
+    mic_stencil_x     = settings.ground_microphone_x_stencil      
+    mic_stencil_y     = settings.ground_microphone_y_stencil    
+    N_gm_x            = settings.ground_microphone_x_resolution   
+    N_gm_y            = settings.ground_microphone_y_resolution   
+    gml               = settings.ground_microphone_locations 
+    pos               = segment.state.conditions.frames.inertial.position_vector
+    true_course_angle = segment.state.conditions.frames.planet.true_course_angle
+    ctrl_pts          = len(pos)  
+    TGML              = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0) 
     
     if (mic_stencil_x*2 + 1) > N_gm_x:
         print("Resetting microphone stenxil in x direction")
@@ -100,12 +100,9 @@ def compute_ground_noise_evaluation_locations(settings,segment):
         relative_locations           = np.zeros((num_gm_mic,3,1))
         relative_locations[:,0,0]    = stencil[:,0,0] -  (pos[cpt,0] + settings.aircraft_departure_location[0])
         relative_locations[:,1,0]    = stencil[:,1,0] -  (pos[cpt,1] + settings.aircraft_departure_location[1])
-        relative_locations[:,2,0]    = stencil[:,2,0] -  (pos[cpt,2]) 
-
-        # apply rotation of matrix about z axis to orient grid to true course direction
-        rotated_points   = np.matmul(np.tile(np.linalg.inv(true_course[cpt])[None,:,:],(num_gm_mic,1,1)),relative_locations)   
-        REGML[cpt,:,:]   = rotated_points[:,:,0]  
-        #REGML[cpt,:,:]   = relative_locations[:,:,0] 
+        relative_locations[:,2,0]    = stencil[:,2,0] -  (pos[cpt,2])  
+        
+        REGML[cpt,:,:]   = relative_locations[:,:,0] 
      
     return REGML,EGML,TGML,num_gm_mic,mic_stencil
  

@@ -54,11 +54,11 @@ class Constant_Mach_Constant_Angle(Unknown_Throttle):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start = None # Optional
-        self.altitude_end   = 10. * Units.km
-        self.climb_angle    = 3.  * Units.deg
-        self.mach           = 0.7
-        self.true_course    = 0.0 * Units.degrees
+        self.altitude_start    = None # Optional
+        self.altitude_end      = 10. * Units.km
+        self.climb_angle       = 3.  * Units.deg
+        self.mach              = 0.7
+        self.true_course_angle = 0.0 * Units.degrees
         
         # --------------------------------------------------------------
         #   State

@@ -148,22 +148,22 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     # -----------------------------------------------------------------------------------------------------------------------------
     # translation of vehicle to air  
     # -----------------------------------------------------------------------------------------------------------------------------
-    Translation_mic_loc                  = np.tile(I[None,None,None,None,:,:,:],(num_cpt,num_mic,num_rot,num_blades,num_sec,1,1)) 
-    Translation_mic_loc[:,:,:,:,:,0,3]   = np.tile(mls[:,:,0][:,:,None,None,None],(1,1,num_rot,num_blades,num_sec)) 
-    Translation_mic_loc[:,:,:,:,:,1,3]   = np.tile(mls[:,:,1][:,:,None,None,None],(1,1,num_rot,num_blades,num_sec)) 
-    Translation_mic_loc[:,:,:,:,:,2,3]   = np.tile(mls[:,:,2][:,:,None,None,None],(1,1,num_rot,num_blades,num_sec))   
-    rev_Translation_mic_loc              = np.linalg.inv(Translation_mic_loc)   
-
-    # -----------------------------------------------------------------------------------------------------------------------------
-    # rotation of vehicle by velocity vector i.ee rotation by bank (roll)  air speed angle of attack to x axis (pitch) and true course angle (yaw)
-    # -----------------------------------------------------------------------------------------------------------------------------
-
-    Rotation_RPY                        = np.tile(I[None,None,None,None,:,:,:],(num_cpt,num_mic,num_rot,num_blades,num_sec,1,1)) 
-    V_vec_pitch                         = np.linalg.inv(conditions.frames.wind.transform_to_inertial[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis,:,:])
-    V_vec_true_course                   = np.linalg.inv(conditions.frames.planet.true_course_angle[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis,:,:]) 
-    Rotation_RPY[:,:,:,:,:,0:3,0:3]     = np.matmul(V_vec_true_course,V_vec_pitch) 
-    rev_Rotation_RPY                    = np.linalg.inv(Rotation_RPY)  
-    
+    Translation_XYZ                  = np.tile(I[None,None,None,None,:,:,:],(num_cpt,num_mic,num_rot,num_blades,num_sec,1,1)) 
+    Translation_XYZ[:,:,:,:,:,0,3]   = np.tile(mls[:,:,0][:,:,None,None,None],(1,1,num_rot,num_blades,num_sec)) 
+    Translation_XYZ[:,:,:,:,:,1,3]   = np.tile(mls[:,:,1][:,:,None,None,None],(1,1,num_rot,num_blades,num_sec)) 
+    Translation_XYZ[:,:,:,:,:,2,3]   = np.tile(mls[:,:,2][:,:,None,None,None],(1,1,num_rot,num_blades,num_sec))    
+ 
+    Rotation_RPY                     = np.tile(I[None,None,None,None,:,:,:],(num_cpt,num_mic,num_rot,num_blades,num_sec,1,1)) 
+    V_vec_pitch                      = conditions.frames.wind.transform_to_inertial[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis,:,:]  # np.linalg.inv(conditions.frames.wind.transform_to_inertial[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis,:,:])
+    V_vec_true_course                = np.linalg.inv(conditions.frames.planet.true_course_angle[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis,:,:]) 
+    Rotation_RPY[:,:,:,:,:,0:3,0:3]  = np.matmul(V_vec_true_course,V_vec_pitch)  
+ 
+    Rotated_Translation                = np.matmul(Rotation_RPY,Translation_XYZ) 
+    Translation_mic_loc                = np.tile(I[None,None,None,None,:,:,:],(num_cpt,num_mic,num_rot,num_blades,num_sec,1,1)) 
+    Translation_mic_loc[:,:,:,:,:,0,3] = Rotated_Translation[:,:,:,:,:,0,3]
+    Translation_mic_loc[:,:,:,:,:,1,3] = Rotated_Translation[:,:,:,:,:,1,3]
+    Translation_mic_loc[:,:,:,:,:,2,3] = Rotated_Translation[:,:,:,:,:,2,3]  
+    rev_Translation_mic_loc            = np.linalg.inv(Translation_mic_loc)    
 
     # -----------------------------------------------------------------------------------------------------------------------------
     # vehicle velocit vector 
@@ -183,27 +183,25 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     # -----------------------------------------------------------------------------------------------------------------------------
     # execute operations to compute matrices for aircraft location in present frame 
     # -----------------------------------------------------------------------------------------------------------------------------
-    # for trailing edge  
-    
-    mat_0_te   = np.matmul(rev_Rotation_RPY,I0)     # we need to do an initial rotation to allign vector in the direction of the vehicle motion
-    mat_1_te   = np.matmul(rev_Translation_mic_loc,mat_0_te) 
-    mat_2_te   = np.matmul(rev_Rotation_AoA,mat_1_te) 
-    mat_3_te   = np.matmul(rev_Translation_origin_to_rel_loc,mat_2_te) 
-    mat_4_te   = np.matmul(rev_Rotation_thrust_vector_angle,mat_3_te) 
-    mat_5_te   = np.matmul(rev_Rotation_blade_azi,mat_4_te) 
-    mat_6_te   = np.matmul(rev_Rotation_blade_flap,mat_5_te)
-    mat_7_te   = np.matmul(rev_Rotation_blade_twist,mat_6_te)   
-    mat_8_te   = np.matmul(rev_Tranlation_blade_trailing_edge,mat_7_te)  
+    # for trailing edge   
+    # we need to do an initial rotation to allign vector in the direction of the vehicle motion 
+    mat_0_te   = np.matmul(rev_Translation_mic_loc,mat_0)    
+    mat_1_te   = np.matmul(rev_Rotation_AoA,mat_0_te) 
+    mat_2_te   = np.matmul(rev_Translation_origin_to_rel_loc,mat_1_te) 
+    mat_3_te   = np.matmul(rev_Rotation_thrust_vector_angle,mat_2_te) 
+    mat_4_te   = np.matmul(rev_Rotation_blade_azi,mat_3_te) 
+    mat_5_te   = np.matmul(rev_Rotation_blade_flap,mat_4_te)
+    mat_6_te   = np.matmul(rev_Rotation_blade_twist,mat_5_te)   
+    mat_7_te   = np.matmul(rev_Tranlation_blade_trailing_edge,mat_6_te)   
           
     # for points on quarter chord of untwisted blade 
-    mat_7_qc = np.matmul(rev_Tranlation_blade_quarter_chord,mat_6_te)
+    mat_6_qc = np.matmul(rev_Tranlation_blade_quarter_chord,mat_5_te)
     
     # for position vector from rotor point to obverver 
     mat_0_p  = np.matmul(Rotation_thrust_vector_angle,mat_0)
     mat_1_p  = np.matmul(Translation_origin_to_rel_loc,mat_0_p)
     mat_2_p  = np.matmul(Rotation_AoA,mat_1_p) 
-    mat_3_p  = np.matmul(Translation_mic_loc,mat_2_p)
-    mat_4_p  = np.matmul(Rotation_RPY,mat_3_p)
+    mat_3_p  = np.matmul(Translation_mic_loc,mat_2_p) 
     
     # for position vector from rotor blade section to obverver (alligned with wind frame)
     mat_0_bs = np.matmul(Tranlation_blade_quarter_chord,mat_0)
@@ -213,13 +211,12 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     mat_4_bs = np.matmul(Rotation_thrust_vector_angle,mat_3_bs)
     mat_5_bs = np.matmul(Translation_origin_to_rel_loc,mat_4_bs)
     mat_6_bs = np.matmul(Rotation_AoA,mat_5_bs)
-    mat_7_bs = np.matmul(Translation_mic_loc,mat_6_bs)  
-    mat_8_bs = np.matmul(Rotation_RPY,mat_7_bs) 
+    mat_7_bs = np.matmul(Translation_mic_loc,mat_6_bs)   
     
-    X_prime  = -mat_8_bs[:,:,:,:,:,0:3,0]
-    X_e      = mat_8_te[:,:,:,:,:,0:3,0]
-    X        = mat_7_qc[:,:,:,:,:,0:3,0]
-    X_hub    = -mat_4_p[:,:,:,:,:,0:3,0] 
+    X_prime  = -mat_7_bs[:,:,:,:,:,0:3,0]
+    X_e      = mat_7_te[:,:,:,:,:,0:3,0]
+    X        = mat_6_qc[:,:,:,:,:,0:3,0]
+    X_hub    = -mat_3_p[:,:,:,:,:,0:3,0] 
       
     # -----------------------------------------------------------------------------------------------------------------------------
     # execute operations to compute matrices for aircraft location in retarded frame
@@ -233,9 +230,8 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     theta_prime    = np.arccos(X_prime[:,:,:,:,:,0]/S_prime)  
     theta_e        = np.arccos(X_e[:,:,:,:,:,0]/S_e)  
     theta_hub      = np.arccos(X_hub[:,:,:,:,:,0]/S_hub)  
-    
-    M_vec_rotated  = np.matmul(Rotation_RPY,M_vec)
-    M_x            = np.linalg.norm(M_vec_rotated[:,:,:,:,:,0:3,3], axis =5)      
+     
+    M_x            = np.linalg.norm(M_vec[:,:,:,:,:,0:3,3], axis =5)      
     
     theta_r        =  np.arccos(np.cos(theta)*np.sqrt(1 - ((M_x**2)*np.sin(theta)**2 )) + M_x*np.sin(theta)**2)
     theta_prime_r  =  np.arccos(np.cos(theta_prime)*np.sqrt(1 - ((M_x**2)*np.sin(theta_prime)**2 )) + M_x*np.sin(theta_prime)**2)
@@ -260,7 +256,6 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     X_r            = np.zeros_like(X)   
     X_hub_r        = np.zeros_like(X_hub)
      
-
     # update x coordiates of matrics 
     X_prime_r[:,:,:,:,:,0]  = x_prime_r 
     X_prime_r[:,:,:,:,:,1]  = X_prime[:,:,:,:,:,1] 
@@ -273,23 +268,24 @@ def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     X_r[:,:,:,:,:,2]        = X[:,:,:,:,:,2]  
     X_hub_r[:,:,:,:,:,0]    = x_hub_r   
     X_hub_r[:,:,:,:,:,1]    = X_hub[:,:,:,:,:,1] 
-    X_hub_r[:,:,:,:,:,2]    = X_hub[:,:,:,:,:,2]  
-    coordinates        = Data(
-        X_prime        = X_prime,
-        X_e            = X_e,
-        X              = X,
-        X_hub          = X_hub,
-        X_prime_r      = X_prime_r,
-        X_e_r          = X_e_r,
-        X_r            = X_r,
-        X_hub_r        = X_hub_r, 
-        theta_r        = theta_r,    
-        theta_prime_r  = theta_prime_r,
-        theta_e        = theta_e, 
-        theta_e_r      = theta_e_r,
-        phi_e_r        = phi_e,
-        phi_hub_r      = phi_hub,
-        theta_hub      = theta_hub,
-        theta_hub_r    = theta_hub_r)
+    X_hub_r[:,:,:,:,:,2]    = X_hub[:,:,:,:,:,2]
+    
+    coordinates      = Data(
+        X_prime      = X_prime,
+        X_e          = X_e,
+        X            = X,
+        X_hub        = X_hub,
+        X_prime_r    = X_prime_r,
+        X_e_r        = X_e_r,
+        X_r          = X_r,
+        X_hub_r      = X_hub_r, 
+        theta_r      = theta_r,    
+        theta_prime_r= theta_prime_r,
+        theta_e      = theta_e, 
+        theta_e_r    = theta_e_r,
+        phi_e_r      = phi_e,
+        phi_hub_r    = phi_hub,
+        theta_hub    = theta_hub,
+        theta_hub_r  = theta_hub_r)
     
     return coordinates 
