@@ -40,7 +40,7 @@ def main():
     
     actual = Data()
     actual.obj  = 0.6645457
-    actual.con  = 2.89918485
+    actual.con  = 2.90496661
     actual.obj2 = 0.69389189
     actual.con3 = 3.09059233
 

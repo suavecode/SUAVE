@@ -25,7 +25,7 @@ def initialize_conditions(segment):
     N/A
 
     Inputs:
-    segment.mach                                [unitless]
+    segment.mach_number                         [unitless]
     segment.dynamic_pressure                    [pascals]
     segment.altitude_start                      [meters]
     segment.altitude_end                        [meters]
@@ -45,7 +45,7 @@ def initialize_conditions(segment):
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
     xf         = segment.distance
-    mach       = segment.mach
+    mach       = segment.mach_number
     conditions = segment.state.conditions  
     t_nondim   = segment.state.numerics.dimensionless.control_points
     
@@ -57,13 +57,20 @@ def initialize_conditions(segment):
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0      
     segment.state.conditions.freestream.altitude[:,0] = alt[:,0]
-        
-    # Update freestream to get speed of sound
-    MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
-    a          = conditions.freestream.speed_of_sound    
 
-    # compute speed, constant with constant altitude
-    air_speed    = mach * a   
+    # check for initial velocity
+    if mach is None: 
+        if not segment.state.initials: raise AttributeError('mach not set')
+        air_speed = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])   
+    else:
+        
+        # Update freestream to get speed of sound
+        MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
+        a          = conditions.freestream.speed_of_sound    
+    
+        # compute speed, constant with constant altitude
+        air_speed    = mach * a   
+        
     climb_angle  = np.arctan((altf-alt0)/xf)
     v_x          = np.cos(climb_angle)*air_speed
     v_z          = np.sin(climb_angle)*air_speed 

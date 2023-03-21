@@ -68,6 +68,7 @@ def initialize_conditions(segment):
         
     # check for initial velocity vector
     if v0 is None:
+        if not segment.state.initials: raise AttributeError('initial airspeed not set')
         v0  =  segment.state.initials.conditions.frames.inertial.velocity_vector[-1,:] 
         segment.velocity_vector = v0
     

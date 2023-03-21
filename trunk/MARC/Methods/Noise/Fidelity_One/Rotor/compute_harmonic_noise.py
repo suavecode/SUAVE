@@ -17,8 +17,9 @@ from MARC.Methods.Noise.Fidelity_One.Noise_Tools            import convert_to_th
 
 # ----------------------------------------------------------------------
 # Harmonic Noise Domain Broadband Noise Computation
-# ----------------------------------------------------------------------
-## @ingroup Methods-Noise-Fidelity_One-Propeller
+# ---------------------------------------------------------------------- 
+
+## @ingroup Methods-Noise-Fidelity_One-Propeller 
 def compute_harmonic_noise(harmonics,freestream,angle_of_attack,coordinates,
                            velocity_vector,rotors,aeroacoustic_data,settings,res):
     '''This computes the  harmonic noise (i.e. thickness and loading noise) of a rotor or rotor

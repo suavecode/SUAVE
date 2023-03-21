@@ -63,26 +63,31 @@ def initialize_conditions(segment):
     # pack conditions
     conditions.freestream.altitude[:,0] = alt[:,0] # positive altitude in this context
     
-    # determine airspeed from calibrated airspeed
-    MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment) # get density for airspeed
-    density  = conditions.freestream.density[:,0]  
-    pressure = conditions.freestream.pressure[:,0] 
 
-    MSL_data  = segment.analyses.atmosphere.compute_values(0.0,0.0)
-    pressure0 = MSL_data.pressure[0]
-
-    kcas  = cas / Units.knots
-    delta = pressure / pressure0 
-
-    mach = 2.236*((((1+4.575e-7*kcas**2)**3.5-1)/delta + 1)**0.2857 - 1)**0.5
-
-    qc  = pressure * ((1+0.2*mach**2)**3.5 - 1)
-    eas = cas * (pressure/pressure0)**0.5*(((qc/pressure+1)**0.286-1)/((qc/pressure0+1)**0.286-1))**0.5
+    if cas is None:
+        if not segment.state.initials: raise AttributeError('initial equivalent airspeed not set')
+        v_mag =  np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1,:])    
+    else:  
+        
+        # determine airspeed from calibrated airspeed
+        MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment) # get density for airspeed
+        density  = conditions.freestream.density[:,0]  
+        pressure = conditions.freestream.pressure[:,0] 
     
-    air_speed = eas/np.sqrt(density/MSL_data.density[0])    
+        MSL_data  = segment.analyses.atmosphere.compute_values(0.0,0.0)
+        pressure0 = MSL_data.pressure[0]
     
-    # process velocity vector
-    v_mag = air_speed
+        kcas  = cas / Units.knots
+        delta = pressure / pressure0 
+    
+        mach = 2.236*((((1+4.575e-7*kcas**2)**3.5-1)/delta + 1)**0.2857 - 1)**0.5
+    
+        qc  = pressure * ((1+0.2*mach**2)**3.5 - 1)
+        eas = cas * (pressure/pressure0)**0.5*(((qc/pressure+1)**0.286-1)/((qc/pressure0+1)**0.286-1))**0.5
+        
+        v_mag = eas/np.sqrt(density/MSL_data.density[0])    
+    
+    # process velocity vector 
     v_z   = -climb_rate # z points down
     v_x   = np.sqrt( v_mag**2 - v_z**2 )
     

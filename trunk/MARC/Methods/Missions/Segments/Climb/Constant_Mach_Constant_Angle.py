@@ -26,7 +26,7 @@ def initialize_conditions(segment):
 
     Inputs:
     segment.climb_angle                                 [radians]
-    segment.mach                                        [Unitless]
+    segment.mach_number                                 [Unitless]
     segment.altitude_start                              [meters]
     segment.altitude_end                                [meters]
     segment.state.numerics.dimensionless.control_points [Unitless]
@@ -42,10 +42,8 @@ def initialize_conditions(segment):
     """       
     # unpack user inputs
     climb_angle = segment.climb_angle
-    mach_number = segment.mach
-    alt0        = segment.altitude_start 
-    altf        = segment.altitude_end
-    t_nondim    = segment.state.numerics.dimensionless.control_points
+    mach_number = segment.mach_number
+    alt0        = segment.altitude_start  
     conditions  = segment.state.conditions 
     
     # unpack unknowns
@@ -61,19 +59,26 @@ def initialize_conditions(segment):
     # pack conditions   
     conditions.freestream.altitude[:,0]             =  alts[:,0] # positive altitude in this context
     
-    # Update freestream to get speed of sound
-    MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
-    a = conditions.freestream.speed_of_sound    
-    
-    # process velocity vector
-    v_mag = mach_number * a
+
+    # check for initial velocity
+    if mach_number is None: 
+        if not segment.state.initials: raise AttributeError('mach not set')
+        v_mag  = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])   
+    else:
+         
+        # Update freestream to get speed of sound
+        MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
+        a = conditions.freestream.speed_of_sound    
+        
+        # process velocity vector
+        v_mag = mach_number * a
     v_x   = v_mag * np.cos(climb_angle)
     v_z   = -v_mag * np.sin(climb_angle)
     
     # pack conditions    
-    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
-    conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
-    conditions.frames.inertial.position_vector[:,2] = -alts[:,0] # z points down
+    conditions.frames.inertial.velocity_vector[:,0]              = v_x[:,0]
+    conditions.frames.inertial.velocity_vector[:,2]              = v_z[:,0]
+    conditions.frames.inertial.position_vector[:,2]              = -alts[:,0] # z points down
     segment.state.conditions.propulsion.throttle[:,0]            = throttle[:,0]
     segment.state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]  
     

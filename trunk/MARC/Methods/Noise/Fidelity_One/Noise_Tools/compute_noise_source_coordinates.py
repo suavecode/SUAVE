@@ -12,8 +12,8 @@ from MARC.Core import Data
 # ----------------------------------------------------------------------
 #  Source Coordinates 
 # ---------------------------------------------------------------------
-
-## @ingroup Methods-Noise-Fidelity_One-Propeller 
+  
+## @ingroup Methods-Noise-Fidelity_One-Propeller    
 def compute_rotor_point_source_coordinates(conditions,rotors,mls,settings):
     """This calculated the position vector from a point source to the observer 
             

@@ -92,7 +92,12 @@ def initialize_conditions(segment):
     air_speed   = segment.air_speed   
     t_nondim    = segment.state.numerics.dimensionless.control_points
     conditions  = segment.state.conditions  
-    
+
+    # check for initial velocity
+    if air_speed is None: 
+        if not segment.state.initials: raise AttributeError('airspeed not set')
+        air_speed = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+        
     # process velocity vector
     v_mag = air_speed
     v_x   = v_mag * np.cos(climb_angle)

@@ -60,12 +60,18 @@ def initialize_conditions(segment):
     
     # pack conditions
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
-    
-    # determine airspeed from equivalent airspeed
-    MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment) # get density for airspeed
-    density   = conditions.freestream.density[:,0]   
-    MSL_data  = segment.analyses.atmosphere.compute_values(0.0,0.0)
-    air_speed = eas/np.sqrt(density/MSL_data.density[0])    
+
+
+    # check for initial velocity vector
+    if eas is None:
+        if not segment.state.initials: raise AttributeError('initial equivalent airspeed not set')
+        air_speed  = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1,:])  
+    else: 
+        # determine airspeed from equivalent airspeed
+        MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment) # get density for airspeed
+        density   = conditions.freestream.density[:,0]   
+        MSL_data  = segment.analyses.atmosphere.compute_values(0.0,0.0)
+        air_speed = eas/np.sqrt(density/MSL_data.density[0])    
     
     # process velocity vector
     v_mag = air_speed

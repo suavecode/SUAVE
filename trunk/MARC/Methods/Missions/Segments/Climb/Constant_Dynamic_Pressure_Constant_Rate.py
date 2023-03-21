@@ -61,8 +61,14 @@ def initialize_conditions(segment):
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0
     
-    # process velocity vector
-    v_mag = np.sqrt(2*q/rho)
+
+    # check for initial velocity
+    if q is None: 
+        if not segment.state.initials: raise AttributeError('dynamic pressure not set')
+        v_mag = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+    else: 
+        # process velocity vector
+        v_mag = np.sqrt(2*q/rho)
     v_z   = -climb_rate # z points down
     v_x   = np.sqrt( v_mag**2 - v_z**2 )
     

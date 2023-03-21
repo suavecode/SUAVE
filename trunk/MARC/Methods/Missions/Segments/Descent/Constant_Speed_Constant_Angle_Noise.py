@@ -107,8 +107,13 @@ def initialize_conditions(segment):
     alt0 = y0 + m_xx0 #(Initial altitude of the aircraft)
 
     # discretize on altitude
-    alt = t_nondim * (altf-alt0) + alt0
+    alt = t_nondim * (altf-alt0) + alt0 
     
+    # check for initial velocity vector
+    if air_speed is None:
+        if not segment.state.initials: raise AttributeError('initial airspeed not set')
+        air_speed  =  np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1,:])     
+        
     # process velocity vector
     v_mag = air_speed
     v_x   = v_mag * np.cos(-descent_angle)

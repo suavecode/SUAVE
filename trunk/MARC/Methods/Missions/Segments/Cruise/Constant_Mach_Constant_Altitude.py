@@ -11,6 +11,7 @@
 # ----------------------------------------------------------------------
 
 import MARC
+import numpy as np 
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -29,7 +30,7 @@ def initialize_conditions(segment):
     Inputs:
     segment.altitude                [meters]
     segment.distance                [meters]
-    segment.mach                    [unitless]
+    segment.mach_number             [unitless]
 
     Outputs:
     conditions.frames.inertial.velocity_vector  [meters/second]
@@ -44,7 +45,7 @@ def initialize_conditions(segment):
     # unpack
     alt        = segment.altitude
     xf         = segment.distance
-    mach       = segment.mach
+    mach       = segment.mach_number
     conditions = segment.state.conditions    
     
     # check for initial altitude
@@ -56,9 +57,13 @@ def initialize_conditions(segment):
     # Update freestream to get speed of sound
     MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
     a          = conditions.freestream.speed_of_sound       
-    
-    # compute speed, constant with constant altitude
-    air_speed = mach * a
+
+    # check for initial velocity
+    if mach is None: 
+        if not segment.state.initials: raise AttributeError('airspeed not set')
+        air_speed = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])    
+    else:# compute speed, constant with constant altitude
+        air_speed = mach * a
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]

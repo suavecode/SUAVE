@@ -16,7 +16,9 @@ import numpy as np
 
 def APC_11x4_Propeller():          
     prop                            = MARC.Components.Energy.Converters.Rotor()
-    prop.inputs                     = Data()  
+    prop.inputs                     = Data() 
+    prop.inputs.pitch_command       = 0 
+    prop.inputs.y_axis_rotation     = 0.
     prop.tag                        = 'APC_11x4_Propeller'
     prop.tip_radius                 = (11/2)*Units.inches
     prop.hub_radius                 = prop.tip_radius*0.15 

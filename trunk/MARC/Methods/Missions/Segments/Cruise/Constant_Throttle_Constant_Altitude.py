@@ -111,6 +111,7 @@ def initialize_conditions(segment):
         alt = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]   
 
     if v0  is None: 
+        if not segment.state.initials: raise AttributeError('airspeed not set')
         v0 = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
         
     # avoid having zero velocity since aero and propulsion models need non-zero Reynolds number

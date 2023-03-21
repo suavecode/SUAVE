@@ -376,7 +376,7 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.base ) 
     segment.altitude_start                   = 4.   * Units.km
     segment.altitude_end                     = 6.   * Units.km
-    segment.mach                             = 0.5
+    segment.mach_number                      = 0.5
     segment.climb_angle                      = 3.5 * Units.degrees  
 
     # add to misison
@@ -403,7 +403,7 @@ def mission_setup(analyses):
     segment.tag = "climb_6"
     segment.analyses.extend( analyses.base )  
     segment.altitude_end                     = 8.    * Units.km   
-    segment.mach                             = 0.75  
+    segment.mach_number                      = 0.75  
 
     # add to misison
     mission.append_segment(segment)

@@ -11,9 +11,9 @@
 # ----------------------------------------------------------------------
 import numpy as np  
 from MARC.Core import Units
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                     import A_weighting
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.convert_to_third_octave_band  import convert_to_third_octave_band  
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic            import SPL_arithmetic 
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                       import A_weighting
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.convert_to_third_octave_band    import convert_to_third_octave_band  
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic              import SPL_arithmetic 
 
 from MARC.Methods.Noise.Fidelity_One.Rotor.compute_BPM_boundary_layer_properties import compute_BPM_boundary_layer_properties
 from MARC.Methods.Noise.Fidelity_One.Rotor.compute_LBL_VS_broadband_noise        import compute_LBL_VS_broadband_noise
@@ -23,9 +23,8 @@ from MARC.Methods.Noise.Fidelity_One.Rotor.compute_noise_directivities          
  
 # ----------------------------------------------------------------------
 # Frequency Domain Broadband Noise Computation
-# ----------------------------------------------------------------------
-
-## @ingroup Methods-Noise-Fidelity_One-Propeller   
+# ---------------------------------------------------------------------- 
+## @ingroup Methods-Noise-Fidelity_One-Propeller    
 def compute_broadband_noise(freestream,angle_of_attack,coordinates,
                             velocity_vector,rotors,aeroacoustic_data,settings,res):
     '''This computes the trailing edge noise compoment of broadband noise of a propeller or 

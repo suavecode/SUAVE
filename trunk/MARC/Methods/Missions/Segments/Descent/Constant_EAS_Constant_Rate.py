@@ -55,6 +55,7 @@ def initialize_conditions(segment):
         if not segment.state.initials: raise AttributeError('initial altitude not set')
         alt0 = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
 
+
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0
     
@@ -65,7 +66,13 @@ def initialize_conditions(segment):
     MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment) # get density for airspeed
     density   = conditions.freestream.density[:,0]   
     MSL_data  = segment.analyses.atmosphere.compute_values(0.0,0.0)
-    air_speed = eas/np.sqrt(density/MSL_data.density[0])    
+
+    # check for initial velocity vector
+    if eas is None:
+        if not segment.state.initials: raise AttributeError('initial equivalent airspeed not set')
+        air_speed  = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1,:])  
+    else: 
+        air_speed  = eas/np.sqrt(density/MSL_data.density[0])    
     
     # process velocity vector
     v_mag = air_speed
