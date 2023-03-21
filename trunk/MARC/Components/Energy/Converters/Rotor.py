@@ -89,22 +89,22 @@ class Rotor(Energy_Component):
         self.cruise.design_power_coefficient   = 0.01 
 
         # operating conditions 
-        self.induced_power_factor              = 1.48         # accounts for interference effects
+        self.induced_power_factor              = 1.48        # accounts for interference effects
         self.profile_drag_coefficient          = .03
         self.rotation                          = 1
         self.phase_offset_angle                = 0.0
-        self.orientation_euler_angles          = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
+        self.orientation_euler_angles          = [0.,0.,0.]  # vector of angles defining default orientation of rotor 
         self.ducted                            = False
         self.sol_tolerance                     = 1e-8 
-        self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
-        self.nonuniform_freestream             = False
-        self.axial_velocities_2d               = None     # user input for additional velocity influences at the rotor
-        self.tangential_velocities_2d          = None     # user input for additional velocity influences at the rotor
-        self.radial_velocities_2d              = None     # user input for additional velocity influences at the rotor 
-        self.start_angle                       = 0.0      # angle of first blade from vertical
-        self.start_angle_idx                   = 0        # azimuthal index at which the blade is started
-        self.inputs.y_axis_rotation            = 0.
-        self.inputs.pitch_command              = 0.
+        self.use_2d_analysis                   = False       # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream             = False   
+        self.axial_velocities_2d               = None        # user input for additional velocity influences at the rotor
+        self.tangential_velocities_2d          = None        # user input for additional velocity influences at the rotor
+        self.radial_velocities_2d              = None        # user input for additional velocity influences at the rotor 
+        self.start_angle                       = 0.0         # angle of first blade from vertical
+        self.start_angle_idx                   = 0           # azimuthal index at which the blade is started
+        self.inputs.y_axis_rotation            = 0.          # vector of angles updated by the network during a mission
+        self.inputs.pitch_command              = 0.          
         self.variable_pitch                    = False
         
         # Initialize the default wake set to Fidelity Zero 

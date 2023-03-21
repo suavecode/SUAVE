@@ -15,9 +15,7 @@ import numpy as np
 # design propeller                                       
 def F8745_D4_Propeller():  
     prop                            = MARC.Components.Energy.Converters.Propeller()
-    prop.inputs                     = Data()
-    prop.inputs.pitch_command       = 0 
-    prop.inputs.y_axis_rotation     = 0.
+    prop.inputs                     = Data() 
     prop.tag                        = 'F8745_D4_Propeller'  
     prop.tip_radius                 = 2.03/2
     prop.hub_radius                 = prop.tip_radius*0.20
