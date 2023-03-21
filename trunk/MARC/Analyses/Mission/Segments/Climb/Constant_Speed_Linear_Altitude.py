@@ -56,11 +56,11 @@ class Constant_Speed_Linear_Altitude(Unknown_Throttle):
         # --------------------------------------------------------------
         #   User inputs
         # -------------------------------------------------------------- 
-        self.air_speed       = 10. * Units['km/hr']
-        self.distance        = 10. * Units.km
-        self.altitude_start  = None
-        self.altitude_end    = None
-        self.true_course     = 0.0 * Units.degrees    
+        self.air_speed         = 10. * Units['km/hr']
+        self.distance          = 10. * Units.km
+        self.altitude_start    = None
+        self.altitude_end      = None
+        self.true_course_angle = 0.0 * Units.degrees    
         
  
         # --------------------------------------------------------------

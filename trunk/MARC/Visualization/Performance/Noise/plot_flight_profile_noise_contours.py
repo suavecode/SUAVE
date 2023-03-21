@@ -15,7 +15,7 @@ from MARC.Visualization.Performance.Common.post_process_noise_data import post_p
 ## @ingroup Visualization-Performance-Noise
 def plot_flight_profile_noise_contours(results,
                                        save_figure=False,
-                                       show_figure=False,
+                                       show_figure=True,
                                        save_filename="Noise_Contour",
                                        colormap = 'jet',
                                        file_type=".png",
@@ -80,11 +80,11 @@ def plot_flight_profile_noise_contours(results,
     # TRHEE DIMENSIONAL NOISE CONTOUR
     # --------------------------------------------------------------------------- 
     # TERRAIN CONTOUR 
-    ground_contour   = contour_surface_slice(Y,X,Z,max_SPL_gm,color_scale=colormap)
+    ground_contour   = contour_surface_slice(X,Y,Z,max_SPL_gm,color_scale=colormap)
     plot_data.append(ground_contour)
 
     # AIRCRAFT TRAJECTORY
-    aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,1], y=Aircraft_pos[:,0], z=Aircraft_pos[:,2],
+    aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,0], y=Aircraft_pos[:,1], z=Aircraft_pos[:,2],
                                        mode='markers',
                                 marker=dict(size=6,color='black',opacity=0.8),
                                 line=dict(color='black',width=2))
@@ -96,13 +96,14 @@ def plot_flight_profile_noise_contours(results,
 
     camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=-0.05, y=0, z=-0.25), eye=dict(x=-1., y=-1., z=.4))    
     fig_3d = go.Figure(data=plot_data)  
-    fig_3d.update_scenes(aspectratio=dict(x = 1,y = 1,z =0.5)) 
+    #fig_3d.update_scenes(aspectmode='data') # aspectratio=dict(x = 1,y = 1,z = 0.5)) 
     fig_3d.update_layout(
         title_text= 'Flight_Profile_' + save_filename, 
              title_x   = 0.5,
              width     = 1200,
              height    = 900,
              font_size = 12,
+             scene=dict( aspectmode='data'),            
              scene_zaxis_range=[min_alt,max_alt], 
              coloraxis=dict(colorscale=colormap,
                             colorbar_thickness=50,

@@ -343,12 +343,7 @@ class Battery_Electric_Rotor(Network):
         # How many evaluations to do 
         unique_rotor_groups,_ = np.unique(rotor_group_indexes, return_counts=True)
         unique_motor_groups,_ = np.unique(motor_group_indexes, return_counts=True) 
-        unique_esc_groups,_   = np.unique(esc_group_indexes, return_counts=True) 
-
-        y_rotations   = []
-        net           = list(segment.analyses.energy.network.keys())[0]
-        for rotor in segment.analyses.energy.network[net].rotors:
-            y_rotations.append(rotor.inputs.y_axis_rotation) 
+        unique_esc_groups,_   = np.unique(esc_group_indexes, return_counts=True)  
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
         ss       = segment.state 
@@ -356,7 +351,12 @@ class Battery_Electric_Rotor(Network):
         idx      = 0
         for i in range(n_groups):   
             if segment.battery_discharge:  
-                if active_propulsor_groups[i]:          
+                if active_propulsor_groups[i]:  
+                    
+                    # set y axis rotation for group of group 
+                    identical_rotor = self.rotors[list(self.rotors.keys())[np.where(i == np.array(rotor_group_indexes))[0][0]]]  # TO CHANGE 
+                    ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation = identical_rotor.inputs.y_axis_rotation  * ones_row(1) # TO CHANGE
+                    
                     ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = ss.unknowns['rotor_power_coefficient_' + str(i)] 
                     if type(segment) == Takeoff or type(segment) == Landing: 
                         if idx == 0: 
@@ -373,9 +373,7 @@ class Battery_Electric_Rotor(Network):
                     idx += 1
             else: 
                 ss.conditions.propulsion['propulsor_group_' + str(i)].rotor.power_coefficient = 0. * ones_row(1)
-                ss.conditions.propulsion['propulsor_group_' + str(i)].throttle                = 0. * ones_row(1)
-            loc = np.where(unique_rotor_groups[i] == rotor_group_indexes)[0][0]
-            ss.conditions.propulsion['propulsor_group_' + str(i)].y_axis_rotation = y_rotations[loc] * ones_row(1)
+                ss.conditions.propulsion['propulsor_group_' + str(i)].throttle                = 0. * ones_row(1) 
                                 
         battery = self.battery 
         battery.append_battery_unknowns(segment)            

@@ -62,11 +62,11 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start = None # Optional
-        self.altitude_end   = 10. * Units.km
-        self.throttle       = 0.5
-        self.air_speed      = 100 * Units.m / Units.s 
-        self.true_course    = 0.0 * Units.degrees            
+        self.altitude_start    = None # Optional
+        self.altitude_end      = 10. * Units.km
+        self.throttle          = 0.5
+        self.air_speed         = 100 * Units.m / Units.s 
+        self.true_course_angle = 0.0 * Units.degrees            
         
         # --------------------------------------------------------------
         #   State

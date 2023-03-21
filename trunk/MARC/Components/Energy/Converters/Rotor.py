@@ -76,6 +76,7 @@ class Rotor(Energy_Component):
         self.radius_distribution               = None
         self.mid_chord_alignment               = 0.0
         self.blade_solidity                    = 0.0 
+        self.flap_angle                        = 0.0
         self.number_azimuthal_stations         = 24  
         self.vtk_airfoil_points                = 40        
         self.Airfoils                          = Airfoil_Container()
@@ -94,7 +95,7 @@ class Rotor(Energy_Component):
         self.phase_offset_angle                = 0.0
         self.orientation_euler_angles          = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                            = False
-        self.sol_tolerance                     = 1e-10
+        self.sol_tolerance                     = 1e-8 
         self.use_2d_analysis                   = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
         self.nonuniform_freestream             = False
         self.axial_velocities_2d               = None     # user input for additional velocity influences at the rotor
@@ -423,7 +424,7 @@ class Rotor(Energy_Component):
         lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
-        Cl, Cdval, Ma,W, Re, alpha = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+        Cl, Cdval, alpha, Ma,W, Re = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
         
         
         # compute HFW circulation at the blade
@@ -568,6 +569,8 @@ class Rotor(Energy_Component):
                     blade_effective_angle_of_attack   = alpha,
                     blade_tangential_velocity         = Vt_avg,
                     blade_axial_velocity              = Va_avg,
+                    blade_velocity                    = W,
+                    blade_Mach_number                 = Ma,
                     disc_tangential_induced_velocity  = Vt_ind_2d,
                     disc_axial_induced_velocity       = Va_ind_2d,
                     disc_tangential_velocity          = Vt_2d,

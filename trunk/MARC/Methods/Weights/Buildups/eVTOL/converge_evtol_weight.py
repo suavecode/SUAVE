@@ -77,7 +77,6 @@ def converge_evtol_weight(vehicle,
             print(round(diff,3))
         if iterations == 100:
             print('Weight convergence failed!')
-            return False 
-    print('Converged MTOW = ' + str(round(vehicle.mass_properties.max_takeoff)) + ' kg')
+            return False  
     
     return True 

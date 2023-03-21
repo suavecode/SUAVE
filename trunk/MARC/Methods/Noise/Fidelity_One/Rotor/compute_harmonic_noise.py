@@ -19,7 +19,7 @@ from MARC.Methods.Noise.Fidelity_One.Noise_Tools            import convert_to_th
 # Harmonic Noise Domain Broadband Noise Computation
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Noise-Fidelity_One-Propeller
-def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
+def compute_harmonic_noise(harmonics,freestream,angle_of_attack,coordinates,
                            velocity_vector,rotors,aeroacoustic_data,settings,res):
     '''This computes the  harmonic noise (i.e. thickness and loading noise) of a rotor or rotor
     in the frequency domain
@@ -60,14 +60,14 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
         N/A   
     '''     
     num_h        = len(harmonics)     
-    num_cpt      = len(angle_of_attack)
-    num_mic      = len(position_vector[0,:,0,0])
-    num_rot      = len(position_vector[0,0,:,0]) 
+    num_cpt      = len(angle_of_attack) 
+    num_mic      = len(coordinates.X_hub[0,:,0,0,0,0])
+    num_rot      = len(coordinates.X_hub[0,0,:,0,0,0]) 
     phi_0        = np.zeros(num_rot)            # phase angle offset 
     for r_idx,rotor in enumerate(rotors):
         phi_0[r_idx] = rotor.phase_offset_angle
     rotor        = rotors[list(rotors.keys())[0]] 
-    num_r        = len(rotor.radius_distribution) 
+    num_sec        = len(rotor.radius_distribution) 
     orientation  = np.array(rotor.orientation_euler_angles) * 1 
     body2thrust  = sp.spatial.transform.Rotation.from_rotvec(orientation).as_matrix()
     
@@ -75,49 +75,43 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     # Rotational Noise  Thickness and Loading Noise
     # ----------------------------------------------------------------------------------  
     # [control point ,microphones, rotors, radial distribution, harmonics]  
-    m              = np.tile(harmonics[None,None,None,None,:],(num_cpt,num_mic,num_rot,num_r,1))                 # harmonic number 
+    m              = np.tile(harmonics[None,None,None,None,:],(num_cpt,num_mic,num_rot,num_sec,1))                 # harmonic number 
     m_1d           = harmonics                                                                                         
     p_ref          = 2E-5                                                                                        # referece atmospheric pressure
-    a              = np.tile(freestream.speed_of_sound[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))      # speed of sound
-    rho            = np.tile(freestream.density[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))             # air density   
-    alpha          = np.tile((angle_of_attack + np.arccos(body2thrust[0,0]))[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))           
-    x              = np.tile(position_vector[:,:,:,0][:,:,:,None,None],(1,1,1,num_r,num_h))                      # x component of position vector of rotor to microphone 
-    y              = np.tile(position_vector[:,:,:,1][:,:,:,None,None],(1,1,1,num_r,num_h))                      # y component of position vector of rotor to microphone
-    z              = np.tile(position_vector[:,:,:,2][:,:,:,None,None],(1,1,1,num_r,num_h))                      # z component of position vector of rotor to microphone
-    Vx             = np.tile(velocity_vector[:,0][:,None,None,None,None],(1,num_mic,num_rot,num_r,num_h))        # x velocity of rotor  
-    Vy             = np.tile(velocity_vector[:,1][:,None,None,None,None],(1,num_mic,num_rot,num_r,num_h))        # y velocity of rotor 
-    Vz             = np.tile(velocity_vector[:,2][:,None,None,None,None],(1,num_mic,num_rot,num_r,num_h))        # z velocity of rotor 
+    a              = np.tile(freestream.speed_of_sound[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_h))      # speed of sound
+    rho            = np.tile(freestream.density[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_h))             # air density   
+    alpha          = np.tile((angle_of_attack + np.arccos(body2thrust[0,0]))[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_h))          
     B              = rotor.number_of_blades                                                                      # number of rotor blades
-    omega          = np.tile(aeroacoustic_data.omega[:,:,None,None,None],(1,num_mic,num_rot,num_r,num_h))        # angular velocity       
+    omega          = np.tile(aeroacoustic_data.omega[:,:,None,None,None],(1,num_mic,num_rot,num_sec,num_h))        # angular velocity       
     dT_dr          = np.tile(aeroacoustic_data.blade_dT_dr[:,None,None,:,None],(1,num_mic,num_rot,1,num_h))      # nondimensionalized differential thrust distribution 
     dQ_dr          = np.tile(aeroacoustic_data.blade_dQ_dr[:,None,None,:,None],(1,num_mic,num_rot,1,num_h))      # nondimensionalized differential torque distribution
     R              = np.tile(rotor.radius_distribution[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h)) # radial location     
     c              = np.tile(rotor.chord_distribution[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h))  # blade chord    
     R_tip          = rotor.tip_radius                                                     
     t_c            = np.tile(rotor.thickness_to_chord[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h))  # thickness to chord ratio
-    MCA            = np.tile(rotor.mid_chord_alignment[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h)) # Mid Chord Alighment 
-    phi_0_vec      = np.tile(phi_0[None,None,:,None,None],(num_cpt,num_mic,1,num_r,num_h))
+    MCA            = np.tile(rotor.mid_chord_alignment[None,None,None,:,None],(num_cpt,num_mic,num_rot,1,num_h)) # Mid Chord Alighment  
+    phi_0_vec      = np.tile(phi_0[None,None,:,None,None],(num_cpt,num_mic,1,num_sec,num_h))
     res.f          = B*omega*m/(2*np.pi) 
     D              = 2*R[0,0,0,-1,:]                                                                             # rotor diameter    
-    r              = R/R[0,0,0,-1,:]                                                                             # non dimensional radius distribution  
-    S              = np.sqrt(x**2 + y**2 + z**2)                                                                 # distance between rotor and the observer    
-    theta          = np.arccos(x/S)                                                            
-    Y              = np.sqrt(y**2 + z**2)                                                                        # observer distance from rotor axis          
-    V              = np.sqrt(Vx**2 + Vy**2 + Vz**2)                                                              # velocity magnitude
+    r              = R/R[0,0,0,-1,:]                                                                             # non dimensional radius distribution   
+    Y              = np.tile(np.sqrt(coordinates.X_hub[:,:,:,0,:,1]**2 +  coordinates.X_hub[:,:,:,0,:,2] **2)[:,:,:,:,None],(1,1,1,1,num_h))                        # observer distance from rotor axis          
+    V              = np.tile(np.linalg.norm(velocity_vector,axis =1) [:,None,None,None,None],(1,num_mic,num_rot,num_sec,num_h))                                                     # velocity magnitude
     M_x            = V/a                                                                                         
     V_tip          = R_tip*omega                                                                                 # blade_tip_speed 
     M_t            = V_tip/a                                                                                     # tip Mach number 
     M_r            = np.sqrt(M_x**2 + (r**2)*(M_t**2))                                                           # section relative Mach number     
-    B_D            = c/D                                                                                         
-    phi            = np.arctan(z/y) + phi_0_vec                                                                  # tangential angle   
+    B_D            = c/D     
+     
+    phi            = np.tile(coordinates.phi_hub_r[:,:,:,0,:,None],(1,1,1,1,num_h)) + phi_0_vec 
 
-    # retarted  theta angle in the retarded reference frame
-    theta_r        = np.arccos(np.cos(theta)*np.sqrt(1 - (M_x**2)*(np.sin(theta))**2) + M_x*(np.sin(theta))**2 )   
+    # retarted theta angle in the retarded reference frame
+    theta_r        = np.tile(coordinates.theta_hub_r[:,:,:,0,:,None],(1,1,1,1,num_h))  
     theta_r_prime  = np.arccos(np.cos(theta_r)*np.cos(alpha) + np.sin(theta_r)*np.sin(phi)*np.sin(alpha) )
+    S_r            = np.tile(np.linalg.norm(coordinates.X_hub_r[:,:,:,0,:,:], axis = 4)[:,:,:,:,None],(1,1,1,1,num_h))  
 
     # initialize thickness and loading noise matrices
-    psi_L          = np.zeros((num_cpt,num_mic,num_rot,num_r,num_h))
-    psi_V          = np.zeros((num_cpt,num_mic,num_rot,num_r,num_h))
+    psi_L          = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_h))
+    psi_V          = np.zeros((num_cpt,num_mic,num_rot,num_sec,num_h))
 
     # normalized thickness  and loading shape functions                
     k_x               = ((2*m*B*B_D*M_t)/(M_r*(1 - M_x*np.cos(theta_r))))      # wave number 
@@ -131,8 +125,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     phi_s             = ((2*m*B*M_t)/(M_r*(1 - M_x*np.cos(theta_r))))*(MCA/D)
     phi_prime_var     = (np.sin(theta_r)/np.sin(theta_r_prime))*np.cos(phi)
     phi_prime_var[phi_prime_var>1.0] = 1.0
-    phi_prime         = np.arccos(phi_prime_var)      
-    S_r               = Y/(np.sin(theta_r))                                # distance in retarded reference frame                                                                             
+    phi_prime         = np.arccos(phi_prime_var)                                                                                
     exponent_fraction = np.exp(1j*m_1d*B*((omega*S_r/a) +  phi_prime - np.pi/2))/(1 - M_x*np.cos(theta_r))
     p_mT_H_integral   = -((M_r**2)*(t_c)*np.exp(1j*phi_s)*Jmb*(k_x**2)*psi_V ) * ((rho*(a**2)*B*np.sin(theta_r))/(4*np.sqrt(2)*np.pi*(Y/D)))* exponent_fraction
     p_mT_H            = np.trapz(p_mT_H_integral,x = r[0,0,0,:,0], axis =3) 

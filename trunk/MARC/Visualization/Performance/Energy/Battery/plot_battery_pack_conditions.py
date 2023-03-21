@@ -78,33 +78,33 @@ def plot_battery_pack_conditions(results,
         segment_tag  =  results.segments[i].tag
         segment_name = segment_tag.replace('_', ' ') 
         
-        axes_1 = plt.subplot(4,2,1)
+        axes_1 = plt.subplot(3,2,1)
         axes_1.plot(time, pack_SOC, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width, label = segment_name)
         axes_1.set_ylabel(r'SOC')
         set_axes(axes_1)     
         
-        axes_2 = plt.subplot(4,2,2)
+        axes_2 = plt.subplot(3,2,2)
         axes_2.plot(time, (pack_energy/1000)/Units.Wh, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
         axes_2.set_ylabel(r'Energy (kW-hr)')
         set_axes(axes_2) 
 
-        axes_3 = plt.subplot(4,2,3)
+        axes_3 = plt.subplot(3,2,3)
         axes_3.plot(time, pack_current, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
         axes_3.set_ylabel(r'Current (A)')
         set_axes(axes_3)  
 
-        axes_4 = plt.subplot(4,2,4)
+        axes_4 = plt.subplot(3,2,4)
         axes_4.plot(time, -pack_power/1000, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
         axes_4.set_ylabel(r'Power (kW)')
         set_axes(axes_4)     
         
-        axes_5 = plt.subplot(4,2,5)
+        axes_5 = plt.subplot(3,2,5)
         axes_5.plot(time, pack_volts, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
         axes_5.set_ylabel(r'Voltage (V)')
         axes_5.set_xlabel('Time (mins)')
         set_axes(axes_5) 
 
-        axes_6 = plt.subplot(4,2,6)
+        axes_6 = plt.subplot(3,2,6)
         axes_6.plot(time, pack_volts_oc, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width)
         axes_6.set_ylabel(r'Voltage OC (V)')
         axes_6.set_xlabel('Time (mins)')

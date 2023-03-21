@@ -52,11 +52,11 @@ class Constant_Dynamic_Pressure_Constant_Rate(Unknown_Throttle):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start   = None # Optional
-        self.altitude_end     = 10. * Units.km
-        self.climb_rate       = 3.  * Units.m / Units.s
-        self.dynamic_pressure = 1600 * Units.pascals
-        self.true_course      = 0.0 * Units.degrees
+        self.altitude_start    = None # Optional
+        self.altitude_end      = 10. * Units.km
+        self.climb_rate        = 3.  * Units.m / Units.s
+        self.dynamic_pressure  = 1600 * Units.pascals
+        self.true_course_angle = 0.0 * Units.degrees
         
         # --------------------------------------------------------------
         #   The Solving Process

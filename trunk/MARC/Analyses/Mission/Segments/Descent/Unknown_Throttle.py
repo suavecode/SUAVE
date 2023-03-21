@@ -60,9 +60,9 @@ class Unknown_Throttle(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start = None # Optional
-        self.altitude_end   = 10. * Units.km
-        self.true_course    = 0.0 * Units.degrees 
+        self.altitude_start    = None # Optional
+        self.altitude_end      = 10. * Units.km
+        self.true_course_angle = 0.0 * Units.degrees 
         
         # --------------------------------------------------------------
         #   State

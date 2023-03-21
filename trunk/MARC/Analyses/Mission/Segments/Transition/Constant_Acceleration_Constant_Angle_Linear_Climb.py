@@ -66,7 +66,7 @@ class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
         self.acceleration           = 1.  * Units['m/s/s'] 
         self.pitch_initial          = None
         self.pitch_final            = 0.0 * Units['rad']
-        self.true_course            = 0.0 * Units.degrees 
+        self.true_course_angle      = 0.0 * Units.degrees 
         
 
         # --------------------------------------------------------------

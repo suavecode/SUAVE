@@ -63,7 +63,7 @@ class Constant_Acceleration_Constant_Altitude(Aerodynamic):
         self.acceleration      = 1.  * Units['m/s/s']
         self.air_speed_start   = 0.0 * Units['m/s']
         self.air_speed_end     = 1.0 * Units['m/s']
-        self.true_course       = 0.0 * Units.degrees      
+        self.true_course_angle = 0.0 * Units.degrees      
         
         
         # --------------------------------------------------------------

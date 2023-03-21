@@ -132,18 +132,13 @@ class Fidelity_One(Noise):
         if type(settings.ground_microphone_locations) is not np.ndarray: 
             generate_ground_microphone_points(settings)     
         
-        GM_THETA,GM_PHI,REGML,EGML,TGML,num_gm_mic,mic_stencil = compute_ground_noise_evaluation_locations(settings,segment)
+        REGML,EGML,TGML,num_gm_mic,mic_stencil = compute_ground_noise_evaluation_locations(settings,segment)
           
-        # append microphone locations to conditions
-        conditions.noise.ground_microphone_theta_angles        = GM_THETA
-        conditions.noise.ground_microphone_phi_angles          = GM_PHI
+        # append microphone locations to conditions  
         conditions.noise.ground_microphone_stencil_locations   = mic_stencil        
         conditions.noise.evaluated_ground_microphone_locations = EGML       
         conditions.noise.total_ground_microphone_locations     = TGML
-        conditions.noise.number_of_ground_microphones          = num_gm_mic
-         
-        conditions.noise.total_microphone_theta_angles         = GM_THETA 
-        conditions.noise.total_microphone_phi_angles           = GM_PHI 
+        conditions.noise.number_of_ground_microphones          = num_gm_mic 
         conditions.noise.total_microphone_locations            = REGML 
         conditions.noise.total_number_of_microphones           = num_gm_mic 
         
