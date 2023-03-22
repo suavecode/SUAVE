@@ -53,6 +53,11 @@ def initialize_conditions(segment):
     if T0 is None:
         T0  =  segment.state.initials.conditions.frames.body.inertial_rotations[-1,1]
         segment.pitch_initial = T0    
+    
+    # check for initial velocity vector
+    if v0 is None:
+        if not segment.state.initials: raise AttributeError('initial airspeed not set')
+        v0  =  segment.state.initials.conditions.frames.inertial.velocity_vector[-1,0] # x direction velocity         
 
     # dimensionalize time
     t_initial = segment.state.conditions.frames.inertial.time[0,0]

@@ -48,6 +48,11 @@ def initialize_conditions(segment):
     t_nondim   = segment.state.numerics.dimensionless.control_points
     conditions = segment.state.conditions  
 
+    # check for initial velocity
+    if air_speed is None: 
+        if not segment.state.initials: raise AttributeError('airspeed not set')
+        air_speed = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+        
     # check for initial altitude
     if alt0 is None:
         if not segment.state.initials: raise AttributeError('initial altitude not set')

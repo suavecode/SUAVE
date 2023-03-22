@@ -44,13 +44,18 @@ def initialize_conditions(segment):
     # unpack
     # unpack user inputs
     climb_rate = segment.climb_rate
-    Vo         = segment.air_speed_start
-    Vf         = segment.air_speed_end
+    v0         = segment.air_speed_start
+    vf         = segment.air_speed_end
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
     t_nondim   = segment.state.numerics.dimensionless.control_points
     conditions = segment.state.conditions  
 
+    # check for initial velocity
+    if v0 is None: 
+        if not segment.state.initials: raise AttributeError('airspeed not set')
+        v0 = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+        
     # check for initial altitude
     if alt0 is None:
         if not segment.state.initials: raise AttributeError('initial altitude not set')
@@ -60,7 +65,7 @@ def initialize_conditions(segment):
     alt = t_nondim * (altf-alt0) + alt0
     
     # process velocity vector
-    v_mag = (Vf-Vo)*t_nondim + Vo
+    v_mag = (vf-v0)*t_nondim + v0
     v_z   = -climb_rate # z points down
     v_x   = np.sqrt( v_mag**2 - v_z**2 )
     

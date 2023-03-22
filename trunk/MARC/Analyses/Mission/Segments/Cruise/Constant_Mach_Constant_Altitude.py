@@ -54,7 +54,7 @@ class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
         #   User inputs
         # --------------------------------------------------------------
         self.altitude           = None
-        self.mach               = 0.5 
+        self.mach_number        = None
         self.distance           = 10. * Units.km
         self.true_course_angle  = 0.0 * Units.degrees 
         

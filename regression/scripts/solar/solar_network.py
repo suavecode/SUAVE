@@ -201,7 +201,7 @@ def mission_setup(analyses,vehicle):
     # segment attributes     
     segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
-    segment.mach           = 0.1
+    segment.mach_number    = 0.1
     segment.distance       = 3050.0 * Units.km
     segment.battery_energy = vehicle.networks.solar.battery.pack.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)

@@ -307,11 +307,11 @@ def base(analyses):
     
     segment.analyses.extend( analyses.cruise )
     
-    segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 15000.0 * Units.ft
-    segment.climb_rate     = 1800.   * Units['ft/min']
-    segment.mach_end       = 0.3
-    segment.mach_start     = 0.2
+    segment.altitude_start    = 0.0   * Units.km
+    segment.altitude_end      = 15000.0 * Units.ft
+    segment.climb_rate        = 1800.   * Units['ft/min']
+    segment.mach_number_end   = 0.3
+    segment.mach_number_start = 0.2
     
     ones_row = segment.state.ones_row
     segment.state.unknowns.throttle   = ones_row(1) * 1.0 
@@ -347,8 +347,8 @@ def base(analyses):
     
     segment.analyses.extend( analyses.cruise )
     
-    segment.mach = 0.5
-    segment.time = 30.0 * Units.minutes
+    segment.mach_number = 0.5
+    segment.time        = 30.0 * Units.minutes
     
     mission.append_segment(segment)    
     
@@ -368,8 +368,8 @@ def base(analyses):
     segment.descent_rate = 3.0   * Units['m/s']
     
     
-    segment.mach_end    = 0.24
-    segment.mach_start  = 0.3
+    segment.mach_number_end    = 0.24
+    segment.mach_number_start  = 0.3
     
     # append to mission
     mission.append_segment(segment)
@@ -616,8 +616,8 @@ def max_range_setup(analyses):
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 15000.0 * Units.ft
     segment.climb_rate     = 1800.   * Units['ft/min']
-    segment.mach_end       = 0.3
-    segment.mach_start     = 0.2
+    segment.mach_number_end       = 0.3
+    segment.mach_number_start     = 0.2
     
     ones_row = segment.state.ones_row
     segment.state.unknowns.throttle   = ones_row(1) * 1.0  
@@ -653,8 +653,8 @@ def max_range_setup(analyses):
     
     segment.analyses.extend( analyses.cruise )
     
-    segment.mach = 0.5
-    segment.time = 30.0 * Units.minutes
+    segment.mach_number = 0.5
+    segment.time        = 30.0 * Units.minutes
     
     mission.append_segment(segment)    
     
@@ -674,8 +674,8 @@ def max_range_setup(analyses):
     segment.descent_rate = 3.0   * Units['m/s']
     
     
-    segment.mach_end    = 0.24
-    segment.mach_start  = 0.3
+    segment.mach_number_end    = 0.24
+    segment.mach_number_start  = 0.3
     
     # append to mission
     mission.append_segment(segment)
@@ -931,8 +931,8 @@ def short_field_setup(analyses):
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 15000.0 * Units.ft
     segment.climb_rate     = 1800.   * Units['ft/min']
-    segment.mach_end       = 0.3
-    segment.mach_start     = 0.2
+    segment.mach_number_end       = 0.3
+    segment.mach_number_start     = 0.2
     
     ones_row = segment.state.ones_row
     segment.state.unknowns.throttle   = ones_row(1) * 1.0 
@@ -969,8 +969,8 @@ def short_field_setup(analyses):
     
     segment.analyses.extend( analyses.cruise )
     
-    segment.mach = 0.5
-    segment.time = 30.0 * Units.minutes
+    segment.mach_number = 0.5
+    segment.time        = 30.0 * Units.minutes
     
     mission.append_segment(segment)    
     
@@ -990,8 +990,8 @@ def short_field_setup(analyses):
     segment.descent_rate = 3.0   * Units['m/s']
     
     
-    segment.mach_end    = 0.24
-    segment.mach_start  = 0.3
+    segment.mach_number_end    = 0.24
+    segment.mach_number_start  = 0.3
     
     # append to mission
     mission.append_segment(segment)

@@ -57,7 +57,7 @@ class Linear_Speed_Constant_Rate(Unknown_Throttle):
         self.altitude_start    = None # Optional
         self.altitude_end      = 10. * Units.km
         self.climb_rate        = 3.  * Units.m / Units.s
-        self.air_speed_start   = 100 * Units.m / Units.s
+        self.air_speed_start   = None
         self.air_speed_end     = 200 * Units.m / Units.s
         self.true_course_angle = 0.0 * Units.degrees    
         

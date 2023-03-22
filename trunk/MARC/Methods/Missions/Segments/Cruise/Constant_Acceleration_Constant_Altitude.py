@@ -10,6 +10,8 @@
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
+import numpy as np 
+
 ## @ingroup Methods-Missions-Segments-Cruise
 def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
@@ -49,6 +51,11 @@ def initialize_conditions(segment):
         if not segment.state.initials: raise AttributeError('altitude not set')
         alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
     
+    # check for initial velocity
+    if v0 is None: 
+        if not segment.state.initials: raise AttributeError('airspeed not set')
+        v0 = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+        
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
     t_final   = (vf-v0)/ax + t_initial

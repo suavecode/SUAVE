@@ -62,7 +62,7 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         self.altitude           = None
         self.acceleration       = 1.  * Units['m/s/s']
-        self.air_speed_start    = 0.0 * Units['m/s']
+        self.air_speed_start    = None
         self.air_speed_end      = 1.0 * Units['m/s']        
         self.pitch_initial      = None
         self.pitch_final        = 0.0 * Units['rad']

@@ -25,7 +25,7 @@ def initialize_conditions(segment):
 
     Inputs:
     segment.climb_rate                                  [meters/second]
-    segment.mach                                        [Unitless]
+    segment.mach_number                                 [Unitless]
     segment.altitude_start                              [meters]
     segment.altitude_end                                [meters]
     segment.state.numerics.dimensionless.control_points [Unitless]
@@ -62,8 +62,14 @@ def initialize_conditions(segment):
     MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
     a = conditions.freestream.speed_of_sound    
     
-    # process velocity vector
-    v_mag = mach_number * a
+
+    # check for initial velocity
+    if mach_number is None: 
+        if not segment.state.initials: raise AttributeError('mach not set')
+        v_mag = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])   
+    else: 
+        # process velocity vector
+        v_mag = mach_number * a
     v_z   = -climb_rate # z points down
     v_x   = np.sqrt( v_mag**2 - v_z**2 )
     

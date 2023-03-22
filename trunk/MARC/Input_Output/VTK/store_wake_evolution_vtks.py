@@ -66,9 +66,7 @@ def store_wake_evolution_vtks(wake,rotor,save_loc=None):
             
             # create dummy vehicle
             vehicle = MARC.Vehicle()
-            net     = MARC.Components.Energy.Networks.Battery_Electric_Rotor()
-            net.y_axis_rotation = rotor.inputs.y_axis_rotation
-            net.number_of_engines  = 1
+            net     = MARC.Components.Energy.Networks.Battery_Electric_Rotor()  
             net.rotors.append(rotor)
             vehicle.append_component(net) 
 

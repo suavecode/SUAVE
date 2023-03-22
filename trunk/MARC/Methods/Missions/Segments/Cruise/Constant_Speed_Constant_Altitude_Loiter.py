@@ -8,9 +8,8 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-import MARC
-
+ 
+import numpy as np 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
@@ -44,8 +43,13 @@ def initialize_conditions(segment):
     alt        = segment.altitude
     final_time = segment.time
     air_speed  = segment.air_speed 
-    conditions = segment.state.conditions   
+    conditions = segment.state.conditions 
     
+    # check for initial velocity
+    if air_speed is None: 
+        if not segment.state.initials: raise AttributeError('airspeed not set')
+        air_speed = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+        
     # check for initial altitude
     if alt is None:
         if not segment.state.initials: raise AttributeError('altitude not set')

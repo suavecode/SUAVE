@@ -54,10 +54,15 @@ def initialize_conditions(segment):
     # check for initial altitude
     if alt is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]      
+        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]       
     
-    # compute speed, constant with constant altitude
-    air_speed = np.sqrt(q/(rho*0.5))
+    # check for initial velocity
+    if q is None: 
+        if not segment.state.initials: raise AttributeError('dynamic pressure not set')
+        air_speed = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+        
+    else: # compute speed, constant with constant altitude
+        air_speed = np.sqrt(q/(rho*0.5))
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]

@@ -299,21 +299,21 @@ def base(analyses):
     
     segment.analyses.extend( analyses.cruise )
     
-    segment.mach      = 0.5
-    segment.distance  = 140.0 * Units.nautical_mile    
+    segment.mach_number = 0.5
+    segment.distance    = 140.0 * Units.nautical_mile    
     mission.append_segment(segment)
     
     # ------------------------------------------------------------------
     #   Loiter Segment: constant mach, constant time
     # ------------------------------------------------------------------
     
-    segment = Segments.Cruise.Constant_Mach_Constant_Altitude_Loiter(base_segment)
+    segment     = Segments.Cruise.Constant_Mach_Constant_Altitude_Loiter(base_segment)
     segment.tag = "reserve_loiter"
     
     segment.analyses.extend( analyses.cruise )
     
-    segment.mach = 0.5
-    segment.time = 30.0 * Units.minutes
+    segment.mach_number = 0.5
+    segment.time        = 30.0 * Units.minutes
     
     mission.append_segment(segment)    
     
@@ -333,8 +333,8 @@ def base(analyses):
     segment.descent_rate = 3.0   * Units['m/s']
     
     
-    segment.mach_end    = 0.24
-    segment.mach_start  = 0.3
+    segment.mach_number_end    = 0.24
+    segment.mach_number_start  = 0.3
     
     # append to mission
     mission.append_segment(segment)

@@ -140,7 +140,6 @@ def B_max_function(b):
     B_max[b>0.187] = -80.541*b[b>0.187]**3 +  44.174*b[b>0.187]**2 - 39.381*b[b>0.187] + 2.344 # eqn 42  
     return B_max 
 
-
 def amplitude_function_K_1(R_c): 
     K_1             = - 9.0*np.log10(R_c) + 181.6   # eqn 47 
     K_1[R_c<2.47E5] = -4.31*np.log10(R_c[R_c<2.47E5]) + 156.3  # eqn 47

@@ -71,12 +71,19 @@ def initialize_conditions_unpack_unknowns(segment):
     # pack conditions    
     conditions.freestream.altitude[:,0]             =  alts[:,0] # positive altitude in this context    
     
-    # Update freestream to get density
-    MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
-    rho = conditions.freestream.density[:,0]       
+
+    # check for initial velocity
+    if q is None: 
+        if not segment.state.initials: raise AttributeError('dynamic pressure not set')
+        v_mag = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+    else: 
+        # Update freestream to get density
+        MARC.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
+        rho = conditions.freestream.density[:,0]       
     
-    # process velocity vector
-    v_mag = np.sqrt(2*q/rho)
+        # process velocity vector
+        v_mag = np.sqrt(2*q/rho)
+        
     v_x   = v_mag * np.cos(climb_angle)
     v_z   = -v_mag * np.sin(climb_angle)
     
