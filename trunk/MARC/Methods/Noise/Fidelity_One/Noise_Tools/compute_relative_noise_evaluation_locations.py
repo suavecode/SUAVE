@@ -1,5 +1,5 @@
 ## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
-# compute_noise_evaluation_locations.py
+# compute_relative_noise_evaluation_locations.py
 # 
 # Created: Sep 2021, M. Clarke  
 
@@ -12,7 +12,7 @@ import numpy as np
 #  Compute Noise Evaluation Points
 # ---------------------------------------------------------------------
 ## @ingroup Methods-Noise-Fidelity_One-Noise_Tools 
-def compute_ground_noise_evaluation_locations(settings,segment):
+def compute_relative_noise_evaluation_locations(settings,segment):
     """This computes the relative locations on the surface in the computational domain where the 
     propogated sound is computed. Vectors point from observer/microphone to aircraft/source  
             
@@ -43,18 +43,17 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     N_gm_x            = settings.ground_microphone_x_resolution   
     N_gm_y            = settings.ground_microphone_y_resolution   
     gml               = settings.ground_microphone_locations 
-    pos               = segment.state.conditions.frames.inertial.position_vector
-    true_course_angle = segment.state.conditions.frames.planet.true_course_angle
+    pos               = segment.state.conditions.frames.inertial.position_vector 
     ctrl_pts          = len(pos)  
     TGML              = np.repeat(gml[np.newaxis,:,:],ctrl_pts,axis=0) 
     
     if (mic_stencil_x*2 + 1) > N_gm_x:
         print("Resetting microphone stenxil in x direction")
-        mic_stencil_x = np.floor(N_gm_x/2 - 1)
+        mic_stencil_x = int(np.floor(N_gm_x/2 - 1))
     
     if (mic_stencil_y*2 + 1) > N_gm_y:
         print("Resetting microphone stenxil in y direction")
-        mic_stencil_y = np.floor(N_gm_y/2 - 1)      
+        mic_stencil_y = int(np.floor(N_gm_y/2 - 1))      
     
     # index location that is closest to the position of the aircraft 
     stencil_center_x_locs   = np.argmin(abs(np.tile((pos[:,0]+ settings.aircraft_departure_location[0])[:,None,None],(1,N_gm_x,N_gm_y)) -  np.tile(gml[:,0].reshape(N_gm_x,N_gm_y)[None,:,:],(ctrl_pts,1,1))),axis = 1)[:,0] 
@@ -94,13 +93,12 @@ def compute_ground_noise_evaluation_locations(settings,segment):
     for cpt in range(ctrl_pts):
         surface         = TGML[cpt,:,:].reshape((N_gm_x,N_gm_y,3))
         stencil         = surface[start_x[cpt]:end_x[cpt],start_y[cpt]:end_y[cpt],:].reshape(num_gm_mic,3,1)  # extraction of points 
-        
         EGML[cpt]       = stencil[:,:,0]
         
         relative_locations           = np.zeros((num_gm_mic,3,1))
         relative_locations[:,0,0]    = stencil[:,0,0] -  (pos[cpt,0] + settings.aircraft_departure_location[0])
         relative_locations[:,1,0]    = stencil[:,1,0] -  (pos[cpt,1] + settings.aircraft_departure_location[1])
-        relative_locations[:,2,0]    = stencil[:,2,0] -  (pos[cpt,2])  
+        relative_locations[:,2,0]    = -(pos[cpt,2]) - stencil[:,2,0] 
         
         REGML[cpt,:,:]   = relative_locations[:,:,0] 
      

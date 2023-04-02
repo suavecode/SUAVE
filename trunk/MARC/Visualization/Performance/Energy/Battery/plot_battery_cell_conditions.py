@@ -63,7 +63,7 @@ def plot_battery_cell_conditions(results,
     # get line colors for plots 
     line_colors   = cm.inferno(np.linspace(0,0.9,len(results.segments)))     
     
-    fig   = plt.figure()
+    fig   = plt.figure(save_filename)
     fig.set_size_inches(width,height) 
     for i in range(len(results.segments)): 
         time                = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min

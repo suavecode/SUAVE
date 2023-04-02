@@ -18,7 +18,7 @@ from MARC.Visualization.Performance.Common.post_process_noise_data import post_p
 ## @ingroup Visualization-Performance-Noise
 def plot_ground_noise_levels(results,
                             save_figure=False,
-                            save_filename="Sideline Noise Levels",
+                            save_filename="Sideline_Noise_Levels",
                             file_type=".png",
                             width = 12, height = 7): 
     """This plots the A-weighted Sound Pressure Level as a function of time at various aximuthal angles
@@ -62,7 +62,7 @@ def plot_ground_noise_levels(results,
                   'axes.titlesize': ps.title_font_size}
     plt.rcParams.update(parameters) 
       
-    fig   = plt.figure()
+    fig   = plt.figure(save_filename)
     fig.set_size_inches(width,height)
     axes        = fig.add_subplot(1,1,1) 
     

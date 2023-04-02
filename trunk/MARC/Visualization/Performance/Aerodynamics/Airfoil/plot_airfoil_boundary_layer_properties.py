@@ -26,6 +26,7 @@ def plot_airfoil_boundary_layer_properties(ap,
                                            save_figure = False,
                                            show_legend = False,
                                            file_type = ".png",
+                                           save_filename = 'Airfoil_with_Boundary_Layers', 
                                            width = 12, height = 7):
     """Plots viscous distributions
     
@@ -62,7 +63,7 @@ def plot_airfoil_boundary_layer_properties(ap,
     blues = cm.winter(np.linspace(0,0.9,n_cases))     
     reds  = cm.autumn(np.linspace(0,0.9,n_cases))   
 
-    fig_0   = plt.figure()
+    fig_0   = plt.figure(save_filename)
     fig_0.set_size_inches(width,height)
     
     for i in range(n_cpts):   
@@ -78,7 +79,7 @@ def plot_airfoil_boundary_layer_properties(ap,
     fig_0.suptitle(title_text)
     
     if save_figure:
-        plt.savefig('Airfoil_with_Boundary_Layers'  + file_type)   
+        plt.savefig(save_filename + file_type)   
  
     return    
  
@@ -121,7 +122,7 @@ def plot_quantity(ap, q, qaxis, qname,ylim_low,ylim_high,file_type,show_legend,s
     n_cpts   = len(ap.AoA[:,0])
     n_cases  = len(ap.AoA[0,:]) 
     
-    fig   = plt.figure()
+    fig   = plt.figure(qname.replace(" ", "_"))
     fig.set_size_inches(width,height) 
     axis  = fig.add_subplot(1,1,1)   
     

@@ -28,8 +28,8 @@ def converge_evtol_weight(vehicle,
     '''Converges the maximum takeoff weight of an aircraft using the eVTOL 
     weight buildup routine.  
     
-    Source:
-    None
+    Source: 
+    Vehicle ompoments i.e. rotors and motors are not resized 
     
     Assumptions:
     None

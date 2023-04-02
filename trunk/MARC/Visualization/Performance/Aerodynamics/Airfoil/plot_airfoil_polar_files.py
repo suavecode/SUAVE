@@ -66,7 +66,7 @@ def plot_airfoil_polar_files(polar_data,
     # get line colors for plots 
     line_colors   = cm.inferno(np.linspace(0,0.9,n_Re))     
      
-    fig   = plt.figure()
+    fig   = plt.figure(save_filename)
     fig.set_size_inches(width,height) 
       
     for j in range(n_Re):

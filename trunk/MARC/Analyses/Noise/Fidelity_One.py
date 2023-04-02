@@ -17,13 +17,13 @@ from .Noise     import Noise
 from MARC.Components.Physical_Component import Container 
 
 # noise imports 
-from MARC.Methods.Noise.Fidelity_One.Airframe.noise_airframe_Fink                   import noise_airframe_Fink
-from MARC.Methods.Noise.Fidelity_One.Engine.noise_SAE                               import noise_SAE  
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric                    import noise_geometric
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic                 import SPL_arithmetic
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points         import generate_ground_microphone_points
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise_evaluation_locations import compute_ground_noise_evaluation_locations 
-from MARC.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise                        import total_rotor_noise 
+from MARC.Methods.Noise.Fidelity_One.Airframe.noise_airframe_Fink                            import noise_airframe_Fink
+from MARC.Methods.Noise.Fidelity_One.Engine.noise_SAE                                        import noise_SAE  
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric                             import noise_geometric
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic                          import SPL_arithmetic
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points                  import generate_zero_elevation_microphone_points
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.compute_relative_noise_evaluation_locations import compute_relative_noise_evaluation_locations 
+from MARC.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise                                 import total_rotor_noise 
 
 # package imports
 import numpy as np
@@ -130,9 +130,9 @@ class Fidelity_One(Noise):
         
         # generate noise valuation points
         if type(settings.ground_microphone_locations) is not np.ndarray: 
-            generate_ground_microphone_points(settings)     
+            generate_zero_elevation_microphone_points(settings)     
         
-        REGML,EGML,TGML,num_gm_mic,mic_stencil = compute_ground_noise_evaluation_locations(settings,segment)
+        REGML,EGML,TGML,num_gm_mic,mic_stencil = compute_relative_noise_evaluation_locations(settings,segment)
           
         # append microphone locations to conditions  
         conditions.noise.ground_microphone_stencil_locations   = mic_stencil        

@@ -32,12 +32,11 @@ def post_process_noise_data(results):
     N_segs               = len(results.segments)
     N_ctrl_pts = 0
     for i in range(N_segs):  
-        N_ctrl_pts  += len(results.segments[0].conditions.frames.inertial.time[:,0])   
+        N_ctrl_pts  += len(results.segments[i].conditions.frames.inertial.time[:,0])   
     N_gm_x               = results.segments[0].analyses.noise.settings.ground_microphone_x_resolution
-    N_gm_y               = results.segments[0].analyses.noise.settings.ground_microphone_y_resolution   
-    dim_mat              = N_segs*N_ctrl_pts 
-    SPL_contour_gm       = np.ones((dim_mat,N_gm_x,N_gm_y))*background_noise_dbA 
-    Aircraft_pos         = np.zeros((dim_mat,3)) 
+    N_gm_y               = results.segments[0].analyses.noise.settings.ground_microphone_y_resolution    
+    SPL_contour_gm       = np.ones((N_ctrl_pts ,N_gm_x,N_gm_y))
+    Aircraft_pos         = np.zeros((N_ctrl_pts ,3)) 
     Mic_pos_gm           = results.segments[0].conditions.noise.total_ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3) 
 
     idx = 0 
@@ -62,7 +61,7 @@ def post_process_noise_data(results):
                 
     # make any readings less that background noise equal to background noise
     SPL_dBA_ground_mic = np.nan_to_num(SPL_contour_gm) 
-    SPL_dBA_ground_mic[SPL_dBA_ground_mic<35] = 35       
+    SPL_dBA_ground_mic[SPL_dBA_ground_mic<background_noise_dbA] = background_noise_dbA
     
     noise_data                        = Data()
     noise_data.SPL_dBA_ground_mic     = SPL_dBA_ground_mic
