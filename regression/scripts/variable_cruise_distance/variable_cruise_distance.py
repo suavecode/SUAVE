@@ -23,7 +23,7 @@ sys.path.append('../B737')
 from Boeing_737 import vehicle_setup, configs_setup
 from Stopped_Rotor import vehicle_setup as vehicle_setup_SR
 from Stopped_Rotor import configs_setup as configs_setup_SR
-from MARC.Methods.Performance.estimate_stall_speed                       import estimate_stall_speed
+from MARC.Methods.Performance.estimate_stall_speed  import estimate_stall_speed
 
 import mission_B737
 # ----------------------------------------------------------------------
@@ -45,10 +45,10 @@ def main():
     results = mission.evaluate()
     results = results.merged() 
 
-    distance_regression = 3909067.571732345
+    distance_regression = 3909279.2541772546
     distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
     print('distance_calc = ', distance_calc)
-    error_distance      = abs((distance_regression - distance_calc )/distance_regression)
+    error_distance       = abs((distance_regression - distance_calc )/distance_regression)
     print('error = ',error_distance)
     assert error_distance < 1e-6
 

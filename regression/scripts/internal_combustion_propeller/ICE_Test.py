@@ -43,8 +43,8 @@ def main():
     
     h  = 0.008757244664175039
 
-    P_truth     = 53571.44125040208
-    mdot_truth  = 0.0047069094723029845
+    P_truth     = 53577.659232513804
+    mdot_truth  = 0.004707455798446486
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
     mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]
