@@ -66,10 +66,10 @@ def initialize_conditions(segment):
     vx = v0+(time - t_initial)*ax
     
     # pack
-    segment.state.conditions.freestream.altitude[:,0] = alt
+    segment.state.conditions.freestream.altitude[:,0]             = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     segment.state.conditions.frames.inertial.velocity_vector[:,0] = vx[:,0]
-    segment.state.conditions.frames.inertial.time[:,0] = time[:,0]
+    segment.state.conditions.frames.inertial.time[:,0]            = time[:,0]
     
 
 # ----------------------------------------------------------------------

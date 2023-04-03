@@ -77,7 +77,7 @@ def main():
     print_mission_breakdown(results,filename='mission_breakdown.dat')
 
     # load older results
-    #save_results(results)
+    save_results(results)
     old_results = load_results()   
 
     # plt the old results

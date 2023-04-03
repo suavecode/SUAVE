@@ -64,13 +64,14 @@ def plot_flight_trajectory(results,
      
     for i in range(len(results.segments)): 
         time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        x        = results.segments[i].conditions.frames.inertial.position_vector[:,0] 
+        Range    = results.segments[i].conditions.frames.inertial.aircraft_range[:,0]/Units.nmi
+        x        = results.segments[i].conditions.frames.inertial.position_vector[:,0]  
         y        = results.segments[i].conditions.frames.inertial.position_vector[:,1] 
         z        = -results.segments[i].conditions.frames.inertial.position_vector[:,2] 
         
         axes = plt.subplot(2,2,1)
-        axes.plot( time , x/1000, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width )
-        axes.set_xlabel('Distance (km)')
+        axes.plot( time , Range, color = line_colors[i], marker = ps.marker, linewidth = ps.line_width )
+        axes.set_ylabel('Distance (nmi)')
         axes.set_xlabel('Time (min)')
         set_axes(axes)            
 

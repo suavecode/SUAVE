@@ -57,7 +57,7 @@ def plot_airfoil_polars(polar_data,
                   'axes.titlesize': ps.title_font_size}
     plt.rcParams.update(parameters)
       
-    fig   = plt.figure()
+    fig   = plt.figure(save_filename)
     fig.set_size_inches(width,height) 
                
     axes_1 = plt.subplot(2,2,1)

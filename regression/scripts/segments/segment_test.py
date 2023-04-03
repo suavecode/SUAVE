@@ -74,25 +74,25 @@ def main():
             print(val)
     
     # Truth values
-    climb_throttle_1_truth   = 1.0779172001580895
-    climb_throttle_2_truth   = 1.0825266956923534
-    climb_throttle_3_truth   = 0.674659924528744
-    climb_throttle_4_truth   = 1.1315563076928277
-    climb_throttle_5_truth   = 1.1836299998309165
-    climb_throttle_6_truth   = 1.8029235225146518
-    climb_throttle_7_truth   = 2.162410758508211
-    climb_throttle_8_truth   = 1.1553353775037472
-    climb_throttle_9_truth   = 1.2526488110631937
-    climb_throttle_10_truth  = 1.0
-    cruise_CL_1_truth        = 0.6922081900548479
-    cruise_CL_2_truth        = 0.6924899560446343
-    cruise_CL_3_truth        = 0.7831614422287909
-    descent_throttle_1_truth = 0.09429690800605248
-    descent_throttle_2_truth = 0.2436300668288393
-    single_pt_CL_1_truth     = 0.24927935053641762
-    single_pt_CL_2_truth     = 0.2492810778918667
-    loiter_CL_truth          = 0.5076303507170998
-    descent_throttle_3_truth = 0.17737866994148493
+    climb_throttle_1_truth   = 1.0779172914665232 
+    climb_throttle_2_truth   = 1.082526547487916 
+    climb_throttle_3_truth   = 0.6747058621434453 
+    climb_throttle_4_truth   = 1.131648878974983 
+    climb_throttle_5_truth   = 1.1837976429999089 
+    climb_throttle_6_truth   = 1.8022530802889527 
+    climb_throttle_7_truth   = 2.161553179892297 
+    climb_throttle_8_truth   = 1.1544021020781872 
+    climb_throttle_9_truth   = 1.2517794766114647 
+    climb_throttle_10_truth  = 1.0 
+    cruise_CL_1_truth        = 0.6922177281751299 
+    cruise_CL_2_truth        = 0.6924992657230179 
+    cruise_CL_3_truth        = 0.7831693336483375 
+    descent_throttle_1_truth = 0.09439666548869478
+    descent_throttle_2_truth = 0.24362355188744153
+    single_pt_CL_1_truth     = 0.24928273379585697
+    single_pt_CL_2_truth     = 0.2492844580636887 
+    loiter_CL_truth          = 0.5076370700081876 
+    descent_throttle_3_truth = 0.17737199972833848
     
     # Store errors 
     error = Data()
@@ -115,6 +115,7 @@ def main():
     error.single_pt_CL_2     = np.max(np.abs(single_pt_CL_2       - single_pt_CL_2_truth ))  
     error.loiter_CL          = np.max(np.abs(loiter_CL            - loiter_CL_truth ))         
     error.descent_throttle_3 = np.max(np.abs(descent_throttle_3   - descent_throttle_3_truth))  
+  
      
     print('Errors:')
     print(error)

@@ -16,7 +16,8 @@ from MARC.Visualization.Performance.Energy.Common import *
 from MARC.Visualization.Performance.Energy.Battery import *   
 from MARC.Visualization.Performance.Noise import *   
 from MARC.Methods.Performance.estimate_stall_speed import estimate_stall_speed 
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import preprocess_topography_and_route_data
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import generate_terrain_elevated_microphone_points
+from MARC.Methods.Missions.compute_point_to_point_geospacial_data           import compute_point_to_point_geospacial_data
 import matplotlib.pyplot as plt 
 
 import sys
@@ -51,7 +52,7 @@ def main():
     print('\n\n MARC Frequency Domain Propeller Aircraft Noise Model')
 
     X57_SPL        = np.max(X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA) 
-    X57_SPL_true   = 75.0624436062055
+    X57_SPL_true   = 77.82861519987955
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
@@ -69,14 +70,20 @@ def X57_full_setup():
     # vehicle data
     vehicle  = X57_vehicle_setup()
 
-    topography_data = preprocess_topography_and_route_data(topography_file                       = 'LA_Metropolitan_Area.txt',
-                                                           departure_coordinates                 = [33.94067953101678, -118.40513722978149],
-                                                           destination_coordinates               = [33.81713622114423, -117.92111163722772],
-                                                           number_of_latitudinal_microphones     = 201,
-                                                           number_of_longitudinal_microphones    = 101,
-                                                           latitudinal_microphone_stencil_size   = 3,
-                                                           longitudinal_microphone_stencil_size  = 3 )
+    microphone_terrain_data =  generate_terrain_elevated_microphone_points(topography_file   ='LA_Metropolitan_Area.txt',
+                                                           ground_microphone_x_resolution    = 201,  
+                                                           ground_microphone_y_resolution    = 101, 
+                                                           ground_microphone_x_stencil       = 3,   
+                                                           ground_microphone_y_stencil       = 3)    
     
+
+    airport_geospacial_data            =  compute_point_to_point_geospacial_data(topography_file  = 'LA_Metropolitan_Area.txt',
+                                                                                 departure_tag                         = 'A',
+                                                                                 destination_tag                       = 'B',
+                                                                                 departure_coordinates                 = [33.94067953101678, -118.40513722978149],
+                                                                                 destination_coordinates               = [33.81713622114423, -117.92111163722772],
+                                                                                 adjusted_cruise_distance              = 0)    
+  
     
     # change identical propeller flag for regression coverage even though propellers are identical 
     vehicle.networks.battery_electric_rotor.identical_rotors = False
@@ -85,10 +92,10 @@ def X57_full_setup():
     configs  = X57_configs_setup(vehicle)
 
     # vehicle analyses
-    configs_analyses = analyses_setup(configs,topography_data)
+    configs_analyses = analyses_setup(configs,microphone_terrain_data,airport_geospacial_data)
 
     # mission analyses
-    mission  = X57_mission_setup(configs_analyses,vehicle,topography_data)
+    mission  = X57_mission_setup(configs_analyses,vehicle,microphone_terrain_data,airport_geospacial_data)
     missions_analyses = X57_missions_setup(mission)
 
     analyses = MARC.Analyses.Analysis.Container()
@@ -97,7 +104,7 @@ def X57_full_setup():
 
     return configs, analyses 
 
-def base_analysis(vehicle,topography_data):
+def base_analysis(vehicle,microphone_terrain_data,airport_geospacial_data):
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -131,17 +138,17 @@ def base_analysis(vehicle,topography_data):
     # ------------------------------------------------------------------   
     noise = MARC.Analyses.Noise.Fidelity_One()   
     noise.geometry = vehicle
-    noise.settings.ground_microphone_x_resolution   = topography_data.ground_microphone_x_resolution           
-    noise.settings.ground_microphone_y_resolution   = topography_data.ground_microphone_y_resolution          
-    noise.settings.ground_microphone_x_stencil      = topography_data.ground_microphone_x_stencil             
-    noise.settings.ground_microphone_y_stencil      = topography_data.ground_microphone_y_stencil             
-    noise.settings.ground_microphone_min_y          = topography_data.ground_microphone_min_x                 
-    noise.settings.ground_microphone_max_y          = topography_data.ground_microphone_max_x                 
-    noise.settings.ground_microphone_min_x          = topography_data.ground_microphone_min_y                 
-    noise.settings.ground_microphone_max_x          = topography_data.ground_microphone_max_y                 
-    noise.settings.ground_microphone_locations      = topography_data.cartesian_microphone_locations            
-    noise.settings.aircraft_departure_location      = topography_data.departure_location   
-    noise.settings.aircraft_destimation_location    = topography_data.destination_location                              
+    noise.settings.ground_microphone_x_resolution   = microphone_terrain_data.ground_microphone_x_resolution           
+    noise.settings.ground_microphone_y_resolution   = microphone_terrain_data.ground_microphone_y_resolution          
+    noise.settings.ground_microphone_x_stencil      = microphone_terrain_data.ground_microphone_x_stencil             
+    noise.settings.ground_microphone_y_stencil      = microphone_terrain_data.ground_microphone_y_stencil             
+    noise.settings.ground_microphone_min_y          = microphone_terrain_data.ground_microphone_min_x                 
+    noise.settings.ground_microphone_max_y          = microphone_terrain_data.ground_microphone_max_x                 
+    noise.settings.ground_microphone_min_x          = microphone_terrain_data.ground_microphone_min_y                 
+    noise.settings.ground_microphone_max_x          = microphone_terrain_data.ground_microphone_max_y                 
+    noise.settings.ground_microphone_locations      = microphone_terrain_data.cartesian_microphone_locations      
+    noise.settings.aircraft_departure_location      = airport_geospacial_data.departure_location   
+    noise.settings.aircraft_destimation_location    = airport_geospacial_data.destination_location                              
     analyses.append(noise)                                                       
      
     # ------------------------------------------------------------------
@@ -170,13 +177,13 @@ def base_analysis(vehicle,topography_data):
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
 
-def analyses_setup(configs,topography_data):
+def analyses_setup(configs,microphone_terrain_data,airport_geospacial_data):
 
     analyses = MARC.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
-        analysis = base_analysis(config,topography_data)
+        analysis = base_analysis(config,microphone_terrain_data,airport_geospacial_data)
         analyses[tag] = analysis
 
     return analyses 
@@ -201,7 +208,7 @@ def simple_sizing(configs):
     return
   
 
-def X57_mission_setup(analyses,vehicle,topography_data):  
+def X57_mission_setup(analyses,vehicle,microphone_terrain_data,airport_geospacial_data):  
     
 
     # Determine Stall Speed 
@@ -246,7 +253,7 @@ def X57_mission_setup(analyses,vehicle,topography_data):
     segment.air_speed_start                                  = Vstall*1.1 
     segment.air_speed_end                                    = Vstall*1.2       
     segment.climb_rate                                       = 600 * Units['ft/min']
-    segment.true_course_angle                                = topography_data.true_course_angle   
+    segment.true_course_angle                                = airport_geospacial_data.true_course_angle 
     segment = vehicle.networks.battery_electric_rotor.add_unknowns_and_residuals_to_segment(segment)  
     mission.append_segment(segment) 
 

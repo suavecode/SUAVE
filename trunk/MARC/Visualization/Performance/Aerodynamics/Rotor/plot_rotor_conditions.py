@@ -54,7 +54,7 @@ def plot_rotor_conditions(results,
     line_colors   = cm.inferno(np.linspace(0,0.9,len(results.segments)))     
     
     for pg in range(number_of_propulsor_groups): 
-        fig   = plt.figure()
+        fig   = plt.figure(save_filename + '_Propulsor_Group_' + str(pg) )
         fig.set_size_inches(width,height)
         
         for i in range(len(results.segments)): 
@@ -114,5 +114,5 @@ def plot_rotor_conditions(results,
         fig.suptitle(title_text)
         
         if save_figure:
-            plt.savefig(save_filename + 'Propulsor_Group' + str(pg)  + file_type)   
+            plt.savefig(save_filename + '_Propulsor_Group_' + str(pg)  + file_type)   
     return

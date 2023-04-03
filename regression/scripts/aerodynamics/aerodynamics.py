@@ -223,7 +223,6 @@ def main():
     
     test_results(results, results_regression)
     
-    #return conditions, configuration, geometry, test_num
     return
         
       
