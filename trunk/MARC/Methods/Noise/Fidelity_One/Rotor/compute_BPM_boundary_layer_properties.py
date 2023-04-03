@@ -96,27 +96,13 @@ def compute_BPM_boundary_layer_properties(R_c,c,alpha_star):
     theta_s_div_delta_0_untripped[alpha_star<7.5]   = 10**(0.0679*alpha_star[alpha_star<7.5])
     theta_s_div_delta_0_untripped[alpha_star>12.5]  = 14.977*(10**(0.0258*alpha_star[alpha_star>12.5]))   
          
-    boundary_layer_data                              = Data()
-    delta_0_untripped                                = delta_0_div_c_untripped*c 
-    delta_0_tripped                                  = delta_0_div_c_tripped*c
-    boundary_layer_data.delta_star_0_untripped       = delta_star_0_div_c_untripped*c 
-    boundary_layer_data.delta_star_0_tripped         = delta_star_0_div_c_tripped*c 
-    boundary_layer_data.theta_0_untripped            = theta_0_div_c_untripped*c 
-    boundary_layer_data.theta_0_tripped              = theta_0_div_c_tripped*c   
+    boundary_layer_data                              = Data() 
     
-    # pressure side 
-    boundary_layer_data.delta_p_untripped            = delta_p_div_delta_0_untripped*delta_0_untripped   
-    boundary_layer_data.delta_p_tripped              = delta_p_div_delta_0_tripped*delta_0_tripped       
-    boundary_layer_data.delta_star_p_untripped       = delta_star_p_div_delta_0_untripped*delta_0_untripped   
-    boundary_layer_data.delta_star_p_tripped         = delta_star_p_div_delta_0_tripped*delta_0_tripped     
-    boundary_layer_data.theta_p_tripped              = theta_p_div_delta_0_tripped*delta_0_tripped    
-    boundary_layer_data.theta_p_untripped            = theta_p_div_delta_0_untripped*delta_0_untripped 
+    # pressure side  
+    boundary_layer_data.delta_star_p_untripped       = delta_star_p_div_delta_0_untripped*delta_0_div_c_untripped*c
+    boundary_layer_data.delta_star_p_tripped         = delta_star_p_div_delta_0_tripped*delta_0_div_c_tripped*c
     
-    # suction side 
-    boundary_layer_data.delta_s_tripped              = delta_s_div_delta_0_tripped*delta_0_tripped 
-    boundary_layer_data.delta_s_untripped            = delta_s_div_delta_0_untripped*delta_0_untripped 
-    boundary_layer_data.delta_star_s_tripped         = delta_star_s_div_delta_0_tripped*delta_0_tripped  
-    boundary_layer_data.delta_star_s_untripped       = delta_star_s_div_delta_0_untripped*delta_0_untripped 
-    boundary_layer_data.theta_s_untripped            = theta_s_div_delta_0_untripped*delta_0_tripped    
-    
+    # suction side  
+    boundary_layer_data.delta_star_s_tripped         = delta_star_s_div_delta_0_tripped*delta_0_div_c_tripped*c
+    boundary_layer_data.delta_star_s_untripped       = delta_star_s_div_delta_0_untripped*delta_0_div_c_untripped*c 
     return boundary_layer_data     
