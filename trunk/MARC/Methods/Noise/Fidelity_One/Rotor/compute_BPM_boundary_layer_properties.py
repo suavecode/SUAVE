@@ -47,23 +47,23 @@ def compute_BPM_boundary_layer_properties(R_c,c,alpha_star):
     delta_0_div_c_untripped       =  10**(1.6569 -0.9045*np.log10(R_c) + 0.0596*(np.log10(R_c))**2) 
     
     # eqn 6
-    delta_star_0_div_c_untripped  =  10**(3.0187 -1.5397*np.log10(R_c) + 0.1059*(np.log10(R_c))**2) 
+    #delta_star_0_div_c_untripped  =  10**(3.0187 -1.5397*np.log10(R_c) + 0.1059*(np.log10(R_c))**2) 
 
     # eqn 7
-    theta_0_div_c_untripped       =  10**(0.2021 -0.7079*np.log10(R_c) + 0.0404*(np.log10(R_c))**2) 
+    #theta_0_div_c_untripped       =  10**(0.2021 -0.7079*np.log10(R_c) + 0.0404*(np.log10(R_c))**2) 
     
     # boundary layer of pressure side for tripped and untripped 
     # eqn 8
-    delta_p_div_delta_0_untripped       =  10**(-0.04175*alpha_star + 0.00106*(alpha_star**2))
-    delta_p_div_delta_0_tripped         = delta_p_div_delta_0_untripped
+    #delta_p_div_delta_0_untripped       =  10**(-0.04175*alpha_star + 0.00106*(alpha_star**2))
+    #delta_p_div_delta_0_tripped         = delta_p_div_delta_0_untripped
     
     # eqn 9
     delta_star_p_div_delta_0_untripped  =  10**(-0.0432*alpha_star + 0.00113*(alpha_star**2))  
     delta_star_p_div_delta_0_tripped    = delta_star_p_div_delta_0_untripped
     
     # eqn 10
-    theta_p_div_delta_0_untripped       =  10**(-0.04408*alpha_star + 0.000873*(alpha_star**2))  
-    theta_p_div_delta_0_tripped         = theta_p_div_delta_0_untripped
+    #theta_p_div_delta_0_untripped       =  10**(-0.04408*alpha_star + 0.000873*(alpha_star**2))  
+    #theta_p_div_delta_0_tripped         = theta_p_div_delta_0_untripped
     
     # boundary layer of suction side for tripped and untripped  
     # eqn 11
