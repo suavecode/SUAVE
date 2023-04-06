@@ -89,8 +89,8 @@ def plot_elevation_contours(topography_file,
             axis.scatter(airport_geospacial_data.departure_coordinates[1] , airport_geospacial_data.departure_coordinates[0], color= 'black', marker = 'o',  s = 50 )
             axis.scatter(airport_geospacial_data.destination_coordinates[1] ,airport_geospacial_data.destination_coordinates[0], color= 'black', marker = 'o',  s = 50 ) 
             
-            axis.annotate(airport_geospacial_data.departure_tag, (airport_geospacial_data.departure_coordinates[1],airport_geospacial_data.departure_coordinates[0]))
-            axis.annotate(airport_geospacial_data.destination_tag, (airport_geospacial_data.destination_coordinates[1],airport_geospacial_data.destination_coordinates[0]))
+            axis.annotate(airport_geospacial_data.departure_tag, (airport_geospacial_data.departure_coordinates[1],airport_geospacial_data.departure_coordinates[0]*1.05))
+            axis.annotate(airport_geospacial_data.destination_tag, (airport_geospacial_data.destination_coordinates[1],airport_geospacial_data.destination_coordinates[0]*1.05))
                 
         cbar = fig.colorbar(CS, ax=axis)     
         cbar.ax.set_ylabel('Elevation above sea level [m]', rotation =  90)  
@@ -103,8 +103,8 @@ def plot_elevation_contours(topography_file,
             axis.scatter(airport_geospacial_data.departure_location[1]/Units.nmi,airport_geospacial_data.departure_location[0]/Units.nmi, color= 'black', marker = 'o',  s = 50)
             axis.scatter(airport_geospacial_data.destination_location[1]/Units.nmi, airport_geospacial_data.destination_location[0]/Units.nmi, color= 'black', marker = 'o',  s = 50)
 
-            axis.annotate(airport_geospacial_data.departure_tag, (airport_geospacial_data.departure_location[1],airport_geospacial_data.departure_location[0]))
-            axis.annotate(airport_geospacial_data.destination_tag, (airport_geospacial_data.destination_location[1],airport_geospacial_data.destination_location[0]))
+            axis.annotate(airport_geospacial_data.departure_tag, (airport_geospacial_data.departure_location[1]/Units.nmi,airport_geospacial_data.departure_location[0]*1.05/Units.nmi))
+            axis.annotate(airport_geospacial_data.destination_tag, (airport_geospacial_data.destination_location[1]/Units.nmi,airport_geospacial_data.destination_location[0]*1.05/Units.nmi))
             
         cbar = fig.colorbar(CS, ax=axis)        
         cbar.ax.set_ylabel('Elevation above sea level [m]', rotation =  90) 
