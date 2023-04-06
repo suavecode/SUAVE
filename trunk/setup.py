@@ -68,7 +68,7 @@ def install(the_package,version,date):
     packages = list_subpackages(the_package,verbose=False)
     packages = list(map( '.'.join, packages ))
     
-    requires = ['numpy','scipy','sklearn','plotly','matplotlib','kaleido','pandas']
+    requires = ['numpy','scipy','sklearn','plotly','matplotlib','kaleido','pandas','geopy']
     python_v = '>=3.6'
 
     # run the setup!!!
@@ -226,6 +226,11 @@ def import_tests():
         import pandas
     except ImportError:
         raise ImportError('pandas is required for this package')
+     
+    try:
+        import geopy
+    except ImportError:
+        raise ImportError('geopy is required for this package')    
     
     return
     

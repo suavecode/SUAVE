@@ -72,7 +72,7 @@ def plot_ground_noise_levels(results,
     for k in range(N_gm_y):    
         axes.plot(gm_x[:,0]/Units.nmi, max_SPL[:,k], marker = 'o', color = line_colors[k], label= r'mic at y = ' + str(round(gm_y[0,k],1)) + r' m' ) 
     axes.set_ylabel('SPL (dBA)')
-    axes.set_xlabel('Range (nmi)')  
+    axes.set_xlabel('Range (nautical miles)')  
     set_axes(axes)
     axes.legend(loc='upper right')         
     if save_figure:

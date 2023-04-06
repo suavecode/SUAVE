@@ -52,7 +52,7 @@ def main():
     print('\n\n MARC Frequency Domain Propeller Aircraft Noise Model')
 
     X57_SPL        = np.max(X57_results.segments.departure_end_of_runway.conditions.noise.total_SPL_dBA) 
-    X57_SPL_true   = 77.82861519987955
+    X57_SPL_true   = 78.27182728255237
     
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
@@ -81,8 +81,7 @@ def X57_full_setup():
                                                                                  departure_tag                         = 'A',
                                                                                  destination_tag                       = 'B',
                                                                                  departure_coordinates                 = [33.94067953101678, -118.40513722978149],
-                                                                                 destination_coordinates               = [33.81713622114423, -117.92111163722772],
-                                                                                 adjusted_cruise_distance              = 0)    
+                                                                                 destination_coordinates               = [33.81713622114423, -117.92111163722772] )    
   
     
     # change identical propeller flag for regression coverage even though propellers are identical 
@@ -137,7 +136,8 @@ def base_analysis(vehicle,microphone_terrain_data,airport_geospacial_data):
     #  Noise Analysis 
     # ------------------------------------------------------------------   
     noise = MARC.Analyses.Noise.Fidelity_One()   
-    noise.geometry = vehicle
+    noise.geometry = vehicle 
+    noise.settings.mean_sea_level_altitude          = False 
     noise.settings.ground_microphone_x_resolution   = microphone_terrain_data.ground_microphone_x_resolution           
     noise.settings.ground_microphone_y_resolution   = microphone_terrain_data.ground_microphone_y_resolution          
     noise.settings.ground_microphone_x_stencil      = microphone_terrain_data.ground_microphone_x_stencil             

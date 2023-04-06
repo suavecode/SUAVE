@@ -10,6 +10,7 @@ import MARC
 from MARC.Core import Units, Data
 from scipy.interpolate import griddata
 import numpy as np
+from geopy.distance import geodesic as GD
 
 # ----------------------------------------------------------------------
 #  Compute Point to Point Geospacial Data
@@ -19,8 +20,7 @@ def compute_point_to_point_geospacial_data(topography_file                      
                                             departure_tag                         = 'DEP',
                                             destination_tag                       = 'DES',
                                             departure_coordinates                 = [0.0,0.0],
-                                            destination_coordinates               = [0.0,0.0], 
-                                            adjusted_cruise_distance              = None):
+                                            destination_coordinates               = [0.0,0.0]):
     """This computes the absolute microphone/observer locations on a defined topography
             
     Assumptions: 
@@ -32,8 +32,7 @@ def compute_point_to_point_geospacial_data(topography_file                      
     Inputs:   
         topography_file                        - file of lattide, longitude and elevation points     
         departure_coordinates                  - coordinates of departure location                                              [degrees]
-        destination_coordinates                - coordinates of destimation location                                            [degrees] 
-        adjusted_cruise_distance               - distance used to modify cruise to ensure desired range is met                  [-] 
+        destination_coordinates                - coordinates of destimation location                                            [degrees]  
         
     Outputs:                                   
         latitude_longitude_micrphone_locations - latitude-longitude and elevation coordinates of all microphones in domain      [deg,deg,m]  
@@ -57,11 +56,6 @@ def compute_point_to_point_geospacial_data(topography_file                      
     
     earth = MARC.Attributes.Planets.Earth()
     R     = earth.mean_radius      
-    
-    # interpolate data to defined x and y discretization  
-    [long_deg,lat_deg] = np.meshgrid(np.linspace(np.min(Long),np.max(Long),3),np.linspace(np.min(Lat),np.max(Lat),3)) 
-    z_deg              = griddata((Lat,Long), Elev, (lat_deg, long_deg), method='linear')        
-    lat_long_pts       = np.dstack((np.dstack((lat_deg[:,:,None],long_deg[:,:,None] )),z_deg[:,:,None])).reshape(3*3,3)
      
     # Compute distance between departure and destimation points
     coord0_rad = departure_coordinates*Units.degrees
@@ -74,17 +68,29 @@ def compute_point_to_point_geospacial_data(topography_file                      
     gamma = np.arcsin( np.sin(np.pi/2 - coord1_rad[0])* np.sin(coord1_rad[1] - coord0_rad[1])/np.sin(angle)) 
     angle_vector   = destination_coordinates - departure_coordinates 
     if angle_vector[0] < 0:
-        gamma = np.pi - gamma 
+        gamma = np.pi - gamma  
+ 
+    x_min_coord = np.min(Lat)
+    y_min_coord = np.min(Long)
+    dep_lat     = departure_coordinates[0]
+    dep_long    = departure_coordinates[1]
+    des_lat     = destination_coordinates[0]
+    des_long    = destination_coordinates[1]
+    if dep_long>180: 
+        dep_long = dep_long-360
+    if des_long>180:
+        des_long = des_long-360  
     
-    # Compute relative cartesian location of departure and destimation points on topographical grid
-    corner_lat  = lat_long_pts[0,0]
-    corner_long = lat_long_pts[0,1]
-    if corner_long>180:
-        corner_long = corner_long-360  
-    x0 = (coord0_rad[0] - corner_lat*Units.degrees)*R
-    y0 = (coord0_rad[1] - corner_long*Units.degrees)*R  
-    x1 = (coord1_rad[0] - corner_lat*Units.degrees)*R
-    y1 = (coord1_rad[1] - corner_long*Units.degrees)*R 
+    bottom_left_map_coords   = np.array([x_min_coord,y_min_coord])  
+    x0_coord                 = np.array([dep_lat,y_min_coord])
+    y0_coord                 = np.array([x_min_coord,dep_long])
+    x1_coord                 = np.array([des_lat,y_min_coord])
+    y1_coord                 = np.array([x_min_coord,des_long])  
+    
+    x0 = GD(x0_coord,bottom_left_map_coords).m 
+    y0 = GD(y0_coord,bottom_left_map_coords).m  
+    x1 = GD(x1_coord,bottom_left_map_coords).m 
+    y1 = GD(y1_coord,bottom_left_map_coords).m 
     
     lat_flag             = np.where(departure_coordinates<0)[0]
     departure_coordinates[lat_flag]  = departure_coordinates[lat_flag] + 360 
@@ -104,7 +110,6 @@ def compute_point_to_point_geospacial_data(topography_file                      
         departure_location                      = dep_loc,
         destination_tag                         = destination_tag,
         destination_coordinates                 = destination_coordinates ,
-        destination_location                    = des_loc,
-        adjusted_cruise_distance                = adjusted_cruise_distance)
+        destination_location                    = des_loc)
     
     return geospacial_data
