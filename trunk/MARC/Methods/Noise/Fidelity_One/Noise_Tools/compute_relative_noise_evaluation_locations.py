@@ -39,7 +39,8 @@ def compute_relative_noise_evaluation_locations(settings,segment):
     """       
  
     mic_stencil_x     = settings.ground_microphone_x_stencil      
-    mic_stencil_y     = settings.ground_microphone_y_stencil    
+    mic_stencil_y     = settings.ground_microphone_y_stencil 
+    MSL_altitude      = settings.mean_sea_level_altitude
     N_gm_x            = settings.ground_microphone_x_resolution   
     N_gm_y            = settings.ground_microphone_y_resolution   
     gml               = settings.ground_microphone_locations 
@@ -97,8 +98,11 @@ def compute_relative_noise_evaluation_locations(settings,segment):
         
         relative_locations           = np.zeros((num_gm_mic,3,1))
         relative_locations[:,0,0]    = stencil[:,0,0] -  (pos[cpt,0] + settings.aircraft_departure_location[0])
-        relative_locations[:,1,0]    = stencil[:,1,0] -  (pos[cpt,1] + settings.aircraft_departure_location[1])
-        relative_locations[:,2,0]    = -(pos[cpt,2]) - stencil[:,2,0] 
+        relative_locations[:,1,0]    = stencil[:,1,0] -  (pos[cpt,1] + settings.aircraft_departure_location[1]) 
+        if MSL_altitude:
+            relative_locations[:,2,0]    = -(pos[cpt,2])  - stencil[:,2,0] 
+        else:
+            relative_locations[:,2,0]    = -(pos[cpt,2])    
         
         REGML[cpt,:,:]   = relative_locations[:,:,0] 
      

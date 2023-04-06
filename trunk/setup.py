@@ -225,7 +225,12 @@ def import_tests():
     try:
         import pandas
     except ImportError:
-        raise ImportError('pandas is required for this package')
+        raise ImportError('pandas is required for this package') 
+
+    try:
+        import geopy
+    except ImportError:
+        raise ImportError('geopy is required for this package')
     
     return
     

@@ -52,8 +52,10 @@ def post_process_noise_data(results):
             N_ctrl_pts  = len(results.segments[i].conditions.frames.inertial.time[:,0])  
             for j in range(N_ctrl_pts): 
                 Aircraft_pos[idx,0]    = results.segments[i].conditions.frames.inertial.position_vector[j,0]  + x0
-                Aircraft_pos[idx,1]    = results.segments[i].conditions.frames.inertial.position_vector[j,1]  + y0
-                Aircraft_pos[idx,2]    = -results.segments[i].conditions.frames.inertial.position_vector[j,2] 
+                Aircraft_pos[idx,1]    = results.segments[i].conditions.frames.inertial.position_vector[j,1]  + y0 
+                x_idx                  = abs(Mic_pos_gm[:,0,0] - Aircraft_pos[idx,0]).argmin()
+                y_idx                  = abs(Mic_pos_gm[0,:,1] - Aircraft_pos[idx,1]).argmin() 
+                Aircraft_pos[idx,2]    = -results.segments[i].conditions.frames.inertial.position_vector[j,2] + Mic_pos_gm[x_idx,y_idx,2]
                 stencil_length         = S_gm_x*2 + 1
                 stencil_width          = S_gm_y*2 + 1
                 SPL_contour_gm[idx,int(S_locs[j,0]):int(S_locs[j,1]),int(S_locs[j,2]):int(S_locs[j,3])]  = results.segments[i].conditions.noise.total_SPL_dBA[j].reshape(stencil_length ,stencil_width )   

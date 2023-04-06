@@ -137,7 +137,8 @@ def base_analysis(vehicle,microphone_terrain_data,airport_geospacial_data):
     #  Noise Analysis 
     # ------------------------------------------------------------------   
     noise = MARC.Analyses.Noise.Fidelity_One()   
-    noise.geometry = vehicle
+    noise.geometry = vehicle 
+    noise.settings.mean_sea_level_altitude          = False 
     noise.settings.ground_microphone_x_resolution   = microphone_terrain_data.ground_microphone_x_resolution           
     noise.settings.ground_microphone_y_resolution   = microphone_terrain_data.ground_microphone_y_resolution          
     noise.settings.ground_microphone_x_stencil      = microphone_terrain_data.ground_microphone_x_stencil             

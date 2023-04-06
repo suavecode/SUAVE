@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------   
 import numpy as np  
 import plotly.graph_objects as go
+from MARC.Core import Units
 from MARC.Visualization.Geometry.Common.contour_surface_slice      import contour_surface_slice
 from MARC.Visualization.Performance.Common.post_process_noise_data import post_process_noise_data 
  
@@ -16,6 +17,8 @@ def plot_flight_profile_noise_contours(results,
                                        save_figure=False,
                                        show_figure=True,
                                        save_filename="Noise_Contour",
+                                       show_trajectory = True,
+                                       show_microphones = True,
                                        colormap = 'jet',
                                        file_type=".png",
                                        width = 1200, height = 600,
@@ -45,9 +48,9 @@ def plot_flight_profile_noise_contours(results,
     noise_data      = post_process_noise_data(results)  
     SPL_contour_gm  = noise_data.SPL_dBA_ground_mic       
     Aircraft_pos    = noise_data.aircraft_position       
-    X               = noise_data.SPL_dBA_ground_mic_loc[:,:,0]  
-    Y               = noise_data.SPL_dBA_ground_mic_loc[:,:,1]  
-    Z               = noise_data.SPL_dBA_ground_mic_loc[:,:,2]  
+    X               = noise_data.SPL_dBA_ground_mic_loc[:,:,0]/Units.nmi  
+    Y               = noise_data.SPL_dBA_ground_mic_loc[:,:,1]/Units.nmi  
+    Z               = noise_data.SPL_dBA_ground_mic_loc[:,:,2]/Units.feet  
     plot_data       = []  
     max_SPL_gm      = np.max(SPL_contour_gm,axis=0)  
 
@@ -55,7 +58,7 @@ def plot_flight_profile_noise_contours(results,
     # TWO DIMENSIONAL NOISE CONTOUR
     # ---------------------------------------------------------------------------
     min_SPL, max_SPL   = 35, 100 
-    fig_2d = go.Figure(data = go.Contour(z=max_SPL_gm, x=X[:,0],  y=Y[0,:],
+    fig_2d = go.Figure(data = go.Contour(z=max_SPL_gm, y=X[:,0],  x=Y[0,:],
                                          contours=dict(
                                                   start= min_SPL,
                                                   end  = max_SPL,
@@ -65,8 +68,8 @@ def plot_flight_profile_noise_contours(results,
                                           titleside='right',
                                           titlefont=dict(size=14))))
     
-    fig_2d.update_xaxes(title_text='West <------- Distance (m) -----> East ')
-    fig_2d.update_yaxes(title_text='South <------- Distance (m) -----> North ')   
+    fig_2d.update_xaxes(title_text='West <------- Distance (nautical miles) -----> East ')
+    fig_2d.update_yaxes(title_text='South <------- Distance (nautical miles) -----> North ')   
     fig_2d.update_layout(title_text= '2D Noise Contour')       
 
     if show_figure: 
@@ -81,17 +84,26 @@ def plot_flight_profile_noise_contours(results,
     # TERRAIN CONTOUR 
     ground_contour   = contour_surface_slice(Y,X,Z,max_SPL_gm,color_scale=colormap)
     plot_data.append(ground_contour)
-
+    
+    # GROUND MICROPHONES
+    if show_microphones:
+        microphones = go.Scatter3d(x=Y.flatten(), y=X.flatten(), z=Z.flatten(),
+                                           mode='markers',
+                                    marker=dict(size=6,color='white',opacity=0.8),
+                                    line=dict(color='white',width=2))
+        plot_data.append(microphones)
+    
     # AIRCRAFT TRAJECTORY
-    aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,1], y=Aircraft_pos[:,0], z=Aircraft_pos[:,2],
-                                       mode='markers',
-                                marker=dict(size=6,color='black',opacity=0.8),
-                                line=dict(color='black',width=2))
-    plot_data.append(aircraft_trajectory)
+    if show_trajectory:
+        aircraft_trajectory = go.Scatter3d(x=Aircraft_pos[:,1]/Units.nmi, y=Aircraft_pos[:,0]/Units.nmi, z=Aircraft_pos[:,2]/Units.feet,
+                                           mode='markers',
+                                    marker=dict(size=6,color='black',opacity=0.8),
+                                    line=dict(color='black',width=2))
+        plot_data.append(aircraft_trajectory)
 
     # Define Colorbar Bounds
-    min_alt     = np.minimum(np.min(Z),0)
-    max_alt     = np.maximum(np.max(Z), np.max(Aircraft_pos[:,2])) 
+    min_alt     = np.minimum(np.min(Z),0) 
+    max_alt     = np.maximum(np.max(Z), np.max(Aircraft_pos[:,2]/Units.feet)) 
 
     camera        = dict(up=dict(x=0, y=0, z=1), center=dict(x=-0.05, y=0, z=-0.25), eye=dict(x=-1., y=-1., z=.4))    
     fig_3d = go.Figure(data=plot_data)  
@@ -101,7 +113,8 @@ def plot_flight_profile_noise_contours(results,
              width     = 900,
              height    = 900,
              font_size = 12,
-             scene=dict( aspectmode='data'),            
+             scene_aspectmode="manual",
+             scene_aspectratio=dict(x=1, y=1, z=0.25),      
              scene_zaxis_range=[min_alt,max_alt], 
              coloraxis=dict(colorscale=colormap,
                             colorbar_thickness=50,

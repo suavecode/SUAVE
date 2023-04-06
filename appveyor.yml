@@ -19,11 +19,12 @@ install:
     - python3 -m pip install --upgrade pip
     - python3 -m pip install --upgrade numpy
     - python3 -m pip install --upgrade scipy==1.7.3
-    - python3 -m pip install --upgrade scikit-learn
+    - python3 -m pip install --upgrade sklearn
     - python3 -m pip install --upgrade matplotlib
     - python3 -m pip install --upgrade plotly
     - python3 -m pip install --upgrade kaleido
     - python3 -m pip install --upgrade pandas
+    - python3 -m pip install --upgrade geopy
     - PATH=$PATH:/home/appveyor/.local/bin
     - python3 -m pip install coveralls==3.2.0
     - python3 setup.py develop --user

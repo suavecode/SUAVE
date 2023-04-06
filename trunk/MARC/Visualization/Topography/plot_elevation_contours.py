@@ -6,12 +6,14 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------  
+import MARC
 from MARC.Core import Units
 from MARC.Visualization.Performance.Common import plot_style
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 import matplotlib.colors 
 import numpy as np 
+from geopy.distance import geodesic as GD
 
 
 # ---------------------------------------------------------------------- 
@@ -50,11 +52,24 @@ def plot_elevation_contours(topography_file,
     data = np.loadtxt(topography_file)
     Long = data[:,0]
     Lat  = data[:,1]
-    Elev = data[:,2]   
-    R    = 6378.1 * 1E3
+    Elev = data[:,2]    
+
+    x_min_coord = np.min(Lat)
+    x_max_coord = np.max(Lat)
+    y_min_coord = np.min(Long)
+    y_max_coord = np.max(Long)
+    if np.min(Long)>180: 
+        y_min_coord = np.min(Long)-360
+    if np.max(Long)>180:
+        y_max_coord = np.max(Long)-360  
     
-    x_dist_max       = (np.max(Lat)-np.min(Lat))*Units.degrees * R # eqn for arc length,  assume earth is a perfect sphere 
-    y_dist_max       = (np.max(Long)-np.min(Long))*Units.degrees * R   # eqn for arc length,  assume earth is a perfect sphere 
+    top_left_map_coords      = np.array([x_max_coord,y_min_coord])
+    bottom_left_map_coords   = np.array([x_min_coord,y_min_coord]) 
+    top_right_map_coords     = np.array([x_max_coord,y_max_coord])
+    bottom_right_map_coords  = np.array([x_min_coord,y_max_coord]) 
+    
+    x_dist_max = GD(top_left_map_coords,bottom_left_map_coords).m 
+    y_dist_max = GD(bottom_right_map_coords,bottom_left_map_coords).m  
     
     [long_dist,lat_dist]  = np.meshgrid(np.linspace(0,y_dist_max,number_of_longitudinal_points),np.linspace(0,x_dist_max,number_of_latitudinal_points))
     [long_deg,lat_deg]    = np.meshgrid(np.linspace(np.min(Long),np.max(Long),number_of_longitudinal_points),np.linspace(np.min(Lat),np.max(Lat),number_of_latitudinal_points)) 
@@ -82,19 +97,19 @@ def plot_elevation_contours(topography_file,
         axis.set_xlabel('Longitude [°]')
         axis.set_ylabel('Latitude [°]') 
     else: 
-        CS   = axis.contourf(long_dist,lat_dist,z_deg,cmap =cut_terrain_map,norm=norm,levels = 20)   
+        CS   = axis.contourf(long_dist/Units.nmi,lat_dist/Units.nmi,z_deg,cmap =cut_terrain_map,norm=norm,levels = 20)   
 
         if airport_geospacial_data != None:
-            axis.scatter(airport_geospacial_data.departure_location[1],airport_geospacial_data.departure_location[0], color= 'black', marker = 'o',  s = 50)
-            axis.scatter(airport_geospacial_data.destination_location[1], airport_geospacial_data.destination_location[0], color= 'black', marker = 'o',  s = 50)
+            axis.scatter(airport_geospacial_data.departure_location[1]/Units.nmi,airport_geospacial_data.departure_location[0]/Units.nmi, color= 'black', marker = 'o',  s = 50)
+            axis.scatter(airport_geospacial_data.destination_location[1]/Units.nmi, airport_geospacial_data.destination_location[0]/Units.nmi, color= 'black', marker = 'o',  s = 50)
 
             axis.annotate(airport_geospacial_data.departure_tag, (airport_geospacial_data.departure_location[1],airport_geospacial_data.departure_location[0]))
             axis.annotate(airport_geospacial_data.destination_tag, (airport_geospacial_data.destination_location[1],airport_geospacial_data.destination_location[0]))
             
         cbar = fig.colorbar(CS, ax=axis)        
         cbar.ax.set_ylabel('Elevation above sea level [m]', rotation =  90) 
-        axis.set_xlabel('x [m]')
-        axis.set_ylabel('y [m]')      
+        axis.set_xlabel('x (nautical miles)')
+        axis.set_ylabel('y (nautical miles)')      
      
     return   
 
