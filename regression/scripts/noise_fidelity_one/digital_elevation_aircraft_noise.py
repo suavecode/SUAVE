@@ -15,6 +15,7 @@ from MARC.Visualization.Performance.Mission import *
 from MARC.Visualization.Performance.Energy.Common import *  
 from MARC.Visualization.Performance.Energy.Battery import *   
 from MARC.Visualization.Performance.Noise import *   
+from MARC.Visualization.Topography import *   
 from MARC.Methods.Performance.estimate_stall_speed import estimate_stall_speed 
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools.generate_microphone_points import generate_terrain_elevated_microphone_points
 from MARC.Methods.Missions.compute_point_to_point_geospacial_data           import compute_point_to_point_geospacial_data
@@ -59,7 +60,7 @@ def main():
     print('SPL difference')
     print(X57_diff_SPL)
     assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-3   # lower tolerance for highly machine tolerance sensitive computation 
-    
+     
     return     
  
 # ----------------------------------------------------------------------
@@ -83,6 +84,10 @@ def X57_full_setup():
                                                                                  departure_coordinates                 = [33.94067953101678, -118.40513722978149],
                                                                                  destination_coordinates               = [33.81713622114423, -117.92111163722772] )    
   
+    
+    plot_elevation_contours(topography_file   ='LA_Metropolitan_Area.txt',use_lat_long_coordinates = True, save_filename = "Elevation_Contours_Lat_Long")
+
+    plot_elevation_contours(topography_file   ='LA_Metropolitan_Area.txt',use_lat_long_coordinates = False, save_filename = "Elevation_Contours_XY")  
     
     # change identical propeller flag for regression coverage even though propellers are identical 
     vehicle.networks.battery_electric_rotor.identical_rotors = False

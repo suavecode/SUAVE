@@ -24,8 +24,7 @@ from geopy.distance import geodesic as GD
 def plot_elevation_contours(topography_file,
                             number_of_latitudinal_points  = 100,
                             number_of_longitudinal_points = 100, 
-                            use_lat_long_coordinates      = True,
-                            airport_geospacial_data       = None,
+                            use_lat_long_coordinates      = True, 
                             save_figure = False,  
                             show_legend = True,
                             save_filename = "Elevation_Contours",
@@ -82,30 +81,13 @@ def plot_elevation_contours(topography_file,
     axis = fig.add_subplot(1,1,1) 
     
     if use_lat_long_coordinates:
-        CS   = axis.contourf(long_deg,lat_deg,z_deg,cmap =cut_terrain_map,norm=norm,levels = 20)  
-        
-        if airport_geospacial_data != None:
-            axis.autoscale(False)
-            axis.scatter(airport_geospacial_data.departure_coordinates[1] , airport_geospacial_data.departure_coordinates[0], color= 'black', marker = 'o',  s = 50 )
-            axis.scatter(airport_geospacial_data.destination_coordinates[1] ,airport_geospacial_data.destination_coordinates[0], color= 'black', marker = 'o',  s = 50 ) 
-            
-            axis.annotate(airport_geospacial_data.departure_tag, (airport_geospacial_data.departure_coordinates[1],airport_geospacial_data.departure_coordinates[0]*1.05))
-            axis.annotate(airport_geospacial_data.destination_tag, (airport_geospacial_data.destination_coordinates[1],airport_geospacial_data.destination_coordinates[0]*1.05))
-                
+        CS   = axis.contourf(long_deg,lat_deg,z_deg,cmap =cut_terrain_map,norm=norm,levels = 20)   
         cbar = fig.colorbar(CS, ax=axis)     
         cbar.ax.set_ylabel('Elevation above sea level [m]', rotation =  90)  
         axis.set_xlabel('Longitude [°]')
         axis.set_ylabel('Latitude [°]') 
     else: 
-        CS   = axis.contourf(long_dist/Units.nmi,lat_dist/Units.nmi,z_deg,cmap =cut_terrain_map,norm=norm,levels = 20)   
-
-        if airport_geospacial_data != None:
-            axis.scatter(airport_geospacial_data.departure_location[1]/Units.nmi,airport_geospacial_data.departure_location[0]/Units.nmi, color= 'black', marker = 'o',  s = 50)
-            axis.scatter(airport_geospacial_data.destination_location[1]/Units.nmi, airport_geospacial_data.destination_location[0]/Units.nmi, color= 'black', marker = 'o',  s = 50)
-
-            axis.annotate(airport_geospacial_data.departure_tag, (airport_geospacial_data.departure_location[1]/Units.nmi,airport_geospacial_data.departure_location[0]*1.05/Units.nmi))
-            axis.annotate(airport_geospacial_data.destination_tag, (airport_geospacial_data.destination_location[1]/Units.nmi,airport_geospacial_data.destination_location[0]*1.05/Units.nmi))
-            
+        CS   = axis.contourf(long_dist/Units.nmi,lat_dist/Units.nmi,z_deg,cmap =cut_terrain_map,norm=norm,levels = 20)  
         cbar = fig.colorbar(CS, ax=axis)        
         cbar.ax.set_ylabel('Elevation above sea level [m]', rotation =  90) 
         axis.set_xlabel('x (nautical miles)')
