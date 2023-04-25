@@ -27,7 +27,7 @@ from MARC.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation 
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise 
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools import A_weighting_conversion 
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import print_engine_output
 
 # ----------------------------------------------------------------------        
@@ -381,8 +381,8 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
         SPL_mixed_history[id][:]     = SPL_m[:]
 
         # Calculation of dBA based on the sound pressure time history
-        SPLt_dBA                = dbA_noise(SPL_total)
-        SPLt_dBA_history[id][:] = dbA_noise(SPL_total)
+        SPLt_dBA                = A_weighting_conversion(SPL_total,frequency)
+        SPLt_dBA_history[id][:] = A_weighting_conversion(SPL_total,frequency)
         SPLt_dBA_max[id]        = max(SPLt_dBA)
 
     # Calculation of the Perceived Noise Level EPNL based on the sound time history

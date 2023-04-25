@@ -72,24 +72,24 @@ def plot_elevation_contours(topography_file,
     
     [long_dist,lat_dist]  = np.meshgrid(np.linspace(0,y_dist_max,number_of_longitudinal_points),np.linspace(0,x_dist_max,number_of_latitudinal_points))
     [long_deg,lat_deg]    = np.meshgrid(np.linspace(np.min(Long),np.max(Long),number_of_longitudinal_points),np.linspace(np.min(Lat),np.max(Lat),number_of_latitudinal_points)) 
-    z_deg                 = griddata((Lat,Long), Elev, (lat_deg, long_deg), method='linear')     
-         
-    norm = FixPointNormalize(sealevel=0,vmax=np.max(z_deg),vmin=np.min(z_deg)) 
+    elevation             = griddata((Lat,Long), Elev, (lat_deg, long_deg), method='linear')     
+    elevation             = elevation/Units.feet
+    norm = FixPointNormalize(sealevel=0,vmax=np.max(elevation),vmin=np.min(elevation)) 
     
     fig = plt.figure(save_filename)
     fig.set_size_inches(width,height)
     axis = fig.add_subplot(1,1,1) 
     
     if use_lat_long_coordinates:
-        CS   = axis.contourf(long_deg,lat_deg,z_deg,cmap =cut_terrain_map,norm=norm,levels = 20)   
+        CS   = axis.contourf(long_deg,lat_deg,elevation,cmap =cut_terrain_map,norm=norm,levels = 20)   
         cbar = fig.colorbar(CS, ax=axis)     
-        cbar.ax.set_ylabel('Elevation above sea level [m]', rotation =  90)  
+        cbar.ax.set_ylabel('Elevation above sea level [ft]', rotation =  90)  
         axis.set_xlabel('Longitude [°]')
         axis.set_ylabel('Latitude [°]') 
     else: 
-        CS   = axis.contourf(long_dist/Units.nmi,lat_dist/Units.nmi,z_deg,cmap =cut_terrain_map,norm=norm,levels = 20)  
+        CS   = axis.contourf(long_dist/Units.nmi,lat_dist/Units.nmi,elevation,cmap =cut_terrain_map,norm=norm,levels = 20)  
         cbar = fig.colorbar(CS, ax=axis)        
-        cbar.ax.set_ylabel('Elevation above sea level [m]', rotation =  90) 
+        cbar.ax.set_ylabel('Elevation above sea level [ft]', rotation =  90) 
         axis.set_xlabel('x (nautical miles)')
         axis.set_ylabel('y (nautical miles)')      
      

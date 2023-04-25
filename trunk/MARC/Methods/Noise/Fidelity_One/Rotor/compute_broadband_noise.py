@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 import numpy as np  
 from MARC.Core import Units
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise                       import A_weighting
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.A_weighting_conversion                       import A_weighting_conversion 
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools.convert_to_third_octave_band    import convert_to_third_octave_band  
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools.decibel_arithmetic              import SPL_arithmetic 
 
@@ -204,7 +204,7 @@ def compute_broadband_noise(freestream,angle_of_attack,coordinates,
         
         # store results 
         res.SPL_prop_broadband_spectrum                   = SPL_arithmetic(SPLb_sum_3, sum_axis=3)
-        res.SPL_prop_broadband_spectrum_dBA               = A_weighting(res.SPL_prop_broadband_spectrum,frequency) 
+        res.SPL_prop_broadband_spectrum_dBA               = A_weighting_conversion(res.SPL_prop_broadband_spectrum,frequency) 
         res.SPL_prop_broadband_1_3_spectrum               = res.SPL_prop_broadband_spectrum     # already in 1/3 octave specturm 
         res.SPL_prop_broadband_1_3_spectrum_dBA           = res.SPL_prop_broadband_spectrum_dBA # already in 1/3 octave specturm 
         

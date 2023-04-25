@@ -64,12 +64,12 @@ def plot_flight_profile_noise_contours(results,
                                                   end  = max_SPL,
                                                   size = 5),                                       
                                           colorbar=dict(
-                                          title='SPL (dBA)',  
+                                          title='Lmax [dBA]',  
                                           titleside='right',
                                           titlefont=dict(size=14))))
     
-    fig_2d.update_xaxes(title_text='West <------- Distance (nautical miles) -----> East ')
-    fig_2d.update_yaxes(title_text='South <------- Distance (nautical miles) -----> North ')   
+    fig_2d.update_xaxes(title_text='West <------- Distance [nmi] -----> East ')
+    fig_2d.update_yaxes(title_text='South <------- Distance [nmi] -----> North ')   
     fig_2d.update_layout(title_text= '2D Noise Contour')       
 
     if show_figure: 
@@ -119,7 +119,7 @@ def plot_flight_profile_noise_contours(results,
              coloraxis=dict(colorscale=colormap,
                             colorbar_thickness=50,
                             colorbar_nticks=20,
-                            colorbar_title_text = 'SPL (dBA)',
+                            colorbar_title_text = 'SPL [dBA]',
                             colorbar_tickfont_size=16,
                             colorbar_title_side="right",
                             colorbar_ypad= 50,

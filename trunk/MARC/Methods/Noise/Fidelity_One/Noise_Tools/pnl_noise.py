@@ -14,7 +14,7 @@ import numpy as np
 # ---------------------------------------------------------------------
 
 ## @ingroup Methods-Noise-Fidelity_One-Noise_Tools
-def pnl_noise (SPL):
+def pnl_noise(SPL):
     """This method calculates de Perceived Noise Level PNL from a 1/3 octave band noise spectra
  
     Assumptions:

@@ -12,7 +12,7 @@ import numpy as np
 from scipy.special import jv 
 import scipy as sp
 
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.dbA_noise  import A_weighting  
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools.A_weighting_conversion  import A_weighting_conversion   
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools            import convert_to_third_octave_band
 
 # ----------------------------------------------------------------------
@@ -139,7 +139,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,coordinates,
 
     # sound pressure levels  
     res.SPL_prop_harmonic_bpf_spectrum     = 20*np.log10((abs(p_mL_H_abs + p_mT_H_abs))/p_ref) 
-    res.SPL_prop_harmonic_bpf_spectrum_dBA = A_weighting(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,:,:,0,:]) 
+    res.SPL_prop_harmonic_bpf_spectrum_dBA = A_weighting_conversion(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,:,:,0,:]) 
     res.SPL_prop_harmonic_1_3_spectrum     = convert_to_third_octave_band(res.SPL_prop_harmonic_bpf_spectrum,res.f[:,0,0,0,:],settings)         
     res.SPL_prop_harmonic_1_3_spectrum_dBA = convert_to_third_octave_band(res.SPL_prop_harmonic_bpf_spectrum_dBA,res.f[:,0,0,0,:],settings)  
     res.SPL_prop_harmonic_1_3_spectrum[np.isinf(res.SPL_prop_harmonic_1_3_spectrum)]         = 0

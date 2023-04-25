@@ -244,7 +244,7 @@ def X57_mission_setup(analyses,vehicle,microphone_terrain_data,airport_geospacia
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row 
     base_segment.process.initialize.initialize_battery       = MARC.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.numerics.number_control_points        = 4   
+    base_segment.state.numerics.number_control_points        = 10  
     
     # ------------------------------------------------------------------
     #   Departure End of Runway Segment Flight 1 : 
@@ -280,7 +280,8 @@ def X57_missions_setup(base_mission):
 def plot_results(results):   
     
     # Plot noise level
-    plot_ground_noise_levels(results)
+    flight_times = np.array(['06:00:00','07:00:00','08:00:00','09:00:00','10:00:00','11:00:00','12:00:00','13:00:00','14:00:00','15:00:00'])   
+    plot_ground_noise_levels(results, flight_times)
     
     # Plot noise contour
     plot_flight_profile_noise_contours(results,show_figure=False)   

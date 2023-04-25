@@ -17,6 +17,7 @@ from MARC.Visualization.Performance.Common.post_process_noise_data import post_p
   
 ## @ingroup Visualization-Performance-Noise
 def plot_ground_noise_levels(results,
+                            flight_times,
                             save_figure=False,
                             save_filename="Sideline_Noise_Levels",
                             file_type=".png",
@@ -44,7 +45,7 @@ def plot_ground_noise_levels(results,
     N/A
     """    
     
-    noise_data   = post_process_noise_data(results) 
+    noise_data   = post_process_noise_data(results,flight_times) 
     N_gm_y       = noise_data.N_gm_y
     SPL          = noise_data.SPL_dBA_ground_mic      
     gm           = noise_data.SPL_dBA_ground_mic_loc    

@@ -20,7 +20,7 @@ from MARC.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise 
+from MARC.Methods.Noise.Fidelity_One.Noise_Tools import A_weighting_conversion 
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
 from MARC.Methods.Noise.Fidelity_One.Noise_Tools import print_airframe_output
@@ -199,7 +199,7 @@ def noise_airframe_Fink(segment,analyses,config,settings,ioprint = 0, filename=0
         SPL_main_landing_gear_history[i][:] = SPL_main_landing_gear[:] 
         
         # Calculation of dBA based on the sound pressure time history
-        SPLt_dBA = dbA_noise(SPL_total)
+        SPLt_dBA = A_weighting_conversion(SPL_total,frequency)
         SPLt_dBA_history[i][:] = SPLt_dBA[:]
         SPLt_dBA_max[i] = max(SPLt_dBA)         
           
