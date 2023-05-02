@@ -47,8 +47,8 @@ def plot_ground_noise_levels(results,
     
     noise_data   = post_process_noise_data(results,flight_times) 
     N_gm_y       = noise_data.N_gm_y
-    SPL          = noise_data.SPL_dBA_ground_mic      
-    gm           = noise_data.SPL_dBA_ground_mic_loc    
+    SPL          = noise_data.SPL_dBA      
+    gm           = noise_data.receptor_locations    
     gm_x         = gm[:,:,0]
     gm_y         = gm[:,:,1]  
     max_SPL      = np.max(SPL,axis=0)  

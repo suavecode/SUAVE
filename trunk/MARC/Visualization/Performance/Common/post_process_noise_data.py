@@ -37,7 +37,7 @@ def post_process_noise_data(results,time_step = 20):
         N_ctrl_pts  += len(results.segments[i].conditions.frames.inertial.time[:,0]) - 1  
     N_gm_x               = results.segments[0].analyses.noise.settings.ground_microphone_x_resolution
     N_gm_y               = results.segments[0].analyses.noise.settings.ground_microphone_y_resolution    
-    SPL_contour_gm       = np.zeros((N_ctrl_pts ,N_gm_x,N_gm_y))
+    SPL_dBA_t            = np.zeros((N_ctrl_pts ,N_gm_x,N_gm_y)) 
     time_old             = np.zeros(N_ctrl_pts)
     Aircraft_pos         = np.zeros((N_ctrl_pts,3)) 
     Mic_pos_gm           = results.segments[0].conditions.noise.total_ground_microphone_locations[0].reshape(N_gm_x,N_gm_y,3) 
@@ -67,12 +67,12 @@ def post_process_noise_data(results,time_step = 20):
                 Aircraft_pos[idx,2]    = -results.segments[i].conditions.frames.inertial.position_vector[j,2] + Mic_pos_gm[x_idx,y_idx,2]
                 stencil_length         = S_gm_x*2 + 1
                 stencil_width          = S_gm_y*2 + 1
-                SPL_contour_gm[idx,int(S_locs[j,0]):int(S_locs[j,1]),int(S_locs[j,2]):int(S_locs[j,3])]  = results.segments[i].conditions.noise.total_SPL_dBA[j].reshape(stencil_length ,stencil_width )   
+                SPL_dBA_t[idx,int(S_locs[j,0]):int(S_locs[j,1]),int(S_locs[j,2]):int(S_locs[j,3])]  = results.segments[i].conditions.noise.total_SPL_dBA[j].reshape(stencil_length ,stencil_width )  
                 idx  += 1
                 
     # Step 2: Make any readings less that background noise equal to background noise
-    SPL_dBA = np.nan_to_num(SPL_contour_gm) 
-    SPL_dBA[SPL_dBA<background_noise_dbA] = background_noise_dbA 
+    SPL_dBA                               = np.nan_to_num(SPL_dBA_t) 
+    SPL_dBA[SPL_dBA<background_noise_dbA] = background_noise_dbA  
     
     # Step 3: Interpolate spacial and acoustic data based on time step 
     n_steps = int(np.floor(time_old[-1]/time_step))
@@ -86,9 +86,9 @@ def post_process_noise_data(results,time_step = 20):
     t_1d         = np.tile(t_new[:,None,None],(1,N_gm_x,N_gm_y))
     x_1d         = np.tile(Mic_pos_gm[:,:,0][None,:,:],(len(t_new),1,1))
     y_1d         = np.tile(Mic_pos_gm[:,:,1][None,:,:],(len(t_new),1,1))  
-    interp2      = RegularGridInterpolator((t_old_prime,Mic_pos_gm[:,0,0], Mic_pos_gm[0,:,1] ), SPL_dBA) 
+    interp1      = RegularGridInterpolator((t_old_prime,Mic_pos_gm[:,0,0], Mic_pos_gm[0,:,1] ), SPL_dBA)  
     pts2         = np.concatenate((np.stack((t_1d.flatten(),x_1d.flatten()),axis = 1) ,y_1d.flatten()[:,None]),axis = 1)
-    SPL_dBA_new  = interp2(pts2).reshape((len(t_new),N_gm_x,N_gm_y))
+    SPL_dBA_new  = interp1(pts2).reshape((len(t_new),N_gm_x,N_gm_y)) 
    
     # Temporal interpolation  
     Aircraft_pos_new      = np.zeros((n_steps+1,3))     
@@ -97,10 +97,10 @@ def post_process_noise_data(results,time_step = 20):
     Aircraft_pos_new[:,2] = np.interp(t_new,time_old, Aircraft_pos[:,2]) 
      
     noise_data                        = Data()
-    noise_data.SPL_dBA_ground_mic     = SPL_dBA_new
+    noise_data.SPL_dBA                = SPL_dBA_new 
     noise_data.aircraft_position      = Aircraft_pos_new  
     noise_data.time                   = t_new 
-    noise_data.SPL_dBA_ground_mic_loc = Mic_pos_gm 
+    noise_data.receptor_locations     = Mic_pos_gm 
     noise_data.N_gm_y                 = N_gm_y
     noise_data.N_gm_x                 = N_gm_x  
 

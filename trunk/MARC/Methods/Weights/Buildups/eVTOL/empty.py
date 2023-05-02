@@ -256,33 +256,27 @@ def empty(config,
                   
             if type(rotor) == Propeller:
                 ''' Propeller Weight '''  
-                number_of_propellers     += 1   
-                rTip_ref                  = rotor.tip_radius
-                bladeSol_ref              = rotor.blade_solidity    
-                if rotor.variable_pitch:
-                    prop_servo_weight     = 5.2 * Units.kg  
-                else:
-                    prop_servo_weight     = 0
-                propeller_mass            = prop(rotor, maxLift/5.) * Units.kg
-                weight.rotors             += propeller_mass
-                weight.motors             += motor.mass_properties.mass
-                rotor.mass_properties.mass  =  propeller_mass + prop_hub_weight + prop_servo_weight
-                weight.servos             += prop_servo_weight
-                weight.hubs               += prop_hub_weight
+                number_of_propellers       = 1   
+                rTip_ref                   = rotor.tip_radius
+                bladeSol_ref               = rotor.blade_solidity 
+                prop_servo_weight          = 5.2 * Units.kg  
+                propeller_mass             = prop(rotor, maxLift/5.) * Units.kg
+                weight.rotors              += propeller_mass
+                weight.motors              += motor.mass_properties.mass
+                rotor.mass_properties.mass =  propeller_mass + prop_hub_weight + prop_servo_weight
+                weight.servos              += prop_servo_weight
+                weight.hubs                += prop_hub_weight
                 
             if (type(rotor) == Lift_Rotor or type(rotor) == Prop_Rotor) or type(rotor) == Rotor:
                 ''' Lift Rotor, Prop-Rotor or Rotor Weight '''   
-                number_of_lift_rotors   += 1  
-                rTip_ref                = rotor.tip_radius
-                bladeSol_ref            = rotor.blade_solidity      
-                if rotor.variable_pitch:
-                    lift_rotor_servo_weight = 0.65 * Units.kg 
-                else:
-                    prop_servo_weight     = 0 
+                number_of_lift_rotors       += 1  
+                rTip_ref                    = rotor.tip_radius
+                bladeSol_ref                = rotor.blade_solidity 
+                lift_rotor_servo_weight     = 0.65 * Units.kg  
                 lift_rotor_mass             = prop(rotor, maxLift / max(number_of_rotors - 1, 1))  * Units.kg
                 weight.rotors               += lift_rotor_mass
                 weight.motors               += motor.mass_properties.mass
-                rotor.mass_properties.mass    =  lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
+                rotor.mass_properties.mass  =  lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
                 weight.servos               += lift_rotor_servo_weight
                 weight.hubs                 += lift_rotor_hub_weight
                 

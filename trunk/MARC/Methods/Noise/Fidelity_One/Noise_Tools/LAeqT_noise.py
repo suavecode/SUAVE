@@ -37,26 +37,28 @@ def LAeqT_noise(noise_data, flight_times = ['06:00:00'],time_period = 24*Units.h
     """    
      
 
-    SPL_dbA    = noise_data.SPL_dBA_ground_mic       
+    SPL_dbA    = noise_data.SPL_dBA       
     t          = noise_data.time    
     N_gm_y     = noise_data.N_gm_y                 
-    N_gm_x     = noise_data.N_gm_x                 
+    N_gm_x     = noise_data.N_gm_x              
+    time_step  = t[1]-t[0]          
      
     # Compute Day-Night Sound Level and Noise Equivalent Noise   
     number_of_flights       = len(flight_times) 
-    total_time_steps        = int(15*Units.hours/time_step) 
+    T                       = 15*Units.hours
+    total_time_steps        = int(T/time_step) 
  
-    TNE = np.zeros((total_time_steps,N_gm_x,N_gm_y))  # temporal noise exposure
+    CME = np.zeros((total_time_steps,N_gm_x,N_gm_y))  # cumulative noise exposure
     for i in range(number_of_flights): 
         # get start time of flight
         t0  = int((np.float(flight_times[i].split(':')[0])*60*60 + \
                   np.float(flight_times[i].split(':')[1])*60 + \
                   np.float(flight_times[i].split(':')[2]) - 6*Units.hours)/time_step)    
-        TNE[t0:t0+len(t)] = SPL_arithmetic(np.concatenate((TNE[t0:t0+len(t)][:,:,:,None] , SPL_dbA[:,:,:,None]), axis=3), sum_axis=3) 
+        CME[t0:t0+len(t)] = SPL_arithmetic(np.concatenate((CME[t0:t0+len(t)][:,:,:,None] , SPL_dbA[:,:,:,None]), axis=3), sum_axis=3) 
    
     # Equivalent noise 
     delta_t  = time_step*np.ones((total_time_steps,N_gm_x,N_gm_y))  
-    p_i      = 10**(TNE/10)  
-    LAeqT    = 10*np.log10(np.sum(p_i*delta_t, axis = 0)) 
+    p_i      = 10**(CME/10)  
+    LAeqT    = 10*np.log10((1/T)*np.sum(p_i*delta_t, axis = 0)) 
     
     return LAeqT

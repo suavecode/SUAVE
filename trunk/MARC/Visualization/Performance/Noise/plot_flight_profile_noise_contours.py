@@ -46,11 +46,11 @@ def plot_flight_profile_noise_contours(results,
     N/A
     """  
     noise_data      = post_process_noise_data(results)  
-    SPL_contour_gm  = noise_data.SPL_dBA_ground_mic       
+    SPL_contour_gm  = noise_data.SPL_dBA       
     Aircraft_pos    = noise_data.aircraft_position       
-    X               = noise_data.SPL_dBA_ground_mic_loc[:,:,0]/Units.nmi  
-    Y               = noise_data.SPL_dBA_ground_mic_loc[:,:,1]/Units.nmi  
-    Z               = noise_data.SPL_dBA_ground_mic_loc[:,:,2]/Units.feet  
+    X               = noise_data.receptor_locations[:,:,0]/Units.nmi  
+    Y               = noise_data.receptor_locations[:,:,1]/Units.nmi  
+    Z               = noise_data.receptor_locations[:,:,2]/Units.feet  
     plot_data       = []  
     max_SPL_gm      = np.max(SPL_contour_gm,axis=0)  
 
