@@ -10,7 +10,7 @@
 import MARC 
 from MARC.Core                                                  import Units 
 from MARC.Analyses.Mission.Segments.Segment                     import Segment 
-from MARC.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise    import total_rotor_noise 
+from MARC.Methods.Noise.Fidelity_Zero.Rotor.total_rotor_noise   import total_rotor_noise 
 from MARC.Analyses.Process                                      import Process   
 
 # Python package imports  
@@ -273,7 +273,7 @@ def run_rotor_hover(nexus):
     segment                                          = Segment() 
     segment.state.conditions                         = conditions
     segment.state.conditions.expand_rows(ctrl_pts)  
-    noise                                            = MARC.Analyses.Noise.Fidelity_One() 
+    noise                                            = MARC.Analyses.Noise.Fidelity_Zero() 
     settings                                         = noise.settings   
     num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
     conditions.noise.number_of_microphones           = num_mic   
@@ -355,7 +355,7 @@ def run_rotor_cruise(nexus):
         segment                                          = Segment() 
         segment.state.conditions                         = conditions
         segment.state.conditions.expand_rows(ctrl_pts)  
-        noise                                            = MARC.Analyses.Noise.Fidelity_One() 
+        noise                                            = MARC.Analyses.Noise.Fidelity_Zero() 
         settings                                         = noise.settings   
         num_mic                                          = len(conditions.noise.total_microphone_locations[0])  
         conditions.noise.number_of_microphones           = num_mic    

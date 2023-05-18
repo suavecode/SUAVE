@@ -6,7 +6,7 @@
 import MARC
 from MARC.Core import Units, Data
 from MARC.Methods.Propulsion import propeller_design
-from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
+from MARC.Visualization import *     
 from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_wake import compute_wing_wake
 from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 

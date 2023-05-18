@@ -139,7 +139,7 @@ def plot_quantity(ap, q, qaxis, qname,ylim_low,ylim_high,file_type,show_legend,s
         leg =  fig.legend(bbox_to_anchor=(0.5, 0.95), loc='upper center', ncol = 5) 
         
         # Adjusting the sub-plots for legend 
-        fig.subplots_adjust(top=0.8)
+        fig.subplots_adjust(top=0.75)
         
     # set title of plot 
     title_text    = qname    

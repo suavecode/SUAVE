@@ -3,11 +3,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
-from MARC.Visualization.Performance.Energy.Fuel          import *   
-from MARC.Visualization.Performance.Noise                import * 
+from MARC.Visualization import *     
 
 def plot_mission(results): 
     

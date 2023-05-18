@@ -2,6 +2,6 @@
 # Description
 # @ingroup Visualization
 
-from . import Two_Dimensional 
-from . import Three_Dimensional 
-from . import Common
+from .Two_Dimensional   import *
+from .Three_Dimensional import * 
+from .Common            import * 

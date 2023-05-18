@@ -22,13 +22,7 @@ from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import  VLM
 from MARC.Analyses.Aerodynamics import Vortex_Lattice
 
 # plotting imports 
-from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission import *    
-from MARC.Visualization.Performance.Energy.Battery import *   
-from MARC.Visualization.Performance.Noise import *  
-from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle
-from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization  import plot_3d_vehicle_vlm_panelization
-
+from MARC.Visualization import *      
 
 sys.path.append('../Vehicles')
 from X57_Maxwell_Mod2 import vehicle_setup, configs_setup

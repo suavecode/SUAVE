@@ -12,11 +12,7 @@
 import MARC
 from MARC.Core import Units 
 import numpy as np
-from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Aerodynamics.Rotor   import *  
-from MARC.Visualization.Performance.Energy.Battery       import *   
-from MARC.Visualization.Performance.Noise                import * 
+from MARC.Visualization import *     
 from MARC.Core import Data
 from MARC.Methods.Weights.Buildups.eVTOL.empty import empty 
 from MARC.Methods.Power.Battery.Sizing         import initialize_from_mass

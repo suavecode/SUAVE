@@ -8,13 +8,13 @@
 # ----------------------------------------------------------------------  
 # MARC Imports 
 import MARC 
-from MARC.Core                                                                                import Units, Data  
-from MARC.Analyses.Mission.Segments.Segment                                                   import Segment 
-from MARC.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise                                  import total_rotor_noise
-import MARC.Optimization.Package_Setups.scipy_setup                                           as scipy_setup
-from MARC.Optimization                                                                        import Nexus      
-from MARC.Analyses.Mission.Segments.Conditions.Aerodynamics                                   import Aerodynamics 
-from MARC.Analyses.Process                                                                    import Process   
+from MARC.Core                                                          import Units, Data  
+from MARC.Analyses.Mission.Segments.Segment                             import Segment 
+from MARC.Methods.Noise.Fidelity_Zero.Rotor.total_rotor_noise           import total_rotor_noise
+import MARC.Optimization.Package_Setups.scipy_setup                     as scipy_setup
+from MARC.Optimization                                                  import Nexus      
+from MARC.Analyses.Mission.Segments.Conditions.Aerodynamics             import Aerodynamics 
+from MARC.Analyses.Process                                              import Process   
 
 from MARC.Methods.Propulsion.Rotor_Design.optimization_setup           import optimization_setup
 from MARC.Methods.Propulsion.Rotor_Design.set_optimized_rotor_planform import set_optimized_rotor_planform

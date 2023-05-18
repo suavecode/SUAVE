@@ -9,12 +9,7 @@
 # ----------------------------------------------------------------------
 import MARC
 from MARC.Core import Units , Data
-from MARC.Visualization.Performance.Aerodynamics.Vehicle                 import *  
-from MARC.Visualization.Performance.Mission                              import *   
-from MARC.Visualization.Performance.Energy.Battery                       import *   
-from MARC.Visualization.Performance.Noise                                import *  
-from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle       import plot_3d_vehicle 
-from MARC.Visualization.Geometry                                         import *
+from MARC.Visualization import *     
 from MARC.Methods.Performance.estimate_stall_speed                       import estimate_stall_speed
 import sys
 import numpy as np
@@ -169,7 +164,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Noise Analysis
-    noise = MARC.Analyses.Noise.Fidelity_One() 
+    noise = MARC.Analyses.Noise.Fidelity_Zero() 
     noise.settings.level_ground_microphone_x_resolution = 2
     noise.settings.level_ground_microphone_y_resolution = 2       
     noise.geometry = vehicle

@@ -90,8 +90,8 @@ def plot_elevation_contours(topography_file,
         CS   = axis.contourf(long_dist/Units.nmi,lat_dist/Units.nmi,elevation,cmap =cut_terrain_map,norm=norm,levels = 20)  
         cbar = fig.colorbar(CS, ax=axis)        
         cbar.ax.set_ylabel('Elevation above sea level [ft]', rotation =  90) 
-        axis.set_xlabel('x (nautical miles)')
-        axis.set_ylabel('y (nautical miles)')      
+        axis.set_xlabel('Longitudinal Distance [nmi]')
+        axis.set_ylabel('Latitudinal Distance [nmi]') 
      
     return   
 

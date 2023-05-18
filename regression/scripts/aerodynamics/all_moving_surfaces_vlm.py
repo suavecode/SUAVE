@@ -15,7 +15,7 @@ import numpy as np
 import MARC
 from MARC.Core                                                                       import Data, Units
 from MARC.Methods.Aerodynamics.Common.Fidelity_Zero.Lift                             import VLM as VLM
-from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle_vlm_panelization  import plot_3d_vehicle_vlm_panelization
+from MARC.Visualization import *     
 sys.path.append('../Vehicles')
 
 from All_Moving_Test_Bench import vehicle_setup as test_bench_setup

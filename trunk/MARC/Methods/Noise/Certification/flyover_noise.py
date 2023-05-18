@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np 
-from MARC.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise import compute_noise
+from MARC.Methods.Noise.Common.compute_noise import compute_noise
 
 # ----------------------------------------------------------------------        
 #   Flyover noise

@@ -18,11 +18,7 @@
 import MARC
 # Units allow any units to be specificied with MARC then automatically converting them the standard
 from MARC.Core import Units
-from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission import *    
-from MARC.Visualization.Performance.Energy.Battery import *   
-from MARC.Visualization.Performance.Energy.Fuel    import *  
-from MARC.Visualization.Performance.Noise import *  
+from MARC.Visualization import *     
 
 # Numpy is use extensively throughout MARC
 import numpy as np

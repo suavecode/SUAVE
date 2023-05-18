@@ -1,5 +1,7 @@
 ## @defgroup Methods-Noise-Fidelity_Zero Fidelity_Zero
-# Correlation type methods for calculating noise
+# Description
 # @ingroup Methods-Noise
 
-from .shevell                     import shevell 
+from . import Airframe
+from . import Engine
+from . import Rotor 

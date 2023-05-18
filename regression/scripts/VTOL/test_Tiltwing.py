@@ -11,12 +11,7 @@
 # ----------------------------------------------------------------------
 import MARC
 from MARC.Core import Units 
-from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
-from MARC.Visualization.Performance.Energy.Battery       import *   
-from MARC.Visualization.Performance.Noise                import *  
-from MARC.Visualization.Geometry.Three_Dimensional.plot_3d_vehicle import plot_3d_vehicle 
+from MARC.Visualization import *     
 import numpy as np  
 import sys 
 

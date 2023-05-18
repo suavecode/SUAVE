@@ -2,6 +2,6 @@
 # Plotting Functions for Aerodynamics
 # @ingroup Visualization-Performance
 
-from . import Airfoil  
-from . import Rotor
-from . import Vehicle
+from .Airfoil  import * 
+from .Rotor    import * 
+from .Vehicle  import * 

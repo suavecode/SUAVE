@@ -98,7 +98,7 @@ def plot_aircraft_velocities(results,
         leg.set_title('Flight Segment', prop={'size': ps.legend_font_size, 'weight': 'heavy'})    
     
     # Adjusting the sub-plots for legend 
-    fig.subplots_adjust(top=0.8)
+    fig.subplots_adjust(top=0.75)
     
     # set title of plot 
     title_text    = 'Aircraft Speeds'      

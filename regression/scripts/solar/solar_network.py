@@ -10,11 +10,7 @@
 
 import MARC
 from MARC.Core import Units
-from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
-from MARC.Visualization.Performance.Energy.Battery       import *   
-from MARC.Visualization.Performance.Noise                import * 
+from MARC.Visualization import *     
 import matplotlib.pyplot as plt  
 from MARC.Core import (
 Data, Container,

@@ -10,7 +10,7 @@
 import MARC 
 from MARC.Core                                                         import Units, Data  
 from MARC.Analyses.Mission.Segments.Segment                            import Segment 
-from MARC.Methods.Noise.Fidelity_One.Rotor.total_rotor_noise           import total_rotor_noise
+from MARC.Methods.Noise.Fidelity_Zero.Rotor.total_rotor_noise          import total_rotor_noise
 import MARC.Optimization.Package_Setups.scipy_setup                    as scipy_setup 
 from MARC.Optimization                                                 import Nexus       
 from MARC.Analyses.Mission.Segments.Conditions.Aerodynamics            import Aerodynamics 

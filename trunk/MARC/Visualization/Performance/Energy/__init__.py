@@ -2,5 +2,6 @@
 # Plotting functions related to energy network performance
 # @ingroup Visualization-Performance
  
-from . import Battery
-from . import Fuel
+from .Battery import * 
+from .Fuel    import * 
+from .Common  import * 

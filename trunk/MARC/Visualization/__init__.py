@@ -1,6 +1,8 @@
 ## @defgroup Visualization  
-# Visualization contains functions for generating common figures
+# Visualization contains functions for generating common figures 
 
-from . import Performance
-from . import Geometry
-from . import Topography
+from .Performance import * 
+from .Geometry    import * 
+from .Noise       import * 
+from .Topography  import * 
+from .Weights     import * 

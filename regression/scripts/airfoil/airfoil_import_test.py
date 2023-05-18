@@ -11,11 +11,10 @@
 
 import MARC 
 from MARC.Core import Units, Data 
-from MARC.Visualization.Geometry.Two_Dimensional.plot_airfoil import plot_airfoil
+from MARC.Visualization import *     
 import matplotlib.pyplot as plt  
 from MARC.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil\
-     import import_airfoil_geometry, compute_airfoil_properties, convert_airfoil_to_meshgrid
-from MARC.Visualization.Performance.Aerodynamics.Airfoil import *
+     import import_airfoil_geometry, compute_airfoil_properties, convert_airfoil_to_meshgrid 
 import os
 import numpy as np
 

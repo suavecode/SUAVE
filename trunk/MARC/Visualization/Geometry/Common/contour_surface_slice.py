@@ -10,4 +10,4 @@ import plotly.graph_objects as go
 
 ## @ingroup Visualization-Geometry-Common
 def contour_surface_slice(x,y,z,values,color_scale):
-    return go.Surface(x=x,y=y,z=z,surfacecolor=values,colorscale=color_scale, showscale=False) 
+    return go.Surface(x=x,y=y,z=z,surfacecolor=values,colorscale=color_scale, showscale=True) 

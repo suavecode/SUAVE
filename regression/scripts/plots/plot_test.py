@@ -7,13 +7,8 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import MARC 
-from MARC.Visualization.Performance.Aerodynamics.Vehicle import *  
-from MARC.Visualization.Performance.Mission              import *  
-from MARC.Visualization.Performance.Aerodynamics.Rotor import *  
-from MARC.Visualization.Performance.Energy.Battery       import *   
-from MARC.Visualization.Performance.Energy.Fuel          import *  
-from MARC.Visualization.Performance.Noise                import *    
+import MARC
+from MARC.Visualization import *     
 import matplotlib.pyplot as plt  
 
 def main():
