@@ -132,7 +132,7 @@ class Rotor(Energy_Component):
         self.vtk_airfoil_points           = 40
         self.induced_power_factor         = 1.48         # accounts for interference effects
         self.profile_drag_coefficient     = .03
-        self.sol_tolerance                = 1e-8
+        self.sol_tolerance                = 1e-8#1e-8
         self.design_power_coefficient     = 0.01
 
         
@@ -149,6 +149,10 @@ class Rotor(Energy_Component):
         self.variable_pitch            = False
         self.surrogate_spin_flag       = False
 >>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
+        
+        self.UQ_Tip_Loss_Factor_1 = 1
+        self.UQ_Tip_Loss_Factor_2 = 1
+        self.UQ_Tip_Loss_Factor_3 = 1
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                              = Rotor_Wake_Fidelity_Zero()
@@ -279,6 +283,11 @@ class Rotor(Energy_Component):
         sweep   = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
         r_1d    = self.radius_distribution
         tc      = self.thickness_to_chord
+        
+        # tip loss factors for UQ anlaysis
+        et1 = self.UQ_Tip_Loss_Factor_1
+        et2 = self.UQ_Tip_Loss_Factor_2
+        et3 = self.UQ_Tip_Loss_Factor_3        
 
         # Unpack rotor airfoil data
         a_geo   = self.airfoil_geometry
@@ -474,7 +483,7 @@ class Rotor(Energy_Component):
         Wa   = va + Ua
         Wt   = Ut - vt
 
-        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R, Rh,Wa,Wt,B)
+        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R, Rh,Wa,Wt,B,et1,et2,et3)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
 <<<<<<< HEAD
@@ -483,9 +492,44 @@ class Rotor(Energy_Component):
         Cl, Cdval, alpha, Ma, W, Re = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
 >>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
         
-        
+
         # compute HFW circulation at the blade
         Gamma = 0.5*W*c*Cl  
+        
+        #import pylab as plt
+        #if use_2d_analysis:
+            #Fplt = F[0,:,0]
+            #Clplt = Cl[0,:,0]
+            #alphaPlt = alpha[0,:,0]
+            #GammaPlt = Gamma[0,:,0]
+        #else:
+            #Fplt = F[0,:]
+            #Clplt = Cl[0,:]
+            #alphaPlt = alpha[0,:]
+            #GammaPlt = Gamma[0,:]
+            
+    
+        #plt.figure("CirculationGamma")
+        #plt.plot(r_1d, GammaPlt)            
+        #plt.figure("alpha")
+        #plt.plot(r_1d, alphaPlt * 180/np.pi)
+        
+        
+        #plt.figure("TipLossPlot")
+
+        #plt.plot(r_1d, Fplt)
+        
+        #newRow = [str(x) for x in Fplt]  #str(F.T)
+        #with open('/Users/rerha/Desktop/CODES/MultiFidelityRotors/UQ/UQ_Tests/tip_loss_distribution_uq.csv', 'a') as file:
+            
+            #writerObj = writer(file)
+            #writerObj.writerow(newRow)
+            #file.close()
+            
+
+        #plt.figure("TipLossFraction")
+        #plt.plot(1, np.sum(Cl*c) / np.sum(Cl*c/F),'o')        
+        
 
         #---------------------------------------------------------------------------            
                 
@@ -528,6 +572,8 @@ class Rotor(Energy_Component):
             Vt_ind_2d  = vt
             Vt_ind_avg = np.average(vt, axis=2)
             Va_ind_avg = np.average(va, axis=2)
+            
+            Re_2d = Re
 
             # set 1d blade loadings to be the average:
             blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 2)
@@ -558,6 +604,8 @@ class Rotor(Energy_Component):
             Va_ind_avg              = va
             Va_ind_2d               = np.repeat(va[ :, :, None], Na, axis=2)
             Vt_ind_2d               = np.repeat(vt[ :, :, None], Na, axis=2)
+
+            Re_2d                   = np.repeat(Re[ :, :, None], Na, axis=2)            
 
             # compute the hub force / rotor drag distribution along the blade
             dL    = 0.5*rho*c*Cd*omegar**2*deltar
@@ -608,6 +656,11 @@ class Rotor(Energy_Component):
 
         # Assign efficiency to network
         conditions.propulsion.etap = etap
+        
+        # 
+        Re_p75_min = np.interp(0.75, r_1d/R, np.min(Re_2d[0,:,:], axis=1))
+        Re_p75_max = np.interp(0.75, r_1d/R, np.max(Re_2d[0,:,:], axis=1))
+        Re_p75_avg = np.interp(0.75, r_1d/R, np.average(Re_2d[0,:,:], axis=1))
 
 
         # Store data
@@ -635,6 +688,9 @@ class Rotor(Energy_Component):
                     drag_coefficient                  = Cd,
                     lift_coefficient                  = Cl,
                     Reynolds_numbers                  = Re,
+                    Reynolds_number_p75_min           = Re_p75_min,
+                    Reynolds_number_p75_max           = Re_p75_max,
+                    Reynolds_number_p75_avg           = Re_p75_avg,
                     omega                             = omega,
                     disc_circulation                  = blade_Gamma_2d,
                     blade_dT_dr                       = blade_dT_dr,
@@ -700,13 +756,16 @@ class Rotor(Energy_Component):
         
         # compute T, Q for current prop state
         V_sim = np.linalg.norm(Vvec,axis=1)
-        A_sim_tilt = self.inputs.y_axis_rotation[:,0] #np.repeat(self.orientation_euler_angles[1] , cpts)
+        A_sim_tilt = np.atleast_2d(self.inputs.y_axis_rotation)[:,0] #np.repeat(self.orientation_euler_angles[1] , cpts)
         J_sim = V_sim / (n.T[0] * D)
 
-        # compute total prop angle to freestream (tilt + pitch)
+        # compute total prop angle to freestream (propeller tilt + aircraft pitch + wind2horizontal_angle)
         try:
             aircraft_pitch  = conditions.aerodynamics.angle_of_attack[:,0]
-            A_sim = A_sim_tilt + aircraft_pitch
+            Vx = conditions.frames.inertial.velocity_vector[:,0]
+            Vz = conditions.frames.inertial.velocity_vector[:,2]
+            wind2horizontal_angle = np.arctan(Vz / (Vx + 1e-18))            
+            A_sim = A_sim_tilt + aircraft_pitch #+ wind2horizontal_angle
         except:
             A_sim = np.repeat(self.orientation_euler_angles[1] , cpts) #np.atleast_2d(np.repeat(self.orientation_euler_angles[1] , cpts))
             A_sim_tilt = A_sim
@@ -717,27 +776,45 @@ class Rotor(Energy_Component):
         CT_sur = surrogate_data.CT.to_numpy()
         CQ_sur = surrogate_data.CQ.to_numpy()
         
+        if np.any(np.isnan(A_sim)) or np.any(A_sim > 180*Units.deg) or np.any( np.isnan(J_sim)) or np.any(np.isnan(J_sim)) or np.any(np.isnan(A_sim)):
+            pauset =1 
         
-        thrust = np.zeros_like(V_sim)
-        torque = np.zeros_like(V_sim)
         
-        # Use Kriging interpolation for (J-Alpha) space
-        for i, V_sim_i in enumerate(V_sim):
         
-            vmodel = "linear" #"exponential" "spherical" "linear" "power" "gaussian"
-            
-            # use exact
-            Kriging_CT = Kriging(A_sur, J_sur, CT_sur, variogram_model=vmodel)
-            Kriging_CQ = Kriging(A_sur, J_sur, CQ_sur, variogram_model=vmodel)
-    
-            CT_k, CT_ss = Kriging_CT.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
-            thrust[i] = CT_k * (rho[i,0]*(n[i,0]*n[i,0])*(D*D*D*D))        
-    
-            CQ_k, CQ_ss = Kriging_CQ.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
-            torque[i] = CQ_k * (rho[i,0]*(n[i,0]*n[i,0])*(D*D*D*D*D))      
+        ## Use Kriging interpolation for (J-Alpha) space
 
-        thrust = np.atleast_2d(thrust).T
-        torque = np.atleast_2d(torque).T      
+        #thrust = np.zeros_like(V_sim)
+        #torque = np.zeros_like(V_sim)        
+        #use_kriging = True
+        #if use_kriging:
+            #for i, V_sim_i in enumerate(V_sim):
+            
+                #vmodel = "linear" #"exponential" "spherical" "linear" "power" "gaussian"
+                
+                ## use exact
+                #Kriging_CT = Kriging(A_sur, J_sur, CT_sur, variogram_model=vmodel)
+                #Kriging_CQ = Kriging(A_sur, J_sur, CQ_sur, variogram_model=vmodel)
+        
+                #CT_k, CT_ss = Kriging_CT.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                #thrust[i] = CT_k * (rho[i,0]*(n[i,0]*n[i,0])*(D*D*D*D))     
+                
+                #CQ_k, CQ_ss = Kriging_CQ.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                #torque[i] = CQ_k * (rho[i,0]*(n[i,0]*n[i,0])*(D*D*D*D*D))      
+            
+            #thrust = np.atleast_2d(thrust).T
+            #torque = np.atleast_2d(torque).T
+            
+
+        ct = sp.interpolate.griddata((A_sur,J_sur), CT_sur, (A_sim, J_sim),fill_value=0)
+        thrust = np.atleast_2d(ct).T * (rho*(n*n)*(D*D*D*D))   
+        
+        cq = sp.interpolate.griddata((A_sur,J_sur), CQ_sur, (A_sim, J_sim),fill_value=0)
+        torque = np.atleast_2d(cq).T * (rho*(n*n)*(D*D*D*D))         
+
+        #f_cq = sp.interpolate.interp2d(np.unique(X), np.unique(Y), Z_CQ.T)
+        #cq = sp.interpolate.dfitpack.bispeu(f_cq.tck[0], f_cq.tck[1], f_cq.tck[2], f_cq.tck[3], f_cq.tck[4], A_sim, J_sim)[0]
+        #torque = np.atleast_2d(cq).T * (rho*(n*n)*(D*D*D*D*D))           
+        
                 
         
         power = omega*torque
@@ -768,8 +845,15 @@ class Rotor(Energy_Component):
         # DEBUG
         # append sample point to csv (V, Alpha, J, CT, CQ)
         for i in range(cpts):
+            #if i == 0:
+                #with open('/Users/rerha/Desktop/mission_solver_points_LFGP.csv', 'w') as file:
+                    ## write header
+                    #writerObj = writer(file)
+                    #writerObj.writerow(['i','V','AlphaDeg','J','CT','CQ','T','Q'])
+                    #file.close()
+                
             newRow = [i, V_sim[i], A_sim[i]/Units.deg, J_sim[i], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
-            with open('/Users/rerha/Desktop/mission_sampled_points_MFGP.csv', 'a') as file:
+            with open('/Users/rerha/Desktop/mission_solver_queries.csv', 'a') as file:
                 
                 writerObj = writer(file)
                 writerObj.writerow(newRow)

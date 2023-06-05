@@ -87,7 +87,7 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
         wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
         
         # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-        va, vt = compute_fidelity_one_inflow_velocities(wake,rotor)
+        va, vt = compute_fidelity_one_inflow_velocities(wake,rotor,ctrl_pts)
     
         # compute new blade velocities
         Wa   = va + Ua
@@ -131,58 +131,58 @@ def fidelity_one_wake_convergence(wake,rotor,wake_inputs):
                 print("Semi-prescribed vortex wake did not converge on disc circulation for fidelity one wake.")
             break    
         
-    # -------------------------------------------------------------------------------------------------------
-    # Converge on axial inflow distribution
-    # -------------------------------------------------------------------------------------------------------        
-    print("\tAxial inflow convergence:")
-    va_diff, va_ii = 1, 0
-    va_tol = wake.axial_velocity_convergence_tolerance        
-    while va_diff > va_tol:
-        # generate wake geometry for rotor
-        wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
+    ## -------------------------------------------------------------------------------------------------------
+    ## Converge on axial inflow distribution
+    ## -------------------------------------------------------------------------------------------------------        
+    #print("\tAxial inflow convergence:")
+    #va_diff, va_ii = 1, 0
+    #va_tol = wake.axial_velocity_convergence_tolerance        
+    #while va_diff > va_tol:
+        ## generate wake geometry for rotor
+        #wake, rotor  = generate_fidelity_one_wake_shape(wake,rotor)
         
-        # compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
-        va, vt = compute_fidelity_one_inflow_velocities(wake,rotor)
+        ## compute axial wake-induced velocity (a byproduct of the circulation distribution which is an input to the wake geometry)
+        #va, vt = compute_fidelity_one_inflow_velocities(wake,rotor,ctrl_pts)
     
-        # compute new blade velocities
-        Wa   = va + Ua
-        Wt   = Ut - vt
+        ## compute new blade velocities
+        #Wa   = va + Ua
+        #Wt   = Ut - vt
         
-        # compute blade forces
-        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B)
-        Cl, Cdval, alpha, Ma, W, Re = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis=True)
+        ## compute blade forces
+        #lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B)
+        #Cl, Cdval, alpha, Ma, W, Re = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis=True)
 
-        # compute circulation at the blade        
-        Gamma = 0.5*W*c*Cl*F
-        g_diff = np.max(abs(Gamma - rotor.outputs.disc_circulation))
+        ## compute circulation at the blade        
+        #Gamma = 0.5*W*c*Cl*F
+        #g_diff = np.max(abs(Gamma - rotor.outputs.disc_circulation))
         
 
-        # filter gamma
-        ws, order = 7, 2
-        for cpt in range(ctrl_pts):
-            # FILTER OUTLIER DATA
-            for a in range(Na):
-                va[cpt,:,a] = savitzky_golay(va[cpt,:,a], ws, order)           
+        ## filter gamma
+        #ws, order = 7, 2
+        #for cpt in range(ctrl_pts):
+            ## FILTER OUTLIER DATA
+            #for a in range(Na):
+                #va[cpt,:,a] = savitzky_golay(va[cpt,:,a], ws, order)           
 
-        va_diff = np.max(abs(rotor.outputs.disc_axial_induced_velocity - F*va))
-        print("\t\t"+str(va_diff))
+        #va_diff = np.max(abs(rotor.outputs.disc_axial_induced_velocity - F*va))
+        #print("\t\t"+str(va_diff))
         
         
-        vafit = np.zeros_like(r)
-        for cpt in range(ctrl_pts):
-            # FILTER OUTLIER DATA
-            for a in range(Na):
-                vaPoly = np.poly1d(np.polyfit(r[0,:,0], va[cpt,:,a], 4))
-                vafit[cpt,:,a] = F[cpt,:,a]*vaPoly(r[0,:,0])        
+        #vafit = np.zeros_like(r)
+        #for cpt in range(ctrl_pts):
+            ## FILTER OUTLIER DATA
+            #for a in range(Na):
+                #vaPoly = np.poly1d(np.polyfit(r[0,:,0], va[cpt,:,a], 4))
+                #vafit[cpt,:,a] = F[cpt,:,a]*vaPoly(r[0,:,0])        
         
                 
-        rotor.outputs.disc_axial_induced_velocity = rotor.outputs.disc_axial_induced_velocity + 0.25*(vafit - rotor.outputs.disc_axial_induced_velocity) #F*va #
+        #rotor.outputs.disc_axial_induced_velocity = rotor.outputs.disc_axial_induced_velocity + 0.25*(vafit - rotor.outputs.disc_axial_induced_velocity) #F*va #
 
-        va_ii+=1
-        if va_ii>=ii_max and va_diff>va_tol:
-            if wake.semi_prescribed_converge and wake.verbose:
-                print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
-            break
+        #va_ii+=1
+        #if va_ii>=ii_max and va_diff>va_tol:
+            #if wake.semi_prescribed_converge and wake.verbose:
+                #print("Semi-prescribed vortex wake did not converge on axial inflow used for wake shape.")
+            #break
  
     
 

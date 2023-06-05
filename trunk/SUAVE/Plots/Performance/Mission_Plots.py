@@ -1151,23 +1151,24 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
 
         Vx      = segment.state.conditions.frames.inertial.velocity_vector[:,0]
         Vz      = segment.state.conditions.frames.inertial.velocity_vector[:,2]
+        wind2horizontal_angle = np.arctan(Vz / (Vx + 1e-18)) / Units.deg
 
         body_angle = segment.state.conditions.frames.body.inertial_rotations[:,1] / Units.deg
         y_rot      = segment.conditions.propulsion.propeller_y_axis_rotation[:,0] / Units.deg
         time       = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Vinf       = segment.conditions.freestream.velocity[:,0]
+        Vinf       = np.linalg.norm(segment.state.conditions.frames.inertial.velocity_vector,axis=1)
 
 
         n     = segment.conditions.propulsion.propeller_rpm[:,0] / 60
         J     = Vinf/(n*D)
    
 
-        conditions = segment.state.conditions
-        body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
-        T_body2inertial = conditions.frames.body.transform_to_inertial
-        T = orientation_product(T_body2inertial,body_thrust_force_vector)      
-        thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2)) / Units.deg
-
+        #conditions = segment.state.conditions
+        #body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
+        #T_body2inertial = conditions.frames.body.transform_to_inertial
+        #T = orientation_product(T_body2inertial,body_thrust_force_vector)      
+        #thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2)) / Units.deg + wind2body_angle
+        thrust_angle = y_rot + body_angle + wind2horizontal_angle
 
         axes = plt.subplot(2,2,1)
         axes.plot(time, thrust_angle, line_color)
@@ -1202,14 +1203,20 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
     #marks = ['bs', 'oo', 'go', 'r^', 'ms','k-','ro','gs','yo']
     for s, segment in enumerate(results.segments.values()):
 
-        Vinf    = segment.conditions.freestream.velocity[:,0]
+        Vinf    = np.linalg.norm(segment.state.conditions.frames.inertial.velocity_vector, axis=1)
+        Vx = segment.state.conditions.frames.inertial.velocity_vector[:,0]
+        Vz = segment.state.conditions.frames.inertial.velocity_vector[:,2]
+        wind2horizontal_angle = np.arctan(Vz / (Vx + 1e-18))
 
+        #conditions = segment.state.conditions
+        #body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
+        #T_body2inertial = conditions.frames.body.transform_to_inertial
+        #T = orientation_product(T_body2inertial,body_thrust_force_vector)      
+        #thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2)) #+ wind2body_angle
 
-        conditions = segment.state.conditions
-        body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
-        T_body2inertial = conditions.frames.body.transform_to_inertial
-        T = orientation_product(T_body2inertial,body_thrust_force_vector)      
-        thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2))
+        body_angle = segment.state.conditions.frames.body.inertial_rotations[:,1]
+        y_rot      = segment.conditions.propulsion.propeller_y_axis_rotation[:,0]
+        thrust_angle = y_rot + body_angle + wind2horizontal_angle
         
         n     = segment.conditions.propulsion.propeller_rpm[:,0] / 60
         J     = Vinf/(n*D)
@@ -1232,14 +1239,23 @@ def plot_tiltrotor_conditions(results,configs,line_color='bo-',save_figure=False
     #marks = ['bs', 'oo', 'go', 'r^', 'ms','k-','ro','gs','yo']
     for s, segment in enumerate(results.segments.values()):
 
-        Vinf    = segment.conditions.freestream.velocity[:,0]
+        Vinf    = np.linalg.norm(segment.state.conditions.frames.inertial.velocity_vector, axis=1)
+        Vx = segment.state.conditions.frames.inertial.velocity_vector[:,0]
+        Vz = segment.state.conditions.frames.inertial.velocity_vector[:,2]
+        wind2horizontal_angle = np.arctan(Vz / (Vx + 1e-18))
+        
+        #conditions = segment.state.conditions
+        #body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
+        #T_body2inertial = conditions.frames.body.transform_to_inertial
+        #T = orientation_product(T_body2inertial,body_thrust_force_vector)      
+        #thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2)) + wind2body_angle
 
-
-        conditions = segment.state.conditions
-        body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
-        T_body2inertial = conditions.frames.body.transform_to_inertial
-        T = orientation_product(T_body2inertial,body_thrust_force_vector)      
-        thrust_angle  = np.arccos(T[:,0] / np.sqrt(T[:,0]**2 + T[:,2]**2))
+        body_angle = segment.state.conditions.frames.body.inertial_rotations[:,1]
+        y_rot      = segment.conditions.propulsion.propeller_y_axis_rotation[:,0]
+        thrust_angle = y_rot + body_angle + wind2horizontal_angle     
+        
+        #T_wind2body = conditions.frames.wind.transform_to_body
+        #v_wind = orientation_product(T_wind2body,segment.state.conditions.frames.inertial.velocity_vector)
         
         n     = segment.conditions.propulsion.propeller_rpm[:,0] / 60
         J     = Vinf/(n*D)

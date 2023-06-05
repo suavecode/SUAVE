@@ -311,6 +311,7 @@ def update_orientations(segment):
 
     # pack transformation tensor
     conditions.frames.wind.transform_to_inertial = T_wind2inertial
+    conditions.frames.wind.transform_to_body = T_wind2body
     
     return
         

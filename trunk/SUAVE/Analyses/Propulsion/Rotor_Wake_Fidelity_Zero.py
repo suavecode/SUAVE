@@ -53,6 +53,9 @@ class Rotor_Wake_Fidelity_Zero(Energy_Component):
         self.tag            = 'rotor_wake'
         self.wake_method    = 'Fidelity_Zero'
 
+    def initialize(self, rotor, conditions):
+        rotor.spin(conditions)
+        return
     
     def evaluate(self,rotor,wake_inputs,conditions):
         """

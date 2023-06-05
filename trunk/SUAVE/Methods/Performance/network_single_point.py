@@ -46,8 +46,7 @@ def network_single_point(net,
                             print_results=False):
 
         Uses SUAVE's propeller spin function to evaluate propeller network performance at a
-        single altitude, pitch command, and angular velocity. Can be used indep-
-        endently, or as part of creation of a propller maps or flight envelopes.
+        single altitude, pitch command, and angular velocity.
 
         Sources:
         N/A
@@ -86,48 +85,48 @@ def network_single_point(net,
                 .tangential_velocity            BEVW V_t Prediction         [m/s]
                 .axial_velocity                 BEVW V_a Prediction         [m/s]
     """
-    # Set atmosphere
-    if analyses==None:
-        # setup standard US 1976 atmosphere
-        analyses   = SUAVE.Analyses.Vehicle()
-        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        analyses.append(atmosphere)           
-        
-    # Unpack Inputs
-    ctrl_pts = 1
-
-    atmo_data           = analyses.atmosphere.compute_values(altitude, delta_isa)
-    T                   = atmo_data.temperature
-    a                   = atmo_data.speed_of_sound
-    density             = atmo_data.density
-    dynamic_viscosity   = atmo_data.dynamic_viscosity
 
     # Setup Pseudo-Mission for Prop Evaluation
-    conditions                                      = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
-    conditions.freestream                           = Data()
-    conditions.propulsion                           = Data()
-    conditions.noise                                = Data()
-    conditions.noise.sources                        = Data()
-    conditions.noise.sources.propellers             = Data()
-    conditions.frames                               = Data()
-    conditions.frames.inertial                      = Data()
-    conditions.frames.body                          = Data()    
-    conditions.freestream.density                   = np.ones((ctrl_pts, 1)) * density
-    conditions.freestream.dynamic_viscosity         = np.ones((ctrl_pts, 1)) * dynamic_viscosity
-    conditions.freestream.speed_of_sound            = np.ones((ctrl_pts, 1)) * a
-    conditions.freestream.temperature               = np.ones((ctrl_pts, 1)) * T
-    conditions.freestream.mach_number               = speed / a
-    conditions.freestream.velocity                  = speed
-    velocity_vector                                 = np.array([[speed, 0., 0.]])
+    ctrl_pts = 1
+    conditions, analyses = set_conditions(altitude, delta_isa, speed, analyses, ctrl_pts)
+    propellers = net.propellers
     
-    conditions.propulsion.throttle                  = np.ones((ctrl_pts, 1)) * 1.
-    conditions.frames.inertial.velocity_vector      = np.tile(velocity_vector, (ctrl_pts, 1))
-    conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
-
+    # ----------------------------------------------------------------------------
+    # Set propeller operating conditions
+    # ----------------------------------------------------------------------------    
+    for prop in propellers:
+        prop.inputs.pitch_command = pitch
+        prop.inputs.omega           = np.ones((ctrl_pts, 1)) * omega
+        
+        # Initialize wake with isolated state
+        prop.Wake.initialize(prop, conditions)
+        
     # ----------------------------------------------------------------------------
     # Run Propeller Analysis for all props, including interactions if specified
     # ----------------------------------------------------------------------------
-    propellers = net.propellers
+
+    converged = False
+    while not converged:
+        # ----------------------------------------------------------------------------
+        # compute flow field at rotor disks
+        # ----------------------------------------------------------------------------
+        for prop in propellers:
+            # Extract grid domain over disk to evaluate flow field
+            Xmin, Xmax, Ymin, Ymax, Zmin, Zmax = prop.Wake.get_fluid_domain_boundaries(prop)
+            grid_points = generate_fluid_domain_grid_points(Xmin, Xmax, Ymin, Ymax, Zmin, Zmax, prop.tip_radius)
+        
+        # ----------------------------------------------------------------------------        
+        # analyze rotor performance with new flow field
+        # ----------------------------------------------------------------------------
+        for prop in propellers:
+            F, Q, P, Cp, outputs, etap = prop.spin(conditions)
+
+        # ----------------------------------------------------------------------------        
+        # check for convergence of all propellers
+        # ----------------------------------------------------------------------------
+        
+    
+    
 
     # Generate grids for fluid domain
     for prop in propellers:
@@ -269,3 +268,42 @@ def network_single_point(net,
     results.outputs                     = outputs
 
     return net, results, conditions
+
+
+def set_conditions(altitude, delta_isa, speed, analyses,ctrl_pts):
+    # Set atmosphere
+    if analyses==None:
+        # setup standard US 1976 atmosphere
+        analyses   = SUAVE.Analyses.Vehicle()
+        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        analyses.append(atmosphere)           
+        
+    # Unpack Inputs
+    atmo_data           = analyses.atmosphere.compute_values(altitude, delta_isa)
+    T                   = atmo_data.temperature
+    a                   = atmo_data.speed_of_sound
+    density             = atmo_data.density
+    dynamic_viscosity   = atmo_data.dynamic_viscosity
+    
+    conditions                                      = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
+    conditions.freestream                           = Data()
+    conditions.propulsion                           = Data()
+    conditions.noise                                = Data()
+    conditions.noise.sources                        = Data()
+    conditions.noise.sources.propellers             = Data()
+    conditions.frames                               = Data()
+    conditions.frames.inertial                      = Data()
+    conditions.frames.body                          = Data()    
+    conditions.freestream.density                   = np.ones((ctrl_pts, 1)) * density
+    conditions.freestream.dynamic_viscosity         = np.ones((ctrl_pts, 1)) * dynamic_viscosity
+    conditions.freestream.speed_of_sound            = np.ones((ctrl_pts, 1)) * a
+    conditions.freestream.temperature               = np.ones((ctrl_pts, 1)) * T
+    conditions.freestream.mach_number               = speed / a
+    conditions.freestream.velocity                  = speed
+    velocity_vector                                 = np.array([[speed, 0., 0.]])
+    
+    conditions.propulsion.throttle                  = np.ones((ctrl_pts, 1)) * 1.
+    conditions.frames.inertial.velocity_vector      = np.tile(velocity_vector, (ctrl_pts, 1))
+    conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
+
+    return conditions, analyses

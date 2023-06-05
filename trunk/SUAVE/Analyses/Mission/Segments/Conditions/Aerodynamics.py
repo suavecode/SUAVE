@@ -68,6 +68,7 @@ class Aerodynamics(Basic):
         self.frames.wind.lift_force_vector     = ones_3col * 0
         self.frames.wind.drag_force_vector     = ones_3col * 0
         self.frames.wind.transform_to_inertial = np.empty([0,0,0])
+        self.frames.wind.transform_to_body     = np.empty([0,0,0])
 
         # body frame conditions
         self.frames.body.thrust_force_vector = ones_3col * 0

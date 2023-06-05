@@ -71,6 +71,11 @@ def post_stall_coefficients(state,settings,geometry):
     CL2max    = F1*F2
     CD2max    = G1*G2
     
+    uq_analysis = settings.use_uq #False
+    if uq_analysis:
+        CL2max = np.random.normal(CL2max, 0.074)    
+        CD2max = np.random.normal(CD2max, 0.098)     
+    
     # Equation 11d
     RCL2      = 1.632-CL2max
     

@@ -79,6 +79,7 @@ class Battery_Propeller(Network):
         self.generative_design_minimum    = 0 
         self.identical_propellers         = True
         self.y_axis_rotation              = 0.
+        self.pitch_command                = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -180,7 +181,8 @@ class Battery_Propeller(Network):
                 prop      = self.propellers[prop_key]
 
                 # Set rotor y-axis rotation                
-                prop.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation                    
+                prop.inputs.y_axis_rotation = conditions.propulsion.propeller_y_axis_rotation  
+                prop.inputs.pitch_command = self.pitch_command
                 
                 # link 
                 motor.inputs.voltage        = esc.outputs.voltageout
@@ -225,7 +227,10 @@ class Battery_Propeller(Network):
                 conditions.propulsion.disc_loading[:,ii]               = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
                 conditions.propulsion.power_loading[:,ii]              = (F_mag[:,0])/(P[:,0])       # N/W      
                 conditions.propulsion.propeller_efficiency[:,ii]       = etap[:,0]  
-                conditions.propulsion.figure_of_merit[:,ii]            = outputs.figure_of_merit[:,0] 
+                conditions.propulsion.figure_of_merit[:,ii]            = outputs.figure_of_merit[:,0]  
+                #conditions.propulsion.Reynolds_number_p75_min[:,ii]    = outputs.Reynolds_number_p75_min
+                #conditions.propulsion.Reynolds_number_p75_max[:,ii]    = outputs.Reynolds_number_p75_max
+                #conditions.propulsion.Reynolds_number_p75_avg[:,ii]    = outputs.Reynolds_number_p75_avg
                 
                 conditions.noise.sources.propellers[prop.tag]      = outputs
             
@@ -289,7 +294,7 @@ class Battery_Propeller(Network):
         results.thrust_force_vector       = total_thrust
         results.vehicle_mass_rate         = state.ones_row(1)*0.0     
         results.network_y_axis_rotation   = conditions.propulsion.propeller_y_axis_rotation
-     
+
         return results
      
     def unpack_unknowns(self,segment):
@@ -486,7 +491,10 @@ class Battery_Propeller(Network):
         segment.state.conditions.propulsion.power_loading              = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_tip_mach         = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)   
-        segment.state.conditions.propulsion.figure_of_merit            = 0. * ones_row(n_props)      
+        segment.state.conditions.propulsion.figure_of_merit            = 0. * ones_row(n_props)  
+        segment.state.conditions.propulsion.Reynolds_number_p75_min    = 0. * ones_row(n_props)   
+        segment.state.conditions.propulsion.Reynolds_number_p75_max    = 0. * ones_row(n_props)   
+        segment.state.conditions.propulsion.Reynolds_number_p75_avg    = 0. * ones_row(n_props) 
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns
@@ -579,7 +587,10 @@ class Battery_Propeller(Network):
         segment.state.conditions.propulsion.power_loading              = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_tip_mach         = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props) 
-        segment.state.conditions.propulsion.figure_of_merit            = 0. * ones_row(n_props)       
+        segment.state.conditions.propulsion.figure_of_merit            = 0. * ones_row(n_props) 
+        segment.state.conditions.propulsion.Reynolds_number_p75_min    = 0. * ones_row(n_props)   
+        segment.state.conditions.propulsion.Reynolds_number_p75_max    = 0. * ones_row(n_props)   
+        segment.state.conditions.propulsion.Reynolds_number_p75_avg    = 0. * ones_row(n_props)     
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_tiltrotor_transition_unknowns

@@ -127,6 +127,11 @@ def iteration(PSI, wake_inputs, rotor):
     cd_sur   = rotor.airfoil_cd_surrogates    
 >>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
     
+    # UQ analysis
+    et1 = rotor.UQ_Tip_Loss_Factor_1
+    et2 = rotor.UQ_Tip_Loss_Factor_2
+    et3 = rotor.UQ_Tip_Loss_Factor_3
+    
     # Reshape PSI because the solver gives it flat
     if wake_inputs.use_2d_analysis:
         PSI    = np.reshape(PSI,(ctrl_pts,Nr,Na))
@@ -139,9 +144,8 @@ def iteration(PSI, wake_inputs, rotor):
     Wa           = 0.5*Ua + 0.5*U*sin_psi
     Wt           = 0.5*Ut + 0.5*U*cos_psi
     vt           = Ut - Wt
-
-    # compute inflow velocity and tip loss factor
-    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B)
+    
+    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B,et1,et2,et3)
     
     # compute blade airfoil forces and properties
 <<<<<<< HEAD
@@ -253,7 +257,12 @@ def compute_dR_dpsi(PSI,wake_inputs,rotor):
     # Unpack rotor data        
     R        = rotor.tip_radius
     Rh       = rotor.hub_radius
-    B        = rotor.number_of_blades      
+    B        = rotor.number_of_blades   
+    
+    # UQ analysis
+    et1 = rotor.UQ_Tip_Loss_Factor_1
+    et2 = rotor.UQ_Tip_Loss_Factor_2
+    et3 = rotor.UQ_Tip_Loss_Factor_3    
     
     # Reshape PSI because the solver gives it flat
     if wake_inputs.use_2d_analysis:
@@ -270,7 +279,7 @@ def compute_dR_dpsi(PSI,wake_inputs,rotor):
     Wa           = 0.5*Ua + 0.5*U*sin_psi
     Wt           = 0.5*Ut + 0.5*U*cos_psi
     
-    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B)
+    lamdaw, F, piece = compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B,et1,et2,et3)
     
     pi          = np.pi
     pi2         = np.pi**2

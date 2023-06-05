@@ -43,7 +43,7 @@ def initialize_conditions(segment):
     ax0 = segment.acceleration_initial 
     axf = segment.acceleration_final 
     T0  = segment.pitch_initial
-    Tf  = segment.pitch_final     
+    Tf  = segment.pitch_final
     
     # check for initial altitude
     if alt is None:
@@ -70,7 +70,6 @@ def initialize_conditions(segment):
     i,j  = np.indices(Amat.shape)
     Amat[i==j+1] = -1 * np.ones(n_cp-2)
     Amat[j==n_cp-2] = -0.5 * np.ravel((ax_t[1:]-ax_t[0:-1])) - np.ravel(ax_t[0:-1])
-    
     # setup the b solution vector
     b = np.zeros(n_cp-1)
     b[0] = v0
@@ -87,11 +86,11 @@ def initialize_conditions(segment):
     time      = t_nondim * (t_final-t_initial) + t_initial
     
     # Figure out x
-    x0 = segment.state.conditions.frames.inertial.position_vector[:,0]
-    xpos = x0 + (vx_t[:,0] * time[:,0])
+    x0 = segment.state.conditions.frames.inertial.position_vector[0,0]
+    xpos = x0 + np.cumsum(vx_t[:,0] * time[:,0])
     
     # set the body angle
-    body_angle = T0 + time*(Tf-T0)/(t_final-t_initial) 
+    body_angle = T0 + t_nondim*(Tf-T0)
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
     
     # pack

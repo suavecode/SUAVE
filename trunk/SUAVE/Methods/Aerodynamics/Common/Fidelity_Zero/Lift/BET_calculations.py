@@ -86,6 +86,10 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd
                 locs          = np.where(np.array(a_loc) == jj )
                 Cl[:,locs]    = Cl_af[:,locs]
                 Cdval[:,locs] = Cdval_af[:,locs]
+        
+        # Scale for Mach, this is Karmen_Tsien
+        Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+        
     else:
         # Estimate Cl max
         tc_1 = tc*100
@@ -113,18 +117,18 @@ def compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd
         Cdval[alpha>=np.pi/2] = 2.
 
 
-    # Apply rolling average for smoothing (Cl, Cd) from surrogated data
-    from DCode.Common.generalFunctions import savitzky_golay
-    ws, order = 5, 2
-    for cpt in range(ctrl_pts):
-        # FILTER OUTLIER DATA
-        if use_2d_analysis:
-            for a in range(Na):
-                Cl[cpt,:,a] = savitzky_golay(Cl[cpt,:,a], ws, order)   
-                Cdval[cpt,:,a] = savitzky_golay(Cdval[cpt,:,a], ws, order)     
-        else:
-            Cl[cpt,:] = savitzky_golay(Cl[cpt,:], ws, order)   
-            Cdval[cpt,:] = savitzky_golay(Cdval[cpt,:], ws, order)  
+    ## Apply rolling average for smoothing (Cl, Cd) from surrogated data
+    #from DCode.Common.generalFunctions import savitzky_golay
+    #ws, order = 5, 2
+    #for cpt in range(ctrl_pts):
+        ## FILTER OUTLIER DATA
+        #if use_2d_analysis:
+            #for a in range(Na):
+                #Cl[cpt,:,a] = savitzky_golay(Cl[cpt,:,a], ws, order)   
+                #Cdval[cpt,:,a] = savitzky_golay(Cdval[cpt,:,a], ws, order)     
+        #else:
+            #Cl[cpt,:] = savitzky_golay(Cl[cpt,:], ws, order)   
+            #Cdval[cpt,:] = savitzky_golay(Cdval[cpt,:], ws, order)  
     
     # Apply tip/hub corrections
     Cl = Cl*F
@@ -181,7 +185,7 @@ def compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B,et1=1,et2=1,et3=1):
     """
     lamdaw             = r*Wa/(R*Wt)
     lamdaw[lamdaw<=0.] = 1e-12
-
+        
     tipfactor = B/2.0*(  (R/r)**et1 - 1  )**et2/lamdaw**et3 
 <<<<<<< HEAD
 
@@ -200,7 +204,7 @@ def compute_inflow_and_tip_loss(r,R,Rh,Wa,Wt,B,et1=1,et2=1,et3=1):
     piece = tippiece
     piece[tippiece<1e-3] = hubpiece[tippiece<1e-3]
     
-    F = Ftip * Fhub
+    F = Ftip #* Fhub
     F[F<1e-6] = 1e-6
     return lamdaw, F, piece
 >>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
