@@ -40,8 +40,8 @@ def main():
 
     # General Aviation Aircraft   
 
-    GA_RPM_true              = [2285.799691255412,2285.799691250787]
-    GA_lift_coefficient_true = [0.5474716961975736,0.547471696197576]
+    GA_RPM_true              = [2285.8179503746774,2285.8179503693987]
+    GA_lift_coefficient_true = [0.5474716961975739,0.5474716961975754]
     
 
     # EVTOL Aircraft      
