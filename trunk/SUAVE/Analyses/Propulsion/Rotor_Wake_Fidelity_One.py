@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 from SUAVE.Components import Wings
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
@@ -17,6 +17,9 @@ from SUAVE.Methods.Propulsion.Rotor_Wake.Fidelity_One.update_wake_position impor
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.extract_wing_VD import extract_wing_collocation_points
+
+from DCode.Common.Visualization_Tools.box_contour_field_vtk import box_contour_field_vtk
+from DCode.Common.generalFunctions import save_single_prop_vehicle_vtk
 
 # package imports
 import copy
@@ -59,21 +62,32 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         self.tag                        = 'rotor_wake'
         self.wake_method                = 'Fidelity_One'
         self.vortex_distribution        = Data()
-        self.wake_method_fidelity       = 0
-        self.semi_prescribed_converge   = False      # flag for convergence on semi-prescribed wake shape
+        self.wake_method_fidelity       = 1
+        self.semi_prescribed_converge   = True      # flag for convergence on semi-prescribed wake shape
         self.vtk_save_flag              = False      # flag for saving vtk outputs of wake
         self.vtk_save_loc               = None       # location to save vtk outputs of wake
 
         self.wake_settings              = Data()
-        self.wake_settings.number_rotor_rotations     = 5
+        self.wake_settings.number_rotor_rotations     = 4
         self.wake_settings.number_steps_per_rotation  = 72
         self.wake_settings.initial_timestep_offset    = 0    # initial timestep
+<<<<<<< HEAD
 
         # wake convergence criteria
         self.maximum_convergence_iteration            = 10
         self.axial_velocity_convergence_tolerance     = 1e-2
         self.relaxation                               = False
 
+=======
+        self.influencing_rotor_wake_network = None
+        
+        # wake convergence criteria
+        self.maximum_convergence_iteration_gamma      = 1#50
+        self.maximum_convergence_iteration_va         = 1#50
+        self.axial_velocity_convergence_tolerance     = 1e-3
+        self.circulation_convergence_tolerance        = 1e-3
+        
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
         # flags for slipstream interaction
         self.slipstream                 = False
         self.verbose                    = False
@@ -119,8 +133,13 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
                 Resetting wake to match rotor of Na="+str(rotor.number_azimuthal_stations))
 
         return
+<<<<<<< HEAD
 
     def evaluate(self,rotor,wake_inputs,conditions):
+=======
+    
+    def evaluate(self,rotor,wake_inputs,conditions,VD=None):
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
         """
         Wake evaluation is performed using a semi-prescribed vortex wake (PVW) method for Fidelity One.
 
@@ -156,6 +175,7 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
         # Store wake shape
         self.vortex_distribution = WD
+<<<<<<< HEAD
 
         return va, vt
 
@@ -172,6 +192,12 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
 
         return interpolatedBoxData
 
+=======
+            
+        return va, vt, rotor
+    
+    
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
     def evaluate_slipstream(self,rotor,geometry,ctrl_pts,wing_instance=None):
         """
         Evaluates the velocities induced by the rotor on a specified wing of the vehicle.
@@ -252,9 +278,22 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         wake_vortex_distribution = rotor.Wake.vortex_distribution
 
         # compute the induced velocity from the rotor wake on the lifting surfaces
+<<<<<<< HEAD
         VD.Wake         = wake_vortex_distribution
         rot_V_wake_ind  = compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts)
 
+=======
+        #VD.Wake         = wake_vortex_distribution
+
+        Na = rotor.number_azimuthal_stations
+        
+        start_angle = rotor.start_angle
+        angles = np.linspace(0,2*np.pi,Na+1)[:-1]
+        azi_start_idx = np.where(np.isclose(abs(start_angle),angles))[0][0]
+        
+        rot_V_wake_ind  = compute_wake_induced_velocity(wake_vortex_distribution,VD,num_ctrl_pts,azi_start_idx)        
+        
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
         return rot_V_wake_ind
 
     def shift_wake_VD(self,wVD, offset):
@@ -297,3 +336,79 @@ class Rotor_Wake_Fidelity_One(Energy_Component):
         # update wake distribution
         self.vortex_distribution = wVD
         return
+<<<<<<< HEAD
+=======
+    
+    def rotate_propFrame_to_globalFrame(self, rotor):
+        """
+        This rotates all points in the vortex wake by the rotation angle. This is primarily
+        used for transforming the wake from the prop to the vehicle frame to maintain consistent
+        reference frames for vehicle analysis.
+        """
+        wVD = self.vortex_distribution
+        
+        # rotate to prop frame
+        rot_mat = rotor.prop_vel_to_vehicle_body()[0]
+        if 'XC' in wVD.keys():
+            C = np.matmul(rot_mat, np.array([wVD.XC,wVD.YC,wVD.ZC]))
+            
+            wVD.XC = np.reshape(C[0,:], np.shape(wVD.XC))
+            wVD.YC = np.reshape(C[1,:], np.shape(wVD.XC))
+            wVD.ZC = np.reshape(C[2,:], np.shape(wVD.XC))            
+        
+        A1 = np.matmul(rot_mat, np.array([np.ravel(wVD.XA1),np.ravel(wVD.YA1),np.ravel(wVD.ZA1)]))
+        A2 = np.matmul(rot_mat, np.array([np.ravel(wVD.XA2),np.ravel(wVD.YA2),np.ravel(wVD.ZA2)]))
+        B1 = np.matmul(rot_mat, np.array([np.ravel(wVD.XB1),np.ravel(wVD.YB1),np.ravel(wVD.ZB1)]))
+        B2 = np.matmul(rot_mat, np.array([np.ravel(wVD.XB2),np.ravel(wVD.YB2),np.ravel(wVD.ZB2)]))
+
+        rsA1 = np.matmul(rot_mat, np.array([np.ravel(wVD.reshaped_wake.XA1),np.ravel(wVD.reshaped_wake.YA1),np.ravel(wVD.reshaped_wake.ZA1)]))
+        rsA2 = np.matmul(rot_mat, np.array([np.ravel(wVD.reshaped_wake.XA2),np.ravel(wVD.reshaped_wake.YA2),np.ravel(wVD.reshaped_wake.ZA2)]))
+        rsB1 = np.matmul(rot_mat, np.array([np.ravel(wVD.reshaped_wake.XB1),np.ravel(wVD.reshaped_wake.YB1),np.ravel(wVD.reshaped_wake.ZB1)]))
+        rsB2 = np.matmul(rot_mat, np.array([np.ravel(wVD.reshaped_wake.XB2),np.ravel(wVD.reshaped_wake.YB2),np.ravel(wVD.reshaped_wake.ZB2)]))        
+
+
+        wVD.XA1 = np.reshape(A1[0,:], np.shape(wVD.XA1))
+        wVD.YA1 = np.reshape(A1[1,:], np.shape(wVD.XA1))
+        wVD.ZA1 = np.reshape(A1[2,:], np.shape(wVD.XA1))
+
+        wVD.XA2 = np.reshape(A2[0,:], np.shape(wVD.XA1))
+        wVD.YA2 = np.reshape(A2[1,:], np.shape(wVD.XA1))
+        wVD.ZA2 = np.reshape(A2[2,:], np.shape(wVD.XA1))    
+
+        wVD.XB1 = np.reshape(B1[0,:], np.shape(wVD.XA1))
+        wVD.YB1 = np.reshape(B1[1,:], np.shape(wVD.XA1))
+        wVD.ZB1 = np.reshape(B1[2,:], np.shape(wVD.XA1))      
+
+        wVD.XB2 = np.reshape(B2[0,:], np.shape(wVD.XA1))
+        wVD.YB2 = np.reshape(B2[1,:], np.shape(wVD.XA1))
+        wVD.ZB2 = np.reshape(B2[2,:], np.shape(wVD.XA1))      
+        
+        
+        wVD.reshaped_wake.XA1 = np.reshape(rsA1[0,:], np.shape(wVD.reshaped_wake.XA1))
+        wVD.reshaped_wake.YA1 = np.reshape(rsA1[1,:], np.shape(wVD.reshaped_wake.XA1))
+        wVD.reshaped_wake.ZA1 = np.reshape(rsA1[2,:], np.shape(wVD.reshaped_wake.XA1))
+
+        wVD.reshaped_wake.XA2 = np.reshape(rsA2[0,:], np.shape(wVD.reshaped_wake.XA1))
+        wVD.reshaped_wake.YA2 = np.reshape(rsA2[1,:], np.shape(wVD.reshaped_wake.XA1))
+        wVD.reshaped_wake.ZA2 = np.reshape(rsA2[2,:], np.shape(wVD.reshaped_wake.XA1))    
+
+        wVD.reshaped_wake.XB1 = np.reshape(rsB1[0,:], np.shape(wVD.reshaped_wake.XA1))
+        wVD.reshaped_wake.YB1 = np.reshape(rsB1[1,:], np.shape(wVD.reshaped_wake.XA1))
+        wVD.reshaped_wake.ZB1 = np.reshape(rsB1[2,:], np.shape(wVD.reshaped_wake.XA1))      
+
+        wVD.reshaped_wake.XB2 = np.reshape(rsB2[0,:], np.shape(wVD.reshaped_wake.XA1))
+        wVD.reshaped_wake.YB2 = np.reshape(rsB2[1,:], np.shape(wVD.reshaped_wake.XA1))
+        wVD.reshaped_wake.ZB2 = np.reshape(rsB2[2,:], np.shape(wVD.reshaped_wake.XA1))              
+        
+        self.vortex_distribution = wVD        
+        return
+    
+        
+        
+        
+
+
+
+
+
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe

@@ -52,7 +52,11 @@ def empty(config,
         https://github.com/VahanaOpenSource
 
 
+<<<<<<< HEAD
         Inputs:
+=======
+        Inputs: 
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
             config:                     SUAVE Config Data Stucture
             contingency_factor          Factor capturing uncertainty in vehicle weight [Unitless]
             speed_of_sound:             Local Speed of Sound                           [m/s]
@@ -63,7 +67,11 @@ def empty(config,
             max_g_load                  Maximum g-forces load for certification        [UNitless]
             motor_efficiency:           Motor Efficiency                               [Unitless]
 
+<<<<<<< HEAD
         Outputs:
+=======
+        Outputs: 
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
             outputs:                    Data Dictionary of Component Masses [kg]
 
         Output data dictionary has the following book-keeping hierarchical structure:

@@ -66,7 +66,11 @@ def  import_airfoil_polars(airfoil_polar_files,angel_of_attack_discretization = 
             # Read data
             if xfoilPolarFormat:
                 # get data, extract Re, Ma
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
                 headerLine = pd.read_csv(airfoil_polar_files[i][j], sep="\t", skiprows=7, nrows=1)
                 headerString = str(headerLine.iloc[0])
                 ReString = headerString.split('Re =',1)[1].split('e 6',1)[0]

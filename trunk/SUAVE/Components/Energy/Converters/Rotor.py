@@ -16,7 +16,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import ContainerOrdered 
 from SUAVE.Analyses.Propulsion.Rotor_Wake_Fidelity_Zero import Rotor_Wake_Fidelity_Zero
@@ -26,9 +26,16 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.BET_calculations \
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity import compute_wing_induced_velocity
 # package imports
 import numpy as np
 import scipy as sp
+import copy
+import pandas as pd
+from pykrige.uk import UniversalKriging
+from pykrige.ok import OrdinaryKriging as Kriging
+from csv import writer
+
 
 # ----------------------------------------------------------------------
 #  Generalized Rotor Class
@@ -62,6 +69,7 @@ class Rotor(Energy_Component):
         None
         """
 
+<<<<<<< HEAD
         self.tag                               = 'rotor'
         self.number_of_blades                  = 0.0
         self.tip_radius                        = 0.0
@@ -99,6 +107,48 @@ class Rotor(Energy_Component):
         self.inputs.y_axis_rotation            = 0.
         self.inputs.pitch_command              = 0.
         self.variable_pitch                    = False
+=======
+        self.tag                          = 'rotor'
+        self.number_of_blades             = 0.0
+        self.tip_radius                   = 0.0
+        self.hub_radius                   = 0.0
+        self.twist_distribution           = 0.0
+        self.sweep_distribution           = 0.0         # quarter chord offset from quarter chord of root airfoil
+        self.chord_distribution           = 0.0 
+        self.thickness_to_chord           = 0.0
+        self.mid_chord_alignment          = 0.0 
+        self.blade_solidity               = 0.0
+        self.design_power                 = None
+        self.design_thrust                = None
+        self.airfoil_geometry             = None
+        self.airfoil_data                 = None
+        self.airfoil_polars               = None
+        self.airfoil_polar_stations       = None
+        self.radius_distribution          = None
+        self.rotation                     = 1        
+        self.orientation_euler_angles     = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
+        self.ducted                       = False
+        self.number_azimuthal_stations    = 24
+        self.vtk_airfoil_points           = 40
+        self.induced_power_factor         = 1.48         # accounts for interference effects
+        self.profile_drag_coefficient     = .03
+        self.sol_tolerance                = 1e-8
+        self.design_power_coefficient     = 0.01
+
+        
+        self.use_2d_analysis                    = True    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream              = False
+        self.external_axial_disc_velocity       = None     # user input for additional velocity influences at the rotor
+        self.external_tangential_disc_velocity  = None     # user input for additional velocity influences at the rotor
+        self.external_radial_disc_velocity      = None     # user input for additional velocity influences at the rotor
+        
+        self.start_angle               = 0.0      # angle of first blade from vertical
+        self.start_angle_idx           = 0        # azimuthal index at which the blade is started
+        self.inputs.y_axis_rotation    = 0.
+        self.inputs.pitch_command      = 0.
+        self.variable_pitch            = False
+        self.surrogate_spin_flag       = False
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
         
         # Initialize the default wake set to Fidelity Zero
         self.Wake                              = Rotor_Wake_Fidelity_Zero()
@@ -112,6 +162,7 @@ class Rotor(Energy_Component):
         Source:
         N/A
 
+<<<<<<< HEAD
         Inputs:
         None
 
@@ -137,6 +188,9 @@ class Rotor(Energy_Component):
         self.Airfoils.append(airfoil)
         
     def spin(self,conditions):
+=======
+    def spin(self,conditions,VD=None):
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
         """Analyzes a general rotor given geometry and operating conditions.
 
         Assumptions:
@@ -205,6 +259,7 @@ class Rotor(Energy_Component):
         """
 
         # Unpack rotor blade parameters
+<<<<<<< HEAD
         B        = self.number_of_blades
         R        = self.tip_radius
         beta_0   = self.twist_distribution
@@ -215,6 +270,22 @@ class Rotor(Energy_Component):
         a_loc    = self.airfoil_polar_stations
         airfoils = self.Airfoils
  
+=======
+        B       = self.number_of_blades
+        R       = self.tip_radius
+        Rh      = self.hub_radius
+        beta_0  = self.twist_distribution
+        c       = self.chord_distribution
+        sweep   = self.sweep_distribution     # quarter chord distance from quarter chord of root airfoil
+        r_1d    = self.radius_distribution
+        tc      = self.thickness_to_chord
+
+        # Unpack rotor airfoil data
+        a_geo   = self.airfoil_geometry
+        a_loc   = self.airfoil_polar_stations
+        cl_sur  = self.airfoil_cl_surrogates
+        cd_sur  = self.airfoil_cd_surrogates
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
 
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega
@@ -331,9 +402,9 @@ class Rotor(Energy_Component):
             use_2d_analysis   = True
 
             # include additional influences specified at rotor sections, shape=(ctrl_pts,Nr,Na)
-            ua += self.axial_velocities_2d
-            ut += self.tangential_velocities_2d
-            ur += self.radial_velocities_2d
+            ua += self.external_axial_disc_velocity
+            ut += self.external_tangential_disc_velocity
+            ur += self.external_radial_disc_velocity
 
         if use_2d_analysis:
             # make everything 2D with shape (ctrl_pts,Nr,Na)
@@ -395,17 +466,22 @@ class Rotor(Energy_Component):
         wake_inputs.radius_distribution   = r
         wake_inputs.speed_of_sounds       = a
         wake_inputs.dynamic_viscosities   = nu
+        wake_inputs.azimuthal_distribution = psi_2d
 
-        va, vt = self.Wake.evaluate(self,wake_inputs,conditions)
+        va, vt, self = self.Wake.evaluate(self,wake_inputs,conditions)
         
         # compute new blade velocities
         Wa   = va + Ua
         Wt   = Ut - vt
 
-        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R,Wa,Wt,B)
+        lamdaw, F, _ = compute_inflow_and_tip_loss(r,R, Rh,Wa,Wt,B)
 
         # Compute aerodynamic forces based on specified input airfoil or surrogate
+<<<<<<< HEAD
         Cl, Cdval, alpha, Ma,W = compute_airfoil_aerodynamics(beta,c,r,R,B,Wa,Wt,a,nu,airfoils,a_loc,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+=======
+        Cl, Cdval, alpha, Ma, W, Re = compute_airfoil_aerodynamics(beta,c,r,R,B,F,Wa,Wt,a,nu,a_loc,a_geo,cl_sur,cd_sur,ctrl_pts,Nr,Na,tc,use_2d_analysis)
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
         
         
         # compute HFW circulation at the blade
@@ -508,9 +584,9 @@ class Rotor(Energy_Component):
         FoM      = thrust*np.sqrt(thrust/(2*rho_0*A))    /power  
 
         # prevent things from breaking
-        Cq[Cq<0]                                               = 0.
-        Ct[Ct<0]                                               = 0.
-        Cp[Cp<0]                                               = 0.
+        #Cq[Cq<0]                                               = 0.
+        #Ct[Ct<0]                                               = 0.
+        #Cp[Cp<0]                                               = 0.
         thrust[conditions.propulsion.throttle[:,0] <=0.0]      = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0
         torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
@@ -541,6 +617,7 @@ class Rotor(Energy_Component):
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,
                     disc_radial_distribution          = r_dim_2d,
+                    disc_azimuthal_distribution       = psi_2d,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
                     velocity                          = Vv,
@@ -548,12 +625,16 @@ class Rotor(Energy_Component):
                     blade_axial_induced_velocity      = Va_ind_avg,
                     blade_tangential_velocity         = Vt_avg,
                     blade_axial_velocity              = Va_avg,
+                    external_axial_disc_velocity      = self.external_axial_disc_velocity,
+                    external_tangential_disc_velocity = self.external_tangential_disc_velocity,
+                    external_radial_disc_velocity     = self.external_radial_disc_velocity,
                     disc_tangential_induced_velocity  = Vt_ind_2d,
                     disc_axial_induced_velocity       = Va_ind_2d,
                     disc_tangential_velocity          = Vt_2d,
                     disc_axial_velocity               = Va_2d,
                     drag_coefficient                  = Cd,
                     lift_coefficient                  = Cl,
+                    Reynolds_numbers                  = Re,
                     omega                             = omega,
                     disc_circulation                  = blade_Gamma_2d,
                     blade_dT_dr                       = blade_dT_dr,
@@ -563,7 +644,6 @@ class Rotor(Energy_Component):
                     disc_effective_angle_of_attack    = alpha_2d,
                     thrust_per_blade                  = thrust/B,
                     thrust_coefficient                = Ct,
-                    disc_azimuthal_distribution       = psi_2d,
                     blade_dQ_dr                       = blade_dQ_dr,
                     disc_dQ_dr                        = blade_dQ_dr_2d,
                     blade_torque_distribution         = blade_Q_distribution,
@@ -583,6 +663,247 @@ class Rotor(Energy_Component):
             )
         self.outputs = outputs
 
+        ## DEBUG
+        ## append sample point to csv (V, Alpha, J, CT, CQ)
+        #Alpha = np.atleast_2d(self.inputs.y_axis_rotation)
+        #Vinf = np.atleast_2d(np.linalg.norm(Vv,axis=1)).T
+        #J = Vinf / (n * D)        
+        #for i in range(ctrl_pts):
+            #newRow = [i, Vinf[i][0], Alpha[i][0], J[i][0], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
+            #with open('/Users/rerha/Desktop/mission_sampled_points.csv', 'a') as file:
+                
+                #writerObj = writer(file)
+                #writerObj.writerow(newRow)
+                #file.close()
+                
+        return thrust_vector, torque, power, Cp, outputs , etap
+
+    def spin_surrogate(self, conditions):
+        # get force coefficients from lookup table with interpolation
+        try:
+            #surrogate_data_file = self.surrogate_data_file
+            surrogate_data = self.surrogate_data #pd.read_csv(surrogate_data_file)
+            #CT_ok3d = self.Kriging_CT
+            #CQ_ok3d = self.Kriging_CQ
+        except:
+            raise("Error: No surrogate data found.")
+        
+        # unpack
+        omega = self.inputs.omega
+        n     = omega/(2.*np.pi) 
+        D     = 2 * self.tip_radius
+        rho   = conditions.freestream.density[:,0,None]
+        Vvec  = conditions.frames.inertial.velocity_vector
+        cpts  = len(Vvec)
+        
+        
+        
+        # compute T, Q for current prop state
+        V_sim = np.linalg.norm(Vvec,axis=1)
+        A_sim_tilt = self.inputs.y_axis_rotation[:,0] #np.repeat(self.orientation_euler_angles[1] , cpts)
+        J_sim = V_sim / (n.T[0] * D)
+
+        # compute total prop angle to freestream (tilt + pitch)
+        try:
+            aircraft_pitch  = conditions.aerodynamics.angle_of_attack[:,0]
+            A_sim = A_sim_tilt + aircraft_pitch
+        except:
+            A_sim = np.repeat(self.orientation_euler_angles[1] , cpts) #np.atleast_2d(np.repeat(self.orientation_euler_angles[1] , cpts))
+            A_sim_tilt = A_sim
+        
+        # extract surrogate data
+        A_sur = surrogate_data.AlphaP.to_numpy() * Units.deg
+        J_sur = surrogate_data.J.to_numpy()    
+        CT_sur = surrogate_data.CT.to_numpy()
+        CQ_sur = surrogate_data.CQ.to_numpy()
+        
+        
+        thrust = np.zeros_like(V_sim)
+        torque = np.zeros_like(V_sim)
+        
+        # Use Kriging interpolation for (J-Alpha) space
+        for i, V_sim_i in enumerate(V_sim):
+        
+            vmodel = "linear" #"exponential" "spherical" "linear" "power" "gaussian"
+            
+            # use exact
+            Kriging_CT = Kriging(A_sur, J_sur, CT_sur, variogram_model=vmodel)
+            Kriging_CQ = Kriging(A_sur, J_sur, CQ_sur, variogram_model=vmodel)
+    
+            CT_k, CT_ss = Kriging_CT.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+            thrust[i] = CT_k * (rho[i,0]*(n[i,0]*n[i,0])*(D*D*D*D))        
+    
+            CQ_k, CQ_ss = Kriging_CQ.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+            torque[i] = CQ_k * (rho[i,0]*(n[i,0]*n[i,0])*(D*D*D*D*D))      
+
+        thrust = np.atleast_2d(thrust).T
+        torque = np.atleast_2d(torque).T      
+                
+        
+        power = omega*torque
+        
+        # Thrust in the rotor frame
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        body2thrust     = self.body_to_prop_vel()
+        T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        
+        # Make the thrust a 3D vector
+        thrust_prop_frame      = np.zeros((cpts,3))
+        thrust_prop_frame[:,0] = thrust[:,0]
+        thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
+        
+        etap     = np.atleast_2d(V_sim).T*thrust/power
+        A        = np.pi*(self.tip_radius**2 - self.hub_radius**2)
+        FoM      = thrust*np.sqrt(thrust/(2*rho*A))    /power  
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
+        
+        results_conditions     = Data
+        outputs                = results_conditions( 
+            figure_of_merit    = FoM,
+            thrust_coefficient = thrust / (rho*(n*n)*(D*D*D*D)),
+            torque_coefficient = torque / (rho*(n*n)*(D*D*D*D*D)),
+            power_coefficient  = power / (rho*(n*n*n)*(D*D*D*D*D))
+        )
+        
+        # DEBUG
+        # append sample point to csv (V, Alpha, J, CT, CQ)
+        for i in range(cpts):
+            newRow = [i, V_sim[i], A_sim[i]/Units.deg, J_sim[i], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
+            with open('/Users/rerha/Desktop/mission_sampled_points_MFGP.csv', 'a') as file:
+                
+                writerObj = writer(file)
+                writerObj.writerow(newRow)
+                file.close()
+        
+        return thrust_vector, torque, power, Cp, outputs , etap
+        
+    def spin_surrogate_old(self, conditions):
+        # get force coefficients from lookup table with interpolation
+        try:
+            #surrogate_data_file = self.surrogate_data_file
+            surrogate_data = self.surrogate_data #pd.read_csv(surrogate_data_file)
+            #CT_ok3d = self.Kriging_CT
+            #CQ_ok3d = self.Kriging_CQ
+        except:
+            raise("Error: No surrogate data found.")
+        
+        # unpack
+        omega = self.inputs.omega
+        n     = omega/(2.*np.pi) 
+        D     = 2 * self.tip_radius
+        rho   = conditions.freestream.density[:,0,None]
+        Vvec  = conditions.frames.inertial.velocity_vector
+        cpts  = len(Vvec)
+        
+        
+        
+        # compute T, Q for current prop state
+        V_sim = np.linalg.norm(Vvec,axis=1)
+        A_sim_tilt = self.inputs.y_axis_rotation #np.repeat(self.orientation_euler_angles[1] , cpts)
+        J_sim = V_sim / (n.T[0] * D)
+
+        # compute total prop angle to freestream (tilt + pitch)
+        try:
+            aircraft_pitch  = conditions.aerodynamics.angle_of_attack
+            A_sim = A_sim_tilt + aircraft_pitch
+        except:
+            A_sim = np.atleast_2d(np.repeat(self.orientation_euler_angles[1] , cpts))
+            A_sim_tilt = A_sim
+                
+        # extract surrogate data
+        V_sur = surrogate_data.V.to_numpy()
+        A_sur = surrogate_data.AlphaP.to_numpy() * Units.deg
+        J_sur = surrogate_data.J.to_numpy()    
+        CT_sur = surrogate_data.CT.to_numpy()
+        CQ_sur = surrogate_data.CQ.to_numpy()
+        
+        
+        thrust = np.zeros_like(V_sim)
+        torque = np.zeros_like(V_sim)
+        
+        # Use Kriging interpolation for (J-Alpha) space with linear interpolation in velocity dimension
+        for i, V_sim_i in enumerate(V_sim):
+            v_low = V_sur[np.round(V_sur,3) >= np.round(V_sim_i,3)].min()
+            v_high = V_sur[np.round(V_sur,3) <= np.round(V_sim_i,3)].max()
+        
+            vmodel = "linear" #"exponential" "spherical" "linear" "power" "gaussian"
+            if v_low==v_high:
+                # use exact V_sim_i
+                ids = np.where(np.round(V_sur,3) == np.round(v_low,3))
+                Kriging_CT = Kriging(A_sur[ids], J_sur[ids], CT_sur[ids], variogram_model=vmodel)
+                Kriging_CQ = Kriging(A_sur[ids], J_sur[ids], CQ_sur[ids], variogram_model=vmodel)
+        
+                CT_k, CT_ss = Kriging_CT.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                thrust[i] = CT_k * (rho[0][0]*(n[i]*n[i])*(D*D*D*D))        
+        
+                CQ_k, CQ_ss = Kriging_CQ.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                torque[i] = CQ_k * (rho[0][0]*(n[i]*n[i])*(D*D*D*D*D))       
+            else:
+                # interpolate between the two 
+                ids_low = np.where(np.round(V_sur,3) == np.round(v_low,3))
+                Kriging_CT_low = Kriging(A_sur[ids_low], J_sur[ids_low], CT_sur[ids_low], variogram_model=vmodel)
+                Kriging_CQ_low = Kriging(A_sur[ids_low], J_sur[ids_low], CQ_sur[ids_low], variogram_model=vmodel)
+                
+                CT_k_l, CT_ss_l = Kriging_CT_low.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                thrust_low = CT_k_l[0] * (rho[0][0]*(n[i]*n[i])*(D*D*D*D))          
+                CQ_k_l, CQ_ss_l = Kriging_CQ_low.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                torque_low = CQ_k_l[0] * (rho[0][0]*(n[i]*n[i])*(D*D*D*D*D))                 
+    
+                ids_high = np.where(np.round(V_sur,4) == np.round(v_high,4))
+                Kriging_CT_high = Kriging(A_sur[ids_high], J_sur[ids_high], CT_sur[ids_high], variogram_model=vmodel)
+                Kriging_CQ_high = Kriging(A_sur[ids_high], J_sur[ids_high], CQ_sur[ids_high], variogram_model=vmodel)  
+                
+    
+                CT_k_h, CT_ss_h = Kriging_CT_high.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                thrust_high = CT_k_h[0] * (rho[0][0]*(n[i]*n[i])*(D*D*D*D))          
+                CQ_k_h, CQ_ss_h = Kriging_CQ_high.execute("points", A_sim[i], J_sim[i]) #,n_closest_points=20
+                torque_high = CQ_k_h[0] * (rho[0][0]*(n[i]*n[i])*(D*D*D*D*D))         
+                
+                Kriging_T_fun = sp.interpolate.interp1d(np.array([v_low, v_high]), np.array([thrust_low[0], thrust_high[0]]))
+                thrust[i] = Kriging_T_fun(V_sim_i)
+    
+                Kriging_Q_fun = sp.interpolate.interp1d(np.array([v_low, v_high]), np.array([torque_low[0], torque_high[0]]))
+                torque[i] = Kriging_Q_fun(V_sim_i) 
+        
+        thrust = np.atleast_2d(thrust).T
+        torque = np.atleast_2d(torque).T      
+                
+        
+        power = omega*torque
+        
+        # Thrust in the rotor frame
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        body2thrust     = self.body_to_prop_vel()
+        T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        
+        # Make the thrust a 3D vector
+        thrust_prop_frame      = np.zeros((cpts,3))
+        thrust_prop_frame[:,0] = thrust[:,0]
+        thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
+        
+        etap     = np.atleast_2d(V_sim).T*thrust/power
+        A        = np.pi*(self.tip_radius**2 - self.hub_radius**2)
+        FoM      = thrust*np.sqrt(thrust/(2*rho*A))    /power  
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
+        
+        results_conditions     = Data
+        outputs                = results_conditions( 
+            figure_of_merit    = FoM,
+            thrust_coefficient = thrust / (rho*(n*n)*(D*D*D*D)),
+            torque_coefficient = torque / (rho*(n*n)*(D*D*D*D*D)),
+            power_coefficient  = power / (rho*(n*n*n)*(D*D*D*D*D))
+        )
+        
+        ## DEBUG
+        ## append sample point to csv (V, Alpha, J, CT, CQ)
+        #for i in range(cpts):
+            #newRow = [i, V_sim[i], A_sim_tilt[i][0], J_sim[i], outputs.thrust_coefficient[i][0], outputs.torque_coefficient[i][0], thrust[i][0], torque[i][0]]
+            #with open('/Users/rerha/Desktop/mission_sampled_points_sur.csv', 'a') as file:
+                
+                #writerObj = writer(file)
+                #writerObj.writerow(newRow)
+                #file.close()
+        
         return thrust_vector, torque, power, Cp, outputs , etap
     
     
@@ -756,4 +1077,206 @@ class Rotor(Energy_Component):
         return rot_mat    
     
     def vec_to_prop_body(self):
+<<<<<<< HEAD
         return self.prop_vel_to_body()
+=======
+        return self.prop_vel_to_body()
+    
+    def vehicle_body_to_prop_body(self):
+        """This rotates from the system's body frame to the propeller's velocity frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame.
+        Velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        Vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+
+        # Go from velocity to vehicle frame
+        body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+
+        # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
+        cpts       = len(np.atleast_1d(self.inputs.y_axis_rotation))
+        rots = np.array([0., self.inputs.y_axis_rotation, 0.])
+        rots = np.repeat(rots[None,:], cpts, axis=0)
+        
+        vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
+
+        # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
+        prop_vec_2_prop_vel = self.vec_to_vel()
+
+        # Do all the matrix multiplies
+        rot1    = np.matmul(body_2_vehicle,vehicle_2_prop_vec)
+        rot_mat = np.matmul(rot1,prop_vec_2_prop_vel)
+
+
+        return rot_mat   
+    
+    def prop_body_to_vehicle_body(self):
+        """This rotates from the propeller's velocity frame to the system's body frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+
+        body2propvel = self.vehicle_body_to_prop_body()
+
+        r = sp.spatial.transform.Rotation.from_matrix(body2propvel)
+        r = r.inv()
+        rot_mat = r.as_matrix()
+
+        return rot_mat        
+
+    def compute_VLM_influence_at_rotor(self, vehicle, conditions):
+        """This takes a vehicle with a vortex distribution after VLM analysis and computes
+         the VLM-induced velocities at the rotor wake. These external velocities are then 
+         applied in the rotor BET / spin function.
+
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        
+        """        
+        #----------------------------------------------------------------------------------------------
+        # unpack
+        VD  = vehicle.vortex_distribution
+        Na  = self.number_azimuthal_stations
+        Nr  = len(self.radius_distribution) 
+        O   = self.origin[0]
+        rot = self.rotation
+        #----------------------------------------------------------------------------------------------
+                
+        # extract location of rotor blade elements from rotor
+        r   = self.radius_distribution
+        psi = np.linspace(0,2*np.pi,Na+1)[:-1]
+        
+        r_2d   = np.tile(r[:,None], (1, Na))
+        psi_2d = np.tile(psi[None,:],(Nr,1))   
+        #----------------------------------------------------------------------------------------------
+                
+        # convert positions from polar to cartesian (prop frame)
+        xE = 0
+        yE = r_2d * np.sin(psi_2d)
+        zE = r_2d * np.cos(psi_2d)
+
+        #----------------------------------------------------------------------------------------------
+                
+        # rotate about y-axis (put into vehicle frame)
+        rot_mat = self.prop_body_to_vehicle_body()[0]
+        VD_temp = copy.deepcopy(VD)
+        Positions = np.matmul(rot_mat, np.array([np.ravel(O[0] + xE), np.ravel(O[1] + yE), np.ravel(O[2] + zE) ]))
+        VD_temp.XC = Positions[0][:]
+        VD_temp.YC = Positions[1][:]
+        VD_temp.ZC = Positions[2][:]
+        #----------------------------------------------------------------------------------------------
+                
+        # compute induced velocity at rotor disk elements
+        C_mn, _, _, _ = compute_wing_induced_velocity(VD_temp, mach=np.array([0]))
+        Vx_inviscid = np.reshape( (C_mn[:,:,:,0]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
+        Vy_inviscid = np.reshape( (C_mn[:,:,:,1]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
+        Vz_inviscid = np.reshape( (C_mn[:,:,:,2]@VD_temp.gamma.T)[0,:,0] , np.shape(r_2d) )
+        
+        #----------------------------------------------------------------------------------------------
+        # Impart the wake deficit from BL of wing if x is behind the wing
+        #----------------------------------------------------------------------------------------------
+        
+        wing_tags = list(vehicle.wings.keys())
+        main_wing = wing_tags[0] # assumes main wing is the first in the list        
+        x0_wing = vehicle.wings[main_wing].origin[0][0]
+        span = vehicle.wings[main_wing].spans.projected
+        croot = vehicle.wings[main_wing].chords.root
+        ctip = vehicle.wings[main_wing].chords.tip
+        rho     = conditions.freestream.density
+        mu      = conditions.freestream.dynamic_viscosity 
+        Vv      = conditions.freestream.velocity[0][0]
+        nu      = (mu/rho)[0][0]
+        
+        Va_deficit = np.zeros_like(VD_temp.YC)
+        # if prop point is behind the wing leading edge
+        invalid_ids = np.where(VD_temp.XC <x0_wing)
+        
+            
+        # impart viscous wake to grid points within the span of the wing
+        y_inside            = abs(VD_temp.YC)<0.5*span
+        chord_distribution  = croot - (croot-ctip)*(abs(VD_temp.YC[y_inside])/(0.5*span))
+        
+        # Reynolds number developed at x-plane:
+        Rex_prop_plane     = Vv*(VD_temp.XC[y_inside]-x0_wing)/nu
+        
+        # boundary layer development distance
+        x_dev      = (VD_temp.XC[y_inside]-x0_wing) * np.ones_like(chord_distribution)
+        
+        # For turbulent flow
+        theta_turb  = 0.036*x_dev/(Rex_prop_plane**(1/5))
+        x_theta     = (x_dev-chord_distribution)/theta_turb
+
+        # axial velocity deficit due to turbulent BL from the wing (correlation from Ramaprian et al.)
+        W0  = Vv/np.sqrt(4*np.pi*0.032*x_theta)
+        b   = 2*theta_turb*np.sqrt(16*0.032*np.log(2)*x_theta)
+        Va_deficit[y_inside] = W0*np.exp(-4*np.log(2)*(abs(VD_temp.ZC[y_inside])/b)**2)
+            
+        Va_deficit[invalid_ids] = 0
+        
+        Vx = Vx_inviscid - np.reshape(Va_deficit, np.shape(Vx_inviscid))
+        Vy = Vy_inviscid
+        Vz = Vz_inviscid
+        
+        #----------------------------------------------------------------------------------------------
+        # convert velocities from vehicle to prop frame
+        rot_mat2 = self.vehicle_body_to_prop_body()[0]
+        VC_p = np.matmul(rot_mat2, np.array([np.ravel(Vx), np.ravel(Vy), np.ravel(Vz)]))
+        Vx_p = np.reshape(VC_p[0][:], np.shape(Vx))
+        Vy_p = np.reshape(VC_p[1][:], np.shape(Vx))
+        Vz_p = np.reshape(VC_p[2][:], np.shape(Vx))
+        
+        Va_p = Vx_p
+        Vt_p = -rot*(Vy_p*(np.cos(psi_2d)) - Vz_p*(np.sin(psi_2d)) ) 
+        Vr_p = -rot*(Vy_p*(np.sin(psi_2d)) + Vz_p*(np.cos(psi_2d)) ) 
+        
+        #----------------------------------------------------------------------------------------------
+        # append to rotor, shape=(ctrl_pts,Nr,Na)
+        self.external_axial_disc_velocity = Va_p[None,:,:]
+        self.external_tangential_disc_velocity = Vt_p[None,:,:]
+        self.external_radial_disc_velocity = Vr_p[None,:,:]
+        self.nonuniform_freestream = True
+        
+
+        return
+        
+>>>>>>> 72cb92b496e5352bef50a3348acc071dac763fbe
