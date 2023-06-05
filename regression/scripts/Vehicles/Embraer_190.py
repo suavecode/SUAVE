@@ -256,9 +256,9 @@ def vehicle_setup():
     nacelle.inlet_diameter                = 2.0
     nacelle.origin                        = [[12.0,4.38,-2.1]]
     Awet                                  = 1.1*np.pi*nacelle.diameter*nacelle.length # 1.1 is simple coefficient
-    nacelle.areas.wetted                  = Awet  
-    nacelle.Airfoil.naca_4_series_airfoil = '2410' 
-
+    nacelle.areas.wetted                  = Awet   
+    nacelle.Airfoil.NACA_4_series_flag    = True 
+    nacelle.Airfoil.coordinate_file       = '2410'  
     nacelle_2                             = deepcopy(nacelle)
     nacelle_2.tag                         = 'nacelle_2'
     nacelle_2.origin                      = [[12.0,-4.38,-2.1]]

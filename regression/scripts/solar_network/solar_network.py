@@ -74,10 +74,10 @@ def main():
     
     # Truth results
 
-    truth_F   = 82.5075384708843
-    truth_rpm = 196.48257054445452
-    truth_i   = 86.20577553870862
-    truth_bat = 124605420.10966778
+    truth_F   = 82.50753846534539
+    truth_rpm = 194.40119841317366
+    truth_i   = 86.06579017876555
+    truth_bat = 124628733.8676211
     
     print('battery energy')
     print(energy)
@@ -247,8 +247,6 @@ def plot_mission(results,line_style='bo-'):
     plot_solar_flux(results,line_style) 
     
     return
-
-
 
 def load_results():
     return SUAVE.Input_Output.SUAVE.load('solar_uav_mission.res')
