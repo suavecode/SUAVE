@@ -1,0 +1,12 @@
+<tag>
+  <element>Content</element>
+  <empty_element/>
+  <element attribute="value" another="text">More Content</element>
+  <element>Note the repeated tags!</element>
+  <element>
+    <sub_element/>
+  </element>
+</tag>
+
+
+        
