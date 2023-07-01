@@ -21,7 +21,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_pre_stall_data=True):
+def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_pre_stall_data=True, boundary_layer_calcs=False):
     """This computes the aerodynamic properties and coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading as well as aeroacoustics. Pre stall characteristics 
@@ -72,8 +72,10 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_
     # ----------------------------------------------------------------------------------------
     # Compute airfoil boundary layers properties 
     # ----------------------------------------------------------------------------------------   
-    Airfoil_Data   = compute_boundary_layer_properties(airfoil_geometry,Airfoil_Data)
-    num_polars     = len(Airfoil_Data.re_from_polar)
+    if boundary_layer_calcs:
+        Airfoil_Data   = compute_boundary_layer_properties(airfoil_geometry,Airfoil_Data)
+
+    num_polars     = len(airfoil_polar_files)
      
     # ----------------------------------------------------------------------------------------
     # Compute extended cl and cd polars 
