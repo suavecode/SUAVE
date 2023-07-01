@@ -115,7 +115,9 @@ def propeller_single_point(prop,
     conditions.freestream.speed_of_sound            = np.ones((ctrl_pts, 1)) * a
     conditions.freestream.temperature               = np.ones((ctrl_pts, 1)) * T
     conditions.freestream.mach_number               = speed / a
+    conditions.freestream.velocity                  = speed
     velocity_vector                                 = np.array([[speed, 0., 0.]])
+    
     conditions.propulsion.throttle                  = np.ones((ctrl_pts, 1)) * 1.
     conditions.frames.inertial.velocity_vector      = np.tile(velocity_vector, (ctrl_pts, 1))
     conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
@@ -132,10 +134,11 @@ def propeller_single_point(prop,
     Q_distribution_BEVW = outputs.disc_torque_distribution[0, :, 0]
 
     if print_results:
-        print('Total Thrust:    {} N'.format(F[0][0]))
-        print('Total Torque:    {} N-m'.format(Q[0][0]))
-        print('Total Power:     {} W'.format(P[0][0]))
+        print('Thrust Coefficient:    {} N'.format(outputs.thrust_coefficient[0][0]))
+        print('Torque Coefficient:    {} N-m'.format(outputs.torque_coefficient[0][0]))
+        print('Power Coefficient:     {} W'.format(outputs.power_coefficient[0][0]))
         print('Prop Efficiency: {}'.format(etap[0][0]))
+        print('Prop FOM: {}'.format(outputs.figure_of_merit[0][0]))
 
     # ----------------------------------------------------------------------------
     # 2D - Plots  Plots
@@ -182,4 +185,4 @@ def propeller_single_point(prop,
     results.axial_velocity              = va_BEVW
     results.outputs                     = outputs
 
-    return prop, results
+    return prop, results, conditions
