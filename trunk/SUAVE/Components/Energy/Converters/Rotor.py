@@ -77,6 +77,7 @@ class Rotor(Energy_Component):
         self.design_power                      = None
         self.design_thrust                     = None
         self.radius_distribution               = None
+        self.azimuthal_distribution            = None
         self.rotation                          = 1
         self.orientation_euler_angles          = [0.,0.,0.]   # This is X-direction thrust in vehicle frame
         self.ducted                            = False
@@ -688,3 +689,10 @@ class Rotor(Energy_Component):
     
     def vec_to_prop_body(self):
         return self.prop_vel_to_body()
+    
+    def calculate_thickness_distribution(self):
+        self.max_thickness_distribution = np.zeros_like(self.radius_distribution)
+        for ii in range(len(self.Airfoils)):
+            t_ids = np.where(np.array(self.airfoil_polar_stations) == ii)
+            self.max_thickness_distribution[t_ids] = self.Airfoils[ii].geometry.thickness_to_chord * self.chord_distribution[t_ids]
+        return
