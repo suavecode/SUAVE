@@ -55,12 +55,9 @@ def pre_stall_coefficients(state,settings,geometry):
     ACD1   = wing.pre_stall_maximum_drag_coefficient_angle
     CL1max = wing.pre_stall_maximum_lift_coefficient
     S1     = wing.pre_stall_lift_curve_slope  
-    CD1max = wing.pre_stall_maximum_lift_drag_coefficient
+    CD1max = wing.pre_stall_maximum_drag_coefficient
     CDmin  = wing.section.minimum_drag_coefficient 
-    ACDmin = wing.section.minimum_drag_coefficient_angle_of_attack 
-    
-    if wing.vertical == True:
-        alpha = 0. * np.ones_like(alpha)
+    ACDmin = wing.section.minimum_drag_coefficient_angle_of_attack
         
     # Equation 6c
     RCL1          = S1*(ACL1-A0)-CL1max

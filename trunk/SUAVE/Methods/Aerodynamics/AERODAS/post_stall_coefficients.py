@@ -52,7 +52,8 @@ def post_stall_coefficients(state,settings,geometry):
     AR     = wing.aspect_ratio
     t_c    = wing.thickness_to_chord
     ACL1   = wing.section.angle_attack_max_prestall_lift 
-    CD1max = wing.pre_stall_maximum_lift_drag_coefficient
+    CL1max = wing.pre_stall_maximum_lift_coefficient
+    CD1max = wing.pre_stall_maximum_drag_coefficient
     ACD1   = wing.pre_stall_maximum_drag_coefficient_angle
     alpha  = state.conditions.aerodynamics.angle_of_attack
     
@@ -87,27 +88,40 @@ def post_stall_coefficients(state,settings,geometry):
     CL2[con3] = -0.032*(alpha[con3]/Units.deg-92.0) + RCL2*((alpha[con3]-92.*Units.deg)/(51.0*Units.deg))**N2
     
     # If alpha is negative flip things for lift
-    alphan    = - alpha+2*A0
+    #    Negative angle of attack post-stall is anti-symmetric about alpha=A0
+    alphan    = -alpha + 2*A0
     con1      = np.logical_and(0<alphan, alphan<ACL1)
     con2      = np.logical_and(ACL1<=alphan, alphan<=(92.0*Units.deg))
     con3      = alphan>=(92.0*Units.deg)
     CL2[con1] = 0.
-    CL2[con2] = 0.032*(alphan[con2]/Units.deg-92.0) + RCL2*((92.*Units.deg-alphan[con2])/(51.0*Units.deg))**N2
-    CL2[con3] = 0.032*(alphan[con3]/Units.deg-92.0) - RCL2*((alphan[con3]-92.*Units.deg)/(51.0*Units.deg))**N2
+    CL2[con2] = 0.032*(alphan[con2]/Units.deg-92.0) + RCL2*((92.*Units.deg - alphan[con2])/(51.0*Units.deg))**N2
+    CL2[con3] = 0.032*(alphan[con3]/Units.deg-92.0) - RCL2*((alphan[con3] - 92.*Units.deg)/(51.0*Units.deg))**N2
+    
+    # Smoothing between pre-stall and deep stall (Montgomerie, B., 2004.)
+    k = 0.001
+    alpha_m_i = ACL1[0]
+    alpha_m_f = alpha_m_i + 20 * Units.deg
+    CL_i = CL1max[0]
+    CL_f = CL2[np.argmin(abs(alpha - alpha_m_f))]
+    delta_alpha = (alpha - alpha_m_i) / Units.deg
+    f_smooth = 1 / (1 + k * delta_alpha**4)
+    
+    mids = np.logical_and(alpha>alpha_m_i, alpha<alpha_m_f)
+    CL2[mids] = CL_f + (CL_i-CL_f) * f_smooth[mids]
+    
     
     # Equation 12a 
     con1      = np.logical_and((2*A0-ACL1)<alpha, alpha<ACL1)
-    con2      = alpha>ACD1
-    CD2       = 0.0 * np.ones_like(alpha)
+    con2      = alpha>=ACD1
+    CD2       = np.zeros_like(alpha)
     CD2[con1] = 0.
-    CD2[con2] = CD1max[con2] + (CD2max - CD1max[con2]) * np.sin((alpha[con2]-ACD1[con2])/(np.pi/2-ACD1[con2]))
+    CD2[con2] = CD1max[con2] + (CD2max - CD1max[con2]) * np.sin( ( (alpha[con2]-ACD1[con2])/(np.pi/2-ACD1[con2])) * np.pi/2)
     
     # If alpha is negative flip things for drag
-    alphan    = -alpha + 2*A0
-    con1      = np.logical_and((2*A0-ACL1)<alphan,alphan<ACL1)
+    con1      = np.logical_and((2*A0-ACD1)<alphan,alphan<ACL1)
     con2      = alphan>=ACD1
     CD2[con1] = 0.
-    CD2[con2] = CD1max[con2] + (CD2max - CD1max[con2]) * np.sin((alphan[con2]-ACD1[con2])/(np.pi/2-ACD1[con2]))        
+    CD2[con2] = CD1max[con2] + (CD2max - CD1max[con2]) * np.sin( ( (alphan[con2]-ACD1[con2])/(np.pi/2-ACD1[con2]))  * np.pi/2)       
         
     # Pack outputs
     wing_result = Data(

@@ -200,7 +200,7 @@ class Nexus(Data):
                 indices.append(ii)        
         iqconstraints = np.delete(constraints,indices,axis=0)
     
-        if iqconstraints == []:
+        if len(iqconstraints) ==0:
             scaled_constraints = []
         else:
 
@@ -254,7 +254,7 @@ class Nexus(Data):
                 indices.append(ii)
         eqconstraints = np.delete(constraints,indices,axis=0)
     
-        if eqconstraints == []:
+        if len(eqconstraints) == 0:
             scaled_constraints = []
         else:
             constraint_values  = help_fun.get_values(self,eqconstraints,aliases)

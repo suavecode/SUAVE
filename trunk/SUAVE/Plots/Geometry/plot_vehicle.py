@@ -494,7 +494,7 @@ def plot_propeller_geometry(axes,prop,cpt=0,number_of_airfoil_points = 21,
     dim       = len(prop.radius_distribution)
 
     for i in range(num_B):
-        G = get_blade_coordinates(prop,number_of_airfoil_points,dim,i)
+        G = prop.get_blade_coordinates(aircraft_reference_frame=False) #get_blade_coordinates(prop,number_of_airfoil_points,dim,i)
         # ------------------------------------------------------------------------
         # Plot Propeller Blade
         # ------------------------------------------------------------------------
@@ -520,7 +520,7 @@ def plot_propeller_geometry(axes,prop,cpt=0,number_of_airfoil_points = 21,
                 axes.add_collection3d(prop_collection)
     return
 
-def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
+def get_blade_coordinates(prop,n_points,dim,b_idx,aircraftRefFrame=True):
     """ This generates the coordinates of the blade surface for plotting in the aircraft frame (x-back, z-up)
 
     Assumptions:
@@ -533,7 +533,7 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     prop             - SUAVE rotor
     n_points         - number of points around airfoils of each blade section
     dim              - number for radial dimension
-    i                - blade number
+    b_idx            - blade number
     aircraftRefFrame - boolean to convert the coordinates from rotor frame to aircraft frame 
 
     Properties Used:
@@ -551,12 +551,11 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     a_loc        = prop.airfoil_polar_stations
     origin       = prop.origin
     
-    if prop.rotation==1:
-        # negative chord and twist to give opposite rotation direction
-        b = -b    
-        beta = -beta
+    # apply rotation direction to chord and twist distribution
+    b = -prop.rotation * b    
+    beta = -prop.rotation * beta
     
-    theta  = np.linspace(0,2*np.pi,num_B+1)[:-1]
+    theta  = np.linspace(0, 2 * np.pi, num_B + 1)[:-1]
     flip_1 =  (np.pi/2)
     flip_2 =  (np.pi/2)
 
@@ -571,9 +570,9 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
         xpts  = np.zeros((dim,n_points))
         zpts  = np.zeros((dim,n_points))
         max_t = np.zeros(dim)
-        for i,airfoil in enumerate(airfoils):
+        for ii,airfoil in enumerate(airfoils):
             geometry     = import_airfoil_geometry(airfoil.coordinate_file,n_points)
-            locs         = np.where(np.array(a_loc) == i )
+            locs         = np.where(np.array(a_loc) == ii )
             xpts[locs]   = geometry.x_coordinates  
             zpts[locs]   = geometry.y_coordinates  
             max_t[locs]  = geometry.thickness_to_chord 
@@ -587,9 +586,9 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
     # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
     max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_points,axis=1)
 
-    xp      = (- MCA_2d + xpts*b_2d - airfoil_le_offset)     # x-coord of airfoil
-    yp      = r_2d*np.ones_like(xp)                          # radial location
-    zp      = zpts*(t_2d/max_t2d)                            # former airfoil y coord
+    xp      = (- MCA_2d + xpts * b_2d - airfoil_le_offset)     # x-coord of airfoil
+    yp      = r_2d * np.ones_like(xp)                          # radial location
+    zp      = zpts * (t_2d / max_t2d)                            # former airfoil y coord
 
     prop_vel_to_body = prop.prop_vel_to_body()
     cpts             = len(prop_vel_to_body[:,0,0])
@@ -613,8 +612,8 @@ def get_blade_coordinates(prop,n_points,dim,i,aircraftRefFrame=True):
 
     # rotation about x axis to create azimuth locations
     trans_2 = np.array([[1 , 0 , 0],
-                   [0 , np.cos(theta[i] + a_o + flip_2 ), -np.sin(theta[i] +a_o +  flip_2)],
-                   [0,np.sin(theta[i] + a_o + flip_2), np.cos(theta[i] + a_o + flip_2)]])
+                        [0 , np.cos(theta[b_idx] + a_o + flip_2 ), -np.sin(theta[b_idx] +a_o +  flip_2)],
+                        [0,np.sin(theta[b_idx] + a_o + flip_2), np.cos(theta[b_idx] + a_o + flip_2)]])
     trans_2 = np.repeat(trans_2[None,:,:], dim, axis=0)
     trans_2 = np.repeat(trans_2[None,:,:,:], cpts, axis=0)
 

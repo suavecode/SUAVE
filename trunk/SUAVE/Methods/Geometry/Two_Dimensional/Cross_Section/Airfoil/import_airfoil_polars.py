@@ -14,7 +14,7 @@ from SUAVE.Core import Data, Units
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def  import_airfoil_polars(airfoil_polar_files,angel_of_attack_discretization = 89):
+def  import_airfoil_polars(airfoil_polar_files,angle_of_attack_discretization = 89):
     """This imports airfoil polars from a text file output from XFOIL or Airfoiltools.com
     
     Assumptions:
@@ -38,13 +38,15 @@ def  import_airfoil_polars(airfoil_polar_files,angel_of_attack_discretization = 
     
     # create empty data structures 
     airfoil_data = Data() 
-    AoA          = np.zeros((num_polars,angel_of_attack_discretization))
-    CL           = np.zeros((num_polars,angel_of_attack_discretization))
-    CD           = np.zeros((num_polars,angel_of_attack_discretization)) 
+    AoA          = np.zeros((num_polars,angle_of_attack_discretization))
+    CL           = np.zeros((num_polars,angle_of_attack_discretization))
+    CD           = np.zeros((num_polars,angle_of_attack_discretization)) 
+    CM           = np.zeros((num_polars,angle_of_attack_discretization))
     Re           = np.zeros(num_polars)
     Ma           = np.zeros(num_polars)
+    A0           = np.zeros(num_polars)
     
-    AoA_interp = np.linspace(-6,16,angel_of_attack_discretization)  
+    AoA_interp = np.linspace(-6,16,angle_of_attack_discretization)  
     
     for j in range(len(airfoil_polar_files)):   
         # Open file and read column names and data block
@@ -74,22 +76,48 @@ def  import_airfoil_polars(airfoil_polar_files,angel_of_attack_discretization = 
         data_len = len(data_block)
         airfoil_aoa= np.zeros(data_len)
         airfoil_cl = np.zeros(data_len)
-        airfoil_cd = np.zeros(data_len)     
+        airfoil_cd = np.zeros(data_len)    
+        airfoil_cm = np.zeros(data_len)
     
         # Loop through each value: append to each column
         for line_count , line in enumerate(data_block):
-            airfoil_aoa[line_count] = float(data_block[line_count][0:8].strip())
-            airfoil_cl[line_count]  = float(data_block[line_count][10:17].strip())
-            airfoil_cd[line_count]  = float(data_block[line_count][20:27].strip())   
+            airfoil_aoa[line_count] = float(data_block[line_count][0:9].strip())
+            airfoil_cl[line_count]  = float(data_block[line_count][9:18].strip())
+            airfoil_cd[line_count]  = float(data_block[line_count][19:28].strip())   
+            airfoil_cm[line_count] = float(data_block[line_count][38:47].strip())  
       
         AoA[j,:] = AoA_interp
         CL[j,:]  = np.interp(AoA_interp,airfoil_aoa,airfoil_cl)
-        CD[j,:]  = np.interp(AoA_interp,airfoil_aoa,airfoil_cd)  
-    
+        CD[j,:]  = np.interp(AoA_interp,airfoil_aoa,airfoil_cd)
+        CM[j,:]  = np.interp(AoA_interp,airfoil_aoa,airfoil_cm)
+        
+        # Calculate zero lift angle of attack from raw data
+        A0[j] = calculate_zero_lift_angle_of_attack(airfoil_cl, airfoil_aoa)
+        
     airfoil_data.aoa_from_polar               = AoA*Units.degrees
-    airfoil_data.re_from_polar                = Re   
+    airfoil_data.re_from_polar                = Re
+    airfoil_data.cl_from_polar                = airfoil_cl
     airfoil_data.mach_number                  = Ma
     airfoil_data.lift_coefficients            = CL
-    airfoil_data.drag_coefficients            = CD      
+    airfoil_data.drag_coefficients            = CD  
+    airfoil_data.pitching_moment_coefficients = CM
+    airfoil_data.zero_lift_angle_of_attack    = A0
      
     return airfoil_data 
+
+
+def calculate_zero_lift_angle_of_attack(airfoil_cl, airfoil_aoa):
+    # computing approximate zero lift aoa
+    airfoil_cl_plus      = airfoil_cl[airfoil_cl>0]
+    idx_zero_lift        = np.where(airfoil_cl == min(airfoil_cl_plus))[0][0]
+    airfoil_cl_crossing  = airfoil_cl[idx_zero_lift-1:idx_zero_lift+1]
+    airfoil_aoa_crossing = airfoil_aoa[idx_zero_lift-1:idx_zero_lift+1]
+    try:
+        A0  = np.interp(0,airfoil_cl_crossing, airfoil_aoa_crossing)* Units.deg 
+    except:
+        A0 = airfoil_aoa[idx_zero_lift] * Units.deg 
+    
+    # limit for unrealistic zero-lift alpha; positive camber --> negative A0
+    A0 = np.min([A0, 0.0])
+        
+    return A0

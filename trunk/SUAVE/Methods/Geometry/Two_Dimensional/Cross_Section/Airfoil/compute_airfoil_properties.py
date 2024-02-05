@@ -96,12 +96,16 @@ def compute_airfoil_properties(airfoil_geometry, airfoil_polar_files = None,use_
         Airfoil_Data.drag_coefficients             = airfoil_file_data.drag_coefficients 
         
     # Get all of the coefficients for AERODAS wings
-    AoA_sweep_deg         = np.linspace(-14,90,105)
+    neg_post_stall_region = np.linspace(-180, -45, 16) # course post-stall refinement
+    pos_post_stall_region = np.linspace(45, 180, 16) # course post-stall refinement
+    mid_region = np.linspace(-45,45,25)
+    AoA_sweep_deg         = np.append(neg_post_stall_region, np.append(mid_region, pos_post_stall_region))#np.linspace(-180,180,361)
     AoA_sweep_rad         = AoA_sweep_deg*Units.degrees    
     
     # Create an infinite aspect ratio wing
     geometry              = SUAVE.Components.Wings.Wing()
     geometry.aspect_ratio = np.inf
+    geometry.thickness_to_chord = airfoil_geometry.thickness_to_chord
     geometry.section      = Data()  
     
     # AERODAS   
@@ -180,9 +184,11 @@ def compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geom
     S1                      = (cl_range[1]-cl_range[0])/(aoa_range[1]-aoa_range[0])
 
     # max drag coefficent and associated aoa
-    CD1max                  = np.max(airfoil_cd) 
-    idx_aoa_max_prestall_cd = np.where(airfoil_cd == CD1max)[0][0]
-    ACD1                    = airfoil_aoa[idx_aoa_max_prestall_cd] * Units.degrees     
+    CD1maxp                  = np.max(airfoil_cd) 
+    idx_aoa_max_prestall_cd = np.where(airfoil_cd == CD1maxp)[0][0]
+    ACD1p                    = airfoil_aoa[idx_aoa_max_prestall_cd] * Units.degrees     
+    ACD1   = ACD1p + 18.2 * CL1max * (geometry.aspect_ratio**(-0.9))
+    CD1max = CD1maxp + 0.28 * (CL1max**2) * geometry.aspect_ratio**(-0.9)
     
     # Find the point of lowest drag and the CD
     idx_CD_min              = np.where(airfoil_cd==min(airfoil_cd))[0][0]
@@ -196,7 +202,7 @@ def compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geom
     geometry.section.angle_attack_max_prestall_lift           = ACL1 * ones 
     geometry.pre_stall_maximum_drag_coefficient_angle         = ACD1 * ones 
     geometry.pre_stall_maximum_lift_coefficient               = CL1max * ones 
-    geometry.pre_stall_maximum_lift_drag_coefficient          = CD1max * ones 
+    geometry.pre_stall_maximum_drag_coefficient               = CD1max * ones 
     geometry.section.minimum_drag_coefficient                 = CDmin * ones 
     geometry.section.minimum_drag_coefficient_angle_of_attack = ACDmin
     geometry.pre_stall_lift_curve_slope                       = S1
@@ -209,7 +215,7 @@ def compute_extended_polars(airfoil_cl,airfoil_cd,airfoil_aoa,AoA_sweep_deg,geom
     
     # Take the maxes
     CL_ij = np.fmax(CL1,CL2)
-    CL_ij[AoA_sweep_radians<=A0] = np.fmin(CL1[AoA_sweep_radians<=A0],CL2[AoA_sweep_radians<=A0])
+    CL_ij[AoA_sweep_radians<=A0] = np.fmin(CL1[AoA_sweep_radians<=A0], CL2[AoA_sweep_radians<=A0])
     
     CD_ij = np.fmax(CD1,CD2)
     
@@ -258,8 +264,8 @@ def apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL,
     CD[aoa_locs] = airfoil_cd[abs(aoa_in_data[:,None] - airfoil_aoa[None,:]).argmin(axis=-1)]
     
     # remove kinks/overlap between pre- and post-stall                
-    data_lb       = np.where(CD == airfoil_cd[0])[0][0]
-    data_ub       = np.where(CD == airfoil_cd[-1])[0][-1]
+    data_lb       = np.where(CD == CD[np.argmin(CD - airfoil_cd[0])])[0][0] # np.where(CD == airfoil_cd[0])[0][0]
+    data_ub       = np.where(CD == CD[np.argmin(CD - airfoil_cd[-1])])[0][-1] #np.where(CD == airfoil_cd[-1])[0][-1]
     CD[0:data_lb] = np.maximum(CD[0:data_lb], CD[data_lb]*np.ones_like(CD[0:data_lb]))
     CD[data_ub:]  = np.maximum(CD[data_ub:],  CD[data_ub]*np.ones_like(CD[data_ub:])) 
     

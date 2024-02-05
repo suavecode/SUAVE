@@ -40,9 +40,9 @@ def extract_wing_collocation_points(geometry, wing_instance_idx):
     N/A
     """
     # unpack vortex distribution properties
-    try:
+    if bool(geometry.vortex_distribution):
         VD           = geometry.vortex_distribution
-    except:
+    else:
         print("No vortex distribution defined. Creating default vortex distribution from vehicle.")
         settings = Vortex_Lattice().settings
         VD = generate_vortex_distribution(geometry,settings)        

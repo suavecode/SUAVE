@@ -14,8 +14,7 @@ import SUAVE
 from SUAVE.Core import Data
 
 import matplotlib.pyplot as plt
-import numpy as np
-
+import time
 # ------------------------------------------------------------------------------
 #   Propeller Single Point
 # ------------------------------------------------------------------------------
@@ -23,6 +22,7 @@ import numpy as np
 ## @ingroup Methods-Performance
 def propeller_single_point(prop,
                            pitch,
+                           tilt,
                            omega,
                            altitude,
                            delta_isa,
@@ -90,41 +90,13 @@ def propeller_single_point(prop,
         analyses.append(atmosphere)           
         
     # Unpack Inputs
-    prop.inputs.pitch_command   = pitch
-
-    atmo_data           = analyses.atmosphere.compute_values(altitude, delta_isa)
-    T                   = atmo_data.temperature
-    a                   = atmo_data.speed_of_sound
-    density             = atmo_data.density
-    dynamic_viscosity   = atmo_data.dynamic_viscosity
-
-    # Setup Pseudo-Mission for Prop Evaluation
-    ctrl_pts = 1
-    prop.inputs.omega                               = np.ones((ctrl_pts, 1)) * omega
-    conditions                                      = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
-    conditions.freestream                           = Data()
-    conditions.propulsion                           = Data()
-    conditions.noise                                = Data()
-    conditions.noise.sources                        = Data()
-    conditions.noise.sources.propellers             = Data()
-    conditions.frames                               = Data()
-    conditions.frames.inertial                      = Data()
-    conditions.frames.body                          = Data()    
-    conditions.freestream.density                   = np.ones((ctrl_pts, 1)) * density
-    conditions.freestream.dynamic_viscosity         = np.ones((ctrl_pts, 1)) * dynamic_viscosity
-    conditions.freestream.speed_of_sound            = np.ones((ctrl_pts, 1)) * a
-    conditions.freestream.temperature               = np.ones((ctrl_pts, 1)) * T
-    conditions.freestream.mach_number               = speed / a
-    conditions.freestream.velocity                  = speed
-    velocity_vector                                 = np.array([[speed, 0., 0.]])
+    ctrl_pts = len(omega)
     
-    conditions.propulsion.throttle                  = np.ones((ctrl_pts, 1)) * 1.
-    conditions.frames.inertial.velocity_vector      = np.tile(velocity_vector, (ctrl_pts, 1))
-    conditions.frames.body.transform_to_inertial    = np.array([[[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]])
+    conditions = prop.set_conditions_single_point(pitch, tilt, omega, speed, ctrl_pts, altitude, delta_isa)
 
-    # Run Propeller BEVW
+    # Initialize and Run Propeller BEVW
     F, Q, P, Cp, outputs, etap = prop.spin(conditions)
-        
+    
     va_ind_BEVW         = outputs.disc_axial_induced_velocity[0, :, 0]
     vt_ind_BEVW         = outputs.disc_tangential_induced_velocity[0, :, 0]
     r_BEVW              = outputs.disc_radial_distribution[0, :, 0]

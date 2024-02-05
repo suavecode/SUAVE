@@ -10,7 +10,7 @@ import numpy as np
 
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_naca_4series(airfoil_geometry_file,npoints= 200, leading_and_trailing_edge_resolution_factor = 1.5 ):
+def compute_naca_4series(airfoil_name,npoints= 200, leading_and_trailing_edge_resolution_factor = 1.5 ):
     """Computes the points of NACA 4-series airfoil
 
     Assumptions:
@@ -40,7 +40,7 @@ def compute_naca_4series(airfoil_geometry_file,npoints= 200, leading_and_trailin
     """         
     geometry        = Data()
     half_npoints    = npoints/2                                    # number of points per side    
-    airfoil_digits  = [int(x) for x in airfoil_geometry_file]
+    airfoil_digits  = [int(x) for x in airfoil_name]
     camber          = airfoil_digits[0]/100                        # maximum camber as a fraction of chord
     camber_loc      = airfoil_digits[1]/10                         # maximum camber location as a fraction of chord
     thickness       = airfoil_digits[2]/10 + airfoil_digits[3]/100 # maximum thickness as a fraction of chord  
