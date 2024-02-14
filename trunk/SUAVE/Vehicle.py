@@ -69,6 +69,7 @@ class Vehicle(Data):
         self.reference_area         = 0.0
         self.passengers             = 0.0
         self.performance            = DataOrdered()
+        self.vortex_distribution    = None
 
     _component_root_map = None
 
