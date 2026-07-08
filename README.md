@@ -58,6 +58,8 @@ python setup.py install
 
 More information available at [download](http://suave.stanford.edu/download.html).
 
+For a containerized student setup, see `doc/student_environment.md`.
+
 
 Requirements
 ------------
