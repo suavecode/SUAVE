@@ -47,7 +47,8 @@ def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=Tr
     1. VSP 10-digit geom ID for fuselage.
     2. Units_type set to 'SI' (default) or 'Imperial'.
     3. Boolean for whether or not to compute fuselage finenesses (default = True).
-    4. Boolean for whether or not to use the scaling from OpenVSP (default = True).
+    4. use_scaling is retained for compatibility. OpenVSP already returns
+       fuselage dimensions at their saved scale.
 
     Outputs:
 
@@ -99,12 +100,6 @@ def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=Tr
     else: 
         fuselage.tag = 'FuselageGeom' + '_' + str(fux_idx+1)	
         
-    if use_scaling:
-        scaling       = vsp.GetParmVal(fuselage_id, 'Scale', 'XForm')  
-    else:
-        scaling       = 1.
-    units_factor      = units_factor*scaling
-
     fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Location', 'XForm') * units_factor
     fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Location', 'XForm') * units_factor*sym_flag
     fuselage.origin[0][2] = vsp.GetParmVal(fuselage_id, 'Z_Location', 'XForm') * units_factor
@@ -150,7 +145,7 @@ def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=Tr
             next_xsec = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii+1)
             X_Loc_P_p = vsp.GetXSecParm(next_xsec, 'XLocPercent')
             percent_x_loc_p1 = vsp.GetParmVal(X_Loc_P_p) 
-            segment.length = fuselage.lengths.total*(percent_x_loc_p1 - segment.percent_x_location) * units_factor
+            segment.length = fuselage.lengths.total * (percent_x_loc_p1 - segment.percent_x_location)
         else:
             segment.length = 0.0
         lengths.append(segment.length)
@@ -171,10 +166,11 @@ def read_vsp_fuselage(fuselage_id,fux_idx,sym_flag, units_type='SI', fineness=Tr
 
     fuselage.areas.front_projected  = np.pi*((fuselage.effective_diameter)/2)**2
 
-    eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])		# Compute gradients of segment effective diameters.
-    eff_diam_gradients_fwd = np.multiply(eff_diam_gradients_fwd, lengths[:-1])
+    if fineness:
+        eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])		# Compute gradients of segment effective diameters.
+        eff_diam_gradients_fwd = np.multiply(eff_diam_gradients_fwd, lengths[:-1])
 
-    fuselage = compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fwd)	
+        fuselage = compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fwd)
 
     return fuselage
 
