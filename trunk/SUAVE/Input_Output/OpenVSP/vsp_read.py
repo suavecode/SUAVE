@@ -63,7 +63,8 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
     1. A tag for an XML file in format .vsp3.
     2. Units_type set to 'SI' (default) or 'Imperial'
     3. User-specified network
-    4. Boolean for whether or not to use the scaling from OpenVSP (default = True).
+    4. use_scaling is retained for compatibility. OpenVSP already returns
+       wing and fuselage dimensions at their saved scale.
 
     Outputs:
     Writes SUAVE vehicle with these geometries from VSP:    (All values default to SI. Any other 2nd argument outputs Imperial.)
@@ -207,7 +208,8 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
             num_fus  = 1 
             sym_flag = [1] 
         for fux_idx in range(num_fus):	# loop through fuselages on aircraft 
-            fuselage = read_vsp_fuselage(fuselage_id,fux_idx,sym_flag[fux_idx],units_type,use_scaling)
+            fuselage = read_vsp_fuselage(fuselage_id, fux_idx, sym_flag[fux_idx],
+                                        units_type=units_type, use_scaling=use_scaling)
             
             if calculate_wetted_area:
                 fuselage.areas.wetted = measurements[vsp.GetGeomName(fuselage_id)] * (units_factor**2)
@@ -218,7 +220,7 @@ def vsp_read(tag, units_type='SI',specified_network=None,use_scaling=True,calcul
     # Read Wings 
     # --------------------------------------------------			
     for wing_id in vsp_wings:
-        wing = read_vsp_wing(wing_id, units_type,use_scaling)
+        wing = read_vsp_wing(wing_id, units_type=units_type, use_scaling=use_scaling)
         if calculate_wetted_area:
             wing.areas.wetted = measurements[vsp.GetGeomName(wing_id)] * (units_factor**2)  
         vehicle.append_component(wing)		 

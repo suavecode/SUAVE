@@ -103,6 +103,7 @@ modules = [
     'scripts/SU2_surrogate/BWB-450.py',
     'scripts/sweeps/test_sweeps.py',
     'scripts/test_input_output/test_xml_read_write.py',
+    'scripts/test_input_output/test_openvsp_import_scaling.py',
     'scripts/test_input_output/test_freemind_write.py',
     'scripts/turboelectric_HTS_ducted_fan_network/turboelectric_HTS_ducted_fan_network.py',
     'scripts/turboelectric_HTS_dynamo_ducted_fan_network/turboelectric_HTS_dynamo_ducted_fan_network.py',

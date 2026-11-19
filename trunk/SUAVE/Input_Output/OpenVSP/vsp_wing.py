@@ -50,7 +50,8 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
     1. VSP 10-digit geom ID for wing.
     2. units_type set to 'SI' (default) or 'Imperial'.
     3. Boolean for whether or not to write an airfoil file(default = True).
-    4. Boolean for whether or not to use the scaling from OpenVSP (default = True).
+    4. use_scaling is retained for compatibility. OpenVSP already returns
+       wing dimensions at their saved scale.
 
     Outputs:
     Writes SUAVE wing object, with these geometries, from VSP:
@@ -114,12 +115,6 @@ def read_vsp_wing(wing_id, units_type='SI', write_airfoil_file=True, use_scaling
         wing.tag = tag
     else:
         wing.tag = 'winggeom'
-
-    if use_scaling:
-        scaling       = vsp.GetParmVal(wing_id, 'Scale', 'XForm')
-    else:
-        scaling       = 1.
-    units_factor      = units_factor*scaling
 
     # Top level wing parameters
     # Wing origin
